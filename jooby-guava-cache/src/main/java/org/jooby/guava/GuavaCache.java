@@ -222,9 +222,10 @@ public abstract class GuavaCache<K, V> implements Jooby.Module {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    Config gconf = conf.hasPath(name)
-        ? conf
-        : ConfigFactory.empty().withValue("guava.cache", ConfigValueFactory.fromAnyRef(""));
+    Config gconf = conf.hasPath(name) ? conf : ConfigFactory.empty();
+
+    gconf = gconf.withFallback(
+        ConfigFactory.empty().withValue("guava.cache", ConfigValueFactory.fromAnyRef("")));
 
     gconf.getObject(name).unwrapped().forEach((name, spec) -> {
       CacheBuilder<K, V> cb = (CacheBuilder<K, V>) CacheBuilder.from(toSpec(spec));

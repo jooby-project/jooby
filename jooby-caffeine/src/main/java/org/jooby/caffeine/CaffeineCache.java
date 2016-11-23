@@ -242,9 +242,10 @@ public abstract class CaffeineCache<K, V> implements Jooby.Module {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    Config gconf = conf.hasPath(name)
-        ? conf
-        : ConfigFactory.empty().withValue("caffeine.cache", ConfigValueFactory.fromAnyRef(""));
+    Config gconf = conf.hasPath(name) ? conf : ConfigFactory.empty();
+
+    gconf = gconf.withFallback(
+        ConfigFactory.empty().withValue("caffeine.cache", ConfigValueFactory.fromAnyRef("")));
 
     gconf.getObject(name).unwrapped().forEach((name, spec) -> {
       Caffeine<K, V> cb = (Caffeine<K, V>) Caffeine.from(toSpec(spec));
