@@ -18,7 +18,6 @@
  */
 package org.jooby;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Arrays;
@@ -38,11 +37,11 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import javaslang.API;
 import javaslang.control.Option;
@@ -69,6 +68,130 @@ import javaslang.control.Try.CheckedConsumer;
  * @since 0.1.0
  */
 public interface Env extends LifeCycle {
+
+  /**
+   * Template literal implementation, replaces <code>${expression}</code> from a String using a
+   * {@link Config} object.
+   *
+   * @author edgar
+   */
+  class Resolver {
+    private String startDelim = "${";
+
+    private String endDelim = "}";
+
+    private Config source;
+
+    private boolean ignoreMissing;
+
+    /**
+     * Set property source.
+     *
+     * @param source Source.
+     * @return This resolver.
+     */
+    public Resolver source(final Map<String, Object> source) {
+      this.source = ConfigFactory.parseMap(source);
+      return this;
+    }
+
+    /**
+     * Set property source.
+     *
+     * @param source Source.
+     * @return This resolver.
+     */
+    public Resolver source(final Config source) {
+      this.source = source;
+      return this;
+    }
+
+    /**
+     * Set start and end delimiters.
+     *
+     * @param start Start delimiter.
+     * @param end End delimiter.
+     * @return This resolver.
+     */
+    public Resolver delimiters(final String start, final String end) {
+      this.startDelim = requireNonNull(start, "Start delimiter required.");
+      this.endDelim = requireNonNull(end, "End delmiter required.");
+      return this;
+    }
+
+    /**
+     * Ignore missing property replacement and leave the expression untouch.
+     *
+     * @return This resolver.
+     */
+    public Resolver ignoreMissing() {
+      this.ignoreMissing = true;
+      return this;
+    }
+
+    /**
+     * Returns a string with all substitutions (the <code>${foo.bar}</code> syntax,
+     * see <a href="https://github.com/typesafehub/config/blob/master/HOCON.md">the
+     * spec</a>) resolved. Substitutions are looked up using the <code>source</code> param as the
+     * root object, that is, a substitution <code>${foo.bar}</code> will be replaced with
+     * the result of <code>getValue("foo.bar")</code>.
+     *
+     * @param text Text to process.
+     * @param source The source config to use
+     * @param startDelimiter Start delimiter.
+     * @param endDelimiter End delimiter.
+     * @return A processed string.
+     */
+    public String resolve(final String text) {
+      requireNonNull(text, "Text is required.");
+      if (text.length() == 0) {
+        return "";
+      }
+
+      BiFunction<Integer, BiFunction<Integer, Integer, RuntimeException>, RuntimeException> err = (
+          start, ex) -> {
+        String snapshot = text.substring(0, start);
+        int line = Splitter.on('\n').splitToList(snapshot).size();
+        int column = start - snapshot.lastIndexOf('\n');
+        return ex.apply(line, column);
+      };
+
+      StringBuilder buffer = new StringBuilder();
+      int offset = 0;
+      int start = text.indexOf(startDelim);
+      while (start >= 0) {
+        int end = text.indexOf(endDelim, start + startDelim.length());
+        if (end == -1) {
+          throw err.apply(start, (line, column) -> new IllegalArgumentException(
+              "found '" + startDelim + "' expecting '" + endDelim + "' at " + line + ":"
+                  + column));
+        }
+        buffer.append(text.substring(offset, start));
+        String key = text.substring(start + startDelim.length(), end);
+        Object value;
+        if (source.hasPath(key)) {
+          value = source.getAnyRef(key);
+        } else {
+          if (ignoreMissing) {
+            value = text.substring(start, end + endDelim.length());
+          } else {
+            throw err.apply(start, (line, column) -> new NoSuchElementException(
+                "No configuration setting found for key '" + key + "' at " + line + ":" + column));
+          }
+        }
+        buffer.append(value);
+        offset = end + endDelim.length();
+        start = text.indexOf(startDelim, offset);
+      }
+      if (buffer.length() == 0) {
+        return text;
+      }
+      if (offset < text.length()) {
+        buffer.append(text.substring(offset));
+      }
+      return buffer.toString();
+    }
+  }
 
   /**
    * Utility class for generating {@link Key} for named services.
@@ -258,99 +381,17 @@ public interface Env extends LifeCycle {
    * @return A processed string.
    */
   default String resolve(final String text) {
-    return resolve(text, config());
+    return resolver().resolve(text);
   }
 
   /**
-   * Returns a string with all substitutions (the <code>${foo.bar}</code> syntax,
-   * see <a href="https://github.com/typesafehub/config/blob/master/HOCON.md">the
-   * spec</a>) resolved. Substitutions are looked up using the {@link #config()} as the root object,
-   * that is, a substitution <code>${foo.bar}</code> will be replaced with
-   * the result of <code>getValue("foo.bar")</code>.
+   * Creates a new environment {@link Resolver}.
    *
-   * @param text Text to process.
-   * @param startDelimiter Start delimiter.
-   * @param endDelimiter End delimiter.
-   * @return A processed string.
+   * @return
    */
-  default String resolve(final String text, final String startDelimiter,
-      final String endDelimiter) {
-    return resolve(text, config(), startDelimiter, endDelimiter);
-  }
-
-  /**
-   * Returns a string with all substitutions (the <code>${foo.bar}</code> syntax,
-   * see <a href="https://github.com/typesafehub/config/blob/master/HOCON.md">the
-   * spec</a>) resolved. Substitutions are looked up using the <code>source</code> param as the
-   * root object, that is, a substitution <code>${foo.bar}</code> will be replaced with
-   * the result of <code>getValue("foo.bar")</code>.
-   *
-   * @param text Text to process.
-   * @param source The source config to use.
-   * @return A processed string.
-   */
-  default String resolve(final String text, final Config source) {
-    return resolve(text, source, "${", "}");
-  }
-
-  /**
-   * Returns a string with all substitutions (the <code>${foo.bar}</code> syntax,
-   * see <a href="https://github.com/typesafehub/config/blob/master/HOCON.md">the
-   * spec</a>) resolved. Substitutions are looked up using the <code>source</code> param as the
-   * root object, that is, a substitution <code>${foo.bar}</code> will be replaced with
-   * the result of <code>getValue("foo.bar")</code>.
-   *
-   * @param text Text to process.
-   * @param source The source config to use
-   * @param startDelimiter Start delimiter.
-   * @param endDelimiter End delimiter.
-   * @return A processed string.
-   */
-  default String resolve(final String text, final Config source,
-      final String startDelimiter, final String endDelimiter) {
-    requireNonNull(text, "Text is required.");
-    requireNonNull(source, "Config source is required.");
-    checkArgument(!Strings.isNullOrEmpty(startDelimiter), "Start delimiter is required.");
-    checkArgument(!Strings.isNullOrEmpty(endDelimiter), "End delimiter is required.");
-    if (text.length() == 0) {
-      return "";
-    }
-
-    BiFunction<Integer, BiFunction<Integer, Integer, RuntimeException>, RuntimeException> err = (
-        start, ex) -> {
-      String snapshot = text.substring(0, start);
-      int line = Splitter.on('\n').splitToList(snapshot).size();
-      int column = start - snapshot.lastIndexOf('\n');
-      return ex.apply(line, column);
-    };
-
-    StringBuilder buffer = new StringBuilder();
-    int offset = 0;
-    int start = text.indexOf(startDelimiter);
-    while (start >= 0) {
-      int end = text.indexOf(endDelimiter, start + startDelimiter.length());
-      if (end == -1) {
-        throw err.apply(start, (line, column) -> new IllegalArgumentException(
-            "found '" + startDelimiter + "' expecting '" + endDelimiter + "' at " + line + ":"
-                + column));
-      }
-      buffer.append(text.substring(offset, start));
-      String key = text.substring(start + startDelimiter.length(), end);
-      if (!source.hasPath(key)) {
-        throw err.apply(start, (line, column) -> new NoSuchElementException(
-            "No configuration setting found for key '" + key + "' at " + line + ":" + column));
-      }
-      buffer.append(source.getAnyRef(key));
-      offset = end + endDelimiter.length();
-      start = text.indexOf(startDelimiter, offset);
-    }
-    if (buffer.length() == 0) {
-      return text;
-    }
-    if (offset < text.length()) {
-      buffer.append(text.substring(offset));
-    }
-    return buffer.toString();
+  default Resolver resolver() {
+    return new Resolver()
+        .source(config());
   }
 
   /**

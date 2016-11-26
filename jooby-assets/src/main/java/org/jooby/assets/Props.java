@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jooby.Env;
+import org.jooby.Env.Resolver;
 import org.jooby.MediaType;
 
 import com.typesafe.config.Config;
@@ -62,8 +63,10 @@ import com.typesafe.config.Config;
  *     dev: [props]
  *     dist: [props]
  *   }
+ *
  *   props {
  *     delims: [{{, }}]
+ *     ignoreMissing: true
  *   }
  * }
  * </pre>
@@ -77,6 +80,7 @@ public class Props extends AssetProcessor {
 
   {
     set("delims", Arrays.asList("${", "}"));
+    set("ignoreMissing", false);
   }
 
   @Override
@@ -90,7 +94,13 @@ public class Props extends AssetProcessor {
     try {
       Env env = Env.DEFAULT.build(conf);
       List<String> delims = get("delims");
-      return env.resolve(source, delims.get(0), delims.get(1));
+      Resolver resolver = env.resolver();
+      boolean ignoreMissing = get("ignoreMissing");
+      if (ignoreMissing) {
+        resolver.ignoreMissing();
+      }
+      resolver.delimiters(delims.get(0), delims.get(1));
+      return resolver.resolve(source);
     } catch (Exception cause) {
       int line = -1;
       int column = -1;

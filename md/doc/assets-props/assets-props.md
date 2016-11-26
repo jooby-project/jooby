@@ -40,13 +40,28 @@ prints:
 
 ## options
 
-It replaces `${}` expressions, the `delims` options allow you to change this:
+### delims
+
+The `delims` options allow you to change the default delimiters `${ }`:
 
 ```
 assets {
  ...
  props {
    delims: [<%, %>]
+ }
+}
+```
+
+### ignoreMissing
+
+Unresolved properties results in `NoSuchElement` exception. Setting `ignoreMissing` skip missing properties:
+
+```
+assets {
+ ...
+ props {
+   ignoreMissing: true
  }
 }
 ```

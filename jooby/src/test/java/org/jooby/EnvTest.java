@@ -13,6 +13,7 @@ import java.util.function.Function;
 
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -47,8 +48,8 @@ public class EnvTest {
     Env env = Env.DEFAULT.build(ConfigFactory.empty()
         .withValue("var", ConfigValueFactory.fromAnyRef("foo.bar")));
 
-    assertEquals("foo.bar", env.resolve("{{var}}", "{{", "}}"));
-    assertEquals("foo.bar", env.resolve("<%var%>", "<%", "%>"));
+    assertEquals("foo.bar", env.resolver().delimiters("{{", "}}").resolve("{{var}}"));
+    assertEquals("foo.bar", env.resolver().delimiters("<%", "%>").resolve("<%var%>"));
   }
 
   @Test
@@ -76,6 +77,25 @@ public class EnvTest {
 
     Env env = Env.DEFAULT.build(config);
     assertEquals("foo.bar - foo.bar", env.resolve("${var} - ${var}"));
+  }
+
+  @Test
+  public void resolveMap() {
+    Config config = ConfigFactory.empty();
+
+    Env env = Env.DEFAULT.build(config);
+    assertEquals("foo.bar - foo.bar", env.resolver().source(ImmutableMap.of("var", "foo.bar"))
+        .resolve("${var} - ${var}"));
+  }
+
+  @Test
+  public void resolveIgnoreMissing() {
+    Config config = ConfigFactory.empty();
+
+    Env env = Env.DEFAULT.build(config);
+    assertEquals("${var} - ${var}", env.resolver().ignoreMissing().resolve("${var} - ${var}"));
+
+    assertEquals(" - ${foo.var} -", env.resolver().ignoreMissing().resolve(" - ${foo.var} -"));
   }
 
   @Test
@@ -154,18 +174,6 @@ public class EnvTest {
   public void nullText() {
     Env env = Env.DEFAULT.build(ConfigFactory.empty());
     env.resolve(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void emptyStartDelim() {
-    Env env = Env.DEFAULT.build(ConfigFactory.empty());
-    env.resolve("{{var}}", "", "}");
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void emptyEndDelim() {
-    Env env = Env.DEFAULT.build(ConfigFactory.empty());
-    env.resolve("{{var}}", "${", "");
   }
 
   @Test

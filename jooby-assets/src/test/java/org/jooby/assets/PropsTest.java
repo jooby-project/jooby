@@ -38,12 +38,21 @@ public class PropsTest {
   }
 
   @Test
+  public void ignoreMissingProps() throws Exception {
+    assertEquals("$.ajax(${app.url});",
+        new Props()
+            .set("ignoreMissing", true)
+            .process("/j.s", "$.ajax(${app.url});", ConfigFactory.empty()));
+  }
+
+  @Test
   public void missingProp() throws Exception {
     try {
       new Props().process("/j.s", "$.ajax(${cpath}/service);", ConfigFactory.empty());
       fail();
     } catch (AssetException ex) {
-      assertEquals("\t/j.s:1:8: No configuration setting found for key 'cpath' at 1:8", ex.getMessage());
+      assertEquals("\t/j.s:1:8: No configuration setting found for key 'cpath' at 1:8",
+          ex.getMessage());
       assertEquals("No configuration setting found for key 'cpath' at 1:8", ex.get());
     }
 
@@ -51,7 +60,8 @@ public class PropsTest {
       new Props().process("/j.s", "$.ajax(\n\n   ${cpath}/service);", ConfigFactory.empty());
       fail();
     } catch (AssetException ex) {
-      assertEquals("\t/j.s:3:4: No configuration setting found for key 'cpath' at 3:4", ex.getMessage());
+      assertEquals("\t/j.s:3:4: No configuration setting found for key 'cpath' at 3:4",
+          ex.getMessage());
       assertEquals("No configuration setting found for key 'cpath' at 3:4", ex.get());
     }
   }
