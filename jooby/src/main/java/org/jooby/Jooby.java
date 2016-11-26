@@ -693,6 +693,8 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   private transient boolean defaultExecSet;
 
+  private boolean throwBootstrapException;
+
   /**
    * Creates a new {@link Jooby} application.
    */
@@ -1920,7 +1922,13 @@ public class Jooby implements Router, LifeCycle, Registry {
     try {
       start(args, null);
     } catch (Throwable x) {
-      stop(Optional.of(x));
+      stop();
+      String msg = "An error occurred while starting the application:";
+      if (throwBootstrapException) {
+        throw new Err(Status.SERVICE_UNAVAILABLE, msg, x);
+      } else {
+        logger(this).error(msg, x);
+      }
     }
   }
 
@@ -2374,6 +2382,36 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
+   * If the application fails to start all the services are shutdown. Also, the exception is logged
+   * and usually the application is going to exit.
+   *
+   * This options turn off logging and rethrow the exception as {@link Err}. Here is an example:
+   *
+   * <pre>
+   * public class App extends Jooby {
+   *   {
+   *     throwBootstrapException();
+   *     ...
+   *   }
+   * }
+   *
+   * App app = new App();
+   *
+   * try {
+   *   app.start();
+   * } catch (Err err) {
+   *   Throwable cause = err.getCause();
+   * }
+   * </pre>
+   *
+   * @return
+   */
+  public Jooby throwBootstrapException() {
+    this.throwBootstrapException = true;
+    return this;
+  }
+
+  /**
    * Run app in javascript.
    *
    * @param jsargs Arguments, first arg must be the name of the javascript file.
@@ -2783,13 +2821,6 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * Stop the application, close all the modules and stop the web server.
-   */
-  public void stop() {
-    stop(Optional.empty());
-  }
-
-  /**
    * Test if the application is up and running.
    *
    * @return True if the application is up and running.
@@ -2798,12 +2829,14 @@ public class Jooby implements Router, LifeCycle, Registry {
     return started.get();
   }
 
-  private void stop(final Optional<Throwable> x) {
+  /**
+   * Stop the application, close all the modules and stop the web server.
+   */
+  public void stop() {
     if (started.compareAndSet(true, false)) {
       Logger log = logger(this);
 
-      x.ifPresent(c -> log.error("An error occurred while starting the application:", c));
-      fireStop(injector, this, log, onStop);
+      fireStop(this, log, onStop);
       if (injector != null) {
         try {
           injector.getInstance(Server.class).stop();
@@ -2817,7 +2850,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     }
   }
 
-  private static void fireStop(final Injector injector, final Jooby app, final Logger log,
+  private static void fireStop(final Jooby app, final Logger log,
       final List<CheckedConsumer<Registry>> onStop) {
     // stop services
     onStop.forEach(c -> Try.run(() -> c.accept(app))
