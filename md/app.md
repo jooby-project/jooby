@@ -36,8 +36,13 @@ Start/stop callbacks are accessible via application:
    onStart(() -> {
      log.info("starting app");
    });
+
    onStop(() -> {
      log.info("stopping app");
+   });
+
+   onStarted(() -> {
+     log.info("app started");
    });
 }
 ```
@@ -52,13 +57,20 @@ public class MyModule implements Jooby.Module {
     env.onStart(() -> {
       log.info("starting module");
     });
+
     env.onStop(() -> {
       log.info("stopping module");
+    });
+
+    env.onStarted(() -> {
+      log.info("app started");
     });
   }
 
 }
 ```
+
+The `onStart` callbacks are part of bootstrap and executed before server is ready. The `onStarted` callbacks are executed when server is ready.
 
 Modules are covered later all you need to know now is that you can start/stop module as you usually do from your application. 
 

@@ -261,6 +261,20 @@ public interface LifeCycle {
   LifeCycle onStart(CheckedConsumer<Registry> task);
 
   /**
+   * Add a started lifecycle event. Started callbacks are executed when the application is ready:
+   * modules and servers has been started.
+   *
+   * You should ONLY call this method while the application is been initialized or while
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
+   *
+   * The behavior of this method once application has been initialized is <code>undefined</code>.
+   *
+   * @param task Task to run.
+   * @return This env.
+   */
+  LifeCycle onStarted(CheckedConsumer<Registry> task);
+
+  /**
    * Add a start lifecycle event, useful for initialize and/or start services at startup time.
    *
    * You should ONLY call this method while the application is been initialized or from
@@ -273,6 +287,22 @@ public interface LifeCycle {
    */
   default LifeCycle onStart(final CheckedRunnable task) {
     return onStart(app -> task.run());
+  }
+
+  /**
+   * Add a started lifecycle event. Started callbacks are executed when the application is ready:
+   * modules and servers has been started.
+   *
+   * You should ONLY call this method while the application is been initialized or while
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
+   *
+   * The behavior of this method once application has been initialized is <code>undefined</code>.
+   *
+   * @param task Task to run.
+   * @return This env.
+   */
+  default LifeCycle onStarted(final CheckedRunnable task) {
+    return onStarted(app -> task.run());
   }
 
   /**

@@ -45,6 +45,7 @@ import com.typesafe.config.ConfigFactory;
 
 import javaslang.API;
 import javaslang.control.Option;
+import javaslang.control.Try;
 import javaslang.control.Try.CheckedConsumer;
 
 /**
@@ -265,6 +266,8 @@ public interface Env extends LifeCycle {
 
       private ImmutableList.Builder<CheckedConsumer<Registry>> start = ImmutableList.builder();
 
+      private ImmutableList.Builder<CheckedConsumer<Registry>> started = ImmutableList.builder();
+
       private ImmutableList.Builder<CheckedConsumer<Registry>> shutdown = ImmutableList.builder();
 
       private Map<String, Function<String, String>> xss = new HashMap<>();
@@ -322,8 +325,19 @@ public interface Env extends LifeCycle {
       }
 
       @Override
+      public LifeCycle onStarted(CheckedConsumer<Registry> task) {
+        this.started.add(task);
+        return this;
+      }
+
+      @Override
       public List<CheckedConsumer<Registry>> startTasks() {
         return this.start.build();
+      }
+
+      @Override
+      public List<CheckedConsumer<Registry>> startedTasks() {
+        return this.started.build();
       }
 
       @Override
@@ -517,6 +531,11 @@ public interface Env extends LifeCycle {
    * @return List of start tasks.
    */
   List<CheckedConsumer<Registry>> startTasks();
+
+  /**
+   * @return List of start tasks.
+   */
+  List<CheckedConsumer<Registry>> startedTasks();
 
   /**
    * @return List of stop tasks.

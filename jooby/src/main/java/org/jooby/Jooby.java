@@ -657,6 +657,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   /** startup callback . */
   private transient List<CheckedConsumer<Registry>> onStart = new ArrayList<>();
+  private transient List<CheckedConsumer<Registry>> onStarted = new ArrayList<>();
 
   /** stop callback . */
   private transient List<CheckedConsumer<Registry>> onStop = new ArrayList<>();
@@ -771,6 +772,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     });
     // start/stop callback
     app.onStart.forEach(this.onStart::add);
+    app.onStarted.forEach(this.onStarted::add);
     app.onStop.forEach(this.onStop::add);
     // mapper
     if (app.mapper != null) {
@@ -799,8 +801,8 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Jooby onStart(final CheckedRunnable callback) {
-    requireNonNull(callback, "Callback is required.");
-    return onStart(a -> callback.run());
+    LifeCycle.super.onStart(callback);
+    return this;
   }
 
   @Override
@@ -811,9 +813,22 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   @Override
-  public Jooby onStop(final CheckedRunnable callback) {
+  public Jooby onStarted(final CheckedRunnable callback) {
+    LifeCycle.super.onStarted(callback);
+    return this;
+  }
+
+  @Override
+  public Jooby onStarted(final CheckedConsumer<Registry> callback) {
     requireNonNull(callback, "Callback is required.");
-    return onStop(e -> callback.run());
+    onStarted.add(callback);
+    return this;
+  }
+
+  @Override
+  public Jooby onStop(final CheckedRunnable callback) {
+    LifeCycle.super.onStop(callback);
+    return this;
   }
 
   @Override
@@ -1978,6 +1993,11 @@ public class Jooby implements Router, LifeCycle, Registry {
         end - start,
         printer);
 
+    // started services
+    for (CheckedConsumer<Registry> onStarted : this.onStarted) {
+      onStarted.accept(this);
+    }
+
     boolean join = conf.hasPath("server.join") ? conf.getBoolean("server.join") : true;
     if (join) {
       server.join();
@@ -2695,6 +2715,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     });
 
     onStart.addAll(0, finalEnv.startTasks());
+    onStarted.addAll(0, finalEnv.startedTasks());
     onStop.addAll(finalEnv.stopTasks());
 
     // clear bag and freeze it

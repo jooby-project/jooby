@@ -838,6 +838,7 @@ public class JoobyTest {
           Env env = unit.mock(Env.class);
           expect(env.name()).andReturn("dev").times(2);
           expect(env.startTasks()).andReturn(Collections.emptyList());
+          expect(env.startedTasks()).andReturn(Collections.emptyList());
           expect(env.stopTasks()).andReturn(Collections.emptyList());
 
           Env.Builder builder = unit.get(Env.Builder.class);
