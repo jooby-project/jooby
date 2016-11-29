@@ -23,10 +23,7 @@ import static java.util.Objects.requireNonNull;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -529,6 +526,8 @@ public abstract class Sse implements AutoCloseable {
 
   private boolean closed;
 
+  private Locale locale;
+
   public Sse() {
     id = UUID.randomUUID().toString();
   }
@@ -539,6 +538,7 @@ public abstract class Sse implements AutoCloseable {
     this.produces = req.route().produces();
     this.locals = req.attributes();
     this.lastEventId = req.header("Last-Event-ID");
+    this.locale = req.locale();
     handshake(handler);
   }
 
@@ -874,7 +874,7 @@ public abstract class Sse implements AutoCloseable {
   private Future<Optional<Object>> send(final Event event) {
     List<MediaType> produces = event.type().<List<MediaType>> map(ImmutableList::of)
         .orElse(this.produces);
-    SseRenderer ctx = new SseRenderer(renderers, produces, StandardCharsets.UTF_8, locals);
+    SseRenderer ctx = new SseRenderer(renderers, produces, StandardCharsets.UTF_8, locale, locals);
     return Try.of(() -> {
       byte[] bytes = ctx.format(event);
       return send(event.id(), bytes);

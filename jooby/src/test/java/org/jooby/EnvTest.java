@@ -11,7 +11,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
 
-import javaslang.control.Try;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -124,7 +123,7 @@ public class EnvTest {
       }
 
       @Override
-      public LifeCycle onStarted(CheckedConsumer<Registry> task) { return null; }
+      public LifeCycle onStarted(final CheckedConsumer<Registry> task) { return null; }
 
       @Override
       public LifeCycle onStop(final CheckedConsumer<Registry> task) {

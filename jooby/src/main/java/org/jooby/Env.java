@@ -45,7 +45,6 @@ import com.typesafe.config.ConfigFactory;
 
 import javaslang.API;
 import javaslang.control.Option;
-import javaslang.control.Try;
 import javaslang.control.Try.CheckedConsumer;
 
 /**
@@ -325,7 +324,7 @@ public interface Env extends LifeCycle {
       }
 
       @Override
-      public LifeCycle onStarted(CheckedConsumer<Registry> task) {
+      public LifeCycle onStarted(final CheckedConsumer<Registry> task) {
         this.started.add(task);
         return this;
       }

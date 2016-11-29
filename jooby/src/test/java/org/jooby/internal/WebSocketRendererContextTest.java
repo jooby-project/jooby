@@ -9,6 +9,7 @@ import java.nio.channels.FileLock;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 import org.jooby.MediaType;
 import org.jooby.Renderer;
@@ -32,6 +33,7 @@ public class WebSocketRendererContextTest {
               unit.get(NativeWebSocket.class),
               produces,
               StandardCharsets.UTF_8,
+              Locale.US,
               unit.get(WebSocket.SuccessCallback.class),
               unit.get(WebSocket.ErrCallback.class));
           ctx.send(newFileChannel());
@@ -49,6 +51,7 @@ public class WebSocketRendererContextTest {
               unit.get(NativeWebSocket.class),
               produces,
               StandardCharsets.UTF_8,
+              Locale.US,
               unit.get(WebSocket.SuccessCallback.class),
               unit.get(WebSocket.ErrCallback.class));
           ctx.send(unit.get(InputStream.class));

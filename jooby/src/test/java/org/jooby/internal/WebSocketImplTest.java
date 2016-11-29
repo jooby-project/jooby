@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -60,6 +61,11 @@ public class WebSocketImplTest {
     nws.onCloseMessage(isA(BiConsumer.class));
   };
 
+  private Block locale = unit -> {
+    Request req = unit.get(Request.class);
+    expect(req.locale()).andReturn(Locale.CANADA);
+  };
+
   @SuppressWarnings({"resource" })
   @Test
   public void sendString() throws Exception {
@@ -73,14 +79,17 @@ public class WebSocketImplTest {
         WebSocket.ErrCallback.class, Injector.class, Request.class, NativeWebSocket.class)
             .expect(connect)
             .expect(callbacks)
+            .expect(locale)
             .expect(unit -> {
               List<Renderer> renderers = Collections.emptyList();
               WebSocketRendererContext ctx = unit.mockConstructor(WebSocketRendererContext.class,
                   new Class[]{List.class, NativeWebSocket.class, MediaType.class, Charset.class,
+                      Locale.class,
                       WebSocket.SuccessCallback.class,
                       WebSocket.ErrCallback.class },
                   renderers, unit.get(NativeWebSocket.class),
                   produces, StandardCharsets.UTF_8,
+                  Locale.CANADA,
                   unit.get(WebSocket.SuccessCallback.class),
                   unit.get(WebSocket.ErrCallback.class));
               ctx.render(data);
@@ -130,6 +139,7 @@ public class WebSocketImplTest {
     new MockUnit(WebSocket.Handler.class, Injector.class, Request.class, NativeWebSocket.class)
         .expect(connect)
         .expect(callbacks)
+        .expect(locale)
         .expect(unit -> {
           NativeWebSocket channel = unit.get(NativeWebSocket.class);
           channel.pause();
@@ -162,6 +172,7 @@ public class WebSocketImplTest {
     new MockUnit(WebSocket.Handler.class, Injector.class, Request.class, NativeWebSocket.class)
         .expect(connect)
         .expect(callbacks)
+        .expect(locale)
         .expect(unit -> {
           NativeWebSocket ws = unit.get(NativeWebSocket.class);
           ws.close(WebSocket.NORMAL.code(), WebSocket.NORMAL.reason());
@@ -186,6 +197,7 @@ public class WebSocketImplTest {
     new MockUnit(WebSocket.Handler.class, Injector.class, Request.class, NativeWebSocket.class)
         .expect(connect)
         .expect(callbacks)
+        .expect(locale)
         .expect(unit -> {
           NativeWebSocket ws = unit.get(NativeWebSocket.class);
           ws.terminate();
@@ -231,6 +243,7 @@ public class WebSocketImplTest {
 
     new MockUnit(WebSocket.Handler.class, Injector.class, Request.class, NativeWebSocket.class)
         .expect(connect)
+        .expect(locale)
         .expect(unit -> {
           NativeWebSocket nws = unit.get(NativeWebSocket.class);
           nws.onBinaryMessage(isA(Consumer.class));
@@ -264,6 +277,7 @@ public class WebSocketImplTest {
         NativeWebSocket.class,
         Mutant.class)
             .expect(connect)
+            .expect(locale)
             .expect(unit -> {
               NativeWebSocket nws = unit.get(NativeWebSocket.class);
               nws.onBinaryMessage(isA(Consumer.class));
@@ -304,6 +318,7 @@ public class WebSocketImplTest {
     new MockUnit(WebSocket.Handler.class, Injector.class, Request.class, NativeWebSocket.class,
         WebSocket.ErrCallback.class)
             .expect(connect)
+            .expect(locale)
             .expect(unit -> {
               NativeWebSocket nws = unit.get(NativeWebSocket.class);
               nws.onBinaryMessage(isA(Consumer.class));
@@ -341,6 +356,7 @@ public class WebSocketImplTest {
     new MockUnit(WebSocket.Handler.class, Injector.class, Request.class, NativeWebSocket.class,
         WebSocket.ErrCallback.class)
             .expect(connect)
+            .expect(locale)
             .expect(unit -> {
               NativeWebSocket nws = unit.get(NativeWebSocket.class);
               nws.onBinaryMessage(isA(Consumer.class));
@@ -379,6 +395,7 @@ public class WebSocketImplTest {
     new MockUnit(WebSocket.Handler.class, Callback.class, Request.class, NativeWebSocket.class,
         Injector.class)
             .expect(connect)
+            .expect(locale)
             .expect(unit -> {
               NativeWebSocket nws = unit.get(NativeWebSocket.class);
               nws.onBinaryMessage(isA(Consumer.class));
@@ -419,6 +436,7 @@ public class WebSocketImplTest {
     new MockUnit(WebSocket.Handler.class, Callback.class, NativeWebSocket.class, Request.class,
         Injector.class)
             .expect(connect)
+            .expect(locale)
             .expect(unit -> {
               NativeWebSocket nws = unit.get(NativeWebSocket.class);
               nws.onBinaryMessage(isA(Consumer.class));
@@ -459,6 +477,7 @@ public class WebSocketImplTest {
     new MockUnit(WebSocket.Handler.class, Callback.class, NativeWebSocket.class, Request.class,
         Injector.class)
             .expect(connect)
+            .expect(locale)
             .expect(unit -> {
               NativeWebSocket nws = unit.get(NativeWebSocket.class);
               nws.onBinaryMessage(isA(Consumer.class));
