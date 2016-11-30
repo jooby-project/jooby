@@ -56,6 +56,7 @@ import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
+import javaslang.control.Try;
 
 public class NettyServer implements Server {
 
@@ -76,6 +77,8 @@ public class NettyServer implements Server {
 
   private HttpHandler dispatcher;
 
+  private DefaultEventExecutorGroup executor;
+
   @Inject
   public NettyServer(final HttpHandler dispatcher, final Config config) {
     this.dispatcher = dispatcher;
@@ -94,7 +97,7 @@ public class NettyServer implements Server {
     }
 
     ThreadFactory threadFactory = new DefaultThreadFactory(conf.getString("netty.threads.Name"));
-    DefaultEventExecutorGroup executor = new DefaultEventExecutorGroup(
+    this.executor = new DefaultEventExecutorGroup(
         conf.getInt("netty.threads.Max"), threadFactory);
 
     this.ch = bootstrap(executor, null, conf.getInt("application.port"));
@@ -134,9 +137,13 @@ public class NettyServer implements Server {
 
   @Override
   public void stop() throws Exception {
-    bossLoop.shutdownGracefully();
+    Try.run(() -> executor.shutdownGracefully())
+        .onFailure(x -> log.debug("executor shutdown resulted in exception", x));
+    Try.run(() -> bossLoop.shutdownGracefully())
+        .onFailure(x -> log.debug("event loop shutdown resulted in exception", x));
     if (!workerLoop.isShutdown()) {
-      workerLoop.shutdownGracefully();
+      Try.run(() -> workerLoop.shutdownGracefully())
+          .onFailure(x -> log.debug("worker event loop shutdown resulted in exception", x));
     }
   }
 
