@@ -4,6 +4,8 @@ exports.type = 'perItem';
 
 exports.active = false;
 
+exports.description = 'removes raster images (disabled by default)';
+
 /**
  * Remove raster images references in <image>.
  *
@@ -18,8 +20,7 @@ exports.fn = function(item) {
 
     if (
         item.isElem('image') &&
-        item.hasAttr('xlink:href') &&
-        /(\.|image\/)(jpg|png|gif)/.test(item.attr('xlink:href').value)
+        item.hasAttrLocal('href', /(\.|image\/)(jpg|png|gif)/)
     ) {
         return false;
     }

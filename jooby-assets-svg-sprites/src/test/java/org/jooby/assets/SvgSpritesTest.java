@@ -1,15 +1,31 @@
 package org.jooby.assets;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.junit.Test;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
+import javaslang.control.Try;
+
 public class SvgSpritesTest {
 
   @Test
   public void process() throws Exception {
+    Path dir = Paths.get("target", "sprites");
+    Files.list(dir).forEach(f -> Try.run(() -> Files.deleteIfExists(f)));
+
+    assertFalse(Files.exists(dir.resolve("p-n-sprite.css")));
+    assertFalse(Files.exists(dir.resolve("p-n-sprite.png")));
+    assertFalse(Files.exists(dir.resolve("p-n-sprite.svg")));
+
     new SvgSprites()
         .set("basedir", "src")
         .set("spriteElementPath", "test/resources/svg-source")
@@ -17,6 +33,10 @@ public class SvgSpritesTest {
         .set("name", "n")
         .set("prefix", "p")
         .run(config());
+
+    assertTrue(Files.exists(dir.resolve("p-n-sprite.css")));
+    assertTrue(Files.exists(dir.resolve("p-n-sprite.png")));
+    assertTrue(Files.exists(dir.resolve("p-n-sprite.svg")));
   }
 
   private Config config() {

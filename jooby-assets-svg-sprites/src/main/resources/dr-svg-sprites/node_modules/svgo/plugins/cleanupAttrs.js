@@ -4,14 +4,16 @@ exports.type = 'perItem';
 
 exports.active = true;
 
+exports.description = 'cleanups attributes from newlines, trailing and repeating spaces';
+
 exports.params = {
     newlines: true,
     trim: true,
     spaces: true
 };
 
-var regNewlinesNeedSpace = /(\S)\n(\S)/g,
-    regNewlines = /\n/g,
+var regNewlinesNeedSpace = /(\S)\r?\n(\S)/g,
+    regNewlines = /\r?\n/g,
     regSpaces = /\s{2,}/g;
 
 /**

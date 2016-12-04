@@ -4,6 +4,8 @@ exports.type = 'perItem';
 
 exports.active = true;
 
+exports.description = 'removes empty <text> elements';
+
 exports.params = {
     text: true,
     tspan: true,
@@ -51,7 +53,7 @@ exports.fn = function(item, params) {
     if (
         params.tref &&
         item.isElem('tref') &&
-        !item.hasAttr('xlink:href')
+        !item.hasAttrLocal('href')
     ) return false;
 
 };

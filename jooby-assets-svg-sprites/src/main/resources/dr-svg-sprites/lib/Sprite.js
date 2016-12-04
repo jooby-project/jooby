@@ -1,6 +1,6 @@
 var path = require("path");
-var _ = require("lodash");
 var layout = require("layout");
+
 var util = require("./util");
 
 function Sprite (_config) {
@@ -54,7 +54,7 @@ function Sprite (_config) {
 	};
 
 	// Merge defaults with user configuration
-	var config = _.assign(defaults, _config);
+	var config = Object.assign(defaults, _config);
 
 	if (config.prefix && !("cssPrefix" in config)) {
 		config.cssPrefix = config.prefix;
@@ -159,7 +159,7 @@ function Sprite (_config) {
 		preserveAspectRatio: "xMinYMin meet"
 	};
 	if (config.svgAttributes) {
-		_.assign(svgAttributes, config.svgAttributes);
+		Object.assign(svgAttributes, config.svgAttributes);
 	}
 	config.svgAttributes = svgAttributes;
 
@@ -245,11 +245,11 @@ Sprite.prototype.prepare = function () {
 	this.items.forEach(function (element) {
 		layoutData.addItem(element);
 	});
-	_.assign(this, layoutData.export());
+	Object.assign(this, layoutData.export());
 	
 	// sizes
 
-	if (this.config.sizes && !Array.isArray(this.config.sizes) && !_.isEmpty(this.config.sizes)) {
+	if (this.config.sizes && !Array.isArray(this.config.sizes) && Object.keys(this.config.sizes).length) {
 		for (var label in this.config.sizes) {
 			this.addSize(label);
 		}
@@ -264,7 +264,7 @@ Sprite.prototype.addItem = function (file, source, namespaces, width, height) {
 
 	var filename = path.basename(file, path.extname(file));
 
-	_.assign(this.namespaces, namespaces);
+	Object.assign(this.namespaces, namespaces);
 
 	if (this.config.map) {
 		if (typeof this.config.map == "function") {

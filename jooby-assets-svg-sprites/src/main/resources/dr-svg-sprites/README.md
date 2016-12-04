@@ -112,7 +112,7 @@ Type: `String`
 Default value: `""`
 Optional
 
-The path where to built a preview page. 
+The path where to built a preview page.
 
 If the filename part (ending in `.html`) is omitted it will be built from `options.prefix`, `options.name` and  `"sprite"`.
 
@@ -127,7 +127,7 @@ Destination path of the generated stylesheet.
 If a filename part is omitted it will get built from `options.cssPrefix`, `options.name`, `"sprite"` and `options.cssSuffix`.
 
 If left blank only svg sprites and png fallbacks are generated.
-			
+
 #### options.prefix
 Type: `String`
 Default value: `""`
@@ -158,14 +158,14 @@ Type: `String`
 Default value: `".svg"`
 Optional
 
-Defines a prefix for selectors to target svg sprites. 
+Defines a prefix for selectors to target svg sprites.
 
 #### options.cssPngPrefix
 Type: `String`
 Default value: `""`
 Optional
 
-Defines a prefix for selectors to target png sprites. 
+Defines a prefix for selectors to target png sprites.
 
 **Note:** If both `options.cssSvgPrefix` and `options.cssPngPrefix` are empty strings a multiple-background progressive enhancement is used:
 
@@ -390,8 +390,8 @@ Per default the following plugins are disabled: `moveGroupAttrsToElems`,  `colla
 Type: `Object`
 Optional
 
-This options let's you customise the attributes on the root svg tag in the sprite. 
-Attributes with falsy values (`false`, `null`, `0` etc) will be omitted from the ouput. 
+This options let's you customise the attributes on the root svg tag in the sprite.
+Attributes with falsy values (`false`, `null`, `0` etc) will be omitted from the ouput.
 `viewBox`, `width`, `height` and xml namespaces are all handled automatically - no need to add them here.
 
 ```js
@@ -418,6 +418,13 @@ svgAttributes: {
 ---
 
 ## Changelog
+
+### 1.0.0
+
+Changes:
+
+* Now requires ES6 support (Node 5+).
+* Updated to svg2png@4.0.0.
 
 ### 0.9.31
 

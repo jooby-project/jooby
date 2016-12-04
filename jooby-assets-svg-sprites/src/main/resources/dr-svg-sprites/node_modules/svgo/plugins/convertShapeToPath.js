@@ -4,8 +4,10 @@ exports.type = 'perItem';
 
 exports.active = true;
 
-var empty = { value: 0 },
-    regSeparator = /\s+,?\s*|,\s*/;
+exports.description = 'converts basic shapes to more compact path form';
+
+var none = { value: 0 },
+    regNumber = /[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?/g;
 
 /**
  * Converts basic shape to more compact path.
@@ -20,7 +22,7 @@ var empty = { value: 0 },
  *
  * @author Lev Solntsev
  */
-exports.fn = function(item, params) {
+exports.fn = function(item) {
 
     if (
         item.isElem('rect') &&
@@ -30,8 +32,8 @@ exports.fn = function(item, params) {
         !item.hasAttr('ry')
     ) {
 
-        var x = +(item.attr('x') || empty).value,
-            y = +(item.attr('y') || empty).value,
+        var x = +(item.attr('x') || none).value,
+            y = +(item.attr('y') || none).value,
             width  = +item.attr('width').value,
             height = +item.attr('height').value;
 
@@ -54,15 +56,15 @@ exports.fn = function(item, params) {
                 local: 'd'
             });
 
-        ['x', 'y', 'width', 'height'].forEach(function(attr){ item.removeAttr(attr) });
-        item.elem = item.local = 'path';
+        item.renameElem('path')
+            .removeAttr(['x', 'y', 'width', 'height']);
 
     } else if (item.isElem('line')) {
 
-        var x1 = +(item.attr('x1') || empty).value,
-            y1 = +(item.attr('y1') || empty).value,
-            x2 = +(item.attr('x2') || empty).value,
-            y2 = +(item.attr('y2') || empty).value;
+        var x1 = +(item.attr('x1') || none).value,
+            y1 = +(item.attr('y1') || none).value,
+            x2 = +(item.attr('x2') || none).value,
+            y2 = +(item.attr('y2') || none).value;
         if (isNaN(x1 - y1 + x2 - y2)) return;
 
         item.addAttr({
@@ -72,8 +74,8 @@ exports.fn = function(item, params) {
                 local: 'd'
             });
 
-        ['x1', 'y1', 'x2', 'y2'].forEach(function(attr){ item.removeAttr(attr) });
-        item.elem = item.local = 'path';
+        item.renameElem('path')
+            .removeAttr(['x1', 'y1', 'x2', 'y2']);
 
     } else if ((
             item.isElem('polyline') ||
@@ -82,7 +84,7 @@ exports.fn = function(item, params) {
         item.hasAttr('points')
     ) {
 
-        var coords = item.attr('points').value.split(regSeparator);
+        var coords = (item.attr('points').value.match(regNumber) || []).map(Number);
         if (coords.length < 4) return false;
 
         item.addAttr({
@@ -94,9 +96,8 @@ exports.fn = function(item, params) {
                 local: 'd'
             });
 
-        item.removeAttr('points');
-        item.elem = item.local = 'path';
-
+        item.renameElem('path')
+            .removeAttr('points');
     }
 
 };

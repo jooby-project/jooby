@@ -4,6 +4,8 @@ exports.type = 'perItem';
 
 exports.active = true;
 
+exports.description = 'removes doctype declaration';
+
 /**
  * Remove DOCTYPE declaration.
  *
@@ -31,9 +33,7 @@ exports.active = true;
  */
 exports.fn = function(item) {
 
-    // remove doctype only if custom XML entities declaration block does not presents
-    // http://en.wikipedia.org/wiki/Document_Type_Definition#Entity_declarations
-    if (item.doctype && item.doctype.substr(-1) !== ']') {
+    if (item.doctype) {
         return false;
     }
 

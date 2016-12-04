@@ -1,25 +1,19 @@
-/*
- * dr-svg-sprites
- *
- *
- * Copyright (c) 2014 drdk
- * Licensed under the MIT license.
- */
-
 "use strict";
 
 module.exports = function (config, callback) {
 
-	var _ = require("lodash");
 	var path = require("path");
+	
 	var async = require("async");
-	var vfs = require("vinyl-fs");
+	var cloneDeep = require("lodash/cloneDeep");
 	var through = require("through2");
+	var vfs = require("vinyl-fs");
+	
 	var svgutil = require("./lib/svgutil");
 	var Sprite = require("./lib/Sprite");
 	var buildCSS = require("./lib/build-css");
 	var buildSVG = require("./lib/build-svg");
-	// Source: var buildPNG = require("./lib/build-png");
+	//Source: var buildPNG = require("./lib/build-png");
 	var buildPNG = require("./lib/build-batik");
 	var buildPreview = require("./lib/build-preview");
 
@@ -30,7 +24,7 @@ module.exports = function (config, callback) {
 	function build (sprite) {
 
 		return through.obj(function (file, encoding, callback) {
-			var config = _.cloneDeep(sprite.config.svgo);
+			var config = cloneDeep(sprite.config.svgo);
 			if (!config.plugins) config.plugins = [];
 			config.plugins.push({ cleanupIDs: { prefix: prefix(file) } });
 

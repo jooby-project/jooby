@@ -4,6 +4,8 @@ exports.type = 'perItem';
 
 exports.active = true;
 
+exports.description = 'removes empty attributes';
+
 /**
  * Remove attributes with empty values.
  *
