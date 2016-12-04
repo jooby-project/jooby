@@ -1,6 +1,8 @@
 var fs = require("fs");
 var path = require("path");
+
 var handlebars = require("handlebars");
+
 var util = require("./util");
 
 handlebars.registerHelper("url", function (filepath, relation) {

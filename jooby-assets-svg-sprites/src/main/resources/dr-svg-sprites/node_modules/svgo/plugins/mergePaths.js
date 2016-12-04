@@ -4,95 +4,68 @@ exports.type = 'perItem';
 
 exports.active = true;
 
+exports.description = 'merges multiple paths in one if possible';
+
+exports.params = {
+    collapseRepeated: true,
+    leadingZero: true,
+    negativeExtraSpace: true
+};
+
+var path2js = require('./_path.js').path2js,
+    js2path = require('./_path.js').js2path,
+    intersects = require('./_path.js').intersects;
+
 /**
  * Merge multiple Paths into one.
  *
  * @param {Object} item current iteration item
  * @return {Boolean} if false, item will be filtered out
  *
- * @author Kir Belevich
+ * @author Kir Belevich, Lev Solntsev
  */
-exports.fn = function(item) {
+exports.fn = function(item, params) {
 
-    if (item.isElem() && !item.isEmpty()) {
+    if (!item.isElem() || item.isEmpty()) return;
 
-        var prevContentItem,
-            delim = '',
-            prevContentItemKeys = null,
-            prevItemPathClosed = false,
-            contentItemKeys = null,
-            contentItemPathClosed = false,
-            equalData,
-            attrName;
+    var prevContentItem = null,
+        prevContentItemKeys = null;
 
-        item.content = item.content.filter(function(contentItem) {
+    item.content = item.content.filter(function(contentItem) {
 
-            // merge only <path d="...z" />
-            if (prevContentItem &&
-                prevContentItem.isElem('path') &&
-                prevContentItem.hasAttr('d') &&
-                contentItem.isElem('path') &&
-                contentItem.hasAttr('d')
-            ) {
+        if (prevContentItem &&
+            prevContentItem.isElem('path') &&
+            prevContentItem.isEmpty() &&
+            prevContentItem.hasAttr('d') &&
+            contentItem.isElem('path') &&
+            contentItem.isEmpty() &&
+            contentItem.hasAttr('d')
+        ) {
 
-                prevItemPathClosed =  prevContentItem.attr('d').value.charAt(prevContentItem.attr('d').value.length-1) === 'z';
-                contentItemPathClosed = contentItem.attr('d').value.charAt(contentItem.attr('d').value.length-1) === 'z';
-
-                if (!prevItemPathClosed && contentItemPathClosed){
-                  //console.log('Previous path not closed, current plath closed', prevContentItem.attr('d').value, contentItem.attr('d').value);
-                  prevContentItem = contentItem;
-                  prevContentItemKeys = null;
-                  return true;
-                }
-
-                if (prevContentItemKeys === null){
-                  prevContentItemKeys = Object.keys(prevContentItem.attrs);
-                }
-
-                contentItemKeys = Object.keys(contentItem.attrs);
-                if (contentItemKeys.length !== 1 || prevContentItemKeys.length !== 1){
-                    if (contentItemKeys.length !== prevContentItemKeys.length){
-                      prevContentItem = contentItem;
-                      prevContentItemKeys = null;
-                      return true;
-                    }
-
-                    equalData = true;
-                    for(var i = 0, I = contentItemKeys.length; i < I; i++){
-                      attrName = contentItemKeys[i];
-                      if (attrName != 'd'){
-                        if(typeof prevContentItem.attrs[attrName] === "undefined"){
-                          equalData = false;
-                          break;
-                        } else if (prevContentItem.attrs[attrName].value !== contentItem.attrs[attrName].value){
-                          equalData = false;
-                          break;
-                        }
-                      }
-                    }
-                    if (!equalData){
-                      prevContentItem = contentItem;
-                      prevContentItemKeys = null;
-                      return true;
-                    }
-                }
-                // "zM", but "z m"
-                // looks like a FontForge parsing bug
-                if (contentItem.attr('d').value.charAt(0) === 'm') {
-                    delim = ' ';
-                } else {
-                    delim = ''; // reset delim from looping
-                }
-
-                prevContentItem.attr('d').value += delim + contentItem.attr('d').value;
-                return false;
+            if (!prevContentItemKeys) {
+                prevContentItemKeys = Object.keys(prevContentItem.attrs);
             }
 
-            prevContentItem = contentItem;
-            prevContentItemKeys = null;
-            return true;
+            var contentItemAttrs = Object.keys(contentItem.attrs),
+                equalData = prevContentItemKeys.length == contentItemAttrs.length &&
+                    contentItemAttrs.every(function(key) {
+                        return key == 'd' ||
+                            prevContentItem.hasAttr(key) &&
+                            prevContentItem.attr(key).value == contentItem.attr(key).value;
+                    }),
+                prevPathJS = path2js(prevContentItem),
+                curPathJS = path2js(contentItem);
 
-        });
-    }
+            if (equalData && !intersects(prevPathJS, curPathJS)) {
+                js2path(prevContentItem, prevPathJS.concat(curPathJS), params);
+                return false;
+            }
+        }
+
+        prevContentItem = contentItem;
+        prevContentItemKeys = null;
+        return true;
+
+    });
 
 };

@@ -41,41 +41,32 @@ exports.encodeSVGDatauri = function(str, type) {
  * @return {String} output string
  */
 exports.decodeSVGDatauri = function(str) {
+    var regexp = /data:image\/svg\+xml(;charset=[^;,]*)?(;base64)?,(.*)/;
+    var match = regexp.exec(str);
 
-    var prefix = 'data:image/svg+xml';
+    // plain string
+    if (!match) return str;
+
+    var data = match[3];
 
     // base64
-    if (str.substring(0, 26) === (prefix + ';base64,')) {
+    if (match[2]) {
 
-        str = new Buffer(str.substring(26), 'base64').toString('utf8');
+        str = new Buffer(data, 'base64').toString('utf8');
 
     // URI encoded
-    } else if (str.substring(0, 20) === (prefix + ',%')) {
+    } else if (data.charAt(0) === '%') {
 
-        str = decodeURIComponent(str.substring(19));
+        str = decodeURIComponent(data);
 
     // unencoded
-    } else if (str.substring(0, 20) === (prefix + ',<')) {
+    } else if (data.charAt(0) === '<') {
 
-        str = str.substring(19);
+        str = data;
 
     }
 
     return str;
-
-};
-
-exports.flattenOneLevel = function(array) {
-    var result = [];
-
-    array.forEach(function(item) {
-        Array.prototype.push.apply(
-            result,
-            Array.isArray(item) ? item : [item]
-        );
-    });
-
-    return result;
 };
 
 exports.intersectArrays = function(a, b) {
@@ -100,12 +91,19 @@ exports.cleanupOutData = function(data, params) {
             delimiter = '';
         }
 
+        // remove floating-point numbers leading zeros
+        // 0.5 → .5
+        // -0.5 → -.5
+        if (params.leadingZero) {
+            item = removeLeadingZero(item);
+        }
+
         // no extra space in front of negative number or
         // in front of a floating number if a previous number is floating too
         if (
             params.negativeExtraSpace &&
             (item < 0 ||
-             (item > 0 && item < 1 && prev % 1 !== 0)
+                (/^\./.test(item) && prev % 1 !== 0)
             )
         ) {
             delimiter = '';
@@ -113,13 +111,6 @@ exports.cleanupOutData = function(data, params) {
 
         // save prev item value
         prev = item;
-
-        // remove floating-point numbers leading zeros
-        // 0.5 → .5
-        // -0.5 → -.5
-        if (params.leadingZero) {
-            item = removeLeadingZero(item);
-        }
 
         str += delimiter + item;
 

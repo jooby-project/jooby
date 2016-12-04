@@ -1,5 +1,5 @@
-var _ = require("lodash");
 var SVGO = require("svgo");
+
 var util = require("./util");
 var svgutil = require("./svgutil");
 
@@ -14,8 +14,8 @@ module.exports = function (sprite, callback) {
 	});
 
 	var attributes = {};
-	_.assign(attributes, sprite.config.svgAttributes);
-	_.assign(attributes, sprite.namespaces);
+	Object.assign(attributes, sprite.config.svgAttributes);
+	Object.assign(attributes, sprite.namespaces);
 
 	var source = svgutil.wrap(sprite.width, sprite.height, items, attributes);
 

@@ -1,7 +1,7 @@
 var fs = require("fs");
 var path = require("path");
-var SVGO = require("svgo");
 
+var SVGO = require("svgo");
 
 function parse (content, config, callback) {
 	var svgo = new SVGO(config);

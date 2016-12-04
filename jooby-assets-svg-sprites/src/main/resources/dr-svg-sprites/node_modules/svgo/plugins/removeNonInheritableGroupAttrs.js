@@ -4,6 +4,8 @@ exports.type = 'perItem';
 
 exports.active = true;
 
+exports.description = 'removes non-inheritable group’s presentational attributes';
+
 var inheritableAttrs = require('./_collections').inheritableAttrs,
     attrsGroups = require('./_collections').attrsGroups,
     excludedAttrs = ['display', 'opacity'];

@@ -4,6 +4,8 @@ exports.type = 'perItem';
 
 exports.active = true;
 
+exports.description = 'removes comments';
+
 /**
  * Remove comments.
  *

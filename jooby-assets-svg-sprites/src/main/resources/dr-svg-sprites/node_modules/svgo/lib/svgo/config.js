@@ -1,6 +1,7 @@
 'use strict';
 
-require('js-yaml');
+var FS = require('fs');
+var yaml = require('js-yaml');
 
 var EXTEND = require('whet.extend');
 
@@ -14,28 +15,35 @@ var EXTEND = require('whet.extend');
 module.exports = function(config) {
 
     var defaults;
+    config = typeof config == 'object' && config || {};
 
-    if (config && config.full) {
+    if (config.plugins && !Array.isArray(config.plugins)) {
+        return { error: 'Error: Invalid plugins list. Provided \'plugins\' in config should be an array.' };
+    }
 
+    if (config.full) {
         defaults = config;
 
-        if (defaults.plugins) {
+        if (Array.isArray(defaults.plugins)) {
             defaults.plugins = preparePluginsArray(defaults.plugins);
-            defaults.plugins = optimizePluginsArray(defaults.plugins);
         }
-
     } else {
-
-        defaults = EXTEND({}, require('../../.svgo.yml'));
-
+        defaults = EXTEND({}, yaml.safeLoad(FS.readFileSync(__dirname + '/../../.svgo.yml', 'utf8')));
         defaults.plugins = preparePluginsArray(defaults.plugins);
+        defaults = extendConfig(defaults, config);
+    }
 
-        if (config) {
-            defaults = extendConfig(defaults, config);
-        }
+    if ('floatPrecision' in config && Array.isArray(defaults.plugins)) {
+        defaults.plugins.forEach(function(plugin) {
+            if (plugin.params && ('floatPrecision' in plugin.params)) {
+                // Don't touch default plugin params
+                plugin.params = EXTEND({}, plugin.params, { floatPrecision: config.floatPrecision });
+            }
+        });
+    }
 
+    if (Array.isArray(defaults.plugins)) {
         defaults.plugins = optimizePluginsArray(defaults.plugins);
-
     }
 
     return defaults;
@@ -59,23 +67,31 @@ function preparePluginsArray(plugins) {
         if (typeof item === 'object') {
 
             key = Object.keys(item)[0];
-            plugin = EXTEND({}, require('../../plugins/' + key));
 
-            // name: {}
-            if (typeof item[key] === 'object') {
-                plugin.params = EXTEND({}, plugin.params || {}, item[key]);
-                plugin.active = true;
+            // custom
+            if (typeof item[key] === 'object' && item[key].fn && typeof item[key].fn === 'function') {
+                plugin = setupCustomPlugin(key, item[key]);
 
-            // name: false
-            } else if (item[key] === false) {
-               plugin.active = false;
+            } else {
 
-            // name: true
-            } else if (item[key] === true) {
-               plugin.active = true;
+              plugin = EXTEND({}, require('../../plugins/' + key));
+
+              // name: {}
+              if (typeof item[key] === 'object') {
+                  plugin.params = EXTEND({}, plugin.params || {}, item[key]);
+                  plugin.active = true;
+
+              // name: false
+              } else if (item[key] === false) {
+                 plugin.active = false;
+
+              // name: true
+              } else if (item[key] === true) {
+                 plugin.active = true;
+              }
+
+              plugin.name = key;
             }
-
-            plugin.name = key;
 
         // name
         } else {
@@ -112,31 +128,38 @@ function extendConfig(defaults, config) {
 
                 key = Object.keys(item)[0];
 
-                defaults.plugins.forEach(function(plugin) {
+                // custom
+                if (typeof item[key] === 'object' && item[key].fn && typeof item[key].fn === 'function') {
+                    defaults.plugins.push(setupCustomPlugin(key, item[key]));
 
-                    if (plugin.name === key) {
-                        // name: {}
-                        if (typeof item[key] === 'object') {
-                            plugin.params = EXTEND({}, plugin.params || {}, item[key]);
-                            plugin.active = true;
+                } else {
+                    defaults.plugins.forEach(function(plugin) {
 
-                        // name: false
-                        } else if (item[key] === false) {
-                           plugin.active = false;
+                        if (plugin.name === key) {
+                            // name: {}
+                            if (typeof item[key] === 'object') {
+                                plugin.params = EXTEND({}, plugin.params || {}, item[key]);
+                                plugin.active = true;
 
-                        // name: true
-                        } else if (item[key] === true) {
-                           plugin.active = true;
+                            // name: false
+                            } else if (item[key] === false) {
+                               plugin.active = false;
+
+                            // name: true
+                            } else if (item[key] === true) {
+                               plugin.active = true;
+                            }
                         }
-                    }
-
-                });
+                    });
+                }
 
             }
 
         });
 
     }
+
+    defaults.multipass = config.multipass;
 
     // svg2js
     if (config.svg2js) {
@@ -153,6 +176,21 @@ function extendConfig(defaults, config) {
 }
 
 /**
+ * Setup and enable a custom plugin
+ *
+ * @param {String} plugin name
+ * @param {Object} custom plugin
+ * @return {Array} enabled plugin
+ */
+function setupCustomPlugin(name, plugin) {
+    plugin.active = true;
+    plugin.params = EXTEND({}, plugin.params || {});
+    plugin.name = name;
+
+    return plugin;
+}
+
+/**
  * Try to group sequential elements of plugins array.
  *
  * @param {Object} plugins input plugins
@@ -162,23 +200,13 @@ function optimizePluginsArray(plugins) {
 
     var prev;
 
-    plugins = plugins.map(function(item) {
-        return [item];
-    });
-
-    plugins = plugins.filter(function(item) {
-
-        if (prev && item[0].type === prev[0].type) {
-            prev.push(item[0]);
-            return false;
+    return plugins.reduce(function(plugins, item) {
+        if (prev && item.type == prev[0].type) {
+            prev.push(item);
+        } else {
+            plugins.push(prev = [item]);
         }
-
-        prev = item;
-
-        return true;
-
-    });
-
-    return plugins;
+        return plugins;
+    }, []);
 
 }

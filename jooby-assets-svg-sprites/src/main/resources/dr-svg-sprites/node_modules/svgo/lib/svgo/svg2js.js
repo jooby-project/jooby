@@ -1,15 +1,16 @@
 'use strict';
 
 var SAX = require('sax'),
-    JSAPI = require('./jsAPI');
+    JSAPI = require('./jsAPI.js'),
+    entityDeclaration = /<!ENTITY\s+(\S+)\s+(?:'([^\']+)'|"([^\"]+)")\s*>/g;
 
 var config = {
     strict: true,
-    trim: true,
+    trim: false,
     normalize: true,
     lowercase: true,
     xmlns: true,
-    position: false
+    position: true
 };
 
 /**
@@ -21,13 +22,15 @@ var config = {
 module.exports = function(data, callback) {
 
     var sax = SAX.parser(config.strict, config),
-        root = {},
+        root = new JSAPI({ elem: '#document' }),
         current = root,
-        stack = [];
+        stack = [root],
+        textContext = null,
+        parsingError = false;
 
     function pushToContent(content) {
 
-        content = new JSAPI(content);
+        content = new JSAPI(content, current);
 
         (current.content = current.content || []).push(content);
 
@@ -41,6 +44,16 @@ module.exports = function(data, callback) {
             doctype: doctype
         });
 
+        var subsetStart = doctype.indexOf('['),
+            entityMatch;
+
+        if (subsetStart >= 0) {
+            entityDeclaration.lastIndex = subsetStart;
+
+            while ((entityMatch = entityDeclaration.exec(data)) != null) {
+                sax.ENTITIES[entityMatch[1]] = entityMatch[2] || entityMatch[3];
+            }
+        }
     };
 
     sax.onprocessinginstruction = function(data) {
@@ -54,7 +67,7 @@ module.exports = function(data, callback) {
     sax.oncomment = function(comment) {
 
         pushToContent({
-            comment: comment
+            comment: comment.trim()
         });
 
     };
@@ -91,43 +104,84 @@ module.exports = function(data, callback) {
         elem = pushToContent(elem);
         current = elem;
 
+        // Save info about <text> tag to prevent trimming of meaningful whitespace
+        if (data.name == 'text' && !data.prefix) {
+            textContext = current;
+        }
+
         stack.push(elem);
 
     };
 
     sax.ontext = function(text) {
 
-        pushToContent({
-            text: text
-        });
+        if (/\S/.test(text) || textContext) {
+
+            if (!textContext)
+                text = text.trim();
+
+            pushToContent({
+                text: text
+            });
+
+        }
 
     };
 
     sax.onclosetag = function() {
 
-        stack.pop();
+        var last = stack.pop();
+
+        // Trim text inside <text> tag.
+        if (last == textContext) {
+            trim(textContext);
+            textContext = null;
+        }
         current = stack[stack.length - 1];
 
     };
 
     sax.onerror = function(e) {
 
-        // https://github.com/isaacs/sax-js#events
-        // "The error will be hanging out on parser.error,
-        // and must be deleted before parsing can continue"
-        this.error = null;
-
-        callback({ error: e.message });
-        throw new Error(e.message);
+        e.message = 'Error in parsing SVG: ' + e.message;
+        if (e.message.indexOf('Unexpected end') < 0) {
+            throw e;
+        }
 
     };
 
     sax.onend = function() {
 
-        callback(root);
+        if (!this.error) {
+            callback(root);
+        } else {
+            callback({ error: this.error.message });
+        }
 
     };
 
-    sax.write(data).close();
+    try {
+        sax.write(data);
+    } catch (e) {
+        callback({ error: e.message });
+        parsingError = true;
+    }
+    if (!parsingError) sax.close();
+
+    function trim(elem) {
+        if (!elem.content) return elem;
+
+        var start = elem.content[0],
+            end = elem.content[elem.content.length - 1];
+
+        while (start && start.content && !start.text) start = start.content[0];
+        if (start && start.text) start.text = start.text.replace(/^\s+/, '');
+
+        while (end && end.content && !end.text) end = end.content[end.content.length - 1];
+        if (end && end.text) end.text = end.text.replace(/\s+$/, '');
+
+        return elem;
+
+    }
 
 };

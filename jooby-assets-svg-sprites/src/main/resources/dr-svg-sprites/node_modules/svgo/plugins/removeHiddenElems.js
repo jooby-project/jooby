@@ -4,6 +4,8 @@ exports.type = 'perItem';
 
 exports.active = true;
 
+exports.description = 'removes hidden elements (zero sized, with absent attributes)';
+
 exports.params = {
     displayNone: true,
     opacity0: true,
@@ -20,6 +22,8 @@ exports.params = {
     polylineEmptyPoints: true,
     polygonEmptyPoints: true
 };
+
+var regValidPath = /M\s*(?:[-+]?(?:\d*\.\d+|\d+(?:\.|(?!\.)))([eE][-+]?\d+)?(?!\d)\s*,?\s*){2}\D*\d/i;
 
 /**
  * Remove hidden elements with disabled rendering:
@@ -71,6 +75,7 @@ exports.fn = function(item, params) {
         if (
             params.circleR0 &&
             item.isElem('circle') &&
+            item.isEmpty() &&
             item.hasAttr('r', '0')
         ) return false;
 
@@ -83,6 +88,7 @@ exports.fn = function(item, params) {
         if (
             params.ellipseRX0 &&
             item.isElem('ellipse') &&
+            item.isEmpty() &&
             item.hasAttr('rx', '0')
         ) return false;
 
@@ -95,6 +101,7 @@ exports.fn = function(item, params) {
         if (
             params.ellipseRY0 &&
             item.isElem('ellipse') &&
+            item.isEmpty() &&
             item.hasAttr('ry', '0')
         ) return false;
 
@@ -107,6 +114,7 @@ exports.fn = function(item, params) {
         if (
             params.rectWidth0 &&
             item.isElem('rect') &&
+            item.isEmpty() &&
             item.hasAttr('width', '0')
         ) return false;
 
@@ -120,6 +128,7 @@ exports.fn = function(item, params) {
             params.rectHeight0 &&
             params.rectWidth0 &&
             item.isElem('rect') &&
+            item.isEmpty() &&
             item.hasAttr('height', '0')
         ) return false;
 
@@ -179,7 +188,7 @@ exports.fn = function(item, params) {
         if (
             params.pathEmptyD &&
             item.isElem('path') &&
-            !item.hasAttr('d')
+            (!item.hasAttr('d') || !regValidPath.test(item.attr('d').value))
         ) return false;
 
         // Polyline with empty points
