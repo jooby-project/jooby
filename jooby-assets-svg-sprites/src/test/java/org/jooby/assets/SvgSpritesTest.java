@@ -20,6 +20,9 @@ public class SvgSpritesTest {
   @Test
   public void process() throws Exception {
     Path dir = Paths.get("target", "sprites");
+    if (!Files.exists(dir)) {
+      Files.createDirectories(dir);
+    }
     Files.list(dir).forEach(f -> Try.run(() -> Files.deleteIfExists(f)));
 
     assertFalse(Files.exists(dir.resolve("p-n-sprite.css")));
