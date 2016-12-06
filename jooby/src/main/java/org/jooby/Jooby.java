@@ -82,6 +82,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -695,6 +696,11 @@ public class Jooby implements Router, LifeCycle, Registry {
   private transient boolean defaultExecSet;
 
   private boolean throwBootstrapException;
+
+  /**
+   * creates the injector
+   */
+  private transient BiFunction<Stage, com.google.inject.Module, Injector> injectorFactory = Guice::createInjector;
 
   /**
    * Creates a new {@link Jooby} application.
@@ -2017,6 +2023,17 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
+   * Use the injection provider to create the Guice injector
+   *
+   * @param injectorFactory the injection provider
+   * @return this instance.
+   */
+  public Jooby injector(final BiFunction<Stage, com.google.inject.Module, Injector> injectorFactory) {
+    this.injectorFactory = injectorFactory;
+    return this;
+  }
+
+  /**
    * Bind the provided abstract type to the given implementation:
    *
    * <pre>
@@ -2556,8 +2573,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     xss(finalEnv);
 
     /** dependency injection */
-    @SuppressWarnings("unchecked")
-    Injector injector = Guice.createInjector(stage, binder -> {
+    com.google.inject.Module joobyModule = binder -> {
 
       /** type converters */
       new TypeConverters().configure(binder);
@@ -2592,8 +2608,8 @@ public class Jooby implements Router, LifeCycle, Registry {
       binder.bind(SSLContext.class).toProvider(SslContextProvider.class);
 
       /** routes */
-      Multibinder<Route.Definition> definitions = Multibinder
-          .newSetBinder(binder, Route.Definition.class);
+      Multibinder<Definition> definitions = Multibinder
+          .newSetBinder(binder, Definition.class);
 
       /** web sockets */
       Multibinder<WebSocket.Definition> sockets = Multibinder
@@ -2689,10 +2705,10 @@ public class Jooby implements Router, LifeCycle, Registry {
       } else {
         binder.bind(SessionManager.class).to(ServerSessionManager.class).asEagerSingleton();
         if (sstore instanceof Class) {
-          binder.bind(Session.Store.class).to((Class<? extends Store>) sstore)
+          binder.bind(Store.class).to((Class<? extends Store>) sstore)
               .asEagerSingleton();
         } else {
-          binder.bind(Session.Store.class).toInstance((Store) sstore);
+          binder.bind(Store.class).toInstance((Store) sstore);
         }
       }
 
@@ -2712,7 +2728,9 @@ public class Jooby implements Router, LifeCycle, Registry {
 
       /** executors. */
       executors.forEach(it -> it.accept(binder));
-    });
+    };
+    @SuppressWarnings("unchecked")
+    Injector injector = injectorFactory.apply(stage, joobyModule);
 
     onStart.addAll(0, finalEnv.startTasks());
     onStarted.addAll(0, finalEnv.startedTasks());
