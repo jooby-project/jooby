@@ -23,10 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import org.jooby.MediaType;
 import org.jooby.Renderer;
@@ -51,8 +48,8 @@ public class SseRenderer extends AbstractRendererContext {
   private ByteSource data;
 
   public SseRenderer(final List<Renderer> renderers, final List<MediaType> produces,
-      final Charset charset, final Map<String, Object> locals) {
-    super(renderers, produces, charset, locals);
+      final Charset charset, Locale locale, final Map<String, Object> locals) {
+    super(renderers, produces, charset, locale, locals);
   }
 
   public byte[] format(final Sse.Event event) throws Exception {

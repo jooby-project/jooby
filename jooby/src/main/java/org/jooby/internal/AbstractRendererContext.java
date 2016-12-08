@@ -28,6 +28,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,8 @@ import org.jooby.View;
 import com.google.common.base.Joiner;
 
 public abstract class AbstractRendererContext implements Renderer.Context {
+
+  private Locale locale;
 
   private List<Renderer> renderers;
 
@@ -58,11 +61,12 @@ public abstract class AbstractRendererContext implements Renderer.Context {
 
 
   public AbstractRendererContext(final List<Renderer> renderers,
-      final List<MediaType> produces, final Charset charset, final Map<String, Object> locals) {
+      final List<MediaType> produces, final Charset charset, Locale locale, final Map<String, Object> locals) {
     this.renderers = renderers;
     this.produces = produces;
     this.matcher = MediaType.matcher(produces);
     this.charset = charset;
+    this.locale = locale;
     this.locals = locals;
     rsize = this.renderers.size();
   }
@@ -91,6 +95,11 @@ public abstract class AbstractRendererContext implements Renderer.Context {
       }
       throw new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(produces));
     }
+  }
+
+  @Override
+  public Locale locale() {
+    return locale;
   }
 
   @Override

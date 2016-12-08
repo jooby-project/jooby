@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -96,6 +97,13 @@ public interface Renderer {
    * @since 0.6.0
    */
   interface Context {
+
+    /**
+     * Request locale or default locale.
+     *
+     * @return Request locale or default locale.
+     */
+    Locale locale();
 
     /**
      * @return Request local attributes.

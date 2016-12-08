@@ -22,6 +22,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -50,6 +51,8 @@ public class WebSocketImpl implements WebSocket {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(WebSocket.class);
+
+  private Locale locale;
 
   private String path;
 
@@ -128,6 +131,7 @@ public class WebSocketImpl implements WebSocket {
         ws,
         produces,
         StandardCharsets.UTF_8,
+        locale,
         success,
         err).render(data);
   }
@@ -140,6 +144,7 @@ public class WebSocketImpl implements WebSocket {
   public void connect(final Injector injector, final Request req, final NativeWebSocket ws) {
     this.injector = requireNonNull(injector, "Injector required.");
     this.ws = requireNonNull(ws, "WebSocket is required.");
+    this.locale = req.locale();
     renderers = ImmutableList.copyOf(injector.getInstance(Renderer.KEY));
 
     /**

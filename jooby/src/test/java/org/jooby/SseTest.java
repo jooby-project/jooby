@@ -12,6 +12,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -56,6 +57,11 @@ public class SseTest {
     expect(injector.getInstance(Renderer.KEY)).andReturn(Sets.newHashSet());
   };
 
+  private Block locale = unit -> {
+    Request req = unit.get(Request.class);
+    expect(req.locale()).andReturn(Locale.CANADA);
+  };
+
   @Test
   public void sseId() throws Exception {
     Sse sse = new Sse() {
@@ -82,6 +88,7 @@ public class SseTest {
   public void handshake() throws Exception {
     new MockUnit(Request.class, Injector.class, Runnable.class, Route.class)
         .expect(handshake)
+        .expect(locale)
         .expect(unit -> {
           Injector injector = unit.get(Injector.class);
           expect(injector.getInstance(Key.get(Object.class))).andReturn(null).times(2);
@@ -439,10 +446,12 @@ public class SseTest {
     Object data = new Object();
     new MockUnit(Request.class, Route.class, Injector.class, Runnable.class)
         .expect(handshake)
+        .expect(locale)
         .expect(unit -> {
           SseRenderer renderer = unit.constructor(SseRenderer.class)
-              .args(List.class, List.class, Charset.class, Map.class)
-              .build(isA(List.class), isA(List.class), eq(StandardCharsets.UTF_8), isA(Map.class));
+              .args(List.class, List.class, Charset.class, Locale.class, Map.class)
+              .build(isA(List.class), isA(List.class), eq(StandardCharsets.UTF_8),
+                  eq(Locale.CANADA), isA(Map.class));
 
           expect(renderer.format(isA(Sse.Event.class))).andThrow(new IOException("failure"));
         })

@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.jooby.Err;
 import org.jooby.MediaType;
@@ -27,7 +28,7 @@ public class AbstractRendererContextTest {
     View value = Results.html("view");
     new MockUnit()
         .run(unit -> {
-          new AbstractRendererContext(renderers, produces, StandardCharsets.UTF_8,
+          new AbstractRendererContext(renderers, produces, StandardCharsets.UTF_8, Locale.US,
               Collections.emptyMap()) {
 
             @Override

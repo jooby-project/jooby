@@ -20,6 +20,10 @@ Find here the available modules for parsing or rendering several formats.
 
 [Pebble](/doc/pebble) templates.
 
+## thymeleaf
+
+[Thymeleaf](/doc/thymeleaf) templates.
+
 # json
 
 ## jackson

@@ -84,6 +84,7 @@
                     <source>${project.parent.basedir}/jooby-scanner/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-csl/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-unbescape/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-thymeleaf/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -143,6 +144,7 @@
                     <source>${project.parent.basedir}/jooby-scanner/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-csl/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-unbescape/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-thymeleaf/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -569,6 +571,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-mongodb-rx</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-thymeleaf</artifactId>
       <version>${project.version}</version>
     </dependency>
 

@@ -364,6 +364,7 @@ public class ResponseImpl implements Response {
           locals,
           produces,
           charset,
+          req.locale(),
           byteRange);
 
       // explicit renderer?

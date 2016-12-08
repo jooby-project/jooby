@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -52,8 +53,8 @@ public class HttpRendererContext extends AbstractRendererContext {
   public HttpRendererContext(final List<Renderer> renderers,
       final NativeResponse rsp, final Consumer<Long> len, final Consumer<MediaType> type,
       final Map<String, Object> locals, final List<MediaType> produces, final Charset charset,
-      final Optional<String> byteRange) {
-    super(renderers, produces, charset, locals);
+      final Locale locale, final Optional<String> byteRange) {
+    super(renderers, produces, charset, locale, locals);
     this.byteRange = byteRange;
     this.rsp = rsp;
     this.length = len;
