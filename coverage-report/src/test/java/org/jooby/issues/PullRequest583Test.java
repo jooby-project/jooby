@@ -1,37 +1,39 @@
 package org.jooby.issues;
 
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.jooby.test.ServerFeature;
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooby.test.ServerFeature;
-import org.junit.*;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Johannes Schneider (<a href="mailto:js@cedarsoft.com">js@cedarsoft.com</a>)
  */
 public class PullRequest583Test extends ServerFeature {
-  private final AtomicReference<Injector> createdInjector = new AtomicReference<>();
-
   {
+
+    AtomicReference<Injector> ref = new AtomicReference<>();
+
     injector((stage, module) -> {
       Injector injector = Guice.createInjector(module);
-      createdInjector.set(injector);
+      ref.set(injector);
       return injector;
+    });
+
+    get("/583", () -> {
+      Injector injector = require(Injector.class);
+      Assert.assertSame(injector, ref.get());
+      return "OK";
     });
   }
 
   @Test
-  public void appShouldBeMountedOnApplicationPath() throws Exception {
-    Assert.assertNull(createdInjector.get());
-
-    start();
-    try {
-      Injector injector = require(Injector.class);
-      Assert.assertNotNull(injector);
-      Assert.assertSame(injector, createdInjector.get());
-    } finally {
-      stop();
-    }
+  public void customInjector() throws Exception {
+    request()
+        .get("/583")
+        .expect("OK");
   }
 }
