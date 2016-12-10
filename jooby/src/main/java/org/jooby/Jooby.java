@@ -2573,6 +2573,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     xss(finalEnv);
 
     /** dependency injection */
+    @SuppressWarnings("unchecked")
     com.google.inject.Module joobyModule = binder -> {
 
       /** type converters */
@@ -2729,7 +2730,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       /** executors. */
       executors.forEach(it -> it.accept(binder));
     };
-    @SuppressWarnings("unchecked")
+
     Injector injector = injectorFactory.apply(stage, joobyModule);
 
     onStart.addAll(0, finalEnv.startTasks());
