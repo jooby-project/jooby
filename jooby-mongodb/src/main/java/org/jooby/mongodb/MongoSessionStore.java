@@ -21,6 +21,7 @@ package org.jooby.mongodb;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -29,16 +30,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.jooby.Session;
 import org.jooby.Session.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.MongoException;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.UpdateOptions;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -104,28 +108,31 @@ import com.typesafe.config.ConfigValueFactory;
  */
 public class MongoSessionStore implements Session.Store {
 
+  private static final String SESSION_IDX = "_sessionIdx_";
+
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  protected final DBCollection sessions;
+  protected final MongoCollection<Document> sessions;
 
-  protected final int timeout;
+  protected final long timeout;
 
   protected final String collection;
 
   private final AtomicBoolean ttlSync = new AtomicBoolean(false);
 
-  protected final DB db;
+  protected final MongoDatabase db;
 
-  public MongoSessionStore(final DB db, final String collection, final int timeout) {
+  public MongoSessionStore(final MongoDatabase db, final String collection,
+      final long timeoutInSeconds) {
     this.db = requireNonNull(db, "Mongo db is required.");
     this.collection = requireNonNull(collection, "Collection is required.");
     this.sessions = db.getCollection(collection);
-    this.timeout = timeout;
+    this.timeout = timeoutInSeconds;
   }
 
   @Inject
-  public MongoSessionStore(final DB db,
+  public MongoSessionStore(final MongoDatabase db,
       final @Named("mongodb.session.collection") String collection,
       final @Named("session.timeout") String timeout) {
     this(db, collection, seconds(timeout));
@@ -134,36 +141,40 @@ public class MongoSessionStore implements Session.Store {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Session get(final Builder builder) {
-    return Optional.ofNullable(sessions.findOne(builder.sessionId())).map(dbobj -> {
-      Map session = dbobj.toMap();
+    return Optional.ofNullable(sessions.find(Filters.eq("_id", builder.sessionId())).first())
+        .map(doc -> {
+          Map session = new LinkedHashMap<>(doc);
 
-      Date accessedAt = (Date) session.remove("_accessedAt");
-      Date createdAt = (Date) session.remove("_createdAt");
-      Date savedAt = (Date) session.remove("_savedAt");
-      session.remove("_id");
+          Date accessedAt = (Date) session.remove("_accessedAt");
+          Date createdAt = (Date) session.remove("_createdAt");
+          Date savedAt = (Date) session.remove("_savedAt");
+          session.remove("_id");
 
-      return builder
-          .accessedAt(accessedAt.getTime())
-          .createdAt(createdAt.getTime())
-          .savedAt(savedAt.getTime())
-          .set(session)
-          .build();
-    }).orElse(null);
+          return builder
+              .accessedAt(accessedAt.getTime())
+              .createdAt(createdAt.getTime())
+              .savedAt(savedAt.getTime())
+              .set(session)
+              .build();
+        }).orElse(null);
   }
 
   @Override
   public void save(final Session session) {
     syncTtl();
 
-    BasicDBObjectBuilder ob = BasicDBObjectBuilder.start()
-        .add("_id", session.id())
-        .add("_accessedAt", new Date(session.accessedAt()))
-        .add("_createdAt", new Date(session.createdAt()))
-        .add("_savedAt", new Date(session.savedAt()));
-    // dump attributes
-    session.attributes().forEach((k, v) -> ob.add(k, v));
+    String id = session.id();
+    Bson filter = Filters.eq("_id", id);
 
-    sessions.save(ob.get());
+    Document doc = new Document()
+        .append("_id", id)
+        .append("_accessedAt", new Date(session.accessedAt()))
+        .append("_createdAt", new Date(session.createdAt()))
+        .append("_savedAt", new Date(session.savedAt()));
+    // dump attributes
+    session.attributes().forEach((k, v) -> doc.append(k, v));
+
+    sessions.updateOne(filter, new Document("$set", doc), new UpdateOptions().upsert(true));
   }
 
   @Override
@@ -179,41 +190,49 @@ public class MongoSessionStore implements Session.Store {
         return;
       }
 
-      try {
-        log.debug("creating session timeout index");
+      log.debug("creating session timeout index");
+      if (existsIdx(SESSION_IDX)) {
+        Document command = new Document("collMod", collection)
+            .append("index",
+                new Document("keyPattern", new Document("_accessedAt", 1))
+                    .append("expireAfterSeconds", timeout));
+        log.debug("{}", command);
+        Document result = db.runCommand(command);
+        log.debug("{}", result);
+      } else {
         sessions.createIndex(
-            new BasicDBObject("_accessedAt", 1),
-            new BasicDBObject("expireAfterSeconds", timeout)
-            );
-      } catch (MongoException ex) {
-        log.debug("Couldn't update session timeout, we are going to update session timeout", ex);
-        // TODO: allow to customize? ... not sure
-        db.command(BasicDBObjectBuilder.start()
-            .add("collMod", collection)
-            .add("index", BasicDBObjectBuilder.start()
-                .add("keyPattern", new BasicDBObject("_accessedAt", 1))
-                .add("expireAfterSeconds", timeout)
-                .get()
-            )
-            .get()
-            );
+            new Document("_accessedAt", 1),
+            new IndexOptions()
+                .name(SESSION_IDX)
+                .expireAfter(timeout, TimeUnit.SECONDS));
       }
     }
   }
 
   @Override
   public void delete(final String id) {
-    sessions.remove(new BasicDBObject("_id", id));
+    sessions.deleteOne(new Document("_id", id));
   }
 
-  private static int seconds(final String value) {
+  private static long seconds(final String value) {
     try {
-      return Integer.parseInt(value);
+      return Long.parseLong(value);
     } catch (NumberFormatException ex) {
       Config config = ConfigFactory.empty()
           .withValue("timeout", ConfigValueFactory.fromAnyRef(value));
-      return (int) config.getDuration("timeout", TimeUnit.SECONDS);
+      return config.getDuration("timeout", TimeUnit.SECONDS);
     }
+  }
+
+  private boolean existsIdx(final String name) {
+    MongoCursor<Document> iterator = sessions.listIndexes().iterator();
+    while (iterator.hasNext()) {
+      Document doc = iterator.next();
+      if (doc.getString("name").equals(name)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }
