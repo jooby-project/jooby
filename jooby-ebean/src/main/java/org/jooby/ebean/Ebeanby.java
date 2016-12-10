@@ -149,6 +149,11 @@ public class Ebeanby extends Jdbc {
 
   private Set<String> packages = new HashSet<>();
 
+  static {
+    // Turn off ebean shutdown hook:
+    System.setProperty("ebean.registerShutdownHook", "false");
+  }
+
   /**
    * Creates a new {@link Ebeanby} using the given name to setup a {@link Jdbc} datasource.
    *
