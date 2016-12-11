@@ -58,6 +58,7 @@ import static java.util.Objects.requireNonNull;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -1727,21 +1728,16 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   @Override
-  public Route.Definition assets(final String path) {
-    return assets(path, "/");
+  public Definition assets(final String path, final Path basedir) {
+    AssetHandler handler = new AssetHandler(basedir);
+    configureAssetHandler(handler);
+    return assets(path, handler);
   }
 
   @Override
   public Route.Definition assets(final String path, final String location) {
     AssetHandler handler = new AssetHandler(location);
-    onStart(r -> {
-      Config conf = r.require(Config.class);
-      handler
-          .cdn(conf.getString("assets.cdn"))
-          .lastModified(conf.getBoolean("assets.lastModified"))
-          .etag(conf.getBoolean("assets.etag"))
-          .maxAge(conf.getString("assets.cache.maxAge"));
-    });
+    configureAssetHandler(handler);
     return assets(path, handler);
   }
 
@@ -2028,7 +2024,8 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @param injectorFactory the injection provider
    * @return this instance.
    */
-  public Jooby injector(final BiFunction<Stage, com.google.inject.Module, Injector> injectorFactory) {
+  public Jooby injector(
+      final BiFunction<Stage, com.google.inject.Module, Injector> injectorFactory) {
     this.injectorFactory = injectorFactory;
     return this;
   }
@@ -3198,6 +3195,17 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   private static Logger logger(final Jooby app) {
     return LoggerFactory.getLogger(app.getClass());
+  }
+
+  public void configureAssetHandler(final AssetHandler handler) {
+    onStart(r -> {
+      Config conf = r.require(Config.class);
+      handler
+          .cdn(conf.getString("assets.cdn"))
+          .lastModified(conf.getBoolean("assets.lastModified"))
+          .etag(conf.getBoolean("assets.etag"))
+          .maxAge(conf.getString("assets.cache.maxAge"));
+    });
   }
 
 }

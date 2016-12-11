@@ -202,6 +202,20 @@ GET /assets/jquery/2.1.3/jquery.js
 GET /assets/bootstrap/3.3.4/css/bootstrap.css
 ```
 
+### file system location
+
+By default the asset handler is able to read files from the `public` folder, which is a classpath folder.
+
+It is possible to specify an `external` file system location too:
+
+```
+{
+  assets("/static/**", Paths.get("/www"));
+}
+```
+
+A request to `/static/images/logo.png` is translated to the `/www/images/logo.png` file.
+
 ### ETag, Last-Modified and Cache-Control
 
 The `assets.etag` and `assets.lastModified` are two boolean properties that control the `ETag` and `Last-Modified` headers. Both are enabled by default.
