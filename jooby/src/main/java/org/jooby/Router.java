@@ -18,6 +18,7 @@
  */
 package org.jooby;
 
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
@@ -1435,7 +1436,40 @@ public interface Router {
    * @param path The path to publish.
    * @return A new route definition.
    */
-  Route.Definition assets(String path);
+  default Route.Definition assets(final String path) {
+    return assets(path, "/");
+  }
+
+  /**
+   * Static files handler on external location.
+   *
+   * <pre>
+   *   assets("/assets/**", Paths.get("/www"));
+   * </pre>
+   *
+   * For example <code>GET /assets/file.js</code> will be resolve as <code>/www/file.js</code> on
+   * server file system.
+   *
+   * <p>
+   * The {@link AssetHandler} one step forward and add support for serving files from a CDN out of
+   * the box. All you have to do is to define a <code>assets.cdn</code> property:
+   * </p>
+   * <pre>
+   * assets.cdn = "http://d7471vfo50fqt.cloudfront.net"
+   * </pre>
+   *
+   * A GET to <code>/assets/js/index.js</code> will be redirected to:
+   * <code>http://d7471vfo50fqt.cloudfront.net/assets/js/index.js</code>.
+   *
+   * You can turn on/off <code>ETag</code> and <code>Last-Modified</code> headers too using
+   * <code>assets.etag</code> and <code>assets.lastModified</code>. These two properties are enabled
+   * by default.
+   *
+   * @param path The path to publish.
+   * @param basedir Base directory.
+   * @return A new route definition.
+   */
+  Route.Definition assets(final String path, Path basedir);
 
   /**
    * Static files handler. Like {@link #assets(String)} but let you specify a different classpath

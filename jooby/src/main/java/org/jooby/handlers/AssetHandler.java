@@ -20,10 +20,11 @@ package org.jooby.handlers;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
@@ -84,13 +85,15 @@ import javaslang.control.Try;
  */
 public class AssetHandler implements Route.Handler {
 
-  private static final Function1<ClassLoader, ClassLoader> cloader = loader().memoized();
+  private interface Loader {
+    URL getResource(String name);
+  }
 
   private static final Function1<String, String> prefix = prefix().memoized();
 
   private Function2<Request, String, String> fn;
 
-  private ClassLoader loader;
+  private Loader loader;
 
   private String cdn;
 
@@ -128,7 +131,38 @@ public class AssetHandler implements Route.Handler {
    * @param loader The one who load the static resources.
    */
   public AssetHandler(final String pattern, final ClassLoader loader) {
-    init(Route.normalize(pattern), loader);
+    init(Route.normalize(pattern), Paths.get("public"), loader);
+  }
+
+  /**
+   * <p>
+   * Creates a new {@link AssetHandler}. The handler accepts a location pattern, that serve for
+   * locating the static resource.
+   * </p>
+   *
+   * Given <code>assets("/assets/**", "/")</code> with:
+   *
+   * <pre>
+   *   GET /assets/js/index.js it translates the path to: /assets/js/index.js
+   * </pre>
+   *
+   * Given <code>assets("/js/**", "/assets")</code> with:
+   *
+   * <pre>
+   *   GET /js/index.js it translate the path to: /assets/js/index.js
+   * </pre>
+   *
+   * Given <code>assets("/webjars/**", "/META-INF/resources/webjars/{0}")</code> with:
+   *
+   * <pre>
+   *   GET /webjars/jquery/2.1.3/jquery.js it translate the path to: /META-INF/resources/webjars/jquery/2.1.3/jquery.js
+   * </pre>
+   *
+   * @param pattern Pattern to locate static resources.
+   * @param basedir Base directory.
+   */
+  public AssetHandler(final Path basedir) {
+    init("/{0}", basedir, getClass().getClassLoader());
   }
 
   /**
@@ -158,7 +192,7 @@ public class AssetHandler implements Route.Handler {
    * @param pattern Pattern to locate static resources.
    */
   public AssetHandler(final String pattern) {
-    init(Route.normalize(pattern), getClass().getClassLoader());
+    init(Route.normalize(pattern), Paths.get("public"), getClass().getClassLoader());
   }
 
   /**
@@ -317,12 +351,12 @@ public class AssetHandler implements Route.Handler {
     return loader.getResource(path);
   }
 
-  private void init(final String pattern, final ClassLoader loader) {
+  private void init(final String pattern, final Path basedir, final ClassLoader loader) {
     requireNonNull(loader, "Resource loader is required.");
     this.fn = pattern.equals("/")
         ? (req, p) -> prefix.apply(p)
         : (req, p) -> MessageFormat.format(prefix.apply(pattern), vars(req));
-    this.loader = cloader.apply(loader);
+    this.loader = loader(basedir, loader);
   }
 
   private static Object[] vars(final Request req) {
@@ -330,27 +364,21 @@ public class AssetHandler implements Route.Handler {
     return vars.values().toArray(new Object[vars.size()]);
   }
 
-  private static Function1<ClassLoader, ClassLoader> loader() {
-    return parent -> {
-      File publicDir = new File("public");
-      if (publicDir.exists()) {
-        try {
-          return new URLClassLoader(new URL[]{publicDir.toURI().toURL() }, null) {
-            @Override
-            public URL getResource(final String name) {
-              URL url = findResource(name);
-              if (url == null) {
-                url = parent.getResource(name);
-              }
-              return url;
-            };
-          };
-        } catch (MalformedURLException ex) {
-          // shh
+  private static Loader loader(final Path basedir, final ClassLoader classloader) {
+    if (Files.exists(basedir)) {
+      return name -> {
+        Path path = basedir.resolve(name).normalize();
+        if (Files.exists(path) && path.startsWith(basedir)) {
+          try {
+            return path.toUri().toURL();
+          } catch (MalformedURLException x) {
+            // shh
+          }
         }
-      }
-      return parent;
-    };
+        return classloader.getResource(name);
+      };
+    }
+    return classloader::getResource;
   }
 
   private static Function1<String, String> prefix() {
