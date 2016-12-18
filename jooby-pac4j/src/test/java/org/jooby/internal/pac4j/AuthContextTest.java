@@ -489,6 +489,7 @@ public class AuthContextTest {
           expect(req.hostname()).andReturn("localhost");
           expect(req.port()).andReturn(8080);
           expect(req.path()).andReturn("/login");
+          expect(req.queryString()).andReturn(Optional.empty());
         })
         .run(unit -> {
           AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));

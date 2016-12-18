@@ -130,7 +130,8 @@ public class AuthContext implements WebContext {
 
   @Override
   public String getFullRequestURL() {
-    return getScheme() + "://" + getServerName() + ":" + getServerPort() + req.path();
+    String query = req.queryString().map(it -> "?" + it).orElse("");
+    return getScheme() + "://" + getServerName() + ":" + getServerPort() + req.path() + query;
   }
 
   private Map<String, String[]> params(final Request req) {
