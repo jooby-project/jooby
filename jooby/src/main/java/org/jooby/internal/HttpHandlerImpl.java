@@ -503,7 +503,9 @@ public class HttpHandlerImpl implements HttpHandler {
               .map(MediaType::name)
               .collect(Collectors.joining(", ")));
         }
-        return new Err(Status.UNSUPPORTED_MEDIA_TYPE, contentType.name());
+        if (!contentType.isAny()) {
+          return new Err(Status.UNSUPPORTED_MEDIA_TYPE, contentType.name());
+        }
       }
     }
     return null;

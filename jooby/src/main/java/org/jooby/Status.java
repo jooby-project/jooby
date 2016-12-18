@@ -22,9 +22,8 @@ package org.jooby;
  * HTTP status codes.
  *
  * <p>
- * This code has been kindly borrowed from <a href="http://spring.io/">Spring</a>
+ * This code has been kindly borrowed from <a href="http://spring.io/">Spring</a>.
  * </p>
- * .
  *
  * @author Arjen Poutsma
  * @see <a href="http://www.iana.org/assignments/http-status-codes">HTTP Status Code Registry</a>
