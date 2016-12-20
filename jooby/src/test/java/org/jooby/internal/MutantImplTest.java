@@ -152,7 +152,7 @@ public class MutantImplTest {
   public void asOptionalByte() throws Exception {
     assertEquals(Optional.empty(), newMutant((String) null).toOptional(Byte.class));
 
-    assertEquals(5, newMutant((String) null).byteValue(5));
+    assertEquals(5, newMutant((String) null).byteValue((byte) 5));
 
     assertEquals(Optional.of((byte) 1), newMutant("1").toOptional(Byte.class));
   }
@@ -205,7 +205,7 @@ public class MutantImplTest {
   public void asOptionalShort() throws Exception {
     assertEquals(Optional.empty(), newMutant((String) null).toOptional(Short.class));
 
-    assertEquals(7, newMutant((String) null).shortValue(7));
+    assertEquals(7, newMutant((String) null).shortValue((short) 7));
 
     assertEquals(Optional.of((short) 1), newMutant("1").toOptional(short.class));
   }

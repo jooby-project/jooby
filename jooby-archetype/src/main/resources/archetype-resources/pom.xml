@@ -45,25 +45,10 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jooby</groupId>
-      <artifactId>jooby</artifactId>
-      <scope>test</scope>
-      <classifier>tests</classifier>
-    </dependency>
-
-    <!-- Fluent HC -->
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>fluent-hc</artifactId>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpmime</artifactId>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
   <build>

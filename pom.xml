@@ -75,6 +75,7 @@
     <module>jooby-unbescape</module>
     <module>jooby-crash</module>
     <module>jooby-thymeleaf</module>
+    <!-- Assets -->
     <module>jooby-assets</module>
     <module>jooby-assets-j2v8</module>
     <module>jooby-assets-nodejs</module>
@@ -896,6 +897,13 @@
       </dependency>
 
       <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>rest-assured</artifactId>
+        <version>${rest-assured.version}</version>
+      </dependency>
+
+
+      <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>fluent-hc</artifactId>
         <version>${http-client.version}</version>
@@ -1496,7 +1504,6 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <scope>test</scope>
         <version>${junit.version}</version>
       </dependency>
 
@@ -2639,6 +2646,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <hibernate4.version>4.3.9.Final</hibernate4.version>
     <jsr305.version>3.0.0</jsr305.version>
     <http-client.version>4.5.2</http-client.version>
+    <rest-assured.version>3.0.1</rest-assured.version>
     <async-http-client.version>1.9.36</async-http-client.version>
     <cglib.version>3.2.0</cglib.version>
     <asm.version>5.0.3</asm.version>

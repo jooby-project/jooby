@@ -86,8 +86,8 @@ public interface Mutant {
    * @param value Default value to use.
    * @return Get a byte.
    */
-  default byte byteValue(final int value) {
-    return toOptional(Byte.class).orElse((byte) value);
+  default byte byteValue(final byte value) {
+    return toOptional(Byte.class).orElse(value);
   }
 
   /**
@@ -116,8 +116,8 @@ public interface Mutant {
    * @param value Default value to use.
    * @return Get a short value.
    */
-  default short shortValue(final int value) {
-    return toOptional(Short.class).orElse((short) value);
+  default short shortValue(final short value) {
+    return toOptional(Short.class).orElse(value);
   }
 
   /**

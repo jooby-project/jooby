@@ -287,6 +287,7 @@ public class Deferred extends Result {
     } else {
       Result result;
       if (value instanceof Result) {
+        super.set(value);
         result = (Result) value;
       } else {
         super.set(value);
@@ -303,6 +304,7 @@ public class Deferred extends Result {
    * @param cause A value for this deferred.
    */
   public void reject(final Throwable cause) {
+    super.set(cause);
     handler.handle(null, cause);
   }
 
