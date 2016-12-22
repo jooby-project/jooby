@@ -49,6 +49,7 @@ org.jooby.sitemap
 org.jooby.spec
 org.jooby.spi
 org.jooby.swagger
+org.jooby.thymeleaf
 org.jooby.unbescape
 org.jooby.undertow
 org.jooby.whoops

@@ -162,7 +162,8 @@
 </code></pre> 
        </div> 
        <h3 id="props-options">options</h3> 
-       <p>It replaces <code class="highlighter-rouge codehilite">${}</code> expressions, the <code class="highlighter-rouge codehilite">delims</code> options allow you to change this:</p> 
+       <h4 id="props-delims">delims</h4> 
+       <p>The <code class="highlighter-rouge codehilite">delims</code> options allow you to change the default delimiters <code class="highlighter-rouge codehilite">${ }</code>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -171,6 +172,20 @@
  ...
  props {
    delims: [&lt;%, %&gt;]
+ }
+}
+</code></pre> 
+       </div> 
+       <h4 id="props-ignoreMissing">ignoreMissing</h4> 
+       <p>Unresolved properties results in <code class="highlighter-rouge codehilite">NoSuchElement</code> exception. Setting <code class="highlighter-rouge codehilite">ignoreMissing</code> skip missing properties:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>assets {
+ ...
+ props {
+   ignoreMissing: true
  }
 }
 </code></pre> 

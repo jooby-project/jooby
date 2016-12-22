@@ -175,6 +175,11 @@
         <li> <a href="#thread-model-promise">promise</a></li> 
         <li> <a href="#thread-model-advanced-configuration">advanced configuration</a></li>
        </ul></li> 
+      <li class=""> <a href="#tests">tests</a>
+       <ul> 
+        <li> <a href="#tests-unit-tests">unit tests</a></li> 
+        <li> <a href="#tests-integration-tests">integration tests</a></li>
+       </ul></li> 
       <li class=""> <a href="#https">https</a>
        <ul> 
         <li> <a href="#https-certificates">certificates</a></li>
@@ -264,8 +269,13 @@
    <span class="n">onStart</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
      <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"starting app"</span><span class="o">);</span>
    <span class="o">});</span>
+
    <span class="n">onStop</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
      <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"stopping app"</span><span class="o">);</span>
+   <span class="o">});</span>
+
+   <span class="n">onStarted</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+     <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"app started"</span><span class="o">);</span>
    <span class="o">});</span>
 <span class="o">}</span>
 </code></pre> 
@@ -282,14 +292,20 @@
     <span class="n">env</span><span class="o">.</span><span class="na">onStart</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
       <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"starting module"</span><span class="o">);</span>
     <span class="o">});</span>
+
     <span class="n">env</span><span class="o">.</span><span class="na">onStop</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
       <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"stopping module"</span><span class="o">);</span>
+    <span class="o">});</span>
+
+    <span class="n">env</span><span class="o">.</span><span class="na">onStarted</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"app started"</span><span class="o">);</span>
     <span class="o">});</span>
   <span class="o">}</span>
 
 <span class="o">}</span>
 </code></pre> 
        </div> 
+       <p>The <code class="highlighter-rouge codehilite">onStart</code> callbacks are part of bootstrap and executed before server is ready. The <code class="highlighter-rouge codehilite">onStarted</code> callbacks are executed when server is ready.</p> 
        <p>Modules are covered later all you need to know now is that you can start/stop module as you usually do from your application.</p> 
        <h4 id="application-order">order</h4> 
        <p>Callback order is preserved:</p> 
@@ -986,6 +1002,16 @@ GET /assets/css/style.css
 GET /assets/bootstrap/3.3.4/css/bootstrap.css
 </code></pre> 
        </div> 
+       <h4 id="routes-file-system-location">file system location</h4> 
+       <p>By default the asset handler is able to read files from the <code class="highlighter-rouge codehilite">public</code> folder, which is a classpath folder.</p> 
+       <p>It is possible to specify an <code class="highlighter-rouge codehilite">external</code> file system location too:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="err">assets(</span><span class="nt">"/static/**"</span><span class="err">,</span><span class="w"> </span><span class="err">Paths.get(</span><span class="nt">"/www"</span><span class="err">));</span><span class="w"> </span><span class="err">}</span><span class="w"> </span></code></pre> 
+       </div> 
+       <p>A request to <code class="highlighter-rouge codehilite">/static/images/logo.png</code> is translated to the <code class="highlighter-rouge codehilite">/www/images/logo.png</code> file.</p> 
        <h4 id="routes-ETag-Last-Modified-and-Cache-Control">ETag, Last-Modified and Cache-Control</h4> 
        <p>The <code class="highlighter-rouge codehilite">assets.etag</code> and <code class="highlighter-rouge codehilite">assets.lastModified</code> are two boolean properties that control the <code class="highlighter-rouge codehilite">ETag</code> and <code class="highlighter-rouge codehilite">Last-Modified</code> headers. Both are enabled by default.</p> 
        <p>The <code class="highlighter-rouge codehilite">assets.cache.maxAge</code> controls the <code class="highlighter-rouge codehilite">Cache-Control</code> header. Allowed value includes: <code class="highlighter-rouge codehilite">60</code>, <code class="highlighter-rouge codehilite">1h</code>, <code class="highlighter-rouge codehilite">365d</code>, etc. This property is off by default: <code class="highlighter-rouge codehilite">-1</code>.</p> 
@@ -3534,6 +3560,268 @@ server.threads.Max = ${runtime.processors}
        <p>This is just one more example to demonstrate the value of the <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object, because we provide an <a href="/doc/rxjava">rxjava</a> module which takes care of binding <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object into <code class="highlighter-rouge codehilite">Observables</code>.</p> 
        <p>That’s all about <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object, it allows you to build async and reactive applications and at the same time: <strong>keep it simple</strong> (Jooby design goal).</p> 
        <p>Also, we invite you to checkout the available <a href="/doc/async">async/reactive modules</a>.</p> 
+      </div> 
+     </div> 
+     <div class="datalist" id="tests"> 
+      <div class="datalist-title "> 
+       <h2>tests</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>In this section we are going to see how to run unit and integration tests in Jooby.</p> 
+       <h3 id="tests-unit-tests">unit tests</h3> 
+       <p>We do offer two programming models:</p> 
+       <ul> 
+        <li>script programming model; and</li> 
+        <li>mvc programming model</li> 
+       </ul> 
+       <p>You don’t need much for <code class="highlighter-rouge codehilite">MVC</code> routes, because a route is binded to a method of some class. So it is usually very easy and simple to mock and run unit tests against a <code class="highlighter-rouge codehilite">MVC</code> route.</p> 
+       <p>We can’t say the same for <code class="highlighter-rouge codehilite">script</code> routes, because a route is represented by a <code class="highlighter-rouge codehilite">lambda</code> and there is no easy or simple way to get access to the lambda object.</p> 
+       <p>We do provide a <a href="/apidocs/org/jooby/mvc/MockRouter.html" target="_blank">MockRouter</a> which simplify unit tests for <code class="highlighter-rouge codehilite">script routes</code>:</p> 
+       <h4 id="tests-usage">usage</h4> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyApp</span> <span class="kd">extends</span> <span class="n">Jooby</span> <span class="o">{</span>
+
+  <span class="o">{</span>
+    <span class="n">get</span><span class="o">(</span><span class="s">"/test"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"Hello unit tests!"</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>A unit test for this route, looks like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpleTest</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MockRouter</span><span class="o">(</span><span class="k">new</span> <span class="n">MyApp</span><span class="o">())</span>
+     <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/test"</span><span class="o">);</span>
+
+  <span class="n">assertEquals</span><span class="o">(</span><span class="s">"Hello unit tests!"</span><span class="o">,</span> <span class="n">result</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Just create a new instance of <a href="/apidocs/org/jooby/mvc/MockRouter.html" target="_blank">MockRouter</a> with your application and call one of the HTTP method, like <code class="highlighter-rouge codehilite">get</code>, <code class="highlighter-rouge codehilite">post</code>, etc…</p> 
+       <h4 id="tests-mocks">mocks</h4> 
+       <p>You’re free to choose the mock library of your choice. Here is an example using <a href="http://easymock.org" target="_blank">EasyMock</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/mock"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">req</span><span class="o">.</span><span class="na">path</span><span class="o">();</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>A test with <a href="http://easymock.org" target="_blank">EasyMock</a> looks like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">shouldGetRequestPath</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">Request</span> <span class="n">req</span> <span class="o">=</span> <span class="n">EasyMock</span><span class="o">.</span><span class="na">createMock</span><span class="o">(</span><span class="n">Request</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="n">expect</span><span class="o">(</span><span class="n">req</span><span class="o">.</span><span class="na">path</span><span class="o">()).</span><span class="na">andReturn</span><span class="o">(</span><span class="s">"/mypath"</span><span class="o">);</span>
+
+  <span class="n">EasyMock</span><span class="o">.</span><span class="na">replay</span><span class="o">(</span><span class="n">req</span><span class="o">);</span>
+
+  <span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MockRouter</span><span class="o">(</span><span class="k">new</span> <span class="n">MyApp</span><span class="o">(),</span> <span class="n">req</span><span class="o">)</span>
+     <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/mock"</span><span class="o">);</span>
+
+  <span class="n">assertEquals</span><span class="o">(</span><span class="s">"/mypath"</span><span class="o">,</span> <span class="n">result</span><span class="o">);</span>
+
+  <span class="n">EasyMock</span><span class="o">.</span><span class="na">verify</span><span class="o">(</span><span class="n">req</span><span class="o">);</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>You can mock a <a href="/apidocs/org/jooby/Response.html" target="_blank">Response</a> object in the same way:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/mock"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">rsp</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="s">"OK"</span><span class="o">);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>A test with <a href="http://easymock.org" target="_blank">EasyMock</a> looks like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">shouldUseResponseSend</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">Request</span> <span class="n">req</span> <span class="o">=</span> <span class="n">EasyMock</span><span class="o">.</span><span class="na">createMock</span><span class="o">(</span><span class="n">Request</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="n">Response</span> <span class="n">rsp</span> <span class="o">=</span> <span class="n">EasyMock</span><span class="o">.</span><span class="na">createMock</span><span class="o">(</span><span class="n">Response</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="n">rsp</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="s">"OK"</span><span class="o">);</span>
+
+  <span class="n">EasyMock</span><span class="o">.</span><span class="na">replay</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">);</span>
+
+  <span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MockRouter</span><span class="o">(</span><span class="k">new</span> <span class="n">MyApp</span><span class="o">(),</span> <span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span>
+     <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/mock"</span><span class="o">);</span>
+
+  <span class="n">assertEquals</span><span class="o">(</span><span class="s">"OK"</span><span class="o">,</span> <span class="n">result</span><span class="o">);</span>
+
+  <span class="n">EasyMock</span><span class="o">.</span><span class="na">verify</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">);</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>What about external dependencies? It works in a similar way:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">HelloService</span> <span class="n">service</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">HelloService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">service</span><span class="o">.</span><span class="na">salute</span><span class="o">();</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">shouldMockExternalDependencies</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">HelloService</span> <span class="n">service</span> <span class="o">=</span> <span class="n">EasyMock</span><span class="o">.</span><span class="na">createMock</span><span class="o">(</span><span class="n">HelloService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="n">expect</span><span class="o">(</span><span class="n">service</span><span class="o">.</span><span class="na">salute</span><span class="o">()).</span><span class="na">andReturn</span><span class="o">(</span><span class="s">"Hola!"</span><span class="o">);</span>
+
+  <span class="n">EasyMock</span><span class="o">.</span><span class="na">replay</span><span class="o">(</span><span class="n">service</span><span class="o">);</span>
+
+  <span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MockRouter</span><span class="o">(</span><span class="k">new</span> <span class="n">MyApp</span><span class="o">())</span>
+     <span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">service</span><span class="o">)</span>
+     <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">);</span>
+
+  <span class="n">assertEquals</span><span class="o">(</span><span class="s">"Hola!"</span><span class="o">,</span> <span class="n">result</span><span class="o">);</span>
+
+  <span class="n">EasyMock</span><span class="o">.</span><span class="na">verify</span><span class="o">(</span><span class="n">service</span><span class="o">);</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>The <a href="/apidocs/org/jooby/mvc/MockRouter.html#set-java.lang.Object-" target="_blank">MockRouter#set(Object)</a> call push and register an external dependency (usually a mock). This make it possible to resolve services from <code class="highlighter-rouge codehilite">require</code> calls.</p> 
+       <h4 id="tests-deferred">deferred</h4> 
+       <p>Mock of promises are possible too:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">deferred</span><span class="o">.</span><span class="na">resolve</span><span class="o">(</span><span class="s">"OK"</span><span class="o">);</span>
+  <span class="o">}));</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">shouldMockPromises</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MockRouter</span><span class="o">(</span><span class="k">new</span> <span class="n">MyApp</span><span class="o">())</span>
+     <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">);</span>
+
+  <span class="n">assertEquals</span><span class="o">(</span><span class="s">"OK"</span><span class="o">,</span> <span class="n">result</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Previous test works for deferred routes:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">deferred</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="s">"OK"</span><span class="o">;</span>
+  <span class="o">}));</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="tests-integration-tests">integration tests</h3> 
+       <p>Integration tests are possible thanks to a <a href="https://github.com/junit-team/junit4/wiki/Rules" target="_blank">JUnit Rule</a>.</p> 
+       <p>You can choose between <code class="highlighter-rouge codehilite">@ClassRule</code> or <code class="highlighter-rouge codehilite">@Rule</code>. The next example uses <code class="highlighter-rouge codehilite">ClassRule</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>
+<span class="kn">import</span> <span class="nn">org.jooby.test.JoobyRule</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyIntegrationTest</span> <span class="o">{</span>
+
+  <span class="nd">@ClassRule</span>
+  <span class="kd">private</span> <span class="kd">static</span> <span class="n">JoobyRule</span> <span class="n">bootstrap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JoobyRule</span><span class="o">(</span><span class="k">new</span> <span class="n">MyApp</span><span class="o">());</span>
+  
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Here <strong>one</strong> and <strong>only one</strong> instance will be created, which means the application start before the first test and stop after the last test. Application state is <strong>shared</strong> between tests.</p> 
+       <p>While with <code class="highlighter-rouge codehilite">Rule</code> a new application is created per test. If you have N test, then the application will start/stop N times:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>
+<span class="kn">import</span> <span class="nn">org.jooby.test.JoobyRule</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyIntegrationTest</span> <span class="o">{</span>
+
+  <span class="nd">@Rule</span>
+  <span class="kd">private</span> <span class="n">JoobyRule</span> <span class="n">bootstrap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JoobyRule</span><span class="o">(</span><span class="k">new</span> <span class="n">MyApp</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Again you are free to choice the HTTP client of your choice, like <a href="https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fluent.html" target="_blank">Fluent Apache HTTP client</a>, <a href="https://github.com/rest-assured/rest-assured" target="_blank">REST Assured</a>, etc..</p> 
+       <p>Here is a full example with <a href="https://github.com/rest-assured/rest-assured" target="_blank">REST Assured</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>
+import 
+
+public class MyApp extends Jooby {
+
+  {
+    get("/", () -&gt; "I'm real");
+  }
+
+}
+
+public class MyIntegrationTest {
+
+  @Rule
+  JoobyRule bootstrap = new JoobyRule(new MyApp());
+
+  @Test
+  public void integrationTestJustWorks() {
+    get("/")
+      .then()
+      .assertThat()
+      .body(equalTo("I'm real"));
+  }
+}
+</code></pre> 
+       </div> 
+       <p>That’s all for now, enjoy testing!</p> 
       </div> 
      </div> 
      <div class="datalist" id="https"> 
