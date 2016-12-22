@@ -14,7 +14,7 @@ This module extends [jdbc module](/doc/jdbc), before going forward, make sure yo
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ebean</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 

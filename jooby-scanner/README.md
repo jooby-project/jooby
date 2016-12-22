@@ -10,7 +10,7 @@ This module provides `class-path` scanning services for `MVC routes`, `modules`,
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-scanner</artifactId>
- <version>1.0.0</version>
+ <version>1.0.1</version>
 </dependency>
 ```
 

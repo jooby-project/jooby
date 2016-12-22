@@ -15,7 +15,7 @@ Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-pac4j</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
@@ -190,7 +190,7 @@ auth {
 
   # default callback, like http://localhost:8080/auth
 
-  callback = "http://"${application.host}":"${application.port}${application.path}"auth"
+  callback = "http://"${application.host}":"${application.port}${contextPath}"/auth"
 
   # login options
 

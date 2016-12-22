@@ -158,7 +158,6 @@ public class AssetHandler implements Route.Handler {
    *   GET /webjars/jquery/2.1.3/jquery.js it translate the path to: /META-INF/resources/webjars/jquery/2.1.3/jquery.js
    * </pre>
    *
-   * @param pattern Pattern to locate static resources.
    * @param basedir Base directory.
    */
   public AssetHandler(final Path basedir) {

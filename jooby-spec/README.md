@@ -433,7 +433,7 @@ buildscript {
 
   dependencies {
     /** joobyRun */
-    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.0'
+    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.1'
   }
 }
 
@@ -442,7 +442,7 @@ apply plugin: 'jooby'
 ```
 
 ```bash
-gradle joobyAssets
+gradle joobySpec
 ```
 
 The maven/gradle plugin exports the API into a binary format: ```.spec``` which can be parse it later.

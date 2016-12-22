@@ -38,6 +38,8 @@ documentation
 
 {{async.md}}
 
+{{tests.md}}
+
 {{https.md}}
 
 {{h2.md}}

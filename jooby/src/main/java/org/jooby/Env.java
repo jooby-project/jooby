@@ -137,9 +137,6 @@ public interface Env extends LifeCycle {
      * the result of <code>getValue("foo.bar")</code>.
      *
      * @param text Text to process.
-     * @param source The source config to use
-     * @param startDelimiter Start delimiter.
-     * @param endDelimiter End delimiter.
      * @return A processed string.
      */
     public String resolve(final String text) {

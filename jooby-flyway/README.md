@@ -10,7 +10,7 @@ This module run [Flyway](http://flywaydb.org) on startup and apply database migr
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-flyway</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 

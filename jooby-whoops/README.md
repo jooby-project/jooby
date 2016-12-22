@@ -12,7 +12,7 @@ Pretty error page that helps you debug your web application.
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-whoops</artifactId>
- <version>1.0.0</version>
+ <version>1.0.1</version>
 </dependency>
 ```
 
