@@ -5,11 +5,12 @@ import static org.easymock.EasyMock.isA;
 
 import java.util.function.BiConsumer;
 
+import com.codahale.metrics.health.HealthCheckRegistry;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Route;
 import org.jooby.Router;
-import org.jooby.internal.metrics.HealthCheckRegistryProvider;
+import org.jooby.internal.metrics.HealthCheckRegistryInitializer;
 import org.jooby.internal.metrics.MetricRegistryInitializer;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
@@ -24,11 +25,9 @@ import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Reporter;
 import com.codahale.metrics.health.HealthCheck;
-import com.codahale.metrics.health.HealthCheckRegistry;
 import com.google.inject.Binder;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
-import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
@@ -40,7 +39,7 @@ import javaslang.control.Try.CheckedConsumer;
 public class MetricsTest {
 
   @SuppressWarnings("unchecked")
-  private Block bindRegistry = unit -> {
+  private Block bindMetricRegistry = unit -> {
     MetricRegistry registry = unit.get(MetricRegistry.class);
 
     AnnotatedBindingBuilder<MetricRegistry> mrABB = unit.mock(AnnotatedBindingBuilder.class);
@@ -51,7 +50,7 @@ public class MetricsTest {
   };
 
   @SuppressWarnings("unchecked")
-  private Block bindRegistryInitializer = unit -> {
+  private Block bindMetricRegistryInitializer = unit -> {
     AnnotatedBindingBuilder<MetricRegistryInitializer> mrABB = unit
         .mock(AnnotatedBindingBuilder.class);
     mrABB.asEagerSingleton();
@@ -60,24 +59,36 @@ public class MetricsTest {
     expect(binder.bind(MetricRegistryInitializer.class)).andReturn(mrABB);
   };
 
-  @SuppressWarnings("unchecked")
   private Block bindHealthCheckRegistry = unit -> {
-    ScopedBindingBuilder hcrpSBB = unit.mock(ScopedBindingBuilder.class);
-    hcrpSBB.asEagerSingleton();
+    HealthCheckRegistry registry = unit.get(HealthCheckRegistry.class);
 
-    AnnotatedBindingBuilder<HealthCheckRegistry> hcrpABB = unit
-        .mock(AnnotatedBindingBuilder.class);
-
-    expect(hcrpABB.toProvider(HealthCheckRegistryProvider.class)).andReturn(hcrpSBB);
+    AnnotatedBindingBuilder<HealthCheckRegistry> hcrABB = unit.mock(AnnotatedBindingBuilder.class);
+    hcrABB.toInstance(registry);
 
     Binder binder = unit.get(Binder.class);
-    expect(binder.bind(HealthCheckRegistry.class)).andReturn(hcrpABB);
+    expect(binder.bind(HealthCheckRegistry.class)).andReturn(hcrABB);
   };
 
-  private Block newRegistry = unit -> {
+  @SuppressWarnings("unchecked")
+  private Block bindHealthCheckRegistryInitializer = unit -> {
+    AnnotatedBindingBuilder<HealthCheckRegistryInitializer> hcrABB = unit
+      .mock(AnnotatedBindingBuilder.class);
+    hcrABB.asEagerSingleton();
+
+    Binder binder = unit.get(Binder.class);
+    expect(binder.bind(HealthCheckRegistryInitializer.class)).andReturn(hcrABB);
+  };
+
+  private Block newMetricRegistry = unit -> {
     MetricRegistry registry = unit.constructor(MetricRegistry.class)
         .build();
     unit.registerMock(MetricRegistry.class, registry);
+  };
+
+  private Block newHealthCheckRegistry = unit -> {
+    HealthCheckRegistry registry = unit.constructor(HealthCheckRegistry.class)
+                                     .build();
+    unit.registerMock(HealthCheckRegistry.class, registry);
   };
 
   private Block mapBinderStatic = unit -> {
@@ -116,7 +127,8 @@ public class MetricsTest {
   public void basic() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, Jooby.class,
         MetricRegistryInitializer.class)
-            .expect(newRegistry)
+            .expect(newMetricRegistry)
+            .expect(newHealthCheckRegistry)
             .expect(mapBinderStatic)
             .expect(mapbinder(Metric.class, (unit, binder) -> {
             }))
@@ -127,9 +139,10 @@ public class MetricsTest {
             .expect(setbinder(Reporter.class, (unit, binder) -> {
 
             }))
-            .expect(bindRegistry)
-            .expect(bindRegistryInitializer)
+            .expect(bindMetricRegistry)
+            .expect(bindMetricRegistryInitializer)
             .expect(bindHealthCheckRegistry)
+            .expect(bindHealthCheckRegistryInitializer)
             .expect(onStop)
             .expect(unit -> {
               MetricRegistryInitializer closer = unit.get(MetricRegistryInitializer.class);
@@ -147,7 +160,7 @@ public class MetricsTest {
   }
 
   @Test
-  public void basicWithExtRegistry() throws Exception {
+  public void basicWithExtMetricRegistry() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(unit -> {
           MetricRegistry registry = unit.mock(MetricRegistry.class);
@@ -163,9 +176,10 @@ public class MetricsTest {
         .expect(setbinder(Reporter.class, (unit, binder) -> {
 
         }))
-        .expect(bindRegistry)
-        .expect(bindRegistryInitializer)
+        .expect(bindMetricRegistry)
+        .expect(bindMetricRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(bindHealthCheckRegistryInitializer)
         .expect(onStop)
         .run(unit -> {
           MetricRegistry registry = unit.get(MetricRegistry.class);
@@ -175,9 +189,40 @@ public class MetricsTest {
   }
 
   @Test
+  public void basicWithExtHealthCheckRegistry() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class)
+      .expect(newMetricRegistry)
+      .expect(unit -> {
+        HealthCheckRegistry registry = unit.mock(HealthCheckRegistry.class);
+        unit.registerMock(HealthCheckRegistry.class, registry);
+      })
+      .expect(mapBinderStatic)
+      .expect(mapbinder(Metric.class, (unit, binder) -> {
+      }))
+      .expect(mapbinder(HealthCheck.class, (unit, binder) -> {
+      }))
+      .expect(multibinderStatic)
+      .expect(routes)
+      .expect(setbinder(Reporter.class, (unit, binder) -> {
+
+      }))
+      .expect(bindMetricRegistry)
+      .expect(bindMetricRegistryInitializer)
+      .expect(bindHealthCheckRegistry)
+      .expect(bindHealthCheckRegistryInitializer)
+      .expect(onStop)
+      .run(unit -> {
+        HealthCheckRegistry registry = unit.get(HealthCheckRegistry.class);
+        new Metrics(registry)
+          .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+      });
+  }
+
+  @Test
   public void request() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(newRegistry)
+        .expect(newMetricRegistry)
+        .expect(newHealthCheckRegistry)
         .expect(mapBinderStatic)
         .expect(mapbinder(Metric.class, (unit, binder) -> {
         }))
@@ -203,9 +248,10 @@ public class MetricsTest {
         .expect(setbinder(Reporter.class, (unit, binder) -> {
 
         }))
-        .expect(bindRegistry)
-        .expect(bindRegistryInitializer)
+        .expect(bindMetricRegistry)
+        .expect(bindMetricRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(bindHealthCheckRegistryInitializer)
         .expect(onStop)
         .run(unit -> {
           Metrics metrics = new Metrics().request();
@@ -216,7 +262,8 @@ public class MetricsTest {
   @Test
   public void ping() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(newRegistry)
+        .expect(newMetricRegistry)
+        .expect(newHealthCheckRegistry)
         .expect(mapBinderStatic)
         .expect(mapbinder(Metric.class, (unit, binder) -> {
         }))
@@ -232,9 +279,10 @@ public class MetricsTest {
         .expect(setbinder(Reporter.class, (unit, binder) -> {
 
         }))
-        .expect(bindRegistry)
-        .expect(bindRegistryInitializer)
+        .expect(bindMetricRegistry)
+        .expect(bindMetricRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(bindHealthCheckRegistryInitializer)
         .expect(onStop)
         .run(unit -> {
           Metrics metrics = new Metrics().ping();
@@ -245,7 +293,8 @@ public class MetricsTest {
   @Test
   public void threadDump() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(newRegistry)
+        .expect(newMetricRegistry)
+        .expect(newHealthCheckRegistry)
         .expect(mapBinderStatic)
         .expect(mapbinder(Metric.class, (unit, binder) -> {
         }))
@@ -261,9 +310,10 @@ public class MetricsTest {
         .expect(setbinder(Reporter.class, (unit, binder) -> {
 
         }))
-        .expect(bindRegistry)
-        .expect(bindRegistryInitializer)
+        .expect(bindMetricRegistry)
+        .expect(bindMetricRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(bindHealthCheckRegistryInitializer)
         .expect(onStop)
         .run(unit -> {
           Metrics metrics = new Metrics().threadDump();
@@ -275,7 +325,8 @@ public class MetricsTest {
   @Test
   public void metricInstance() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, Metric.class)
-        .expect(newRegistry)
+        .expect(newMetricRegistry)
+        .expect(newHealthCheckRegistry)
         .expect(mapBinderStatic)
         .expect(mapbinder(Metric.class, (unit, binder) -> {
         }))
@@ -291,9 +342,10 @@ public class MetricsTest {
         .expect(setbinder(Reporter.class, (unit, binder) -> {
 
         }))
-        .expect(bindRegistry)
-        .expect(bindRegistryInitializer)
+        .expect(bindMetricRegistry)
+        .expect(bindMetricRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(bindHealthCheckRegistryInitializer)
         .expect(onStop)
         .run(unit -> {
           new Metrics()
@@ -306,7 +358,8 @@ public class MetricsTest {
   @Test
   public void metricRef() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(newRegistry)
+        .expect(newMetricRegistry)
+        .expect(newHealthCheckRegistry)
         .expect(mapBinderStatic)
         .expect(mapbinder(Metric.class, (unit, binder) -> {
         }))
@@ -322,9 +375,10 @@ public class MetricsTest {
         .expect(setbinder(Reporter.class, (unit, binder) -> {
 
         }))
-        .expect(bindRegistry)
-        .expect(bindRegistryInitializer)
+        .expect(bindMetricRegistry)
+        .expect(bindMetricRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(bindHealthCheckRegistryInitializer)
         .expect(onStop)
         .run(unit -> {
           new Metrics()
@@ -337,7 +391,8 @@ public class MetricsTest {
   @Test
   public void healthCheck() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, HealthCheck.class)
-        .expect(newRegistry)
+        .expect(newMetricRegistry)
+        .expect(newHealthCheckRegistry)
         .expect(mapBinderStatic)
         .expect(mapbinder(Metric.class, (unit, binder) -> {
         }))
@@ -353,9 +408,10 @@ public class MetricsTest {
         .expect(setbinder(Reporter.class, (unit, binder) -> {
 
         }))
-        .expect(bindRegistry)
-        .expect(bindRegistryInitializer)
+        .expect(bindMetricRegistry)
+        .expect(bindMetricRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(bindHealthCheckRegistryInitializer)
         .expect(onStop)
         .run(unit -> {
           new Metrics()
@@ -368,7 +424,8 @@ public class MetricsTest {
   @Test
   public void healthRef() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(newRegistry)
+        .expect(newMetricRegistry)
+        .expect(newHealthCheckRegistry)
         .expect(mapBinderStatic)
         .expect(mapbinder(Metric.class, (unit, binder) -> {
         }))
@@ -384,9 +441,10 @@ public class MetricsTest {
         .expect(setbinder(Reporter.class, (unit, binder) -> {
 
         }))
-        .expect(bindRegistry)
-        .expect(bindRegistryInitializer)
+        .expect(bindMetricRegistry)
+        .expect(bindMetricRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(bindHealthCheckRegistryInitializer)
         .expect(onStop)
         .run(unit -> {
           new Metrics()
@@ -399,7 +457,8 @@ public class MetricsTest {
   @Test
   public void reporter() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(newRegistry)
+        .expect(newMetricRegistry)
+        .expect(newHealthCheckRegistry)
         .expect(mapBinderStatic)
         .expect(mapbinder(Metric.class, (unit, binder) -> {
         }))
@@ -413,9 +472,10 @@ public class MetricsTest {
 
           expect(binder.addBinding()).andReturn(rLBB);
         }))
-        .expect(bindRegistry)
-        .expect(bindRegistryInitializer)
+        .expect(bindMetricRegistry)
+        .expect(bindMetricRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(bindHealthCheckRegistryInitializer)
         .expect(onStop)
         .run(unit -> {
           new Metrics()

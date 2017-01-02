@@ -21,24 +21,16 @@ package org.jooby.internal.metrics;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
 
-public class HealthCheckRegistryProvider implements Provider<HealthCheckRegistry> {
-
-  private HealthCheckRegistry registry;
+public class HealthCheckRegistryInitializer {
 
   @Inject
-  public HealthCheckRegistryProvider(final Map<String, HealthCheck> checks) {
-    registry = new HealthCheckRegistry();
+  public HealthCheckRegistryInitializer(final HealthCheckRegistry registry,
+      final Map<String, HealthCheck> checks) {
     checks.forEach(registry::register);
-  }
-
-  @Override
-  public HealthCheckRegistry get() {
-    return registry;
   }
 
 }
