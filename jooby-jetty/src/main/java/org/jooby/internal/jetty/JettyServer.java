@@ -71,13 +71,11 @@ public class JettyServer implements org.jooby.spi.Server {
   private final Logger log = LoggerFactory.getLogger(org.jooby.spi.Server.class);
 
   private Server server;
-  private Executor executor;
 
   @Inject
   public JettyServer(final HttpHandler handler, final Config conf,
       final Provider<SSLContext> sslCtx) {
     this.server = server(handler, conf, sslCtx);
-    this.executor = this.server.getThreadPool();
   }
 
   private Server server(final HttpHandler handler, final Config conf,
@@ -201,7 +199,7 @@ public class JettyServer implements org.jooby.spi.Server {
   @Override
   public Optional<Executor> executor()
   {
-    return Optional.of(executor);
+    return Optional.ofNullable(server.getThreadPool());
   }
 
   private void tryOption(final Object source, final Config config, final Method option) {

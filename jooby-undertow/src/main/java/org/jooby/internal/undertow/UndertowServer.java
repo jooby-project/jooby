@@ -56,7 +56,6 @@ public class UndertowServer implements org.jooby.spi.Server {
   private static final Logger log = LoggerFactory.getLogger(org.jooby.spi.Server.class);
 
   private Undertow server;
-  private Executor executor;
 
   private final GracefulShutdownHandler shutdown;
 
@@ -88,8 +87,6 @@ public class UndertowServer implements org.jooby.spi.Server {
 
     this.server = ubuilder.setHandler(shutdown)
         .build();
-
-    this.executor = server.getWorker();
   }
 
   private String host(final String host) {
@@ -214,7 +211,7 @@ public class UndertowServer implements org.jooby.spi.Server {
   @Override
   public Optional<Executor> executor()
   {
-    return Optional.of(executor);
+    return Optional.ofNullable(server.getWorker());
   }
 
 }

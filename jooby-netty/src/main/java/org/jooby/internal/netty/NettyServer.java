@@ -157,7 +157,7 @@ public class NettyServer implements Server {
   @Override
   public Optional<Executor> executor()
   {
-    return Optional.of(executor);
+    return Optional.ofNullable(executor);
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })
