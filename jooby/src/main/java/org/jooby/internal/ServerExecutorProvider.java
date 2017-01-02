@@ -16,44 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.spi;
+package org.jooby.internal;
 
+import org.jooby.spi.Server;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.concurrent.Executor;
 
-/**
- * A HTTP web server.
- *
- * @author edgar
- * @since 0.1.0
- */
-public interface Server {
+import static java.util.Objects.requireNonNull;
 
-  /**
-   * Start the web server.
-   *
-   * @throws Exception If server fail to start.
-   */
-  void start() throws Exception;
+public class ServerExecutorProvider implements Provider<Executor> {
 
-  /**
-   * Stop the web server.
-   *
-   * @throws Exception If server fail to stop.
-   */
-  void stop() throws Exception;
+  private Executor executor;
 
-  /**
-   * Waits for this thread to die.
-   *
-   * @throws InterruptedException If wait didn't success.
-   */
-  void join() throws InterruptedException;
+  @Inject
+  public ServerExecutorProvider(final Server server) {
+    executor = requireNonNull(server, "Server is required.").executor();
+  }
 
-  /**
-   * Obtain the executor for worker threads.
-   *
-   * @return The executor for worker threads.
-   */
-  Executor executor();
+  @Override
+  public Executor get() {
+    return executor;
+  }
 
 }

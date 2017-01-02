@@ -20,6 +20,7 @@ package org.jooby.internal.undertow;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -54,6 +55,7 @@ public class UndertowServer implements org.jooby.spi.Server {
   private static final Logger log = LoggerFactory.getLogger(org.jooby.spi.Server.class);
 
   private Undertow server;
+  private Executor executor;
 
   private final GracefulShutdownHandler shutdown;
 
@@ -85,6 +87,8 @@ public class UndertowServer implements org.jooby.spi.Server {
 
     this.server = ubuilder.setHandler(shutdown)
         .build();
+
+    this.executor = server.getWorker();
   }
 
   private String host(final String host) {
@@ -204,6 +208,12 @@ public class UndertowServer implements org.jooby.spi.Server {
     shutdown.shutdown();
     shutdown.awaitShutdown(awaitShutdown);
     server.stop();
+  }
+
+  @Override
+  public Executor executor()
+  {
+    return executor;
   }
 
 }

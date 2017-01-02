@@ -108,6 +108,7 @@ import org.jooby.internal.LocaleUtils;
 import org.jooby.internal.ParameterNameProvider;
 import org.jooby.internal.RequestScope;
 import org.jooby.internal.RouteMetadata;
+import org.jooby.internal.ServerExecutorProvider;
 import org.jooby.internal.ServerLookup;
 import org.jooby.internal.ServerSessionManager;
 import org.jooby.internal.SessionManager;
@@ -2365,6 +2366,24 @@ public class Jooby implements Router, LifeCycle, Registry {
    * Default executor runs each task in the thread that invokes {@link Executor#execute execute},
    * that's a Jooby worker thread. A worker thread in Jooby can block.
    *
+   * @param name Name of the executor.
+   * @param provider Provider for the executor.
+   * @return This jooby instance.
+   */
+  public Jooby executor(final String name, final Class<? extends javax.inject.Provider<Executor>> provider) {
+    this.executors.add(binder -> {
+      binder.bind(Key.get(Executor.class, Names.named(name))).toProvider(provider).in(Singleton.class);
+    });
+    return this;
+  }
+
+  /**
+   * Set a named executor to use from {@link Deferred Deferred API}. Useful for override the
+   * default/global executor.
+   *
+   * Default executor runs each task in the thread that invokes {@link Executor#execute execute},
+   * that's a Jooby worker thread. A worker thread in Jooby can block.
+   *
    * The {@link ExecutorService} will automatically shutdown.
    *
    * @param name Name of the executor.
@@ -2565,6 +2584,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       executor(MoreExecutors.directExecutor());
     }
     executor("direct", MoreExecutors.directExecutor());
+    executor("server", ServerExecutorProvider.class);
 
     /** Some basic xss functions. */
     xss(finalEnv);

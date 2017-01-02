@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -69,11 +70,13 @@ public class JettyServer implements org.jooby.spi.Server {
   private final Logger log = LoggerFactory.getLogger(org.jooby.spi.Server.class);
 
   private Server server;
+  private Executor executor;
 
   @Inject
   public JettyServer(final HttpHandler handler, final Config conf,
       final Provider<SSLContext> sslCtx) {
     this.server = server(handler, conf, sslCtx);
+    this.executor = this.server.getThreadPool();
   }
 
   private Server server(final HttpHandler handler, final Config conf,
@@ -192,6 +195,12 @@ public class JettyServer implements org.jooby.spi.Server {
   @Override
   public void stop() throws Exception {
     server.stop();
+  }
+
+  @Override
+  public Executor executor()
+  {
+    return executor;
   }
 
   private void tryOption(final Object source, final Config config, final Method option) {
