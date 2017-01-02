@@ -187,18 +187,8 @@ public class Exec implements Module {
       ImmutableMap
           .of(
               "cached", (name, n, tf, opts) -> Executors.newCachedThreadPool(tf.get()),
-              "fixed", (name, n, tf, opts) -> {
-                Optional<Integer> size = Optional.ofNullable(
-                  opts.containsKey("size") ? Integer.parseInt(opts.get("size").toString()) : null
-                );
-                return Executors.newFixedThreadPool(size.orElse(n), tf.get());
-              },
-              "scheduled", (name, n, tf, opts) -> {
-                Optional<Integer> size = Optional.ofNullable(
-                  opts.containsKey("size") ? Integer.parseInt(opts.get("size").toString()) : null
-                );
-                return Executors.newScheduledThreadPool(size.orElse(n), tf.get());
-              },
+              "fixed", (name, n, tf, opts) -> Executors.newFixedThreadPool(n, tf.get()),
+              "scheduled", (name, n, tf, opts) -> Executors.newScheduledThreadPool(n, tf.get()),
               "forkjoin", (name, n, tf, opts) -> {
                 boolean asyncMode = Boolean.parseBoolean(opts.getOrDefault("asyncMode", "false")
                     .toString());
@@ -363,6 +353,7 @@ public class Exec implements Module {
     return result;
   }
 
+  @SuppressWarnings("unchecked")
   private static Map<String, Object> executor(final String name, final boolean daemon,
       final int priority,
       final int n,
@@ -371,23 +362,38 @@ public class Exec implements Module {
     options.put("name", name);
     options.put("daemon", daemon);
     options.put("priority", priority);
-    Iterable<String> spec = Splitter.on(",").trimResults().omitEmptyStrings()
-        .split(value.toString());
-    for (String option : spec) {
-      String[] opt = option.split("=");
-      String optname = opt[0].trim();
-      Object optvalue;
-      if (optname.equals("daemon")) {
-        optvalue = opt.length > 1 ? Boolean.parseBoolean(opt[1].trim()) : daemon;
-      } else if (optname.equals("asyncMode")) {
-        optvalue = opt.length > 1 ? Boolean.parseBoolean(opt[1].trim()) : false;
-      } else if (optname.equals("priority")) {
-        optvalue = opt.length > 1 ? Integer.parseInt(opt[1].trim()) : priority;
-      } else {
-        optvalue = opt.length > 1 ? Integer.parseInt(opt[1].trim()) : n;
-        options.put("type", optname);
+    if (value instanceof Map) {
+      Map<String, Object> config = (Map<String, Object>) value;
+      String type = config.get("type").toString();
+      options.put("type", type);
+      options.put(type, config.containsKey("size") ?
+        Integer.parseInt(config.get("size").toString()) : n);
+      options.put("daemon", config.containsKey("daemon") ?
+        Boolean.parseBoolean(config.get("daemon").toString()) : daemon);
+      options.put("asyncMode", config.containsKey("asyncMode") ?
+        Boolean.parseBoolean(config.get("asyncMode").toString()) : false);
+      options.put("priority", config.containsKey("priority") ?
+        Integer.parseInt(config.get("priority").toString()) : priority);
+    } else {
+      System.out.println("Bere");
+      Iterable<String> spec = Splitter.on(",").trimResults().omitEmptyStrings()
+                                      .split(value.toString());
+      for (String option : spec) {
+        String[] opt = option.split("=");
+        String optname = opt[0].trim();
+        Object optvalue;
+        if (optname.equals("daemon")) {
+          optvalue = opt.length > 1 ? Boolean.parseBoolean(opt[1].trim()) : daemon;
+        } else if (optname.equals("asyncMode")) {
+          optvalue = opt.length > 1 ? Boolean.parseBoolean(opt[1].trim()) : false;
+        } else if (optname.equals("priority")) {
+          optvalue = opt.length > 1 ? Integer.parseInt(opt[1].trim()) : priority;
+        } else {
+          optvalue = opt.length > 1 ? Integer.parseInt(opt[1].trim()) : n;
+          options.put("type", optname);
+        }
+        options.put(optname, optvalue);
       }
-      options.put(optname, optvalue);
     }
     return options;
   }
