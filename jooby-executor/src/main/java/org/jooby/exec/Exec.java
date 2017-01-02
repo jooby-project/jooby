@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -186,8 +187,18 @@ public class Exec implements Module {
       ImmutableMap
           .of(
               "cached", (name, n, tf, opts) -> Executors.newCachedThreadPool(tf.get()),
-              "fixed", (name, n, tf, opts) -> Executors.newFixedThreadPool(n, tf.get()),
-              "scheduled", (name, n, tf, opts) -> Executors.newScheduledThreadPool(n, tf.get()),
+              "fixed", (name, n, tf, opts) -> {
+                Optional<Integer> size = Optional.ofNullable(
+                  opts.containsKey("size") ? Integer.parseInt(opts.get("size").toString()) : null
+                );
+                return Executors.newFixedThreadPool(size.orElse(n), tf.get());
+              },
+              "scheduled", (name, n, tf, opts) -> {
+                Optional<Integer> size = Optional.ofNullable(
+                  opts.containsKey("size") ? Integer.parseInt(opts.get("size").toString()) : null
+                );
+                return Executors.newScheduledThreadPool(size.orElse(n), tf.get());
+              },
               "forkjoin", (name, n, tf, opts) -> {
                 boolean asyncMode = Boolean.parseBoolean(opts.getOrDefault("asyncMode", "false")
                     .toString());
