@@ -18,6 +18,7 @@
  */
 package org.jooby.internal;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import org.jooby.spi.Server;
 
 import javax.inject.Inject;
@@ -32,7 +33,8 @@ public class ServerExecutorProvider implements Provider<Executor> {
 
   @Inject
   public ServerExecutorProvider(final Server server) {
-    executor = requireNonNull(server, "Server is required.").executor();
+    executor = requireNonNull(server, "Server is required.")
+      .executor().orElse(MoreExecutors.directExecutor());
   }
 
   @Override

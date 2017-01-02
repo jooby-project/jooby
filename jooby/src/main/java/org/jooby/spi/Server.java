@@ -18,6 +18,7 @@
  */
 package org.jooby.spi;
 
+import java.util.Optional;
 import java.util.concurrent.Executor;
 
 /**
@@ -54,6 +55,6 @@ public interface Server {
    *
    * @return The executor for worker threads.
    */
-  Executor executor();
+  Optional<Executor> executor();
 
 }

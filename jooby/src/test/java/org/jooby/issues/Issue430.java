@@ -4,6 +4,9 @@ import org.jooby.Jooby;
 import org.jooby.spi.Server;
 import org.junit.Test;
 
+import java.util.Optional;
+import java.util.concurrent.Executor;
+
 public class Issue430 {
 
   public static class NOOP implements Server {
@@ -18,6 +21,11 @@ public class Issue430 {
 
     @Override
     public void join() throws InterruptedException {
+    }
+
+    @Override
+    public Optional<Executor> executor() {
+      return Optional.empty();
     }
 
   }
