@@ -42,7 +42,7 @@ public class WebContextFeature extends ServerFeature {
     request()
         .get("/auth/ctx?p1=v1")
         .expect("{\n" +
-            "  \"fullRequestURL\" : \"http://localhost:9999/auth/ctx\",\n" +
+            "  \"fullRequestURL\" : \"http://localhost:9999/auth/ctx?p1=v1\",\n" +
             "  \"requestMethod\" : \"GET\",\n" +
             "  \"requestParameters\" : {\n" +
             "    \"p1\" : [ \"v1\" ]\n" +
