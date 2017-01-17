@@ -364,7 +364,11 @@ public class Exec implements Module {
     options.put("priority", priority);
     if (value instanceof Map) {
       Map<String, Object> config = (Map<String, Object>) value;
-      String type = config.get("type").toString();
+      Object rawType = config.get("type");
+      if (rawType == null) {
+        throw new IllegalArgumentException("Missing executor type");
+      }
+      String type = rawType.toString();
       options.put("type", type);
       options.put(type, config.containsKey("size") ?
         Integer.parseInt(config.get("size").toString()) : n);
@@ -375,7 +379,6 @@ public class Exec implements Module {
       options.put("priority", config.containsKey("priority") ?
         Integer.parseInt(config.get("priority").toString()) : priority);
     } else {
-      System.out.println("Bere");
       Iterable<String> spec = Splitter.on(",").trimResults().omitEmptyStrings()
                                       .split(value.toString());
       for (String option : spec) {
