@@ -1,5 +1,8 @@
 package org.jooby.internal.netty;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 
@@ -117,7 +120,9 @@ public class NettyServerTest {
         .run(unit -> {
           NettyServer server = new NettyServer(unit.get(HttpHandler.class), config);
           try {
+            assertNotNull(server.executor());
             server.start();
+            assertTrue(server.executor().isPresent());
             server.join();
           } finally {
             server.stop();

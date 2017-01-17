@@ -20,14 +20,15 @@ package org.jooby.internal;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import org.jooby.spi.Server;
 
-import javax.inject.Provider;
 import java.util.concurrent.Executor;
 
 import static java.util.Objects.requireNonNull;
 
-public class ServerExecutorProvider implements Provider<Executor> {
+public class ServerExecutorProvider implements Provider<Executor>
+{
 
   private Executor executor;
 
