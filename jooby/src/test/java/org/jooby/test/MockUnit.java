@@ -111,7 +111,7 @@ public class MockUnit {
   public <T> List<T> captured(final Class<T> type) {
     List<Capture<Object>> captureList = this.captures.get(type);
     List<T> result = new LinkedList<>();
-    captureList.forEach(it -> result.add((T) it.getValue()));
+    captureList.stream().filter(Capture::hasCaptured).forEach(it -> result.add((T) it.getValue()));
     return result;
   }
 

@@ -24,6 +24,7 @@ import static javaslang.Predicates.is;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -38,6 +39,7 @@ import org.jooby.spi.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 
@@ -54,17 +56,11 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
-import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
-import javaslang.control.Try;
 
 public class NettyServer implements Server {
-
-  static {
-    ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
-  }
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(Server.class);
@@ -99,8 +95,7 @@ public class NettyServer implements Server {
     }
 
     ThreadFactory threadFactory = new DefaultThreadFactory(conf.getString("netty.threads.Name"));
-    this.executor = new DefaultEventExecutorGroup(
-        conf.getInt("netty.threads.Max"), threadFactory);
+    this.executor = new DefaultEventExecutorGroup(conf.getInt("netty.threads.Max"), threadFactory);
 
     this.ch = bootstrap(executor, null, conf.getInt("application.port"));
 
@@ -139,14 +134,7 @@ public class NettyServer implements Server {
 
   @Override
   public void stop() throws Exception {
-    Try.run(() -> executor.shutdownGracefully())
-        .onFailure(x -> log.debug("executor shutdown resulted in exception", x));
-    Try.run(() -> bossLoop.shutdownGracefully())
-        .onFailure(x -> log.debug("event loop shutdown resulted in exception", x));
-    if (!workerLoop.isShutdown()) {
-      Try.run(() -> workerLoop.shutdownGracefully())
-          .onFailure(x -> log.debug("worker event loop shutdown resulted in exception", x));
-    }
+    shutdownGracefully(ImmutableList.of(bossLoop, workerLoop, executor).iterator());
   }
 
   @Override
@@ -201,6 +189,25 @@ public class NettyServer implements Server {
       return new EpollEventLoopGroup(threads, new DefaultThreadFactory("epoll-" + name, false));
     }
     return new NioEventLoopGroup(threads, new DefaultThreadFactory("nio-" + name, false));
+  }
+
+  /**
+   * Shutdown executor in order.
+   *
+   * @param iterator Executors to shutdown.
+   */
+  private void shutdownGracefully(final Iterator<EventExecutorGroup> iterator) {
+    if (iterator.hasNext()) {
+      EventExecutorGroup group = iterator.next();
+      if (!group.isShuttingDown()) {
+        group.shutdownGracefully().addListener(future -> {
+          if (!future.isSuccess()) {
+            log.debug("shutdown of {} resulted in exception", group, future.cause());
+          }
+          shutdownGracefully(iterator);
+        });
+      }
+    }
   }
 
 }

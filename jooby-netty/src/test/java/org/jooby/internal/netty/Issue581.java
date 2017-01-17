@@ -36,6 +36,7 @@ import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NettyServer.class, NioEventLoopGroup.class, DefaultThreadFactory.class,
@@ -69,8 +70,12 @@ public class Issue581 {
     unit.registerMock(NioEventLoopGroup.class, eventLoop);
 
     Future future = unit.mock(Future.class);
-    expect(eventLoop.shutdownGracefully()).andReturn(future);
-    expect(eventLoop.isShutdown()).andReturn(true);
+    unit.registerMock(Future.class, future);
+    expect(future.isSuccess()).andReturn(true).times(2);
+    expect(future.addListener(unit.capture(GenericFutureListener.class))).andReturn(future)
+        .times(2);
+    expect(eventLoop.shutdownGracefully()).andReturn(future).times(2);
+    expect(eventLoop.isShuttingDown()).andReturn(false).times(2);
   };
 
   private Block taskThreadFactory = unit -> {
@@ -114,8 +119,10 @@ public class Issue581 {
         .expect(bootstrap(6789))
         .expect(unit -> {
           EventExecutorGroup executor = unit.get(EventExecutorGroup.class);
-          Future shutdownFuture = unit.mock(Future.class);
-          expect(executor.shutdownGracefully()).andReturn(shutdownFuture);
+          Future future = unit.mock(Future.class);
+          expect(executor.shutdownGracefully()).andReturn(future);
+          expect(executor.isShuttingDown()).andReturn(false);
+          expect(future.addListener(unit.capture(GenericFutureListener.class))).andReturn(future);
         })
         .run(unit -> {
           NettyServer server = new NettyServer(unit.get(HttpHandler.class), config);
@@ -125,6 +132,11 @@ public class Issue581 {
           } finally {
             server.stop();
           }
+        }, unit -> {
+          unit.captured(GenericFutureListener.class).get(0)
+              .operationComplete(unit.get(Future.class));
+          unit.captured(GenericFutureListener.class).get(0)
+              .operationComplete(unit.get(Future.class));
         });
   }
 

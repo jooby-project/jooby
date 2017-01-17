@@ -7,6 +7,8 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ThreadFactory;
 
 import org.jooby.spi.HttpHandler;
@@ -42,11 +44,12 @@ import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NettyServer.class, NioEventLoopGroup.class, DefaultThreadFactory.class,
     DefaultEventExecutorGroup.class, ServerBootstrap.class, SslContextBuilder.class, File.class,
-    Epoll.class, EpollEventLoopGroup.class, NettySslContext.class })
+    Epoll.class, EpollEventLoopGroup.class, NettySslContext.class, GenericFutureListener.class })
 public class NettyServerTest {
 
   Config config = ConfigFactory.empty()
@@ -75,8 +78,9 @@ public class NettyServerTest {
     unit.registerMock(NioEventLoopGroup.class, eventLoop);
 
     Future future = unit.mock(Future.class);
+    expect(future.addListener(unit.capture(GenericFutureListener.class))).andReturn(future);
     expect(eventLoop.shutdownGracefully()).andReturn(future);
-    expect(eventLoop.isShutdown()).andReturn(true);
+    expect(eventLoop.isShuttingDown()).andReturn(false);
   };
 
   private Block taskThreadFactory = unit -> {
@@ -130,6 +134,35 @@ public class NettyServerTest {
         });
   }
 
+  @Test
+  public void eventLoopIsShuttingDown() throws Exception {
+    new MockUnit(HttpHandler.class)
+        .expect(parentThreadFactory("nio-boss"))
+        .expect(noepoll)
+        .expect(unit -> {
+          NioEventLoopGroup eventLoop = unit.constructor(NioEventLoopGroup.class)
+              .args(int.class, ThreadFactory.class)
+              .build(1, unit.get(ThreadFactory.class));
+          unit.registerMock(EventLoopGroup.class, eventLoop);
+          unit.registerMock(NioEventLoopGroup.class, eventLoop);
+
+          expect(eventLoop.isShuttingDown()).andReturn(true);
+        })
+        .expect(taskThreadFactory)
+        .expect(taskExecutor)
+        .expect(channel)
+        .expect(bootstrap(6789))
+        .run(unit -> {
+          NettyServer server = new NettyServer(unit.get(HttpHandler.class), config);
+          try {
+            server.start();
+            server.join();
+          } finally {
+            server.stop();
+          }
+        });
+  }
+
   private Block parentThreadFactory(final String name) {
     return unit -> {
       DefaultThreadFactory factory = unit.constructor(DefaultThreadFactory.class)
@@ -156,8 +189,9 @@ public class NettyServerTest {
           unit.registerMock(EpollEventLoopGroup.class, eventLoop);
 
           Future future = unit.mock(Future.class);
+          expect(future.addListener(unit.capture(GenericFutureListener.class))).andReturn(future);
           expect(eventLoop.shutdownGracefully()).andReturn(future);
-          expect(eventLoop.isShutdown()).andReturn(true);
+          expect(eventLoop.isShuttingDown()).andReturn(false);
         })
         .expect(taskThreadFactory)
         .expect(taskExecutor)
@@ -216,7 +250,9 @@ public class NettyServerTest {
           unit.registerMock(EventLoopGroup.class, eventLoop);
 
           Future future = unit.mock(Future.class);
+          expect(future.addListener(unit.capture(GenericFutureListener.class))).andReturn(future);
           expect(eventLoop.shutdownGracefully()).andReturn(future);
+          expect(eventLoop.isShuttingDown()).andReturn(false);
         })
         .expect(unit -> {
           DefaultThreadFactory factory = unit.constructor(DefaultThreadFactory.class)
@@ -231,8 +267,11 @@ public class NettyServerTest {
           unit.registerMock(NioEventLoopGroup.class, eventLoop);
 
           Future future = unit.mock(Future.class);
-          expect(eventLoop.isShutdown()).andReturn(false);
+          expect(future.isSuccess()).andReturn(true);
+          expect(future.addListener(unit.capture(GenericFutureListener.class))).andReturn(future);
           expect(eventLoop.shutdownGracefully()).andReturn(future);
+          expect(eventLoop.isShuttingDown()).andReturn(false);
+          unit.registerMock(Future.class, future);
         })
         .expect(taskThreadFactory)
         .expect(taskExecutor)
@@ -246,6 +285,67 @@ public class NettyServerTest {
           } finally {
             server.stop();
           }
+        }, unit -> {
+          List<GenericFutureListener> captured = unit.captured(GenericFutureListener.class);
+          captured.get(0)
+              .operationComplete(unit.get(Future.class));
+        });
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  @Test
+  public void eventLoopError() throws Exception {
+    Config config = this.config.withValue("netty.threads.Worker", ConfigValueFactory.fromAnyRef(1));
+    new MockUnit(HttpHandler.class)
+        .expect(parentThreadFactory("nio-boss"))
+        .expect(noepoll)
+        .expect(unit -> {
+          NioEventLoopGroup eventLoop = unit.constructor(NioEventLoopGroup.class)
+              .args(int.class, ThreadFactory.class)
+              .build(1, unit.get(ThreadFactory.class));
+          unit.registerMock(EventLoopGroup.class, eventLoop);
+
+          Future future = unit.mock(Future.class);
+          expect(future.addListener(unit.capture(GenericFutureListener.class))).andReturn(future);
+          expect(eventLoop.shutdownGracefully()).andReturn(future);
+          expect(eventLoop.isShuttingDown()).andReturn(false);
+        })
+        .expect(unit -> {
+          DefaultThreadFactory factory = unit.constructor(DefaultThreadFactory.class)
+              .args(String.class, int.class)
+              .build("nio-worker", false);
+          unit.registerMock(DefaultThreadFactory.class, factory);
+        })
+        .expect(unit -> {
+          NioEventLoopGroup eventLoop = unit.constructor(NioEventLoopGroup.class)
+              .args(int.class, ThreadFactory.class)
+              .build(1, unit.get(DefaultThreadFactory.class));
+          unit.registerMock(NioEventLoopGroup.class, eventLoop);
+
+          Future future = unit.mock(Future.class);
+          expect(future.isSuccess()).andReturn(false);
+          expect(future.cause()).andReturn(new IOException("intentional err"));
+          expect(future.addListener(unit.capture(GenericFutureListener.class))).andReturn(future);
+          expect(eventLoop.shutdownGracefully()).andReturn(future);
+          expect(eventLoop.isShuttingDown()).andReturn(false);
+          unit.registerMock(Future.class, future);
+        })
+        .expect(taskThreadFactory)
+        .expect(taskExecutor)
+        .expect(channel)
+        .expect(bootstrap(6789))
+        .run(unit -> {
+          NettyServer server = new NettyServer(unit.get(HttpHandler.class), config);
+          try {
+            server.start();
+            server.join();
+          } finally {
+            server.stop();
+          }
+        }, unit -> {
+          List<GenericFutureListener> captured = unit.captured(GenericFutureListener.class);
+          captured.get(0)
+              .operationComplete(unit.get(Future.class));
         });
   }
 
