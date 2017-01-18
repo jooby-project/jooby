@@ -3087,6 +3087,8 @@ public class Jooby implements Router, LifeCycle, Registry {
         .withValue("runtime.processors-plus1", ConfigValueFactory.fromAnyRef(processors + 1))
         .withValue("runtime.processors-plus2", ConfigValueFactory.fromAnyRef(processors + 2))
         .withValue("runtime.processors-x2", ConfigValueFactory.fromAnyRef(processors * 2))
+        .withValue("runtime.processors-x4", ConfigValueFactory.fromAnyRef(processors * 4))
+        .withValue("runtime.processors-x8", ConfigValueFactory.fromAnyRef(processors * 8))
         .withValue("runtime.concurrencyLevel", ConfigValueFactory
             .fromAnyRef(Math.max(4, processors)));
 
