@@ -12,6 +12,11 @@ import org.junit.runner.RunWith;
 
 import com.google.common.base.Joiner;
 
+/**
+ * Internal use only.
+ *
+ * @author edgar
+ */
 @RunWith(JoobySuite.class)
 public abstract class ServerFeature extends Jooby {
 

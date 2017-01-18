@@ -210,9 +210,8 @@ Again you are free to choice the HTTP client of your choice, like [Fluent Apache
 
 Here is a full example with [REST Assured](https://github.com/rest-assured/rest-assured):
 
-```
-
-import 
+```java
+import org.jooby.Jooby;
 
 public class MyApp extends Jooby {
 
@@ -222,10 +221,12 @@ public class MyApp extends Jooby {
 
 }
 
+import org.jooby.test.JoobyRyle;
+
 public class MyIntegrationTest {
 
-  @Rule
-  JoobyRule bootstrap = new JoobyRule(new MyApp());
+  @ClassRule
+  static JoobyRule bootstrap = new JoobyRule(new MyApp());
 
   @Test
   public void integrationTestJustWorks() {

@@ -20,41 +20,99 @@ package org.jooby.test;
 
 import static java.util.Objects.requireNonNull;
 
-import org.jooby.Env;
 import org.jooby.Jooby;
 import org.junit.rules.ExternalResource;
 
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
-
+/**
+ * <p>
+ * Junit rule to run integration tests. You can choose between @ClassRule or @Rule. The next example
+ * uses ClassRule:
+ *
+ * <pre>
+ * import org.jooby.test.JoobyRule;
+ *
+ * public class MyIntegrationTest {
+ *
+ *   &#64;ClassRule
+ *   private static JoobyRule bootstrap = new JoobyRule(new MyApp());
+ *
+ * }
+ * </pre>
+ *
+ * <p>
+ * Here one and only one instance will be created, which means the application start before the
+ * first test and stop after the last test. Application state is shared between tests.
+ * </p>
+ * <p>
+ * While with Rule a new application is created per test. If you have N test, then the application
+ * will start/stop N times:
+ * </p>
+ *
+ * <pre>
+ * import org.jooby.test.JoobyRule;
+ *
+ * public class MyIntegrationTest {
+ *
+ *   &#64;Rule
+ *   private static JoobyRule bootstrap = new JoobyRule(new MyApp());
+ *
+ * }
+ * </pre>
+ *
+ * <p>
+ * You are free to choice the HTTP client of your choice, like Fluent Apache HTTP client, REST
+ * Assured, etc..
+ * </p>
+ * <p>
+ * Here is a full example with REST Assured:
+ * </p>
+ *
+ * <pre>{@code
+ * import org.jooby.Jooby;
+ *
+ * public class MyApp extends Jooby {
+ *
+ *   {
+ *     get("/", () -> "I'm real");
+ *   }
+ *
+ * }
+ *
+ * import org.jooby.test.JoobyRyle;
+ *
+ * public class MyIntegrationTest {
+ *
+ *   &#64;ClassRule
+ *   static JoobyRule bootstrap = new JoobyRule(new MyApp());
+ *
+ *   &#64;Test
+ *   public void integrationTestJustWorks() {
+ *     get("/")
+ *       .then()
+ *       .assertThat()
+ *       .body(equalTo("I'm real"));
+ *   }
+ * }
+ * }</pre>
+ *
+ * @author edgar
+ */
 public class JoobyRule extends ExternalResource {
-
-  private static class NoJoin implements Jooby.Module {
-
-    @Override
-    public void configure(final Env env, final Config config, final Binder binder) {
-    }
-
-    @Override
-    public Config config() {
-       return ConfigFactory.empty("test-config")
-       .withValue("server.join", ConfigValueFactory.fromAnyRef(false));
-    }
-  }
 
   private Jooby app;
 
+  /**
+   * Creates a new {@link JoobyRule} to run integration tests.
+   *
+   * @param app Application to test.
+   */
   public JoobyRule(final Jooby app) {
     this.app = requireNonNull(app, "App required.");
-
-    app.use(new NoJoin());
   }
 
   @Override
   protected void before() throws Throwable {
-    app.start();
+    app.start("server.join=false");
   }
 
   @Override

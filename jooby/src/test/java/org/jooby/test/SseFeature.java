@@ -19,6 +19,11 @@ import com.ning.http.client.HttpResponseBodyPart;
 import com.ning.http.client.HttpResponseHeaders;
 import com.ning.http.client.HttpResponseStatus;
 
+/**
+ * Internal use only.
+ *
+ * @author edgar
+ */
 @RunWith(JoobySuite.class)
 public abstract class SseFeature extends Jooby {
 

@@ -12,6 +12,11 @@ import org.junit.runners.model.InitializationError;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
+/**
+ * JUnit suite for Jooby. Internal use only.
+ *
+ * @author edgar
+ */
 public class JoobySuite extends Suite {
 
   private List<Runner> runners;

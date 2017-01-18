@@ -67,6 +67,9 @@
               <includes>
                 <include>org/jooby/test/*</include>
               </includes>
+              <excludes>
+                <exclude>**/*Test.*</exclude>
+              </excludes>
             </configuration>
           </execution>
         </executions>

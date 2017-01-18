@@ -32,7 +32,7 @@ public class ServletContainer implements Server {
 
   public static final Server NOOP = new ServletContainer();
 
-  private ServletContainer() {
+  ServletContainer() {
   }
 
   @Override

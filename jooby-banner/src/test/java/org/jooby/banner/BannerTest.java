@@ -49,6 +49,20 @@ public class BannerTest {
   }
 
   @Test
+  public void trimEnd() throws Exception {
+    String banner = "banner";
+    new MockUnit(Env.class, Config.class, Binder.class, Logger.class)
+        .expect(conf("app", "1.0.0"))
+        .expect(log("app"))
+        .expect(banner())
+        .expect(onStart)
+        .run(unit -> {
+          new Banner(banner + "   ")
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
+  }
+
+  @Test
   public void print() throws Exception {
     String banner = "banner";
     new MockUnit(Env.class, Config.class, Binder.class, Logger.class)

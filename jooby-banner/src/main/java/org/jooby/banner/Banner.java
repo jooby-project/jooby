@@ -30,6 +30,7 @@ import org.jooby.Jooby.Module;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.CharMatcher;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
@@ -96,10 +97,18 @@ public class Banner implements Module {
 
   private final Optional<String> text;
 
+  /**
+   * Creates a new {@link Banner} with the given text.
+   *
+   * @param text Texy to display.
+   */
   public Banner(final String text) {
     this.text = Optional.of(text);
   }
 
+  /**
+   * Default banner, defined by <code>application.name</code>.
+   */
   public Banner() {
     this.text = Optional.empty();
   }
@@ -112,7 +121,8 @@ public class Banner implements Module {
     String text = this.text.orElse(name);
 
     Provider<String> ascii = () -> Try
-        .of(() -> trimEnd(convertOneLine(String.format(FONT, font), text)))
+        .of(() -> CharMatcher.WHITESPACE
+            .trimTrailingFrom(convertOneLine(String.format(FONT, font), text)))
         .getOrElse(text);
 
     binder.bind(Key.get(String.class, Names.named("application.banner"))).toProvider(ascii);
@@ -122,18 +132,15 @@ public class Banner implements Module {
     });
   }
 
+  /**
+   * Set/change default font (speed).
+   *
+   * @param font A font's name.
+   * @return This module.
+   */
   public Banner font(final String font) {
     this.font = requireNonNull(font, "Font is required.");
     return this;
   }
-  
-  private String trimEnd(String str) {
-      int len = str.length();
-      int st = 0;
-      char[] val = str.toCharArray();
-      while ((st < len) && (val[len - 1] <= ' ')) {
-          len--;
-      }
-      return str.substring(st, len);
-  }
+
 }

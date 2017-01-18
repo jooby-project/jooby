@@ -42,6 +42,11 @@ import org.junit.rules.ExternalResource;
 
 import com.google.common.base.Throwables;
 
+/**
+ * Utility test class integration test. Internal use only.
+ *
+ * @author edgar
+ */
 public class Client extends ExternalResource {
 
   public interface Callback {

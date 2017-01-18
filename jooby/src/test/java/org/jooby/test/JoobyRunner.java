@@ -36,6 +36,12 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
+/**
+ * JUnit4 block runner for Jooby. Internal use only.
+ *
+ * @author edgar
+ *
+ */
 public class JoobyRunner extends BlockJUnit4ClassRunner {
 
   private Jooby app;

@@ -23,6 +23,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.primitives.Primitives;
 
+/**
+ * Utility test class for mocks. Internal use only.
+ *
+ * @author edgar
+ */
 @SuppressWarnings({"rawtypes", "unchecked" })
 public class MockUnit {
 
