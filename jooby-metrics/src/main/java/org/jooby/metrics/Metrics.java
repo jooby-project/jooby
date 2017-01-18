@@ -32,7 +32,7 @@ import java.util.function.Function;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Router;
-import org.jooby.internal.metrics.HealthCheckRegistryProvider;
+import org.jooby.internal.metrics.HealthCheckRegistryInitializer;
 import org.jooby.internal.metrics.MetricRegistryInitializer;
 
 import com.codahale.metrics.Metric;
@@ -160,17 +160,31 @@ public class Metrics implements Jooby.Module {
 
   private Set<BiFunction<MetricRegistry, Config, Reporter>> reporters = new LinkedHashSet<>();
 
-  private MetricRegistry registry;
+  private MetricRegistry metricRegistry;
+  private HealthCheckRegistry healthCheckRegistry;
 
   /**
    * Creates a new {@link Metric} module.
    *
-   * @param registry Use the given registry.
+   * @param metricRegistry Use the given metricRegistry.
+   * @param healthCheckRegistry Use the given healthCheckRegistry.
    * @param pattern A root pattern where to publish all the services. Default is: <code>/sys</code>.
    */
-  public Metrics(final MetricRegistry registry, final String pattern) {
-    this.registry = requireNonNull(registry, "Registry is required.");
+  public Metrics(final MetricRegistry metricRegistry,
+    final HealthCheckRegistry healthCheckRegistry, final String pattern) {
+    this.metricRegistry = requireNonNull(metricRegistry, "Metric registry is required.");
+    this.healthCheckRegistry = requireNonNull(healthCheckRegistry, "Health check registry is required.");
     this.pattern = requireNonNull(pattern, "A pattern is required.");
+  }
+
+  /**
+   * Creates a new {@link Metric} module.
+   *
+   * @param metricRegistry Use the given metricRegistry.
+   * @param pattern A root pattern where to publish all the services. Default is: <code>/sys</code>.
+   */
+  public Metrics(final MetricRegistry metricRegistry, final String pattern) {
+    this(metricRegistry, new HealthCheckRegistry(), pattern);
   }
 
   /**
@@ -185,10 +199,19 @@ public class Metrics implements Jooby.Module {
   /**
    * Creates a new {@link Metric} module. Services will be available at: <code>/sys</code>.
    *
-   * @param registry Use the given registry.
+   * @param healthCheckRegistry Use the given healthCheckRegistry.
    */
-  public Metrics(final MetricRegistry registry) {
-    this(registry, "/sys");
+  public Metrics(final HealthCheckRegistry healthCheckRegistry) {
+    this(new MetricRegistry(), healthCheckRegistry, "/sys");
+  }
+
+  /**
+   * Creates a new {@link Metric} module. Services will be available at: <code>/sys</code>.
+   *
+   * @param metricRegistry Use the given metricRegistry.
+   */
+  public Metrics(final MetricRegistry metricRegistry) {
+    this(metricRegistry, "/sys");
   }
 
   /**
@@ -217,7 +240,7 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public Metrics request(final String pattern) {
-    return request("GET", "*");
+    return request("GET", pattern);
   }
 
   /**
@@ -358,17 +381,17 @@ public class Metrics implements Jooby.Module {
 
     Multibinder<Reporter> reporters = Multibinder.newSetBinder(binder, Reporter.class);
 
-    binder.bind(MetricRegistry.class).toInstance(registry);
+    binder.bind(MetricRegistry.class).toInstance(metricRegistry);
 
-    this.reporters.forEach(it -> reporters.addBinding().toInstance(it.apply(registry, conf)));
+    this.reporters.forEach(it -> reporters.addBinding().toInstance(it.apply(metricRegistry, conf)));
 
     binder.bind(MetricRegistryInitializer.class).asEagerSingleton();
 
     env.onStop(app -> app.require(MetricRegistryInitializer.class).close());
 
-    binder.bind(HealthCheckRegistry.class)
-        .toProvider(HealthCheckRegistryProvider.class)
-        .asEagerSingleton();
+    binder.bind(HealthCheckRegistry.class).toInstance(healthCheckRegistry);
+
+    binder.bind(HealthCheckRegistryInitializer.class).asEagerSingleton();
 
     bindings.forEach(it -> it.bind(binder, routes, conf));
 
