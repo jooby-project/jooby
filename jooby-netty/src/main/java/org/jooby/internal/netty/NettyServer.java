@@ -26,6 +26,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.BiConsumer;
 
@@ -150,6 +152,12 @@ public class NettyServer implements Server {
   @Override
   public void join() throws InterruptedException {
     ch.closeFuture().sync();
+  }
+
+  @Override
+  public Optional<Executor> executor()
+  {
+    return Optional.ofNullable(executor);
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })

@@ -1,5 +1,8 @@
 package org.jooby.internal.undertow;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import javax.inject.Provider;
 
 import org.jooby.spi.HttpHandler;
@@ -37,7 +40,9 @@ public class UndertowServerTest {
           UndertowServer server = new UndertowServer(unit.get(HttpHandler.class), config,
               unit.get(Provider.class));
           try {
+            assertNotNull(server.executor());
             server.start();
+            assertTrue(server.executor().isPresent());
             server.join();// NOOP
           } finally {
             server.stop();

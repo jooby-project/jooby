@@ -1,7 +1,10 @@
 package org.jooby.internal.jetty;
 
+import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
@@ -109,6 +112,8 @@ public class JettyServerTest {
     server.stop();
 
     unit.registerMock(Server.class, server);
+
+    expect(server.getThreadPool()).andReturn(unit.get(QueuedThreadPool.class)).anyTimes();
   };
 
   private MockUnit.Block httpConf = unit -> {
@@ -194,7 +199,9 @@ public class JettyServerTest {
           JettyServer server = new JettyServer(unit.get(HttpHandler.class), config,
               unit.get(Provider.class));
 
+          assertNotNull(server.executor());
           server.start();
+          assertTrue(server.executor().isPresent());
           server.join();
           server.stop();
         });

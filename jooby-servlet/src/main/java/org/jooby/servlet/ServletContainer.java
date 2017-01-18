@@ -20,6 +20,9 @@ package org.jooby.servlet;
 
 import org.jooby.spi.Server;
 
+import java.util.Optional;
+import java.util.concurrent.Executor;
+
 /**
  * NOOP server for servlets.
  *
@@ -42,6 +45,11 @@ public class ServletContainer implements Server {
 
   @Override
   public void join() throws InterruptedException {
+  }
+
+  @Override
+  public Optional<Executor> executor() {
+    return Optional.empty();
   }
 
 }

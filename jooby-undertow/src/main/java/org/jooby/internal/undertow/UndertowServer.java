@@ -20,6 +20,8 @@ package org.jooby.internal.undertow;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -204,6 +206,12 @@ public class UndertowServer implements org.jooby.spi.Server {
     shutdown.shutdown();
     shutdown.awaitShutdown(awaitShutdown);
     server.stop();
+  }
+
+  @Override
+  public Optional<Executor> executor()
+  {
+    return Optional.ofNullable(server.getWorker());
   }
 
 }
