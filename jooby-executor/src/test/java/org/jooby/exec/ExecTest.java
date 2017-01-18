@@ -64,6 +64,23 @@ public class ExecTest {
   }
 
   @Test
+  public void cached1Alternative() throws Exception {
+    Config conf = ConfigFactory.empty()
+        .withValue("executors.default.type", ConfigValueFactory.fromAnyRef("cached"));
+    new MockUnit(Env.class, Binder.class, ExecutorService.class)
+      .expect(executors)
+      .expect(unit -> {
+        expect(Executors.newCachedThreadPool(isA(ThreadFactory.class)))
+          .andReturn(unit.get(ExecutorService.class));
+      })
+      .expect(bind("default", true, ExecutorService.class, Executor.class))
+      .expect(onStop)
+      .run(unit -> {
+        new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
+      });
+  }
+
+  @Test
   public void fixed1() throws Exception {
     int n = Runtime.getRuntime().availableProcessors();
     Config conf = ConfigFactory.empty()
@@ -76,6 +93,21 @@ public class ExecTest {
         .run(unit -> {
           new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         });
+  }
+
+  @Test
+  public void fixed1Alternative() throws Exception {
+    int n = Runtime.getRuntime().availableProcessors();
+    Config conf = ConfigFactory.empty()
+        .withValue("executors.default.type", ConfigValueFactory.fromAnyRef("fixed"));
+    new MockUnit(Env.class, Binder.class, ExecutorService.class)
+      .expect(executors)
+      .expect(fixedPool(n))
+      .expect(bind("default", true, ExecutorService.class, Executor.class))
+      .expect(onStop)
+      .run(unit -> {
+        new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
+      });
   }
 
   @Test
@@ -202,6 +234,22 @@ public class ExecTest {
   }
 
   @Test
+  public void scheduled1Alternative() throws Exception {
+    int n = Runtime.getRuntime().availableProcessors();
+    Config conf = ConfigFactory.empty()
+        .withValue("executors.default.type", ConfigValueFactory.fromAnyRef("scheduled"));
+    new MockUnit(Env.class, Binder.class, ScheduledExecutorService.class)
+      .expect(executors)
+      .expect(scheduledPool(n))
+      .expect(bind("default", true, ScheduledExecutorService.class, ExecutorService.class,
+                   Executor.class))
+      .expect(onStop)
+      .run(unit -> {
+        new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
+      });
+  }
+
+  @Test
   public void forkJoin() throws Exception {
     int n = Runtime.getRuntime().availableProcessors();
     Config conf = ConfigFactory.empty()
@@ -220,6 +268,28 @@ public class ExecTest {
         .run(unit -> {
           new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         });
+  }
+
+  @Test
+  public void forkJoinAlternative() throws Exception {
+    int n = Runtime.getRuntime().availableProcessors();
+    Config conf = ConfigFactory.empty()
+        .withValue("executors.default.type", ConfigValueFactory.fromAnyRef("forkjoin"))
+        .withValue("executors.default.asyncMode", ConfigValueFactory.fromAnyRef(false));
+    new MockUnit(Env.class, Binder.class)
+      .expect(executors)
+      .expect(unit -> {
+        ForkJoinPool pool = unit.constructor(ForkJoinPool.class)
+                                .args(int.class, ForkJoinWorkerThreadFactory.class, UncaughtExceptionHandler.class,
+                                      boolean.class)
+                                .build(eq(n), isA(ForkJoinWorkerThreadFactory.class), eq(null), eq(false));
+        unit.registerMock(ExecutorService.class, pool);
+      })
+      .expect(bind("default", true, ExecutorService.class, Executor.class, ForkJoinPool.class))
+      .expect(onStop)
+      .run(unit -> {
+        new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
+      });
   }
 
   @Test
@@ -244,6 +314,29 @@ public class ExecTest {
   }
 
   @Test
+  public void forkJoinAsyncAlternative() throws Exception {
+    int n = 1;
+    Config conf = ConfigFactory.empty()
+        .withValue("executors.default.type", ConfigValueFactory.fromAnyRef("forkjoin"))
+        .withValue("executors.default.size", ConfigValueFactory.fromAnyRef(1))
+        .withValue("executors.default.asyncMode", ConfigValueFactory.fromAnyRef(true));
+    new MockUnit(Env.class, Binder.class)
+      .expect(executors)
+      .expect(unit -> {
+        ForkJoinPool pool = unit.constructor(ForkJoinPool.class)
+                                .args(int.class, ForkJoinWorkerThreadFactory.class, UncaughtExceptionHandler.class,
+                                      boolean.class)
+                                .build(eq(n), isA(ForkJoinWorkerThreadFactory.class), eq(null), eq(true));
+        unit.registerMock(ExecutorService.class, pool);
+      })
+      .expect(bind("default", true, ExecutorService.class, Executor.class, ForkJoinPool.class))
+      .expect(onStop)
+      .run(unit -> {
+        new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
+      });
+  }
+
+  @Test
   public void scheduled7() throws Exception {
     int n = 7;
     Config conf = ConfigFactory.empty()
@@ -260,6 +353,23 @@ public class ExecTest {
   }
 
   @Test
+  public void scheduled7Alternative() throws Exception {
+    int n = 7;
+    Config conf = ConfigFactory.empty()
+        .withValue("executors.default.type", ConfigValueFactory.fromAnyRef("scheduled"))
+        .withValue("executors.default.size", ConfigValueFactory.fromAnyRef(n));
+    new MockUnit(Env.class, Binder.class, ScheduledExecutorService.class)
+      .expect(executors)
+      .expect(scheduledPool(n))
+      .expect(bind("default", true, ScheduledExecutorService.class, ExecutorService.class,
+                   Executor.class))
+      .expect(onStop)
+      .run(unit -> {
+        new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
+      });
+  }
+
+  @Test
   public void fixed5() throws Exception {
     int n = 8;
     Config conf = ConfigFactory.empty()
@@ -272,6 +382,22 @@ public class ExecTest {
         .run(unit -> {
           new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         });
+  }
+
+  @Test
+  public void fixed5Alternative() throws Exception {
+    int n = 8;
+    Config conf = ConfigFactory.empty()
+        .withValue("executors.default.type", ConfigValueFactory.fromAnyRef("fixed"))
+        .withValue("executors.default.size", ConfigValueFactory.fromAnyRef(n));
+    new MockUnit(Env.class, Binder.class, ExecutorService.class)
+      .expect(executors)
+      .expect(fixedPool(n))
+      .expect(bind("default", true, ExecutorService.class, Executor.class))
+      .expect(onStop)
+      .run(unit -> {
+        new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
+      });
   }
 
   private Block fixedPool(final int n) {
@@ -327,8 +453,24 @@ public class ExecTest {
         });
   }
 
+  @Test
+  public void daemonAlternative() throws Exception {
+    int n = Runtime.getRuntime().availableProcessors();
+    Config conf = ConfigFactory.empty()
+        .withValue("executors.default.type", ConfigValueFactory.fromAnyRef("fixed"))
+        .withValue("executors.default.daemon", ConfigValueFactory.fromAnyRef(false));
+    new MockUnit(Env.class, Binder.class, ExecutorService.class)
+      .expect(executors)
+      .expect(fixedPool(n))
+      .expect(bind("default", true, ExecutorService.class, Executor.class))
+      .expect(onStop)
+      .run(unit -> {
+        new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
+      });
+  }
+
   @Test(expected = IllegalArgumentException.class)
-  public void wrontType() throws Exception {
+  public void wrongType() throws Exception {
     Config conf = ConfigFactory.empty()
         .withValue("executors", ConfigValueFactory.fromAnyRef("wrongtype"));
     new MockUnit(Env.class, Binder.class, ExecutorService.class)
@@ -336,6 +478,28 @@ public class ExecTest {
         .run(unit -> {
           new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         });
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void wrongTypeAlternative() throws Exception {
+    Config conf = ConfigFactory.empty()
+        .withValue("executors.default.type", ConfigValueFactory.fromAnyRef("wrongtype"));
+    new MockUnit(Env.class, Binder.class, ExecutorService.class)
+      .expect(executors)
+      .run(unit -> {
+        new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
+      });
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void missingTypeAlternative() throws Exception {
+    Config conf = ConfigFactory.empty()
+        .withValue("executors.default.size", ConfigValueFactory.fromAnyRef(1));
+    new MockUnit(Env.class, Binder.class, ExecutorService.class)
+      .expect(executors)
+      .run(unit -> {
+        new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
+      });
   }
 
   @Test
@@ -354,6 +518,22 @@ public class ExecTest {
   }
 
   @Test
+  public void priorityAlternative() throws Exception {
+    int n = Runtime.getRuntime().availableProcessors();
+    Config conf = ConfigFactory.empty()
+        .withValue("executors.default.type", ConfigValueFactory.fromAnyRef("fixed"))
+        .withValue("executors.default.priority", ConfigValueFactory.fromAnyRef(5));
+    new MockUnit(Env.class, Binder.class, ExecutorService.class)
+      .expect(executors)
+      .expect(fixedPool(n))
+      .expect(bind("default", true, ExecutorService.class, Executor.class))
+      .expect(onStop)
+      .run(unit -> {
+        new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
+      });
+  }
+
+  @Test
   public void moreExecutors() throws Exception {
     Config conf = ConfigFactory.empty()
         .withValue("executors.f1", ConfigValueFactory.fromAnyRef("fixed=1"))
@@ -368,6 +548,25 @@ public class ExecTest {
         .run(unit -> {
           new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         });
+  }
+
+  @Test
+  public void moreExecutorsAlternative() throws Exception {
+    Config conf = ConfigFactory.empty()
+      .withValue("executors.f1.type", ConfigValueFactory.fromAnyRef("fixed"))
+      .withValue("executors.f1.size", ConfigValueFactory.fromAnyRef(1))
+      .withValue("executors.f2.type", ConfigValueFactory.fromAnyRef("fixed"))
+      .withValue("executors.f2.size", ConfigValueFactory.fromAnyRef(1));
+    new MockUnit(Env.class, Binder.class, ExecutorService.class)
+      .expect(executors)
+      .expect(fixedPool(1))
+      .expect(fixedPool(1))
+      .expect(bind("f1", false, ExecutorService.class, Executor.class))
+      .expect(bind("f2", false, ExecutorService.class, Executor.class))
+      .expect(onStop)
+      .run(unit -> {
+        new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
+      });
   }
 
 }

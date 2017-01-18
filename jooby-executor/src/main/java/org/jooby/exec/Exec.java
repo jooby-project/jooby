@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -352,6 +353,7 @@ public class Exec implements Module {
     return result;
   }
 
+  @SuppressWarnings("unchecked")
   private static Map<String, Object> executor(final String name, final boolean daemon,
       final int priority,
       final int n,
@@ -360,23 +362,41 @@ public class Exec implements Module {
     options.put("name", name);
     options.put("daemon", daemon);
     options.put("priority", priority);
-    Iterable<String> spec = Splitter.on(",").trimResults().omitEmptyStrings()
-        .split(value.toString());
-    for (String option : spec) {
-      String[] opt = option.split("=");
-      String optname = opt[0].trim();
-      Object optvalue;
-      if (optname.equals("daemon")) {
-        optvalue = opt.length > 1 ? Boolean.parseBoolean(opt[1].trim()) : daemon;
-      } else if (optname.equals("asyncMode")) {
-        optvalue = opt.length > 1 ? Boolean.parseBoolean(opt[1].trim()) : false;
-      } else if (optname.equals("priority")) {
-        optvalue = opt.length > 1 ? Integer.parseInt(opt[1].trim()) : priority;
-      } else {
-        optvalue = opt.length > 1 ? Integer.parseInt(opt[1].trim()) : n;
-        options.put("type", optname);
+    if (value instanceof Map) {
+      Map<String, Object> config = (Map<String, Object>) value;
+      Object rawType = config.get("type");
+      if (rawType == null) {
+        throw new IllegalArgumentException("Missing executor type");
       }
-      options.put(optname, optvalue);
+      String type = rawType.toString();
+      options.put("type", type);
+      options.put(type, config.containsKey("size") ?
+        Integer.parseInt(config.get("size").toString()) : n);
+      options.put("daemon", config.containsKey("daemon") ?
+        Boolean.parseBoolean(config.get("daemon").toString()) : daemon);
+      options.put("asyncMode", config.containsKey("asyncMode") ?
+        Boolean.parseBoolean(config.get("asyncMode").toString()) : false);
+      options.put("priority", config.containsKey("priority") ?
+        Integer.parseInt(config.get("priority").toString()) : priority);
+    } else {
+      Iterable<String> spec = Splitter.on(",").trimResults().omitEmptyStrings()
+                                      .split(value.toString());
+      for (String option : spec) {
+        String[] opt = option.split("=");
+        String optname = opt[0].trim();
+        Object optvalue;
+        if (optname.equals("daemon")) {
+          optvalue = opt.length > 1 ? Boolean.parseBoolean(opt[1].trim()) : daemon;
+        } else if (optname.equals("asyncMode")) {
+          optvalue = opt.length > 1 ? Boolean.parseBoolean(opt[1].trim()) : false;
+        } else if (optname.equals("priority")) {
+          optvalue = opt.length > 1 ? Integer.parseInt(opt[1].trim()) : priority;
+        } else {
+          optvalue = opt.length > 1 ? Integer.parseInt(opt[1].trim()) : n;
+          options.put("type", optname);
+        }
+        options.put(optname, optvalue);
+      }
     }
     return options;
   }
