@@ -1,5 +1,7 @@
 package org.jooby.servlet;
 
+import static org.junit.Assert.assertFalse;
+
 import org.junit.Test;
 
 public class ServletContainerTest {
@@ -17,5 +19,10 @@ public class ServletContainerTest {
   @Test
   public void join() throws Exception {
     ServletContainer.NOOP.join();
+  }
+
+  @Test
+  public void excutor() throws Exception {
+    assertFalse(ServletContainer.NOOP.executor().isPresent());
   }
 }
