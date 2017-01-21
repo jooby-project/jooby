@@ -36,6 +36,9 @@ import com.typesafe.config.Config;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.util.HeaderValues;
+import io.undertow.util.Headers;
+import io.undertow.util.Protocols;
 
 public class UndertowHandler implements HttpHandler {
 
@@ -52,6 +55,11 @@ public class UndertowHandler implements HttpHandler {
   public void handleRequest(final HttpServerExchange exchange) throws Exception {
 
     if (exchange.isInIoThread()) {
+      HeaderValues upgrade = exchange.getRequestHeaders().get(Headers.UPGRADE);
+      if (upgrade != null && upgrade.contains("h2c")) {
+        // reset protocol
+        exchange.setProtocol(Protocols.HTTP_1_1);
+      }
       exchange.dispatch(this);
       return;
     }
