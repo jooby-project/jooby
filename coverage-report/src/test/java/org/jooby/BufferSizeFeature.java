@@ -28,7 +28,7 @@ public class BufferSizeFeature extends ServerFeature {
       }
       Result rsp = result;
       len.ifPresent(l -> rsp.header("Content-Length", l));
-      chunked.ifPresent(c -> rsp.header("Transfer-Encoding", "Chunked"));
+      chunked.ifPresent(c -> rsp.header("Transfer-Encoding", "chunked"));
       return rsp;
     });
   }

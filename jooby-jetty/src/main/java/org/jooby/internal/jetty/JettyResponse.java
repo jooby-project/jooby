@@ -95,8 +95,8 @@ public class JettyResponse extends ServletServletResponse implements Callback {
   public void end() {
     if (endRequest) {
       super.end();
+      nreq = null;
     }
-    nreq = null;
   }
 
   @Override

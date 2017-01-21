@@ -42,6 +42,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.util.DecoratedObjectFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.api.WebSocketBehavior;
@@ -110,16 +111,19 @@ public class JettyServer implements org.jooby.spi.Server {
 
     server.addConnector(http);
 
+    ContextHandler sch = new ContextHandler();
+    sch.setAttribute(DecoratedObjectFactory.ATTR, new DecoratedObjectFactory());
+
     WebSocketPolicy wsConfig = conf(new WebSocketPolicy(WebSocketBehavior.SERVER),
         conf.getConfig("jetty.ws"), "jetty.ws");
-    WebSocketServerFactory webSocketServerFactory = new WebSocketServerFactory(wsConfig);
+    WebSocketServerFactory webSocketServerFactory = new WebSocketServerFactory(
+        sch.getServletContext(), wsConfig);
     webSocketServerFactory.setCreator((req, rsp) -> {
       JettyWebSocket ws = new JettyWebSocket();
       req.getHttpServletRequest().setAttribute(JettyWebSocket.class.getName(), ws);
       return ws;
     });
 
-    ContextHandler sch = new ContextHandler();
     // always '/' context path is internally handle by jooby
     sch.setContextPath("/");
     sch.setHandler(new JettyHandler(handler, webSocketServerFactory, conf
@@ -197,8 +201,7 @@ public class JettyServer implements org.jooby.spi.Server {
   }
 
   @Override
-  public Optional<Executor> executor()
-  {
+  public Optional<Executor> executor() {
     return Optional.ofNullable(server.getThreadPool());
   }
 

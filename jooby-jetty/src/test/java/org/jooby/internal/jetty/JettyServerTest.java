@@ -1,5 +1,6 @@
 package org.jooby.internal.jetty;
 
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
@@ -9,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Map;
 
 import javax.inject.Provider;
+import javax.servlet.ServletContext;
 
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -16,6 +18,7 @@ import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.util.DecoratedObjectFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.websocket.api.WebSocketBehavior;
@@ -104,6 +107,8 @@ public class JettyServerTest {
         .build();
     ctx.setContextPath("/");
     ctx.setHandler(isA(JettyHandler.class));
+    ctx.setAttribute(eq(DecoratedObjectFactory.ATTR), isA(DecoratedObjectFactory.class));
+    expect(ctx.getServletContext()).andReturn(unit.get(ContextHandler.Context.class));
 
     server.setStopAtShutdown(false);
     server.setHandler(ctx);
@@ -173,8 +178,8 @@ public class JettyServerTest {
 
   private Block wsFactory = unit -> {
     WebSocketServerFactory factory = unit.constructor(WebSocketServerFactory.class)
-        .args(WebSocketPolicy.class)
-        .build(unit.get(WebSocketPolicy.class));
+        .args(ServletContext.class, WebSocketPolicy.class)
+        .build(unit.get(ContextHandler.Context.class), unit.get(WebSocketPolicy.class));
 
     factory.setCreator(isA(WebSocketCreator.class));
 
@@ -187,7 +192,7 @@ public class JettyServerTest {
   @Test
   public void startStopServer() throws Exception {
 
-    new MockUnit(HttpHandler.class, Provider.class)
+    new MockUnit(HttpHandler.class, Provider.class, ContextHandler.Context.class)
         .expect(pool)
         .expect(server)
         .expect(httpConf)
