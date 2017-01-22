@@ -6,7 +6,6 @@ import java.util.Properties;
 import java.util.function.Consumer;
 
 import org.jooby.Env;
-import org.jooby.internal.hazelcast.HcastManaged;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,13 +14,14 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.inject.Binder;
 import com.google.inject.binder.AnnotatedBindingBuilder;
-import com.google.inject.binder.ScopedBindingBuilder;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.typesafe.config.Config;
 
+import javaslang.control.Try.CheckedRunnable;
+
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Hcast.class, Hazelcast.class, com.hazelcast.config.Config.class })
+@PrepareForTest({Hcast.class, Hazelcast.class, com.hazelcast.config.Config.class, Hazelcast.class })
 public class HcastTest {
 
   @SuppressWarnings("unchecked")
@@ -41,12 +41,15 @@ public class HcastTest {
         .mock(AnnotatedBindingBuilder.class);
     abbConfig.toInstance(config);
 
-    ScopedBindingBuilder sbbHI = unit.mock(ScopedBindingBuilder.class);
-    sbbHI.asEagerSingleton();
+    HazelcastInstance hcast = unit.mock(HazelcastInstance.class);
+    unit.mockStatic(Hazelcast.class);
+    hcast.shutdown();
 
+    expect(Hazelcast.newHazelcastInstance(config)).andReturn(hcast);
     AnnotatedBindingBuilder<HazelcastInstance> abbHI = unit
         .mock(AnnotatedBindingBuilder.class);
-    expect(abbHI.toProvider(HcastManaged.class)).andReturn(sbbHI);
+    abbHI.toInstance(hcast);
+    unit.registerMock(HazelcastInstance.class, hcast);
 
     Binder binder = unit.get(Binder.class);
     expect(binder.bind(com.hazelcast.config.Config.class)).andReturn(abbConfig);
@@ -56,7 +59,7 @@ public class HcastTest {
 
   private MockUnit.Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.lifeCycle(HcastManaged.class)).andReturn(env);
+    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
   };
 
   @Test
@@ -67,6 +70,8 @@ public class HcastTest {
         .run(unit -> {
           new Hcast()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(CheckedRunnable.class).iterator().next().run();
         });
   }
 
@@ -84,6 +89,8 @@ public class HcastTest {
           new Hcast()
               .doWith(unit.get(Consumer.class))
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(CheckedRunnable.class).iterator().next().run();
         });
   }
 

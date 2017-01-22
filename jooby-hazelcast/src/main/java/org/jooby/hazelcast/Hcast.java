@@ -26,9 +26,9 @@ import java.util.function.Consumer;
 
 import org.jooby.Env;
 import org.jooby.Jooby.Module;
-import org.jooby.internal.hazelcast.HcastManaged;
 
 import com.google.inject.Binder;
+import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -112,9 +112,11 @@ public class Hcast implements Module {
       configurer.accept(config, conf);
     }
 
+    HazelcastInstance hcast = Hazelcast.newHazelcastInstance(config);
+
     binder.bind(com.hazelcast.config.Config.class).toInstance(config);
-    binder.bind(HazelcastInstance.class).toProvider(HcastManaged.class).asEagerSingleton();
-    env.lifeCycle(HcastManaged.class);
+    binder.bind(HazelcastInstance.class).toInstance(hcast);
+    env.onStop(hcast::shutdown);
   }
 
   @Override
