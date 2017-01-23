@@ -29,7 +29,6 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +56,7 @@ import org.jooby.internal.spec.RouteResponseImpl;
 import org.jooby.internal.spec.RouteSpecImpl;
 import org.jooby.internal.spec.SourceResolver;
 import org.jooby.internal.spec.SourceResolverImpl;
+import org.jooby.internal.spec.TypeFromDoc;
 import org.jooby.internal.spec.TypeResolverImpl;
 import org.jooby.mvc.Body;
 import org.jooby.mvc.Flash;
@@ -277,7 +277,7 @@ public class RouteProcessor {
               Type retType = (Type) doc.remove("@type");
 
               /** params and return type */
-              List<RouteParam> params = Collections.emptyList();
+              List<RouteParam> params;
               RouteResponse rsp;
               if (method == null) {
                 // script params
@@ -292,6 +292,22 @@ public class RouteProcessor {
                     retType == null ? method.getGenericReturnType() : retType,
                     retDoc, codes);
               }
+
+              // test if body param is present, when present all the other params are set to query
+              params.stream()
+                  .filter(p -> p.paramType() == RouteParamType.BODY)
+                  .findFirst()
+                  .ifPresent(p -> {
+                    params.stream().filter(it -> it != p)
+                        .forEach(it -> it.paramType(RouteParamType.QUERY));
+                  });
+              // ovewrite param type if need it
+              params.stream()
+                  .forEach(p -> {
+                    p.doc().ifPresent(pdoc -> {
+                      TypeFromDoc.parse(entry.getValue(), ctx, pdoc).ifPresent(p::type);
+                    });
+                  });
 
               /** Create spec . */
               specs.add(new RouteSpecImpl(route, summary, desc, params, rsp));

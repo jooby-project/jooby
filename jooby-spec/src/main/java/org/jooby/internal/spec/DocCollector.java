@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,14 +46,14 @@ public class DocCollector extends VoidVisitorAdapter<Context> {
 
   private static final Pattern SPLITTER = Pattern.compile("\\s+\\*");
 
-  private static final Pattern PARAM = Pattern.compile("(@param)\\s+([^\\s]+)([^@]+)");
-
   private static final String RETURNS = "@return";
+
+  private static final String PARAM = "@param";
+
+  private static final String THROWS = "@throws";
 
   private static final Pattern CODE = Pattern
       .compile("<code>\\s*(\\d+)\\s*(=\\s*([^<]+))?\\s*</code>");
-
-  private static final Pattern TYPE = Pattern.compile("\\{@link\\s+([^\\}]+)\\}");
 
   private Map<String, Object> doc = new HashMap<>();
 
@@ -126,10 +127,8 @@ public class DocCollector extends VoidVisitorAdapter<Context> {
       Map<Integer, String> codes = Collections.emptyMap();
       String tail = clean.substring(Math.max(0, at));
       // params
-      Matcher pmatcher = PARAM.matcher(tail);
-      while (pmatcher.find()) {
-        hash.put(pmatcher.group(2).trim(), pmatcher.group(3).trim());
-      }
+      params(tail, hash::put);
+
       // returns
       String returnText = returnText(tail);
       codes = new LinkedHashMap<>();
@@ -142,15 +141,38 @@ public class DocCollector extends VoidVisitorAdapter<Context> {
           codes.put(status.value(), message);
         }
 
-        Matcher tmatcher = TYPE.matcher(returnText);
-        if (tmatcher.find()) {
-          ctx.resolveType(node, tmatcher.group(1).trim()).ifPresent(t -> hash.put("@type", t));
-        }
+        TypeFromDoc.parse(node, ctx, returnText).ifPresent(type -> hash.put("@type", type));
       }
       hash.put("@statusCodes", codes);
       hash.put("@text", text);
     }
     return hash;
+  }
+
+  private void params(final String text, final BiConsumer<String, String> callback) {
+    int at = text.indexOf(PARAM);
+    while (at != -1) {
+      int start = at + PARAM.length();
+      int end = firstOf(text, start, PARAM, RETURNS, THROWS);
+      String raw = text.substring(start, end).trim();
+      int space = raw.indexOf(" ");
+      if (space != -1) {
+        String name = raw.substring(0, space).trim();
+        String desc = raw.substring(space).trim();
+        callback.accept(name, desc);
+      }
+      at = text.indexOf(PARAM, end);
+    }
+  }
+
+  private int firstOf(final String text, final int start, final String... tokens) {
+    for (String token : tokens) {
+      int pos = text.indexOf(token, start);
+      if (pos != -1) {
+        return pos;
+      }
+    }
+    return text.length();
   }
 
   private String returnText(final String doc) {

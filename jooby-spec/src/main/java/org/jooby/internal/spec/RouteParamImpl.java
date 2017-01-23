@@ -59,6 +59,12 @@ public class RouteParamImpl extends SerObject implements RouteParam {
   }
 
   @Override
+  public RouteParam type(final Type type) {
+    put("type", type);
+    return this;
+  }
+
+  @Override
   public String name() {
     return get("name");
   }
@@ -66,6 +72,12 @@ public class RouteParamImpl extends SerObject implements RouteParam {
   @Override
   public RouteParamType paramType() {
     return RouteParamType.valueOf(get("paramType"));
+  }
+
+  @Override
+  public RouteParam paramType(final RouteParamType type) {
+    put("paramType", type.name());
+    return this;
   }
 
   @Override

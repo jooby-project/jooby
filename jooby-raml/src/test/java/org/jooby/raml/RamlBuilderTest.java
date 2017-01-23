@@ -68,8 +68,20 @@ public class RamlBuilderTest {
     }
 
     @Override
+    public RouteParam type(final Type type) {
+      this.type = type;
+      return this;
+    }
+
+    @Override
     public RouteParamType paramType() {
       return paramType;
+    }
+
+    @Override
+    public RouteParam paramType(final RouteParamType type) {
+      paramType = type;
+      return this;
     }
 
     @Override
@@ -242,7 +254,7 @@ public class RamlBuilderTest {
   }
 
   private Config conf = ConfigFactory.empty()
-        .withValue("mediaType", ConfigValueFactory.fromAnyRef("application/json"));
+      .withValue("mediaType", ConfigValueFactory.fromAnyRef("application/json"));
 
   @Test
   public void routes() {
@@ -395,8 +407,10 @@ public class RamlBuilderTest {
         "  post:\n" +
         "    description: |-\n" +
         "      Enters the file content for an existing song entity. \n\n" +
-        "       * Use the `binary/octet-stream` content type to specify the content from any consumer (excepting web-browsers).\n\n" +
-        "       * Use the `multipart-form/data` content type to upload a file which content will become the file-content\n" +
+        "       * Use the `binary/octet-stream` content type to specify the content from any consumer (excepting web-browsers).\n\n"
+        +
+        "       * Use the `multipart-form/data` content type to upload a file which content will become the file-content\n"
+        +
         "    body:\n" +
         "      application/json:\n" +
         "        type: integer", raml);
@@ -420,8 +434,10 @@ public class RamlBuilderTest {
         "  post:\n" +
         "    description: |-\n" +
         "      Enters the file content for an existing song entity. \n\n" +
-        "       * Use the `binary/octet-stream` content type to specify the content from any consumer (excepting web-browsers).\n\n" +
-        "       * Use the `multipart-form/data` content type to upload a file which content will become the file-content\n" +
+        "       * Use the `binary/octet-stream` content type to specify the content from any consumer (excepting web-browsers).\n\n"
+        +
+        "       * Use the `multipart-form/data` content type to upload a file which content will become the file-content\n"
+        +
         "    body:\n" +
         "      multipart/form-data:\n" +
         "        formParameters:\n" +
@@ -472,7 +488,8 @@ public class RamlBuilderTest {
         .build(Arrays.asList(
             route("GET", "/users/:userId", path("userId", int.class, "The id of the user"))
                 .rsp(
-                    rsp -> rsp.type(Person.class).status(200, "Success").status(404, "Not found\nNextLine"))))
+                    rsp -> rsp.type(Person.class).status(200, "Success").status(404,
+                        "Not found\nNextLine"))))
         .trim();
     assertEquals("#%RAML 1.0\n" +
         "mediaType: application/json\n" +

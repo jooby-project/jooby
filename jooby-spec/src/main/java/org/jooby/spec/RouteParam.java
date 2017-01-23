@@ -39,9 +39,25 @@ public interface RouteParam {
   Type type();
 
   /**
+   * Set parameter data type.
+   *
+   * @param type Data type.
+   * @return This param.
+   */
+  RouteParam type(Type type);
+
+  /**
    * @return Type of HTTP param.
    */
   RouteParamType paramType();
+
+  /**
+   * Set parameter type.
+   *
+   * @param type Paremater type.
+   * @return This param.
+   */
+  RouteParam paramType(RouteParamType type);
 
   /**
    * @return Default value or <code>null</code>
