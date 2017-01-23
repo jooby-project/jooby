@@ -57,6 +57,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -3196,11 +3197,17 @@ public class Jooby implements Router, LifeCycle, Registry {
     if (conf.hasPath("logback.configurationFile")) {
       logback = conf.getString("logback.configurationFile");
     } else {
+      String env = conf.hasPath("application.env") ? conf.getString("application.env") : null;
+      if (env != null) {
+        URL classpathLogback = Thread.currentThread().getContextClassLoader().getResource("logback." + env + ".xml");
+        if (classpathLogback != null) {
+          return classpathLogback.toString();
+        }
+      }
       ImmutableList.Builder<File> files = ImmutableList.builder();
       File userdir = new File(System.getProperty("user.dir"));
       File confdir = new File(userdir, "conf");
-      if (conf.hasPath("application.env")) {
-        String env = conf.getString("application.env");
+      if (env != null) {
         files.add(new File(userdir, "logback." + env + ".xml"));
         files.add(new File(confdir, "logback." + env + ".xml"));
       }
