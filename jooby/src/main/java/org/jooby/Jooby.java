@@ -3198,12 +3198,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       logback = conf.getString("logback.configurationFile");
     } else {
       String env = conf.hasPath("application.env") ? conf.getString("application.env") : null;
-      if (env != null) {
-        URL classpathLogback = Thread.currentThread().getContextClassLoader().getResource("logback." + env + ".xml");
-        if (classpathLogback != null) {
-          return classpathLogback.toString();
-        }
-      }
+      URL cpconf = Thread.currentThread().getContextClassLoader().getResource("logback." + env + ".xml");
       ImmutableList.Builder<File> files = ImmutableList.builder();
       File userdir = new File(System.getProperty("user.dir"));
       File confdir = new File(userdir, "conf");
@@ -3218,7 +3213,7 @@ public class Jooby implements Router, LifeCycle, Registry {
           .filter(f -> f.exists())
           .map(f -> f.getAbsolutePath())
           .findFirst()
-          .orElse("logback.xml");
+          .orElse((cpconf != null) ? cpconf.toString() : "logback.xml");
     }
     return logback;
   }
