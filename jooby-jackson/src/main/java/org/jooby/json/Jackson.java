@@ -41,6 +41,7 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.multibindings.Multibinder;
@@ -218,12 +219,12 @@ public class Jackson implements Jooby.Module {
       m.setDateFormat(new SimpleDateFormat(config.getString("application.dateFormat"), locale));
       m.setLocale(locale);
       m.setTimeZone(TimeZone.getTimeZone(config.getString("application.tz")));
+      // default modules:
+      m.registerModule(new Jdk8Module());
+      m.registerModule(new JavaTimeModule());
+      m.registerModule(new ParameterNamesModule());
       return m;
     });
-
-    // some java 8 modules
-    mapper.registerModule(new Jdk8Module());
-    mapper.registerModule(new JavaTimeModule());
 
     if (configurer != null) {
       configurer.accept(mapper);
