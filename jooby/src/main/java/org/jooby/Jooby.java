@@ -3198,7 +3198,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       logback = conf.getString("logback.configurationFile");
     } else {
       String env = conf.hasPath("application.env") ? conf.getString("application.env") : null;
-      URL cpconf = Jooby.class.getResource("logback." + env + ".xml");
+      URL cpconf = Jooby.class.getResource("/logback." + env + ".xml");
       ImmutableList.Builder<File> files = ImmutableList.builder();
       File userdir = new File(System.getProperty("user.dir"));
       File confdir = new File(userdir, "conf");
