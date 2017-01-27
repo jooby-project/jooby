@@ -137,6 +137,8 @@ public class Jackson implements Jooby.Module {
 
   private List<Consumer<Multibinder<Module>>> modules = new ArrayList<>();
 
+  private boolean raw;
+
   /**
    * Creates a new {@link Jackson} module and use the provided {@link ObjectMapper} instance.
    *
@@ -209,6 +211,24 @@ public class Jackson implements Jooby.Module {
     return this;
   }
 
+  /**
+   * Add support raw string json responses:
+   *
+   * <pre>{@code
+   * {
+   *   get("/raw", () -> {
+   *     return "{\"raw\": \"json\"}";
+   *   });
+   * }
+   * }</pre>
+   *
+   * @return This module.
+   */
+  public Jackson raw() {
+    raw = true;
+    return this;
+  }
+
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
     // provided or default mapper.
@@ -242,7 +262,9 @@ public class Jackson implements Jooby.Module {
 
     // json parser & renderer
     JacksonParser parser = new JacksonParser(mapper, type);
-    JacksonRenderer renderer = new JacksonRenderer(mapper, type);
+    JacksonRenderer renderer = raw
+        ? new JacksonRawRenderer(mapper, type)
+        : new JacksonRenderer(mapper, type);
 
     Multibinder.newSetBinder(binder, Renderer.class)
         .addBinding()

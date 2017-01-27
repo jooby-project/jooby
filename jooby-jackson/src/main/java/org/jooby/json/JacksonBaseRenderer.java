@@ -19,21 +19,39 @@
 package org.jooby.json;
 
 import org.jooby.MediaType;
+import org.jooby.Renderer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-class JacksonRenderer extends JacksonBaseRenderer {
+abstract class JacksonBaseRenderer implements Renderer {
 
-  public JacksonRenderer(final ObjectMapper mapper, final MediaType type) {
-    super(mapper, type);
+  protected final ObjectMapper mapper;
+
+  protected final MediaType type;
+
+  public JacksonBaseRenderer(final ObjectMapper mapper, final MediaType type) {
+    this.mapper = mapper;
+    this.type = type;
   }
 
   @Override
-  protected void renderValue(final Object value, final Context ctx) throws Exception {
-    // use UTF-8 and get byte version
-    byte[] bytes = mapper.writeValueAsBytes(value);
-    ctx.length(bytes.length)
-        .send(bytes);
+  public void render(final Object value, final Context ctx) throws Exception {
+    if (ctx.accepts(type) && mapper.canSerialize(value.getClass())) {
+      ctx.type(type);
+      renderValue(value, ctx);
+    }
+  }
+
+  protected abstract void renderValue(Object value, Context ctx) throws Exception;
+
+  @Override
+  public String name() {
+    return "json";
+  }
+
+  @Override
+  public String toString() {
+    return name();
   }
 
 }

@@ -22,18 +22,19 @@ import org.jooby.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-class JacksonRenderer extends JacksonBaseRenderer {
+class JacksonRawRenderer extends JacksonRenderer {
 
-  public JacksonRenderer(final ObjectMapper mapper, final MediaType type) {
+  public JacksonRawRenderer(final ObjectMapper mapper, final MediaType type) {
     super(mapper, type);
   }
 
   @Override
   protected void renderValue(final Object value, final Context ctx) throws Exception {
-    // use UTF-8 and get byte version
-    byte[] bytes = mapper.writeValueAsBytes(value);
-    ctx.length(bytes.length)
-        .send(bytes);
+    if (value instanceof CharSequence) {
+      ctx.send(value.toString());
+    } else {
+      super.renderValue(value, ctx);
+    }
   }
 
 }
