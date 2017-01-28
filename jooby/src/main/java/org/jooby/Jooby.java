@@ -57,6 +57,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -3196,11 +3197,12 @@ public class Jooby implements Router, LifeCycle, Registry {
     if (conf.hasPath("logback.configurationFile")) {
       logback = conf.getString("logback.configurationFile");
     } else {
+      String env = conf.hasPath("application.env") ? conf.getString("application.env") : null;
+      URL cpconf = Jooby.class.getResource("/logback." + env + ".xml");
       ImmutableList.Builder<File> files = ImmutableList.builder();
       File userdir = new File(System.getProperty("user.dir"));
       File confdir = new File(userdir, "conf");
-      if (conf.hasPath("application.env")) {
-        String env = conf.getString("application.env");
+      if (env != null) {
         files.add(new File(userdir, "logback." + env + ".xml"));
         files.add(new File(confdir, "logback." + env + ".xml"));
       }
@@ -3211,7 +3213,7 @@ public class Jooby implements Router, LifeCycle, Registry {
           .filter(f -> f.exists())
           .map(f -> f.getAbsolutePath())
           .findFirst()
-          .orElse("logback.xml");
+          .orElse((cpconf != null) ? cpconf.toString() : "logback.xml");
     }
     return logback;
   }
