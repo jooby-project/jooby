@@ -2736,7 +2736,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <junit.version>4.12</junit.version>
     <easymock.version>3.2</easymock.version>
     <powermock.version>1.6.4</powermock.version>
-    <jacoco.version>0.7.7.201606060606</jacoco.version>
+    <jacoco.version>0.7.8</jacoco.version>
 
     <!-- Maven properties -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

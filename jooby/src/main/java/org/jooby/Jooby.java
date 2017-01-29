@@ -57,7 +57,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -76,6 +75,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -2430,7 +2430,8 @@ public class Jooby implements Router, LifeCycle, Registry {
    */
   private Jooby executor(final String name, final Class<? extends Provider<Executor>> provider) {
     this.executors.add(binder -> {
-      binder.bind(Key.get(Executor.class, Names.named(name))).toProvider(provider).in(Singleton.class);
+      binder.bind(Key.get(Executor.class, Names.named(name))).toProvider(provider)
+          .in(Singleton.class);
     });
     return this;
   }
@@ -3198,7 +3199,6 @@ public class Jooby implements Router, LifeCycle, Registry {
       logback = conf.getString("logback.configurationFile");
     } else {
       String env = conf.hasPath("application.env") ? conf.getString("application.env") : null;
-      URL cpconf = Jooby.class.getResource("/logback." + env + ".xml");
       ImmutableList.Builder<File> files = ImmutableList.builder();
       File userdir = new File(System.getProperty("user.dir"));
       File confdir = new File(userdir, "conf");
@@ -3213,7 +3213,11 @@ public class Jooby implements Router, LifeCycle, Registry {
           .filter(f -> f.exists())
           .map(f -> f.getAbsolutePath())
           .findFirst()
-          .orElse((cpconf != null) ? cpconf.toString() : "logback.xml");
+          .orElseGet(() -> {
+            return Optional.ofNullable(Jooby.class.getResource("/logback." + env + ".xml"))
+                .map(Objects::toString)
+                .orElse("logback.xml");
+          });
     }
     return logback;
   }
