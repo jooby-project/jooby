@@ -3795,30 +3795,31 @@ server.threads.Max = ${runtime.processors}
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>
-import 
+        <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.Jooby</span><span class="o">;</span>
 
-public class MyApp extends Jooby {
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyApp</span> <span class="kd">extends</span> <span class="n">Jooby</span> <span class="o">{</span>
 
-  {
-    get("/", () -&gt; "I'm real");
-  }
+  <span class="o">{</span>
+    <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"I'm real"</span><span class="o">);</span>
+  <span class="o">}</span>
 
-}
+<span class="o">}</span>
 
-public class MyIntegrationTest {
+<span class="kn">import</span> <span class="nn">org.jooby.test.JoobyRyle</span><span class="o">;</span>
 
-  @Rule
-  JoobyRule bootstrap = new JoobyRule(new MyApp());
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyIntegrationTest</span> <span class="o">{</span>
 
-  @Test
-  public void integrationTestJustWorks() {
-    get("/")
-      .then()
-      .assertThat()
-      .body(equalTo("I'm real"));
-  }
-}
+  <span class="nd">@ClassRule</span>
+  <span class="kd">static</span> <span class="n">JoobyRule</span> <span class="n">bootstrap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JoobyRule</span><span class="o">(</span><span class="k">new</span> <span class="n">MyApp</span><span class="o">());</span>
+
+  <span class="nd">@Test</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">integrationTestJustWorks</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">then</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">assertThat</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">equalTo</span><span class="o">(</span><span class="s">"I'm real"</span><span class="o">));</span>
+  <span class="o">}</span>
+<span class="o">}</span>
 </code></pre> 
        </div> 
        <p>That’s all for now, enjoy testing!</p> 
@@ -5001,7 +5002,7 @@ application.securePort = 8443
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2016 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
     <div class="altquimia">
      DG 
      <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
