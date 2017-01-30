@@ -350,4 +350,4 @@ As you already see, building an API that saves data in a **database** is very si
 
 The {{modlink "jdbi"}} module makes perfect sense if you want to have full control on your SQL queries, or if you don't like **ORM** tools too.
 
-{{guides/guide.footer.md}}
+{{> guides/guide.footer}}

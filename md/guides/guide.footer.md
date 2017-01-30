@@ -1,6 +1,6 @@
 # source code
 
-* Complete source code available at: [jooby-guides/{{guide}}]({{gh-guides}}/{{guide}})
+* Complete source code available at: [jooby-project/{{guide}}]({{gh-guides}}/{{guide}})
 
 # help and support
 
