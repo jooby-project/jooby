@@ -433,7 +433,7 @@ buildscript {
 
   dependencies {
     /** joobyRun */
-    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.1'
+    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.2'
   }
 }
 

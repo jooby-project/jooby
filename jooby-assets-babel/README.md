@@ -10,7 +10,7 @@ Make sure you already setup the [assets module](https://github.com/jooby-project
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-babel</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -35,7 +35,7 @@ assets {
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-babel</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <scope>provided</scope>
 </dependency>
 ```
