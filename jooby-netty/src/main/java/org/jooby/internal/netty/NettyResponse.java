@@ -20,6 +20,7 @@ package org.jooby.internal.netty;
 
 import static io.netty.channel.ChannelFutureListener.CLOSE;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -41,6 +42,7 @@ import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpChunkedInput;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -48,6 +50,9 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.HttpConversionUtil;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.stream.ChunkedFile;
+import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.Attribute;
@@ -184,11 +189,28 @@ public class NettyResponse implements NativeResponse {
     rsp.headers().set(headers);
     ChannelHandlerContext ctx = this.ctx;
     ctx.channel().attr(NettyRequest.NEED_FLUSH).set(false);
+
+    // add chunker
+    ChannelPipeline pipeline = ctx.pipeline();
+    if (pipeline.get("chunker") == null) {
+      pipeline.addAfter("codec", "chunker", new ChunkedWriteHandler());
+    }
+
+    // Create the cunked input here already, to properly handle the IOException
+    final HttpChunkedInput chunkedInput = new HttpChunkedInput(new ChunkedNioFile(channel, offset, count, 8192));
+
     ctx.channel().eventLoop().execute(() -> {
       // send headers
       ctx.write(rsp);
-      ctx.write(new DefaultFileRegion(channel, offset, count));
-      keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
+
+      // For SSL, we cannot send a file region
+      if (ctx.pipeline().get(SslHandler.class) == null)
+      {
+        ctx.write(new DefaultFileRegion(channel, offset, count));
+        keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
+      } else {
+        keepAlive(ctx.writeAndFlush(chunkedInput));
+      }
     });
 
     committed = true;
