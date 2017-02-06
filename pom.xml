@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
@@ -75,6 +76,7 @@
     <module>jooby-unbescape</module>
     <module>jooby-crash</module>
     <module>jooby-thymeleaf</module>
+    <module>jooby-filewatcher</module>
     <!-- Assets -->
     <module>jooby-assets</module>
     <module>jooby-assets-j2v8</module>
@@ -585,6 +587,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-thymeleaf</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-filewatcher</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -1741,8 +1749,10 @@
               </goals>
               <configuration>
                 <transformers>
-                  <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <transformer
+                      implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                  <transformer
+                      implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                     <mainClass>${application.class}</mainClass>
                   </transformer>
                 </transformers>
@@ -1875,10 +1885,23 @@
     </profile>
 
     <profile>
+      <id>IDEA</id>
+      <dependencies>
+        <!-- ASM -->
+        <dependency>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm</artifactId>
+          <optional>false</optional>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <profile>
       <id>stork</id>
       <activation>
         <file>
-          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}stork.yml</exists>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}stork.yml
+          </exists>
         </file>
       </activation>
       <properties>
@@ -1954,7 +1977,9 @@
       <id>static-assets</id>
       <activation>
         <file>
-          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}assets.activator</exists>
+          <exists>
+            ${basedir}${file.separator}src${file.separator}etc${file.separator}assets.activator
+          </exists>
         </file>
       </activation>
       <build>
@@ -1988,7 +2013,8 @@
       <id>war</id>
       <activation>
         <file>
-          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}war.activator</exists>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}war.activator
+          </exists>
         </file>
       </activation>
       <properties>
@@ -2034,7 +2060,9 @@
       <id>capsule</id>
       <activation>
         <file>
-          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}capsule.activator</exists>
+          <exists>
+            ${basedir}${file.separator}src${file.separator}etc${file.separator}capsule.activator
+          </exists>
         </file>
       </activation>
       <properties>
@@ -2168,7 +2196,9 @@
       <id>docker.jar</id>
       <activation>
         <file>
-          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}docker.activator</exists>
+          <exists>
+            ${basedir}${file.separator}src${file.separator}etc${file.separator}docker.activator
+          </exists>
         </file>
       </activation>
       <properties>
@@ -2207,7 +2237,9 @@
       <id>docker.stork</id>
       <activation>
         <file>
-          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}docker.stork.activator</exists>
+          <exists>
+            ${basedir}${file.separator}src${file.separator}etc${file.separator}docker.stork.activator
+          </exists>
         </file>
       </activation>
       <properties>
@@ -2252,11 +2284,15 @@
       <id>checkstyle</id>
       <activation>
         <file>
-          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}checkstyle.xml</exists>
+          <exists>
+            ${basedir}${file.separator}src${file.separator}etc${file.separator}checkstyle.xml
+          </exists>
         </file>
       </activation>
       <properties>
-        <checkstyle-file>${basedir}${file.separator}src${file.separator}etc${file.separator}checkstyle.xml</checkstyle-file>
+        <checkstyle-file>
+          ${basedir}${file.separator}src${file.separator}etc${file.separator}checkstyle.xml
+        </checkstyle-file>
         <checkstyle.phase>package</checkstyle.phase>
       </properties>
       <build>
@@ -2288,7 +2324,9 @@
       <id>ebean-activator</id>
       <activation>
         <file>
-          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}ebean.activator</exists>
+          <exists>
+            ${basedir}${file.separator}src${file.separator}etc${file.separator}ebean.activator
+          </exists>
         </file>
       </activation>
       <dependencies>
@@ -2321,13 +2359,19 @@
       <id>querydsl-jpa</id>
       <activation>
         <file>
-          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}querydsl-jpa.activator</exists>
+          <exists>
+            ${basedir}${file.separator}src${file.separator}etc${file.separator}querydsl-jpa.activator
+          </exists>
         </file>
       </activation>
       <properties>
-        <querydsl-jpa-apt-file>querydsl-jpa-${querydsl.version}-apt-one-jar.jar</querydsl-jpa-apt-file>
-        <querydsl-jpa-apt-dir>${settings.localRepository}/com/querydsl/querydsl-jpa/${querydsl.version}</querydsl-jpa-apt-dir>
-        <querydsl-jpa-apt-path>${querydsl-jpa-apt-dir}/${querydsl-jpa-apt-file}</querydsl-jpa-apt-path>
+        <querydsl-jpa-apt-file>querydsl-jpa-${querydsl.version}-apt-one-jar.jar
+        </querydsl-jpa-apt-file>
+        <querydsl-jpa-apt-dir>
+          ${settings.localRepository}/com/querydsl/querydsl-jpa/${querydsl.version}
+        </querydsl-jpa-apt-dir>
+        <querydsl-jpa-apt-path>${querydsl-jpa-apt-dir}/${querydsl-jpa-apt-file}
+        </querydsl-jpa-apt-path>
         <querydsl-jpa-output-dir>target/generated-sources</querydsl-jpa-output-dir>
       </properties>
       <build>
