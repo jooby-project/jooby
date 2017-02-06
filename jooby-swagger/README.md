@@ -35,7 +35,7 @@
      })
      ...;
 
-  new Swagger().install(this);
+  new SwaggerUI().install(this);
 
 }
 ```
@@ -74,7 +74,7 @@ The ```path``` option controls where to mount the [Swagger](http://swagger.io) r
 {
   ...
 
-  new Swagger("docs").install(this);
+  new SwaggerUI("docs").install(this);
 
 }
 ```
@@ -89,7 +89,7 @@ The ```filter``` option controls what is exported to [Swagger](http://swagger.io
 {
   ...
 
-  new Swagger()
+  new SwaggerUI()
     .filter(route -> {
       return route.pattern().startsWith("/api");
     })
