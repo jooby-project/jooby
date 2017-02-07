@@ -411,15 +411,12 @@ public class Jdbc implements Jooby.Module {
       props.setProperty(propertyName, propertyValue);
     };
 
-    Function<String, Config> hikari = path -> Try.of(() -> config.getConfig(path))
+    Function<String, Config> dbconf = path -> Try.of(() -> config.getConfig(path))
         .getOrElse(ConfigFactory.empty());
 
-    String dbkey = key.replace("db.", "");
-    Config $hikari = hikari.apply("hikari." + dbkey)
-        .withFallback(hikari.apply("hikari." + db))
-        .withFallback(hikari.apply("hikari"))
-        .withoutPath(dbkey)
-        .withoutPath(db);
+    Config $hikari = dbconf.apply(key + ".hikari")
+        .withFallback(dbconf.apply("db." + db + ".hikari"))
+        .withFallback(dbconf.apply("hikari"));
 
     // figure it out db type.
     dbtype = dbtype(url, config);
@@ -434,8 +431,8 @@ public class Jdbc implements Jooby.Module {
     dbtype.ifPresent(type -> config.getConfig("databases." + type)
         .entrySet().forEach(entry -> dumper.accept("dataSource.", entry)));
 
-    Try.of(() -> config.getConfig(key))
-        .getOrElse(ConfigFactory.empty())
+    dbconf.apply(key)
+        .withoutPath("hikari")
         .entrySet().forEach(entry -> dumper.accept("dataSource.", entry));
 
     $hikari.entrySet().forEach(entry -> dumper.accept("", entry));

@@ -294,7 +294,8 @@ public class JdbcTest {
   public void dbspecific() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Config dbconf = config.withValue("db.url",
-        ConfigValueFactory.fromAnyRef("jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8"))
+        ConfigValueFactory
+            .fromAnyRef("jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8"))
         .withValue("application.charset", fromAnyRef("UTF-8"))
         .withValue("application.name", fromAnyRef("jdbctest"))
         .withValue("application.tmpdir", fromAnyRef("target"))
@@ -303,7 +304,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8",
+        .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource",
+            "jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8",
             "mysql.db", null, "", false))
         .expect(mysql)
         .expect(unit -> {
@@ -385,16 +387,20 @@ public class JdbcTest {
   @Test
   public void twoDatabases() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Config dbconf = config.withValue("db.audit", ConfigValueFactory.fromAnyRef("fs"))
+    Config dbconf = config.withValue("db.audit.url",
+        ConfigValueFactory.fromAnyRef("jdbc:h2:mem:audit;DB_CLOSE_DELAY=-1"))
         .withValue("application.name", fromAnyRef("jdbctest"))
         .withValue("application.tmpdir", fromAnyRef("target"))
         .withValue("application.charset", fromAnyRef("UTF-8"))
-        .withValue("hikari.audit.dataSourceClassName", fromAnyRef("test.MyDataSource"))
+        .withValue("db.audit.user", fromAnyRef("sa"))
+        .withValue("db.audit.password", fromAnyRef(""))
+        .withValue("db.audit.hikari.dataSourceClassName", fromAnyRef("test.MyDataSource"))
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
-            "sa", "", true))
+        .expect(
+            props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:mem:audit;DB_CLOSE_DELAY=-1", "h2.audit",
+                "sa", "", true))
         .expect(unit -> {
           Properties properties = unit.get(Properties.class);
           expect(properties.setProperty("dataSourceClassName", "test.MyDataSource"))
@@ -402,7 +408,7 @@ public class JdbcTest {
         })
         .expect(hikariConfig())
         .expect(hikariDataSource())
-        .expect(serviceKey("jdbctest"))
+        .expect(serviceKey("audit"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc("db.audit").configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
