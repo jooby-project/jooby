@@ -20,7 +20,6 @@ package org.jooby.internal.netty;
 
 import static io.netty.channel.ChannelFutureListener.CLOSE;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -51,7 +50,6 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.stream.ChunkedFile;
 import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
@@ -147,10 +145,7 @@ public class NettyResponse implements NativeResponse {
       ctx.channel().attr(NettyRequest.NEED_FLUSH).set(false);
 
       // add chunker
-      ChannelPipeline pipeline = ctx.pipeline();
-      if (pipeline.get("chunker") == null) {
-        pipeline.addAfter("codec", "chunker", new ChunkedWriteHandler());
-      }
+      chunkHandler(ctx.pipeline());
 
       // group all write
       ctx.channel().eventLoop().execute(() -> {
@@ -190,28 +185,32 @@ public class NettyResponse implements NativeResponse {
     ChannelHandlerContext ctx = this.ctx;
     ctx.channel().attr(NettyRequest.NEED_FLUSH).set(false);
 
-    // add chunker
     ChannelPipeline pipeline = ctx.pipeline();
-    if (pipeline.get("chunker") == null) {
-      pipeline.addAfter("codec", "chunker", new ChunkedWriteHandler());
-    }
+    boolean ssl = pipeline.get(SslHandler.class) != null;
 
-    // Create the cunked input here already, to properly handle the IOException
-    final HttpChunkedInput chunkedInput = new HttpChunkedInput(new ChunkedNioFile(channel, offset, count, 8192));
+    if (ssl) {
+      // add chunker
+      chunkHandler(pipeline);
 
-    ctx.channel().eventLoop().execute(() -> {
-      // send headers
-      ctx.write(rsp);
+      // Create the chunked input here already, to properly handle the IOException
+      HttpChunkedInput chunkedInput = new HttpChunkedInput(
+          new ChunkedNioFile(channel, offset, count, bufferSize));
 
-      // For SSL, we cannot send a file region
-      if (ctx.pipeline().get(SslHandler.class) == null)
-      {
+      ctx.channel().eventLoop().execute(() -> {
+        // send headers
+        ctx.write(rsp);
+        // chunked file
+        keepAlive(ctx.writeAndFlush(chunkedInput));
+      });
+    } else {
+      ctx.channel().eventLoop().execute(() -> {
+        // send headers
+        ctx.write(rsp);
+        // file region
         ctx.write(new DefaultFileRegion(channel, offset, count));
         keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
-      } else {
-        keepAlive(ctx.writeAndFlush(chunkedInput));
-      }
-    });
+      });
+    }
 
     committed = true;
 
@@ -296,6 +295,12 @@ public class NettyResponse implements NativeResponse {
   public void reset() {
     headers.clear();
     status = HttpResponseStatus.OK;
+  }
+
+  private void chunkHandler(final ChannelPipeline pipeline) {
+    if (pipeline.get("chunker") == null) {
+      pipeline.addAfter("codec", "chunker", new ChunkedWriteHandler());
+    }
   }
 
 }

@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.http.impl.bootstrap.SSLServerSetupHandler;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
@@ -603,13 +602,9 @@ public class NettyResponseTest {
         })
         .expect(unit -> {
           ChannelPipeline pipeline = unit.mock(ChannelPipeline.class);
-          expect(pipeline.get("chunker")).andReturn(null);
           expect(pipeline.get(SslHandler.class)).andReturn(null);
-          expect(pipeline.addAfter(eq("codec"), eq("chunker"), isA(ChunkedWriteHandler.class)))
-                  .andReturn(pipeline);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.pipeline()).andReturn(pipeline);
           expect(ctx.pipeline()).andReturn(pipeline);
         })
         .expect(noKeepAliveNoLen)
@@ -688,7 +683,6 @@ public class NettyResponseTest {
 
               ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
               expect(ctx.pipeline()).andReturn(pipeline);
-              expect(ctx.pipeline()).andReturn(pipeline);
             })
             .expect(noKeepAliveNoLen)
             .run(unit -> {
@@ -751,13 +745,9 @@ public class NettyResponseTest {
         })
         .expect(unit -> {
           ChannelPipeline pipeline = unit.mock(ChannelPipeline.class);
-          expect(pipeline.get("chunker")).andReturn(null);
           expect(pipeline.get(SslHandler.class)).andReturn(null);
-          expect(pipeline.addAfter(eq("codec"), eq("chunker"), isA(ChunkedWriteHandler.class)))
-              .andReturn(pipeline);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.pipeline()).andReturn(pipeline);
           expect(ctx.pipeline()).andReturn(pipeline);
         })
         .expect(setNeedFlush)
