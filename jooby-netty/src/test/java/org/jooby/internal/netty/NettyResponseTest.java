@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.http.impl.bootstrap.SSLServerSetupHandler;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
@@ -38,6 +39,7 @@ import io.netty.channel.EventLoop;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpChunkedInput;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -45,6 +47,9 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.stream.ChunkedInput;
+import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.Attribute;
@@ -596,6 +601,17 @@ public class NettyResponseTest {
           expect(chn.eventLoop()).andReturn(loop);
 
         })
+        .expect(unit -> {
+          ChannelPipeline pipeline = unit.mock(ChannelPipeline.class);
+          expect(pipeline.get("chunker")).andReturn(null);
+          expect(pipeline.get(SslHandler.class)).andReturn(null);
+          expect(pipeline.addAfter(eq("codec"), eq("chunker"), isA(ChunkedWriteHandler.class)))
+                  .andReturn(pipeline);
+
+          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          expect(ctx.pipeline()).andReturn(pipeline);
+          expect(ctx.pipeline()).andReturn(pipeline);
+        })
         .expect(noKeepAliveNoLen)
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
@@ -603,6 +619,84 @@ public class NettyResponseTest {
         }, unit -> {
           unit.captured(Runnable.class).iterator().next().run();
         });
+  }
+
+  @Test
+  public void sendFileChannelSSL() throws Exception {
+    boolean keepAlive = false;
+    FileChannel fchannel = newFileChannel(8192);
+    new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class)
+            .expect(channel)
+            .expect(headers)
+            .expect(unit -> {
+              DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
+              expect(headers.contains(HttpHeaderNames.CONTENT_LENGTH)).andReturn(false);
+              expect(headers.remove(HttpHeaderNames.TRANSFER_ENCODING)).andReturn(headers);
+              expect(headers.set(HttpHeaderNames.CONTENT_LENGTH, 8192L)).andReturn(headers);
+            })
+            .expect(unit -> {
+              DefaultHttpResponse rsp = unit.mockConstructor(DefaultHttpResponse.class,
+                      new Class[]{HttpVersion.class,
+                              HttpResponseStatus.class },
+                      HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+
+              HttpHeaders headers = unit.mock(HttpHeaders.class);
+              expect(headers.set(unit.get(DefaultHttpHeaders.class))).andReturn(headers);
+
+              expect(rsp.headers()).andReturn(headers);
+
+              unit.registerMock(HttpResponse.class, rsp);
+            })
+            .expect(unit -> {
+              ChannelFuture future = unit.get(ChannelFuture.class);
+
+              ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+              expect(ctx.write(unit.get(HttpResponse.class))).andReturn(future);
+            })
+            .expect(
+                    unit -> {
+                      ChunkedNioFile nioFile = unit.mockConstructor(ChunkedNioFile.class,
+                              new Class[]{FileChannel.class, long.class, long.class, int.class },
+                              fchannel, 0L, fchannel.size(), 8192);
+
+                      HttpChunkedInput chunked = unit.mockConstructor(HttpChunkedInput.class,
+                              new Class[]{ChunkedInput.class }, nioFile);
+
+                      unit.registerMock(HttpChunkedInput.class, chunked);
+                    })
+            .expect(unit -> {
+              ChannelFuture future = unit.get(ChannelFuture.class);
+
+              ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+              expect(ctx.writeAndFlush(unit.get(HttpChunkedInput.class))).andReturn(future);
+            })
+            .expect(setNeedFlush)
+            .expect(unit -> {
+              EventLoop loop = unit.mock(EventLoop.class);
+              loop.execute(unit.capture(Runnable.class));
+
+              Channel chn = unit.get(Channel.class);
+              expect(chn.eventLoop()).andReturn(loop);
+
+            })
+            .expect(unit -> {
+              ChannelPipeline pipeline = unit.mock(ChannelPipeline.class);
+              expect(pipeline.get("chunker")).andReturn(null);
+              expect(pipeline.get(SslHandler.class)).andReturn(unit.mock(SslHandler.class));
+              expect(pipeline.addAfter(eq("codec"), eq("chunker"), isA(ChunkedWriteHandler.class)))
+                      .andReturn(pipeline);
+
+              ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+              expect(ctx.pipeline()).andReturn(pipeline);
+              expect(ctx.pipeline()).andReturn(pipeline);
+            })
+            .expect(noKeepAliveNoLen)
+            .run(unit -> {
+              new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
+                      .send(fchannel);
+            }, unit -> {
+              unit.captured(Runnable.class).iterator().next().run();
+            });
   }
 
   @Test
@@ -654,6 +748,17 @@ public class NettyResponseTest {
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)).andReturn(future);
+        })
+        .expect(unit -> {
+          ChannelPipeline pipeline = unit.mock(ChannelPipeline.class);
+          expect(pipeline.get("chunker")).andReturn(null);
+          expect(pipeline.get(SslHandler.class)).andReturn(null);
+          expect(pipeline.addAfter(eq("codec"), eq("chunker"), isA(ChunkedWriteHandler.class)))
+              .andReturn(pipeline);
+
+          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          expect(ctx.pipeline()).andReturn(pipeline);
+          expect(ctx.pipeline()).andReturn(pipeline);
         })
         .expect(setNeedFlush)
         .expect(noKeepAliveNoLen)
