@@ -41,6 +41,11 @@ public class WebSocketTest {
     }
 
     @Override
+    public boolean isOpen() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void terminate() throws Exception {
       throw new UnsupportedOperationException();
     }

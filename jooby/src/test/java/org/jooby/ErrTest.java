@@ -74,7 +74,7 @@ public class ErrTest {
     Err exception = new Err(404, "GET/missing", cause);
 
     assertEquals(Status.NOT_FOUND.value(), exception.statusCode());
-    assertEquals("Not Found(404): GET/missing", exception.getMessage());
+    assertEquals("(404): GET/missing", exception.getMessage());
     assertEquals(cause, exception.getCause());
   }
 
