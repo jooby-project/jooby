@@ -10,15 +10,9 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.SortedSet;
-import java.util.UUID;
+import java.util.*;
 
 import org.jooby.MediaType;
 import org.jooby.internal.parser.DateParser;
@@ -135,7 +129,9 @@ public class ParamConverterTest {
     ParserExecutor resolver = newParser();
     Date date = resolver.convert(TypeLiteral.get(Date.class), data("1393038000000"));
     assertNotNull(date);
-    assertEquals("22/02/2014", new SimpleDateFormat("dd/MM/yyyy").format(date));
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    assertEquals("22/02/2014", simpleDateFormat.format(date));
   }
 
   @Test
@@ -399,7 +395,7 @@ public class ParamConverterTest {
                 BuiltinParser.Optional,
                 BuiltinParser.Enum,
                 new DateParser("dd/MM/yyyy"),
-                new LocalDateParser(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                new LocalDateParser(DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneId.of("UTC"))),
                 new LocaleParser(),
                 new StaticMethodParser("valueOf"),
                 new StringConstructorParser(),
