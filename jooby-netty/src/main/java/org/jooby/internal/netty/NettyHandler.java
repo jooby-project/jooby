@@ -21,8 +21,7 @@ package org.jooby.internal.netty;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static java.util.Objects.requireNonNull;
 
-import java.io.IOException;
-
+import org.jooby.internal.ConnectionResetByPeer;
 import org.jooby.spi.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +113,7 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
   @Override
   public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
     try {
-      if (connectionResetByPeer(cause)) {
+      if (ConnectionResetByPeer.test(cause)) {
         log.trace("execution of: " + ctx.channel().attr(PATH).get() + " resulted in error", cause);
       } else {
         Attribute<NettyWebSocket> ws = ctx.channel().attr(NettyWebSocket.KEY);
@@ -129,11 +128,6 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
       ctx.close();
     }
 
-  }
-
-  private boolean connectionResetByPeer(final Throwable cause) {
-    return cause instanceof IOException
-        && cause.getMessage().toLowerCase().contains("connection reset by peer");
   }
 
   @Override

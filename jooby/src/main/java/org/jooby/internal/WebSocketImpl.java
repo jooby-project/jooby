@@ -20,6 +20,7 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
+import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
@@ -42,7 +43,9 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 
 import javaslang.control.Try;
+import javaslang.control.Try.CheckedRunnable;
 
+@SuppressWarnings("unchecked")
 public class WebSocketImpl implements WebSocket {
 
   @SuppressWarnings({"rawtypes" })
@@ -66,9 +69,9 @@ public class WebSocketImpl implements WebSocket {
 
   private FullHandler handler;
 
-  private Callback<Mutant> messageCallback = noop();
+  private Callback<Mutant> messageCallback = NOOP;
 
-  private Callback<CloseStatus> closeCallback = noop();
+  private Callback<CloseStatus> closeCallback = NOOP;
 
   private ErrCallback exceptionCallback = cause -> {
     log.error("execution of WS" + path() + " resulted in exception", cause);
@@ -81,6 +84,8 @@ public class WebSocketImpl implements WebSocket {
   private boolean suspended;
 
   private List<Renderer> renderers;
+
+  private volatile boolean open;
 
   public WebSocketImpl(final FullHandler handler, final String path,
       final String pattern, final Map<Object, String> vars,
@@ -95,28 +100,43 @@ public class WebSocketImpl implements WebSocket {
 
   @Override
   public void close(final CloseStatus status) {
-    ws.close(status.code(), status.reason());
+    synchronized (this) {
+      open = false;
+      ws.close(status.code(), status.reason());
+    }
   }
 
   @Override
   public void resume() {
-    if (suspended) {
-      ws.resume();
-      suspended = false;
+    synchronized (this) {
+      if (suspended) {
+        ws.resume();
+        suspended = false;
+      }
     }
   }
 
   @Override
   public void pause() {
-    if (!suspended) {
-      ws.pause();
-      suspended = true;
+    synchronized (this) {
+      if (!suspended) {
+        ws.pause();
+        suspended = true;
+      }
     }
   }
 
   @Override
   public void terminate() throws Exception {
-    ws.terminate();
+    synchronized (this) {
+      open = false;
+      ws.terminate();
+    }
+  }
+
+  @Override
+  public boolean isOpen() {
+    return open && ws.isOpen();
   }
 
   @Override
@@ -126,14 +146,20 @@ public class WebSocketImpl implements WebSocket {
     requireNonNull(success, "Success callback required.");
     requireNonNull(err, "Error callback required.");
 
-    new WebSocketRendererContext(
-        renderers,
-        ws,
-        produces,
-        StandardCharsets.UTF_8,
-        locale,
-        success,
-        err).render(data);
+    synchronized (this) {
+      if (isOpen()) {
+        new WebSocketRendererContext(
+            renderers,
+            ws,
+            produces,
+            StandardCharsets.UTF_8,
+            locale,
+            success,
+            err).render(data);
+      } else {
+        throw new Err(WebSocket.NORMAL, "Cannot send message on closed web socket");
+      }
+    }
   }
 
   @Override
@@ -142,6 +168,7 @@ public class WebSocketImpl implements WebSocket {
   }
 
   public void connect(final Injector injector, final Request req, final NativeWebSocket ws) {
+    this.open = true;
     this.injector = requireNonNull(injector, "Injector required.");
     this.ws = requireNonNull(ws, "WebSocket is required.");
     this.locale = req.locale();
@@ -151,23 +178,24 @@ public class WebSocketImpl implements WebSocket {
      * Bind callbacks
      */
     ws.onBinaryMessage(buffer -> Try
-        .run(() -> messageCallback.invoke(new WsBinaryMessage(buffer)))
+        .run(sync(() -> messageCallback.invoke(new WsBinaryMessage(buffer))))
         .onFailure(this::handleErr));
 
     ws.onTextMessage(message -> Try
-        .run(() -> messageCallback.invoke(
+        .run(sync(() -> messageCallback.invoke(
             new MutantImpl(injector.getInstance(ParserExecutor.class), consumes,
-                new StrParamReferenceImpl("body", "message", ImmutableList.of(message)))))
+                new StrParamReferenceImpl("body", "message", ImmutableList.of(message))))))
         .onFailure(this::handleErr));
 
     ws.onCloseMessage((code, reason) -> Try
-        .run(() -> {
+        .run(sync(() -> {
+          this.open = false;
           if (closeCallback != null) {
-            closeCallback.invoke(reason.map(r -> WebSocket.CloseStatus.of(code, r)).orElse(
-                WebSocket.CloseStatus.of(code)));
-            closeCallback = null;
+            closeCallback.invoke(reason.map(r -> WebSocket.CloseStatus.of(code, r))
+                .orElse(WebSocket.CloseStatus.of(code)));
           }
-        }).onFailure(this::handleErr));
+          closeCallback = null;
+        })).onFailure(this::handleErr));
 
     ws.onErrorMessage(this::handleErr);
 
@@ -230,14 +258,14 @@ public class WebSocketImpl implements WebSocket {
     this.closeCallback = requireNonNull(callback, "A callback is required.");
   }
 
-  @SuppressWarnings("unchecked")
-  private static <T> Callback<T> noop() {
-    return NOOP;
-  }
-
   private void handleErr(final Throwable cause) {
     try {
-      exceptionCallback.invoke(cause);
+      boolean silent = ConnectionResetByPeer.test(cause) || cause instanceof ClosedChannelException;
+      if (silent) {
+        log.debug("execution of WS" + path() + " resulted in exception", cause);
+      } else {
+        exceptionCallback.invoke(cause);
+      }
     } finally {
       cleanup(cause);
     }
@@ -268,4 +296,11 @@ public class WebSocketImpl implements WebSocket {
     }
   }
 
+  private CheckedRunnable sync(final CheckedRunnable task) {
+    return () -> {
+      synchronized (this) {
+        task.run();
+      }
+    };
+  };
 }

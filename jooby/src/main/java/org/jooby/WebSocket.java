@@ -21,6 +21,7 @@ package org.jooby;
 import static java.util.Objects.requireNonNull;
 
 import java.io.Closeable;
+import java.nio.channels.ClosedChannelException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -586,6 +587,13 @@ public interface WebSocket extends Closeable, Registry {
   }
 
   /**
+   * True if the websocket is still open.
+   *
+   * @return True if the websocket is still open.
+   */
+  boolean isOpen();
+
+  /**
    * Gracefully closes the connection, after sending a description message
    *
    * @param status Close status code.
@@ -612,6 +620,8 @@ public interface WebSocket extends Closeable, Registry {
   /**
    * Send data through the connection.
    *
+   * If the web socket is closed this method throw an {@link Err} with {@link #NORMAL} close status.
+   *
    * @param data Data to send.
    * @throws Exception If something goes wrong.
    */
@@ -621,6 +631,8 @@ public interface WebSocket extends Closeable, Registry {
 
   /**
    * Send data through the connection.
+   *
+   * If the web socket is closed this method throw an {@link Err} with {@link #NORMAL} close status.
    *
    * @param data Data to send.
    * @param success A success callback.
@@ -633,24 +645,26 @@ public interface WebSocket extends Closeable, Registry {
   /**
    * Send data through the connection.
    *
+   * If the web socket is closed this method throw an {@link Err} with {@link #NORMAL} close status.
+   *
    * @param data Data to send.
    * @param err An err callback.
    * @throws Exception If something goes wrong.
    */
-  default void send(final Object data, final ErrCallback err)
-      throws Exception {
+  default void send(final Object data, final ErrCallback err) throws Exception {
     send(data, SUCCESS, err);
   }
 
   /**
    * Send data through the connection.
    *
+   * If the web socket is closed this method throw an {@link Err} with {@link #NORMAL} close status.
+   *
    * @param data Data to send.
    * @param success A success callback.
    * @param err An err callback.
    * @throws Exception If something goes wrong.
    */
-  void send(Object data, SuccessCallback success, ErrCallback err)
-      throws Exception;
+  void send(Object data, SuccessCallback success, ErrCallback err) throws Exception;
 
 }

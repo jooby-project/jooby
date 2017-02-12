@@ -144,7 +144,19 @@ public class Err extends RuntimeException {
    * @param cause The cause of the problem.
    */
   public Err(final int status, final String message, final Throwable cause) {
-    this(Status.valueOf(status), message, cause);
+    super(message("", status, message), cause);
+    this.status = status;
+  }
+
+  /**
+   * Creates a new {@link Err}.
+   *
+   * @param status A web socket close status. Required.
+   * @param message Close message.
+   */
+  public Err(final WebSocket.CloseStatus status, String message) {
+    super(message(status.reason(), status.code(), message));
+    this.status = status.code();
   }
 
   /**
@@ -251,7 +263,19 @@ public class Err extends RuntimeException {
    * @return An error message.
    */
   private static String message(final Status status, final String tail) {
-    requireNonNull(status, "A HTTP Status is required.");
-    return status.reason() + "(" + status.value() + ")" + (tail == null ? "" : ": " + tail);
+    return message(status.reason(), status.value(), tail);
   }
+
+  /**
+   * Build an error message using the HTTP status.
+   *
+   * @param reason Reason.
+   * @param status The Status.
+   * @param tail A message to append.
+   * @return An error message.
+   */
+  private static String message(final String reason, int status, final String tail) {
+    return reason + "(" + status + ")" + (tail == null ? "" : ": " + tail);
+  }
+
 }
