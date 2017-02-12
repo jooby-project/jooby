@@ -336,9 +336,9 @@ public class ParamConverterTest {
   @Test
   public void shouldConvertToListOfBoolean() throws Throwable {
     ParserExecutor resolver = newParser();
-    assertEquals(Lists.newArrayList(true, false),
+    assertEquals(Lists.newArrayList(true, false, true),
         resolver.convert(TypeLiteral.get(Types.listOf(Boolean.class)),
-            data("true", "false")));
+            data("true", "false,true")));
 
     assertEquals(Lists.newArrayList(false, false),
         resolver.convert(TypeLiteral.get(Types.listOf(Boolean.class)),
@@ -384,6 +384,22 @@ public class ParamConverterTest {
     assertEquals(Lists.newArrayList(MediaType.valueOf("text/html")),
         resolver.convert(TypeLiteral.get(Types.listOf(MediaType.class)),
             data("text/html")));
+  }
+
+  @Test
+  public void shouldConvertToListOfInteger() throws Throwable {
+    ParserExecutor resolver = newParser();
+    assertEquals(Lists.newArrayList(1,2,3),
+            resolver.convert(TypeLiteral.get(Types.listOf(Integer.class)),
+                    data("1,2", "3")));
+  }
+
+  @Test
+  public void shouldConvertToListOfString() throws Throwable {
+    ParserExecutor resolver = newParser();
+    assertEquals(Lists.newArrayList("foo", "foo,bar"),
+            resolver.convert(TypeLiteral.get(Types.listOf(String.class)),
+                    data("foo", "foo,bar")));
   }
 
   private ParserExecutor newParser() {

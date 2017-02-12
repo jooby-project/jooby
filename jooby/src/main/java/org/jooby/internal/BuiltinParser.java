@@ -135,7 +135,13 @@ public enum BuiltinParser implements Parser {
           TypeLiteral<?> paramType = TypeLiteral.get(((ParameterizedType) type.getType())
               .getActualTypeArguments()[0]);
           for (Object value : values) {
-            builder.add(ctx.next(paramType, value));
+            if (!paramType.getRawType().equals(String.class)) {
+              for (Object csv : value.toString().split(",")) {
+                builder.add(ctx.next(paramType, csv));
+              }
+            } else {
+              builder.add(ctx.next(paramType, value));
+            }
           }
           return builder.build();
         }).upload(uploads -> {
