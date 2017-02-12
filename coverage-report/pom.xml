@@ -85,6 +85,7 @@
                     <source>${project.parent.basedir}/jooby-csl/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-unbescape/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-thymeleaf/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-filewatcher/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -145,6 +146,7 @@
                     <source>${project.parent.basedir}/jooby-csl/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-unbescape/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-thymeleaf/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-filewatcher/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
