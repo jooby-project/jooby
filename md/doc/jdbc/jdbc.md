@@ -166,16 +166,16 @@ db.audit.user = ....
 db.audit.password = ....
 ```
 
-Same principle applies if you need to tweak [hikari](https://github.com/brettwooldridge/HikariCP): 
+Same principle applies if you need to tweak [hikari](https://github.com/brettwooldridge/HikariCP) per database: 
 
 ```properties
 # max pool size for main db
 
-hikari.main.maximumPoolSize = 100
+db.main.hikari.maximumPoolSize = 100
 
 # max pool size for audit db
 
-hikari.audit.maximumPoolSize = 20
+db.audit.hikari.maximumPoolSize = 20
 ```
 
 The first registered database is the **default** database. The **second** database is accessible by name and type:
