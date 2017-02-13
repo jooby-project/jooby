@@ -173,18 +173,29 @@ public class Flywaydb implements Module {
   }
 
   @Override
-  public void configure(final Env env, final Config config, final Binder binder) {
-    Config $flyway = config.getConfig(name)
-        .withFallback(config.getConfig("flyway"));
+  public void configure(final Env env, final Config conf, final Binder binder) {
+    Config $flyway = conf.getConfig(name)
+        .withFallback(conf.getConfig("flyway"));
 
     Flyway flyway = new Flyway();
     flyway.configure(props($flyway));
-    commands($flyway).forEach(cmd -> cmd.run(flyway));
-    binder.bind(Flyway.class).toInstance(flyway);
+    // bind
+    env.serviceKey()
+        .generate(Flyway.class, name, key -> binder.bind(key).toInstance(flyway));
+    // run
+    Iterable<Command> cmds = commands($flyway);
+    env.onStart(() -> {
+      cmds.forEach(cmd -> cmd.run(flyway));
+    });
+  }
+
+  @Override
+  public Config config() {
+    return ConfigFactory.parseResources(getClass(), "flyway.conf");
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  private Properties props(final Config config) {
+  private static Properties props(final Config config) {
     Properties props = new Properties();
     config.withoutPath("run").entrySet().forEach(prop -> {
       Object value = prop.getValue().unwrapped();
@@ -196,13 +207,8 @@ public class Flywaydb implements Module {
     return props;
   }
 
-  @Override
-  public Config config() {
-    return ConfigFactory.parseResources(getClass(), "flyway.conf");
-  }
-
   @SuppressWarnings("unchecked")
-  private Iterable<Command> commands(final Config config) {
+  private static Iterable<Command> commands(final Config config) {
     Object value = config.getAnyRef("run");
     List<String> commands = new ArrayList<>();
     if (value instanceof List) {
