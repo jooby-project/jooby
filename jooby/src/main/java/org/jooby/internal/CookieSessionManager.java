@@ -100,6 +100,9 @@ public class CookieSessionManager implements SessionManager {
 
   private Map<String, String> attributes(final String raw) {
     String unsigned = Cookie.Signature.unsign(raw, secret);
+    if (unsigned == null) {
+      return Collections.emptyMap();
+    }
     return Cookie.URL_DECODER.apply(unsigned);
   }
 
