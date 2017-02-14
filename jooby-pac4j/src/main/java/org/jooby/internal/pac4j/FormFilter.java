@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,11 +18,10 @@
  */
 package org.jooby.internal.pac4j;
 
-import java.net.URI;
-
 import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
+import org.jooby.Route;
 import org.jooby.Route.Chain;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.http.client.indirect.FormClient;
@@ -76,7 +75,7 @@ public class FormFilter extends AuthFilter {
   public FormFilter(final String loginUrl, final String callback) {
     super(FormClient.class, CommonProfile.class);
     this.loginUrl = loginUrl;
-    this.callback = URI.create(callback).getPath() + "?client_name=FormClient";
+    this.callback = Route.normalize(callback) + "?client_name=FormClient";
   }
 
   @Override

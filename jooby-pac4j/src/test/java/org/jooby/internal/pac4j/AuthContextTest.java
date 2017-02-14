@@ -1,22 +1,9 @@
 package org.jooby.internal.pac4j;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.isA;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.jooby.Cookie;
-import org.jooby.Err;
-import org.jooby.Mutant;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Session;
-import org.jooby.Status;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import org.jooby.*;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
@@ -24,12 +11,15 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.easymock.EasyMock.*;
+import static org.junit.Assert.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AuthContext.class, AuthSerializer.class })
+@PrepareForTest({AuthContext.class, AuthSerializer.class})
 public class AuthContextTest {
 
   private Block params1 = unit -> {
@@ -73,7 +63,7 @@ public class AuthContextTest {
         .run(unit -> {
           AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
           Map<String, String[]> params = ctx.getRequestParameters();
-          assertArrayEquals(new String[]{"v1" }, params.get("p1"));
+          assertArrayEquals(new String[]{"v1"}, params.get("p1"));
         });
   }
 
@@ -489,6 +479,7 @@ public class AuthContextTest {
           expect(req.hostname()).andReturn("localhost");
           expect(req.port()).andReturn(8080);
           expect(req.path()).andReturn("/login");
+          expect(req.contextPath()).andReturn("");
           expect(req.queryString()).andReturn(Optional.empty());
         })
         .run(unit -> {

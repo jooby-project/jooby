@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,13 +18,7 @@
  */
 package org.jooby.internal.pac4j;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
+import com.google.common.base.Strings;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
@@ -42,24 +36,33 @@ import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Objects.*;
+
 @SuppressWarnings("rawtypes")
 public class AuthCallback implements Route.Filter {
 
-  /** The logging system. */
+  /**
+   * The logging system.
+   */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private AuthStore store;
 
   private Clients clients;
 
-  private String redirectTo;
+  private Optional<String> redirectTo;
 
   @Inject
   public AuthCallback(final Clients clients, final AuthStore store,
       @Named("auth.login.redirectTo") final String redirectTo) {
     this.clients = requireNonNull(clients, "Clients are required.");
     this.store = requireNonNull(store, "Auth store is required.");
-    this.redirectTo = requireNonNull(redirectTo, "RedirectTo is required.");
+    this.redirectTo = Optional.ofNullable(Strings.emptyToNull(redirectTo));
   }
 
   @SuppressWarnings("unchecked")
@@ -90,14 +93,11 @@ public class AuthCallback implements Route.Filter {
         store.set(profile);
       }
 
-      // where to go? if there is a local var set, it use that. If there is a session var set, it
-      // use that. Otherwise, it use the global property: "auth.login.redirectTo".
-      String requestedUrl = req.<String> ifGet(Pac4jConstants.REQUESTED_URL).orElseGet(() -> {
-        return session.unset(Pac4jConstants.REQUESTED_URL).toOptional()
-            .map(url -> url.equals("/") ? this.redirectTo : url)
-            .orElse(this.redirectTo);
+      // Where to go?
+      String requestedUrl = redirectTo.orElseGet(() -> {
+        return session.unset(Pac4jConstants.REQUESTED_URL).value("/");
       });
-      log.info("redirecting to: {}", requestedUrl);
+      log.debug("redirecting to: {}", requestedUrl);
       rsp.redirect(requestedUrl);
     } catch (final HttpAction ex) {
       new AuthResponse(rsp).handle(client, ex);

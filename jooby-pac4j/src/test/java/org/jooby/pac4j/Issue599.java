@@ -1,16 +1,8 @@
 package org.jooby.pac4j;
 
-import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertEquals;
-
-import java.util.Map;
-import java.util.Optional;
-
-import org.jooby.Err;
-import org.jooby.Mutant;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Status;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import org.jooby.*;
 import org.jooby.internal.pac4j.AuthContext;
 import org.jooby.internal.pac4j.AuthSerializer;
 import org.jooby.test.MockUnit;
@@ -20,11 +12,14 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.easymock.EasyMock.*;
+import static org.junit.Assert.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AuthContext.class, AuthSerializer.class })
+@PrepareForTest({AuthContext.class, AuthSerializer.class})
 public class Issue599 {
 
   private Block params = unit -> {
@@ -51,11 +46,31 @@ public class Issue599 {
           expect(req.hostname()).andReturn("localhost");
           expect(req.port()).andReturn(8080);
           expect(req.path()).andReturn("/foo");
+          expect(req.contextPath()).andReturn("");
           expect(req.queryString()).andReturn(Optional.of("bar=1"));
         })
         .run(unit -> {
           AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
           assertEquals("http://localhost:8080/foo?bar=1", ctx.getFullRequestURL());
+        });
+  }
+
+  @Test
+  public void shouldKeepQueryStringWithContextpath() throws Exception {
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.secure()).andReturn(false);
+          expect(req.hostname()).andReturn("localhost");
+          expect(req.port()).andReturn(8080);
+          expect(req.path()).andReturn("/foo");
+          expect(req.contextPath()).andReturn("/cpath");
+          expect(req.queryString()).andReturn(Optional.of("bar=1"));
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          assertEquals("http://localhost:8080/cpath/foo?bar=1", ctx.getFullRequestURL());
         });
   }
 
