@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,30 +18,26 @@
  */
 package org.jooby.internal.pac4j;
 
+import com.google.common.collect.ImmutableMap;
+import org.jooby.Cookie.Definition;
+import org.jooby.*;
+import org.pac4j.core.context.Cookie;
+import org.pac4j.core.context.WebContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
-import org.jooby.Cookie.Definition;
-import org.jooby.Err;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Session;
-import org.jooby.Status;
-import org.pac4j.core.context.Cookie;
-import org.pac4j.core.context.WebContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableMap;
-
 public class AuthContext implements WebContext {
 
-  /** The logging system. */
+  /**
+   * The logging system.
+   */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private Request req;
@@ -131,11 +127,12 @@ public class AuthContext implements WebContext {
   @Override
   public String getFullRequestURL() {
     String query = req.queryString().map(it -> "?" + it).orElse("");
-    return getScheme() + "://" + getServerName() + ":" + getServerPort() + req.path() + query;
+    return getScheme() + "://" + getServerName() + ":" + getServerPort() + req.contextPath() + req
+        .path() + query;
   }
 
   private Map<String, String[]> params(final Request req) {
-    ImmutableMap.Builder<String, String[]> result = ImmutableMap.<String, String[]> builder();
+    ImmutableMap.Builder<String, String[]> result = ImmutableMap.<String, String[]>builder();
 
     req.params().toMap().forEach((name, value) -> {
       try {

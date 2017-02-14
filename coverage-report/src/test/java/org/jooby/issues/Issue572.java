@@ -1,15 +1,14 @@
 package org.jooby.issues;
 
-import static org.junit.Assert.assertEquals;
-
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import org.jooby.pac4j.Auth;
 import org.jooby.test.ServerFeature;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
+import static org.junit.Assert.*;
 
 public class Issue572 extends ServerFeature {
 
@@ -45,7 +44,7 @@ public class Issue572 extends ServerFeature {
         .expect(rsp -> {
           Document html = Jsoup.parse(rsp);
           String action = (html.select("form").attr("action"));
-          assertEquals("/auth?client_name=FormClient", action);
+          assertEquals("/572/auth?client_name=FormClient", action);
         });
   }
 

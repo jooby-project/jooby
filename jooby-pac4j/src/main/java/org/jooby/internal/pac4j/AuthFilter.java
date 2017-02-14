@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,16 +18,8 @@
  */
 package org.jooby.internal.pac4j;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.List;
-import java.util.function.Predicate;
-
-import org.jooby.Err;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Status;
+import javaslang.CheckedFunction1;
+import org.jooby.*;
 import org.jooby.pac4j.Auth;
 import org.jooby.pac4j.AuthStore;
 import org.pac4j.core.client.Client;
@@ -44,14 +36,19 @@ import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javaslang.CheckedFunction1;
+import java.util.List;
+import java.util.function.Predicate;
+
+import static java.util.Objects.*;
 
 public class AuthFilter implements Route.Handler {
 
   @SuppressWarnings("rawtypes")
   private static final Predicate<Client> useSession = c -> c instanceof IndirectClient;
 
-  /** The logging system. */
+  /**
+   * The logging system.
+   */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private String clientName;
@@ -73,7 +70,7 @@ public class AuthFilter implements Route.Handler {
     return clientName;
   }
 
-  @SuppressWarnings({"unchecked" })
+  @SuppressWarnings({"unchecked"})
   @Override
   public void handle(final Request req, final Response rsp) throws Throwable {
     Clients clients = req.require(Clients.class);
@@ -115,7 +112,8 @@ public class AuthFilter implements Route.Handler {
         if (useSession.test(client)) {
           // indirect client, start authentication
           try {
-            final String requestedUrl = ctx.getFullRequestURL();
+            String queryString = req.queryString().map(it -> "?" + it).orElse("");
+            final String requestedUrl = req.path() + queryString;
             log.debug("requestedUrl: {}", requestedUrl);
             ctx.setSessionAttribute(Pac4jConstants.REQUESTED_URL, requestedUrl);
             client.redirect(ctx);
@@ -138,7 +136,7 @@ public class AuthFilter implements Route.Handler {
   }
 
   private String profileID(final boolean useSession, final Request req) {
-    return req.<String> ifGet(Auth.ID)
+    return req.<String>ifGet(Auth.ID)
         .orElseGet(() -> useSession ? req.session().get(Auth.ID).value(null) : null);
   }
 

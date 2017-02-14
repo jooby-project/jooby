@@ -1,19 +1,21 @@
 package org.jooby.issues;
 
-import static org.junit.Assert.assertEquals;
-
 import org.jooby.pac4j.Auth;
 import org.jooby.test.ServerFeature;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+
 public class Issue572b extends ServerFeature {
 
   {
     use(new Auth());
 
-    get("/", req -> req.path());
+    get("/", req -> {
+      return req.path();
+    });
   }
 
   @Test
