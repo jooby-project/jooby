@@ -10,7 +10,7 @@ Make sure you already setup the [assets module](https://github.com/jooby-project
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-rollup</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
   <scope>provided</scope>
 </dependency>
 ```

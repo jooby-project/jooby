@@ -12,7 +12,7 @@ Provides cache solution and session storage via: <a href="https://github.com/goo
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-guava-cache</artifactId>
- <version>1.0.2</version>
+ <version>1.0.3</version>
 </dependency>
 ```
 
@@ -104,7 +104,7 @@ public MyService(Cache<Integer, String> cache) {
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-guava-cache</artifactId>
- <version>1.0.2</version>
+ <version>1.0.3</version>
 </dependency>
 ```
 

@@ -31,15 +31,15 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import static java.nio.file.StandardWatchEventKinds.*;
-import static java.util.Objects.requireNonNull;
+import static java.util.Objects.*;
 
 /**
  * Allow to customize a file watch handler. You can listen for particular event kinds, apply a glob
  * filter, recursive listening for changes and set watcher priority or modifier.
- * <p>
+ *
  * Default filter watch recursively listen for all the available kinds using a <code>HIGH</code>
  * modifier.
- * <p>
+ *
  * This class can't be instantiated by client code. Intances of this class are provided via
  * configuration callbacks. See
  * {@link FileWatcher#register(Path, Class, java.util.function.Consumer)}
@@ -95,7 +95,7 @@ public class FileEventOptions {
 
   /**
    * Append a kind filter.
-   * <p>
+   *
    * The default filter is: {@link StandardWatchEventKinds#ENTRY_CREATE},
    * {@link StandardWatchEventKinds#ENTRY_DELETE} and {@link StandardWatchEventKinds#ENTRY_MODIFY}.
    *
@@ -120,12 +120,13 @@ public class FileEventOptions {
   }
 
   /**
-   * Add a path filter using <code>glob</code> expression, like <code><pre>** / *.java</pre><code>,
+   * Add a path filter using <code>glob</code> expression, like <code>**&#47;*.java</code>,
    * etc...
    *
    * @param expression Glob expression.
    * @return This options.
    */
+
   public FileEventOptions includes(final String expression) {
     requireNonNull(expression, "Glob expression required.");
     this.matchers.add(new GlobPathMatcher(expression));

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,31 +18,25 @@
  */
 package org.jooby.filewatcher;
 
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchService;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
-import org.jooby.Env;
-import org.jooby.Jooby.Module;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-
 import javaslang.CheckedFunction1;
 import javaslang.CheckedFunction2;
 import javaslang.control.Try.CheckedConsumer;
+import org.jooby.Env;
+import org.jooby.Jooby.Module;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * <h1>file watcher</h1>
@@ -196,7 +190,9 @@ public class FileWatcher implements Module {
   private static final Consumer<FileEventOptions> EMPTY = it -> {
   };
 
-  /** The logging system. */
+  /**
+   * The logging system.
+   */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private final List<CheckedFunction2<Config, Binder, FileEventOptions>> bindings = new ArrayList<>();
@@ -263,7 +259,7 @@ public class FileWatcher implements Module {
    * Register the given directory tree and execute the given handler whenever a file/folder has been
    * created, modified or delete.
    *
-   * @param path Directory to register.
+   * @param property Directory to register.
    * @param handler Handler to execute.
    * @return This module.
    */
@@ -277,7 +273,7 @@ public class FileWatcher implements Module {
    * created, modified or delete. The configurer callback allow you to customize default event
    * kinds, filter specific file types and restrict the watch scope lookup to direct files.
    *
-   * @param path Directory to register.
+   * @param property Directory to register.
    * @param handler Handler to execute.
    * @param configurer Configurer callback.
    * @return This module.
@@ -293,7 +289,7 @@ public class FileWatcher implements Module {
    * Register the given directory tree and execute the given handler whenever a file/folder has been
    * created, modified or delete.
    *
-   * @param path Directory to register.
+   * @param property Directory to register.
    * @param handler Handler to execute.
    * @return This module.
    */
@@ -307,7 +303,7 @@ public class FileWatcher implements Module {
    * created, modified or delete. The configurer callback allow you to customize default event
    * kinds, filter specific file types and restrict the watch scope lookup to direct files.
    *
-   * @param path Directory to register.
+   * @param property Directory to register.
    * @param handler Handler to execute.
    * @param configurer Configurer callback.
    * @return This module.
@@ -354,7 +350,7 @@ public class FileWatcher implements Module {
     paths.forEach(it -> log.info("Watching: {}", it));
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private void paths(final ClassLoader loader, final Config conf, final String name,
       final Consumer<FileEventOptions> callback) throws Throwable {
     list(conf, name, value -> {

@@ -10,7 +10,7 @@ This module offers <a href="http://cassandra.apache.org">cassandra</a> database 
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-cassandra</artifactId>
- <version>1.0.2</version>
+ <version>1.0.3</version>
 </dependency>
 ```
 
@@ -196,7 +196,7 @@ A [Session.Store](/apidocs/org/jooby/cassandra/CassandraSessionStore.html) power
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-cassandra</artifactId>
- <version>1.0.2</version>
+ <version>1.0.3</version>
 </dependency>
 ```
 

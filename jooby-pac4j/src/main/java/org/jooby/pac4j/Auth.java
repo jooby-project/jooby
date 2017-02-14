@@ -61,7 +61,7 @@ import static java.util.Objects.*;
  * <p>
  * Authentication module via: <a href="https://github.com/pac4j/pac4j">pac4j</a>.
  * </p>
- * <p>
+ *
  * <h2>exposes</h2>
  * <ul>
  * <li>{@link Clients}</li>
@@ -69,9 +69,9 @@ import static java.util.Objects.*;
  * <li>{@link Route.Filter} per each registered {@link Client}</li>
  * <li>Callback {@link Route.Filter}</li>
  * </ul>
- * <p>
+ *
  * <h2>usage</h2>
- * <p>
+ *
  * <pre>
  * {
  *
@@ -83,72 +83,71 @@ import static java.util.Objects.*;
  * }
  * </pre>
  * <p>
- * <p>
  * Previous example adds a very basic but ready to use form login auth every time you try to access
  * to <code>/private</code> or any route defined below the auth module.
  * </p>
- * <p>
+ *
  * <h2>clients</h2>
  * <p>
  * <a href="https://github.com/pac4j/pac4j">pac4j</a> is a powerful library that supports multiple
  * clients and/or authentication protocols. In the next example, we will see how to configure the
  * most basic of them, but also some complex protocols.
  * </p>
- * <p>
+ *
  * <h3>basic auth</h3>
  * <p>
  * If basic auth is all you need, then:
  * </p>
- * <p>
+ *
  * <pre>
  * {
  *   use(new Auth().basic());
  * }
  * </pre>
- * <p>
+ *
  * <p>
  * A {@link IndirectBasicAuthClient} depends on {@link Authenticator}, default is
  * {@link SimpleTestUsernamePasswordAuthenticator} which is great for development, but nothing good
  * for other environments. Next example setup a basic auth with a custom {@link Authenticator}:
  * </p>
- * <p>
+ *
  * <pre>
  * {
  *   use(new Auth().basic("*", MyUsernamePasswordAuthenticator.class));
  * }
  * </pre>
- * <p>
+ *
  * <h3>form auth</h3>
  * <p>
  * Form authentication will be activated by calling {@link #form()}:
  * </p>
- * <p>
+ *
  * <pre>
  * {
  *   use(new Auth().form());
  * }
  * </pre>
- * <p>
+ *
  * <p>
  * Form is the default authentication method so previous example is the same as:
  * </p>
- * <p>
+ *
  * <pre>
  * {
  *   use(new Auth());
  * }
  * </pre>
- * <p>
+ *
  * <p>
  * Like basic auth, form auth depends on a {@link Authenticator}.
  * </p>
- * <p>
+ *
  * <p>
  * A login form will be ready under the path: <code>/login</code>. Again, it is a very basic login
  * form useful for development. If you need a custom login page, just add a route before the
  * {@link Auth} module, like:
  * </p>
- * <p>
+ *
  * <pre>
  * {
  *   get("/login", () {@literal ->} Results.html("login"));
@@ -156,17 +155,16 @@ import static java.util.Objects.*;
  *   use(new Auth());
  * }
  * </pre>
- * <p>
+ *
  * <p>
  * Simply and easy!
  * </p>
- * <p>
+ *
  * <h3>oauth, openid, etc...</h3>
- * <p>
  * <p>
  * Twitter, example:
  * </p>
- * <p>
+ *
  * <pre>
  * {
  *   use(new Auth()
@@ -174,11 +172,12 @@ import static java.util.Objects.*;
  *        new TwitterClient(conf.getString("twitter.key"), conf.getString("twitter.secret"))));
  * }
  * </pre>
+ *
  * <p>
  * Keep in mind you will have to add the require Maven dependency to your project, beside that it is
  * pretty straight forward.
  * </p>
- * <p>
+ *
  * <h2>protecting urls</h2>
  * <p>
  * By default a {@link Client} will protect all the urls defined below the module, because routes in
@@ -187,7 +186,7 @@ import static java.util.Objects.*;
  * <p>
  * You can customize what urls are protected by specifying a path pattern:
  * </p>
- * <p>
+ *
  * <pre>
  * {
  *   use(new Auth().form("/private/**"));
@@ -197,12 +196,12 @@ import static java.util.Objects.*;
  *   get("/private", () {@literal ->} "auth");
  * }
  * </pre>
- * <p>
+ *
  * <p>
  * Here the <code>/hello</code> path is un-protected, because the client will intercept everything
  * under <code>/private</code>.
  * </p>
- * <p>
+ *
  * <h2>user profile</h2>
  * <p>
  * Jooby relies on {@link AuthStore} for saving and retrieving a {@link CommonProfile}. By default,
@@ -212,7 +211,7 @@ import static java.util.Objects.*;
  * After a successful authentication the {@link CommonProfile} is accessible as a request scoped
  * attribute:
  * </p>
- * <p>
+ *
  * <pre>
  * {
  *   use(new Auth().form());
@@ -220,6 +219,7 @@ import static java.util.Objects.*;
  *   get("/private", req {@literal ->} req.require(HttpProfile.class));
  * }
  * </pre>
+ *
  * <p>
  * facebook (or any oauth, openid, etc...)
  * <p>
@@ -230,11 +230,11 @@ import static java.util.Objects.*;
  *   get("/private", req {@literal ->} req.require(FacebookProfile.class));
  * }
  * </pre>
- * <p>
+ *
  * <p>
  * Custom {@link AuthStore} is provided via {@link Auth#store(Class)} method:
  * </p>
- * <p>
+ *
  * <pre>
  * {
  *   use(new Auth().store(MyDbStore.class));
@@ -242,7 +242,7 @@ import static java.util.Objects.*;
  *   get("/private", req {@literal ->} req.require(HttpProfile.class));
  * }
  * </pre>
- * <p>
+ *
  * <h2>logout</h2>
  * <p>
  * A default <code>/logout</code> handler is provided it too. The handler will remove the profile
@@ -252,7 +252,7 @@ import static java.util.Objects.*;
  * <p>
  * A custom logout and redirect urls can be set via <code>.conf</code> file or programmatically:
  * </p>
- * <p>
+ *
  * <pre>
  * {
  *   use(new Auth().logout("/mylogout", "/redirectTo"));
@@ -287,7 +287,7 @@ public class Auth implements Jooby.Module {
 
   /**
    * Protect one or more urls with an {@link Authorizer}. For example:
-   * <p>
+   *
    * <pre>
    * {
    *   use(new Auth()
@@ -296,7 +296,7 @@ public class Auth implements Jooby.Module {
    *     );
    * }
    * </pre>
-   * <p>
+   *
    * <p>
    * Previous example will protect any url with form authentication and require and admin role for
    * <code>/admin/</code> or subpath of it.
@@ -305,8 +305,8 @@ public class Auth implements Jooby.Module {
    * NOTE: make sure url is protected by one pac4j client.
    * </p>
    *
-   * @param name       Authorizer name.
-   * @param pattern    URL pattern to protected.
+   * @param name Authorizer name.
+   * @param pattern URL pattern to protected.
    * @param authorizer Authorizer to apply.
    * @return This module.
    */
@@ -318,7 +318,6 @@ public class Auth implements Jooby.Module {
 
   /**
    * Protect one or more urls with an {@link Authorizer}. For example:
-   * <p>
    * <pre>
    * {
    *   use(new Auth()
@@ -328,7 +327,6 @@ public class Auth implements Jooby.Module {
    * }
    * </pre>
    * <p>
-   * <p>
    * Previous example will protect any url with form authentication and require and admin role for
    * <code>/admin/</code> or subpath of it.
    * </p>
@@ -336,8 +334,8 @@ public class Auth implements Jooby.Module {
    * NOTE: make sure url is protected by one pac4j client.
    * </p>
    *
-   * @param name       Authorizer name.
-   * @param pattern    URL pattern to protected.
+   * @param name Authorizer name.
+   * @param pattern URL pattern to protected.
    * @param authorizer Authorizer to apply.
    * @return This module.
    */
@@ -350,7 +348,6 @@ public class Auth implements Jooby.Module {
 
   /**
    * Protect one or more urls with an {@link Authorizer}. For example:
-   * <p>
    * <pre>
    * {
    *   use(new Auth()
@@ -360,13 +357,12 @@ public class Auth implements Jooby.Module {
    * }
    * </pre>
    * <p>
-   * <p>
    * Previous example will protect any url with form authentication and require and admin role for
    * <code>/admin/</code> or subpath of it.
    * </p>
    *
-   * @param name       Authorizer name.
-   * @param pattern    URL pattern to protected.
+   * @param name Authorizer name.
+   * @param pattern URL pattern to protected.
    * @param authorizer Authorizer to apply.
    */
   private void authorizer(final Object authorizer, final String name, final String pattern) {
@@ -379,7 +375,7 @@ public class Auth implements Jooby.Module {
   /**
    * Add a form auth client.
    *
-   * @param pattern       URL pattern to protect.
+   * @param pattern URL pattern to protect.
    * @param authenticator Authenticator to use.
    * @return This module.
    */
@@ -426,7 +422,7 @@ public class Auth implements Jooby.Module {
   /**
    * Add a basic auth client.
    *
-   * @param pattern       URL pattern to protect.
+   * @param pattern URL pattern to protect.
    * @param authenticator Authenticator to use.
    * @return This module.
    */
@@ -473,8 +469,8 @@ public class Auth implements Jooby.Module {
    * must be in the classpath.
    *
    * @param client Client to add.
-   * @param <C>    Credentials.
-   * @param <U>    CommonProfile.
+   * @param <C> Credentials.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   public <C extends Credentials, U extends CommonProfile> Auth client(final Client<C, U> client) {
@@ -486,8 +482,8 @@ public class Auth implements Jooby.Module {
    * must be in the classpath.
    *
    * @param client Client to add.
-   * @param <C>    Credentials.
-   * @param <U>    CommonProfile.
+   * @param <C> Credentials.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   public <C extends Credentials, U extends CommonProfile> Auth client(
@@ -500,9 +496,9 @@ public class Auth implements Jooby.Module {
    * must be in the classpath.
    *
    * @param pattern URL pattern to protect.
-   * @param client  Client to add.
-   * @param <C>     Credentials.
-   * @param <U>     CommonProfile.
+   * @param client Client to add.
+   * @param <C> Credentials.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   public <C extends Credentials, U extends CommonProfile> Auth client(final String pattern,
@@ -515,8 +511,8 @@ public class Auth implements Jooby.Module {
    * must be in the classpath.
    *
    * @param provider Client to add.
-   * @param <C>      Credentials.
-   * @param <U>      CommonProfile.
+   * @param <C> Credentials.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   public <C extends Credentials, U extends CommonProfile> Auth client(
@@ -528,10 +524,10 @@ public class Auth implements Jooby.Module {
    * Add an auth client, like facebook, twitter, github, etc...Please note the require dependency
    * must be in the classpath.
    *
-   * @param pattern  URL pattern to protect.
+   * @param pattern URL pattern to protect.
    * @param provider Client to add.
-   * @param <C>      Credentials.
-   * @param <U>      CommonProfile.
+   * @param <C> Credentials.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -557,9 +553,9 @@ public class Auth implements Jooby.Module {
    * must be in the classpath.
    *
    * @param pattern URL pattern to protect.
-   * @param client  Client to add.
-   * @param <C>     Credentials.
-   * @param <U>     CommonProfile.
+   * @param client Client to add.
+   * @param <C> Credentials.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   @SuppressWarnings({"rawtypes", "unchecked"})

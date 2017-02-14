@@ -15,7 +15,7 @@ Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-pac4j</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 
@@ -196,9 +196,9 @@ auth {
 
   login {
 
-    # Where to go after a successful login?
+    # Where to go after a successful login? Default is: ${application.path}
 
-    redirectTo = /
+    redirectTo = ""
 
   }
 
@@ -208,7 +208,7 @@ auth {
 
     url = /logout
 
-    redirectTo = /
+    redirectTo = ${application.path}
 
   }
 
