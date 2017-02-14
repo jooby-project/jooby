@@ -112,7 +112,7 @@
       <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-swagger<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
      </div> 
@@ -141,7 +141,7 @@
      <span class="o">})</span>
      <span class="o">...;</span>
 
-  <span class="k">new</span> <span class="n">Swagger</span><span class="o">().</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+  <span class="k">new</span> <span class="n">SwaggerUI</span><span class="o">().</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 
 <span class="o">}</span>
 </code></pre> 
@@ -181,7 +181,7 @@
       <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
-  <span class="k">new</span> <span class="n">Swagger</span><span class="o">(</span><span class="s">"docs"</span><span class="o">).</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+  <span class="k">new</span> <span class="n">SwaggerUI</span><span class="o">(</span><span class="s">"docs"</span><span class="o">).</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 
 <span class="o">}</span>
 </code></pre> 
@@ -196,7 +196,7 @@
       <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
-  <span class="k">new</span> <span class="n">Swagger</span><span class="o">()</span>
+  <span class="k">new</span> <span class="n">SwaggerUI</span><span class="o">()</span>
     <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">route</span> <span class="o">-&gt;</span> <span class="o">{</span>
       <span class="k">return</span> <span class="n">route</span><span class="o">.</span><span class="na">pattern</span><span class="o">().</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"/api"</span><span class="o">);</span>
     <span class="o">})</span>

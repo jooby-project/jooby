@@ -132,7 +132,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-pac4j<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -305,8 +305,8 @@
   <span class="c"># login options </span>
   <span class="err">login</span> <span class="err">{</span>
 
-    <span class="c"># Where to go after a successful login? </span>
-    <span class="py">redirectTo</span> <span class="p">=</span> <span class="s">/</span>
+    <span class="c"># Where to go after a successful login? Default is: ${application.path} </span>
+    <span class="py">redirectTo</span> <span class="p">=</span> <span class="s">""</span>
 
   <span class="err">}</span>
 
@@ -315,7 +315,7 @@
 
     <span class="py">url</span> <span class="p">=</span> <span class="s">/logout</span>
 
-    <span class="py">redirectTo</span> <span class="p">=</span> <span class="s">/</span>
+    <span class="py">redirectTo</span> <span class="p">=</span> <span class="s">${application.path}</span>
 
   <span class="err">}</span>
 

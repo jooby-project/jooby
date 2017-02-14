@@ -128,7 +128,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jdbc<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -293,16 +293,16 @@
 <span class="py">db.audit.password</span> <span class="p">=</span> <span class="s">....</span>
 </code></pre> 
        </div> 
-       <p>Same principle applies if you need to tweak <a href="https://github.com/brettwooldridge/HikariCP" target="_blank">hikari</a>:</p> 
+       <p>Same principle applies if you need to tweak <a href="https://github.com/brettwooldridge/HikariCP" target="_blank">hikari</a> per database:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c"># max pool size for main db </span>
-<span class="py">hikari.main.maximumPoolSize</span> <span class="p">=</span> <span class="s">100</span>
+<span class="py">db.main.hikari.maximumPoolSize</span> <span class="p">=</span> <span class="s">100</span>
 
 <span class="c"># max pool size for audit db </span>
-<span class="py">hikari.audit.maximumPoolSize</span> <span class="p">=</span> <span class="s">20</span>
+<span class="py">db.audit.hikari.maximumPoolSize</span> <span class="p">=</span> <span class="s">20</span>
 </code></pre> 
        </div> 
        <p>The first registered database is the <strong>default</strong> database. The <strong>second</strong> database is accessible by name and type:</p> 
