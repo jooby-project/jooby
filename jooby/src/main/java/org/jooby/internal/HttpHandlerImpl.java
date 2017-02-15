@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -17,49 +17,6 @@
  * under the License.
  */
 package org.jooby.internal;
-
-import static java.util.Objects.requireNonNull;
-
-import java.nio.charset.Charset;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-
-import org.jooby.Deferred;
-import org.jooby.Err;
-import org.jooby.Err.Handler;
-import org.jooby.MediaType;
-import org.jooby.Renderer;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Session;
-import org.jooby.Sse;
-import org.jooby.Status;
-import org.jooby.WebSocket;
-import org.jooby.WebSocket.Definition;
-import org.jooby.internal.parser.ParserExecutor;
-import org.jooby.spi.HttpHandler;
-import org.jooby.spi.NativeRequest;
-import org.jooby.spi.NativeResponse;
-import org.jooby.spi.NativeWebSocket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
@@ -72,8 +29,30 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
-
 import javaslang.control.Try;
+import org.jooby.*;
+import org.jooby.Err.Handler;
+import org.jooby.WebSocket.Definition;
+import org.jooby.internal.parser.ParserExecutor;
+import org.jooby.spi.HttpHandler;
+import org.jooby.spi.NativeRequest;
+import org.jooby.spi.NativeResponse;
+import org.jooby.spi.NativeWebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import java.nio.charset.Charset;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.*;
 
 @Singleton
 public class HttpHandlerImpl implements HttpHandler {
@@ -140,7 +119,9 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private static final String BYTE_RANGE = "Range";
 
-  /** The logging system. */
+  /**
+   * The logging system.
+   */
   private final Logger log = LoggerFactory.getLogger(HttpHandler.class);
 
   private Injector injector;
@@ -181,7 +162,9 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private StatusCodeProvider sc;
 
-  /** Global deferred executor. */
+  /**
+   * Global deferred executor.
+   */
   private Key<Executor> gexec;
 
   @Inject
@@ -404,8 +387,9 @@ public class HttpHandlerImpl implements HttpHandler {
         next.handle(req, rsp, err);
       }
     } catch (Throwable errex) {
-      log.error("execution of: {}{} resulted in exception\n{}Caused by:",
-          req.method(), req.path(), Throwables.getStackTraceAsString(errex), ex);
+      log.error("error handler resulted in exception: {}{}\nRoute:\n{}\n\nStacktrace:{}\nSource:",
+          req.method(), req.path(), req.route().print(6), Throwables.getStackTraceAsString(errex),
+          ex);
     }
   }
 
