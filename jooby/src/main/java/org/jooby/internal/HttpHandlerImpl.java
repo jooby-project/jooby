@@ -387,7 +387,7 @@ public class HttpHandlerImpl implements HttpHandler {
         next.handle(req, rsp, err);
       }
     } catch (Throwable errex) {
-      log.error("error handler resulted in exception: {}{}\nRoute:\n{}\n\nStacktrace:{}\nSource:",
+      log.error("error handler resulted in exception: {}{}\nRoute:\n{}\n\nStacktrace:\n{}\nSource:",
           req.method(), req.path(), req.route().print(6), Throwables.getStackTraceAsString(errex),
           ex);
     }
