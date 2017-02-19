@@ -1,14 +1,13 @@
 package org.jooby.pac4j;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.jooby.json.Jackson;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.pac4j.core.context.WebContext;
 
-import com.fasterxml.jackson.databind.SerializationFeature;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class WebContextFeature extends ServerFeature {
 
@@ -42,15 +41,16 @@ public class WebContextFeature extends ServerFeature {
     request()
         .get("/auth/ctx?p1=v1")
         .expect("{\n" +
-            "  \"fullRequestURL\" : \"http://localhost:9999/auth/ctx?p1=v1\",\n" +
+            "  \"fullRequestURL\" : \"http://localhost:" + port + "/auth/ctx?p1=v1\",\n" +
             "  \"requestMethod\" : \"GET\",\n" +
             "  \"requestParameters\" : {\n" +
             "    \"p1\" : [ \"v1\" ]\n" +
             "  },\n" +
             "  \"scheme\" : \"http\",\n" +
             "  \"serverName\" : \"localhost\",\n" +
-            "  \"serverPort\" : 9999,\n" +
-            "  \"toString\" : \"| Method | Path      | Source                               | Name       | Pattern   | Consumes | Produces |\\n|--------|-----------|--------------------------------------|------------|-----------|----------|----------|\\n| GET    | /auth/ctx | org.jooby.pac4j.WebContextFeature:18 | /anonymous | /auth/ctx | [*/*]    | [*/*]    |\"\n" +
+            "  \"serverPort\" : " + port + ",\n" +
+            "  \"toString\" : \"| Method | Path      | Source                               | Name       | Pattern   | Consumes | Produces |\\n|--------|-----------|--------------------------------------|------------|-----------|----------|----------|\\n| GET    | /auth/ctx | org.jooby.pac4j.WebContextFeature:17 | /anonymous | /auth/ctx | [*/*]    | [*/*]    |\"\n"
+            +
             "}");
   }
 

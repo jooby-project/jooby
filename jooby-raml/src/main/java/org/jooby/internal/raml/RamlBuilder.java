@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +18,18 @@
  */
 package org.jooby.internal.raml;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+import com.typesafe.config.Config;
+import org.jooby.MediaType;
+import org.jooby.spec.RouteParam;
+import org.jooby.spec.RouteParamType;
+import org.jooby.spec.RouteResponse;
+import org.jooby.spec.RouteSpec;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,20 +43,6 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import org.jooby.MediaType;
-import org.jooby.spec.RouteParam;
-import org.jooby.spec.RouteParamType;
-import org.jooby.spec.RouteResponse;
-import org.jooby.spec.RouteSpec;
-
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
-import com.typesafe.config.Config;
 
 public class RamlBuilder {
 
@@ -210,7 +208,8 @@ public class RamlBuilder {
           statusCodes.remove(rsp.statusCode());
           statusCodes.forEach((sc, msg) -> {
             buff.append(indent(level + 3)).append(sc).append(":\n");
-            buff.append(indent(level + 4)).append("description: ").append(Doc.parse(msg, level + 8)).append("\n");
+            buff.append(indent(level + 4)).append("description: ").append(Doc.parse(msg, level + 8))
+                .append("\n");
           });
         }
       }
@@ -262,7 +261,11 @@ public class RamlBuilder {
     StringBuilder buff = new StringBuilder();
     buff.append("#%RAML 1.0\n");
     conf.root()
-        .forEach((n, v) -> buff.append(n).append(": ").append(v.unwrapped()).append("\n"));
+        .entrySet()
+        .stream()
+        .sorted((e1, e2) -> e1.getKey().compareTo(e2.getKey()))
+        .forEach(e -> buff.append(e.getKey()).append(": ")
+            .append(e.getValue().unwrapped()).append("\n"));
 
     // types
     Set<RamlType> types = new LinkedHashSet<>();

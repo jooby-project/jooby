@@ -1,7 +1,10 @@
 language: java
 
+before_install:
+  - export MAVEN_OPTS=-Xmx1024m
+
 script:
-  - mvn -Dlogback.configurationFile=logback-travis.xml clean package coveralls:report -P coverage
+  - ./travis.sh
 
 jdk:
   - oraclejdk8

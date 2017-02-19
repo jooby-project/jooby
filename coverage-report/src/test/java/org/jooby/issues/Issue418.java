@@ -1,24 +1,6 @@
 package org.jooby.issues;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Phaser;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
+import com.google.common.collect.ImmutableMap;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.http.HttpVersion;
@@ -46,7 +28,24 @@ import org.jooby.Results;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Phaser;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class Issue418 extends ServerFeature {
 
@@ -139,7 +138,7 @@ public class Issue418 extends ServerFeature {
     Map<String, Object> pushPromise = (Map<String, Object>) stream2.get("push-promise");
     assertEquals(1, pushPromise.get("streamId"));
     assertEquals(2, pushPromise.get("promisedStreamId"));
-    assertEquals("http://localhost:9999/app.js", pushPromise.get("uri"));
+    assertEquals("http://localhost:" + port + "/app.js", pushPromise.get("uri"));
     assertEquals("GET", pushPromise.get("method"));
   }
 
@@ -191,7 +190,7 @@ public class Issue418 extends ServerFeature {
     assertEquals(1, pushPromise.get("streamId"));
     assertEquals(2, pushPromise.get("promisedStreamId"));
     assertEquals("123", pushPromise.get("etag"));
-    assertEquals("http://localhost:9999/app.js", pushPromise.get("uri"));
+    assertEquals("http://localhost:" + port + "/app.js", pushPromise.get("uri"));
     assertEquals("GET", pushPromise.get("method"));
   }
 

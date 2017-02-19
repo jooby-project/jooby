@@ -38,11 +38,11 @@ public class Issue378 extends ServerFeature {
     request()
         .get("/raml/api.raml")
         .expect("#%RAML 1.0\n" +
-            "title: issues API\n" +
-            "version: 0.0.0\n" +
-            "protocols: [HTTP]\n" +
-            "baseUri: http://localhost:9999/\n" +
-            "mediaType: application/json\n" +
+            "baseUri: http://localhost:" + port + "/\n"
+            + "mediaType: application/json\n"
+            + "protocols: [HTTP]\n"
+            + "title: issues API\n"
+            + "version: 0.0.0\n" +
             "types:\n" +
             "  Cat:\n" +
             "    type: object\n" +

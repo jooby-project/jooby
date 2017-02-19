@@ -1,21 +1,21 @@
 package org.jooby.issues;
 
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import org.jooby.test.ServerFeature;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
-
 public class Issue221 extends ServerFeature {
 
   {
 
+    securePort(9943);
     use(ConfigFactory.empty()
-        .withValue("application.securePort", ConfigValueFactory.fromAnyRef(9943))
+        .withValue("application.securePort", ConfigValueFactory.fromAnyRef(securePort))
         .withValue("application.redirect_https",
-            ConfigValueFactory.fromAnyRef("https://localhost:9943/{0}")));
+            ConfigValueFactory.fromAnyRef("https://localhost:" + securePort + "/{0}")));
 
     get("/https", req -> req.secure());
   }

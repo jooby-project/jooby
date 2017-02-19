@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,11 +18,10 @@
  */
 package org.jooby.test;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -31,24 +30,24 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.MultipleFailureException;
 import org.junit.runners.model.Statement;
 
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * JUnit4 block runner for Jooby. Internal use only.
  *
  * @author edgar
- *
  */
 public class JoobyRunner extends BlockJUnit4ClassRunner {
 
   private Jooby app;
 
-  private int port = 9999;
-
-  private int securePort = 9943;
+  private int port;
+  private int securePort;
 
   private Class<?> server;
 
@@ -80,6 +79,8 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
 
   private void prepare(final Class<?> klass, final Class<?> server) throws InitializationError {
     try {
+      this.port = port("coverage.port", 9999);
+      this.securePort = port("coverage.securePort", 9943);
       this.server = server;
       Class<?> appClass = klass;
       if (!Jooby.class.isAssignableFrom(appClass)) {
@@ -202,6 +203,17 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
         throw new MultipleFailureException(errors);
       }
     };
+  }
+
+  private int port(String property, Integer defaultPort) throws IOException {
+    String port = System.getProperty(property, defaultPort.toString());
+    if (port.equalsIgnoreCase("random")) {
+      try (ServerSocket socket = new ServerSocket(0)) {
+        return socket.getLocalPort();
+      }
+    } else {
+      return Integer.parseInt(port);
+    }
   }
 
 }

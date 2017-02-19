@@ -1,14 +1,13 @@
 package org.jooby.issues;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
+import cz.jiripinkas.jsitemapgenerator.WebPage;
 import org.jooby.sitemap.Sitemap;
 import org.jooby.sitemap.WebPageProvider;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-import cz.jiripinkas.jsitemapgenerator.WebPage;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class Issue342 extends ServerFeature {
 
@@ -41,16 +40,16 @@ public class Issue342 extends ServerFeature {
         .expect("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n" +
             "<url>\n" +
-            "<loc>http://localhost:9999/</loc>\n" +
+            "<loc>http://localhost:" + port + "/</loc>\n" +
             "</url>\n" +
             "<url>\n" +
-            "<loc>http://localhost:9999/tags</loc>\n" +
+            "<loc>http://localhost:" + port + "/tags</loc>\n" +
             "</url>\n" +
             "<url>\n" +
-            "<loc>http://localhost:9999/tags/bar</loc>\n" +
+            "<loc>http://localhost:" + port + "/tags/bar</loc>\n" +
             "</url>\n" +
             "<url>\n" +
-            "<loc>http://localhost:9999/tags/foo</loc>\n" +
+            "<loc>http://localhost:" + port + "/tags/foo</loc>\n" +
             "</url>\n" +
             "</urlset>")
         .header("Content-Type", "application/xml;charset=utf-8");
