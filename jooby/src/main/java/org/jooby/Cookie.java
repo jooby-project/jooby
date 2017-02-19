@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,30 +18,29 @@
  */
 package org.jooby;
 
-import static java.util.Objects.requireNonNull;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.io.BaseEncoding;
+import javaslang.Tuple;
+import javaslang.Tuple2;
+import javaslang.control.Try;
+import org.jooby.internal.CookieImpl;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.jooby.internal.CookieImpl;
-
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.io.BaseEncoding;
-
-import javaslang.Tuple;
-import javaslang.Tuple2;
-import javaslang.control.Try;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Creates a cookie, a small amount of information sent by a server to
@@ -84,18 +83,27 @@ public interface Cookie {
    * {@link URLDecoder}.
    */
   public static final Function<String, Map<String, String>> URL_DECODER = value -> {
+    if (value == null) {
+      return Collections.emptyMap();
+    }
     Function<String, String> decode = v -> Try
-        .of(() -> URLDecoder.decode(v, StandardCharsets.UTF_8.name())).get();
-    return Splitter.on('&').trimResults().omitEmptyStrings()
+        .of(() -> URLDecoder.decode(v, StandardCharsets.UTF_8.name()))
+        .get();
+    return Splitter.on('&')
+        .trimResults()
+        .omitEmptyStrings()
         .splitToList(value)
         .stream()
         .map(v -> {
           Iterator<String> it = Splitter.on('=').trimResults().omitEmptyStrings()
               .split(v)
               .iterator();
-          Tuple2<String, String> t2 = Tuple.of(decode.apply(it.next()), decode.apply(it.next()));
+          Tuple2<String, String> t2 = Tuple
+              .of(decode.apply(it.next()), it.hasNext() ? decode.apply(it.next()) : null);
           return t2;
-        }).collect(Collectors.toMap(it -> it._1, it -> it._2));
+        })
+        .filter(it -> Objects.nonNull(it._2))
+        .collect(Collectors.toMap(it -> it._1, it -> it._2));
   };
 
   /**
@@ -349,7 +357,7 @@ public interface Cookie {
      * </p>
      *
      * @param maxAge an integer specifying the maximum age of the cookie in seconds; if negative,
-     *        means the cookie is not stored; if zero, deletes the cookie.
+     * means the cookie is not stored; if zero, deletes the cookie.
      * @return This definition.
      */
     public Definition maxAge(final int maxAge) {
@@ -494,7 +502,7 @@ public interface Cookie {
    * </p>
    *
    * @return An integer specifying the maximum age of the cookie in seconds; if negative, means
-   *         the cookie persists until browser shutdown
+   * the cookie persists until browser shutdown
    */
   int maxAge();
 
