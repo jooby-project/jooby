@@ -1,23 +1,5 @@
 package org.jooby.mongodb;
 
-import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertEquals;
-
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.jooby.Session;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.google.common.collect.ImmutableMap;
 import com.mongodb.DBObject;
 import com.mongodb.client.FindIterable;
@@ -29,13 +11,31 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.jooby.Session;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+
+import static org.easymock.EasyMock.expect;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({MongoSessionStore.class, IndexOptions.class, UpdateOptions.class, Filters.class,
-    LinkedHashMap.class })
+    LinkedHashMap.class})
 public class MongodbSessionStoreTest {
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   MockUnit.Block boot = unit -> {
     MongoCollection collection = unit.get(MongoCollection.class);
 
@@ -45,7 +45,7 @@ public class MongodbSessionStoreTest {
 
   long now = System.currentTimeMillis();
 
-  Map<String, String> attrs = ImmutableMap.<String, String> of("k", "v");
+  Map<String, String> attrs = ImmutableMap.<String, String>of("k.v", "v", "$d", "d");
 
   @SuppressWarnings("rawtypes")
   MockUnit.Block saveSession = unit -> {
@@ -65,7 +65,8 @@ public class MongodbSessionStoreTest {
         .append("_accessedAt", new Date(now))
         .append("_createdAt", new Date(now))
         .append("_savedAt", new Date(now))
-        .append("k", "v");
+        .append("k\uFF0Ev", "v")
+        .append("\uFF04d", "d");
 
     UpdateOptions options = unit.constructor(UpdateOptions.class)
         .build();
@@ -225,47 +226,98 @@ public class MongodbSessionStoreTest {
         });
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   public void get() throws Exception {
     long now = System.currentTimeMillis();
     new MockUnit(Session.class, Session.Builder.class, MongoDatabase.class, MongoCollection.class,
         DBObject.class)
-            .expect(boot)
-            .expect(unit -> {
-              Document doc = unit.mock(Document.class);
+        .expect(boot)
+        .expect(unit -> {
+          Document doc = unit.mock(Document.class);
 
-              Map sessionMap = unit.constructor(LinkedHashMap.class)
-                  .args(Map.class)
-                  .build(doc);
-              expect(sessionMap.remove("_accessedAt")).andReturn(new Date(now));
-              expect(sessionMap.remove("_createdAt")).andReturn(new Date(now));
-              expect(sessionMap.remove("_savedAt")).andReturn(new Date(now));
-              expect(sessionMap.remove("_id")).andReturn("1234");
+          Map sessionMap = unit.constructor(LinkedHashMap.class)
+              .args(Map.class)
+              .build(doc);
+          expect(sessionMap.remove("_accessedAt")).andReturn(new Date(now));
+          expect(sessionMap.remove("_createdAt")).andReturn(new Date(now));
+          expect(sessionMap.remove("_savedAt")).andReturn(new Date(now));
+          expect(sessionMap.remove("_id")).andReturn("1234");
+          sessionMap.forEach(unit.capture(BiConsumer.class));
 
-              FindIterable result = unit.mock(FindIterable.class);
-              expect(result.first()).andReturn(doc);
+          FindIterable result = unit.mock(FindIterable.class);
+          expect(result.first()).andReturn(doc);
 
-              Session.Builder sb = unit.get(Session.Builder.class);
-              expect(sb.sessionId()).andReturn("1234");
-              expect(sb.accessedAt(now)).andReturn(sb);
-              expect(sb.createdAt(now)).andReturn(sb);
-              expect(sb.savedAt(now)).andReturn(sb);
-              expect(sb.set(sessionMap)).andReturn(sb);
-              expect(sb.build()).andReturn(unit.get(Session.class));
+          Session.Builder sb = unit.get(Session.Builder.class);
+          expect(sb.sessionId()).andReturn("1234");
+          expect(sb.accessedAt(now)).andReturn(sb);
+          expect(sb.createdAt(now)).andReturn(sb);
+          expect(sb.savedAt(now)).andReturn(sb);
+          expect(sb.set("a.b", "c")).andReturn(sb);
+          expect(sb.build()).andReturn(unit.get(Session.class));
 
-              Bson eq = unit.mock(Bson.class);
-              unit.mockStatic(Filters.class);
-              expect(Filters.eq("_id", "1234")).andReturn(eq);
+          Bson eq = unit.mock(Bson.class);
+          unit.mockStatic(Filters.class);
+          expect(Filters.eq("_id", "1234")).andReturn(eq);
 
-              MongoCollection collection = unit.get(MongoCollection.class);
-              expect(collection.find(eq)).andReturn(result);
-            })
-            .run(unit -> {
-              MongoSessionStore mss = new MongoSessionStore(unit.get(MongoDatabase.class), "sess",
-                  "60");
-              assertEquals(unit.get(Session.class), mss.get(unit.get(Session.Builder.class)));
-            });
+          MongoCollection collection = unit.get(MongoCollection.class);
+          expect(collection.find(eq)).andReturn(result);
+        })
+        .run(unit -> {
+          MongoSessionStore mss = new MongoSessionStore(unit.get(MongoDatabase.class), "sess",
+              "60");
+          assertEquals(unit.get(Session.class), mss.get(unit.get(Session.Builder.class)));
+        }, unit -> {
+          BiConsumer<String, String> setter = unit.captured(BiConsumer.class).get(0);
+          setter.accept("a\uFF0Eb", "c");
+        });
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  @Test
+  public void getDollar() throws Exception {
+    long now = System.currentTimeMillis();
+    new MockUnit(Session.class, Session.Builder.class, MongoDatabase.class, MongoCollection.class,
+        DBObject.class)
+        .expect(boot)
+        .expect(unit -> {
+          Document doc = unit.mock(Document.class);
+
+          Map sessionMap = unit.constructor(LinkedHashMap.class)
+              .args(Map.class)
+              .build(doc);
+          expect(sessionMap.remove("_accessedAt")).andReturn(new Date(now));
+          expect(sessionMap.remove("_createdAt")).andReturn(new Date(now));
+          expect(sessionMap.remove("_savedAt")).andReturn(new Date(now));
+          expect(sessionMap.remove("_id")).andReturn("1234");
+          sessionMap.forEach(unit.capture(BiConsumer.class));
+
+          FindIterable result = unit.mock(FindIterable.class);
+          expect(result.first()).andReturn(doc);
+
+          Session.Builder sb = unit.get(Session.Builder.class);
+          expect(sb.sessionId()).andReturn("1234");
+          expect(sb.accessedAt(now)).andReturn(sb);
+          expect(sb.createdAt(now)).andReturn(sb);
+          expect(sb.savedAt(now)).andReturn(sb);
+          expect(sb.set("$ab", "c")).andReturn(sb);
+          expect(sb.build()).andReturn(unit.get(Session.class));
+
+          Bson eq = unit.mock(Bson.class);
+          unit.mockStatic(Filters.class);
+          expect(Filters.eq("_id", "1234")).andReturn(eq);
+
+          MongoCollection collection = unit.get(MongoCollection.class);
+          expect(collection.find(eq)).andReturn(result);
+        })
+        .run(unit -> {
+          MongoSessionStore mss = new MongoSessionStore(unit.get(MongoDatabase.class), "sess",
+              "60");
+          assertEquals(unit.get(Session.class), mss.get(unit.get(Session.Builder.class)));
+        }, unit -> {
+          BiConsumer<String, String> setter = unit.captured(BiConsumer.class).get(0);
+          setter.accept("\uFF04ab", "c");
+        });
   }
 
   @SuppressWarnings("rawtypes")
