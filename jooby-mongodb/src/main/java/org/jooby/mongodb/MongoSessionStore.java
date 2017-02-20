@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,25 +18,6 @@
  */
 package org.jooby.mongodb;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.jooby.Session;
-import org.jooby.Session.Builder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
@@ -46,6 +27,23 @@ import com.mongodb.client.model.UpdateOptions;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.jooby.Session;
+import org.jooby.Session.Builder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A {@link Session.Store} powered by
@@ -108,6 +106,14 @@ import com.typesafe.config.ConfigValueFactory;
  */
 public class MongoSessionStore implements Session.Store {
 
+  private static final char DOT = '.';
+
+  private static final char UDOT = '\uFF0E';
+
+  private static final char DOLLAR = '$';
+
+  private static final char UDOLLAR = '\uFF04';
+
   private static final String SESSION_IDX = "_sessionIdx_";
 
   /** The logging system. */
@@ -138,7 +144,7 @@ public class MongoSessionStore implements Session.Store {
     this(db, collection, seconds(timeout));
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public Session get(final Builder builder) {
     return Optional.ofNullable(sessions.find(Filters.eq("_id", builder.sessionId())).first())
@@ -150,12 +156,12 @@ public class MongoSessionStore implements Session.Store {
           Date savedAt = (Date) session.remove("_savedAt");
           session.remove("_id");
 
-          return builder
+          builder
               .accessedAt(accessedAt.getTime())
               .createdAt(createdAt.getTime())
-              .savedAt(savedAt.getTime())
-              .set(session)
-              .build();
+              .savedAt(savedAt.getTime());
+          session.forEach((k, v) -> builder.set(decode(k.toString()), v.toString()));
+          return builder.build();
         }).orElse(null);
   }
 
@@ -172,7 +178,8 @@ public class MongoSessionStore implements Session.Store {
         .append("_createdAt", new Date(session.createdAt()))
         .append("_savedAt", new Date(session.savedAt()));
     // dump attributes
-    session.attributes().forEach((k, v) -> doc.append(k, v));
+    Map<String, String> attributes = session.attributes();
+    attributes.forEach((k, v) -> doc.append(encode(k), v));
 
     sessions.updateOne(filter, new Document("$set", doc), new UpdateOptions().upsert(true));
   }
@@ -233,6 +240,22 @@ public class MongoSessionStore implements Session.Store {
       }
     }
     return false;
+  }
+
+  private String encode(final String key) {
+    String value = key;
+    if (value.charAt(0) == DOLLAR) {
+      value = UDOLLAR + value.substring(1);
+    }
+    return value.replace(DOT, UDOT);
+  }
+
+  private String decode(final String key) {
+    String value = key;
+    if (value.charAt(0) == UDOLLAR) {
+      value = DOLLAR + value.substring(1);
+    }
+    return value.replace(UDOT, DOT);
   }
 
 }
