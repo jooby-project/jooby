@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <groupId>org.jooby</groupId>
@@ -14,7 +15,7 @@
   <name>coverage report</name>
 
   <properties>
-    <alpn-boot.version>8.1.9.v20160720</alpn-boot.version>
+    <alpn-boot-version>8.1.9.v20160720</alpn-boot-version>
   </properties>
 
   <profiles>
@@ -162,7 +163,8 @@
                       <directory>${project.parent.basedir}/jooby/src/test/resources</directory>
                     </resource>
                     <resource>
-                      <directory>${project.parent.basedir}/jooby-assets/src/test/resources</directory>
+                      <directory>${project.parent.basedir}/jooby-assets/src/test/resources
+                      </directory>
                     </resource>
                     <resource>
                       <directory>${project.parent.basedir}/jooby-hbs/src/test/resources</directory>
@@ -171,7 +173,8 @@
                       <directory>${project.parent.basedir}/jooby-hbm/src/test/resources</directory>
                     </resource>
                     <resource>
-                      <directory>${project.parent.basedir}/jooby-whoops/src/test/resources</directory>
+                      <directory>${project.parent.basedir}/jooby-whoops/src/test/resources
+                      </directory>
                     </resource>
                   </resources>
                 </configuration>
@@ -225,13 +228,23 @@
                 <include>**/*Issue*.java</include>
               </includes>
               <argLine>-Xmx1024m -XX:MaxPermSize=256m
-                -Xbootclasspath/p:${settings.localRepository}/org/mortbay/jetty/alpn/alpn-boot/${alpn-boot.version}/alpn-boot-${alpn-boot.version}.jar</argLine>
+                -Xbootclasspath/p:${settings.localRepository}/org/mortbay/jetty/alpn/alpn-boot/${alpn-boot-version}/alpn-boot-${alpn-boot-version}.jar
+              </argLine>
               <systemPropertyVariables>
                 <!-- JaCoCo runtime must know where to dump coverage: -->
                 <jacoco-agent.destfile>target${file.separator}jacoco.exec</jacoco-agent.destfile>
-                <logback.configurationFile>src${file.separator}test${file.separator}resources${file.separator}logback-travis.xml</logback.configurationFile>
+                <logback.configurationFile>
+                  src${file.separator}test${file.separator}resources${file.separator}logback-travis.xml
+                </logback.configurationFile>
               </systemPropertyVariables>
             </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>org.mortbay.jetty.alpn</groupId>
+                <artifactId>alpn-boot</artifactId>
+                <version>${alpn-boot-version}</version>
+              </dependency>
+            </dependencies>
           </plugin>
 
         </plugins>
@@ -754,13 +767,6 @@
       <groupId>org.eclipse.jetty.http2</groupId>
       <artifactId>http2-client</artifactId>
       <version>${jetty.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mortbay.jetty.alpn</groupId>
-      <artifactId>alpn-boot</artifactId>
-      <version>${alpn-boot.version}</version>
-      <scope>test</scope>
     </dependency>
 
   </dependencies>
