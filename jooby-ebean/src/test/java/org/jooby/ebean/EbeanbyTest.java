@@ -18,9 +18,9 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.config.ContainerConfig;
-import com.avaje.ebean.config.ServerConfig;
+import io.ebean.EbeanServer;
+import io.ebean.config.ContainerConfig;
+import io.ebean.config.ServerConfig;
 import com.google.common.collect.Sets;
 import com.google.inject.Binder;
 import com.google.inject.Key;
