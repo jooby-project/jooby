@@ -47,8 +47,8 @@
 
     <!-- Ebean -->
     <dependency>
-      <groupId>org.avaje.ebeanorm</groupId>
-      <artifactId>avaje-ebeanorm</artifactId>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean</artifactId>
       <exclusions>
         <exclusion>
           <groupId>org.jetbrains</groupId>
@@ -62,8 +62,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.avaje.ebeanorm</groupId>
-      <artifactId>avaje-ebeanorm-agent</artifactId>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-agent</artifactId>
       <optional>true</optional>
     </dependency>
 
