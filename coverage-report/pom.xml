@@ -569,8 +569,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.avaje.ebeanorm</groupId>
-      <artifactId>avaje-ebeanorm-agent</artifactId>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-agent</artifactId>
       <exclusions>
         <exclusion>
           <groupId>javax.persistence</groupId>

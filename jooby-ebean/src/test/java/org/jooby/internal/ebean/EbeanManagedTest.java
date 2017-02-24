@@ -10,9 +10,9 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.EbeanServerFactory;
-import com.avaje.ebean.config.ServerConfig;
+import io.ebean.EbeanServer;
+import io.ebean.EbeanServerFactory;
+import io.ebean.config.ServerConfig;
 import com.typesafe.config.Config;
 
 @RunWith(PowerMockRunner.class)

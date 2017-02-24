@@ -22,9 +22,9 @@ import java.io.File;
 
 import javax.inject.Provider;
 
-import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.EbeanServerFactory;
-import com.avaje.ebean.config.ServerConfig;
+import io.ebean.EbeanServer;
+import io.ebean.EbeanServerFactory;
+import io.ebean.config.ServerConfig;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.typesafe.config.Config;

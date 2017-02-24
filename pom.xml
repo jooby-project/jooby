@@ -1289,8 +1289,8 @@
 
       <!-- Ebean -->
       <dependency>
-        <groupId>org.avaje.ebeanorm</groupId>
-        <artifactId>avaje-ebeanorm</artifactId>
+        <groupId>io.ebean</groupId>
+        <artifactId>ebean</artifactId>
         <version>${ebean.version}</version>
       </dependency>
 
@@ -1301,9 +1301,9 @@
       </dependency>
 
       <dependency>
-        <groupId>org.avaje.ebeanorm</groupId>
-        <artifactId>avaje-ebeanorm-agent</artifactId>
-        <version>${avaje-ebeanorm-agent.version}</version>
+        <groupId>io.ebean</groupId>
+        <artifactId>ebean-agent</artifactId>
+        <version>${ebean-agent.version}</version>
       </dependency>
 
       <!-- jooq -->
@@ -1762,11 +1762,11 @@
           </executions>
         </plugin>
 
-        <!-- avaje-enchancer -->
+        <!-- avaje-enhancer -->
         <plugin>
-          <groupId>org.avaje.ebeanorm</groupId>
-          <artifactId>avaje-ebeanorm-mavenenhancer</artifactId>
-          <version>${avaje-ebeanorm-agent.version}</version>
+          <groupId>org.avaje.ebean</groupId>
+          <artifactId>ebean-maven-plugin</artifactId>
+          <version>${ebean-maven-plugin.version}</version>
           <executions>
             <execution>
               <phase>process-classes</phase>
@@ -2418,8 +2418,8 @@
       <dependencies>
         <!-- ebean-runtime-enchancer -->
         <dependency>
-          <groupId>org.avaje.ebeanorm</groupId>
-          <artifactId>avaje-ebeanorm-agent</artifactId>
+          <groupId>io.ebean</groupId>
+          <artifactId>ebean-agent</artifactId>
           <scope>test</scope>
         </dependency>
 
@@ -2433,8 +2433,8 @@
         <plugins>
           <!-- ebean-enchancer -->
           <plugin>
-            <groupId>org.avaje.ebeanorm</groupId>
-            <artifactId>avaje-ebeanorm-mavenenhancer</artifactId>
+            <artifactId>ebean-maven-plugin</artifactId>
+            <version>${ebean-maven-plugin.version}</version>
           </plugin>
         </plugins>
       </build>
@@ -2817,9 +2817,10 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <flyway.version>4.0</flyway.version>
     <hazelcast.version>3.6.1</hazelcast.version>
     <less4j.version>1.13.0</less4j.version>
-    <ebean.version>7.5.1</ebean.version>
+    <ebean.version>10.1.6</ebean.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
-    <avaje-ebeanorm-agent.version>4.9.2</avaje-ebeanorm-agent.version>
+    <ebean-agent.version>10.1.2</ebean-agent.version>
+    <ebean-maven-plugin.version>10.1.4</ebean-maven-plugin.version>
     <akka.version>2.4.11</akka.version>
     <yuicompressor.version>2.4.8</yuicompressor.version>
     <closure-compiler.version>v20150901</closure-compiler.version>

@@ -18,22 +18,21 @@
  */
 package org.jooby.ebean;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.EbeanServer;
+import io.ebean.config.ContainerConfig;
+import io.ebean.config.ServerConfig;
 import org.jooby.Env;
 import org.jooby.internal.ebean.EbeanEnhancer;
 import org.jooby.internal.ebean.EbeanManaged;
 import org.jooby.jdbc.Jdbc;
 
-import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.config.ContainerConfig;
-import com.avaje.ebean.config.ServerConfig;
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * <h1>ebean module</h1>
