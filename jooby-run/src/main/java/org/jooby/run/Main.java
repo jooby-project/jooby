@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,12 +18,20 @@
  */
 package org.jooby.run;
 
+import org.jboss.modules.Module;
+import org.jboss.modules.ModuleClassLoader;
+import org.jboss.modules.ModuleIdentifier;
+import org.jboss.modules.ModuleLoader;
+import org.jboss.modules.log.ModuleLogger;
+import org.jooby.internal.run__.JoobyRef;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.FileSystems;
@@ -43,14 +51,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 import java.util.stream.LongStream;
-
-import org.jboss.modules.Module;
-import org.jboss.modules.ModuleClassLoader;
-import org.jboss.modules.ModuleIdentifier;
-import org.jboss.modules.ModuleLoader;
-import org.jboss.modules.log.ModuleLogger;
 
 public class Main {
 
@@ -188,6 +189,7 @@ public class Main {
     this.scanner.start();
     this.args = new ArrayList<>(Arrays.asList(args));
     this.args.add("server.join=false");
+    this.args.add("jooby.internal.onStart=" + JoobyRef.class.getName());
     this.startApp(this.args);
 
     if (block) {
@@ -214,6 +216,8 @@ public class Main {
     starting.set(true);
     debug("scheduling: %s", mainClass);
     executor.submit(() -> {
+      String runclass = this.mainClass;
+      String alias = runclass;
       ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
       try {
         module = loader.loadModule(mId);
@@ -221,26 +225,26 @@ public class Main {
 
         Thread.currentThread().setContextClassLoader(mcloader);
 
-        if (mainClass.endsWith(".js")) {
-          // js version
-          Object js = mcloader.loadClass("org.jooby.internal.js.JsJooby")
-              .newInstance();
-          Method runjs = js.getClass().getDeclaredMethod("run", File.class);
-          this.app = ((Supplier) runjs.invoke(js, new File(mainClass))).get();
-        } else {
-          this.app = mcloader.loadClass(mainClass)
-              .getDeclaredConstructors()[0].newInstance();
-        }
-        debug("starting: %s", mainClass);
-        Method joobyRun = app.getClass().getMethod("start", String[].class);
-        Object p = args.toArray(new String[args.size()]);
-        joobyRun.invoke(this.app, p);
+        debug("starting: %s", runclass);
+        Class appref = mcloader.loadClass(JoobyRef.class.getName());
+        debug("loaded: %s", appref);
+        Class appclass = mcloader.loadClass(runclass);
+        debug("loaded: %s", appclass);
+        Method main = appclass.getDeclaredMethod("main", String[].class);
+        debug("loaded: %s", main);
+        Object params = args.toArray(new String[args.size()]);
+        debug("calling: %s", main);
+        main.invoke(null, params);
+        debug("called: %s", main);
+        Field reffld = appref.getDeclaredField("ref");
+        AtomicReference ref = (AtomicReference) reffld.get(null);
+        this.app = ref.get();
         Method started = app.getClass().getMethod("isStarted");
         Boolean success = (Boolean) started.invoke(this.app);
         if (success) {
-          debug("started: %s", mainClass);
+          debug("started: %s", alias);
         } else {
-          debug("not started: %s", mainClass);
+          debug("not started: %s", alias);
           System.exit(1);
         }
       } catch (Throwable ex) {
@@ -248,7 +252,7 @@ public class Main {
         if (ex instanceof InvocationTargetException) {
           cause = ((InvocationTargetException) ex).getTargetException();
         }
-        error("%s.start() resulted in error", mainClass, cause);
+        error("%s.start() resulted in error", alias, cause);
       } finally {
         starting.set(false);
         Thread.currentThread().setContextClassLoader(ctxLoader);

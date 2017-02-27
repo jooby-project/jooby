@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 
-import org.jooby.Jooby;
-import org.jooby.internal.js.JsJooby;
+import org.jooby.JoobyJs;
 import org.junit.Test;
 
 public class JsAppFeature {
@@ -21,11 +20,11 @@ public class JsAppFeature {
   }
 
   private void run(final String filename) throws Exception {
-    new JsJooby().run(new InputStreamReader(getClass().getResourceAsStream(filename))).get();
+    new JoobyJs().run(new InputStreamReader(getClass().getResourceAsStream(filename))).get();
   }
 
   private void run(final File filename) throws Throwable {
-    Jooby.main(new String[]{filename.getAbsolutePath() });
+    JoobyJs.main(new String[]{filename.getAbsolutePath() });
   }
 
 }

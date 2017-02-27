@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,8 +15,7 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- */
-/**
+ *
  * This copy of Woodstox XML processor is licensed under the
  * Apache (Software) License, version 2.0 ("the License").
  * See the License for details about distribution rights, and the
@@ -29,9 +28,8 @@
  * A copy is also included in the downloadable source code package
  * containing Woodstox, in file "ASL2.0", under the same directory
  * as this file.
- */
-/**
- o * Licensed to the Apache Software Foundation (ASF) under one
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
  * regarding copyright ownership.  The ASF licenses this file
@@ -39,7 +37,4867 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ *
+ * o * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -48,6 +4906,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.jooby;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -117,7 +4976,6 @@ import org.jooby.internal.TypeConverters;
 import org.jooby.internal.handlers.HeadHandler;
 import org.jooby.internal.handlers.OptionsHandler;
 import org.jooby.internal.handlers.TraceHandler;
-import org.jooby.internal.js.JsJooby;
 import org.jooby.internal.mvc.MvcRoutes;
 import org.jooby.internal.parser.BeanParser;
 import org.jooby.internal.parser.DateParser;
@@ -418,10 +5276,9 @@ import javaslang.control.Try.CheckedRunnable;
  * }
  * }</pre>
  *
- *
  * @author edgar
- * @since 0.1.0
  * @see Jooby.Module
+ * @since 0.1.0
  */
 public class Jooby implements Router, LifeCycle, Registry {
 
@@ -435,7 +5292,6 @@ public class Jooby implements Router, LifeCycle, Registry {
    *   });
    * }
    * }</pre>
-   *
    */
   public interface EnvPredicate {
 
@@ -507,8 +5363,8 @@ public class Jooby implements Router, LifeCycle, Registry {
    * </p>
    *
    * @author edgar
-   * @since 0.1.0
    * @see Jooby#use(Jooby.Module)
+   * @since 0.1.0
    */
   public interface Module {
 
@@ -1951,6 +6807,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private void start(final String[] args, final Consumer<List<Route.Definition>> routes)
       throws Throwable {
     long start = System.currentTimeMillis();
@@ -1968,6 +6825,14 @@ public class Jooby implements Router, LifeCycle, Registry {
 
     // inject class
     injector.injectMembers(this);
+
+    // onStart callbacks via .conf
+    if (conf.hasPath("jooby.internal.onStart")) {
+      ClassLoader loader = getClass().getClassLoader();
+      Object internalOnStart = loader.loadClass(conf.getString("jooby.internal.onStart"))
+          .newInstance();
+      onStart.add((CheckedConsumer<Registry>) internalOnStart);
+    }
 
     // start services
     for (CheckedConsumer<Registry> onStart : this.onStart) {
@@ -2026,6 +6891,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @param injectorFactory the injection provider
    * @return this instance.
    */
+
   public Jooby injector(
       final BiFunction<Stage, com.google.inject.Module, Injector> injectorFactory) {
     this.injectorFactory = injectorFactory;
@@ -2464,21 +7330,6 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Jooby throwBootstrapException() {
     this.throwBootstrapException = true;
     return this;
-  }
-
-  /**
-   * Run app in javascript.
-   *
-   * @param jsargs Arguments, first arg must be the name of the javascript file.
-   * @throws Throwable If app fails to start.
-   */
-  public static void main(final String[] jsargs) throws Throwable {
-    String[] args = new String[Math.max(0, jsargs.length - 1)];
-    if (args.length > 0) {
-      System.arraycopy(jsargs, 1, args, 0, args.length);
-    }
-    String filename = jsargs.length > 0 ? jsargs[0] : "app.js";
-    run(new JsJooby().run(new File(filename)), args);
   }
 
   private static List<Object> normalize(final List<Object> services, final Env env,

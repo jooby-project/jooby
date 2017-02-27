@@ -63,10 +63,12 @@ var jooby = function (fn) {
    * wrap a function into a Route.Filter
    */
   var filter = function (fn) {
-    return new Handler() {
+    return new Handler()
+    {
       handle: function (req, rsp, chain) {
 
-        var jsreq = new Request(req) {
+        var jsreq = new Request(req)
+        {
           require: function () {
             if (arguments.length === 1) {
               return req.require(resolveType(arguments[0]));
@@ -74,8 +76,10 @@ var jooby = function (fn) {
               return req.require(arguments[0], resolveType(arguments[1]));
             }
           }
-        };
-        var jsrsp = new Response(rsp) {
+        }
+        ;
+        var jsrsp = new Response(rsp)
+        {
           send: function (val) {
             if (val) {
               if (val.class) {
@@ -87,11 +91,13 @@ var jooby = function (fn) {
               }
             }
           }
-        };
+        }
+        ;
 
         jsrsp.send(fn(jsreq, jsrsp, chain));
       }
-    };
+    }
+    ;
   };
 
   /**
@@ -147,7 +153,7 @@ var jooby = function (fn) {
     };
 
     var methods = METHODS.concat(['all']);
-    for each (m in methods) {
+    for each(m in methods) {
       ns[m] = function (it) {
         return function () {
           h[typeOf(arguments)](it, arguments);
@@ -176,15 +182,19 @@ var jooby = function (fn) {
     },
     'function': function (args) {
       var fn = args[0];
-      delegate.use(new Module() {
+      delegate.use(new Module()
+      {
         configure: function (env, conf, binder) {
           fn(env, conf, binder);
-        },
+        }
+      ,
 
         config: function () {
           return ConfigFactory.empty();
         }
-      });
+      }
+      )
+      ;
       return app;
     },
     'String': function (args) {
@@ -203,18 +213,22 @@ var jooby = function (fn) {
    */
   var on = {
     'String.function': function (args) {
-      delegate.on(args[0], new Consumer() {
+      delegate.on(args[0], new Consumer()
+      {
         accept: function (conf) {
           args[1](conf);
         }
-      })
+      }
+      )
     },
     'function.function': function (args) {
-      delegate.on(args[0], new Consumer() {
+      delegate.on(args[0], new Consumer()
+      {
         accept: function (conf) {
           args[1](conf);
         }
-      })
+      }
+      )
     }
   };
 
@@ -267,7 +281,7 @@ var jooby = function (fn) {
   }
 
   // handlers on jooby
-  for each (m in METHODS) {
+  for each(m in METHODS) {
     app[m] = function (it) {
       return function () {
         return route(it, arguments);
@@ -280,12 +294,12 @@ var jooby = function (fn) {
    */
   var start = function (fn) {
     var loaded = false,
-       loadmozilla = function () {
-        if (!loaded) {
-          load('nashorn:mozilla_compat.js');
-          loaded = true;
-        }
-       };
+        loadmozilla = function () {
+          if (!loaded) {
+            load('nashorn:mozilla_compat.js');
+            loaded = true;
+          }
+        };
 
     return function () {
       for (var i in arguments) {

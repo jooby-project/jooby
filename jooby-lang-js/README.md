@@ -1,20 +1,8 @@
 # javascript
 
-{{jooby}} is available in JavaScript via [Nashorn](http://openjdk.java.net/projects/nashorn/).
+[Jooby](http://jooby.org) is available in JavaScript via [Nashorn](http://openjdk.java.net/projects/nashorn/).
 
-## dependency
-
-```xml
-<dependency>
-  <groupId>org.jooby</groupId>
-  <artifactId>jooby-lang-js</artifactId>
-  <version>{{version}}</version>
-</dependency>
-```
-
-## usage
-
-Write an `app.js` file inside your project directory: 
+## hello world
 
 ```js
 
@@ -23,16 +11,6 @@ var app = jooby();
 app.get('/', function () 'Hey Jooby!');
 
 ```
-
-Go to your `pom.xml` and update/set the `application.class` property to `org.jooby.JoobyJs` like:
-
-```xml
-<properties>
-  <application.class>org.jooby.JoobyJs</application.class>
-</properties>
-```
-
-The `org.jooby.JoobyJs` class setup [Nashorn](http://openjdk.java.net/projects/nashorn/) and startup `Jooby`.
 
 ## jooby function
 
@@ -115,4 +93,4 @@ jooby(function () {
 ## running a javascript app
 
 * via maven: ```mvn jooby:run```
-* java: ```java org.jooby.JoobyJs```. The ```app.js``` file must be present in the app directory
+* java: ```java org.jooby.Jooby```. The ```app.js``` file must be present in the app directory

@@ -21,7 +21,6 @@ package org.jooby;
 import static java.util.Objects.requireNonNull;
 
 import java.io.Closeable;
-import java.nio.channels.ClosedChannelException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;

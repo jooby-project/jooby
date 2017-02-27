@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,33 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.js;
+package org.jooby.internal.run__;
 
-import java.util.Map;
-import java.util.stream.Collectors;
+import javaslang.control.Try;
 
-import org.jooby.Response;
+import java.util.concurrent.atomic.AtomicReference;
 
-import com.google.common.collect.ImmutableMap;
+public class JoobyRef implements Try.CheckedConsumer {
 
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
+  public static final AtomicReference ref = new AtomicReference<>();
 
-public class JsResponse extends Response.Forwarding {
-
-  public JsResponse(final Response rsp) {
-    super(rsp);
+  @Override public void accept(final Object value) throws Throwable {
+    ref.compareAndSet(null, value);
   }
-
-  public void sendjs(final ScriptObjectMirror result) throws Throwable {
-    Object value;
-    if (result.isArray()) {
-      value = result.entrySet().stream()
-          .map(Map.Entry::getValue)
-          .collect(Collectors.toList());
-    } else {
-      value = ImmutableMap.copyOf(result);
-    }
-    super.send(value);
-  }
-
 }

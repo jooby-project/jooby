@@ -1,6 +1,5 @@
 package org.jooby.issues;
 
-import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 

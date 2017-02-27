@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,8 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.js;
+package org.jooby;
 
+import com.google.common.io.Closeables;
+import javaslang.control.Try;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
@@ -27,20 +32,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-
-import org.jooby.Jooby;
-
-import com.google.common.io.Closeables;
-
-import javaslang.control.Try;
-
-public class JsJooby {
-
+public class JoobyJs {
   private ScriptEngine engine;
 
-  public JsJooby() throws Exception {
+  public JoobyJs() throws Exception {
     ScriptEngineManager sem = new ScriptEngineManager();
     engine = sem.getEngineByName("nashorn");
     eval(Jooby.class.getResourceAsStream("/org/jooby/jooby.js"));
@@ -59,7 +54,7 @@ public class JsJooby {
     eval(new InputStreamReader(stream, StandardCharsets.UTF_8));
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   void eval(final Reader reader) throws Exception {
     Consumer closer = x -> Closeables.closeQuietly(reader);
     Try.run(() -> engine.eval(reader))
@@ -67,4 +62,14 @@ public class JsJooby {
         .onSuccess(closer);
   }
 
+  public static void main(String[] mainargs) throws Throwable {
+    String[] args = mainargs;
+    String filename = "app.js";
+    if (args.length > 0 && args[0].endsWith(".js")) {
+      filename = args[0];
+      args = new String[Math.max(0, mainargs.length - 1)];
+      System.arraycopy(mainargs, 1, args, 0, args.length);
+    }
+    Jooby.run(new JoobyJs().run(new File(filename)), args);
+  }
 }

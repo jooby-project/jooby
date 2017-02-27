@@ -19,7 +19,12 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import org.jooby.*;
+import org.jooby.Err;
+import org.jooby.MediaType;
+import org.jooby.Mutant;
+import org.jooby.Renderer;
+import org.jooby.Request;
+import org.jooby.WebSocket;
 import org.jooby.WebSocket.Callback;
 import org.jooby.WebSocket.CloseStatus;
 import org.jooby.internal.parser.ParserExecutor;
@@ -118,24 +123,22 @@ public class WebSocketImplTest {
     MediaType produces = MediaType.all;
     new MockUnit(WebSocket.Handler.class, WebSocket.SuccessCallback.class,
         WebSocket.ErrCallback.class, Injector.class, Request.class, NativeWebSocket.class)
-        .expect(connect)
-        .expect(callbacks)
-        .expect(locale)
-        .expect(unit -> {
-          List<Renderer> renderers = Collections.emptyList();
+            .expect(connect)
+            .expect(callbacks)
+            .expect(locale)
+            .expect(unit -> {
+              NativeWebSocket ws = unit.get(NativeWebSocket.class);
+              expect(ws.isOpen()).andReturn(false);
+            })
+            .run(unit -> {
+              WebSocketImpl ws = new WebSocketImpl(
+                  unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
+              ws.connect(unit.get(Injector.class), unit.get(Request.class),
+                  unit.get(NativeWebSocket.class));
 
-          NativeWebSocket ws = unit.get(NativeWebSocket.class);
-          expect(ws.isOpen()).andReturn(false);
-        })
-        .run(unit -> {
-          WebSocketImpl ws = new WebSocketImpl(
-              unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
-          ws.connect(unit.get(Injector.class), unit.get(Request.class),
-              unit.get(NativeWebSocket.class));
-
-          ws.send(data, unit.get(WebSocket.SuccessCallback.class),
-              unit.get(WebSocket.ErrCallback.class));
-        });
+              ws.send(data, unit.get(WebSocket.SuccessCallback.class),
+                  unit.get(WebSocket.ErrCallback.class));
+            });
   }
 
   @SuppressWarnings("resource")
@@ -415,26 +418,26 @@ public class WebSocketImplTest {
 
     new MockUnit(WebSocket.Handler.class, Injector.class, Request.class, NativeWebSocket.class,
         WebSocket.ErrCallback.class)
-        .expect(connect)
-        .expect(locale)
-        .expect(unit -> {
-          NativeWebSocket nws = unit.get(NativeWebSocket.class);
-          nws.onBinaryMessage(isA(Consumer.class));
-          nws.onTextMessage(isA(Consumer.class));
-          nws.onErrorMessage(unit.capture(Consumer.class));
-          nws.onCloseMessage(isA(BiConsumer.class));
+            .expect(connect)
+            .expect(locale)
+            .expect(unit -> {
+              NativeWebSocket nws = unit.get(NativeWebSocket.class);
+              nws.onBinaryMessage(isA(Consumer.class));
+              nws.onTextMessage(isA(Consumer.class));
+              nws.onErrorMessage(unit.capture(Consumer.class));
+              nws.onCloseMessage(isA(BiConsumer.class));
 
-          expect(nws.isOpen()).andReturn(false);
-        })
-        .run(unit -> {
-          WebSocketImpl ws = new WebSocketImpl(
-              unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
-          ws.connect(unit.get(Injector.class), unit.get(Request.class),
-              unit.get(NativeWebSocket.class));
-          ws.onError(unit.get(WebSocket.ErrCallback.class));
-        }, unit -> {
-          unit.captured(Consumer.class).iterator().next().accept(ex);
-        });
+              expect(nws.isOpen()).andReturn(false);
+            })
+            .run(unit -> {
+              WebSocketImpl ws = new WebSocketImpl(
+                  unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
+              ws.connect(unit.get(Injector.class), unit.get(Request.class),
+                  unit.get(NativeWebSocket.class));
+              ws.onError(unit.get(WebSocket.ErrCallback.class));
+            }, unit -> {
+              unit.captured(Consumer.class).iterator().next().accept(ex);
+            });
   }
 
   @SuppressWarnings({"resource", "unchecked" })

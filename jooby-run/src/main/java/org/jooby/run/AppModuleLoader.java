@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,20 +18,6 @@
  */
 package org.jooby.run;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.lang.reflect.Field;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.jar.JarFile;
-
 import org.jboss.modules.DependencySpec;
 import org.jboss.modules.Module;
 import org.jboss.modules.ModuleIdentifier;
@@ -40,6 +26,23 @@ import org.jboss.modules.ModuleLoader;
 import org.jboss.modules.ModuleSpec;
 import org.jboss.modules.ResourceLoaderSpec;
 import org.jboss.modules.ResourceLoaders;
+import org.jooby.internal.run__.JoobyRef;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
 
 public class AppModuleLoader extends ModuleLoader {
 
@@ -67,8 +70,7 @@ public class AppModuleLoader extends ModuleLoader {
    * @return A new app module loader.
    * @throws Exception If something goes wrong.
    */
-  public static AppModuleLoader build(final String name,
-      final File... cp) throws Exception {
+  public static AppModuleLoader build(final String name, final File... cp) throws Exception {
     Map<ModuleIdentifier, ModuleSpec> modules = newModule(name, 0, "", cp);
     return new AppModuleLoader(modules);
   }
@@ -79,6 +81,18 @@ public class AppModuleLoader extends ModuleLoader {
 
     String mId = name.replace(".jar", "");
     ModuleSpec.Builder builder = ModuleSpec.build(ModuleIdentifier.fromString(mId));
+    if (level == 0) {
+      String classurl = JoobyRef.class.getResource(JoobyRef.class.getSimpleName() + ".class")
+          .toString();
+      String jartoken = ".jar!";
+      File jar = new File(URI
+          .create(classurl.substring(0, classurl.indexOf(jartoken) + jartoken.length() - 1)
+              .replace("jar:", "")));
+      Main.debug("loading hack: %s?%s", jar, jar.exists());
+      builder.addResourceRoot(ResourceLoaderSpec
+          .createResourceLoaderSpec(ResourceLoaders
+              .createJarResourceLoader("jooby-run", new JarFile(jar))));
+    }
 
     int l = (prefix.length() + mId.length() + level);
     Main.debug("%1$" + l + "s", prefix + mId);
@@ -126,7 +140,7 @@ public class AppModuleLoader extends ModuleLoader {
     return modules;
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private static Set<String> jdkPaths() throws Exception {
     Class jdkPath = AppModuleLoader.class.getClassLoader().loadClass("org.jboss.modules.JDKPaths");
     Field field = jdkPath.getDeclaredField("JDK");
@@ -169,4 +183,9 @@ public class AppModuleLoader extends ModuleLoader {
     }
   }
 
+  public static void main(String[] args) throws MalformedURLException {
+    URI jaruri = URI.create(
+        "jar:file:/Users/edgar/.m2/repository/org/jooby/jooby-run/1.0.4-SNAPSHOT/jooby-run-1.0.4-SNAPSHOT.jar!/org/jooby/internal/run__/JoobyRef.class");
+    System.out.println(jaruri.toURL().toExternalForm());
+  }
 }

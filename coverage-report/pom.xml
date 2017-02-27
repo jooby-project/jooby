@@ -87,6 +87,7 @@
                     <source>${project.parent.basedir}/jooby-unbescape/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-thymeleaf/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-filewatcher/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-lang-js/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -148,6 +149,7 @@
                     <source>${project.parent.basedir}/jooby-unbescape/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-thymeleaf/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-filewatcher/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-lang-js/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -345,6 +347,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-ehcache</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-lang-js</artifactId>
       <version>${project.version}</version>
     </dependency>
 
