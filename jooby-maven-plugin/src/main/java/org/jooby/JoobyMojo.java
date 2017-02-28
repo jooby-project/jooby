@@ -126,7 +126,7 @@ public class JoobyMojo extends AbstractMojo {
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
 
-    Set<File> appcp = new LinkedHashSet<File>();
+    Set<File> appcp = new LinkedHashSet<>();
 
     // public / config, etc..
     appcp.addAll(resources(mavenProject.getResources()));
@@ -283,12 +283,19 @@ public class JoobyMojo extends AbstractMojo {
         .map(File::toPath)
         .collect(Collectors.toList());
     try {
+      ClassLoader backloader = Thread.currentThread().getContextClassLoader();
       return new Watcher((kind, path) -> {
-        if (path.toString().endsWith(".java")) {
-          task.accept("compile");
-        } else if (path.toString().endsWith(".conf")
-            || path.toString().endsWith(".properties")) {
-          task.accept("compile");
+        ClassLoader currentloader = Thread.currentThread().getContextClassLoader();
+        try {
+          Thread.currentThread().setContextClassLoader(backloader);
+          if (path.toString().endsWith(".java")) {
+            task.accept("compile");
+          } else if (path.toString().endsWith(".conf")
+              || path.toString().endsWith(".properties")) {
+            task.accept("compile");
+          }
+        } finally {
+          Thread.currentThread().setContextClassLoader(currentloader);
         }
       }, paths.toArray(new Path[paths.size()]));
     } catch (Exception ex) {
