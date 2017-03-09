@@ -2280,8 +2280,8 @@ public interface Router {
    * @param handler A connect callback.
    * @return A new WebSocket definition.
    */
-  default WebSocket.Definition ws(final String path, final WebSocket.Handler handler) {
-    return ws(path, (WebSocket.FullHandler) handler);
+  default WebSocket.Definition ws(final String path, final WebSocket.OnOpen1 handler) {
+    return ws(path, (WebSocket.OnOpen) handler);
   }
 
   /**
@@ -2301,7 +2301,13 @@ public interface Router {
    * @param handler A connect callback.
    * @return A new WebSocket definition.
    */
-  WebSocket.Definition ws(String path, WebSocket.FullHandler handler);
+  WebSocket.Definition ws(String path, WebSocket.OnOpen handler);
+
+  default <T> WebSocket.Definition ws(final Class<? extends WebSocket.OnMessage<T>> handler) {
+    return ws("", handler);
+  }
+
+  <T> WebSocket.Definition ws(String path, Class<? extends WebSocket.OnMessage<T>> handler);
 
   /**
    * Add a server-sent event handler.

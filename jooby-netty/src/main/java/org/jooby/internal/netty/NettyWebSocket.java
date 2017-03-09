@@ -29,7 +29,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.jooby.WebSocket;
-import org.jooby.WebSocket.ErrCallback;
+import org.jooby.WebSocket.OnError;
 import org.jooby.WebSocket.SuccessCallback;
 import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
@@ -139,30 +139,30 @@ public class NettyWebSocket implements NativeWebSocket {
   }
 
   @Override
-  public void sendBytes(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
+  public void sendBytes(final ByteBuffer data, final SuccessCallback success, final OnError err) {
     sendBytes(Unpooled.wrappedBuffer(data), success, err);
   }
 
   @Override
-  public void sendBytes(final byte[] data, final SuccessCallback success, final ErrCallback err) {
+  public void sendBytes(final byte[] data, final SuccessCallback success, final OnError err) {
     sendBytes(Unpooled.wrappedBuffer(data), success, err);
   }
 
   @Override
-  public void sendText(final String data, final SuccessCallback success, final ErrCallback err) {
+  public void sendText(final String data, final SuccessCallback success, final OnError err) {
     ctx.channel().writeAndFlush(new TextWebSocketFrame(data))
         .addListener(listener(success, err));
   }
 
   @Override
-  public void sendText(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
+  public void sendText(final ByteBuffer data, final SuccessCallback success, final OnError err) {
     ByteBuf buffer = Unpooled.wrappedBuffer(data);
     ctx.channel().writeAndFlush(new TextWebSocketFrame(buffer))
         .addListener(listener(success, err));
   }
 
   @Override
-  public void sendText(final byte[] data, final SuccessCallback success, final ErrCallback err) {
+  public void sendText(final byte[] data, final SuccessCallback success, final OnError err) {
     ByteBuf buffer = Unpooled.wrappedBuffer(data);
     ctx.channel().writeAndFlush(new TextWebSocketFrame(buffer))
         .addListener(listener(success, err));
@@ -211,18 +211,18 @@ public class NettyWebSocket implements NativeWebSocket {
     }
   }
 
-  private void sendBytes(final ByteBuf buffer, final SuccessCallback success, final ErrCallback err) {
+  private void sendBytes(final ByteBuf buffer, final SuccessCallback success, final OnError err) {
     ctx.channel().writeAndFlush(new BinaryWebSocketFrame(buffer))
         .addListener(listener(success, err));
   }
 
   private GenericFutureListener<? extends Future<? super Void>> listener(
-      final SuccessCallback success, final ErrCallback err) {
+      final SuccessCallback success, final OnError err) {
     return f -> {
       if (f.isSuccess()) {
         success.invoke();
       } else {
-        err.invoke(f.cause());
+        err.onError(f.cause());
       }
     };
   }

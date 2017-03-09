@@ -51,13 +51,13 @@ public class WebSocketTest {
     }
 
     @Override
-    public void send(final Object data, final SuccessCallback success, final ErrCallback err)
+    public void send(final Object data, final SuccessCallback success, final OnError err)
         throws Exception {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void onMessage(final Callback<Mutant> callback) throws Exception {
+    public void onMessage(final OnMessage<Mutant> callback) throws Exception {
       throw new UnsupportedOperationException();
     }
 
@@ -97,12 +97,12 @@ public class WebSocketTest {
     }
 
     @Override
-    public void onError(final ErrCallback callback) {
+    public void onError(final OnError callback) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void onClose(final Callback<CloseStatus> callback) throws Exception {
+    public void onClose(final OnClose callback) throws Exception {
       throw new UnsupportedOperationException();
     }
 
@@ -125,7 +125,7 @@ public class WebSocketTest {
           expect(LoggerFactory.getLogger(WebSocket.class)).andReturn(log);
         })
         .run(unit -> {
-          WebSocket.ERR.invoke(ex);
+          WebSocket.ERR.onError(ex);
         });
   }
 
@@ -244,11 +244,12 @@ public class WebSocketTest {
   public void send() throws Exception {
     Object data = new Object();
     WebSocket.SuccessCallback SUCCESS_ = WebSocket.SUCCESS;
-    WebSocket.ErrCallback ERR_ = WebSocket.ERR;
+    WebSocket.OnError ERR_ = WebSocket.ERR;
     LinkedList<Object> dataList = new LinkedList<>();
     WebSocket ws = new WebSocketMock() {
       @Override
-      public void send(final Object data, final SuccessCallback success, final ErrCallback err) throws Exception {
+      public void send(final Object data, final SuccessCallback success, final OnError err)
+          throws Exception {
         dataList.add(data);
         assertEquals(SUCCESS_, success);
         assertEquals(ERR_, err);
@@ -263,12 +264,14 @@ public class WebSocketTest {
   @Test
   public void sendCustomSuccess() throws Exception {
     Object data = new Object();
-    WebSocket.SuccessCallback SUCCESS_ = () -> {};
-    WebSocket.ErrCallback ERR_ = WebSocket.ERR;
+    WebSocket.SuccessCallback SUCCESS_ = () -> {
+    };
+    WebSocket.OnError ERR_ = WebSocket.ERR;
     LinkedList<Object> dataList = new LinkedList<>();
     WebSocket ws = new WebSocketMock() {
       @Override
-      public void send(final Object data, final SuccessCallback success, final ErrCallback err) throws Exception {
+      public void send(final Object data, final SuccessCallback success, final OnError err)
+          throws Exception {
         dataList.add(data);
         assertEquals(SUCCESS_, success);
         assertEquals(ERR_, err);
@@ -284,11 +287,13 @@ public class WebSocketTest {
   public void sendCustomErr() throws Exception {
     Object data = new Object();
     WebSocket.SuccessCallback SUCCESS_ = WebSocket.SUCCESS;
-    WebSocket.ErrCallback ERR_ = (ex) -> {};
+    WebSocket.OnError ERR_ = (ex) -> {
+    };
     LinkedList<Object> dataList = new LinkedList<>();
     WebSocket ws = new WebSocketMock() {
       @Override
-      public void send(final Object data, final SuccessCallback success, final ErrCallback err) throws Exception {
+      public void send(final Object data, final SuccessCallback success, final OnError err)
+          throws Exception {
         dataList.add(data);
         assertEquals(SUCCESS_, success);
         assertEquals(ERR_, err);
@@ -303,12 +308,15 @@ public class WebSocketTest {
   @Test
   public void sendCustomSuccessAndErr() throws Exception {
     Object data = new Object();
-    WebSocket.SuccessCallback SUCCESS_ = () -> {};
-    WebSocket.ErrCallback ERR_ = (ex) -> {};
+    WebSocket.SuccessCallback SUCCESS_ = () -> {
+    };
+    WebSocket.OnError ERR_ = (ex) -> {
+    };
     LinkedList<Object> dataList = new LinkedList<>();
     WebSocket ws = new WebSocketMock() {
       @Override
-      public void send(final Object data, final SuccessCallback success, final ErrCallback err) throws Exception {
+      public void send(final Object data, final SuccessCallback success, final OnError err)
+          throws Exception {
         dataList.add(data);
         assertEquals(SUCCESS_, success);
         assertEquals(ERR_, err);

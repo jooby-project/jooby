@@ -18,11 +18,15 @@
  */
 package org.jooby.internal;
 
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import javaslang.control.Try;
-import javaslang.control.Try.CheckedRunnable;
+import static java.util.Objects.requireNonNull;
+
+import java.nio.channels.ClosedChannelException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
@@ -34,20 +38,21 @@ import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.channels.ClosedChannelException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Injector;
+import com.google.inject.Key;
 
-import static java.util.Objects.requireNonNull;
+import javaslang.control.Try;
+import javaslang.control.Try.CheckedRunnable;
 
 @SuppressWarnings("unchecked")
 public class WebSocketImpl implements WebSocket {
 
-  @SuppressWarnings({"rawtypes"})
-  private static final Callback NOOP = arg -> {
+  @SuppressWarnings({"rawtypes" })
+  private static final OnMessage NOOP = arg -> {
+  };
+
+  private static final OnClose CLOSE_NOOP = arg -> {
   };
 
   /** The logging system. */
@@ -65,13 +70,13 @@ public class WebSocketImpl implements WebSocket {
 
   private MediaType produces;
 
-  private FullHandler handler;
+  private OnOpen handler;
 
-  private Callback<Mutant> messageCallback = NOOP;
+  private OnMessage<Mutant> messageCallback = NOOP;
 
-  private Callback<CloseStatus> closeCallback = NOOP;
+  private OnClose closeCallback = CLOSE_NOOP;
 
-  private ErrCallback exceptionCallback = cause -> {
+  private OnError exceptionCallback = cause -> {
     log.error("execution of WS" + path() + " resulted in exception", cause);
   };
 
@@ -85,7 +90,7 @@ public class WebSocketImpl implements WebSocket {
 
   private volatile boolean open;
 
-  public WebSocketImpl(final FullHandler handler, final String path,
+  public WebSocketImpl(final OnOpen handler, final String path,
       final String pattern, final Map<Object, String> vars,
       final MediaType consumes, final MediaType produces) {
     this.handler = handler;
@@ -138,7 +143,7 @@ public class WebSocketImpl implements WebSocket {
   }
 
   @Override
-  public void send(final Object data, final SuccessCallback success, final ErrCallback err)
+  public void send(final Object data, final SuccessCallback success, final OnError err)
       throws Exception {
     requireNonNull(data, "Message required.");
     requireNonNull(success, "Success callback required.");
@@ -161,7 +166,7 @@ public class WebSocketImpl implements WebSocket {
   }
 
   @Override
-  public void onMessage(final Callback<Mutant> callback) throws Exception {
+  public void onMessage(final OnMessage<Mutant> callback) throws Exception {
     this.messageCallback = requireNonNull(callback, "Message callback required.");
   }
 
@@ -176,11 +181,11 @@ public class WebSocketImpl implements WebSocket {
      * Bind callbacks
      */
     ws.onBinaryMessage(buffer -> Try
-        .run(sync(() -> messageCallback.invoke(new WsBinaryMessage(buffer))))
+        .run(sync(() -> messageCallback.onMessage(new WsBinaryMessage(buffer))))
         .onFailure(this::handleErr));
 
     ws.onTextMessage(message -> Try
-        .run(sync(() -> messageCallback.invoke(
+        .run(sync(() -> messageCallback.onMessage(
             new MutantImpl(injector.getInstance(ParserExecutor.class), consumes,
                 new StrParamReferenceImpl("body", "message", ImmutableList.of(message))))))
         .onFailure(this::handleErr));
@@ -189,7 +194,7 @@ public class WebSocketImpl implements WebSocket {
         .run(sync(() -> {
           this.open = false;
           if (closeCallback != null) {
-            closeCallback.invoke(reason.map(r -> WebSocket.CloseStatus.of(code, r))
+            closeCallback.onClose(reason.map(r -> WebSocket.CloseStatus.of(code, r))
                 .orElse(WebSocket.CloseStatus.of(code)));
           }
           closeCallback = null;
@@ -199,7 +204,7 @@ public class WebSocketImpl implements WebSocket {
 
     // connect now
     try {
-      handler.connect(req, this);
+      handler.onOpen(req, this);
     } catch (Throwable ex) {
       handleErr(ex);
     }
@@ -247,12 +252,12 @@ public class WebSocketImpl implements WebSocket {
   }
 
   @Override
-  public void onError(final WebSocket.ErrCallback callback) {
+  public void onError(final WebSocket.OnError callback) {
     this.exceptionCallback = requireNonNull(callback, "A callback is required.");
   }
 
   @Override
-  public void onClose(final Callback<CloseStatus> callback) throws Exception {
+  public void onClose(final WebSocket.OnClose callback) throws Exception {
     this.closeCallback = requireNonNull(callback, "A callback is required.");
   }
 
@@ -262,7 +267,7 @@ public class WebSocketImpl implements WebSocket {
       if (silent) {
         log.debug("execution of WS" + path() + " resulted in exception", cause);
       } else {
-        exceptionCallback.invoke(cause);
+        exceptionCallback.onError(cause);
       }
     } finally {
       cleanup(cause);

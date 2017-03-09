@@ -54,20 +54,57 @@ import com.google.inject.TypeLiteral;
  * </pre>
  *
  * First thing you need to do is to register a new web socket in your App using the
- * {@link Jooby#ws(String, WebSocket.Handler)} method.
+ * {@link Jooby#ws(String, WebSocket.OnOpen1)} method.
  * You can specify a path to listen for web socket connection. The path can be a static path or
  * a path pattern (like routes).
  *
- * On new connections the {@link WebSocket.Handler#connect(WebSocket)} will be executed from there
- * you can listen on {@link #onMessage(Callback)}, {@link #onClose(Callback)} or
- * {@link #onError(ErrCallback)} events.
+ * On new connections the {@link WebSocket.OnOpen1#onOpen(WebSocket)} will be executed from there
+ * you can listen using the {@link #onMessage(OnMessage)}, {@link #onClose(OnClose)} or
+ * {@link #onError(OnError)} events.
  *
  * Inside a handler you can send text or binary message.
  *
- * <h2>Data types</h2>
+ * <h2>mvc</h2>
+ * <p>
+ * Starting from <code>1.1.0</code> is it possible to use a class as web socket listener (in
+ * addition to the script web sockets supported). Your class must implement
+ * {@link WebSocket#onMessage(OnMessage)}, like:
+ * </p>
+ *
+ * <pre>{@code
+ * &#64;Path("/ws")
+ * class MyHandler implements WebSocket.OnMessage<String> {
+ *
+ *   private WebSocket ws;
+ *
+ *   &#64;Inject
+ *   public MyHandler(WebSocket ws) {
+ *     this.ws = ws;
+ *   }
+ *
+ *   &#64;Override
+ *   public void onMessage(String message) {
+ *    ws.send("Got it!");
+ *   }
+ * }
+ *
+ * {
+ *   ws(MyHandler.class);
+ * }
+ *
+ * }</pre>
+ *
+ * <p>
+ * <strong>Optionally</strong>, your listener might implements the
+ * {@link WebSocket.OnClose},
+ * {@link WebSocket.OnError} or {@link WebSocket.OnOpen} callbacks. Or if you want to
+ * implement all them, then just {@link WebSocket.Handler}
+ * </p>
+ *
+ * <h2>data types</h2>
  * <p>
  * If your web socket is suppose to send/received a specific data type, like:
- * <code>json</code> it is nice to define a consumes and produces types:
+ * <code>json</code> it is nice to define a consume and produce types:
  * </p>
  *
  * <pre>
@@ -84,6 +121,29 @@ import com.google.inject.TypeLiteral;
  *   .produces(MediaType.json);
  * </pre>
  *
+ * <p>
+ * Or via annotations for mvc listeners:
+ * </p>
+ *
+ * <pre>{@code
+ *
+ * &#64;Consumes("json")
+ * &#64;Produces("json")
+ * &#64;Path("/ws")
+ * class MyHandler implements WebSocket.OnMessage<MyObject> {
+ *
+ *   public void onMessage(MyObject message) {
+ *     // ...
+ *     ws.send(new ResponseObject());
+ *   }
+ *
+ * }
+ * }</pre>
+ *
+ * <p>
+ * The message <code>MyObject</code> will be processed by a <code>json</code> parser and the
+ * response object will be renderered as json too.
+ * </p>
  *
  * @author edgar
  * @since 0.1.0
@@ -100,10 +160,10 @@ public interface WebSocket extends Closeable, Registry {
    * @author edgar
    * @since 0.1.0
    */
-  interface FullHandler {
+  interface OnOpen {
     /**
-     * Inside a connect event, you can listen for {@link WebSocket#onMessage(Callback)},
-     * {@link WebSocket#onClose(Callback)} or {@link WebSocket#onError(ErrCallback)} events.
+     * Inside a connect event, you can listen for {@link WebSocket#onMessage(OnMessage)},
+     * {@link WebSocket#onClose(OnClose)} or {@link WebSocket#onError(OnError)} events.
      *
      * Also, you can send text and binary message.
      *
@@ -111,7 +171,7 @@ public interface WebSocket extends Closeable, Registry {
      * @param ws A web socket.
      * @throws Exception If something goes wrong while connecting.
      */
-    void connect(Request req, WebSocket ws) throws Exception;
+    void onOpen(Request req, WebSocket ws) throws Exception;
   }
 
   /**
@@ -120,23 +180,23 @@ public interface WebSocket extends Closeable, Registry {
    * @author edgar
    * @since 0.1.0
    */
-  interface Handler extends FullHandler {
+  interface OnOpen1 extends OnOpen {
 
     @Override
-    default void connect(final Request req, final WebSocket ws) throws Exception {
-      connect(ws);
+    default void onOpen(final Request req, final WebSocket ws) throws Exception {
+      onOpen(ws);
     }
 
     /**
-     * Inside a connect event, you can listen for {@link WebSocket#onMessage(Callback)},
-     * {@link WebSocket#onClose(Callback)} or {@link WebSocket#onError(ErrCallback)} events.
+     * Inside a connect event, you can listen for {@link WebSocket#onMessage(OnMessage)},
+     * {@link WebSocket#onClose(OnClose)} or {@link WebSocket#onError(OnError)} events.
      *
      * Also, you can send text and binary message.
      *
      * @param ws A web socket.
      * @throws Exception If something goes wrong while connecting.
      */
-    void connect(WebSocket ws) throws Exception;
+    void onOpen(WebSocket ws) throws Exception;
   }
 
   /**
@@ -219,21 +279,25 @@ public interface WebSocket extends Closeable, Registry {
   }
 
   /**
-   * Web socket callback.
+   * Web socket message callback.
    *
    * @author edgar
    * @since 0.1.0
    * @param <T> Param type.
    */
-  interface Callback<T> {
+  interface OnMessage<T> {
 
     /**
      * Invoked from a web socket.
      *
-     * @param data A data argument.
+     * @param message Client message.
      * @throws Exception If something goes wrong.
      */
-    void invoke(T data) throws Exception;
+    void onMessage(T message) throws Exception;
+  }
+
+  interface OnClose {
+    void onClose(CloseStatus status) throws Exception;
   }
 
   /**
@@ -258,14 +322,14 @@ public interface WebSocket extends Closeable, Registry {
    * @author edgar
    * @since 0.1.0
    */
-  interface ErrCallback {
+  interface OnError {
 
     /**
      * Invoked if something goes wrong.
      *
      * @param err Err cause.
      */
-    void invoke(Throwable err);
+    void onError(Throwable err);
   }
 
   /**
@@ -296,7 +360,7 @@ public interface WebSocket extends Closeable, Registry {
     private String pattern;
 
     /** A ws handler. */
-    private FullHandler handler;
+    private OnOpen handler;
 
     /**
      * Creates a new {@link Definition}.
@@ -304,7 +368,7 @@ public interface WebSocket extends Closeable, Registry {
      * @param pattern A path pattern.
      * @param handler A ws handler.
      */
-    public Definition(final String pattern, final FullHandler handler) {
+    public Definition(final String pattern, final OnOpen handler) {
       requireNonNull(pattern, "A route path is required.");
       requireNonNull(handler, "A handler is required.");
 
@@ -426,12 +490,16 @@ public interface WebSocket extends Closeable, Registry {
     }
   }
 
+  interface Handler<T> extends OnClose, OnMessage<T>, OnError, OnOpen {
+
+  }
+
   /** Default success callback. */
   SuccessCallback SUCCESS = () -> {
   };
 
   /** Default err callback. */
-  ErrCallback ERR = (ex) -> {
+  OnError ERR = (ex) -> {
     LoggerFactory.getLogger(WebSocket.class).error("error while sending data", ex);
   };
 
@@ -541,14 +609,14 @@ public interface WebSocket extends Closeable, Registry {
    * @param callback A callback
    * @throws Exception If something goes wrong.
    */
-  void onMessage(Callback<Mutant> callback) throws Exception;
+  void onMessage(OnMessage<Mutant> callback) throws Exception;
 
   /**
    * Register an error callback to execute when an error is found.
    *
    * @param callback A callback
    */
-  void onError(ErrCallback callback);
+  void onError(OnError callback);
 
   /**
    * Register an close callback to execute when client close the web socket.
@@ -556,7 +624,7 @@ public interface WebSocket extends Closeable, Registry {
    * @param callback A callback
    * @throws Exception If something goes wrong.
    */
-  void onClose(Callback<CloseStatus> callback) throws Exception;
+  void onClose(OnClose callback) throws Exception;
 
   /**
    * Gracefully closes the connection, after sending a description message
@@ -650,7 +718,7 @@ public interface WebSocket extends Closeable, Registry {
    * @param err An err callback.
    * @throws Exception If something goes wrong.
    */
-  default void send(final Object data, final ErrCallback err) throws Exception {
+  default void send(final Object data, final OnError err) throws Exception {
     send(data, SUCCESS, err);
   }
 
@@ -664,6 +732,6 @@ public interface WebSocket extends Closeable, Registry {
    * @param err An err callback.
    * @throws Exception If something goes wrong.
    */
-  void send(Object data, SuccessCallback success, ErrCallback err) throws Exception;
+  void send(Object data, SuccessCallback success, OnError err) throws Exception;
 
 }

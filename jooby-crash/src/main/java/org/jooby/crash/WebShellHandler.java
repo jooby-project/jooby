@@ -40,14 +40,14 @@ import com.google.common.collect.ImmutableMap;
 
 import javaslang.control.Try;
 
-class WebShellHandler implements WebSocket.FullHandler {
+class WebShellHandler implements WebSocket.OnOpen {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   @SuppressWarnings("rawtypes")
   @Override
-  public void connect(final Request req, final WebSocket ws) throws Exception {
+  public void onOpen(final Request req, final WebSocket ws) throws Exception {
     PluginContext ctx = req.require(PluginContext.class);
     ShellFactory factory = ctx.getPlugin(ShellFactory.class);
     Shell shell = factory.create(null);

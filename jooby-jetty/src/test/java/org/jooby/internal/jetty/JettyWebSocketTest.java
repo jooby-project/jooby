@@ -9,7 +9,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.SuspendToken;
 import org.eclipse.jetty.websocket.api.WriteCallback;
 import org.jooby.WebSocket;
-import org.jooby.WebSocket.ErrCallback;
+import org.jooby.WebSocket.OnError;
 import org.jooby.WebSocket.SuccessCallback;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
@@ -76,14 +76,14 @@ public class JettyWebSocketTest {
   @Test
   public void successCallback() throws Exception {
     new MockUnit(Consumer.class, Logger.class, WebSocket.SuccessCallback.class,
-        WebSocket.ErrCallback.class)
+        WebSocket.OnError.class)
             .expect(unit -> {
               SuccessCallback callback = unit.get(WebSocket.SuccessCallback.class);
               callback.invoke();
             })
             .run(unit -> {
               WriteCallback callback = JettyWebSocket.callback(unit.get(Logger.class),
-                  unit.get(WebSocket.SuccessCallback.class), unit.get(WebSocket.ErrCallback.class));
+                  unit.get(WebSocket.SuccessCallback.class), unit.get(WebSocket.OnError.class));
               callback.writeSuccess();
             });
   }
@@ -92,7 +92,7 @@ public class JettyWebSocketTest {
   public void successCallbackErr() throws Exception {
     IllegalStateException cause = new IllegalStateException("intentional err");
     new MockUnit(Consumer.class, Logger.class, WebSocket.SuccessCallback.class,
-        WebSocket.ErrCallback.class)
+        WebSocket.OnError.class)
             .expect(unit -> {
               SuccessCallback callback = unit.get(WebSocket.SuccessCallback.class);
               callback.invoke();
@@ -103,7 +103,7 @@ public class JettyWebSocketTest {
             })
             .run(unit -> {
               WriteCallback callback = JettyWebSocket.callback(unit.get(Logger.class),
-                  unit.get(WebSocket.SuccessCallback.class), unit.get(WebSocket.ErrCallback.class));
+                  unit.get(WebSocket.SuccessCallback.class), unit.get(WebSocket.OnError.class));
               callback.writeSuccess();
             });
   }
@@ -112,14 +112,14 @@ public class JettyWebSocketTest {
   public void errCallback() throws Exception {
     IllegalStateException cause = new IllegalStateException("intentional err");
     new MockUnit(Consumer.class, Logger.class, WebSocket.SuccessCallback.class,
-        WebSocket.ErrCallback.class)
+        WebSocket.OnError.class)
             .expect(unit -> {
-              ErrCallback callback = unit.get(WebSocket.ErrCallback.class);
-              callback.invoke(cause);
+              OnError callback = unit.get(WebSocket.OnError.class);
+              callback.onError(cause);
             })
             .run(unit -> {
               WriteCallback callback = JettyWebSocket.callback(unit.get(Logger.class),
-                  unit.get(WebSocket.SuccessCallback.class), unit.get(WebSocket.ErrCallback.class));
+                  unit.get(WebSocket.SuccessCallback.class), unit.get(WebSocket.OnError.class));
               callback.writeFailed(cause);
             });
   }
@@ -128,10 +128,10 @@ public class JettyWebSocketTest {
   public void errCallbackFailure() throws Exception {
     IllegalStateException cause = new IllegalStateException("intentional err");
     new MockUnit(Consumer.class, Logger.class, WebSocket.SuccessCallback.class,
-        WebSocket.ErrCallback.class)
+        WebSocket.OnError.class)
             .expect(unit -> {
-              ErrCallback callback = unit.get(WebSocket.ErrCallback.class);
-              callback.invoke(cause);
+              OnError callback = unit.get(WebSocket.OnError.class);
+              callback.onError(cause);
               expectLastCall().andThrow(cause);
 
               Logger logger = unit.get(Logger.class);
@@ -139,7 +139,7 @@ public class JettyWebSocketTest {
             })
             .run(unit -> {
               WriteCallback callback = JettyWebSocket.callback(unit.get(Logger.class),
-                  unit.get(WebSocket.SuccessCallback.class), unit.get(WebSocket.ErrCallback.class));
+                  unit.get(WebSocket.SuccessCallback.class), unit.get(WebSocket.OnError.class));
               callback.writeFailed(cause);
             });
   }
