@@ -20,3 +20,4 @@ bin
 *.versionsBackup
 pom.xml.versionsBackup
 jacoco.exec
+.*.md.html
