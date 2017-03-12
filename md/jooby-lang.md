@@ -18,7 +18,23 @@ public class App extends Jooby {
 
 ```
 
-[JavaScript](/jooby-js):
+[Kotlin](/jooby-lang-kotlin):
+
+```kotlin
+
+import org.jooby.*
+
+fun main(args: Array<String>) {
+  run(*args) {
+    get {
+      "Hello Kotlin"
+    }
+  }
+}
+
+```
+
+[JavaScript](/jooby-lang-js):
 
 ```js
 
