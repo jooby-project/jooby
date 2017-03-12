@@ -28,7 +28,7 @@ import java.util.Locale;
 
 import org.jooby.MediaType;
 import org.jooby.Renderer;
-import org.jooby.WebSocket.ErrCallback;
+import org.jooby.WebSocket.OnError;
 import org.jooby.WebSocket.SuccessCallback;
 import org.jooby.spi.NativeWebSocket;
 
@@ -40,13 +40,13 @@ public class WebSocketRendererContext extends AbstractRendererContext {
 
   private SuccessCallback success;
 
-  private ErrCallback err;
+  private OnError err;
 
   private MediaType type;
 
   public WebSocketRendererContext(final List<Renderer> renderers, final NativeWebSocket ws,
       final MediaType type, final Charset charset, Locale locale, final SuccessCallback success,
-      final ErrCallback err) {
+      final OnError err) {
     super(renderers, ImmutableList.of(type), charset, locale, Collections.emptyMap());
     this.ws = ws;
     this.type = type;

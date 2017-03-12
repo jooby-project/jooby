@@ -34,7 +34,7 @@ import org.eclipse.jetty.websocket.api.SuspendToken;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.api.WriteCallback;
 import org.jooby.WebSocket;
-import org.jooby.WebSocket.ErrCallback;
+import org.jooby.WebSocket.OnError;
 import org.jooby.WebSocket.SuccessCallback;
 import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
@@ -115,7 +115,7 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
 
   @Override
   public void sendBytes(final ByteBuffer data, final SuccessCallback success,
-      final ErrCallback err) {
+      final OnError err) {
     requireNonNull(data, NO_DATA_TO_SEND);
 
     RemoteEndpoint remote = session.getRemote();
@@ -123,13 +123,13 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
   }
 
   @Override
-  public void sendBytes(final byte[] data, final SuccessCallback success, final ErrCallback err) {
+  public void sendBytes(final byte[] data, final SuccessCallback success, final OnError err) {
     requireNonNull(data, NO_DATA_TO_SEND);
     sendBytes(ByteBuffer.wrap(data), success, err);
   }
 
   @Override
-  public void sendText(final String data, final SuccessCallback success, final ErrCallback err) {
+  public void sendText(final String data, final SuccessCallback success, final OnError err) {
     requireNonNull(data, NO_DATA_TO_SEND);
 
     RemoteEndpoint remote = session.getRemote();
@@ -137,7 +137,7 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
   }
 
   @Override
-  public void sendText(final byte[] data, final SuccessCallback success, final ErrCallback err) {
+  public void sendText(final byte[] data, final SuccessCallback success, final OnError err) {
     requireNonNull(data, NO_DATA_TO_SEND);
 
     RemoteEndpoint remote = session.getRemote();
@@ -146,7 +146,7 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
 
   @Override
   public void sendText(final ByteBuffer data, final SuccessCallback success,
-      final ErrCallback err) {
+      final OnError err) {
     requireNonNull(data, NO_DATA_TO_SEND);
 
     RemoteEndpoint remote = session.getRemote();
@@ -187,7 +187,7 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
   }
 
   static WriteCallback callback(final Logger log, final SuccessCallback success,
-      final ErrCallback err) {
+      final OnError err) {
     requireNonNull(success, "Success callback is required.");
     requireNonNull(err, "Error callback is required.");
 
@@ -200,7 +200,7 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
 
       @Override
       public void writeFailed(final Throwable cause) {
-        Try.run(() -> err.invoke(cause))
+        Try.run(() -> err.onError(cause))
             .onFailure(ex -> log.error("Error while invoking err callback", ex));
       }
     };

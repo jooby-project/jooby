@@ -1,6 +1,6 @@
 # web sockets
 
-The use of web sockets is pretty easy too:
+## usage
 
 ```java
 {
@@ -16,7 +16,7 @@ A [web socket]({{defdocs}}/WebSocket.html) consist of a **path pattern** and a [
 
 A **path pattern** can be as simple or complex as you need. All the path patterns supported by routes are supported here.
 
-A [handler]({{defdocs}}/WebSocket.Handler.html) is executed on new connections, from there we can listen for message, errors and/or send data to the client.
+The [onOpen]({{defdocs}}/WebSocket.OnOpen.html) listener is executed on new connections, from there we can listen for message, errors and/or send data to the client.
 
 Keep in mind that **web socket** are not like routes. There is no stack/pipe or chain.
 
@@ -24,13 +24,62 @@ You can mount a socket to a path used by a route, but you can't have two or more
 
 ## require
 
-You can ask [Guice](https://github.com/google/guice) to wired an object from the [ws.require(type)]({{defdocs}}/WebSocket.html#require-com.google.inject.Key-)
+Access to existing services is provided via [ws.require(type)]({{defdocs}}/WebSocket.html#require-com.google.inject.Key-) method:
 
 ```java
-ws("/", (ws) -> {
+ws("/", ws -> {
   A a = ws.require(A.class);
 });
 ```
+
+## listener
+
+As with **routes** we do provide **two flavors** for `WebSockets`:
+
+script:
+
+```java
+{
+  ws("/ws", ws -> {
+    MyDatabase db = ws.require(MyDatabase.class);
+    ws.onMessage(msg -> {
+      String value = msg.value();
+      database.save(value);
+      ws.send("Got: " + value);
+    });
+  });
+}
+```
+
+class:
+
+```java
+{
+  ws(MyHandler.class);
+}
+
+@Path("/ws")
+class MyHandler implements WebSocket.OnMessage<String> {
+
+  WebSocket ws;
+  
+  MyDatabase db;
+
+  @Inject
+  public MyHandle(WebSocket ws, MyDatabase db) {
+    this.ws = ws;
+    this.db = db;
+  }
+
+  @Override
+  public void onMessage(String message) {
+    database.save(value);
+    ws.send("Got: " + message);
+  }
+}
+```
+
+Optionally, your listener could implements [onOpen]({{defdocs}}/WebSocket.OnOpen.html), [onClose]({{defdocs}}/WebSocket.OnClose.html) or [onError]({{defdocs}}/WebSocket.OnError.html). If you need them all then use [handler]({{defdocs}}/WebSocket.Handler.html) interface.
 
 ## consumes
 
@@ -49,6 +98,19 @@ Web socket can define a type to consume:
 }
 ```
 
+Or via annotation for class listeners:
+
+```java
+@Path("/ws")
+@Consumes("json")
+class MyHandler implements WebSocket.OnMessage<MyObject> {
+
+  public void onMessage(MyObject object) {
+   ...
+  }
+}
+```
+
 This is just an utility method for parsing socket message to Java Object. Consumes in web sockets has nothing to do with content negotiation. Content negotiation is route concept, it doesn't apply for web sockets.
 
 ## produces
@@ -58,10 +120,24 @@ Web socket can define a type to produce:
 ```java
 {
   ws("/", ws -> {
-   MyObject object = ..;
-     ws.send(object);
+    MyResponseObject object = ..;
+    ws.send(object);
   })
   .produces("json");
+}
+```
+
+Or via annotation for class listeners:
+
+```java
+@Path("/ws")
+@Consumes("json")
+@Produces("json")
+class MyHandler implements WebSocket.OnMessage<MyObject> {
+
+  public void onMessage(MyObject object) {
+   ws.send(new MyResponseObject());
+  }
 }
 ```
 

@@ -4977,6 +4977,7 @@ import org.jooby.internal.handlers.HeadHandler;
 import org.jooby.internal.handlers.OptionsHandler;
 import org.jooby.internal.handlers.TraceHandler;
 import org.jooby.internal.mvc.MvcRoutes;
+import org.jooby.internal.mvc.MvcWebSocket;
 import org.jooby.internal.parser.BeanParser;
 import org.jooby.internal.parser.DateParser;
 import org.jooby.internal.parser.LocalDateParser;
@@ -4985,6 +4986,8 @@ import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.internal.parser.StaticMethodParser;
 import org.jooby.internal.parser.StringConstructorParser;
 import org.jooby.internal.ssl.SslContextProvider;
+import org.jooby.mvc.Consumes;
+import org.jooby.mvc.Produces;
 import org.jooby.scope.Providers;
 import org.jooby.scope.RequestScoped;
 import org.jooby.spi.HttpHandler;
@@ -6684,9 +6687,25 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   @Override
-  public WebSocket.Definition ws(final String path, final WebSocket.FullHandler handler) {
+  public WebSocket.Definition ws(final String path, final WebSocket.OnOpen handler) {
     WebSocket.Definition ws = new WebSocket.Definition(path, handler);
-    checkArgument(bag.add(ws), "Path is in use: '%s'", path);
+    checkArgument(bag.add(ws), "Duplicated path: '%s'", path);
+    return ws;
+  }
+
+  @Override
+  public <T> WebSocket.Definition ws(final String path,
+      final Class<? extends WebSocket.OnMessage<T>> handler) {
+    String fpath = Optional.ofNullable(handler.getAnnotation(org.jooby.mvc.Path.class))
+        .map(it -> path + "/" + it.value()[0])
+        .orElse(path);
+
+    WebSocket.Definition ws = ws(fpath, MvcWebSocket.newWebSocket(handler));
+
+    Optional.ofNullable(handler.getAnnotation(Consumes.class))
+        .ifPresent(consumes -> Arrays.asList(consumes.value()).forEach(ws::consumes));
+    Optional.ofNullable(handler.getAnnotation(Produces.class))
+        .ifPresent(produces -> Arrays.asList(produces.value()).forEach(ws::produces));
     return ws;
   }
 

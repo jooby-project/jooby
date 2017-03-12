@@ -222,7 +222,7 @@ public class NettyWebSocketTest {
   public void sendBytes() throws Exception {
     ByteBuffer buffer = ByteBuffer.wrap(new byte[]{'a', 'b', 'c' });
     new MockUnit(ChannelHandlerContext.class, WebSocketServerHandshaker.class, Consumer.class,
-        WebSocket.SuccessCallback.class, WebSocket.ErrCallback.class, Future.class)
+        WebSocket.SuccessCallback.class, WebSocket.OnError.class, Future.class)
             .expect(unit -> {
               ByteBuf byteBuf = unit.mock(ByteBuf.class);
 
@@ -254,7 +254,7 @@ public class NettyWebSocketTest {
                       unit.get(WebSocketServerHandshaker.class),
                       unit.get(Consumer.class));
                   ws.sendBytes(buffer, unit.get(WebSocket.SuccessCallback.class),
-                      unit.get(WebSocket.ErrCallback.class));
+                      unit.get(WebSocket.OnError.class));
                 },
                 unit -> {
                   GenericFutureListener listener = unit.captured(GenericFutureListener.class)
@@ -268,7 +268,7 @@ public class NettyWebSocketTest {
   public void sendString() throws Exception {
     String data = "abc";
     new MockUnit(ChannelHandlerContext.class, WebSocketServerHandshaker.class, Consumer.class,
-        WebSocket.SuccessCallback.class, WebSocket.ErrCallback.class, Future.class)
+        WebSocket.SuccessCallback.class, WebSocket.OnError.class, Future.class)
             .expect(unit -> {
 
               ChannelFuture future = unit.mock(ChannelFuture.class);
@@ -296,7 +296,7 @@ public class NettyWebSocketTest {
                       unit.get(WebSocketServerHandshaker.class),
                       unit.get(Consumer.class));
                   ws.sendText(data, unit.get(WebSocket.SuccessCallback.class),
-                      unit.get(WebSocket.ErrCallback.class));
+                      unit.get(WebSocket.OnError.class));
                 },
                 unit -> {
                   GenericFutureListener listener = unit.captured(GenericFutureListener.class)
@@ -310,7 +310,7 @@ public class NettyWebSocketTest {
   public void sendBytesFailure() throws Exception {
     ByteBuffer buffer = ByteBuffer.wrap(new byte[]{'a', 'b', 'c' });
     new MockUnit(ChannelHandlerContext.class, WebSocketServerHandshaker.class, Consumer.class,
-        WebSocket.SuccessCallback.class, WebSocket.ErrCallback.class, Future.class)
+        WebSocket.SuccessCallback.class, WebSocket.OnError.class, Future.class)
             .expect(unit -> {
               ByteBuf byteBuf = unit.mock(ByteBuf.class);
 
@@ -334,8 +334,8 @@ public class NettyWebSocketTest {
               Future future = unit.get(Future.class);
               expect(future.isSuccess()).andReturn(false);
               expect(future.cause()).andReturn(cause);
-              WebSocket.ErrCallback err = unit.get(WebSocket.ErrCallback.class);
-              err.invoke(cause);
+              WebSocket.OnError err = unit.get(WebSocket.OnError.class);
+              err.onError(cause);
             })
             .run(
                 unit -> {
@@ -344,7 +344,7 @@ public class NettyWebSocketTest {
                       unit.get(WebSocketServerHandshaker.class),
                       unit.get(Consumer.class));
                   ws.sendBytes(buffer, unit.get(WebSocket.SuccessCallback.class),
-                      unit.get(WebSocket.ErrCallback.class));
+                      unit.get(WebSocket.OnError.class));
                 },
                 unit -> {
                   GenericFutureListener listener = unit.captured(GenericFutureListener.class)
@@ -358,7 +358,7 @@ public class NettyWebSocketTest {
   public void sendStringFailure() throws Exception {
     String data = "abc";
     new MockUnit(ChannelHandlerContext.class, WebSocketServerHandshaker.class, Consumer.class,
-        WebSocket.SuccessCallback.class, WebSocket.ErrCallback.class, Future.class)
+        WebSocket.SuccessCallback.class, WebSocket.OnError.class, Future.class)
             .expect(unit -> {
 
               ChannelFuture future = unit.mock(ChannelFuture.class);
@@ -378,8 +378,8 @@ public class NettyWebSocketTest {
               Future future = unit.get(Future.class);
               expect(future.isSuccess()).andReturn(false);
               expect(future.cause()).andReturn(cause);
-              WebSocket.ErrCallback err = unit.get(WebSocket.ErrCallback.class);
-              err.invoke(cause);
+              WebSocket.OnError err = unit.get(WebSocket.OnError.class);
+              err.onError(cause);
             })
             .run(
                 unit -> {
@@ -388,7 +388,7 @@ public class NettyWebSocketTest {
                       unit.get(WebSocketServerHandshaker.class),
                       unit.get(Consumer.class));
                   ws.sendText(data, unit.get(WebSocket.SuccessCallback.class),
-                      unit.get(WebSocket.ErrCallback.class));
+                      unit.get(WebSocket.OnError.class));
                 },
                 unit -> {
                   GenericFutureListener listener = unit.captured(GenericFutureListener.class)

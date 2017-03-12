@@ -50,7 +50,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.jooby.WebSocket;
-import org.jooby.WebSocket.ErrCallback;
+import org.jooby.WebSocket.OnError;
 import org.jooby.WebSocket.SuccessCallback;
 import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
@@ -204,32 +204,32 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
   }
 
   @Override
-  public void sendBytes(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
+  public void sendBytes(final ByteBuffer data, final SuccessCallback success, final OnError err) {
     WebSockets.sendBinary(data, channel, callback(log, success, err));
   }
 
   @Override
-  public void sendBytes(final byte[] data, final SuccessCallback success, final ErrCallback err) {
+  public void sendBytes(final byte[] data, final SuccessCallback success, final OnError err) {
     WebSockets.sendBinary(ByteBuffer.wrap(data), channel, callback(log, success, err));
   }
 
   @Override
-  public void sendText(final String data, final SuccessCallback success, final ErrCallback err) {
+  public void sendText(final String data, final SuccessCallback success, final OnError err) {
     WebSockets.sendText(data, channel, callback(log, success, err));
   }
 
   @Override
-  public void sendText(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
+  public void sendText(final ByteBuffer data, final SuccessCallback success, final OnError err) {
     WebSockets.sendText(data, channel, callback(log, success, err));
   }
 
   @Override
-  public void sendText(final byte[] data, final SuccessCallback success, final ErrCallback err) {
+  public void sendText(final byte[] data, final SuccessCallback success, final OnError err) {
     WebSockets.sendText(ByteBuffer.wrap(data), channel, callback(log, success, err));
   }
 
   private static WebSocketCallback<Void> callback(final Logger log, final SuccessCallback success,
-      final ErrCallback err) {
+      final OnError err) {
     return new WebSocketCallback<Void>() {
       @Override
       public void complete(final WebSocketChannel channel, final Void context) {
@@ -242,7 +242,7 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
 
       @Override
       public void onError(final WebSocketChannel channel, final Void context, final Throwable cause) {
-        err.invoke(cause);
+        err.onError(cause);
       }
     };
   }

@@ -26,7 +26,7 @@ public class WebSocketRendererContextTest {
   public void fileChannel() throws Exception {
     MediaType produces = MediaType.json;
     new MockUnit(Renderer.class, NativeWebSocket.class, WebSocket.SuccessCallback.class,
-        WebSocket.ErrCallback.class)
+        WebSocket.OnError.class)
         .run(unit -> {
           WebSocketRendererContext ctx = new WebSocketRendererContext(
               Lists.newArrayList(unit.get(Renderer.class)),
@@ -35,7 +35,7 @@ public class WebSocketRendererContextTest {
               StandardCharsets.UTF_8,
               Locale.US,
               unit.get(WebSocket.SuccessCallback.class),
-              unit.get(WebSocket.ErrCallback.class));
+              unit.get(WebSocket.OnError.class));
           ctx.send(newFileChannel());
         });
   }
@@ -44,7 +44,7 @@ public class WebSocketRendererContextTest {
   public void inputStream() throws Exception {
     MediaType produces = MediaType.json;
     new MockUnit(Renderer.class, NativeWebSocket.class, WebSocket.SuccessCallback.class,
-        WebSocket.ErrCallback.class, InputStream.class)
+        WebSocket.OnError.class, InputStream.class)
         .run(unit -> {
           WebSocketRendererContext ctx = new WebSocketRendererContext(
               Lists.newArrayList(unit.get(Renderer.class)),
@@ -53,7 +53,7 @@ public class WebSocketRendererContextTest {
               StandardCharsets.UTF_8,
               Locale.US,
               unit.get(WebSocket.SuccessCallback.class),
-              unit.get(WebSocket.ErrCallback.class));
+              unit.get(WebSocket.OnError.class));
           ctx.send(unit.get(InputStream.class));
         });
   }
