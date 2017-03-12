@@ -2582,9 +2582,11 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
             <configuration>
               <header>LICENSE</header>
               <strictCheck>true</strictCheck>
-              <skipExistingHeaders>true</skipExistingHeaders>
+              <aggregate>true</aggregate>
+              <skipExistingHeaders>false</skipExistingHeaders>
               <includes>
                 <include>src/main/java/**/*.java</include>
+                <include>src/main/kotlin/**/*.kt</include>
               </includes>
             </configuration>
             <executions>
@@ -2901,7 +2903,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <mojo-executor.version>2.2.0</mojo-executor.version>
     <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
     <maven-site-plugin.version>3.4</maven-site-plugin.version>
-    <license-maven-plugin.version>2.6</license-maven-plugin.version>
+    <license-maven-plugin.version>3.0</license-maven-plugin.version>
     <jacoco-maven-plugin.version>${jacoco.version}</jacoco-maven-plugin.version>
     <maven-assembly-plugin.version>2.5.3</maven-assembly-plugin.version>
     <versions-maven-plugin.version>2.1</versions-maven-plugin.version>
