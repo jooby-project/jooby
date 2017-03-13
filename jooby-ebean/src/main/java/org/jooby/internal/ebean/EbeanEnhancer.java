@@ -37,7 +37,7 @@ public class EbeanEnhancer {
   }
 
   public static EbeanEnhancer newEnhancer() {
-    return newEnhancer("/com/avaje/ebean/enhance/agent/Transformer.class",
+    return newEnhancer("/io/ebean/enhance/agent/Transformer.class",
         "/org/avaje/agentloader/AgentLoader.class");
   }
 
