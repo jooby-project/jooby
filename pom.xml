@@ -2779,7 +2779,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <handlebars.version>4.0.5</handlebars.version>
     <h2.version>1.4.190</h2.version>
     <mysql-connector-java.version>5.1.38</mysql-connector-java.version>
-    <hikariCP.version>2.5.1</hikariCP.version>
+    <hikariCP.version>2.6.1</hikariCP.version>
     <hibernate.version>5.2.1.Final</hibernate.version>
     <hibernate4.version>4.3.9.Final</hibernate4.version>
     <jsr305.version>3.0.0</jsr305.version>
@@ -2817,10 +2817,10 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <flyway.version>4.0</flyway.version>
     <hazelcast.version>3.6.1</hazelcast.version>
     <less4j.version>1.13.0</less4j.version>
-    <ebean.version>10.1.6</ebean.version>
+    <ebean.version>10.1.7</ebean.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
-    <ebean-agent.version>10.1.2</ebean-agent.version>
-    <ebean-maven-plugin.version>10.1.4</ebean-maven-plugin.version>
+    <ebean-agent.version>10.1.6</ebean-agent.version>
+    <ebean-maven-plugin.version>10.1.6</ebean-maven-plugin.version>
     <akka.version>2.4.11</akka.version>
     <yuicompressor.version>2.4.8</yuicompressor.version>
     <closure-compiler.version>v20150901</closure-compiler.version>
