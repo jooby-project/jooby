@@ -78,6 +78,7 @@
     <module>jooby-filewatcher</module>
     <module>jooby-lang-js</module>
     <module>jooby-lang-kotlin</module>
+    <module>jooby-requery</module>
     <!-- Assets -->
     <module>jooby-assets</module>
     <module>jooby-assets-j2v8</module>
@@ -607,6 +608,19 @@
         <groupId>org.jooby</groupId>
         <artifactId>jooby-lang-kotlin</artifactId>
         <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-requery</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <!-- requery -->
+      <dependency>
+        <groupId>io.requery</groupId>
+        <artifactId>requery</artifactId>
+        <version>${requery.version}</version>
       </dependency>
 
       <!-- coverity escapers -->
@@ -2565,6 +2579,75 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
       </dependencies>
     </profile>
 
+    <!-- Requery -->
+    <profile>
+      <id>requery</id>
+      <activation>
+        <file>
+          <exists>
+            ${basedir}${file.separator}src${file.separator}etc${file.separator}requery.activator
+          </exists>
+        </file>
+      </activation>
+      <properties>
+        <requery-apt-file>requery-processor-${requery.version}.jar</requery-apt-file>
+        <requery-apt-dir>
+          ${settings.localRepository}/io/requery/requery/${requery.version}
+        </requery-apt-dir>
+        <requery-apt-path>${requery-apt-dir}/${requery-apt-file}
+        </requery-apt-path>
+        <requery.output>target/generated-sources</requery.output>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>${build-helper-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>add-querydsl-source</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>add-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${requery.output}</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Requery -->
+          <plugin>
+            <groupId>com.mysema.maven</groupId>
+            <artifactId>apt-maven-plugin</artifactId>
+            <version>${apt-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>process</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${requery.output}</outputDirectory>
+                  <processor>io.requery.processor.EntityProcessor</processor>
+                  <logOnlyOnError>true</logOnlyOnError>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>io.requery</groupId>
+                <artifactId>requery-processor</artifactId>
+                <version>${requery.version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <!-- license header -->
     <profile>
       <id>license</id>
@@ -2840,6 +2923,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <thymeleaf.version>3.0.2.RELEASE</thymeleaf.version>
     <rocker.version>0.14.0</rocker.version>
     <kotlin.version>1.1.0</kotlin.version>
+    <requery.version>1.2.0</requery.version>
 
     <!-- config -->
     <ebean.agent.packages>**</ebean.agent.packages>
