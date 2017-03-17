@@ -29,7 +29,9 @@
               <goal>compile</goal>
             </goals>
             <configuration>
-              <args>-java-parameters</args>
+              <args>
+                <arg>-java-parameters</arg>
+              </args>
               <jvmTarget>1.8</jvmTarget>
             </configuration>
           </execution>
