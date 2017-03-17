@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <groupId>org.jooby</groupId>
@@ -88,6 +87,7 @@
                     <source>${project.parent.basedir}/jooby-thymeleaf/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-filewatcher/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-lang-js/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-requery/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -150,6 +150,7 @@
                     <source>${project.parent.basedir}/jooby-thymeleaf/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-filewatcher/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-lang-js/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-requery/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -558,6 +559,12 @@
 
     <dependency>
       <groupId>org.jooby</groupId>
+      <artifactId>jooby-requery</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
       <artifactId>jooby-ebean</artifactId>
       <version>${project.version}</version>
       <exclusions>
@@ -775,6 +782,12 @@
       <groupId>org.eclipse.jetty.http2</groupId>
       <artifactId>http2-client</artifactId>
       <version>${jetty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.reactivex.rxjava2</groupId>
+      <artifactId>rxjava</artifactId>
+      <version>2.0.7</version>
     </dependency>
 
   </dependencies>
