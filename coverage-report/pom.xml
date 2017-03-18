@@ -88,6 +88,7 @@
                     <source>${project.parent.basedir}/jooby-filewatcher/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-lang-js/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-requery/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-rocker/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -151,6 +152,7 @@
                     <source>${project.parent.basedir}/jooby-filewatcher/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-lang-js/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-requery/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-rocker/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -560,6 +562,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-requery</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-rocker</artifactId>
       <version>${project.version}</version>
     </dependency>
 
