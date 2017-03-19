@@ -227,6 +227,8 @@ public class HttpHandlerImpl implements HttpHandler {
       requestPath = rpath.apply(requestPath);
     }
 
+    // put request attributes first to make sure we don't override defaults
+    locals.putAll(request.attributes());
     // default locals
     locals.put(CONTEXT_PATH, contextPath);
     locals.put(PATH, requestPath);
