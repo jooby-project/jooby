@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -121,7 +122,8 @@ public class ServletServletRequest implements NativeRequest {
     if (!attributeNames.hasMoreElements()) {
       return Collections.emptyMap();
     }
-    return Collections.list(attributeNames).stream().collect(Collectors.toMap(name -> name, name -> req.getAttribute(name)));
+    return Collections.list(attributeNames).stream()
+        .collect(Collectors.toMap(Function.identity(), name -> req.getAttribute(name)));
   }
 
   @Override

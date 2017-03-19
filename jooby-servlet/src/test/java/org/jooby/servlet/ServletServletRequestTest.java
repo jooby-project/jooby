@@ -154,9 +154,9 @@ public class ServletServletRequestTest {
 
   @Test
   public void attributes() throws Exception {
-      String tmpdir = System.getProperty("java.io.tmpdir");
-      UUID serverAttribute = UUID.randomUUID();
-      new MockUnit(HttpServletRequest.class)
+    String tmpdir = System.getProperty("java.io.tmpdir");
+    final UUID serverAttribute = UUID.randomUUID();
+    new MockUnit(HttpServletRequest.class)
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
           expect(req.getContentType()).andReturn("text/html");
@@ -167,6 +167,24 @@ public class ServletServletRequestTest {
         })
         .run(unit -> {
           assertEquals(ImmutableMap.of("server.attribute", serverAttribute),
+              new ServletServletRequest(unit.get(HttpServletRequest.class), tmpdir)
+                  .attributes());
+        });
+
+  }
+
+  @Test
+  public void emptyAttributes() throws Exception {
+    String tmpdir = System.getProperty("java.io.tmpdir");
+    new MockUnit(HttpServletRequest.class)
+        .expect(unit -> {
+          HttpServletRequest req = unit.get(HttpServletRequest.class);
+          expect(req.getContentType()).andReturn("text/html");
+          expect(req.getPathInfo()).andReturn("/");
+          expect(req.getAttributeNames()).andReturn(Collections.emptyEnumeration());
+        })
+        .run(unit -> {
+          assertEquals(Collections.emptyMap(),
               new ServletServletRequest(unit.get(HttpServletRequest.class), tmpdir)
                   .attributes());
         });
