@@ -4,10 +4,14 @@ import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.common.collect.ImmutableMap;
 import org.jooby.MediaType;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
@@ -144,6 +148,27 @@ public class ServletServletRequestTest {
           assertEquals(Lists.newArrayList(),
               new ServletServletRequest(unit.get(HttpServletRequest.class), tmpdir)
                   .params("x"));
+        });
+
+  }
+
+  @Test
+  public void attributes() throws Exception {
+      String tmpdir = System.getProperty("java.io.tmpdir");
+      UUID serverAttribute = UUID.randomUUID();
+      new MockUnit(HttpServletRequest.class)
+        .expect(unit -> {
+          HttpServletRequest req = unit.get(HttpServletRequest.class);
+          expect(req.getContentType()).andReturn("text/html");
+          expect(req.getPathInfo()).andReturn("/");
+          expect(req.getAttributeNames()).andReturn(
+              Collections.enumeration(Collections.singletonList("server.attribute")));
+          expect(req.getAttribute("server.attribute")).andReturn(serverAttribute);
+        })
+        .run(unit -> {
+          assertEquals(ImmutableMap.of("server.attribute", serverAttribute),
+              new ServletServletRequest(unit.get(HttpServletRequest.class), tmpdir)
+                  .attributes());
         });
 
   }

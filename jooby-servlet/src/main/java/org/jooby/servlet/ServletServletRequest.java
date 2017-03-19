@@ -23,11 +23,7 @@ import static java.util.Objects.requireNonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
@@ -117,6 +113,15 @@ public class ServletServletRequest implements NativeRequest {
       return Collections.emptyList();
     }
     return Arrays.asList(values);
+  }
+
+  @Override
+  public Map<String, Object> attributes() {
+    final Enumeration<String> attributeNames = req.getAttributeNames();
+    if (!attributeNames.hasMoreElements()) {
+      return Collections.emptyMap();
+    }
+    return Collections.list(attributeNames).stream().collect(Collectors.toMap(name -> name, name -> req.getAttribute(name)));
   }
 
   @Override
