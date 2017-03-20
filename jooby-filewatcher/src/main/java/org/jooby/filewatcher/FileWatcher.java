@@ -18,25 +18,31 @@
  */
 package org.jooby.filewatcher;
 
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Binder;
-import com.google.inject.multibindings.Multibinder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import javaslang.CheckedFunction1;
-import javaslang.CheckedFunction2;
-import javaslang.control.Try.CheckedConsumer;
-import org.jooby.Env;
-import org.jooby.Jooby.Module;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.nio.file.*;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import org.jooby.Env;
+import org.jooby.Jooby.Module;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Binder;
+import com.google.inject.multibindings.Multibinder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
+import javaslang.CheckedFunction1;
+import javaslang.CheckedFunction2;
+import javaslang.control.Try.CheckedConsumer;
 
 /**
  * <h1>file watcher</h1>
@@ -350,7 +356,11 @@ public class FileWatcher implements Module {
     paths.forEach(it -> log.info("Watching: {}", it));
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  protected boolean empty() {
+    return bindings.isEmpty();
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes" })
   private void paths(final ClassLoader loader, final Config conf, final String name,
       final Consumer<FileEventOptions> callback) throws Throwable {
     list(conf, name, value -> {
