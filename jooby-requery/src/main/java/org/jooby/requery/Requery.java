@@ -93,8 +93,8 @@ import io.requery.sql.TableCreationMode;
  * <h3>maven</h3>
  * <p>
  * We do provide code generation via Maven profile. All you have to do is to write a
- * <code>requery.activator</code> file inside the <code>src/etc</code> folder. File present triggers
- * Requery annotation processor and generated contents.
+ * <code>requery.activator</code> file inside the <code>src/etc</code> folder. File presence
+ * triggers Requery annotation processor and generated contents.
  * </p>
  *
  * <p>

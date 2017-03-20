@@ -38,7 +38,7 @@ This module requires a `DataSource` connection. That's why you also need the [jd
 
 ### maven
 
-We do provide code generation via Maven profile. All you have to do is to write a ```requery.activator``` file inside the ```src/etc``` folder. File present triggers requery annotation processor and generated contents.
+We do provide code generation via Maven profile. All you have to do is to write a ```requery.activator``` file inside the ```src/etc``` folder. File presence triggers requery annotation processor and generated contents.
 
 Generated content can be found at: ```target/generated-sources```. You can change the default output location by setting the build property ```requery.output``` in your ```pom.xml```.
 

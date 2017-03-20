@@ -79,6 +79,7 @@
     <module>jooby-lang-js</module>
     <module>jooby-lang-kotlin</module>
     <module>jooby-requery</module>
+    <module>jooby-rocker</module>
     <!-- Assets -->
     <module>jooby-assets</module>
     <module>jooby-assets-j2v8</module>
@@ -613,6 +614,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-requery</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-rocker</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -1762,7 +1769,9 @@
                 <goal>compile</goal>
               </goals>
               <configuration>
-                <args><arg>-java-parameters</arg></args>
+                <args>
+                  <arg>-java-parameters</arg>
+                </args>
                 <jvmTarget>1.8</jvmTarget>
               </configuration>
             </execution>
@@ -2648,6 +2657,72 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
       </build>
     </profile>
 
+    <!-- rocker -->
+    <profile>
+      <id>rocker</id>
+      <activation>
+        <file>
+          <exists>
+              ${basedir}${file.separator}src${file.separator}etc${file.separator}rocker.activator
+            </exists>
+        </file>
+      </activation>
+      <properties>
+        <rocker.outputDirectory>target/generated-sources</rocker.outputDirectory>
+        <rocker.templateDirectory>public</rocker.templateDirectory>
+        <rocker.extendsClass>org.jooby.rocker.RequestRockerTemplate</rocker.extendsClass>
+        <rocker.optimize>true</rocker.optimize>
+        <rocker.touchFile>nofile</rocker.touchFile>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>${build-helper-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>add-querydsl-source</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>add-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${rocker.outputDirectory}</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Rocker -->
+          <plugin>
+            <groupId>com.fizzed</groupId>
+            <artifactId>rocker-maven-plugin</artifactId>
+            <version>${rocker.version}</version>
+            <configuration>
+              <addAsSources>false</addAsSources>
+              <javaVersion>1.8</javaVersion>
+              <optimize>${rocker.optimize}</optimize>
+              <templateDirectory>${rocker.templateDirectory}</templateDirectory>
+              <outputDirectory>${rocker.outputDirectory}</outputDirectory>
+              <touchFile>${rocker.touchFile}</touchFile>
+              <extendsClass>${rocker.extendsClass}</extendsClass>
+            </configuration>
+            <executions>
+              <execution>
+                <id>generate-rocker-templates</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <!-- license header -->
     <profile>
       <id>license</id>
@@ -2921,7 +2996,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <crash.version>1.3.1</crash.version>
     <groovy.version>2.4.7</groovy.version>
     <thymeleaf.version>3.0.2.RELEASE</thymeleaf.version>
-    <rocker.version>0.14.0</rocker.version>
+    <rocker.version>0.16.0</rocker.version>
     <kotlin.version>1.1.0</kotlin.version>
     <requery.version>1.2.0</requery.version>
 
