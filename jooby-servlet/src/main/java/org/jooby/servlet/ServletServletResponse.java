@@ -85,6 +85,7 @@ public class ServletServletResponse implements NativeResponse {
     ServletOutputStream output = rsp.getOutputStream();
     output.write(bytes);
     output.close();
+    committed = true;
   }
 
   @Override
@@ -92,6 +93,7 @@ public class ServletServletResponse implements NativeResponse {
     WritableByteChannel channel = Channels.newChannel(rsp.getOutputStream());
     channel.write(buffer);
     channel.close();
+    committed = true;
   }
 
   @Override
@@ -100,6 +102,7 @@ public class ServletServletResponse implements NativeResponse {
       WritableByteChannel channel = Channels.newChannel(rsp.getOutputStream());
       src.transferTo(0, file.size(), channel);
       channel.close();
+      committed = true;
     }
   }
 
@@ -110,6 +113,7 @@ public class ServletServletResponse implements NativeResponse {
       WritableByteChannel dest = Channels.newChannel(rsp.getOutputStream());
       src.transferTo(position, count, dest);
       dest.close();
+      committed = true;
     }
   }
 
@@ -119,6 +123,7 @@ public class ServletServletResponse implements NativeResponse {
     ByteStreams.copy(stream, output);
     output.close();
     stream.close();
+    committed = true;
   }
 
   @Override

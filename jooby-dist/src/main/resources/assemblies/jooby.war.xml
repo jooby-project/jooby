@@ -14,6 +14,7 @@
     <dependencySet>
       <outputDirectory>WEB-INF${file.separator}lib</outputDirectory>
       <scope>runtime</scope>
+      <useProjectArtifact>false</useProjectArtifact>
       <excludes>
         <!-- netty -->
         <exclude>io.netty:*</exclude>
@@ -51,6 +52,7 @@
       <outputDirectory>WEB-INF${file.separator}lib</outputDirectory>
       <scope>provided</scope>
       <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
       <includes>
         <include>org.jooby:jooby-servlet</include>
       </includes>
@@ -136,17 +138,6 @@
       </directory>
       <filtered>true</filtered>
       <outputDirectory>WEB-INF${file.separator}classes</outputDirectory>
-      <includes>
-        <include>**/*</include>
-      </includes>
-    </fileSet>
-
-    <!-- cmd : WEB-INF/cmd -->
-    <fileSet>
-      <directory>
-        ${project.build.outputDirectory}
-      </directory>
-      <outputDirectory>WEB-INF${file.separator}cmd</outputDirectory>
       <includes>
         <include>**/*</include>
       </includes>
