@@ -119,6 +119,18 @@ Accessors provide a way to map custom queries not supported by the default entit
 
 The accessor can be required or injected in a MVC route.
 
+## dse-driver
+
+Add the `dse-driver` dependency to your classpath and then:
+
+```java
+{
+   use(new Cassandra(DseCluster::build));
+}
+```
+
+That's all! Now you can `require/inject` a `DseSession`.
+
 ## async
 
 Async? Of course!!! just use the Datastax async API:

@@ -798,6 +798,13 @@
       <version>2.0.7</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.datastax.cassandra</groupId>
+      <artifactId>dse-driver</artifactId>
+      <version>1.1.2</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
 </project>
