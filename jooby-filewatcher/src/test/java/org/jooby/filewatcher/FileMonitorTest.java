@@ -284,7 +284,6 @@ public class FileMonitorTest {
       Path resolved = unit.mock(Path.class);
       unit.registerMock(Path.class, resolved);
       expect(source.resolve(path)).andReturn(resolved);
-      expect(resolved.toAbsolutePath()).andReturn(resolved);
 
       WatchEvent overflow = unit.mock(WatchEvent.class);
       expect(overflow.kind()).andReturn(StandardWatchEventKinds.OVERFLOW);
