@@ -18,7 +18,7 @@
  */
 package org.jooby.internal.netty;
 
-import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
+import static io.netty.channel.ChannelFutureListener.CLOSE;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
@@ -50,8 +50,8 @@ import io.netty.util.concurrent.GenericFutureListener;
 
 public class NettyWebSocket implements NativeWebSocket {
 
-  public static final AttributeKey<NettyWebSocket> KEY =
-      AttributeKey.newInstance(NettyWebSocket.class.getName());
+  public static final AttributeKey<NettyWebSocket> KEY = AttributeKey
+      .newInstance(NettyWebSocket.class.getName());
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -84,7 +84,7 @@ public class NettyWebSocket implements NativeWebSocket {
   @Override
   public void close(final int status, final String reason) {
     handshaker.close(ctx.channel(), new CloseWebSocketFrame(status, reason))
-        .addListener(FIRE_EXCEPTION_ON_FAILURE);
+        .addListener(CLOSE);
     Attribute<NettyWebSocket> ws = ctx.channel().attr(KEY);
     if (ws != null) {
       ws.set(null);
@@ -135,7 +135,7 @@ public class NettyWebSocket implements NativeWebSocket {
   @Override
   public void terminate() throws IOException {
     this.onCloseCallback.accept(1006, Optional.of("Harsh disconnect"));
-    ctx.disconnect().addListener(FIRE_EXCEPTION_ON_FAILURE);
+    ctx.disconnect().addListener(CLOSE);
   }
 
   @Override
@@ -193,7 +193,7 @@ public class NettyWebSocket implements NativeWebSocket {
       int statusCode = closeFrame.statusCode();
       onCloseCallback.accept(statusCode == -1 ? WebSocket.NORMAL.code() : statusCode,
           Optional.ofNullable(closeFrame.reasonText()));
-      handshaker.close(ctx.channel(), closeFrame).addListener(FIRE_EXCEPTION_ON_FAILURE);
+      handshaker.close(ctx.channel(), closeFrame).addListener(CLOSE);
     } else if (msg instanceof Throwable) {
       onErrorCallback.accept((Throwable) msg);
     }

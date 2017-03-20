@@ -1,6 +1,6 @@
 package org.jooby.internal.netty;
 
-import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
+import static io.netty.channel.ChannelFutureListener.CLOSE;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
@@ -57,7 +57,7 @@ public class NettyWebSocketTest {
         1001, "normal");
 
     ChannelFuture future = unit.mock(ChannelFuture.class);
-    expect(future.addListener(FIRE_EXCEPTION_ON_FAILURE)).andReturn(future);
+    expect(future.addListener(CLOSE)).andReturn(future);
 
     WebSocketServerHandshaker handshaker = unit.get(WebSocketServerHandshaker.class);
     expect(handshaker.close(ch, frame)).andReturn(future);
@@ -202,7 +202,7 @@ public class NettyWebSocketTest {
               callback.accept(1006, Optional.of("Harsh disconnect"));
 
               ChannelFuture future = unit.mock(ChannelFuture.class);
-              expect(future.addListener(FIRE_EXCEPTION_ON_FAILURE)).andReturn(future);
+              expect(future.addListener(CLOSE)).andReturn(future);
 
               ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
               expect(ctx.disconnect()).andReturn(future);
@@ -584,7 +584,7 @@ public class NettyWebSocketTest {
               expect(ctx.channel()).andReturn(ch);
 
               ChannelFuture future = unit.mock(ChannelFuture.class);
-              expect(future.addListener(FIRE_EXCEPTION_ON_FAILURE)).andReturn(future);
+              expect(future.addListener(CLOSE)).andReturn(future);
 
               WebSocketServerHandshaker handshaker = unit.get(WebSocketServerHandshaker.class);
               expect(handshaker.close(ch, retain)).andReturn(future);
@@ -625,7 +625,7 @@ public class NettyWebSocketTest {
               expect(ctx.channel()).andReturn(ch);
 
               ChannelFuture future = unit.mock(ChannelFuture.class);
-              expect(future.addListener(FIRE_EXCEPTION_ON_FAILURE)).andReturn(future);
+              expect(future.addListener(CLOSE)).andReturn(future);
 
               WebSocketServerHandshaker handshaker = unit.get(WebSocketServerHandshaker.class);
               expect(handshaker.close(ch, retain)).andReturn(future);
