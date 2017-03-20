@@ -20,6 +20,7 @@ package org.jooby.spi;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,6 +71,13 @@ public interface NativeRequest {
    * @throws Exception If param parsing fails.
    */
   List<String> params(String name) throws Exception;
+
+  /**
+   * @return Map containing all request attributes
+   */
+  default Map<String, Object> attributes() {
+    return Collections.emptyMap();
+  }
 
   /**
    * Get all the headers for the provided name or a empty list.
