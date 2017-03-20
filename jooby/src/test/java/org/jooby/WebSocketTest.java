@@ -57,6 +57,12 @@ public class WebSocketTest {
     }
 
     @Override
+    public void broadcast(final Object data, final SuccessCallback success, final OnError err)
+        throws Exception {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void onMessage(final OnMessage<Mutant> callback) throws Exception {
       throw new UnsupportedOperationException();
     }
@@ -262,6 +268,27 @@ public class WebSocketTest {
 
   @SuppressWarnings("resource")
   @Test
+  public void broadcast() throws Exception {
+    Object data = new Object();
+    WebSocket.SuccessCallback SUCCESS_ = WebSocket.SUCCESS;
+    WebSocket.OnError ERR_ = WebSocket.ERR;
+    LinkedList<Object> dataList = new LinkedList<>();
+    WebSocket ws = new WebSocketMock() {
+      @Override
+      public void broadcast(final Object data, final SuccessCallback success, final OnError err)
+          throws Exception {
+        dataList.add(data);
+        assertEquals(SUCCESS_, success);
+        assertEquals(ERR_, err);
+      }
+    };
+    ws.broadcast(data);
+    assertTrue(dataList.size() > 0);
+    assertEquals(data, dataList.getFirst());
+  }
+
+  @SuppressWarnings("resource")
+  @Test
   public void sendCustomSuccess() throws Exception {
     Object data = new Object();
     WebSocket.SuccessCallback SUCCESS_ = () -> {
@@ -278,6 +305,28 @@ public class WebSocketTest {
       }
     };
     ws.send(data, SUCCESS_);
+    assertTrue(dataList.size() > 0);
+    assertEquals(data, dataList.getFirst());
+  }
+
+  @SuppressWarnings("resource")
+  @Test
+  public void broadcastCustomSuccess() throws Exception {
+    Object data = new Object();
+    WebSocket.SuccessCallback SUCCESS_ = () -> {
+    };
+    WebSocket.OnError ERR_ = WebSocket.ERR;
+    LinkedList<Object> dataList = new LinkedList<>();
+    WebSocket ws = new WebSocketMock() {
+      @Override
+      public void broadcast(final Object data, final SuccessCallback success, final OnError err)
+          throws Exception {
+        dataList.add(data);
+        assertEquals(SUCCESS_, success);
+        assertEquals(ERR_, err);
+      }
+    };
+    ws.broadcast(data, SUCCESS_);
     assertTrue(dataList.size() > 0);
     assertEquals(data, dataList.getFirst());
   }
@@ -306,6 +355,28 @@ public class WebSocketTest {
 
   @SuppressWarnings("resource")
   @Test
+  public void broadcastCustomErr() throws Exception {
+    Object data = new Object();
+    WebSocket.SuccessCallback SUCCESS_ = WebSocket.SUCCESS;
+    WebSocket.OnError ERR_ = (ex) -> {
+    };
+    LinkedList<Object> dataList = new LinkedList<>();
+    WebSocket ws = new WebSocketMock() {
+      @Override
+      public void broadcast(final Object data, final SuccessCallback success, final OnError err)
+          throws Exception {
+        dataList.add(data);
+        assertEquals(SUCCESS_, success);
+        assertEquals(ERR_, err);
+      }
+    };
+    ws.broadcast(data, ERR_);
+    assertTrue(dataList.size() > 0);
+    assertEquals(data, dataList.getFirst());
+  }
+
+  @SuppressWarnings("resource")
+  @Test
   public void sendCustomSuccessAndErr() throws Exception {
     Object data = new Object();
     WebSocket.SuccessCallback SUCCESS_ = () -> {
@@ -323,6 +394,29 @@ public class WebSocketTest {
       }
     };
     ws.send(data, SUCCESS_, ERR_);
+    assertTrue(dataList.size() > 0);
+    assertEquals(data, dataList.getFirst());
+  }
+
+  @SuppressWarnings("resource")
+  @Test
+  public void broadcastCustomSuccessAndErr() throws Exception {
+    Object data = new Object();
+    WebSocket.SuccessCallback SUCCESS_ = () -> {
+    };
+    WebSocket.OnError ERR_ = (ex) -> {
+    };
+    LinkedList<Object> dataList = new LinkedList<>();
+    WebSocket ws = new WebSocketMock() {
+      @Override
+      public void broadcast(final Object data, final SuccessCallback success, final OnError err)
+          throws Exception {
+        dataList.add(data);
+        assertEquals(SUCCESS_, success);
+        assertEquals(ERR_, err);
+      }
+    };
+    ws.broadcast(data, SUCCESS_, ERR_);
     assertTrue(dataList.size() > 0);
     assertEquals(data, dataList.getFirst());
   }
