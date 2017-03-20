@@ -18,13 +18,6 @@
  */
 package org.jooby.run;
 
-import org.jboss.modules.Module;
-import org.jboss.modules.ModuleClassLoader;
-import org.jboss.modules.ModuleIdentifier;
-import org.jboss.modules.ModuleLoader;
-import org.jboss.modules.log.ModuleLogger;
-import org.jooby.internal.run__.JoobyRef;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -50,8 +43,16 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.LongStream;
+
+import org.jboss.modules.Module;
+import org.jboss.modules.ModuleClassLoader;
+import org.jboss.modules.ModuleIdentifier;
+import org.jboss.modules.ModuleLoader;
+import org.jboss.modules.log.ModuleLogger;
+import org.jooby.internal.run__.JoobyRef;
 
 public class Main {
 
@@ -69,12 +70,13 @@ public class Main {
   private PathMatcher includes;
   private PathMatcher excludes;
   private volatile Object app;
-  private AtomicReference<String> hash = new AtomicReference<String>("");
+  private AtomicReference<String> hash = new AtomicReference<>("");
   private ModuleIdentifier mId;
   private String mainClass;
   private volatile Module module;
   private List<String> args;
   private AtomicBoolean starting = new AtomicBoolean(false);
+  private AtomicInteger counter = new AtomicInteger(0);
 
   private Path[] watchDirs;
 
@@ -107,8 +109,8 @@ public class Main {
   }
 
   public static void main(final String[] args) throws Exception {
-    List<File> cp = new ArrayList<File>();
-    List<File> watch = new ArrayList<File>();
+    List<File> cp = new ArrayList<>();
+    List<File> watch = new ArrayList<>();
     String includes = null;
     String excludes = null;
 
@@ -213,6 +215,8 @@ public class Main {
     if (app != null) {
       stopApp(app);
     }
+    // liveReload hack while restarting
+    System.setProperty("joobyRun.counter", String.valueOf(counter.getAndIncrement()));
     starting.set(true);
     debug("scheduling: %s", mainClass);
     executor.submit(() -> {
@@ -326,7 +330,7 @@ public class Main {
   }
 
   private static PathMatcher pathMatcher(final String expressions) {
-    List<PathMatcher> matchers = new ArrayList<PathMatcher>();
+    List<PathMatcher> matchers = new ArrayList<>();
     for (String expression : expressions.split(File.pathSeparator)) {
       matchers.add(FileSystems.getDefault().getPathMatcher("glob:" + expression.trim()));
     }

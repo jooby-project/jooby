@@ -109,7 +109,7 @@ class FileMonitor implements Runnable {
       if (kind != OVERFLOW) {
 
         // Context for directory entry event is the file name of entry
-        Path path = source.resolve((Path) event.context()).toAbsolutePath();
+        Path path = source.resolve((Path) event.context());
         log.debug("found {}({})", path, kind);
 
         // handler
