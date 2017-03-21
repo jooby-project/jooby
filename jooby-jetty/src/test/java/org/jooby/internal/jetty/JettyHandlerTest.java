@@ -32,277 +32,287 @@ public class JettyHandlerTest {
   public void handleShouldSetMultipartConfig() throws Exception {
     new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class)
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(true);
+              request.setHandled(true);
 
-          expect(request.getContentType()).andReturn("Multipart/Form-Data");
+              expect(request.getContentType()).andReturn("Multipart/Form-Data");
 
-          request.setAttribute(eq(Request.__MULTIPART_CONFIG_ELEMENT),
-              isA(MultipartConfigElement.class));
-        })
-        .expect(unit -> {
-          HttpServletRequest request = unit.get(HttpServletRequest.class);
+              request.setAttribute(eq(Request.__MULTIPART_CONFIG_ELEMENT),
+                  isA(MultipartConfigElement.class));
+            })
+            .expect(unit -> {
+              HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getPathInfo()).andReturn("/");
-        })
-        .expect(unit -> {
-          HttpHandler dispatcher = unit.get(HttpHandler.class);
-          dispatcher.handle(isA(ServletServletRequest.class), isA(ServletServletResponse.class));
-        })
-        .expect(wsStopTimeout)
-        .run(unit -> {
-          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target", -1)
-              .handle("/", unit.get(Request.class),
-                  unit.get(HttpServletRequest.class),
-                  unit.get(HttpServletResponse.class));
-        });
+              expect(request.getPathInfo()).andReturn("/");
+              expect(request.getContextPath()).andReturn("");
+
+            })
+            .expect(unit -> {
+              HttpHandler dispatcher = unit.get(HttpHandler.class);
+              dispatcher.handle(isA(ServletServletRequest.class),
+                  isA(ServletServletResponse.class));
+            })
+            .expect(wsStopTimeout)
+            .run(unit -> {
+              new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
+                  "target", -1)
+                      .handle("/", unit.get(Request.class),
+                          unit.get(HttpServletRequest.class),
+                          unit.get(HttpServletResponse.class));
+            });
   }
 
   @Test
   public void handleShouldIgnoreMultipartConfig() throws Exception {
     new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class)
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(true);
+              request.setHandled(true);
 
-          expect(request.getContentType()).andReturn("application/json");
-        })
-        .expect(unit -> {
-          HttpServletRequest request = unit.get(HttpServletRequest.class);
+              expect(request.getContentType()).andReturn("application/json");
+            })
+            .expect(unit -> {
+              HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getPathInfo()).andReturn("/");
-        })
-        .expect(unit -> {
-          HttpHandler dispatcher = unit.get(HttpHandler.class);
-          dispatcher.handle(isA(ServletServletRequest.class), isA(ServletServletResponse.class));
-        })
-        .expect(wsStopTimeout)
-        .run(unit -> {
-          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target", -1)
-              .handle("/", unit.get(Request.class),
-                  unit.get(HttpServletRequest.class),
-                  unit.get(HttpServletResponse.class));
-        });
+              expect(request.getPathInfo()).andReturn("/");
+              expect(request.getContextPath()).andReturn("");
+            })
+            .expect(unit -> {
+              HttpHandler dispatcher = unit.get(HttpHandler.class);
+              dispatcher.handle(isA(ServletServletRequest.class),
+                  isA(ServletServletResponse.class));
+            })
+            .expect(wsStopTimeout)
+            .run(unit -> {
+              new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
+                  "target", -1)
+                      .handle("/", unit.get(Request.class),
+                          unit.get(HttpServletRequest.class),
+                          unit.get(HttpServletResponse.class));
+            });
   }
 
   @Test
   public void handleWsUpgrade() throws Exception {
     new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class, NativeWebSocket.class)
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(true);
+              request.setHandled(true);
 
-          expect(request.getContentType()).andReturn("application/json");
-        })
-        .expect(unit -> {
-          HttpServletRequest request = unit.get(HttpServletRequest.class);
+              expect(request.getContentType()).andReturn("application/json");
+            })
+            .expect(unit -> {
+              HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getPathInfo()).andReturn("/");
-        })
-        .expect(unit -> {
-          HttpServletRequest req = unit.get(HttpServletRequest.class);
-          HttpServletResponse rsp = unit.get(HttpServletResponse.class);
-          NativeWebSocket ws = unit.get(NativeWebSocket.class);
+              expect(request.getPathInfo()).andReturn("/");
+              expect(request.getContextPath()).andReturn("");
+            })
+            .expect(unit -> {
+              HttpServletRequest req = unit.get(HttpServletRequest.class);
+              HttpServletResponse rsp = unit.get(HttpServletResponse.class);
+              NativeWebSocket ws = unit.get(NativeWebSocket.class);
 
-          WebSocketServerFactory factory = unit.get(WebSocketServerFactory.class);
+              WebSocketServerFactory factory = unit.get(WebSocketServerFactory.class);
 
-          expect(factory.isUpgradeRequest(req, rsp)).andReturn(true);
+              expect(factory.isUpgradeRequest(req, rsp)).andReturn(true);
 
-          expect(factory.acceptWebSocket(req, rsp)).andReturn(true);
+              expect(factory.acceptWebSocket(req, rsp)).andReturn(true);
 
-          expect(req.getAttribute(JettyWebSocket.class.getName())).andReturn(ws);
-          req.removeAttribute(JettyWebSocket.class.getName());
-        })
-        .expect(unit -> {
-          HttpHandler dispatcher = unit.get(HttpHandler.class);
-          dispatcher.handle(unit.capture(ServletServletRequest.class),
-              unit.capture(ServletServletResponse.class));
-        })
-        .expect(wsStopTimeout)
-        .run(unit -> {
-          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target", -1)
-              .handle("/", unit.get(Request.class),
-                  unit.get(HttpServletRequest.class),
-                  unit.get(HttpServletResponse.class));
-        }, unit -> {
-          ServletServletRequest req = unit.captured(ServletServletRequest.class).get(0);
-          req.upgrade(NativeWebSocket.class);
-        });
+              expect(req.getAttribute(JettyWebSocket.class.getName())).andReturn(ws);
+              req.removeAttribute(JettyWebSocket.class.getName());
+            })
+            .expect(unit -> {
+              HttpHandler dispatcher = unit.get(HttpHandler.class);
+              dispatcher.handle(unit.capture(ServletServletRequest.class),
+                  unit.capture(ServletServletResponse.class));
+            })
+            .expect(wsStopTimeout)
+            .run(unit -> {
+              new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
+                  "target", -1)
+                      .handle("/", unit.get(Request.class),
+                          unit.get(HttpServletRequest.class),
+                          unit.get(HttpServletResponse.class));
+            }, unit -> {
+              ServletServletRequest req = unit.captured(ServletServletRequest.class).get(0);
+              req.upgrade(NativeWebSocket.class);
+            });
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void handleThrowUnsupportedOperationExceptionWhenWsIsMissing() throws Exception {
     new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class, NativeWebSocket.class)
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(true);
+              request.setHandled(true);
 
-          expect(request.getContentType()).andReturn("application/json");
-        })
-        .expect(unit -> {
-          HttpServletRequest request = unit.get(HttpServletRequest.class);
+              expect(request.getContentType()).andReturn("application/json");
+            })
+            .expect(unit -> {
+              HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getPathInfo()).andReturn("/");
-        })
-        .expect(unit -> {
-          HttpServletRequest req = unit.get(HttpServletRequest.class);
-          HttpServletResponse rsp = unit.get(HttpServletResponse.class);
+              expect(request.getPathInfo()).andReturn("/");
+              expect(request.getContextPath()).andReturn("");
+            })
+            .expect(unit -> {
+              HttpServletRequest req = unit.get(HttpServletRequest.class);
+              HttpServletResponse rsp = unit.get(HttpServletResponse.class);
 
-          WebSocketServerFactory factory = unit.get(WebSocketServerFactory.class);
+              WebSocketServerFactory factory = unit.get(WebSocketServerFactory.class);
 
-          expect(factory.isUpgradeRequest(req, rsp)).andReturn(true);
+              expect(factory.isUpgradeRequest(req, rsp)).andReturn(true);
 
-          expect(factory.acceptWebSocket(req, rsp)).andReturn(true);
+              expect(factory.acceptWebSocket(req, rsp)).andReturn(true);
 
-          expect(req.getAttribute(JettyWebSocket.class.getName())).andReturn(null);
-        })
-        .expect(unit -> {
-          HttpHandler dispatcher = unit.get(HttpHandler.class);
-          dispatcher.handle(unit.capture(ServletServletRequest.class),
-              unit.capture(ServletServletResponse.class));
-        })
-        .expect(wsStopTimeout)
-        .run(unit -> {
-          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target", -1)
-              .handle("/", unit.get(Request.class),
-                  unit.get(HttpServletRequest.class),
-                  unit.get(HttpServletResponse.class));
-        }, unit -> {
-          ServletServletRequest req = unit.captured(ServletServletRequest.class).get(0);
-          req.upgrade(NativeWebSocket.class);
-        });
+              expect(req.getAttribute(JettyWebSocket.class.getName())).andReturn(null);
+            })
+            .expect(unit -> {
+              HttpHandler dispatcher = unit.get(HttpHandler.class);
+              dispatcher.handle(unit.capture(ServletServletRequest.class),
+                  unit.capture(ServletServletResponse.class));
+            })
+            .expect(wsStopTimeout)
+            .run(unit -> {
+              new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
+                  "target", -1)
+                      .handle("/", unit.get(Request.class),
+                          unit.get(HttpServletRequest.class),
+                          unit.get(HttpServletResponse.class));
+            }, unit -> {
+              ServletServletRequest req = unit.captured(ServletServletRequest.class).get(0);
+              req.upgrade(NativeWebSocket.class);
+            });
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void handleThrowUnsupportedOperationExceptionOnNoWebSocketRequest() throws Exception {
     new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class, NativeWebSocket.class)
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(true);
+              request.setHandled(true);
 
-          expect(request.getContentType()).andReturn("application/json");
-        })
-        .expect(unit -> {
-          HttpServletRequest request = unit.get(HttpServletRequest.class);
+              expect(request.getContentType()).andReturn("application/json");
+            })
+            .expect(unit -> {
+              HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getPathInfo()).andReturn("/");
-        })
-        .expect(unit -> {
-          HttpServletRequest req = unit.get(HttpServletRequest.class);
-          HttpServletResponse rsp = unit.get(HttpServletResponse.class);
+              expect(request.getPathInfo()).andReturn("/");
+              expect(request.getContextPath()).andReturn("");
+            })
+            .expect(unit -> {
+              HttpServletRequest req = unit.get(HttpServletRequest.class);
+              HttpServletResponse rsp = unit.get(HttpServletResponse.class);
 
-          WebSocketServerFactory factory = unit.get(WebSocketServerFactory.class);
+              WebSocketServerFactory factory = unit.get(WebSocketServerFactory.class);
 
-          expect(factory.isUpgradeRequest(req, rsp)).andReturn(false);
-        })
-        .expect(unit -> {
-          HttpHandler dispatcher = unit.get(HttpHandler.class);
-          dispatcher.handle(unit.capture(ServletServletRequest.class),
-              unit.capture(ServletServletResponse.class));
-        })
-        .expect(wsStopTimeout)
-        .run(unit -> {
-          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target", -1)
-              .handle("/", unit.get(Request.class),
-                  unit.get(HttpServletRequest.class),
-                  unit.get(HttpServletResponse.class));
-        }, unit -> {
-          ServletServletRequest req = unit.captured(ServletServletRequest.class).get(0);
-          req.upgrade(NativeWebSocket.class);
-        });
+              expect(factory.isUpgradeRequest(req, rsp)).andReturn(false);
+            })
+            .expect(unit -> {
+              HttpHandler dispatcher = unit.get(HttpHandler.class);
+              dispatcher.handle(unit.capture(ServletServletRequest.class),
+                  unit.capture(ServletServletResponse.class));
+            })
+            .expect(wsStopTimeout)
+            .run(unit -> {
+              new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
+                  "target", -1)
+                      .handle("/", unit.get(Request.class),
+                          unit.get(HttpServletRequest.class),
+                          unit.get(HttpServletResponse.class));
+            }, unit -> {
+              ServletServletRequest req = unit.captured(ServletServletRequest.class).get(0);
+              req.upgrade(NativeWebSocket.class);
+            });
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void handleThrowUnsupportedOperationExceptionOnHankshakeRejection() throws Exception {
     new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class, NativeWebSocket.class)
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(true);
+              request.setHandled(true);
 
-          expect(request.getContentType()).andReturn("application/json");
-        })
-        .expect(unit -> {
-          HttpServletRequest request = unit.get(HttpServletRequest.class);
+              expect(request.getContentType()).andReturn("application/json");
+            })
+            .expect(unit -> {
+              HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getPathInfo()).andReturn("/");
-        })
-        .expect(unit -> {
-          HttpServletRequest req = unit.get(HttpServletRequest.class);
-          HttpServletResponse rsp = unit.get(HttpServletResponse.class);
+              expect(request.getPathInfo()).andReturn("/");
+              expect(request.getContextPath()).andReturn("");
+            })
+            .expect(unit -> {
+              HttpServletRequest req = unit.get(HttpServletRequest.class);
+              HttpServletResponse rsp = unit.get(HttpServletResponse.class);
 
-          WebSocketServerFactory factory = unit.get(WebSocketServerFactory.class);
+              WebSocketServerFactory factory = unit.get(WebSocketServerFactory.class);
 
-          expect(factory.isUpgradeRequest(req, rsp)).andReturn(true);
+              expect(factory.isUpgradeRequest(req, rsp)).andReturn(true);
 
-          expect(factory.acceptWebSocket(req, rsp)).andReturn(false);
-        })
-        .expect(unit -> {
-          HttpHandler dispatcher = unit.get(HttpHandler.class);
-          dispatcher.handle(unit.capture(ServletServletRequest.class),
-              unit.capture(ServletServletResponse.class));
-        })
-        .expect(wsStopTimeout)
-        .run(unit -> {
-          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target", -1)
-              .handle("/", unit.get(Request.class),
-                  unit.get(HttpServletRequest.class),
-                  unit.get(HttpServletResponse.class));
-        }, unit -> {
-          ServletServletRequest req = unit.captured(ServletServletRequest.class).get(0);
-          req.upgrade(NativeWebSocket.class);
-        });
+              expect(factory.acceptWebSocket(req, rsp)).andReturn(false);
+            })
+            .expect(unit -> {
+              HttpHandler dispatcher = unit.get(HttpHandler.class);
+              dispatcher.handle(unit.capture(ServletServletRequest.class),
+                  unit.capture(ServletServletResponse.class));
+            })
+            .expect(wsStopTimeout)
+            .run(unit -> {
+              new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
+                  "target", -1)
+                      .handle("/", unit.get(Request.class),
+                          unit.get(HttpServletRequest.class),
+                          unit.get(HttpServletResponse.class));
+            }, unit -> {
+              ServletServletRequest req = unit.captured(ServletServletRequest.class).get(0);
+              req.upgrade(NativeWebSocket.class);
+            });
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void handleThrowUnsupportedOperationExceptionOnWrongType() throws Exception {
     new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class, NativeWebSocket.class)
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(true);
+              request.setHandled(true);
 
-          expect(request.getContentType()).andReturn("application/json");
-        })
-        .expect(unit -> {
-          HttpServletRequest request = unit.get(HttpServletRequest.class);
+              expect(request.getContentType()).andReturn("application/json");
+            })
+            .expect(unit -> {
+              HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getPathInfo()).andReturn("/");
-        })
-        .expect(unit -> {
-          HttpHandler dispatcher = unit.get(HttpHandler.class);
-          dispatcher.handle(unit.capture(ServletServletRequest.class),
-              unit.capture(ServletServletResponse.class));
-        })
-        .expect(wsStopTimeout)
-        .run(unit -> {
-          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target", -1)
-              .handle("/", unit.get(Request.class),
-                  unit.get(HttpServletRequest.class),
-                  unit.get(HttpServletResponse.class));
-        }, unit -> {
-          ServletServletRequest req = unit.captured(ServletServletRequest.class).get(0);
-          req.upgrade(JettyHandlerTest.class);
-        });
+              expect(request.getPathInfo()).andReturn("/");
+              expect(request.getContextPath()).andReturn("");
+            })
+            .expect(unit -> {
+              HttpHandler dispatcher = unit.get(HttpHandler.class);
+              dispatcher.handle(unit.capture(ServletServletRequest.class),
+                  unit.capture(ServletServletResponse.class));
+            })
+            .expect(wsStopTimeout)
+            .run(unit -> {
+              new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
+                  "target", -1)
+                      .handle("/", unit.get(Request.class),
+                          unit.get(HttpServletRequest.class),
+                          unit.get(HttpServletResponse.class));
+            }, unit -> {
+              ServletServletRequest req = unit.captured(ServletServletRequest.class).get(0);
+              req.upgrade(JettyHandlerTest.class);
+            });
   }
 
   @Test(expected = ServletException.class)
@@ -312,31 +322,32 @@ public class JettyHandlerTest {
     };
     new MockUnit(Request.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class)
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(true);
+              request.setHandled(true);
 
-          expect(request.getContentType()).andReturn("application/json");
-        })
-        .expect(unit -> {
-          HttpServletRequest request = unit.get(HttpServletRequest.class);
+              expect(request.getContentType()).andReturn("application/json");
+            })
+            .expect(unit -> {
+              HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getPathInfo()).andReturn("/");
-        })
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+              expect(request.getPathInfo()).andReturn("/");
+              expect(request.getContextPath()).andReturn("");
+            })
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(false);
-        })
-        .expect(wsStopTimeout)
-        .run(unit -> {
-          new JettyHandler(dispatcher, unit.get(WebSocketServerFactory.class),
-              "target", -1)
-              .handle("/", unit.get(Request.class),
-                  unit.get(HttpServletRequest.class),
-                  unit.get(HttpServletResponse.class));
-        });
+              request.setHandled(false);
+            })
+            .expect(wsStopTimeout)
+            .run(unit -> {
+              new JettyHandler(dispatcher, unit.get(WebSocketServerFactory.class),
+                  "target", -1)
+                      .handle("/", unit.get(Request.class),
+                          unit.get(HttpServletRequest.class),
+                          unit.get(HttpServletResponse.class));
+            });
   }
 
   @Test(expected = IOException.class)
@@ -346,31 +357,32 @@ public class JettyHandlerTest {
     };
     new MockUnit(Request.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class)
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(true);
+              request.setHandled(true);
 
-          expect(request.getContentType()).andReturn("application/json");
-        })
-        .expect(unit -> {
-          HttpServletRequest request = unit.get(HttpServletRequest.class);
+              expect(request.getContentType()).andReturn("application/json");
+            })
+            .expect(unit -> {
+              HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getPathInfo()).andReturn("/");
-        })
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+              expect(request.getPathInfo()).andReturn("/");
+              expect(request.getContextPath()).andReturn("");
+            })
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(false);
-        })
-        .expect(wsStopTimeout)
-        .run(unit -> {
-          new JettyHandler(dispatcher, unit.get(WebSocketServerFactory.class),
-              "target", -1)
-              .handle("/", unit.get(Request.class),
-                  unit.get(HttpServletRequest.class),
-                  unit.get(HttpServletResponse.class));
-        });
+              request.setHandled(false);
+            })
+            .expect(wsStopTimeout)
+            .run(unit -> {
+              new JettyHandler(dispatcher, unit.get(WebSocketServerFactory.class),
+                  "target", -1)
+                      .handle("/", unit.get(Request.class),
+                          unit.get(HttpServletRequest.class),
+                          unit.get(HttpServletResponse.class));
+            });
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -380,31 +392,32 @@ public class JettyHandlerTest {
     };
     new MockUnit(Request.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class)
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(true);
+              request.setHandled(true);
 
-          expect(request.getContentType()).andReturn("application/json");
-        })
-        .expect(unit -> {
-          HttpServletRequest request = unit.get(HttpServletRequest.class);
+              expect(request.getContentType()).andReturn("application/json");
+            })
+            .expect(unit -> {
+              HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getPathInfo()).andReturn("/");
-        })
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+              expect(request.getPathInfo()).andReturn("/");
+              expect(request.getContextPath()).andReturn("");
+            })
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(false);
-        })
-        .expect(wsStopTimeout)
-        .run(unit -> {
-          new JettyHandler(dispatcher, unit.get(WebSocketServerFactory.class),
-              "target", -1)
-              .handle("/", unit.get(Request.class),
-                  unit.get(HttpServletRequest.class),
-                  unit.get(HttpServletResponse.class));
-        });
+              request.setHandled(false);
+            })
+            .expect(wsStopTimeout)
+            .run(unit -> {
+              new JettyHandler(dispatcher, unit.get(WebSocketServerFactory.class),
+                  "target", -1)
+                      .handle("/", unit.get(Request.class),
+                          unit.get(HttpServletRequest.class),
+                          unit.get(HttpServletResponse.class));
+            });
   }
 
   @Test(expected = IllegalStateException.class)
@@ -414,30 +427,31 @@ public class JettyHandlerTest {
     };
     new MockUnit(Request.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class)
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(true);
+              request.setHandled(true);
 
-          expect(request.getContentType()).andReturn("application/json");
-        })
-        .expect(unit -> {
-          HttpServletRequest request = unit.get(HttpServletRequest.class);
+              expect(request.getContentType()).andReturn("application/json");
+            })
+            .expect(unit -> {
+              HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getPathInfo()).andReturn("/");
-        })
-        .expect(unit -> {
-          Request request = unit.get(Request.class);
+              expect(request.getPathInfo()).andReturn("/");
+              expect(request.getContextPath()).andReturn("");
+            })
+            .expect(unit -> {
+              Request request = unit.get(Request.class);
 
-          request.setHandled(false);
-        })
-        .expect(wsStopTimeout)
-        .run(unit -> {
-          new JettyHandler(dispatcher, unit.get(WebSocketServerFactory.class),
-              "target", -1)
-              .handle("/", unit.get(Request.class),
-                  unit.get(HttpServletRequest.class),
-                  unit.get(HttpServletResponse.class));
-        });
+              request.setHandled(false);
+            })
+            .expect(wsStopTimeout)
+            .run(unit -> {
+              new JettyHandler(dispatcher, unit.get(WebSocketServerFactory.class),
+                  "target", -1)
+                      .handle("/", unit.get(Request.class),
+                          unit.get(HttpServletRequest.class),
+                          unit.get(HttpServletResponse.class));
+            });
   }
 }

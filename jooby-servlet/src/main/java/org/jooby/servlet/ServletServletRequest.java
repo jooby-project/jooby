@@ -57,7 +57,11 @@ public class ServletServletRequest implements NativeRequest {
     this.req = requireNonNull(req, "HTTP req is required.");
     this.tmpdir = requireNonNull(tmpdir, "A tmpdir is required.");
     this.multipart = multipart;
-    this.path = URLDecoder.decode(req.getPathInfo(), "UTF-8");
+    String pathInfo = req.getPathInfo();
+    if (pathInfo == null) {
+      pathInfo = "/";
+    }
+    this.path = req.getContextPath() + URLDecoder.decode(pathInfo, "UTF-8");
   }
 
   public HttpServletRequest servletRequest() {
