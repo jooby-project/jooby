@@ -361,8 +361,10 @@ public class QueryDSLTest {
           .setProperty("dataSource.url", url))
               .andReturn(null);
 
-      expect(properties.containsKey("dataSourceClassName")).andReturn(hasDataSourceClassName);
-      if (!hasDataSourceClassName) {
+      if (hasDataSourceClassName) {
+        expect(properties.getProperty("dataSourceClassName")).andReturn(dataSourceClassName);
+      } else {
+        expect(properties.getProperty("dataSourceClassName")).andReturn(null);
         expect(properties.getProperty("dataSource.dataSourceClassName"))
             .andReturn(dataSourceClassName);
         expect(properties.setProperty("dataSourceClassName", dataSourceClassName)).andReturn(null);

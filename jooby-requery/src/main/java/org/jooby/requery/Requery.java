@@ -420,7 +420,7 @@ public class Requery implements Module {
     env.onStart(registry -> {
       DataSource ds = Optional.ofNullable(this.dataSource)
           .map(Provider::get)
-          .orElseGet(() -> registry.require("db", DataSource.class));
+          .orElseGet(() -> registry.require(DataSource.class));
       schema(conf, schema, schema -> new SchemaModifier(ds, model).createTables(schema));
 
       ConfigurationBuilder builder = new ConfigurationBuilder(ds, model);

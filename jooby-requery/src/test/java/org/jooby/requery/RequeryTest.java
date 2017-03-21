@@ -587,7 +587,7 @@ public class RequeryTest {
       DataSource ds = unit.get(DataSource.class);
 
       Registry registry = unit.get(Registry.class);
-      expect(registry.require("db", DataSource.class)).andReturn(ds);
+      expect(registry.require(DataSource.class)).andReturn(ds);
     };
   }
 }
