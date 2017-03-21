@@ -446,7 +446,8 @@ public class Main {
     // set logback
     String logback = Optional.ofNullable(System.getProperty("logback.configurationFile"))
         .orElseGet(() -> Arrays
-            .asList(Paths.get("conf", "logback-test.xml"), Paths.get("conf", "logback.xml"))
+            .asList(Paths.get("conf", "logback-test.xml"), Paths.get("conf", "logback.dev.xml"),
+                Paths.get("conf", "logback.xml"))
             .stream()
             .filter(p -> p.toFile().exists())
             .map(Path::toString)

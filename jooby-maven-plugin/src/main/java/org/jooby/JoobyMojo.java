@@ -306,6 +306,7 @@ public class JoobyMojo extends AbstractMojo {
   private void setLogback() {
     // logback
     File[] logbackFiles = {localFile("conf", "logback-test.xml"),
+        localFile("conf", "logback.dev.xml"),
         localFile("conf", "logback.xml") };
     for (File logback : logbackFiles) {
       if (logback.exists()) {
