@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.jooby.Err;
 import org.jooby.MediaType;
@@ -57,6 +59,9 @@ public class WebSocketImpl implements WebSocket {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(WebSocket.class);
+
+  /** All connected websocket. */
+  private static final Queue<WebSocket> sessions = new ConcurrentLinkedQueue<>();
 
   private Locale locale;
 
@@ -103,6 +108,7 @@ public class WebSocketImpl implements WebSocket {
 
   @Override
   public void close(final CloseStatus status) {
+    sessions.remove(this);
     synchronized (this) {
       open = false;
       ws.close(status.code(), status.reason());
@@ -111,6 +117,7 @@ public class WebSocketImpl implements WebSocket {
 
   @Override
   public void resume() {
+    sessions.add(this);
     synchronized (this) {
       if (suspended) {
         ws.resume();
@@ -121,6 +128,7 @@ public class WebSocketImpl implements WebSocket {
 
   @Override
   public void pause() {
+    sessions.remove(this);
     synchronized (this) {
       if (!suspended) {
         ws.pause();
@@ -131,6 +139,7 @@ public class WebSocketImpl implements WebSocket {
 
   @Override
   public void terminate() throws Exception {
+    sessions.remove(this);
     synchronized (this) {
       open = false;
       ws.terminate();
@@ -140,6 +149,18 @@ public class WebSocketImpl implements WebSocket {
   @Override
   public boolean isOpen() {
     return open && ws.isOpen();
+  }
+
+  @Override
+  public void broadcast(final Object data, final SuccessCallback success, final OnError err)
+      throws Exception {
+    for (WebSocket ws : sessions) {
+      try {
+        ws.send(data, success, err);
+      } catch (Exception ex) {
+        err.onError(ex);
+      }
+    }
   }
 
   @Override
@@ -160,7 +181,7 @@ public class WebSocketImpl implements WebSocket {
             success,
             err).render(data);
       } else {
-        throw new Err(WebSocket.NORMAL, "Cannot send message on closed web socket");
+        throw new Err(WebSocket.NORMAL, "WebSocket is closed.");
       }
     }
   }
@@ -190,20 +211,24 @@ public class WebSocketImpl implements WebSocket {
                 new StrParamReferenceImpl("body", "message", ImmutableList.of(message))))))
         .onFailure(this::handleErr));
 
-    ws.onCloseMessage((code, reason) -> Try
-        .run(sync(() -> {
-          this.open = false;
-          if (closeCallback != null) {
-            closeCallback.onClose(reason.map(r -> WebSocket.CloseStatus.of(code, r))
-                .orElse(WebSocket.CloseStatus.of(code)));
-          }
-          closeCallback = null;
-        })).onFailure(this::handleErr));
+    ws.onCloseMessage((code, reason) -> {
+      sessions.remove(this);
+
+      Try.run(sync(() -> {
+        this.open = false;
+        if (closeCallback != null) {
+          closeCallback.onClose(reason.map(r -> WebSocket.CloseStatus.of(code, r))
+              .orElse(WebSocket.CloseStatus.of(code)));
+        }
+        closeCallback = null;
+      })).onFailure(this::handleErr);
+    });
 
     ws.onErrorMessage(this::handleErr);
 
     // connect now
     try {
+      sessions.add(this);
       handler.onOpen(req, this);
     } catch (Throwable ex) {
       handleErr(ex);

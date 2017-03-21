@@ -22,6 +22,12 @@ Keep in mind that **web socket** are not like routes. There is no stack/pipe or 
 
 You can mount a socket to a path used by a route, but you can't have two or more web sockets under the same path.
 
+## send and broadcast
+
+As you saw early a [web socket]({{defdocs}}/WebSocket.html) and send data to client via [ws.send(...)]({{defdocs}}/WebSocket.html#send-java.lang.Object-) method.
+
+The [ws.broadcast(...)]({{defdocs}}/WebSocket.html#broadcast-java.lang.Object-) method does the same thing but for all the connected clients.
+
 ## require
 
 Access to existing services is provided via [ws.require(type)]({{defdocs}}/WebSocket.html#require-com.google.inject.Key-) method:

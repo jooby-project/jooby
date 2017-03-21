@@ -2,10 +2,12 @@ package org.jooby.internal;
 
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Field;
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -32,6 +35,8 @@ import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeWebSocket;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -109,6 +114,105 @@ public class WebSocketImplTest {
                   unit.get(NativeWebSocket.class));
 
               ws.send(data, unit.get(WebSocket.SuccessCallback.class),
+                  unit.get(WebSocket.OnError.class));
+            });
+  }
+
+  @SuppressWarnings("unchecked")
+  @Before
+  @After
+  public void resetSessions() throws Exception {
+    Field field = WebSocketImpl.class.getDeclaredField("sessions");
+    field.setAccessible(true);
+    Queue<WebSocket> sessions = (Queue<WebSocket>) field.get(null);
+    sessions.clear();
+  }
+
+  @SuppressWarnings({"resource" })
+  @Test
+  public void sendBroadcast() throws Exception {
+    Object data = "String";
+    String path = "/";
+    String pattern = "/pattern";
+    Map<Object, String> vars = new HashMap<>();
+    MediaType consumes = MediaType.all;
+    MediaType produces = MediaType.all;
+    new MockUnit(WebSocket.OnOpen1.class, WebSocket.SuccessCallback.class,
+        WebSocket.OnError.class, Injector.class, Request.class, NativeWebSocket.class)
+            .expect(connect)
+            .expect(callbacks)
+            .expect(locale)
+            .expect(unit -> {
+              List<Renderer> renderers = Collections.emptyList();
+
+              NativeWebSocket ws = unit.get(NativeWebSocket.class);
+              expect(ws.isOpen()).andReturn(true);
+
+              WebSocketRendererContext ctx = unit.mockConstructor(WebSocketRendererContext.class,
+                  new Class[]{List.class, NativeWebSocket.class, MediaType.class, Charset.class,
+                      Locale.class,
+                      WebSocket.SuccessCallback.class,
+                      WebSocket.OnError.class },
+                  renderers, ws,
+                  produces, StandardCharsets.UTF_8,
+                  Locale.CANADA,
+                  unit.get(WebSocket.SuccessCallback.class),
+                  unit.get(WebSocket.OnError.class));
+              ctx.render(data);
+            })
+            .run(unit -> {
+              WebSocketImpl ws = new WebSocketImpl(
+                  unit.get(WebSocket.OnOpen1.class), path, pattern, vars, consumes, produces);
+              ws.connect(unit.get(Injector.class), unit.get(Request.class),
+                  unit.get(NativeWebSocket.class));
+
+              ws.broadcast(data, unit.get(WebSocket.SuccessCallback.class),
+                  unit.get(WebSocket.OnError.class));
+            });
+  }
+
+  @SuppressWarnings({"resource" })
+  @Test
+  public void sendBroadcastErr() throws Exception {
+    Object data = "String";
+    String path = "/";
+    String pattern = "/pattern";
+    Map<Object, String> vars = new HashMap<>();
+    MediaType consumes = MediaType.all;
+    MediaType produces = MediaType.all;
+    new MockUnit(WebSocket.OnOpen1.class, WebSocket.SuccessCallback.class,
+        WebSocket.OnError.class, Injector.class, Request.class, NativeWebSocket.class)
+            .expect(connect)
+            .expect(callbacks)
+            .expect(locale)
+            .expect(unit -> {
+              List<Renderer> renderers = Collections.emptyList();
+
+              NativeWebSocket ws = unit.get(NativeWebSocket.class);
+              expect(ws.isOpen()).andReturn(true);
+
+              WebSocketRendererContext ctx = unit.mockConstructor(WebSocketRendererContext.class,
+                  new Class[]{List.class, NativeWebSocket.class, MediaType.class, Charset.class,
+                      Locale.class,
+                      WebSocket.SuccessCallback.class,
+                      WebSocket.OnError.class },
+                  renderers, ws,
+                  produces, StandardCharsets.UTF_8,
+                  Locale.CANADA,
+                  unit.get(WebSocket.SuccessCallback.class),
+                  unit.get(WebSocket.OnError.class));
+              ctx.render(data);
+              IllegalStateException x = new IllegalStateException("intentional err");
+              expectLastCall().andThrow(x);
+              unit.get(WebSocket.OnError.class).onError(x);
+            })
+            .run(unit -> {
+              WebSocketImpl ws = new WebSocketImpl(
+                  unit.get(WebSocket.OnOpen1.class), path, pattern, vars, consumes, produces);
+              ws.connect(unit.get(Injector.class), unit.get(Request.class),
+                  unit.get(NativeWebSocket.class));
+
+              ws.broadcast(data, unit.get(WebSocket.SuccessCallback.class),
                   unit.get(WebSocket.OnError.class));
             });
   }

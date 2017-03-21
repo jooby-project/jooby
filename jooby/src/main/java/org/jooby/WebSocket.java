@@ -734,4 +734,56 @@ public interface WebSocket extends Closeable, Registry {
    */
   void send(Object data, SuccessCallback success, OnError err) throws Exception;
 
+  /**
+   * Send data to all connected sessions.
+   *
+   * If the web socket is closed this method throw an {@link Err} with {@link #NORMAL} close status.
+   *
+   * @param data Data to send.
+   * @throws Exception If something goes wrong.
+   */
+  default void broadcast(final Object data) throws Exception {
+    broadcast(data, SUCCESS, ERR);
+  }
+
+  /**
+   * Send data to all connected sessions.
+   *
+   * If the web socket is closed this method throw an {@link Err} with {@link #NORMAL} close status.
+   *
+   * @param data Data to send.
+   * @param success A success callback.
+   * @throws Exception If something goes wrong.
+   */
+  default void broadcast(final Object data, final SuccessCallback success) throws Exception {
+    broadcast(data, success, ERR);
+  }
+
+  /**
+   * Send data to all connected sessions.
+   *
+   * If the web socket is closed this method throw an {@link Err} with {@link #NORMAL} close status.
+   *
+   * @param data Data to send.
+   * @param err An err callback.
+   * @throws Exception If something goes wrong.
+   */
+  default void broadcast(final Object data, final OnError err) throws Exception {
+    broadcast(data, SUCCESS, err);
+    ;
+  }
+
+  /**
+   * Send data to all connected sessions.
+   *
+   * If the web socket is closed this method throw an {@link Err} with {@link #NORMAL} close status.
+   *
+   * @param data Data to send.
+   * @param success A success callback.
+   * @param err An err callback.
+   * @throws Exception If something goes wrong.
+   */
+  void broadcast(Object data, SuccessCallback success, OnError err)
+      throws Exception;
+
 }
