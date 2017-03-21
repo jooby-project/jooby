@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
@@ -190,6 +191,21 @@ import javaslang.control.Try;
  * The accessor can be required or injected in a MVC route.
  * </p>
  *
+ * <h2>dse-driver</h2>
+ * <p>
+ * Add the <code>dse-driver</code> dependency to your classpath and then:
+ * </p>
+ *
+ * <pre>
+ * {
+ *    use(new Cassandra(DseCluster::build));
+ * }
+ * </pre>
+ *
+ * <p>
+ * That's all! Now you can <code>require/inject</code> a <code>DseSession</code>.
+ * </p>
+ *
  * <h2>async</h2>
  * <p>
  * Async? Of course!!! just use the Datastax async API:
@@ -269,6 +285,8 @@ public class Cassandra implements Module {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
+  private static final Supplier<Cluster.Builder> BUILDER = Cluster::builder;
+
   private BiConsumer<Cluster.Builder, Config> ccbuilder;
 
   private BiConsumer<Cluster, Config> cc;
@@ -278,6 +296,35 @@ public class Cassandra implements Module {
   @SuppressWarnings("rawtypes")
 
   private List<Class> accesors = new ArrayList<>();
+
+  private Supplier<Cluster.Builder> builder = Cluster::builder;
+
+  /**
+   * Creates a new {@link Cassandra} module.
+   *
+   * Conenct via connection string:
+   *
+   * <pre>{@code
+   * {
+   *   use(new Cassandra("cassandra://localhost/db", DseCluster::builder));
+   * }
+   * }</pre>
+   *
+   * Or via property:
+   *
+   * <pre>{@code
+   * {
+   *   use(new Cassandra("db", DseCluster::builder));
+   * }
+   * }</pre>
+   *
+   * @param db Connection string or a property with a connection String.
+   * @param builder Cluster builder.
+   */
+  public Cassandra(final String db, final Supplier<Cluster.Builder> builder) {
+    this.db = requireNonNull(db, "ContactPoint/db key required.");
+    this.builder = requireNonNull(builder, "Cluster.Builder required.");
+  }
 
   /**
    * Creates a new {@link Cassandra} module.
@@ -301,7 +348,15 @@ public class Cassandra implements Module {
    * @param db Connection string or a property with a connection String.
    */
   public Cassandra(final String db) {
-    this.db = requireNonNull(db, "ContactPoint/db key required.");
+    this(db, BUILDER);
+  }
+
+  /**
+   * Creates a new {@link Cassandra} module. A property <code>db</code> property must be present and
+   * have a valid connection string.
+   */
+  public Cassandra(final Supplier<Cluster.Builder> builder) {
+    this("db", builder);
   }
 
   /**
@@ -382,7 +437,7 @@ public class Cassandra implements Module {
       return null;
     };
 
-    Cluster.Builder builder = Cluster.builder()
+    Cluster.Builder builder = this.builder.get()
         .addContactPoints(cstr.contactPoints())
         .withPort(cstr.port());
 
@@ -409,11 +464,11 @@ public class Cassandra implements Module {
         LocalDateCodec.instance,
         LocalTimeCodec.instance);
 
-    bind.apply(Cluster.class, cstr.keyspace(), cluster);
+    hierarchy(cluster.getClass(), type -> bind.apply(type, cstr.keyspace(), cluster));
 
     /** Session + Mapper */
     Session session = cluster.connect(cstr.keyspace());
-    bind.apply(Session.class, cstr.keyspace(), session);
+    hierarchy(session.getClass(), type -> bind.apply(type, cstr.keyspace(), session));
 
     MappingManager manager = new MappingManager(session);
     bind.apply(MappingManager.class, cstr.keyspace(), manager);
@@ -437,6 +492,21 @@ public class Cassandra implements Module {
 
       log.info("Stopped {}", cstr);
     });
+  }
+
+  @SuppressWarnings("rawtypes")
+  static void hierarchy(final Class type, final Consumer<Class> consumer) {
+    if (type != Object.class) {
+      if (type.getName().startsWith("com.datastax")) {
+        consumer.accept(type);
+      }
+      for (Class i : type.getInterfaces()) {
+        hierarchy(i, consumer);
+      }
+      if (!type.isInterface()) {
+        hierarchy(type.getSuperclass(), consumer);
+      }
+    }
   }
 
 }

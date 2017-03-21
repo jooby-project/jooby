@@ -2,6 +2,10 @@ package org.jooby.cassandra;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.junit.Assert.assertEquals;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
@@ -17,12 +21,16 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Cluster.Builder;
 import com.datastax.driver.core.CodecRegistry;
 import com.datastax.driver.core.Configuration;
+import com.datastax.driver.core.DelegatingCluster;
 import com.datastax.driver.core.Host.StateListener;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.dse.DseCluster;
+import com.datastax.driver.dse.DseSession;
 import com.datastax.driver.extras.codecs.jdk8.InstantCodec;
 import com.datastax.driver.extras.codecs.jdk8.LocalDateCodec;
 import com.datastax.driver.extras.codecs.jdk8.LocalTimeCodec;
 import com.datastax.driver.mapping.MappingManager;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
@@ -36,14 +44,38 @@ import javaslang.control.Try.CheckedRunnable;
     MappingManager.class, Datastore.class, CassandraMapper.class })
 public class CassandraTest {
 
+  @SuppressWarnings({"rawtypes", "unchecked" })
   private Block clusterBuilder = unit -> {
+    String cname = Cluster.class.getName();
     unit.mockStatic(Cluster.class);
+    expect(Cluster.class.getName()).andReturn(cname);
+    expect(Cluster.class.getInterfaces()).andReturn(new Class[0]);
+    expect(Cluster.class.isInterface()).andReturn(false);
+    Class obj = Object.class;
+    expect(Cluster.class.getSuperclass()).andReturn(obj);
 
     Cluster cluster = unit.get(Cluster.class);
     expect(cluster.getConfiguration()).andReturn(unit.get(Configuration.class));
 
     Builder builder = unit.get(Cluster.Builder.class);
     expect(Cluster.builder()).andReturn(builder);
+    expect(builder.build()).andReturn(cluster);
+  };
+
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  private Block clusterBuilderProvider = unit -> {
+    String cname = Cluster.class.getName();
+    unit.mockStatic(Cluster.class);
+    expect(Cluster.class.getName()).andReturn(cname);
+    expect(Cluster.class.getInterfaces()).andReturn(new Class[0]);
+    expect(Cluster.class.isInterface()).andReturn(false);
+    Class obj = Object.class;
+    expect(Cluster.class.getSuperclass()).andReturn(obj);
+
+    Cluster cluster = unit.get(Cluster.class);
+    expect(cluster.getConfiguration()).andReturn(unit.get(Configuration.class));
+
+    Builder builder = unit.get(Cluster.Builder.class);
     expect(builder.build()).andReturn(cluster);
   };
 
@@ -124,6 +156,37 @@ public class CassandraTest {
             });
   }
 
+  @Test
+  public void connectViaPropertySupplier() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
+        Configuration.class, Session.class)
+            .expect(unit -> {
+              Config conf = unit.get(Config.class);
+              expect(conf.getString("db")).andReturn("cassandra://localhost/beers");
+            })
+            .expect(serviceKey(new Env.ServiceKey()))
+            .expect(clusterBuilderProvider)
+            .expect(contactPoints("localhost"))
+            .expect(port(9042))
+            .expect(codecRegistry)
+            .expect(bind("beers", Cluster.class))
+            .expect(bind(null, Cluster.class))
+            .expect(bind("beers", Session.class))
+            .expect(bind(null, Session.class))
+            .expect(connect("beers"))
+            .expect(mapper)
+            .expect(bind("beers", MappingManager.class))
+            .expect(bind(null, MappingManager.class))
+            .expect(datastore)
+            .expect(bind("beers", Datastore.class))
+            .expect(bind(null, Datastore.class))
+            .expect(routeMapper).expect(onStop)
+            .run(unit -> {
+              new Cassandra(() -> unit.get(Cluster.Builder.class))
+                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            });
+  }
+
   private Block serviceKey(final ServiceKey serviceKey) {
     return unit -> {
       Env env = unit.get(Env.class);
@@ -154,6 +217,33 @@ public class CassandraTest {
             .expect(routeMapper).expect(onStop)
             .run(unit -> {
               new Cassandra("cassandra://localhost/beers")
+                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            });
+  }
+
+  @Test
+  public void connectViaConnectionStringSupplier() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
+        Configuration.class, Session.class)
+            .expect(clusterBuilderProvider)
+            .expect(serviceKey(new Env.ServiceKey()))
+            .expect(contactPoints("localhost"))
+            .expect(port(9042))
+            .expect(codecRegistry)
+            .expect(bind("beers", Cluster.class))
+            .expect(bind(null, Cluster.class))
+            .expect(bind("beers", Session.class))
+            .expect(bind(null, Session.class))
+            .expect(connect("beers"))
+            .expect(mapper)
+            .expect(bind("beers", MappingManager.class))
+            .expect(bind(null, MappingManager.class))
+            .expect(datastore)
+            .expect(bind("beers", Datastore.class))
+            .expect(bind(null, Datastore.class))
+            .expect(routeMapper).expect(onStop)
+            .run(unit -> {
+              new Cassandra("cassandra://localhost/beers", () -> unit.get(Cluster.Builder.class))
                   .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
             });
   }
@@ -350,14 +440,39 @@ public class CassandraTest {
       Binder binder = unit.get(Binder.class);
       if (name == null) {
         AnnotatedBindingBuilder aab = unit.mock(AnnotatedBindingBuilder.class);
-        aab.toInstance(unit.get(type));
+        Object val = unit.get(type);
+        aab.toInstance(val);
+        expectLastCall().times(1, 2);
         expect(binder.bind(Key.get(type))).andReturn(aab);
+        expect(binder.bind(Key.get(val.getClass()))).andReturn(aab).times(0, 1);
       } else {
         AnnotatedBindingBuilder aab = unit.mock(AnnotatedBindingBuilder.class);
-        aab.toInstance(unit.get(type));
+        Object val = unit.get(type);
+        aab.toInstance(val);
+        expectLastCall().times(1, 2);
         expect(binder.bind(Key.get(type, Names.named(name)))).andReturn(aab);
+        expect(binder.bind(Key.get(val.getClass(), Names.named(name)))).andReturn(aab).times(0, 1);
       }
     };
+  }
+
+  @Test
+  public void hierarchy() {
+    assertEquals(ImmutableSet.of(), hierarchy(Object.class));
+    // normal
+    assertEquals(ImmutableSet.of(Cluster.class), hierarchy(Cluster.class));
+    assertEquals(ImmutableSet.of(Session.class), hierarchy(Session.class));
+    // dse
+    assertEquals(ImmutableSet.of(DseCluster.class, DelegatingCluster.class, Cluster.class),
+        hierarchy(DseCluster.class));
+    assertEquals(ImmutableSet.of(DseSession.class, Session.class), hierarchy(DseSession.class));
+  }
+
+  @SuppressWarnings("rawtypes")
+  private Set<Class> hierarchy(final Class type) {
+    Set<Class> types = new HashSet<>();
+    Cassandra.hierarchy(type, types::add);
+    return types;
   }
 
   private Block port(final int port) {
