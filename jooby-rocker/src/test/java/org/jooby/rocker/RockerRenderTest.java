@@ -134,6 +134,12 @@ public class RockerRenderTest {
   }
 
   @Test
+  public void rockerPrefixPath() throws Exception {
+    assertEquals("foo", RockerRenderer.path("/foo"));
+    assertEquals("foo", RockerRenderer.path("foo"));
+  }
+
+  @Test
   public void renderViewWithPrefix2() throws Exception {
     new MockUnit(BindableRockerModel.class, Renderer.Context.class, View.class)
         .expect(view("views", "index"))

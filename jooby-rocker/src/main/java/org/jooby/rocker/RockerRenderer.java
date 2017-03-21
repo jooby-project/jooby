@@ -69,7 +69,7 @@ class RockerRenderer implements Renderer {
     }
   }
 
-  private String path(final String path) {
+  static String path(final String path) {
     if (path.startsWith("/")) {
       return path.substring(1);
     }
