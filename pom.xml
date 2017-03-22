@@ -79,6 +79,7 @@
     <module>jooby-lang-kotlin</module>
     <module>jooby-requery</module>
     <module>jooby-rocker</module>
+    <module>jooby-livereload</module>
     <!-- Assets -->
     <module>jooby-assets</module>
     <module>jooby-assets-j2v8</module>
@@ -101,7 +102,6 @@
     <module>jooby-assets-svg-symbol</module>
     <module>jooby-assets-autoprefixer</module>
     <module>coverage-report</module>
-    <module>jooby-livereload</module>
   </modules>
 
   <licenses>
