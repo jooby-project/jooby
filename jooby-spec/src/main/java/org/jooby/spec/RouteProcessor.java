@@ -29,6 +29,8 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +68,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParseException;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.google.common.base.Throwables;
@@ -222,37 +223,44 @@ public class RouteProcessor {
         return ifspecs.get();
       }
 
-      /**
-       * Main AST
-       */
-      CompilationUnit unit = JavaParser.parse(src.resolveSource(appClass).get(), true);
-
-      /**
-       * Find out app node.
-       */
-      Node appNode = new AppCollector().accept(unit, ctx);
-      if (appNode == null) {
-        throw new IllegalStateException("Default constructor not found");
-      }
-
       /** Collect all routes and process them. */
       Set<String> owners = new HashSet<>();
       owners.add(appClass.getName());
-      List<Entry<Object, Node>> routeNodes = new RouteCollector(owners::add).accept(appNode, ctx);
+
+      List<Entry<Object, Node>> routeNodes = new ArrayList<>();
+      try {
+        /**
+         * Main AST
+         */
+        CompilationUnit unit = JavaParser.parse(src.resolveSource(appClass).get(), true);
+
+        /**
+         * Find out app node.
+         */
+        Node appNode = new AppCollector().accept(unit, ctx);
+        if (appNode == null) {
+          throw new IllegalStateException("Default constructor not found");
+        }
+
+        routeNodes = new RouteCollector(owners::add).accept(appNode, ctx);
+      } catch (Exception x) {
+        // ignore source code error
+        log.debug("source code not found", x);
+      }
 
       int j = 0;
       for (int i = 0; i < routes.size(); i++) {
         Route.Definition route = routes.get(i);
         Object cursor = null;
+        Method method = null;
         try {
           Route.Filter handler = route.filter();
-          Method method = null;
-
           // find out where the route was defined
           final String owner;
           if (handler instanceof Route.MethodHandler) {
             method = ((Route.MethodHandler) handler).method();
             owner = method.getDeclaringClass().getName();
+            owners.add(owner);
           } else {
             // lambda script
             owner = handler.getClass().getName();
@@ -268,8 +276,8 @@ public class RouteProcessor {
               cursor = candidate;
               log.debug("\n{}\n", candidate);
               /** doc and response codes . */
-              Map<String, Object> doc = new DocCollector().accept((Node) candidate, route.method(),
-                  ctx);
+              Map<String, Object> doc = new DocCollector(log).accept((Node) candidate,
+                  route.method(), ctx);
               Map<Integer, String> codes = (Map<Integer, String>) doc.remove("@statusCodes");
               String desc = (String) doc.remove("@text");
               String summary = (String) doc.remove("@summary");
@@ -279,6 +287,7 @@ public class RouteProcessor {
               /** params and return type */
               List<RouteParam> params;
               RouteResponse rsp;
+              String name = route.name();
               if (method == null) {
                 // script params
                 params = new RouteParamCollector(doc, route.method(), route.pattern())
@@ -287,6 +296,7 @@ public class RouteProcessor {
                 rsp = new ResponseTypeCollector().accept(entry.getValue(), ctx, retType, retDoc,
                     codes);
               } else {
+                name = method.getName();
                 params = mvcParams(route, method, doc);
                 rsp = new RouteResponseImpl(
                     retType == null ? method.getGenericReturnType() : retType,
@@ -310,7 +320,7 @@ public class RouteProcessor {
                   });
 
               /** Create spec . */
-              specs.add(new RouteSpecImpl(route, summary, desc, params, rsp));
+              specs.add(new RouteSpecImpl(route, name, summary, desc, params, rsp));
             } else {
               specs.add((RouteSpec) candidate);
             }
@@ -318,12 +328,25 @@ public class RouteProcessor {
             log.debug("    ignoring {} {} from {}", route.method(), route.pattern(), owner);
           }
         } catch (Exception ex) {
-          log.error("ignoring {} {} with {}", route.method(), route.pattern(),
-              cursor == null ? "<no source code>" : cursor.toString(), ex);
+          if (method != null) {
+            // MVC:
+            String name = method.getName();
+            List<RouteParam> params = mvcParams(route, method, Collections.emptyMap());
+            RouteResponseImpl rsp = new RouteResponseImpl(method.getGenericReturnType(), null,
+                new HashMap<>());
+            /** Create spec . */
+            specs.add(new RouteSpecImpl(route, name, null, null, params, rsp));
+          } else {
+            if (cursor == null) {
+              log.debug("ignoring {} {} no source code available", route.method(), route.pattern(),
+                  ex);
+              log.info("ignoring {} {} no source code available", route.method(), route.pattern());
+            } else {
+              log.error("ignoring {} {} reason {}", route.method(), route.pattern(), ex);
+            }
+          }
         }
       }
-    } catch (ParseException ex) {
-      throw new IllegalStateException("Error while processing " + appClass.getName(), ex);
     } catch (Exception ex) {
       throw new IllegalStateException("Error while processing " + appClass, ex);
     }

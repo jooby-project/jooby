@@ -97,7 +97,8 @@ public class Issue538 extends ServerFeature {
             "    \"/api/cat/{name}\" : {\n" +
             "      \"get\" : {\n" +
             "        \"tags\" : [ \"cat\" ],\n" +
-            "        \"summary\" : \"CatResource.get\",\n" +
+            "        \"summary\" : \"get\",\n" +
+            "        \"operationId\" : \"get\",\n" +
             "        \"produces\" : [ \"application/json\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"name\" : \"name\",\n" +

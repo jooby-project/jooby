@@ -21,6 +21,7 @@ package org.jooby.spec;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -78,65 +79,65 @@ import java.util.Optional;
  *       * List pets ordered by name.
  *       *
  *       * @param start Start offset, useful for paging. Default is <code>0</code>.
- *       * @param max Max page size, useful for paging. Default is <code>200</code>.
- *       * @return Pets ordered by name.
- *       {@literal *}/
- *       .get(req {@literal ->} {
- *         int start = req.param("start").intValue(0);
- *         int max = req.param("max").intValue(200);
- *         DB db = req.require(DB.class);
- *         List&lt;Pet&gt; pets = db.findAll(Pet.class, start, max);
- *         return pets;
- *       })
- *      /{@literal *}{@literal *}
- *       * Find pet by ID
- *       *
- *       * @param id Pet ID.
- *       * @return Returns <code>200</code> with a single pet or <code>404</code>
- *       {@literal *}/
- *       .get("/:id",req {@literal ->} {
- *         int id=req.param("id").intValue();
- *         DB db=req.require(DB.class);
- *         Pet pet = db.find(Pet.class,id);
- *         return pet;
- *       })
- *       /{@literal *}{@literal *}
- *        * Add a new pet to the store.
- *        *
- *        * @param body Pet object that needs to be added to the store.
- *        * @return Returns a saved pet.
- *        {@literal *}/
- *       .post(req {@literal ->} {
- *         Pet pet=req.body().to(Pet.class);
- *         DB db=req.require(DB.class);
- *         db.save(pet);
- *         return pet;
- *       })
- *       /{@literal *}{@literal *}
- *        * Update an existing pet.
- *        *
- *        * @param body Pet object that needs to be updated.
- *        * @return Returns a saved pet.
- *        {@literal *}/
- *       .put(req {@literal ->} {
- *         Pet pet=req.body().to(Pet.class);
- *         DB db=req.require(DB.class);db.save(pet);
- *         return pet;
- *       })
- *       /{@literal *}{@literal *}
- *        * Deletes a pet by ID.
- *        *
- *        * @param id Pet ID.
- *        * @return A <code>204</code>
- *       {@literal *}/
- *       .delete("/:id",req {@literal ->} {
- *         int id=req.param("id").intValue();
- *         DB db=req.require(DB.class);
- *         db.delete(Pet.class,id);
- *         return Results.noContent();
- *       })
- *       .produces("json")
- *       .consumes("json");}
+ * * @param max Max page size, useful for paging. Default is <code>200</code>.
+ * * @return Pets ordered by name.
+ * {@literal *}/
+ * .get(req {@literal ->} {
+ * int start = req.param("start").intValue(0);
+ * int max = req.param("max").intValue(200);
+ * DB db = req.require(DB.class);
+ * List&lt;Pet&gt; pets = db.findAll(Pet.class, start, max);
+ * return pets;
+ * })
+ * /{@literal *}{@literal *}
+ * * Find pet by ID
+ * *
+ * * @param id Pet ID.
+ * * @return Returns <code>200</code> with a single pet or <code>404</code>
+ * {@literal *}/
+ * .get("/:id",req {@literal ->} {
+ * int id=req.param("id").intValue();
+ * DB db=req.require(DB.class);
+ * Pet pet = db.find(Pet.class,id);
+ * return pet;
+ * })
+ * /{@literal *}{@literal *}
+ * * Add a new pet to the store.
+ * *
+ * * @param body Pet object that needs to be added to the store.
+ * * @return Returns a saved pet.
+ * {@literal *}/
+ * .post(req {@literal ->} {
+ * Pet pet=req.body().to(Pet.class);
+ * DB db=req.require(DB.class);
+ * db.save(pet);
+ * return pet;
+ * })
+ * /{@literal *}{@literal *}
+ * * Update an existing pet.
+ * *
+ * * @param body Pet object that needs to be updated.
+ * * @return Returns a saved pet.
+ * {@literal *}/
+ * .put(req {@literal ->} {
+ * Pet pet=req.body().to(Pet.class);
+ * DB db=req.require(DB.class);db.save(pet);
+ * return pet;
+ * })
+ * /{@literal *}{@literal *}
+ * * Deletes a pet by ID.
+ * *
+ * * @param id Pet ID.
+ * * @return A <code>204</code>
+ * {@literal *}/
+ * .delete("/:id",req {@literal ->} {
+ * int id=req.param("id").intValue();
+ * DB db=req.require(DB.class);
+ * db.delete(Pet.class,id);
+ * return Results.noContent();
+ * })
+ * .produces("json")
+ * .consumes("json");}
  * }</pre>
  *
  * <h2>MVC API</h2>
@@ -162,63 +163,63 @@ import java.util.Optional;
  *     * List pets ordered by name.
  *     *
  *     * @param start Start offset, useful for paging. Default is <code>0</code>.
- *     * @param max Max page size, useful for paging. Default is <code>200</code>.
- *     * @return Pets ordered by name.
- *     {@literal *}/
- *     &#64;GET
- *     public List&lt;Pet&gt; list(final Optional<Integer> start, final Optional<Integer> max) {
- *       List&lt;Pet&gt; pets = db.findAll(Pet.class, start.orElse(0), max.orElse(200));
- *       return pets;
- *     }
+ * * @param max Max page size, useful for paging. Default is <code>200</code>.
+ * * @return Pets ordered by name.
+ * {@literal *}/
+ * &#64;GET
+ * public List&lt;Pet&gt; list(final Optional<Integer> start, final Optional<Integer> max) {
+ * List&lt;Pet&gt; pets = db.findAll(Pet.class, start.orElse(0), max.orElse(200));
+ * return pets;
+ * }
  *
- *     /{@literal *}{@literal *}
- *      * Find pet by ID.
- *      *
- *      * @param id Pet ID.
- *      * @return Returns a single pet
- *      {@literal *}/
- *      &#64;Path("/:id")
- *      &#64;GET
- *      public Pet get(final int id) {
- *        Pet pet = db.find(Pet.class, id);
- *        return pet;
- *       }
+ * /{@literal *}{@literal *}
+ * * Find pet by ID.
+ * *
+ * * @param id Pet ID.
+ * * @return Returns a single pet
+ * {@literal *}/
+ * &#64;Path("/:id")
+ * &#64;GET
+ * public Pet get(final int id) {
+ * Pet pet = db.find(Pet.class, id);
+ * return pet;
+ * }
  *
- *      /{@literal *}{@literal *}
- *       * Add a new pet to the store.
- *       *
- *       * @param pet Pet object that needs to be added to the store.
- *       * @return Returns a saved pet.
- *       {@literal *}/
- *       &#64;POST
- *       public Pet post(@Body final Pet pet) {
- *         db.save(pet);
- *         return pet;
- *       }
+ * /{@literal *}{@literal *}
+ * * Add a new pet to the store.
+ * *
+ * * @param pet Pet object that needs to be added to the store.
+ * * @return Returns a saved pet.
+ * {@literal *}/
+ * &#64;POST
+ * public Pet post(@Body final Pet pet) {
+ * db.save(pet);
+ * return pet;
+ * }
  *
- *      /{@literal *}{@literal *}
- *       * Update an existing pet.
- *       *
- *       * @param body Pet object that needs to be updated.
- *       * @return Returns a saved pet.
- *       {@literal *}/
- *       &#64;PUT
- *       public Pet put(@Body final Pet pet) {
- *        db.save(pet);
- *        return pet;
- *       }
+ * /{@literal *}{@literal *}
+ * * Update an existing pet.
+ * *
+ * * @param body Pet object that needs to be updated.
+ * * @return Returns a saved pet.
+ * {@literal *}/
+ * &#64;PUT
+ * public Pet put(@Body final Pet pet) {
+ * db.save(pet);
+ * return pet;
+ * }
  *
- *      /{@literal *}{@literal *}
- *       * Deletes a pet by ID.
- *       *
- *       * @param id Pet ID.
- *       {@literal *}/
- *       &#64;DELETE
- *       public void delete(final int id) {
- *         db.delete(Pet.class, id);
- *       }
- *     }
- *   }
+ * /{@literal *}{@literal *}
+ * * Deletes a pet by ID.
+ * *
+ * * @param id Pet ID.
+ * {@literal *}/
+ * &#64;DELETE
+ * public void delete(final int id) {
+ * db.delete(Pet.class, id);
+ * }
+ * }
+ * }
  * </pre>
  *
  * <p>
@@ -302,7 +303,8 @@ import java.util.Optional;
  * }</pre>
  *
  * <p>
- * <strong>NOTE</strong>: We use <code>text</code> for simplicity and easy read, but keep in mind the output
+ * <strong>NOTE</strong>: We use <code>text</code> for simplicity and easy read, but keep in mind
+ * the output
  * is compiled in binary format.
  * </p>
  *
@@ -331,7 +333,7 @@ import java.util.Optional;
  * API information.
  * </p>
  *
- * <h3> Why don't parse byte-code with ASM?</h3>
+ * <h3>Why don't parse byte-code with ASM?</h3>
  * <p>
  * Good question, the main reason is that we lost generic type information and we aren't able to
  * tell if the route response is for example a list of pets.
@@ -430,16 +432,16 @@ import java.util.Optional;
  *       * List pets ordered by name.
  *       *
  *       * @param start Start offset, useful for paging. Default is <code>0</code>.
- *       * @param max Max page size, useful for paging. Default is <code>200</code>.
- *       * @return Pets ordered by name.
- *       {@literal *}/
- *     .get(req {@literal ->} {
- *       int start = req.param("start").intValue(0);
- *       int max = req.param("max").intValue(200);
- *       DB db = req.require(DB.class);
- *       List&lt;Pet&gt; pets = db.findAll(Pet.class, start, max);
- *       return pets;
- *     });
+ * * @param max Max page size, useful for paging. Default is <code>200</code>.
+ * * @return Pets ordered by name.
+ * {@literal *}/
+ * .get(req {@literal ->} {
+ * int start = req.param("start").intValue(0);
+ * int max = req.param("max").intValue(200);
+ * DB db = req.require(DB.class);
+ * List&lt;Pet&gt; pets = db.findAll(Pet.class, start, max);
+ * return pets;
+ * });
  * </pre>
  *
  * The spec for <code>/api/pets</code> will have the following doc:
@@ -451,14 +453,14 @@ import java.util.Optional;
  *       type: int
  *       value: 0
  *       doc: Start offset, useful for paging. Default is <code>0</code>.
- *     max:
- *       paramType: QUERY
- *       type: int
- *       value: 200
- *       doc: Max page size, useful for paging. Default is <code>200</code>.
- *   response:
- *     type: java.util.List&lt;apps.model.Pet&gt;
- *     doc: Pets ordered by name.
+ * max:
+ * paramType: QUERY
+ * type: int
+ * value: 200
+ * doc: Max page size, useful for paging. Default is <code>200</code>.
+ * response:
+ * type: java.util.List&lt;apps.model.Pet&gt;
+ * doc: Pets ordered by name.
  * </pre>
  *
  * <h3>response</h3>
@@ -475,11 +477,11 @@ import java.util.Optional;
  *    *
  *    * @param id Pet ID.
  *    * @return Returns a {&#64;link Pet} with <code>200</code> status or <code>404</code>
- *    {@literal *}/
- *    get(req {@literal ->} {
- *      DB db = req.require(DB.class);
- *      return db.find(Pet.class, id);
- *    });
+ * {@literal *}/
+ * get(req {@literal ->} {
+ * DB db = req.require(DB.class);
+ * return db.find(Pet.class, id);
+ * });
  * </pre>
  *
  * <p>
@@ -500,7 +502,8 @@ import java.util.Optional;
  * </p>
  *
  * <pre>
- * &#64;return Returns a <code>{&#64;link Pet}</code> with <code>200 = Success</code> status or <code>404 = Missing</code>
+ * &#64;return Returns a <code>{&#64;link Pet}</code> with <code>200 = Success</code> status or
+ * <code>404 = Missing</code>
  * </pre>
  *
  * <p>
@@ -560,4 +563,10 @@ public interface RouteSpec extends Serializable {
    */
   RouteResponse response();
 
+  /**
+   * Additional route attributes.
+   *
+   * @return Route attributes.
+   */
+  Map<String, Object> attributes();
 }

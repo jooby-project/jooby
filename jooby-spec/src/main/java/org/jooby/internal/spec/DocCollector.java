@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.jooby.Status;
+import org.slf4j.Logger;
 
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -57,16 +58,26 @@ public class DocCollector extends VoidVisitorAdapter<Context> {
 
   private Map<String, Object> doc = new HashMap<>();
 
+  private Logger log;
+
+  public DocCollector(final Logger log) {
+    this.log = log;
+  }
+
   public Map<String, Object> accept(final Node node, final String method, final Context ctx) {
-    node.accept(this, ctx);
-    if (!doc.containsKey("@statusCodes")) {
-      Map<Object, Object> codes = new LinkedHashMap<>();
-      Status status = Status.OK;
-      if ("DELETE".equals(method)) {
-        status = Status.NO_CONTENT;
+    try {
+      node.accept(this, ctx);
+      if (!doc.containsKey("@statusCodes")) {
+        Map<Object, Object> codes = new LinkedHashMap<>();
+        Status status = Status.OK;
+        if ("DELETE".equals(method)) {
+          status = Status.NO_CONTENT;
+        }
+        codes.put(status.value(), status.reason());
+        doc.put("@statusCodes", codes);
       }
-      codes.put(status.value(), status.reason());
-      doc.put("@statusCodes", codes);
+    } catch (Exception x) {
+      log.debug("Doc collector resulted in exception", x);
     }
     return doc;
   }

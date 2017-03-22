@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -249,6 +250,11 @@ public class RamlBuilderTest {
     public Spec rsp(final Consumer<Response> rsp) {
       rsp.accept(this.rsp);
       return this;
+    }
+
+    @Override
+    public Map<String, Object> attributes() {
+      return Collections.emptyMap();
     }
 
   }

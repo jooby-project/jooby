@@ -144,11 +144,13 @@ public class SwaggerBuilder {
          */
         Operation op = new Operation();
         op.addTag(tag.getName());
+        route.name().ifPresent(op::operationId);
 
         /**
-         * Doc and summary: default or full
+         * Doc and summary
          */
-        route.name().ifPresent(n -> op.summary(n.substring(1)));
+        route.name().ifPresent(n -> op.summary(Route.normalize(n).substring(1)));
+
         route.doc().ifPresent(doc -> {
           String summary = Splitter.on(SENTENCE)
               .trimResults()
@@ -272,7 +274,7 @@ public class SwaggerBuilder {
     ModelConverters converter = ModelConverters.getInstance();
     final Property property = converter.readAsProperty(type);
 
-    final Map<PropertyBuilder.PropertyId, Object> args = new EnumMap<PropertyBuilder.PropertyId, Object>(
+    final Map<PropertyBuilder.PropertyId, Object> args = new EnumMap<>(
         PropertyBuilder.PropertyId.class);
     for (Map.Entry<String, Model> entry : converter.readAll(type).entrySet()) {
       definitions.accept(entry.getKey(), entry.getValue());
