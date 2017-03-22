@@ -79,6 +79,7 @@ public class Issue536 extends ServerFeature {
             "        \"tags\" : [ \"cat\" ],\n" +
             "        \"summary\" : \"Another description\",\n" +
             "        \"description\" : \"Another description\\nAnother line\",\n" +
+            "        \"operationId\" : \"get\",\n" +
             "        \"produces\" : [ \"application/json\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"name\" : \"name\",\n" +

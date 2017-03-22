@@ -18,7 +18,9 @@
  */
 package org.jooby.internal.spec;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -34,11 +36,10 @@ public class RouteSpecImpl extends SerObject implements RouteSpec {
   /** default serial. */
   private static final long serialVersionUID = 1L;
 
-  public RouteSpecImpl(final Route.Definition route, final String summary, final String doc,
-      final List<RouteParam> params, final RouteResponse rsp) {
+  public RouteSpecImpl(final Route.Definition route, final String name, final String summary,
+      final String doc, final List<RouteParam> params, final RouteResponse rsp) {
     put("method", route.method());
     put("pattern", route.pattern());
-    String name = route.name();
     if (!name.equals("/anonymous")) {
       put("name", name);
     }
@@ -52,6 +53,7 @@ public class RouteSpecImpl extends SerObject implements RouteSpec {
     put("doc", doc);
     put("params", params);
     put("response", rsp);
+    put("attributes", new HashMap<>(route.attributes()));
   }
 
   protected RouteSpecImpl() {
@@ -100,6 +102,11 @@ public class RouteSpecImpl extends SerObject implements RouteSpec {
   @Override
   public RouteResponse response() {
     return get("response");
+  }
+
+  @Override
+  public Map<String, Object> attributes() {
+    return get("attributes");
   }
 
   @Override
