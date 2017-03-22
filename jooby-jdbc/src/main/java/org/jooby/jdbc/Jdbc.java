@@ -40,6 +40,7 @@ import org.jooby.Jooby;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
@@ -437,9 +438,15 @@ public class Jdbc implements Jooby.Module {
 
     $hikari.entrySet().forEach(entry -> dumper.accept("", entry));
 
-    if (!props.containsKey("dataSourceClassName")) {
+    String dataSourceClassName = props.getProperty("dataSourceClassName");
+    if (Strings.isNullOrEmpty(dataSourceClassName)) {
       // adjust dataSourceClassName when missing
-      props.setProperty("dataSourceClassName", props.getProperty("dataSource.dataSourceClassName"));
+      dataSourceClassName = props.getProperty("dataSource.dataSourceClassName");
+      props.setProperty("dataSourceClassName", dataSourceClassName);
+    }
+    if (Strings.isNullOrEmpty(dataSourceClassName)) {
+      // Hack old drivers without a setUrl method (pgsql)
+      props.put("jdbcUrl", url);
     }
     // remove dataSourceClassName under dataSource
     props.remove("dataSource.dataSourceClassName");

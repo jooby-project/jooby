@@ -18,9 +18,6 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import io.ebean.EbeanServer;
-import io.ebean.config.ContainerConfig;
-import io.ebean.config.ServerConfig;
 import com.google.common.collect.Sets;
 import com.google.inject.Binder;
 import com.google.inject.Key;
@@ -33,6 +30,9 @@ import com.typesafe.config.ConfigValueFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import io.ebean.EbeanServer;
+import io.ebean.config.ContainerConfig;
+import io.ebean.config.ServerConfig;
 import javaslang.control.Try.CheckedRunnable;
 
 @RunWith(PowerMockRunner.class)
@@ -275,8 +275,10 @@ public class EbeanbyTest {
           .setProperty("dataSource.url", url))
               .andReturn(null);
 
-      expect(properties.containsKey("dataSourceClassName")).andReturn(hasDataSourceClassName);
-      if (!hasDataSourceClassName) {
+      if (hasDataSourceClassName) {
+        expect(properties.getProperty("dataSourceClassName")).andReturn(dataSourceClassName);
+      } else {
+        expect(properties.getProperty("dataSourceClassName")).andReturn(null);
         expect(properties.getProperty("dataSource.dataSourceClassName"))
             .andReturn(dataSourceClassName);
         expect(properties.setProperty("dataSourceClassName", dataSourceClassName)).andReturn(null);

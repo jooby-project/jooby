@@ -457,15 +457,20 @@ public class JdbcTest {
   @Test
   public void pgsql() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
+    String url = "jdbc:pgsql://server/database";
     Config dbconf = config.withValue("db",
-        ConfigValueFactory.fromAnyRef("jdbc:pgsql://server/database"));
+        ConfigValueFactory.fromAnyRef(url));
 
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("com.impossibl.postgres.jdbc.PGDataSource", "jdbc:pgsql://server/database",
+        .expect(props("", "jdbc:pgsql://server/database",
             "pgsql.database", null, "", false))
         .expect(hikariConfig())
         .expect(hikariDataSource())
         .expect(serviceKey("database"))
+        .expect(unit -> {
+          Properties props = unit.get(Properties.class);
+          expect(props.put("jdbcUrl", url)).andReturn(null);
+        })
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -475,15 +480,20 @@ public class JdbcTest {
   @Test
   public void postgresql() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
+    String url = "jdbc:postgresql://server/database";
     Config dbconf = config.withValue("db",
-        ConfigValueFactory.fromAnyRef("jdbc:postgresql://server/database"));
+        ConfigValueFactory.fromAnyRef(url));
 
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.postgresql.ds.PGSimpleDataSource", "jdbc:postgresql://server/database",
+        .expect(props("", "jdbc:postgresql://server/database",
             "postgresql.database", null, "", false))
         .expect(hikariConfig())
         .expect(hikariDataSource())
         .expect(serviceKey("database"))
+        .expect(unit -> {
+          Properties props = unit.get(Properties.class);
+          expect(props.put("jdbcUrl", url)).andReturn(null);
+        })
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -628,8 +638,10 @@ public class JdbcTest {
                 .andReturn(null);
       }
 
-      expect(properties.containsKey("dataSourceClassName")).andReturn(hasDataSourceClassName);
-      if (!hasDataSourceClassName) {
+      if (hasDataSourceClassName) {
+        expect(properties.getProperty("dataSourceClassName")).andReturn(dataSourceClassName);
+      } else {
+        expect(properties.getProperty("dataSourceClassName")).andReturn(null);
         expect(properties.getProperty("dataSource.dataSourceClassName"))
             .andReturn(dataSourceClassName);
         expect(properties.setProperty("dataSourceClassName", dataSourceClassName)).andReturn(null);
