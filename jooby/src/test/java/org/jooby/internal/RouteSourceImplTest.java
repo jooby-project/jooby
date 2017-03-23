@@ -20,8 +20,8 @@ public class RouteSourceImplTest {
 
   @Test
   public void unknownSource() {
-    assertEquals(Optional.empty(), Source.UNKNOWN.declaringClass());
-    assertEquals(-1, Source.UNKNOWN.line());
-    assertEquals("~unknown:-1", Source.UNKNOWN.toString());
+    assertEquals(Optional.empty(), Source.BUILTIN.declaringClass());
+    assertEquals(-1, Source.BUILTIN.line());
+    assertEquals("~builtin", Source.BUILTIN.toString());
   }
 }

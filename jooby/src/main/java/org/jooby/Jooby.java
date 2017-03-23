@@ -22,6 +22,15 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import static java.util.Objects.requireNonNull;
+import static org.jooby.Route.CONNECT;
+import static org.jooby.Route.DELETE;
+import static org.jooby.Route.GET;
+import static org.jooby.Route.HEAD;
+import static org.jooby.Route.OPTIONS;
+import static org.jooby.Route.PATCH;
+import static org.jooby.Route.POST;
+import static org.jooby.Route.PUT;
+import static org.jooby.Route.TRACE;
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -1133,7 +1142,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition get(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition("GET", path, handler));
+    return appendDefinition(new Route.Definition(GET, path, handler));
   }
 
   @Override
@@ -1151,7 +1160,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition get(final String path, final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition("GET", path, handler));
+    return appendDefinition(new Route.Definition(GET, path, handler));
   }
 
   @Override
@@ -1170,7 +1179,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition get(final String path, final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition("GET", path, handler));
+    return appendDefinition(new Route.Definition(GET, path, handler));
   }
 
   @Override
@@ -1189,7 +1198,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition get(final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition("GET", path, filter));
+    return appendDefinition(new Route.Definition(GET, path, filter));
   }
 
   @Override
@@ -1206,7 +1215,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition post(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition("POST", path, handler));
+    return appendDefinition(new Route.Definition(POST, path, handler));
   }
 
   @Override
@@ -1225,7 +1234,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition post(final String path, final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition("POST", path, handler));
+    return appendDefinition(new Route.Definition(POST, path, handler));
   }
 
   @Override
@@ -1244,7 +1253,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition post(final String path, final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition("POST", path, handler));
+    return appendDefinition(new Route.Definition(POST, path, handler));
   }
 
   @Override
@@ -1263,7 +1272,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition post(final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition("POST", path, filter));
+    return appendDefinition(new Route.Definition(POST, path, filter));
   }
 
   @Override
@@ -1282,64 +1291,64 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition head(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition("HEAD", path, handler));
+    return appendDefinition(new Route.Definition(HEAD, path, handler));
   }
 
   @Override
   public Route.Definition head(final String path,
       final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition("HEAD", path, handler));
+    return appendDefinition(new Route.Definition(HEAD, path, handler));
   }
 
   @Override
   public Route.Definition head(final String path, final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition("HEAD", path, handler));
+    return appendDefinition(new Route.Definition(HEAD, path, handler));
   }
 
   @Override
   public Route.Definition head(final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition("HEAD", path, filter));
+    return appendDefinition(new Route.Definition(HEAD, path, filter));
   }
 
   @Override
   public Route.Definition head() {
-    return appendDefinition(new Route.Definition("HEAD", "*", filter(HeadHandler.class))
+    return appendDefinition(new Route.Definition(HEAD, "*", filter(HeadHandler.class))
         .name("*.head"));
   }
 
   @Override
   public Route.Definition options(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition("OPTIONS", path, handler));
+    return appendDefinition(new Route.Definition(OPTIONS, path, handler));
   }
 
   @Override
   public Route.Definition options(final String path,
       final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition("OPTIONS", path, handler));
+    return appendDefinition(new Route.Definition(OPTIONS, path, handler));
   }
 
   @Override
   public Route.Definition options(final String path,
       final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition("OPTIONS", path, handler));
+    return appendDefinition(new Route.Definition(OPTIONS, path, handler));
   }
 
   @Override
   public Route.Definition options(final String path,
       final Route.Filter filter) {
-    return appendDefinition(new Route.Definition("OPTIONS", path, filter));
+    return appendDefinition(new Route.Definition(OPTIONS, path, filter));
   }
 
   @Override
   public Route.Definition options() {
-    return appendDefinition(new Route.Definition("OPTIONS", "*", handler(OptionsHandler.class))
+    return appendDefinition(new Route.Definition(OPTIONS, "*", handler(OptionsHandler.class))
         .name("*.options"));
   }
 
   @Override
   public Route.Definition put(final String path,
       final Route.Handler handler) {
-    return appendDefinition(new Route.Definition("PUT", path, handler));
+    return appendDefinition(new Route.Definition(PUT, path, handler));
   }
 
   @Override
@@ -1359,7 +1368,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   @Override
   public Route.Definition put(final String path,
       final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition("PUT", path, handler));
+    return appendDefinition(new Route.Definition(PUT, path, handler));
   }
 
   @Override
@@ -1379,7 +1388,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   @Override
   public Route.Definition put(final String path,
       final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition("PUT", path, handler));
+    return appendDefinition(new Route.Definition(PUT, path, handler));
   }
 
   @Override
@@ -1399,7 +1408,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   @Override
   public Route.Definition put(final String path,
       final Route.Filter filter) {
-    return appendDefinition(new Route.Definition("PUT", path, filter));
+    return appendDefinition(new Route.Definition(PUT, path, filter));
   }
 
   @Override
@@ -1418,7 +1427,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition patch(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition("PATCH", path, handler));
+    return appendDefinition(new Route.Definition(PATCH, path, handler));
   }
 
   @Override
@@ -1438,7 +1447,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition patch(final String path, final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition("PATCH", path, handler));
+    return appendDefinition(new Route.Definition(PATCH, path, handler));
   }
 
   @Override
@@ -1458,7 +1467,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition patch(final String path, final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition("PATCH", path, handler));
+    return appendDefinition(new Route.Definition(PATCH, path, handler));
   }
 
   @Override
@@ -1479,7 +1488,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   @Override
   public Route.Definition patch(final String path,
       final Route.Filter filter) {
-    return appendDefinition(new Route.Definition("PATCH", path, filter));
+    return appendDefinition(new Route.Definition(PATCH, path, filter));
   }
 
   @Override
@@ -1499,7 +1508,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition delete(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition("DELETE", path, handler));
+    return appendDefinition(new Route.Definition(DELETE, path, handler));
   }
 
   @Override
@@ -1519,7 +1528,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition delete(final String path, final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition("DELETE", path, handler));
+    return appendDefinition(new Route.Definition(DELETE, path, handler));
   }
 
   @Override
@@ -1540,7 +1549,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   @Override
   public Route.Definition delete(final String path,
       final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition("DELETE", path, handler));
+    return appendDefinition(new Route.Definition(DELETE, path, handler));
   }
 
   @Override
@@ -1561,7 +1570,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition delete(final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition("DELETE", path, filter));
+    return appendDefinition(new Route.Definition(DELETE, path, filter));
   }
 
   @Override
@@ -1581,48 +1590,48 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition trace(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition("TRACE", path, handler));
+    return appendDefinition(new Route.Definition(TRACE, path, handler));
   }
 
   @Override
   public Route.Definition trace(final String path, final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition("TRACE", path, handler));
+    return appendDefinition(new Route.Definition(TRACE, path, handler));
   }
 
   @Override
   public Route.Definition trace(final String path, final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition("TRACE", path, handler));
+    return appendDefinition(new Route.Definition(TRACE, path, handler));
   }
 
   @Override
   public Route.Definition trace(final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition("TRACE", path, filter));
+    return appendDefinition(new Route.Definition(TRACE, path, filter));
   }
 
   @Override
   public Route.Definition trace() {
-    return appendDefinition(new Route.Definition("TRACE", "*", handler(TraceHandler.class))
+    return appendDefinition(new Route.Definition(TRACE, "*", handler(TraceHandler.class))
         .name("*.trace"));
   }
 
   @Override
   public Route.Definition connect(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition("CONNECT", path, handler));
+    return appendDefinition(new Route.Definition(CONNECT, path, handler));
   }
 
   @Override
   public Route.Definition connect(final String path, final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition("CONNECT", path, handler));
+    return appendDefinition(new Route.Definition(CONNECT, path, handler));
   }
 
   @Override
   public Route.Definition connect(final String path, final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition("CONNECT", path, handler));
+    return appendDefinition(new Route.Definition(CONNECT, path, handler));
   }
 
   @Override
   public Route.Definition connect(final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition("CONNECT", path, filter));
+    return appendDefinition(new Route.Definition(CONNECT, path, filter));
   }
 
   /**
@@ -1713,7 +1722,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition assets(final String path, final AssetHandler handler) {
-    return appendDefinition(new Route.Definition("GET", path, handler));
+    return appendDefinition(new Route.Definition(GET, path, handler));
   }
 
   @Override
@@ -1820,12 +1829,12 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition sse(final String path, final Sse.Handler handler) {
-    return appendDefinition(new Route.Definition("GET", path, handler)).consumes(MediaType.sse);
+    return appendDefinition(new Route.Definition(GET, path, handler)).consumes(MediaType.sse);
   }
 
   @Override
   public Route.Definition sse(final String path, final Sse.Handler1 handler) {
-    return appendDefinition(new Route.Definition("GET", path, handler)).consumes(MediaType.sse);
+    return appendDefinition(new Route.Definition(GET, path, handler)).consumes(MediaType.sse);
   }
 
   @SuppressWarnings("rawtypes")

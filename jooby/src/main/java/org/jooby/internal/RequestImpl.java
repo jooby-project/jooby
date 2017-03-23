@@ -94,7 +94,7 @@ public class RequestImpl implements Request {
   private long timestamp;
 
   public RequestImpl(final Injector injector, final NativeRequest req, final String contextPath,
-      final int port, final Route route, final Charset charset, final List<Locale> locale,
+      final int port, final Route route, final Charset charset, final List<Locale> locales,
       final Map<Object, Object> scope, final Map<String, Object> locals, final long timestamp) {
     this.injector = injector;
     this.req = req;
@@ -108,7 +108,7 @@ public class RequestImpl implements Request {
     this.accept = accept.isPresent() ? MediaType.parse(accept.get()) : MediaType.ALL;
 
     this.lang = req.header("Accept-Language");
-    this.locales = locale;
+    this.locales = locales;
 
     this.port = port;
 
@@ -338,6 +338,7 @@ public class RequestImpl implements Request {
     return route;
   }
 
+  @Override
   public String rawPath() {
     return req.rawPath();
   }

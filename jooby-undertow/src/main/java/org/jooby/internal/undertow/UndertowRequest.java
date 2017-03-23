@@ -53,31 +53,28 @@ import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.util.AttachmentKey;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
-import javaslang.Lazy;
-import javaslang.control.Try;
 
 public class UndertowRequest implements NativeRequest {
 
   public static final AttachmentKey<NativeWebSocket> SOCKET = AttachmentKey
       .create(NativeWebSocket.class);
 
+  private static final FormData NO_FORM = new FormData(0);
+
   private HttpServerExchange exchange;
 
-  private Config config;
+  private Config conf;
 
-  private final Lazy<FormData> form;
+  private FormData form;
 
-  private final String path;
+  private String path;
 
   private Supplier<BlockingHttpExchange> blocking;
 
-  public UndertowRequest(final HttpServerExchange exchange, final Config conf)
-      throws IOException {
+  public UndertowRequest(final HttpServerExchange exchange, final Config conf) throws IOException {
     this.exchange = exchange;
     this.blocking = Suppliers.memoize(() -> this.exchange.startBlocking());
-    this.config = conf;
-    this.form = Lazy.of(() -> Try.of(() -> parseForm(exchange, conf.getString("application.tmpdir"),
-        conf.getString("application.charset"))).get());
+    this.conf = conf;
     this.path = URLDecoder.decode(exchange.getRequestPath(), "UTF-8");
   }
 
@@ -106,7 +103,7 @@ public class UndertowRequest implements NativeRequest {
   public List<String> paramNames() {
     ImmutableList.Builder<String> builder = ImmutableList.<String> builder();
     builder.addAll(exchange.getQueryParameters().keySet());
-    FormData formdata = this.form.get();
+    FormData formdata = parseForm();
     formdata.forEach(v -> {
       // excludes upload from param names.
       if (!formdata.getFirst(v).isFile()) {
@@ -125,7 +122,7 @@ public class UndertowRequest implements NativeRequest {
       query.stream().forEach(builder::add);
     }
     // form params
-    Optional.ofNullable(form.get().get(name)).ifPresent(values -> {
+    Optional.ofNullable(parseForm().get(name)).ifPresent(values -> {
       values.stream().forEach(value -> {
         if (!value.isFile()) {
           builder.add(value.getValue());
@@ -164,7 +161,7 @@ public class UndertowRequest implements NativeRequest {
   @Override
   public List<NativeUpload> files(final String name) {
     Builder<NativeUpload> builder = ImmutableList.builder();
-    Deque<FormValue> values = form.get().get(name);
+    Deque<FormValue> values = parseForm().get(name);
     if (values != null) {
       values.forEach(value -> {
         if (value.isFile()) {
@@ -204,7 +201,7 @@ public class UndertowRequest implements NativeRequest {
   @SuppressWarnings("unchecked")
   public <T> T upgrade(final Class<T> type) throws Exception {
     if (type == NativeWebSocket.class) {
-      UndertowWebSocket ws = new UndertowWebSocket(config);
+      UndertowWebSocket ws = new UndertowWebSocket(conf);
       exchange.putAttachment(SOCKET, ws);
       return (T) ws;
     }
@@ -222,28 +219,35 @@ public class UndertowRequest implements NativeRequest {
     exchange.dispatch(executor, runnable);
   }
 
-  private FormData parseForm(final HttpServerExchange exchange, final String tmpdir,
-      final String charset) throws IOException {
-    String value = exchange.getRequestHeaders().getFirst("Content-Type");
-    if (value != null) {
-      MediaType type = MediaType.valueOf(value);
-      if (MediaType.form.name().equals(type.name())) {
-        blocking.get();
-        return new FormEncodedDataDefinition()
-            .setDefaultEncoding(charset)
-            .create(exchange)
-            .parseBlocking();
-      } else if (MediaType.multipart.name().equals(type.name())) {
-        blocking.get();
-        return new MultiPartParserDefinition()
-            .setTempFileLocation(new File(tmpdir).toPath())
-            .setDefaultEncoding(charset)
-            .create(exchange)
-            .parseBlocking();
+  private FormData parseForm() {
+    if (form == null) {
+      form = NO_FORM;
+      try {
+        String tmpdir = conf.getString("application.tmpdir");
+        String charset = conf.getString("application.charset");
+        String value = exchange.getRequestHeaders().getFirst("Content-Type");
+        if (value != null) {
+          MediaType type = MediaType.valueOf(value);
+          if (MediaType.form.name().equals(type.name())) {
+            blocking.get();
+            form = new FormEncodedDataDefinition()
+                .setDefaultEncoding(charset)
+                .create(exchange)
+                .parseBlocking();
+          } else if (MediaType.multipart.name().equals(type.name())) {
+            blocking.get();
+            form = new MultiPartParserDefinition()
+                .setTempFileLocation(new File(tmpdir).toPath())
+                .setDefaultEncoding(charset)
+                .create(exchange)
+                .parseBlocking();
 
+          }
+        }
+      } catch (IOException x) {
       }
     }
-    return new FormData(0);
+    return form;
   }
 
   private static Cookie cookie(final io.undertow.server.handlers.Cookie c) {

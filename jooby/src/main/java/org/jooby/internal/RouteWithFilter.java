@@ -18,27 +18,7 @@
  */
 package org.jooby.internal;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import org.jooby.Route;
 
-public class Headers {
-
-  public static final DateTimeFormatter fmt = DateTimeFormatter
-      .ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH)
-      .withZone(ZoneId.of("GMT"));
-
-  public static String encode(final Object value) {
-    if (value instanceof Date) {
-      return fmt.format(Instant.ofEpochMilli(((Date) value).getTime()));
-    }
-    if (value instanceof Calendar) {
-      return fmt.format(Instant.ofEpochMilli(((Calendar) value).getTimeInMillis()));
-    }
-    return value.toString();
-  }
-
+public interface RouteWithFilter extends Route, Route.Filter {
 }

@@ -18,20 +18,40 @@
  */
 package org.jooby.internal;
 
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-import com.typesafe.config.Config;
-import javaslang.control.Try;
-import org.jooby.*;
+import static java.util.Objects.requireNonNull;
+
+import java.nio.charset.Charset;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
+import org.jooby.Deferred;
+import org.jooby.Err;
 import org.jooby.Err.Handler;
+import org.jooby.MediaType;
+import org.jooby.Renderer;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Route;
+import org.jooby.Session;
+import org.jooby.Sse;
+import org.jooby.Status;
+import org.jooby.WebSocket;
 import org.jooby.WebSocket.Definition;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.HttpHandler;
@@ -41,58 +61,60 @@ import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-import java.nio.charset.Charset;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Sets;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import com.typesafe.config.Config;
 
-import static java.util.Objects.*;
+import javaslang.control.Try;
 
 @Singleton
 public class HttpHandlerImpl implements HttpHandler {
 
   private static class RouteKey {
-    protected String method;
 
-    protected String path;
+    private final String method;
 
-    protected MediaType consumes;
+    private final String path;
 
-    protected List<MediaType> produces;
+    private final MediaType consumes;
 
-    private int hc;
+    private final List<MediaType> produces;
+
+    private final String key;
 
     public RouteKey(final String method, final String path, final MediaType consumes,
         final List<MediaType> produces) {
+      String c = consumes.name();
+      String p = produces.toString();
+      key = new StringBuilder(method.length() + path.length() + c.length() + p.length())
+          .append(method)
+          .append(path)
+          .append(c)
+          .append(p)
+          .toString();
       this.method = method;
       this.path = path;
       this.consumes = consumes;
       this.produces = produces;
-      hc = 1;
-      hc = 31 * hc + method.hashCode();
-      hc = 31 * hc + path.hashCode();
-      hc = 31 * hc + consumes.hashCode();
-      hc = 31 * hc + produces.hashCode();
     }
 
     @Override
     public int hashCode() {
-      return hc;
+      return key.hashCode();
     }
 
     @Override
     public boolean equals(final Object obj) {
       RouteKey that = (RouteKey) obj;
-      return method.equals(that.method) && path.equals(that.path) && produces.equals(that.produces)
-          && consumes.equals(that.consumes);
+      return key.equals(that.key);
     }
-
   }
 
   private static final String NO_CACHE = "must-revalidate,no-cache,no-store";
@@ -122,8 +144,6 @@ public class HttpHandlerImpl implements HttpHandler {
   /**
    * The logging system.
    */
-  private final Logger log = LoggerFactory.getLogger(HttpHandler.class);
-
   private Injector injector;
 
   private Set<Err.Handler> err;
@@ -146,7 +166,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private ParserExecutor parserExecutor;
 
-  private List<Locale> locale;
+  private List<Locale> locales;
 
   private final LoadingCache<RouteKey, List<Route>> routeCache;
 
@@ -190,9 +210,9 @@ public class HttpHandlerImpl implements HttpHandler {
     _method = Strings.emptyToNull(this.config.getString("server.http.Method").trim());
     this.port = config.getInt("application.port");
     this.charset = charset;
-    this.locale = locale;
+    this.locales = locale;
     this.parserExecutor = parserExecutor;
-    this.renderers = ImmutableList.copyOf(renderers);
+    this.renderers = new ArrayList<>(renderers);
     rendererMap = new HashMap<>();
     this.renderers.forEach(r -> rendererMap.put(r.name(), r));
 
@@ -221,24 +241,25 @@ public class HttpHandlerImpl implements HttpHandler {
 
     Map<Object, Object> scope = new HashMap<>(16);
 
-    String verb = (_method == null ? request.method() : method(_method, request)).toUpperCase();
-    String requestPath = normalizeURI(request.path());
+    String method = _method == null ? request.method() : method(_method, request);
+    String path = normalizeURI(request.path());
     if (rpath != null) {
-      requestPath = rpath.apply(requestPath);
+      path = rpath.apply(path);
     }
 
     // put request attributes first to make sure we don't override defaults
-    locals.putAll(request.attributes());
+    Map<String, Object> nativeAttrs = request.attributes();
+    if (nativeAttrs.size() > 0) {
+      locals.putAll(nativeAttrs);
+    }
     // default locals
     locals.put(CONTEXT_PATH, contextPath);
-    locals.put(PATH, requestPath);
+    locals.put(PATH, path);
 
-    final String path = verb + requestPath;
-
-    Route notFound = RouteImpl.notFound(verb, path, MediaType.ALL);
+    Route notFound = RouteImpl.notFound(method, path);
 
     RequestImpl req = new RequestImpl(injector, request, contextPath, port, notFound, charset,
-        locale, scope, locals, start);
+        locales, scope, locals, start);
 
     ResponseImpl rsp = new ResponseImpl(req, parserExecutor, response, notFound, renderers,
         rendererMap, locals, req.charset(), request.header(REFERER), request.header(BYTE_RANGE));
@@ -267,7 +288,7 @@ public class HttpHandlerImpl implements HttpHandler {
       // force https?
       if (redirectHttps != null) {
         if (!req.secure()) {
-          rsp.redirect(MessageFormat.format(redirectHttps, requestPath.substring(1)));
+          rsp.redirect(MessageFormat.format(redirectHttps, path.substring(1)));
           return;
         }
       }
@@ -275,7 +296,7 @@ public class HttpHandlerImpl implements HttpHandler {
       // websocket?
       if (hasSockets) {
         if (upgrade(request)) {
-          Optional<WebSocket> sockets = findSockets(socketDefs, requestPath);
+          Optional<WebSocket> sockets = findSockets(socketDefs, path);
           if (sockets.isPresent()) {
             NativeWebSocket ws = request.upgrade(NativeWebSocket.class);
             ws.onConnect(() -> ((WebSocketImpl) sockets.get()).connect(injector, req, ws));
@@ -286,7 +307,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
       // usual req/rsp
       List<Route> routes = routeCache
-          .getUnchecked(new RouteKey(verb, requestPath, type, req.accept()));
+          .getUnchecked(new RouteKey(method, path, type, req.accept()));
 
       new RouteChain(req, rsp, routes).next(req, rsp);
 
@@ -363,6 +384,7 @@ public class HttpHandlerImpl implements HttpHandler {
   }
 
   private void handleErr(final RequestImpl req, final ResponseImpl rsp, final Throwable ex) {
+    Logger log = LoggerFactory.getLogger(HttpHandler.class);
     try {
       log.debug("execution of: {}{} resulted in exception", req.method(), req.path(), ex);
       // execution failed, find status code
@@ -404,7 +426,7 @@ public class HttpHandlerImpl implements HttpHandler {
       final String path, final MediaType type, final List<MediaType> accept) {
     List<Route> routes = findRoutes(routeDefs, method, path, type, accept);
 
-    routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
+    routes.add(RouteImpl.fallback((req, rsp, chain) -> {
       if (!rsp.status().isPresent()) {
         // 406 or 415
         Err ex = handle406or415(routeDefs, method, path, type, accept);
@@ -526,7 +548,7 @@ public class HttpHandlerImpl implements HttpHandler {
         return p.substring(applicationPath.length());
       } else {
         // mark as failure
-        return p + Route.OUT_OF_PATH;
+        return Route.errpath(p);
       }
     };
   }

@@ -30,7 +30,6 @@ import java.util.Optional;
 
 import org.jooby.spi.NativeResponse;
 import org.jooby.spi.NativeWebSocket;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
@@ -43,9 +42,6 @@ import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
 
 public class UndertowResponse implements NativeResponse {
-
-  /** The logging system. */
-  private final Logger log = LoggerFactory.getLogger(NativeResponse.class);
 
   private HttpServerExchange exchange;
 
@@ -70,13 +66,13 @@ public class UndertowResponse implements NativeResponse {
 
   @Override
   public void header(final String name, final String value) {
-    exchange.getResponseHeaders().put(new HttpString(name), value);
+    exchange.getResponseHeaders().put(HttpString.tryFromString(name), value);
   }
 
   @Override
   public void header(final String name, final Iterable<String> values) {
     HeaderMap headers = exchange.getResponseHeaders();
-    headers.putAll(new HttpString(name), ImmutableList.copyOf(values));
+    headers.putAll(HttpString.tryFromString(name), ImmutableList.copyOf(values));
   }
 
   @Override
@@ -103,7 +99,8 @@ public class UndertowResponse implements NativeResponse {
   }
 
   @Override
-  public void send(final FileChannel channel, final long position, final long count) throws Exception {
+  public void send(final FileChannel channel, final long position, final long count)
+      throws Exception {
     endExchange = false;
     channel.position(position);
     new ChunkedStream(count).send(channel, exchange, new LogIoCallback(IoCallback.END_EXCHANGE));
@@ -138,7 +135,7 @@ public class UndertowResponse implements NativeResponse {
           ((UndertowWebSocket) ws).connect(channel);
         }).handleRequest(exchange);
       } catch (Exception ex) {
-        log.error("Upgrade result in exception", ex);
+        LoggerFactory.getLogger(NativeResponse.class).error("Upgrade result in exception", ex);
       } finally {
         exchange.removeAttachment(UndertowRequest.SOCKET);
       }

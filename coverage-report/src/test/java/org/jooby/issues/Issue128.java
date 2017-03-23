@@ -16,21 +16,21 @@ public class Issue128 extends ServerFeature {
 
   @Test
   public void fakePutViaParamUrl() throws Exception {
-    request().post("/fake/put?_method=put")
+    request().post("/fake/put?_method=PUT")
         .expect("PUT");
   }
 
   @Test
   public void fakePutViaFormParam() throws Exception {
     request().post("/fake/put")
-        .form().add("_method", "PuT")
+        .form().add("_method", "PUT")
         .expect("PUT");
   }
 
   @Test
   public void fakePostViaHeader() throws Exception {
     request().post("/fake/put")
-        .header("_method", "put")
+        .header("_method", "PUT")
         .expect("PUT");
   }
 
