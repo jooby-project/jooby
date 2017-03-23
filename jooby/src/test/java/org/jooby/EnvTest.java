@@ -89,6 +89,16 @@ public class EnvTest {
   }
 
   @Test
+  public void resolveMapIgnore() {
+    Config config = ConfigFactory.empty();
+
+    Env env = Env.DEFAULT.build(config);
+    assertEquals("${varx} - ${varx}",
+        env.resolver().ignoreMissing().source(ImmutableMap.of("var", "foo.bar"))
+            .resolve("${varx} - ${varx}"));
+  }
+
+  @Test
   public void resolveIgnoreMissing() {
     Config config = ConfigFactory.empty();
 
@@ -123,7 +133,9 @@ public class EnvTest {
       }
 
       @Override
-      public LifeCycle onStarted(final CheckedConsumer<Registry> task) { return null; }
+      public LifeCycle onStarted(final CheckedConsumer<Registry> task) {
+        return null;
+      }
 
       @Override
       public LifeCycle onStop(final CheckedConsumer<Registry> task) {
@@ -166,7 +178,9 @@ public class EnvTest {
       }
 
       @Override
-      public List<CheckedConsumer<Registry>> startedTasks() { return null; }
+      public List<CheckedConsumer<Registry>> startedTasks() {
+        return null;
+      }
 
       @Override
       public List<CheckedConsumer<Registry>> stopTasks() {
@@ -211,35 +225,35 @@ public class EnvTest {
       env.resolve(env.resolve("${key}"));
       fail();
     } catch (NoSuchElementException ex) {
-      assertEquals("No configuration setting found for key 'key' at 1:1", ex.getMessage());
+      assertEquals("Missing ${key} at 1:1", ex.getMessage());
     }
 
     try {
       env.resolve(env.resolve("    ${key}"));
       fail();
     } catch (NoSuchElementException ex) {
-      assertEquals("No configuration setting found for key 'key' at 1:5", ex.getMessage());
+      assertEquals("Missing ${key} at 1:5", ex.getMessage());
     }
 
     try {
       env.resolve(env.resolve("  \n  ${key}"));
       fail();
     } catch (NoSuchElementException ex) {
-      assertEquals("No configuration setting found for key 'key' at 2:3", ex.getMessage());
+      assertEquals("Missing ${key} at 2:3", ex.getMessage());
     }
 
     try {
       env.resolve(env.resolve("  \n  ${key}"));
       fail();
     } catch (NoSuchElementException ex) {
-      assertEquals("No configuration setting found for key 'key' at 2:3", ex.getMessage());
+      assertEquals("Missing ${key} at 2:3", ex.getMessage());
     }
 
     try {
       env.resolve(env.resolve("  \n \n ${key}"));
       fail();
     } catch (NoSuchElementException ex) {
-      assertEquals("No configuration setting found for key 'key' at 3:2", ex.getMessage());
+      assertEquals("Missing ${key} at 3:2", ex.getMessage());
     }
   }
 

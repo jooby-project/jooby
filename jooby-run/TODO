@@ -1,4 +1,5 @@
 how do I detect a hotswap? and only then bounce the app?
+-- JavaHotCodeReplaceManager at eclipse.jdt.debug
 
 ideal implementation?
 + bounce when hotswap fail

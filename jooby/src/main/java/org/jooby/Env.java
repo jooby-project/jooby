@@ -41,7 +41,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
 import javaslang.API;
 import javaslang.control.Option;
@@ -70,6 +69,73 @@ import javaslang.control.Try.CheckedConsumer;
 public interface Env extends LifeCycle {
 
   /**
+   * Property source for {@link Resolver}
+   *
+   * @author edgar
+   * @since 1.1.0
+   */
+  interface PropertySource {
+
+    /**
+     * Get a property value or throw {@link NoSuchElementException}.
+     *
+     * @param key Property key/name.
+     * @return Value or throw {@link NoSuchElementException}.
+     * @throws NoSuchElementException If property is missing.
+     */
+    String get(String key) throws NoSuchElementException;
+  }
+
+  /**
+   * {@link PropertySource} for {@link Config}.
+   *
+   * @author edgar
+   * @since 1.1.0
+   */
+  class ConfigSource implements PropertySource {
+
+    private Config source;
+
+    public ConfigSource(final Config source) {
+      this.source = source;
+    }
+
+    @Override
+    public String get(final String key) throws NoSuchElementException {
+      if (source.hasPath(key)) {
+        return source.getString(key);
+      }
+      throw new NoSuchElementException(key);
+    }
+
+  }
+
+  /**
+   * {@link PropertySource} for {@link Map}.
+   *
+   * @author edgar
+   * @since 1.1.0
+   */
+  class MapSource implements PropertySource {
+
+    private Map<String, Object> source;
+
+    public MapSource(final Map<String, Object> source) {
+      this.source = source;
+    }
+
+    @Override
+    public String get(final String key) throws NoSuchElementException {
+      Object value = source.get(key);
+      if (value != null) {
+        return value.toString();
+      }
+      throw new NoSuchElementException(key);
+    }
+
+  }
+
+  /**
    * Template literal implementation, replaces <code>${expression}</code> from a String using a
    * {@link Config} object.
    *
@@ -80,7 +146,7 @@ public interface Env extends LifeCycle {
 
     private String endDelim = "}";
 
-    private Config source;
+    private PropertySource source;
 
     private boolean ignoreMissing;
 
@@ -91,7 +157,17 @@ public interface Env extends LifeCycle {
      * @return This resolver.
      */
     public Resolver source(final Map<String, Object> source) {
-      this.source = ConfigFactory.parseMap(source);
+      return source(new MapSource(source));
+    }
+
+    /**
+     * Set property source.
+     *
+     * @param source Source.
+     * @return This resolver.
+     */
+    public Resolver source(final PropertySource source) {
+      this.source = source;
       return this;
     }
 
@@ -102,8 +178,7 @@ public interface Env extends LifeCycle {
      * @return This resolver.
      */
     public Resolver source(final Config source) {
-      this.source = source;
-      return this;
+      return source(new ConfigSource(source));
     }
 
     /**
@@ -166,14 +241,14 @@ public interface Env extends LifeCycle {
         buffer.append(text.substring(offset, start));
         String key = text.substring(start + startDelim.length(), end);
         Object value;
-        if (source.hasPath(key)) {
-          value = source.getAnyRef(key);
-        } else {
+        try {
+          value = source.get(key);
+        } catch (NoSuchElementException x) {
           if (ignoreMissing) {
             value = text.substring(start, end + endDelim.length());
           } else {
             throw err.apply(start, (line, column) -> new NoSuchElementException(
-                "No configuration setting found for key '" + key + "' at " + line + ":" + column));
+                "Missing " + startDelim + key + endDelim + " at " + line + ":" + column));
           }
         }
         buffer.append(value);
