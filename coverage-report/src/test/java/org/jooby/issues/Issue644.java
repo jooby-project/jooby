@@ -25,6 +25,14 @@ public class Issue644 extends ServerFeature {
         .header("Content-Type", "text/html;charset=utf-8");
 
     request()
+        .get("/i644/root.html")
+        .expect("<!-- The template for the note object -->\n" +
+            "<p>l1</p>\n" +
+            "<p>l2</p>\n" +
+            "")
+        .header("Content-Type", "text/html;charset=utf-8");
+
+    request()
         .get("/644/index.html")
         .expect("<!-- The template for the note object -->\n" +
             "<script type=\"text/x-template\" id=\"custom-note-template\">\n" +

@@ -136,14 +136,18 @@ public class SSIHandler extends AssetHandler {
   @Override
   protected void send(final Request req, final Response rsp, final Asset asset) throws Throwable {
     Env env = req.require(Env.class);
-    CharSequence text = env.resolver()
-        .delimiters(startDelimiter, endDelimiter)
-        .source(this::file)
-        .ignoreMissing()
-        .resolve(text(asset.stream()));
+    CharSequence text = process(env, text(asset.stream()));
 
     rsp.type(asset.type())
         .send(text);
+  }
+
+  private String process(final Env env, final String src) {
+    return env.resolver()
+        .delimiters(startDelimiter, endDelimiter)
+        .source(key -> process(env, file(key)))
+        .ignoreMissing()
+        .resolve(src);
   }
 
   private String file(final String key) {
