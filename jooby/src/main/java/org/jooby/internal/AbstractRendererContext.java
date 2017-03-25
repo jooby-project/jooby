@@ -59,12 +59,11 @@ public abstract class AbstractRendererContext implements Renderer.Context {
 
   private int rsize;
 
-
   public AbstractRendererContext(final List<Renderer> renderers,
-      final List<MediaType> produces, final Charset charset, Locale locale, final Map<String, Object> locals) {
+      final List<MediaType> produces, final Charset charset, final Locale locale,
+      final Map<String, Object> locals) {
     this.renderers = renderers;
     this.produces = produces;
-    this.matcher = MediaType.matcher(produces);
     this.charset = charset;
     this.locale = locale;
     this.locals = locals;
@@ -109,6 +108,9 @@ public abstract class AbstractRendererContext implements Renderer.Context {
 
   @Override
   public boolean accepts(final MediaType type) {
+    if (matcher == null) {
+      matcher = MediaType.matcher(produces);
+    }
     return matcher.matches(type);
   }
 

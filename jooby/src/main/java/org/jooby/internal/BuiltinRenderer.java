@@ -69,8 +69,7 @@ public enum BuiltinRenderer implements Renderer {
   bytes {
     @Override
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
-      Class<?> type = object.getClass();
-      if (type.isArray() && type.getComponentType() == byte.class) {
+      if (object instanceof byte[]) {
         ctx.type(MediaType.octetstream)
             .send((byte[]) object);
       }

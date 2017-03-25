@@ -228,7 +228,6 @@ public class Result {
    */
   @SuppressWarnings("unchecked")
   public <T> T get(final List<MediaType> types) {
-    requireNonNull(types, "Types are required.");
     int size = data.size();
     if (size == 1) {
       return (T) first.get();
@@ -304,11 +303,10 @@ public class Result {
   }
 
   private void put(final String name, final Object val) {
-    if (headers == NO_HEADERS) {
-      // assign memory
-      headers = new LinkedHashMap<>();
-    }
-    headers.put(name, val);
+    headers = ImmutableMap.<String, Object> builder()
+        .putAll(headers)
+        .put(name, val)
+        .build();
   }
 
 }

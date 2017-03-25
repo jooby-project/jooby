@@ -29,7 +29,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,6 +45,7 @@ import org.jooby.internal.RouteSourceImpl;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Primitives;
 import com.google.inject.Key;
@@ -243,7 +243,7 @@ public interface Route {
     /**
      * There is no source information.
      */
-    Source UNKNOWN = new Source() {
+    Source BUILTIN = new Source() {
 
       @Override
       public int line() {
@@ -257,7 +257,7 @@ public interface Route {
 
       @Override
       public String toString() {
-        return "~unknown:" + line();
+        return "~builtin";
       }
     };
 
@@ -601,42 +601,42 @@ public interface Route {
     // GET
     // ********************************************************************************************
     public Group get(final String pattern, final Route.Filter filter) {
-      newRoute("GET", pattern, filter);
+      newRoute(GET, pattern, filter);
       return this;
     }
 
     public Group get(final String pattern, final Route.Handler handler) {
-      newRoute("GET", pattern, handler);
+      newRoute(GET, pattern, handler);
       return this;
     }
 
     public Group get(final String pattern, final Route.OneArgHandler handler) {
-      newRoute("GET", pattern, handler);
+      newRoute(GET, pattern, handler);
       return this;
     }
 
     public Group get(final String pattern, final Route.ZeroArgHandler handler) {
-      newRoute("GET", pattern, handler);
+      newRoute(GET, pattern, handler);
       return this;
     }
 
     public Group get(final Route.Filter filter) {
-      newRoute("GET", "", filter);
+      newRoute(GET, "", filter);
       return this;
     }
 
     public Group get(final Route.Handler handler) {
-      newRoute("GET", "", handler);
+      newRoute(GET, "", handler);
       return this;
     }
 
     public Group get(final Route.OneArgHandler handler) {
-      newRoute("GET", "", handler);
+      newRoute(GET, "", handler);
       return this;
     }
 
     public Group get(final Route.ZeroArgHandler handler) {
-      newRoute("GET", "", handler);
+      newRoute(GET, "", handler);
       return this;
     }
 
@@ -644,42 +644,42 @@ public interface Route {
     // POST
     // ********************************************************************************************
     public Group post(final String pattern, final Route.Filter filter) {
-      newRoute("POST", pattern, filter);
+      newRoute(POST, pattern, filter);
       return this;
     }
 
     public Group post(final String pattern, final Route.Handler handler) {
-      newRoute("POST", pattern, handler);
+      newRoute(POST, pattern, handler);
       return this;
     }
 
     public Group post(final String pattern, final Route.OneArgHandler handler) {
-      newRoute("POST", pattern, handler);
+      newRoute(POST, pattern, handler);
       return this;
     }
 
     public Group post(final String pattern, final Route.ZeroArgHandler handler) {
-      newRoute("POST", pattern, handler);
+      newRoute(POST, pattern, handler);
       return this;
     }
 
     public Group post(final Route.Filter filter) {
-      newRoute("POST", "", filter);
+      newRoute(POST, "", filter);
       return this;
     }
 
     public Group post(final Route.Handler handler) {
-      newRoute("POST", "", handler);
+      newRoute(POST, "", handler);
       return this;
     }
 
     public Group post(final Route.OneArgHandler handler) {
-      newRoute("POST", "", handler);
+      newRoute(POST, "", handler);
       return this;
     }
 
     public Group post(final Route.ZeroArgHandler handler) {
-      newRoute("POST", "", handler);
+      newRoute(POST, "", handler);
       return this;
     }
 
@@ -687,42 +687,42 @@ public interface Route {
     // PUT
     // ********************************************************************************************
     public Group put(final String pattern, final Route.Filter filter) {
-      newRoute("PUT", pattern, filter);
+      newRoute(PUT, pattern, filter);
       return this;
     }
 
     public Group put(final String pattern, final Route.Handler handler) {
-      newRoute("PUT", pattern, handler);
+      newRoute(PUT, pattern, handler);
       return this;
     }
 
     public Group put(final String pattern, final Route.OneArgHandler handler) {
-      newRoute("PUT", pattern, handler);
+      newRoute(PUT, pattern, handler);
       return this;
     }
 
     public Group put(final String pattern, final Route.ZeroArgHandler handler) {
-      newRoute("PUT", pattern, handler);
+      newRoute(PUT, pattern, handler);
       return this;
     }
 
     public Group put(final Route.Filter filter) {
-      newRoute("PUT", "", filter);
+      newRoute(PUT, "", filter);
       return this;
     }
 
     public Group put(final Route.Handler handler) {
-      newRoute("PUT", "", handler);
+      newRoute(PUT, "", handler);
       return this;
     }
 
     public Group put(final Route.OneArgHandler handler) {
-      newRoute("PUT", "", handler);
+      newRoute(PUT, "", handler);
       return this;
     }
 
     public Group put(final Route.ZeroArgHandler handler) {
-      newRoute("PUT", "", handler);
+      newRoute(PUT, "", handler);
       return this;
     }
 
@@ -730,42 +730,42 @@ public interface Route {
     // DELETE
     // ********************************************************************************************
     public Group delete(final String pattern, final Route.Filter filter) {
-      newRoute("DELETE", pattern, filter);
+      newRoute(DELETE, pattern, filter);
       return this;
     }
 
     public Group delete(final String pattern, final Route.Handler handler) {
-      newRoute("DELETE", pattern, handler);
+      newRoute(DELETE, pattern, handler);
       return this;
     }
 
     public Group delete(final String pattern, final Route.OneArgHandler handler) {
-      newRoute("DELETE", pattern, handler);
+      newRoute(DELETE, pattern, handler);
       return this;
     }
 
     public Group delete(final String pattern, final Route.ZeroArgHandler handler) {
-      newRoute("DELETE", pattern, handler);
+      newRoute(DELETE, pattern, handler);
       return this;
     }
 
     public Group delete(final Route.Filter filter) {
-      newRoute("DELETE", "", filter);
+      newRoute(DELETE, "", filter);
       return this;
     }
 
     public Group delete(final Route.Handler handler) {
-      newRoute("DELETE", "", handler);
+      newRoute(DELETE, "", handler);
       return this;
     }
 
     public Group delete(final Route.OneArgHandler handler) {
-      newRoute("DELETE", "", handler);
+      newRoute(DELETE, "", handler);
       return this;
     }
 
     public Group delete(final Route.ZeroArgHandler handler) {
-      newRoute("DELETE", "", handler);
+      newRoute(DELETE, "", handler);
       return this;
     }
 
@@ -773,42 +773,42 @@ public interface Route {
     // PATCH
     // ********************************************************************************************
     public Group patch(final String pattern, final Route.Filter filter) {
-      newRoute("PATCH", pattern, filter);
+      newRoute(PATCH, pattern, filter);
       return this;
     }
 
     public Group patch(final String pattern, final Route.Handler handler) {
-      newRoute("PATCH", pattern, handler);
+      newRoute(PATCH, pattern, handler);
       return this;
     }
 
     public Group patch(final String pattern, final Route.OneArgHandler handler) {
-      newRoute("PATCH", pattern, handler);
+      newRoute(PATCH, pattern, handler);
       return this;
     }
 
     public Group patch(final String pattern, final Route.ZeroArgHandler handler) {
-      newRoute("PATCH", pattern, handler);
+      newRoute(PATCH, pattern, handler);
       return this;
     }
 
     public Group patch(final Route.Filter filter) {
-      newRoute("PATCH", "", filter);
+      newRoute(PATCH, "", filter);
       return this;
     }
 
     public Group patch(final Route.Handler handler) {
-      newRoute("PATCH", "", handler);
+      newRoute(PATCH, "", handler);
       return this;
     }
 
     public Group patch(final Route.OneArgHandler handler) {
-      newRoute("PATCH", "", handler);
+      newRoute(PATCH, "", handler);
       return this;
     }
 
     public Group patch(final Route.ZeroArgHandler handler) {
-      newRoute("PATCH", "", handler);
+      newRoute(PATCH, "", handler);
       return this;
     }
 
@@ -1071,7 +1071,7 @@ public interface Route {
 
     private List<RoutePattern> excludes = Collections.emptyList();
 
-    private Map<String, Object> attributes = new HashMap<>();
+    private Map<String, Object> attributes = ImmutableMap.of();
 
     private Mapper<?> mapper;
 
@@ -1230,7 +1230,10 @@ public interface Route {
       requireNonNull(value, "Attribute value is required.");
 
       if (valid(value)) {
-        attributes.put(name, value);
+        attributes = ImmutableMap.<String, Object> builder()
+            .putAll(attributes)
+            .put(name, value)
+            .build();
       }
       return this;
     }
@@ -1261,7 +1264,7 @@ public interface Route {
      * @return A read only view of attributes.
      */
     public Map<String, Object> attributes() {
-      return Collections.unmodifiableMap(attributes);
+      return attributes;
     }
 
     /**
@@ -2228,7 +2231,7 @@ public interface Route {
   }
 
   /**
-   * Indicates if the {@link #pattern()} contains a glob charecter, like <code>?</code>,
+   * Indicates if the {@link #pattern()} contains a glob character, like <code>?</code>,
    * <code>*</code> or <code>**</code>.
    *
    * @return Indicates if the {@link #pattern()} contains a glob charecter, like <code>?</code>,
@@ -2260,6 +2263,29 @@ public interface Route {
    */
   static String normalize(final String path) {
     return RoutePattern.normalize(path);
+  }
+
+  /**
+   * Remove invalid path mark when present.
+   *
+   * @param path Path.
+   * @return Original path.
+   */
+  static String unerrpath(final String path) {
+    if (path.charAt(0) == OUT_OF_PATH) {
+      return path.substring(1);
+    }
+    return path;
+  }
+
+  /**
+   * Mark a path as invalid.
+   *
+   * @param path Path.
+   * @return Invalid path.
+   */
+  static String errpath(final String path) {
+    return OUT_OF_PATH + path;
   }
 
   /**

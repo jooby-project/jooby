@@ -34,13 +34,9 @@ import org.jooby.Route;
 import org.jooby.Status;
 import org.jooby.internal.mvc.MvcHandler;
 
-import com.google.common.collect.ImmutableMap;
-
 import javaslang.control.Option;
 
-public class RouteImpl implements Route, Route.Filter {
-
-  private static Map<Object, String> NO_VARS = ImmutableMap.of();
+public class RouteImpl implements RouteWithFilter {
 
   private Definition route;
 
@@ -56,24 +52,17 @@ public class RouteImpl implements Route, Route.Filter {
 
   private Source source;
 
-  public static RouteImpl notFound(final String method, final String path,
-      final List<MediaType> produces) {
-    return fromStatus((req, rsp, chain) -> {
+  public static RouteWithFilter notFound(final String method, final String path) {
+    return new FallbackRoute("404", method, path, MediaType.ALL, (req, rsp, chain) -> {
       if (!rsp.status().isPresent()) {
         throw new Err(Status.NOT_FOUND, req.path(true));
       }
-    }, method, path, "404", produces);
+    });
   }
 
-  public static RouteImpl fromStatus(final Filter filter, final String method,
+  public static RouteWithFilter fallback(final Filter filter, final String method,
       final String path, final String name, final List<MediaType> produces) {
-    return new RouteImpl(filter, new Route.Definition(method, path, filter).name(name), method,
-        path, produces, NO_VARS, null, Source.UNKNOWN) {
-      @Override
-      public boolean apply(final String filter) {
-        return true;
-      }
-    };
+    return new FallbackRoute(name, method, path, produces, filter);
   }
 
   public RouteImpl(final Filter filter, final Definition route, final String method,
@@ -99,12 +88,7 @@ public class RouteImpl implements Route, Route.Filter {
     this.produces = produces;
     this.vars = vars;
     this.source = source;
-    /** Clean up out of path char. */
-    if (path.charAt(path.length() - 1) == OUT_OF_PATH) {
-      this.path = path.substring(0, path.length() - 1);
-    } else {
-      this.path = path;
-    }
+    this.path = Route.unerrpath(path);
   }
 
   @Override

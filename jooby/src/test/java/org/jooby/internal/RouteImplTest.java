@@ -28,7 +28,7 @@ public class RouteImplTest {
           expect(req.path(true)).andReturn("/x");
         })
         .run(unit -> {
-          RouteImpl.notFound("GET", "/x", MediaType.ALL)
+          RouteImpl.notFound("GET", "/x")
               .handle(unit.get(Request.class), unit.get(Response.class),
                   unit.get(Route.Chain.class));
         });
@@ -42,7 +42,7 @@ public class RouteImplTest {
           expect(rsp.status()).andReturn(Optional.of(org.jooby.Status.OK));
         })
         .run(unit -> {
-          RouteImpl.notFound("GET", "/x", MediaType.ALL)
+          RouteImpl.notFound("GET", "/x")
               .handle(unit.get(Request.class), unit.get(Response.class),
                   unit.get(Route.Chain.class));
         });
@@ -55,11 +55,15 @@ public class RouteImplTest {
     Route route = new RouteImpl(f, new Route.Definition("GET", "/p?th", f)
         .name("path")
         .consumes("html", "json"), "GET", "/path", MediaType.valueOf("json", "html"),
-        Collections.emptyMap(), null, Source.UNKNOWN);
+        Collections.emptyMap(), null, Source.BUILTIN);
 
-    assertEquals("| Method | Path  | Source      | Name  | Pattern | Consumes                      | Produces                      |\n" +
-        "|--------|-------|-------------|-------|---------|-------------------------------|-------------------------------|\n" +
-        "| GET    | /path | ~unknown:-1 | /path | /p?th   | [text/html, application/json] | [application/json, text/html] |", route.toString());
+    assertEquals(
+        "| Method | Path  | Source   | Name  | Pattern | Consumes                      | Produces                      |\n"
+            +
+            "|--------|-------|----------|-------|---------|-------------------------------|-------------------------------|\n"
+            +
+            "| GET    | /path | ~builtin | /path | /p?th   | [text/html, application/json] | [application/json, text/html] |",
+        route.toString());
   }
 
   @Test
@@ -67,7 +71,7 @@ public class RouteImplTest {
     Route.Filter f = (req, rsp, chain) -> {
     };
     Route route = new RouteImpl(f, new Route.Definition("GET", "/p?th", f).consumes("html", "json"),
-        "GET", "/path", Collections.emptyList(), Collections.emptyMap(), null, Source.UNKNOWN);
+        "GET", "/path", Collections.emptyList(), Collections.emptyMap(), null, Source.BUILTIN);
 
     assertEquals(MediaType.valueOf("html", "json"), route.consumes());
   }

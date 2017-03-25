@@ -213,7 +213,7 @@ public class ResponseImpl implements Response {
   @Override
   public Response length(final long length) {
     len = length;
-    rsp.header("Content-Length", Headers.encode(length));
+    rsp.header("Content-Length", Long.toString(length));
     return this;
   }
 
@@ -224,7 +224,7 @@ public class ResponseImpl implements Response {
 
   @Override
   public Response type(final MediaType type) {
-    this.type = requireNonNull(type, "MediaType is required.");
+    this.type = type;
     if (type.isText()) {
       header("Content-Type", type.name() + ";charset=" + charset.name());
     } else {
@@ -260,12 +260,14 @@ public class ResponseImpl implements Response {
   }
 
   public void done(final Optional<Throwable> cause) {
-    for (Route.Complete h : complete) {
-      Try.run(() -> h.handle(req, this, cause))
-          .onFailure(x -> LoggerFactory.getLogger(Response.class)
-              .error("complete listener resulted in error", x));
+    if (complete.size() > 0) {
+      for (Route.Complete h : complete) {
+        Try.run(() -> h.handle(req, this, cause))
+            .onFailure(x -> LoggerFactory.getLogger(Response.class)
+                .error("complete listener resulted in error", x));
+      }
+      complete.clear();
     }
-    complete.clear();
     end();
   }
 
@@ -321,9 +323,10 @@ public class ResponseImpl implements Response {
 
     status(finalResult.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
 
-    finalResult.headers().forEach((name, value) -> {
-      setHeader(name, value);
-    });
+    Map<String, Object> headers = finalResult.headers();
+    if (headers.size() > 0) {
+      headers.forEach(this::setHeader);
+    }
 
     writeCookies();
 

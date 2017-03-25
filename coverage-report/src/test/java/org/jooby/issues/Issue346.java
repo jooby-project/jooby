@@ -6,12 +6,16 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jooby.Request;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 public class Issue346 extends ServerFeature {
 
@@ -56,16 +60,18 @@ public class Issue346 extends ServerFeature {
 
   {
     use("/1", (req, rsp) -> {
-      assertEquals("{priority=1.0, changefreq=always}", req.route().attributes().toString());
+      assertEquals(ImmutableMap.of("priority", 1.0, "changefreq", "always"),
+          req.route().attributes());
     });
 
     use("/2", (req, rsp) -> {
-      assertEquals("{priority=0.5, changefreq=always}", req.route().attributes().toString());
+      assertEquals(ImmutableMap.of("priority", 0.5, "changefreq", "always"),
+          req.route().attributes());
     });
 
     use("/3", (req, rsp) -> {
-      assertEquals("{role=admin, priority=0.5, changefreq=always}",
-          req.route().attributes().toString());
+      assertEquals(ImmutableMap.of("priority", 0.5, "changefreq", "always", "role", "admin"),
+          req.route().attributes());
     });
     use(Resource.class);
   }
@@ -73,13 +79,33 @@ public class Issue346 extends ServerFeature {
   @Test
   public void mvcAttrs() throws Exception {
     request().get("/1")
-        .expect("{priority=1.0, changefreq=always}");
+        .expect(value -> {
+          Map<String, Object> hash = toMap(value.substring(1, value.length() - 1));
+          assertEquals(ImmutableMap.of("priority", "1.0", "changefreq", "always"), hash);
+        });
 
     request().get("/2")
-        .expect("{priority=0.5, changefreq=always}");
+        .expect(value -> {
+          Map<String, Object> hash = toMap(value.substring(1, value.length() - 1));
+          assertEquals(ImmutableMap.of("priority", "0.5", "changefreq", "always"), hash);
+        });
 
     request().get("/3")
-        .expect("{role=admin, priority=0.5, changefreq=always}");
+        .expect(value -> {
+          Map<String, Object> hash = toMap(value.substring(1, value.length() - 1));
+          assertEquals(ImmutableMap.of("priority", "0.5", "changefreq", "always", "role", "admin"),
+              hash);
+        });
+  }
+
+  private Map<String, Object> toMap(final String value) {
+    Map<String, Object> hash = new HashMap<>();
+    String[] pairs = value.split(",");
+    for (String pair : pairs) {
+      String[] keyandvalue = pair.trim().split("=");
+      hash.put(keyandvalue[0], keyandvalue[1]);
+    }
+    return hash;
   }
 
 }
