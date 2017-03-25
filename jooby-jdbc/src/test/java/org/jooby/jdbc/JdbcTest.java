@@ -33,6 +33,8 @@ import javaslang.control.Try.CheckedRunnable;
     System.class })
 public class JdbcTest {
 
+  static String POOL_SIZE = "9";
+
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
     expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
@@ -60,7 +62,12 @@ public class JdbcTest {
   @Test
   public void memdb() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("mem"));
+    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("mem"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(currentTimeMillis(123))
@@ -82,6 +89,7 @@ public class JdbcTest {
         .withValue("application.name", fromAnyRef("jdbctest"))
         .withValue("application.tmpdir", fromAnyRef("target"))
         .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
@@ -124,6 +132,7 @@ public class JdbcTest {
         .withValue("application.name", fromAnyRef("jdbctest"))
         .withValue("application.tmpdir", fromAnyRef("target"))
         .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
@@ -156,6 +165,7 @@ public class JdbcTest {
         .withValue("application.charset", fromAnyRef("UTF-8"))
         .withValue("application.name", fromAnyRef("jdbctest"))
         .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
@@ -174,7 +184,12 @@ public class JdbcTest {
   @Test
   public void derby() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("jdbc:derby:testdb"));
+    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("jdbc:derby:testdb"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.apache.derby.jdbc.ClientDataSource", "jdbc:derby:testdb", "derby.testdb",
@@ -190,7 +205,12 @@ public class JdbcTest {
 
   @Test
   public void connectionString() throws Exception {
-    Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
+    Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf")
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.apache.derby.jdbc.ClientDataSource", null, "derby.testdb",
@@ -216,7 +236,12 @@ public class JdbcTest {
   public void db2() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Config dbconf = config.withValue("db",
-        ConfigValueFactory.fromAnyRef("jdbc:db2://127.0.0.1:50000/SAMPLE"));
+        ConfigValueFactory.fromAnyRef("jdbc:db2://127.0.0.1:50000/SAMPLE"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("com.ibm.db2.jcc.DB2SimpleDataSource", "jdbc:db2://127.0.0.1:50000/SAMPLE",
@@ -234,7 +259,12 @@ public class JdbcTest {
   public void hsql() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Config dbconf = config.withValue("db",
-        ConfigValueFactory.fromAnyRef("jdbc:hsqldb:file"));
+        ConfigValueFactory.fromAnyRef("jdbc:hsqldb:file"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.hsqldb.jdbc.JDBCDataSource", "jdbc:hsqldb:file",
@@ -252,7 +282,12 @@ public class JdbcTest {
   public void mariadb() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Config dbconf = config.withValue("db",
-        ConfigValueFactory.fromAnyRef("jdbc:mariadb://localhost/db"));
+        ConfigValueFactory.fromAnyRef("jdbc:mariadb://localhost/db"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.mariadb.jdbc.MySQLDataSource", "jdbc:mariadb://localhost/db",
@@ -275,6 +310,7 @@ public class JdbcTest {
         .withValue("application.charset", fromAnyRef("UTF-8"))
         .withValue("application.name", fromAnyRef("jdbctest"))
         .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
@@ -299,6 +335,7 @@ public class JdbcTest {
         .withValue("application.charset", fromAnyRef("UTF-8"))
         .withValue("application.name", fromAnyRef("jdbctest"))
         .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
         // override defaults
         .withValue("db.cachePrepStmts", fromAnyRef(false))
         .resolve();
@@ -336,11 +373,12 @@ public class JdbcTest {
         .withValue("hikari.maximumPoolSize", fromAnyRef(maximumPoolSize))
         .withValue("hikari.idleTimeout", fromAnyRef(idleTimeout))
         .withValue("hikari.autoCommit", fromAnyRef(false))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
-            "sa", "", false))
+            "sa", "", false, false))
         .expect(unit -> {
           Properties props = unit.get(Properties.class);
           expect(props.setProperty("maximumPoolSize", "10")).andReturn(null);
@@ -365,6 +403,7 @@ public class JdbcTest {
         .withValue("application.tmpdir", fromAnyRef("target"))
         .withValue("application.charset", fromAnyRef("UTF-8"))
         .withValue("hikari.dataSourceClassName", fromAnyRef("test.MyDataSource"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
@@ -395,6 +434,7 @@ public class JdbcTest {
         .withValue("db.audit.user", fromAnyRef("sa"))
         .withValue("db.audit.password", fromAnyRef(""))
         .withValue("db.audit.hikari.dataSourceClassName", fromAnyRef("test.MyDataSource"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
@@ -420,7 +460,12 @@ public class JdbcTest {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Config dbconf = config.withValue("db",
         ConfigValueFactory.fromAnyRef(
-            "jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;integratedSecurity=true;"));
+            "jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;integratedSecurity=true;"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(
@@ -440,7 +485,13 @@ public class JdbcTest {
   public void oracle() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Config dbconf = config.withValue("db",
-        ConfigValueFactory.fromAnyRef("jdbc:oracle:thin:@myhost:1521:orcl"));
+        ConfigValueFactory.fromAnyRef("jdbc:oracle:thin:@myhost:1521:orcl"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
+    ;
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("oracle.jdbc.pool.OracleDataSource", "jdbc:oracle:thin:@myhost:1521:orcl",
@@ -458,8 +509,12 @@ public class JdbcTest {
   public void pgsql() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     String url = "jdbc:pgsql://server/database";
-    Config dbconf = config.withValue("db",
-        ConfigValueFactory.fromAnyRef(url));
+    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef(url))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("", "jdbc:pgsql://server/database",
@@ -481,8 +536,12 @@ public class JdbcTest {
   public void postgresql() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     String url = "jdbc:postgresql://server/database";
-    Config dbconf = config.withValue("db",
-        ConfigValueFactory.fromAnyRef(url));
+    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef(url))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("", "jdbc:postgresql://server/database",
@@ -503,8 +562,13 @@ public class JdbcTest {
   @Test
   public void sybase() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Config dbconf = config.withValue("db",
-        ConfigValueFactory.fromAnyRef("jdbc:jtds:sybase://server/database"));
+    Config dbconf = config
+        .withValue("db", ConfigValueFactory.fromAnyRef("jdbc:jtds:sybase://server/database"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("com.sybase.jdbcx.SybDataSource", "jdbc:jtds:sybase://server/database",
@@ -522,7 +586,12 @@ public class JdbcTest {
   public void firebirdsql() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Config dbconf = config.withValue("db",
-        ConfigValueFactory.fromAnyRef("jdbc:firebirdsql:host:mydb"));
+        ConfigValueFactory.fromAnyRef("jdbc:firebirdsql:host:mydb"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.firebirdsql.pool.FBSimpleDataSource", "jdbc:firebirdsql:host:mydb",
@@ -540,7 +609,12 @@ public class JdbcTest {
   public void sqlite() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Config dbconf = config.withValue("db",
-        ConfigValueFactory.fromAnyRef("jdbc:sqlite:testdb"));
+        ConfigValueFactory.fromAnyRef("jdbc:sqlite:testdb"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.sqlite.SQLiteDataSource", "jdbc:sqlite:testdb",
@@ -560,7 +634,12 @@ public class JdbcTest {
     Config dbconf = config
         .withValue("db", ConfigValueFactory.fromAnyRef("jdbc:custom:testdb"))
         .withValue("databases.custom.dataSourceClassName",
-            ConfigValueFactory.fromAnyRef("custom.DS"));
+            ConfigValueFactory.fromAnyRef("custom.DS"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("custom.DS", "jdbc:custom:testdb",
@@ -617,6 +696,12 @@ public class JdbcTest {
 
   private Block props(final String dataSourceClassName, final String url, final String name,
       final String username, final String password, final boolean hasDataSourceClassName) {
+    return props(dataSourceClassName, url, name, username, password, hasDataSourceClassName, true);
+  }
+
+  private Block props(final String dataSourceClassName, final String url, final String name,
+      final String username, final String password, final boolean hasDataSourceClassName,
+      final boolean poolSize) {
     return unit -> {
       Properties properties = unit.constructor(Properties.class)
           .build();
@@ -648,6 +733,9 @@ public class JdbcTest {
       }
       expect(properties.remove("dataSource.dataSourceClassName")).andReturn(dataSourceClassName);
       expect(properties.setProperty("poolName", name)).andReturn(null);
+      if (poolSize) {
+        expect(properties.setProperty("maximumPoolSize", POOL_SIZE)).andReturn(null);
+      }
 
       unit.registerMock(Properties.class, properties);
     };

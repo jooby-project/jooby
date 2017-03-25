@@ -72,6 +72,7 @@ public class HbmTest {
         .withValue("application.name", fromAnyRef("jdbctest"))
         .withValue("application.tmpdir", fromAnyRef("target"))
         .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef("4"))
         .resolve();
 
     new MockUnit(Env.class, Binder.class, HibernateEntityManagerFactory.class)
@@ -96,6 +97,7 @@ public class HbmTest {
         .withValue("application.name", fromAnyRef("jdbctest"))
         .withValue("application.tmpdir", fromAnyRef("target"))
         .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef("4"))
         .resolve();
 
     new MockUnit(Env.class, Binder.class, HibernateEntityManagerFactory.class)
@@ -120,6 +122,7 @@ public class HbmTest {
         .withValue("application.name", fromAnyRef("jdbctest"))
         .withValue("application.tmpdir", fromAnyRef("target"))
         .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef("4"))
         .resolve();
 
     new MockUnit(Env.class, Binder.class, HibernateEntityManagerFactory.class)
@@ -151,6 +154,7 @@ public class HbmTest {
         .withValue("application.name", fromAnyRef("jdbctest"))
         .withValue("application.tmpdir", fromAnyRef("target"))
         .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef("4"))
         .resolve();
 
     new MockUnit(Env.class, Binder.class, HibernateEntityManagerFactory.class)
@@ -312,6 +316,7 @@ public class HbmTest {
       }
       expect(properties.remove("dataSource.dataSourceClassName")).andReturn(dataSourceClassName);
       expect(properties.setProperty("poolName", name)).andReturn(null);
+      expect(properties.setProperty("maximumPoolSize", "4")).andReturn(null);
 
       unit.registerMock(Properties.class, properties);
     };

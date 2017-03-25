@@ -1,5 +1,6 @@
 package org.jooby.jooq;
 
+import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
@@ -156,6 +157,7 @@ public class jOOQTest {
         .withValue("application.tmpdir", ConfigValueFactory.fromAnyRef("target"))
         .withValue("application.name", ConfigValueFactory.fromAnyRef("jdbctest"))
         .withValue("application.charset", ConfigValueFactory.fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef("4"))
         .resolve();
   }
 
@@ -228,6 +230,7 @@ public class jOOQTest {
       }
       expect(properties.remove("dataSource.dataSourceClassName")).andReturn(dataSourceClassName);
       expect(properties.setProperty("poolName", name)).andReturn(null);
+      expect(properties.setProperty("maximumPoolSize", "4")).andReturn(null);
 
       unit.registerMock(Properties.class, properties);
     };
