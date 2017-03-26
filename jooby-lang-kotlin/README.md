@@ -160,6 +160,6 @@ fun main(args: Array<String>) {
 
 ## starter project
 
-We do provide a starter [Kotlin](https://kotlinlang.org) project ready to use. Just go to [Github](https://github.com/jooby-project/lang-kotlin) and fork it.
+We do provide a [kotlin-starter](https://github.com/jooby-project/kotlin-starter) project. Go and [fork it](https://github.com/jooby-project/kotlin-starter).
 
 That's all folks!!

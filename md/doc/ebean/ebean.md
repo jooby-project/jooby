@@ -22,7 +22,7 @@ This module extends [jdbc module](/doc/jdbc), before going forward, make sure yo
 
 ```java
 {
-  use(new Ebeanby().doWith(conf -> {
+  use(new Ebeanby().doWith((ServerConfig conf) -> {
    conf.addClass(Pet.class);
   }));
 
@@ -93,10 +93,16 @@ Or programmatically:
 
 ```java
 {
-  use(new Ebeanby().doWith(conf -> {
+  use(new Ebeanby().doWith((ServerConfig conf) -> {
     conf.setDisableClasspathSearch(false);
   }));
 }
 ```
+
+## starter project
+
+We do provide an [ebean-starter](https://github.com/jooby-project/ebean-starter) project. Go and [fork it](https://github.com/jooby-project/ebean-starter).
+
+That's all folks!!
 
 {{appendix}}

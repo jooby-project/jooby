@@ -171,4 +171,8 @@ Advanced configuration is available via callback function:
 }
 ```
 
+## starter project
+
+We do provide a [requery-starter](https://github.com/jooby-project/requery-starter) project. Go and [fork it](https://github.com/jooby-project/requery-starter).
+
 That's all folks!!

@@ -62,3 +62,9 @@ The <a href="http://feedback.livereload.com/knowledgebase/articles/86174-liverel
 It automatically reload static resources from ```public```, ```target``` (Maven projects) or ```build``` folders (Gradle projects).
 
 Every time a change is detected the websocket send a ```reload command```.
+
+## starter project
+
+We do provide a [livereload-starter](https://github.com/jooby-project/livereload-starter) project. Go and [fork it](https://github.com/jooby-project/livereload-starter).
+
+That's all folks!!
