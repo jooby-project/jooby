@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jooby</groupId>
     <artifactId>jooby-project</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1-SNAPSHOT</version>
   </parent>
   <artifactId>jooby-rocker</artifactId>
   <name>jooby-rocker</name>
