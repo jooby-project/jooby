@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>jooby: requery module</title> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, requery"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="canonical" href="#"> 
+  <link rel="publisher" href="#"> 
+  <meta name="robots" content="robots.txt"> 
+  <meta name="og:title" content="jooby: requery module"> 
+  <meta name="og:description" content="Safe, clean and efficient database access via Requery"> 
+  <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    --> 
+  <meta name="og:type" content="website"> 
+  <meta name="og:url" content="http://jooby.org"> 
+  <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    --> 
+  <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
+  <meta name="og:site_name" content="jooby: requery module"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:title" content="jooby: requery module"> 
+  <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    --> 
+  <meta name="twitter:image" content="http://jooby.org/resources/images/apps/twitter.jpg"> 
+  <meta name="twitter:site" content="@joobyproject"> 
+  <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
+  <meta name="twitter:domain" content="http://jooby.org"> 
+  <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:description" content="Safe, clean and efficient database access via Requery"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180"> 
+  <link href="/resources/images/apps/favicon.ico" rel="shortcut icon"> 
+  <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png"> 
+  <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png"> 
+  <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png"> 
+  <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png"> 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700"> 
+  <link rel="stylesheet" href="/resources/styles/application.css"> 
+  <link rel="stylesheet" href="/resources/styles/github.css"> 
+  <link rel="stylesheet" href="/resources/styles/devices.css"> 
+  <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+ </head> 
+ <body class="page-section page-sidebar"> 
+  <header class="site-header"> 
+   <div class="row">
+    <a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a>
+    <a class="show-mobile open-menu"><span></span></a> 
+    <nav class="site-nav"> 
+     <ul> 
+      <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
+      <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
+      <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
+      <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
+      <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
+     </ul> 
+    </nav> 
+   </div> 
+  </header> 
+  <main role="main" class="site-content"> 
+   <div class="section-title"> 
+    <div class="row"> 
+     <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
+     <h1>requery</h1> 
+    </div> 
+   </div> 
+   <div class="row"> 
+    <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
+     <div class="show-mobile menu-open">
+      requery
+     </div> 
+     <ul> 
+      <li class="active"> <a href="#requery">requery</a>
+       <ul> 
+        <li> <a href="#requery-exports">exports</a></li> 
+        <li> <a href="#requery-dependency">dependency</a></li> 
+        <li> <a href="#requery-usage">usage</a></li> 
+        <li> <a href="#requery-code-generation">code generation</a></li> 
+        <li> <a href="#requery-schema-generation">schema generation</a></li> 
+        <li> <a href="#requery-Type-Safe-injection">Type-Safe injection</a></li> 
+        <li> <a href="#requery-async-and-reactive-idioms">async and reactive idioms</a></li> 
+        <li> <a href="#requery-advanced-configuration">advanced configuration</a></li> 
+        <li> <a href="#requery-starter-project">starter project</a></li>
+       </ul></li> 
+     </ul> 
+    </div> 
+    <div class="section-content"> 
+     <div class="datalist" id="requery"> 
+      <div class="datalist-title active"> 
+       <h2>requery</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>Safe, clean and efficient database access via <a href="https://github.com/requery/requery" target="_blank">Requery.</a></p> 
+       <h3 id="requery-exports">exports</h3> 
+       <ul> 
+        <li><code class="highlighter-rouge codehilite">EntityStore</code> object(s)</li> 
+       </ul> 
+       <h3 id="requery-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+ <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+ <span class="nt">&lt;artifactId&gt;</span>jooby-requery<span class="nt">&lt;/artifactId&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
+       <h3 id="requery-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">());</span>
+
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Requery</span><span class="o">(</span><span class="n">Models</span><span class="o">.</span><span class="na">DEFAULT</span><span class="o">));</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/people"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="n">EntityStore</span> <span class="n">store</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">EntityStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">store</span><span class="o">.</span><span class="na">select</span><span class="o">(</span><span class="n">Person</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+       <span class="o">.</span><span class="na">where</span><span class="o">(</span><span class="n">Person</span><span class="o">.</span><span class="na">ID</span><span class="o">.</span><span class="na">eq</span><span class="o">(</span><span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">()))</span>
+       <span class="o">.</span><span class="na">get</span><span class="o">()</span>
+       <span class="o">.</span><span class="na">first</span><span class="o">();</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>This module requires a <code class="highlighter-rouge codehilite">DataSource</code> connection. That’s why you also need the <a href="/doc/jdbc">jdbc</a> module.</p> 
+       <h3 id="requery-code-generation">code generation</h3> 
+       <h4 id="requery-maven">maven</h4> 
+       <p>We do provide code generation via Maven profile. All you have to do is to write a <code class="highlighter-rouge codehilite">requery.activator</code> file inside the <code class="highlighter-rouge codehilite">src/etc</code> folder. File presence triggers requery annotation processor and generated contents.</p> 
+       <p>Generated content can be found at: <code class="highlighter-rouge codehilite">target/generated-sources</code>. You can change the default output location by setting the build property <code class="highlighter-rouge codehilite">requery.output</code> in your <code class="highlighter-rouge codehilite">pom.xml</code>.</p> 
+       <h4 id="requery-gradle">gradle</h4> 
+       <p>Please refer to <a href="https://github.com/requery/requery/wiki/Gradle-&amp;-Annotation-processing#annotation-processing" target="_blank">requery documentation</a> for Gradle support.</p> 
+       <h3 id="requery-schema-generation">schema generation</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Requery</span><span class="o">(</span><span class="n">Models</span><span class="o">.</span><span class="na">DEFAULT</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">schema</span><span class="o">(</span><span class="n">TableCreationMode</span><span class="o">.</span><span class="na">DROP_CREATE</span><span class="o">)</span>
+  <span class="o">);</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Optionally, schema generation could be set from <code class="highlighter-rouge codehilite">.conf</code> file via <code class="highlighter-rouge codehilite">requery.schema</code> property.</p> 
+       <h4 id="requery-listeners">listeners</h4> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyListener</span> <span class="kd">implements</span> <span class="n">EntityStateListener</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span>
+  <span class="nd">@Inject</span>
+  <span class="kd">public</span> <span class="n">MyListener</span><span class="o">(</span><span class="n">Dependency</span> <span class="n">dep</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">dep</span> <span class="o">=</span> <span class="n">dep</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Requery</span><span class="o">(</span><span class="n">Models</span><span class="o">.</span><span class="na">DEFAULT</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">entityStateListener</span><span class="o">(</span><span class="n">MyListener</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+  <span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Support for <code class="highlighter-rouge codehilite">TransactionListener</code> and <code class="highlighter-rouge codehilite">StatementListener</code> is also provided:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Requery</span><span class="o">(</span><span class="n">Models</span><span class="o">.</span><span class="na">DEFAULT</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">statementListener</span><span class="o">(</span><span class="n">MyStatementListener</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">transactionListener</span><span class="o">(</span><span class="n">TransactionListener</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+  <span class="o">);</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>You can add as many listener as you need. Each listener will be created by <code class="highlighter-rouge codehilite">Guice</code>.</p> 
+       <h3 id="requery-Type-Safe-injection">Type-Safe injection</h3> 
+       <p>If you love <code class="highlighter-rouge codehilite">DAO</code> like classes, we are happy to tell you that it you easily inject type-safe <code class="highlighter-rouge codehilite">EntityStore</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonDAO</span> <span class="o">{</span>
+  <span class="kd">private</span> <span class="n">EntityStore</span><span class="o">&lt;</span><span class="n">Persistable</span><span class="o">,</span> <span class="n">Person</span><span class="o">&gt;</span> <span class="n">store</span><span class="o">;</span>
+
+  <span class="nd">@Inject</span>
+  <span class="kd">public</span> <span class="n">PersonDAO</span><span class="o">(</span><span class="n">EntityStore</span><span class="o">&lt;</span><span class="n">Persistable</span><span class="o">,</span> <span class="n">Person</span><span class="o">&gt;</span> <span class="n">store</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">store</span> <span class="o">=</span> <span class="n">store</span><span class="o">;</span>
+  <span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Please note we don’t inject a <code class="highlighter-rouge codehilite">raw</code> <code class="highlighter-rouge codehilite">EntityStore</code>. Instead we ask for a <code class="highlighter-rouge codehilite">Person</code> <code class="highlighter-rouge codehilite">EntityStore</code>. You can safely inject a <code class="highlighter-rouge codehilite">EntityStore</code> per each of your domain objects.</p> 
+       <h3 id="requery-async-and-reactive-idioms">async and reactive idioms</h3> 
+       <p>Rxjava:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="n">Requery</span><span class="o">.</span><span class="na">reactive</span><span class="o">(</span><span class="n">Models</span><span class="o">.</span><span class="na">DEFAULT</span><span class="o">));</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">ReactiveEntityStore</span> <span class="n">store</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">ReactiveEntityStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="c1">// work with reactive store</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Reactor:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="n">Requery</span><span class="o">.</span><span class="na">reactor</span><span class="o">(</span><span class="n">Models</span><span class="o">.</span><span class="na">DEFAULT</span><span class="o">));</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">ReactorEntityStore</span> <span class="n">store</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">ReactorEntityStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="c1">// work with reactor store</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Java 8:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="n">Requery</span><span class="o">.</span><span class="na">completionStage</span><span class="o">(</span><span class="n">Models</span><span class="o">.</span><span class="na">DEFAULT</span><span class="o">));</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">CompletionStageEntityStore</span> <span class="n">store</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">CompletionStageEntityStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="c1">// work with reactor store</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="requery-advanced-configuration">advanced configuration</h3> 
+       <p>Advanced configuration is available via callback function:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Requery</span><span class="o">(</span><span class="n">Models</span><span class="o">.</span><span class="na">DEFAULT</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">doWith</span><span class="o">(</span><span class="n">builder</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">builder</span><span class="o">.</span><span class="na">useDefaultLogging</span><span class="o">();</span>
+      <span class="o">....</span>
+    <span class="o">})</span>
+  <span class="o">);</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="requery-starter-project">starter project</h3> 
+       <p>We do provide a <a href="https://github.com/jooby-project/requery-starter" target="_blank">requery-starter</a> project. Go and <a href="https://github.com/jooby-project/requery-starter" target="_blank">fork it</a>.</p> 
+       <p>That’s all folks!!</p> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+  </main> 
+  <footer class="site-footer"> 
+   <div class="row"> 
+    <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <div class="altquimia">
+     DG 
+     <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
+    </div> 
+    <div class="follow-us pull-right"> 
+     <p>Follow us</p>
+     <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
+     <a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a> 
+    </div> 
+   </div> 
+  </footer> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script src="/resources/scripts/libs/swiper.min.js"></script> 
+  <script src="/resources/scripts/application.js"></script> 
+  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
+  <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-57151281-1', 'auto');
+      ga('send', 'pageview');
+    </script>  
+ </body>
+</html>

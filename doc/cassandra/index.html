@@ -75,7 +75,6 @@
      <ul> 
       <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
-      <li class=""><a href="/guides" title="Guides">GUIDES</a></li> 
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
@@ -104,6 +103,7 @@
         <li> <a href="#cassandra-usage">usage</a></li> 
         <li> <a href="#cassandra-basic-crud">basic crud</a></li> 
         <li> <a href="#cassandra-accessors">accessors</a></li> 
+        <li> <a href="#cassandra-dse-driver">dse-driver</a></li> 
         <li> <a href="#cassandra-async">async</a></li> 
         <li> <a href="#cassandra-multiple-contact-points">multiple contact points</a></li> 
         <li> <a href="#cassandra-advanced-configuration">advanced configuration</a></li>
@@ -132,7 +132,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-cassandra<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.0.3<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -243,6 +243,18 @@
 </code></pre> 
        </div> 
        <p>The accessor can be required or injected in a MVC route.</p> 
+       <h3 id="cassandra-dse-driver">dse-driver</h3> 
+       <p>Add the <code class="highlighter-rouge codehilite">dse-driver</code> dependency to your classpath and then:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Cassandra</span><span class="o">(</span><span class="nl">DseCluster:</span><span class="o">:</span><span class="n">build</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>That’s all! Now you can <code class="highlighter-rouge codehilite">require/inject</code> a <code class="highlighter-rouge codehilite">DseSession</code>.</p> 
        <h3 id="cassandra-async">async</h3> 
        <p>Async? Of course!!! just use the Datastax async API:</p> 
        <div class="highlighter-rouge codehilite">
@@ -331,7 +343,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-cassandra<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.0.3<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -376,21 +388,6 @@ session.timeout = 120m
      </div> 
     </div> 
    </div> 
-   <!-- AddToAny BEGIN --> 
-   <div class="row share-network"> 
-    <div class="section-content"> 
-     <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/cassandra" data-a2a-title="The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance"> 
-      <a class="a2a_button_twitter" data-text="The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance"></a> 
-      <a class="a2a_button_reddit a2a_counter"></a> 
-      <a class="a2a_button_linkedin a2a_counter"></a> 
-      <a class="a2a_button_facebook a2a_counter"></a> 
-      <a class="a2a_button_google_plus a2a_counter"></a> 
-     </div> 
-    </div> 
-   </div> 
-   <script async src="https://static.addtoany.com/menu/page.js"></script> 
-   <!-- AddToAny END --> 
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 

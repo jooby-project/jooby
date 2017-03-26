@@ -75,7 +75,6 @@
      <ul> 
       <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
-      <li class=""><a href="/guides" title="Guides">GUIDES</a></li> 
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
@@ -104,6 +103,7 @@
         <li> <a href="#ebean-usage">usage</a></li> 
         <li> <a href="#ebean-enhancement">enhancement</a></li> 
         <li> <a href="#ebean-configuration">configuration</a></li> 
+        <li> <a href="#ebean-starter-project">starter project</a></li> 
         <li> <a href="#ebean-ebean-conf">ebean.conf</a></li>
        </ul></li> 
      </ul> 
@@ -128,7 +128,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-ebean<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -138,7 +138,7 @@
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Ebeanby</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Ebeanby</span><span class="o">().</span><span class="na">doWith</span><span class="o">((</span><span class="n">ServerConfig</span> <span class="n">conf</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
    <span class="n">conf</span><span class="o">.</span><span class="na">addClass</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
   <span class="o">}));</span>
 
@@ -199,12 +199,15 @@
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Ebeanby</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Ebeanby</span><span class="o">().</span><span class="na">doWith</span><span class="o">((</span><span class="n">ServerConfig</span> <span class="n">conf</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="n">conf</span><span class="o">.</span><span class="na">setDisableClasspathSearch</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
   <span class="o">}));</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
+       <h3 id="ebean-starter-project">starter project</h3> 
+       <p>We do provide an <a href="https://github.com/jooby-project/ebean-starter" target="_blank">ebean-starter</a> project. Go and <a href="https://github.com/jooby-project/ebean-starter" target="_blank">fork it</a>.</p> 
+       <p>That’s all folks!!</p> 
        <h3 id="ebean-ebean-conf">ebean.conf</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -255,21 +258,6 @@
      </div> 
     </div> 
    </div> 
-   <!-- AddToAny BEGIN --> 
-   <div class="row share-network"> 
-    <div class="section-content"> 
-     <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/ebean" data-a2a-title="Object-Relational-Mapping via Ebean ORM"> 
-      <a class="a2a_button_twitter" data-text="Object-Relational-Mapping via Ebean ORM"></a> 
-      <a class="a2a_button_reddit a2a_counter"></a> 
-      <a class="a2a_button_linkedin a2a_counter"></a> 
-      <a class="a2a_button_facebook a2a_counter"></a> 
-      <a class="a2a_button_google_plus a2a_counter"></a> 
-     </div> 
-    </div> 
-   </div> 
-   <script async src="https://static.addtoany.com/menu/page.js"></script> 
-   <!-- AddToAny END --> 
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 

@@ -75,7 +75,6 @@
      <ul> 
       <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class="active"><a href="/doc" title="Doc">DOCS</a></li> 
-      <li class=""><a href="/guides" title="Guides">GUIDES</a></li> 
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
@@ -190,7 +189,10 @@
        </ul></li> 
       <li class=""> <a href="#web-sockets">web sockets</a>
        <ul> 
+        <li> <a href="#web-sockets-usage">usage</a></li> 
+        <li> <a href="#web-sockets-send-and-broadcast">send and broadcast</a></li> 
         <li> <a href="#web-sockets-require">require</a></li> 
+        <li> <a href="#web-sockets-listener">listener</a></li> 
         <li> <a href="#web-sockets-consumes">consumes</a></li> 
         <li> <a href="#web-sockets-produces">produces</a></li>
        </ul></li> 
@@ -3948,7 +3950,7 @@ application.securePort = 8443
        <h2>web sockets</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>The use of web sockets is pretty easy too:</p> 
+       <h3 id="web-sockets-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -3964,20 +3966,73 @@ application.securePort = 8443
        </div> 
        <p>A <a href="/apidocs/org/jooby/WebSocket.html" target="_blank">web socket</a> consist of a <strong>path pattern</strong> and a <a href="/apidocs/org/jooby/WebSocket.Handler.html" target="_blank">handler</a>.</p> 
        <p>A <strong>path pattern</strong> can be as simple or complex as you need. All the path patterns supported by routes are supported here.</p> 
-       <p>A <a href="/apidocs/org/jooby/WebSocket.Handler.html" target="_blank">handler</a> is executed on new connections, from there we can listen for message, errors and/or send data to the client.</p> 
+       <p>The <a href="/apidocs/org/jooby/WebSocket.OnOpen.html" target="_blank">onOpen</a> listener is executed on new connections, from there we can listen for message, errors and/or send data to the client.</p> 
        <p>Keep in mind that <strong>web socket</strong> are not like routes. There is no stack/pipe or chain.</p> 
        <p>You can mount a socket to a path used by a route, but you can’t have two or more web sockets under the same path.</p> 
+       <h3 id="web-sockets-send-and-broadcast">send and broadcast</h3> 
+       <p>As you saw early a <a href="/apidocs/org/jooby/WebSocket.html" target="_blank">web socket</a> and send data to client via <a href="/apidocs/org/jooby/WebSocket.html#send-java.lang.Object-" target="_blank">ws.send(…)</a> method.</p> 
+       <p>The <a href="/apidocs/org/jooby/WebSocket.html#broadcast-java.lang.Object-" target="_blank">ws.broadcast(…)</a> method does the same thing but for all the connected clients.</p> 
        <h3 id="web-sockets-require">require</h3> 
-       <p>You can ask <a href="https://github.com/google/guice" target="_blank">Guice</a> to wired an object from the <a href="/apidocs/org/jooby/WebSocket.html#require-com.google.inject.Key-" target="_blank">ws.require(type)</a></p> 
+       <p>Access to existing services is provided via <a href="/apidocs/org/jooby/WebSocket.html#require-com.google.inject.Key-" target="_blank">ws.require(type)</a> method:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="n">ws</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">(</span><span class="n">ws</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+        <pre class="highlight"><code><span class="n">ws</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">ws</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="n">A</span> <span class="n">a</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">A</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 <span class="o">});</span>
 </code></pre> 
        </div> 
+       <h3 id="web-sockets-listener">listener</h3> 
+       <p>As with <strong>routes</strong> we do provide <strong>two flavors</strong> for <code class="highlighter-rouge codehilite">WebSockets</code>:</p> 
+       <p>script:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">ws</span><span class="o">(</span><span class="s">"/ws"</span><span class="o">,</span> <span class="n">ws</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">MyDatabase</span> <span class="n">db</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">MyDatabase</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">ws</span><span class="o">.</span><span class="na">onMessage</span><span class="o">(</span><span class="n">msg</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">String</span> <span class="n">value</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="na">value</span><span class="o">();</span>
+      <span class="n">database</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+      <span class="n">ws</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="s">"Got: "</span> <span class="o">+</span> <span class="n">value</span><span class="o">);</span>
+    <span class="o">});</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>class:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">ws</span><span class="o">(</span><span class="n">MyHandler</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="nd">@Path</span><span class="o">(</span><span class="s">"/ws"</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">MyHandler</span> <span class="kd">implements</span> <span class="n">WebSocket</span><span class="o">.</span><span class="na">OnMessage</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="n">WebSocket</span> <span class="n">ws</span><span class="o">;</span>
+  
+  <span class="n">MyDatabase</span> <span class="n">db</span><span class="o">;</span>
+
+  <span class="nd">@Inject</span>
+  <span class="kd">public</span> <span class="n">MyHandle</span><span class="o">(</span><span class="n">WebSocket</span> <span class="n">ws</span><span class="o">,</span> <span class="n">MyDatabase</span> <span class="n">db</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">ws</span> <span class="o">=</span> <span class="n">ws</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">db</span> <span class="o">=</span> <span class="n">db</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">onMessage</span><span class="o">(</span><span class="n">String</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">database</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+    <span class="n">ws</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="s">"Got: "</span> <span class="o">+</span> <span class="n">message</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Optionally, your listener could implements <a href="/apidocs/org/jooby/WebSocket.OnOpen.html" target="_blank">onOpen</a>, <a href="/apidocs/org/jooby/WebSocket.OnClose.html" target="_blank">onClose</a> or <a href="/apidocs/org/jooby/WebSocket.OnError.html" target="_blank">onError</a>. If you need them all then use <a href="/apidocs/org/jooby/WebSocket.Handler.html" target="_blank">handler</a> interface.</p> 
        <h3 id="web-sockets-consumes">consumes</h3> 
        <p>Web socket can define a type to consume:</p> 
        <div class="highlighter-rouge codehilite">
@@ -3996,6 +4051,21 @@ application.securePort = 8443
 <span class="o">}</span>
 </code></pre> 
        </div> 
+       <p>Or via annotation for class listeners:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nd">@Path</span><span class="o">(</span><span class="s">"/ws"</span><span class="o">)</span>
+<span class="nd">@Consumes</span><span class="o">(</span><span class="s">"json"</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">MyHandler</span> <span class="kd">implements</span> <span class="n">WebSocket</span><span class="o">.</span><span class="na">OnMessage</span><span class="o">&lt;</span><span class="n">MyObject</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">onMessage</span><span class="o">(</span><span class="n">MyObject</span> <span class="n">object</span><span class="o">)</span> <span class="o">{</span>
+   <span class="o">...</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
        <p>This is just an utility method for parsing socket message to Java Object. Consumes in web sockets has nothing to do with content negotiation. Content negotiation is route concept, it doesn’t apply for web sockets.</p> 
        <h3 id="web-sockets-produces">produces</h3> 
        <p>Web socket can define a type to produce:</p> 
@@ -4005,10 +4075,26 @@ application.securePort = 8443
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">ws</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">ws</span> <span class="o">-&gt;</span> <span class="o">{</span>
-   <span class="n">MyObject</span> <span class="n">object</span> <span class="o">=</span> <span class="o">..;</span>
-     <span class="n">ws</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">object</span><span class="o">);</span>
+    <span class="n">MyResponseObject</span> <span class="n">object</span> <span class="o">=</span> <span class="o">..;</span>
+    <span class="n">ws</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">object</span><span class="o">);</span>
   <span class="o">})</span>
   <span class="o">.</span><span class="na">produces</span><span class="o">(</span><span class="s">"json"</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Or via annotation for class listeners:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nd">@Path</span><span class="o">(</span><span class="s">"/ws"</span><span class="o">)</span>
+<span class="nd">@Consumes</span><span class="o">(</span><span class="s">"json"</span><span class="o">)</span>
+<span class="nd">@Produces</span><span class="o">(</span><span class="s">"json"</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">MyHandler</span> <span class="kd">implements</span> <span class="n">WebSocket</span><span class="o">.</span><span class="na">OnMessage</span><span class="o">&lt;</span><span class="n">MyObject</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">onMessage</span><span class="o">(</span><span class="n">MyObject</span> <span class="n">object</span><span class="o">)</span> <span class="o">{</span>
+   <span class="n">ws</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">MyResponseObject</span><span class="o">());</span>
+  <span class="o">}</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
@@ -4477,9 +4563,9 @@ application.securePort = 8443
 
   <span class="err">threads</span> <span class="err">{</span>
 
-    <span class="py">Min</span> <span class="p">=</span> <span class="s">20</span>
+    <span class="py">Min</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
 
-    <span class="py">Max</span> <span class="p">=</span> <span class="s">100</span>
+    <span class="py">Max</span> <span class="p">=</span> <span class="s">${runtime.processors-x8}</span>
 
     <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">60s</span>
 

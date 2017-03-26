@@ -75,7 +75,6 @@
      <ul> 
       <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
-      <li class=""><a href="/guides" title="Guides">GUIDES</a></li> 
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
@@ -165,6 +164,7 @@
       <div class="code-lang-box"> 
        <ul class="nav-lang"> 
         <li data-lang="java" class="active">Java</li> 
+        <li data-lang="kotlin">Kotlin</li> 
         <li data-lang="js">Javascript</li> 
        </ul> 
        <ul class="lang"> 
@@ -183,6 +183,22 @@
 
   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="kd">final</span> <span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
     <span class="n">run</span><span class="o">(</span><span class="nf">App</span><span class="o">::</span><span class="k">new</span><span class="o">, </span><span class="n">args</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+         </div> </li> 
+        <li class="kotlin"> 
+         <div class="highlighter-rouge codehilite">
+          <div class="copy-bar"> 
+           <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+          </div> 
+          <pre class="highlight"><code class="language-kotlin" data-lang="kotlin"><span class="kn">import</span> <span class="nn">org.jooby.*</span><span class="o"></span>
+
+<span class="kd">fun</span> <span class="nf">main</span><span class="o">(</span><span class="n">args</span><span class="o">:</span><span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">run</span><span class="o">(</span><span class="o">*</span><span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">get</span> <span class="o">{</span>
+      <span class="s">"Hey Jooby!"</span>
+    <span class="o">}</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </code></pre> 
@@ -299,7 +315,7 @@
       </div> 
       <div class="mod-content">
        <a href="/quickstart" title="Quick start" class="icon-code-console-big"></a> 
-       <p>Check out the <a href="/quickstart" title="Quick start">quickstart</a> guide or our <a href="https://github.com/jooby-project" target="_blank">template collection</a>.</p> 
+       <p>Check out the <a href="/quickstart" title="Quick start">quickstart</a> guide or one of our <a href="https://github.com/search?q=topic%3Astarter+org%3Ajooby-project&amp;type=Repositories" target="_blank">starter project</a>.</p> 
       </div> 
      </div> 
     </div> 

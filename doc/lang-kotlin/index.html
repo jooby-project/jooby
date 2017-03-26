@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>jooby: kotlin module</title> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, kotlin"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="canonical" href="#"> 
+  <link rel="publisher" href="#"> 
+  <meta name="robots" content="robots.txt"> 
+  <meta name="og:title" content="jooby: lang-kotlin module"> 
+  <meta name="og:description" content="We do provide a very tiny module with some special functions that makes a Jooby application more Kotlin idiomatic"> 
+  <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    --> 
+  <meta name="og:type" content="website"> 
+  <meta name="og:url" content="http://jooby.org"> 
+  <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    --> 
+  <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
+  <meta name="og:site_name" content="jooby: lang-kotlin module"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:title" content="jooby: lang-kotlin module"> 
+  <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    --> 
+  <meta name="twitter:image" content="http://jooby.org/resources/images/apps/twitter.jpg"> 
+  <meta name="twitter:site" content="@joobyproject"> 
+  <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
+  <meta name="twitter:domain" content="http://jooby.org"> 
+  <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:description" content="We do provide a very tiny module with some special functions that makes a Jooby application more Kotlin idiomatic"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180"> 
+  <link href="/resources/images/apps/favicon.ico" rel="shortcut icon"> 
+  <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png"> 
+  <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png"> 
+  <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png"> 
+  <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png"> 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700"> 
+  <link rel="stylesheet" href="/resources/styles/application.css"> 
+  <link rel="stylesheet" href="/resources/styles/github.css"> 
+  <link rel="stylesheet" href="/resources/styles/devices.css"> 
+  <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+ </head> 
+ <body class="page-section page-sidebar"> 
+  <header class="site-header"> 
+   <div class="row">
+    <a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a>
+    <a class="show-mobile open-menu"><span></span></a> 
+    <nav class="site-nav"> 
+     <ul> 
+      <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
+      <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
+      <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
+      <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
+      <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
+     </ul> 
+    </nav> 
+   </div> 
+  </header> 
+  <main role="main" class="site-content"> 
+   <div class="section-title"> 
+    <div class="row"> 
+     <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
+     <h1>kotlin</h1> 
+    </div> 
+   </div> 
+   <div class="row"> 
+    <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
+     <div class="show-mobile menu-open">
+      kotlin
+     </div> 
+     <ul> 
+      <li class="active"> <a href="#kotlin">kotlin</a>
+       <ul> 
+        <li> <a href="#kotlin-dependency">dependency</a></li> 
+        <li> <a href="#kotlin-usage">usage</a></li> 
+        <li> <a href="#kotlin-idioms">idioms</a></li> 
+        <li> <a href="#kotlin-examples">examples</a></li> 
+        <li> <a href="#kotlin-starter-project">starter project</a></li>
+       </ul></li> 
+     </ul> 
+    </div> 
+    <div class="section-content"> 
+     <div class="datalist" id="kotlin"> 
+      <div class="datalist-title active"> 
+       <h2>kotlin</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>We do provide a very tiny module with some special functions that makes a <a href="http://jooby.org">Jooby</a> application more Kotlin idiomatic.</p> 
+       <h3 id="kotlin-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-lang-kotlin<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
+       <h3 id="kotlin-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>
+<span class="kn">import</span> <span class="nn">org.jooby.*</span>
+
+<span class="n">fun</span> <span class="nf">main</span><span class="p">(</span><span class="nl">args:</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;)</span> <span class="o">{</span>
+  <span class="n">run</span><span class="o">(*</span><span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">get</span> <span class="o">{</span>
+      <span class="s">"Hello Kotlin"</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre> 
+       </div> 
+       <p>The <code class="highlighter-rouge codehilite">run</code> function is a <a href="http://kotlinlang.org/docs/reference/type-safe-builders.html" target="_blank">type-safe builder</a> that initializes, configures and executes a <a href="http://jooby.org">Jooby</a> application.</p> 
+       <h3 id="kotlin-idioms">idioms</h3> 
+       <h4 id="kotlin-request-access">request access</h4> 
+       <p>Access to <a href="/apidocs/org/jooby/Request.html" target="_blank">request</a> is available via <strong>request callback</strong>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="n">run</span><span class="o">(*</span><span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/:name"</span><span class="o">)</span> <span class="o">{</span><span class="n">req</span> <span class="o">-&gt;</span>
+    <span class="n">val</span> <span class="n">name</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"name"</span><span class="o">).</span><span class="na">value</span>
+    <span class="s">"Hi $name!"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>The <strong>request</strong> idiom gives you implicit access to the <a href="/apidocs/org/jooby/Request.html" target="_blank">request</a> object, previous example can be written as:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="n">run</span><span class="o">(*</span><span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/:name"</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">val</span> <span class="n">name</span> <span class="o">=</span> <span class="n">param</span><span class="o">(</span><span class="s">"name"</span><span class="o">).</span><span class="na">value</span>
+    <span class="s">"Hi $name!"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4 id="kotlin-route-group">route group</h4> 
+       <p>This idiom allow to group one or more routes under a common <code class="highlighter-rouge codehilite">path</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="n">run</span><span class="o">(*</span><span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="n">route</span><span class="o">(</span><span class="s">"/api/pets"</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="n">get</span> <span class="o">{-&gt;</span> 
+      <span class="c1">// List all pets</span>
+    <span class="o">}</span>
+
+    <span class="n">get</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">)</span> <span class="o">{-&gt;</span> 
+      <span class="c1">// Get a Pet by ID</span>
+    <span class="o">}</span>
+
+    <span class="n">post</span> <span class="o">{-&gt;</span> 
+      <span class="c1">// Create a new Pet</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4 id="kotlin-class-reference">class reference</h4> 
+       <p>We do provide <code class="highlighter-rouge codehilite">Kotlin class references</code> where a <code class="highlighter-rouge codehilite">Java class reference</code> is required.</p> 
+       <p>Example 1: Register a <code class="highlighter-rouge codehilite">MVC routes</code></p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="n">run</span><span class="o">(*</span><span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="nl">Pets:</span><span class="o">:</span><span class="kd">class</span><span class="err">)</span>
+<span class="err">}</span>
+</code></pre> 
+       </div> 
+       <p>Example 2: Get an application service:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="n">run</span><span class="o">(*</span><span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/query"</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">val</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="nl">MyDatabase:</span><span class="o">:</span><span class="kd">class</span><span class="err">)</span>
+    <span class="nc">db</span><span class="o">.</span><span class="na">list</span><span class="o">()</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="kotlin-examples">examples</h3> 
+       <h4 id="kotlin-JSON-API">JSON API</h4> 
+       <p>Next example uses the <a href="/doc/jackson">jackson module</a> to parse and render <code class="highlighter-rouge codehilite">JSON</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>
+<span class="kn">import</span> <span class="nn">org.jooby.*</span>
+<span class="kn">import</span> <span class="nn">org.jooby.json.*</span>
+
+<span class="n">data</span> <span class="kd">class</span> <span class="nf">User</span><span class="p">(</span><span class="n">val</span> <span class="nl">name:</span> <span class="n">String</span><span class="o">,</span> <span class="n">val</span> <span class="nl">age:</span> <span class="n">Int</span><span class="o">)</span>
+
+<span class="n">fun</span> <span class="nf">main</span><span class="p">(</span><span class="nl">args:</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;)</span> <span class="o">{</span>
+  <span class="n">run</span><span class="o">(*</span><span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="n">use</span><span class="o">(</span><span class="n">Jackson</span><span class="o">())</span>
+
+    <span class="n">get</span><span class="o">(</span><span class="s">"/user"</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">User</span><span class="o">(</span><span class="s">"Pedro"</span><span class="o">,</span> <span class="mi">42</span><span class="o">)</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre> 
+       </div> 
+       <blockquote> 
+        <p>NOTE: You need the <a href="https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin" target="_blank">jackson-module-kotlin</a> for <a href="http://kotlinlang.org/" target="_blank">Kotlin</a> data classes.</p> 
+       </blockquote> 
+       <h4 id="kotlin-mvc-example">mvc example</h4> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>
+<span class="kn">import</span> <span class="nn">org.jooby.*</span>
+<span class="kn">import</span> <span class="nn">org.jooby.mvc.*</span>
+<span class="kn">import</span> <span class="nn">javax.inject.Inject</span>
+
+<span class="nd">@Path</span><span class="o">(</span><span class="s">"/api/pets"</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">Pets</span> <span class="nd">@Inject</span> <span class="n">constructor</span><span class="o">(</span><span class="n">val</span> <span class="nl">db:</span> <span class="n">MyDatabase</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="nd">@GET</span>
+  <span class="n">fun</span> <span class="n">list</span><span class="o">():</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Pet</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="na">queryPets</span><span class="o">()</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="n">fun</span> <span class="nf">main</span><span class="p">(</span><span class="nl">args:</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;)</span> <span class="o">{</span>
+  <span class="n">run</span><span class="o">(*</span><span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">use</span><span class="o">(</span><span class="nl">Pets:</span><span class="o">:</span><span class="kd">class</span><span class="err">)</span>
+  <span class="err">}</span>
+<span class="err">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="kotlin-starter-project">starter project</h3> 
+       <p>We do provide a <a href="https://github.com/jooby-project/kotlin-starter" target="_blank">kotlin-starter</a> project. Go and <a href="https://github.com/jooby-project/kotlin-starter" target="_blank">fork it</a>.</p> 
+       <p>That’s all folks!!</p> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+  </main> 
+  <footer class="site-footer"> 
+   <div class="row"> 
+    <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <div class="altquimia">
+     DG 
+     <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
+    </div> 
+    <div class="follow-us pull-right"> 
+     <p>Follow us</p>
+     <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
+     <a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a> 
+    </div> 
+   </div> 
+  </footer> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script src="/resources/scripts/libs/swiper.min.js"></script> 
+  <script src="/resources/scripts/application.js"></script> 
+  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
+  <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-57151281-1', 'auto');
+      ga('send', 'pageview');
+    </script>  
+ </body>
+</html>

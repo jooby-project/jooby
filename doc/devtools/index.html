@@ -75,7 +75,6 @@
      <ul> 
       <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
-      <li class=""><a href="/guides" title="Guides">GUIDES</a></li> 
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
@@ -109,6 +108,15 @@
         <li> <a href="#gradle-usage">usage</a></li> 
         <li> <a href="#gradle-hot-reload">hot reload</a></li> 
         <li> <a href="#gradle-options">options</a></li>
+       </ul></li> 
+      <li class=""> <a href="#liveReload">liveReload</a>
+       <ul> 
+        <li> <a href="#liveReload-exports">exports</a></li> 
+        <li> <a href="#liveReload-dependency">dependency</a></li> 
+        <li> <a href="#liveReload-usage">usage</a></li> 
+        <li> <a href="#liveReload-configuration">configuration</a></li> 
+        <li> <a href="#liveReload-watcher">watcher</a></li> 
+        <li> <a href="#liveReload-starter-project">starter project</a></li>
        </ul></li> 
       <li class=""> <a href="#whoops">whoops</a>
        <ul> 
@@ -175,7 +183,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;commands&gt;</span>
@@ -242,7 +250,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;commands&gt;</span>
@@ -263,7 +271,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;fork&gt;</span>true<span class="nt">&lt;/fork&gt;</span>
@@ -301,7 +309,7 @@ listening on:
     <span class="cm">/**</span>
      <span class="cm">* joobyRun </span>
      <span class="cm">*/</span>
-    <span class="nx">classpath</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby-gradle-plugin'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.0.3'</span>
+    <span class="nx">classpath</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby-gradle-plugin'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.1.0'</span>
   <span class="p">}</span>
 <span class="p">}</span>
 
@@ -373,6 +381,74 @@ listening on:
        <p>List of file patterns to listen for file changes.</p> 
       </div> 
      </div> 
+     <div class="datalist" id="liveReload"> 
+      <div class="datalist-title "> 
+       <h2>liveReload</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p><a href="http://livereload.com" target="_blank">LiveReload</a> monitors changes in the file system. As soon as you save a file, it is preprocessed as needed, and the browser is refreshed.</p> 
+       <p>Even cooler, when you change a CSS file or an image, the browser is updated instantly without reloading the page.</p> 
+       <h3 id="liveReload-exports">exports</h3> 
+       <ul> 
+        <li><code class="highlighter-rouge codehilite">livereload.js</code> route</li> 
+        <li><code class="highlighter-rouge codehilite">livereload</code> websocket</li> 
+       </ul> 
+       <h3 id="liveReload-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+ <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+ <span class="nt">&lt;artifactId&gt;</span>jooby-livereload<span class="nt">&lt;/artifactId&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
+       <h3 id="liveReload-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">());</span>
+
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">LiveReload</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>This module is available as long you run in development: <code class="highlighter-rouge codehilite">application.env=dev</code>.</p> 
+       <h3 id="liveReload-configuration">configuration</h3> 
+       <h4 id="liveReload-browser-extension">browser extension</h4> 
+       <p>Install the <a href="http://livereload.com/extensions/" target="_blank">LiveReload browser extension.</a></p> 
+       <h4 id="liveReload-livereload-js">livereload.js</h4> 
+       <p>Add the <code class="highlighter-rouge codehilite">livereload.js</code> to your web page.</p> 
+       <p>You can do this manually:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>&lt;script src="/livereload.js"&gt;&lt;/script&gt;
+</code></pre> 
+       </div> 
+       <p>Or use the <code class="highlighter-rouge codehilite">liveReload</code> local variable with your preferred template engine. Here is an example using <code class="highlighter-rouge codehilite">Handlebars</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{{</span><span class="n">liveReload</span><span class="o">}}</span>
+</code></pre> 
+       </div> 
+       <h4 id="liveReload-json-module">json module</h4> 
+       <p>The <a href="http://feedback.livereload.com/knowledgebase/articles/86174-livereload-protocol" target="_blank">LiveReload Protocol</a> run on top of a <code class="highlighter-rouge codehilite">WebSocket</code> and uses <code class="highlighter-rouge codehilite">JSON</code> as protocol format. That’s is why we also need to install a <code class="highlighter-rouge codehilite">JSON module</code>, like <a href="http://jooby.org/doc/jackson">Jackson</a>.</p> 
+       <h3 id="liveReload-watcher">watcher</h3> 
+       <p>It automatically reload static resources from <code class="highlighter-rouge codehilite">public</code>, <code class="highlighter-rouge codehilite">target</code> (Maven projects) or <code class="highlighter-rouge codehilite">build</code> folders (Gradle projects).</p> 
+       <p>Every time a change is detected the websocket send a <code class="highlighter-rouge codehilite">reload command</code>.</p> 
+       <h3 id="liveReload-starter-project">starter project</h3> 
+       <p>We do provide a <a href="https://github.com/jooby-project/livereload-starter" target="_blank">livereload-starter</a> project. Go and <a href="https://github.com/jooby-project/livereload-starter" target="_blank">fork it</a>.</p> 
+       <p>That’s all folks!!</p> 
+      </div> 
+     </div> 
      <div class="datalist" id="whoops"> 
       <div class="datalist-title "> 
        <h2>whoops</h2> 
@@ -389,7 +465,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-whoops<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.0.3<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -466,21 +542,6 @@ listening on:
      </div> 
     </div> 
    </div> 
-   <!-- AddToAny BEGIN --> 
-   <div class="row share-network"> 
-    <div class="section-content"> 
-     <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/devtools" data-a2a-title="Increase development productivity: run, debug and auto-reload Jooby applications!!"> 
-      <a class="a2a_button_twitter" data-text="Increase development productivity: run, debug and auto-reload Jooby applications!!"></a> 
-      <a class="a2a_button_reddit a2a_counter"></a> 
-      <a class="a2a_button_linkedin a2a_counter"></a> 
-      <a class="a2a_button_facebook a2a_counter"></a> 
-      <a class="a2a_button_google_plus a2a_counter"></a> 
-     </div> 
-    </div> 
-   </div> 
-   <script async src="https://static.addtoany.com/menu/page.js"></script> 
-   <!-- AddToAny END --> 
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 

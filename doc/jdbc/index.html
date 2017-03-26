@@ -75,7 +75,6 @@
      <ul> 
       <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
-      <li class=""><a href="/guides" title="Guides">GUIDES</a></li> 
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
@@ -128,7 +127,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jdbc<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -463,7 +462,9 @@
   <span class="c">############################################################################################### </span>
   <span class="err">pgsql</span> <span class="err">{</span>
 
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.impossibl.postgres.jdbc.PGDataSource</span>
+    <span class="c"># empty bc dataSource.setUrl missing </span>
+    <span class="c"># dataSourceClassName = com.impossibl.postgres.jdbc.PGDataSource </span>
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">""</span>
 
   <span class="err">}</span>
 
@@ -473,7 +474,9 @@
   <span class="c">############################################################################################### </span>
   <span class="err">postgresql</span> <span class="err">{</span>
 
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.postgresql.ds.PGSimpleDataSource</span>
+    <span class="c"># empty bc dataSource.setUrl missing </span>
+    <span class="c"># dataSourceClassName = org.postgresql.ds.PGSimpleDataSource </span>
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">""</span>
 
   <span class="err">}</span>
 
@@ -508,27 +511,14 @@
   <span class="err">}</span>
 
 <span class="err">}</span>
+
+<span class="py">hikari.maximumPoolSize</span> <span class="p">=</span> <span class="s">${runtime.processors-x2}</span>
 </code></pre> 
        </div> 
       </div> 
      </div> 
     </div> 
    </div> 
-   <!-- AddToAny BEGIN --> 
-   <div class="row share-network"> 
-    <div class="section-content"> 
-     <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/jdbc" data-a2a-title="Production-ready jdbc data source, powered by the HikariCP library"> 
-      <a class="a2a_button_twitter" data-text="Production-ready jdbc data source, powered by the HikariCP library"></a> 
-      <a class="a2a_button_reddit a2a_counter"></a> 
-      <a class="a2a_button_linkedin a2a_counter"></a> 
-      <a class="a2a_button_facebook a2a_counter"></a> 
-      <a class="a2a_button_google_plus a2a_counter"></a> 
-     </div> 
-    </div> 
-   </div> 
-   <script async src="https://static.addtoany.com/menu/page.js"></script> 
-   <!-- AddToAny END --> 
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 

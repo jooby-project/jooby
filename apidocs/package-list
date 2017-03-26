@@ -29,6 +29,7 @@ org.jooby.jedis
 org.jooby.jetty
 org.jooby.jooq
 org.jooby.json
+org.jooby.livereload
 org.jooby.mail
 org.jooby.memcached
 org.jooby.metrics
@@ -41,6 +42,8 @@ org.jooby.quartz
 org.jooby.querydsl
 org.jooby.raml
 org.jooby.reactor
+org.jooby.requery
+org.jooby.rocker
 org.jooby.run
 org.jooby.rx
 org.jooby.scanner
