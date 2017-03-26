@@ -10,7 +10,7 @@ This module provides <a href="http://www.couchbase.com">couchbase</a> access via
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-couchbase</artifactId>
- <version>1.0.3</version>
+ <version>1.1.0</version>
 </dependency>
 ```
 
@@ -303,7 +303,7 @@ A [Session.Store](/apidocs/org/jooby/couchbase/CouchbaseSessionStore) powered by
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-couchbase</artifactId>
- <version>1.0.3</version>
+ <version>1.1.0</version>
 </dependency>
 ```
 

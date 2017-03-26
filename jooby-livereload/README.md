@@ -6,8 +6,8 @@ Even cooler, when you change a CSS file or an image, the browser is updated inst
 
 ## exports
 
-* `livereload.js` route
-* `livereload` websocket
+* livereload.js route
+* livereload websocket
 
 ## dependency
 
@@ -15,7 +15,7 @@ Even cooler, when you change a CSS file or an image, the browser is updated inst
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-livereload</artifactId>
- <version>{{version}}</version>
+ <version>1.1.0</version>
 </dependency>
 ```
 
@@ -62,3 +62,5 @@ The <a href="http://feedback.livereload.com/knowledgebase/articles/86174-liverel
 It automatically reload static resources from ```public```, ```target``` (Maven projects) or ```build``` folders (Gradle projects).
 
 Every time a change is detected the websocket send a ```reload command```.
+
+That's all folks!!

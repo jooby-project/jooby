@@ -5,13 +5,7 @@ import org.jooby.spi.Server
 import java.util.SortedSet
 
 /**
- * Hack for:
- *
- * <pre>
- * route ("/api/pets") {
- *   get("/", {-> param("p")}
- * }
- * </pre>
+ * Collection of utility class and method to make Jooby more Kotlin.
  */
 class KRouteGroup(b: Route.Props<Route.Group>) : Route.Props<Route.Group> by b {
   private val g = b as Route.Group
@@ -167,6 +161,9 @@ class KRouteGroup(b: Route.Props<Route.Group>) : Route.Props<Route.Group> by b {
   }
 }
 
+/**
+  * Collection of utility class and method to make Jooby more Kotlin.
+  */
 class Kooby: Jooby() {
   fun <T:Any> use(klass: KClass<T>): Route.Collection {
     return use(klass.java)

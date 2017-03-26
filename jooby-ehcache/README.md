@@ -13,7 +13,7 @@ Provides advanced cache features via [Ehcache](http://ehcache.org)
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ehcache</artifactId>
-  <version>1.0.3</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
@@ -117,7 +117,7 @@ Please note the ```default``` cache works as a template and isn't a real/usable 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ehcache</artifactId>
-  <version>1.0.3</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 

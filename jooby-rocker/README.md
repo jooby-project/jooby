@@ -4,19 +4,19 @@ Java 8 optimized, memory efficient, speedy template engine producing statically 
 
 <a href="https://github.com/fizzed/rocker">Rocker</a> is a Java 8 optimized (runtime compat with 6+), near zero-copy rendering, speedy template engine that produces statically typed, plain java object templates that are compiled along with the rest of your project.
 
-## exports
-
-* Rocker [renderer]({{defdocs}}/Renderer.html)
-
 ## dependency
 
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-rocker</artifactId>
- <version>{{version}}</version>
+ <version>1.1.0</version>
 </dependency>
 ```
+
+## exports
+
+* Rocker [renderer](/apidocs/org/jooby/Renderer.html)
 
 ## usage
 
@@ -43,7 +43,7 @@ The **static**, **efficient** and **type-safe** flavor:
 }
 ```
 
-Or the **dynamic** flavor is available via [View]({{defdocs}}/View.html) objects:
+The **dynamic** flavor is available via * [View](/apidocs/org/jooby/View.html) objects:
 
 ```java
 {
@@ -53,7 +53,7 @@ Or the **dynamic** flavor is available via [View]({{defdocs}}/View.html) objects
 }
 ```
 
-which is syntax sugar for:
+Which is syntax sugar for:
 
 ```java
 {

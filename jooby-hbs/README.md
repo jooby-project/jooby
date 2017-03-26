@@ -13,7 +13,7 @@ Logic less and semantic templates via {{handlebars}}.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbs</artifactId>
-  <version>1.0.3</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 

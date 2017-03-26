@@ -42,7 +42,23 @@ public class App extends Jooby {
 
 ```
 
-[JavaScript](/jooby-js):
+[Kotlin](/jooby-lang-kotlin):
+
+```kotlin
+
+import org.jooby.*
+
+fun main(args: Array<String>) {
+  run(*args) {
+    get {
+      "Hello Kotlin"
+    }
+  }
+}
+
+```
+
+[JavaScript](/jooby-lang-js):
 
 ```js
 
@@ -54,7 +70,7 @@ app.get('/', function () 'Hey Jooby!');
 
 ## killer features
 
-* **Multi-language**. Write your application in Java or [JavaScript](https://github.com/jooby-project/jooby/tree/master/jooby-js)
+* **Multi-language**. Write your application in Java, [Kotlin](https://github.com/jooby-project/jooby/tree/master/jooby-lang-kotlin) or [JavaScript](https://github.com/jooby-project/jooby/tree/master/jooby-lang-js)
 * **Scripting programming model**. Like [express.js](http://expressjs.com), [Sinatra](http://www.sinatrarb.com), etc.. but also
 * **MVC programming model**. Like [Spring](http://spring.io) controllers or [Jersey](https://jersey.java.net) resources
 * **Multi-server**. Including [Netty](http://netty.io), [Jetty](http://www.eclipse.org/jetty/) and [Undertow](http://undertow.io)
@@ -77,7 +93,7 @@ quickstart
 Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.0.3
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.1.0
 ```
 
 You might want to edit/change:
@@ -92,7 +108,7 @@ You might want to edit/change:
 Let's try it!:
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.0.3
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.1.0
 cd my-app
 mvn jooby:run
 ```

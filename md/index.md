@@ -10,6 +10,7 @@ version: {{version}}
 
 <ul class="nav-lang">
   <li class="active" data-lang="java">Java</li>
+  <li data-lang="kotlin">Kotlin</li>
   <li data-lang="js">JavaScript</li>
 </ul>
 <ul class="lang">
@@ -18,6 +19,9 @@ version: {{version}}
 </li>
 <li class="js">
 {% include js.html %}
+</li>
+<li class="kotlin">
+{% include kotlin.html %}
 </li>
 </ul>
 

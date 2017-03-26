@@ -20,6 +20,10 @@ Find here the available modules for parsing or rendering several formats.
 
 [Pebble](/doc/pebble) templates.
 
+## rocker
+
+[Rocker](/doc/rocker) templates.
+
 ## thymeleaf
 
 [Thymeleaf](/doc/thymeleaf) templates.

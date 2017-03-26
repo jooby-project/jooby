@@ -18,7 +18,7 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-hbm</artifactId>
- <version>1.0.3</version>
+ <version>1.1.0</version>
 </dependency>
 ```
 

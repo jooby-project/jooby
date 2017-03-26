@@ -1,3 +1,13 @@
+# languages support
+
+* [Kotlin](/doc/lang-kotlin) support.
+
+* [Javascript](/doc/lang-js) support.
+
+# file watcher
+
+* [filewatcher](/doc/filewatcher): Listen for filesystem changes.
+
 # monitor
 
 * [crash](/doc/crash): [CRaSH](http://www.crashub.org/) remote shell integration.

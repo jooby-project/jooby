@@ -1,6 +1,6 @@
 # kotlin
 
-We do provide a very tiny module with some special functions that makes a {{jooby}} application more Kotlin idiomatic.
+We do provide a very tiny module with some special functions that makes a [Jooby](http://jooby.org) application more Kotlin idiomatic.
 
 ## dependency
 
@@ -8,13 +8,13 @@ We do provide a very tiny module with some special functions that makes a {{joob
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-lang-kotlin</artifactId>
-  <version>{{version}}</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
 ## usage
 
-```java
+```kotlin
 
 import org.jooby.*
 
@@ -28,15 +28,15 @@ fun main(args: Array<String>) {
 
 ```
 
-The `run` function is a [type-safe builder](http://kotlinlang.org/docs/reference/type-safe-builders.html) that initializes, configures and executes a {{jooby}} application.
+The `run` function is a [type-safe builder](http://kotlinlang.org/docs/reference/type-safe-builders.html) that initializes, configures and executes a [Jooby](http://jooby.org) application.
 
 ## idioms
 
 ### request access
 
-Access to {{request}} is available via **request callback**:
+Access to [request](/apidocs/org/jooby/Request.html) is available via **request callback**:
 
-```java
+```kotlin
 run(*args) {
   get("/:name") {req ->
     val name = req.param("name").value
@@ -45,9 +45,9 @@ run(*args) {
 }
 ```
 
-The **request** idiom gives you implicit access to the {{request}} object, previous example can be written as:
+The **request** idiom gives you implicit access to the [request](/apidocs/org/jooby/Request.html) object, previous example can be written as:
 
-```java
+```kotlin
 run(*args) {
   get("/:name") {
     val name = param("name").value
@@ -61,7 +61,7 @@ run(*args) {
 
 This idiom allow to group one or more routes under a common `path`:
 
-```java
+```kotlin
 run(*args) {
 
   route("/api/pets") {
@@ -87,7 +87,7 @@ We do provide `Kotlin class references` where a `Java class reference` is requir
 
 Example 1: Register a `MVC routes`
 
-```java
+```kotlin
 run(*args) {
   use(Pets::class)
 }
@@ -95,7 +95,7 @@ run(*args) {
 
 Example 2: Get an application service:
 
-```java
+```kotlin
 run(*args) {
 
   get("/query") {
@@ -112,7 +112,7 @@ run(*args) {
 
 Next example uses the [jackson module](/doc/jackson) to parse and render `JSON`:
 
-```java
+```kotlin
 
 import org.jooby.*
 import org.jooby.json.*
@@ -136,7 +136,7 @@ fun main(args: Array<String>) {
 
 ### mvc example
 
-```java
+```kotlin
 
 import org.jooby.*
 import org.jooby.mvc.*

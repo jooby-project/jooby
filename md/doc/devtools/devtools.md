@@ -6,4 +6,6 @@ Increase development productivity: run, debug and auto-reload Jooby applications
 
 {{gradle-jooby-run.md}}
 
+{{doc/livereload/livereload.md}}
+
 {{doc/whoops/whoops.md}}

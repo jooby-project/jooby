@@ -13,7 +13,7 @@ A MongoDB based driver providing support for <a href="http://reactivex.io">React
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-mongodb-rx</artifactId>
- <version>1.0.3</version>
+ <version>1.1.0</version>
 </dependency>
 ```
 

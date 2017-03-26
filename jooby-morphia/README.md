@@ -13,7 +13,7 @@ Extends the [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-m
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-morphia</artifactId>
-  <version>1.0.3</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 

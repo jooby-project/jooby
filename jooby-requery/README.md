@@ -2,17 +2,13 @@
 
 Safe, clean and efficient database access via <a href="https://github.com/requery/requery">Requery.</a>
 
-## exports
-
-* `EntityStore` object(s)
-
 ## dependency
 
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-requery</artifactId>
- <version>{{version}}</version>
+ <version>1.1.0</version>
 </dependency>
 ```
 

@@ -30,6 +30,10 @@ The [querydsl](/doc/querydsl) module provides unified Queries for SQL. [Querydsl
 
 The [querydsl-jpa](/doc/querydsl-jpa) provides unified Queries for JPA. [Querydsl](http://www.querydsl.com/) is compact, safe and easy to learn.
 
+## requery
+
+[Requery](/doc/requery) a light but powerful object mapping and SQL generator for Java/Kotlin/Android with RxJava and Java 8 support. Easily map to or create databases, perform queries and updates from any platform that uses Java.
+
 ## rxjdbc
 
 The [rxjdbc](/doc/rxjava-jdbc) provides efficient execution, concise code, and functional composition of database calls using JDBC and RxJava Observable

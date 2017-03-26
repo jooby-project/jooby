@@ -12,7 +12,7 @@ Open Source, Distributed, RESTful Search Engine via [Elastic Search](https://git
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-elasticsearch</artifactId>
-  <version>1.0.3</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
