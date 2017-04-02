@@ -52,9 +52,10 @@ import org.jboss.modules.ModuleClassLoader;
 import org.jboss.modules.ModuleIdentifier;
 import org.jboss.modules.ModuleLoader;
 import org.jboss.modules.log.ModuleLogger;
-import org.jooby.internal.run__.JoobyRef;
 
 public class Main {
+
+  static final String JOOBY_REF = "org.jooby.internal.run__.JoobyRef";
 
   private static boolean DEBUG;
 
@@ -191,7 +192,7 @@ public class Main {
     this.scanner.start();
     this.args = new ArrayList<>(Arrays.asList(args));
     this.args.add("server.join=false");
-    this.args.add("jooby.internal.onStart=" + JoobyRef.class.getName());
+    this.args.add("jooby.internal.onStart=" + JOOBY_REF);
     this.startApp(this.args);
 
     if (block) {
@@ -230,7 +231,7 @@ public class Main {
         Thread.currentThread().setContextClassLoader(mcloader);
 
         debug("starting: %s", runclass);
-        Class appref = mcloader.loadClass(JoobyRef.class.getName());
+        Class appref = mcloader.loadClass(JOOBY_REF);
         debug("loaded: %s", appref);
         Class appclass = mcloader.loadClass(runclass);
         debug("loaded: %s", appclass);
