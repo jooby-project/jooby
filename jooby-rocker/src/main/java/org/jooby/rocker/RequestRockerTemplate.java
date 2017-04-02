@@ -36,6 +36,7 @@ public abstract class RequestRockerTemplate extends DefaultRockerTemplate {
 
   @Override
   protected void __associate(final RockerTemplate context) {
+    super.__associate(context);
     this.locals = requireTemplateClass(context, RequestRockerTemplate.class).locals;
   }
 

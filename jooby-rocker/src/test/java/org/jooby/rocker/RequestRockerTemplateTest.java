@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.fizzed.rocker.RenderingException;
 import com.fizzed.rocker.RockerModel;
 import com.fizzed.rocker.RockerTemplate;
+import com.fizzed.rocker.runtime.DefaultRockerTemplate;
 import com.google.common.collect.ImmutableMap;
 
 public class RequestRockerTemplateTest {
@@ -25,6 +26,16 @@ public class RequestRockerTemplateTest {
           RequestRockerTemplate template = template(unit.get(RockerModel.class));
           template.__associate(ctx);
           assertEquals(ctx.locals, template.locals);
+        });
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void shouldCallSuperAssociate() throws Exception {
+    new MockUnit(DefaultRockerTemplate.class, RockerModel.class)
+        .run(unit -> {
+          DefaultRockerTemplate ctx = unit.get(DefaultRockerTemplate.class);
+          RequestRockerTemplate template = template(unit.get(RockerModel.class));
+          template.__associate(ctx);
         });
   }
 
