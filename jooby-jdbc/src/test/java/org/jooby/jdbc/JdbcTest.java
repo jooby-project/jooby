@@ -517,15 +517,12 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("", "jdbc:pgsql://server/database",
-            "pgsql.database", null, "", false))
+        .expect(
+            props("com.impossibl.postgres.jdbc.PGDataSourceWithUrl", "jdbc:pgsql://server/database",
+                "pgsql.database", null, "", false))
         .expect(hikariConfig())
         .expect(hikariDataSource())
         .expect(serviceKey("database"))
-        .expect(unit -> {
-          Properties props = unit.get(Properties.class);
-          expect(props.put("jdbcUrl", url)).andReturn(null);
-        })
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -544,15 +541,11 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("", "jdbc:postgresql://server/database",
+        .expect(props("org.postgresql.ds.PGSimpleDataSource", "jdbc:postgresql://server/database",
             "postgresql.database", null, "", false))
         .expect(hikariConfig())
         .expect(hikariDataSource())
         .expect(serviceKey("database"))
-        .expect(unit -> {
-          Properties props = unit.get(Properties.class);
-          expect(props.put("jdbcUrl", url)).andReturn(null);
-        })
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));

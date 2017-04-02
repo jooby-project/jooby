@@ -444,10 +444,7 @@ public class Jdbc implements Jooby.Module {
       dataSourceClassName = props.getProperty("dataSource.dataSourceClassName");
       props.setProperty("dataSourceClassName", dataSourceClassName);
     }
-    if (Strings.isNullOrEmpty(dataSourceClassName)) {
-      // Hack old drivers without a setUrl method (pgsql)
-      props.put("jdbcUrl", url);
-    }
+
     // remove dataSourceClassName under dataSource
     props.remove("dataSource.dataSourceClassName");
     // set pool name
