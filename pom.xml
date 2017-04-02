@@ -1793,7 +1793,7 @@
 
         <!-- avaje-enchancer -->
         <plugin>
-          <groupId>org.avaje.ebean</groupId>
+          <groupId>io.ebean</groupId>
           <artifactId>ebean-maven-plugin</artifactId>
           <version>${ebean-maven-plugin.version}</version>
           <executions>
@@ -2445,7 +2445,7 @@
         </file>
       </activation>
       <dependencies>
-        <!-- ebean-runtime-enchancer -->
+        <!-- ebean-runtime-enhancer -->
         <dependency>
           <groupId>io.ebean</groupId>
           <artifactId>ebean-agent</artifactId>
@@ -2460,8 +2460,9 @@
       </dependencies>
       <build>
         <plugins>
-          <!-- ebean-enchancer -->
+          <!-- ebean-enhancer -->
           <plugin>
+            <groupId>io.ebean</groupId>
             <artifactId>ebean-maven-plugin</artifactId>
             <version>${ebean-maven-plugin.version}</version>
           </plugin>
@@ -2981,10 +2982,10 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <flyway.version>4.0</flyway.version>
     <hazelcast.version>3.6.1</hazelcast.version>
     <less4j.version>1.13.0</less4j.version>
-    <ebean.version>10.1.6</ebean.version>
+    <ebean.version>10.1.7</ebean.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
-    <ebean-agent.version>10.1.2</ebean-agent.version>
-    <ebean-maven-plugin.version>10.1.4</ebean-maven-plugin.version>
+    <ebean-agent.version>10.1.7</ebean-agent.version>
+    <ebean-maven-plugin.version>10.1.7</ebean-maven-plugin.version>
     <akka.version>2.4.11</akka.version>
     <yuicompressor.version>2.4.8</yuicompressor.version>
     <closure-compiler.version>v20150901</closure-compiler.version>
