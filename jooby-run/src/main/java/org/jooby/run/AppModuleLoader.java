@@ -18,16 +18,6 @@
  */
 package org.jooby.run;
 
-import org.jboss.modules.DependencySpec;
-import org.jboss.modules.Module;
-import org.jboss.modules.ModuleIdentifier;
-import org.jboss.modules.ModuleLoadException;
-import org.jboss.modules.ModuleLoader;
-import org.jboss.modules.ModuleSpec;
-import org.jboss.modules.ResourceLoaderSpec;
-import org.jboss.modules.ResourceLoaders;
-import org.jooby.internal.run__.JoobyRef;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -43,6 +33,15 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
+
+import org.jboss.modules.DependencySpec;
+import org.jboss.modules.Module;
+import org.jboss.modules.ModuleIdentifier;
+import org.jboss.modules.ModuleLoadException;
+import org.jboss.modules.ModuleLoader;
+import org.jboss.modules.ModuleSpec;
+import org.jboss.modules.ResourceLoaderSpec;
+import org.jboss.modules.ResourceLoaders;
 
 public class AppModuleLoader extends ModuleLoader {
 
@@ -82,7 +81,8 @@ public class AppModuleLoader extends ModuleLoader {
     String mId = name.replace(".jar", "");
     ModuleSpec.Builder builder = ModuleSpec.build(ModuleIdentifier.fromString(mId));
     if (level == 0) {
-      String classurl = JoobyRef.class.getResource(JoobyRef.class.getSimpleName() + ".class")
+      String classurl = AppModuleLoader.class
+          .getResource("/" + Main.JOOBY_REF.replace(".", "/") + ".class")
           .toString();
       String jartoken = ".jar!";
       File jar = new File(URI
@@ -140,7 +140,7 @@ public class AppModuleLoader extends ModuleLoader {
     return modules;
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
+  @SuppressWarnings({"rawtypes", "unchecked" })
   private static Set<String> jdkPaths() throws Exception {
     Class jdkPath = AppModuleLoader.class.getClassLoader().loadClass("org.jboss.modules.JDKPaths");
     Field field = jdkPath.getDeclaredField("JDK");
@@ -168,12 +168,12 @@ public class AppModuleLoader extends ModuleLoader {
     if (file.exists()) {
       return pkgs(new FileReader(file));
     }
-    return new LinkedHashSet<String>();
+    return new LinkedHashSet<>();
   }
 
   private static Set<String> pkgs(final Reader reader) throws IOException {
     try (BufferedReader in = new BufferedReader(reader)) {
-      Set<String> pkgs = new LinkedHashSet<String>();
+      Set<String> pkgs = new LinkedHashSet<>();
       String line = in.readLine();
       while (line != null) {
         pkgs.add(line.trim());
@@ -183,7 +183,7 @@ public class AppModuleLoader extends ModuleLoader {
     }
   }
 
-  public static void main(String[] args) throws MalformedURLException {
+  public static void main(final String[] args) throws MalformedURLException {
     URI jaruri = URI.create(
         "jar:file:/Users/edgar/.m2/repository/org/jooby/jooby-run/1.0.4-SNAPSHOT/jooby-run-1.0.4-SNAPSHOT.jar!/org/jooby/internal/run__/JoobyRef.class");
     System.out.println(jaruri.toURL().toExternalForm());
