@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
+import org.apache.camel.FluentProducerTemplate;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.ShutdownRoute;
 import org.apache.camel.ShutdownRunningTask;
@@ -178,6 +179,13 @@ public class CamelTest {
           expect(binder.bind(CamelFinalizer.class)).andReturn(cfABB);
           expect(binder.bind(RouteBuilder.class)).andReturn(rbABB);
 
+          FluentProducerTemplate fproducer = unit.mock(FluentProducerTemplate.class);
+          expect(ctx.createFluentProducerTemplate()).andReturn(fproducer);
+          AnnotatedBindingBuilder<FluentProducerTemplate> fptABB = unit
+              .mock(AnnotatedBindingBuilder.class);
+          fptABB.toInstance(fproducer);
+          expect(binder.bind(FluentProducerTemplate.class)).andReturn(fptABB);
+
           Multibinder<Object> rbMB = unit.mock(Multibinder.class);
 
           unit.mockStatic(Multibinder.class);
@@ -297,6 +305,13 @@ public class CamelTest {
               expect(binder.bind(CamelFinalizer.class)).andReturn(cfABB);
               expect(binder.bind(RouteBuilder.class)).andReturn(rbABB);
 
+              FluentProducerTemplate fproducer = unit.mock(FluentProducerTemplate.class);
+              expect(ctx.createFluentProducerTemplate()).andReturn(fproducer);
+              AnnotatedBindingBuilder<FluentProducerTemplate> fptABB = unit
+                  .mock(AnnotatedBindingBuilder.class);
+              fptABB.toInstance(fproducer);
+              expect(binder.bind(FluentProducerTemplate.class)).andReturn(fptABB);
+
               Multibinder<Object> rbMB = unit.mock(Multibinder.class);
 
               unit.mockStatic(Multibinder.class);
@@ -403,6 +418,13 @@ public class CamelTest {
           expect(binder.bind(ConsumerTemplate.class)).andReturn(ctABB);
           expect(binder.bind(CamelFinalizer.class)).andReturn(cfABB);
           expect(binder.bind(RouteBuilder.class)).andReturn(rbABB);
+
+          FluentProducerTemplate fproducer = unit.mock(FluentProducerTemplate.class);
+          expect(ctx.createFluentProducerTemplate()).andReturn(fproducer);
+          AnnotatedBindingBuilder<FluentProducerTemplate> fptABB = unit
+              .mock(AnnotatedBindingBuilder.class);
+          fptABB.toInstance(fproducer);
+          expect(binder.bind(FluentProducerTemplate.class)).andReturn(fptABB);
 
           Multibinder<Object> rbMB = unit.mock(Multibinder.class);
 
@@ -511,6 +533,13 @@ public class CamelTest {
           expect(binder.bind(ConsumerTemplate.class)).andReturn(ctABB);
           expect(binder.bind(CamelFinalizer.class)).andReturn(cfABB);
           expect(binder.bind(RouteBuilder.class)).andReturn(rbABB);
+
+          FluentProducerTemplate fproducer = unit.mock(FluentProducerTemplate.class);
+          expect(ctx.createFluentProducerTemplate()).andReturn(fproducer);
+          AnnotatedBindingBuilder<FluentProducerTemplate> fptABB = unit
+              .mock(AnnotatedBindingBuilder.class);
+          fptABB.toInstance(fproducer);
+          expect(binder.bind(FluentProducerTemplate.class)).andReturn(fptABB);
 
           Multibinder<Object> rbMB = unit.mock(Multibinder.class);
 
@@ -845,6 +874,13 @@ public class CamelTest {
           expect(binder.bind(CamelFinalizer.class)).andReturn(cfABB);
           expect(binder.bind(RouteBuilder.class)).andReturn(rbABB);
 
+          FluentProducerTemplate fproducer = unit.mock(FluentProducerTemplate.class);
+          expect(ctx.createFluentProducerTemplate()).andReturn(fproducer);
+          AnnotatedBindingBuilder<FluentProducerTemplate> fptABB = unit
+              .mock(AnnotatedBindingBuilder.class);
+          fptABB.toInstance(fproducer);
+          expect(binder.bind(FluentProducerTemplate.class)).andReturn(fptABB);
+
           Multibinder<Object> rbMB = unit.mock(Multibinder.class);
 
           unit.mockStatic(Multibinder.class);
@@ -1067,6 +1103,13 @@ public class CamelTest {
           expect(binder.bind(CamelFinalizer.class)).andReturn(cfABB);
           expect(binder.bind(RouteBuilder.class)).andReturn(rbABB);
 
+          FluentProducerTemplate fproducer = unit.mock(FluentProducerTemplate.class);
+          expect(ctx.createFluentProducerTemplate()).andReturn(fproducer);
+          AnnotatedBindingBuilder<FluentProducerTemplate> fptABB = unit
+              .mock(AnnotatedBindingBuilder.class);
+          fptABB.toInstance(fproducer);
+          expect(binder.bind(FluentProducerTemplate.class)).andReturn(fptABB);
+
           Multibinder<Object> rbMB = unit.mock(Multibinder.class);
 
           unit.mockStatic(Multibinder.class);
@@ -1179,6 +1222,13 @@ public class CamelTest {
           expect(binder.bind(ConsumerTemplate.class)).andReturn(ctABB);
           expect(binder.bind(CamelFinalizer.class)).andReturn(cfABB);
           expect(binder.bind(RouteBuilder.class)).andReturn(rbABB);
+
+          FluentProducerTemplate fproducer = unit.mock(FluentProducerTemplate.class);
+          expect(ctx.createFluentProducerTemplate()).andReturn(fproducer);
+          AnnotatedBindingBuilder<FluentProducerTemplate> fptABB = unit
+              .mock(AnnotatedBindingBuilder.class);
+          fptABB.toInstance(fproducer);
+          expect(binder.bind(FluentProducerTemplate.class)).andReturn(fptABB);
 
           LinkedBindingBuilder<Object> rbMBLBB = unit.mock(LinkedBindingBuilder.class);
           expect(rbMBLBB.to(CamelTest.class)).andReturn(null);
