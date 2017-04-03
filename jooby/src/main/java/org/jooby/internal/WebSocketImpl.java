@@ -300,6 +300,7 @@ public class WebSocketImpl implements WebSocket {
   }
 
   private void cleanup(final Throwable cause) {
+    open = false;
     NativeWebSocket lws = ws;
     this.ws = null;
     this.injector = null;
