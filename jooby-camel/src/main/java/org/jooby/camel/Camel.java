@@ -32,6 +32,7 @@ import java.util.Properties;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
+import org.apache.camel.FluentProducerTemplate;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.properties.PropertiesComponent;
@@ -383,6 +384,7 @@ public class Camel implements Jooby.Module {
     binder.bind(CamelContext.class).toInstance(ctx);
     binder.bind(DefaultCamelContext.class).toInstance(ctx);
     binder.bind(ProducerTemplate.class).toInstance(ctx.createProducerTemplate());
+    binder.bind(FluentProducerTemplate.class).toInstance(ctx.createFluentProducerTemplate());
     binder.bind(ConsumerTemplate.class).toInstance(ctx.createConsumerTemplate());
 
     binder.bind(CamelFinalizer.class).asEagerSingleton();
