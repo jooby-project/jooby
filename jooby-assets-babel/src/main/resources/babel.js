@@ -20,12 +20,12 @@
   };
 
   /**
-   * Source: npm install babel, npm_modules/babel/npm_modules/babel-core/browser.min.js
+   * Source: https://github.com/babel/babel-standalone
    */
-  assets.load('lib/babel-5.8.23.min.js');
+  assets.load('lib/babel-6.24.0.min.js');
 
   try {
-    var result = babel.transform(source, options);
+    var result = Babel.transform(source, options);
     return result.code;
   } catch (ex) {
     var loc = ex.loc || {}

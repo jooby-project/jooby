@@ -63,7 +63,7 @@ import com.typesafe.config.Config;
  *      sourceMaps: inline
  *    }
  *
- *    blacklist: [react]
+ *    presets: [es2015, react]
  *   }
  * }
  * </pre>

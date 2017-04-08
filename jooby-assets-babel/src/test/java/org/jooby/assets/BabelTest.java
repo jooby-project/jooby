@@ -17,9 +17,7 @@ public class BabelTest {
 
   @Test
   public void defaults() throws Exception {
-    assertEquals("\"use strict\";\n" +
-        "\n" +
-        "code();",
+    assertEquals("code();",
         new Babel()
             .process("/x.js",
                 "code();",
@@ -30,17 +28,19 @@ public class BabelTest {
   public void imports() throws Exception {
     assertEquals("\"use strict\";\n" +
         "\n" +
-        "function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj[\"default\"] = obj; return newObj; } }\n" +
-        "\n" +
         "var _math = require(\"math\");\n" +
         "\n" +
         "var math = _interopRequireWildcard(_math);\n" +
         "\n" +
+        "function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }\n"
+        +
+        "\n" +
         "alert(\"2 = \" + math.sum(math.pi, math.pi));",
         new Babel()
+            .set("presets", Arrays.asList("es2015"))
             .process("/x.js",
                 "import * as math from \"math\";\n" +
-                "alert(\"2 = \" + math.sum(math.pi, math.pi));",
+                    "alert(\"2 = \" + math.sum(math.pi, math.pi));",
                 ConfigFactory.empty()));
   }
 
@@ -56,11 +56,10 @@ public class BabelTest {
   }
 
   @Test
-  public void simpleDom() throws Exception {
-    assertEquals("\"use strict\";\n" +
-        "\n" +
-        "var myDivElement = React.createElement(\"div\", { className: \"foo\" });",
+  public void react() throws Exception {
+    assertEquals("var myDivElement = React.createElement(\"div\", { className: \"foo\" });",
         new Babel()
+            .set("presets", Arrays.asList("react"))
             .process("/x.js",
                 "var myDivElement = <div className=\"foo\" />;",
                 ConfigFactory.empty()));
@@ -68,12 +67,11 @@ public class BabelTest {
 
   @Test
   public void inlineSourceMaps() throws Exception {
-    assertEquals("\"use strict\";\n" +
-        "\n" +
-        "var myDivElement = React.createElement(\"div\", { className: \"foo\" });\n" +
-        "//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi94LmpzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7O0FBQUEsSUFBSSxZQUFZLEdBQUcsNkJBQUssU0FBUyxFQUFDLEtBQUssR0FBRyxDQUFDIiwiZmlsZSI6Ii94LmpzIiwic291cmNlc0NvbnRlbnQiOlsidmFyIG15RGl2RWxlbWVudCA9IDxkaXYgY2xhc3NOYW1lPVwiZm9vXCIgLz47Il19",
+    assertEquals("var myDivElement = React.createElement(\"div\", { className: \"foo\" });\n" +
+        "//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInguanMiXSwibmFtZXMiOlsibXlEaXZFbGVtZW50Il0sIm1hcHBpbmdzIjoiQUFBQSxJQUFJQSxlQUFlLDZCQUFLLFdBQVUsS0FBZixHQUFuQiIsImZpbGUiOiJ4LmpzIiwic291cmNlc0NvbnRlbnQiOlsidmFyIG15RGl2RWxlbWVudCA9IDxkaXYgY2xhc3NOYW1lPVwiZm9vXCIgLz47Il19",
         new Babel()
             .set("sourceMaps", "inline")
+            .set("presets", Arrays.asList("react"))
             .process("/x.js",
                 "var myDivElement = <div className=\"foo\" />;",
                 ConfigFactory.empty()));
@@ -118,8 +116,8 @@ public class BabelTest {
         "  _iteratorError = err;\n" +
         "} finally {\n" +
         "  try {\n" +
-        "    if (!_iteratorNormalCompletion && _iterator[\"return\"]) {\n" +
-        "      _iterator[\"return\"]();\n" +
+        "    if (!_iteratorNormalCompletion && _iterator.return) {\n" +
+        "      _iterator.return();\n" +
         "    }\n" +
         "  } finally {\n" +
         "    if (_didIteratorError) {\n" +
@@ -128,6 +126,7 @@ public class BabelTest {
         "  }\n" +
         "}",
         new Babel()
+            .set("presets", Arrays.asList("es2015"))
             .process("/x.js",
                 "let fibonacci = {\n" +
                     "  [Symbol.iterator]() {\n" +
@@ -173,7 +172,8 @@ public class BabelTest {
         "var _iteratorError = undefined;\n" +
         "\n" +
         "try {\n" +
-        "  for (var _iterator = fibonacci[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {\n" +
+        "  for (var _iterator = fibonacci[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {\n"
+        +
         "    var n = _step.value;\n" +
         "\n" +
         "    // truncate the sequence at 1000\n" +
@@ -185,8 +185,8 @@ public class BabelTest {
         "  _iteratorError = err;\n" +
         "} finally {\n" +
         "  try {\n" +
-        "    if (!_iteratorNormalCompletion && _iterator[\"return\"]) {\n" +
-        "      _iterator[\"return\"]();\n" +
+        "    if (!_iteratorNormalCompletion && _iterator.return) {\n" +
+        "      _iterator.return();\n" +
         "    }\n" +
         "  } finally {\n" +
         "    if (_didIteratorError) {\n" +
@@ -195,7 +195,8 @@ public class BabelTest {
         "  }\n" +
         "}",
         new Babel()
-            .set("externalHelpers", true)
+            .set("presets", Arrays.asList("es2015"))
+            .set("plugins", Arrays.asList("external-helpers"))
             .process("/x.js",
                 "let fibonacci = {\n" +
                     "  [Symbol.iterator]() {\n" +
@@ -219,18 +220,6 @@ public class BabelTest {
   }
 
   @Test
-  public void blacklist() throws Exception {
-    assertEquals("\"use strict\";\n" +
-        "\n" +
-        "var myDivElement = <div className=\"foo\" />;",
-        new Babel()
-            .set("blacklist", Arrays.asList("react"))
-            .process("/x.js",
-                "var myDivElement = <div className=\"foo\" />;",
-                ConfigFactory.empty()));
-  }
-
-  @Test
   public void ecma6Arrow() throws Exception {
     assertEquals("\"use strict\";\n" +
         "\n" +
@@ -238,6 +227,7 @@ public class BabelTest {
         "  return v + 1;\n" +
         "});",
         new Babel()
+            .set("presets", Arrays.asList("es2015"))
             .process("/x.js",
                 "var odds = evens.map(v => v + 1);",
                 ConfigFactory.empty()));
@@ -251,6 +241,7 @@ public class BabelTest {
         "    time = \"today\";\n" +
         "\"Hello \" + name + \", how are you \" + time + \"?\";",
         new Babel()
+            .set("presets", Arrays.asList("es2015"))
             .process("/x.js",
                 "var name = \"Bob\", time = \"today\";\n" +
                     "`Hello ${name}, how are you ${time}?`",
@@ -273,6 +264,7 @@ public class BabelTest {
         "  }\n" +
         "};",
         new Babel()
+            .set("presets", Arrays.asList("es2015"))
             .process("/x.js",
                 "var bob = {\n" +
                     "  _name: \"Bob\",\n" +
@@ -285,7 +277,6 @@ public class BabelTest {
                 ConfigFactory.empty()));
   }
 
-  @Test
   public void externalHelpers() throws Exception {
     assertEquals("\"use strict\";\n" +
         "\n" +
@@ -293,7 +284,7 @@ public class BabelTest {
         "  return v + 1;\n" +
         "});",
         new Babel()
-            .set("externalHelpers", true)
+            .set("plugins", Arrays.asList("external-helpers"))
             .process("/x.js",
                 "var odds = evens.map(v => v + 1);",
                 ConfigFactory.empty()));
