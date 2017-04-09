@@ -69,7 +69,7 @@ public class Address {
 }
 ```
 
-Bean class must have a ```default constructor``` or a constructor annotated with `javax.inject.Injext`.
+Bean class must have a ```default constructor``` or a constructor annotated with `javax.inject.Inject`.
 
 ### parameter type and precedence
 
