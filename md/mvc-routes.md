@@ -15,9 +15,9 @@ public class MyRoutes {
 
 Annotations are identical to [Jersey/JAX-RS](https://jersey.java.net/) and they can be found under the package `org.jooby.mvc`.
 
-> **NOTE**: Jooby doesn't implement the **JAX-RS** specification that is why it has his own version of the annotations.
+> **NOTE**: Jooby doesn't implement the **JAX-RS** specification that is why it has its own version of the annotations.
 
-A mvc route can be injected by {{guice}}:
+An mvc route can be injected by {{guice}}:
 
 ```java
 @Path("/")
@@ -85,20 +85,20 @@ public class MyRoutes {
 }
 ```
 
-### registering a mvc route
+### registering an mvc route
 
 Mvc routes must be registered, there is **no auto-discover** feature, no classpath scanning, ..., etc.
 
-The order in which you define your routes has a huge importance and it defines how your app will work.
+The order in which you define your routes is very important and it defines how your app will work.
 
 This is one of the reason why mvc routes need to be explicitly registered.
 
-The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
+The other reason is that declaring the route explicitly helps to reduce bootstrap time.
 
 
-So, how do I register a mvc route?
+So, how do I register an mvc route?
 
-In the same way everything else is registered in {{jooby}} from your application class:
+In the same way everything else is registered in {{jooby}}, from your application class:
 
 ```java
 public class App extends Jooby {
@@ -177,7 +177,7 @@ Same for {{file_upload}}
    }
 ```
 
-Jooby uses the method parameter name and bind that name to a request parameter. If you want explicit mapping and/or the request parameter isn't a valid Java identifier:
+Jooby uses the method parameter name and binds that name to a request parameter. If you want an explicit mapping and/or the request parameter isn't a valid Java identifier:
 
 ```java
    @GET
@@ -188,7 +188,7 @@ Jooby uses the method parameter name and bind that name to a request parameter. 
 
 ### form submit
 
-Form submitted as {{formurlencoded}} or {{formmultipart}} don't require anything:
+A form submitted as {{formurlencoded}} or {{formmultipart}} doesn't require anything:
 
 ```java
   @POST
@@ -199,7 +199,7 @@ Form submitted as {{formurlencoded}} or {{formmultipart}} don't require anything
 
 ### request body
 
-Annotated the method parameter with [@Body](/apidocs/org/jooby/mvc/Body.html) annotation:
+Annotate the method parameter with the [@Body](/apidocs/org/jooby/mvc/Body.html) annotation:
 
 ```java
   @POST
@@ -211,7 +211,7 @@ Annotated the method parameter with [@Body](/apidocs/org/jooby/mvc/Body.html) an
 
 ### request headers
 
-Annotated the method parameter with [@Header]({{defdocs}}/mvc/Header.html) annotation:
+Annotate the method parameter with the [@Header]({{defdocs}}/mvc/Header.html) annotation:
 
 ```java
    @GET

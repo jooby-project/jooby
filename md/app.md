@@ -70,7 +70,7 @@ public class MyModule implements Jooby.Module {
 }
 ```
 
-The `onStart` callbacks are part of bootstrap and executed before server is ready. The `onStarted` callbacks are executed when server is ready.
+The `onStart` callbacks are part of bootstrap and executed before the server is ready. The `onStarted` callbacks are executed when the server is ready.
 
 Modules are covered later all you need to know now is that you can start/stop module as you usually do from your application. 
 
@@ -95,7 +95,7 @@ Callback order is preserved:
 }
 ```
 
-Order is useful for service dependencies, like `ServiceB` should be started after `ServiceA`.
+Order is useful for service dependencies, for example if `ServiceB` should be started after `ServiceA`.
 
 ### service registry
 
@@ -117,7 +117,7 @@ You have access to the the service registry from start/stop events:
 
 ### PostConstruct/PreDestroy annotations
 
-If you prefer the annotation way then:
+If you prefer annotations you can do:
 
 ```java
 @Singleton
