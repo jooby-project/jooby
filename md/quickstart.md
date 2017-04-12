@@ -52,7 +52,7 @@ getting started
 exploring the newly created project
 -----
 
-A new directory was created: ```my-app```. Let's see how it looks like:
+A new directory was created: ```my-app```. Let's see what it looks like:
 
 ```bash
 .
