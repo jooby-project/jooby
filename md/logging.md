@@ -7,4 +7,4 @@ You will usually find the `logback.xml` file inside the `conf` directory. Also, 
 * `logback.uat.xml` when `application.env = uat`
 * `logback.prod.xml` when `application.env = prod`
 
-Of course if the `logback[.env].xml` isn't, present we fallback to default one `logback.xml`.
+If the `logback[.env].xml` file isn't present, `logback.xml` will be used as a fallback.

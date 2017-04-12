@@ -1,18 +1,18 @@
 ## xss
 
-[Cross-site scripting (XSS)](https://en.wikipedia.org/wiki/Cross-site_scripting) is a type of computer security vulnerability typically found in web applications. XSS enables attackers to inject client-side scripts into web pages viewed by other users.
+[Cross-site scripting (XSS)](https://en.wikipedia.org/wiki/Cross-site_scripting) is a type of security vulnerability typically found in web applications. XSS enables attackers to inject client-side scripts into web pages viewed by other users.
 
 {{Jooby}} provides a few XSS escapers and a simple and flexible way to provide custom and/or more featured XSS escapers.
 
-Default XSS escapers are `urlFragment`, `formParam`, `pathSegment` and `html` all them from [Guava](https://github.com/google/guava).
+Default XSS escapers are `urlFragment`, `formParam`, `pathSegment` and `html`, all provided by [Guava](https://github.com/google/guava).
 
-More advanced/featured escapers like `js`, `css`, `sql` are provided via [modules](/doc/security).
+More advanced and feature rich escapers like `js`, `css`, `sql` are provided via [modules](/doc/security).
 
 ### usage
 
-There are a few way of using XSS escape functions:
+There are a couple of ways to use XSS escape functions:
 
-#### Applying a XSS escaper to `param` or `header`:
+#### Applying an XSS escaper to `param` or `header`:
 
 ```java
 {
@@ -36,7 +36,7 @@ Here `input` is the `param/header` that you want to escape with the `html` escap
 }
 ```
 
-#### Applying a XSS escaper to form/bean:
+#### Applying an XSS escaper to form/bean:
 
 ```java
 {
@@ -46,9 +46,9 @@ Here `input` is the `param/header` that you want to escape with the `html` escap
 }
 ```
 
-#### Applying a XSS escaper from template engines
+#### Applying an XSS escaper from template engines
 
-Template engines usually provide a way to escape `HTML` (mainly) ... still {{jooby}} integrates XSS escapers with the template engine of your choice:
+Template engines usually provide built in methods to escape `HTML`. However, {{jooby}} will also integrate its XSS escapers with the template engine of your choice:
 
 [handlebars](/doc/hbs):
 

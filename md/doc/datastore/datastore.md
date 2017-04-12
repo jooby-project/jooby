@@ -1,6 +1,6 @@
 # data store
 
-Find access to various data store including relational, documented oriented, key/value, etc.
+These are modules providing access to various data stores, including relational, document oriented, key/value stores, etc.
 
 # jdbc
 
@@ -32,7 +32,7 @@ The [querydsl-jpa](/doc/querydsl-jpa) provides unified Queries for JPA. [Queryds
 
 ## requery
 
-[Requery](/doc/requery) a light but powerful object mapping and SQL generator for Java/Kotlin/Android with RxJava and Java 8 support. Easily map to or create databases, perform queries and updates from any platform that uses Java.
+[Requery](/doc/requery) is a light but powerful object mapping and SQL generator for Java/Kotlin/Android with RxJava and Java 8 support. Easily map to or create databases, perform queries and updates from any platform that uses Java.
 
 ## rxjdbc
 

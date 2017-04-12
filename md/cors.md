@@ -1,6 +1,6 @@
 ## cors
 
-Cross-origin resource sharing (CORS) is a mechanism that allows restricted resources
+Cross-origin resource sharing ([CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS)) is a mechanism that allows restricted resources
 (e.g. fonts, JavaScript, etc.) on a web page to be requested from another domain outside the domain from which the resource originated.
 
 ### usage
@@ -62,5 +62,5 @@ cors {
 }
 ```
 
-```CORS``` options are represented at runtime by [Cors]({{defdocs}}/handlers/Cors.html).
+```CORS``` options are represented at runtime by the [Cors]({{defdocs}}/handlers/Cors.html) handler.
 

@@ -1,12 +1,12 @@
 # request
 
-The request object contains methods for reading parameters, headers and body (among others). In the next section we will mention the most important method of a {{request}} object, if you need more information please refer to the [javadoc]({{apidocs}}/org/jooby/Request.html).
+The request object contains methods for reading parameters, headers and body (amongst others). In the next section, the most important methods of a {{request}} object will be explored. If you need more information, please refer to the [javadoc]({{apidocs}}/org/jooby/Request.html).
 
 ## parameters
 
-Retrieval of parameter is done via: {{req_param}} method.
+Retrieval of a parameter is done via the: {{req_param}} method.
 
-The {{req_param}} **always** returns a {{mutant}} instance. A {{mutant}} had severals utility methods for doing type conversion:
+The {{req_param}} method **always** returns a {{mutant}} instance. A {{mutant}} has several utility methods for doing type conversion:
 
 ```java
 get("/", req -> {
@@ -69,21 +69,21 @@ public class Address {
 }
 ```
 
-Bean class must have a ```default constructor``` or a constructor annotated with `javax.inject.Inject`.
+Bean classes must have a ```default constructor``` or a constructor annotated with `javax.inject.Inject`.
 
 ### parameter type and precedence
 
-A {{request}} parameter can be present at:
+A {{request}} parameter can be present in:
 
-1) **path level**: `/user/:id`
+1) **path**: `/user/:id`
 
-2) **query query**: `/user?id=...` 
+2) **query string**: `/user?id=...` 
 
 3) **form submit** encoded as {{formurlencoded}} or {{formmultipart}}
 
-(first listed are higher precedence)
+(parameters take precedence in the order listed)
 
-Now, let's suppose a very poor API where we have a route handler that accept an **id** parameter in the 3 location:
+For example purposes, let's consider a poorly constructed API where we have a route handler that accepts an **id** parameter in all three locations:
 
 A call like:
 
@@ -107,7 +107,7 @@ get("/user/:id", req -> {
 });
 ```
 
-It is clear that an API like this should be avoided, but is a good example of parameter precedence.
+While clearly bad API design, this is a good example of how parameter precedence works.
 
 ### parameter type conversion
 
@@ -120,7 +120,7 @@ Automatic type conversion is provided when a type:
 * Has a static method **valueOf** that accepts a single **String** argument
 * Has a static method **fromString** that accepts a single **String** argument. Like ```java.util.UUID```
 * Has a static method **forName** that accepts a single **String** argument. Like ```java.nio.charset.Charset```
-* It is an Optional<T>, List<T>, Set<T> or SortedSet<T> where T satisfies one of previous rules
+* Is an Optional<T>, List<T>, Set<T> or SortedSet<T> where T satisfies one of the previous rules
 
 Custom type conversion is also possible:
 
@@ -144,17 +144,17 @@ See [parser and renderer](/doc/#parser-and-renderer).
 
 ## headers
 
-Retrieval of request headers is done via: {{req_header}}. All the explained before for [request params](#request-parameters) apply for headers too.
+Retrieval of request headers is done via: {{req_header}}. What goes for the [request params](#request-parameters) applies for the headers as well.
 
 ## body
 
-Retrieval of request body is done via {{req_body}} or {{req_bodyc}}.
+Retrieval of the request body is done via {{req_body}} or {{req_bodyc}}.
 
-A {{parser}} is responsible for parse or convert the HTTP request body to something else.
+A {{parser}} is responsible for either parsing or converting the HTTP request body to something else.
 
-There are a few built-in parsers for reading body as `String`, `primitives`, ..., etc.
+There are a few built-in parsers for reading the body as `String`, `primitives`, ..., etc.
 
-[Parsers](/doc/#parser-and-renderer) are explained later. For now, all you need to know is that they can read/parse the HTTP body.
+[Parsers](/doc/#parser-and-renderer) are explained later. For now, all you need to know is that they can read or parse the HTTP body.
 
 Script API:
 
@@ -182,11 +182,11 @@ public class Controller {
 }
 ```
 
-> **NOTE**: Don't use {{req_body}}, {{req_bodyc}} or [@Body]({{defdocs}}/mvc/Body.html) for `POST` encoded as {{formurlencoded}} or {{formmultipart}}, see next section for such requests.
+> **NOTE**: Don't use {{req_body}}, {{req_bodyc}} or [@Body]({{defdocs}}/mvc/Body.html) for a `POST` request encoded as {{formurlencoded}} or {{formmultipart}}, see the next section for such requests.
 
 ## form submit
 
-Form submit parsing is done via [req.params(Class)]({{defdocs}}/Request.html#params-java.lang.Class-) or [req.form(Class)]({{defdocs}}/Request.html#form-java.lang.Class-) method:
+Form submit parsing is done via [req.params(Class)]({{defdocs}}/Request.html#params-java.lang.Class-) or the [req.form(Class)]({{defdocs}}/Request.html#form-java.lang.Class-) method:
 
 ```java
 public class Contact {
@@ -284,7 +284,7 @@ public class Address {
 </form>
 ```
 
-Tabular data is supported too:
+Tabular data is supported as well:
 
 ```java
 public class Contact {
@@ -320,9 +320,9 @@ public class Contact {
 </form>
 ```
 
-> **NOTE**: Constructor injection of nested or tabular objects isn't supported. Nested/tabular object are injected via method or field.
+> **NOTE**: Constructor injection of nested or tabular objects isn't supported. Nested/tabular object are injected via either method or field.
 
-The injection rules are defined as follow (first listed are higher priority):
+The injection rules are defined as follows (higher priority first):
 
 * There is a only one constructor (nested/tabular data can't be injected, just simple values).
 * There are more than a single constructor but only one annotated with `javax.inject.Inject` (nested/tabular data can't be injected, just simple values).
@@ -331,7 +331,7 @@ The injection rules are defined as follow (first listed are higher priority):
 
 ## file upload
 
-File uploads are accessible via: [request.file(name)]({{defdocs}}/Request.html#file-java.lang.String-) method:
+File uploads are accessible via the: [request.file(name)]({{defdocs}}/Request.html#file-java.lang.String-) method:
 
 ```html
 <form enctype="multipart/form-data" action="/upload" method="post">
@@ -365,7 +365,7 @@ You must close a {{file_upload}} in order to release resources:
 
 ## locals
 
-Local attributes (a.k.a request attributes) are bound to the current request. They are created every time a new request comes in and destroyed at the end of the request.
+Local attributes (a.k.a request attributes) are bound to the current request. They are created every time a new request is received and destroyed at the end of the request cycle.
 
 ```java
 {
@@ -390,7 +390,7 @@ Local attributes (a.k.a request attributes) are bound to the current request. Th
 }
 ```
 
-In ```mvc routes``` request locals can be injected via ```@Local``` annotation:
+In ```mvc routes``` request locals can be injected via the ```@Local``` annotation:
 
 ```java
 
@@ -413,9 +413,9 @@ In ```mvc routes``` request locals can be injected via ```@Local``` annotation:
 
 ## flash scope
 
-The flash scope is designed to transport success and error messages, between requests. The flash scope is similar to [Session](#session) but lifecycle is shorter: *data are kept for only one request*.
+The flash scope is designed to transport success and error messages between requests. It is similar to a [Session](#session) but the lifecycle is shorter: *data is kept for only one request*.
 
-The flash scope is implemented as client side cookie, so it helps to keep application stateless.
+The flash scope is implemented as a client side cookie, keeping the application stateless.
 
 ### usage
 
@@ -440,13 +440,13 @@ import org.jooby.FlashScope;
 }
 ```
 
-[FlashScope]({{defdocs}}/FlashScope.html) is also available on mvc routes via [@Flash]({{defdocs}}/mvc/Flash.html) annotation:
+The [FlashScope]({{defdocs}}/FlashScope.html) is also available on mvc routes via the [@Flash]({{defdocs}}/mvc/Flash.html) annotation:
 
 ```java
 @Path("/")
 public class Controller {
   
-  // Access to flashScope
+  // Access to the flashScope
   @GET
   public Object flashScope(@Flash Map<String, String> flash) {
     ...
@@ -466,7 +466,7 @@ public class Controller {
 } 
 ```
 
-Worth to mention that flash attributes are accessible from template engine of your choice by prefixing flash attribute's name with ```flash.```. Here is a (handlebars.java)[/doc/hbs] example:
+Flash attributes are accessible from templates by prefixing the attribute's name with ```flash.```. Here's a (handlebars.java)[/doc/hbs] example:
 
 ```html
 {{#if flash.success}}
@@ -482,7 +482,7 @@ Worth to mention that flash attributes are accessible from template engine of yo
 
 The {{request}} object has access to the application [registry]({{defdocs}}/Registry.html) which give you access to application services.
 
-Access to registry is available via: [request.require(type)]({{defdocs}}/Request.html#require-com.google.inject.Key-) methods:
+Access to the registry is available via: [request.require(type)]({{defdocs}}/Request.html#require-com.google.inject.Key-) methods:
 
 ```java
 get("/", req -> {
@@ -491,7 +491,7 @@ get("/", req -> {
 });
 ```
 
-Of course the `require` method doesn't make sense on `MVC routes`, because you can inject dependencies:
+Of course, the `require` method doesn't make sense on `MVC routes`, because in that case you can inject dependencies:
 
 ```java
 @Path("/")
@@ -513,7 +513,7 @@ public class Controller {
 
 ## access log
 
-Log all the matched incoming requested using the <a href="https://en.wikipedia.org/wiki/Common_Log_Format">NCSA format</a> (a.k.a common log format).
+Log all matching incoming requests using the <a href="https://en.wikipedia.org/wiki/Common_Log_Format">NCSA format</a> (a.k.a common log format).
 
 ### usage
 
@@ -552,7 +552,7 @@ You probably want to configure the ```RequestLog``` logger to save output into a
 </logger>
 ```
 
-Due that authentication is provided via module or custom filter, there is no concept of logged/authenticated user. Still you can log the current user by setting an user id provider at construction time:
+Since authentication is provided via a module or custom filter, there is no concept of a logged in or authenticated user. You can still log the current user by setting a user id provider at construction time:
 
 ```java
 {
@@ -570,13 +570,13 @@ Due that authentication is provided via module or custom filter, there is no con
 }
 ```
 
-Here an application filter set an ```userId``` request attribute and then we provide that ```userId``` to {@link RequestLogger}.
+In this example, an application filter sets a ```userId``` request attribute and then that ```userId``` is provided to the {@link RequestLogger}.
 
 ### custom log function
 
-By default it uses the underlying logging system: <a href="http://logback.qos.ch">logback</a>. That's why we previously show how to configure the ```org.jooby.RequestLogger``` in ```logback.xml```.
+By default all logging uses <a href="http://logback.qos.ch">logback</a> which is why the ```org.jooby.RequestLogger``` was configured in ```logback.xml```.
 
-If you want to log somewhere else and/or use a different technology then:
+If you want to log somewhere else, or want to use a different logging implementation:
 
 ```java
 {
@@ -587,7 +587,7 @@ If you want to log somewhere else and/or use a different technology then:
 }
 ```
 
-This is just an example but of course you can log the ```NCSA``` line to database, jms queue, etc...
+Rather than printing the ```NCSA``` line to stdout, it can of course be written to a database, a JMS queue, etc.
 
 ### latency
 
@@ -598,7 +598,7 @@ This is just an example but of course you can log the ```NCSA``` line to databas
 }
 ```
 
-It add a new entry at the end of the ```NCSA``` output that represents the number of ```ms``` it took to process the request.
+This will append an entry at the end of the ```NCSA``` output representing the number of ```ms``` it took to process the request.
 
 ### extended
 
@@ -624,9 +624,9 @@ Extend the ```NCSA``` by adding the ```Referer``` and ```User-Agent``` headers t
 }
 ```
 
-Override, the default formatter for the request arrival time defined by: [Request#timestamp()]({{defdocs}}/Request.html#timestamp----). You can provide a function or an instance of `DateTimeFormatter`.
+Override the default formatter for the request arrival time defined by: [Request#timestamp()]({{defdocs}}/Request.html#timestamp----). You can provide a function or an instance of `DateTimeFormatter`.
 
-The default formatter use the default server time zone, provided by `ZoneId#systemDefault()`. It's possible to just override the time zone too:
+The default formatter uses the default server time zone, provided by `ZoneId#systemDefault()`. It's possible to simply override the time zone as well:
 
 ```java
 {

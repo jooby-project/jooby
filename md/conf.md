@@ -2,7 +2,7 @@
 
 Jooby delegates configuration management to the [Config library](https://github.com/typesafehub/config).
 
-By defaults Jooby expects to find an ```application.conf``` file at the root of classpath. You can find the `.conf` file under the `conf` classpath directory.
+By default, Jooby expects to find an ```application.conf``` file at the root of the classpath. You can find the `.conf` file under the `conf` classpath directory.
 
 ## getting properties
 
@@ -63,11 +63,11 @@ You're free to inject the entire ```com.typesafe.config.Config``` object or `sub
 
 ## environment
 
-Jooby internals and the module system rely on the ```application.env``` property. By defaults, this property is set to: ```dev```.
+Jooby internals and the module system rely on the ```application.env``` property. By default, this property is set to: ```dev```.
 
 This special property is represented at runtime with the [Env]({{apidocs}}/org/jooby/Env.html) class.
 
-For example: a module might decided to create a connection pool, cache, etc when ```application.env``` isn't set to `dev`.
+For example: a module might decided to create a connection pool, cache, etc. when ```application.env``` isn't set to `dev`.
 
 The `application.env` property can be set as command line argument as well:
 

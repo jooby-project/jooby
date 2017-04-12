@@ -1,6 +1,6 @@
 # handlebars
 
-Logic less and semantic templates via {{handlebars}}.
+Logic-less and semantic templates via [Handlebars.java](https://github.com/jknack/handlebars.java).
 
 ## exports
 
@@ -33,7 +33,7 @@ public/index.html:
 {{model}}
 ```
 
-Templates are loaded from root of classpath: ```/``` and must end with: ```.html``` file extension.
+Templates are loaded from the root of the classpath: ```/``` and must end with: ```.html``` file extension.
 
 ## request locals
 
@@ -94,7 +94,7 @@ Templates are loaded from the root of classpath and must end with ```.html```. Y
 
 Cache is OFF when ```env=dev``` (useful for template reloading), otherwise is ON.
 
-Cache is backed by [Guava](https://github.com/google/guava) and the default cache will expire after ```100``` entries.
+The cache is backed by [Guava](https://github.com/google/guava) and the default cache will expire after ```100``` entries.
 
 If ```100``` entries is not enough or you need a more advanced cache setting, just set the
 ```hbs.cache``` option:

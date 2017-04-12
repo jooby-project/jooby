@@ -1,6 +1,6 @@
 ## mvc routes
 
-Mvc routes are like **controllers** in [Spring](http://spring.io) and/or **resources** in [Jersey](https://jersey.java.net/) with some minor enhancements and/or simplifications.
+Mvc routes are similar to **controllers** in [Spring](http://spring.io) and **resources** in [Jersey](https://jersey.java.net/) with some minor enhancements and simplifications.
 
 ```java
 @Path("/")
@@ -15,7 +15,7 @@ public class MyRoutes {
 
 Annotations are identical to [Jersey/JAX-RS](https://jersey.java.net/) and they can be found under the package `org.jooby.mvc`.
 
-> **NOTE**: Jooby doesn't implement the **JAX-RS** specification that is why it has its own version of the annotations.
+> **NOTE**: Jooby doesn't implement the **JAX-RS** specification. That is why it has its own version of the annotations.
 
 An mvc route can be injected by {{guice}}:
 
@@ -49,7 +49,7 @@ public class MyRoutes {
 }
 ```
 
-> **NOTE**: MVC routes **are NOT singleton**, unless you explicitly annotated the route as Singleton:
+> **NOTE**: MVC routes **are NOT singleton**, unless you explicitly annotated the route as a Singleton:
 
 ```java
 
@@ -177,7 +177,7 @@ Same for {{file_upload}}
    }
 ```
 
-Jooby uses the method parameter name and binds that name to a request parameter. If you want an explicit mapping and/or the request parameter isn't a valid Java identifier:
+Jooby uses the method parameter name and binds that name to a request parameter. If you want an explicit mapping or if the request parameter isn't a valid Java identifier:
 
 ```java
    @GET
@@ -220,7 +220,7 @@ Annotate the method parameter with the [@Header]({{defdocs}}/mvc/Header.html) an
    }
 ```
 
-Or, if the header name isn't a valid Java identifier
+Or, if the header name isn't a valid Java identifier:
 
 ```java
    @GET
@@ -231,7 +231,7 @@ Or, if the header name isn't a valid Java identifier
 
 ### response
 
-A method returns type is sent to the client. Some examples:
+A methods return type is sent to the client. Some examples:
 
 ```java
 
@@ -249,7 +249,7 @@ public Result dontSayGoodbye(String name) {
 
 ```
 
-If you need/want to render a view, just return a [view]({{defdocs}}/View.html) instance:
+If you want to render a view, just return a [view]({{defdocs}}/View.html) instance:
 
 ```java
 @GET
@@ -258,7 +258,7 @@ public Result home() {
 }
 ```
 
-If you need to deal with HTTP metadata like: status code, headers, etc... use a [result] as method return type:
+If you need to deal with HTTP metadata like: status code, headers, etc... use a [result] as the return type:
 
 ```java
 @GET

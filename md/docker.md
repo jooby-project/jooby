@@ -20,7 +20,7 @@ Gradle users might want to choose one of the available [plugins](https://plugins
 mvn clean package docker:build
 ```
 
-* Once it finish, the docker image will be build and tagged as `${project.artifactId}`.
+* Once finished, the docker image has been built and tagged as `${project.artifactId}`.
 
 * You can now run the image with:
 
@@ -28,7 +28,7 @@ mvn clean package docker:build
 docker run -p 80:8080 ${project.artifactId}
 ```
 
-The Maven profile trigger the [spotify/docker-maven-plugin](https://github.com/spotify/docker-maven-plugin) which generates a `docker` file. Please checkout the [doc](https://github.com/spotify/docker-maven-plugin) for more datails.
+The Maven profile triggers the [spotify/docker-maven-plugin](https://github.com/spotify/docker-maven-plugin) which generates a `docker` file. Please see the [doc](https://github.com/spotify/docker-maven-plugin) for more details.
 
 ### stork
 
@@ -40,7 +40,7 @@ The Maven profile trigger the [spotify/docker-maven-plugin](https://github.com/s
 mvn clean package docker:build
 ```
 
-* Once it finish, the docker image will be build and tagged as `${project.artifactId}`.
+* Once finished, the docker image has been built and tagged as `${project.artifactId}`.
 
 * You can now run the image with:
 
@@ -48,4 +48,4 @@ mvn clean package docker:build
 docker run -it -p 80:8080 ${project.artifactId}
 ```
 
-The Maven profile trigger the [spotify/docker-maven-plugin](https://github.com/spotify/docker-maven-plugin) which generates a `docker` file. Please checkout the [doc](https://github.com/spotify/docker-maven-plugin) for more datails.
+The Maven profile triggers the [spotify/docker-maven-plugin](https://github.com/spotify/docker-maven-plugin) which generates a `docker` file. Please see the [doc](https://github.com/spotify/docker-maven-plugin) for more details.

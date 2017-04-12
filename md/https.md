@@ -30,7 +30,7 @@ Optionally, you can set these properties too:
 * ```ssl.session.cacheSize```: Set the size of the cache used for storing SSL session objects. 0 to use the default value.
 * ```ssl.session.timeout```: Timeout for the cached SSL session objects, in seconds. 0 to use the default value.
 
-As you can see setup is very simple. All you need is your ```.crt``` and ```.key``` files.
+As you can see, setup is very simple. All you need is your ```.crt``` and ```.key``` files.
 
 At startup you will see a line similar to this one:
 

@@ -1,6 +1,6 @@
 # security  
 
-Find here available modules for securing your application but also authenticate and authorize users.
+These are the available modules for securing your application and to authenticate and authorize users.
 
 ## pac4j
 

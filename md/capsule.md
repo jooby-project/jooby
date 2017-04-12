@@ -24,7 +24,7 @@ The ```capsule``` Maven profile is activated by the presence of the ```src/etc/c
 
 ## options
 
-Integration provides some defaults, which are listed here:
+The integration provides the following defaults:
 
 ```xml
 <properties>

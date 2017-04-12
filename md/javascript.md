@@ -14,7 +14,7 @@
 
 ## usage
 
-Write an `app.js` file inside your project directory: 
+Create an `app.js` file in your project directory: 
 
 ```js
 
@@ -24,7 +24,7 @@ app.get('/', function () 'Hey Jooby!');
 
 ```
 
-Go to your `pom.xml` and update/set the `application.class` property to `org.jooby.JoobyJs` like:
+In your `pom.xml`, set the `application.class` property to `org.jooby.JoobyJs` like this:
 
 ```xml
 <properties>
@@ -32,7 +32,7 @@ Go to your `pom.xml` and update/set the `application.class` property to `org.joo
 </properties>
 ```
 
-The `org.jooby.JoobyJs` class setup [Nashorn](http://openjdk.java.net/projects/nashorn/) and startup `Jooby`.
+The `org.jooby.JoobyJs` class will set up [Nashorn](http://openjdk.java.net/projects/nashorn/) and start `Jooby`.
 
 ## jooby function
 
@@ -52,7 +52,7 @@ jooby(function () {
 })();
 ```
 
-Another minor but useful feature is the: **import of classes** and **packages** when you go with the functional version:
+Another minor, but useful feature is the: **import of classes** and **packages** when you go with the functional version:
 
 ```js
 jooby(function (Jackson) {
@@ -76,11 +76,11 @@ jooby(function (Jackson) {
 })(org.jooby.json);
 ```
 
-Import of packages is done via: ```importPackage``` function from in ```nashorn:mozilla_compat.js```.
+Import of packages is done via: ```importPackage``` function from ```nashorn:mozilla_compat.js```.
 
 ## routes
 
-Routes work as in Java, but it is worth to mention what are the available alternatives at the time you need to write a route in JavaScript:
+Routes work as in Java, but it is worth mentioning the available alternatives when you write a route in JavaScript:
 
 ```js
 jooby(function () {
@@ -93,18 +93,18 @@ jooby(function () {
     return 'Hey Jooby!';
   });
 
-  // returns a value but access to request object
+  // returns a value, but with access to the request object
   this.get('/', function (req) {
     var x = require(X)
     return x.doSomething();
   });
 
-  // access to request and rsp (like in express.js)
+  // access to the request and the response (as in express.js)
   this.get('/', function (req, rsp) {
     rsp.send('Hey Jooby!');
   });
 
-  // access to request and rsp
+  // access to the request and the response
   this.get('/', function (req, rsp, chain) {
     chain.next();
   });

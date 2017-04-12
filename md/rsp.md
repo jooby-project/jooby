@@ -1,14 +1,14 @@
 # response
 
-The response object contains methods for reading and setting headers, status code and body (between others). In the next section we will mention the most important method of a response object, if you need more information please refer to the [javadoc]({{apidocs}}/org/jooby/Response.html).
+The response object contains methods for reading and setting headers, status code and body (amongst other things). In the next section you will encounter the most important methods of the response object. If you need more information please refer to the [javadoc]({{apidocs}}/org/jooby/Response.html).
 
 ## send
 
-The [rsp.send]({{defdocs}}/Response.html#send-org.jooby.Result-) method is responsible for sending and writing data into the HTTP Response.
+The [rsp.send]({{defdocs}}/Response.html#send-org.jooby.Result-) method is responsible for sending and writing data into the HTTP response.
 
 A [renderer]({{defdocs}}/Renderer.html) is responsible for converting a Java Object into something else (json, html, etc..).
 
-Let's see a simple example:
+Let's consider a simple example:
 
 ```java
 get("/", (req, rsp) -> rsp.send("hey jooby"));
@@ -18,9 +18,9 @@ get("/", req -> "hey jooby"); // or just return a value and Jooby will call send
 
 The **send** method will ask the [Renderer API]({{defdocs}}/Renderer.html) to format an object and write a response.
 
-The resulting ```Content-Type``` when is not set is ```text/html```.
+The resulting ```Content-Type``` when not set is ```text/html```.
 
-The resulting ```Status Code``` when is not set is ```200```.
+The resulting ```Status Code``` when not set is ```200```.
 
 Some examples:
 
@@ -55,9 +55,9 @@ get("/", req -> {
 
 ## headers
 
-Retrieval of response headers is done via [rsp.header("name")]({{defdocs}}/Response.html#header-java.lang.String-). The method always returns a [Mutant]({{defdocs}}/Mutant.html) and from there you can convert to any of the supported types.
+Retrieval of response headers is done via [rsp.header("name")]({{defdocs}}/Response.html#header-java.lang.String-). This method returns a [Mutant]({{defdocs}}/Mutant.html) which can be converted to any of the supported types.
 
-Setting a header is pretty straightforward too:
+Setting a header is pretty straightforward as well:
 
 ```java
 rsp.header("Header-Name", value).header("Header2", value);
@@ -65,7 +65,7 @@ rsp.header("Header-Name", value).header("Header2", value);
 
 ## send file
 
-Send file API is available via [rsp.download*]({{defdocs}}/Response.html#download-java.lang.String-) methods:
+The send file API is available through the [rsp.download*]({{defdocs}}/Response.html#download-java.lang.String-) methods:
 
 ```java
 {
@@ -75,7 +75,7 @@ Send file API is available via [rsp.download*]({{defdocs}}/Response.html#downloa
 }
 ```
 
-The ```download``` method sets all these headers:
+The ```download``` method sets the following headers:
 
 * ```Content-Disposition```
 
@@ -83,7 +83,7 @@ The ```download``` method sets all these headers:
 
 * ```Content-Type```
 
-In the next example we explicitly set some of these headers:
+In the next example we explicitly set some of these:
 
 ```java
 {
