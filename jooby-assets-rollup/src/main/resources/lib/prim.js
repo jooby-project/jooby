@@ -1,5 +1,5 @@
 /**
- * prim 0.0.7 Copyright (c) 2012-2013, The Dojo Foundation All Rights Reserved.
+ * prim 1.0.0 Copyright (c) 2012-2016, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/requirejs/prim for details
  */
@@ -97,7 +97,10 @@ var prim;
 
                 try {
                     var then = v && v.then;
-                    if (isFunObj(v) && typeof then === 'function') {
+                    if (isFunObj(v) && typeof then === 'function' &&
+                        // if error, keep on error pathway if a promise,
+                        // 2.2.7.2 tests.
+                        prop !== 'e') {
                         f2 = makeFulfill();
                         then.call(v, f2.resolve, f2.reject);
                     } else {

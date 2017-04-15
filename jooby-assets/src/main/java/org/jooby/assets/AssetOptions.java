@@ -20,8 +20,13 @@ package org.jooby.assets;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.List;
 import java.util.Map;
 
+import org.jooby.Route;
+import org.jooby.internal.RoutePattern;
+
+import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -49,6 +54,26 @@ public class AssetOptions {
 
   public Map<String, Object> options() {
     return options.withoutPath("excludes").root().unwrapped();
+  }
+
+  @SuppressWarnings("unchecked")
+  public boolean excludes(final String path) {
+    Object value = get("excludes");
+    if (value == null) {
+      return false;
+    }
+    List<String> excludes;
+    if (value instanceof List) {
+      excludes = (List<String>) value;
+    } else {
+      excludes = ImmutableList.of(value.toString());
+    }
+    String spath = Route.normalize(path);
+    return excludes.stream()
+        .map(it -> new RoutePattern("GET", it))
+        .filter(pattern -> pattern.matcher("GET" + spath).matches())
+        .findFirst()
+        .isPresent();
   }
 
   @SuppressWarnings("unchecked")
