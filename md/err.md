@@ -1,10 +1,10 @@
 # error handling
 
-Error handler is represented by the [Err.Handler]({{defdocs}}/Err.Handler.html) class and allows you to log and/or render exceptions.
+An error handler in Jooby is represented by the [Err.Handler]({{defdocs}}/Err.Handler.html) class and allows you to log and render exceptions.
 
 ## default err handler
 
-The [default error handler]({{defdocs}}/Err.DefHandler.html) does content negotiation and optionally display friendly err pages using naming convention.
+The [default error handler]({{defdocs}}/Err.DefHandler.html) does content negotiation and optionally displays friendly error pages using a naming convention.
 
 ```java
 {
@@ -21,7 +21,7 @@ The [default error handler]({{defdocs}}/Err.DefHandler.html) does content negoti
 
 ### html
 
-If a request to ```/``` has an ```Accept: text/html``` header. Then, the default err handler will
+If a request to ```/``` has an ```Accept: text/html``` header. Then, the default Err handler will
 ask to a [View.Engine]({{defdocs}}/View.Engine.html) to render the ```err``` view.
 
 The default model has these attributes:
@@ -31,7 +31,7 @@ The default model has these attributes:
 * status: status code, like ```400```
 * reason: status code reason, like ```BAD REQUEST```
 
-Here is a simply ```public/err.html``` error page:
+Here is a simple ```public/err.html``` error page:
 
 ```html
 <html>
@@ -41,12 +41,12 @@ Here is a simply ```public/err.html``` error page:
 </html>
 ```
 
-HTTP status code will be set too.
+The HTTP status code of the response will be set as well.
 
 ### no html
 
-If a request to ```/``` has an ```Accept: application/json``` header. Then, the default err handler will
-ask to a [renderer]({{defdocs}}/Renderer.html) to render the ```err``` model.
+If a request to ```/``` has an ```Accept: application/json``` header, the default Err handler will
+use a [renderer]({{defdocs}}/Renderer.html) to render the ```err``` model.
 
 ```json
 {
@@ -59,11 +59,11 @@ ask to a [renderer]({{defdocs}}/Renderer.html) to render the ```err``` model.
 
 In both cases, the error model is the result of ```err.toMap()``` which creates a lightweight version of the exception.
 
-HTTP status code will be set too.
+The HTTP status code of the response will be set as well.
 
 ## custom err handler
 
-If the default view resolution and/or err model isn't enough, you can create your own err handler:
+If the default view resolution and/or err model isn't enough, you can create your own Err handler:
 
 ```java
 {
@@ -75,10 +75,10 @@ If the default view resolution and/or err model isn't enough, you can create you
 }
 ```
 
-Err handler are executed in the order they were provided (like routes, parsers and renderers).
-The first err handler that send an output wins!
+The Err handlers are executed in the order they were provided (like routes, parsers and renderers).
+The first Err handler that send an output wins!
 
-### catch specific exception or status code
+### catch a specific exception or status code
 
 
 ```java
@@ -119,7 +119,7 @@ Or you can catch exception base on their response status code (see next section)
 
 ## status code
 
-Default status code is ```500```, except for:
+The default status code for errors is ```500```, except for:
 
 ```
 | Exception                          | Status Code |
@@ -131,7 +131,7 @@ Default status code is ```500```, except for:
 | java.io.FileNotFoundException      |     404     |
 ```
 
-### custom status code
+### custom status codes
 
 Just throw an [Err]({{defdocs}}/Err.html):
 
@@ -145,4 +145,4 @@ or add a new entry in the ```application.conf``` file:
 err.com.security.Forbidden = 403
 ```
 
-So, now if you throw a ```com.security.Forbidden``` exception the status code will be ```403```.
+When you now throw a ```com.security.Forbidden``` exception, the status code will be ```403```.

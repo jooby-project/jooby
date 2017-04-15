@@ -1,17 +1,17 @@
 # routes
 
-A route describes the interface for making requests to your application. It combines a HTTP **method** and a **path pattern**.
+A route describes the interface for making requests to your application. It combines an HTTP **method** and a **path pattern**.
 
 A route has an associated **handler**, which does some job and produces some kind of output (HTTP response).
 
-Jooby offers two programming model for writing routes:
+Jooby offers two programming models for writing routes:
 
-* Script routes via **lambdas**, like *Sinatra* and/or *expressjs*
-* MVC routes via **annotations**, like *Jersey* and/or *Spring* (covered later)
+* Script routes via **lambdas**, like *Sinatra* or *expressjs*
+* MVC routes via **annotations**, like *Jersey* or *Spring* (covered later)
 
 ## creating routes
 
-A `script` route definition looks like:
+A `script` route definition looks like this:
 
 ```java
 {
@@ -19,7 +19,7 @@ A `script` route definition looks like:
 }
 ```
 
-while a `MVC` route definition looks like:
+while an `MVC` route definition looks like this:
 
 ```java
 
@@ -36,9 +36,9 @@ public class Controller {
 }
 ```
 
-MVC routes are [covered later](/doc/#routes-mvc-routes) in details. For simplicity and easy to understand all the example uses the `script` routes, but keep in mind you can do the same in `MVC` routes.
+MVC routes are [covered later](/doc/#routes-mvc-routes) in detail. For simplicity, all the examples use `script` routes, but keep in mind you can do the same with `MVC` routes.
 
-We created a route to handle a GET request at the root of our application. Any other HTTP method can be created in the same way.
+A route was created to handle GET requests at the root of our application. Any other HTTP method can be handled the same way.
 
 If you need a `POST`:
 
@@ -52,14 +52,14 @@ or need to listen to any `HTTP method`:
 use("*", "/", () -> "hey jooby");
 ```
 
-It is possible to name a route explicitly:
+It's also possible to name a route explicitly:
 
 ```java
 get("/", () -> "hey jooby")
    .name("salute");
 ```
 
-Default route name is **anonymous**. Naming a route is useful for debugging purpose (if you have two or more routes mounted on the same path) and for [dynamic and advanced routing](#routes-dynamic-advanced-routing).
+The default route name is **anonymous**. Naming a route is useful for debugging purposes (if you have two or more routes mounted on the same path) and for [dynamic and advanced routing](#routes-dynamic-advanced-routing).
 
 ## route handler
 
@@ -71,7 +71,7 @@ Jooby offers several flavors for routes:
 get("/", () -> "hey jooby");
 ```
 
-This handler usually produces a constant value. Returned value will be send to the client.
+This handler usually produces a constant value. The returned value will be sent to the client.
 
 ### functional handler: req
 
@@ -79,7 +79,7 @@ This handler usually produces a constant value. Returned value will be send to t
 get("/", req -> "hey " + req.param("name").value());
 ```
 
-This handler depends on some `external` attribute which is available via [Request]({{defdocs}}/Request.html) object. Returned value will be send to the client.
+This handler depends on some `external` attribute which is available via the [Request]({{defdocs}}/Request.html) object. The return value will be sent to the client.
 
 ### handler: (req, rsp)
 
@@ -87,7 +87,7 @@ This handler depends on some `external` attribute which is available via [Reques
 get("/", (req, rsp) -> rsp.send("hey " + req.param("name").value());
 ```
 
-This handler depends on some `external` attribute which is available via [Request]({{defdocs}}/Request.html) object and we explicitly send a response via [response.send]({{defdocs}}/Response.html#send(java.lang.Object)) method.
+This handler depends on some `external` attribute which is available to the [Request]({{defdocs}}/Request.html) object and the response is explicitly sent via the [response.send]({{defdocs}}/Response.html#send(java.lang.Object)) method.
 
 ### filter: (req, rsp, chain)
 
@@ -99,9 +99,9 @@ get("/", (req, rsp, chain) -> {
 });
 ```
 
-This is the most advanced handler, you have access to the [Request]({{defdocs}}/Request.html), [Response]({{defdocs}}/Response.html) and [Route.Chain]({{defdocs}}/Route.Chain.html) objects.
+This is the most advanced handler. You have access to the [Request]({{defdocs}}/Request.html), the [Response]({{defdocs}}/Response.html) and the [Route.Chain]({{defdocs}}/Route.Chain.html) objects.
 
-From here you can end a response by calling [response.send]({{defdocs}}/Response.html#send(java.lang.Object)) method, abort the request by throwing an [Err]({{defdocs}}/Err.html) or allow to proceed to the next handler in the pipeline by calling [chain.next(req, rsp)]({{defdocs}}/Route.Chain.html#next-org.jooby.Request-org.jooby.Response-).
+From a handler like this, it's possible to end a response by calling the [response.send]({{defdocs}}/Response.html#send(java.lang.Object)) method, abort the request by throwing an [Err]({{defdocs}}/Err.html) or allow the request to proceed to the next handler in the pipeline by calling [chain.next(req, rsp)]({{defdocs}}/Route.Chain.html#next-org.jooby.Request-org.jooby.Response-).
 
 ## path patterns
 
@@ -123,14 +123,14 @@ get("/user/:id", req -> "hey " + req.param("id").value());
 // alternative syntax
 get("/user/{id}", req -> "hey " + req.param("id").value());
 
-// matches path element with prefix "uid"
+// matches a path element with the prefix "uid"
 get("/user/uid{id}", req -> "hey " + req.param("id").value());
 
 // regex
 get("/user/{id:\\d+}", req -> "hey " + req.param("id").intValue());
 ```
 
-Request parameters are covered later, for now all you need to know is that you can access to a path parameter using the [Request.param(String)]({{apidocs}}/org/jooby/Request.html#param(java.lang.String)).
+Request parameters will be covered later. For now all you need to know is that you can access a path parameter using [Request.param(String)]({{apidocs}}/org/jooby/Request.html#param(java.lang.String)).
 
 ### ant style patterns
 
@@ -177,7 +177,7 @@ GET /assets/js/index.js
 GET /assets/css/style.css
 ```
 
-It is possible to map a single static file to a path:
+It's possible to map a single static file to a path:
 
 ```java
 {
@@ -195,7 +195,7 @@ Here is another example with [webjars](http://www.webjars.org):
 }
 ```
 
-and responds to the following requests:
+which would respond to the following requests:
 
 ```
 GET /assets/jquery/2.1.3/jquery.js
@@ -206,7 +206,7 @@ GET /assets/bootstrap/3.3.4/css/bootstrap.css
 
 By default the asset handler is able to read files from the `public` folder, which is a classpath folder.
 
-It is possible to specify an `external` file system location too:
+It's possible to specify an `external` file system location as well:
 
 ```
 {
@@ -224,7 +224,7 @@ The `assets.cache.maxAge` controls the `Cache-Control` header. Allowed value inc
 
 ### using a CDN
 
-The asset handler goes one step forward and add support for serving files from a ```CDN``` out of the box.
+The asset handler goes one step forward and adds support for serving files from a ```CDN``` out of the box.
 
 All you have to do is to define a ```assets.cdn``` property:
 
@@ -243,12 +243,11 @@ A ```GET``` to ```/assets/js/index.js``` will be redirected to: ```http://d7471v
 
 ### assets module
 
-There is also an awesome and powerful [assets](/doc/assets) module. The [assets](/doc/assets)
-is library to validate, concatenate, minify or compress JavaScript and CSS assets.
+There is also a powerful and all-round awesome [assets](/doc/assets) module. This module can validate, concatenate, minify or compress JavaScript and CSS assets.
 
 ## precedence and order
 
-Routes are executed in the **order they are defined**. So the ordering of routes is crucial to the behavior of an application. Let's review this fact via some examples:
+Routes are executed in the **order they are defined**. That means that the ordering of routes is crucial to the behavior of an application. Let's examine how this works with some examples:
 
 ```java
 get("/abc", req -> "first");
@@ -268,11 +267,11 @@ It produces a response of ```second```.
 
 > As you can see **ORDER IS VERY IMPORTANT**.
 
-Now, why is it allowed to have two routes on the same path?
+How come it's legal with two or more routes on the same path?
 
-Because we want **filters** for routes.
+Because this is how **filters** for routes are enabled.
 
-A route handler accept a third parameter, commonly named chain, which refers to the next route handler in line:
+A route handler accepts a third parameter, commonly named chain, which refers to the next route handler in line:
 
 ```java
 get("/abc", (req, rsp, chain) -> {
@@ -285,17 +284,17 @@ get("/abc", (req, rsp) -> {
 });
 ```
 
-Again the order of route definition is important. Forgetting this will cause your application behave unpredictably. We will learn more about this behavior in the examples of the next section.
+Again the order of route definition is important. Forgetting this will cause your application behave unpredictably. You will learn more about this behavior in the examples in the next section.
 
 ## request handling
 
-When a request is made to the server, which matches a route definition, the associated callback functions kick in to process the request and send back a response. We call this route pipe or stack.
+When a request matching a route definition is made to the server, the associated callback functions kick in to process the request and send a response. This is called a route pipe or stack.
 
-Routes are like a plumbing pipe, requests start at the first route you define and work their way "down" the route stack processing for each path they match.
+Routes are like a plumbing pipe, with requests starting at the first route and then working their way "down" the route stack processing for each path they match.
 
-Each route handler has the capability to send a response or pass on the request to the next route handler in the current stack.
+Each route handler has the capability to send a response or pass the request on to the next route handler in the current stack.
 
-Route handlers, also have access to the chain object, which happens to be the next callback function in the pipe. To make the chain object available to the callback function, pass it along with the req and the rsp objects to it:
+Route handlers, also have access to the chain object, which happens to be the next callback function in the pipe. To make the chain object available to the callback function, pass it as a method parameter:
 
 ```java
 get("/", (req, rsp, chain) -> {
@@ -303,7 +302,7 @@ get("/", (req, rsp, chain) -> {
 });
 ```
 
-If there is no matching callback function after the current callback function, next refers to the built-in 404 error handler, and it will be triggered when you call it.
+If there is no matching callback function after the current callback function, next refers to the built-in 404 error handler, and will be triggered when you call it.
 
 Try to guess the output of:
 
@@ -317,9 +316,9 @@ get("/", (req, rsp) -> rsp.send("third"));
 
 Will the server print all of them? "first"? "third"?
 
-It prints "first". The act of doing a {{rsp_send}} terminates the flow of the request then and there; the request is not passed on to any other route handler.
+It prints "first". The act of doing a {{rsp_send}} will terminate the flow of the request then and there; the request is not passed on to any other route handler.
 
-So, how do we specify multiple handlers for a route, and use them all at the same time? Call the {{chain_next}} function from the callback, without calling {{rsp_send}} because it terminates the request flow. Here is an example:
+So, how can you specify multiple handlers for a route, and use them all at the same time? Call the {{chain_next}} function from the callback, without calling {{rsp_send}} (as that would terminate the request). Here is an example:
 
 ```java
 get("/", (req, rsp, chain) -> {
@@ -339,7 +338,7 @@ get("/", (req, rsp) -> {
 
 ```
 
-Alternative, if you **always** call {{chain_next}} just use the `(req, rsp` handler:
+Alternatively, if you **always** call {{chain_next}} just use the `(req, rsp` handler:
 
 ```java
 get("/", (req, rsp) -> {
@@ -357,9 +356,9 @@ get("/", (req, rsp) -> {
 
 ```
 
-The 3rd arg is required if you need to decide if the next route need to be executed or not. If you always call {{chain_next}} the 3rd arg isn't required and does exactly what the 2arg handler does: **always** call {{chain_next}}.
+The third argument is required if you need to decide whether the next route needs to be executed or not. If you always call {{chain_next}} the third argument isn't required and does exactly what the second argument handler does: it **always** calls {{chain_next}}.
 
-A good example for a filter is to handle for example authentication:
+A good example for a filter is to handle e.g. authentication:
 
 ```java
 get("/", (req, rsp, chain) -> {
@@ -374,7 +373,7 @@ get("/", (req, rsp, chain) -> {
 
 ## content negotiation
 
-A route can produces different results based on the ```Accept``` header: 
+A route can produce different results based on the ```Accept``` header: 
 
 ```java
 get("/", () ->
@@ -385,4 +384,4 @@ get("/", () ->
 );
 ```
 
-Performs content-negotiation on the Accept HTTP header of the request object. It select a handler for the request, based on the acceptable types ordered by their quality values. If the header is not specified, the first callback is invoked. When no match is found, the server responds with ```406 Not Acceptable```, or invokes the default callback: ```**/*```.
+This will perform content-negotiation on the Accept HTTP header of the request object. It selects a handler for the request, based on the acceptable types ordered by their quality factor. If the header is not specified, the first callback is invoked. When no match is found, the server responds with ```406 Not Acceptable```, or invokes the default callback: ```**/*```.

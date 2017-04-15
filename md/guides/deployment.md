@@ -15,17 +15,17 @@ In order to create a **fat jar** go to your project home, open a terminal and ru
 mvn clean package
 ```
 
-Once it finish, the jar will be available inside the ```target``` directory.
+Once it's finished, the jar will be available inside the ```target``` directory.
 
 ## run / start
 
-Due everything was bundle into a single ```jar``` file, all you have to do is:
+Since everything was bundle into a single ```jar``` file, all you have to do is:
 
 ```bash
 java -jar myapp.jar
 ```
 
-Pretty easy! No complex deployment, **no heavy-weight servers**, **no classpath hell**, nothing!!! Your application is up and running!!
+Pretty easy! No complex deployment, **no heavy-weight servers**, **no classpath hell**. Your application is up and running!
 
 ## env and conf
 
@@ -33,7 +33,7 @@ Pretty easy! No complex deployment, **no heavy-weight servers**, **no classpath 
 
 The ```application.env``` property controls the ```environment```, by default this property is set to ```dev``` (the unique and well known env).
 
-Now, suppose you need to deploy your awesome app into ```prod``` and you need to set/update a few properties. The ```application.conf``` file looks like:
+Now, suppose you need to deploy your awesome app into ```prod``` and you need to set a few properties. The ```application.conf``` file looks like:
 
 ```
 ...
@@ -42,14 +42,14 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 ...
 ```
 
-Now, for ```prod``` you have a new key pair... then all you have to do is to create a new file ```application.prod.conf``` and just add those new keys:
+Now, for ```prod``` you have a new key value pair... all you have to do is to create a new file ```application.prod.conf``` and just add those new keys:
 
 ```
 aws.accessKey = AKIAIOSFODNN7PROD
 aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
 ```
 
-> **TIP**: You don't have to add all the properties, just those who are different for the environment.
+> **TIP**: You don't have to add all the properties, just those which differ for the environment.
 
 The final step is to start the app with ```application.env=prod```:
 
@@ -57,14 +57,13 @@ The final step is to start the app with ```application.env=prod```:
 java -Dapplication.env=prod myapp.jar
 ```
 
-Your application will run now in ```prod```. It will find your ```application.conf``` and overrides in property defined there with those from ```application.prod.conf```
+Your application will run now in ```prod```. It will find your ```application.conf``` and overrides the properties defined there with those from ```application.prod.conf```
 
-It works for ```logback.xml``` too, if ```logback.[env].xml``` is present, then **Jooby** will use it, otherwise it fallbacks to ```logback.xml```.
+It works for ```logback.xml``` too, if ```logback.[env].xml``` is present, then **Jooby** will use it, otherwise it falls back to ```logback.xml```.
 
 # zip deployment
 
-A **Jooby** app created from {{maven}} ```archetype``` will also generates a ```myapp.zip``` file, every time you run:
-
+A **Jooby** app created from {{maven}} ```archetype``` will also generates a ```myapp.zip``` file, each time you run:
 
 ```
 mvn clean package
@@ -86,7 +85,7 @@ This ```.zip``` file **mimics** a typical server layout:
 
 The scripts: ```start/stop.sh``` are very simple and they will start/stop a **Jooby** app.
 
-The scripts are inside the ```src/etc/bin``` directory you can edit them, add more, etc... They will be always included in the final ```.zip```.
+The scripts are inside the ```src/etc/bin``` directory you can edit them, add more, etc. They will be always included in the final ```.zip```.
 
 The ```zip``` deployment makes sense when you want to have more control over your application. For example:
 
@@ -115,7 +114,7 @@ The ```maven-assembly-plugin``` will generate the ```.zip``` file.
 
 ## run / start
 
-It is usually don't via ```start.sh```:
+Usually done via ```start.sh```:
 
 ```
 ./start.sh prod
@@ -127,8 +126,8 @@ It works like the [jar deployment](#jar-deployment-env-and-conf)
 
 # conclusion
 
-**Jar deployment** makes perfect sense for PaaS like Heroku, AppEngine, etc...
+**Jar deployment** makes perfect sense for PaaS like Heroku, AppEngine, etc.
 
 **Zip deployment** give you more control for starting and stopping but also control the application log at runtime.
 
-Happy coding!!
+Happy coding!

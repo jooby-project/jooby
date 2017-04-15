@@ -26,17 +26,17 @@
 
 ## can I use Gradle?
 
-Yes, with some limitation that are being documented [here](/doc/gradle).
+Yes, with some limitations that are being documented [here](/doc/gradle).
 
 ## how do I run code on start/stop?
 
-Documentation for [lyfeCycle]({{defdocs}}/LyfeCycle.html) events is available [here](/doc/#application-life-cycle)
+Documentation for [lifeCycle]({{defdocs}}/LifeCycle.html) events is available [here](/doc/#application-life-cycle)
 
 # mime types
 
 ## what mime types are supported?
 
-* Full list of mime types can be found [here](/doc/#misc-mime-properties)
+* Full list of MIME types can be found [here](/doc/#misc-mime-properties)
 
 ## how do I add a new/override mime type?
 

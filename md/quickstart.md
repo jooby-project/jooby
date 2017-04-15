@@ -44,7 +44,7 @@ listening on:
   http://0.0.0.0:8080/
 ```
 
-**Jooby**! is up and running!!!
+**Jooby**! is up and running!
 
 getting started
 =====
@@ -52,7 +52,7 @@ getting started
 exploring the newly created project
 -----
 
-A new directory was created: ```my-app```. Now, let's see how it looks like:
+A new directory was created: ```my-app```. Let's see what it looks like:
 
 ```bash
 .
@@ -74,11 +74,11 @@ A new directory was created: ```my-app```. Now, let's see how it looks like:
                     └── AppTest.java
 ```
 
-The **public** folder contains static files like ```*.html```, ```*.js```, ```*.css```, ..., ```*.png``` files.
+The **public** folder contains static content like ```*.html```, ```*.js```, ```*.css```, ..., ```*.png``` files.
 
 The **conf** folder contains ```*.conf```.
 
-The **src/main/java** folder contains ```*.java``` (of course) files.
+The **src/main/java** folder contains ```*.java``` files (of course).
 
 The **src/test/java** folder contains unit and integration tests.
 
@@ -108,7 +108,7 @@ public class App extends Jooby { // 1
 
 Steps involved are:
 
-1) extends Jooby
+1) extend Jooby
 
 2) define some routes
 
@@ -117,17 +117,17 @@ Steps involved are:
 running
 -----
 
-Just open a console and type:
+Open a console and type:
 
     mvn jooby:run
 
-The maven plugin will compile the code (if necessary) and startup the application.
+The maven plugin will compile the code (if necessary) and start the application.
 
-Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE.
-Then all you have to do is run the: ```App.java``` class. After all, this is plain Java application with a ```main``` method.
+Of course, you can generate the IDE metadata from Maven or import as a Maven project in your favorite IDE.
+Afterwards, all you have to do is run the: ```App.java``` class. After all, this is a plain Java application with a ```main``` method.
 
 where to go now?
 -----
 
 * read the [documentation](/doc)
-* checkout one of our {{templates}}
+* check out one of the {{templates}}

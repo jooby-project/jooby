@@ -26,7 +26,7 @@ Maven properties defined here will be resolved and merged into the final output.
 
 ## example
 
-Here is a simple example of the ```stork.yml``` launcher:
+Here's a simple example of the ```stork.yml``` launcher:
 
 ```yml
 # Name of application (make sure it has no spaces)

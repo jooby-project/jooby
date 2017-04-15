@@ -6,25 +6,25 @@ Modules (unlike in other frameworks) are thin and do a lot of work to bootstrap 
 
 Modules like in [Guice](https://github.com/google/guice) are used to wire services, connect data, etc...
 
-There is an extensive [module ecosystem](/modules) which makes Jooby a **full stack** framework (when need it).
+There is an extensive [module ecosystem](/modules) which makes Jooby a **full stack** framework (when needed).
 
 ## do less and be flexible
 
 **Do less** might sounds confusing, but is the key to **flexibility**.
 
-A module does as **less as possible** (key difference with other frameworks). A module for a library `X` should:
+A module does as **little as possible** (a key difference with other frameworks). A module for a library `X` should:
 
 * Bootstrap X
 * Configure X
-* exports API of X
+* export the API of X
 
-This means a module should NOT create wrapper for a library. Instead, provides a way to extend, configure and use the external library.
+This means that a module should NOT create a wrapper for a library. Instead it should provide a way to extend, configure and use the external library.
 
-> This principle, keep module usually small, maintainable and flexible.
+> This principle keeps modules small, maintainable and flexible.
 
 ## creating modules
 
-A module is represented by the [Jooby.Module]({{defdocs}}/Jooby.Module.html) class. The configure callback looks like:
+A module is represented by the [Jooby.Module]({{defdocs}}/Jooby.Module.html) class. The configure callback looks like this:
 
 ```java
 public class M1 implements Jooby.Module {
@@ -56,7 +56,7 @@ public class M1 implements Jooby.Module {
 
 ## usage
 
-A module must be imported/registered at startup time:
+A module must be registered at startup time:
 
 ```java
 
@@ -77,7 +77,7 @@ public class MyApp extends Jooby {
 }
 ```
 
-You can start/stop services from a module:
+You can start or stop services from a module:
 
 ```java
 public class M1 implements Jooby.Module {
@@ -98,7 +98,7 @@ Or export routes:
 public class M1 implements Jooby.Module {
     public void configure(Env env, Config config, Binder binder) {
       Router router = env.router();
-      router.get("/m1", () -> "I'm a module!!!");
+      router.get("/m1", () -> "I'm a module!");
     }
 }
 ```

@@ -26,7 +26,7 @@ apply plugin: 'jooby'
 gradle joobyRun
 ```
 
-Prints something similar to:
+It will print something like this:
 
 ```bash
 >>> jooby:run[info|main]: Hotswap available on: /my-app
@@ -43,14 +43,14 @@ listening on:
 
 ## hot reload
 
-The ```joobyRun``` tool restart the application every time a change is detected on:
+The ```joobyRun``` tool restarts the application each time a change is detected on:
 
 - classes (*.class)
 - config files (*.conf and *.properties)
 
-Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled or cached while running on ```application.env = dev```.
+Changes on templates and/or static files (*.html, *.js, *.css) won't restart the application, because they are not compiled or cached while running on ```application.env = dev```.
 
-It's worth to mention that dynamic reload of classes is done via {{jboss-modules}}.
+It's worth mentioning that dynamic reload of classes is done via {{jboss-modules}}.
 
 ## options
 
@@ -74,7 +74,7 @@ A {{gradle}} property that contains the fully qualified name of the ```main clas
 
 The compiler is ```on``` by default, unless:
 
-* A ```.classpath``` file is present in the project directory. If present, means you're a Eclipse user and we turn off the compiler and let Eclipse recompiles the code on save.
+* A ```.classpath``` file is present in the project directory. If present, it's assumed you're using Eclipse and the compiler is disabled, letting Eclipse recompile the code on save.
 
 * The compiler is set to ```off```.
 
@@ -82,8 +82,8 @@ On compilation success, the application is effectively reloaded.
 
 On compilation error, the application won't reload.
 
-Compilation success or error messages are displayed in the console (not at the browser).
+Compilation success or error messages are displayed in the console (not in the browser).
 
 ### includes / excludes
 
-List of file patterns to listen for file changes.
+List of file patterns to watch for file changes.

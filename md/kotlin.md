@@ -1,6 +1,6 @@
 # kotlin
 
-We do provide a very tiny module with some special functions that makes a {{jooby}} application more Kotlin idiomatic.
+{{jooby}} provides a tiny module with some functions that will make an application more Kotlin idiomatic.
 
 ## dependency
 
@@ -35,7 +35,7 @@ The `run` function is a [type-safe builder](http://kotlinlang.org/docs/reference
 
 ### request access
 
-Access to {{request}} is available via **request callback**:
+Access to the {{request}} is available via a **request callback**:
 
 ```java
 run(*args) {
@@ -46,7 +46,7 @@ run(*args) {
 }
 ```
 
-The **request** idiom gives you implicit access to the {{request}} object, previous example can be written as:
+The **request** idiom gives you implicit access to the {{request}} object. The previous example can be written as:
 
 ```java
 run(*args) {
@@ -60,7 +60,7 @@ run(*args) {
 
 ### route group
 
-This idiom allow to group one or more routes under a common `path`:
+This idiom allows grouping one or more routes under a common `path`:
 
 ```java
 run(*args) {
@@ -84,7 +84,7 @@ run(*args) {
 
 ### class reference
 
-We do provide `Kotlin class references` where a `Java class reference` is required.
+{{jooby}} provides a `Kotlin class references` where a `Java class reference` is required.
 
 Example 1: Register a `MVC routes`
 
@@ -111,7 +111,7 @@ run(*args) {
 
 ### JSON API
 
-Next example uses the [jackson module](/doc/jackson) to parse and render `JSON`:
+The next example uses the [jackson module](/doc/jackson) to parse and render `JSON`:
 
 ```java
 
@@ -161,6 +161,6 @@ fun main(args: Array<String>) {
 
 ## starter project
 
-We do provide a [kotlin-starter](https://github.com/jooby-project/kotlin-starter) project. Go and [fork it](https://github.com/jooby-project/kotlin-starter).
+{{jooby}} provides a [kotlin-starter](https://github.com/jooby-project/kotlin-starter) project. Go and [fork it](https://github.com/jooby-project/kotlin-starter).
 
-That's all folks!!
+That's all folks!

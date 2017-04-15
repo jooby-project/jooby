@@ -2,7 +2,7 @@
 
 This is the default deployment option and you (usually) don't need to do anything if you created your application via [maven archetype](/quickstart).
 
-In order to create a **fat jar** go to your project home, open a terminal and run:
+In order to create a **fat jar**, go to your project home, open a terminal and run:
 
 ```
 mvn clean package
@@ -50,12 +50,12 @@ If you created your application via [maven archetype](/quickstart) this setup is
 
 ## run / start
 
-Due everything was bundle into a single ```jar``` file, all you have to do is:
+Since everything was bundled into a single ```jar```, all you have to do is:
 
 ```bash
 java -jar myapp.jar [env]
 ```
 
-Easy hugh? No complex deployment, **no heavy-weight servers**, **no classpath hell**, nothing!!!
+Easy huh? No complex deployment, **no heavy-weight servers**, **no classpath hell**, nothing!
 
-Your application is up and running!!
+Your application is up and running!

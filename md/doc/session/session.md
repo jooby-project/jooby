@@ -1,6 +1,6 @@
 # session
 
-Find here the available modules for reading and saving session data in your application.
+These are the available modules for reading and saving session data in your application.
 
 {{doc/ehcache/ehcache-session.md}}
 

@@ -1,8 +1,8 @@
 ## dynamic / advanced routing
 
-Dynamic routing allows you to filter a pipeline execution chain and produces custom or completely different response.
+Dynamic routing allows you to filter a pipeline execution chain and produces a custom or even completely different response.
 
-For example, suppose you need to serve different content based on hostname:
+For example, suppose you need to serve different content based on the hostname:
 
 ```java
 {

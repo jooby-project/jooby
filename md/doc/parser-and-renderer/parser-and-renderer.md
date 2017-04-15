@@ -1,6 +1,6 @@
 # parser and renderer
 
-Find here the available modules for parsing or rendering several formats.
+Jooby includes modules for rendering with many common template engines.
 
 # template engines
 
@@ -14,7 +14,7 @@ Find here the available modules for parsing or rendering several formats.
 
 ## handlebars
 
-[Handlebars](/doc/hbs) logic less and semantic templates via {{handlebars}}.
+[Handlebars](/doc/hbs) logic-less and semantic templates via [Handlebars.java](https://github.com/jknack/handlebars.java).
 
 ## pebble
 
@@ -32,8 +32,8 @@ Find here the available modules for parsing or rendering several formats.
 
 ## jackson
 
-JSON supports via [jackson](/doc/jackson).
+JSON support via [jackson](/doc/jackson).
 
 ## gson
 
-JSON supports via [gson](/doc/gson).
+JSON support via [gson](/doc/gson).

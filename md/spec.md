@@ -1,16 +1,16 @@
 The spec module allows you to export your API/microservices outside a {{jooby}} application.
 
-The goal of this module is to define a common way to write APIs and provide you tools like live doc and testing **with no extra effort**.
+The goal of this module is to define a common way to write APIs and provide tools like live doc and testing **with no extra effort**.
 
-> You aren't force to learn any other tool or annotated your code special annotations. All you have to do is **write your application** following a few/minor suggestions.
+> You won't be forced to learn any other tool or annotate your code with special annotations. All you have to do is **write your application** following a few simple suggestions.
 
-This module process, collect and compile **routes** from your application. It extracts HTTP method/pattern, parameter, responses, types and doc.
+This module will process, collect and compile **routes** from your application. It extracts HTTP method, path patterns, parameters, response types and documentation.
 
-You will find here the basis and the necessary documentation to build and expose rich APIs for free, but keep in mind this module isn't intended for direct usage. It is the basis for tools like {{swagger}} or {{raml}}.
+You will find the basics and the necessary documentation to build and expose rich APIs for free, but keep in mind that this module isn't intended to be used directly. It is the base for tools like {{swagger}} or {{raml}}.
 
 # definition
 
-Let's review how to build rich APIs using the ```spec``` module via ```script``` or ```mvc``` way:
+Let's review how to build rich APIs using the ```spec``` module using either the ```script``` or the ```mvc``` programming styles:
 
 ## script API
 
@@ -171,7 +171,7 @@ public class Pets {
 }
 ```
 
-Previous examples are feature identical, but they were written in very different way. Still API Spec for them look likes:
+The previous examples, while feature identical, are written very differently. The API Spec for both is still the same:
 
 ```yaml
 
@@ -248,17 +248,17 @@ DELETE /api/pets/:id
     doc: A <code>204</code>
 ```
 
-> NOTE: We use ```textual``` representation  here for simplicity and easy read, but keep in mind the output is compiled into a binary format.
+> NOTE: We use a ```textual``` representation here for simplicity and readability, but keep in mind that the output is compiled into a binary format.
 
 ## script rules
 
-Have a look at the previous examples again? Do you see anything special? No, right?
+Consider the previous examples again. Do you notice anything special? No, right?
 
-Well there are some minor things you need to keep in mind for getting or collecting route metadata from **script** routes:
+There are however some minor issues that you need to keep in mind for getting or collecting route metadata from **script** routes:
 
 ### params
 
-Params need to be in one sentence/statement, like:
+Parameters need to be in one sentence/statement, like:
 
 ```java
 req -> {
@@ -277,7 +277,7 @@ req -> {
 
 ### response type (a.k.a return type)
 
-There should be **ONLY one** return statement and return type needs to be declared as variable, like:
+There should be **ONLY one** return statement and the return type needs to be declared as a variable, like this:
 
 ```java
 req -> {
@@ -288,7 +288,7 @@ req -> {
 }
 ```
 
-not like: 
+not like this: 
 
 ```java
 req -> {
@@ -311,13 +311,13 @@ req -> {
 }
 ```
 
-There is a workaround if these rules doesn't make sense to you and/or the algorithm fails to resolve the correct type. Please checkout next section.
+If these rules don't make sense to you or if the algorithm fails to resolve the correct type, there is a workaround outlined in the next section.
 
-## writing doc
+## writing documentation
 
-If you take a few minutes and write good quality doc the prize will be huge!
+By taking a few minutes to write quality documentation for your code, you will reap huge benefits!
 
-The tool takes and export the doc as part of your API!!
+The spec tool will export the doc as part of your API!
 
 Here is an example on how to document script routes:
 
@@ -390,25 +390,25 @@ response:
     doc: Returns <code>200</code> with a single pet or <code>404</code>
 ```
 
-Here you tell the tool response is a ```Pet``` via *JavaDoc* type references: ```{@link Type}```.
+In this example you tell the spec tool that the response is a ```Pet``` via *JavaDoc* type references: ```{@link Type}```.
 
-This is useful when the tool isn't able to detect the type for you and/or you aren't able to follow the return rules described before.
+This is useful when the tool isn't able to detect the type for you and/or you aren't able to follow the return rules described earlier.
 
-The status codes section have a ```200``` and ```404``` entries with default messages. You can override the default message by using ```code = message``` like:
+The status codes section has entries for ```200``` and ```404``` with default messages. You can override the default message by using ```code = message``` like:
 
 ```html
 @return Returns a {@link Pet} with <code>200 = Success</code> status or <code>404 = Missing</code>
 ```
 
-## how it works?
+## how does it work?
 
-The spec module scan and parse the source code: ```*.java``` and produces a list of ```RouteSpec```.
+The spec module scans and parses the source code files: ```*.java``` and produces a list of ```RouteSpec```.
 
-It is required for getting information from ```script routes``` and extract ```JavaDoc```.
+This is required for getting information from ```script routes``` and to extract ```JavaDoc```.
 
-We don't need that for ```mvc routes``` because all the information is available via *Reflection* and ```java.lang.Method```.
+However, this is not needed for ```mvc routes``` because all the information is available through *Reflection* and the ```java.lang.Method```.
 
-So, the tool needs the source code in order to work properly. In order to use the tool at deploy time you must to setup the ```jooby:spec``` maven plugin:
+Since the spec tool needs the source code in order to work properly you must set up the ```jooby:spec``` maven plugin in order to use the spec tool at deploy time:
 
 ```xml
 <plugin>
@@ -443,6 +443,6 @@ apply plugin: 'jooby'
 gradle joobySpec
 ```
 
-The maven/gradle plugin exports the API into a binary format: ```.spec``` which can be parse it later.
+The maven and gradle plugins export the API to a binary format: ```.spec``` which can be parsed at a later time.
 
-That's all about the spec, as you see there are some minor rules to follow while writing ```script routes```. Now it's time see what tools and integrations are available!!!
+That's all about the spec, as you've seen there are some minor rules to follow while writing ```script routes```. Now it's time see what tools and integrations are available!

@@ -8,7 +8,7 @@ Routes have a few properties that let you extend basic functionality in one way 
 
 ### attributes
 
-Attributes let you annotated a route at application bootstrap time. It is like static metadata available at runtime:
+Attributes let you annotate a route at application bootstrap time. It functions like static metadata available at runtime:
 
 ```java
 {
@@ -17,9 +17,9 @@ Attributes let you annotated a route at application bootstrap time. It is like s
 }
 ```
 
-An attribute consist of a `name` and `value`. Allowed values are ```primitives```, ```String```, ```enum```, ```class``` or an ```array``` of previous types.
+An attribute consist of a `name` and `value`. Allowed values are ```primitives```, ```String```, ```enum```, ```class``` or an ```array``` of these types.
 
-Attributes can be accessed at runtime in a request/response cycle. For example, a security module might check for ```role``` attribute, a sitemap generator might check for ```priority``` attribute, etc...
+Attributes can be accessed at runtime in a request/response cycle. For example, a security module might check for a ```role``` attribute, a sitemap generator might check for a ```priority``` attribute, etc.
 
 ```java
 {
@@ -73,20 +73,20 @@ public class AdminResource {
 
 The previous example will print: ```{role = admin}```.
 
-Any runtime annotation is automatically added it as route attribute. Following these rules:
+Any runtime annotation is automatically added as route attributes following these rules:
 
-* If the annotation has a ```value``` method, then we use the annotation's name as attribute name.
-* Otherwise, we use the method name as attribute name.
+* If the annotation has a ```value``` method, then we use the annotation's name as the attribute name.
+* Otherwise, we use the method name as the attribute name.
 
 > **request attributes vs route attributes:**
 >
-> Route attributes are created at bootstrap time they are global and once you set they won't change.
+> Route attributes are created at bootstrap. They are global, and once set, they won't change.
 >
-> While, request attributes are created in a request/response cycle.
+> On the other hand, request attributes are created in a request/response cycle.
 
 ### with operator
 
-The {{route_with}} operator set attributes, consumes/produces types, exclusions, etc.. to one or more routes:
+The {{route_with}} operator sets attributes, consumes/produces types, exclusions, etc. to one or more routes:
 
 ```java
 {
@@ -158,7 +158,7 @@ For example, the {{route_map}} operator will be silently ignored here:
 
 ### excludes
 
-The {{route_excludes}} operator skip/ignore a route path match:
+The {{route_excludes}} operator ignores what would otherwise have been a route path match:
 
 ```java
 {
@@ -170,7 +170,7 @@ The {{route_excludes}} operator skip/ignore a route path match:
 
 ### consumes
 
-The {{route_consumes}} operator indicates the expected input the route can handle. It is used will accepting requests.
+The {{route_consumes}} operator indicates the type of input the route can handle.
 
 ```java
 {
@@ -183,7 +183,7 @@ The {{route_consumes}} operator indicates the expected input the route can handl
 
 ### produces
 
-The {{route_produces}} operator indicates the expected output the route can produces.
+The {{route_produces}} operator indicates the type of output the route can produce.
 
 ```java
 {

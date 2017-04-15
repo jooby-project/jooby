@@ -9,15 +9,15 @@
 * [gson](https://github.com/jooby-project/jooby/tree/master/jooby-gson): JSON supports via Gson.
 
 ## template engines
-* [handlebars/mustache](https://github.com/jooby-project/jooby/tree/master/jooby-hbs): logic less and semantic Mustache templates.
+* [handlebars/mustache](https://github.com/jooby-project/jooby/tree/master/jooby-hbs): logic-less and semantic Mustache templates.
 * [freemarker](https://github.com/jooby-project/jooby/tree/master/jooby-ftl): render templates with FreeMarker.
 
 ## session
-* [redis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis/#redis-session-store): HTTP session on {{redis}}.
-* [memcached](https://github.com/jooby-project/jooby/tree/master/jooby-spymemcached/#session-store): HTTP session on {{memcached}}.
-* [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb/#mongodb-session-store): HTTP session on {{mongodb}}.
-* [hazelcast](https://github.com/jooby-project/jooby/tree/master/jooby-hazelcast/#session-store): HTTP session on {{hazelcast}}.
-* [ehcache](https://github.com/jooby-project/jooby/tree/master/jooby-ehcache/#session-store): HTTP session on {{ehcache}}.
+* [redis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis/#redis-session-store): HTTP session store for {{redis}}.
+* [memcached](https://github.com/jooby-project/jooby/tree/master/jooby-spymemcached/#session-store): HTTP session store for {{memcached}}.
+* [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb/#mongodb-session-store): HTTP session store for {{mongodb}}.
+* [hazelcast](https://github.com/jooby-project/jooby/tree/master/jooby-hazelcast/#session-store): HTTP session store for {{hazelcast}}.
+* [ehcache](https://github.com/jooby-project/jooby/tree/master/jooby-ehcache/#session-store): HTTP session store for {{ehcache}}.
 
 ## sql
 * [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc): high performance connection pool for jdbc via {{hikari}}.

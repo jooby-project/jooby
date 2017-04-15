@@ -12,25 +12,25 @@
 }
 ```
 
-A [web socket]({{defdocs}}/WebSocket.html) consist of a **path pattern** and a [handler]({{defdocs}}/WebSocket.Handler.html).
+A [WebSocket]({{defdocs}}/WebSocket.html) consists of a **path pattern** and a [handler]({{defdocs}}/WebSocket.Handler.html).
 
-A **path pattern** can be as simple or complex as you need. All the path patterns supported by routes are supported here.
+A **path pattern** can be as simple or complex as you need. All the path patterns supported by routes are supported.
 
-The [onOpen]({{defdocs}}/WebSocket.OnOpen.html) listener is executed on new connections, from there we can listen for message, errors and/or send data to the client.
+The [onOpen]({{defdocs}}/WebSocket.OnOpen.html) listener is executed on new connections, from there it's possible to listen for messages and errors or to send data to the client.
 
-Keep in mind that **web socket** are not like routes. There is no stack/pipe or chain.
+Keep in mind that a **WebSocket** is different from a route. There is no stack/pipe or chain.
 
-You can mount a socket to a path used by a route, but you can't have two or more web sockets under the same path.
+You can mount a socket to a path used by a route, but you can't have two or more WebSockets under the same path.
 
 ## send and broadcast
 
-As you saw early a [web socket]({{defdocs}}/WebSocket.html) and send data to client via [ws.send(...)]({{defdocs}}/WebSocket.html#send-java.lang.Object-) method.
+As seen earlier, a [web socket]({{defdocs}}/WebSocket.html) can send data to the client via the [ws.send(...)]({{defdocs}}/WebSocket.html#send-java.lang.Object-) method.
 
-The [ws.broadcast(...)]({{defdocs}}/WebSocket.html#broadcast-java.lang.Object-) method does the same thing but for all the connected clients.
+The [ws.broadcast(...)]({{defdocs}}/WebSocket.html#broadcast-java.lang.Object-) method does the same thing, but will send to all connected clients.
 
 ## require
 
-Access to existing services is provided via [ws.require(type)]({{defdocs}}/WebSocket.html#require-com.google.inject.Key-) method:
+Access to existing services is provided through the [ws.require(type)]({{defdocs}}/WebSocket.html#require-com.google.inject.Key-) method:
 
 ```java
 ws("/", ws -> {
@@ -40,7 +40,7 @@ ws("/", ws -> {
 
 ## listener
 
-As with **routes** we do provide **two flavors** for `WebSockets`:
+As with **routes** you can choose between **two flavors** for `WebSocket` listeners:
 
 script:
 
@@ -85,11 +85,11 @@ class MyHandler implements WebSocket.OnMessage<String> {
 }
 ```
 
-Optionally, your listener could implements [onOpen]({{defdocs}}/WebSocket.OnOpen.html), [onClose]({{defdocs}}/WebSocket.OnClose.html) or [onError]({{defdocs}}/WebSocket.OnError.html). If you need them all then use [handler]({{defdocs}}/WebSocket.Handler.html) interface.
+Optionally, your listener could implement [onOpen]({{defdocs}}/WebSocket.OnOpen.html), [onClose]({{defdocs}}/WebSocket.OnClose.html) or [onError]({{defdocs}}/WebSocket.OnError.html). If you need all of them, use the [handler]({{defdocs}}/WebSocket.Handler.html) interface.
 
 ## consumes
 
-Web socket can define a type to consume:
+A WebSocket can define a type to consume:
 
 ```java
 {
@@ -117,11 +117,11 @@ class MyHandler implements WebSocket.OnMessage<MyObject> {
 }
 ```
 
-This is just an utility method for parsing socket message to Java Object. Consumes in web sockets has nothing to do with content negotiation. Content negotiation is route concept, it doesn't apply for web sockets.
+This is just a utility method for parsing a socket message into a Java Object. Consumes in WebSockets has nothing to do with content negotiation. Content negotiation is a route concept, it doesn't apply for WebSockets.
 
 ## produces
 
-Web socket can define a type to produce: 
+A WebSocket can define a type to produce: 
 
 ```java
 {
@@ -147,4 +147,4 @@ class MyHandler implements WebSocket.OnMessage<MyObject> {
 }
 ```
 
-This is just an utility method for formatting Java Objects as text message. Produces in web sockets has nothing to do with content negotiation. Content negotiation is route concept, it doesn't apply for web sockets.
+This is just a utility method for formatting Java Objects as text messages. Produces in WebSockets has nothing to do with content negotiation. Content negotiation is a route concept, it doesn't apply for WebSockets.

@@ -1,19 +1,19 @@
 # tests
 
-In this section we are going to see how to run unit and integration tests in Jooby.
+This section will show you how to run unit and integration tests with Jooby.
 
 ## unit tests
 
-We do offer two programming models:
+There are two available programming models:
 
-* script programming model; and 
-* mvc programming model 
+* the script programming model; and 
+* the mvc programming model 
 
-You don't need much for ```MVC``` routes, because a route is binded to a method of some class. So it is usually very easy and simple to mock and run unit tests against a ```MVC``` route.
+Testing ```MVC``` routes is pretty straightforward since a route is bound to a method of some class. This makes it simple to mock and run unit tests against these kinds of routes.
 
-We can't say the same for ```script``` routes, because a route is represented by a ```lambda``` and there is no easy or simple way to get access to the lambda object.
+To test ```script``` routes is more involved since a route is represented by a ```lambda``` and there is no easy or simple way to get access to the lambda object.
 
-We do provide a [MockRouter]({{defdocs}}/mvc/MockRouter.html) which simplify unit tests for ```script routes```:
+For this reason there's a [MockRouter]({{defdocs}}/mvc/MockRouter.html) provided to simplify unit testing of ```script routes```:
 
 ### usage
 
@@ -73,7 +73,7 @@ public void shouldGetRequestPath() {
 }
 ```
 
-You can mock a [Response]({{defdocs}}/Response.html)  object in the same way:
+You can mock a [Response]({{defdocs}}/Response.html) object similarly:
 
 ```java
 {
@@ -106,7 +106,7 @@ public void shouldUseResponseSend() {
 }
 ```
 
-What about external dependencies? It works in a similar way:
+What about external dependencies? This is handled similarly:
 
 ```java
 {
@@ -137,11 +137,11 @@ public void shouldMockExternalDependencies() {
 }
 ```
 
-The [MockRouter#set(Object)]({{defdocs}}/mvc/MockRouter.html#set-java.lang.Object-) call push and register an external dependency (usually a mock). This make it possible to resolve services from ```require``` calls.
+The [MockRouter#set(Object)]({{defdocs}}/mvc/MockRouter.html#set-java.lang.Object-) calls push and will register an external dependency (usually a mock). This makes it possible to resolve services from ```require``` calls.
 
 ### deferred
 
-Mock of promises are possible too:
+Mocking of promises is possible as well:
 
 ```java
 {
@@ -162,7 +162,7 @@ public void shouldMockPromises() {
 }
 ```
 
-Previous test works for deferred routes: 
+The previous test works for deferred routes: 
 
 ```java
 {
@@ -177,7 +177,7 @@ Previous test works for deferred routes:
 
 Integration tests are possible thanks to a [JUnit Rule](https://github.com/junit-team/junit4/wiki/Rules).
 
-You can choose between `@ClassRule` or `@Rule`. The next example uses `ClassRule`:
+You can choose between `@ClassRule` or `@Rule`. The following example uses `ClassRule`:
 
 ```java
 
@@ -191,9 +191,9 @@ public class MyIntegrationTest {
 }
 ```
 
-Here **one** and **only one** instance will be created, which means the application start before the first test and stop after the last test. Application state is **shared** between tests.
+Here **one** and **only one** instance will be created, which means the application will start before the first test and stop after the last test. Application state is **shared** between tests.
 
-While with `Rule` a new application is created per test. If you have N test, then the application will start/stop N times:
+With `Rule` on the other hand, a new application is created per test. If you have N tests, the application will start and stop N times:
 
 ```java
 
@@ -206,7 +206,7 @@ public class MyIntegrationTest {
 }
 ```
 
-Again you are free to choice the HTTP client of your choice, like [Fluent Apache HTTP client](https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fluent.html), [REST Assured](https://github.com/rest-assured/rest-assured), etc..
+Again you are free to select the HTTP client of your choice, like [Fluent Apache HTTP client](https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fluent.html), [REST Assured](https://github.com/rest-assured/rest-assured), etc.
 
 Here is a full example with [REST Assured](https://github.com/rest-assured/rest-assured):
 

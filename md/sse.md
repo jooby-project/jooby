@@ -1,6 +1,6 @@
 # server-sent events
 
-Server-Sent Events (SSE) is a mechanism that allows server to push the data from the server to the client once the client-server connection is established by the client. Once the connection is established by the client, it is the server who provides the data and decides to send it to the client whenever new **chunk** of data is available.
+[Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) (SSE) is a mechanism that allows the server to push data to the client once the client-server connection is established. After the connection has been established by the client, the server can send to the client whenever a new **chunk** of data is available. In contrast with websockets, SSE can only be used to send from the server to the client and not the other way round.
 
 ## usage
 
@@ -15,9 +15,9 @@ Server-Sent Events (SSE) is a mechanism that allows server to push the data from
 }
 ```
 
-Simple, effective and easy to use. The callback will be executed when a new client is connected. Inside the callback we can send data, listen for connection close events, etc.
+Simple, effective and easy to use. The callback will be executed when a new client is connected. Inside the callback you can send data, listen for connection close events, etc.
 
-There is a factory method [sse.event(Object)]({{apidocs}}/org/jooby/Sse.html#event-java.lang.Object-) that let you set event attributes:
+The factory method [sse.event(Object)]({{apidocs}}/org/jooby/Sse.html#event-java.lang.Object-) will let you set event attributes:
 
 ```java
 {
@@ -35,9 +35,9 @@ There is a factory method [sse.event(Object)]({{apidocs}}/org/jooby/Sse.html#eve
 
 ## structured data
 
-Beside raw/string data you can also send structured data, like ```json```, ```xml```, etc..
+Other than raw/string data you can also send structured data, like ```json```, ```xml```, etc..
 
-The next example will send two message one in ```json``` format and one in ```text/plain``` format:
+The next example will send two messages, one in ```json``` format and one in ```text/plain``` format:
 
 ```java
 {
@@ -68,7 +68,7 @@ Or if your need only one format, just:
 
 ## request parameters
 
-We provide request access via **two arguments** callback:
+Request access is provided by a **two argument** callback:
 
 ```java
 {
@@ -84,7 +84,7 @@ We provide request access via **two arguments** callback:
 
 ## connection lost
 
-The [sse.onClose(Runnable)]({{apidocs}}/org/jooby/Sse.html#onClose-javaslang.control.Try.CheckedRunnable-) callback allow you to clean and release resources on connection close. A connection is closed when you call [sse.close()]({{apidocs}}/org/jooby/Sse.html#close--) method or the client/browser close the connection.
+The [sse.onClose(Runnable)]({{apidocs}}/org/jooby/Sse.html#onClose-javaslang.control.Try.CheckedRunnable-) callback allows you to clean and release resources on connection close. A connection is closed when you call the [sse.close()]({{apidocs}}/org/jooby/Sse.html#close--) method or when the remote client closes the connection.
 
 ```java
 {
@@ -114,13 +114,13 @@ The keep alive time feature can be used to prevent connections from timing out:
 }
 ```
 
-The previous example will sent a ```':'``` message (empty comment) every 15 seconds to keep the connection alive. If the client drop the connection, then the [sse.onClose(Runnable)]({{apidocs}}/org/jooby/Sse.html#onClose-javaslang.control.Try.CheckedRunnable-) event will be fired it.
+The previous example will send a ```':'``` message (empty comment) every 15 seconds to keep the connection alive. If the client drops the connection, then the [sse.onClose(Runnable)]({{apidocs}}/org/jooby/Sse.html#onClose-javaslang.control.Try.CheckedRunnable-) event will be fired.
 
-This feature is useful when you want to detect close events without waiting for the next time you send an event. But for example, if your application already generate events every 15s, then the use of keep alive is useless and you can avoid it.
+This feature is useful when you want to detect close events without waiting for the next time you send an event. If on the other hand your application already generates events every 15 seconds, the use of keep alive is unnecessary.
 
 ## require
 
-The [sse.require(Type)]({{apidocs}}/org/jooby/Sse.html#require-java.lang.Class-) methods let you access to application services:
+The [sse.require(Type)]({{apidocs}}/org/jooby/Sse.html#require-java.lang.Class-) methods gives you access to application services:
 
 ```java
 {
@@ -134,7 +134,7 @@ The [sse.require(Type)]({{apidocs}}/org/jooby/Sse.html#require-java.lang.Class-)
 
 ## example
 
-The next example will generate a new event every 60s. It recovers from a server shutdown by using the [sse.lastEventId()]({{apidocs}}/org/jooby/Sse.html#lastEventId--) and clean resources on connection close.
+The next example will generate a new event every 60 seconds. It recovers from a server shutdown by using the [sse.lastEventId()]({{apidocs}}/org/jooby/Sse.html#lastEventId--) and cleans resources on connection close.
 
 ```java
 {

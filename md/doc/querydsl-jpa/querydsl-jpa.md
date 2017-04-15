@@ -4,11 +4,11 @@
 
 This module provides [JPA](http://www.querydsl.com/static/querydsl/4.0.9/reference/html_single/#jpa_integration) integration.
 
-> NOTE: this module doesn't provide JPA support to your application. Checkout the [hbm module](/doc/hbm) for JPA supports.
+> NOTE: this module doesn't provide JPA support to your application. Check out the [hbm module](/doc/hbm) for JPA support.
 
 ## usage
 
-* Write a ```querydsl-jpa.activator``` file inside the ```src/etc/``` directory.
+* Create a ```querydsl-jpa.activator``` file in the ```src/etc/``` directory.
 
 * Open a terminal and type: ```mvn clean compile```
 
@@ -18,9 +18,9 @@ Of course, you need to define some entities and have **JPA** in your classpath. 
 
 ## profile activation
 
-Just write a ```src/etc/querydsl-jpa.activator``` file. File contents doesn't matter just file presence.
+Just create a ```src/etc/querydsl-jpa.activator``` file. The file contents doesn't matter, it just needs to be present.
 
-The file ```src/etc/querydsl-jpa.activator``` trigger a maven profile that does [all this](http://www.querydsl.com/static/querydsl/4.0.9/reference/html_single/#jpa_integration) for you.
+The file ```src/etc/querydsl-jpa.activator``` will trigger a maven profile that does [all this](http://www.querydsl.com/static/querydsl/4.0.9/reference/html_single/#jpa_integration) for you.
 
 ## example
 
@@ -82,4 +82,4 @@ import javax.persistence.EntityManager;
 }
 ```
 
-[Querydsl](http://www.querydsl.com/) will find all your entities (classes annotated with @Entity) and generates a class with the same prefixed with ```Q```, like ```QPet```.
+[Querydsl](http://www.querydsl.com/) will find all your entities (classes annotated with @Entity) and generates a class with the same name, but prefixed with ```Q```, like ```QPet```.

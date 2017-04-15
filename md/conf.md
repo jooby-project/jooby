@@ -1,8 +1,8 @@
 # conf, env and logging
 
-Jooby delegates configuration management to [Config library](https://github.com/typesafehub/config).
+Jooby delegates configuration management to the [Config library](https://github.com/typesafehub/config).
 
-By defaults Jooby expects to find an ```application.conf``` file at the root of classpath. You can find the `.conf` file under `conf` classpath directory.
+By default, Jooby expects to find an ```application.conf``` file at the root of the classpath. You can find the `.conf` file under the `conf` classpath directory.
 
 ## getting properties
 
@@ -59,17 +59,17 @@ Automatic type conversion is provided when a type:
 
 6) Has a static method **forName** that accepts a single **String** argument. Like ```java.nio.charset.Charset```
 
-You're free to inject the entirely ```com.typesafe.config.Config``` object or `sub-path/tree` of it.
+You're free to inject the entire ```com.typesafe.config.Config``` object or `sub-path/tree` of it.
 
 ## environment
 
-Jooby internals and the module system rely on the ```application.env``` property. By defaults, this property is set to: ```dev```.
+Jooby internals and the module system rely on the ```application.env``` property. By default, this property is set to: ```dev```.
 
 This special property is represented at runtime with the [Env]({{apidocs}}/org/jooby/Env.html) class.
 
-For example: a module might decided to create a connection pool, cache, etc when ```application.env``` isn't set to `dev`.
+For example: a module might decided to create a connection pool, cache, etc. when ```application.env``` isn't set to `dev`.
 
-The `application.env` property can be set as command line argument too:
+The `application.env` property can be set as command line argument as well:
 
 Using a `fat jar`:
 
@@ -80,9 +80,9 @@ Using [stork](/doc/stork):
 
     bin/myapp --start prod
 
-## turn on/off features
+## turning features on or off
 
-As described before the ```application.env``` property defines the environment where the application is being executed. It is possible to turn on/off specific features base on the application environment:
+As described before, the ```application.env``` property defines the environment where the application is being executed. It's possible to turn on/off specific features based on the application environment:
 
 ```java
 {
@@ -108,7 +108,7 @@ There is a `~` (complement) operator:
 }
 ```
 
-The ```environment callback``` has access to ```config``` object, see:
+The ```environment callback``` has access to the ```config``` object, see:
 
 ```java
 {
@@ -141,7 +141,7 @@ Here is the list of special properties available in Jooby:
 
 ## precedence
 
-Configuration files are loaded in the following order (first-listed are higher priority)
+Configuration files are loaded in the following order:
 
 * system properties
 * arguments properties
@@ -149,6 +149,8 @@ Configuration files are loaded in the following order (first-listed are higher p
 * (cp://[application].[env].[conf])?
 * ([application].[conf])?
 * [module].[conf]*
+
+The first occurence of a property will take precedence.
 
 ### system properties
 
@@ -188,7 +190,7 @@ The default `classpath conf` file: `application.conf`
 
 ### [module].[conf]
 
-A [Module]({{defdocs}}/Jooby.Module.html) might have define his own set of (default) properties via [Module.config]({{defdocs}}/Jooby.Module.html#config--) method.
+A [Module]({{defdocs}}/Jooby.Module.html) might have defined its own set of (default) properties via the [Module.config]({{defdocs}}/Jooby.Module.html#config--) method.
 
 ```java
 {
@@ -198,7 +200,7 @@ A [Module]({{defdocs}}/Jooby.Module.html) might have define his own set of (defa
 
 ### custom .conf
 
-As we said before, the default `conf` file is `application.conf`, but you can use any other name you want:
+As mentioned earlier, the default `conf` file is `application.conf`, but you can use whatever name you prefer:
 
 ```java
 {
@@ -228,7 +230,7 @@ As we said before, the default `conf` file is `application.conf`, but you can us
 }
 ```
 
-* Starting the application in `dev` produces `conf` tree similar to:
+* Starting the application in `dev` produces a `conf` tree similar to:
 
 ```
 .
@@ -241,7 +243,7 @@ As we said before, the default `conf` file is `application.conf`, but you can us
     └── ...
 ```
 
-* Starting the application in `prod` produces `conf` tree similar to:
+* Starting the application in `prod` produces a `conf` tree similar to:
 
 ```
 .

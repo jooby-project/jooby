@@ -1,13 +1,13 @@
 {{#unless website}}[![Build Status](https://travis-ci.org/jooby-guides/{{guide}}.svg?branch=master)](https://travis-ci.org/jooby-guides/{{guide}}){{/unless}}
 # jdbi guide
 
-In this guide you will learn how to build a **JSON API** for ```Pets``` and persist them into a **relational database** using {{modlink "jdbi"}} module.
+In this guide you will learn how to build a **JSON API** for ```Pets``` and persist them into a **relational database** using the {{modlink "jdbi"}} module.
 
-[JDBI](http://jdbi.org/) is a SQL convenience library for Java. It attempts to expose relational database access in idiommatic Java, using collections, beans, and so on, while maintaining the same level of detail as JDBC. It exposes two different style APIs, a fluent style and a sql object style.
+[JDBI](http://jdbi.org/) is a SQL convenience library for Java. It attempts to expose relational database access in idiomatic Java, using collections, beans, and so on, while maintaining the same level of detail as JDBC. It exposes two different style APIs, a fluent style and a sql object style.
 
 # requirements
 
-Make sure you have all these software installed it in your computer:
+Make sure you have the following installed on your computer:
 
 * A text editor or IDE
 * {{java}} or later
@@ -21,7 +21,7 @@ Open a terminal/console and paste:
 mvn archetype:generate -B -DgroupId={{pkgguide}} -DartifactId={{guide}} -Dversion=1.0 -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion={{version}}
 ```
 
-Jump into the application:
+Enter the application directory:
 
 ```
 cd {{guide}}
@@ -41,7 +41,7 @@ Add the {{modlink "jackson"}} dependency to your project:
 </dependency>
 ```
 
-Got to `App.java` and add the module:
+Go to `App.java` and add the module:
 
 ```java
 import org.jooby.json.Jackson;
@@ -101,7 +101,7 @@ The ```mem``` or ```fs``` are special databases. In order to use them we need th
 </dependency>
 ```
 
-> **NOTE**: If you want to connect to `mySQL` database (or any other), then you'll have to add the ```mySQL Java Driver``` to your project and define the connection properties like:
+> **NOTE**: If you want to connect to a database other than the embedded ```mem``` or ```fs```, like e.g. `mySQL`, then you'll have to add the ```mySQL Java Driver``` to your project and define the connection properties like this:
 >
 > ```
 > db.url = "jdbc:mysql//localhost/pets"
@@ -113,7 +113,7 @@ The ```mem``` or ```fs``` are special databases. In order to use them we need th
 
 We are going to create a database schema at application startup time:
 
-* Define a `schema` property in ```conf/application.conf``` like:
+* Define a `schema` property in ```conf/application.conf``` like this:
 
 ```
 schema = """
@@ -160,7 +160,7 @@ With a database ready, we are going to build our *JSON API*.
 
 ## creating a repository
 
-[The SQL Object API](http://jdbi.org/sql_object_overview/) provides a declarative mechanism for a common [JDBI](http://jdbi.org/) usage – creation of DAO type objects where one method generally equates to one SQL statement. To use the SQL Object API, create an interface annotated to declare the desired behavior, like so:
+[The SQL Object API](http://jdbi.org/sql_object_overview/) provides a declarative mechanism for a common [JDBI](http://jdbi.org/) usage – creation of DAO type objects where one method generally equates to one SQL statement. To use the SQL Object API, create an interface annotated to declare the desired behavior, like this:
 
 ```java
 {{source "PetRepository.java"}}
@@ -222,7 +222,7 @@ You'll see an error page because we didn't persist any pet yet. Let's see how to
 
 ## save a pet
 
-So far, we see how to query pets by ID or listing all them, it is time to see how to creates a new pet:
+So far, we've seen how to query pets by ID or listing all them, it is time to see how to create a new pet:
 
 ```java
 {
@@ -291,7 +291,7 @@ So far, we see how to query pets by ID or listing all them, it is time to see ho
 
 # quick preview
 
-API is ready, let's see how it looks like:
+The API is ready, let's see how it looks like:
 
 ```java
 {
@@ -332,9 +332,9 @@ API is ready, let's see how it looks like:
 }
 ```
 
-Not bad, ugh?
+Not bad, huh?
 
-Isn't, but did you see we have to repeat the `/api/pets` pattern for each of our routes?
+But did you notice that we have to repeat the `/api/pets` pattern for each of our routes?
 
 Let's fix that with {{javadoc "Jooby" "use" "java.lang.String"}}:
 
@@ -342,12 +342,12 @@ Let's fix that with {{javadoc "Jooby" "use" "java.lang.String"}}:
 {{source mainclass}}
 ```
 
-Better now! The ```use``` method has many meanings in **Jooby**, If we use pass a ```String``` we can group route under a same path pattern.
+That's better! The ```use``` method has many meanings in **Jooby**, If we use pass a ```String``` we can group routes under the same path pattern.
 
 # conclusion
 
-As you already see, building an API that saves data in a **database** is very simple. Code looks clean and simple thanks to {{modlink "jdbi"}} module.
+As you've already seen, building an API that saves data in a **database** is very easy. The code looks clean and simple thanks to the {{modlink "jdbi"}} module.
 
-The {{modlink "jdbi"}} module makes perfect sense if you want to have full control on your SQL queries, or if you don't like **ORM** tools too.
+The {{modlink "jdbi"}} module makes perfect sense if you want to have full control of your SQL queries, or if you prefer not to use **ORM** tools.
 
 {{> guides/guide.footer}}
