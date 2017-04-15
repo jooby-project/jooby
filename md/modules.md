@@ -49,7 +49,7 @@ public class M1 implements Jooby.Module {
   }
 
   public Config config() {
-    return Config.parseResources(getClass(), "m1.properties");
+    return ConfigFactory.parseResources(getClass(), "m1.properties");
   }
 }
 ```
