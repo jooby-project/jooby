@@ -55,7 +55,7 @@ assets {
   dev {
     sourceMaps: inline
   }
-  blacklist: [react]
+  presets: [es2015, react]
  }
 }
 ```
