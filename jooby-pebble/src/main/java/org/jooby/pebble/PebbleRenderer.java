@@ -18,6 +18,7 @@
  */
 package org.jooby.pebble;
 
+import java.io.FileNotFoundException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import org.jooby.Renderer;
 import org.jooby.View;
 
 import com.mitchellbosecke.pebble.PebbleEngine;
+import com.mitchellbosecke.pebble.error.LoaderException;
 import com.mitchellbosecke.pebble.template.PebbleTemplate;;
 
 class PebbleRenderer implements View.Engine {
@@ -41,20 +43,24 @@ class PebbleRenderer implements View.Engine {
   @Override
   public void render(final View view, final Renderer.Context ctx) throws Exception {
     String vname = view.name();
-    PebbleTemplate template = pebble.getTemplate(vname);
-    Writer writer = new StringWriter();
-    Map<String, Object> model = new HashMap<>();
-    // push locals
-    model.putAll(ctx.locals());
-    model.putIfAbsent("_vname", vname);
+    try {
+      PebbleTemplate template = pebble.getTemplate(vname);
+      Writer writer = new StringWriter();
+      Map<String, Object> model = new HashMap<>();
+      // push locals
+      model.putAll(ctx.locals());
+      model.putIfAbsent("_vname", vname);
 
-    // put model
-    model.putAll(view.model());
+      // put model
+      model.putAll(view.model());
 
-    // render and send
-    template.evaluate(writer, model);
-    ctx.type(MediaType.html)
-        .send(writer.toString());
+      // render and send
+      template.evaluate(writer, model);
+      ctx.type(MediaType.html)
+          .send(writer.toString());
+    } catch (LoaderException x) {
+      throw new FileNotFoundException(vname);
+    }
   }
 
   @Override
