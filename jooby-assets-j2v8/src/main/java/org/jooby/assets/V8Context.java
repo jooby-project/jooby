@@ -80,6 +80,10 @@ public class V8Context {
     return register(new V8Object(v8));
   }
 
+  public V8Function function(final JavaCallback callback) {
+    return register(new V8Function(v8, callback));
+  }
+
   public V8Object hash(final Map<String, Object> hash) {
     return register(V8ObjectUtils.toV8Object(v8, hash));
   }

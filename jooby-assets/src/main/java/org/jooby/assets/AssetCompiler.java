@@ -49,7 +49,6 @@ import java.util.stream.Stream;
 
 import org.jooby.Asset;
 import org.jooby.MediaType;
-import org.jooby.internal.RoutePattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -410,7 +409,7 @@ public class AssetCompiler {
     String contents = input;
     while (it.hasNext()) {
       AssetProcessor processor = it.next();
-      if (processor.matches(type) && !excludes(processor, filename)) {
+      if (processor.matches(type) && !processor.excludes(filename)) {
         String pname = processor.name();
         long start = System.currentTimeMillis();
         try {
@@ -432,26 +431,6 @@ public class AssetCompiler {
             .hashString(source, charset)
             .asBytes())
         .substring(0, 8).toLowerCase();
-  }
-
-  @SuppressWarnings("unchecked")
-  private boolean excludes(final AssetProcessor processor, final String path) {
-    Object value = processor.get("excludes");
-    if (value == null) {
-      return false;
-    }
-    List<String> excludes;
-    if (value instanceof List) {
-      excludes = (List<String>) value;
-    } else {
-      excludes = ImmutableList.of(value.toString());
-    }
-    String spath = spath(path);
-    return excludes.stream()
-        .map(it -> new RoutePattern("GET", it))
-        .filter(pattern -> pattern.matcher("GET" + spath).matches())
-        .findFirst()
-        .isPresent();
   }
 
   private static String readFile(final ClassLoader loader, final String path, final Charset charset)
