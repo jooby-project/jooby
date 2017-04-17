@@ -3,6 +3,7 @@ package org.jooby.thymeleaf;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -44,7 +45,7 @@ public class ThlEngineTest {
         .expect(viewName("index"))
         .expect(unit -> {
           Renderer.Context ctx = unit.get(Renderer.Context.class);
-          expect(ctx.locals()).andReturn(ImmutableMap.of("_vname", "index"));
+          expect(ctx.locals()).andReturn(new HashMap<>(ImmutableMap.of("_vname", "index")));
         })
         .expect(unit -> {
           Thlxss xss = unit.constructor(Thlxss.class)
