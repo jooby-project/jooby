@@ -190,7 +190,7 @@ public class Redis implements Jooby.Module {
     ServiceKey serviceKey = env.serviceKey();
     serviceKey.generate(JedisPool.class, name, k -> binder.bind(k).toInstance(pool));
     serviceKey.generate(Jedis.class, name,
-        k -> binder.bind(k).toProvider(jedis).asEagerSingleton());
+        k -> binder.bind(k).toProvider(jedis));
   }
 
   private GenericObjectPoolConfig poolConfig(final Config config, final String name) {
