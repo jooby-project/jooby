@@ -43,6 +43,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -63,6 +64,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.util.AttributeKey;
+import io.netty.util.ReferenceCounted;
 
 public class NettyRequest implements NativeRequest {
 
@@ -242,7 +244,15 @@ public class NettyRequest implements NativeRequest {
     channel.attr(NEED_FLUSH).set(false);
     channel.attr(ASYNC).set(true);
 
-    executor.execute(runnable);
+    ReferenceCounted referenceCounted = ((ByteBufHolder) req).content();
+    referenceCounted.retain();
+    executor.execute(() -> {
+      try {
+        runnable.run();
+      } finally {
+        referenceCounted.release();
+      }
+    });
   }
 
   private org.jooby.Cookie cookie(final Cookie c) {
