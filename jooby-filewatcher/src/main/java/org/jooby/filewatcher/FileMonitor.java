@@ -36,9 +36,12 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
+import org.jooby.Env;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,16 +63,20 @@ class FileMonitor implements Runnable {
   private final Set<FileEventOptions> optionList;
 
   @Inject
-  public FileMonitor(final Injector injector,
+  public FileMonitor(final Injector injector, final Env env,
       final WatchService watcher, final Set<FileEventOptions> optionList) throws IOException {
     this.injector = injector;
     this.watcher = watcher;
     this.optionList = optionList;
 
     // start monitor:
-    Thread thread = new Thread(this, "file-watcher");
-    thread.setDaemon(true);
-    thread.start();
+    ExecutorService monitor = Executors.newSingleThreadExecutor(task -> {
+      Thread thread = new Thread(task, "file-watcher");
+      thread.setDaemon(true);
+      return thread;
+    });
+    env.onStop(monitor::shutdown);
+    monitor.execute(this);
   }
 
   @Override
