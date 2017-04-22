@@ -244,13 +244,13 @@ public class NettyRequest implements NativeRequest {
     channel.attr(NEED_FLUSH).set(false);
     channel.attr(ASYNC).set(true);
 
-    ReferenceCounted referenceCounted = ((ByteBufHolder) req).content();
-    referenceCounted.retain();
+    ReferenceCounted body = ((ByteBufHolder) req).content();
+    body.retain();
     executor.execute(() -> {
       try {
         runnable.run();
       } finally {
-        referenceCounted.release();
+        body.release();
       }
     });
   }
