@@ -2957,7 +2957,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jdbi.version>2.72</jdbi.version>
     <freemarker.version>2.3.23</freemarker.version>
     <camel.version>2.18.3</camel.version>
-    <jedis.version>2.8.1</jedis.version>
+    <jedis.version>2.9.0</jedis.version>
     <mongo-driver-core.version>3.2.2</mongo-driver-core.version>
     <mongo-java-driver.version>3.2.2</mongo-java-driver.version>
     <mongodb-driver-async.version>${mongo-java-driver.version}</mongodb-driver-async.version>
