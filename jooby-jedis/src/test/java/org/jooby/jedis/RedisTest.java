@@ -82,8 +82,6 @@ public class RedisTest {
           AnnotatedBindingBuilder<Jedis> jABB = unit.mock(AnnotatedBindingBuilder.class);
           expect(jABB.toProvider(isA(Provider.class))).andReturn(jABB);
           expect(jABB.toProvider(isA(Provider.class))).andReturn(jABB);
-          jABB.asEagerSingleton();
-          jABB.asEagerSingleton();
 
           Binder binder = unit.get(Binder.class);
           expect(binder.bind(Key.get(JedisPool.class))).andReturn(jpABB);
@@ -143,8 +141,6 @@ public class RedisTest {
           AnnotatedBindingBuilder<Jedis> jABB = unit.mock(AnnotatedBindingBuilder.class);
           expect(jABB.toProvider(isA(Provider.class))).andReturn(jABB);
           expect(jABB.toProvider(unit.capture(Provider.class))).andReturn(jABB);
-          jABB.asEagerSingleton();
-          jABB.asEagerSingleton();
 
           Binder binder = unit.get(Binder.class);
           expect(binder.bind(Key.get(JedisPool.class))).andReturn(jpABB);
@@ -206,8 +202,6 @@ public class RedisTest {
           AnnotatedBindingBuilder<Jedis> jABB = unit.mock(AnnotatedBindingBuilder.class);
           expect(jABB.toProvider(isA(Provider.class))).andReturn(jABB);
           expect(jABB.toProvider(isA(Provider.class))).andReturn(jABB);
-          jABB.asEagerSingleton();
-          jABB.asEagerSingleton();
 
           Binder binder = unit.get(Binder.class);
           expect(binder.bind(Key.get(JedisPool.class))).andReturn(jpABB);
