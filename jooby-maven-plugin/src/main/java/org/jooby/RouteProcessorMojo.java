@@ -48,6 +48,10 @@ public class RouteProcessorMojo extends AbstractMojo {
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
+    if (mainClass == null) {
+      throw new MojoExecutionException("main class not configured");
+    }
+
     try {
       Path srcdir = new File(mavenProject.getBuild().getSourceDirectory()).toPath();
       Path bindir = new File(mavenProject.getBuild().getOutputDirectory()).toPath();
