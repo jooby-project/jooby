@@ -17,9 +17,13 @@ import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.Function;
 
 import org.easymock.IExpectationSetters;
+import org.jooby.Env;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
@@ -31,17 +35,28 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 
+import javaslang.control.Try.CheckedRunnable;
+
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FileMonitor.class, Thread.class, Files.class })
+@PrepareForTest({FileMonitor.class, Thread.class, Files.class, Executors.class })
 public class FileMonitorTest {
 
   private Block newThread = unit -> {
+    unit.mockStatic(Executors.class);
+    ExecutorService executor = unit.mock(ExecutorService.class);
+    expect(Executors.newSingleThreadExecutor(unit.capture(ThreadFactory.class)))
+        .andReturn(executor);
+    executor.execute(unit.capture(Runnable.class));
+    unit.registerMock(ExecutorService.class, executor);
+
+    Env env = unit.get(Env.class);
+    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+
     Thread thread = unit.constructor(Thread.class)
         .args(Runnable.class, String.class)
-        .build(unit.capture(Runnable.class), eq("file-watcher"));
+        .build(isA(Runnable.class), eq("file-watcher"));
 
     thread.setDaemon(true);
-    thread.start();
   };
   private Block takeInterrupt = unit -> {
     WatchService watcher = unit.get(WatchService.class);
@@ -60,25 +75,35 @@ public class FileMonitorTest {
 
   @Test
   public void newFileMonitor() throws Exception {
-    new MockUnit(Injector.class, WatchService.class, FileEventOptions.class)
+    new MockUnit(Injector.class, Env.class, WatchService.class, FileEventOptions.class)
         .expect(newThread)
+        .expect(unit -> {
+          ExecutorService executor = unit.get(ExecutorService.class);
+          executor.shutdown();
+        })
         .run(unit -> {
-          new FileMonitor(unit.get(Injector.class), unit.get(WatchService.class),
+          FileMonitor monitor = new FileMonitor(unit.get(Injector.class), unit.get(Env.class),
+              unit.get(WatchService.class),
               ImmutableSet.of(unit.get(FileEventOptions.class)));
+          unit.captured(ThreadFactory.class).get(0).newThread(monitor);
+          unit.captured(CheckedRunnable.class).get(0).run();
+          ;
         });
   }
 
   @SuppressWarnings("unchecked")
   @Test
   public void registerTreeRecursive() throws Exception {
-    new MockUnit(Injector.class, WatchService.class, FileEventOptions.class, Path.class,
+    new MockUnit(Injector.class, Env.class, WatchService.class, FileEventOptions.class, Path.class,
         WatchEvent.Kind.class, WatchEvent.Modifier.class, WatchKey.class)
             .expect(newThread)
             .expect(registerTree(true, false))
             .expect(takeInterrupt)
             .run(unit -> {
-              new FileMonitor(unit.get(Injector.class), unit.get(WatchService.class),
+              FileMonitor monitor = new FileMonitor(unit.get(Injector.class), unit.get(Env.class),
+                  unit.get(WatchService.class),
                   ImmutableSet.of(unit.get(FileEventOptions.class)));
+              unit.captured(ThreadFactory.class).get(0).newThread(monitor);
             }, unit -> {
               unit.captured(Runnable.class).get(0).run();
               unit.captured(FileVisitor.class).get(0).preVisitDirectory(unit.get(Path.class), null);
@@ -87,14 +112,16 @@ public class FileMonitorTest {
 
   @Test
   public void registerTree() throws Exception {
-    new MockUnit(Injector.class, WatchService.class, FileEventOptions.class, Path.class,
+    new MockUnit(Injector.class, Env.class, WatchService.class, FileEventOptions.class, Path.class,
         WatchEvent.Kind.class, WatchEvent.Modifier.class, WatchKey.class)
             .expect(newThread)
             .expect(registerTree(false, false))
             .expect(takeInterrupt)
             .run(unit -> {
-              new FileMonitor(unit.get(Injector.class), unit.get(WatchService.class),
+              FileMonitor monitor = new FileMonitor(unit.get(Injector.class), unit.get(Env.class),
+                  unit.get(WatchService.class),
                   ImmutableSet.of(unit.get(FileEventOptions.class)));
+              unit.captured(ThreadFactory.class).get(0).newThread(monitor);
             }, unit -> {
               unit.captured(Runnable.class).get(0).run();
             });
@@ -102,14 +129,16 @@ public class FileMonitorTest {
 
   @Test
   public void registerTreeErr() throws Exception {
-    new MockUnit(Injector.class, WatchService.class, FileEventOptions.class, Path.class,
+    new MockUnit(Injector.class, Env.class, WatchService.class, FileEventOptions.class, Path.class,
         WatchEvent.Kind.class, WatchEvent.Modifier.class, WatchKey.class)
             .expect(newThread)
             .expect(registerTree(false, true))
             .expect(takeInterrupt)
             .run(unit -> {
-              new FileMonitor(unit.get(Injector.class), unit.get(WatchService.class),
+              FileMonitor monitor = new FileMonitor(unit.get(Injector.class), unit.get(Env.class),
+                  unit.get(WatchService.class),
                   ImmutableSet.of(unit.get(FileEventOptions.class)));
+              unit.captured(ThreadFactory.class).get(0).newThread(monitor);
             }, unit -> {
               unit.captured(Runnable.class).get(0).run();
             });
@@ -117,15 +146,17 @@ public class FileMonitorTest {
 
   @Test
   public void pollIgnoreMissing() throws Exception {
-    new MockUnit(Injector.class, WatchService.class, FileEventOptions.class, Path.class,
+    new MockUnit(Injector.class, Env.class, WatchService.class, FileEventOptions.class, Path.class,
         WatchEvent.Kind.class, WatchEvent.Modifier.class, WatchKey.class)
             .expect(newThread)
             .expect(registerTree(false, false))
             .expect(takeIgnore)
             .expect(takeInterrupt)
             .run(unit -> {
-              new FileMonitor(unit.get(Injector.class), unit.get(WatchService.class),
+              FileMonitor monitor = new FileMonitor(unit.get(Injector.class), unit.get(Env.class),
+                  unit.get(WatchService.class),
                   ImmutableSet.of(unit.get(FileEventOptions.class)));
+              unit.captured(ThreadFactory.class).get(0).newThread(monitor);
             }, unit -> {
               unit.captured(Runnable.class).get(0).run();
             });
@@ -134,7 +165,7 @@ public class FileMonitorTest {
   @Test
   public void pollEvents() throws Exception {
     Path path = Paths.get("target/foo.txt");
-    new MockUnit(Injector.class, WatchService.class, FileEventOptions.class, Path.class,
+    new MockUnit(Injector.class, Env.class, WatchService.class, FileEventOptions.class, Path.class,
         WatchEvent.Kind.class, WatchEvent.Modifier.class, WatchKey.class, WatchEvent.class,
         PathMatcher.class, FileEventHandler.class)
             .expect(newThread)
@@ -147,8 +178,10 @@ public class FileMonitorTest {
             .expect(reset(true))
             .expect(takeInterrupt)
             .run(unit -> {
-              new FileMonitor(unit.get(Injector.class), unit.get(WatchService.class),
+              FileMonitor monitor = new FileMonitor(unit.get(Injector.class), unit.get(Env.class),
+                  unit.get(WatchService.class),
                   ImmutableSet.of(unit.get(FileEventOptions.class)));
+              unit.captured(ThreadFactory.class).get(0).newThread(monitor);
             }, unit -> {
               unit.captured(Runnable.class).get(0).run();
             });
@@ -157,7 +190,7 @@ public class FileMonitorTest {
   @Test
   public void pollEventsInvalid() throws Exception {
     Path path = Paths.get("target/foo.txt");
-    new MockUnit(Injector.class, WatchService.class, FileEventOptions.class, Path.class,
+    new MockUnit(Injector.class, Env.class, WatchService.class, FileEventOptions.class, Path.class,
         WatchEvent.Kind.class, WatchEvent.Modifier.class, WatchKey.class, WatchEvent.class,
         PathMatcher.class, FileEventHandler.class)
             .expect(newThread)
@@ -169,8 +202,10 @@ public class FileMonitorTest {
             .expect(recursive(false, false))
             .expect(reset(false))
             .run(unit -> {
-              new FileMonitor(unit.get(Injector.class), unit.get(WatchService.class),
+              FileMonitor monitor = new FileMonitor(unit.get(Injector.class), unit.get(Env.class),
+                  unit.get(WatchService.class),
                   ImmutableSet.of(unit.get(FileEventOptions.class)));
+              unit.captured(ThreadFactory.class).get(0).newThread(monitor);
             }, unit -> {
               unit.captured(Runnable.class).get(0).run();
             });
@@ -179,7 +214,7 @@ public class FileMonitorTest {
   @Test
   public void pollEventsRecursive() throws Exception {
     Path path = Paths.get("target/foo.txt");
-    new MockUnit(Injector.class, WatchService.class, FileEventOptions.class, Path.class,
+    new MockUnit(Injector.class, Env.class, WatchService.class, FileEventOptions.class, Path.class,
         WatchEvent.Kind.class, WatchEvent.Modifier.class, WatchKey.class, WatchEvent.class,
         PathMatcher.class, FileEventHandler.class)
             .expect(newThread)
@@ -192,8 +227,10 @@ public class FileMonitorTest {
             .expect(reset(true))
             .expect(takeInterrupt)
             .run(unit -> {
-              new FileMonitor(unit.get(Injector.class), unit.get(WatchService.class),
+              FileMonitor monitor = new FileMonitor(unit.get(Injector.class), unit.get(Env.class),
+                  unit.get(WatchService.class),
                   ImmutableSet.of(unit.first(FileEventOptions.class)));
+              unit.captured(ThreadFactory.class).get(0).newThread(monitor);
             }, unit -> {
               unit.captured(Runnable.class).get(0).run();
             });
@@ -202,7 +239,7 @@ public class FileMonitorTest {
   @Test
   public void pollEventsRecursiveErr() throws Exception {
     Path path = Paths.get("target/foo.txt");
-    new MockUnit(Injector.class, WatchService.class, FileEventOptions.class, Path.class,
+    new MockUnit(Injector.class, Env.class, WatchService.class, FileEventOptions.class, Path.class,
         WatchEvent.Kind.class, WatchEvent.Modifier.class, WatchKey.class, WatchEvent.class,
         PathMatcher.class, FileEventHandler.class)
             .expect(newThread)
@@ -215,8 +252,10 @@ public class FileMonitorTest {
             .expect(reset(true))
             .expect(takeInterrupt)
             .run(unit -> {
-              new FileMonitor(unit.get(Injector.class), unit.get(WatchService.class),
+              FileMonitor monitor = new FileMonitor(unit.get(Injector.class), unit.get(Env.class),
+                  unit.get(WatchService.class),
                   ImmutableSet.of(unit.first(FileEventOptions.class)));
+              unit.captured(ThreadFactory.class).get(0).newThread(monitor);
             }, unit -> {
               unit.captured(Runnable.class).get(0).run();
             });
@@ -225,7 +264,7 @@ public class FileMonitorTest {
   @Test
   public void pollEventWithHandleErr() throws Exception {
     Path path = Paths.get("target/foo.txt");
-    new MockUnit(Injector.class, WatchService.class, FileEventOptions.class, Path.class,
+    new MockUnit(Injector.class, Env.class, WatchService.class, FileEventOptions.class, Path.class,
         WatchEvent.Kind.class, WatchEvent.Modifier.class, WatchKey.class, WatchEvent.class,
         PathMatcher.class, FileEventHandler.class)
             .expect(newThread)
@@ -238,8 +277,10 @@ public class FileMonitorTest {
             .expect(reset(true))
             .expect(takeInterrupt)
             .run(unit -> {
-              new FileMonitor(unit.get(Injector.class), unit.get(WatchService.class),
+              FileMonitor monitor = new FileMonitor(unit.get(Injector.class), unit.get(Env.class),
+                  unit.get(WatchService.class),
                   ImmutableSet.of(unit.get(FileEventOptions.class)));
+              unit.captured(ThreadFactory.class).get(0).newThread(monitor);
             }, unit -> {
               unit.captured(Runnable.class).get(0).run();
             });
@@ -248,7 +289,7 @@ public class FileMonitorTest {
   @Test
   public void pollEventsNoMatches() throws Exception {
     Path path = Paths.get("target/foo.txt");
-    new MockUnit(Injector.class, WatchService.class, FileEventOptions.class, Path.class,
+    new MockUnit(Injector.class, Env.class, WatchService.class, FileEventOptions.class, Path.class,
         WatchEvent.Kind.class, WatchEvent.Modifier.class, WatchKey.class, WatchEvent.class,
         PathMatcher.class, FileEventHandler.class)
             .expect(newThread)
@@ -260,8 +301,10 @@ public class FileMonitorTest {
             .expect(reset(true))
             .expect(takeInterrupt)
             .run(unit -> {
-              new FileMonitor(unit.get(Injector.class), unit.get(WatchService.class),
+              FileMonitor monitor = new FileMonitor(unit.get(Injector.class), unit.get(Env.class),
+                  unit.get(WatchService.class),
                   ImmutableSet.of(unit.get(FileEventOptions.class)));
+              unit.captured(ThreadFactory.class).get(0).newThread(monitor);
             }, unit -> {
               unit.captured(Runnable.class).get(0).run();
             });
