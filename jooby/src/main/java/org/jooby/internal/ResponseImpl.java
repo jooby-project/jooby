@@ -446,6 +446,10 @@ public class ResponseImpl implements Response {
           }
           rsp.header(LOCATION, location);
         } else {
+          if ("Content-Type".equalsIgnoreCase(name)) {
+            // keep type reference
+            this.type = MediaType.valueOf(value.toString());
+          }
           rsp.header(name, Headers.encode(value));
         }
       }
