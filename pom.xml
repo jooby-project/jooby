@@ -3046,7 +3046,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <timestamp>${maven.build.timestamp}</timestamp>
 
     <!-- Maven plugins -->
-    <maven-compiler-plugin.version>3.5</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
     <maven-release-plugin.version>2.5.1</maven-release-plugin.version>
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
     <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
