@@ -101,6 +101,7 @@
     <module>jooby-assets-svg-sprites</module>
     <module>jooby-assets-svg-symbol</module>
     <module>jooby-assets-autoprefixer</module>
+    <module>jooby-assets-react</module>
     <module>coverage-report</module>
   </modules>
 
@@ -470,6 +471,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-assets-rollup</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-react</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 

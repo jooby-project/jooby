@@ -52,7 +52,7 @@ public class AssetOptions {
     return this;
   }
 
-  public Map<String, Object> options() {
+  public Map<String, Object> options() throws Exception {
     return options.withoutPath("excludes").root().unwrapped();
   }
 
