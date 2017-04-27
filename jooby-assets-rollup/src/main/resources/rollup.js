@@ -126,10 +126,22 @@
       name: 'legacy',
 
       transform: function (code, id) {
-        var name = legacyOptions[id];
-        if (name) {
-          console.debug('legacy: ', id, ' -> ', name);
-          return code + '\nexport default ' + name + ';';
+        var value = legacyOptions[id];
+        if (value) {
+          console.debug('legacy: ', id, ' -> ', value);
+          if ( typeof value === 'string' ) {
+            return code + '\nexport default ' + value + ';';
+          } else {
+            var statements = [];
+            for(k in value) {
+              var array = value[k];
+              for (var i = 0; i < array.length; i++) {
+                statements.push('\nvar ' + array[i] + ' = ' + k + '.' + array[i] + ';\n' +
+                    '\nexport {' + array[i] + '};');
+              }
+            }
+            return code + statements.join('\n');
+          }
         }
       }
     };
@@ -163,29 +175,29 @@
   var output,
     errors = [];
 
-  rollup.rollup({
-    entry: filename,
-    plugins: plugins,
-  }).catch(function (ex) {
-    errors.push({
-      message: ex.toString()
-    });
-  }).then(function (bundle) {
-    if (bundle) {
-      var result = bundle.generate(genopts);
+  options.entry = filename;
+  options.plugins = plugins;
+  rollup.rollup(options)
+    .catch(function (ex) {
+      errors.push({
+        message: ex.toString()
+      });
+    }).then(function (bundle) {
+      if (bundle) {
+        var result = bundle.generate(genopts);
   
-      output = result.code;
+        output = result.code;
 
-      /** inline sourceMap only. */
-      if (genopts.sourceMap === 'inline') {
-        output += '\n//#sourceMappingURL=' + result.map.toUrl();
+        /** inline sourceMap only. */
+        if (genopts.sourceMap === 'inline') {
+          output += '\n//#sourceMappingURL=' + result.map.toUrl();
+        }
       }
-    }
-  }).catch(function (ex) {
-    errors.push({
-      message: ex.toString()
+    }).catch(function (ex) {
+      errors.push({
+        message: ex.toString()
+      });
     });
-  });
 
   return {
     output: output,

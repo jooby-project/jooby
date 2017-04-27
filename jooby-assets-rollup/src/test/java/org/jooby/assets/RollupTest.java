@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.ConfigFactory;
 
@@ -63,9 +64,9 @@ public class RollupTest {
         "hi(\"babel\");\n" +
         "",
         new Rollup()
-            .set("babel", ImmutableMap.of("presets",
+            .set("plugins", ImmutableMap.of("babel", ImmutableMap.of("presets",
                 Arrays.asList(Arrays.asList("es2015", ImmutableMap.of("modules", false))),
-                "excludes", "/lib/*.js"))
+                "excludes", "/lib/*.js")))
             .process("/app.js", "import hi from './lib/lib.js';\n"
                 + "hi(\"babel\");",
                 ConfigFactory.empty()));
@@ -111,6 +112,31 @@ public class RollupTest {
             .process("/main.js",
                 "import fn from 'lib/legacy';\n" +
                     "fn('foo');",
+                ConfigFactory.empty()));
+  }
+
+  @Test
+  public void namedLegacy() throws Exception {
+    assertEquals("(function(exports) {\n" +
+        "  exports.Named = {\n" +
+        "   foo: 'foo',\n" +
+        "   bar: 'bar'\n" +
+        "  };\n" +
+        "})(window);\n" +
+        "\n" +
+        "var foo = Named.foo;\n" +
+        "\n" +
+        "var bar = Named.bar;\n" +
+        "\n" +
+        "console.log(foo + bar);\n" +
+        "",
+        new Rollup()
+            .set("context", "window")
+            .set("plugins", ImmutableMap.of("legacy", ImmutableMap.of("/lib/legacy-named.js",
+                ImmutableMap.of("Named", ImmutableList.of("foo", "bar")))))
+            .process("/main.js",
+                "import {foo, bar} from 'lib/legacy-named';\n" +
+                    "console.log(foo + bar);",
                 ConfigFactory.empty()));
   }
 

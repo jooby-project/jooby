@@ -22,9 +22,16 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.jooby.MediaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Array;
@@ -140,6 +147,9 @@ public class Rollup extends AssetProcessor {
   static final PathMatcher TRUE = p -> true;
   static final PathMatcher FALSE = p -> false;
 
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(getClass());
+
   @Override
   public boolean matches(final MediaType type) {
     return MediaType.js.matches(type);
@@ -153,35 +163,53 @@ public class Rollup extends AssetProcessor {
 
       V8Object j2v8 = ctx.hash();
       j2v8.add("createFilter", ctx.function((receiver, args) -> {
-        PathMatcher includes = at(args, 0)
+        List<PathMatcher> includes = filter(args, 0).stream()
             .map(it -> FileSystems.getDefault().getPathMatcher("glob:" + it))
-            .orElse(TRUE);
-        PathMatcher excludes = at(args, 1)
+            .collect(Collectors.toList());
+        if (includes.isEmpty()) {
+          includes.add(TRUE);
+        }
+
+        List<PathMatcher> excludes = filter(args, 1).stream()
             .map(it -> FileSystems.getDefault().getPathMatcher("glob:" + it))
-            .orElse(FALSE);
+            .collect(Collectors.toList());
+        if (excludes.isEmpty()) {
+          excludes.add(FALSE);
+        }
 
         return ctx.function((self, arguments) -> {
           Path path = Paths.get(arguments.get(0).toString());
-          if (includes.matches(path)) {
-            return !excludes.matches(path);
+          if (includes.stream().filter(it -> it.matches(path)).findFirst().isPresent()) {
+            return !excludes.stream().filter(it -> it.matches(path)).findFirst().isPresent();
           }
           return false;
         });
       }));
 
       v8.add("j2v8", j2v8);
-      return ctx.invoke("rollup.js", source, options(), filename);
+
+      Map<String, Object> options = options();
+      log.debug("{}", options);
+
+      return ctx.invoke("rollup.js", source, options, filename);
     });
   }
 
-  private Optional<Object> at(final V8Array args, final int i) {
+  @SuppressWarnings("unchecked")
+  private List<String> filter(final V8Array args, final int i) {
     if (i < args.length()) {
       Object value = V8ObjectUtils.getValue(args, i);
       if (value == V8.getUndefined()) {
-        return Optional.empty();
+        return Collections.emptyList();
       }
-      return Optional.ofNullable(value);
+      List<String> filter = new ArrayList<>();
+      if (value instanceof Collection) {
+        filter.addAll((Collection<? extends String>) value);
+      } else {
+        filter.add(value.toString());
+      }
+      return filter;
     }
-    return Optional.empty();
+    return Collections.emptyList();
   }
 }

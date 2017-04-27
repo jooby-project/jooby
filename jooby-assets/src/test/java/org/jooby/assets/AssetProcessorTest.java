@@ -17,7 +17,7 @@ public class AssetProcessorTest {
 
   @SuppressWarnings("serial")
   @Test
-  public void options() {
+  public void options() throws Exception {
     assertEquals(ImmutableMap.of("str", "str", "bool", true, "map", new HashMap<String, Object>() {
       {
         put("k", null);
