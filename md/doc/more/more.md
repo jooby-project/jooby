@@ -23,9 +23,10 @@
 
 * [scanner](/doc/scanner): scan the application class-path and register `routes`, `modules`, `services` and `applications`.
 
-# amazon web services
+# web services
 
 * [aws](/doc/aws): wire AWS services and expose them in Guice.
+* [consul](/doc/consul): service discovery and configuration service.
 
 # sitemap
 

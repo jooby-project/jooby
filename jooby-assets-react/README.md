@@ -1,6 +1,6 @@
-# rollup.js
+# react
 
-<a href="http://rollupjs.org/">rollup.js</a> the next-generation ES6 module bundler.
+Write <a href="https://facebook.github.io/react">React</a> applications easily in the JVM.
 
 Make sure you've already set up the [assets module](https://github.com/jooby-project/jooby/tree/master/jooby-assets) in your project!
 
@@ -9,7 +9,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-rollup.js</artifactId>
+ <artifactId>jooby-react</artifactId>
  <version>1.1.1</version>
  <scope>provided</scope>
 </dependency>
@@ -17,94 +17,68 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 
 ## usage
 
-```java
+Download <a href="https://unpkg.com/react@15/dist/react.js">react.js</a> and <a href="https://unpkg.com/react-dom@15/dist/react-dom.js">react-dom.js</a> into ```public/js/lib``` folder.
+
+Then add the react processor to ```conf/assets.conf```:
+
+```
 assets {
   fileset {
-    home: ...
+
+    index: index.js
   }
 
   pipeline {
-    ...
-    dev: [rollup]
-    dist: [rollup]
+
+    dev: [react]
+    dist: [react]
   }
 
 }
 ```
 
+Write some react code ```public/js/index.js```:
+
+```java
+  import React from 'react';
+  import ReactDOM from 'react-dom';
+
+  const Hello = () => (
+    <p>Hello React</p>
+  )
+
+  ReactDOM.render(<Hello />, document.getElementById('root'));
+```
+
+Choose one of the available <a href="http://jooby.org/doc/parser-and-renderer/#template-engines">template engines</a> add the ```index.js``` to the page:
+
+```java
+<!doctype html>
+<html lang="en">
+<body>
+  <div id="root"></div>
+  {{ index_scripts | raw}}
+</body>
+</html>
+```
+
+The ```{{ index_scripts | raw}}``` here is <a href="jooby.org/doc/pebble">pebble expression</a>. Open an browser and try it.
+
+## how it works?
+
+This module give you a ready to use react environment with: ```ES6``` and ```JSX``` support via <a href="http://babeljs.io">babel.js</a> and <a href="https://github.com/rollup/rollup">rollup.js</a>.
+
+You don't need to install ```node.js```, ```npm```, ... nothing, <a href="http://babeljs.io">babel.js</a> and <a href="https://github.com/rollup/rollup">rollup.js</a> run on top of <a href="https://github.com/eclipsesource/J2V8">j2v8</a> as part of the JVM process.
+
 ## options
 
-### generate
+### react-router
 
-```
-rollup {
-    genereate {
-      format: es
-    }
-  }
+Just drop the <a href="https://unpkg.com/react-router-dom/umd/react-router-dom.js">react-router-dom.js</a> into the ```public/js/lib``` folder and use it.
 
-```
+### rollup
 
-See <a href="https://github.com/rollup/rollup/wiki/JavaScript-API#bundlegenerate-options-">generate options</a>.
-
-### plugins
-
-#### babel
-
-```
-rollup {
-    plugins {
-      babel {
-        presets: [[es2015, {modules: false}]]
-      }
-    }
-  }
-
-```
-
-See <a href="https://babeljs.io/">https://babeljs.io</a> for more options.
-
-#### legacy
-
-This plugins add a ```export default``` line to legacy modules:
-
-```
-rollup {
-    plugins {
-      legacy {
-        "/js/lib/react.js": React
-      }
-    }
-  }
-
-```
-
-#### alias
-
-Set an alias to a common (probably long) path.
-
-```
-rollup {
-    plugins {
-      alias {
-        "/js/lib/react.js": "react"
-      }
-    }
-  }
-
-```
-
-Instead of:
-
-```js
-import React from 'js/lib/react.js';
-```
-
-Now, you can import a module like:
-
-```js
-import React from 'react';
-```
+It supports all the option of <a href="http://jooby.org/doc/assets-rollup/">rollup.js</a> processor.
 
 # see also
 

@@ -85,7 +85,7 @@ import com.google.common.collect.ImmutableSet;
  * <p>
  * Choose one of the available
  * <a href="http://jooby.org/doc/parser-and-renderer/#template-engines">template engines</a> add the
- * <code>index.js</code> to the page:</code>
+ * <code>index.js</code> to the page:
  *
  * <pre>{@code
  *   <!doctype html>

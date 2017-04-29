@@ -8,16 +8,16 @@
 
 ```xml
 <dependency>
-  <groupId>org.jooby</groupId>
-  <artifactId>jooby-assets-rollup</artifactId>
-  <version>{{version}}</version>
-  <scope>provided</scope>
+ <groupId>org.jooby</groupId>
+ <artifactId>jooby-rollup.js</artifactId>
+ <version>{{version}}</version>
+ <scope>provided</scope>
 </dependency>
 ```
 
 ## usage
 
-```
+```java
 assets {
   fileset {
     home: ...
@@ -66,7 +66,7 @@ See <a href="https://babeljs.io/">https://babeljs.io</a> for more options.
 
 #### legacy
 
-Add a ```export default``` line to legacy modules:
+This plugins add a ```export default``` line to legacy modules:
 
 ```
 rollup {
@@ -109,3 +109,4 @@ import React from 'react';
 # see also
 
 {{available-asset-procesors.md}}
+  

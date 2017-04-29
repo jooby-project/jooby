@@ -2,13 +2,17 @@
 
 Safe, clean and efficient database access via <a href="https://github.com/requery/requery">Requery.</a>
 
+## exports
+
+* `EntityStore` object(s)
+
 ## dependency
 
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-requery</artifactId>
- <version>1.1.0</version>
+ <version>1.1.1</version>
 </dependency>
 ```
 
@@ -166,5 +170,9 @@ Advanced configuration is available via callback function:
 
 }
 ```
+
+## starter project
+
+We do provide a [requery-starter](https://github.com/jooby-project/requery-starter) project. Go and [fork it](https://github.com/jooby-project/requery-starter).
 
 That's all folks!!

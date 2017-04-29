@@ -18,7 +18,7 @@
 
 * **Simple, effective and easy to learn**. Ideal for small but also large scale applications.
 
-* **Ready for modern web**, with the awesome and powerful [asset module](https://github.com/jooby-project/jooby/tree/master/jooby-assets)
+* **Ready for the modern web**, with the awesome and powerful [asset module](https://github.com/jooby-project/jooby/tree/master/jooby-assets)
 
 ## hello world!
 
@@ -91,7 +91,7 @@ quickstart
 Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.1.0
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.1.1
 ```
 
 You might want to edit/change:
@@ -106,7 +106,7 @@ You might want to edit/change:
 Let's try it!:
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.1.0
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.1.1
 cd my-app
 mvn jooby:run
 ```
@@ -125,7 +125,7 @@ listening on:
   http://0.0.0.0:8080/
 ```
 
-**Jooby**! is up and running!!!
+**Jooby**! is up and running!
 
 getting started
 =====
@@ -133,7 +133,7 @@ getting started
 exploring the newly created project
 -----
 
-A new directory was created: ```my-app```. Now, let's see how it looks like:
+A new directory was created: ```my-app```. Let's see what it looks like:
 
 ```bash
 .
@@ -155,11 +155,11 @@ A new directory was created: ```my-app```. Now, let's see how it looks like:
                     └── AppTest.java
 ```
 
-The **public** folder contains static files like ```*.html```, ```*.js```, ```*.css```, ..., ```*.png``` files.
+The **public** folder contains static content like ```*.html```, ```*.js```, ```*.css```, ..., ```*.png``` files.
 
 The **conf** folder contains ```*.conf```.
 
-The **src/main/java** folder contains ```*.java``` (of course) files.
+The **src/main/java** folder contains ```*.java``` files (of course).
 
 The **src/test/java** folder contains unit and integration tests.
 
@@ -189,7 +189,7 @@ public class App extends Jooby { // 1
 
 Steps involved are:
 
-1) extends Jooby
+1) extend Jooby
 
 2) define some routes
 
@@ -198,20 +198,20 @@ Steps involved are:
 running
 -----
 
-Just open a console and type:
+Open a console and type:
 
     mvn jooby:run
 
-The maven plugin will compile the code (if necessary) and startup the application.
+The maven plugin will compile the code (if necessary) and start the application.
 
-Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE.
-Then all you have to do is run the: ```App.java``` class. After all, this is plain Java application with a ```main``` method.
+Of course, you can generate the IDE metadata from Maven or import as a Maven project in your favorite IDE.
+Afterwards, all you have to do is run the: ```App.java``` class. After all, this is a plain Java application with a ```main``` method.
 
 where to go now?
 -----
 
 * read the [documentation](/doc)
-* checkout one of our [starter projects](https://github.com/search?q=topic%3Astarter+org%3Ajooby-project&type=Repositories)
+* check out one of the [starter projects](https://github.com/search?q=topic%3Astarter+org%3Ajooby-project&type=Repositories)
 
 want to contribute?
 =====

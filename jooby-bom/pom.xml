@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
   <packaging>pom</packaging>
   <name>jooby-bom</name>
   <description>Jooby (Bill of Materials)</description>
   <url>https://github.com/jooby-project/jooby</url>
   <properties>
-    <jooby.version>1.1.0</jooby.version>
+    <jooby.version>1.1.1</jooby.version>
 
     <maven-release-plugin.version>2.5.1</maven-release-plugin.version>
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
@@ -247,6 +247,11 @@
   </dependency>
   <dependency>
     <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-consul</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
     <artifactId>jooby-jongo</artifactId>
     <version>${jooby.version}</version>
   </dependency>
@@ -478,6 +483,11 @@
   <dependency>
     <groupId>${project.groupId}</groupId>
     <artifactId>jooby-assets-autoprefixer</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-assets-react</artifactId>
     <version>${jooby.version}</version>
   </dependency>
 </dependencies>

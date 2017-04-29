@@ -18,6 +18,15 @@
  */
 package org.jooby.consul;
 
+import java.text.MessageFormat;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
+import org.jooby.Env;
+import org.jooby.Jooby;
+
 import com.google.inject.Binder;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
@@ -25,25 +34,23 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.jooby.Env;
-import org.jooby.Jooby;
-
-import java.text.MessageFormat;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 /**
- * <p>Consul client module.</p>
+ * <p>
+ * Consul client module.
+ * </p>
  *
- * <p>Exports the {@link Consul} client.</p>
+ * <p>
+ * Exports the {@link Consul} client.
+ * </p>
  *
- * <p>Also register the application as a service and setup a health check.</p>
+ * <p>
+ * Also register the application as a service and setup a health check.
+ * </p>
  *
  * <h1>usage</h1>
  *
- * <pre>
+ * <pre>{@code
  * {
  *   use(new Consulby());
  *
@@ -55,14 +62,18 @@ import java.util.function.Consumer;
  *     return serviceHealths;
  *   });
  * }
- * </pre>
+ * }</pre>
  *
  * <h1>configuration</h1>
  *
- * <p>Configuration is done via <code>.conf</code>.</p>
+ * <p>
+ * Configuration is done via <code>.conf</code>.
+ * </p>
  *
- * <p>For example, one can change the consul endpoint url,
- * change the advertised service host, and disable registration health check:</p>
+ * <p>
+ * For example, one can change the consul endpoint url,
+ * change the advertised service host, and disable registration health check:
+ * </p>
  *
  * <pre>
  * consul.default.url = "http://consul.internal.domain.com:8500"
@@ -70,7 +81,9 @@ import java.util.function.Consumer;
  * consul.default.register.check = null
  * </pre>
  *
- * <p>or, disable the automatic registration feature completely:</p>
+ * <p>
+ * or, disable the automatic registration feature completely:
+ * </p>
  *
  * <pre>
  * consul.default.register = null
@@ -93,9 +106,14 @@ public class Consulby implements Jooby.Module {
   }
 
   /**
-   * <p>A new {@link Consulby} instance, with a provided config name.</p>
+   * <p>
+   * A new {@link Consulby} instance, with a provided config name.
+   * </p>
    *
-   * <p>The module can be instantiated more than one time to allow connecting to many Consul installations:</p>
+   * <p>
+   * The module can be instantiated more than one time to allow connecting to many Consul
+   * installations:
+   * </p>
    *
    * <pre>
    * {
@@ -104,9 +122,11 @@ public class Consulby implements Jooby.Module {
    * }
    * </pre>
    *
-   * <p>Since the module will fallback on the <code>consul.default</code> config prefix,
+   * <p>
+   * Since the module will fallback on the <code>consul.default</code> config prefix,
    * it is possible to only override the desired properties in the <code>.conf</code>,
-   * for example, here, disabling health check only for `consul2`:</p>
+   * for example, here, disabling health check only for `consul2`:
+   * </p>
    *
    * <pre>
    * consul.consul1.url = "http://consul1.internal.domain.com:8500"
@@ -117,14 +137,16 @@ public class Consulby implements Jooby.Module {
    *
    * @param name A config name
    */
-  public Consulby(String name) {
+  public Consulby(final String name) {
     this.name = Objects.requireNonNull(name, "A consul config name is required.");
   }
 
   /**
-   * <p>{@link Consul} object can be configured programmatically:</p>
+   * <p>
+   * {@link Consul} object can be configured programmatically:
+   * </p>
    *
-   * <pre>
+   * <pre>{@code
    * {
    *   use(new Consulby()
    *     .withConsulBuilder(consulBuilder -> {
@@ -132,20 +154,22 @@ public class Consulby implements Jooby.Module {
    *       consulBuilder.withBasicAuth("admin", "changeme");
    *     }));
    * }
-   * </pre>
+   * }</pre>
    *
    * @param consulBuilderConsumer A {@link Consumer} that accepts {@link Consul.Builder}
    * @return This {@link Consulby} to allow chaining
    */
-  public Consulby withConsulBuilder(Consumer<Consul.Builder> consulBuilderConsumer) {
+  public Consulby withConsulBuilder(final Consumer<Consul.Builder> consulBuilderConsumer) {
     this.consulBuilderConsumer = consulBuilderConsumer;
     return this;
   }
 
   /**
-   * <p>{@link Registration} object can be configured programmatically:</p>
+   * <p>
+   * {@link Registration} object can be configured programmatically:
+   * </p>
    *
-   * <pre>
+   * <pre>{@code
    * {
    *   use(new Consulby()
    *     .withRegistrationBuilder(registrationBuilder -> {
@@ -153,18 +177,20 @@ public class Consulby implements Jooby.Module {
    *       registrationBuilder.id("custom-service-id");
    *     }));
    * }
-   * </pre>
+   * }</pre>
    *
-   * @param registrationBuilderConsumer A {@link Consumer} that accepts {@link ImmutableRegistration.Builder}
+   * @param registrationBuilderConsumer A {@link Consumer} that accepts
+   *        {@link ImmutableRegistration.Builder}
    * @return This {@link Consulby} to allow chaining
    */
-  public Consulby withRegistrationBuilder(Consumer<ImmutableRegistration.Builder> registrationBuilderConsumer) {
+  public Consulby withRegistrationBuilder(
+      final Consumer<ImmutableRegistration.Builder> registrationBuilderConsumer) {
     this.registrationBuilderConsumer = registrationBuilderConsumer;
     return this;
   }
 
   @Override
-  public void configure(Env env, Config config, Binder binder) throws Throwable {
+  public void configure(final Env env, final Config config, final Binder binder) throws Throwable {
 
     Config consulConfig = config.getConfig("consul.default");
     if (!name.equals("default") && config.hasPath("consul." + name)) {

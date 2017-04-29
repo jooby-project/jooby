@@ -13,7 +13,7 @@ Provides cache solution and session storage via [Hazelcast](http://hazelcast.org
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hazelcast</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
 </dependency>
 ```
 
@@ -54,7 +54,7 @@ Configuration can be done programmatically via: ```doWith(Consumer)```
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hazelcast</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
 </dependency>
 ```
 

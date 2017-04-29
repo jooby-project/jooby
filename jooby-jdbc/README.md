@@ -12,7 +12,7 @@ Production-ready jdbc data source, powered by the [HikariCP](https://github.com/
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbc</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
 </dependency>
 ```
 
@@ -370,11 +370,7 @@ databases {
 
   pgsql {
 
-    # empty bc dataSource.setUrl missing
-
-    # dataSourceClassName = com.impossibl.postgres.jdbc.PGDataSource
-
-    dataSourceClassName = ""
+    dataSourceClassName = com.impossibl.postgres.jdbc.PGDataSourceWithUrl
 
   }
 
@@ -388,11 +384,7 @@ databases {
 
   postgresql {
 
-    # empty bc dataSource.setUrl missing
-
-    # dataSourceClassName = org.postgresql.ds.PGSimpleDataSource
-
-    dataSourceClassName = ""
+    dataSourceClassName = org.postgresql.ds.PGSimpleDataSource
 
   }
 
