@@ -132,7 +132,7 @@
        <ul> 
         <li> <a href="#war--usage">usage</a></li> 
         <li> <a href="#war--limitations">limitations</a></li> 
-        <li> <a href="#war--how-it-works-">how it works?</a></li>
+        <li> <a href="#war--how-does-it-work-">how does it work?</a></li>
        </ul></li> 
       <li class=""> <a href="#crash">crash</a>
        <ul> 
@@ -244,7 +244,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
       </div> 
       <div class="datalist-content"> 
        <p>This is the default deployment option and you (usually) don’t need to do anything if you created your application via <a href="/quickstart">maven archetype</a>.</p> 
-       <p>In order to create a <strong>fat jar</strong> go to your project home, open a terminal and run:</p> 
+       <p>In order to create a <strong>fat jar</strong>, go to your project home, open a terminal and run:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -294,7 +294,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
        </div> 
        <p>If you created your application via <a href="/quickstart">maven archetype</a> this setup is already present in your application.</p> 
        <h3 id="fat-jar-run-start">run / start</h3> 
-       <p>Due everything was bundle into a single <code class="highlighter-rouge codehilite">jar</code> file, all you have to do is:</p> 
+       <p>Since everything was bundled into a single <code class="highlighter-rouge codehilite">jar</code>, all you have to do is:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -302,8 +302,8 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
         <pre class="highlight"><code>java -jar myapp.jar <span class="o">[</span>env]
 </code></pre> 
        </div> 
-       <p>Easy hugh? No complex deployment, <strong>no heavy-weight servers</strong>, <strong>no classpath hell</strong>, nothing!!!</p> 
-       <p>Your application is up and running!!</p> 
+       <p>Easy huh? No complex deployment, <strong>no heavy-weight servers</strong>, <strong>no classpath hell</strong>, nothing!</p> 
+       <p>Your application is up and running!</p> 
       </div> 
      </div> 
      <div class="datalist" id="stork"> 
@@ -326,7 +326,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
        <p>You must name your <a href="https://github.com/fizzed/stork#launcher-configuration" target="_blank">launcher</a> as <code class="highlighter-rouge codehilite">stork.yml</code> and save it inside the <code class="highlighter-rouge codehilite">src/etc</code> directory.</p> 
        <p>Maven properties defined here will be resolved and merged into the final output. Examples of these properties are: <code class="highlighter-rouge codehilite">${application.class}</code>, <code class="highlighter-rouge codehilite">${project.groupId}</code>, etc…</p> 
        <h3 id="stork-example">example</h3> 
-       <p>Here is a simple example of the <code class="highlighter-rouge codehilite">stork.yml</code> launcher:</p> 
+       <p>Here’s a simple example of the <code class="highlighter-rouge codehilite">stork.yml</code> launcher:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -395,7 +395,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
        <h3 id="capsule-profile-activation">profile activation</h3> 
        <p>The <code class="highlighter-rouge codehilite">capsule</code> Maven profile is activated by the presence of the <code class="highlighter-rouge codehilite">src/etc/capsule.activator</code> file (file content doesn’t matter, just the file presence).</p> 
        <h3 id="capsule-options">options</h3> 
-       <p>Integration provides some defaults, which are listed here:</p> 
+       <p>The integration provides the following defaults:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -454,7 +454,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
 </code></pre> 
        </div> 
        <ul> 
-        <li> <p>Once it finish, the docker image will be build and tagged as <code class="highlighter-rouge codehilite">${project.artifactId}</code>.</p> </li> 
+        <li> <p>Once finished, the docker image has been built and tagged as <code class="highlighter-rouge codehilite">${project.artifactId}</code>.</p> </li> 
         <li> <p>You can now run the image with:</p> </li> 
        </ul> 
        <div class="highlighter-rouge codehilite">
@@ -464,7 +464,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
         <pre class="highlight"><code>docker run -p 80:8080 <span class="k">${</span><span class="nv">project</span><span class="p">.artifactId</span><span class="k">}</span>
 </code></pre> 
        </div> 
-       <p>The Maven profile trigger the <a href="https://github.com/spotify/docker-maven-plugin" target="_blank">spotify/docker-maven-plugin</a> which generates a <code class="highlighter-rouge codehilite">docker</code> file. Please checkout the <a href="https://github.com/spotify/docker-maven-plugin" target="_blank">doc</a> for more datails.</p> 
+       <p>The Maven profile triggers the <a href="https://github.com/spotify/docker-maven-plugin" target="_blank">spotify/docker-maven-plugin</a> which generates a <code class="highlighter-rouge codehilite">docker</code> file. Please see the <a href="https://github.com/spotify/docker-maven-plugin" target="_blank">doc</a> for more details.</p> 
        <h4 id="docker-stork">stork</h4> 
        <ul> 
         <li> <p>Write a <code class="highlighter-rouge codehilite">src/etc/docker.stork.activator</code> file. File contents doesn’t matter, the file presence activates a Maven profile.</p> </li> 
@@ -478,7 +478,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
 </code></pre> 
        </div> 
        <ul> 
-        <li> <p>Once it finish, the docker image will be build and tagged as <code class="highlighter-rouge codehilite">${project.artifactId}</code>.</p> </li> 
+        <li> <p>Once finished, the docker image has been built and tagged as <code class="highlighter-rouge codehilite">${project.artifactId}</code>.</p> </li> 
         <li> <p>You can now run the image with:</p> </li> 
        </ul> 
        <div class="highlighter-rouge codehilite">
@@ -488,7 +488,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
         <pre class="highlight"><code>docker run -it -p 80:8080 <span class="k">${</span><span class="nv">project</span><span class="p">.artifactId</span><span class="k">}</span>
 </code></pre> 
        </div> 
-       <p>The Maven profile trigger the <a href="https://github.com/spotify/docker-maven-plugin" target="_blank">spotify/docker-maven-plugin</a> which generates a <code class="highlighter-rouge codehilite">docker</code> file. Please checkout the <a href="https://github.com/spotify/docker-maven-plugin" target="_blank">doc</a> for more datails.</p> 
+       <p>The Maven profile triggers the <a href="https://github.com/spotify/docker-maven-plugin" target="_blank">spotify/docker-maven-plugin</a> which generates a <code class="highlighter-rouge codehilite">docker</code> file. Please see the <a href="https://github.com/spotify/docker-maven-plugin" target="_blank">doc</a> for more details.</p> 
       </div> 
      </div> 
      <div class="datalist" id="static-resources"> 
@@ -512,11 +512,11 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
        <h2>war?</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>This module exists for strict environments where the ONLY option is to deploy into a Servlet Container. If you are free to deploy a new server technology, we strongly recommend to avoid this and go directly with <a href="http://netty.io" target="_blank">Netty</a>, <a href="http://www.eclipse.org/jetty/" target="_blank">Jetty</a> or <a href="http://undertow.io" target="_blank">Undertow</a>.</p> 
+       <p>This module exists for strict environments where the ONLY option is to deploy into a Servlet Container. It’s strongly recommended to avoid this and rather opt for using one of <a href="http://netty.io" target="_blank">Netty</a>, <a href="http://www.eclipse.org/jetty/" target="_blank">Jetty</a> or <a href="http://undertow.io" target="_blank">Undertow</a>.</p> 
        <h3 id="war--usage">usage</h3> 
-       <p>In order to deploy into a Servlet Container, we need to generate a <code class="highlighter-rouge codehilite">*.war</code> file. The next steps guide you on how to do it:</p> 
+       <p>In order to deploy into a Servlet Container, you need to generate a <code class="highlighter-rouge codehilite">*.war</code> file. Here’s how:</p> 
        <ul> 
-        <li> <p>Write a <code class="highlighter-rouge codehilite">war.activator</code> file inside the <code class="highlighter-rouge codehilite">src/etc</code> directory.</p> </li> 
+        <li> <p>Create a <code class="highlighter-rouge codehilite">war.activator</code> file in the <code class="highlighter-rouge codehilite">src/etc</code> directory.</p> </li> 
         <li> <p>Open a console and type: <code class="highlighter-rouge codehilite">mvn clean package</code></p> </li> 
         <li> <p>Find the <code class="highlighter-rouge codehilite">*.war</code> file in the <code class="highlighter-rouge codehilite">target</code> directory.</p> </li> 
        </ul> 
@@ -532,7 +532,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
          </ul> </li> 
        </ul> 
        <h4 id="war--special-note-on-contextPath">special note on contextPath</h4> 
-       <p>To avoid a headache… make sure to use the <code class="highlighter-rouge codehilite">contextPath</code> variable while loading static/dynamic resources (.css, .js, etc..).</p> 
+       <p>To avoid potential headaches, make sure to use the <code class="highlighter-rouge codehilite">contextPath</code> variable while loading static/dynamic resources (.css, .js, etc..).</p> 
        <p>For example:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -546,12 +546,12 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
 <span class="nt">&lt;/html&gt;</span>
 </code></pre> 
        </div> 
-       <p>Here the expression: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">{contextPath</span><span class="p">}</span><span class="err">}</span></code> corresponds to the template engine (handlebars here) or <code class="highlighter-rouge codehilite">${contextPath}</code> for Freemarker.</p> 
-       <h3 id="war--how-it-works-">how it works?</h3> 
-       <p>The presence of the <code class="highlighter-rouge codehilite">src/etc/war.activator</code> file triggers a Maven profile. Content of the file doesn’t matter, just the presence.</p> 
-       <p>The Maven profile build the <code class="highlighter-rouge codehilite">*.war</code> file using the <code class="highlighter-rouge codehilite">maven-assembly-plugin</code>. The assembly descriptor can be found <a href="https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml" target="_blank">here</a></p> 
+       <p>The expression: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">{contextPath</span><span class="p">}</span><span class="err">}</span></code> corresponds to the template engine (handlebars in that case) or <code class="highlighter-rouge codehilite">${contextPath}</code> for Freemarker.</p> 
+       <h3 id="war--how-does-it-work-">how does it work?</h3> 
+       <p>The presence of the <code class="highlighter-rouge codehilite">src/etc/war.activator</code> file triggers a Maven profile. The contents of the file doesn’t matter, it just needs to be present.</p> 
+       <p>The Maven profile builds the <code class="highlighter-rouge codehilite">*.war</code> file using the <code class="highlighter-rouge codehilite">maven-assembly-plugin</code>. The assembly descriptor can be found <a href="https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml" target="_blank">here</a></p> 
        <h4 id="war--web-xml">web.xml</h4> 
-       <p>A default <code class="highlighter-rouge codehilite">web.xml</code> file is generated by the assembly plugin. File looks like:</p> 
+       <p>A default <code class="highlighter-rouge codehilite">web.xml</code> file is generated by the assembly plugin. This file looks like:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -588,8 +588,8 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
 <span class="nt">&lt;/web-app&gt;</span>
 </code></pre> 
        </div> 
-       <h5>upload size</h5> 
-       <p>Default upload size is set to <code class="highlighter-rouge codehilite">204800b</code> (200kb). If you need to increase the upload size, add the <code class="highlighter-rouge codehilite">war.maxRequestSize</code> property to <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
+       <h5>max upload size</h5> 
+       <p>The default max upload size is set to <code class="highlighter-rouge codehilite">204800b</code> (200kb). If you need to increase this, add the <code class="highlighter-rouge codehilite">war.maxRequestSize</code> property to <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -622,7 +622,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-crash<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 

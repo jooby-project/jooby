@@ -11,7 +11,7 @@
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: hbs module"> 
-  <meta name="og:description" content="Logic less and semantic templates via {{handlebars}}"> 
+  <meta name="og:description" content="Logic-less and semantic templates via Handlebars"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="Logic less and semantic templates via {{handlebars}}"> 
+  <meta name="twitter:description" content="Logic-less and semantic templates via Handlebars"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -114,7 +114,7 @@
        <h2>handlebars</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Logic less and semantic templates via {{handlebars}}.</p> 
+       <p>Logic-less and semantic templates via <a href="https://github.com/jknack/handlebars.java" target="_blank">Handlebars.java</a>.</p> 
        <h3 id="handlebars-exports">exports</h3> 
        <ul> 
         <li><code class="highlighter-rouge codehilite">Handlebars</code></li> 
@@ -128,7 +128,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-hbs<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -151,7 +151,7 @@
         </div> 
         <pre class="highlight"><code><span class="p">{</span><span class="err">{model</span><span class="p">}</span><span class="err">}</span><span class="w"> </span></code></pre> 
        </div> 
-       <p>Templates are loaded from root of classpath: <code class="highlighter-rouge codehilite">/</code> and must end with: <code class="highlighter-rouge codehilite">.html</code> file extension.</p> 
+       <p>Templates are loaded from the root of the classpath: <code class="highlighter-rouge codehilite">/</code> and must end with: <code class="highlighter-rouge codehilite">.html</code> file extension.</p> 
        <h3 id="handlebars-request-locals">request locals</h3> 
        <p>A template engine has access to <code class="highlighter-rouge codehilite">request locals</code> (a.k.a attributes). Here is an example:</p> 
        <div class="highlighter-rouge codehilite">
@@ -214,7 +214,7 @@
        </div> 
        <h3 id="handlebars-cache">cache</h3> 
        <p>Cache is OFF when <code class="highlighter-rouge codehilite">env=dev</code> (useful for template reloading), otherwise is ON.</p> 
-       <p>Cache is backed by <a href="https://github.com/google/guava" target="_blank">Guava</a> and the default cache will expire after <code class="highlighter-rouge codehilite">100</code> entries.</p> 
+       <p>The cache is backed by <a href="https://github.com/google/guava" target="_blank">Guava</a> and the default cache will expire after <code class="highlighter-rouge codehilite">100</code> entries.</p> 
        <p>If <code class="highlighter-rouge codehilite">100</code> entries is not enough or you need a more advanced cache setting, just set the <code class="highlighter-rouge codehilite">hbs.cache</code> option:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 

@@ -120,7 +120,7 @@ listening on:
   http://0.0.0.0:8080/
 &#x60;&#x60;&#x60;
 
-**Jooby**! is up and running!!!
+**Jooby**! is up and running!
 
 getting started
 &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
@@ -128,7 +128,7 @@ getting started
 exploring the newly created project
 -----
 
-A new directory was created: &#x60;&#x60;&#x60;my-app&#x60;&#x60;&#x60;. Now, let&#x27;s see how it looks like:
+A new directory was created: &#x60;&#x60;&#x60;my-app&#x60;&#x60;&#x60;. Let&#x27;s see what it looks like:
 
 &#x60;&#x60;&#x60;bash
 .
@@ -150,11 +150,11 @@ A new directory was created: &#x60;&#x60;&#x60;my-app&#x60;&#x60;&#x60;. Now, le
                     └── AppTest.java
 &#x60;&#x60;&#x60;
 
-The **public** folder contains static files like &#x60;&#x60;&#x60;*.html&#x60;&#x60;&#x60;, &#x60;&#x60;&#x60;*.js&#x60;&#x60;&#x60;, &#x60;&#x60;&#x60;*.css&#x60;&#x60;&#x60;, ..., &#x60;&#x60;&#x60;*.png&#x60;&#x60;&#x60; files.
+The **public** folder contains static content like &#x60;&#x60;&#x60;*.html&#x60;&#x60;&#x60;, &#x60;&#x60;&#x60;*.js&#x60;&#x60;&#x60;, &#x60;&#x60;&#x60;*.css&#x60;&#x60;&#x60;, ..., &#x60;&#x60;&#x60;*.png&#x60;&#x60;&#x60; files.
 
 The **conf** folder contains &#x60;&#x60;&#x60;*.conf&#x60;&#x60;&#x60;.
 
-The **src/main/java** folder contains &#x60;&#x60;&#x60;*.java&#x60;&#x60;&#x60; (of course) files.
+The **src/main/java** folder contains &#x60;&#x60;&#x60;*.java&#x60;&#x60;&#x60; files (of course).
 
 The **src/test/java** folder contains unit and integration tests.
 
@@ -184,7 +184,7 @@ public class App extends Jooby { // 1
 
 Steps involved are:
 
-1) extends Jooby
+1) extend Jooby
 
 2) define some routes
 
@@ -193,20 +193,20 @@ Steps involved are:
 running
 -----
 
-Just open a console and type:
+Open a console and type:
 
     mvn jooby:run
 
-The maven plugin will compile the code (if necessary) and startup the application.
+The maven plugin will compile the code (if necessary) and start the application.
 
-Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE.
-Then all you have to do is run the: &#x60;&#x60;&#x60;App.java&#x60;&#x60;&#x60; class. After all, this is plain Java application with a &#x60;&#x60;&#x60;main&#x60;&#x60;&#x60; method.
+Of course, you can generate the IDE metadata from Maven or import as a Maven project in your favorite IDE.
+Afterwards, all you have to do is run the: &#x60;&#x60;&#x60;App.java&#x60;&#x60;&#x60; class. After all, this is a plain Java application with a &#x60;&#x60;&#x60;main&#x60;&#x60;&#x60; method.
 
 where to go now?
 -----
 
 * read the [documentation](/doc)
-* checkout one of our 
+* check out one of the 
 "><a href="/quickstart" title="Quick start">QUICK START</a></li>
             <li class=""><a href="/doc" title="Doc">DOCS</a></li>
             <li class="# modules
@@ -217,25 +217,25 @@ Modules (unlike in other frameworks) are thin and do a lot of work to bootstrap 
 
 Modules like in [Guice](https://github.com/google/guice) are used to wire services, connect data, etc...
 
-There is an extensive [module ecosystem](/modules) which makes Jooby a **full stack** framework (when need it).
+There is an extensive [module ecosystem](/modules) which makes Jooby a **full stack** framework (when needed).
 
 ## do less and be flexible
 
 **Do less** might sounds confusing, but is the key to **flexibility**.
 
-A module does as **less as possible** (key difference with other frameworks). A module for a library &#x60;X&#x60; should:
+A module does as **little as possible** (a key difference with other frameworks). A module for a library &#x60;X&#x60; should:
 
 * Bootstrap X
 * Configure X
-* exports API of X
+* export the API of X
 
-This means a module should NOT create wrapper for a library. Instead, provides a way to extend, configure and use the external library.
+This means that a module should NOT create a wrapper for a library. Instead it should provide a way to extend, configure and use the external library.
 
-&gt; This principle, keep module usually small, maintainable and flexible.
+&gt; This principle keeps modules small, maintainable and flexible.
 
 ## creating modules
 
-A module is represented by the [Jooby.Module](/Jooby.Module.html) class. The configure callback looks like:
+A module is represented by the [Jooby.Module](/Jooby.Module.html) class. The configure callback looks like this:
 
 &#x60;&#x60;&#x60;java
 public class M1 implements Jooby.Module {
@@ -260,14 +260,14 @@ public class M1 implements Jooby.Module {
   }
 
   public Config config() {
-    return Config.parseResources(getClass(), &quot;m1.properties&quot;);
+    return ConfigFactory.parseResources(getClass(), &quot;m1.properties&quot;);
   }
 }
 &#x60;&#x60;&#x60;
 
 ## usage
 
-A module must be imported/registered at startup time:
+A module must be registered at startup time:
 
 &#x60;&#x60;&#x60;java
 
@@ -288,7 +288,7 @@ public class MyApp extends Jooby {
 }
 &#x60;&#x60;&#x60;
 
-You can start/stop services from a module:
+You can start or stop services from a module:
 
 &#x60;&#x60;&#x60;java
 public class M1 implements Jooby.Module {
@@ -309,7 +309,7 @@ Or export routes:
 public class M1 implements Jooby.Module {
     public void configure(Env env, Config config, Binder binder) {
       Router router &#x3D; env.router();
-      router.get(&quot;/m1&quot;, () -&gt; &quot;I&#x27;m a module!!!&quot;);
+      router.get(&quot;/m1&quot;, () -&gt; &quot;I&#x27;m a module!&quot;);
     }
 }
 &#x60;&#x60;&#x60;
@@ -343,17 +343,17 @@ public class M1 implements Jooby.Module {
 
 ## can I use Gradle?
 
-Yes, with some limitation that are being documented [here](/doc/gradle).
+Yes, with some limitations that are being documented [here](/doc/gradle).
 
 ## how do I run code on start/stop?
 
-Documentation for [lyfeCycle](/LyfeCycle.html) events is available [here](/doc/#application-life-cycle)
+Documentation for [lifeCycle](/LifeCycle.html) events is available [here](/doc/#application-life-cycle)
 
 # mime types
 
 ## what mime types are supported?
 
-* Full list of mime types can be found [here](/doc/#misc-mime-properties)
+* Full list of MIME types can be found [here](/doc/#misc-mime-properties)
 
 ## how do I add a new/override mime type?
 
@@ -424,8 +424,8 @@ Documentation for [lyfeCycle](/LyfeCycle.html) events is available [here](/doc/#
   <h2>jdbi guide</h2> 
  </div> 
  <div class="datalist-content"> 
-  <p>In this guide you will learn how to build a <strong>JSON API</strong> for <code class="highlighter-rouge codehilite">Pets</code> and persist them into a <strong>relational database</strong> using <a href="/doc/jdbi">jdbi</a> module.</p>
-  <p><a href="http://jdbi.org/" target="_blank">JDBI</a> is a SQL convenience library for Java. It attempts to expose relational database access in idiommatic Java, using collections, beans, and so on, while maintaining the same level of detail as JDBC. It exposes two different style APIs, a fluent style and a sql object style.</p>
+  <p>In this guide you will learn how to build a <strong>JSON API</strong> for <code class="highlighter-rouge codehilite">Pets</code> and persist them into a <strong>relational database</strong> using the <a href="/doc/jdbi">jdbi</a> module.</p>
+  <p><a href="http://jdbi.org/" target="_blank">JDBI</a> is a SQL convenience library for Java. It attempts to expose relational database access in idiomatic Java, using collections, beans, and so on, while maintaining the same level of detail as JDBC. It exposes two different style APIs, a fluent style and a sql object style.</p>
  </div> 
 </div>   
 <div class="datalist" id="requirements">
@@ -433,7 +433,7 @@ Documentation for [lyfeCycle](/LyfeCycle.html) events is available [here](/doc/#
   <h2>requirements</h2> 
  </div> 
  <div class="datalist-content"> 
-  <p>Make sure you have all these software installed it in your computer:</p>
+  <p>Make sure you have the following installed on your computer:</p>
   <ul> 
    <li>A text editor or IDE</li> 
    <li><a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">JDK 8+</a> or later</li> 
@@ -448,10 +448,10 @@ Documentation for [lyfeCycle](/LyfeCycle.html) events is available [here](/doc/#
  <div class="datalist-content"> 
   <p>Open a terminal/console and paste:</p>
   <div class="highlighter-rouge codehilite"> 
-   <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>org.jooby.guides -DartifactId<span class="o">=</span>jdbi-guide -Dversion<span class="o">=</span>1.0 -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.1.0
+   <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>org.jooby.guides -DartifactId<span class="o">=</span>jdbi-guide -Dversion<span class="o">=</span>1.0 -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.1.1
 </code></pre> 
   </div>
-  <p>Jump into the application:</p>
+  <p>Enter the application directory:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code>cd jdbi-guide
 </code></pre> 
@@ -469,11 +469,11 @@ Documentation for [lyfeCycle](/LyfeCycle.html) events is available [here](/doc/#
    <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jackson<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
   </div>
-  <p>Got to <code class="highlighter-rouge codehilite">App.java</code> and add the module:</p>
+  <p>Go to <code class="highlighter-rouge codehilite">App.java</code> and add the module:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.json.Jackson</span><span class="o">;</span>
 <span class="o">...</span>
@@ -488,7 +488,7 @@ Documentation for [lyfeCycle](/LyfeCycle.html) events is available [here](/doc/#
    <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jdbi<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
   </div>
@@ -560,7 +560,7 @@ Documentation for [lyfeCycle](/LyfeCycle.html) events is available [here](/doc/#
 </code></pre> 
   </div>
   <blockquote> 
-   <p><strong>NOTE</strong>: If you want to connect to <code class="highlighter-rouge codehilite">mySQL</code> database (or any other), then you’ll have to add the <code class="highlighter-rouge codehilite">mySQL Java Driver</code> to your project and define the connection properties like:</p> 
+   <p><strong>NOTE</strong>: If you want to connect to a database other than the embedded <code class="highlighter-rouge codehilite">mem</code> or <code class="highlighter-rouge codehilite">fs</code>, like e.g. <code class="highlighter-rouge codehilite">mySQL</code>, then you’ll have to add the <code class="highlighter-rouge codehilite">mySQL Java Driver</code> to your project and define the connection properties like this:</p> 
    <div class="highlighter-rouge codehilite"> 
     <pre class="highlight"><code>db.url = "jdbc:mysql//localhost/pets"
 db.user = "user"
@@ -571,7 +571,7 @@ db.password = "password"
   <h3 id="connect-to-database-creating-a-schema">creating a schema</h3>
   <p>We are going to create a database schema at application startup time:</p>
   <ul> 
-   <li>Define a <code class="highlighter-rouge codehilite">schema</code> property in <code class="highlighter-rouge codehilite">conf/application.conf</code> like:</li> 
+   <li>Define a <code class="highlighter-rouge codehilite">schema</code> property in <code class="highlighter-rouge codehilite">conf/application.conf</code> like this:</li> 
   </ul>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code>schema = """
@@ -615,7 +615,7 @@ db.password = "password"
    <p><strong>TIP</strong>: There is <a href="/doc/flyway">flyway</a> module for database migrations.</p> 
   </blockquote>
   <h3 id="connect-to-database-creating-a-repository">creating a repository</h3>
-  <p><a href="http://jdbi.org/sql_object_overview/" target="_blank">The SQL Object API</a> provides a declarative mechanism for a common <a href="http://jdbi.org/" target="_blank">JDBI</a> usage – creation of DAO type objects where one method generally equates to one SQL statement. To use the SQL Object API, create an interface annotated to declare the desired behavior, like so:</p>
+  <p><a href="http://jdbi.org/sql_object_overview/" target="_blank">The SQL Object API</a> provides a declarative mechanism for a common <a href="http://jdbi.org/" target="_blank">JDBI</a> usage – creation of DAO type objects where one method generally equates to one SQL statement. To use the SQL Object API, create an interface annotated to declare the desired behavior, like this:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code><span class="kn">package</span> <span class="n">jdbi</span><span class="o">;</span>
 
@@ -741,7 +741,7 @@ db.password = "password"
   </div>
   <p>You’ll see an error page because we didn’t persist any pet yet. Let’s see how to save one.</p>
   <h3 id="routes-save-a-pet">save a pet</h3>
-  <p>So far, we see how to query pets by ID or listing all them, it is time to see how to creates a new pet:</p>
+  <p>So far, we’ve seen how to query pets by ID or listing all them, it is time to see how to create a new pet:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code><span class="o">{</span>
   <span class="n">post</span><span class="o">(</span><span class="s">"/api/pets"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -812,7 +812,7 @@ db.password = "password"
   <h2>quick preview</h2> 
  </div> 
  <div class="datalist-content"> 
-  <p>API is ready, let’s see how it looks like:</p>
+  <p>The API is ready, let’s see how it looks like:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code><span class="o">{</span>
   <span class="cm">/**</span>
@@ -866,8 +866,8 @@ db.password = "password"
 <span class="o">}</span>
 </code></pre> 
   </div>
-  <p>Not bad, ugh?</p>
-  <p>Isn’t, but did you see we have to repeat the <code class="highlighter-rouge codehilite">/api/pets</code> pattern for each of our routes?</p>
+  <p>Not bad, huh?</p>
+  <p>But did you notice that we have to repeat the <code class="highlighter-rouge codehilite">/api/pets</code> pattern for each of our routes?</p>
   <p>Let’s fix that with <a href="http://jooby.org/apidocs/org/jooby/Jooby.html#use-java.lang.String-" target="_blank">Jooby.use(String)</a>:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code><span class="kn">package</span> <span class="n">jdbi</span><span class="o">;</span>
@@ -972,7 +972,7 @@ db.password = "password"
 <span class="o">}</span>
 </code></pre> 
   </div>
-  <p>Better now! The <code class="highlighter-rouge codehilite">use</code> method has many meanings in <strong>Jooby</strong>, If we use pass a <code class="highlighter-rouge codehilite">String</code> we can group route under a same path pattern.</p>
+  <p>That’s better! The <code class="highlighter-rouge codehilite">use</code> method has many meanings in <strong>Jooby</strong>, If we use pass a <code class="highlighter-rouge codehilite">String</code> we can group routes under the same path pattern.</p>
  </div> 
 </div>        
 <div class="datalist" id="conclusion">
@@ -980,8 +980,8 @@ db.password = "password"
   <h2>conclusion</h2> 
  </div> 
  <div class="datalist-content"> 
-  <p>As you already see, building an API that saves data in a <strong>database</strong> is very simple. Code looks clean and simple thanks to <a href="/doc/jdbi">jdbi</a> module.</p>
-  <p>The <a href="/doc/jdbi">jdbi</a> module makes perfect sense if you want to have full control on your SQL queries, or if you don’t like <strong>ORM</strong> tools too.</p>
+  <p>As you’ve already seen, building an API that saves data in a <strong>database</strong> is very easy. The code looks clean and simple thanks to the <a href="/doc/jdbi">jdbi</a> module.</p>
+  <p>The <a href="/doc/jdbi">jdbi</a> module makes perfect sense if you want to have full control of your SQL queries, or if you prefer not to use <strong>ORM</strong> tools.</p>
  </div> 
 </div>   
 <div class="datalist" id="source-code">

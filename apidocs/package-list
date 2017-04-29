@@ -1,3 +1,4 @@
+com.impossibl.postgres.jdbc
 org.jooby
 org.jooby.akka
 org.jooby.assets
@@ -6,6 +7,7 @@ org.jooby.banner
 org.jooby.caffeine
 org.jooby.camel
 org.jooby.cassandra
+org.jooby.consul
 org.jooby.couchbase
 org.jooby.crash
 org.jooby.csl

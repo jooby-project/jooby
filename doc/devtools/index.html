@@ -183,7 +183,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;commands&gt;</span>
@@ -250,7 +250,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;commands&gt;</span>
@@ -271,7 +271,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;fork&gt;</span>true<span class="nt">&lt;/fork&gt;</span>
@@ -309,7 +309,7 @@ listening on:
     <span class="cm">/**</span>
      <span class="cm">* joobyRun </span>
      <span class="cm">*/</span>
-    <span class="nx">classpath</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby-gradle-plugin'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.1.0'</span>
+    <span class="nx">classpath</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby-gradle-plugin'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.1.1'</span>
   <span class="p">}</span>
 <span class="p">}</span>
 
@@ -325,7 +325,7 @@ listening on:
         <pre class="highlight"><code>gradle joobyRun
 </code></pre> 
        </div> 
-       <p>Prints something similar to:</p> 
+       <p>It will print something like this:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -343,13 +343,13 @@ listening on:
 </code></pre> 
        </div> 
        <h3 id="gradle-hot-reload">hot reload</h3> 
-       <p>The <code class="highlighter-rouge codehilite">joobyRun</code> tool restart the application every time a change is detected on:</p> 
+       <p>The <code class="highlighter-rouge codehilite">joobyRun</code> tool restarts the application each time a change is detected on:</p> 
        <ul> 
         <li>classes (*.class)</li> 
         <li>config files (*.conf and *.properties)</li> 
        </ul> 
-       <p>Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled or cached while running on <code class="highlighter-rouge codehilite">application.env = dev</code>.</p> 
-       <p>It’s worth to mention that dynamic reload of classes is done via <a href="https://github.com/jboss-modules/jboss-modules" target="_blank">JBoss Modules</a>.</p> 
+       <p>Changes on templates and/or static files (*.html, *.js, *.css) won’t restart the application, because they are not compiled or cached while running on <code class="highlighter-rouge codehilite">application.env = dev</code>.</p> 
+       <p>It’s worth mentioning that dynamic reload of classes is done via <a href="https://github.com/jboss-modules/jboss-modules" target="_blank">JBoss Modules</a>.</p> 
        <h3 id="gradle-options">options</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -371,14 +371,14 @@ listening on:
        <h4 id="gradle-compiler">compiler</h4> 
        <p>The compiler is <code class="highlighter-rouge codehilite">on</code> by default, unless:</p> 
        <ul> 
-        <li> <p>A <code class="highlighter-rouge codehilite">.classpath</code> file is present in the project directory. If present, means you’re a Eclipse user and we turn off the compiler and let Eclipse recompiles the code on save.</p> </li> 
+        <li> <p>A <code class="highlighter-rouge codehilite">.classpath</code> file is present in the project directory. If present, it’s assumed you’re using Eclipse and the compiler is disabled, letting Eclipse recompile the code on save.</p> </li> 
         <li> <p>The compiler is set to <code class="highlighter-rouge codehilite">off</code>.</p> </li> 
        </ul> 
        <p>On compilation success, the application is effectively reloaded.</p> 
        <p>On compilation error, the application won’t reload.</p> 
-       <p>Compilation success or error messages are displayed in the console (not at the browser).</p> 
+       <p>Compilation success or error messages are displayed in the console (not in the browser).</p> 
        <h4 id="gradle-includes-excludes">includes / excludes</h4> 
-       <p>List of file patterns to listen for file changes.</p> 
+       <p>List of file patterns to watch for file changes.</p> 
       </div> 
      </div> 
      <div class="datalist" id="liveReload"> 
@@ -401,7 +401,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-livereload<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -465,7 +465,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-whoops<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 

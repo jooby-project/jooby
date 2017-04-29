@@ -116,17 +116,17 @@
       </div> 
       <div class="datalist-content"> 
        <p><a href="http://rollupjs.org/" target="_blank">rollup.js</a> the next-generation ES6 module bundler.</p> 
-       <p>Make sure you already setup the <a href="/doc/assets">assets module</a> in your project!</p> 
+       <p>Make sure you’ve already set up the <a href="/doc/assets">assets module</a> in your project!</p> 
        <h3 id="rollup-js-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>jooby-assets-rollup<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
-  <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+ <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+ <span class="nt">&lt;artifactId&gt;</span>jooby-rollup.js<span class="nt">&lt;/artifactId&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -135,39 +135,100 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>assets {
- fileset {
-   home: ...
- }
- pipeline {
-   ...
-   dist: [rollup]
- }
-}
+        <pre class="highlight"><code><span class="n">assets</span> <span class="o">{</span>
+  <span class="n">fileset</span> <span class="o">{</span>
+    <span class="nl">home:</span> <span class="o">...</span>
+  <span class="o">}</span>
+
+  <span class="n">pipeline</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="nl">dev:</span> <span class="o">[</span><span class="n">rollup</span><span class="o">]</span>
+    <span class="nl">dist:</span> <span class="o">[</span><span class="n">rollup</span><span class="o">]</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
 </code></pre> 
        </div> 
        <h3 id="rollup-js-options">options</h3> 
+       <h4 id="rollup-js-generate">generate</h4> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>assets {
- fileset {
-   home: ...
- }
- pipeline {
-   ...
-   dist: [rollmap]
- }
- rollup {
-   output {
-     format: amd
-   }
- }
-}
+        <pre class="highlight"><code>rollup {
+    genereate {
+      format: es
+    }
+  }
+
 </code></pre> 
        </div> 
-       <p>See: <a href="https://github.com/rollup/rollup/wiki/JavaScript-API" target="_blank">rollup.js options.</a></p> 
+       <p>See <a href="https://github.com/rollup/rollup/wiki/JavaScript-API#bundlegenerate-options-" target="_blank">generate options</a>.</p> 
+       <h4 id="rollup-js-plugins">plugins</h4> 
+       <h5>babel</h5> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>rollup {
+    plugins {
+      babel {
+        presets: [[es2015, {modules: false}]]
+      }
+    }
+  }
+
+</code></pre> 
+       </div> 
+       <p>See <a href="https://babeljs.io/" target="_blank">https://babeljs.io</a> for more options.</p> 
+       <h5>legacy</h5> 
+       <p>This plugins add a <code class="highlighter-rouge codehilite">export default</code> line to legacy modules:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>rollup {
+    plugins {
+      legacy {
+        "/js/lib/react.js": React
+      }
+    }
+  }
+
+</code></pre> 
+       </div> 
+       <h5>alias</h5> 
+       <p>Set an alias to a common (probably long) path.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>rollup {
+    plugins {
+      alias {
+        "/js/lib/react.js": "react"
+      }
+    }
+  }
+
+</code></pre> 
+       </div> 
+       <p>Instead of:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kr">import</span> <span class="nx">React</span> <span class="nx">from</span> <span class="s1">'js/lib/react.js'</span><span class="p">;</span>
+</code></pre> 
+       </div> 
+       <p>Now, you can import a module like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kr">import</span> <span class="nx">React</span> <span class="nx">from</span> <span class="s1">'react'</span><span class="p">;</span>
+</code></pre> 
+       </div> 
       </div> 
      </div> 
      <div class="datalist" id="see-also"> 
@@ -194,6 +255,7 @@
         <li> <p><a href="/doc/assets-jscs">jscs</a>: JavaScript code style checker.</p> </li> 
         <li> <p><a href="/doc/assets-jshint">jshint</a>: JavaScript linter, helps to detect errors and potential problems in code..</p> </li> 
         <li> <p><a href="/doc/assets-babel">babel</a>: Ecma6 now via <a href="http://babeljs.io/" target="_blank">Babel</a>.</p> </li> 
+        <li> <p><a href="/doc/assets-react">react</a>: <a href="https://facebook.github.io/react" target="_blank">React</a> support.</p> </li> 
         <li> <p><a href="/doc/assets-rollup">rollup</a>: <a href="http://rollupjs.org/" target="_blank">rollup.js</a> the next-generation ES6 module bundler.</p> </li> 
         <li> <p><a href="/doc/assets-ng-annotate">ng-annotate</a>: Add, remove and rebuild AngularJS dependency injection annotations.</p> </li> 
         <li> <p><a href="/doc/assets-closure-compiler">closure-compiler</a>: Google JavaScript optimizer and minifier.</p> </li> 

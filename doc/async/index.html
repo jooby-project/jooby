@@ -120,11 +120,11 @@
        <h2>thread model</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>You can see <a href="http://jooby.org">Jooby</a> as an <code class="highlighter-rouge codehilite">event loop server</code> thanks to the supported web servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>. Being <a href="/doc/netty">Netty</a> the default web server.</p> 
+       <p>You can see <a href="http://jooby.org">Jooby</a> as an <code class="highlighter-rouge codehilite">event loop server</code> thanks to the supported web servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>. The default web server is <a href="/doc/netty">Netty</a>.</p> 
        <p><a href="http://jooby.org">Jooby</a> isn’t a traditional <code class="highlighter-rouge codehilite">thread server</code> where a HTTP request is bound to a thread.</p> 
        <p>In <a href="http://jooby.org">Jooby</a> all the HTTP IO operations are performed in async &amp; non blocking fashion. HTTP IO operations run in an IO thread (a.k.a event loop) while the application logic (your code) <strong>always run in a worker thread</strong>.</p> 
        <h3 id="thread-model-worker-threads">worker threads</h3> 
-       <p>The <strong>worker thread</strong> pool is provided by the web server: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>. To simplify application programming you can <strong>block a worker thread</strong>, for example you can safely run a <strong>jdbc</strong> query in a <strong>worker thread</strong>:</p> 
+       <p>The <strong>worker thread</strong> pool is provided by one of the supported web servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> or <a href="/doc/undertow">Undertow</a>. To simplify application programming you can <strong>block a worker thread</strong>, for example you can safely run a <strong>jdbc</strong> query in a <strong>worker thread</strong>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -140,9 +140,9 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Here the web server can accept as many connection it can (as its on non blocking) while the worker thread might blocks.</p> 
-       <p>Default worker thread pool is <code class="highlighter-rouge codehilite">20/100</code>. The correct/right size depends on your <strong>business</strong> and <strong>work load</strong> your application is suppose to handle. We suggest you to start with default setup and see how it goes, later you can reduce or increase the thread pool.</p> 
-       <p>In <a href="http://jooby.org">Jooby</a> we favor simplicity over complexity that is why your <strong>code</strong> can block, still there are more advanced setup that allow you to build async and reactive applications.</p> 
+       <p>The web server can accept as many connections it can (as its on non blocking) while the worker thread might block.</p> 
+       <p>The default worker thread pool is <code class="highlighter-rouge codehilite">20/100</code>. The optimal size depends on the <strong>business</strong> and <strong>work load</strong> your application is supposed to handle. It’s recommended to start with the default setup and then tune the size of the thread pool if the need arises.</p> 
+       <p><a href="http://jooby.org">Jooby</a> favors simplicity over complexity hence allowing your <strong>code</strong> to block. However, it also provides you with more advanced options that will allow you to build async and reactive applications.</p> 
        <h3 id="thread-model-deferred">deferred</h3> 
        <p>Async processing is achieved via: <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> result, with a <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> result an application can produces a result from a <strong>thread of its choice</strong>:</p> 
        <p>Script API:</p> 
@@ -171,7 +171,7 @@
   <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Previous examples are just <code class="highlighter-rouge codehilite">syntax sugar</code> for:</p> 
+       <p>The previous examples are just <code class="highlighter-rouge codehilite">syntactic sugar</code> for:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -185,7 +185,7 @@
   });
 </code></pre> 
        </div> 
-       <p>There is more <code class="highlighter-rouge codehilite">syntax sugar</code> if you add the <a href="/apidocs/org/jooby/AsyncMapper.html" target="_blank">AsyncMapper</a> to your application:</p> 
+       <p>You can get more <code class="highlighter-rouge codehilite">syntactic sugar</code> if you add the <a href="/apidocs/org/jooby/AsyncMapper.html" target="_blank">AsyncMapper</a> to your application:</p> 
        <p>Script API:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -217,8 +217,8 @@
   <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>The <a href="/apidocs/org/jooby/AsyncMapper.html" target="_blank">AsyncMapper</a> convert <code class="highlighter-rouge codehilite">java.util.concurrent.Callable</code> and <code class="highlighter-rouge codehilite">java.util.concurrent.CompletableFuture</code> objects to <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> objects.</p> 
-       <p>Another important thing to notice is that the deferred run in the <strong>caller thread</strong> (i.e. worker thread), so by default there is <strong>no context switch</strong> involve while running a <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> result:</p> 
+       <p>The <a href="/apidocs/org/jooby/AsyncMapper.html" target="_blank">AsyncMapper</a> converts <code class="highlighter-rouge codehilite">java.util.concurrent.Callable</code> and <code class="highlighter-rouge codehilite">java.util.concurrent.CompletableFuture</code> objects to <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> objects.</p> 
+       <p>Another important thing to notice is that the deferred will run in the <strong>caller thread</strong> (i.e. worker thread), so by default there is <strong>no context switch</strong> involved in obtaining a <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> result:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -234,13 +234,13 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>You might first see this as a bad thing, but is actually a good decision, because:</p> 
+       <p>This might not seem optimal at first, but there are some benefits to this:</p> 
        <ul> 
-        <li> <p>It is super easy to setup a default executor (we will see how soon)</p> </li> 
-        <li> <p>Provides better integration with async &amp; reactive libraries. A <code class="highlighter-rouge codehilite">direct</code> executor avoid the need of switching to a new thread and then probably dispatch (again) to a different thread provided by a library.</p> </li> 
+        <li> <p>It makes it very easy to set up a default executor (this will be explained shortly)</p> </li> 
+        <li> <p>It provides better integration with async &amp; reactive libraries. A <code class="highlighter-rouge codehilite">direct</code> executor avoids the need of switching to a new thread and then probably dispatch (again) to a different thread provided by a library.</p> </li> 
        </ul> 
        <h3 id="thread-model-executor">executor</h3> 
-       <p>As we said before, the default executor run in the caller thread (a.k.a direct executor). Let’s see how to override the default executor:</p> 
+       <p>As previously mentioned, the default executor runs in the caller thread (a.k.a direct executor). Let’s see how to override the default executor:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -254,7 +254,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Done! Now all our <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> result run in a <code class="highlighter-rouge codehilite">ForkJoinPool</code>. It also possible to specify an alternative executor:</p> 
+       <p>Done! Now all our <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> results run in a <code class="highlighter-rouge codehilite">ForkJoinPool</code>. It’s also possible to specify an alternative executor:</p> 
        <p>Script API:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -301,7 +301,7 @@
   <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Worth mention the <a href="/apidocs/org/jooby/Jooby.html#executor-java.util.concurrent.ExecutorService-" target="_blank">executor(ExecutorService)</a> methods automatically <code class="highlighter-rouge codehilite">shutdown</code> at application shutdown time.</p> 
+       <p>It’s worth mentioning that the <a href="/apidocs/org/jooby/Jooby.html#executor-java.util.concurrent.ExecutorService-" target="_blank">executor(ExecutorService)</a> methods automatically <code class="highlighter-rouge codehilite">shutdown</code> at application shutdown time.</p> 
        <h3 id="thread-model-promise">promise</h3> 
        <p>The <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> contains two useful methods:</p> 
        <ul> 
@@ -343,15 +343,15 @@
   <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>The <strong>“promise”</strong> version of <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object is a key concept for integrating with external libraries.</p> 
+       <p>The <strong>“promise”</strong> version of the <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object is a key concept for integrating with external libraries.</p> 
        <h3 id="thread-model-advanced-configuration">advanced configuration</h3> 
-       <p>Suppose you want to build a truly async application and after a <strong>deep analysis</strong> of your business you realize your application need to:</p> 
+       <p>Suppose you want to build a truly async application and after a <strong>deep analysis</strong> of your business demands you realize your application needs to:</p> 
        <ul> 
         <li>Access a database</li> 
         <li>Call a remote service</li> 
         <li>Make a CPU intensive computation</li> 
        </ul> 
-       <p>These are the 3 points where your application is suppose to block and wait for a result.</p> 
+       <p>These are the 3 points where your application is supposed to block and wait for a result.</p> 
        <p>Let’s start by reducing the <strong>worker thread pool</strong> to the number of <strong>available processors</strong>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -361,7 +361,7 @@
 server.threads.Max = ${runtime.processors}
 </code></pre> 
        </div> 
-       <p>With this change, you need to be careful and <strong>don’t run blocking code</strong> on routes anymore. Otherwise performance will be affected.</p> 
+       <p>With this change, you need to be careful to <strong>avoid any blocking code</strong> on routes, otherwise performance will suffer.</p> 
        <p>Let’s create a custom thread pool for each blocking access:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -374,9 +374,9 @@ server.threads.Max = ${runtime.processors}
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>For <code class="highlighter-rouge codehilite">database</code> access, we use a <code class="highlighter-rouge codehilite">cached</code> executor that will grow without a limit but free and release thread that are idle after <code class="highlighter-rouge codehilite">60s</code>.</p> 
-       <p>For <code class="highlighter-rouge codehilite">remote</code> service, we use a <code class="highlighter-rouge codehilite">fixed</code> executor of <code class="highlighter-rouge codehilite">32</code> thread. The number here: <code class="highlighter-rouge codehilite">32</code> is just a random number for the purpose of the example.</p> 
-       <p>For <code class="highlighter-rouge codehilite">intensive</code> computation, we use a <code class="highlighter-rouge codehilite">single</code> thread executor. Computation is too expensive and we want <strong>one and only one</strong> running at any time.</p> 
+       <p>For <code class="highlighter-rouge codehilite">database</code> access, we use a <code class="highlighter-rouge codehilite">cached</code> executor which will grow without a limit but free and release threads that are idle after <code class="highlighter-rouge codehilite">60s</code>.</p> 
+       <p>For <code class="highlighter-rouge codehilite">remote</code> service, we use a <code class="highlighter-rouge codehilite">fixed</code> executor of <code class="highlighter-rouge codehilite">32</code> threads. The number <code class="highlighter-rouge codehilite">32</code> is just a random number for the purpose of the example.</p> 
+       <p>For <code class="highlighter-rouge codehilite">intensive</code> computations, we use a <code class="highlighter-rouge codehilite">single</code> thread executor. Computation is too expensive and we want <strong>one and only one</strong> running at any time.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -404,7 +404,7 @@ server.threads.Max = ${runtime.processors}
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Here is the same example with <a href="https://github.com/ReactiveX/RxJava" target="_blank">rx java</a>:</p> 
+       <p>Here’s the same example with <a href="https://github.com/ReactiveX/RxJava" target="_blank">rx java</a>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -443,15 +443,15 @@ server.threads.Max = ${runtime.processors}
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Main difference are:</p> 
+       <p>The main differences are:</p> 
        <ul> 
-        <li>we keep the default executor: <code class="highlighter-rouge codehilite">direct</code>. So we don’t create a new thread and avoid context switching.</li> 
-        <li>we use <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object as <code class="highlighter-rouge codehilite">promise</code> and integrate with <a href="https://github.com/ReactiveX/RxJava" target="_blank">rx java</a>.</li> 
-        <li>different thread pool semantic is done via <a href="http://reactivex.io/documentation/scheduler.html" target="_blank">rx schedulers</a>.</li> 
+        <li>the default executor is kept <code class="highlighter-rouge codehilite">direct</code>. No new thread is created and context switching is avoided.</li> 
+        <li>the <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object is used as a <code class="highlighter-rouge codehilite">promise</code> and integrate with <a href="https://github.com/ReactiveX/RxJava" target="_blank">rx java</a>.</li> 
+        <li>different thread pool semantics is achieved with the help of <a href="http://reactivex.io/documentation/scheduler.html" target="_blank">rx schedulers</a>.</li> 
        </ul> 
-       <p>This is just one more example to demonstrate the value of the <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object, because we provide an <a href="/doc/rxjava">rxjava</a> module which takes care of binding <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object into <code class="highlighter-rouge codehilite">Observables</code>.</p> 
-       <p>That’s all about <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object, it allows you to build async and reactive applications and at the same time: <strong>keep it simple</strong> (Jooby design goal).</p> 
-       <p>Also, we invite you to checkout the available <a href="/doc/async">async/reactive modules</a>.</p> 
+       <p>This is just another example to demonstrate the value of the <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object, since a <a href="/doc/rxjava">rxjava</a> module is provided which takes care of binding the <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object into <code class="highlighter-rouge codehilite">Observables</code>.</p> 
+       <p>That sums up everything about the <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object. It allows you to build async and reactive applications and at the same time: <strong>keep it simple</strong> (a Jooby design goal).</p> 
+       <p>You’re also invited to check out the available <a href="/doc/async">async/reactive modules</a>.</p> 
       </div> 
      </div> 
      <div class="datalist" id="modules"> 

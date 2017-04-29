@@ -127,7 +127,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jdbc<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -462,9 +462,7 @@
   <span class="c">############################################################################################### </span>
   <span class="err">pgsql</span> <span class="err">{</span>
 
-    <span class="c"># empty bc dataSource.setUrl missing </span>
-    <span class="c"># dataSourceClassName = com.impossibl.postgres.jdbc.PGDataSource </span>
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">""</span>
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.impossibl.postgres.jdbc.PGDataSourceWithUrl</span>
 
   <span class="err">}</span>
 
@@ -474,9 +472,7 @@
   <span class="c">############################################################################################### </span>
   <span class="err">postgresql</span> <span class="err">{</span>
 
-    <span class="c"># empty bc dataSource.setUrl missing </span>
-    <span class="c"># dataSourceClassName = org.postgresql.ds.PGSimpleDataSource </span>
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">""</span>
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.postgresql.ds.PGSimpleDataSource</span>
 
   <span class="err">}</span>
 

@@ -113,18 +113,18 @@
        <p><a href="http://www.querydsl.com/" target="_blank">Querydsl</a> unified Queries for Java. Querydsl is compact, safe and easy to learn.</p> 
        <p>This module provides <a href="http://www.querydsl.com/static/querydsl/4.0.9/reference/html_single/#jpa_integration" target="_blank">JPA</a> integration.</p> 
        <blockquote> 
-        <p>NOTE: this module doesn’t provide JPA support to your application. Checkout the <a href="/doc/hbm">hbm module</a> for JPA supports.</p> 
+        <p>NOTE: this module doesn’t provide JPA support to your application. Check out the <a href="/doc/hbm">hbm module</a> for JPA support.</p> 
        </blockquote> 
        <h3 id="querydsl-jpa-usage">usage</h3> 
        <ul> 
-        <li> <p>Write a <code class="highlighter-rouge codehilite">querydsl-jpa.activator</code> file inside the <code class="highlighter-rouge codehilite">src/etc/</code> directory.</p> </li> 
+        <li> <p>Create a <code class="highlighter-rouge codehilite">querydsl-jpa.activator</code> file in the <code class="highlighter-rouge codehilite">src/etc/</code> directory.</p> </li> 
         <li> <p>Open a terminal and type: <code class="highlighter-rouge codehilite">mvn clean compile</code></p> </li> 
         <li> <p>Generated classes will be placed inside the <code class="highlighter-rouge codehilite">target/generated-sources</code> directory.</p> </li> 
        </ul> 
        <p>Of course, you need to define some entities and have <strong>JPA</strong> in your classpath. The <a href="/doc/hbm">hibernate</a> module gives you JPA support.</p> 
        <h3 id="querydsl-jpa-profile-activation">profile activation</h3> 
-       <p>Just write a <code class="highlighter-rouge codehilite">src/etc/querydsl-jpa.activator</code> file. File contents doesn’t matter just file presence.</p> 
-       <p>The file <code class="highlighter-rouge codehilite">src/etc/querydsl-jpa.activator</code> trigger a maven profile that does <a href="http://www.querydsl.com/static/querydsl/4.0.9/reference/html_single/#jpa_integration" target="_blank">all this</a> for you.</p> 
+       <p>Just create a <code class="highlighter-rouge codehilite">src/etc/querydsl-jpa.activator</code> file. The file contents doesn’t matter, it just needs to be present.</p> 
+       <p>The file <code class="highlighter-rouge codehilite">src/etc/querydsl-jpa.activator</code> will trigger a maven profile that does <a href="http://www.querydsl.com/static/querydsl/4.0.9/reference/html_single/#jpa_integration" target="_blank">all this</a> for you.</p> 
        <h3 id="querydsl-jpa-example">example</h3> 
        <p>Here is an example with <a href="/doc/hbm">hibernate</a>:</p> 
        <ul> 
@@ -188,7 +188,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p><a href="http://www.querydsl.com/" target="_blank">Querydsl</a> will find all your entities (classes annotated with @Entity) and generates a class with the same prefixed with <code class="highlighter-rouge codehilite">Q</code>, like <code class="highlighter-rouge codehilite">QPet</code>.</p> 
+       <p><a href="http://www.querydsl.com/" target="_blank">Querydsl</a> will find all your entities (classes annotated with @Entity) and generates a class with the same name, but prefixed with <code class="highlighter-rouge codehilite">Q</code>, like <code class="highlighter-rouge codehilite">QPet</code>.</p> 
       </div> 
      </div> 
     </div> 

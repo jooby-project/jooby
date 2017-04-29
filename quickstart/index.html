@@ -102,7 +102,7 @@
       <div class="copy-bar"> 
        <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
       </div> 
-      <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.1.0
+      <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.1.1
 </code></pre> 
      </div> 
      <p>You might want to edit/change:</p> 
@@ -116,7 +116,7 @@
       <div class="copy-bar"> 
        <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
       </div> 
-      <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.1.0
+      <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.1.1
 <span class="nb">cd </span>my-app
 mvn jooby:run
 </code></pre> 
@@ -137,10 +137,10 @@ listening on:
   http://0.0.0.0:8080/
 </code></pre> 
      </div> 
-     <p><strong>Jooby</strong>! is up and running!!!</p> 
+     <p><strong>Jooby</strong>! is up and running!</p> 
      <h2>getting started</h2> 
      <h3>exploring the newly created project</h3> 
-     <p>A new directory was created: <code class="highlighter-rouge codehilite">my-app</code>. Now, let’s see how it looks like:</p> 
+     <p>A new directory was created: <code class="highlighter-rouge codehilite">my-app</code>. Let’s see what it looks like:</p> 
      <div class="highlighter-rouge codehilite">
       <div class="copy-bar"> 
        <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -164,9 +164,9 @@ listening on:
                     └── AppTest.java
 </code></pre> 
      </div> 
-     <p>The <strong>public</strong> folder contains static files like <code class="highlighter-rouge codehilite">*.html</code>, <code class="highlighter-rouge codehilite">*.js</code>, <code class="highlighter-rouge codehilite">*.css</code>, …, <code class="highlighter-rouge codehilite">*.png</code> files.</p> 
+     <p>The <strong>public</strong> folder contains static content like <code class="highlighter-rouge codehilite">*.html</code>, <code class="highlighter-rouge codehilite">*.js</code>, <code class="highlighter-rouge codehilite">*.css</code>, …, <code class="highlighter-rouge codehilite">*.png</code> files.</p> 
      <p>The <strong>conf</strong> folder contains <code class="highlighter-rouge codehilite">*.conf</code>.</p> 
-     <p>The <strong>src/main/java</strong> folder contains <code class="highlighter-rouge codehilite">*.java</code> (of course) files.</p> 
+     <p>The <strong>src/main/java</strong> folder contains <code class="highlighter-rouge codehilite">*.java</code> files (of course).</p> 
      <p>The <strong>src/test/java</strong> folder contains unit and integration tests.</p> 
      <blockquote> 
       <p><strong>NOTE</strong>: The <code class="highlighter-rouge codehilite">public</code> and <code class="highlighter-rouge codehilite">conf</code> folders are part of the classpath.</p> 
@@ -195,11 +195,11 @@ listening on:
 </code></pre> 
      </div> 
      <p>Steps involved are:</p> 
-     <p>1) extends Jooby</p> 
+     <p>1) extend Jooby</p> 
      <p>2) define some routes</p> 
      <p>3) call the <code class="highlighter-rouge codehilite">run</code> method</p> 
      <h3>running</h3> 
-     <p>Just open a console and type:</p> 
+     <p>Open a console and type:</p> 
      <div class="highlighter-rouge codehilite">
       <div class="copy-bar"> 
        <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -207,12 +207,12 @@ listening on:
       <pre class="highlight"><code>mvn jooby:run
 </code></pre> 
      </div> 
-     <p>The maven plugin will compile the code (if necessary) and startup the application.</p> 
-     <p>Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE. Then all you have to do is run the: <code class="highlighter-rouge codehilite">App.java</code> class. After all, this is plain Java application with a <code class="highlighter-rouge codehilite">main</code> method.</p> 
+     <p>The maven plugin will compile the code (if necessary) and start the application.</p> 
+     <p>Of course, you can generate the IDE metadata from Maven or import as a Maven project in your favorite IDE. Afterwards, all you have to do is run the: <code class="highlighter-rouge codehilite">App.java</code> class. After all, this is a plain Java application with a <code class="highlighter-rouge codehilite">main</code> method.</p> 
      <h3>where to go now?</h3> 
      <ul> 
       <li>read the <a href="/doc">documentation</a></li> 
-      <li>checkout one of our <a href="https://github.com/search?q=topic%3Astarter+org%3Ajooby-project&amp;type=Repositories" target="_blank">starter projects</a></li> 
+      <li>check out one of the <a href="https://github.com/search?q=topic%3Astarter+org%3Ajooby-project&amp;type=Repositories" target="_blank">starter projects</a></li> 
      </ul> 
     </div> 
    </div> 

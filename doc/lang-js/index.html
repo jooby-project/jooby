@@ -121,12 +121,12 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-lang-js<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
        <h3 id="javascript-usage">usage</h3> 
-       <p>Write an <code class="highlighter-rouge codehilite">app.js</code> file inside your project directory:</p> 
+       <p>Create an <code class="highlighter-rouge codehilite">app.js</code> file in your project directory:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -138,7 +138,7 @@
 
 </code></pre> 
        </div> 
-       <p>Go to your <code class="highlighter-rouge codehilite">pom.xml</code> and update/set the <code class="highlighter-rouge codehilite">application.class</code> property to <code class="highlighter-rouge codehilite">org.jooby.JoobyJs</code> like:</p> 
+       <p>In your <code class="highlighter-rouge codehilite">pom.xml</code>, set the <code class="highlighter-rouge codehilite">application.class</code> property to <code class="highlighter-rouge codehilite">org.jooby.JoobyJs</code> like this:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -148,7 +148,7 @@
 <span class="nt">&lt;/properties&gt;</span>
 </code></pre> 
        </div> 
-       <p>The <code class="highlighter-rouge codehilite">org.jooby.JoobyJs</code> class setup <a href="http://openjdk.java.net/projects/nashorn/" target="_blank">Nashorn</a> and startup <code class="highlighter-rouge codehilite">Jooby</code>.</p> 
+       <p>The <code class="highlighter-rouge codehilite">org.jooby.JoobyJs</code> class will set up <a href="http://openjdk.java.net/projects/nashorn/" target="_blank">Nashorn</a> and start <code class="highlighter-rouge codehilite">Jooby</code>.</p> 
        <h3 id="javascript-jooby-function">jooby function</h3> 
        <p>The <code class="highlighter-rouge codehilite">jooby</code> function always returns a new application:</p> 
        <div class="highlighter-rouge codehilite">
@@ -170,7 +170,7 @@
 <span class="p">})();</span>
 </code></pre> 
        </div> 
-       <p>Another minor but useful feature is the: <strong>import of classes</strong> and <strong>packages</strong> when you go with the functional version:</p> 
+       <p>Another minor, but useful feature is the: <strong>import of classes</strong> and <strong>packages</strong> when you go with the functional version:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -198,9 +198,9 @@
 <span class="p">})(</span><span class="nx">org</span><span class="p">.</span><span class="nx">jooby</span><span class="p">.</span><span class="nx">json</span><span class="p">);</span>
 </code></pre> 
        </div> 
-       <p>Import of packages is done via: <code class="highlighter-rouge codehilite">importPackage</code> function from in <code class="highlighter-rouge codehilite">nashorn:mozilla_compat.js</code>.</p> 
+       <p>Import of packages is done via: <code class="highlighter-rouge codehilite">importPackage</code> function from <code class="highlighter-rouge codehilite">nashorn:mozilla_compat.js</code>.</p> 
        <h3 id="javascript-routes">routes</h3> 
-       <p>Routes work as in Java, but it is worth to mention what are the available alternatives at the time you need to write a route in JavaScript:</p> 
+       <p>Routes work as in Java, but it is worth mentioning the available alternatives when you write a route in JavaScript:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -215,18 +215,18 @@
     <span class="k">return</span> <span class="s1">'Hey Jooby!'</span><span class="p">;</span>
   <span class="p">});</span>
 
-  <span class="c1">// returns a value but access to request object</span>
+  <span class="c1">// returns a value, but with access to the request object</span>
   <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="nx">X</span><span class="p">)</span>
     <span class="k">return</span> <span class="nx">x</span><span class="p">.</span><span class="nx">doSomething</span><span class="p">();</span>
   <span class="p">});</span>
 
-  <span class="c1">// access to request and rsp (like in express.js)</span>
+  <span class="c1">// access to the request and the response (as in express.js)</span>
   <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">rsp</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">rsp</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s1">'Hey Jooby!'</span><span class="p">);</span>
   <span class="p">});</span>
 
-  <span class="c1">// access to request and rsp</span>
+  <span class="c1">// access to the request and the response</span>
   <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">rsp</span><span class="p">,</span> <span class="nx">chain</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">chain</span><span class="p">.</span><span class="nx">next</span><span class="p">();</span>
   <span class="p">});</span>

@@ -102,8 +102,8 @@
         <li> <a href="#definition-script-API">script API</a></li> 
         <li> <a href="#definition-mvc-API">mvc API</a></li> 
         <li> <a href="#definition-script-rules">script rules</a></li> 
-        <li> <a href="#definition-writing-doc">writing doc</a></li> 
-        <li> <a href="#definition-how-it-works-">how it works?</a></li>
+        <li> <a href="#definition-writing-documentation">writing documentation</a></li> 
+        <li> <a href="#definition-how-does-it-work-">how does it work?</a></li>
        </ul></li> 
       <li class=""> <a href="#raml">raml</a>
        <ul> 
@@ -131,12 +131,12 @@
       </div> 
       <div class="datalist-content"> 
        <p>The spec module allows you to export your API/microservices outside a <a href="http://jooby.org">Jooby</a> application.</p> 
-       <p>The goal of this module is to define a common way to write APIs and provide you tools like live doc and testing <strong>with no extra effort</strong>.</p> 
+       <p>The goal of this module is to define a common way to write APIs and provide tools like live doc and testing <strong>with no extra effort</strong>.</p> 
        <blockquote> 
-        <p>You aren’t force to learn any other tool or annotated your code special annotations. All you have to do is <strong>write your application</strong> following a few/minor suggestions.</p> 
+        <p>You won’t be forced to learn any other tool or annotate your code with special annotations. All you have to do is <strong>write your application</strong> following a few simple suggestions.</p> 
        </blockquote> 
-       <p>This module process, collect and compile <strong>routes</strong> from your application. It extracts HTTP method/pattern, parameter, responses, types and doc.</p> 
-       <p>You will find here the basis and the necessary documentation to build and expose rich APIs for free, but keep in mind this module isn’t intended for direct usage. It is the basis for tools like <a href="http://swagger.io" target="_blank">Swagger</a> or <a href="http://raml.org" target="_blank">RAML</a>.</p> 
+       <p>This module will process, collect and compile <strong>routes</strong> from your application. It extracts HTTP method, path patterns, parameters, response types and documentation.</p> 
+       <p>You will find the basics and the necessary documentation to build and expose rich APIs for free, but keep in mind that this module isn’t intended to be used directly. It is the base for tools like <a href="http://swagger.io" target="_blank">Swagger</a> or <a href="http://raml.org" target="_blank">RAML</a>.</p> 
       </div> 
      </div> 
      <div class="datalist" id="definition"> 
@@ -144,7 +144,7 @@
        <h2>definition</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Let’s review how to build rich APIs using the <code class="highlighter-rouge codehilite">spec</code> module via <code class="highlighter-rouge codehilite">script</code> or <code class="highlighter-rouge codehilite">mvc</code> way:</p> 
+       <p>Let’s review how to build rich APIs using the <code class="highlighter-rouge codehilite">spec</code> module using either the <code class="highlighter-rouge codehilite">script</code> or the <code class="highlighter-rouge codehilite">mvc</code> programming styles:</p> 
        <h3 id="definition-script-API">script API</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -320,7 +320,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Previous examples are feature identical, but they were written in very different way. Still API Spec for them look likes:</p> 
+       <p>The previous examples, while feature identical, are written very differently. The API Spec for both is still the same:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -400,13 +400,13 @@
 </code></pre> 
        </div> 
        <blockquote> 
-        <p>NOTE: We use <code class="highlighter-rouge codehilite">textual</code> representation here for simplicity and easy read, but keep in mind the output is compiled into a binary format.</p> 
+        <p>NOTE: We use a <code class="highlighter-rouge codehilite">textual</code> representation here for simplicity and readability, but keep in mind that the output is compiled into a binary format.</p> 
        </blockquote> 
        <h3 id="definition-script-rules">script rules</h3> 
-       <p>Have a look at the previous examples again? Do you see anything special? No, right?</p> 
-       <p>Well there are some minor things you need to keep in mind for getting or collecting route metadata from <strong>script</strong> routes:</p> 
+       <p>Consider the previous examples again. Do you notice anything special? No, right?</p> 
+       <p>There are however some minor issues that you need to keep in mind for getting or collecting route metadata from <strong>script</strong> routes:</p> 
        <h4 id="definition-params">params</h4> 
-       <p>Params need to be in one sentence/statement, like:</p> 
+       <p>Parameters need to be in one sentence/statement, like:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -428,7 +428,7 @@
 </code></pre> 
        </div> 
        <h4 id="definition-response-type-a-k-a-return-type-">response type (a.k.a return type)</h4> 
-       <p>There should be <strong>ONLY one</strong> return statement and return type needs to be declared as variable, like:</p> 
+       <p>There should be <strong>ONLY one</strong> return statement and the return type needs to be declared as a variable, like this:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -441,7 +441,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>not like:</p> 
+       <p>not like this:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -468,10 +468,10 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>There is a workaround if these rules doesn’t make sense to you and/or the algorithm fails to resolve the correct type. Please checkout next section.</p> 
-       <h3 id="definition-writing-doc">writing doc</h3> 
-       <p>If you take a few minutes and write good quality doc the prize will be huge!</p> 
-       <p>The tool takes and export the doc as part of your API!!</p> 
+       <p>If these rules don’t make sense to you or if the algorithm fails to resolve the correct type, there is a workaround outlined in the next section.</p> 
+       <h3 id="definition-writing-documentation">writing documentation</h3> 
+       <p>By taking a few minutes to write quality documentation for your code, you will reap huge benefits!</p> 
+       <p>The spec tool will export the doc as part of your API!</p> 
        <p>Here is an example on how to document script routes:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -550,9 +550,9 @@
     <span class="s">doc</span><span class="pi">:</span> <span class="s">Returns &lt;code&gt;200&lt;/code&gt; with a single pet or &lt;code&gt;404&lt;/code&gt;</span>
 </code></pre> 
        </div> 
-       <p>Here you tell the tool response is a <code class="highlighter-rouge codehilite">Pet</code> via <em>JavaDoc</em> type references: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">@link</span><span class="w"> </span><span class="err">Type</span><span class="p">}</span></code>.</p> 
-       <p>This is useful when the tool isn’t able to detect the type for you and/or you aren’t able to follow the return rules described before.</p> 
-       <p>The status codes section have a <code class="highlighter-rouge codehilite">200</code> and <code class="highlighter-rouge codehilite">404</code> entries with default messages. You can override the default message by using <code class="highlighter-rouge codehilite">code = message</code> like:</p> 
+       <p>In this example you tell the spec tool that the response is a <code class="highlighter-rouge codehilite">Pet</code> via <em>JavaDoc</em> type references: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">@link</span><span class="w"> </span><span class="err">Type</span><span class="p">}</span></code>.</p> 
+       <p>This is useful when the tool isn’t able to detect the type for you and/or you aren’t able to follow the return rules described earlier.</p> 
+       <p>The status codes section has entries for <code class="highlighter-rouge codehilite">200</code> and <code class="highlighter-rouge codehilite">404</code> with default messages. You can override the default message by using <code class="highlighter-rouge codehilite">code = message</code> like:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -560,11 +560,11 @@
         <pre class="highlight"><code>@return Returns a {@link Pet} with <span class="nt">&lt;code&gt;</span>200 = Success<span class="nt">&lt;/code&gt;</span> status or <span class="nt">&lt;code&gt;</span>404 = Missing<span class="nt">&lt;/code&gt;</span>
 </code></pre> 
        </div> 
-       <h3 id="definition-how-it-works-">how it works?</h3> 
-       <p>The spec module scan and parse the source code: <code class="highlighter-rouge codehilite">*.java</code> and produces a list of <code class="highlighter-rouge codehilite">RouteSpec</code>.</p> 
-       <p>It is required for getting information from <code class="highlighter-rouge codehilite">script routes</code> and extract <code class="highlighter-rouge codehilite">JavaDoc</code>.</p> 
-       <p>We don’t need that for <code class="highlighter-rouge codehilite">mvc routes</code> because all the information is available via <em>Reflection</em> and <code class="highlighter-rouge codehilite">java.lang.Method</code>.</p> 
-       <p>So, the tool needs the source code in order to work properly. In order to use the tool at deploy time you must to setup the <code class="highlighter-rouge codehilite">jooby:spec</code> maven plugin:</p> 
+       <h3 id="definition-how-does-it-work-">how does it work?</h3> 
+       <p>The spec module scans and parses the source code files: <code class="highlighter-rouge codehilite">*.java</code> and produces a list of <code class="highlighter-rouge codehilite">RouteSpec</code>.</p> 
+       <p>This is required for getting information from <code class="highlighter-rouge codehilite">script routes</code> and to extract <code class="highlighter-rouge codehilite">JavaDoc</code>.</p> 
+       <p>However, this is not needed for <code class="highlighter-rouge codehilite">mvc routes</code> because all the information is available through <em>Reflection</em> and the <code class="highlighter-rouge codehilite">java.lang.Method</code>.</p> 
+       <p>Since the spec tool needs the source code in order to work properly you must set up the <code class="highlighter-rouge codehilite">jooby:spec</code> maven plugin in order to use the spec tool at deploy time:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -593,7 +593,7 @@
     <span class="cm">/**</span>
      <span class="cm">* joobyRun </span>
      <span class="cm">*/</span>
-    <span class="nx">classpath</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby-gradle-plugin'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.1.0'</span>
+    <span class="nx">classpath</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby-gradle-plugin'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.1.1'</span>
   <span class="p">}</span>
 <span class="p">}</span>
 
@@ -608,8 +608,8 @@
         <pre class="highlight"><code>gradle joobySpec
 </code></pre> 
        </div> 
-       <p>The maven/gradle plugin exports the API into a binary format: <code class="highlighter-rouge codehilite">.spec</code> which can be parse it later.</p> 
-       <p>That’s all about the spec, as you see there are some minor rules to follow while writing <code class="highlighter-rouge codehilite">script routes</code>. Now it’s time see what tools and integrations are available!!!</p> 
+       <p>The maven and gradle plugins export the API to a binary format: <code class="highlighter-rouge codehilite">.spec</code> which can be parsed at a later time.</p> 
+       <p>That’s all about the spec, as you’ve seen there are some minor rules to follow while writing <code class="highlighter-rouge codehilite">script routes</code>. Now it’s time see what tools and integrations are available!</p> 
       </div> 
      </div> 
      <div class="datalist" id="raml"> 
@@ -631,7 +631,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-raml<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -801,7 +801,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-swagger<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 

@@ -120,7 +120,7 @@ listening on:
   http://0.0.0.0:8080/
 &#x60;&#x60;&#x60;
 
-**Jooby**! is up and running!!!
+**Jooby**! is up and running!
 
 getting started
 &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
@@ -128,7 +128,7 @@ getting started
 exploring the newly created project
 -----
 
-A new directory was created: &#x60;&#x60;&#x60;my-app&#x60;&#x60;&#x60;. Now, let&#x27;s see how it looks like:
+A new directory was created: &#x60;&#x60;&#x60;my-app&#x60;&#x60;&#x60;. Let&#x27;s see what it looks like:
 
 &#x60;&#x60;&#x60;bash
 .
@@ -150,11 +150,11 @@ A new directory was created: &#x60;&#x60;&#x60;my-app&#x60;&#x60;&#x60;. Now, le
                     └── AppTest.java
 &#x60;&#x60;&#x60;
 
-The **public** folder contains static files like &#x60;&#x60;&#x60;*.html&#x60;&#x60;&#x60;, &#x60;&#x60;&#x60;*.js&#x60;&#x60;&#x60;, &#x60;&#x60;&#x60;*.css&#x60;&#x60;&#x60;, ..., &#x60;&#x60;&#x60;*.png&#x60;&#x60;&#x60; files.
+The **public** folder contains static content like &#x60;&#x60;&#x60;*.html&#x60;&#x60;&#x60;, &#x60;&#x60;&#x60;*.js&#x60;&#x60;&#x60;, &#x60;&#x60;&#x60;*.css&#x60;&#x60;&#x60;, ..., &#x60;&#x60;&#x60;*.png&#x60;&#x60;&#x60; files.
 
 The **conf** folder contains &#x60;&#x60;&#x60;*.conf&#x60;&#x60;&#x60;.
 
-The **src/main/java** folder contains &#x60;&#x60;&#x60;*.java&#x60;&#x60;&#x60; (of course) files.
+The **src/main/java** folder contains &#x60;&#x60;&#x60;*.java&#x60;&#x60;&#x60; files (of course).
 
 The **src/test/java** folder contains unit and integration tests.
 
@@ -184,7 +184,7 @@ public class App extends Jooby { // 1
 
 Steps involved are:
 
-1) extends Jooby
+1) extend Jooby
 
 2) define some routes
 
@@ -193,20 +193,20 @@ Steps involved are:
 running
 -----
 
-Just open a console and type:
+Open a console and type:
 
     mvn jooby:run
 
-The maven plugin will compile the code (if necessary) and startup the application.
+The maven plugin will compile the code (if necessary) and start the application.
 
-Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE.
-Then all you have to do is run the: &#x60;&#x60;&#x60;App.java&#x60;&#x60;&#x60; class. After all, this is plain Java application with a &#x60;&#x60;&#x60;main&#x60;&#x60;&#x60; method.
+Of course, you can generate the IDE metadata from Maven or import as a Maven project in your favorite IDE.
+Afterwards, all you have to do is run the: &#x60;&#x60;&#x60;App.java&#x60;&#x60;&#x60; class. After all, this is a plain Java application with a &#x60;&#x60;&#x60;main&#x60;&#x60;&#x60; method.
 
 where to go now?
 -----
 
 * read the [documentation](/doc)
-* checkout one of our 
+* check out one of the 
 "><a href="/quickstart" title="Quick start">QUICK START</a></li>
             <li class=""><a href="/doc" title="Doc">DOCS</a></li>
             <li class="# modules
@@ -217,25 +217,25 @@ Modules (unlike in other frameworks) are thin and do a lot of work to bootstrap 
 
 Modules like in [Guice](https://github.com/google/guice) are used to wire services, connect data, etc...
 
-There is an extensive [module ecosystem](/modules) which makes Jooby a **full stack** framework (when need it).
+There is an extensive [module ecosystem](/modules) which makes Jooby a **full stack** framework (when needed).
 
 ## do less and be flexible
 
 **Do less** might sounds confusing, but is the key to **flexibility**.
 
-A module does as **less as possible** (key difference with other frameworks). A module for a library &#x60;X&#x60; should:
+A module does as **little as possible** (a key difference with other frameworks). A module for a library &#x60;X&#x60; should:
 
 * Bootstrap X
 * Configure X
-* exports API of X
+* export the API of X
 
-This means a module should NOT create wrapper for a library. Instead, provides a way to extend, configure and use the external library.
+This means that a module should NOT create a wrapper for a library. Instead it should provide a way to extend, configure and use the external library.
 
-&gt; This principle, keep module usually small, maintainable and flexible.
+&gt; This principle keeps modules small, maintainable and flexible.
 
 ## creating modules
 
-A module is represented by the [Jooby.Module](/Jooby.Module.html) class. The configure callback looks like:
+A module is represented by the [Jooby.Module](/Jooby.Module.html) class. The configure callback looks like this:
 
 &#x60;&#x60;&#x60;java
 public class M1 implements Jooby.Module {
@@ -260,14 +260,14 @@ public class M1 implements Jooby.Module {
   }
 
   public Config config() {
-    return Config.parseResources(getClass(), &quot;m1.properties&quot;);
+    return ConfigFactory.parseResources(getClass(), &quot;m1.properties&quot;);
   }
 }
 &#x60;&#x60;&#x60;
 
 ## usage
 
-A module must be imported/registered at startup time:
+A module must be registered at startup time:
 
 &#x60;&#x60;&#x60;java
 
@@ -288,7 +288,7 @@ public class MyApp extends Jooby {
 }
 &#x60;&#x60;&#x60;
 
-You can start/stop services from a module:
+You can start or stop services from a module:
 
 &#x60;&#x60;&#x60;java
 public class M1 implements Jooby.Module {
@@ -309,7 +309,7 @@ Or export routes:
 public class M1 implements Jooby.Module {
     public void configure(Env env, Config config, Binder binder) {
       Router router &#x3D; env.router();
-      router.get(&quot;/m1&quot;, () -&gt; &quot;I&#x27;m a module!!!&quot;);
+      router.get(&quot;/m1&quot;, () -&gt; &quot;I&#x27;m a module!&quot;);
     }
 }
 &#x60;&#x60;&#x60;
@@ -343,17 +343,17 @@ public class M1 implements Jooby.Module {
 
 ## can I use Gradle?
 
-Yes, with some limitation that are being documented [here](/doc/gradle).
+Yes, with some limitations that are being documented [here](/doc/gradle).
 
 ## how do I run code on start/stop?
 
-Documentation for [lyfeCycle](/LyfeCycle.html) events is available [here](/doc/#application-life-cycle)
+Documentation for [lifeCycle](/LifeCycle.html) events is available [here](/doc/#application-life-cycle)
 
 # mime types
 
 ## what mime types are supported?
 
-* Full list of mime types can be found [here](/doc/#misc-mime-properties)
+* Full list of MIME types can be found [here](/doc/#misc-mime-properties)
 
 ## how do I add a new/override mime type?
 
@@ -428,14 +428,14 @@ Documentation for [lyfeCycle](/LyfeCycle.html) events is available [here](/doc/#
    <pre class="highlight"><code>http://localhost:8080/greeting
 </code></pre> 
   </div>
-  <p>and respond with <code class="highlighter-rouge codehilite">JSON</code> response:</p>
+  <p>and respond with the <code class="highlighter-rouge codehilite">JSON</code> response:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello World!"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span></code></pre> 
   </div>
-  <p><a href="http://jooby.org">Jooby</a> offers two programming model:</p>
+  <p><a href="http://jooby.org">Jooby</a> offers two programming models:</p>
   <ul> 
-   <li><strong>script</strong>, where routes are writing via <strong>DSL</strong> and lambdas.</li> 
-   <li><strong>mvc</strong>, where routes are writing as class method and annotations.</li> 
+   <li><strong>script</strong>, where routes are written via <strong>DSL</strong> and lambdas.</li> 
+   <li><strong>mvc</strong>, where routes are written as class method and annotations.</li> 
   </ul>
   <p>In this guide you will learn how to write a simple <strong>JSON API</strong> using both models.</p>
  </div> 
@@ -445,7 +445,7 @@ Documentation for [lyfeCycle](/LyfeCycle.html) events is available [here](/doc/#
   <h2>requirements</h2> 
  </div> 
  <div class="datalist-content"> 
-  <p>Make sure you have all these software installed it in your computer:</p>
+  <p>Make sure you have the following installed on your computer:</p>
   <ul> 
    <li>A text editor or IDE</li> 
    <li><a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">JDK 8+</a> or later</li> 
@@ -460,10 +460,10 @@ Documentation for [lyfeCycle](/LyfeCycle.html) events is available [here](/doc/#
  <div class="datalist-content"> 
   <p>Open a terminal/console and paste:</p>
   <div class="highlighter-rouge codehilite"> 
-   <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>org.jooby.guides -DartifactId<span class="o">=</span>greeting -Dversion<span class="o">=</span>1.0 -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.1.0
+   <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>org.jooby.guides -DartifactId<span class="o">=</span>greeting -Dversion<span class="o">=</span>1.0 -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.1.1
 </code></pre> 
   </div>
-  <p>A simple <code class="highlighter-rouge codehilite">hello world</code> application is ready to run. Try now:</p>
+  <p>A simple <code class="highlighter-rouge codehilite">hello world</code> application is now ready to run. Try:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code>cd greeting
 
@@ -476,7 +476,7 @@ mvn jooby:run
 </code></pre> 
   </div>
   <blockquote> 
-   <p><strong>TIP</strong>: If you make a change <code class="highlighter-rouge codehilite">jooby:run</code> automatically restart and reload your application. More at <a href="/doc/devtools">development tools</a>.</p> 
+   <p><strong>TIP</strong>: If you make a change, <code class="highlighter-rouge codehilite">jooby:run</code> will automatically restart and reload your application. More at <a href="/doc/devtools">development tools</a>.</p> 
   </blockquote>
  </div> 
 </div>        
@@ -485,7 +485,7 @@ mvn jooby:run
   <h2>quick preview</h2> 
  </div> 
  <div class="datalist-content"> 
-  <p>Before moving forward let’s have a look at <code class="highlighter-rouge codehilite">App.java</code>:</p>
+  <p>Before moving forward, let’s have a look at <code class="highlighter-rouge codehilite">App.java</code>:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code><span class="kn">package</span> <span class="n">greeting</span><span class="o">;</span>
 
@@ -506,7 +506,7 @@ mvn jooby:run
 <span class="o">}</span>
 </code></pre> 
   </div>
-  <p>That’s all you need to get up and running a simple <strong>Hello World</strong> <a href="http://jooby.org/apidocs/org/jooby/Jooby.html" target="_blank">Jooby</a> application.</p>
+  <p>That’s all you need to get a simple <strong>Hello World</strong> <a href="http://jooby.org/apidocs/org/jooby/Jooby.html" target="_blank">Jooby</a> application up and running.</p>
  </div> 
 </div>    
 <div class="datalist" id="script-route">
@@ -514,7 +514,7 @@ mvn jooby:run
   <h2>script route</h2> 
  </div> 
  <div class="datalist-content"> 
-  <p>Now we already see how a <a href="http://jooby.org/apidocs/org/jooby/Jooby.html" target="_blank">Jooby</a> application looks like, we are going to create a simple greeting <strong>JSON API</strong>:</p>
+  <p>Now that we’ve seen what a <a href="http://jooby.org/apidocs/org/jooby/Jooby.html" target="_blank">Jooby</a> application looks like, we are going to create a simple greeting <strong>JSON API</strong>:</p>
   <p>First <code class="highlighter-rouge codehilite">Greeting.java</code>:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code><span class="kn">package</span> <span class="n">greeting</span><span class="o">;</span>
@@ -554,9 +554,9 @@ mvn jooby:run
    <pre class="highlight"><code>http://localhost:8080/greeting
 </code></pre> 
   </div>
-  <p>You’ll see <code class="highlighter-rouge codehilite">Hello World!</code> in your browser, not bad ugh?</p>
+  <p>You’ll see <code class="highlighter-rouge codehilite">Hello World!</code> in your browser, not bad huh?</p>
   <p>Not bad at all! But if you look closely we send a <code class="highlighter-rouge codehilite">text/html</code> response not an <code class="highlighter-rouge codehilite">application/json</code> response.</p>
-  <p>Before building <strong>JSON</strong> response let’s see how to read a HTTP parameter.</p>
+  <p>Before building <strong>JSON</strong> response let’s see how to read an HTTP parameter.</p>
   <h3 id="script-route-adding-a-name-parameter">adding a name parameter</h3>
   <p>We are going to improve our service by allowing a name parameter:</p>
   <div class="highlighter-rouge codehilite"> 
@@ -571,7 +571,7 @@ mvn jooby:run
 <span class="o">}</span>
 </code></pre> 
   </div>
-  <p>HTTP parameters are accessible via <a href="http://jooby.org/apidocs/org/jooby/Request.html#param-java.lang.String-" target="_blank">Request.param(String)</a> method, that is why we change a bit our route to access the <a href="http://jooby.org/apidocs/org/jooby/Request.html" target="_blank">Request</a> object.</p>
+  <p>HTTP parameters are accessible via the <a href="http://jooby.org/apidocs/org/jooby/Request.html#param-java.lang.String-" target="_blank">Request.param(String)</a> method, that is why we change our route a bit to access the <a href="http://jooby.org/apidocs/org/jooby/Request.html" target="_blank">Request</a> object.</p>
   <p>Try it:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code>http://localhost:8080/greeting?name=Jooby
@@ -591,7 +591,7 @@ mvn jooby:run
 </code></pre> 
   </div>
   <p>Same as before, we ask for the HTTP parameter but this time we set a default value: <code class="highlighter-rouge codehilite">World</code>.</p>
-  <p>The <a href="http://jooby.org/apidocs/org/jooby/Mutant.html#value-java.lang.String-" target="_blank">Mutant.value(String)</a> is syntax sugar for:</p>
+  <p>The <a href="http://jooby.org/apidocs/org/jooby/Mutant.html#value-java.lang.String-" target="_blank">Mutant.value(String)</a> is syntactical sugar for:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code>String name = req.param("name").toOptional().orElse("World");
 </code></pre> 
@@ -631,7 +631,7 @@ mvn jooby:run
    <pre class="highlight"><code>http://localhost:8080/greeting?name=Jooby
 </code></pre> 
   </div>
-  <p>Nice ugh?</p>
+  <p>Nice huh?</p>
  </div> 
 </div>                                    
 <div class="datalist" id="json">
@@ -639,19 +639,19 @@ mvn jooby:run
   <h2>json</h2> 
  </div> 
  <div class="datalist-content"> 
-  <p><a href="http://jooby.org">Jooby</a> is a micro-web framework in order to write a <strong>JSON</strong> response we need one of the available <a href="/doc/parser-and-renderer">json modules</a>.</p>
-  <p>Here we will use <a href="/doc/jackson">jackson</a> but keep in mind the process is exactly the same if you choose any other module.</p>
+  <p><a href="http://jooby.org">Jooby</a> is a micro-web framework, so in order to write a <strong>JSON</strong> response you will need one of the available <a href="/doc/parser-and-renderer">json modules</a>.</p>
+  <p>In this example we’ll use <a href="/doc/jackson">jackson</a> but the process is exactly the same if you choose any of the other modules.</p>
   <h3 id="json-dependency">dependency</h3>
-  <p>Let’s add the <a href="/doc/jackson">jackson</a> dependency to your project:</p>
+  <p>Let’s add the <a href="/doc/jackson">jackson</a> dependency to the project:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jackson<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
   </div>
-  <p>If <code class="highlighter-rouge codehilite">jooby:run</code> is running, please restart it. We need to force a restart due we added a new dependency.</p>
+  <p>If <code class="highlighter-rouge codehilite">jooby:run</code> is running, please restart it. We need to force a restart due to having added a new dependency.</p>
   <h3 id="json-use">use</h3>
   <p>Let’s <a href="http://jooby.org/apidocs/org/jooby/Jooby.html#use-org.jooby.Jooby.Module-" target="_blank">use</a> the module in our <code class="highlighter-rouge codehilite">App.java</code>:</p>
   <div class="highlighter-rouge codehilite"> 
@@ -672,8 +672,8 @@ mvn jooby:run
 <span class="o">}</span>
 </code></pre> 
   </div>
-  <p>Our service method didn’t change at all! we just <a href="http://jooby.org/apidocs/org/jooby/Jooby.html#use-org.jooby.Jooby.Module-" target="_blank">use</a> the <a href="/doc/jackson">jackson</a> module!!</p>
-  <p>Try it</p>
+  <p>Our service method didn’t change at all! we just <a href="http://jooby.org/apidocs/org/jooby/Jooby.html#use-org.jooby.Jooby.Module-" target="_blank">use</a> the <a href="/doc/jackson">jackson</a> module!</p>
+  <p>Try accessing</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code>http://localhost:8080/greeting
 </code></pre> 
@@ -709,7 +709,7 @@ mvn jooby:run
 <span class="o">}</span>
 </code></pre> 
   </div>
-  <p>The <strong>MVC</strong> programming model is similar to <a href="http://spring.io" target="_blank">Spring</a> and/or <a href="https://jersey.java.net" target="_blank">Jersey</a>, except a <code class="highlighter-rouge codehilite">MVC</code> routes must be registered at at application startup time.</p>
+  <p>The <strong>MVC</strong> programming model is similar to <a href="http://spring.io" target="_blank">Spring</a> and/or <a href="https://jersey.java.net" target="_blank">Jersey</a>, except an <code class="highlighter-rouge codehilite">MVC</code> route must be registered at application startup time.</p>
   <h3 id="mvc-route-registering-a-mvc-route">registering a mvc route</h3>
   <p>Go to <code class="highlighter-rouge codehilite">App.java</code> and add this line:</p>
   <div class="highlighter-rouge codehilite"> 
@@ -720,16 +720,16 @@ mvn jooby:run
 <span class="o">}</span>
 </code></pre> 
   </div>
-  <p>We try to keep <code class="highlighter-rouge codehilite">reflection</code>, <code class="highlighter-rouge codehilite">classpath scanning</code> and <code class="highlighter-rouge codehilite">annotations</code> to minimum that is one of reason why they need to be explicitly registered.</p>
-  <p>The other reason is the <strong>route order</strong>, because routes are executed in the <strong>order</strong> they are defined.</p>
-  <p>Having said that, we do offer a service <a href="/doc/scanner">scanner</a> module that automatically register <code class="highlighter-rouge codehilite">MVC</code> routes.</p>
+  <p>Jooby tries to keep <code class="highlighter-rouge codehilite">reflection</code>, <code class="highlighter-rouge codehilite">classpath scanning</code> and <code class="highlighter-rouge codehilite">annotations</code> to a minimum. That is one of the reasons why routes need to be explicitly registered.</p>
+  <p>The other reason is the <strong>route order</strong>, since routes are executed in the <strong>order</strong> they are defined.</p>
+  <p>Having said that, we do offer a service <a href="/doc/scanner">scanner</a> module that automatically registers <code class="highlighter-rouge codehilite">MVC</code> routes.</p>
   <p>Try it:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code>http://localhost:8080/mvc/greeting
 </code></pre> 
   </div>
   <h3 id="mvc-route-adding-a-name-parameter">adding a name parameter</h3>
-  <p>As we do with script route we are going to add a <strong>required</strong> <code class="highlighter-rouge codehilite">name</code> parameter:</p>
+  <p>As with the script route, we are going to add a <strong>required</strong> <code class="highlighter-rouge codehilite">name</code> parameter:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code><span class="nd">@Path</span><span class="o">(</span><span class="s">"/greeting"</span><span class="o">)</span>
 <span class="nd">@GET</span>
@@ -792,16 +792,12 @@ mvn jooby:run
   <h2>conclusion</h2> 
  </div> 
  <div class="datalist-content"> 
-  <p>Your application might looks like something similar to this:</p>
+  <p>Your application might look something like this now:</p>
   <div class="highlighter-rouge codehilite"> 
    <pre class="highlight"><code><span class="kn">package</span> <span class="n">greeting</span><span class="o">;</span>
 
-<span class="kn">import</span> <span class="nn">java.util.concurrent.atomic.AtomicInteger</span><span class="o">;</span>
-
 <span class="kn">import</span> <span class="nn">org.jooby.Jooby</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">org.jooby.json.Jackson</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">org.slf4j.Logger</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">org.slf4j.LoggerFactory</span><span class="o">;</span>
 
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="kd">extends</span> <span class="n">Jooby</span> <span class="o">{</span>
 
@@ -837,11 +833,11 @@ mvn jooby:run
 <span class="o">}</span>
 </code></pre> 
   </div>
-  <p>This is an unreal and simple <strong>JSON API</strong> but helps to demonstrate how simple and easy is to build such application in <a href="http://jooby.org">Jooby</a>. <strong>Simplicity</strong> is one of the <a href="http://jooby.org">Jooby</a> goals.</p>
+  <p>This is an unrealistic <strong>JSON API</strong>, but it helps to demonstrate how simple and easy is to build such an application in <a href="http://jooby.org">Jooby</a>. <strong>Simplicity</strong> is one of the <a href="http://jooby.org">Jooby</a> goals.</p>
   <p>We also demonstrate the <strong>script</strong> and <strong>mvc</strong> programming models, you can pick one or mix both in a single application.</p>
-  <p>The <strong>script</strong> programming model is perfect for getting thing done quickly and/or for small applications. It is also possible to use the <strong>script</strong> routes on large applications, where you usually split routes in one or more applications and then you compose all those small application into a one.</p>
+  <p>The <strong>script</strong> programming model is perfect for getting things done quickly and/or for small applications. It is also possible to use the <strong>script</strong> routes on larger applications, where you usually split routes in one or more applications and then you compose all those small application into one.</p>
   <p>The <strong>mvc</strong> programming model is a bit more verbose but probably better for large scale applications.</p>
-  <p>A common pattern for <strong>medium</strong> scale applications is to write the <strong>UI</strong> routes (those who generated HTML) using the <strong>script</strong> programming model while the <strong>Business/API</strong> routes using the <strong>MVC</strong> programming model.</p>
+  <p>A common pattern for <strong>medium</strong> scale applications is to write the <strong>UI</strong> routes (those which generate HTML) using the <strong>script</strong> programming model while writing the <strong>Business/API</strong> routes using the <strong>MVC</strong> programming model.</p>
   <p>In short, <strong>script</strong> or <strong>mvc</strong> is matter of taste and/or depends on your background.</p>
   <p>That’s all for now, if you like what you see here please follow us at <a href="https://twitter.com/joobyproject" target="_blank">@joobyproject</a> and <a href="https://github.com/jooby-project/jooby" target="_blank">Github</a></p>
  </div> 

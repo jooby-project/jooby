@@ -11,7 +11,7 @@
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: lang-kotlin module"> 
-  <meta name="og:description" content="We do provide a very tiny module with some special functions that makes a Jooby application more Kotlin idiomatic"> 
+  <meta name="og:description" content="Jooby provides a tiny module with some functions that will make an application more Kotlin idiomatic"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="We do provide a very tiny module with some special functions that makes a Jooby application more Kotlin idiomatic"> 
+  <meta name="twitter:description" content="Jooby provides a tiny module with some functions that will make an application more Kotlin idiomatic"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -112,7 +112,7 @@
        <h2>kotlin</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>We do provide a very tiny module with some special functions that makes a <a href="http://jooby.org">Jooby</a> application more Kotlin idiomatic.</p> 
+       <p><a href="http://jooby.org">Jooby</a> provides a tiny module with some functions that will make an application more Kotlin idiomatic.</p> 
        <h3 id="kotlin-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -121,7 +121,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-lang-kotlin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -146,7 +146,7 @@
        <p>The <code class="highlighter-rouge codehilite">run</code> function is a <a href="http://kotlinlang.org/docs/reference/type-safe-builders.html" target="_blank">type-safe builder</a> that initializes, configures and executes a <a href="http://jooby.org">Jooby</a> application.</p> 
        <h3 id="kotlin-idioms">idioms</h3> 
        <h4 id="kotlin-request-access">request access</h4> 
-       <p>Access to <a href="/apidocs/org/jooby/Request.html" target="_blank">request</a> is available via <strong>request callback</strong>:</p> 
+       <p>Access to the <a href="/apidocs/org/jooby/Request.html" target="_blank">request</a> is available via a <strong>request callback</strong>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -159,7 +159,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>The <strong>request</strong> idiom gives you implicit access to the <a href="/apidocs/org/jooby/Request.html" target="_blank">request</a> object, previous example can be written as:</p> 
+       <p>The <strong>request</strong> idiom gives you implicit access to the <a href="/apidocs/org/jooby/Request.html" target="_blank">request</a> object. The previous example can be written as:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -173,7 +173,7 @@
 </code></pre> 
        </div> 
        <h4 id="kotlin-route-group">route group</h4> 
-       <p>This idiom allow to group one or more routes under a common <code class="highlighter-rouge codehilite">path</code>:</p> 
+       <p>This idiom allows grouping one or more routes under a common <code class="highlighter-rouge codehilite">path</code>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -198,7 +198,7 @@
 </code></pre> 
        </div> 
        <h4 id="kotlin-class-reference">class reference</h4> 
-       <p>We do provide <code class="highlighter-rouge codehilite">Kotlin class references</code> where a <code class="highlighter-rouge codehilite">Java class reference</code> is required.</p> 
+       <p><a href="http://jooby.org">Jooby</a> provides a <code class="highlighter-rouge codehilite">Kotlin class references</code> where a <code class="highlighter-rouge codehilite">Java class reference</code> is required.</p> 
        <p>Example 1: Register a <code class="highlighter-rouge codehilite">MVC routes</code></p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -226,7 +226,7 @@
        </div> 
        <h3 id="kotlin-examples">examples</h3> 
        <h4 id="kotlin-JSON-API">JSON API</h4> 
-       <p>Next example uses the <a href="/doc/jackson">jackson module</a> to parse and render <code class="highlighter-rouge codehilite">JSON</code>:</p> 
+       <p>The next example uses the <a href="/doc/jackson">jackson module</a> to parse and render <code class="highlighter-rouge codehilite">JSON</code>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -280,8 +280,8 @@
 </code></pre> 
        </div> 
        <h3 id="kotlin-starter-project">starter project</h3> 
-       <p>We do provide a <a href="https://github.com/jooby-project/kotlin-starter" target="_blank">kotlin-starter</a> project. Go and <a href="https://github.com/jooby-project/kotlin-starter" target="_blank">fork it</a>.</p> 
-       <p>That’s all folks!!</p> 
+       <p><a href="http://jooby.org">Jooby</a> provides a <a href="https://github.com/jooby-project/kotlin-starter" target="_blank">kotlin-starter</a> project. Go and <a href="https://github.com/jooby-project/kotlin-starter" target="_blank">fork it</a>.</p> 
+       <p>That’s all folks!</p> 
       </div> 
      </div> 
     </div> 
