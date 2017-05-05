@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.jooby.Upload;
 import org.jooby.internal.raml.RamlType;
@@ -64,6 +65,13 @@ public class RamlTypeTest {
         "    age:\n" +
         "      type: integer\n" +
         "      required: false", RamlType.parse(Person.class).toString());
+  }
+
+  @Test
+  public void uuid() {
+    assertEquals("uuid:\n" +
+            "  type: string\n" +
+            "  pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", RamlType.parse(UUID.class).toString());
   }
 
   private Type optional(final Class<?> type) {

@@ -272,7 +272,7 @@ public class RamlBuilder {
     Consumer<Type> typeCollector = type -> {
       if (type != Object.class && type != void.class) {
         RamlType.parseAll(type).stream()
-            .filter(t -> t.isObject() || t.isEnum())
+            .filter(t -> t.isCustom())
             .forEach(types::add);
       }
     };
