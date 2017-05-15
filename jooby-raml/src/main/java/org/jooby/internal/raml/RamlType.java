@@ -150,14 +150,16 @@ public class RamlType {
         Field[] fields = rawType.getDeclaredFields();
         Map<String, RamlType> props = new LinkedHashMap<>();
         for (Field field : fields) {
-          RamlType ftype = parse(field.getGenericType(), ctx);
-          if (field.getType().isArray()) {
-            String ctype = ramlTypeName(field.getType());
-            ftype.type = (ctype == null ? ftype.type() : ctype) + "[]";
-            ftype.name = null;
-            ftype.properties = null;
+          if(!field.getName().startsWith("_")) { // only not hidden properties
+            RamlType ftype = parse(field.getGenericType(), ctx);
+            if (field.getType().isArray()) {
+              String ctype = ramlTypeName(field.getType());
+              ftype.type = (ctype == null ? ftype.type() : ctype) + "[]";
+              ftype.name = null;
+              ftype.properties = null;
+            }
+            props.put(field.getName(), ftype);
           }
-          props.put(field.getName(), ftype);
         }
         ramlType.properties = props;
       }
