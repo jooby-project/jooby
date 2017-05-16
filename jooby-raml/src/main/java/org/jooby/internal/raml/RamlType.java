@@ -204,7 +204,7 @@ public class RamlType {
         enums.add(((Enum) value).name());
       }
       complex.values = enums;
-    } else if(UUID.class.isAssignableFrom(rawType)){
+    } else if (UUID.class.isAssignableFrom(rawType)) {
       complex = new RamlType("string");
       complex.name = "uuid";
       complex.pattern = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
