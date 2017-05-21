@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import com.google.common.collect.ImmutableList;
 
@@ -49,6 +50,8 @@ public class RamlType {
 
   private List<String> values;
 
+  private String pattern;
+
   public RamlType(final String type) {
     this.type = type;
   }
@@ -64,6 +67,8 @@ public class RamlType {
   public Map<String, RamlType> properties() {
     return properties;
   }
+
+  public String pattern(){ return pattern; }
 
   @Override
   public boolean equals(final Object obj) {
@@ -114,6 +119,9 @@ public class RamlType {
     }
     if (values != null) {
       buff.append(indent(level)).append("enum: ").append(values.toString()).append("\n");
+    }
+    if (pattern != null) {
+      buff.append(indent(level)).append("pattern: ").append(pattern).append("\n");
     }
     buff.setLength(buff.length() - 1);
     return buff.toString();
@@ -196,6 +204,10 @@ public class RamlType {
         enums.add(((Enum) value).name());
       }
       complex.values = enums;
+    } else if (UUID.class.isAssignableFrom(rawType)) {
+      complex = new RamlType("string");
+      complex.name = "uuid";
+      complex.pattern = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
     } else {
       complex = new RamlType("object");
       complex.name = rawType.getSimpleName();
@@ -280,6 +292,12 @@ public class RamlType {
       }
     }
     return null;
+  }
+
+  public boolean isCustom() {
+    return properties != null ||
+            values != null ||
+            pattern != null;
   }
 
   public boolean isObject() {
