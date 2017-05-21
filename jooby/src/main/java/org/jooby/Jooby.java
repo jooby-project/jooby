@@ -698,6 +698,8 @@ public class Jooby implements Router, LifeCycle, Registry {
    */
   private transient BiFunction<Stage, com.google.inject.Module, Injector> injectorFactory = Guice::createInjector;
 
+  private List<Jooby> apprefs;
+
   /**
    * Creates a new {@link Jooby} application.
    */
@@ -780,6 +782,10 @@ public class Jooby implements Router, LifeCycle, Registry {
     if (app.mapper != null) {
       this.map(app.mapper);
     }
+    if (apprefs == null) {
+      apprefs = new ArrayList<>();
+    }
+    apprefs.add(app);
     return this;
   }
 
@@ -2755,6 +2761,11 @@ public class Jooby implements Router, LifeCycle, Registry {
     };
 
     Injector injector = injectorFactory.apply(stage, joobyModule);
+    if (apprefs != null) {
+      apprefs.forEach(app -> app.injector = injector);
+      apprefs.clear();
+      apprefs = null;
+    }
 
     onStart.addAll(0, finalEnv.startTasks());
     onStarted.addAll(0, finalEnv.startedTasks());
