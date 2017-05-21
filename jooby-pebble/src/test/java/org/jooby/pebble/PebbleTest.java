@@ -108,6 +108,77 @@ public class PebbleTest {
   }
 
   @Test
+  public void prefixAsRoot() throws Exception {
+    Locale locale = Locale.getDefault();
+    new MockUnit(Env.class, Config.class, Binder.class, PebbleEngine.class)
+        .expect(defLoader)
+        .expect(newEngine)
+        .expect(env("dev", locale))
+        .expect(cacheStatic)
+        .expect(cache("pebble.cache", null))
+        .expect(cache(0))
+        .expect(cache("pebble.tagCache", null))
+        .expect(tagCache(0))
+        .expect(locale(locale))
+        .expect(build)
+        .expect(bindEngine)
+        .expect(renderer)
+        .run(unit -> {
+          new Pebble("/", ".html")
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
+  }
+
+  @Test
+  public void emptyPrefix() throws Exception {
+    Locale locale = Locale.getDefault();
+    new MockUnit(Env.class, Config.class, Binder.class, PebbleEngine.class)
+        .expect(defLoader)
+        .expect(newEngine)
+        .expect(env("dev", locale))
+        .expect(cacheStatic)
+        .expect(cache("pebble.cache", null))
+        .expect(cache(0))
+        .expect(cache("pebble.tagCache", null))
+        .expect(tagCache(0))
+        .expect(locale(locale))
+        .expect(build)
+        .expect(bindEngine)
+        .expect(renderer)
+        .run(unit -> {
+          new Pebble("", ".html")
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
+  }
+
+  @Test
+  public void noEmptyPrefix() throws Exception {
+    Locale locale = Locale.getDefault();
+    new MockUnit(Env.class, Config.class, Binder.class, PebbleEngine.class)
+        .expect(unit -> {
+          ClasspathLoader loader = unit.constructor(ClasspathLoader.class).build();
+          loader.setPrefix("views");
+          loader.setSuffix(".html");
+          unit.registerMock(ClasspathLoader.class, loader);
+        })
+        .expect(newEngine)
+        .expect(env("dev", locale))
+        .expect(cacheStatic)
+        .expect(cache("pebble.cache", null))
+        .expect(cache(0))
+        .expect(cache("pebble.tagCache", null))
+        .expect(tagCache(0))
+        .expect(locale(locale))
+        .expect(build)
+        .expect(bindEngine)
+        .expect(renderer)
+        .run(unit -> {
+          new Pebble("/views", ".html")
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
+  }
+
+  @Test
   public void proddef() throws Exception {
     Locale locale = Locale.getDefault();
     new MockUnit(Env.class, Config.class, Binder.class, PebbleEngine.class)
