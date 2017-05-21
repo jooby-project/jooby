@@ -1,10 +1,9 @@
 package org.jooby.internal.netty;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,7 +66,11 @@ public class NettyServerTest {
       .withValue("netty.http.IdleTimeout", ConfigValueFactory.fromAnyRef("30s"))
       .withValue("netty.options.CONNECT_TIMEOUT_MILLIS", ConfigValueFactory.fromAnyRef(1000))
       .withValue("application.port", ConfigValueFactory.fromAnyRef(6789))
-      .withValue("application.host", ConfigValueFactory.fromAnyRef("0.0.0.0"));
+      .withValue("application.host", ConfigValueFactory.fromAnyRef("0.0.0.0"))
+      .withValue("server.http.ResponseBufferSize", ConfigValueFactory.fromAnyRef("16k"))
+      .withValue("server.ws.MaxTextMessageSize", ConfigValueFactory.fromAnyRef("16k"))
+      .withValue("server.ws.MaxBinaryMessageSize", ConfigValueFactory.fromAnyRef("16k"))
+      .withValue("application.tmpdir", ConfigValueFactory.fromAnyRef("target"));
 
   @SuppressWarnings({"rawtypes", "unchecked" })
   private MockUnit.Block parentEventLoop = unit -> {

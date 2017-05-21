@@ -402,9 +402,9 @@ public class Results {
    * <pre>
    *   get("/jsonOrHtml", () {@literal ->}
    *     Results
-   *         .when("text/html", () {@literal ->} View.of("view", "model", model))
+   *         .when("text/html", () {@literal ->} Results.html("view").put("model", model)))
    *         .when("application/json", () {@literal ->} model)
-   *         .when("*", () {@literal ->} Status.NOT_ACCEPTABLE)
+   *         .when("*", () {@literal ->} {throw new Err(Status.NOT_ACCEPTABLE);})
    *   );
    * </pre>
    *
@@ -425,9 +425,9 @@ public class Results {
    * <pre>
    *   get("/jsonOrHtml", () {@literal ->}
    *     Results
-   *         .when("text/html", () {@literal ->} View.of("view", "model", model))
+   *         .when("text/html", () {@literal ->} Results.html("view").put("model", model)))
    *         .when("application/json", () {@literal ->} model)
-   *         .when("*", () {@literal ->} Status.NOT_ACCEPTABLE)
+   *         .when("*", () {@literal ->} {throw new Err(Status.NOT_ACCEPTABLE);})
    *   );
    * </pre>
    *

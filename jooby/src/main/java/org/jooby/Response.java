@@ -435,15 +435,16 @@ public interface Response {
    * @throws Exception If the response write fails.
    */
   default void send(final Object result) throws Throwable {
-    requireNonNull(result, "A response message is required.");
     if (result instanceof Result) {
       send((Result) result);
-    } else {
+    } else if (result != null) {
       // wrap body
       Result b = Results.with(result);
       status().ifPresent(b::status);
       type().ifPresent(b::type);
       send(b);
+    } else {
+      throw new NullPointerException("Response required.");
     }
   }
 

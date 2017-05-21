@@ -17,14 +17,18 @@ public class RouteReferenceFeature extends ServerFeature {
       assertEquals("GET", route.method());
       assertEquals("/", route.path());
       assertEquals("/", route.pattern());
+      assertEquals("bar", route.attr("foo"));
       assertEquals(
-          "| Method | Path | Source                             | Name       | Pattern | Consumes | Produces |\n" +
-          "|--------|------|------------------------------------|------------|---------|----------|----------|\n" +
-          "| GET    | /    | org.jooby.RouteReferenceFeature:13 | /anonymous | /       | [*/*]    | [*/*]    |" +
-          "",
+          "| Method | Path | Source                             | Name       | Pattern | Consumes | Produces |\n"
+              +
+              "|--------|------|------------------------------------|------------|---------|----------|----------|\n"
+              +
+              "| GET    | /    | org.jooby.RouteReferenceFeature:13 | /anonymous | /       | [*/*]    | [*/*]    |"
+              +
+              "",
           req.toString());
       rsp.send("done");
-    });
+    }).attr("foo", "bar");
 
     get("/:var", (req, rsp) -> {
       Route route = req.route();

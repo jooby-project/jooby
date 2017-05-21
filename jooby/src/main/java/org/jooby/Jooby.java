@@ -510,7 +510,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   }
 
-  private static class MvcClass implements Route.Props<MvcClass> {
+  static class MvcClass implements Route.Props<MvcClass> {
     Class<?> routeClass;
 
     String path;
@@ -528,6 +528,8 @@ public class Jooby implements Router, LifeCycle, Registry {
     private Mapper<?> mapper;
 
     private String prefix;
+
+    private String renderer;
 
     public MvcClass(final Class<?> routeClass, final String path, final String prefix) {
       this.routeClass = routeClass;
@@ -571,6 +573,17 @@ public class Jooby implements Router, LifeCycle, Registry {
       return this;
     }
 
+    @Override
+    public String renderer() {
+      return renderer;
+    }
+
+    @Override
+    public MvcClass renderer(final String name) {
+      this.renderer = name;
+      return this;
+    }
+
     public Route.Definition apply(final Route.Definition route) {
       attrs.build().forEach(route::attr);
       if (name != null) {
@@ -590,6 +603,9 @@ public class Jooby implements Router, LifeCycle, Registry {
       }
       if (mapper != null) {
         route.map(mapper);
+      }
+      if (renderer != null) {
+        route.renderer(renderer);
       }
       return route;
     }

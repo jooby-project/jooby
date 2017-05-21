@@ -29,14 +29,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.common.base.Throwables;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -86,8 +82,7 @@ public class MediaType implements Comparable<MediaType> {
      * @return True if the matcher matches the given media type.
      */
     public boolean matches(final MediaType candidate) {
-      requireNonNull(candidate, "A candidate media type is required.");
-      return doFirst(ImmutableList.of(candidate)) != null;
+      return doFirst(ImmutableList.of(candidate)).isPresent();
     }
 
     /**
@@ -144,7 +139,7 @@ public class MediaType implements Comparable<MediaType> {
      * @return A first most relevant media type or an empty optional.
      */
     public Optional<MediaType> first(final List<MediaType> candidates) {
-      return Optional.ofNullable(doFirst(candidates));
+      return doFirst(candidates);
     }
 
     /**
@@ -201,9 +196,9 @@ public class MediaType implements Comparable<MediaType> {
      * @param candidates One ore more candidates media type. Required.
      * @return A first most relevant media type or an empty optional.
      */
-    private MediaType doFirst(final List<MediaType> candidates) {
+    private Optional<MediaType> doFirst(final List<MediaType> candidates) {
       List<MediaType> result = filter(candidates);
-      return result.size() == 0 ? null : result.get(0);
+      return result.size() == 0 ? Optional.empty() : Optional.of(result.get(0));
     }
   }
 
@@ -305,14 +300,7 @@ public class MediaType implements Comparable<MediaType> {
   /**
    * Alias for most used types.
    */
-  private static final LoadingCache<String, List<MediaType>> cache = CacheBuilder.newBuilder()
-      .build(new CacheLoader<String, List<MediaType>>() {
-        @Override
-        public List<MediaType> load(final String type) throws Exception {
-          return parseInternal(type);
-        }
-
-      });
+  private static final ConcurrentHashMap<String, List<MediaType>> cache = new ConcurrentHashMap<>();
 
   static {
     cache.put("html", ImmutableList.of(html));
@@ -589,11 +577,7 @@ public class MediaType implements Comparable<MediaType> {
    * @return One ore more {@link MediaType}.
    */
   public static List<MediaType> parse(final String value) {
-    try {
-      return cache.getUnchecked(value);
-    } catch (UncheckedExecutionException ex) {
-      throw Throwables.propagate(ex.getCause());
-    }
+    return cache.computeIfAbsent(value, MediaType::parseInternal);
   }
 
   /**

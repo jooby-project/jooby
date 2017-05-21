@@ -146,8 +146,8 @@ public class RouteDefinitionTest {
           Definition def = new Route.Definition("GET", "/", (req, rsp, chain) -> {
           }).renderer("json");
 
-          assertEquals("json", def.attr("renderer"));
-          assertEquals("{renderer=json}", def.attributes().toString());
+          assertEquals("json", def.renderer());
+          assertEquals("{}", def.attributes().toString());
         });
   }
 

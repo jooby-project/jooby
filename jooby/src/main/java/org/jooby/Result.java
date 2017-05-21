@@ -72,21 +72,78 @@ import com.google.common.collect.ImmutableMap;
  */
 public class Result {
 
+  /**
+   * Content negotiation support.
+   *
+   * @author edgar
+   */
+  static class ContentNegotiation extends Result {
+
+    private final Map<MediaType, Supplier<Object>> data = new LinkedHashMap<>();
+
+    ContentNegotiation(final Result result) {
+      this.status = result.status;
+      this.type = result.type;
+      this.headers = result.headers;
+    }
+
+    @Override
+    public <T> T get() {
+      return get(MediaType.ALL);
+    }
+
+    @Override
+    public Optional<Object> ifGet() {
+      return ifGet(MediaType.ALL);
+    }
+
+    @Override
+    public Optional<Object> ifGet(final List<MediaType> types) {
+      return Optional.ofNullable(get(types));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T get(final List<MediaType> types) {
+      Supplier<Object> provider = MediaType
+          .matcher(types)
+          .first(ImmutableList.copyOf(data.keySet()))
+          .map(it -> data.remove(it))
+          .orElseThrow(
+              () -> new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(types)));
+      return (T) provider.get();
+    }
+
+    @Override
+    public Result when(final MediaType type, final Supplier<Object> supplier) {
+      requireNonNull(type, "A media type is required.");
+      requireNonNull(supplier, "A supplier fn is required.");
+      data.put(type, supplier);
+      return this;
+    }
+
+    @Override
+    protected Result clone() {
+      ContentNegotiation result = new ContentNegotiation(this);
+      result.data.putAll(data);
+      return result;
+    }
+
+  }
+
   private static Map<String, Object> NO_HEADERS = ImmutableMap.of();
 
   /** Response headers. */
-  private Map<String, Object> headers = NO_HEADERS;
+  protected Map<String, Object> headers = NO_HEADERS;
 
   /** Response status. */
-  private Status status;
+  protected Status status;
 
   /** Response content-type. */
-  private MediaType type;
+  protected MediaType type;
 
-  private final Map<MediaType, Supplier<Object>> data = new LinkedHashMap<>();
-
-  /** Quick access to first result . */
-  private Supplier<Object> first;
+  /** Response value. */
+  private Object value;
 
   /**
    * Set response status.
@@ -137,9 +194,7 @@ public class Result {
    * @return This content.
    */
   public Result set(final Object content) {
-    Supplier<Object> supplier = () -> content;
-    first = supplier;
-    data.put(MediaType.all, supplier);
+    this.value = content;
     return this;
   }
 
@@ -162,11 +217,7 @@ public class Result {
    * @return This result.
    */
   public Result when(final MediaType type, final Supplier<Object> supplier) {
-    requireNonNull(type, "A media type is required.");
-    requireNonNull(supplier, "A supplier fn is required.");
-    first = supplier;
-    data.put(type, supplier);
-    return this;
+    return new ContentNegotiation(this).when(type, supplier);
   }
 
   /**
@@ -205,8 +256,9 @@ public class Result {
    * @param <T> Value type.
    * @return Value or <code>null</code>
    */
+  @SuppressWarnings("unchecked")
   public <T> T get() {
-    return get(MediaType.ALL);
+    return (T) value;
   }
 
   /**
@@ -216,7 +268,7 @@ public class Result {
    * @return Result content.
    */
   public Optional<Object> ifGet(final List<MediaType> types) {
-    return Optional.ofNullable(get(types));
+    return Optional.ofNullable(value);
   }
 
   /**
@@ -228,20 +280,7 @@ public class Result {
    */
   @SuppressWarnings("unchecked")
   public <T> T get(final List<MediaType> types) {
-    int size = data.size();
-    if (size == 1) {
-      return (T) first.get();
-    }
-    if (size == 0) {
-      return null;
-    }
-    Supplier<Object> provider = MediaType
-        .matcher(types)
-        .first(ImmutableList.copyOf(data.keySet()))
-        .map(it -> data.remove(it))
-        .orElseThrow(
-            () -> new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(types)));
-    return (T) provider.get();
+    return (T) value;
   }
 
   /**
@@ -297,8 +336,7 @@ public class Result {
     headers.forEach(result::header);
     result.status = status;
     result.type = type;
-    result.first = first;
-    result.data.putAll(data);
+    result.value = value;
     return result;
   }
 

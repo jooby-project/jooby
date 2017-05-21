@@ -37,6 +37,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.ChannelPromise;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -131,12 +132,20 @@ public class NettyResponse implements NativeResponse {
     } else {
       DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
 
-      if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
+      boolean lenSet = headers.contains(HttpHeaderNames.CONTENT_LENGTH);
+      final boolean keepAlive;
+      final ChannelPromise promise;
+      if (!lenSet) {
         headers.set(HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED);
+        keepAlive = false;
+        promise = ctx.newPromise();
+      } else if (this.keepAlive) {
+        headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+        keepAlive = this.keepAlive;
+        promise = ctx.voidPromise();
       } else {
-        if (keepAlive) {
-          headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-        }
+        keepAlive = false;
+        promise = ctx.newPromise();
       }
 
       // dump headers
@@ -155,7 +164,10 @@ public class NettyResponse implements NativeResponse {
         ctx.write(buffer);
         // send tail
         ctx.write(new ChunkedStream(stream, bufferSize));
-        keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
+        ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT, promise);
+        if (!keepAlive) {
+          future.addListener(CLOSE);
+        }
       });
     }
 
@@ -171,10 +183,8 @@ public class NettyResponse implements NativeResponse {
   public void send(final FileChannel channel, final long offset, final long count)
       throws Exception {
     DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
-    if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
-      headers.remove(HttpHeaderNames.TRANSFER_ENCODING);
-      headers.set(HttpHeaderNames.CONTENT_LENGTH, count);
-    }
+    headers.remove(HttpHeaderNames.TRANSFER_ENCODING);
+    headers.set(HttpHeaderNames.CONTENT_LENGTH, count);
 
     if (keepAlive) {
       headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
@@ -198,17 +208,25 @@ public class NettyResponse implements NativeResponse {
 
       ctx.channel().eventLoop().execute(() -> {
         // send headers
-        ctx.write(rsp);
+        ctx.write(rsp, ctx.voidPromise());
         // chunked file
-        keepAlive(ctx.writeAndFlush(chunkedInput));
+        if (keepAlive) {
+          ctx.writeAndFlush(chunkedInput, ctx.voidPromise());
+        } else {
+          ctx.writeAndFlush(chunkedInput).addListener(CLOSE);
+        }
       });
     } else {
       ctx.channel().eventLoop().execute(() -> {
         // send headers
-        ctx.write(rsp);
+        ctx.write(rsp, ctx.voidPromise());
         // file region
-        ctx.write(new DefaultFileRegion(channel, offset, count));
-        keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
+        ctx.write(new DefaultFileRegion(channel, offset, count), ctx.voidPromise());
+        if (keepAlive) {
+          ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT, ctx.voidPromise());
+        } else {
+          ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(CLOSE);
+        }
       });
     }
 
@@ -219,39 +237,33 @@ public class NettyResponse implements NativeResponse {
   private void send(final ByteBuf buffer) throws Exception {
     DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, buffer);
 
-    if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
-      headers.remove(HttpHeaderNames.TRANSFER_ENCODING)
-          .set(HttpHeaderNames.CONTENT_LENGTH, buffer.readableBytes());
-    }
+    headers.remove(HttpHeaderNames.TRANSFER_ENCODING)
+        .set(HttpHeaderNames.CONTENT_LENGTH, buffer.readableBytes());
 
+    ChannelPromise promise;
     if (keepAlive) {
+      promise = ctx.voidPromise();
       headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+    } else {
+      promise = ctx.newPromise();
     }
 
     // dump headers
     rsp.headers().set(headers);
 
     Attribute<Boolean> async = ctx.channel().attr(NettyRequest.ASYNC);
-    boolean isAsync = async != null && async.get() == Boolean.TRUE;
-    if (isAsync) {
-      // we need flush, from async
-      keepAlive(ctx.writeAndFlush(rsp));
+    boolean flush = async != null && async.get() == Boolean.TRUE;
+    final ChannelFuture future;
+    if (flush) {
+      future = ctx.writeAndFlush(rsp, promise);
     } else {
-      keepAlive(ctx.write(rsp));
+      future = ctx.write(rsp, promise);
+    }
+    if (!keepAlive) {
+      future.addListener(CLOSE);
     }
 
     committed = true;
-  }
-
-  private void keepAlive(final ChannelFuture future) {
-    if (headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
-      if (!keepAlive) {
-        future.addListener(CLOSE);
-      }
-    } else {
-      // content len is not set, just close the connection regardless keep alive or not.
-      future.addListener(CLOSE);
-    }
   }
 
   @Override
@@ -282,11 +294,16 @@ public class NettyResponse implements NativeResponse {
       }
       if (!committed) {
         DefaultHttpResponse rsp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status);
+        headers.set(HttpHeaderNames.CONTENT_LENGTH, 0);
         // dump headers
         rsp.headers().set(headers);
-        keepAlive(ctx.write(rsp));
+        if (keepAlive) {
+          ctx.write(rsp, ctx.voidPromise());
+        } else {
+          ctx.write(rsp).addListener(CLOSE);
+        }
+        committed = true;
       }
-      committed = true;
       ctx = null;
     }
   }

@@ -74,6 +74,12 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
   private boolean supportH2;
 
+  private String tmpdir;
+
+  private int bufferSize;
+
+  private int wsMaxMessageSize;
+
   public NettyPipeline(final EventExecutorGroup executor, final HttpHandler handler,
       final Config conf, final SslContext sslCtx) {
     this.executor = executor;
@@ -86,6 +92,12 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     maxContentLength = conf.getBytes("netty.http.MaxContentLength").intValue();
     idleTimeOut = conf.getDuration("netty.http.IdleTimeout", TimeUnit.MILLISECONDS);
     supportH2 = conf.getBoolean("server.http2.enabled");
+    this.tmpdir = config.getString("application.tmpdir");
+    this.bufferSize = config.getBytes("server.http.ResponseBufferSize").intValue();
+    this.wsMaxMessageSize = Math
+        .max(
+            config.getBytes("server.ws.MaxTextMessageSize").intValue(),
+            config.getBytes("server.ws.MaxBinaryMessageSize").intValue());
     this.sslCtx = sslCtx;
   }
 
@@ -143,7 +155,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   }
 
   private void jooby(final ChannelPipeline p) {
-    p.addLast(executor, "jooby", new NettyHandler(handler, config));
+    p.addLast(executor, "jooby", new NettyHandler(handler, tmpdir, bufferSize, wsMaxMessageSize));
   }
 
   private Http2ConnectionHandler newHttp2ConnectionHandler(final ChannelPipeline p) {

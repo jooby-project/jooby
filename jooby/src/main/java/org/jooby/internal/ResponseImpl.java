@@ -226,9 +226,9 @@ public class ResponseImpl implements Response {
   public Response type(final MediaType type) {
     this.type = type;
     if (type.isText()) {
-      header("Content-Type", type.name() + ";charset=" + charset.name());
+      setHeader("Content-Type", type.name() + ";charset=" + charset.name());
     } else {
-      header("Content-Type", type.name());
+      setHeader("Content-Type", type.name());
     }
     return this;
   }
@@ -321,7 +321,11 @@ public class ResponseImpl implements Response {
       type(rtype.get());
     }
 
-    status(finalResult.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
+    if (finalResult.status().isPresent()) {
+      status(finalResult.status().get());
+    } else if (this.status == null) {
+      status(Status.OK);
+    }
 
     Map<String, Object> headers = finalResult.headers();
     if (headers.size() > 0) {
@@ -342,11 +346,6 @@ public class ResponseImpl implements Response {
     Object value = finalResult.get(produces);
 
     if (value != null) {
-      if (value instanceof Status) {
-        // override status when message is a status
-        status((Status) value);
-      }
-
       Consumer<Long> setLen = len -> {
         if (this.len == -1 && len >= 0) {
           length(len);
@@ -371,7 +370,7 @@ public class ResponseImpl implements Response {
           byteRange);
 
       // explicit renderer?
-      Renderer renderer = rendererMap.get(route.attr("renderer"));
+      Renderer renderer = rendererMap.get(route.renderer());
       if (renderer != null) {
         renderer.render(value, ctx);
       } else {

@@ -453,7 +453,9 @@ public class NettyPipelineTest {
   private Block jooby(final Config conf) {
     return unit -> {
       NettyHandler handler = unit.constructor(NettyHandler.class)
-          .build(unit.get(HttpHandler.class), conf);
+          .build(unit.get(HttpHandler.class), conf.getString("application.tmpdir"),
+              conf.getBytes("server.http.ResponseBufferSize").intValue(),
+              conf.getBytes("server.ws.MaxTextMessageSize").intValue());
       unit.registerMock(NettyHandler.class, handler);
 
       ChannelPipeline pipeline = unit.get(ChannelPipeline.class);
@@ -533,6 +535,10 @@ public class NettyPipelineTest {
         .withValue("netty.http.MaxChunkSize", ConfigValueFactory.fromAnyRef(k))
         .withValue("netty.http.MaxContentLength", ConfigValueFactory.fromAnyRef(l))
         .withValue("netty.http.IdleTimeout", ConfigValueFactory.fromAnyRef(m))
-        .withValue("server.http2.enabled", ConfigValueFactory.fromAnyRef(http2));
+        .withValue("server.http2.enabled", ConfigValueFactory.fromAnyRef(http2))
+        .withValue("server.http.ResponseBufferSize", ConfigValueFactory.fromAnyRef("16k"))
+        .withValue("server.ws.MaxTextMessageSize", ConfigValueFactory.fromAnyRef("16k"))
+        .withValue("server.ws.MaxBinaryMessageSize", ConfigValueFactory.fromAnyRef("16k"))
+        .withValue("application.tmpdir", ConfigValueFactory.fromAnyRef("target"));
   }
 }

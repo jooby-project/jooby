@@ -168,7 +168,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private List<Locale> locales;
 
-  private final LoadingCache<RouteKey, List<Route>> routeCache;
+  private final LoadingCache<RouteKey, Route[]> routeCache;
 
   private final String redirectHttps;
 
@@ -306,7 +306,7 @@ public class HttpHandlerImpl implements HttpHandler {
       }
 
       // usual req/rsp
-      List<Route> routes = routeCache
+      Route[] routes = routeCache
           .getUnchecked(new RouteKey(method, path, type, req.accept()));
 
       new RouteChain(req, rsp, routes).next(req, rsp);
@@ -422,7 +422,7 @@ public class HttpHandlerImpl implements HttpHandler {
     return len > 1 && uri.charAt(len - 1) == '/' ? uri.substring(0, len - 1) : uri;
   }
 
-  private static List<Route> routes(final Set<Route.Definition> routeDefs, final String method,
+  private static Route[] routes(final Set<Route.Definition> routeDefs, final String method,
       final String path, final MediaType type, final List<MediaType> accept) {
     List<Route> routes = findRoutes(routeDefs, method, path, type, accept);
 
@@ -448,7 +448,7 @@ public class HttpHandlerImpl implements HttpHandler {
       }
     }, method, path, "err", accept));
 
-    return routes;
+    return routes.toArray(new Route[routes.size()]);
   }
 
   private static List<Route> findRoutes(final Set<Route.Definition> routeDefs, final String method,
@@ -529,12 +529,12 @@ public class HttpHandlerImpl implements HttpHandler {
     return param.size() == 0 ? request.method() : param.get(0);
   }
 
-  private static LoadingCache<RouteKey, List<Route>> routeCache(final Set<Route.Definition> routes,
+  private static LoadingCache<RouteKey, Route[]> routeCache(final Set<Route.Definition> routes,
       final Config conf) {
     return CacheBuilder.from(conf.getString("server.routes.Cache"))
-        .build(new CacheLoader<RouteKey, List<Route>>() {
+        .build(new CacheLoader<RouteKey, Route[]>() {
           @Override
-          public List<Route> load(final RouteKey key) throws Exception {
+          public Route[] load(final RouteKey key) throws Exception {
             return routes(routes, key.method, key.path, key.consumes, key.produces);
           }
         });

@@ -56,6 +56,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
+import io.netty.util.ResourceLeakDetector;
+import io.netty.util.ResourceLeakDetector.Level;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
@@ -81,6 +83,7 @@ public class NettyServer implements Server {
   public NettyServer(final HttpHandler dispatcher, final Config config) {
     this.dispatcher = dispatcher;
     this.conf = config;
+    ResourceLeakDetector.setLevel(Level.DISABLED);
   }
 
   @Override
@@ -143,8 +146,7 @@ public class NettyServer implements Server {
   }
 
   @Override
-  public Optional<Executor> executor()
-  {
+  public Optional<Executor> executor() {
     return Optional.ofNullable(executor);
   }
 

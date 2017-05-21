@@ -42,19 +42,18 @@ public class ContentNegotiationFeature extends ServerFeature {
 
     renderer(BodyConverters.toJson);
 
-    get("/any", req ->
-        Results
-            .when("text/html", () -> Results.html("test").put("this", "body"))
-            .when("*/*", () -> "body"));
+    get("/any", req -> Results
+        .when("text/html", () -> Results.html("test").put("this", "body"))
+        .when("*/*", () -> "body"));
 
-    get("/status", req ->
-        Results
-            .when("*", () -> Status.NOT_ACCEPTABLE));
+    get("/status", req -> Results
+        .when("*", () -> {
+          throw new Err(Status.NOT_ACCEPTABLE);
+        }));
 
-    get("/like", req ->
-        Results
-            .when("text/html", () -> Results.html("test").put("this", "body"))
-            .when("application/json", () -> "body"));
+    get("/like", req -> Results
+        .when("text/html", () -> Results.html("test").put("this", "body"))
+        .when("application/json", () -> "body"));
 
     get("/html", (req, resp) -> resp.send(Results.html("test").put("this", "body")))
         .produces(MediaType.html);
@@ -205,10 +204,10 @@ public class ContentNegotiationFeature extends ServerFeature {
 
   @Test
   public void like() throws Exception {
-//    request()
-//        .get("/like")
-//        .header("Accept", "application/*+json")
-//        .expect("{\"body\": \"body\"}");
+    // request()
+    // .get("/like")
+    // .header("Accept", "application/*+json")
+    // .expect("{\"body\": \"body\"}");
 
     request()
         .get("/like")

@@ -17,6 +17,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -58,14 +59,15 @@ public class Issue67 {
           Channel channel = unit.get(Channel.class);
           expect(channel.attr(NettyRequest.ASYNC)).andReturn(async);
 
+          ChannelPromise promise = unit.mock(ChannelPromise.class);
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.channel()).andReturn(channel);
-          expect(ctx.writeAndFlush(rsp)).andReturn(rspfuture);
+          expect(ctx.newPromise()).andReturn(promise);
+          expect(ctx.writeAndFlush(rsp, promise)).andReturn(rspfuture);
 
         })
         .run(unit -> {
-          new NettyResponse(unit.get(ChannelHandlerContext.class), 8192,
-              false).send(bytes);
+          new NettyResponse(unit.get(ChannelHandlerContext.class), 8192, false).send(bytes);
         });
   }
 }

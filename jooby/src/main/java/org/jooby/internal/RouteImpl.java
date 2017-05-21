@@ -158,6 +158,11 @@ public class RouteImpl implements RouteWithFilter {
   }
 
   @Override
+  public String renderer() {
+    return route.renderer();
+  }
+
+  @Override
   public String toString() {
     return print();
   }

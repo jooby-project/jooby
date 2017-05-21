@@ -32,10 +32,11 @@ public class Headers {
       .withZone(ZoneId.of("GMT"));
 
   public static String encode(final Object value) {
-    if (value instanceof Date) {
+    if (value instanceof String) {
+      return (String) value;
+    } else if (value instanceof Date) {
       return fmt.format(Instant.ofEpochMilli(((Date) value).getTime()));
-    }
-    if (value instanceof Calendar) {
+    } else if (value instanceof Calendar) {
       return fmt.format(Instant.ofEpochMilli(((Calendar) value).getTimeInMillis()));
     }
     return value.toString();

@@ -18,18 +18,16 @@
  */
 package org.jooby.internal;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 
-import com.google.common.collect.ImmutableMap;
-
 public class RouteChain implements Route.Chain {
 
-  private List<Route> routes;
+  private Route[] routes;
 
   private String prefix;
 
@@ -41,7 +39,7 @@ public class RouteChain implements Route.Chain {
 
   private boolean hasAttrs;
 
-  public RouteChain(final RequestImpl req, final ResponseImpl rsp, final List<Route> routes) {
+  public RouteChain(final RequestImpl req, final ResponseImpl rsp, final Route[] routes) {
     this.routes = routes;
     this.rreq = req;
     this.rrsp = rsp;
@@ -50,9 +48,9 @@ public class RouteChain implements Route.Chain {
     this.hasAttrs = hasAttributes(routes);
   }
 
-  private boolean hasAttributes(final List<Route> routes) {
-    for (int i = 0; i < routes.size(); i++) {
-      if (routes.get(i).attributes().size() > 0) {
+  private boolean hasAttributes(final Route[] routes) {
+    for (int i = 0; i < routes.length; i++) {
+      if (routes[i].attributes().size() > 0) {
         return true;
       }
     }
@@ -78,12 +76,12 @@ public class RouteChain implements Route.Chain {
   }
 
   private Route next(final String prefix) {
-    Route route = routes.get(i++);
+    Route route = routes[i++];
     if (prefix == null) {
       return route;
     }
     while (!route.apply(prefix)) {
-      route = routes.get(i++);
+      route = routes[i++];
     }
     return route;
   }
@@ -92,12 +90,11 @@ public class RouteChain implements Route.Chain {
     return (RouteWithFilter) Route.Forwarding.unwrap(next);
   }
 
-  private static Route attrs(final Route route, final List<Route> routes, final int i) {
-    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-    for (int t = i; t < routes.size(); t++) {
-      builder.putAll(routes.get(t).attributes());
+  private static Route attrs(final Route route, final Route[] routes, final int i) {
+    Map<String, Object> attrs = new HashMap<>(16);
+    for (int t = i; t < routes.length; t++) {
+      attrs.putAll(routes[t].attributes());
     }
-    Map<String, Object> attrs = builder.build();
     return new Route.Forwarding(route) {
       @Override
       public Map<String, Object> attributes() {

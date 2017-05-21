@@ -419,9 +419,14 @@ public interface Route {
      * @param name A renderer's name.
      * @return This instance.
      */
-    default T renderer(final String name) {
-      return attr(RENDERER, name);
-    }
+    T renderer(final String name);
+
+    /**
+     * Explicit renderer to use or <code>null</code>.
+     *
+     * @return Explicit renderer to use or <code>null</code>.
+     */
+    String renderer();
 
     /**
      * Set the route name. Route's name, helpful for debugging but also to implement dynamic and
@@ -540,6 +545,8 @@ public interface Route {
 
     private String prefix;
 
+    private String renderer;
+
     public Group(final String pattern, final String prefix) {
       requireNonNull(pattern, "Pattern is required.");
       this.rootPattern = pattern;
@@ -548,6 +555,17 @@ public interface Route {
 
     public Group(final String pattern) {
       this(pattern, null);
+    }
+
+    @Override
+    public String renderer() {
+      return renderer;
+    }
+
+    @Override
+    public Group renderer(final String name) {
+      this.renderer = name;
+      return this;
     }
 
     public List<Route.Definition> routes() {
@@ -931,6 +949,19 @@ public interface Route {
     }
 
     @Override
+    public String renderer() {
+      return routes[0].renderer();
+    }
+
+    @Override
+    public Collection renderer(final String name) {
+      for (Props definition : routes) {
+        definition.renderer(name);
+      }
+      return this;
+    }
+
+    @Override
     public Collection consumes(final List<MediaType> types) {
       for (Props definition : routes) {
         definition.consumes(types);
@@ -1081,6 +1112,8 @@ public interface Route {
 
     String prefix;
 
+    private String renderer;
+
     /**
      * Creates a new route definition.
      *
@@ -1175,6 +1208,17 @@ public interface Route {
      */
     public String pattern() {
       return pattern;
+    }
+
+    @Override
+    public String renderer() {
+      return renderer;
+    }
+
+    @Override
+    public Definition renderer(final String name) {
+      this.renderer = name;
+      return this;
     }
 
     /**
@@ -1523,7 +1567,15 @@ public interface Route {
      * @param route A target route.
      */
     public Forwarding(final Route route) {
-      this.route = requireNonNull(route, "A route is required.");
+      if (route == null) {
+        throw new NullPointerException("Route required");
+      }
+      this.route = route;
+    }
+
+    @Override
+    public String renderer() {
+      return route.renderer();
     }
 
     @Override
@@ -1613,7 +1665,6 @@ public interface Route {
      * @return A target route.
      */
     public static Route unwrap(final Route route) {
-      requireNonNull(route, "A route is required.");
       Route root = route;
       while (root instanceof Forwarding) {
         root = ((Forwarding) root).route;
@@ -2150,13 +2201,6 @@ public interface Route {
       .build();
 
   /**
-   * Renderer attribute.
-   *
-   * @see Route.Definition#renderer(String)
-   */
-  String RENDERER = "renderer";
-
-  /**
    * @return Current request path.
    */
   String path();
@@ -2229,6 +2273,13 @@ public interface Route {
   default <T> T attr(final String name) {
     return (T) attributes().get(name);
   }
+
+  /**
+   * Explicit renderer to use or <code>null</code>.
+   *
+   * @return Explicit renderer to use or <code>null</code>.
+   */
+  String renderer();
 
   /**
    * Indicates if the {@link #pattern()} contains a glob character, like <code>?</code>,

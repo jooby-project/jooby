@@ -19,14 +19,11 @@
 package org.jooby.internal.netty;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static java.util.Objects.requireNonNull;
 
 import org.jooby.internal.ConnectionResetByPeer;
 import org.jooby.spi.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.typesafe.config.Config;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -61,14 +58,12 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
 
   private int bufferSize;
 
-  public NettyHandler(final HttpHandler handler, final Config config) {
-    this.handler = requireNonNull(handler, "Application handler is required.");
-    this.tmpdir = config.getString("application.tmpdir");
-    this.bufferSize = config.getBytes("server.http.ResponseBufferSize").intValue();
-    this.wsMaxMessageSize = Math
-        .max(
-            config.getBytes("server.ws.MaxTextMessageSize").intValue(),
-            config.getBytes("server.ws.MaxBinaryMessageSize").intValue());
+  public NettyHandler(final HttpHandler handler, final String tmpdir, final int bufferSize,
+      final int wsBufferSize) {
+    this.handler = handler;
+    this.tmpdir = tmpdir;
+    this.bufferSize = bufferSize;
+    this.wsMaxMessageSize = wsBufferSize;
   }
 
   @Override

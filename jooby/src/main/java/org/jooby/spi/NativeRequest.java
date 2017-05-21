@@ -75,8 +75,9 @@ public interface NativeRequest {
   /**
    * @return Map containing all request attributes
    */
+  @SuppressWarnings("unchecked")
   default Map<String, Object> attributes() {
-    return Collections.emptyMap();
+    return Collections.EMPTY_MAP;
   }
 
   /**

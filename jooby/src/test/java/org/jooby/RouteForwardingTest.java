@@ -100,6 +100,18 @@ public class RouteForwardingTest {
         });
   }
 
+  @Test
+  public void renderer() throws Exception {
+    new MockUnit(Route.class)
+        .expect(unit -> {
+          Route route = unit.get(Route.class);
+          expect(route.renderer()).andReturn("text");
+        })
+        .run(unit -> {
+          assertEquals("text", new Route.Forwarding(unit.get(Route.class)).renderer());
+        });
+  }
+
   @Test(expected = NullPointerException.class)
   public void nullRoute() throws Exception {
     new Route.Forwarding(null);

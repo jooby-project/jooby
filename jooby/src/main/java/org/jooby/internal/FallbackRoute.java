@@ -42,15 +42,20 @@ public class FallbackRoute implements RouteWithFilter {
   public FallbackRoute(final String name, final String method, final String path,
       final List<MediaType> produces, final Route.Filter filter) {
     this.name = name;
-    this.path = Route.unerrpath(path);
+    this.path = path;
     this.method = method;
     this.filter = filter;
     this.produces = produces;
   }
 
   @Override
+  public String renderer() {
+    return null;
+  }
+
+  @Override
   public String path() {
-    return path;
+    return Route.unerrpath(path);
   }
 
   @Override
@@ -60,7 +65,7 @@ public class FallbackRoute implements RouteWithFilter {
 
   @Override
   public String pattern() {
-    return path;
+    return Route.unerrpath(path);
   }
 
   @Override
@@ -95,12 +100,12 @@ public class FallbackRoute implements RouteWithFilter {
 
   @Override
   public String reverse(final Map<String, Object> vars) {
-    return path;
+    return Route.unerrpath(path);
   }
 
   @Override
   public String reverse(final Object... values) {
-    return path;
+    return Route.unerrpath(path);
   }
 
   @Override
