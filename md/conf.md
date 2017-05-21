@@ -1,6 +1,6 @@
 # conf, env and logging
 
-Jooby delegates configuration management to the [Config library](https://github.com/typesafehub/config).
+Jooby is configurable via Lightbend's [Config](https://github.com/typesafehub/config) library.
 
 By default, Jooby expects to find an ```application.conf``` file at the root of the classpath. You can find the `.conf` file under the `conf` classpath directory.
 
