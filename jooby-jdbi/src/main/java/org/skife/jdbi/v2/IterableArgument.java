@@ -40,7 +40,7 @@ public class IterableArgument implements Argument {
   public IterableArgument(final Object value, final StatementContext ctx) {
     if (value.getClass().isArray()) {
       ImmutableList.Builder<Object> builder = ImmutableList.builder();
-      for(int i = 0; i < Array.getLength(value); i++) {
+      for (int i = 0; i < Array.getLength(value); i++) {
         builder.add(Array.get(value, i));
       }
       this.values = builder.build();
@@ -57,8 +57,8 @@ public class IterableArgument implements Argument {
       final StatementContext ctx) throws SQLException {
     int i = position;
     for (Object value : values) {
-      foreman.waffle(value.getClass(), value, ctx).apply(i, stmt, ctx);
-      i+=1;
+      foreman.createArgument(value.getClass(), value, ctx).apply(i, stmt, ctx);
+      i += 1;
     }
 
     ctx.setAttribute("position", i - 1);

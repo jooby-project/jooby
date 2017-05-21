@@ -2975,7 +2975,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <cglib.version>3.2.0</cglib.version>
     <asm.version>5.0.3</asm.version>
     <quartz.version>2.2.2</quartz.version>
-    <jdbi.version>2.72</jdbi.version>
+    <jdbi.version>2.78</jdbi.version>
     <freemarker.version>2.3.26-incubating</freemarker.version>
     <camel.version>2.18.3</camel.version>
     <jedis.version>2.9.0</jedis.version>
