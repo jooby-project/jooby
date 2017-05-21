@@ -142,7 +142,7 @@ public class Pebble implements Jooby.Module {
    * @param suffix Template extension.
    */
   public Pebble(final String prefix, final String suffix) {
-    this.pebble = new PebbleEngine.Builder().loader(loader(prefix, suffix));
+    this.pebble = new PebbleEngine.Builder().loader(loader(safePrefix(prefix), suffix));
   }
 
   /**
@@ -238,6 +238,16 @@ public class Pebble implements Jooby.Module {
     loader.setPrefix(prefix);
     loader.setSuffix(suffix);
     return loader;
+  }
+
+  private static String safePrefix(final String prefix) {
+    if (prefix != null && prefix.length() > 0) {
+      if (prefix.startsWith("/")) {
+        String rewrite = prefix.substring(1);
+        return rewrite.length() == 0 ? null : rewrite;
+      }
+    }
+    return null;
   }
 
 }
