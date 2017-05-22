@@ -31,7 +31,7 @@ public class AuthLogoutTest {
         .expect(unit -> {
           Optional<String> id = Optional.of("1");
 
-            CommonProfile profile = unit.get(CommonProfile.class);
+          CommonProfile profile = unit.get(CommonProfile.class);
 
           AuthStore store = unit.get(AuthStore.class);
           expect(store.unset("1")).andReturn(Optional.of(profile));
@@ -41,6 +41,7 @@ public class AuthLogoutTest {
 
           Session session = unit.get(Session.class);
           expect(session.unset(Auth.ID)).andReturn(attr);
+          session.destroy();
         })
         .expect(unit -> {
           Response rsp = unit.get(Response.class);

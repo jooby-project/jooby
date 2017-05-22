@@ -49,10 +49,12 @@ public class AuthLogout implements Route.Handler {
     // DON'T create a session for JWT/param/header auth (a.k.a stateless)
     Optional<Session> ifSession = req.ifSession();
     if (ifSession.isPresent()) {
-      Optional<String> profileId = ifSession.get().unset(Auth.ID).toOptional();
+      Session session = ifSession.get();
+      Optional<String> profileId = session.unset(Auth.ID).toOptional();
       if (profileId.isPresent()) {
         Optional<CommonProfile> profile = req.require(AuthStore.class).unset(profileId.get());
         log.debug("logout {}", profile);
+        session.destroy();
       }
     } else {
       log.debug("nothing to logout from session");
