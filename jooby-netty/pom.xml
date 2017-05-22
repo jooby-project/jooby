@@ -14,7 +14,7 @@
   <name>netty module</name>
 
   <properties>
-    <boringssl.version>1.1.33.Fork25</boringssl.version>
+    <boringssl.version>1.1.33.Fork26</boringssl.version>
   </properties>
 
   <build>
