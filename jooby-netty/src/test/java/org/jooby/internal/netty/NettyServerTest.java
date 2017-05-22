@@ -178,13 +178,10 @@ public class NettyServerTest {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void epollServer() throws Exception {
+    Epoll.available.set(true);
     new MockUnit(HttpHandler.class)
         .expect(parentThreadFactory("epoll-boss"))
         .expect(unit -> {
-
-          unit.mockStatic(Epoll.class);
-          expect(Epoll.isAvailable()).andReturn(true);
-
           EpollEventLoopGroup eventLoop = unit.constructor(EpollEventLoopGroup.class)
               .args(int.class, ThreadFactory.class)
               .build(1, unit.get(ThreadFactory.class));
@@ -215,6 +212,7 @@ public class NettyServerTest {
             server.stop();
           }
         });
+    Epoll.available.set(false);
   }
 
   @Test
