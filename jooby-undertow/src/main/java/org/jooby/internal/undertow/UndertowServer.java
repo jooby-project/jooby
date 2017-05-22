@@ -44,7 +44,6 @@ import io.undertow.Undertow.Builder;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.GracefulShutdownHandler;
-import io.undertow.server.protocol.http2.Http2UpgradeHandler;
 
 public class UndertowServer implements org.jooby.spi.Server {
 
@@ -67,11 +66,7 @@ public class UndertowServer implements org.jooby.spi.Server {
 
     awaitShutdown = conf.getDuration("undertow.awaitShutdown", TimeUnit.MILLISECONDS);
     boolean http2 = conf.getBoolean("server.http2.enabled");
-    HttpHandler handler = doHandler(dispatcher, conf);
-    if (http2) {
-      handler = new Http2UpgradeHandler(handler);
-    }
-    shutdown = new GracefulShutdownHandler(handler);
+    shutdown = new GracefulShutdownHandler(doHandler(dispatcher, conf));
     Undertow.Builder ubuilder = configure(conf, io.undertow.Undertow.builder())
         .addHttpListener(conf.getInt("application.port"),
             host(conf.getString("application.host")));
@@ -209,8 +204,7 @@ public class UndertowServer implements org.jooby.spi.Server {
   }
 
   @Override
-  public Optional<Executor> executor()
-  {
+  public Optional<Executor> executor() {
     return Optional.ofNullable(server.getWorker());
   }
 
