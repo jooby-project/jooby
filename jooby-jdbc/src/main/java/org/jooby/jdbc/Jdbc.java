@@ -45,8 +45,10 @@ import com.google.common.base.Throwables;
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueFactory;
+import com.typesafe.config.ConfigValueType;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -247,7 +249,7 @@ public class Jdbc implements Jooby.Module {
     Map<String, String> params = new HashMap<>(result._2);
     result = indexOf.apply(result._1, ";", ";");
     params.putAll(result._2);
-    List<String> parts = Splitter.on(CharMatcher.JAVA_LETTER_OR_DIGIT.negate())
+    List<String> parts = Splitter.on(CharMatcher.javaLetterOrDigit().negate())
         .trimResults()
         .omitEmptyStrings()
         .splitToList(result._1);
@@ -429,7 +431,7 @@ public class Jdbc implements Jooby.Module {
      * # db.* -> dataSource.*
      * # hikari.* -> * (no prefix)
      */
-    dbtype.ifPresent(type -> config.getConfig("databases." + type)
+    dbtype.ifPresent(type -> dbconf(config, type)
         .entrySet().forEach(entry -> dumper.accept("dataSource.", entry)));
 
     dbconf.apply(key)
@@ -451,6 +453,30 @@ public class Jdbc implements Jooby.Module {
     props.setProperty("poolName", dbtype.map(type -> type + "." + db).orElse(db));
 
     return new HikariConfig(props);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Config dbconf(final Config conf, final String type) {
+    String dbtype = "databases." + type;
+    ConfigValue value = conf.getValue(dbtype);
+    if (value.valueType() == ConfigValueType.OBJECT) {
+      return ((ConfigObject) value).toConfig();
+    }
+    List<Config> list = (List<Config>) conf.getConfigList(dbtype);
+    ClassLoader loader = getClass().getClassLoader();
+    return list.stream()
+        .filter(it -> dataSourcePresent(loader, it.getString("dataSourceClassName")))
+        .findFirst()
+        .orElse(list.get(0));
+  }
+
+  private boolean dataSourcePresent(final ClassLoader loader, final String className) {
+    try {
+      loader.loadClass(className.trim());
+      return true;
+    } catch (ClassNotFoundException e) {
+      return false;
+    }
   }
 
   @SuppressWarnings("unchecked")
