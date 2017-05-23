@@ -40,6 +40,25 @@ import com.google.common.base.Throwables;
 public class Err extends RuntimeException {
 
   /**
+   * Exception thrown from {@link MediaType#parse(String)} in case of encountering an invalid media
+   * type specification String.
+   *
+   * @author edgar
+   */
+  public static class BadMediaType extends Err {
+
+    /**
+     * Creates a new {@link BadMediaType}.
+     *
+     * @param message
+     */
+    public BadMediaType(final String message) {
+      super(Status.BAD_REQUEST, message);
+    }
+
+  }
+
+  /**
    * Missing parameter/header or request attribute.
    *
    * @author edgar
