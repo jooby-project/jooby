@@ -18,7 +18,9 @@
  */
 package org.jooby.internal;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jooby.Request;
@@ -84,6 +86,11 @@ public class RouteChain implements Route.Chain {
       route = routes[i++];
     }
     return route;
+  }
+
+  @Override
+  public List<Route> routes() {
+    return Arrays.asList(routes).subList(i, routes.length - 1);
   }
 
   private RouteWithFilter get(final Route next) {

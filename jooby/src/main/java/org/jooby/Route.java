@@ -2159,6 +2159,37 @@ public interface Route {
     default void next(final Request req, final Response rsp) throws Throwable {
       next(null, req, rsp);
     }
+
+    /**
+     * All the pending/next routes from pipeline. Example:
+     *
+     * <pre>{@code
+     *   use("*", (req, rsp, chain) -> {
+     *     List<Route> routes = chain.routes();
+     *     assertEquals(2, routes.size());
+     *     assertEquals("/r2", routes.get(0).name());
+     *     assertEquals("/r3", routes.get(1).name());
+     *     assertEquals("/786/:id", routes.get(routes.size() - 1).pattern());
+     *
+     *     chain.next(req, rsp);
+     *   }).name("r1");
+     *
+     *   use("/786/**", (req, rsp, chain) -> {
+     *     List<Route> routes = chain.routes();
+     *     assertEquals(1, routes.size());
+     *     assertEquals("/r3", routes.get(0).name());
+     *     assertEquals("/786/:id", routes.get(routes.size() - 1).pattern());
+     *     chain.next(req, rsp);
+     *   }).name("r2");
+     *
+     *   get("/786/:id", req -> {
+     *     return req.param("id").value();
+     *   }).name("r3");
+     * }</pre>
+     *
+     * @return Next routes in the pipeline or empty list.
+     */
+    List<Route> routes();
   }
 
   /** Route key. */

@@ -43,6 +43,7 @@ import org.jooby.Route.Definition;
 import org.jooby.Route.Filter;
 import org.jooby.Status;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.Reflection;
 import com.google.inject.Injector;
@@ -251,7 +252,16 @@ import javaslang.control.Try;
  */
 public class MockRouter {
 
-  private static final Route.Chain NOOP_CHAIN = (req, rsp, next) -> {
+  private static final Route.Chain NOOP_CHAIN = new Route.Chain() {
+
+    @Override
+    public List<Route> routes() {
+      return ImmutableList.of();
+    }
+
+    @Override
+    public void next(final String prefix, final Request req, final Response rsp) throws Throwable {
+    }
   };
 
   private static class MockResponse extends Response.Forwarding {
