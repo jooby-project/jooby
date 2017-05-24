@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.jooby.MediaType;
@@ -44,18 +45,26 @@ class PebbleRenderer implements View.Engine {
   public void render(final View view, final Renderer.Context ctx) throws Exception {
     String vname = view.name();
     try {
+      Map<String, Object> locals = ctx.locals();
+
       PebbleTemplate template = pebble.getTemplate(vname);
       Writer writer = new StringWriter();
       Map<String, Object> model = new HashMap<>();
+
       // push locals
-      model.putAll(ctx.locals());
+      model.putAll(locals);
       model.putIfAbsent("_vname", vname);
+
+      // Locale:
+      Locale locale = (Locale) locals.getOrDefault("locale", ctx.locale());
+      model.putIfAbsent("locale", locale);
 
       // put model
       model.putAll(view.model());
 
       // render and send
-      template.evaluate(writer, model);
+      template.evaluate(writer, model, locale);
+
       ctx.type(MediaType.html)
           .send(writer.toString());
     } catch (LoaderException x) {

@@ -19,6 +19,7 @@
 package org.jooby.thymeleaf;
 
 import java.io.FileNotFoundException;
+import java.util.Locale;
 import java.util.Map;
 
 import org.jooby.Env;
@@ -46,11 +47,14 @@ class ThlEngine implements View.Engine {
     Map<String, Object> vars = ctx.locals();
     vars.putIfAbsent("_vname", vname);
 
+    // Locale:
+    Locale locale = (Locale) vars.getOrDefault("locale", ctx.locale());
+
     Map model = view.model();
     vars.forEach(model::putIfAbsent);
     model.putIfAbsent("xss", new Thlxss(env));
 
-    IContext thlctx = new org.thymeleaf.context.Context(ctx.locale(), model);
+    IContext thlctx = new org.thymeleaf.context.Context(locale, model);
     String output = this.engine.process(vname, thlctx);
 
     ctx.type(MediaType.html)
