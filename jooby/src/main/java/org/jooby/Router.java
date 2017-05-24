@@ -2437,10 +2437,9 @@ public interface Router {
    * @return This jooby instance.
    */
   default Router err(final Class<? extends Throwable> type, final Err.Handler handler) {
-    return err((req, rsp, err) -> {
-      Throwable cause = err.getCause();
-      if (type.isInstance(cause)) {
-        handler.handle(req, rsp, err);
+    return err((req, rsp, x) -> {
+      if (type.isInstance(x) || type.isInstance(x.getCause())) {
+        handler.handle(req, rsp, x);
       }
     });
   }
@@ -2454,9 +2453,9 @@ public interface Router {
    * @return This jooby instance.
    */
   default Router err(final int statusCode, final Err.Handler handler) {
-    return err((req, rsp, err) -> {
-      if (statusCode == err.statusCode()) {
-        handler.handle(req, rsp, err);
+    return err((req, rsp, x) -> {
+      if (statusCode == x.statusCode()) {
+        handler.handle(req, rsp, x);
       }
     });
   }
@@ -2470,9 +2469,9 @@ public interface Router {
    * @return This jooby instance.
    */
   default Router err(final Status code, final Err.Handler handler) {
-    return err((req, rsp, err) -> {
-      if (code.value() == err.statusCode()) {
-        handler.handle(req, rsp, err);
+    return err((req, rsp, x) -> {
+      if (code.value() == x.statusCode()) {
+        handler.handle(req, rsp, x);
       }
     });
   }
