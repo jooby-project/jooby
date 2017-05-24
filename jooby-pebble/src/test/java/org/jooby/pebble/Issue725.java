@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.FileNotFoundException;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.jooby.MediaType;
@@ -31,12 +32,15 @@ public class Issue725 {
   public void templateNotFound() throws Exception {
     new MockUnit(PebbleEngine.class, View.class, Renderer.Context.class)
         .expect(unit -> {
+          Locale locale = Locale.ENGLISH;
           Map vmodel = unit.mock(Map.class);
           Map<String, Object> locals = unit.mock(Map.class);
+          expect(locals.getOrDefault("locale", locale)).andReturn(locale);
 
           Map model = unit.constructor(HashMap.class).build();
           model.putAll(locals);
           expect(model.putIfAbsent("_vname", "vname")).andReturn(null);
+          expect(model.putIfAbsent("locale", locale)).andReturn(null);
           model.putAll(vmodel);
 
           View view = unit.get(View.class);
@@ -47,11 +51,12 @@ public class Issue725 {
 
           Renderer.Context ctx = unit.get(Renderer.Context.class);
           expect(ctx.locals()).andReturn(locals);
+          expect(ctx.locale()).andReturn(locale);
           expect(ctx.type(MediaType.html)).andReturn(ctx);
           ctx.send(writer.toString());
 
           PebbleTemplate template = unit.mock(PebbleTemplate.class);
-          template.evaluate(writer, model);
+          template.evaluate(writer, model, locale);
           LoaderException x = new LoaderException(null, "template not found");
           expectLastCall().andThrow(x);
 

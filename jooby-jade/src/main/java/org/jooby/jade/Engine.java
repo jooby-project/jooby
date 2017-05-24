@@ -20,6 +20,7 @@ package org.jooby.jade;
 
 import java.io.FileNotFoundException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.jooby.MediaType;
@@ -45,13 +46,19 @@ class Engine implements View.Engine {
 
     JadeTemplate template = jadeConfiguration.getTemplate(name);
 
+    Map<String, Object> locals = ctx.locals();
+
     Map<String, Object> hash = new HashMap<>();
 
     hash.put("_vname", view.name());
     hash.put("_vpath", name);
 
+    // Locale:
+    Locale locale = (Locale) locals.getOrDefault("locale", ctx.locale());
+    hash.put("locale", locale);
+
     // locals & model
-    hash.putAll(ctx.locals());
+    hash.putAll(locals);
     hash.putAll(view.model());
 
     String output = jadeConfiguration.renderTemplate(template, hash);

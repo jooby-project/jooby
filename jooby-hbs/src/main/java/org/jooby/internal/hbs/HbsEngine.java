@@ -20,6 +20,7 @@ package org.jooby.internal.hbs;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Locale;
 import java.util.Map;
 
 import org.jooby.MediaType;
@@ -51,6 +52,10 @@ public class HbsEngine implements View.Engine {
     Map<String, Object> locals = ctx.locals();
     locals.putIfAbsent("_vname", vname);
     locals.putIfAbsent("_vpath", source.filename());
+
+    // Locale:
+    Locale locale = (Locale) locals.getOrDefault("locale", ctx.locale());
+    locals.put("locale", locale);
 
     com.github.jknack.handlebars.Context context = com.github.jknack.handlebars.Context
         .newBuilder(view.model())

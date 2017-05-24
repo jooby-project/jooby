@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.jooby.MediaType;
@@ -62,8 +63,13 @@ public class Engine implements View.Engine {
     hash.put("_vpath", template.getName());
     hash.put("xss", xss);
 
+    // Locale:
+    Locale locale = (Locale) hash.getOrDefault("locale", ctx.locale());
+    hash.putIfAbsent("locale", locale);
+
     // locals
-    hash.putAll(ctx.locals());
+    Map<String, Object> locals = ctx.locals();
+    hash.putAll(locals);
 
     // model
     hash.putAll(view.model());
@@ -71,6 +77,9 @@ public class Engine implements View.Engine {
 
     // TODO: remove string writer
     StringWriter writer = new StringWriter();
+
+    // Locale:
+    template.setLocale(locale);
 
     // output
     template.process(model, writer);
@@ -96,6 +105,5 @@ public class Engine implements View.Engine {
   public String toString() {
     return name();
   }
-
 
 }
