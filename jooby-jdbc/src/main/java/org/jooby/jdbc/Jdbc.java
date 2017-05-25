@@ -261,7 +261,7 @@ public class Jdbc implements Jooby.Module {
   @SuppressWarnings("rawtypes")
   private final List<BiConsumer> callback = new ArrayList<>();
 
-  private final String dbref;
+  protected final String dbref;
 
   protected Optional<String> dbtype;
 

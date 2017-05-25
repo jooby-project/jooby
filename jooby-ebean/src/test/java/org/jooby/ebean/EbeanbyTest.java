@@ -91,6 +91,55 @@ public class EbeanbyTest {
         });
   }
 
+  @SuppressWarnings("unchecked")
+  @Test
+  public void configureWith2Names() throws Exception {
+    new MockUnit(Env.class, Binder.class)
+        .expect(props("com.ibm.db2.jcc.DB2SimpleDataSource", "jdbc:db2://127.0.0.1/mydb",
+            "db2.mydb", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("mydb"))
+        .expect(containerConfig)
+        .expect(unit -> {
+          ServerConfig serverConfig = unit.mockConstructor(ServerConfig.class);
+
+          serverConfig.setName("mydb");
+          serverConfig.addPackage("my.model");
+          serverConfig.setContainerConfig(unit.get(ContainerConfig.class));
+          serverConfig.setDataSource(isA(DataSource.class));
+          serverConfig.loadFromProperties(isA(Properties.class));
+          serverConfig.setDefaultServer(true);
+          serverConfig.setRegister(true);
+
+          unit.registerMock(ServerConfig.class, serverConfig);
+        })
+        .expect(enhancer("my.model"))
+        .expect(ebeanProperties())
+        .expect(unit -> {
+          Binder binder = unit.get(Binder.class);
+
+          ScopedBindingBuilder sbbES = unit.mock(ScopedBindingBuilder.class);
+          sbbES.asEagerSingleton();
+          sbbES.asEagerSingleton();
+          sbbES.asEagerSingleton();
+
+          LinkedBindingBuilder<EbeanServer> lbbES = unit.mock(LinkedBindingBuilder.class);
+          expect(lbbES.toProvider(isA(EbeanManaged.class))).andReturn(sbbES).times(3);
+
+          expect(binder.bind(Key.get(EbeanServer.class))).andReturn(lbbES);
+          expect(binder.bind(Key.get(EbeanServer.class, Names.named("db")))).andReturn(lbbES);
+          expect(binder.bind(Key.get(EbeanServer.class, Names.named("mydb")))).andReturn(lbbES);
+        })
+        .expect(onStop)
+        .run(unit -> {
+          new Ebeanby("db")
+              .configure(unit.get(Env.class), config()
+                  .withValue("db", ConfigValueFactory.fromAnyRef("jdbc:db2://127.0.0.1/mydb")),
+                  unit.get(Binder.class));
+        });
+  }
+
   @Test
   public void configureWithPackages() throws Exception {
     new MockUnit(Env.class, Binder.class)

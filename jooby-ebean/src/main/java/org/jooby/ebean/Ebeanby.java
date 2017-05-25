@@ -18,21 +18,26 @@
  */
 package org.jooby.ebean;
 
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import io.ebean.EbeanServer;
-import io.ebean.config.ContainerConfig;
-import io.ebean.config.ServerConfig;
-import org.jooby.Env;
-import org.jooby.internal.ebean.EbeanEnhancer;
-import org.jooby.internal.ebean.EbeanManaged;
-import org.jooby.jdbc.Jdbc;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Consumer;
+
+import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
+import org.jooby.internal.ebean.EbeanEnhancer;
+import org.jooby.internal.ebean.EbeanManaged;
+import org.jooby.jdbc.Jdbc;
+
+import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
+import io.ebean.EbeanServer;
+import io.ebean.config.ContainerConfig;
+import io.ebean.config.ServerConfig;
 
 /**
  * <h1>ebean module</h1>
@@ -218,8 +223,14 @@ public class Ebeanby extends Jdbc {
       EbeanManaged server = new EbeanManaged(conf, config);
       env.onStart(server::start);
       env.onStop(server::stop);
-      env.serviceKey().generate(EbeanServer.class, name,
-          k -> binder.bind(k).toProvider(server).asEagerSingleton());
+      /** Bind db key: */
+      Consumer<Key<EbeanServer>> provider = k -> binder.bind(k).toProvider(server)
+          .asEagerSingleton();
+      ServiceKey keys = env.serviceKey();
+      if (!name.equals(dbref)) {
+        keys.generate(EbeanServer.class, dbref, provider);
+      }
+      keys.generate(EbeanServer.class, name, provider);
     });
   }
 
