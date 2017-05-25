@@ -18,10 +18,11 @@
  */
 package org.jooby.ebean;
 
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import org.jooby.Env;
@@ -30,6 +31,7 @@ import org.jooby.internal.ebean.EbeanEnhancer;
 import org.jooby.internal.ebean.EbeanManaged;
 import org.jooby.jdbc.Jdbc;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.typesafe.config.Config;
@@ -38,6 +40,7 @@ import com.typesafe.config.ConfigFactory;
 import io.ebean.EbeanServer;
 import io.ebean.config.ContainerConfig;
 import io.ebean.config.ServerConfig;
+import javaslang.control.Try.CheckedRunnable;
 
 /**
  * <h1>ebean module</h1>
@@ -151,7 +154,8 @@ import io.ebean.config.ServerConfig;
  */
 public class Ebeanby extends Jdbc {
 
-  private Set<String> packages = new HashSet<>();
+  /** package for test */
+  static final AtomicReference<Set<String>> PKG = new AtomicReference<>(new HashSet<>());
 
   static {
     // Turn off ebean shutdown hook:
@@ -173,32 +177,12 @@ public class Ebeanby extends Jdbc {
   public Ebeanby() {
   }
 
-  /**
-   * <p>
-   * Add one ore more packages. Packages are used by the agent enhancement (if present) and to
-   * search for entities via class path search when classes have not been explicitly specified.
-   * </p>
-   *
-   * @param packages Packages to enhancement and search for.
-   * @return This module.
-   */
-  public Ebeanby packages(final String... packages) {
-    Arrays.stream(packages).forEach(this.packages::add);
-    return this;
-  }
-
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
     configure(env, conf, binder, (name, ds) -> {
       ServerConfig config = new ServerConfig();
 
-      this.packages.add(conf.getString("application.ns"));
-
-      EbeanEnhancer.newEnhancer().run(packages);
-
       config.setName(name);
-
-      packages.forEach(config::addPackage);
 
       Config cprops = conf.getConfig("ebean");
       if (conf.hasPath("ebean." + name)) {
@@ -220,6 +204,13 @@ public class Ebeanby extends Jdbc {
 
       callback(config, conf);
 
+      List<String> packages = config.getPackages();
+      if (packages == null || packages.size() == 0) {
+        packages = ImmutableList.of(conf.getString("application.ns"));
+      }
+      config.setPackages(packages);
+      PKG.get().addAll(packages);
+
       EbeanManaged server = new EbeanManaged(conf, config);
       env.onStart(server::start);
       env.onStop(server::stop);
@@ -232,6 +223,9 @@ public class Ebeanby extends Jdbc {
       }
       keys.generate(EbeanServer.class, name, provider);
     });
+
+    // Run enhancer once per JVM
+    env.onStart(runEnhancer());
   }
 
   @Override
@@ -248,4 +242,19 @@ public class Ebeanby extends Jdbc {
     });
     return props;
   }
+
+  /**
+   * package for test.
+   *
+   * @return An enhancer task. It runs once per classloader instance.
+   */
+  static CheckedRunnable runEnhancer() {
+    return () -> {
+      Set<String> packages = PKG.getAndSet(null);
+      if (packages != null) {
+        EbeanEnhancer.newEnhancer().run(packages);
+      }
+    };
+  }
+
 }
