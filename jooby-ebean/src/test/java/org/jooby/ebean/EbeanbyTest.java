@@ -4,6 +4,8 @@ import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -19,6 +21,8 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.inject.Binder;
 import com.google.inject.Key;
@@ -71,6 +75,11 @@ public class EbeanbyTest {
     expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
   };
 
+  private Block onStart = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.onStart(unit.capture(CheckedRunnable.class))).andReturn(env);
+  };
+
   @Test
   public void configure() throws Exception {
     new MockUnit(Env.class, Binder.class)
@@ -80,11 +89,143 @@ public class EbeanbyTest {
         .expect(hikariDataSource())
         .expect(serviceKey("db"))
         .expect(containerConfig)
-        .expect(serverConfig(true))
-        .expect(enhancer("my.model"))
+        .expect(serverConfig(true, "my.model"))
         .expect(ebeanProperties())
         .expect(binder)
         .expect(onStop)
+        .expect(onStart)
+        .run(unit -> {
+          new Ebeanby("db")
+              .configure(unit.get(Env.class), config(), unit.get(Binder.class));
+        });
+  }
+
+  @Test
+  public void runEnhancerFirst() throws Exception {
+    new MockUnit()
+        .expect(enhancer("foo", "bar"))
+        .run(unit -> {
+          try {
+            Ebeanby.PKG.set(ImmutableSet.of("foo", "bar"));
+            Ebeanby.runEnhancer().run();
+          } finally {
+            Ebeanby.PKG.set(new HashSet<>());
+          }
+        });
+  }
+
+  @Test
+  public void runEnhancerTwice() throws Exception {
+    new MockUnit()
+        .run(unit -> {
+          try {
+            Ebeanby.PKG.set(null);
+            Ebeanby.runEnhancer().run();
+          } finally {
+            Ebeanby.PKG.set(new HashSet<>());
+          }
+        });
+  }
+
+  @Test
+  public void configureNoPackage() throws Exception {
+    new MockUnit(Env.class, Binder.class)
+        .expect(props("com.ibm.db2.jcc.DB2SimpleDataSource", "jdbc:db2://127.0.0.1/db",
+            "db2.db", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("db"))
+        .expect(containerConfig)
+        .expect(unit -> {
+          ServerConfig serverConfig = unit.mockConstructor(ServerConfig.class);
+
+          serverConfig.setName("db");
+          expect(serverConfig.getPackages()).andReturn(null);
+          serverConfig.setPackages(Arrays.asList("my.model"));
+          serverConfig.setContainerConfig(unit.get(ContainerConfig.class));
+          serverConfig.setDataSource(isA(DataSource.class));
+          serverConfig.loadFromProperties(isA(Properties.class));
+          serverConfig.setDefaultServer(true);
+          serverConfig.setRegister(true);
+
+          unit.registerMock(ServerConfig.class, serverConfig);
+        })
+        .expect(ebeanProperties())
+        .expect(binder)
+        .expect(onStop)
+        .expect(onStart)
+        .run(unit -> {
+          new Ebeanby("db")
+              .configure(unit.get(Env.class), config(), unit.get(Binder.class));
+        });
+  }
+
+  @Test
+  public void configurePackages() throws Exception {
+    new MockUnit(Env.class, Binder.class)
+        .expect(props("com.ibm.db2.jcc.DB2SimpleDataSource", "jdbc:db2://127.0.0.1/db",
+            "db2.db", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("db"))
+        .expect(containerConfig)
+        .expect(unit -> {
+          ServerConfig serverConfig = unit.mockConstructor(ServerConfig.class);
+
+          serverConfig.setName("db");
+          serverConfig.addPackage("foo");
+          serverConfig.addPackage("bar");
+          expect(serverConfig.getPackages()).andReturn(Arrays.asList("foo", "bar"));
+          serverConfig.setPackages(Arrays.asList("foo", "bar"));
+          serverConfig.setContainerConfig(unit.get(ContainerConfig.class));
+          serverConfig.setDataSource(isA(DataSource.class));
+          serverConfig.loadFromProperties(isA(Properties.class));
+          serverConfig.setDefaultServer(true);
+          serverConfig.setRegister(true);
+
+          unit.registerMock(ServerConfig.class, serverConfig);
+        })
+        .expect(ebeanProperties())
+        .expect(binder)
+        .expect(onStop)
+        .expect(onStart)
+        .run(unit -> {
+          new Ebeanby("db")
+              .doWith((final ServerConfig conf) -> {
+                conf.addPackage("foo");
+                conf.addPackage("bar");
+              })
+              .configure(unit.get(Env.class), config(), unit.get(Binder.class));
+        });
+  }
+
+  @Test
+  public void configureEmptyPackage() throws Exception {
+    new MockUnit(Env.class, Binder.class)
+        .expect(props("com.ibm.db2.jcc.DB2SimpleDataSource", "jdbc:db2://127.0.0.1/db",
+            "db2.db", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("db"))
+        .expect(containerConfig)
+        .expect(unit -> {
+          ServerConfig serverConfig = unit.mockConstructor(ServerConfig.class);
+
+          serverConfig.setName("db");
+          expect(serverConfig.getPackages()).andReturn(ImmutableList.of());
+          serverConfig.setPackages(Arrays.asList("my.model"));
+          serverConfig.setContainerConfig(unit.get(ContainerConfig.class));
+          serverConfig.setDataSource(isA(DataSource.class));
+          serverConfig.loadFromProperties(isA(Properties.class));
+          serverConfig.setDefaultServer(true);
+          serverConfig.setRegister(true);
+
+          unit.registerMock(ServerConfig.class, serverConfig);
+        })
+        .expect(ebeanProperties())
+        .expect(binder)
+        .expect(onStop)
+        .expect(onStart)
         .run(unit -> {
           new Ebeanby("db")
               .configure(unit.get(Env.class), config(), unit.get(Binder.class));
@@ -105,7 +246,8 @@ public class EbeanbyTest {
           ServerConfig serverConfig = unit.mockConstructor(ServerConfig.class);
 
           serverConfig.setName("mydb");
-          serverConfig.addPackage("my.model");
+          expect(serverConfig.getPackages()).andReturn(ImmutableList.of("my.model"));
+          serverConfig.setPackages(ImmutableList.of("my.model"));
           serverConfig.setContainerConfig(unit.get(ContainerConfig.class));
           serverConfig.setDataSource(isA(DataSource.class));
           serverConfig.loadFromProperties(isA(Properties.class));
@@ -114,7 +256,6 @@ public class EbeanbyTest {
 
           unit.registerMock(ServerConfig.class, serverConfig);
         })
-        .expect(enhancer("my.model"))
         .expect(ebeanProperties())
         .expect(unit -> {
           Binder binder = unit.get(Binder.class);
@@ -132,36 +273,12 @@ public class EbeanbyTest {
           expect(binder.bind(Key.get(EbeanServer.class, Names.named("mydb")))).andReturn(lbbES);
         })
         .expect(onStop)
+        .expect(onStart)
         .run(unit -> {
           new Ebeanby("db")
               .configure(unit.get(Env.class), config()
                   .withValue("db", ConfigValueFactory.fromAnyRef("jdbc:db2://127.0.0.1/mydb")),
                   unit.get(Binder.class));
-        });
-  }
-
-  @Test
-  public void configureWithPackages() throws Exception {
-    new MockUnit(Env.class, Binder.class)
-        .expect(props("com.ibm.db2.jcc.DB2SimpleDataSource", "jdbc:db2://127.0.0.1/db",
-            "db2.db", null, "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource())
-        .expect(serviceKey("db"))
-        .expect(ebeanProperties())
-        .expect(containerConfig)
-        .expect(serverConfig(true))
-        .expect(enhancer("otro.package", "my.model"))
-        .expect(binder)
-        .expect(unit -> {
-          ServerConfig conf = unit.get(ServerConfig.class);
-          conf.addPackage("otro.package");
-        })
-        .expect(onStop)
-        .run(unit -> {
-          new Ebeanby()
-              .packages("otro.package")
-              .configure(unit.get(Env.class), config(), unit.get(Binder.class));
         });
   }
 
@@ -175,14 +292,14 @@ public class EbeanbyTest {
         .expect(serviceKey("db"))
         .expect(ebeanProperties())
         .expect(containerConfig)
-        .expect(serverConfig(true))
-        .expect(enhancer("my.model"))
+        .expect(serverConfig(true, "my.model"))
         .expect(binder)
         .expect(unit -> {
           ServerConfig conf = unit.get(ServerConfig.class);
           conf.setName("xx");
         })
         .expect(onStop)
+        .expect(onStart)
         .run(unit -> {
           new Ebeanby()
               .doWith((final ServerConfig conf) -> {
@@ -216,14 +333,13 @@ public class EbeanbyTest {
           expect(props.setProperty("ebean.debug.sql", "true")).andReturn(null);
           expect(props.setProperty("ebean.debug.lazyload", "false")).andReturn(null);
           expect(props.setProperty("ebean.disableClasspathSearch", "true")).andReturn(null);
-          expect(props.setProperty("ebean.search.packages", "my.model")).andReturn(null);
           unit.registerMock(Properties.class, props);
         })
         .expect(containerConfig)
-        .expect(serverConfig(false))
-        .expect(enhancer("my.model"))
+        .expect(serverConfig(false, "my.model"))
         .expect(binder)
         .expect(onStop)
+        .expect(onStart)
         .run(unit -> {
           Config customConfig = config().withValue("ebean.db.defaultServer",
               ConfigValueFactory.fromAnyRef(false));
@@ -254,12 +370,13 @@ public class EbeanbyTest {
     };
   }
 
-  private Block serverConfig(final boolean defaultServer) {
+  private Block serverConfig(final boolean defaultServer, final String... packages) {
     return unit -> {
       ServerConfig serverConfig = unit.mockConstructor(ServerConfig.class);
 
       serverConfig.setName("db");
-      serverConfig.addPackage("my.model");
+      expect(serverConfig.getPackages()).andReturn(Arrays.asList(packages));
+      serverConfig.setPackages(Arrays.asList(packages));
       serverConfig.setContainerConfig(unit.get(ContainerConfig.class));
       serverConfig.setDataSource(isA(DataSource.class));
       serverConfig.loadFromProperties(isA(Properties.class));
@@ -359,7 +476,6 @@ public class EbeanbyTest {
       expect(props.setProperty("ebean.debug.sql", "true")).andReturn(null);
       expect(props.setProperty("ebean.debug.lazyload", "false")).andReturn(null);
       expect(props.setProperty("ebean.disableClasspathSearch", "true")).andReturn(null);
-      expect(props.setProperty("ebean.search.packages", "my.model")).andReturn(null);
       unit.registerMock(Properties.class, props);
     };
   }
