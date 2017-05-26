@@ -12,7 +12,7 @@ Also register the application as a service and setup a health check.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-consul</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
 </dependency>
 ```
 

@@ -10,7 +10,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-assets-sass</artifactId>
- <version>1.1.1</version>
+ <version>1.1.2</version>
  <scope>provided</scope>
 </dependency>
 ```

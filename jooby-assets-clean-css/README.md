@@ -10,7 +10,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-clean-css</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <scope>provided</scope>
 </dependency>
 ```

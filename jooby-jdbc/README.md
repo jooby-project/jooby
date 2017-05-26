@@ -12,7 +12,7 @@ Production-ready jdbc data source, powered by the [HikariCP](https://github.com/
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbc</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
 </dependency>
 ```
 
@@ -316,7 +316,15 @@ databases {
 
   ###############################################################################################
 
-  mysql {
+  mysql: [{
+
+    # v6.x
+
+    dataSourceClassName = com.mysql.cj.jdbc.MysqlDataSource
+
+  }, {
+
+    # v5.x
 
     dataSourceClassName = com.mysql.jdbc.jdbc2.optional.MysqlDataSource
 
@@ -330,7 +338,7 @@ databases {
 
     useServerPrepStmts = true
 
-  }
+  }]
 
   ###############################################################################################
 

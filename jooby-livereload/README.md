@@ -15,7 +15,7 @@ Even cooler, when you change a CSS file or an image, the browser is updated inst
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-livereload</artifactId>
- <version>1.1.1</version>
+ <version>1.1.2</version>
 </dependency>
 ```
 

@@ -14,7 +14,7 @@ This module extends [jdbc module](/doc/jdbc), before going forward, make sure yo
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ebean</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
 </dependency>
 ```
 
@@ -121,8 +121,6 @@ ebean.debug.sql=true
 ebean.debug.lazyload=false
 
 ebean.disableClasspathSearch = true
-
-ebean.search.packages = ${application.ns}
 
 # -------------------------------------------------------------
 

@@ -16,7 +16,7 @@ Small but helpful module that provides access to ```Email``` instances.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-commons-email</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
 </dependency>
 ```
 

@@ -11,8 +11,8 @@ Provides cache solution and session storage via: <a href="https://github.com/ben
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-caffeine-cache</artifactId>
- <version>1.1.1</version>
+ <artifactId>jooby-caffeine</artifactId>
+ <version>1.1.2</version>
 </dependency>
 ```
 

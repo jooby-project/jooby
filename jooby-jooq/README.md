@@ -14,7 +14,7 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-jooq</artifactId>
- <version>1.1.1</version>
+ <version>1.1.2</version>
 </dependency>
 ```
 

@@ -10,7 +10,7 @@ A variety of processors are available: ([jshint](https://github.com/jooby-projec
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
 </dependency>
 ```
 
