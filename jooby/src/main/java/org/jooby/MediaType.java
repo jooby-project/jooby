@@ -501,8 +501,9 @@ public class MediaType implements Comparable<MediaType> {
    *
    * @param type A media type to parse.
    * @return An immutable {@link MediaType}.
+   * @throws Err.BadMediaType For bad media types.
    */
-  public static MediaType valueOf(final String type) {
+  public static MediaType valueOf(final String type) throws Err.BadMediaType {
     return parse(type).get(0);
   }
 
@@ -530,12 +531,14 @@ public class MediaType implements Comparable<MediaType> {
         result.add(all);
       } else {
         String[] typeAndSubtype = parts[0].split("/");
-        checkArgument(typeAndSubtype.length == 2, "Bad media type found '%s' while parsing '%s'",
-            type, value);
+        if (typeAndSubtype.length != 2) {
+          throw new Err.BadMediaType(value);
+        }
         String stype = typeAndSubtype[0].trim();
         String subtype = typeAndSubtype[1].trim();
-        checkArgument(!(stype.equals("*") && !subtype.equals("*")),
-            "Bad media type found '%s' while parsing '%s'", type, value);
+        if ("*".equals(stype) && !"*".equals(subtype)) {
+          throw new Err.BadMediaType(value);
+        }
         Map<String, String> parameters = DEFAULT_PARAMS;
         if (parts.length > 1) {
           parameters = new LinkedHashMap<>(DEFAULT_PARAMS);
@@ -560,8 +563,9 @@ public class MediaType implements Comparable<MediaType> {
    *
    * @param types Media types to parse.
    * @return An list of immutable {@link MediaType}.
+   * @throws Err.BadMediaType For bad media types.
    */
-  public static List<MediaType> valueOf(final String... types) {
+  public static List<MediaType> valueOf(final String... types) throws Err.BadMediaType {
     requireNonNull(types, "Types are required.");
     List<MediaType> result = new ArrayList<>();
     for (String type : types) {
@@ -575,8 +579,9 @@ public class MediaType implements Comparable<MediaType> {
    *
    * @param value The string separated by commas.
    * @return One ore more {@link MediaType}.
+   * @throws Err.BadMediaType For bad media types.
    */
-  public static List<MediaType> parse(final String value) {
+  public static List<MediaType> parse(final String value) throws Err.BadMediaType {
     return cache.computeIfAbsent(value, MediaType::parseInternal);
   }
 
