@@ -127,7 +127,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jdbc<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.1<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -420,8 +420,14 @@
   <span class="c"># mysql </span>
   <span class="c"># url jdbc:mysql://&lt;host&gt;:&lt;port&gt;/&lt;database&gt;?&lt;key1&gt;=&lt;value1&gt;&amp;&lt;key2&gt;=&lt;value2&gt;... </span>
   <span class="c">############################################################################################### </span>
-  <span class="err">mysql</span> <span class="err">{</span>
+  <span class="py">mysql</span><span class="p">:</span> <span class="s">[{</span>
 
+    <span class="c"># v6.x </span>
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.mysql.cj.jdbc.MysqlDataSource</span>
+
+  <span class="err">},</span> <span class="err">{</span>
+
+    <span class="c"># v5.x </span>
     <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.mysql.jdbc.jdbc2.optional.MysqlDataSource</span>
 
     <span class="py">encoding</span> <span class="p">=</span> <span class="s">${application.charset}</span>
@@ -434,7 +440,7 @@
 
     <span class="py">useServerPrepStmts</span> <span class="p">=</span> <span class="s">true</span>
 
-  <span class="err">}</span>
+  <span class="err">}]</span>
 
   <span class="c">############################################################################################### </span>
   <span class="c"># sqlserver </span>
