@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
@@ -23,6 +23,7 @@
     <module>jooby-hbs</module>
     <module>jooby-ftl</module>
     <module>jooby-pebble</module>
+    <module>jooby-embedded-neo4j</module>
     <module>jooby-jade</module>
     <module>jooby-caffeine</module>
     <module>jooby-guava-cache</module>
@@ -269,6 +270,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-jedis</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-embedded-neo4j</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -1969,15 +1976,15 @@
               <compilerArgs>
                 <arg>-parameters</arg>
               </compilerArgs>
-              <!-- eclipse compiler <debuglevel>lines,vars,source</debuglevel> <compilerId>eclipse</compilerId> 
-                <compilerArguments> <org.eclipse.jdt.core.compiler.codegen.methodParameters>generate</org.eclipse.jdt.core.compiler.codegen.methodParameters> 
-                <org.eclipse.jdt.core.compiler.debug.lineNumber>generate</org.eclipse.jdt.core.compiler.debug.lineNumber> 
-                <org.eclipse.jdt.core.compiler.debug.localVariable>generate</org.eclipse.jdt.core.compiler.debug.localVariable> 
-                <org.eclipse.jdt.core.compiler.debug.sourceFile>generate</org.eclipse.jdt.core.compiler.debug.sourceFile> 
-                <org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>enabled</org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode> 
-                <org.eclipse.jdt.core.compiler.codegen.unusedLocal>preserve</org.eclipse.jdt.core.compiler.codegen.unusedLocal> 
-                <org.eclipse.jdt.core.compiler.compliance>1.8</org.eclipse.jdt.core.compiler.compliance> <org.eclipse.jdt.core.compiler.source>1.8</org.eclipse.jdt.core.compiler.source> 
-                <org.eclipse.jdt.core.compiler.codegen.targetPlatform>1.8</org.eclipse.jdt.core.compiler.codegen.targetPlatform> 
+              <!-- eclipse compiler <debuglevel>lines,vars,source</debuglevel> <compilerId>eclipse</compilerId>
+                <compilerArguments> <org.eclipse.jdt.core.compiler.codegen.methodParameters>generate</org.eclipse.jdt.core.compiler.codegen.methodParameters>
+                <org.eclipse.jdt.core.compiler.debug.lineNumber>generate</org.eclipse.jdt.core.compiler.debug.lineNumber>
+                <org.eclipse.jdt.core.compiler.debug.localVariable>generate</org.eclipse.jdt.core.compiler.debug.localVariable>
+                <org.eclipse.jdt.core.compiler.debug.sourceFile>generate</org.eclipse.jdt.core.compiler.debug.sourceFile>
+                <org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>enabled</org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>
+                <org.eclipse.jdt.core.compiler.codegen.unusedLocal>preserve</org.eclipse.jdt.core.compiler.codegen.unusedLocal>
+                <org.eclipse.jdt.core.compiler.compliance>1.8</org.eclipse.jdt.core.compiler.compliance> <org.eclipse.jdt.core.compiler.source>1.8</org.eclipse.jdt.core.compiler.source>
+                <org.eclipse.jdt.core.compiler.codegen.targetPlatform>1.8</org.eclipse.jdt.core.compiler.codegen.targetPlatform>
                 <encoding>UTF-8</encoding> </compilerArguments> -->
             </configuration>
             <dependencies>
@@ -2699,8 +2706,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
       <activation>
         <file>
           <exists>
-              ${basedir}${file.separator}src${file.separator}etc${file.separator}rocker.activator
-            </exists>
+            ${basedir}${file.separator}src${file.separator}etc${file.separator}rocker.activator
+          </exists>
         </file>
       </activation>
       <properties>
