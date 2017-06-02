@@ -37,7 +37,6 @@ import org.jooby.spec.RouteSpec;
 
 @Mojo(name = "spec", requiresDependencyResolution = ResolutionScope.COMPILE,
     defaultPhase = LifecyclePhase.PROCESS_CLASSES)
-@Execute(phase = LifecyclePhase.PROCESS_CLASSES)
 public class RouteProcessorMojo extends AbstractMojo {
 
   @Component
