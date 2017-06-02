@@ -36,7 +36,7 @@ public class URLAssetTest {
     assertEquals("URLAssetTest.js(application/javascript)",
         new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI().toURL(),
             "URLAssetTest.js", MediaType.js)
-            .toString());
+                .toString());
   }
 
   @Test
@@ -49,14 +49,14 @@ public class URLAssetTest {
   public void lastModified() throws Exception {
     assertTrue(new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI()
         .toURL(), "URLAssetTest.js", MediaType.js)
-        .lastModified() > 0);
+            .lastModified() > 0);
   }
 
   @Test
   public void lastModifiedFileNotFound() throws Exception {
     assertTrue(new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.missing")
         .toURI().toURL(), "URLAssetTest.missing", MediaType.js)
-        .lastModified() == -1);
+            .lastModified() == -1);
   }
 
   @Test(expected = Exception.class)
@@ -152,7 +152,7 @@ public class URLAssetTest {
     assertEquals(MediaType.js,
         new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI().toURL(),
             "URLAssetTest.js", MediaType.js)
-            .type());
+                .type());
   }
 
   @Test
@@ -160,7 +160,7 @@ public class URLAssetTest {
     InputStream stream = new URLAsset(
         file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI().toURL(),
         "URLAssetTest.js", MediaType.js)
-        .stream();
+            .stream();
     assertEquals("function () {}\n", new String(ByteStreams.toByteArray(stream)));
     stream.close();
   }
@@ -183,7 +183,8 @@ public class URLAssetTest {
    * @return
    */
   private File file(final String location) {
-    for (String candidate : new String[]{location, "jooby/" + location, "../jooby/" + location }) {
+    for (String candidate : new String[]{location, "jooby/" + location,
+        "../../jooby/" + location }) {
       File file = new File(candidate);
       if (file.exists()) {
         return file;
