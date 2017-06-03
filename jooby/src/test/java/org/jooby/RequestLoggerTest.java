@@ -71,6 +71,28 @@ public class RequestLoggerTest {
   }
 
   @Test
+  public void queryString() throws Exception {
+    new MockUnit(Request.class, Response.class)
+        .expect(capture)
+        .expect(timestamp(7L))
+        .expect(ip("127.0.0.1"))
+        .expect(method("GET"))
+        .expect(path("/path"))
+        .expect(query("query=true"))
+        .expect(protocol("HTTP/1.1"))
+        .expect(status(Status.OK))
+        .expect(len(345L))
+        .run(unit -> {
+          new RequestLogger()
+              .dateFormatter(ZoneId.of("UTC"))
+              .queryString()
+              .log(line -> assertEquals(
+                  "127.0.0.1 - - [01/Jan/1970:00:00:00 +0000] \"GET /path?query=true HTTP/1.1\" 200 345", line))
+              .handle(unit.get(Request.class), unit.get(Response.class));
+        }, onComplete);
+  }
+
+  @Test
   public void extended() throws Exception {
     new MockUnit(Request.class, Response.class)
         .expect(capture)
@@ -144,6 +166,13 @@ public class RequestLoggerTest {
     return unit -> {
       Request req = unit.get(Request.class);
       expect(req.path()).andReturn(path);
+    };
+  }
+
+  private Block query(final String query) {
+    return unit -> {
+      Request req = unit.get(Request.class);
+      expect(req.queryString()).andReturn(Optional.of(query)).atLeastOnce();
     };
   }
 
