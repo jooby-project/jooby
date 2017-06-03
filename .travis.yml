@@ -4,7 +4,7 @@ before_install:
   - export MAVEN_OPTS=-Xmx1024m
 
 script:
-  - ./travis.sh
+  - ./build/travis.sh
 
 jdk:
   - oraclejdk8
