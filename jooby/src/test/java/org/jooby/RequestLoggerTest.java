@@ -172,7 +172,7 @@ public class RequestLoggerTest {
   private Block query(final String query) {
     return unit -> {
       Request req = unit.get(Request.class);
-      expect(req.queryString()).andReturn(Optional.of(query)).atLeastOnce();
+      expect(req.queryString()).andReturn(Optional.of(query));
     };
   }
 

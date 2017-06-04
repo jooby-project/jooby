@@ -250,9 +250,8 @@ public class RequestLogger implements Route.Handler {
       sb.append(Q).append(req.method());
       sb.append(SP);
       sb.append(req.path());
-      if (queryString && req.queryString().isPresent()) {
-        sb.append(QUERY);
-        sb.append(req.queryString().get());
+      if (queryString) {
+        req.queryString().ifPresent(s -> sb.append(QUERY).append(s));
       }
       sb.append(SP);
       sb.append(req.protocol());
