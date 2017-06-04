@@ -197,6 +197,7 @@ public class RequestLogger implements Route.Handler {
   private static final char BL = '[';
   private static final char BR = ']';
   private static final char Q = '\"';
+  private static final char QUERY = '?';
 
   private static Function<Request, String> ANNON = req -> DASH;
 
@@ -210,6 +211,8 @@ public class RequestLogger implements Route.Handler {
   private Function<Long, String> df;
 
   private boolean latency;
+
+  private boolean queryString;
 
   private boolean extended;
 
@@ -247,6 +250,9 @@ public class RequestLogger implements Route.Handler {
       sb.append(Q).append(req.method());
       sb.append(SP);
       sb.append(req.path());
+      if (queryString) {
+        req.queryString().ifPresent(s -> sb.append(QUERY).append(s));
+      }
       sb.append(SP);
       sb.append(req.protocol());
       sb.append(Q).append(SP);
@@ -328,6 +334,16 @@ public class RequestLogger implements Route.Handler {
    */
   public RequestLogger latency() {
     this.latency = true;
+    return this;
+  }
+
+  /**
+   * Log full path of the request including query string.
+   *
+   * @return This instance.
+   */
+  public RequestLogger queryString() {
+    this.queryString = true;
     return this;
   }
 
