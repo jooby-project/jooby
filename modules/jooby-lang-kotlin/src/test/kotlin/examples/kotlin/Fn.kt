@@ -39,5 +39,22 @@ fun main(args: Array<String>) {
         chain.next(req, rsp)
       }
     }.name("pets")
+
+    get("/params") {
+      val name = param<String>("name")
+      val age = param<Int>("age")
+      "Hi $name, your username is now ${name + age}"
+    }
+
+    get("/headers") {
+      val name = header<String>("name")
+      val age = header<Int>("age")
+      "Hi $name, your username is now ${name + age}"
+    }
+
+    get("/body") {
+      val user = body<User>()
+      user
+    }
   }
 }
