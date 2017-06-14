@@ -1,14 +1,17 @@
 package examples.kotlin
 
 import org.jooby.Jooby
+import org.jooby.Kooby
 
-class App: Jooby() {
+/**
+ * Use Kooby to make Jooby more Kotlin.
+ */
+class App: Kooby() {
   /**
    * Configure your application
    */
   init {
-
-    get ("/") { ->
+    get ("/") {
       "Hi Kotlin"
     }
   }
