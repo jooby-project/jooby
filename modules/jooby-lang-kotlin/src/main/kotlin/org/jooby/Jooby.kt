@@ -305,12 +305,24 @@ val Mutant.doubleValue: Double
 val Mutant.value: String
   get() = value()
 
+inline fun <reified T> Mutant.to(): T {
+  return this.to(T::class.java)
+}
+
 fun <T:Any> Mutant.to(type: KClass<T>): T {
   return this.to(type.java)
 }
 
+inline fun <reified T> Mutant.to(contentType: MediaType): T {
+  return this.to(T::class.java, contentType)
+}
+
 fun <T:Any> Mutant.to(type: KClass<T>, contentType: MediaType): T {
   return this.to(type.java, contentType)
+}
+
+inline fun <reified T> Mutant.to(contentType: String): T {
+  return this.to(T::class.java, contentType)
 }
 
 fun <T:Any> Mutant.to(type: KClass<T>, contentType: String): T {
@@ -340,4 +352,16 @@ fun <T:Comparable<T>> Mutant.toSortedSet(type: KClass<T>): SortedSet<T> {
 // *********************************** Request *****************************************************
 fun <T:Any> Request.set(type: KClass<T>, value: Any): Request {
   return this.set(type.java, value)
+}
+
+inline fun <reified T> Request.param(name: String): T {
+  return param(name).to(T::class.java)
+}
+
+inline fun <reified T> Request.header(name: String): T {
+  return param(name).to(T::class.java)
+}
+
+inline fun <reified T> Request.body(): T {
+  return body().to(T::class.java)
 }
