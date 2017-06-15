@@ -164,7 +164,7 @@ class KRouteGroup(b: Route.Props<Route.Group>) : Route.Props<Route.Group> by b {
 /**
   * Collection of utility class and method to make Jooby more Kotlin.
   */
-class Kooby: Jooby() {
+open class Kooby: Jooby() {
   fun <T:Any> use(klass: KClass<T>): Route.Collection {
     return use(klass.java)
   }
