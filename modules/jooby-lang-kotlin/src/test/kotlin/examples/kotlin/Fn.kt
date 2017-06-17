@@ -13,6 +13,14 @@ fun main(args: Array<String>) {
       "Hi $name!!"
     }
 
+    // reified version
+    post {
+      val h = header<Int>("id")
+      val name = param<String>("name")
+      val user = body<User>()
+      name + user + h
+    }
+
     with {
       get("/with") { "With" }
     }.name("w")
@@ -55,6 +63,18 @@ fun main(args: Array<String>) {
     get("/body") {
       val user = body<User>()
       user
+    }
+
+    onStart {
+      println("Starting")
+    }
+
+    onStarted {
+      println("Started")
+    }
+
+    onStop {
+      println("Stopped")
     }
   }
 }
