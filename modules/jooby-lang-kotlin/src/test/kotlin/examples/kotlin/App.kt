@@ -1,7 +1,6 @@
 package examples.kotlin
 
-import org.jooby.Jooby
-import org.jooby.Kooby
+import org.jooby.*
 
 /**
  * Use Kooby to make Jooby more Kotlin.
@@ -14,6 +13,7 @@ class App: Kooby() {
     get ("/") {
       "Hi Kotlin"
     }
+
   }
 }
 

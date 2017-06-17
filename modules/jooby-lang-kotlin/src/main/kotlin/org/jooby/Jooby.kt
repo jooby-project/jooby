@@ -3,10 +3,15 @@ package org.jooby
 import kotlin.reflect.KClass
 import org.jooby.spi.Server
 import java.util.SortedSet
+import com.sun.xml.internal.bind.v2.schemagen.episode.Klass
+
+@DslMarker
+annotation class DslJooby
 
 /**
  * Collection of utility class and method to make Jooby more Kotlin.
  */
+@DslJooby
 class KRouteGroup(b: Route.Props<Route.Group>) : Route.Props<Route.Group> by b {
   private val g = b as Route.Group
 
@@ -164,7 +169,12 @@ class KRouteGroup(b: Route.Props<Route.Group>) : Route.Props<Route.Group> by b {
 /**
   * Collection of utility class and method to make Jooby more Kotlin.
   */
-open class Kooby: Jooby() {
+@DslJooby
+open class Kooby constructor(): Jooby() {
+  constructor(init: Kooby.() -> Unit): this() {
+    this.init()
+  }
+
   fun <T:Any> use(klass: KClass<T>): Route.Collection {
     return use(klass.java)
   }
@@ -225,6 +235,21 @@ open class Kooby: Jooby() {
   fun head(pattern: String = "/", init: Request.() -> Any): Route.Definition {
     return head(pattern, {req-> req.init()})
   }
+
+  fun onStart(init: Registry.() -> Unit): Jooby {
+    this.onStart({registry-> registry.init()})
+    return this
+  }
+
+  fun onStarted(init: Registry.() -> Unit): Jooby {
+    this.onStarted({registry-> registry.init()})
+    return this
+  }
+
+  fun onStop(init: Registry.() -> Unit): Jooby {
+    this.onStop({registry-> registry.init()})
+    return this
+  }
 }
 
 /**
@@ -252,18 +277,19 @@ fun jooby(init: Kooby.() -> Unit): Jooby {
  * </pre>
  */
 fun run(vararg args: String, init: Kooby.() -> Unit): Unit {
-  Jooby.run({ ->
-    val app = Kooby()
-    app.init()
-    app
-  }, args)
+  Jooby.run({-> Kooby(init)}, args)
+}
+
+fun run(supplier: () -> Jooby, vararg args: String): Unit {
+  Jooby.run(supplier, args)
 }
 
 // Redefine functions with class arguments
 fun <T:Throwable> Router.err(klass: KClass<T>, handler: Err.Handler): Router {
-    return this.err(klass.java, handler)
-  }
+  return this.err(klass.java, handler)
+}
 
+// *********************************** Registry **************************************************
 fun <T:Any> Registry.require(klass: KClass<T>): T {
   return this.require(klass.java)
 }
@@ -275,6 +301,18 @@ fun <T:Any> Registry.require(name: String, klass: KClass<T>): T {
 // *********************************** LifeCycle **************************************************
 fun <T:Any> LifeCycle.lifeCycle(klass: KClass<T>): LifeCycle {
   return this.lifeCycle(klass.java)
+}
+
+fun Env.onStart(init: Registry.() -> Unit): LifeCycle {
+  return this.onStart({registry-> registry.init()})
+}
+
+fun Env.onStarted(init: Registry.() -> Unit): LifeCycle {
+  return this.onStarted({registry-> registry.init()})
+}
+
+fun Env.onStop(init: Registry.() -> Unit): LifeCycle {
+  return this.onStop({registry-> registry.init()})
 }
 
 // *********************************** Mutant *****************************************************
@@ -333,20 +371,40 @@ fun <T:Enum<T>> Mutant.toEnum(type: KClass<T>): T {
   return this.toEnum(type.java)
 }
 
+inline fun <reified T:Enum<T>> Mutant.toEnum(): T {
+  return this.toEnum(T::class.java)
+}
+
 fun <T:Any> Mutant.toOptional(type: KClass<T>): java.util.Optional<T> {
   return this.toOptional(type.java)
+}
+
+inline fun <reified T> Mutant.toOptional(): java.util.Optional<T> {
+  return this.toOptional(T::class.java)
 }
 
 fun <T:Any> Mutant.toList(type: KClass<T>): List<T> {
   return this.toList(type.java)
 }
 
+inline fun <reified T> Mutant.toList(): List<T> {
+  return this.toList(T::class.java)
+}
+
 fun <T:Any> Mutant.toSet(type: KClass<T>): Set<T> {
   return this.toSet(type.java)
 }
 
+inline fun <reified T> Mutant.toSet(): Set<T> {
+  return this.toSet(T::class.java)
+}
+
 fun <T:Comparable<T>> Mutant.toSortedSet(type: KClass<T>): SortedSet<T> {
   return this.toSortedSet(type.java)
+}
+
+inline fun <reified T:Comparable<T>> Mutant.toSortedSet(): SortedSet<T> {
+  return this.toSortedSet(T::class.java)
 }
 
 // *********************************** Request *****************************************************
