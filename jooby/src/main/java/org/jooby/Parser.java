@@ -466,25 +466,6 @@ public interface Parser {
      */
     Builder ifparams(Callback<Map<String, Mutant>> callback);
 
-    /**
-     * Add a HTTP upload callback. The Callback will be executed when current context is bound to a
-     * HTTP upload via {@link Request#param(String)}.
-     *
-     * If current {@link Context} isn't a HTTP upload a call to {@link Context#next()} is made.
-     *
-     * @param callback A upload parser callback.
-     * @return This builder.
-     */
-    Builder upload(Callback<ParamReference<Upload>> callback);
-
-    /**
-     * Like {@link #upload(Callback)} but it skip the callback if the requested type is an
-     * {@link Optional}.
-     *
-     * @param callback A upload parser callback.
-     * @return This builder.
-     */
-    Builder ifupload(Callback<ParamReference<Upload>> callback);
   }
 
   /**

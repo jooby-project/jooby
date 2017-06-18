@@ -220,7 +220,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jooby.Parser;
-import org.jooby.Upload;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
@@ -323,13 +322,6 @@ public enum BuiltinParser implements Parser {
             builder.add(ctx.next(paramType, value));
           }
           return builder.build();
-        }).upload(uploads -> {
-          ImmutableCollection.Builder builder = parsers.get(type.getRawType()).get();
-          TypeLiteral<Upload> paramType = TypeLiteral.get(Upload.class);
-          for (Upload upload : uploads) {
-            builder.add(ctx.next(paramType, upload));
-          }
-          return builder.build();
         });
       } else {
         return ctx.next();
@@ -359,8 +351,6 @@ public enum BuiltinParser implements Parser {
                 return java.util.Optional.empty();
               }
               return java.util.Optional.of(ctx.next(paramType));
-            }).upload(files -> {
-              return java.util.Optional.of(ctx.next(paramType));
             });
       } else {
         return ctx.next();
@@ -388,17 +378,6 @@ public enum BuiltinParser implements Parser {
           .filter(e -> e.name().equalsIgnoreCase(value))
           .findFirst()
           .orElseGet(() -> java.lang.Enum.valueOf(type, value));
-    }
-  },
-
-  Upload {
-    @Override
-    public Object parse(final TypeLiteral<?> type, final Context ctx) throws Throwable {
-      if (Upload.class == type.getRawType()) {
-        return ctx.upload(uploads -> uploads.get(0));
-      } else {
-        return ctx.next();
-      }
     }
   },
 

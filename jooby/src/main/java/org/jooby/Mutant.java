@@ -449,8 +449,7 @@ public interface Mutant {
   @SuppressWarnings("unchecked")
   default <T extends Comparable<T>> SortedSet<T> toSortedSet(final Class<T> type) {
     return (SortedSet<T>) to(TypeLiteral.get(
-        Types.newParameterizedType(SortedSet.class, Primitives.wrap(type))
-        ));
+        Types.newParameterizedType(SortedSet.class, Primitives.wrap(type))));
   }
 
   /**
@@ -468,17 +467,7 @@ public interface Mutant {
   @SuppressWarnings("unchecked")
   default <T> Optional<T> toOptional(final Class<T> type) {
     return (Optional<T>) to(TypeLiteral.get(
-        Types.newParameterizedType(Optional.class, Primitives.wrap(type))
-        ));
-  }
-
-  /**
-   * Convert a form field to file {@link Upload}.
-   *
-   * @return A file {@link Upload}.
-   */
-  default Upload toUpload() {
-    return to(Upload.class);
+        Types.newParameterizedType(Optional.class, Primitives.wrap(type))));
   }
 
   /**

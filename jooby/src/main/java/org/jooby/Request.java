@@ -205,6 +205,7 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
@@ -417,12 +418,12 @@ public interface Request extends Registry {
     }
 
     @Override
-    public Upload file(final String name) {
+    public Upload file(final String name) throws IOException {
       return req.file(name);
     }
 
     @Override
-    public List<Upload> files(final String name) {
+    public List<Upload> files(final String name) throws IOException {
       return req.files(name);
     }
 
@@ -1013,9 +1014,27 @@ public interface Request extends Registry {
    *
    * @param name File's name.
    * @return An {@link Upload}.
+   * @throws IOException
    */
-  default Upload file(final String name) {
-    return param(name).toUpload();
+  default Upload file(final String name) throws IOException {
+    List<Upload> files = files(name);
+    if (files.size() == 0) {
+      throw new Err.Missing(name);
+    }
+    return files.get(0);
+  }
+
+  /**
+   * Get a file {@link Upload} with the given name or empty. The request must be a POST with
+   * <code>multipart/form-data</code> content-type.
+   *
+   * @param name File's name.
+   * @return An {@link Upload}.
+   * @throws IOException
+   */
+  default Optional<Upload> ifFile(final String name) throws IOException {
+    List<Upload> files = files(name);
+    return files.size() == 0 ? Optional.empty() : Optional.of(files.get(0));
   }
 
   /**
@@ -1024,10 +1043,9 @@ public interface Request extends Registry {
    *
    * @param name File's name.
    * @return A list of {@link Upload}.
+   * @throws IOException
    */
-  default List<Upload> files(final String name) {
-    return param(name).toList(Upload.class);
-  }
+  List<Upload> files(final String name) throws IOException;
 
   /**
    * Get a HTTP header.

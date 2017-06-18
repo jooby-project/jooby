@@ -217,10 +217,8 @@ import org.jooby.Parser.Builder;
 import org.jooby.Parser.Callback;
 import org.jooby.Parser.ParamReference;
 import org.jooby.Status;
-import org.jooby.Upload;
 import org.jooby.internal.StatusCodeProvider;
 import org.jooby.internal.StrParamReferenceImpl;
-import org.jooby.internal.UploadParamReferenceImpl;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
@@ -286,16 +284,6 @@ public class ParserExecutor {
       }
 
       @Override
-      public Builder upload(final Callback<Parser.ParamReference<Upload>> callback) {
-        return builder.upload(callback);
-      }
-
-      @Override
-      public Builder ifupload(final Callback<ParamReference<Upload>> callback) {
-        return builder.ifupload(callback);
-      }
-
-      @Override
       public Builder param(final Callback<ParamReference<String>> callback) {
         return builder.param(callback);
       }
@@ -356,9 +344,6 @@ public class ParserExecutor {
           ParamReference<?> pref = (ParamReference) value;
           return new StrParamReferenceImpl(pref.type(), pref.name(),
               ImmutableList.of((String) nextval));
-        } else if (nextval instanceof Upload) {
-          ParamReference<?> pref = (ParamReference) value;
-          return new UploadParamReferenceImpl(pref.name(), ImmutableList.of((Upload) nextval));
         }
         return nextval;
       }
