@@ -107,8 +107,7 @@
        <ul> 
         <li> <a href="#spymemcached-session-store-dependency">dependency</a></li> 
         <li> <a href="#spymemcached-session-store-usage">usage</a></li> 
-        <li> <a href="#spymemcached-session-store-options">options</a></li> 
-        <li> <a href="#spymemcached-session-store-memcached-conf">memcached.conf</a></li>
+        <li> <a href="#spymemcached-session-store-options">options</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -131,7 +130,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-spymemcached<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -196,7 +195,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-spymemcached<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -243,35 +242,6 @@
        <p>Default <a href="http://memcached.org" target="_blank">Memcached</a> key prefix is <code class="highlighter-rouge codehilite">sessions:</code>. Sessions in <a href="http://memcached.org" target="_blank">Memcached</a> will looks like: <code class="highlighter-rouge codehilite">sessions:ID</code></p> 
        <p>It’s possible to change the default key setting the <code class="highlighter-rouge codehilite">memcached.sesssion.prefix</code> property.</p> 
        <p>Happy coding!!</p> 
-       <h3 id="spymemcached-session-store-memcached-conf">memcached.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="err">memcached</span> <span class="err">{</span>
-
-  <span class="py">authWaitTime</span> <span class="p">=</span> <span class="s">1s</span>
-
-  <span class="py">daemon</span> <span class="p">=</span> <span class="s">false</span>
-
-  <span class="py">failureMode</span> <span class="p">=</span> <span class="s">redistribute</span>
-
-  <span class="py">locator</span> <span class="p">=</span> <span class="s">ARRAY_MOD</span>
-
-  <span class="py">maxReconnectDelay</span> <span class="p">=</span> <span class="s">30s</span>
-
-  <span class="py">protocol</span> <span class="p">=</span> <span class="s">text</span>
-
-  <span class="py">shutdownTimeout</span> <span class="p">=</span> <span class="s">-1</span>
-
-<span class="err">}</span>
-
-<span class="c">#default HTTP session settings </span>
-<span class="py">memcached.session.prefix</span> <span class="p">=</span> <span class="s">"sessions:"</span>
-
-<span class="py">memcached.session.timeout</span> <span class="p">=</span> <span class="s">${session.timeout}</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
     </div> 

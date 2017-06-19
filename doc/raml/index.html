@@ -102,8 +102,7 @@
         <li> <a href="#raml-dependency">dependency</a></li> 
         <li> <a href="#raml-usage">usage</a></li> 
         <li> <a href="#raml-options">options</a></li> 
-        <li> <a href="#raml-live-demo">live demo</a></li> 
-        <li> <a href="#raml-raml-conf">raml.conf</a></li>
+        <li> <a href="#raml-live-demo">live demo</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -130,7 +129,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-raml<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -259,26 +258,6 @@
        <h3 id="raml-live-demo">live demo</h3> 
        <p>Check out the a live demo for <a href="https://jooby-spec.herokuapp.com/raml" target="_blank">RAML</a>.</p> 
        <p>Source code available at <a href="https://github.com/jooby-guides/route-spec" target="_blank">github</a></p> 
-       <h3 id="raml-raml-conf">raml.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="err">raml</span> <span class="err">{</span>
-
-  <span class="py">title</span><span class="p">:</span> <span class="s">${application.name} API</span>
-
-  <span class="py">version</span><span class="p">:</span> <span class="s">${application.version}</span>
-
-  <span class="py">baseUri</span><span class="p">:</span> <span class="s">"http://"${application.host}":"${application.port}${application.path}</span>
-
-  <span class="py">mediaType</span><span class="p">:</span> <span class="s">"application/json"</span>
-
-  <span class="py">protocols</span><span class="p">:</span> <span class="s">[HTTP]</span>
-
-<span class="err">}</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
     </div> 

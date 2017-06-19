@@ -105,8 +105,7 @@
         <li> <a href="#quartz-grouping-jobs-together">grouping jobs together</a></li> 
         <li> <a href="#quartz-dependency-injection">dependency injection</a></li> 
         <li> <a href="#quartz-configuration">configuration</a></li> 
-        <li> <a href="#quartz-adding-jobs-programmatically">adding jobs programmatically</a></li> 
-        <li> <a href="#quartz-quartz-conf">quartz.conf</a></li>
+        <li> <a href="#quartz-adding-jobs-programmatically">adding jobs programmatically</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -125,7 +124,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-quartz<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -343,23 +342,6 @@
    <span class="o">})</span>
   <span class="o">);</span>
 <span class="o">}</span>
-</code></pre> 
-       </div> 
-       <h3 id="quartz-quartz-conf">quartz.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="py">org.quartz.scheduler.instanceName</span> <span class="p">=</span> <span class="s">quartz</span>
-
-<span class="py">org.quartz.scheduler.instanceId</span> <span class="p">=</span> <span class="s">local</span>
-
-<span class="c"># thread pool </span>
-<span class="py">org.quartz.threadPool.threadNamePrefix</span> <span class="p">=</span> <span class="s">quartz</span>
-
-<span class="py">org.quartz.threadPool.threadCount</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
-
-<span class="py">org.quartz.scheduler.skipUpdateCheck</span> <span class="p">=</span> <span class="s">true</span>
 </code></pre> 
        </div> 
       </div> 

@@ -100,7 +100,9 @@
        <ul> 
         <li> <a href="#servlets-usage">usage</a></li> 
         <li> <a href="#servlets-limitations">limitations</a></li> 
-        <li> <a href="#servlets-how-does-it-work-">how does it work?</a></li>
+        <li> <a href="#servlets-how-does-it-work-">how does it work?</a></li> 
+        <li> <a href="#servlets-jooby-conf">jooby.conf</a></li> 
+        <li> <a href="#servlets-mime-properties">mime.properties</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -204,6 +206,672 @@
         <li>save a <code class="highlighter-rouge codehilite">web.xml</code> file inside that dir</li> 
         <li>run: <code class="highlighter-rouge codehilite">mvn clean package</code></li> 
        </ol> 
+       <h3 id="servlets-jooby-conf">jooby.conf</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="c">################################################################################################### </span>
+<span class="c">#! application </span>
+<span class="c">################################################################################################### </span>
+<span class="err">application</span> <span class="err">{</span>
+
+  <span class="c"># environment default is: dev </span>
+  <span class="py">env</span> <span class="p">=</span> <span class="s">dev</span>
+
+  <span class="c"># contains the simple name of package of your application bootstrap class. </span>
+  <span class="c"># For example: com.foo.App -&gt; foo </span>
+  <span class="c"># name = App.class.getPackage().getName().lastSegment() </span>
+  <span class="c"># application namespace, default to app package. set it at runtime </span>
+  <span class="c"># ns = App.class.getPackage().getName() </span>
+  <span class="c"># class = App.class.getName() </span>
+  <span class="c"># tmpdir </span>
+  <span class="py">tmpdir</span> <span class="p">=</span> <span class="s">${java.io.tmpdir}/${application.name}</span>
+
+  <span class="c"># path (a.k.a. as contextPath) </span>
+  <span class="py">path</span> <span class="p">=</span> <span class="s">/</span>
+
+  <span class="c"># localhost </span>
+  <span class="py">host</span> <span class="p">=</span> <span class="s">localhost</span>
+
+  <span class="c"># HTTP ports </span>
+  <span class="py">port</span> <span class="p">=</span> <span class="s">8080</span>
+
+  <span class="c"># uncomment to enabled HTTPS </span>
+  <span class="c"># securePort = 8443 </span>
+  <span class="c"># we do UTF-8 </span>
+  <span class="py">charset</span> <span class="p">=</span> <span class="s">UTF-8</span>
+
+  <span class="c"># date format </span>
+  <span class="py">dateFormat</span> <span class="p">=</span> <span class="s">dd-MMM-yyyy</span>
+
+  <span class="c"># number format, system default. set it at runtime </span>
+  <span class="c"># numberFormat = DecimalFormat.getInstance(${application.lang})).toPattern() </span>
+  <span class="c"># comma separated list of locale using the language tag format. Default to: Locale.getDefault() </span>
+  <span class="c"># lang = Locale.getDefault() </span>
+  <span class="c"># timezone, system default. set it at runtime </span>
+  <span class="c"># tz = ZoneId.systemDefault().getId() </span>
+  <span class="c"># redirect to/force https </span>
+  <span class="c"># example: https://my.domain.com/{0} </span>
+  <span class="py">redirect_https</span> <span class="p">=</span> <span class="s">""</span>
+
+<span class="err">}</span>
+
+<span class="err">ssl</span> <span class="err">{</span>
+
+  <span class="c"># An X.509 certificate chain file in PEM format, provided certificate should NOT be used in prod. </span>
+  <span class="py">keystore.cert</span> <span class="p">=</span> <span class="s">org/jooby/unsecure.crt </span>
+
+  <span class="c"># A PKCS#8 private key file in PEM format, provided key should NOT be used in prod. </span>
+  <span class="py">keystore.key</span> <span class="p">=</span> <span class="s">org/jooby/unsecure.key</span>
+
+  <span class="c"># password of the keystore.key (if any) </span>
+  <span class="c"># keystore.password = </span>
+  <span class="c"># Trusted certificates for verifying the remote endpoint's certificate. The file should </span>
+  <span class="c"># contain an X.509 certificate chain in PEM format. Default uses the system default. </span>
+  <span class="c"># trust.cert = </span>
+  <span class="c"># Set the size of the cache used for storing SSL session objects. 0 to use the </span>
+  <span class="c"># default value. </span>
+  <span class="py">session.cacheSize</span> <span class="p">=</span> <span class="s">0</span>
+
+  <span class="c"># Timeout for the cached SSL session objects, in seconds. 0 to use the default value. </span>
+  <span class="py">session.timeout</span> <span class="p">=</span> <span class="s">0</span>
+
+<span class="err">}</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! session defaults </span>
+<span class="c">################################################################################################### </span>
+<span class="err">session</span> <span class="err">{</span>
+
+  <span class="c"># we suggest a timeout, but usage and an implementation is specific to a Session.Store implementation </span>
+  <span class="py">timeout</span> <span class="p">=</span> <span class="s">30m</span>
+
+  <span class="c"># save interval, how frequently we must save a none-dirty session (in millis). </span>
+  <span class="py">saveInterval</span> <span class="p">=</span> <span class="s">60s</span>
+
+  <span class="err">cookie</span> <span class="err">{</span>
+
+    <span class="c"># name of the cookie </span>
+    <span class="py">name</span> <span class="p">=</span> <span class="s">jooby.sid</span>
+
+    <span class="c"># cookie path </span>
+    <span class="py">path</span> <span class="p">=</span> <span class="s">/</span>
+
+    <span class="c"># expires when the user closes the web browser </span>
+    <span class="py">maxAge</span> <span class="p">=</span> <span class="s">-1</span>
+
+    <span class="py">httpOnly</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="py">secure</span> <span class="p">=</span> <span class="s">false</span>
+
+  <span class="err">}</span>
+
+<span class="err">}</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! flash scope defaults </span>
+<span class="c">################################################################################################### </span>
+<span class="err">flash</span> <span class="err">{</span>
+
+  <span class="err">cookie</span> <span class="err">{</span>
+
+    <span class="py">name</span> <span class="p">=</span> <span class="s">jooby.flash</span>
+
+    <span class="py">path</span> <span class="p">=</span> <span class="s">${application.path}</span>
+
+    <span class="py">httpOnly</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="py">secure</span> <span class="p">=</span> <span class="s">false</span>
+
+  <span class="err">}</span>
+
+<span class="err">}</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! server defaults </span>
+<span class="c">################################################################################################### </span>
+<span class="err">server</span> <span class="err">{</span>
+
+  <span class="err">http</span> <span class="err">{</span>
+
+    <span class="py">HeaderSize</span> <span class="p">=</span> <span class="s">8k</span>
+
+    <span class="c"># Max response buffer size </span>
+    <span class="py">ResponseBufferSize</span> <span class="p">=</span> <span class="s">16k</span>
+
+    <span class="c"># Max request body size to keep in memory </span>
+    <span class="py">RequestBufferSize</span> <span class="p">=</span> <span class="s">1m</span>
+
+    <span class="c"># Max request size total (body + header) </span>
+    <span class="py">MaxRequestSize</span> <span class="p">=</span> <span class="s">200k</span>
+
+    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">0</span>
+
+    <span class="py">Method</span> <span class="p">=</span> <span class="s">""</span>
+
+  <span class="err">}</span>
+
+  <span class="err">threads</span> <span class="err">{</span>
+
+    <span class="py">Min</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
+
+    <span class="py">Max</span> <span class="p">=</span> <span class="s">${runtime.processors-x8}</span>
+
+    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">60s</span>
+
+  <span class="err">}</span>
+
+  <span class="err">routes</span> <span class="err">{</span>
+
+    <span class="c"># Guava Cache Spec </span>
+    <span class="py">Cache</span> <span class="p">=</span> <span class="s">"concurrencyLevel="${runtime.concurrencyLevel}",maximumSize="${server.threads.Max}</span>
+
+  <span class="err">}</span>
+
+  <span class="err">ws</span> <span class="err">{</span>
+
+    <span class="c"># The maximum size of a text message. </span>
+    <span class="py">MaxTextMessageSize</span> <span class="p">=</span> <span class="s">16k</span>
+
+    <span class="c"># The maximum size of a binary message. </span>
+    <span class="py">MaxBinaryMessageSize</span> <span class="p">=</span> <span class="s">16k</span>
+
+    <span class="c"># The time in ms (milliseconds) that a websocket may be idle before closing. </span>
+    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">5minutes</span>
+
+  <span class="err">}</span>
+
+  <span class="err">http2</span> <span class="err">{</span>
+
+    <span class="py">cleartext</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="py">enabled</span> <span class="p">=</span> <span class="s">false</span>
+
+  <span class="err">}</span>
+
+<span class="err">}</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! assets </span>
+<span class="c">################################################################################################### </span>
+<span class="err">assets</span> <span class="err">{</span>
+
+  <span class="c">#! If asset CDN is present, the asset router will do a redirect to CDN and wont serve the file locally </span>
+  <span class="c">#! /assets/js/index.js -&gt; redirectTo(cdn + assets/js/index.js) </span>
+  <span class="py">cdn</span> <span class="p">=</span>  <span class="s">""</span>
+
+  <span class="py">etag</span> <span class="p">=</span> <span class="s">true</span>
+
+  <span class="py">lastModified</span> <span class="p">=</span> <span class="s">true</span>
+
+  <span class="py">env</span> <span class="p">=</span> <span class="s">${application.env}</span>
+
+  <span class="py">charset</span> <span class="p">=</span> <span class="s">${application.charset}</span>
+
+  <span class="c"># -1 to disable or HOCON duration value </span>
+  <span class="py">cache.maxAge</span> <span class="p">=</span> <span class="s">-1</span>
+
+<span class="err">}</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! Cross origin resource sharing </span>
+<span class="c">################################################################################################### </span>
+<span class="err">cors</span> <span class="err">{</span>
+
+  <span class="c"># Configures the Access-Control-Allow-Origin CORS header. Possibly values: *, domain, regex or a list of previous values. </span>
+  <span class="c"># Example: </span>
+  <span class="c"># "*" </span>
+  <span class="c"># ["http://foo.com"] </span>
+  <span class="c"># ["http://*.com"] </span>
+  <span class="c"># ["http://foo.com", "http://bar.com"] </span>
+  <span class="py">origin</span><span class="p">:</span> <span class="s">"*"</span>
+
+  <span class="c"># If true, set the Access-Control-Allow-Credentials header </span>
+  <span class="py">credentials</span><span class="p">:</span> <span class="s">true</span>
+
+  <span class="c"># Allowed methods: Set the Access-Control-Allow-Methods header </span>
+  <span class="py">allowedMethods</span><span class="p">:</span> <span class="s">[GET, POST]</span>
+
+  <span class="c"># Allowed headers: set the Access-Control-Allow-Headers header. Possibly values: *, header name or a list of previous values. </span>
+  <span class="c"># Examples </span>
+  <span class="c"># "*" </span>
+  <span class="c"># Custom-Header </span>
+  <span class="c"># [Header-1, Header-2] </span>
+  <span class="py">allowedHeaders</span><span class="p">:</span> <span class="s">[X-Requested-With, Content-Type, Accept, Origin]</span>
+
+  <span class="c"># Preflight max age: number of seconds that preflight requests can be cached by the client </span>
+  <span class="py">maxAge</span><span class="p">:</span> <span class="s">30m</span>
+
+  <span class="c"># Set the Access-Control-Expose-Headers header </span>
+  <span class="c"># exposedHeaders: [] </span>
+<span class="err">}</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! runtime </span>
+<span class="c">################################################################################################### </span>
+<span class="c">#! number of available processors, set it at runtime </span>
+<span class="c">#! runtime.processors = Runtime.getRuntime().availableProcessors() </span>
+<span class="c">#! runtime.processors-plus1 = ${runtime.processors} + 1 </span>
+<span class="c">#! runtime.processors-plus2 = ${runtime.processors} + 2 </span>
+<span class="c">#! runtime.processors-x2 = ${runtime.processors} * 2 </span>
+<span class="c">################################################################################################### </span>
+<span class="c">#! status codes </span>
+<span class="c">################################################################################################### </span>
+<span class="py">err.java.lang.IllegalArgumentException</span> <span class="p">=</span> <span class="s">400</span>
+
+<span class="py">err.java.util.NoSuchElementException</span> <span class="p">=</span> <span class="s">400</span>
+
+<span class="py">err.java.io.FileNotFoundException</span> <span class="p">=</span> <span class="s">404</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! alias </span>
+<span class="c">################################################################################################### </span>
+<span class="py">contextPath</span> <span class="p">=</span> <span class="s">${application.path}</span>
+</code></pre> 
+       </div> 
+       <h3 id="servlets-mime-properties">mime.properties</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="py">mime.ai</span><span class="p">=</span><span class="s">application/postscript</span>
+
+<span class="py">mime.aif</span><span class="p">=</span><span class="s">audio/x-aiff</span>
+
+<span class="py">mime.aifc</span><span class="p">=</span><span class="s">audio/x-aiff</span>
+
+<span class="py">mime.aiff</span><span class="p">=</span><span class="s">audio/x-aiff</span>
+
+<span class="py">mime.apk</span><span class="p">=</span><span class="s">application/vnd.android.package-archive</span>
+
+<span class="py">mime.asc</span><span class="p">=</span><span class="s">text/plain</span>
+
+<span class="py">mime.asf</span><span class="p">=</span><span class="s">video/x.ms.asf</span>
+
+<span class="py">mime.asx</span><span class="p">=</span><span class="s">video/x.ms.asx</span>
+
+<span class="py">mime.au</span><span class="p">=</span><span class="s">audio/basic</span>
+
+<span class="py">mime.avi</span><span class="p">=</span><span class="s">video/x-msvideo</span>
+
+<span class="py">mime.bcpio</span><span class="p">=</span><span class="s">application/x-bcpio</span>
+
+<span class="py">mime.bin</span><span class="p">=</span><span class="s">application/octet-stream</span>
+
+<span class="py">mime.bmp</span><span class="p">=</span><span class="s">image/bmp</span>
+
+<span class="py">mime.cab</span><span class="p">=</span><span class="s">application/x-cabinet</span>
+
+<span class="py">mime.cdf</span><span class="p">=</span><span class="s">application/x-netcdf</span>
+
+<span class="py">mime.class</span><span class="p">=</span><span class="s">application/java-vm</span>
+
+<span class="py">mime.cpio</span><span class="p">=</span><span class="s">application/x-cpio</span>
+
+<span class="py">mime.cpt</span><span class="p">=</span><span class="s">application/mac-compactpro</span>
+
+<span class="py">mime.crt</span><span class="p">=</span><span class="s">application/x-x509-ca-cert</span>
+
+<span class="py">mime.csh</span><span class="p">=</span><span class="s">application/x-csh</span>
+
+<span class="py">mime.css</span><span class="p">=</span><span class="s">text/css</span>
+
+<span class="py">mime.scss</span><span class="p">=</span><span class="s">text/css</span>
+
+<span class="py">mime.less</span><span class="p">=</span><span class="s">text/css</span>
+
+<span class="py">mime.csv</span><span class="p">=</span><span class="s">text/comma-separated-values</span>
+
+<span class="py">mime.dcr</span><span class="p">=</span><span class="s">application/x-director</span>
+
+<span class="py">mime.dir</span><span class="p">=</span><span class="s">application/x-director</span>
+
+<span class="py">mime.dll</span><span class="p">=</span><span class="s">application/x-msdownload</span>
+
+<span class="py">mime.dms</span><span class="p">=</span><span class="s">application/octet-stream</span>
+
+<span class="py">mime.doc</span><span class="p">=</span><span class="s">application/msword</span>
+
+<span class="py">mime.dtd</span><span class="p">=</span><span class="s">application/xml-dtd</span>
+
+<span class="py">mime.dvi</span><span class="p">=</span><span class="s">application/x-dvi</span>
+
+<span class="py">mime.dxr</span><span class="p">=</span><span class="s">application/x-director</span>
+
+<span class="py">mime.eps</span><span class="p">=</span><span class="s">application/postscript</span>
+
+<span class="py">mime.etx</span><span class="p">=</span><span class="s">text/x-setext</span>
+
+<span class="py">mime.exe</span><span class="p">=</span><span class="s">application/octet-stream</span>
+
+<span class="py">mime.ez</span><span class="p">=</span><span class="s">application/andrew-inset</span>
+
+<span class="py">mime.gif</span><span class="p">=</span><span class="s">image/gif</span>
+
+<span class="py">mime.gtar</span><span class="p">=</span><span class="s">application/x-gtar</span>
+
+<span class="py">mime.gz</span><span class="p">=</span><span class="s">application/gzip</span>
+
+<span class="py">mime.gzip</span><span class="p">=</span><span class="s">application/gzip</span>
+
+<span class="py">mime.hdf</span><span class="p">=</span><span class="s">application/x-hdf</span>
+
+<span class="py">mime.hqx</span><span class="p">=</span><span class="s">application/mac-binhex40</span>
+
+<span class="py">mime.htc</span><span class="p">=</span><span class="s">text/x-component</span>
+
+<span class="py">mime.htm</span><span class="p">=</span><span class="s">text/html</span>
+
+<span class="py">mime.html</span><span class="p">=</span><span class="s">text/html</span>
+
+<span class="py">mime.ice</span><span class="p">=</span><span class="s">x-conference/x-cooltalk</span>
+
+<span class="py">mime.ico</span><span class="p">=</span><span class="s">image/x-icon</span>
+
+<span class="py">mime.ief</span><span class="p">=</span><span class="s">image/ief</span>
+
+<span class="py">mime.iges</span><span class="p">=</span><span class="s">model/iges</span>
+
+<span class="py">mime.igs</span><span class="p">=</span><span class="s">model/iges</span>
+
+<span class="py">mime.jad</span><span class="p">=</span><span class="s">text/vnd.sun.j2me.app-descriptor</span>
+
+<span class="py">mime.jar</span><span class="p">=</span><span class="s">application/java-archive</span>
+
+<span class="py">mime.java</span><span class="p">=</span><span class="s">text/plain</span>
+
+<span class="py">mime.jnlp</span><span class="p">=</span><span class="s">application/x-java-jnlp-file</span>
+
+<span class="py">mime.jpe</span><span class="p">=</span><span class="s">image/jpeg</span>
+
+<span class="py">mime.jpeg</span><span class="p">=</span><span class="s">image/jpeg</span>
+
+<span class="py">mime.jpg</span><span class="p">=</span><span class="s">image/jpeg</span>
+
+<span class="py">mime.js</span><span class="p">=</span><span class="s">application/javascript</span>
+
+<span class="py">mime.ts</span><span class="p">=</span><span class="s">application/javascript</span>
+
+<span class="py">mime.coffee</span><span class="p">=</span><span class="s">application/javascript</span>
+
+<span class="py">mime.json</span><span class="p">=</span><span class="s">application/json</span>
+
+<span class="py">mime.yaml</span><span class="p">=</span><span class="s">application/yaml</span>
+
+<span class="py">mime.jsp</span><span class="p">=</span><span class="s">text/html</span>
+
+<span class="py">mime.kar</span><span class="p">=</span><span class="s">audio/midi</span>
+
+<span class="py">mime.latex</span><span class="p">=</span><span class="s">application/x-latex</span>
+
+<span class="py">mime.lha</span><span class="p">=</span><span class="s">application/octet-stream</span>
+
+<span class="py">mime.lzh</span><span class="p">=</span><span class="s">application/octet-stream</span>
+
+<span class="py">mime.man</span><span class="p">=</span><span class="s">application/x-troff-man</span>
+
+<span class="py">mime.mathml</span><span class="p">=</span><span class="s">application/mathml+xml</span>
+
+<span class="py">mime.me</span><span class="p">=</span><span class="s">application/x-troff-me</span>
+
+<span class="py">mime.mesh</span><span class="p">=</span><span class="s">model/mesh</span>
+
+<span class="py">mime.mid</span><span class="p">=</span><span class="s">audio/midi</span>
+
+<span class="py">mime.midi</span><span class="p">=</span><span class="s">audio/midi</span>
+
+<span class="py">mime.mif</span><span class="p">=</span><span class="s">application/vnd.mif</span>
+
+<span class="py">mime.mol</span><span class="p">=</span><span class="s">chemical/x-mdl-molfile</span>
+
+<span class="py">mime.mov</span><span class="p">=</span><span class="s">video/quicktime</span>
+
+<span class="py">mime.movie</span><span class="p">=</span><span class="s">video/x-sgi-movie</span>
+
+<span class="py">mime.mp2</span><span class="p">=</span><span class="s">audio/mpeg</span>
+
+<span class="py">mime.mp3</span><span class="p">=</span><span class="s">audio/mpeg</span>
+
+<span class="py">mime.mpe</span><span class="p">=</span><span class="s">video/mpeg</span>
+
+<span class="py">mime.mpeg</span><span class="p">=</span><span class="s">video/mpeg</span>
+
+<span class="py">mime.mpg</span><span class="p">=</span><span class="s">video/mpeg</span>
+
+<span class="py">mime.mpga</span><span class="p">=</span><span class="s">audio/mpeg</span>
+
+<span class="py">mime.ms</span><span class="p">=</span><span class="s">application/x-troff-ms</span>
+
+<span class="py">mime.msh</span><span class="p">=</span><span class="s">model/mesh</span>
+
+<span class="py">mime.msi</span><span class="p">=</span><span class="s">application/octet-stream</span>
+
+<span class="py">mime.nc</span><span class="p">=</span><span class="s">application/x-netcdf</span>
+
+<span class="py">mime.oda</span><span class="p">=</span><span class="s">application/oda</span>
+
+<span class="py">mime.odb</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.database</span>
+
+<span class="py">mime.odc</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.chart</span>
+
+<span class="py">mime.odf</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.formula</span>
+
+<span class="py">mime.odg</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.graphics</span>
+
+<span class="py">mime.odi</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.image</span>
+
+<span class="py">mime.odm</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.text-master</span>
+
+<span class="py">mime.odp</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.presentation</span>
+
+<span class="py">mime.ods</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.spreadsheet</span>
+
+<span class="py">mime.odt</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.text</span>
+
+<span class="py">mime.ogg</span><span class="p">=</span><span class="s">application/ogg</span>
+
+<span class="py">mime.otc</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.chart-template</span>
+
+<span class="py">mime.otf</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.formula-template</span>
+
+<span class="py">mime.otg</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.graphics-template</span>
+
+<span class="py">mime.oth</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.text-web</span>
+
+<span class="py">mime.oti</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.image-template</span>
+
+<span class="py">mime.otp</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.presentation-template</span>
+
+<span class="py">mime.ots</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.spreadsheet-template</span>
+
+<span class="py">mime.ott</span><span class="p">=</span><span class="s">application/vnd.oasis.opendocument.text-template</span>
+
+<span class="py">mime.pbm</span><span class="p">=</span><span class="s">image/x-portable-bitmap</span>
+
+<span class="py">mime.pdb</span><span class="p">=</span><span class="s">chemical/x-pdb</span>
+
+<span class="py">mime.pdf</span><span class="p">=</span><span class="s">application/pdf</span>
+
+<span class="py">mime.pgm</span><span class="p">=</span><span class="s">image/x-portable-graymap</span>
+
+<span class="py">mime.pgn</span><span class="p">=</span><span class="s">application/x-chess-pgn</span>
+
+<span class="py">mime.png</span><span class="p">=</span><span class="s">image/png</span>
+
+<span class="py">mime.pnm</span><span class="p">=</span><span class="s">image/x-portable-anymap</span>
+
+<span class="py">mime.ppm</span><span class="p">=</span><span class="s">image/x-portable-pixmap</span>
+
+<span class="py">mime.pps</span><span class="p">=</span><span class="s">application/vnd.ms-powerpoint</span>
+
+<span class="py">mime.ppt</span><span class="p">=</span><span class="s">application/vnd.ms-powerpoint</span>
+
+<span class="py">mime.ps</span><span class="p">=</span><span class="s">application/postscript</span>
+
+<span class="py">mime.qml</span><span class="p">=</span><span class="s">text/x-qml</span>
+
+<span class="py">mime.qt</span><span class="p">=</span><span class="s">video/quicktime</span>
+
+<span class="py">mime.ra</span><span class="p">=</span><span class="s">audio/x-pn-realaudio</span>
+
+<span class="py">mime.ram</span><span class="p">=</span><span class="s">audio/x-pn-realaudio</span>
+
+<span class="py">mime.ras</span><span class="p">=</span><span class="s">image/x-cmu-raster</span>
+
+<span class="py">mime.rdf</span><span class="p">=</span><span class="s">application/rdf+xml</span>
+
+<span class="py">mime.rgb</span><span class="p">=</span><span class="s">image/x-rgb</span>
+
+<span class="py">mime.rm</span><span class="p">=</span><span class="s">audio/x-pn-realaudio</span>
+
+<span class="py">mime.roff</span><span class="p">=</span><span class="s">application/x-troff</span>
+
+<span class="py">mime.rpm</span><span class="p">=</span><span class="s">application/x-rpm</span>
+
+<span class="py">mime.rtf</span><span class="p">=</span><span class="s">application/rtf</span>
+
+<span class="py">mime.rtx</span><span class="p">=</span><span class="s">text/richtext</span>
+
+<span class="py">mime.rv</span><span class="p">=</span><span class="s">video/vnd.rn-realvideo</span>
+
+<span class="py">mime.ser</span><span class="p">=</span><span class="s">application/java-serialized-object</span>
+
+<span class="py">mime.sgm</span><span class="p">=</span><span class="s">text/sgml</span>
+
+<span class="py">mime.sgml</span><span class="p">=</span><span class="s">text/sgml</span>
+
+<span class="py">mime.sh</span><span class="p">=</span><span class="s">application/x-sh</span>
+
+<span class="py">mime.shar</span><span class="p">=</span><span class="s">application/x-shar</span>
+
+<span class="py">mime.silo</span><span class="p">=</span><span class="s">model/mesh</span>
+
+<span class="py">mime.sit</span><span class="p">=</span><span class="s">application/x-stuffit</span>
+
+<span class="py">mime.skd</span><span class="p">=</span><span class="s">application/x-koan</span>
+
+<span class="py">mime.skm</span><span class="p">=</span><span class="s">application/x-koan</span>
+
+<span class="py">mime.skp</span><span class="p">=</span><span class="s">application/x-koan</span>
+
+<span class="py">mime.skt</span><span class="p">=</span><span class="s">application/x-koan</span>
+
+<span class="py">mime.smi</span><span class="p">=</span><span class="s">application/smil</span>
+
+<span class="py">mime.smil</span><span class="p">=</span><span class="s">application/smil</span>
+
+<span class="py">mime.snd</span><span class="p">=</span><span class="s">audio/basic</span>
+
+<span class="py">mime.spl</span><span class="p">=</span><span class="s">application/x-futuresplash</span>
+
+<span class="py">mime.src</span><span class="p">=</span><span class="s">application/x-wais-source</span>
+
+<span class="py">mime.sv4cpio</span><span class="p">=</span><span class="s">application/x-sv4cpio</span>
+
+<span class="py">mime.sv4crc</span><span class="p">=</span><span class="s">application/x-sv4crc</span>
+
+<span class="py">mime.svg</span><span class="p">=</span><span class="s">image/svg+xml</span>
+
+<span class="py">mime.swf</span><span class="p">=</span><span class="s">application/x-shockwave-flash</span>
+
+<span class="py">mime.t</span><span class="p">=</span><span class="s">application/x-troff</span>
+
+<span class="py">mime.tar</span><span class="p">=</span><span class="s">application/x-tar</span>
+
+<span class="py">mime.tar.gz</span><span class="p">=</span><span class="s">application/x-gtar</span>
+
+<span class="py">mime.tcl</span><span class="p">=</span><span class="s">application/x-tcl</span>
+
+<span class="py">mime.tex</span><span class="p">=</span><span class="s">application/x-tex</span>
+
+<span class="py">mime.texi</span><span class="p">=</span><span class="s">application/x-texinfo</span>
+
+<span class="py">mime.texinfo</span><span class="p">=</span><span class="s">application/x-texinfo</span>
+
+<span class="py">mime.tgz</span><span class="p">=</span><span class="s">application/x-gtar</span>
+
+<span class="py">mime.tif</span><span class="p">=</span><span class="s">image/tiff</span>
+
+<span class="py">mime.tiff</span><span class="p">=</span><span class="s">image/tiff</span>
+
+<span class="py">mime.tr</span><span class="p">=</span><span class="s">application/x-troff</span>
+
+<span class="py">mime.tsv</span><span class="p">=</span><span class="s">text/tab-separated-values</span>
+
+<span class="py">mime.txt</span><span class="p">=</span><span class="s">text/plain</span>
+
+<span class="py">mime.ustar</span><span class="p">=</span><span class="s">application/x-ustar</span>
+
+<span class="py">mime.vcd</span><span class="p">=</span><span class="s">application/x-cdlink</span>
+
+<span class="py">mime.vrml</span><span class="p">=</span><span class="s">model/vrml</span>
+
+<span class="py">mime.vxml</span><span class="p">=</span><span class="s">application/voicexml+xml</span>
+
+<span class="py">mime.wav</span><span class="p">=</span><span class="s">audio/x-wav</span>
+
+<span class="py">mime.wbmp</span><span class="p">=</span><span class="s">image/vnd.wap.wbmp</span>
+
+<span class="py">mime.wml</span><span class="p">=</span><span class="s">text/vnd.wap.wml</span>
+
+<span class="py">mime.wmlc</span><span class="p">=</span><span class="s">application/vnd.wap.wmlc</span>
+
+<span class="py">mime.wmls</span><span class="p">=</span><span class="s">text/vnd.wap.wmlscript</span>
+
+<span class="py">mime.wmlsc</span><span class="p">=</span><span class="s">application/vnd.wap.wmlscriptc</span>
+
+<span class="py">mime.wrl</span><span class="p">=</span><span class="s">model/vrml</span>
+
+<span class="err">mime.wtls-ca-</span><span class="py">certificate</span><span class="p">=</span><span class="s">application/vnd.wap.wtls-ca-certificate</span>
+
+<span class="py">mime.xbm</span><span class="p">=</span><span class="s">image/x-xbitmap</span>
+
+<span class="py">mime.xht</span><span class="p">=</span><span class="s">application/xhtml+xml</span>
+
+<span class="py">mime.xhtml</span><span class="p">=</span><span class="s">application/xhtml+xml</span>
+
+<span class="py">mime.xls</span><span class="p">=</span><span class="s">application/vnd.ms-excel</span>
+
+<span class="py">mime.xml</span><span class="p">=</span><span class="s">application/xml</span>
+
+<span class="py">mime.xpm</span><span class="p">=</span><span class="s">image/x-xpixmap</span>
+
+<span class="py">mime.xsd</span><span class="p">=</span><span class="s">application/xml</span>
+
+<span class="py">mime.xsl</span><span class="p">=</span><span class="s">application/xml</span>
+
+<span class="py">mime.xslt</span><span class="p">=</span><span class="s">application/xslt+xml</span>
+
+<span class="py">mime.xul</span><span class="p">=</span><span class="s">application/vnd.mozilla.xul+xml</span>
+
+<span class="py">mime.xwd</span><span class="p">=</span><span class="s">image/x-xwindowdump</span>
+
+<span class="py">mime.xyz</span><span class="p">=</span><span class="s">chemical/x-xyz</span>
+
+<span class="py">mime.z</span><span class="p">=</span><span class="s">application/compress</span>
+
+<span class="py">mime.zip</span><span class="p">=</span><span class="s">application/zip</span>
+
+<span class="py">mime.conf</span><span class="p">=</span><span class="s">application/hocon</span>
+
+<span class="c">#! fonts </span>
+<span class="py">mime.ttf</span><span class="p">=</span><span class="s">font/truetype</span>
+
+<span class="py">mime.otf</span><span class="p">=</span><span class="s">font/opentype</span>
+
+<span class="py">mime.eot</span><span class="p">=</span><span class="s">application/vnd.ms-fontobject</span>
+
+<span class="py">mime.woff</span><span class="p">=</span><span class="s">application/x-font-woff</span>
+
+<span class="py">mime.woff2</span><span class="p">=</span><span class="s">application/font-woff2</span>
+
+<span class="c">#! source map </span>
+<span class="py">mime.map</span><span class="p">=</span><span class="s">text/plain</span>
+
+<span class="py">mime.mp4</span><span class="p">=</span><span class="s">video/mp4</span>
+</code></pre> 
+       </div> 
       </div> 
      </div> 
     </div> 

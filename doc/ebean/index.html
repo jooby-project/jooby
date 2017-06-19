@@ -103,8 +103,7 @@
         <li> <a href="#ebean-usage">usage</a></li> 
         <li> <a href="#ebean-enhancement">enhancement</a></li> 
         <li> <a href="#ebean-configuration">configuration</a></li> 
-        <li> <a href="#ebean-starter-project">starter project</a></li> 
-        <li> <a href="#ebean-ebean-conf">ebean.conf</a></li>
+        <li> <a href="#ebean-starter-project">starter project</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -128,7 +127,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-ebean<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -208,50 +207,6 @@
        <h3 id="ebean-starter-project">starter project</h3> 
        <p>We do provide an <a href="https://github.com/jooby-project/ebean-starter" target="_blank">ebean-starter</a> project. Go and <a href="https://github.com/jooby-project/ebean-starter" target="_blank">fork it</a>.</p> 
        <p>That’s all folks!!</p> 
-       <h3 id="ebean-ebean-conf">ebean.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="py">ebean.defaultServer</span> <span class="p">=</span> <span class="s">true</span>
-
-<span class="py">ebean.register</span> <span class="p">=</span> <span class="s">true</span>
-
-<span class="py">ebean.ddl.generate</span><span class="p">=</span><span class="s">false</span>
-
-<span class="py">ebean.ddl.run</span><span class="p">=</span><span class="s">false</span>
-
-<span class="py">ebean.debug.sql</span><span class="p">=</span><span class="s">true</span>
-
-<span class="py">ebean.debug.lazyload</span><span class="p">=</span><span class="s">false</span>
-
-<span class="py">ebean.disableClasspathSearch</span> <span class="p">=</span> <span class="s">true</span>
-
-<span class="c"># ------------------------------------------------------------- </span>
-<span class="c"># Transaction Logging </span>
-<span class="c"># ------------------------------------------------------------- </span>
-<span class="c"># Use java util logging to log transaction details </span>
-<span class="py">ebean.loggingToJavaLogger</span><span class="p">=</span><span class="s">false</span>
-
-<span class="c"># General logging level: (none, explicit, all) </span>
-<span class="py">ebean.logging</span><span class="p">=</span><span class="s">all</span>
-
-<span class="c"># Sharing log files: (none, explicit, all) </span>
-<span class="py">ebean.logging.logfilesharing</span><span class="p">=</span><span class="s">all</span>
-
-<span class="c"># location of transaction logs </span>
-<span class="py">ebean.logging.directory</span><span class="p">=</span><span class="s">logs</span>
-
-<span class="c"># Specific Log levels (none, summary, binding, sql) </span>
-<span class="py">ebean.logging.iud</span><span class="p">=</span><span class="s">sql</span>
-
-<span class="py">ebean.logging.query</span><span class="p">=</span><span class="s">sql</span>
-
-<span class="py">ebean.logging.sqlquery</span><span class="p">=</span><span class="s">sql</span>
-
-<span class="py">ebean.logging.txnCommit</span><span class="p">=</span><span class="s">none</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
     </div> 

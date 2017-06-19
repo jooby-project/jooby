@@ -101,8 +101,7 @@
         <li> <a href="#netty-exports">exports</a></li> 
         <li> <a href="#netty-dependency">dependency</a></li> 
         <li> <a href="#netty-usage">usage</a></li> 
-        <li> <a href="#netty-http-2">http/2</a></li> 
-        <li> <a href="#netty-server-conf">server.conf</a></li>
+        <li> <a href="#netty-http-2">http/2</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -125,7 +124,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-netty<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -143,65 +142,6 @@
 </code></pre> 
        </div> 
        <p>No extra configuration is necessary.</p> 
-       <h3 id="netty-server-conf">server.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="c"># netty defaults </span>
-<span class="py">server.module</span> <span class="p">=</span> <span class="s">org.jooby.netty.Netty</span>
-
-<span class="py">server.http2.cleartext</span> <span class="p">=</span> <span class="s">true</span>
-
-<span class="err">netty</span> <span class="err">{</span>
-
-  <span class="err">http</span> <span class="err">{</span>
-
-    <span class="py">MaxInitialLineLength</span> <span class="p">=</span> <span class="s">4k</span>
-
-    <span class="py">MaxHeaderSize</span> <span class="p">=</span> <span class="s">${server.http.HeaderSize}</span>
-
-    <span class="py">MaxChunkSize</span> <span class="p">=</span> <span class="s">16k</span>
-
-    <span class="py">MaxContentLength</span> <span class="p">=</span> <span class="s">${server.http.MaxRequestSize}</span>
-
-    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">${server.http.IdleTimeout}</span>
-
-  <span class="err">}</span>
-
-  <span class="err">threads</span> <span class="err">{</span>
-
-    <span class="py">Min</span> <span class="p">=</span> <span class="s">${server.threads.Min}</span>
-
-    <span class="py">Max</span> <span class="p">=</span> <span class="s">${server.threads.Max}</span>
-
-    <span class="py">Name</span> <span class="p">=</span> <span class="s">netty task</span>
-
-    <span class="py">Boss</span> <span class="p">=</span> <span class="s">1</span>
-
-    <span class="py">Worker</span> <span class="p">=</span> <span class="s">${runtime.processors-x2}</span>
-
-  <span class="err">}</span>
-
-  <span class="err">options</span> <span class="err">{</span>
-
-    <span class="py">SO_REUSEADDR</span> <span class="p">=</span> <span class="s">true</span>
-
-  <span class="err">}</span>
-
-  <span class="err">worker</span> <span class="err">{</span>
-
-    <span class="err">options</span> <span class="err">{</span>
-
-      <span class="py">SO_REUSEADDR</span> <span class="p">=</span> <span class="s">true</span>
-
-    <span class="err">}</span>
-
-  <span class="err">}</span>
-
-<span class="err">}</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
     </div> 

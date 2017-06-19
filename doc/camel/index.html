@@ -102,8 +102,7 @@
         <li> <a href="#camel-dependency">dependency</a></li> 
         <li> <a href="#camel-usage">usage</a></li> 
         <li> <a href="#camel-camel-routes">camel routes</a></li> 
-        <li> <a href="#camel-configuration">configuration</a></li> 
-        <li> <a href="#camel-camel-conf">camel.conf</a></li>
+        <li> <a href="#camel-configuration">configuration</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -132,7 +131,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-camel<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -266,56 +265,6 @@
 </code></pre> 
        </div> 
        <p>That’s all folks! Enjoy it!!!</p> 
-       <h3 id="camel-camel-conf">camel.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="c"># Camel defaults </span>
-<span class="py">camel.handleFault</span> <span class="p">=</span> <span class="s">false</span>
-
-<span class="py">camel.shutdownRoute</span> <span class="p">=</span> <span class="s">Default</span>
-
-<span class="py">camel.shutdownRunningTask</span> <span class="p">=</span> <span class="s">CompleteCurrentTaskOnly</span>
-
-<span class="py">camel.tracing</span> <span class="p">=</span> <span class="s">false</span>
-
-<span class="py">camel.autoStartup</span> <span class="p">=</span> <span class="s">true</span>
-
-<span class="py">camel.allowUseOriginalMessage</span> <span class="p">=</span> <span class="s">false</span>
-
-<span class="py">camel.jmx</span> <span class="p">=</span> <span class="s">false</span>
-
-<span class="c"># shutdown </span>
-<span class="py">camel.shutdown.shutdownRoutesInReverseOrder</span> <span class="p">=</span> <span class="s">true</span>
-
-<span class="py">camel.shutdown.timeUnit</span> <span class="p">=</span> <span class="s">SECONDS</span>
-
-<span class="py">camel.shutdown.timeout</span> <span class="p">=</span> <span class="s">10</span>
-
-<span class="c"># thread pool </span>
-<span class="py">camel.threads.poolSize</span> <span class="p">=</span> <span class="s">${runtime.processors-plus1}</span>
-
-<span class="py">camel.threads.maxPoolSize</span> <span class="p">=</span> <span class="s">${runtime.processors-x2}</span>
-
-<span class="py">camel.threads.keepAliveTime</span> <span class="p">=</span> <span class="s">60</span>
-
-<span class="py">camel.threads.timeUnit</span> <span class="p">=</span> <span class="s">SECONDS</span>
-
-<span class="py">camel.threads.rejectedPolicy</span> <span class="p">=</span> <span class="s">CallerRuns</span>
-
-<span class="py">camel.threads.maxQueueSize</span> <span class="p">=</span> <span class="s">1000</span>
-
-<span class="py">camel.threads.id</span> <span class="p">=</span> <span class="s">default</span>
-
-<span class="py">camel.threads.defaultProfile</span> <span class="p">=</span> <span class="s">true</span>
-
-<span class="c"># stream caching </span>
-<span class="py">camel.streamCaching.enabled</span> <span class="p">=</span> <span class="s">false</span>
-
-<span class="py">camel.streamCaching.spoolDirectory</span> <span class="p">=</span> <span class="s">${application.tmpdir}${file.separator}"camel"${file.separator}"#uuid#"</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
     </div> 

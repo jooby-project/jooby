@@ -104,8 +104,7 @@
         <li> <a href="#freemarker-request-locals">request locals</a></li> 
         <li> <a href="#freemarker-configuration">configuration</a></li> 
         <li> <a href="#freemarker-template-loader">template loader</a></li> 
-        <li> <a href="#freemarker-cache">cache</a></li> 
-        <li> <a href="#freemarker-freemarker-conf">freemarker.conf</a></li>
+        <li> <a href="#freemarker-cache">cache</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -129,7 +128,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-ftl<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -227,30 +226,6 @@
 </code></pre> 
        </div> 
        <p>See <a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/CacheBuilderSpec.html" target="_blank">CacheBuilderSpec</a> for more detailed expressions.</p> 
-       <h3 id="freemarker-freemarker-conf">freemarker.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="c">#freemarker defaults </span>
-<span class="py">freemarker.locale</span> <span class="p">=</span> <span class="s">${application.lang}</span>
-
-<span class="py">freemarker.number_format</span> <span class="p">=</span> <span class="s">${application.numberFormat}</span>
-
-<span class="py">freemarker.date_format</span> <span class="p">=</span> <span class="s">${application.dateFormat}</span>
-
-<span class="py">freemarker.time_zone</span> <span class="p">=</span> <span class="s">${application.tz}</span>
-
-<span class="py">freemarker.object_wrapper</span> <span class="p">=</span> <span class="s">default</span>
-
-<span class="py">freemarker.template_exception_handler</span> <span class="p">=</span> <span class="s">default</span>
-
-<span class="py">freemarker.defaultEncoding</span> <span class="p">=</span> <span class="s">${application.charset}</span>
-
-<span class="c"># cache for env != dev </span>
-<span class="py">freemarker.cache</span> <span class="p">=</span> <span class="s">"maximumSize=100"</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
     </div> 

@@ -108,8 +108,7 @@
        <ul> 
         <li> <a href="#mongodb-session-store-dependency">dependency</a></li> 
         <li> <a href="#mongodb-session-store-usage">usage</a></li> 
-        <li> <a href="#mongodb-session-store-options">options</a></li> 
-        <li> <a href="#mongodb-session-store-mongodb-conf">mongodb.conf</a></li>
+        <li> <a href="#mongodb-session-store-options">options</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -134,7 +133,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-mongodb<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -253,7 +252,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-mongodb<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -299,46 +298,6 @@
        <h4 id="mongodb-session-store-session-collection">session collection</h4> 
        <p>Default <a href="http://mongodb.github.io/mongo-java-driver/" target="_blank">MongoDB</a> collection is <code class="highlighter-rouge codehilite">sessions</code>.</p> 
        <p>It’s possible to change the default key setting the <code class="highlighter-rouge codehilite">mongodb.sesssion.collection</code> properties.</p> 
-       <h3 id="mongodb-session-store-mongodb-conf">mongodb.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="c">################################################################################################### </span>
-<span class="c"># mongodb </span>
-<span class="c">################################################################################################### </span>
-<span class="py">mongodb.connectionsPerHost</span> <span class="p">=</span> <span class="s">100</span>
-
-<span class="py">mongodb.threadsAllowedToBlockForConnectionMultiplier</span> <span class="p">=</span> <span class="s">5</span>
-
-<span class="py">mongodb.maxWaitTime</span> <span class="p">=</span> <span class="s">120s</span>
-
-<span class="py">mongodb.connectTimeout</span> <span class="p">=</span> <span class="s">10s</span>
-
-<span class="py">mongodb.socketTimeout</span> <span class="p">=</span> <span class="s">0</span>
-
-<span class="py">mongodb.socketKeepAlive</span> <span class="p">=</span> <span class="s">false</span>
-
-<span class="py">mongodb.cursorFinalizerEnabled</span> <span class="p">=</span> <span class="s">true</span>
-
-<span class="py">mongodb.alwaysUseMBeans</span> <span class="p">=</span> <span class="s">false</span>
-
-<span class="py">mongodb.heartbeatFrequency</span> <span class="p">=</span> <span class="s">5000</span>
-
-<span class="py">mongodb.minHeartbeatFrequency</span> <span class="p">=</span> <span class="s">500</span>
-
-<span class="py">mongodb.heartbeatConnectTimeout</span> <span class="p">=</span> <span class="s">20s</span>
-
-<span class="py">mongodb.heartbeatSocketTimeout</span> <span class="p">=</span> <span class="s">20s</span>
-
-<span class="c">################################################################################################### </span>
-<span class="c"># session datastore </span>
-<span class="c"># collection: sessions </span>
-<span class="c"># timeout: 30m </span>
-<span class="c">################################################################################################### </span>
-<span class="py">mongodb.session.collection</span> <span class="p">=</span> <span class="s">sessions</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
     </div> 

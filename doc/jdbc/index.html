@@ -103,8 +103,7 @@
         <li> <a href="#jdbc-usage">usage</a></li> 
         <li> <a href="#jdbc-configuration">configuration</a></li> 
         <li> <a href="#jdbc-hikari-configuration">hikari configuration</a></li> 
-        <li> <a href="#jdbc-multiple-connections">multiple connections</a></li> 
-        <li> <a href="#jdbc-jdbc-conf">jdbc.conf</a></li>
+        <li> <a href="#jdbc-multiple-connections">multiple connections</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -127,7 +126,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jdbc<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -333,188 +332,6 @@
     <span class="c1">// ...</span>
   <span class="o">}</span>
 <span class="o">}</span>
-</code></pre> 
-       </div> 
-       <h3 id="jdbc-jdbc-conf">jdbc.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="c"># Jdbc defaults </span>
-<span class="err">databases</span> <span class="err">{</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># connection templates </span>
-  <span class="c">############################################################################################### </span>
-  <span class="err">mem</span> <span class="err">{</span>
-
-    <span class="py">url</span> <span class="p">=</span> <span class="s">"jdbc:h2:mem:{mem.seed};DB_CLOSE_DELAY=-1"</span>
-
-    <span class="py">user</span> <span class="p">=</span> <span class="s">sa</span>
-
-    <span class="py">password</span> <span class="p">=</span> <span class="s">""</span>
-
-  <span class="err">}</span>
-
-  <span class="err">fs</span> <span class="err">{</span>
-
-    <span class="py">url</span> <span class="p">=</span> <span class="s">"jdbc:h2:"${application.tmpdir}/${application.name}</span>
-
-    <span class="py">user</span> <span class="p">=</span> <span class="s">sa</span>
-
-    <span class="py">password</span> <span class="p">=</span> <span class="s">""</span>
-
-  <span class="err">}</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># derby </span>
-  <span class="c"># url =&gt; jdbc:derby:${db};create=true </span>
-  <span class="c">############################################################################################### </span>
-  <span class="err">derby</span> <span class="err">{</span>
-
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.apache.derby.jdbc.ClientDataSource</span>
-
-  <span class="err">}</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># db2 </span>
-  <span class="c"># url =&gt; jdbc:db2://127.0.0.1:50000/SAMPLE </span>
-  <span class="c">############################################################################################### </span>
-  <span class="err">db2</span> <span class="err">{</span>
-
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.ibm.db2.jcc.DB2SimpleDataSource</span>
-
-  <span class="err">}</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># h2 </span>
-  <span class="c"># url =&gt; mem, fs or jdbc:h2:${db} </span>
-  <span class="c">############################################################################################### </span>
-  <span class="err">h2</span> <span class="err">{</span>
-
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.h2.jdbcx.JdbcDataSource</span>
-
-  <span class="err">}</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># hsqldb </span>
-  <span class="c"># url =&gt; jdbc:hsqldb:file:${db} </span>
-  <span class="c">############################################################################################### </span>
-  <span class="err">hsqldb</span> <span class="err">{</span>
-
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.hsqldb.jdbc.JDBCDataSource</span>
-
-  <span class="err">}</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># mariadb </span>
-  <span class="c"># url jdbc:mariadb://&lt;host&gt;:&lt;port&gt;/&lt;database&gt;?&lt;key1&gt;=&lt;value1&gt;&amp;&lt;key2&gt;=&lt;value2&gt;... </span>
-  <span class="c">############################################################################################### </span>
-  <span class="err">mariadb</span> <span class="err">{</span>
-
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.mariadb.jdbc.MySQLDataSource</span>
-
-  <span class="err">}</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># mysql </span>
-  <span class="c"># url jdbc:mysql://&lt;host&gt;:&lt;port&gt;/&lt;database&gt;?&lt;key1&gt;=&lt;value1&gt;&amp;&lt;key2&gt;=&lt;value2&gt;... </span>
-  <span class="c">############################################################################################### </span>
-  <span class="py">mysql</span><span class="p">:</span> <span class="s">[{</span>
-
-    <span class="c"># v6.x </span>
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.mysql.cj.jdbc.MysqlDataSource</span>
-
-  <span class="err">},</span> <span class="err">{</span>
-
-    <span class="c"># v5.x </span>
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.mysql.jdbc.jdbc2.optional.MysqlDataSource</span>
-
-    <span class="py">encoding</span> <span class="p">=</span> <span class="s">${application.charset}</span>
-
-    <span class="py">cachePrepStmts</span> <span class="p">=</span> <span class="s">true</span>
-
-    <span class="py">prepStmtCacheSize</span> <span class="p">=</span> <span class="s">250</span>
-
-    <span class="py">prepStmtCacheSqlLimit</span> <span class="p">=</span> <span class="s">2048</span>
-
-    <span class="py">useServerPrepStmts</span> <span class="p">=</span> <span class="s">true</span>
-
-  <span class="err">}]</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># sqlserver </span>
-  <span class="c"># url =&gt; jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]] </span>
-  <span class="c">############################################################################################### </span>
-  <span class="err">sqlserver</span> <span class="err">{</span>
-
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.microsoft.sqlserver.jdbc.SQLServerDataSource</span>
-
-  <span class="err">}</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># oracle </span>
-  <span class="c"># url =&gt; jdbc:oracle:thin:@//&lt;host&gt;:&lt;port&gt;/&lt;service_name&gt; </span>
-  <span class="c">############################################################################################### </span>
-  <span class="err">oracle</span> <span class="err">{</span>
-
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">oracle.jdbc.pool.OracleDataSource</span>
-
-  <span class="err">}</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># pgjdbc-ng </span>
-  <span class="c"># url =&gt; jdbc:pgsql://&lt;server&gt;[:&lt;port&gt;]/&lt;database&gt; </span>
-  <span class="c">############################################################################################### </span>
-  <span class="err">pgsql</span> <span class="err">{</span>
-
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.impossibl.postgres.jdbc.PGDataSourceWithUrl</span>
-
-  <span class="err">}</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># postgresql </span>
-  <span class="c"># url =&gt; jdbc:postgresql://host:port/database </span>
-  <span class="c">############################################################################################### </span>
-  <span class="err">postgresql</span> <span class="err">{</span>
-
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.postgresql.ds.PGSimpleDataSource</span>
-
-  <span class="err">}</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># sybase </span>
-  <span class="c"># url =&gt; jdbc:jtds:sybase://&lt;host&gt;[:&lt;port&gt;][/&lt;database_name&gt;] </span>
-  <span class="c">############################################################################################### </span>
-  <span class="err">sybase</span> <span class="err">{</span>
-
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.sybase.jdbcx.SybDataSource</span>
-
-  <span class="err">}</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># firebird </span>
-  <span class="c"># jdbc:firebirdsql:host[/port]:&lt;database&gt; </span>
-  <span class="c">############################################################################################### </span>
-  <span class="err">firebirdsql</span> <span class="err">{</span>
-
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.firebirdsql.pool.FBSimpleDataSource</span>
-
-  <span class="err">}</span>
-
-  <span class="c">############################################################################################### </span>
-  <span class="c"># sqlite </span>
-  <span class="c"># jdbc:sqlite:${db} </span>
-  <span class="c">############################################################################################### </span>
-  <span class="err">sqlite</span> <span class="err">{</span>
-
-    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.sqlite.SQLiteDataSource</span>
-
-  <span class="err">}</span>
-
-<span class="err">}</span>
-
-<span class="py">hikari.maximumPoolSize</span> <span class="p">=</span> <span class="s">${runtime.processors-x2}</span>
 </code></pre> 
        </div> 
       </div> 

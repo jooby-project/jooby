@@ -107,8 +107,7 @@
        <ul> 
         <li> <a href="#hazelcast-session-store-dependency">dependency</a></li> 
         <li> <a href="#hazelcast-session-store-usage">usage</a></li> 
-        <li> <a href="#hazelcast-session-store-options">options</a></li> 
-        <li> <a href="#hazelcast-session-store-hcast-conf">hcast.conf</a></li>
+        <li> <a href="#hazelcast-session-store-options">options</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -132,7 +131,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-hazelcast<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -182,7 +181,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-hazelcast<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -225,20 +224,6 @@
        <h4 id="hazelcast-session-store-name">name</h4> 
        <p>Default session’s name is <code class="highlighter-rouge codehilite">sessions</code>. It’s possible to change the default name by setting the property: <code class="highlighter-rouge codehilite">hazelcast.sesssion.name</code>.</p> 
        <p>Happy coding!!!</p> 
-       <h3 id="hazelcast-session-store-hcast-conf">hcast.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="c"># logging </span>
-<span class="py">hazelcast.logging.type</span> <span class="p">=</span> <span class="s">slf4j</span>
-
-<span class="c"># session store, key prefix and timeout in seconds </span>
-<span class="py">hazelcast.session.name</span> <span class="p">=</span> <span class="s">sessions</span>
-
-<span class="py">hazelcast.session.timeout</span> <span class="p">=</span> <span class="s">${session.timeout}</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
     </div> 

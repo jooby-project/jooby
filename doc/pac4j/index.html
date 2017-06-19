@@ -104,8 +104,7 @@
         <li> <a href="#pac4j-clients">clients</a></li> 
         <li> <a href="#pac4j-protecting-urls">protecting urls</a></li> 
         <li> <a href="#pac4j-user-profile">user profile</a></li> 
-        <li> <a href="#pac4j-logout">logout</a></li> 
-        <li> <a href="#pac4j-auth-conf">auth.conf</a></li>
+        <li> <a href="#pac4j-logout">logout</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -131,7 +130,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-pac4j<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -291,39 +290,6 @@
 </code></pre> 
        </div> 
        <p>That’s all folks! Enjoy it!!!</p> 
-       <h3 id="pac4j-auth-conf">auth.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="err">auth</span> <span class="err">{</span>
-
-  <span class="c"># default callback, like http://localhost:8080/auth </span>
-  <span class="py">callback</span> <span class="p">=</span> <span class="s">"http://"${application.host}":"${application.port}${contextPath}"/auth"</span>
-
-  <span class="c"># login options </span>
-  <span class="err">login</span> <span class="err">{</span>
-
-    <span class="c"># Where to go after a successful login? Default is: ${application.path} </span>
-    <span class="py">redirectTo</span> <span class="p">=</span> <span class="s">""</span>
-
-  <span class="err">}</span>
-
-  <span class="c"># logout options </span>
-  <span class="err">logout</span> <span class="err">{</span>
-
-    <span class="py">url</span> <span class="p">=</span> <span class="s">/logout</span>
-
-    <span class="py">redirectTo</span> <span class="p">=</span> <span class="s">${application.path}</span>
-
-  <span class="err">}</span>
-
-  <span class="c"># form auth </span>
-  <span class="py">form.loginUrl</span> <span class="p">=</span> <span class="s">/login</span>
-
-<span class="err">}</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
     </div> 

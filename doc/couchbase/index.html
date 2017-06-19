@@ -105,8 +105,7 @@
         <li> <a href="#couchbase-reactive-usage">reactive usage</a></li> 
         <li> <a href="#couchbase-multiple-buckets">multiple buckets</a></li> 
         <li> <a href="#couchbase-multiple-clusters">multiple clusters</a></li> 
-        <li> <a href="#couchbase-options">options</a></li> 
-        <li> <a href="#couchbase-couchbase-conf">couchbase.conf</a></li>
+        <li> <a href="#couchbase-options">options</a></li>
        </ul></li> 
       <li class=""> <a href="#couchbase-session-store">couchbase session store</a>
        <ul> 
@@ -132,7 +131,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-couchbase<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -403,29 +402,6 @@
 couchbase.cluster.password = bar
 </code></pre> 
        </div> 
-       <h3 id="couchbase-couchbase-conf">couchbase.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="c"># configure the environment by adding properties to the `couchbase.env` namespace, like: </span>
-<span class="c"># couchbase.env.kvEndpoints = 2 </span>
-<span class="c"># Some custom error codes </span>
-<span class="err">err</span> <span class="err">{</span>
-
-  <span class="py">com.couchbase.client.java.error.BucketAlreadyExistsException</span> <span class="p">=</span> <span class="s">400</span>
-
-  <span class="py">com.couchbase.client.java.error.BucketDoesNotExistException</span> <span class="p">=</span> <span class="s">404</span>
-
-  <span class="py">com.couchbase.client.java.error.DocumentAlreadyExistsException</span> <span class="p">=</span> <span class="s">400</span>
-
-  <span class="py">com.couchbase.client.java.error.DocumentDoesNotExistException</span> <span class="p">=</span> <span class="s">404</span>
-
-  <span class="py">com.couchbase.client.java.error.QueryExecutionException</span> <span class="p">=</span> <span class="s">400</span>
-
-<span class="err">}</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
      <div class="datalist" id="couchbase-session-store"> 
@@ -442,7 +418,7 @@ couchbase.cluster.password = bar
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-couchbase<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 

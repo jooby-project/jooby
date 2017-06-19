@@ -100,8 +100,7 @@
        <ul> 
         <li> <a href="#commons-email-exports">exports</a></li> 
         <li> <a href="#commons-email-dependency">dependency</a></li> 
-        <li> <a href="#commons-email-usage">usage</a></li> 
-        <li> <a href="#commons-email-commons-email-conf">commons-email.conf</a></li>
+        <li> <a href="#commons-email-usage">usage</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -127,7 +126,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-commons-email<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -162,36 +161,6 @@
 </code></pre> 
        </div> 
        <p>That’s all it does! Every time you require an email, it creates one and setup properties from <code class="highlighter-rouge codehilite">mail.*</code>.</p> 
-       <h3 id="commons-email-commons-email-conf">commons-email.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="err">mail</span> <span class="err">{</span>
-
-  <span class="py">charset</span><span class="p">:</span> <span class="s">${application.charset}</span>
-
-  <span class="py">debug</span><span class="p">:</span> <span class="s">false</span>
-
-  <span class="py">sendPartial</span><span class="p">:</span> <span class="s">false</span>
-
-  <span class="py">smtpPort</span><span class="p">:</span> <span class="s">25</span>
-
-  <span class="py">starttls</span><span class="p">:</span> <span class="s">false</span>
-
-  <span class="c"># SSL </span>
-  <span class="py">ssl.smtpPort</span><span class="p">:</span> <span class="s">465</span>
-
-  <span class="py">ssl.onConnect</span><span class="p">:</span> <span class="s">false</span>
-
-  <span class="c"># advanced </span>
-  <span class="py">socketConnectionTimeout</span><span class="p">:</span> <span class="s">60s</span>
-
-  <span class="py">socketTimeout</span><span class="p">:</span> <span class="s">60s</span>
-
-<span class="err">}</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
     </div> 

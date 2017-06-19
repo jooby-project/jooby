@@ -106,8 +106,7 @@
        <ul> 
         <li> <a href="#redis-session-store-dependency">dependency</a></li> 
         <li> <a href="#redis-session-store-usage">usage</a></li> 
-        <li> <a href="#redis-session-store-options">options</a></li> 
-        <li> <a href="#redis-session-store-jedis-conf">jedis.conf</a></li>
+        <li> <a href="#redis-session-store-options">options</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -126,7 +125,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jedis<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -225,7 +224,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jedis<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -271,54 +270,6 @@
        <p>It’s possible to change the default key setting the <code class="highlighter-rouge codehilite">jedis.sesssion.prefix</code> properties</p> 
        <p>That’s all folks! Enjoy it!</p> 
        <p>TBD: Object mapping? https://github.com/xetorthio/johm?</p> 
-       <h3 id="redis-session-store-jedis-conf">jedis.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="c"># jedis default config </span>
-<span class="c"># jedis </span>
-<span class="py">jedis.timeout</span> <span class="p">=</span> <span class="s">2s</span>
-
-<span class="c"># pool config </span>
-<span class="py">jedis.pool.maxTotal</span> <span class="p">=</span> <span class="s">128</span>
-
-<span class="py">jedis.pool.maxIdle</span> <span class="p">=</span> <span class="s">10</span>
-
-<span class="py">jedis.pool.minIdle</span> <span class="p">=</span> <span class="s">10</span>
-
-<span class="py">jedis.pool.lifo</span> <span class="p">=</span> <span class="s">true</span>
-
-<span class="py">jedis.pool.maxWait</span> <span class="p">=</span> <span class="s">-1</span>
-
-<span class="py">jedis.pool.minEvictableIdle</span> <span class="p">=</span> <span class="s">30m</span>
-
-<span class="py">jedis.pool.softMinEvictableIdle</span> <span class="p">=</span> <span class="s">30m</span>
-
-<span class="py">jedis.pool.numTestsPerEvictionRun</span> <span class="p">=</span> <span class="s">3</span>
-
-<span class="py">jedis.pool.evictionPolicyClassName</span> <span class="p">=</span> <span class="s">org.apache.commons.pool2.impl.DefaultEvictionPolicy</span>
-
-<span class="py">jedis.pool.testOnBorrow</span> <span class="p">=</span> <span class="s">false</span>
-
-<span class="py">jedis.pool.testOnReturn</span> <span class="p">=</span> <span class="s">false</span>
-
-<span class="py">jedis.pool.testWhileIdle</span> <span class="p">=</span> <span class="s">false</span>
-
-<span class="py">jedis.pool.timeBetweenEvictionRuns</span> <span class="p">=</span> <span class="s">-1</span>
-
-<span class="py">jedis.pool.blockWhenExhausted</span> <span class="p">=</span> <span class="s">true</span>
-
-<span class="py">jedis.pool.jmxEnabled</span> <span class="p">=</span> <span class="s">false</span>
-
-<span class="py">jedis.pool.jmxNamePrefix</span> <span class="p">=</span> <span class="s">redis-pool</span>
-
-<span class="c"># session store, key prefix and timeout in seconds </span>
-<span class="py">jedis.session.prefix</span> <span class="p">=</span> <span class="s">sessions</span>
-
-<span class="py">jedis.session.timeout</span> <span class="p">=</span> <span class="s">${session.timeout}</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
     </div> 
