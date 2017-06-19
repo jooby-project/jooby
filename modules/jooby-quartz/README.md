@@ -8,7 +8,7 @@ Cron triggers, job scheduling and async processing via [Quartz](http://quartz-sc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -209,20 +209,4 @@ Example 3: build and set everything from scratch
    })
   );
 }
-```
-
-## quartz.conf
-
-```properties
-org.quartz.scheduler.instanceName = quartz
-
-org.quartz.scheduler.instanceId = local
-
-# thread pool
-
-org.quartz.threadPool.threadNamePrefix = quartz
-
-org.quartz.threadPool.threadCount = ${runtime.processors}
-
-org.quartz.scheduler.skipUpdateCheck = true
 ```

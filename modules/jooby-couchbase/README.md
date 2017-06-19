@@ -10,7 +10,7 @@ This module provides <a href="http://www.couchbase.com">couchbase</a> access via
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-couchbase</artifactId>
- <version>1.1.2</version>
+ <version>1.1.3</version>
 </dependency>
 ```
 
@@ -267,30 +267,6 @@ couchbase.cluster.username = foo
 couchbase.cluster.password = bar
 ```
 
-## couchbase.conf
-
-```properties
-# configure the environment by adding properties to the `couchbase.env` namespace, like:
-
-# couchbase.env.kvEndpoints = 2
-
-# Some custom error codes
-
-err {
-
-  com.couchbase.client.java.error.BucketAlreadyExistsException = 400
-
-  com.couchbase.client.java.error.BucketDoesNotExistException = 404
-
-  com.couchbase.client.java.error.DocumentAlreadyExistsException = 400
-
-  com.couchbase.client.java.error.DocumentDoesNotExistException = 404
-
-  com.couchbase.client.java.error.QueryExecutionException = 400
-
-}
-```
-
 
 
 # couchbase session store
@@ -303,7 +279,7 @@ A [Session.Store](/apidocs/org/jooby/couchbase/CouchbaseSessionStore) powered by
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-couchbase</artifactId>
- <version>1.1.2</version>
+ <version>1.1.3</version>
 </dependency>
 ```
 

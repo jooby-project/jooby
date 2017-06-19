@@ -12,7 +12,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-netty</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -31,61 +31,3 @@ In order to use a web server all you have to do is add the dependency to your bu
 ```
 
 No extra configuration is necessary.
-
-## server.conf
-
-```properties
-# netty defaults
-
-server.module = org.jooby.netty.Netty
-
-server.http2.cleartext = true
-
-netty {
-
-  http {
-
-    MaxInitialLineLength = 4k
-
-    MaxHeaderSize = ${server.http.HeaderSize}
-
-    MaxChunkSize = 16k
-
-    MaxContentLength = ${server.http.MaxRequestSize}
-
-    IdleTimeout = ${server.http.IdleTimeout}
-
-  }
-
-  threads {
-
-    Min = ${server.threads.Min}
-
-    Max = ${server.threads.Max}
-
-    Name = netty task
-
-    Boss = 1
-
-    Worker = ${runtime.processors-x2}
-
-  }
-
-  options {
-
-    SO_REUSEADDR = true
-
-  }
-
-  worker {
-
-    options {
-
-      SO_REUSEADDR = true
-
-    }
-
-  }
-
-}
-```

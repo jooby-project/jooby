@@ -3,12 +3,11 @@
 [![Google Group](https://img.shields.io/badge/google-group-orange.svg)](https://groups.google.com/forum/#!forum/jooby-project)
 [![Join the chat at https://gitter.im/jooby-project/jooby](https://badges.gitter.im/jooby-project/jooby.svg)](https://gitter.im/jooby-project/jooby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby)
-[![ASF2](http://img.shields.io/badge/license-ASF2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
-[![Twitter @joobyproject](https://img.shields.io/badge/twitter--blue.svg)](https://twitter.com/joobyproject)
+[![@joobyproject](https://img.shields.io/badge/twitter--blue.svg)](https://twitter.com/joobyproject)
 
 # &infin; do more, more easily
 
-[Jooby](http://jooby.org) a scalable, fast and modular micro web framework for Java.
+[Jooby](http://jooby.org) a scalable, fast and modular micro web framework for Java, [JavaScript](http://jooby.org/doc/lang-js) and [Kotlin](http://jooby.org/doc/lang-kotlin).
 
 * **Simple, effective and easy to learn**. Ideal for small but also large scale applications.
 
@@ -40,7 +39,7 @@ public class App extends Jooby {
 
 ```
 
-[Kotlin](/jooby-lang-kotlin):
+[Kotlin](http://jooby.org/doc/lang-kotlin):
 
 ```kotlin
 
@@ -56,7 +55,7 @@ fun main(args: Array<String>) {
 
 ```
 
-[JavaScript](/jooby-lang-js):
+[JavaScript](http://jooby.org/doc/lang-js):
 
 ```js
 
@@ -66,10 +65,9 @@ app.get('/', function () 'Hey Jooby!');
 
 ```
 
-## Found this project useful :heart:
+## found this project useful :heart:
 
 * Support by clicking the :star: button on the upper right of this page. :v:
-
 
 ## killer features
 
@@ -83,140 +81,6 @@ app.get('/', function () 'Hey Jooby!');
 * **Web-Socket**
 * **Dependency Injection**
 * **Hot reload** for development
-
-requirements
-=====
-
-* Install [JDK 8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-* Install [Maven 3+](http://maven.apache.org/)
-
-quickstart
-=====
-
-Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
-
-```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.1.2
-```
-
-You might want to edit/change:
-
-* -DgroupId: A Java package's name
-
-* -DartifactId: A project's name in lower case and without spaces
-
-* -Dversion: A project's version, like ```1.0-SNAPSHOT``` or ```1.0.0-SNAPSHOT```
-
-
-Let's try it!:
-
-```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.1.2
-cd my-app
-mvn jooby:run
-```
-
-You should see something similar to this at the end of the output:
-
-```bash
-INFO  [2015-03-19 21:34:00,365] Hotswap available on: [my-app/public, my-app/conf, my-app/target/classes]
-INFO  [2015-03-19 21:34:00,368]   includes: [**/*.class,**/*.conf,**/*.properties]
-INFO  [2015-03-19 21:34:00,369]   excludes: []
-INFO  [2015-03-19 21:34:00,937] [dev@netty]: App server started in 502ms
-
-GET /             [*/*]     [*/*]    (anonymous)
-
-listening on:
-  http://0.0.0.0:8080/
-```
-
-**Jooby**! is up and running!
-
-getting started
-=====
-
-exploring the newly created project
------
-
-A new directory was created: ```my-app```. Let's see what it looks like:
-
-```bash
-.
-├── public
-|   └── (empty)
-├── conf
-|   ├── application.conf
-|   └── logback.xml
-└── src
-    ├── main
-    |   └── java
-    |       └── com
-    |           └── mycompany
-    |               └── App.java
-    └── test
-        └── java
-            └── com
-                └── mycompany
-                    └── AppTest.java
-```
-
-The **public** folder contains static content like ```*.html```, ```*.js```, ```*.css```, ..., ```*.png``` files.
-
-The **conf** folder contains ```*.conf```.
-
-The **src/main/java** folder contains ```*.java``` files (of course).
-
-The **src/test/java** folder contains unit and integration tests.
-
-> **NOTE**: The ```public``` and ```conf``` folders are part of the classpath.
-
-### App.java
-
-
-```java
-
-import org.jooby.Jooby;
-
-public class App extends Jooby { // 1
-
-  {
-    // 2
-    get("/", () -> "Hello World!");
-  }
-
-  public static void main(final String[] args) {
-    run(App::new, args); // 3. start the application.
-  }
-
-}
-
-```
-
-Steps involved are:
-
-1) extend Jooby
-
-2) define some routes
-
-3) call the ```run``` method
-
-running
------
-
-Open a console and type:
-
-    mvn jooby:run
-
-The maven plugin will compile the code (if necessary) and start the application.
-
-Of course, you can generate the IDE metadata from Maven or import as a Maven project in your favorite IDE.
-Afterwards, all you have to do is run the: ```App.java``` class. After all, this is a plain Java application with a ```main``` method.
-
-where to go now?
------
-
-* read the [documentation](/doc)
-* check out one of the [starter projects](https://github.com/search?q=topic%3Astarter+org%3Ajooby-project&type=Repositories)
 
 want to contribute?
 =====
@@ -232,24 +96,6 @@ want to contribute?
 * Please suggest changes to javadoc/exception messages when you find something unclear.
 * If you have problems with documentation, find it non intuitive or hard to follow - let us know about it, we'll try to make it better according to your suggestions. Any constructive critique is greatly appreciated. Don't forget that this is an open source project developed and documented in spare time.
 
-useful links
-=====
-
-* [jooby.org](http://jooby.org)
-* [twitter](https://twitter.com/joobyproject)
-* [gitter](https://gitter.im/jooby-project/jooby)
-* [group](https://groups.google.com/forum/#!forum/jooby-project)
-* [issues](https://github.com/jooby-project/jooby/issues)
-
-related projects
-=====
-
- * [Netty](http://netty.io/)
- * [Jetty](http://eclipse.org/jetty)
- * [Undertow](http://undertow.io/)
- * [Guice](https://github.com/google/guice)
- * [Type Safe](https://github.com/typesafehub/config)
- * [Logback](http://logback.qos.ch)
 
 author
 =====

@@ -13,7 +13,7 @@ Provides advanced cache features via [Ehcache](http://ehcache.org)
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ehcache</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -117,7 +117,7 @@ Please note the ```default``` cache works as a template and isn't a real/usable 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ehcache</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -196,21 +196,5 @@ ehcache {
     conf.setDefaultTransactionTimeoutInSeconds(120);
     // etc...
   }));
-}
-```
-
-## ehcache.conf
-
-```properties
-ehcache {
-
-  # default cache, caches defined in .conf will inherit these properties
-
-  cache.default {
-
-  }
-
-  diskStore.path = ${application.tmpdir}${file.separator}ehcache
-
 }
 ```

@@ -14,7 +14,7 @@ This module extends [jdbc module](/doc/jdbc), before going forward, make sure yo
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ebean</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -104,53 +104,3 @@ Or programmatically:
 We do provide an [ebean-starter](https://github.com/jooby-project/ebean-starter) project. Go and [fork it](https://github.com/jooby-project/ebean-starter).
 
 That's all folks!!
-
-## ebean.conf
-
-```properties
-ebean.defaultServer = true
-
-ebean.register = true
-
-ebean.ddl.generate=false
-
-ebean.ddl.run=false
-
-ebean.debug.sql=true
-
-ebean.debug.lazyload=false
-
-ebean.disableClasspathSearch = true
-
-# -------------------------------------------------------------
-
-# Transaction Logging
-
-# -------------------------------------------------------------
-
-# Use java util logging to log transaction details
-
-ebean.loggingToJavaLogger=false
-
-# General logging level: (none, explicit, all)
-
-ebean.logging=all
-
-# Sharing log files: (none, explicit, all)
-
-ebean.logging.logfilesharing=all
-
-# location of transaction logs
-
-ebean.logging.directory=logs
-
-# Specific Log levels (none, summary, binding, sql)
-
-ebean.logging.iud=sql
-
-ebean.logging.query=sql
-
-ebean.logging.sqlquery=sql
-
-ebean.logging.txnCommit=none
-```

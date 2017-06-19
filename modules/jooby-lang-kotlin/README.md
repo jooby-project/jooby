@@ -1,6 +1,6 @@
 # kotlin
 
-[Jooby](http://jooby.org) provides a tiny module with some functions that will make an application more Kotlin idiomatic.
+A tiny module that makes a Jooby application more Kotlin idiomatic.
 
 ## dependency
 
@@ -8,11 +8,13 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-lang-kotlin</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
 ## usage
+
+via run function:
 
 ```java
 
@@ -29,6 +31,23 @@ fun main(args: Array<String>) {
 ```
 
 The `run` function is a [type-safe builder](http://kotlinlang.org/docs/reference/type-safe-builders.html) that initializes, configures and executes a [Jooby](http://jooby.org) application.
+
+via Kooby class:
+
+```java
+
+import org.jooby.*
+
+Class App: Kooby({
+  get {
+    "Hello Kotlin"
+  }
+})
+
+fun main(args: Array<String>) {
+  run(::App, *args)
+}
+```
 
 ## idioms
 
@@ -57,6 +76,21 @@ run(*args) {
 }
 ```
 
+Reified `param`, `header`, `body` calls:
+
+```java
+run(*args) {
+  get("/:name") {
+    val count = param<Int>("count")
+    count
+  }
+
+  post("/") {
+    val myobj = body<MyObject>()
+    myobj
+  }
+}
+```
 
 ### route group
 

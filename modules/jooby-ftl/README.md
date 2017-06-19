@@ -13,7 +13,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -102,27 +102,3 @@ freemarker.cache = "expireAfterWrite=1h"
 ```
 
 See [CacheBuilderSpec](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/CacheBuilderSpec.html) for more detailed expressions.
-
-## freemarker.conf
-
-```properties
-#freemarker defaults
-
-freemarker.locale = ${application.lang}
-
-freemarker.number_format = ${application.numberFormat}
-
-freemarker.date_format = ${application.dateFormat}
-
-freemarker.time_zone = ${application.tz}
-
-freemarker.object_wrapper = default
-
-freemarker.template_exception_handler = default
-
-freemarker.defaultEncoding = ${application.charset}
-
-# cache for env != dev
-
-freemarker.cache = "maximumSize=100"
-```

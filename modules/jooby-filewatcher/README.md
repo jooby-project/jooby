@@ -8,7 +8,7 @@ Watches for file system changes or event. It uses a watch service to monitor a d
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-file watcher</artifactId>
- <version>1.1.2</version>
+ <version>1.1.3</version>
 </dependency>
 ```
 

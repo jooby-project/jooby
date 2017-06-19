@@ -12,7 +12,7 @@ Provides cache solution and session storage via: <a href="https://github.com/ben
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-caffeine</artifactId>
- <version>1.1.2</version>
+ <version>1.1.3</version>
 </dependency>
 ```
 

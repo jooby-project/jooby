@@ -15,7 +15,7 @@ Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-pac4j</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -182,39 +182,3 @@ A custom logout and redirect urls can be set via ```.conf``` file or programmati
 ```
 
 That's all folks! Enjoy it!!!
-
-## auth.conf
-
-```properties
-auth {
-
-  # default callback, like http://localhost:8080/auth
-
-  callback = "http://"${application.host}":"${application.port}${contextPath}"/auth"
-
-  # login options
-
-  login {
-
-    # Where to go after a successful login? Default is: ${application.path}
-
-    redirectTo = ""
-
-  }
-
-  # logout options
-
-  logout {
-
-    url = /logout
-
-    redirectTo = ${application.path}
-
-  }
-
-  # form auth
-
-  form.loginUrl = /login
-
-}
-```

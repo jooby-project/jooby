@@ -12,7 +12,7 @@ Provides memcached access via [SpyMemcached](https://github.com/dustin/java-memc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-spymemcached</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -62,7 +62,7 @@ or programmatically:
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-spymemcached</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -114,31 +114,3 @@ Default [Memcached](http://memcached.org) key prefix is ```sessions:```. Session
 It's possible to change the default key setting the ```memcached.sesssion.prefix``` property.
 
 Happy coding!!
-
-## memcached.conf
-
-```properties
-memcached {
-
-  authWaitTime = 1s
-
-  daemon = false
-
-  failureMode = redistribute
-
-  locator = ARRAY_MOD
-
-  maxReconnectDelay = 30s
-
-  protocol = text
-
-  shutdownTimeout = -1
-
-}
-
-#default HTTP session settings
-
-memcached.session.prefix = "sessions:"
-
-memcached.session.timeout = ${session.timeout}
-```

@@ -14,7 +14,7 @@ Java 8 optimized, memory efficient, speedy template engine producing statically 
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-rocker</artifactId>
- <version>1.1.2</version>
+ <version>1.1.3</version>
 </dependency>
 ```
 

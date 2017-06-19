@@ -14,7 +14,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-mongodb</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -114,7 +114,7 @@ Use [named](/apidocs/org/jooby/mongodb/Mongodb.html#-named) when you need two or
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-mongodb</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -166,49 +166,3 @@ It uses [MongoDB's TTL](docs.mongodb.org/manual/core/index-ttl) collection featu
 Default [MongoDB](http://mongodb.github.io/mongo-java-driver/) collection is ```sessions```.
 
 It's possible to change the default key setting the ```mongodb.sesssion.collection``` properties.
-
-## mongodb.conf
-
-```properties
-###################################################################################################
-
-# mongodb
-
-###################################################################################################
-
-mongodb.connectionsPerHost = 100
-
-mongodb.threadsAllowedToBlockForConnectionMultiplier = 5
-
-mongodb.maxWaitTime = 120s
-
-mongodb.connectTimeout = 10s
-
-mongodb.socketTimeout = 0
-
-mongodb.socketKeepAlive = false
-
-mongodb.cursorFinalizerEnabled = true
-
-mongodb.alwaysUseMBeans = false
-
-mongodb.heartbeatFrequency = 5000
-
-mongodb.minHeartbeatFrequency = 500
-
-mongodb.heartbeatConnectTimeout = 20s
-
-mongodb.heartbeatSocketTimeout = 20s
-
-###################################################################################################
-
-# session datastore
-
-#  collection: sessions
-
-#  timeout: 30m
-
-###################################################################################################
-
-mongodb.session.collection = sessions
-```

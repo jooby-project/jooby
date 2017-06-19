@@ -23,7 +23,7 @@ depend on [camel-guice](http://camel.apache.org/guice.html), but it provides sim
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-camel</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -147,55 +147,3 @@ Using the ```doWith(Configurer)``` method:
 ```
 
 That's all folks! Enjoy it!!!
-
-## camel.conf
-
-```properties
-# Camel defaults
-
-camel.handleFault = false
-
-camel.shutdownRoute = Default
-
-camel.shutdownRunningTask = CompleteCurrentTaskOnly
-
-camel.tracing = false
-
-camel.autoStartup = true
-
-camel.allowUseOriginalMessage = false
-
-camel.jmx = false
-
-# shutdown
-
-camel.shutdown.shutdownRoutesInReverseOrder = true
-
-camel.shutdown.timeUnit = SECONDS
-
-camel.shutdown.timeout = 10
-
-# thread pool
-
-camel.threads.poolSize = ${runtime.processors-plus1}
-
-camel.threads.maxPoolSize = ${runtime.processors-x2}
-
-camel.threads.keepAliveTime = 60
-
-camel.threads.timeUnit = SECONDS
-
-camel.threads.rejectedPolicy = CallerRuns
-
-camel.threads.maxQueueSize = 1000
-
-camel.threads.id = default
-
-camel.threads.defaultProfile = true
-
-# stream caching
-
-camel.streamCaching.enabled = false
-
-camel.streamCaching.spoolDirectory = ${application.tmpdir}${file.separator}"camel"${file.separator}"#uuid#"
-```

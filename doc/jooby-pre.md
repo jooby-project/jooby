@@ -1,6 +1,6 @@
 # &infin; do more, more easily
 
-[Jooby](http://jooby.org) a scalable, fast and modular micro web framework for Java.
+[Jooby](http://jooby.org) a scalable, fast and modular micro web framework for Java, [JavaScript](http://jooby.org/doc/lang-js) and [Kotlin](http://jooby.org/doc/lang-kotlin).
 
 * **Simple, effective and easy to learn**. Ideal for small but also large scale applications.
 

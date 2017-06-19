@@ -13,7 +13,7 @@ Logic-less and semantic templates via [Handlebars.java](https://github.com/jknac
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbs</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 

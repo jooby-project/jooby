@@ -103,3 +103,764 @@ When the generated file isn't enough, follow these steps:
 1. create a dir: ```src/etc/war/WEB-INF```
 2. save a ```web.xml``` file inside that dir
 3. run: ```mvn clean package```
+
+## jooby.conf
+
+```properties
+###################################################################################################
+
+#! application
+
+###################################################################################################
+
+application {
+
+  # environment default is: dev
+
+  env = dev
+
+  # contains the simple name of package of your application bootstrap class.
+
+  # For example: com.foo.App -> foo
+
+  # name = App.class.getPackage().getName().lastSegment()
+
+  # application namespace, default to app package. set it at runtime
+
+  # ns = App.class.getPackage().getName()
+
+  # class = App.class.getName() 
+
+  # tmpdir
+
+  tmpdir = ${java.io.tmpdir}/${application.name}
+
+  # path (a.k.a. as contextPath)
+
+  path = /
+
+  # localhost
+
+  host = localhost
+
+  # HTTP ports
+
+  port = 8080
+
+  # uncomment to enabled HTTPS
+
+  # securePort = 8443
+
+  # we do UTF-8
+
+  charset = UTF-8
+
+  # date format
+
+  dateFormat = dd-MMM-yyyy
+
+  # number format, system default. set it at runtime
+
+  # numberFormat = DecimalFormat.getInstance(${application.lang})).toPattern()
+
+  # comma separated list of locale using the language tag format. Default to: Locale.getDefault()
+
+  # lang = Locale.getDefault()
+
+  # timezone, system default. set it at runtime
+
+  # tz = ZoneId.systemDefault().getId()
+
+  # redirect to/force https
+
+  # example: https://my.domain.com/{0}
+
+  redirect_https = ""
+
+}
+
+ssl {
+
+  # An X.509 certificate chain file in PEM format, provided certificate should NOT be used in prod.
+
+  keystore.cert = org/jooby/unsecure.crt 
+
+  # A PKCS#8 private key file in PEM format, provided key should NOT be used in prod.
+
+  keystore.key = org/jooby/unsecure.key
+
+  # password of the keystore.key (if any)
+
+  # keystore.password =
+
+  # Trusted certificates for verifying the remote endpoint's certificate. The file should
+
+  # contain an X.509 certificate chain in PEM format. Default uses the system default.
+
+  # trust.cert =
+
+  # Set the size of the cache used for storing SSL session objects. 0 to use the
+
+  # default value.
+
+  session.cacheSize = 0
+
+  # Timeout for the cached SSL session objects, in seconds. 0 to use the default value.
+
+  session.timeout = 0
+
+}
+
+###################################################################################################
+
+#! session defaults
+
+###################################################################################################
+
+session {
+
+  # we suggest a timeout, but usage and an implementation is specific to a Session.Store implementation
+
+  timeout = 30m
+
+  # save interval, how frequently we must save a none-dirty session (in millis).
+
+  saveInterval = 60s
+
+  cookie {
+
+    # name of the cookie
+
+    name = jooby.sid
+
+    # cookie path
+
+    path = /
+
+    # expires when the user closes the web browser
+
+    maxAge = -1
+
+    httpOnly = true
+
+    secure = false
+
+  }
+
+}
+
+###################################################################################################
+
+#! flash scope defaults
+
+###################################################################################################
+
+flash {
+
+  cookie {
+
+    name = jooby.flash
+
+    path = ${application.path}
+
+    httpOnly = true
+
+    secure = false
+
+  }
+
+}
+
+###################################################################################################
+
+#! server defaults
+
+###################################################################################################
+
+server {
+
+  http {
+
+    HeaderSize = 8k
+
+    # Max response buffer size
+
+    ResponseBufferSize = 16k
+
+    # Max request body size to keep in memory
+
+    RequestBufferSize = 1m
+
+    # Max request size total (body + header)
+
+    MaxRequestSize = 200k
+
+    IdleTimeout = 0
+
+    Method = ""
+
+  }
+
+  threads {
+
+    Min = ${runtime.processors}
+
+    Max = ${runtime.processors-x8}
+
+    IdleTimeout = 60s
+
+  }
+
+  routes {
+
+    # Guava Cache Spec
+
+    Cache = "concurrencyLevel="${runtime.concurrencyLevel}",maximumSize="${server.threads.Max}
+
+  }
+
+  ws {
+
+    # The maximum size of a text message.
+
+    MaxTextMessageSize = 16k
+
+    # The maximum size of a binary message.
+
+    MaxBinaryMessageSize = 16k
+
+    # The time in ms (milliseconds) that a websocket may be idle before closing.
+
+    IdleTimeout = 5minutes
+
+  }
+
+  http2 {
+
+    cleartext = true
+
+    enabled = false
+
+  }
+
+}
+
+###################################################################################################
+
+#! assets
+
+###################################################################################################
+
+assets {
+
+  #! If asset CDN is present, the asset router will do a redirect to CDN and wont serve the file locally
+
+  #! /assets/js/index.js -> redirectTo(cdn + assets/js/index.js)
+
+  cdn =  ""
+
+  etag = true
+
+  lastModified = true
+
+  env = ${application.env}
+
+  charset = ${application.charset}
+
+  # -1 to disable or HOCON duration value
+
+  cache.maxAge = -1
+
+}
+
+###################################################################################################
+
+#! Cross origin resource sharing
+
+###################################################################################################
+
+cors {
+
+  # Configures the Access-Control-Allow-Origin CORS header. Possibly values: *, domain, regex or a list of previous values.
+
+  # Example:
+
+  # "*"
+
+  # ["http://foo.com"]
+
+  # ["http://*.com"]
+
+  # ["http://foo.com", "http://bar.com"]
+
+  origin: "*"
+
+  # If true, set the Access-Control-Allow-Credentials header
+
+  credentials: true
+
+  # Allowed methods: Set the Access-Control-Allow-Methods header
+
+  allowedMethods: [GET, POST]
+
+  # Allowed headers: set the Access-Control-Allow-Headers header. Possibly values: *, header name or a list of previous values.
+
+  # Examples
+
+  # "*"
+
+  # Custom-Header
+
+  # [Header-1, Header-2]
+
+  allowedHeaders: [X-Requested-With, Content-Type, Accept, Origin]
+
+  # Preflight max age: number of seconds that preflight requests can be cached by the client
+
+  maxAge: 30m
+
+  # Set the Access-Control-Expose-Headers header
+
+  # exposedHeaders: []
+
+}
+
+###################################################################################################
+
+#! runtime
+
+###################################################################################################
+
+#! number of available processors, set it at runtime
+
+#! runtime.processors = Runtime.getRuntime().availableProcessors()
+
+#! runtime.processors-plus1 = ${runtime.processors} + 1
+
+#! runtime.processors-plus2 = ${runtime.processors} + 2
+
+#! runtime.processors-x2 = ${runtime.processors} * 2
+
+###################################################################################################
+
+#! status codes
+
+###################################################################################################
+
+err.java.lang.IllegalArgumentException = 400
+
+err.java.util.NoSuchElementException = 400
+
+err.java.io.FileNotFoundException = 404
+
+###################################################################################################
+
+#! alias
+
+###################################################################################################
+
+contextPath = ${application.path}
+```
+
+
+## mime.properties
+
+```properties
+mime.ai=application/postscript
+
+mime.aif=audio/x-aiff
+
+mime.aifc=audio/x-aiff
+
+mime.aiff=audio/x-aiff
+
+mime.apk=application/vnd.android.package-archive
+
+mime.asc=text/plain
+
+mime.asf=video/x.ms.asf
+
+mime.asx=video/x.ms.asx
+
+mime.au=audio/basic
+
+mime.avi=video/x-msvideo
+
+mime.bcpio=application/x-bcpio
+
+mime.bin=application/octet-stream
+
+mime.bmp=image/bmp
+
+mime.cab=application/x-cabinet
+
+mime.cdf=application/x-netcdf
+
+mime.class=application/java-vm
+
+mime.cpio=application/x-cpio
+
+mime.cpt=application/mac-compactpro
+
+mime.crt=application/x-x509-ca-cert
+
+mime.csh=application/x-csh
+
+mime.css=text/css
+
+mime.scss=text/css
+
+mime.less=text/css
+
+mime.csv=text/comma-separated-values
+
+mime.dcr=application/x-director
+
+mime.dir=application/x-director
+
+mime.dll=application/x-msdownload
+
+mime.dms=application/octet-stream
+
+mime.doc=application/msword
+
+mime.dtd=application/xml-dtd
+
+mime.dvi=application/x-dvi
+
+mime.dxr=application/x-director
+
+mime.eps=application/postscript
+
+mime.etx=text/x-setext
+
+mime.exe=application/octet-stream
+
+mime.ez=application/andrew-inset
+
+mime.gif=image/gif
+
+mime.gtar=application/x-gtar
+
+mime.gz=application/gzip
+
+mime.gzip=application/gzip
+
+mime.hdf=application/x-hdf
+
+mime.hqx=application/mac-binhex40
+
+mime.htc=text/x-component
+
+mime.htm=text/html
+
+mime.html=text/html
+
+mime.ice=x-conference/x-cooltalk
+
+mime.ico=image/x-icon
+
+mime.ief=image/ief
+
+mime.iges=model/iges
+
+mime.igs=model/iges
+
+mime.jad=text/vnd.sun.j2me.app-descriptor
+
+mime.jar=application/java-archive
+
+mime.java=text/plain
+
+mime.jnlp=application/x-java-jnlp-file
+
+mime.jpe=image/jpeg
+
+mime.jpeg=image/jpeg
+
+mime.jpg=image/jpeg
+
+mime.js=application/javascript
+
+mime.ts=application/javascript
+
+mime.coffee=application/javascript
+
+mime.json=application/json
+
+mime.yaml=application/yaml
+
+mime.jsp=text/html
+
+mime.kar=audio/midi
+
+mime.latex=application/x-latex
+
+mime.lha=application/octet-stream
+
+mime.lzh=application/octet-stream
+
+mime.man=application/x-troff-man
+
+mime.mathml=application/mathml+xml
+
+mime.me=application/x-troff-me
+
+mime.mesh=model/mesh
+
+mime.mid=audio/midi
+
+mime.midi=audio/midi
+
+mime.mif=application/vnd.mif
+
+mime.mol=chemical/x-mdl-molfile
+
+mime.mov=video/quicktime
+
+mime.movie=video/x-sgi-movie
+
+mime.mp2=audio/mpeg
+
+mime.mp3=audio/mpeg
+
+mime.mpe=video/mpeg
+
+mime.mpeg=video/mpeg
+
+mime.mpg=video/mpeg
+
+mime.mpga=audio/mpeg
+
+mime.ms=application/x-troff-ms
+
+mime.msh=model/mesh
+
+mime.msi=application/octet-stream
+
+mime.nc=application/x-netcdf
+
+mime.oda=application/oda
+
+mime.odb=application/vnd.oasis.opendocument.database
+
+mime.odc=application/vnd.oasis.opendocument.chart
+
+mime.odf=application/vnd.oasis.opendocument.formula
+
+mime.odg=application/vnd.oasis.opendocument.graphics
+
+mime.odi=application/vnd.oasis.opendocument.image
+
+mime.odm=application/vnd.oasis.opendocument.text-master
+
+mime.odp=application/vnd.oasis.opendocument.presentation
+
+mime.ods=application/vnd.oasis.opendocument.spreadsheet
+
+mime.odt=application/vnd.oasis.opendocument.text
+
+mime.ogg=application/ogg
+
+mime.otc=application/vnd.oasis.opendocument.chart-template
+
+mime.otf=application/vnd.oasis.opendocument.formula-template
+
+mime.otg=application/vnd.oasis.opendocument.graphics-template
+
+mime.oth=application/vnd.oasis.opendocument.text-web
+
+mime.oti=application/vnd.oasis.opendocument.image-template
+
+mime.otp=application/vnd.oasis.opendocument.presentation-template
+
+mime.ots=application/vnd.oasis.opendocument.spreadsheet-template
+
+mime.ott=application/vnd.oasis.opendocument.text-template
+
+mime.pbm=image/x-portable-bitmap
+
+mime.pdb=chemical/x-pdb
+
+mime.pdf=application/pdf
+
+mime.pgm=image/x-portable-graymap
+
+mime.pgn=application/x-chess-pgn
+
+mime.png=image/png
+
+mime.pnm=image/x-portable-anymap
+
+mime.ppm=image/x-portable-pixmap
+
+mime.pps=application/vnd.ms-powerpoint
+
+mime.ppt=application/vnd.ms-powerpoint
+
+mime.ps=application/postscript
+
+mime.qml=text/x-qml
+
+mime.qt=video/quicktime
+
+mime.ra=audio/x-pn-realaudio
+
+mime.ram=audio/x-pn-realaudio
+
+mime.ras=image/x-cmu-raster
+
+mime.rdf=application/rdf+xml
+
+mime.rgb=image/x-rgb
+
+mime.rm=audio/x-pn-realaudio
+
+mime.roff=application/x-troff
+
+mime.rpm=application/x-rpm
+
+mime.rtf=application/rtf
+
+mime.rtx=text/richtext
+
+mime.rv=video/vnd.rn-realvideo
+
+mime.ser=application/java-serialized-object
+
+mime.sgm=text/sgml
+
+mime.sgml=text/sgml
+
+mime.sh=application/x-sh
+
+mime.shar=application/x-shar
+
+mime.silo=model/mesh
+
+mime.sit=application/x-stuffit
+
+mime.skd=application/x-koan
+
+mime.skm=application/x-koan
+
+mime.skp=application/x-koan
+
+mime.skt=application/x-koan
+
+mime.smi=application/smil
+
+mime.smil=application/smil
+
+mime.snd=audio/basic
+
+mime.spl=application/x-futuresplash
+
+mime.src=application/x-wais-source
+
+mime.sv4cpio=application/x-sv4cpio
+
+mime.sv4crc=application/x-sv4crc
+
+mime.svg=image/svg+xml
+
+mime.swf=application/x-shockwave-flash
+
+mime.t=application/x-troff
+
+mime.tar=application/x-tar
+
+mime.tar.gz=application/x-gtar
+
+mime.tcl=application/x-tcl
+
+mime.tex=application/x-tex
+
+mime.texi=application/x-texinfo
+
+mime.texinfo=application/x-texinfo
+
+mime.tgz=application/x-gtar
+
+mime.tif=image/tiff
+
+mime.tiff=image/tiff
+
+mime.tr=application/x-troff
+
+mime.tsv=text/tab-separated-values
+
+mime.txt=text/plain
+
+mime.ustar=application/x-ustar
+
+mime.vcd=application/x-cdlink
+
+mime.vrml=model/vrml
+
+mime.vxml=application/voicexml+xml
+
+mime.wav=audio/x-wav
+
+mime.wbmp=image/vnd.wap.wbmp
+
+mime.wml=text/vnd.wap.wml
+
+mime.wmlc=application/vnd.wap.wmlc
+
+mime.wmls=text/vnd.wap.wmlscript
+
+mime.wmlsc=application/vnd.wap.wmlscriptc
+
+mime.wrl=model/vrml
+
+mime.wtls-ca-certificate=application/vnd.wap.wtls-ca-certificate
+
+mime.xbm=image/x-xbitmap
+
+mime.xht=application/xhtml+xml
+
+mime.xhtml=application/xhtml+xml
+
+mime.xls=application/vnd.ms-excel
+
+mime.xml=application/xml
+
+mime.xpm=image/x-xpixmap
+
+mime.xsd=application/xml
+
+mime.xsl=application/xml
+
+mime.xslt=application/xslt+xml
+
+mime.xul=application/vnd.mozilla.xul+xml
+
+mime.xwd=image/x-xwindowdump
+
+mime.xyz=chemical/x-xyz
+
+mime.z=application/compress
+
+mime.zip=application/zip
+
+mime.conf=application/hocon
+
+#! fonts
+
+mime.ttf=font/truetype
+
+mime.otf=font/opentype
+
+mime.eot=application/vnd.ms-fontobject
+
+mime.woff=application/x-font-woff
+
+mime.woff2=application/font-woff2
+
+#! source map
+
+mime.map=text/plain
+
+mime.mp4=video/mp4
+```

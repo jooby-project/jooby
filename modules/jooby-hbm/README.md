@@ -18,7 +18,7 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-hbm</artifactId>
- <version>1.1.2</version>
+ <version>1.1.3</version>
 </dependency>
 ```
 
@@ -206,13 +206,3 @@ public class MySingleton {
 Still, we strongly recommend to leave your services in the default scope and avoid `Singleton` objects, except of course for really expensive resources. This is also recommend approach by Guice.
 
 Services in the default scope won't have this problem and are free to inject the `Session` or `EntityManager` directly.
-
-## hbm.conf
-
-```properties
-hibernate.session_factory_name_is_jndi = false
-
-hibernate.archive.autodetection = class
-
-hibernate.current_session_context_class = managed
-```

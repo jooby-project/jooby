@@ -18,7 +18,7 @@ public class App extends Jooby {
 
 ```
 
-[Kotlin](/jooby-lang-kotlin):
+[Kotlin](http://jooby.org/doc/lang-kotlin):
 
 ```kotlin
 
@@ -34,7 +34,7 @@ fun main(args: Array<String>) {
 
 ```
 
-[JavaScript](/jooby-lang-js):
+[JavaScript](http://jooby.org/doc/lang-js):
 
 ```js
 

@@ -24,7 +24,7 @@ pattern, which basically keeps the ```Session``` opened until the view is render
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbm</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -106,27 +106,4 @@ namespace. The namespace is defined by the package of your application. Given:
 
 ```properties
 hibernate.hbm2ddl.auto = update
-```
-
-
-## hbm.conf
-
-```properties
-hibernate {
-
-  id.new_generator_mappings = true
-
-  archive.autodetection = class
-
-  # update for dev, validate for others
-
-  # hbm2ddl.auto = update
-
-  current_session_context_class = managed
-
-}
-
-javax.persistence {
-
-}
 ```

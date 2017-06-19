@@ -10,7 +10,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-assets-svg-sprites</artifactId>
- <version>1.1.2</version>
+ <version>1.1.3</version>
  <scope>provided</scope>
 </dependency>
 ```

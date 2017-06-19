@@ -13,7 +13,7 @@ Provides cache solution and session storage via [Hazelcast](http://hazelcast.org
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hazelcast</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -54,7 +54,7 @@ Configuration can be done programmatically via: ```doWith(Consumer)```
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hazelcast</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -100,17 +100,3 @@ session.timeout = -1
 Default session's name is ```sessions```. It's possible to change the default name by setting the property: ```hazelcast.sesssion.name```.
 
 Happy coding!!!
-
-## hcast.conf
-
-```properties
-# logging
-
-hazelcast.logging.type = slf4j
-
-# session store, key prefix and timeout in seconds
-
-hazelcast.session.name = sessions
-
-hazelcast.session.timeout = ${session.timeout}
-```

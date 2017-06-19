@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -96,7 +96,7 @@ For more information about [Jedis](https://github.com/xetorthio/jedis) checkout 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -149,53 +149,3 @@ It's possible to change the default key setting the ```jedis.sesssion.prefix``` 
 That's all folks! Enjoy it!
 
 TBD: Object mapping? https://github.com/xetorthio/johm?
-
-## jedis.conf
-
-```properties
-# jedis default config
-
-# jedis
-
-jedis.timeout = 2s
-
-# pool config
-
-jedis.pool.maxTotal = 128
-
-jedis.pool.maxIdle = 10
-
-jedis.pool.minIdle = 10
-
-jedis.pool.lifo = true
-
-jedis.pool.maxWait = -1
-
-jedis.pool.minEvictableIdle = 30m
-
-jedis.pool.softMinEvictableIdle = 30m
-
-jedis.pool.numTestsPerEvictionRun = 3
-
-jedis.pool.evictionPolicyClassName = org.apache.commons.pool2.impl.DefaultEvictionPolicy
-
-jedis.pool.testOnBorrow = false
-
-jedis.pool.testOnReturn = false
-
-jedis.pool.testWhileIdle = false
-
-jedis.pool.timeBetweenEvictionRuns = -1
-
-jedis.pool.blockWhenExhausted = true
-
-jedis.pool.jmxEnabled = false
-
-jedis.pool.jmxNamePrefix = redis-pool
-
-# session store, key prefix and timeout in seconds
-
-jedis.session.prefix = sessions
-
-jedis.session.timeout = ${session.timeout}
-```
