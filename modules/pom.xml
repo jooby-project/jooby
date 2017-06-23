@@ -31,6 +31,7 @@
     <module>jooby-servlet</module>
     <module>jooby-jetty</module>
     <module>jooby-netty</module>
+    <module>jooby-neo4j</module>
     <module>jooby-quartz</module>
     <module>jooby-jdbi</module>
     <module>jooby-run</module>
