@@ -294,6 +294,12 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
+        <artifactId>jooby-neo4j</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
         <artifactId>jooby-assets</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -1538,6 +1544,53 @@
         <groupId>com.orbitz.consul</groupId>
         <artifactId>consul-client</artifactId>
         <version>${consul.version}</version>
+      </dependency>
+
+      <!-- neo4j -->
+      <dependency>
+        <groupId>com.graphaware.neo4j</groupId>
+        <artifactId>runtime</artifactId>
+        <version>${neo4j.runtime.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-graphdb-api</artifactId>
+        <version>${neo4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j</artifactId>
+        <version>${neo4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-slf4j</artifactId>
+        <version>${neo4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.graphaware.neo4j</groupId>
+        <artifactId>expire</artifactId>
+        <version>${neo4j.expire.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.iot-solutions.graphdb</groupId>
+        <artifactId>jcypher</artifactId>
+        <version>${jcypher.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-kernel</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-io</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!-- Test dependencies -->
@@ -2957,6 +3010,10 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <rocker.version>0.16.0</rocker.version>
     <kotlin.version>1.1.2-5</kotlin.version>
     <requery.version>1.2.0</requery.version>
+    <neo4j.runtime.version>3.2.1.51</neo4j.runtime.version>
+    <neo4j.expire.version>3.2.1.51.4</neo4j.expire.version>
+    <neo4j.version>3.2.1</neo4j.version>
+    <jcypher.version>3.7.0</jcypher.version>
 
     <!-- config -->
     <ebean.agent.packages>**</ebean.agent.packages>

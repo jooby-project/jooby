@@ -19,31 +19,41 @@
 
 package org.jooby.neo4j;
 
-import com.graphaware.neo4j.expire.ExpirationModule;
-import com.graphaware.neo4j.expire.config.ExpirationConfiguration;
-import com.graphaware.runtime.GraphAwareRuntime;
-import com.graphaware.runtime.GraphAwareRuntimeFactory;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
-import org.apache.commons.lang3.tuple.Pair;
-import org.jooby.Session;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import static java.util.Objects.requireNonNull;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.function.LongSupplier;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
-import static java.util.Objects.requireNonNull;
+import org.jooby.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableSet;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
+
+import iot.jcypher.database.IDBAccess;
+import iot.jcypher.graph.GrNode;
+import iot.jcypher.graph.GrProperty;
+import iot.jcypher.query.JcQuery;
+import iot.jcypher.query.JcQueryResult;
+import iot.jcypher.query.api.IClause;
+import iot.jcypher.query.api.pattern.Node;
+import iot.jcypher.query.factories.clause.CREATE;
+import iot.jcypher.query.factories.clause.DO;
+import iot.jcypher.query.factories.clause.MATCH;
+import iot.jcypher.query.factories.clause.RETURN;
+import iot.jcypher.query.values.JcNode;
 
 /**
  * A {@link Session.Store} powered by
@@ -85,16 +95,39 @@ import static java.util.Objects.requireNonNull;
  * </pre>
  *
  * <p>
- * It uses GraphAware's Expire library to automatically remove
- * expired sessions.
+ * It uses <a href="https://github.com/graphaware/neo4j-expire">GraphAware's Expire</a> library to
+ * automatically remove expired sessions.
  * </p>
  *
+ * <p>
+ * For embedded databases you need to configure the expire module, like:
+ * </p>
+ *
+ * <pre>
+ * com.graphaware.runtime.enabled = true
+ *
+ * com.graphaware.module = [{
+ *   class: com.graphaware.neo4j.expire.ExpirationModuleBootstrapper
+ *   nodeExpirationProperty: _expire
+ * }]
+ * </pre>
+ *
+ * <p>
+ * The {@link Neo4jSessionStore} uses the <code>_expire</code> to evict sessions.
+ * </p>
+ *
+ * <p>
+ * If you connect to a remote server make sure the expire module was installed. More information at
+ * <a href="https://github.com/graphaware/neo4j-expire"></a>.
+ * </p>
+ *
+ * <p>
  * If no timeout is required, use <code>-1</code>.
+ * </p>
  *
  * <h3>session label</h3>
  * <p>
- * It's possible to provide the session label using the <code>neo4j.session.label</code>
- * properties.
+ * It's possible to provide the session label using the <code>neo4j.session.label</code> properties.
  * </p>
  *
  * @author sbcd90
@@ -102,110 +135,130 @@ import static java.util.Objects.requireNonNull;
  */
 public class Neo4jSessionStore implements Session.Store {
 
-  private static final char DOT = '.';
+  private final Set<String> SPECIAL = ImmutableSet.of("_accessedAt", "_createdAt", "_savedAt",
+      "_expire", "_id");
 
-  private static final char UDOT = '\uFF0E';
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private static final char DOLLAR = '$';
+  private final String label;
 
-  private static final char UDOLLAR = '\uFF04';
+  private final LongSupplier expire;
 
-  protected final String sessionLabel;
+  private final IDBAccess db;
 
-  protected final long timeout;
-
-  private static GraphDatabaseService dbService;
-  private static GraphAwareRuntime graphRuntime;
-
-  protected final GraphDatabaseService db;
-  protected final GraphAwareRuntime graphAwareRuntime;
-
-
-  public Neo4jSessionStore(Pair<GraphDatabaseService, GraphAwareRuntime> graph, final String sessionLabel,
-                           final long timeoutInSeconds) {
-    this.db = requireNonNull(graph.getLeft(), "GraphDatabaseService instance is required");
-    this.graphAwareRuntime = requireNonNull(graph.getRight(), "GraphAwareRuntime instance is required");
-    this.sessionLabel = requireNonNull(sessionLabel, "Label to store sessions is required");
-    this.timeout = timeoutInSeconds;
+  public Neo4jSessionStore(final IDBAccess dbaccess, final String sessionLabel,
+      final long timeoutInSeconds) {
+    this.db = dbaccess;
+    this.label = requireNonNull(sessionLabel, "Label to store sessions is required");
+    long expire = TimeUnit.SECONDS.toMillis(timeoutInSeconds);
+    this.expire = () -> System.currentTimeMillis() + expire;
   }
 
   @Inject
-  public Neo4jSessionStore(@Named("databaseDir") String databaseDir,
-                           final @Named("neo4j.session.label") String sessionLabel,
-                           final @Named("session.timeout") String timeout) {
-    this(getOrCreateGraph(databaseDir), sessionLabel, seconds(timeout));
+  public Neo4jSessionStore(final IDBAccess dbaccess,
+      final @Named("neo4j.session.label") String sessionLabel,
+      final @Named("session.timeout") String timeout) {
+    this(dbaccess, sessionLabel, seconds(timeout));
   }
 
   @Override
   public Session get(final Session.Builder builder) {
-    try(Transaction tx = db.beginTx()) {
-      return Optional.ofNullable(db.findNode(Label.label(sessionLabel), "_id", builder.sessionId()))
-        .map(node -> {
-          Map<String, Object> session = new LinkedHashMap<>(node.getAllProperties());
+    String sid = builder.sessionId();
+    JcNode node = new JcNode("n");
+    JcQuery query = new JcQuery();
+    query.setClauses(new IClause[]{
+        MATCH.node(node).label(label).property("_id").value(sid),
+        // touch session
+        DO.SET(node.property("_expire")).to(expire.getAsLong()),
+        RETURN.value(node)
+    });
 
-          Long accessedAt = (Long) session.remove("_accessedAt");
-          Long createdAt = (Long) session.remove("_createdAt");
-          Long savedAt = (Long) session.remove("_savedAt");
-          session.remove("_id");
-          session.remove("_expire");
+    List<GrNode> result = db.execute(query).resultOf(node);
+    log.debug("touch {} session {} ", sid, result);
+    if (result.size() == 1) {
+      GrNode found = result.get(0);
+      builder
+          .accessedAt(((Number) found.getProperty("_accessedAt").getValue()).longValue())
+          .createdAt(((Number) found.getProperty("_createdAt").getValue()).longValue())
+          .savedAt(((Number) found.getProperty("_savedAt").getValue()).longValue());
 
-          builder
-            .accessedAt(accessedAt)
-            .createdAt(createdAt)
-            .savedAt(savedAt);
-          session.forEach((k, v) -> builder.set(decode(k), v.toString()));
-          tx.success();
-          return builder.build();
-        }).orElse(null);
+      found.getProperties()
+          .stream()
+          .filter(it -> !SPECIAL.contains(it.getName()))
+          .forEach(p -> builder.set(p.getName(), p.getValue().toString()));
+
+      return builder.build();
     }
+
+    return null;
   }
 
   @Override
   public void save(final Session session) {
-    String id = session.id();
-    Map<String, String> attributes = session.attributes();
+    String sid = session.id();
+    Map<String, Object> attributes = new HashMap<>(session.attributes());
 
-    try(Transaction tx = db.beginTx()) {
-      Optional.ofNullable(db.findNode(Label.label(sessionLabel), "_id", id))
-        .map(node -> {
-          node.setProperty("_accessedAt", session.accessedAt());
-          node.setProperty("_createdAt", session.createdAt());
-          node.setProperty("_savedAt", session.savedAt());
+    JcNode node = new JcNode("n");
+    JcQuery query = new JcQuery();
+    List<IClause> clauses = new ArrayList<>();
+    clauses.add(MATCH.node(node).label(label).property("_id").value(sid));
+    attributes.put("_accessedAt", session.accessedAt());
+    attributes.put("_createdAt", session.createdAt());
+    attributes.put("_savedAt", session.savedAt());
+    attributes.put("_expire", expire.getAsLong());
+    attributes.forEach((k, v) -> {
+      clauses.add(DO.SET(node.property(k)).to(v));
+    });
+    clauses.add(RETURN.value(node));
 
-          attributes.forEach((k ,v) -> node.setProperty(encode(k), v));
+    query.setClauses(clauses.toArray(new IClause[clauses.size()]));
+    List<GrNode> nodes = db.execute(query).resultOf(node);
+    if (nodes.size() == 1) {
+      GrNode found = nodes.get(0);
+      Set<String> keys = found.getProperties().stream()
+          .map(GrProperty::getName)
+          .collect(Collectors.toSet());
+      keys.removeAll(attributes.keySet());
+      // unset properties
+      if (keys.size() > 0) {
+        log.debug("removing {} => {}", sid, keys);
+        JcQuery unsetQuery = new JcQuery();
+        List<IClause> unsetClauses = new ArrayList<>();
+        unsetClauses.add(MATCH.node(node).label(label).property("_id").value(sid));
+        keys.forEach(key -> unsetClauses.add(DO.REMOVE(node.property(key))));
+        unsetQuery.setClauses(unsetClauses.toArray(new IClause[unsetClauses.size()]));
+        db.execute(unsetQuery);
+      }
+      log.debug("saved {} => {}", sid, nodes);
+    } else {
+      // create session:
+      query = new JcQuery();
+      Node create = CREATE.node(node).label(label);
+      create.property("_id").value(sid);
+      attributes.forEach((k, v) -> create.property(k).value(v));
 
-          if (!node.hasProperty("_expire")) {
-            node.setProperty("_expire", System.currentTimeMillis() + timeout * 1000);
-          }
-
-          return node;
-        }).orElseGet(() -> {
-        Node node = db.createNode(Label.label(sessionLabel));
-
-        node.setProperty("_accessedAt", session.accessedAt());
-        node.setProperty("_createdAt", session.createdAt());
-        node.setProperty("_savedAt", session.savedAt());
-
-        attributes.forEach((k, v) -> node.setProperty(encode(k), v));
-        node.setProperty("_expire", System.currentTimeMillis() + timeout * 1000);
-
-        return node;
-      });
-      tx.success();
+      query.setClauses(new IClause[]{create });
+      List<GrNode> result = db.execute(query).resultOf(node);
+      log.debug("created {} => {}", sid, result);
     }
   }
 
   @Override
-  public void create(Session session) {
+  public void create(final Session session) {
     save(session);
   }
 
   @Override
-  public void delete(String id) {
-    try(Transaction tx = db.beginTx()) {
-      db.findNode(Label.label(sessionLabel), "_id", id).delete();
-      tx.success();
-    }
+  public void delete(final String id) {
+    JcNode session = new JcNode("n");
+    JcQuery q = new JcQuery();
+    q.setClauses(new IClause[]{
+        MATCH.node(session).label(label).property("_id").value(id),
+        DO.DELETE(session)
+    });
+    JcQueryResult rsp = db.execute(q);
+    log.debug("destroyed {} => {}", id, rsp);
   }
 
   private static long seconds(final String value) {
@@ -213,43 +266,8 @@ public class Neo4jSessionStore implements Session.Store {
       return Long.parseLong(value);
     } catch (NumberFormatException ex) {
       Config config = ConfigFactory.empty()
-        .withValue("timeout", ConfigValueFactory.fromAnyRef(value));
+          .withValue("timeout", ConfigValueFactory.fromAnyRef(value));
       return config.getDuration("timeout", TimeUnit.SECONDS);
-    } catch (NullPointerException ex) {
-      return 1800L;
     }
-  }
-
-  private String encode(final String key) {
-    String value = key;
-    if (value.charAt(0) == DOLLAR) {
-      value = UDOLLAR + value.substring(1);
-    }
-    return value.replace(DOT, UDOT);
-  }
-
-  private String decode(final String key) {
-    String value = key;
-    if (value.charAt(0) == UDOLLAR) {
-      value = DOLLAR + value.substring(1);
-    }
-    return value.replace(UDOT, DOT);
-  }
-
-  private static Pair<GraphDatabaseService, GraphAwareRuntime> getOrCreateGraph(String databaseDir) {
-    if (dbService == null && graphRuntime == null) {
-      GraphDatabaseBuilder builder = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(new File(databaseDir));
-      dbService = builder.newGraphDatabase();
-      graphRuntime = GraphAwareRuntimeFactory.createRuntime(dbService);
-
-      ExpirationConfiguration configuration = ExpirationConfiguration.defaultConfiguration().withNodeExpirationProperty("_expire");
-      graphRuntime.registerModule(new ExpirationModule("EXP", dbService, configuration));
-
-      graphRuntime.start();
-      graphRuntime.waitUntilStarted();
-
-      return Pair.of(dbService, graphRuntime);
-    }
-    return Pair.of(dbService, graphRuntime);
   }
 }

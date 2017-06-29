@@ -90,6 +90,7 @@
                     <source>${project.parent.basedir}/jooby-lang-js/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-requery/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-rocker/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-neo4j/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -155,6 +156,7 @@
                     <source>${project.parent.basedir}/jooby-lang-js/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-requery/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-rocker/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-neo4j/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -180,8 +182,10 @@
                       <directory>${project.parent.basedir}/jooby-hbm/src/test/resources</directory>
                     </resource>
                     <resource>
-                      <directory>${project.parent.basedir}/jooby-whoops/src/test/resources
-                      </directory>
+                      <directory>${project.parent.basedir}/jooby-whoops/src/test/resources</directory>
+                    </resource>
+                    <resource>
+                      <directory>${project.parent.basedir}/jooby-neo4j/src/test/resources</directory>
                     </resource>
                   </resources>
                 </configuration>
@@ -397,6 +401,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-hazelcast</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-neo4j</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -832,6 +842,11 @@
       <groupId>io.netty</groupId>
       <artifactId>netty-codec</artifactId>
       <version>${netty.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.graphaware.neo4j</groupId>
+      <artifactId>expire</artifactId>
     </dependency>
 
     <dependency>

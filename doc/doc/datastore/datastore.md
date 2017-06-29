@@ -71,3 +71,7 @@ The [morphia](/doc/morphia) module provides object to document mapper via {{morp
 ## mongodb-rx
 
 The [mongodb-rx](/doc/mongodb-rx) module provides composable asynchronous and event-based observable sequences for {{mongodb}}.
+
+## neo4j
+
+The [neo4j](/doc/neo4j) module provides access to [Neo4j](https://neo4j.com) databases.
