@@ -10,7 +10,7 @@ public class ParamTo extends Jooby {
       req.param("s").to(String.class);
       req.param("l").to(LocalType.class);
       req.param("q").to(java.util.Calendar.class);
-      req.param("u").toUpload();
+      req.file("u");
       return "x";
     });
   }

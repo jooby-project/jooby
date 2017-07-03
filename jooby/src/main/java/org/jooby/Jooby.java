@@ -2854,7 +2854,6 @@ public class Jooby implements Router, LifeCycle, Registry {
       parsers.addBinding().toInstance(BuiltinParser.Collection);
       parsers.addBinding().toInstance(BuiltinParser.Optional);
       parsers.addBinding().toInstance(BuiltinParser.Enum);
-      parsers.addBinding().toInstance(BuiltinParser.Upload);
       parsers.addBinding().toInstance(BuiltinParser.Bytes);
 
       /** basic render */

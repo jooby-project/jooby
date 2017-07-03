@@ -206,6 +206,7 @@ package org.jooby.internal;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -392,27 +393,24 @@ public class RequestImpl implements Request {
     return _param(name, null);
   }
 
+  @Override
+  public List<Upload> files(final String name) throws IOException {
+    List<NativeUpload> files = req.files(name);
+    List<Upload> uploads = files.stream()
+        .map(upload -> new UploadImpl(injector, upload))
+        .collect(Collectors.toList());
+    return uploads;
+  }
+
   private Mutant _param(final String name, final Function<String, String> xss) {
     Mutant param = this.params.get(name);
     if (param == null) {
-      List<NativeUpload> files = Try.of(() -> req.files(name)).getOrElseThrow(
-          ex -> new Err(Status.BAD_REQUEST, "Upload " + name + " resulted in error", ex));
-      if (files.size() > 0) {
-        List<Upload> uploads = files.stream()
-            .map(upload -> new UploadImpl(injector, upload))
-            .collect(Collectors.toList());
-        param = new MutantImpl(require(ParserExecutor.class), type(),
-            new UploadParamReferenceImpl(name, uploads));
+      StrParamReferenceImpl paramref = new StrParamReferenceImpl("parameter", name,
+          params(name, xss));
+      param = new MutantImpl(require(ParserExecutor.class), paramref);
 
+      if (paramref.size() > 0) {
         this.params.put(name, param);
-      } else {
-        StrParamReferenceImpl paramref = new StrParamReferenceImpl("parameter", name,
-            params(name, xss));
-        param = new MutantImpl(require(ParserExecutor.class), paramref);
-
-        if (paramref.size() > 0) {
-          this.params.put(name, param);
-        }
       }
     }
     return param;
