@@ -50,6 +50,18 @@ repositories {
 dependencies {
   compile group: 'org.jooby', name: 'jooby', version: '{{version}}'
   compile group: 'org.jooby', name: 'jooby-netty', version: '{{version}}'
+  
+  /*
+   * If using netty and getting native-epoll related errors ensure you have the native transport as an
+   * included dependancy for your platform.
+   */
+   
+   // Using linux
+  compile group:'io.netty', name: 'netty-transport-native-epoll', version: '4.1.12.Final', classifier: 'linux-x86_64'
+  
+  // Using macos
+  compile group:'io.netty', name: 'netty-transport-native-epoll', version: '4.1.12.Final', classifier: 'macos-x86_64'
+  
 }
 
 /*
