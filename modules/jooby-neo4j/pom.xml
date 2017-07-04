@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <groupId>org.jooby</groupId>
@@ -40,29 +40,49 @@
 
     <!-- Neo4j -->
     <dependency>
-      <groupId>com.graphaware.neo4j</groupId>
-      <artifactId>expire</artifactId>
-      <version>3.1.4.49.4</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
+
     <dependency>
       <groupId>com.graphaware.neo4j</groupId>
       <artifactId>runtime</artifactId>
-      <version>3.1.4.49</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
+
     <dependency>
       <groupId>org.neo4j</groupId>
       <artifactId>neo4j-graphdb-api</artifactId>
-      <version>3.1.4</version>
     </dependency>
+
     <dependency>
       <groupId>org.neo4j</groupId>
       <artifactId>neo4j</artifactId>
-      <version>3.1.4</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-slf4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.javassist</groupId>
+      <artifactId>javassist</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>net.iot-solutions.graphdb</groupId>
       <artifactId>jcypher</artifactId>
-      <version>3.7.0</version>
     </dependency>
 
     <!-- Test Dependencies -->
@@ -109,6 +129,13 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>2.6</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.graphaware.neo4j</groupId>
+      <artifactId>expire</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
