@@ -291,6 +291,9 @@ public class JoobyMojo extends AbstractMojo {
   @Parameter(property = "jooby.excludes")
   private List<String> excludes;
 
+  @Parameter(property = "jooby.srcExtensions", defaultValue = ".java,.conf,.properties")
+  private List<String> srcExtensions;
+
   @Parameter(property = "application.debug", defaultValue = "true")
   private String debug;
 
@@ -388,7 +391,7 @@ public class JoobyMojo extends AbstractMojo {
       getLog().debug("cmd: " + cmd.debug());
     }
 
-    Watcher watcher = setupCompiler(mavenProject, compiler, goal -> {
+    Watcher watcher = setupCompiler(mavenProject, compiler, srcExtensions, goal -> {
       maven.execute(DefaultMavenExecutionRequest.copy(session.getRequest())
           .setGoals(Arrays.asList(goal)));
     });
@@ -455,7 +458,7 @@ public class JoobyMojo extends AbstractMojo {
 
   @SuppressWarnings("unchecked")
   private static Watcher setupCompiler(final MavenProject project, final String compiler,
-      final Consumer<String> task) throws MojoFailureException {
+      final List<String> srcExtensions, final Consumer<String> task) throws MojoFailureException {
     File eclipseClasspath = new File(project.getBasedir(), ".classpath");
     if ("off".equalsIgnoreCase(compiler) || eclipseClasspath.exists()) {
       return null;
@@ -472,10 +475,8 @@ public class JoobyMojo extends AbstractMojo {
         ClassLoader currentloader = Thread.currentThread().getContextClassLoader();
         try {
           Thread.currentThread().setContextClassLoader(backloader);
-          if (path.toString().endsWith(".java")) {
-            task.accept("compile");
-          } else if (path.toString().endsWith(".conf")
-              || path.toString().endsWith(".properties")) {
+          if (srcExtensions.stream()
+              .anyMatch(ext -> path.toString().endsWith(ext))) {
             task.accept("compile");
           }
         } finally {

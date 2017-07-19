@@ -248,6 +248,8 @@ public class JoobyTask extends ConventionTask {
 
   private List<String> watchDirs;
 
+  private List<String> srcExtensions;
+
   private String mainClassName;
 
   private String compiler;
@@ -284,10 +286,8 @@ public class JoobyTask extends ConventionTask {
           .toArray(new Path[0]);
       // don't start watcher if continuous is ON
       new Watcher((k, path) -> {
-        if (path.toString().endsWith(".java")) {
-          runTask(project, path, "classes");
-        } else if (path.toString().endsWith(".conf")
-            || path.toString().endsWith(".properties")) {
+        if (getSrcExtensions().stream()
+                .anyMatch(ext -> path.toString().endsWith(ext))) {
           runTask(project, path, "classes");
         }
       }, watchDirs).start();
@@ -409,6 +409,14 @@ public class JoobyTask extends ConventionTask {
     this.watchDirs = watchDirs;
   }
 
+  public List<String> getSrcExtensions() {
+    return srcExtensions;
+  }
+
+  public void setSrcExtensions(final List<String> srcExtensions) {
+    this.srcExtensions = srcExtensions;
+  }
+
   public String getCompiler() {
     return compiler;
   }
@@ -416,4 +424,5 @@ public class JoobyTask extends ConventionTask {
   public void setCompiler(final String compiler) {
     this.compiler = compiler;
   }
+
 }

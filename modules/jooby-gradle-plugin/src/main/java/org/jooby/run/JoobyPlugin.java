@@ -250,6 +250,8 @@ public class JoobyPlugin implements Plugin<Project> {
 
           mapping.map("mainClassName", () -> project.getProperties().get("mainClassName"));
 
+          mapping.map("srcExtensions", () -> new String[] {".java", ".conf", ".properties"});
+
           mapping.map("compiler", () -> {
             File eclipseClasspath = new File(project.getProjectDir(), ".classpath");
             return eclipseClasspath.exists() ? "off" : "on";
