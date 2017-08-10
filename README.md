@@ -85,7 +85,8 @@ app.get('/', function () 'Hey Jooby!');
 want to contribute?
 =====
 
-* Fork the project on Github.
+* Fork the project on Github, and clone that to your workstation
+* Read about [building Jooby](BUILDING.md)
 * Wondering what to work on? See task/bug list and pick up something you would like to work on.
 * Write unit tests.
 * Create an issue or fix one from [issues](https://github.com/jooby-project/jooby/issues).
