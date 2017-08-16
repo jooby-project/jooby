@@ -2933,7 +2933,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jackson.version>2.8.3</jackson.version>
     <undertow.version>1.4.15.Final</undertow.version>
     <servlet.version>3.1.0</servlet.version>
-    <jetty.version>9.4.3.v20170317</jetty.version>
+    <jetty.version>9.4.6.v20170531</jetty.version>
     <netty.version>4.1.14.Final</netty.version>
     <javassist.version>3.20.0-GA</javassist.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
