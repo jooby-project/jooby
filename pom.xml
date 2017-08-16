@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
@@ -223,6 +224,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-pac4j</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-apitool</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -1856,8 +1863,10 @@
               </goals>
               <configuration>
                 <transformers>
-                  <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <transformer
+                      implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                  <transformer
+                      implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                     <mainClass>${application.class}</mainClass>
                   </transformer>
                 </transformers>
@@ -2676,8 +2685,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
       <activation>
         <file>
           <exists>
-              ${basedir}${file.separator}src${file.separator}etc${file.separator}rocker.activator
-            </exists>
+            ${basedir}${file.separator}src${file.separator}etc${file.separator}rocker.activator
+          </exists>
         </file>
       </activation>
       <properties>

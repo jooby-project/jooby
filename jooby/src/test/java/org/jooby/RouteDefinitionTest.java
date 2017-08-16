@@ -1,21 +1,20 @@
 package org.jooby;
 
+import com.google.common.collect.ImmutableMap;
+import issues.RouteSourceLocation;
+import org.jooby.Route.Definition;
+import org.jooby.internal.RouteImpl;
+import org.jooby.test.MockUnit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
-import org.jooby.Route.Definition;
-import org.jooby.internal.RouteImpl;
-import org.jooby.test.MockUnit;
-import org.junit.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 public class RouteDefinitionTest {
 
@@ -319,10 +318,9 @@ public class RouteDefinitionTest {
 
   @Test
   public void src() throws Exception {
-    Function<String, Route.Definition> route = path -> new Route.Definition("*", path, () -> null);
-    Route.Definition r = route.apply("/");
+    Route.Definition r = new RouteSourceLocation().route().apply("/");
 
-    assertEquals("org.jooby.RouteDefinitionTest:322", r.source().toString());
+    assertEquals("issues.RouteSourceLocation:9", r.source().toString());
   }
 
   @Test
@@ -341,9 +339,9 @@ public class RouteDefinitionTest {
   public void attrsArray() throws Exception {
     Function<String, Route.Definition> route = path -> new Route.Definition("*", path, () -> null);
     Route.Definition r = route.apply("/")
-        .attr("i", new int[]{7 });
+        .attr("i", new int[]{7});
 
-    assertTrue(Arrays.equals(new int[]{7 }, (int[]) r.attr("i")));
+    assertTrue(Arrays.equals(new int[]{7}, (int[]) r.attr("i")));
   }
 
   @Test
