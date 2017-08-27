@@ -203,7 +203,10 @@
  */
 package org.jooby.internal.apitool;
 
-import com.google.common.collect.ImmutableList;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Primitives;
 import com.google.inject.internal.MoreTypes;
@@ -215,6 +218,7 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Route.Filter;
 import org.jooby.Session;
+import org.jooby.Upload;
 import org.jooby.apitool.RouteMethod;
 import org.jooby.apitool.RouteParameter;
 import org.jooby.apitool.RouteResponse;
@@ -235,13 +239,12 @@ import org.jooby.mvc.Body;
 import org.jooby.mvc.Flash;
 import org.jooby.mvc.Header;
 import org.jooby.mvc.Local;
+import org.jooby.mvc.POST;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.signature.SignatureReader;
-import org.objectweb.asm.signature.SignatureVisitor;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
@@ -268,12 +271,13 @@ import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -302,96 +306,21 @@ public class BytecodeRouteParser {
           .isPresent();
   static final Predicate<Parameter> SKIP = TYPE_TO_SKIP.and(ANNOTATION_TO_SKIP);
 
-  static class TypeBuilder extends SignatureVisitor {
-    private List<List<java.lang.reflect.Type>> stack = new ArrayList<>();
-    private boolean returns;
-    private ClassLoader loader;
-    private List<java.lang.reflect.Type> result;
-    private int index;
-
-    public TypeBuilder(final ClassLoader loader) {
-      super(Opcodes.ASM5);
-      this.loader = loader;
-    }
-
-    public java.lang.reflect.Type getType() {
-      java.lang.reflect.Type type = result.get(0);
-      stack.forEach(List::clear);
-      stack.clear();
-      return type;
-    }
-
-    private java.lang.reflect.Type primitive(final Type type) {
-      switch (type.getSort()) {
-        case Type.BOOLEAN:
-          return boolean.class;
-        case Type.CHAR:
-          return char.class;
-        case Type.BYTE:
-          return byte.class;
-        case Type.SHORT:
-          return short.class;
-        case Type.INT:
-          return int.class;
-        case Type.LONG:
-          return long.class;
-        case Type.FLOAT:
-          return float.class;
-      }
-      return double.class;
-    }
-
-    @Override
-    public void visitBaseType(final char descriptor) {
-      if (returns) {
-        List<java.lang.reflect.Type> types = new LinkedList<>();
-        types.add(primitive(Type.getType(Character.toString(descriptor))));
-        stack.add(types);
-        index += 1;
-        visitEnd();
-      }
-    }
-
-    @Override
-    public void visitClassType(final String name) {
-      if (returns) {
-        List<java.lang.reflect.Type> types;
-        if (index < stack.size()) {
-          types = stack.get(index);
-        } else {
-          types = new LinkedList<>();
-          stack.add(types);
-        }
-        java.lang.reflect.Type type = loadType(loader, name);
-        types.add(type);
-        index += 1;
-      }
-    }
-
-    @Override
-    public void visitEnd() {
-      if (returns) {
-        List<java.lang.reflect.Type> types = stack.get(index - 1);
-        if (result == null) {
-          result = types;
-        } else if (result != types) {
-          result = ImmutableList.of(Types.newParameterizedType(types.get(0),
-              result.toArray(new java.lang.reflect.Type[0])));
-        }
-        index -= 1;
-      }
-    }
-
-    @Override
-    public SignatureVisitor visitReturnType() {
-      returns = true;
-      return this;
-    }
-
-  }
-
+  private static final ObjectMapper mapper = new ObjectMapper();
   private static final String OBJECT = Type.getInternalName(Object.class);
   private static final String RETURN_OBJ = "L" + OBJECT + ";";
+
+  static {
+    mapper.setVisibility(mapper.getVisibilityChecker()
+        .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+        .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+        .withSetterVisibility(JsonAutoDetect.Visibility.NONE));
+    mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    SimpleModule module = new SimpleModule();
+    module.addSerializer(java.lang.reflect.Type.class, new TypeJsonSerializer());
+    module.addDeserializer(java.lang.reflect.Type.class, new TypeJsonDeserializer());
+    mapper.registerModule(module);
+  }
 
   /**
    * The logging system.
@@ -409,10 +338,42 @@ public class BytecodeRouteParser {
     this.loader = getClass().getClassLoader();
   }
 
+  public List<RouteMethod> read(String classname) {
+    String filename = "/" + classname.replace(".", "/") + ".json";
+    URL resource = getClass().getResource(filename);
+    if (resource != null) {
+      try {
+        return mapper.readValue(resource,
+            mapper.getTypeFactory().constructCollectionType(ArrayList.class, RouteMethod.class));
+      } catch (IOException e) {
+        log.info("Read of {} resulted in exception", filename, e);
+      }
+    }
+    return null;
+  }
+
+  private void write(Path dir, String classname, List<RouteMethod> routes) throws IOException {
+    mapper.writer().withDefaultPrettyPrinter().writeValue(toFile(dir, classname).toFile(), routes);
+  }
+
+  private Path toFile(Path dir, String classname) {
+    Path path = Arrays.asList(classname.split("\\.")).stream()
+        .reduce(dir, Path::resolve, Path::resolve);
+    return path.getParent().resolve(path.getFileName().toString() + ".json");
+  }
+
+  public List<RouteMethod> export(Path dir, String classname, final List<Route.Definition> routes)
+      throws Exception {
+    Files.deleteIfExists(toFile(dir, classname));
+    List<RouteMethod> output = parse(classname, routes);
+    write(dir, classname, output);
+    return output;
+  }
+
   public List<RouteMethod> parse(String classname, final List<Route.Definition> routes)
       throws Exception {
     ClassNode owner = loadClass(classname);
-    List<Lambda> lambdas = bindMethods(owner, lambdas(owner));
+    List<Object> lambdas = bindMethods(owner, lambdas(owner));
 
     /** javadoc parser: */
     Map<String, List<DocItem>> javadocCache = new HashMap<>();
@@ -443,31 +404,35 @@ public class BytecodeRouteParser {
     };
 
     List<RouteMethod> methods = new ArrayList<>();
-    for (Lambda lambda : lambdas) {
-      if (lambda.method.isPresent()) {
-        MethodNode method = lambda.method.get();
-
-        java.lang.reflect.Type returnType;
-        if (method.desc.endsWith("V")) {
-          returnType = void.class;
-        } else if (method.desc.endsWith(RETURN_OBJ)) {
-          returnType = returnType(loader, method);
-        } else {
-          returnType = descToJavaType(loader,
-              Optional.ofNullable(method.signature).orElse(method.desc));
-        }
-        List<RouteParameter> parameters = params(loader, owner, method);
-        methods.add(new RouteMethod(lambda.name, lambda.pattern,
-            new RouteResponse(simplifyType(returnType))).parameters(parameters));
+    for (Object it : lambdas) {
+      if (it instanceof RouteMethod) {
+        methods.add((RouteMethod) it);
       } else {
-        log.warn("can't bind implementation for {} at {}", lambda, lambda.owner);
+        Lambda lambda = (Lambda) it;
+        if (lambda.method.isPresent()) {
+          MethodNode method = lambda.method.get();
+
+          java.lang.reflect.Type returnType;
+          if (method.desc.endsWith("V")) {
+            returnType = void.class;
+          } else if (method.desc.endsWith(RETURN_OBJ)) {
+            returnType = returnType(loader, method);
+          } else {
+            returnType = TypeDescriptorParser.parse(loader,
+                Optional.ofNullable(method.signature).orElse(method.desc));
+          }
+          List<RouteParameter> parameters = params(loader, owner, method);
+          methods.add(new RouteMethod(lambda.name, lambda.pattern,
+              new RouteResponse(simplifyType(returnType))).parameters(parameters));
+        } else {
+          log.warn("can't bind implementation for {} at {}", lambda, lambda.owner);
+        }
       }
     }
     BiFunction<String, String, OptionalInt> routeIndex = (verb, pattern) ->
         IntStream.range(0, methods.size())
             .filter(i -> methods.get(i).matches(verb, pattern))
             .findFirst();
-
     List<RouteMethod> result = new ArrayList<>(routes.size());
     for (Route.Definition route : routes) {
       Optional<DocItem> doc = javadoc.apply(route);
@@ -515,11 +480,15 @@ public class BytecodeRouteParser {
   }
 
   @SuppressWarnings("unchecked")
-  private List<Lambda> bindMethods(final ClassNode owner, final List<Lambda> lambdas) {
+  private List<Object> bindMethods(final ClassNode owner, final List<Object> lambdas) {
     // Find target bindMethods for each lambda expression
     List<MethodNode> methods = owner.methods;
     return lambdas.stream()
-        .flatMap(it -> {
+        .flatMap(e -> {
+          if (e instanceof RouteMethod) {
+            return Stream.of(e);
+          }
+          Lambda it = (Lambda) e;
           if (it.method.isPresent()) {
             return Stream.of(it);
           }
@@ -527,10 +496,10 @@ public class BytecodeRouteParser {
               .filter(m -> owner.name.equals(it.owner) && it.implementationName.equals(m.name)
                   && it.desc.equals(m.desc))
               .findFirst()
-              .map(m -> Stream.of(it.method(m)))
+              .map(m -> Stream.of((Object) it.method(m)))
               .orElseGet(() -> {
                 ClassNode jump = loadClass(it.owner);
-                List<Lambda> ext = bindMethods(jump, Arrays.asList(it));
+                List<Object> ext = bindMethods(jump, Arrays.asList(it));
                 return ext.stream();
               });
         })
@@ -538,13 +507,18 @@ public class BytecodeRouteParser {
   }
 
   @SuppressWarnings("unchecked")
-  private List<Lambda> lambdas(final ClassNode owner) {
+  private List<Object> lambdas(final ClassNode owner) {
+    List compiled = read(owner.name);
+    if (compiled != null) {
+      return compiled;
+    }
+
     if (owner.sourceFile.endsWith(".kt")) {
       return kotlinLambdas(owner);
     } else {
       List<MethodNode> methods = owner.methods;
-      List<Lambda> handles = methods.stream().flatMap(method -> {
-        List<Lambda> result = new ArrayList<>();
+      List<Object> handles = methods.stream().flatMap(method -> {
+        List<Object> result = new ArrayList<>();
         new Insns(method)
             // get(pattern, ); or post, put, etc...
             .on(InvokeDynamicInsnNode.class, it -> {
@@ -563,7 +537,10 @@ public class BytecodeRouteParser {
                   .findFirst()
                   .map(MethodInsnNode.class::cast)
                   .ifPresent(node -> {
-                    List<Lambda> lambdas = lambdas(loadClass(node.owner));
+                    List<Lambda> lambdas = lambdas(loadClass(node.owner)).stream()
+                        .filter(e -> e instanceof Lambda)
+                        .map(Lambda.class::cast)
+                        .collect(Collectors.toList());
                     Insn.ldcFor(node).stream()
                         .map(e -> e.cst.toString())
                         .findFirst()
@@ -582,8 +559,8 @@ public class BytecodeRouteParser {
   }
 
   @SuppressWarnings("unchecked")
-  private List<Lambda> kotlinLambdas(final ClassNode owner) {
-    List<Lambda> result = new ArrayList<>();
+  private List<Object> kotlinLambdas(final ClassNode owner) {
+    List<Object> result = new ArrayList<>();
     List<InnerClassNode> innerClasses = owner.innerClasses;
     for (InnerClassNode innerClass : innerClasses) {
       ClassNode innerNode = loadClass(innerClass.name);
@@ -788,7 +765,7 @@ public class BytecodeRouteParser {
       MethodInsnNode node = (MethodInsnNode) n;
       if (mutantValue().test(node)) {
         /** value(); intValue(); booleanValue(); */
-        return descToJavaType(loader, node.desc);
+        return TypeDescriptorParser.parse(loader, node.desc);
       } else if (mutantToSomething().test(node)
           || getOrCreateKotlinClass().test(node)) {
         /** to(String.class); toOptional; toList(); */
@@ -867,13 +844,13 @@ public class BytecodeRouteParser {
               return loadType(loader, methodNode.owner);
             }
             String desc = methodNode.desc;
-            return descToJavaType(loader, desc);
+            return TypeDescriptorParser.parse(loader, desc);
           }
           /** return "String" | int | double */
           if (previous instanceof LdcInsnNode) {
             Object cst = ((LdcInsnNode) previous).cst;
             if (cst instanceof Type) {
-              return descToJavaType(loader, ((Type) cst).getDescriptor());
+              return TypeDescriptorParser.parse(loader, ((Type) cst).getDescriptor());
             }
             return cst.getClass();
           }
@@ -898,22 +875,34 @@ public class BytecodeRouteParser {
           .orElse(null);
       if (var != null) {
         String signature = "()" + Optional.ofNullable(var.signature).orElse(var.desc);
-        return descToJavaType(loader, signature);
+        return TypeDescriptorParser.parse(loader, signature);
       }
     }
     return Object.class;
   }
 
-  static java.lang.reflect.Type descToJavaType(final ClassLoader loader,
-      final String desc) {
-    TypeBuilder builder = new TypeBuilder(loader);
-    new SignatureReader(desc).accept(builder);
-    return builder.getType();
-  }
-
   static java.lang.reflect.Type loadType(final ClassLoader loader, final String name) {
     try {
-      return loader.loadClass(name.replace("/", "."));
+      switch (name) {
+        case "boolean":
+          return boolean.class;
+        case "char":
+          return char.class;
+        case "byte":
+          return byte.class;
+        case "short":
+          return short.class;
+        case "int":
+          return int.class;
+        case "long":
+          return long.class;
+        case "float":
+          return float.class;
+        case "double":
+          return double.class;
+        default:
+          return loader.loadClass(name.replace("/", "."));
+      }
     } catch (Exception x) {
       throw sneakyThrow(x);
     }
@@ -996,6 +985,9 @@ public class BytecodeRouteParser {
     };
 
     Supplier<RouteParameter.Kind> kind = () -> {
+      if (p.getType() == Upload.class) {
+        return RouteParameter.Kind.FILE;
+      }
       for (int i = 0; i < annotations.length; i++) {
         Class<? extends Annotation> annotationType = annotations[i].annotationType();
         if (annotationType == Header.class) {
@@ -1003,20 +995,27 @@ public class BytecodeRouteParser {
         } else if (annotationType == Body.class) {
           return RouteParameter.Kind.BODY;
         }
-        // TODO handle form
       }
-      return RouteParameter.Kind.QUERY;
+      boolean hasBody = Arrays.asList(p.getDeclaringExecutable().getParameters()).stream()
+          .filter(it -> Stream.of(it.getAnnotations())
+              .filter(e -> e.annotationType() == Body.class)
+              .findFirst()
+              .isPresent())
+          .findFirst()
+          .isPresent();
+      boolean formLike = !hasBody && p.getDeclaringExecutable().getAnnotation(POST.class) != null;
+      return formLike ? RouteParameter.Kind.FORM : RouteParameter.Kind.QUERY;
     };
     return new RouteParameter(name.get(), kind.get(), p.getParameterizedType(), null);
   }
 
-  private static RuntimeException sneakyThrow(final Throwable x) {
+  static RuntimeException sneakyThrow(final Throwable x) {
     sneakyThrow0(x);
     return null;
   }
 
   @SuppressWarnings("unchecked")
-  private static <E extends Throwable> void sneakyThrow0(final Throwable x) throws E {
+  static <E extends Throwable> void sneakyThrow0(final Throwable x) throws E {
     throw (E) x;
   }
 }

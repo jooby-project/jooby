@@ -206,11 +206,13 @@ package org.jooby.apitool;
 import com.google.common.base.Strings;
 import com.google.inject.internal.MoreTypes;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class RouteParameter {
 
@@ -226,6 +228,50 @@ public class RouteParameter {
     T visitFile(RouteParameter parameter);
 
     T visitHeader(RouteParameter parameter);
+  }
+
+  public interface Listener extends Visitor<Void> {
+    @Override default Void visitQuery(RouteParameter parameter) {
+      enterQuery(parameter);
+      return null;
+    }
+
+    @Override default Void visitPath(RouteParameter parameter) {
+      enterPath(parameter);
+      return null;
+    }
+
+    @Override default Void visitForm(RouteParameter parameter) {
+      enterForm(parameter);
+      return null;
+    }
+
+    @Override default Void visitBody(RouteParameter parameter) {
+      enterBody(parameter);
+      return null;
+    }
+
+    @Override default Void visitFile(RouteParameter parameter) {
+      enterFile(parameter);
+      return null;
+    }
+
+    @Override default Void visitHeader(RouteParameter parameter) {
+      enterHeader(parameter);
+      return null;
+    }
+
+    void enterQuery(RouteParameter parameter);
+
+    void enterPath(RouteParameter parameter);
+
+    void enterForm(RouteParameter parameter);
+
+    void enterBody(RouteParameter parameter);
+
+    void enterFile(RouteParameter parameter);
+
+    void enterHeader(RouteParameter parameter);
   }
 
   public enum Kind {
@@ -285,12 +331,18 @@ public class RouteParameter {
 
   private String description;
 
+  private List<Object> enums;
+
   public RouteParameter(final String name, final Kind kind, final Type type,
       final Object value) {
     name(name);
     kind(kind);
     type(type);
     value(value);
+  }
+
+  /** Required by Jackson. */
+  protected RouteParameter() {
   }
 
   public <T> T accept(Visitor<T> visitor) {
@@ -313,6 +365,16 @@ public class RouteParameter {
   public RouteParameter type(Type type) {
     this.type = Objects.requireNonNull(type, "Type required.");
     return this;
+  }
+
+  public List<String> enums() {
+    return Optional.ofNullable(MoreTypes.getRawType(type))
+        .map(Class::getEnumConstants)
+        .filter(Objects::nonNull)
+        .map(values -> Arrays.asList(values).stream()
+            .map(value -> ((Enum) value).name())
+            .collect(Collectors.toList())
+        ).orElse(Collections.emptyList());
   }
 
   public Object value() {
@@ -344,17 +406,6 @@ public class RouteParameter {
 
   public boolean optional() {
     return value != null || MoreTypes.getRawType(type) == Optional.class;
-  }
-
-  public Type componentType() {
-    if (type instanceof ParameterizedType) {
-      Class<?> rawType = MoreTypes.getRawType(type);
-      if (Collection.class.isAssignableFrom(rawType) || rawType == Optional.class) {
-        ParameterizedType pt = (ParameterizedType) type;
-        return pt.getActualTypeArguments()[0];
-      }
-    }
-    return type;
   }
 
   @Override

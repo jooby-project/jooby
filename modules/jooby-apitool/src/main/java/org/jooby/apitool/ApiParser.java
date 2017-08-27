@@ -218,6 +218,7 @@ import java.util.stream.Collectors;
 public class ApiParser {
 
   private static final Predicate<RouteMethod> TRUE = r -> true;
+
   private final Path dir;
   private final Map<Predicate<RouteMethod>, Consumer<RouteMethod>> customizer = new LinkedHashMap<>();
   private final Predicate<RouteMethod> filter;
@@ -235,6 +236,12 @@ public class ApiParser {
     return parse(application.getClass().getName(), Jooby.exportRoutes(application));
   }
 
+  public List<RouteMethod> export(Path outputDir, Jooby application)
+      throws Exception {
+    return new BytecodeRouteParser(dir)
+        .export(outputDir, application.getClass().getName(), Jooby.exportRoutes(application));
+  }
+
   public List<RouteMethod> parse(String application, List<Route.Definition> routes)
       throws Exception {
     List<RouteMethod> response = new BytecodeRouteParser(dir).parse(application, routes).stream()
@@ -250,8 +257,10 @@ public class ApiParser {
     return response;
   }
 
-  public ApiParser modify(final String name, final Consumer<RouteMethod> customizer) {
-    this.customizer.put(route -> route.name().map(name::equals).isPresent(), customizer);
+  public ApiParser modify(final Predicate<RouteMethod> predicate,
+      final Consumer<RouteMethod> customizer) {
+    this.customizer.put(predicate, customizer);
     return this;
   }
+
 }

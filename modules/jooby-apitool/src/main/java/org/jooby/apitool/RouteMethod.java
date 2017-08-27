@@ -237,6 +237,10 @@ public class RouteMethod {
     response(returns);
   }
 
+  /** Required by Jackson. */
+  protected RouteMethod() {
+  }
+
   public String method() {
     return method;
   }
@@ -266,6 +270,12 @@ public class RouteMethod {
 
   public List<RouteParameter> parameters() {
     return Optional.ofNullable(parameters).orElse(Collections.emptyList());
+  }
+
+  public List<RouteParameter> parameters(RouteParameter.Kind kind) {
+    return Optional.ofNullable(parameters).orElse(Collections.emptyList()).stream()
+        .filter(it -> it.kind() == kind)
+        .collect(Collectors.toList());
   }
 
   public RouteMethod parameters(List<RouteParameter> parameters) {
@@ -340,8 +350,23 @@ public class RouteMethod {
   }
 
   @Override public String toString() {
-    return method + " " + pattern + parameters.stream().map(RouteParameter::toString)
-        .collect(Collectors.joining(", ", "(", ")"));
+    StringBuilder buff = new StringBuilder();
+    StringBuilder desc = new StringBuilder();
+    buff.append(method).append(" ").append(pattern);
+    if (description != null) {
+      desc.append("\n    ").append(description.replace("\n", "\\n"));
+    }
+    if (parameters != null) {
+      buff.append(parameters.stream().map(RouteParameter::toString)
+          .collect(Collectors.joining(", ", " (", ")")));
+      parameters.forEach(p -> desc.append("\n      ").append(p.name())
+          .append(": ").append(p.description().orElse("").replace("\n", "\\n")));
+    } else {
+      buff.append("()");
+    }
+    buff.append(": ").append(response.type().getTypeName());
+    buff.append(desc);
+    return buff.toString().trim();
   }
 
   private static String rewritePattern(final String pattern) {

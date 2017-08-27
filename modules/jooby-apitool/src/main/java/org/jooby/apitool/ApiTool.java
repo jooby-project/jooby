@@ -203,12 +203,14 @@
  */
 package org.jooby.apitool;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static com.google.common.base.CaseFormat.LOWER_CAMEL;
+import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Binder;
 import com.google.inject.TypeLiteral;
 import com.google.inject.binder.ScopedBindingBuilder;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
@@ -216,8 +218,11 @@ import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.MediaType;
 import org.jooby.Results;
+import org.jooby.Route;
 import org.jooby.Router;
+import org.jooby.apitool.raml.Raml;
 import org.jooby.internal.apitool.APIProvider;
+import org.jooby.internal.apitool.SwaggerBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -227,28 +232,74 @@ import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class ApiTool implements Jooby.Module {
 
+  public static class Options {
+    boolean showUI = true;
+
+    boolean tryIt = true;
+
+    final String path;
+
+    String theme;
+
+    public Options(String path) {
+      this.path = Route.normalize(Objects.requireNonNull(path, "Path required."));
+    }
+
+    public Options disableUI() {
+      this.showUI = false;
+      return this;
+    }
+
+    public Options disableTryIt() {
+      this.tryIt = false;
+      return this;
+    }
+
+    public Options theme(String theme) {
+      this.theme = Objects.requireNonNull(theme, "Theme required.");
+      return this;
+    }
+  }
+
   private static final TypeLiteral<List<RouteMethod>> M = new TypeLiteral<List<RouteMethod>>() {
   };
 
   private static final Predicate<RouteMethod> API = r -> r.pattern().startsWith("/api/");
 
+  private static final String RAML_STATIC = "/META-INF/resources/webjars/api-console/3.0.17/dist/";
+
+  private static final String SWAGGER_STATIC = "/META-INF/resources/webjars/swagger-ui/3.1.6/";
+
+  private static final String SWAGGER_THEME = "/META-INF/resources/webjars/swagger-ui-themes/3.0.0/themes/3.x/";
+
   protected Predicate<RouteMethod> filter = API;
 
-  protected boolean ui = true;
-
-  protected String path = "/docs";
+  private Options swaggerOptions;
 
   private Consumer<Swagger> swagger;
 
-  private final Map<String, Consumer<RouteMethod>> customizer = new LinkedHashMap<>();
+  private Options ramlOptions;
+
+  private Consumer<Raml> raml;
+
+  private final Map<Predicate<RouteMethod>, Consumer<RouteMethod>> customizer = new LinkedHashMap<>();
 
   private Path basedir;
+
+  public ApiTool(Path basedir) {
+    this.basedir = basedir;
+  }
+
+  public ApiTool() {
+    this(null);
+  }
 
   @Override public void configure(final Env env, final Config conf, final Binder binder)
       throws Exception {
@@ -264,9 +315,17 @@ public class ApiTool implements Jooby.Module {
     customizer.forEach(parser::modify);
 
     binder.bind(ApiParser.class).toInstance(parser);
-    SwaggerBuilder builder = new SwaggerBuilder(conf, swagger);
 
-    swagger(env.router(), path, builder);
+    if (swaggerOptions != null) {
+      swagger(env.router(), swaggerOptions, swagger);
+    }
+    if (ramlOptions != null) {
+      raml(env.router(), ramlOptions, raml);
+    }
+  }
+
+  @Override public Config config() {
+    return ConfigFactory.parseResources(ApiTool.class, "apitool.conf");
   }
 
   public ApiTool filter(Predicate<RouteMethod> predicate) {
@@ -274,47 +333,136 @@ public class ApiTool implements Jooby.Module {
     return this;
   }
 
-  public ApiTool noUI() {
-    this.ui = false;
-    return this;
+  public ApiTool swagger(String path) {
+    return swagger(path, null);
   }
 
   public ApiTool swagger(Consumer<Swagger> swagger) {
+    return swagger("/swagger", swagger);
+  }
+
+  public ApiTool swagger(String path, Consumer<Swagger> swagger) {
+    return swagger(new Options(path), swagger);
+  }
+
+  public ApiTool swagger(Options options) {
+    return swagger(options, null);
+  }
+
+  public ApiTool swagger(Options options, Consumer<Swagger> swagger) {
+    this.swaggerOptions = Objects.requireNonNull(options, "Options required.");
     this.swagger = swagger;
     return this;
   }
 
-  public ApiTool modify(final String name, final Consumer<RouteMethod> customizer) {
-    this.customizer.put(name, customizer);
+  public ApiTool raml(String path) {
+    return raml(path, null);
+  }
+
+  public ApiTool raml(String path, Consumer<Raml> raml) {
+    return raml(new Options(path), raml);
+  }
+
+  public ApiTool raml(Options options) {
+    return raml(options, null);
+  }
+
+  public ApiTool raml(Options options, Consumer<Raml> raml) {
+    this.ramlOptions = Objects.requireNonNull(options, "Options required.");
+    this.raml = raml;
     return this;
   }
 
-  private void swagger(Router router, String path, SwaggerBuilder factory) throws IOException {
-    ObjectMapper json = Json.mapper();
-    ObjectMapper yaml = Yaml.mapper();
-    router.get(path + "/swagger.{ext}", path + "/:tag/swagger.{ext}", req -> {
-      String ext = req.param("ext").value("json").toLowerCase();
-      Swagger swagger = factory.build(req.require(M));
-      if (ext.equals("json")) {
-        return Results.json(json.writer().writeValueAsBytes(swagger));
+  public ApiTool modify(final Predicate<RouteMethod> predicate,
+      final Consumer<RouteMethod> customizer) {
+    this.customizer.put(predicate, customizer);
+    return this;
+  }
+
+  private static void raml(Router router, Options options, Consumer<Raml> configurer)
+      throws IOException {
+    String api = options.path + "/api.raml";
+    /** /api.raml: */
+    router.get(api, req -> {
+      Config conf = req.require(Config.class);
+      Map<String, Object> hash = conf.getConfig("raml").root().unwrapped();
+      Raml raml = Raml.build(Json.mapper().convertValue(hash, Raml.class), req.require(M));
+      if (configurer != null) {
+        configurer.accept(raml);
       }
-      return Results.ok(yaml.writer().writeValueAsBytes(swagger)).type("application/yaml");
+      return Results.ok(raml.toYaml()).type("text/yml");
     });
 
-    String uipath = path + "/ui/";
-    router.assets(uipath + "**",
-        "/META-INF/resources/webjars/swagger-ui/3.1.5/{0}");
+    if (options.showUI) {
+      router.assets(options.path + "/static/**", RAML_STATIC + "{0}");
 
-    String index = readFile("/META-INF/resources/webjars/swagger-ui/3.1.5/index.html");
-    router.get(path, path + "/:tag", () -> {
-      return index.replace("./", uipath)
-          .replace("http://petstore.swagger.io/v2/swagger.json", path + "/swagger.json");
-    }).produces(MediaType.html);
+      String index = readFile(RAML_STATIC + "index.html")
+          .replace("styles/", options.path + "/static/styles/")
+          .replace("scripts/", options.path + "/static/scripts/")
+          .replace("<raml-initializer></raml-initializer>",
+              "<raml-console-loader options=\"{ disableRamlClientGenerator: true, disableThemeSwitcher: true, disableTryIt: "
+                  + (!options.tryIt) + " }\" src=\""
+                  + api
+                  + "\"></raml-console-loader>");
+      /** API console: */
+      router.get(options.path, req -> {
+        String page = Optional.ofNullable(req.param("theme").value(options.theme))
+            .map(theme -> index
+                .replace("api-console-light-theme.css", "api-console-" + theme + "-theme.css"))
+            .orElse(index);
+        return Results.ok(page).type(MediaType.html);
+      });
+    }
+  }
+
+  private static void swagger(Router router, Options options, Consumer<Swagger> configurer)
+      throws IOException {
+    /** /swagger.json or /swagger.raml: */
+    router.get(options.path + "/swagger.json", options.path + "/swagger.yml", req -> {
+      Config conf = req.require(Config.class);
+      Map<String, Object> hash = conf.getConfig("swagger").root().unwrapped();
+      boolean json = req.path().endsWith(".json");
+      Swagger swagger = new SwaggerBuilder()
+          .build(Json.mapper().convertValue(hash, Swagger.class), req.require(M));
+      if (configurer != null) {
+        configurer.accept(swagger);
+      }
+      if (json) {
+        return Results.json(Json.mapper().writer().writeValueAsBytes(swagger));
+      }
+      return Results.ok(Yaml.mapper().writer().writeValueAsBytes(swagger)).type("text/yml");
+    });
+
+    if (options.showUI) {
+      String staticPath = options.path + "/static/";
+      router.assets(staticPath + "**", SWAGGER_STATIC + "{0}");
+      router.assets(staticPath + "**", SWAGGER_THEME + "{0}");
+
+      String index = readFile(SWAGGER_STATIC + "index.html")
+          .replace("./", staticPath)
+          .replace("http://petstore.swagger.io/v2/swagger.json\",",
+              options.path + "/swagger.json\", validatorUrl: null,")
+          .replace("</head>",
+              options.tryIt ? "</head>" : "<style> .try-out {display: none;}</style></head>");
+
+      router.get(options.path, req -> {
+        String page = Optional.ofNullable(req.param("theme").value(options.theme))
+            .map(theme -> index.replace("<style>", "<link rel=\"stylesheet\" "
+                + "type=\"text/css\" href=\"" + staticPath + "theme-" + theme.toLowerCase()
+                + ".css\">\n<style>"))
+            .orElse(index);
+        return Results.ok(page).type(MediaType.html);
+      });
+    }
   }
 
   private static String readFile(String name) throws IOException {
     try (InputStream in = ApiTool.class.getResourceAsStream(name)) {
       return new String(ByteStreams.toByteArray(in), StandardCharsets.UTF_8);
     }
+  }
+
+  private static String defaultTitle(Config conf) {
+    return LOWER_CAMEL.to(UPPER_CAMEL, conf.getString("application.name")) + " API";
   }
 }

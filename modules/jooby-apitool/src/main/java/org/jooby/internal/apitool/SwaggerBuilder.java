@@ -1,12 +1,11 @@
-package org.jooby.apitool;
+package org.jooby.internal.apitool;
 
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.typesafe.config.Config;
+import com.google.common.collect.ImmutableList;
 import io.swagger.converter.ModelConverters;
-import io.swagger.models.Info;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
 import io.swagger.models.Path;
@@ -24,22 +23,22 @@ import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.PropertyBuilder;
 import io.swagger.models.properties.PropertyBuilder.PropertyId;
+import org.jooby.MediaType;
+import org.jooby.apitool.RouteMethod;
+import org.jooby.apitool.RouteParameter;
+import org.jooby.apitool.RouteResponse;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-class SwaggerBuilder {
+public class SwaggerBuilder {
   private static final Pattern TAG = Pattern.compile("(api)|/");
 
   private static final Function<RouteMethod, String> TAG_PROVIDER = r -> {
@@ -50,14 +49,9 @@ class SwaggerBuilder {
         .iterator();
     return segments.hasNext() ? segments.next() : "";
   };
-  private final Config conf;
-  private final Consumer<Swagger> customizer;
-
   private Function<RouteMethod, String> tagger = TAG_PROVIDER;
 
-  public SwaggerBuilder(Config conf, Consumer<Swagger> swagger) {
-    this.customizer = swagger;
-    this.conf = conf;
+  public SwaggerBuilder() {
   }
 
   public SwaggerBuilder groupBy(Function<RouteMethod, String> tag) {
@@ -65,10 +59,9 @@ class SwaggerBuilder {
     return this;
   }
 
-  Swagger build(final List<RouteMethod> routes) throws Exception {
-    Swagger swagger = new Swagger();
+  public Swagger build(Swagger base, final List<RouteMethod> routes) throws Exception {
+    Swagger swagger = Optional.ofNullable(base).orElseGet(Swagger::new);
 
-    Map<String, Path> paths = new LinkedHashMap<>();
     /** Tags: */
     Function<String, Tag> tagFactory = value ->
         Optional.ofNullable(swagger.getTag(value))
@@ -142,40 +135,41 @@ class SwaggerBuilder {
       /** Parameters: */
       route.parameters().stream().map(it -> {
         Type type = it.type();
-        Type componentType = it.componentType();
         final Property property = converter.readAsProperty(type);
         Parameter parameter = it.accept(new RouteParameter.Visitor<Parameter>() {
           @Override public Parameter visitBody(final RouteParameter parameter) {
-            return new BodyParameter().schema(modelFactory.apply(componentType));
+            return new BodyParameter().schema(modelFactory.apply(parameter.type()));
           }
 
           @Override public Parameter visitFile(final RouteParameter parameter) {
-            return complement(property, componentType, new FormParameter());
+            return complement(property, parameter, new FormParameter());
           }
 
           @Override public Parameter visitForm(final RouteParameter parameter) {
-            return complement(property, componentType, new FormParameter());
+            return complement(property, parameter, new FormParameter());
           }
 
           @Override public Parameter visitHeader(final RouteParameter parameter) {
-            return complement(property, componentType, new HeaderParameter());
+            return complement(property, parameter, new HeaderParameter());
           }
 
           @Override public Parameter visitPath(final RouteParameter parameter) {
-            return complement(property, componentType, new PathParameter());
+            return complement(property, parameter, new PathParameter());
           }
 
           @Override public Parameter visitQuery(final RouteParameter parameter) {
-            return complement(property, componentType, new QueryParameter());
+            return complement(property, parameter, new QueryParameter());
           }
         });
+        if (it.kind() == RouteParameter.Kind.FILE) {
+          op.setConsumes(ImmutableList.of(MediaType.multipart.name()));
+        }
         parameter.setName(it.name());
         parameter.setRequired(!it.optional());
         parameter.setDescription(property.getDescription());
         it.description().ifPresent(parameter::setDescription);
         return parameter;
-      })
-          .forEach(op::addParameter);
+      }).forEach(op::addParameter);
 
       /** Response: */
       RouteResponse returns = route.response();
@@ -196,31 +190,34 @@ class SwaggerBuilder {
       /** Done: */
       path.set(route.method().toLowerCase(), op);
     }
-    swagger.consumes("application/json");
-    swagger.produces("application/json");
-    swagger.info(new Info()
-        .title(LOWER_CAMEL.to(UPPER_CAMEL, conf.getString("application.name")) + " API")
-        .version(conf.getString("application.version")));
-    if (customizer != null) {
-      customizer.accept(swagger);
+    Function<Function<RouteMethod, List<String>>, List<String>> mediaTypes = types ->
+        routes.stream().flatMap(it -> types.apply(it).stream()).collect(Collectors.toList());
+    /** Default consumes/produces: */
+    List<String> consumes = mediaTypes.apply(RouteMethod::consumes);
+    if (consumes.size() == 0) {
+      swagger.consumes(MediaType.json.name());
+    } else if (consumes.size() == 1) {
+      swagger.consumes(consumes);
+    }
+    List<String> produces = mediaTypes.apply(RouteMethod::produces);
+    if (produces.size() == 0) {
+      swagger.produces(MediaType.json.name());
+    } else if (produces.size() == 1) {
+      swagger.produces(produces);
     }
     return swagger;
   }
 
-  private Parameter complement(Property property, Type componentType, SerializableParameter param) {
+  private SerializableParameter complement(Property property, RouteParameter source,
+      SerializableParameter param) {
     param.setType(property.getType());
     param.setFormat(property.getFormat());
     if (property instanceof ArrayProperty) {
       param.setItems(((ArrayProperty) property).getItems());
     }
-    if (componentType instanceof Class) {
-      Optional.ofNullable((Class) componentType)
-          .map(Class::getEnumConstants)
-          .filter(Objects::nonNull)
-          .map(values -> Arrays.asList(values).stream()
-              .map(value -> ((Enum) value).name())
-              .collect(Collectors.toList())
-          ).ifPresent(param::setEnum);
+    List<String> enums = source.enums();
+    if (enums.size() > 0) {
+      param.setEnum(enums);
     }
     return param;
   }

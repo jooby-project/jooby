@@ -14,7 +14,7 @@ public class Issue611 {
   @Test
   public void shouldGetBodyAndQueryParameters() throws Throwable {
     new RouteMethodAssert(new ApiParser(dir())
-        .modify("findUsersByEmail", route -> {
+        .modify(r -> r.name().orElse("").endsWith("findUsersByEmail"), route -> {
           route.response().type(Types.listOf(User611.class));
           route.param("emails", p -> {
             p.type(Types.listOf(String.class));

@@ -220,6 +220,10 @@ public class RouteResponse {
     type(type);
   }
 
+  /** Required by Jackson. */
+  protected RouteResponse() {
+  }
+
   public Type type() {
     return type;
   }
