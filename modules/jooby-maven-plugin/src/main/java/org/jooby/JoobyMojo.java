@@ -224,19 +224,25 @@ import org.jooby.funzy.Try;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Mojo(name = "run", threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
 @Execute(phase = LifecyclePhase.TEST_COMPILE)
 public class JoobyMojo extends AbstractMojo {
+  private static final Object LOCK = new Object();
+
+  private static final List<String> XML_PROPS = Arrays.asList(
+      "javax.xml.parsers.DocumentBuilderFactory",
+      "javax.xml.parsers.SAXParserFactory",
+      "javax.xml.stream.XMLInputFactory",
+      "javax.xml.stream.XMLEventFactory",
+      "javax.xml.transform.TransformerFactory",
+      "javax.xml.stream.XMLOutputFactory",
+      "javax.xml.datatype.DatatypeFactory",
+      "org.xml.sax.driver");
+
 
   private static class ShutdownHook extends Thread {
     private Log log;
@@ -291,7 +297,7 @@ public class JoobyMojo extends AbstractMojo {
   @Parameter(property = "jooby.excludes")
   private List<String> excludes;
 
-  @Parameter(property = "jooby.srcExtensions", defaultValue = ".java,.conf,.properties")
+  @Parameter(property = "jooby.srcExtensions", defaultValue = ".java,.kt,.conf,.properties")
   private List<String> srcExtensions;
 
   @Parameter(property = "application.debug", defaultValue = "true")
@@ -477,7 +483,7 @@ public class JoobyMojo extends AbstractMojo {
           Thread.currentThread().setContextClassLoader(backloader);
           if (srcExtensions.stream()
               .anyMatch(ext -> path.toString().endsWith(ext))) {
-            task.accept("compile");
+            runCompile(task);
           }
         } finally {
           Thread.currentThread().setContextClassLoader(currentloader);
@@ -485,6 +491,19 @@ public class JoobyMojo extends AbstractMojo {
       }, paths.toArray(new Path[paths.size()]));
     } catch (Exception ex) {
       throw new MojoFailureException("Can't compile source code", ex);
+    }
+  }
+
+  private static void runCompile(Consumer<String> task) {
+    synchronized (LOCK) {
+      Map<String, String> xml = new HashMap<>();
+      XML_PROPS.forEach(p -> xml.put(p, (String) System.getProperties().remove(p)));
+      task.accept("compile");
+      xml.forEach((k, v) -> {
+        if (v != null) {
+          System.setProperty(k, v);
+        }
+      });
     }
   }
 

@@ -56,6 +56,7 @@ It's worth to mention that dynamic reload of classes is done via {{jboss-modules
     </includes>
     <excludes>
     </excludes>
+    <srcExtensions>.java,.kt,.conf,.properties</srcExtensions>
   </configuration>
 </plugin>
 ```
@@ -150,4 +151,8 @@ Make sure to enable the ```fork``` option too, otherwise ```vmArgs``` are ignore
 
 ### includes / excludes
 
-List of file patterns to listen for file changes.
+List of file patterns to listen for file changes and trigger restarting the server.
+
+### srcExtensions
+
+List of file extensions to listen for file changes and trigger re-compilation.
