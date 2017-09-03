@@ -303,7 +303,7 @@ public class Err extends RuntimeException {
   public interface Handler {
 
     /**
-     * Handle a route exception by probably logging the error and sending a err response to the
+     * Handle a route exception by properly logging the error and sending a err response to the
      * client.
      *
      * Please note you always get an {@link Err} whenever you throw it or not. For example if your
