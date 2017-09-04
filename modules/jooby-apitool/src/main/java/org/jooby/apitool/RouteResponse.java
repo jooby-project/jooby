@@ -211,11 +211,22 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Represent a route response type.
+ *
+ * @since 1.2.0
+ * @author edgar
+ */
 public class RouteResponse {
   private Type type;
   private String description;
   private Map<Integer, String> status;
 
+  /**
+   * Creates a new {@link RouteResponse}.
+   *
+   * @param type Return type.
+   */
   public RouteResponse(Type type) {
     type(type);
   }
@@ -224,28 +235,60 @@ public class RouteResponse {
   protected RouteResponse() {
   }
 
+  /**
+   * Route return type.
+   *
+   * @return Return type.
+   */
   public Type type() {
     return type;
   }
 
+  /**
+   * Set return type.
+   *
+   * @param type Type.
+   * @return This response.
+   */
   public RouteResponse type(Type type) {
     this.type = Objects.requireNonNull(type, "Return type required.");
     return this;
   }
 
+  /**
+   * Get response description.
+   *
+   * @return Response description.
+   */
   public Optional<String> description() {
     return Optional.ofNullable(description);
   }
 
+  /**
+   * Set a description.
+   *
+   * @param description Description.
+   * @return This response.
+   */
   public RouteResponse description(final String description) {
     this.description = Strings.emptyToNull(description);
     return this;
   }
 
+  /**
+   * Get status codes.
+   *
+   * @return Status codes.
+   */
   public Map<Integer, String> status() {
     return Optional.ofNullable(status).orElse(ImmutableMap.of());
   }
 
+  /**
+   * Status code.
+   *
+   * @return Status code.
+   */
   public int statusCode() {
     return status().entrySet().stream()
         .map(it -> it.getKey())
@@ -254,11 +297,23 @@ public class RouteResponse {
         .orElseGet(() -> type() == void.class ? 204 : 200);
   }
 
+  /**
+   * Set status code map.
+   *
+   * @param status Status code map.
+   * @return This response.
+   */
   public RouteResponse status(final Map<Integer, String> status) {
     this.status = status;
     return this;
   }
 
+  /**
+   * Get a description for given status code.
+   *
+   * @param status Status code.
+   * @return Description.
+   */
   public Optional<String> status(int status) {
     return Optional.ofNullable(status().get(status));
   }

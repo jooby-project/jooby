@@ -14,7 +14,38 @@
 
   <build>
     <plugins>
-      <!-- JarJar the ASM dependency. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>fat-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>org.ow2.asm:*</include>
+                  <include>org.antlr:antlr4-runtime</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>org.objectweb.asm</pattern>
+                  <shadedPattern>org.jooby.internal.apitool.asm</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.antlr.v4.runtime</pattern>
+                  <shadedPattern>org.jooby.internal.apitool.antlr</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- JarJar the ASM dependency.
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>jarjar-maven-plugin</artifactId>
@@ -69,7 +100,7 @@
             </keep>
           </rules>
         </configuration>
-      </plugin>
+      </plugin>-->
 
       <plugin>
         <groupId>org.antlr</groupId>

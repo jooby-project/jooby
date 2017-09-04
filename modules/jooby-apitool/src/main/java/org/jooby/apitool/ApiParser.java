@@ -215,6 +215,12 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Parse and extract route metadata from bytecode and documentation from source code.
+ *
+ * @author edgar
+ * @since 1.2.0
+ */
 public class ApiParser {
 
   private static final Predicate<RouteMethod> TRUE = r -> true;
@@ -223,25 +229,60 @@ public class ApiParser {
   private final Map<Predicate<RouteMethod>, Consumer<RouteMethod>> customizer = new LinkedHashMap<>();
   private final Predicate<RouteMethod> filter;
 
+  /**
+   * Creates a new {@link ApiParser}.
+   *
+   * @param dir Source code directory. Required for javadoc parser.
+   * @param filter Route method filter.
+   */
   public ApiParser(Path dir, Predicate<RouteMethod> filter) {
     this.dir = dir;
     this.filter = filter;
   }
 
+  /**
+   * Creates a new {@link ApiParser}.
+   *
+   * @param dir Source code directory. Required for javadoc parser.
+   */
   public ApiParser(Path dir) {
     this(dir, TRUE);
   }
 
+  /**
+   * Parse application bytecode and build route methods from it.
+   *
+   * @param application Application to parse.
+   * @return List of route methods.
+   * @throws Exception If something goes wrong.
+   */
   public List<RouteMethod> parse(Jooby application) throws Exception {
     return parse(application.getClass().getName(), Jooby.exportRoutes(application));
   }
 
-  public List<RouteMethod> export(Path outputDir, Jooby application)
+  /**
+   * Parse application bytecode, build route methods from it and export all metadata to <code>.json</code>.
+   *
+   * @param outputBaseDir Output base directory. This method appends the java package of the given
+   *     application.
+   * @param application Application to parse.
+   * @return List of route methods.
+   * @throws Exception If something goes wrong.
+   */
+  public List<RouteMethod> export(Path outputBaseDir, Jooby application)
       throws Exception {
     return new BytecodeRouteParser(dir)
-        .export(outputDir, application.getClass().getName(), Jooby.exportRoutes(application));
+        .export(outputBaseDir, application.getClass().getName(), Jooby.exportRoutes(application));
   }
 
+  /**
+   * Parse application bytecode and build route methods from it.
+   *
+   * @param application Application to parse.
+   * @param routes Application routes.
+   * @return List of route methods.
+   * @throws Exception If something goes wrong.
+   */
   public List<RouteMethod> parse(String application, List<Route.Definition> routes)
       throws Exception {
     List<RouteMethod> response = new BytecodeRouteParser(dir).parse(application, routes).stream()
@@ -257,9 +298,17 @@ public class ApiParser {
     return response;
   }
 
-  public ApiParser modify(final Predicate<RouteMethod> predicate,
+  /**
+   * Modify one or more route method who matches the filter. Work as a API to fix possible missing
+   * metadata.
+   *
+   * @param matcher Route matcher.
+   * @param customizer Customizer.
+   * @return This parser.
+   */
+  public ApiParser modify(final Predicate<RouteMethod> matcher,
       final Consumer<RouteMethod> customizer) {
-    this.customizer.put(predicate, customizer);
+    this.customizer.put(matcher, customizer);
     return this;
   }
 

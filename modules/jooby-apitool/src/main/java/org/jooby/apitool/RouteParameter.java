@@ -214,66 +214,72 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Metadata and runtime information of a HTTP parameter.
+ *
+ * @author edgar
+ * @since 1.2.0
+ */
 public class RouteParameter {
 
+  /**
+   * Provides visit methods base on parameter kind.
+   *
+   * @param <T> Result Type.
+   */
   public interface Visitor<T> {
+    /**
+     * Callback method for query HTTP parameters.
+     *
+     * @param parameter Parameter.
+     * @return Computed result.
+     */
     T visitQuery(RouteParameter parameter);
 
+    /**
+     * Callback method for path HTTP parameters.
+     *
+     * @param parameter Parameter.
+     * @return Computed result.
+     */
     T visitPath(RouteParameter parameter);
 
+    /**
+     * Callback method for form HTTP parameters.
+     *
+     * @param parameter Parameter.
+     * @return Computed result.
+     */
     T visitForm(RouteParameter parameter);
 
+    /**
+     * Callback method for body HTTP parameters.
+     *
+     * @param parameter Parameter.
+     * @return Computed result.
+     */
     T visitBody(RouteParameter parameter);
 
+    /**
+     * Callback method for file upload HTTP parameters.
+     *
+     * @param parameter Parameter.
+     * @return Computed result.
+     */
     T visitFile(RouteParameter parameter);
 
+    /**
+     * Callback method for header HTTP parameters.
+     *
+     * @param parameter Parameter.
+     * @return Computed result.
+     */
     T visitHeader(RouteParameter parameter);
   }
 
-  public interface Listener extends Visitor<Void> {
-    @Override default Void visitQuery(RouteParameter parameter) {
-      enterQuery(parameter);
-      return null;
-    }
-
-    @Override default Void visitPath(RouteParameter parameter) {
-      enterPath(parameter);
-      return null;
-    }
-
-    @Override default Void visitForm(RouteParameter parameter) {
-      enterForm(parameter);
-      return null;
-    }
-
-    @Override default Void visitBody(RouteParameter parameter) {
-      enterBody(parameter);
-      return null;
-    }
-
-    @Override default Void visitFile(RouteParameter parameter) {
-      enterFile(parameter);
-      return null;
-    }
-
-    @Override default Void visitHeader(RouteParameter parameter) {
-      enterHeader(parameter);
-      return null;
-    }
-
-    void enterQuery(RouteParameter parameter);
-
-    void enterPath(RouteParameter parameter);
-
-    void enterForm(RouteParameter parameter);
-
-    void enterBody(RouteParameter parameter);
-
-    void enterFile(RouteParameter parameter);
-
-    void enterHeader(RouteParameter parameter);
-  }
-
+  /**
+   * Parameter Kind.
+   */
   public enum Kind {
 
     /** HTTP param inside a query. */
@@ -333,40 +339,82 @@ public class RouteParameter {
 
   private List<Object> enums;
 
+  /**
+   * Creates a new {@link RouteParameter}.
+   *
+   * @param name Name.
+   * @param kind Kind.
+   * @param type Type.
+   * @param value Default value.
+   */
   public RouteParameter(final String name, final Kind kind, final Type type,
       final Object value) {
     name(name);
     kind(kind);
     type(type);
-    value(value);
+    defaultValue(value);
   }
 
   /** Required by Jackson. */
   protected RouteParameter() {
   }
 
+  /**
+   * Apply a {@link Visitor} and returns the computed result.
+   *
+   * @param visitor Visitor.
+   * @param <T> Result type.
+   * @return Computed result.
+   */
   public <T> T accept(Visitor<T> visitor) {
     return kind.accept(this, visitor);
   }
 
+  /**
+   * Parameter name.
+   *
+   * @return Parameter name.
+   */
   public String name() {
     return name;
   }
 
+  /**
+   * Set parameter name.
+   *
+   * @param name Parameter name.
+   * @return This parameter.
+   */
   public RouteParameter name(final String name) {
     this.name = Objects.requireNonNull(name, "Name required.");
     return this;
   }
 
+  /**
+   * Parameter type.
+   *
+   * @return Parameter type.
+   */
   public Type type() {
     return type;
   }
 
+  /**
+   * Set parameter type.
+   *
+   * @param type Parameter type.
+   * @return This parameter.
+   */
   public RouteParameter type(Type type) {
     this.type = Objects.requireNonNull(type, "Type required.");
     return this;
   }
 
+  /**
+   * List of enum values when the {@link #type()} represents an enum.
+   *
+   * @return Enum values.
+   */
   public List<String> enums() {
     return Optional.ofNullable(MoreTypes.getRawType(type))
         .map(Class::getEnumConstants)
@@ -377,33 +425,73 @@ public class RouteParameter {
         ).orElse(Collections.emptyList());
   }
 
-  public Object value() {
+  /**
+   * Default value.
+   *
+   * @return Default Value.
+   */
+  public Object defaultValue() {
     return value;
   }
 
-  public RouteParameter value(Object value) {
+  /**
+   * Set default value.
+   *
+   * @param value Default value.
+   * @return This parameter.
+   */
+  public RouteParameter defaultValue(Object value) {
     this.value = value;
     return this;
   }
 
+  /**
+   * Parameter kind.
+   *
+   * @return Parameter kind.
+   */
   public Kind kind() {
     return kind;
   }
 
+  /**
+   * Set parameter kind.
+   *
+   * @param kind Parameter kind.
+   * @return This parameter.
+   */
   public RouteParameter kind(Kind kind) {
     this.kind = Objects.requireNonNull(kind, "Kind required.");
     return this;
   }
 
+  /**
+   * Parameter description (if any).
+   *
+   * @return Parameter description (if any).
+   */
   public Optional<String> description() {
     return Optional.ofNullable(description);
   }
 
+  /**
+   * Set parameter description.
+   *
+   * @param description Parameter description.
+   * @return This parameter.
+   */
   public RouteParameter description(String description) {
     this.description = Strings.emptyToNull(description);
     return this;
   }
 
+  /**
+   * True if parameter is optional. A parameter is optional when there is a default value or
+   * {@link #type()} is {@link Optional}.
+   *
+   * @return True if parameter is optional. A parameter is optional when there is a default value or
+   *     {@link #type()} is {@link Optional}.
+   */
   public boolean optional() {
     return value != null || MoreTypes.getRawType(type) == Optional.class;
   }

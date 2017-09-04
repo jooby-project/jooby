@@ -50,7 +50,7 @@ class RouteMethodAssert {
     }
 
     public RouteParameterMatcher value(final Object value) {
-      assertEquals(value, param.value());
+      assertEquals(value, param.defaultValue());
       return this;
     }
 

@@ -429,10 +429,12 @@ public class BytecodeRouteParser {
         }
       }
     }
-    BiFunction<String, String, OptionalInt> routeIndex = (verb, pattern) ->
-        IntStream.range(0, methods.size())
-            .filter(i -> methods.get(i).matches(verb, pattern))
-            .findFirst();
+    BiFunction<String, String, OptionalInt> routeIndex = (verb, pattern) -> {
+      RouteMethod it = new RouteMethod(verb, pattern, new RouteResponse(void.class));
+      return IntStream.range(0, methods.size())
+          .filter(i -> methods.get(i).equals(it))
+          .findFirst();
+    };
     List<RouteMethod> result = new ArrayList<>(routes.size());
     for (Route.Definition route : routes) {
       Optional<DocItem> doc = javadoc.apply(route);

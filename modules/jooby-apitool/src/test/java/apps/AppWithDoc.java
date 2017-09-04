@@ -25,7 +25,6 @@ public class AppWithDoc extends Jooby {
      */
     use("/api/pets")
         /**
-         *
          * Find pet by ID.
          *
          * @param id Pet ID.
@@ -87,6 +86,7 @@ public class AppWithDoc extends Jooby {
         });
 
     use(new ApiTool()
+        .filter(r -> r.pattern().startsWith("/api/"))
         .raml("/raml")
         .swagger("/swagger"));
   }

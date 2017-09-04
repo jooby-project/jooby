@@ -203,8 +203,9 @@
  */
 package org.jooby.apitool;
 
-import com.google.common.base.Strings;
+import static com.google.common.base.Strings.emptyToNull;
 import com.google.common.collect.ImmutableMap;
+import static java.util.Objects.requireNonNull;
 import org.jooby.Route;
 
 import java.util.Collections;
@@ -217,6 +218,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Contains all metadata for a Jooby route. It is similar to {@link Route.Definition} but with
+ * extra runtime information like parameters, return type and javadoc.
+ *
+ * @author edgar
+ * @since 1.2.0
+ */
 public class RouteMethod {
   private static final Pattern VAR = Pattern.compile("\\:((?:[^/]+)+?)");
 
@@ -231,6 +239,13 @@ public class RouteMethod {
   private List<String> produces;
   private Map<String, Object> attributes;
 
+  /**
+   * Creates a new {@link RouteMethod}.
+   *
+   * @param method HTTP method: <code>GET</code>, <code>POST</code>, etc.
+   * @param pattern Route pattern.
+   * @param returns Route response.
+   */
   public RouteMethod(String method, String pattern, RouteResponse returns) {
     method(method);
     pattern(pattern);
@@ -241,112 +256,221 @@ public class RouteMethod {
   protected RouteMethod() {
   }
 
+  /**
+   * HTTP method: <code>GET</code>, <code>POST</code>, etc.
+   *
+   * @return HTTP method: <code>GET</code>, <code>POST</code>, etc.
+   */
   public String method() {
     return method;
   }
 
+  /**
+   * Change/Set route method.
+   *
+   * @param method New HTTP method.
+   * @return This method.
+   */
   public RouteMethod method(String method) {
-    this.method = Objects.requireNonNull(method, "Method required").toUpperCase();
+    this.method = requireNonNull(method, "Method required").toUpperCase();
     return this;
   }
 
+  /**
+   * HTTP pattern.
+   *
+   * @return HTTP pattern.
+   */
   public String pattern() {
     return pattern;
   }
 
+  /**
+   * Set HTTP pattern.
+   *
+   * @param pattern New HTTP Pattern.
+   * @return This method.
+   */
   public RouteMethod pattern(String pattern) {
     this.pattern = rewritePattern(Route.normalize(pattern));
     return this;
   }
 
+  /**
+   * Route name comes from a direct call to {@link Route.Definition#name(String)} for script routes
+   * or method name for MVC routes.
+   *
+   * @return Route name or empty.
+   */
   public Optional<String> name() {
     return Optional.ofNullable(name);
   }
 
+  /**
+   * Set route name.
+   *
+   * @param name Route name.
+   * @return This method.
+   */
   public RouteMethod name(String name) {
-    this.name = Strings.emptyToNull(name);
+    this.name = emptyToNull(name);
     return this;
   }
 
+  /**
+   * Get all parameters.
+   *
+   * @return All parameters.
+   */
   public List<RouteParameter> parameters() {
     return Optional.ofNullable(parameters).orElse(Collections.emptyList());
   }
 
-  public List<RouteParameter> parameters(RouteParameter.Kind kind) {
-    return Optional.ofNullable(parameters).orElse(Collections.emptyList()).stream()
-        .filter(it -> it.kind() == kind)
-        .collect(Collectors.toList());
-  }
-
+  /**
+   * Set all route parameters.
+   *
+   * @param parameters A nonnull list of parameters.
+   * @return This method.
+   */
   public RouteMethod parameters(List<RouteParameter> parameters) {
-    this.parameters = parameters;
+    this.parameters = requireNonNull(parameters, "Parameters required");
     return this;
   }
 
+  /**
+   * API summary. This is usually the javadoc of {@link org.jooby.Router#use(String)} method or the
+   * javadoc of a class for MVC routes.
+   *
+   * @return Summary or empty.
+   */
   public Optional<String> summary() {
     return Optional.ofNullable(summary);
   }
 
+  /**
+   * Set API summary.
+   *
+   * @param summary Summary.
+   * @return This method.
+   */
   public RouteMethod summary(String summary) {
-    this.summary = Strings.emptyToNull(summary);
+    this.summary = emptyToNull(summary);
     return this;
   }
 
+  /**
+   * Route description. Usually the javadoc of a script or MVC route.
+   *
+   * @return Description or empty.
+   */
   public Optional<String> description() {
     return Optional.ofNullable(description);
   }
 
+  /**
+   * Set route description.
+   *
+   * @param description Description.
+   * @return This method.
+   */
   public RouteMethod description(String description) {
-    this.description = Strings.emptyToNull(description);
+    this.description = emptyToNull(description);
     return this;
   }
 
+  /**
+   * List of media types this route can consumes.
+   *
+   * @return List of media types this route can consumes.
+   */
   public List<String> consumes() {
     return Optional.ofNullable(consumes).orElse(Collections.emptyList());
   }
 
+  /**
+   * Set list of consumes media types for this method.
+   *
+   * @param consumes Media types.
+   * @return This method.
+   */
   public RouteMethod consumes(List<String> consumes) {
     this.consumes = consumes;
     return this;
   }
 
+  /**
+   * List of media types this route can produces.
+   *
+   * @return List of media types this route can produces.
+   */
   public List<String> produces() {
     return Optional.ofNullable(produces).orElse(Collections.emptyList());
   }
 
+  /**
+   * Set list of produces media types for this method.
+   *
+   * @param produces Media types.
+   * @return This method.
+   */
   public RouteMethod produces(List<String> produces) {
     this.produces = produces;
     return this;
   }
 
+  /**
+   * Route response metadata.
+   *
+   * @return Route response.
+   */
   public RouteResponse response() {
     return response;
   }
 
+  /**
+   * Set a route response.
+   *
+   * @param response Response.
+   * @return This method.
+   */
   public RouteMethod response(RouteResponse response) {
-    this.response = Objects.requireNonNull(response, "Response required.");
+    this.response = requireNonNull(response, "Response required.");
     return this;
   }
 
+  /**
+   * Route attributes, copy of {@link Route.Definition#attributes()}
+   *
+   * @return Attributes.
+   */
   public Map<String, Object> attributes() {
     return Optional.ofNullable(attributes).orElse(ImmutableMap.of());
   }
 
+  /**
+   * Set route attributes.
+   *
+   * @param attributes Attributes.
+   * @return This method.
+   */
   public RouteMethod attributes(Map<String, Object> attributes) {
     this.attributes = attributes;
     return this;
   }
 
+  /**
+   * Find a parameter by name and invoke the given callback.
+   *
+   * @param name Parameter name.
+   * @param customizer Success callback.
+   * @return This method.
+   */
   public RouteMethod param(String name, Consumer<RouteParameter> customizer) {
     parameters().stream()
         .filter(p -> name.equals(p.name()))
         .findFirst()
         .ifPresent(customizer);
     return this;
-  }
-
-  public boolean matches(String method, String pattern) {
-    return this.method.equalsIgnoreCase(method) && this.pattern.equals(rewritePattern(pattern));
   }
 
   @Override public String toString() {
@@ -367,6 +491,18 @@ public class RouteMethod {
     buff.append(": ").append(response.type().getTypeName());
     buff.append(desc);
     return buff.toString().trim();
+  }
+
+  @Override public boolean equals(final Object obj) {
+    if (obj instanceof RouteMethod) {
+      RouteMethod that = (RouteMethod) obj;
+      return this.method.equals(that.method) && this.pattern.equals(that.pattern);
+    }
+    return false;
+  }
+
+  @Override public int hashCode() {
+    return Objects.hash(method, pattern);
   }
 
   private static String rewritePattern(final String pattern) {

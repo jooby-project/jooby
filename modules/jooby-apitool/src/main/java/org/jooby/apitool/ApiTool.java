@@ -237,31 +237,383 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+/**
+ * <h1>API doc</h1>
+ * <p>
+ *  Automatically export your HTTP API to open standards like
+ *  <a href="https://swagger.io/">Swagger</a> and <a href="https://raml.org/">RAML</a>.
+ * </p>
+ * <p>
+ *   Writing documentation in general is a hard and tedious task and once done it doesn't end
+ *   there. You also need to keep it synchronize every time you change something.
+ * </p>
+ * <p>
+ *   This module generates live documentation from your HTTP API, every new change is automatically
+ *   reflected keeping documentation up-to-date with no extra effort.
+ * </p>
+ *
+ * <h2>usage</h2>
+ *
+ * <pre>{@code
+ * {
+ *    use(new ApiTool()
+ *      .swagger("/swagger")
+ *      .raml("/raml")
+ *    );
+ * }
+ * }</pre>
+ *
+ * <p>
+ *   Those lines export your API to <a href="https://swagger.io/">Swagger</a> and
+ *   <a href="https://raml.org/">RAML</a>.
+ * </p>
+ * <p>
+ *   Swagger UI will be available at <code>/swagger</code> path while the definition file
+ * </p>
+ *
+ * <h2>example</h2>
+ * <p>Suppose you have a <code>Pet API</code> like:</p>
+ *
+ * <pre>
+ * {
+ *   /**
+ *     * Everything about your Pets.
+ *     *&#47;
+ *   use("/api/pets")
+ *     /**
+ *       * List pets ordered by name.
+ *       *
+ *       * @param start Start offset, useful for paging. Default is <code>0</code>.
+ *       * @param max Max page size, useful for paging. Default is <code>200</code>.
+ *       * @return Pets ordered by name.
+ *       *&#47;
+ *      .get(req {@literal ->} {
+ *        int start = req.param("start").intValue(0);
+ *        int max = req.param("max").intValue(200);
+ *        DB db = req.require(DB.class);
+ *        List&lt;Pet&gt; pets = db.findAll(Pet.class, start, max);
+ *        return pets;
+ *      })
+ *     /**
+ *       * Find pet by ID
+ *       *
+ *       * @param id Pet ID.
+ *       * @return Returns <code>200</code> with a single pet or <code>404</code>
+ *       *&#47;
+ *       .get("/:id",req {@literal ->} {
+ *         int id = req.param("id").intValue();
+ *         DB db = req.require(DB.class);
+ *         Pet pet = db.find(Pet.class,id);
+ *         return pet;
+ *       })
+ *     /**
+ *       * Add a new pet to the store.
+ *       *
+ *       * @param body Pet object that needs to be added to the store.
+ *       * @return Returns a saved pet.
+ *       *&#47;
+ *       .post(req {@literal ->} {
+ *         Pet pet = req.body().to(Pet.class);
+ *         DB db = req.require(DB.class);
+ *         db.save(pet);
+ *         return pet;
+ *       })
+ *     /**
+ *       * Update an existing pet.
+ *       *
+ *       * @param body Pet object that needs to be updated.
+ *       * @return Returns a saved pet.
+ *       *&#47;
+ *       .put(req {@literal ->} {
+ *         Pet pet = req.body().to(Pet.class);
+ *         DB db = req.require(DB.class);db.save(pet);
+ *         return pet;
+ *       })
+ *     /**
+ *       * Deletes a pet by ID.
+ *       *
+ *       * @param id Pet ID.
+ *       * @return A <code>204</code>
+ *       *&#47;
+ *       .delete("/:id",req {@literal ->} {
+ *         int id = req.param("id").intValue();
+ *         DB db = req.require(DB.class);
+ *         db.delete(Pet.class,id);
+ *         return Results.noContent();
+ *       })
+ *       .produces("json")
+ *       .consumes("json");
+ *
+ *    /**
+ *     * Install API Doc and export your HTTP API:
+ *     *&#47;
+ *    use(new ApiTool()
+ *      .swagger("/swagger")
+ *      .raml("/raml")
+ *    );
+ *
+ * }
+ * </pre>
+ *
+ * <p>
+ *   Write your <code>API</code> and the <code>ApiTool</code> module automatically
+ *   export it to <a href="https://swagger.io/">Swagger</a> and <a href="https://raml.org/">RAML</a>.
+ * </p>
+ *
+ * <p>
+ *   Works for <code>MVC routes</code> and <a href="http://jooby.org/doc/lang-kotlin">Kotlin</a>.
+ * </p>
+ *
+ * <h2>keep documentation</h2>
+ * <p>
+ *   The {@link ApiTool} module parse documentation from source code. It works well as long as the
+ *   source code is present, but it won't work once deployed it.
+ * </p>
+ * <p>
+ *   To fix this we do provide a <a href="https://maven.apache.org">Maven</a> and
+ *   <a href="https://gradle.org">Gradle</a> tasks that process your API at build time and keep the
+ *   documentation available for later usage.
+ * </p>
+ *
+ * <h3>maven plugin</h3>
+ * <p>Go to the <code>plugins</code> section of your <code>pom.xml</code> and add these lines:</p>
+ * <pre>{@code
+ * <plugin>
+ *   <groupId>org.jooby</groupId>
+ *   <artifactId>jooby-maven-plugin</artifactId>
+ *   <executions>
+ *     <execution>
+ *       <goals>
+ *         <goal>apitool</goal>
+ *       </goals>
+ *     </execution>
+ *   </executions>
+ * </plugin>
+ * }
+ * </pre>
+ * <p>
+ *   Now, compile your application the <code>apitool</code> plugin will generates a
+ *   <code>.json</code> file for your API.
+ * </p>
+ *
+ * <h3>gradle task</h3>
+ * <p>
+ *   Go to <code>build.gradle</code> and add these lines:
+ * </p>
+ *
+ * <pre>{@code
+ * buildscript {
+ *     dependencies {
+ *         classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.1.3'
+ *     }
+ * }
+ *
+ * apply plugin: 'jooby'
+ * }</pre>
+ *
+ * <p>Then run:</p>
+ *
+ * <pre>
+ *   joobyApiTool
+ * </pre>
+ *
+ * <h2>options</h2>
+ * <p>
+ *   There are a couple of options that control what is exposed as well as how do we export.
+ * </p>
+ *
+ * <h3>filter</h3>
+ * <p>
+ *   The <code>filter</code> option control what routes are exported.
+ * </p>
+ * <pre>{@code
+ *  {
+ *
+ *    use(new ApiTool()
+ *        // Keep /api/* routes:
+ *       .filter(route -> route.pattern().startWiths("/api/")
+ *    );
+ *  }
+ * }</pre>
+ *
+ * <h3>disable try it</h3>
+ * <p>
+ *   Disable the <code>tryIt</code> button in <a href="https://swagger.io/">Swagger</a> or <a href="https://raml.org/">RAML</a>.
+ * </p>
+ *
+ * <pre>{@code
+ *  {
+ *    use(new ApiTool()
+ *       .disableTryIt()
+ *    );
+ *  }
+ * }</pre>
+ *
+ * <h3>disable UI</h3>
+ * <p>
+ *   Disable <code>UI</code> for <a href="https://swagger.io/">Swagger</a> or <a href="https://raml.org/">RAML</a>.
+ * </p>
+ *
+ * <pre>{@code
+ *  {
+ *    use(new ApiTool()
+ *       .disableUI()
+ *    );
+ *  }
+ * }</pre>
+ *
+ * <h3>theme</h3>
+ * <p>
+ *   Set the default theme for <a href="https://swagger.io/">Swagger</a> or <a href="https://raml.org/">RAML</a>.
+ * </p>
+ *
+ * <pre>{@code
+ *  {
+ *    use(new ApiTool()
+ *       .raml(
+ *          new Options("/raml")
+ *            .theme("dark")
+ *       )
+ *       .swagger(
+ *          new Options("/swagger")
+ *            .theme("muted")
+ *       )
+ *    );
+ *  }
+ * }</pre>
+ *
+ * <p>
+ *   Themes can set at runtime too via <code>theme</code> query parameter:
+ * </p>
+ *
+ * <pre>
+ *   /swagger?theme=material
+ *
+ *   /raml?theme=dark
+ * </pre>
+ * <p>
+ *   Complete list of <a href="https://swagger.io/">Swagger</a> theme are available <a href="https://github.com/ostranme/swagger-ui-themes">here</a>.
+ * </p>
+ * <p>
+ *   Raml comes with only two themes: <code>light</code> and <code>dark</code>.
+ * </p>
+ *
+ * <h2>advanced usage</h2>
+ * <p>
+ *   Sometimes the {@link ApiTool} module doesn't generate correct metadata like type, names,
+ *   documentation, etc. When that happens you need to manually fix/provide metadata.
+ * </p>
+ *
+ * <pre>{@code
+ *   {
+ *     use(new ApiTool()
+ *       .modify(r -> r.pattern().equals("/api/pet/{id}", route -> {
+ *         // Fix java doc for id parameter
+ *         route.param("id", param -> {
+ *           param.description("Fixing doc for ID");
+ *         });
+ *
+ *         // Set response type
+ *         route.response()
+ *           .type(Pet.class);
+ *       });
+ *     );
+ *   }
+ * }
+ * </pre>
+ *
+ * <p>
+ *   It is possible to customize Swagger/RAML objects:
+ * </p>
+ *
+ * <pre>{@code
+ *   {
+ *     use(new ApiTool()
+ *       .swagger(swagger -> {
+ *         // Deal with Swagger API
+ *         ...
+ *       })
+ *       .raml(raml -> {
+ *         // Deal with Swagger API
+ *         ...
+ *       });
+ *     );
+ *   }
+ * }
+ * </pre>
+ *
+ * <p>
+ *   This option is required when you want to customize/complement Swagger/RAML objects.
+ * </p>
+ *
+ * @since 1.2.0
+ */
 public class ApiTool implements Jooby.Module {
 
+  /**
+   * Export options. Control whenever turn off UI, try button or default theme.
+   */
   public static class Options {
     boolean showUI = true;
 
     boolean tryIt = true;
 
-    final String path;
+    String path;
 
     String theme;
 
+    private Options() {
+    }
+
+    private Options(String path, Options defaults) {
+      this(path);
+      showUI = defaults.showUI;
+      tryIt = defaults.tryIt;
+      theme = defaults.theme;
+    }
+
+    /**
+     * Creates a new {@link Options} object.
+     *
+     * @param path Path to mount the export tool. Usually <code>/swagger</code> or <code>/raml</code>.
+     */
     public Options(String path) {
       this.path = Route.normalize(Objects.requireNonNull(path, "Path required."));
     }
 
+    /**
+     * Turn off UI.
+     *
+     * @return This option.
+     */
     public Options disableUI() {
       this.showUI = false;
       return this;
     }
 
+    /**
+     * Disable try button.
+     *
+     * @return This option.
+     */
     public Options disableTryIt() {
       this.tryIt = false;
       return this;
     }
 
+    /**
+     * Set default theme.
+     *
+     * <p>
+     *   Complete list of <a href="https://swagger.io/">Swagger</a> theme are available <a href="https://github.com/ostranme/swagger-ui-themes">here</a>.
+     * </p>
+     * <p>
+     *   Raml comes with only two themes: <code>light</code> and <code>dark</code>.
+     * </p>
+     *
+     * @param theme Theme name.
+     * @return This option.
+     */
     public Options theme(String theme) {
       this.theme = Objects.requireNonNull(theme, "Theme required.");
       return this;
@@ -271,15 +623,15 @@ public class ApiTool implements Jooby.Module {
   private static final TypeLiteral<List<RouteMethod>> M = new TypeLiteral<List<RouteMethod>>() {
   };
 
-  private static final Predicate<RouteMethod> API = r -> r.pattern().startsWith("/api/");
-
   private static final String RAML_STATIC = "/META-INF/resources/webjars/api-console/3.0.17/dist/";
 
   private static final String SWAGGER_STATIC = "/META-INF/resources/webjars/swagger-ui/3.1.6/";
 
   private static final String SWAGGER_THEME = "/META-INF/resources/webjars/swagger-ui-themes/3.0.0/themes/3.x/";
 
-  protected Predicate<RouteMethod> filter = API;
+  protected Predicate<RouteMethod> filter = r -> true;
+
+  private Options options = new Options();
 
   private Options swaggerOptions;
 
@@ -293,10 +645,18 @@ public class ApiTool implements Jooby.Module {
 
   private Path basedir;
 
+  /**
+   * Creates a new instance of {@link ApiTool}.
+   *
+   * @param basedir Base directory to lookup for javadoc.
+   */
   public ApiTool(Path basedir) {
     this.basedir = basedir;
   }
 
+  /**
+   * Creates a new {@link ApiTool}.
+   */
   public ApiTool() {
     this(null);
   }
@@ -328,54 +688,163 @@ public class ApiTool implements Jooby.Module {
     return ConfigFactory.parseResources(ApiTool.class, "apitool.conf");
   }
 
+  /**
+   * Select which route is going to be exported to Swagger/RAML.
+   *
+   * @param predicate True, if route is exported.
+   * @return This tool.
+   */
   public ApiTool filter(Predicate<RouteMethod> predicate) {
     this.filter = predicate;
     return this;
   }
 
+  /**
+   * Turn off UI for Swagger and Raml.
+   *
+   * @return This tool.
+   */
+  public ApiTool disableUI() {
+    options.disableUI();
+    return this;
+  }
+
+  /**
+   * Turn off live-testing (try button) for Swagger and Raml.
+   *
+   * @return This tool.
+   */
+  public ApiTool disableTryIt() {
+    options.disableTryIt();
+    return this;
+  }
+
+  /**
+   * Mount Swagger at <code>/swagger</code>
+   *
+   * @return This option.
+   */
+  public ApiTool swagger() {
+    return swagger("/swagger");
+  }
+
+  /**
+   * Mount Swagger at the given path.
+   *
+   * @param path Path to mount swagger.
+   * @return This tool.
+   */
   public ApiTool swagger(String path) {
     return swagger(path, null);
   }
 
+  /**
+   * Mount Swagger at <code>/swagger</code> and set a customizer.
+   *
+   * @param swagger Swagger customizer.
+   * @return This tool.
+   */
   public ApiTool swagger(Consumer<Swagger> swagger) {
     return swagger("/swagger", swagger);
   }
 
+  /**
+   * Mount Swagger at the given path and customize Swagger objects.
+   *
+   * @param path Path to mount swagger.
+   * @param swagger Customizer.
+   * @return This tool.
+   */
   public ApiTool swagger(String path, Consumer<Swagger> swagger) {
-    return swagger(new Options(path), swagger);
+    return swagger(new Options(path, options), swagger);
   }
 
+  /**
+   * Mount Swagger using the given options.
+   *
+   * @param options Swagger options.
+   * @return This tool.
+   */
   public ApiTool swagger(Options options) {
     return swagger(options, null);
   }
 
+  /**
+   * Mount Swagger using the given options.
+   *
+   * @param options Swagger options.
+   * @return This tool.
+   */
   public ApiTool swagger(Options options, Consumer<Swagger> swagger) {
     this.swaggerOptions = Objects.requireNonNull(options, "Options required.");
     this.swagger = swagger;
     return this;
   }
 
+  /**
+   * Mount RAML using at <code>/raml</code>.
+   *
+   * @return This tool.
+   */
+  public ApiTool raml() {
+    return raml("/raml");
+  }
+
+  /**
+   * Mount RAML at the given path.
+   *
+   * @param path Path to mount raml.
+   * @return This tool.
+   */
   public ApiTool raml(String path) {
     return raml(path, null);
   }
 
+  /**
+   * Mount RAML at the given path and customize RAML objects.
+   *
+   * @param path Path to mount raml.
+   * @param raml RAML customizer.
+   * @return This tool.
+   */
   public ApiTool raml(String path, Consumer<Raml> raml) {
-    return raml(new Options(path), raml);
+    return raml(new Options(path, options), raml);
   }
 
+  /**
+   * Mount RAML using the given options.
+   *
+   * @param options RAML options.
+   * @return This tool.
+   */
   public ApiTool raml(Options options) {
     return raml(options, null);
   }
 
+  /**
+   * Mount RAML using the given options.
+   *
+   * @param options RAML options.
+   * @param raml RAML customizer.
+   * @return This tool.
+   */
   public ApiTool raml(Options options, Consumer<Raml> raml) {
     this.ramlOptions = Objects.requireNonNull(options, "Options required.");
     this.raml = raml;
     return this;
   }
 
-  public ApiTool modify(final Predicate<RouteMethod> predicate,
+  /**
+   * Modify one or more route method who matches the filter. Work as a API to fix possible missing
+   * metadata.
+   *
+   * @param matcher Route matcher.
+   * @param customizer Customizer.
+   * @return This tool.
+   */
+  public ApiTool modify(final Predicate<RouteMethod> matcher,
       final Consumer<RouteMethod> customizer) {
-    this.customizer.put(predicate, customizer);
+    this.customizer.put(matcher, customizer);
     return this;
   }
 

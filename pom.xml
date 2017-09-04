@@ -2841,6 +2841,13 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>${maven-javadoc-plugin.version}</version>
+            <configuration>
+              <excludePackageNames>
+                org.jooby.internal:org.jooby.test:com.impossibl.postgres.jdbc:org.skife.jdbi.v2
+              </excludePackageNames>
+              <aggregate>true</aggregate>
+              <show>public</show>
+            </configuration>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -2926,7 +2933,9 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
               </execution>
             </executions>
             <configuration>
-              <excludePackageNames>org.jooby.internal:org.jooby.test</excludePackageNames>
+              <excludePackageNames>
+                org.jooby.internal:org.jooby.test:com.impossibl.postgres.jdbc:org.skife.jdbi.v2
+              </excludePackageNames>
               <aggregate>true</aggregate>
               <show>public</show>
             </configuration>
