@@ -20,7 +20,7 @@ public class Issue611 {
             p.type(Types.listOf(String.class));
           });
         })
-        .parse(new App611()))
+        .parseFully(new App611()))
         .next(m -> {
           m.returnType(Types.listOf(User611.class));
           m.param(param -> {

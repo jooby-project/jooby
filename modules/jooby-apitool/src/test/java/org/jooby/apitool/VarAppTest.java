@@ -1,23 +1,24 @@
 package org.jooby.apitool;
 
-import apps.App540;
+import apps.Tag;
+import apps.VarApp;
 import org.junit.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Issue540 {
+public class VarAppTest {
 
   @Test
-  public void shouldSkipSpecialParameters() throws Exception {
-    new RouteMethodAssert(new ApiParser(dir()).parseFully(new App540()))
+  public void shouldWorkWithVar() throws Exception {
+    new RouteMethodAssert(new ApiParser(dir()).parse(VarApp.class.getName()))
         .next(r -> {
-          r.returnType(Cat.class);
-          r.pattern("/api/cat/{name}");
-          r.description("Another description\n Another line");
+          r.returnType(Tag.class);
+          r.pattern("/tag/{id}");
+          r.description("Tag doc.");
           r.summary(null);
           r.param(p -> {
-            p.name("name")
+            p.name("id")
                 .type(String.class)
                 .kind(RouteParameter.Kind.PATH);
           });

@@ -203,8 +203,6 @@
  */
 package org.jooby.apitool;
 
-import static com.google.common.base.CaseFormat.LOWER_CAMEL;
-import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Binder;
 import com.google.inject.TypeLiteral;
@@ -931,7 +929,4 @@ public class ApiTool implements Jooby.Module {
     }
   }
 
-  private static String defaultTitle(Config conf) {
-    return LOWER_CAMEL.to(UPPER_CAMEL, conf.getString("application.name")) + " API";
-  }
 }

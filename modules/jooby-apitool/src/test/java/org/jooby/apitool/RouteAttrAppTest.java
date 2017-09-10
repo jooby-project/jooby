@@ -11,7 +11,7 @@ public class RouteAttrAppTest {
 
   @Test
   public void shouldExportAttributes() throws Exception {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new RouteAttrApp()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new RouteAttrApp()))
         .next(r -> {
           r.returnType(java.util.ArrayList.class);
           r.pattern("/api/attr");

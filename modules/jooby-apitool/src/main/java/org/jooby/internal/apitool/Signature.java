@@ -212,7 +212,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class Signature {
+class Signature {
   private Set<String> owners;
 
   private String name;

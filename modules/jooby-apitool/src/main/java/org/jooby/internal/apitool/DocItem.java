@@ -207,7 +207,7 @@ import com.google.common.base.Strings;
 
 import java.util.Map;
 
-public class DocItem {
+class DocItem {
 
   public final String summary;
 

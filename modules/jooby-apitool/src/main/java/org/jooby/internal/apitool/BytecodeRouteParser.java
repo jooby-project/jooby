@@ -208,33 +208,39 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Primitives;
 import com.google.inject.internal.MoreTypes;
 import com.google.inject.util.Types;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
+import org.jooby.Env;
 import org.jooby.Jooby;
-import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
-import org.jooby.Route.Filter;
 import org.jooby.Session;
 import org.jooby.Upload;
 import org.jooby.apitool.RouteMethod;
 import org.jooby.apitool.RouteParameter;
 import org.jooby.apitool.RouteResponse;
+import org.jooby.internal.RouteMetadata;
 import static org.jooby.internal.apitool.Filters.and;
 import static org.jooby.internal.apitool.Filters.call;
 import static org.jooby.internal.apitool.Filters.file;
 import static org.jooby.internal.apitool.Filters.getOrCreateKotlinClass;
 import static org.jooby.internal.apitool.Filters.is;
+import static org.jooby.internal.apitool.Filters.joobyRun;
+import static org.jooby.internal.apitool.Filters.kotlinRouteHandler;
 import static org.jooby.internal.apitool.Filters.method;
-import static org.jooby.internal.apitool.Filters.methodName;
 import static org.jooby.internal.apitool.Filters.mount;
 import static org.jooby.internal.apitool.Filters.mutantToSomething;
 import static org.jooby.internal.apitool.Filters.mutantValue;
 import static org.jooby.internal.apitool.Filters.opcode;
 import static org.jooby.internal.apitool.Filters.param;
 import static org.jooby.internal.apitool.Filters.scriptRoute;
+import static org.jooby.internal.apitool.Filters.use;
+import org.jooby.internal.mvc.MvcRoutes;
 import org.jooby.mvc.Body;
 import org.jooby.mvc.Flash;
 import org.jooby.mvc.Header;
@@ -266,6 +272,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
@@ -276,17 +283,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -327,15 +329,18 @@ public class BytecodeRouteParser {
    */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private final Path dir;
-
   private final Map<String, ClassNode> cache = new HashMap<>();
+
+  private final DocParser javadoc;
+
+  private final Predicate<MethodInsnNode> scriptRoute;
 
   private ClassLoader loader;
 
-  public BytecodeRouteParser(Path dir) {
-    this.dir = dir;
-    this.loader = getClass().getClassLoader();
+  public BytecodeRouteParser(ClassLoader loader, Path dir) {
+    javadoc = new DocParser(dir);
+    this.loader = loader;
+    this.scriptRoute = scriptRoute(loader);
   }
 
   public List<RouteMethod> read(String classname) {
@@ -346,65 +351,41 @@ public class BytecodeRouteParser {
         return mapper.readValue(resource,
             mapper.getTypeFactory().constructCollectionType(ArrayList.class, RouteMethod.class));
       } catch (IOException e) {
-        log.info("Read of {} resulted in exception", filename, e);
+        log.error("read of {} resulted in exception", filename, e);
       }
     }
     return null;
   }
 
-  private void write(Path dir, String classname, List<RouteMethod> routes) throws IOException {
-    mapper.writer().withDefaultPrettyPrinter().writeValue(toFile(dir, classname).toFile(), routes);
+  private Path write(Path output, List<RouteMethod> routes) throws IOException {
+    Files.createDirectories(output.getParent());
+    log.debug("writing {} with {}", output, routes);
+    mapper.writer().withDefaultPrettyPrinter().writeValue(output.toFile(), routes);
+    return output;
   }
 
   private Path toFile(Path dir, String classname) {
     Path path = Arrays.asList(classname.split("\\.")).stream()
         .reduce(dir, Path::resolve, Path::resolve);
-    return path.getParent().resolve(path.getFileName().toString() + ".json");
+    ClassNode classNode = loadClass(classname);
+    return path.getParent().resolve(classNode.sourceFile
+        .replaceAll("\\.java|\\.kt", "") + ".json");
   }
 
-  public List<RouteMethod> export(Path dir, String classname, final List<Route.Definition> routes)
-      throws Exception {
-    Files.deleteIfExists(toFile(dir, classname));
-    List<RouteMethod> output = parse(classname, routes);
-    write(dir, classname, output);
-    return output;
+  public Path export(Path dir, String classname) throws Exception {
+    Path output = toFile(dir, classname);
+    Files.deleteIfExists(output);
+    List<RouteMethod> routes = parse(classname);
+    return write(output, routes);
   }
 
-  public List<RouteMethod> parse(String classname, final List<Route.Definition> routes)
-      throws Exception {
+  public List<RouteMethod> parse(String classname) throws Exception {
     ClassNode owner = loadClass(classname);
-    List<Object> lambdas = bindMethods(owner, lambdas(owner));
-
-    /** javadoc parser: */
-    Map<String, List<DocItem>> javadocCache = new HashMap<>();
-    Function<Route.Definition, Optional<DocItem>> javadoc = route -> {
-      Optional<String> declaringClass = route.source().declaringClass();
-      if (declaringClass.isPresent()) {
-        log.debug("parsing javadoc for {}", declaringClass.get());
-        List<DocItem> doc = javadocCache.get(declaringClass.get());
-        if (doc == null) {
-          try {
-            doc = DocParser.javadoc(dir, declaringClass.get());
-          } catch (IOException x) {
-            log.debug("No javadoc for {}", declaringClass.get(), x);
-            doc = Collections.emptyList();
-          }
-          javadocCache.put(declaringClass.get(), doc);
-        }
-        List<DocItem> doclist = doc;
-        int pos = IntStream.range(0, doclist.size())
-            .filter(i -> doclist.get(i).matches(route.method(), route.pattern()))
-            .findFirst()
-            .orElse(-1);
-        if (pos >= 0) {
-          return Optional.ofNullable(doclist.remove(pos));
-        }
-      }
-      return Optional.empty();
-    };
+    List<Object> lambdas = bindMethods(owner, lambdas(loader, owner));
 
     List<RouteMethod> methods = new ArrayList<>();
     for (Object it : lambdas) {
+      log.debug("found: {}", it);
       if (it instanceof RouteMethod) {
         methods.add((RouteMethod) it);
       } else {
@@ -421,51 +402,17 @@ public class BytecodeRouteParser {
             returnType = TypeDescriptorParser.parse(loader,
                 Optional.ofNullable(method.signature).orElse(method.desc));
           }
-          List<RouteParameter> parameters = params(loader, owner, method);
-          methods.add(new RouteMethod(lambda.name, lambda.pattern,
-              new RouteResponse(simplifyType(returnType))).parameters(parameters));
+          List<RouteParameter> parameters = params(loader, owner, lambda.pattern, method);
+          RouteMethod route = new RouteMethod(lambda.name, lambda.pattern,
+              new RouteResponse(simplifyType(returnType))).parameters(parameters);
+          javadoc(route, javadoc.pop(lambda.declaringClass, lambda.name, lambda.pattern));
+          methods.add(route);
         } else {
-          log.warn("can't bind implementation for {} at {}", lambda, lambda.owner);
+          log.debug("can't bind implementation for {} at {}", lambda, lambda.owner);
         }
       }
     }
-    BiFunction<String, String, OptionalInt> routeIndex = (verb, pattern) -> {
-      RouteMethod it = new RouteMethod(verb, pattern, new RouteResponse(void.class));
-      return IntStream.range(0, methods.size())
-          .filter(i -> methods.get(i).equals(it))
-          .findFirst();
-    };
-    List<RouteMethod> result = new ArrayList<>(routes.size());
-    for (Route.Definition route : routes) {
-      Optional<DocItem> doc = javadoc.apply(route);
-      Filter filter = route.filter();
-      if (filter instanceof Route.MethodHandler) {
-        result.add(complement(route, javadoc(toRouteMethod(route), doc)));
-      } else {
-        routeIndex.apply(route.method(), route.pattern())
-            .ifPresent(i -> result.add(complement(route, javadoc(methods.remove(i), doc))));
-      }
-    }
-    return result;
-  }
-
-  private RouteMethod complement(Route.Definition route, final RouteMethod method) {
-    method.parameters().forEach(p -> {
-      if (route.vars().contains(p.name())) {
-        p.kind(RouteParameter.Kind.PATH);
-      }
-    });
-    method.attributes(route.attributes());
-
-    BiConsumer<List<MediaType>, Consumer<List<String>>> types = (values, setter) ->
-        setter.accept(values.stream()
-            .map(MediaType::name)
-            .filter(it -> !it.equals("*/*"))
-            .collect(Collectors.toList()));
-
-    types.accept(route.consumes(), method::consumes);
-    types.accept(route.produces(), method::produces);
-    return method;
+    return methods;
   }
 
   private RouteMethod javadoc(final RouteMethod method, final Optional<DocItem> doc) {
@@ -509,14 +456,14 @@ public class BytecodeRouteParser {
   }
 
   @SuppressWarnings("unchecked")
-  private List<Object> lambdas(final ClassNode owner) {
+  private List<Object> lambdas(final ClassLoader loader, final ClassNode owner) {
     List compiled = read(owner.name);
     if (compiled != null) {
       return compiled;
     }
 
     if (owner.sourceFile.endsWith(".kt")) {
-      return kotlinLambdas(owner);
+      return kotlinSource(loader, owner);
     } else {
       List<MethodNode> methods = owner.methods;
       List<Object> handles = methods.stream().flatMap(method -> {
@@ -527,10 +474,23 @@ public class BytecodeRouteParser {
               it.next()
                   .filter(is(MethodInsnNode.class))
                   .map(MethodInsnNode.class::cast)
-                  .filter(scriptRoute())
+                  .filter(scriptRoute)
                   .findFirst()
-                  .ifPresent(m -> Lambda.create(it.node, null)
+                  .ifPresent(m -> Lambda.create(owner.name.replace("/", "."),
+                      it.node, null)
                       .forEach(result::add));
+            })
+            // use(Mvc class)
+            .on(use(owner.name), it -> {
+              it.prev()
+                  .filter(is(LdcInsnNode.class))
+                  .findFirst()
+                  .map(LdcInsnNode.class::cast)
+                  .filter(ldc -> ldc.cst instanceof Type)
+                  .map(ldc -> ((Type) ldc.cst).getClassName())
+                  .ifPresent(mvcClass ->
+                      mvcRoutes((Class) loadType(loader, mvcClass), result::add)
+                  );
             })
             // use(new App());
             .on(mount(owner.name), it -> {
@@ -539,7 +499,7 @@ public class BytecodeRouteParser {
                   .findFirst()
                   .map(MethodInsnNode.class::cast)
                   .ifPresent(node -> {
-                    List<Lambda> lambdas = lambdas(loadClass(node.owner)).stream()
+                    List<Lambda> lambdas = lambdas(loader, loadClass(node.owner)).stream()
                         .filter(e -> e instanceof Lambda)
                         .map(Lambda.class::cast)
                         .collect(Collectors.toList());
@@ -560,95 +520,163 @@ public class BytecodeRouteParser {
     }
   }
 
+  private void mvcRoutes(final Class type, Consumer<RouteMethod> callback) {
+    Env env = Env.DEFAULT.build(ConfigFactory.empty()
+        .withValue("application.env", ConfigValueFactory.fromAnyRef("dev")));
+    MvcRoutes.routes(env, new RouteMetadata(env), "", type)
+        .forEach(r -> {
+          RouteMethod method = toRouteMethod(r);
+          javadoc(method, javadoc.pop(type.getName(), r.method(), r.pattern()));
+          callback.accept(method);
+        });
+  }
+
   @SuppressWarnings("unchecked")
-  private List<Object> kotlinLambdas(final ClassNode owner) {
-    List<Object> result = new ArrayList<>();
-    List<InnerClassNode> innerClasses = owner.innerClasses;
-    for (InnerClassNode innerClass : innerClasses) {
-      ClassNode innerNode = loadClass(innerClass.name);
-      List<MethodNode> methods = innerNode.methods;
+  private List<Object> kotlinSource(final ClassLoader loader, final ClassNode owner) {
+    List<Object> result = kotlinLambdas(loader, owner);
+
+    if (result.size() == 0) {
+      // Try main
+      List<MethodNode> methods = owner.methods;
       methods.stream()
-          .filter(method("invoke", "org.jooby.Jooby")
-              .or(method("invoke", "org.jooby.Kooby")))
+          .filter(method("main", String.class.getName() + "[]"))
           .findFirst()
-          .ifPresent(method -> {
-            new Insns(method)
-                .on(scriptRoute(), it -> {
-                  it.prev()
+          .ifPresent(main -> {
+            log.debug("found main method: {}.main", owner.name);
+            new Insns(main)
+                .on(joobyRun(), n -> {
+                  log.debug("found run(::Type, *args)");
+                  n.prev()
                       .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
                       .findFirst()
                       .map(FieldInsnNode.class::cast)
-                      .ifPresent(field -> {
-                        ClassNode lambda = loadClass(field.owner);
-                        lambda.methods.stream()
-                            .filter(and(
-                                methodName("<init>").negate(),
-                                methodName("<clinit>").negate()))
-                            /**
-                             * Kotlin lambdas have two implementation bindMethods:
-                             * 1) generic 2) specific
-                             * As far we can see, the 2nd method (specific) is the one we need:
-                             */
-                            .skip(1)
-                            .forEach(e -> {
-                              Lambda.create(field.owner, Optional.empty(), it.node, (MethodNode) e)
-                                  .forEach(result::add);
-                            });
-                      });
-                })
-                .on(call("org.jooby.Kooby", "route", String.class,
-                    "kotlin.jvm.functions.Function1"), it -> {
-                  Optional<String> prefix = Insn.ldcFor(it.node).stream()
-                      .map(e -> e.cst.toString())
-                      .findFirst();
-                  it.prev()
-                      .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
-                      .findFirst()
-                      .map(FieldInsnNode.class::cast)
-                      .ifPresent(field -> {
-                        ClassNode lambda = loadClass(field.owner);
-                        lambda.methods.stream()
-                            .filter(method("invoke", "org.jooby.KRouteGroup"))
-                            .forEach(m -> {
+                      .ifPresent(f -> {
+                        ClassNode mainOwner = loadClass(f.owner);
+                        log.debug("found ::{}", mainOwner.name);
+                        mainOwner.methods.stream()
+                            .filter(kotlinRouteHandler())
+                            .findFirst()
+                            .ifPresent(m -> {
+                              log.debug("{}.invoke({})", mainOwner.name, ((MethodNode) m).desc);
                               new Insns((MethodNode) m)
-                                  .on(scriptRoute(), n -> {
-                                    n.prev()
-                                        .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
-                                        .findFirst()
-                                        .map(FieldInsnNode.class::cast)
-                                        .ifPresent(f -> {
-                                          ClassNode route = loadClass(f.owner);
-                                          route.methods.stream()
-                                              .filter(and(
-                                                  methodName("<init>").negate(),
-                                                  methodName("<clinit>").negate(),
-                                                  method("invoke", Object.class).negate()))
-                                              .forEach(e -> Lambda
-                                                  .create(f.owner, prefix, n.node, (MethodNode) e)
-                                                  .forEach(result::add)
-                                              );
-                                        });
-                                  }).forEach();
+                                  .on(is(TypeInsnNode.class).and(opcode(Opcodes.NEW)), it -> {
+                                    ClassNode lambda = loadClass(it.node.desc);
+                                    log.debug("source {}", lambda.name);
+                                    result.addAll(kotlinLambdas(loader, lambda));
+                                  })
+                                  .forEach();
                             });
                       });
-                })
-                // use(Jooby())
-                .on(mount(Jooby.class.getName()), it -> {
-                  it.prev()
-                      .filter(and(is(MethodInsnNode.class), opcode(INVOKESPECIAL)))
-                      .findFirst()
-                      .map(MethodInsnNode.class::cast)
-                      .ifPresent(n -> result.addAll(lambdas(loadClass(n.owner))));
                 })
                 .forEach();
           });
-      ;
     }
     return result;
   }
 
+  @SuppressWarnings("unchecked")
+  private List<Object> kotlinLambdas(final ClassLoader loader, final ClassNode owner) {
+    List<Object> result = new ArrayList<>();
+    List<InnerClassNode> innerClasses = owner.innerClasses;
+    for (InnerClassNode innerClass : innerClasses) {
+      ClassNode innerNode = loadClass(innerClass.name);
+      result.addAll(kotlinLambda(loader, innerNode));
+    }
+
+    return result;
+  }
+
+  private List<Object> kotlinLambda(final ClassLoader loader, final ClassNode owner) {
+    List<Object> result = new ArrayList<>();
+    log.debug("visiting lambda class: {}", owner.name);
+    List<MethodNode> methods = owner.methods;
+    methods.stream()
+        .filter(method("invoke", "org.jooby.Jooby")
+            .or(method("invoke", "org.jooby.Kooby")))
+        .findFirst()
+        .ifPresent(method -> {
+          log.debug("  invoke: {}", method.desc);
+          new Insns(method)
+              .on(scriptRoute, it -> {
+                log.debug("  lambda candidate: {}", it.node);
+                it.prev()
+                    .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
+                    .findFirst()
+                    .map(FieldInsnNode.class::cast)
+                    .ifPresent(field -> {
+                      ClassNode lambda = loadClass(field.owner);
+                      log.debug("  lambda: {}", field.owner);
+                      lambda.methods.stream()
+                          .filter(kotlinRouteHandler())
+                          .forEach(e -> {
+                            MethodNode m = (MethodNode) e;
+                            log.debug("    implementation: {}.{}()", lambda.name, m.name, m.desc);
+                            Lambda.create(field.owner, Optional.empty(), it.node, m)
+                                .forEach(result::add);
+                          });
+                    });
+              })
+              // use(Mvc class)
+              .on(use("org.jooby.Kooby"), it -> {
+                it.prev()
+                    .filter(is(LdcInsnNode.class))
+                    .findFirst()
+                    .map(LdcInsnNode.class::cast)
+                    .filter(ldc -> ldc.cst instanceof Type)
+                    .map(ldc -> ((Type) ldc.cst).getClassName())
+                    .ifPresent(mvcClass ->
+                        mvcRoutes((Class) loadType(loader, mvcClass), result::add)
+                    );
+              })
+              // route ("...") {...}
+              .on(call("org.jooby.Kooby", "route", String.class,
+                  "kotlin.jvm.functions.Function1"), it -> {
+                Optional<String> prefix = Insn.ldcFor(it.node).stream()
+                    .map(e -> e.cst.toString())
+                    .findFirst();
+                it.prev()
+                    .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
+                    .findFirst()
+                    .map(FieldInsnNode.class::cast)
+                    .ifPresent(field -> {
+                      ClassNode lambda = loadClass(field.owner);
+                      lambda.methods.stream()
+                          .filter(method("invoke", "org.jooby.KRouteGroup"))
+                          .forEach(m -> {
+                            new Insns((MethodNode) m)
+                                .on(scriptRoute, n -> {
+                                  n.prev()
+                                      .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
+                                      .findFirst()
+                                      .map(FieldInsnNode.class::cast)
+                                      .ifPresent(f -> {
+                                        ClassNode route = loadClass(f.owner);
+                                        route.methods.stream()
+                                            .filter(kotlinRouteHandler())
+                                            .forEach(e -> Lambda
+                                                .create(f.owner, prefix, n.node, (MethodNode) e)
+                                                .forEach(result::add)
+                                            );
+                                      });
+                                }).forEach();
+                          });
+                    });
+              })
+              // use(Jooby())
+              .on(mount(Jooby.class.getName()), it -> {
+                it.prev()
+                    .filter(and(is(MethodInsnNode.class), opcode(INVOKESPECIAL)))
+                    .findFirst()
+                    .map(MethodInsnNode.class::cast)
+                    .ifPresent(n -> result.addAll(lambdas(loader, loadClass(n.owner))));
+              })
+              .forEach();
+        });
+    return result;
+  }
+
   private List<RouteParameter> params(final ClassLoader loader, final ClassNode owner,
-      final MethodNode lambda) {
+      final String pattern, final MethodNode lambda) {
     List<RouteParameter> result = new ArrayList<>();
 
     new Insns(lambda)
@@ -670,27 +698,34 @@ public class BytecodeRouteParser {
           if (boolean.class.equals(parameterType) && Integer.class.isInstance(value)) {
             value = (((Integer) value)).intValue() == 1;
           }
-          result.add(new RouteParameter(name, kind(it.node.name),
+          result.add(new RouteParameter(name, kind(pattern, it.node.name, name),
               simplifyType(parameterType), value));
         }).forEach();
 
     return result;
   }
 
-  private RouteParameter.Kind kind(final String name) {
-    if (name.equals("header")) {
+  private RouteParameter.Kind kind(final String pattern, final String method, final String name) {
+    if (method.equals("header")) {
       return RouteParameter.Kind.HEADER;
     }
-    if (name.equals("param") || name.equals("params")) {
-      return RouteParameter.Kind.QUERY;
+    if (method.equals("param") || method.equals("params")) {
+      return isPathParam(pattern, name) ? RouteParameter.Kind.PATH : RouteParameter.Kind.QUERY;
     }
-    if (name.equals("form")) {
+    if (method.equals("form")) {
       return RouteParameter.Kind.FORM;
     }
-    if (name.equals("file") || name.equals("files")) {
+    if (method.equals("file") || method.equals("files")) {
       return RouteParameter.Kind.FILE;
     }
     return RouteParameter.Kind.BODY;
+  }
+
+  private static boolean isPathParam(final String pattern, final String name) {
+    if (pattern.contains("{" + name + "}") || pattern.contains(":" + name)) {
+      return true;
+    }
+    return false;
   }
 
   private Object paramValue(final ClassLoader loader, final ClassNode owner,
@@ -943,15 +978,21 @@ public class BytecodeRouteParser {
       String cname = name.replace("/", ".");
       ClassNode node = cache.get(cname);
       if (node == null) {
-        ClassReader reader = new ClassReader(cname);
-        node = new ClassNode();
-        reader.accept(node, 0);
-        cache.put(cname, node);
-        if (log.isDebugEnabled()) {
-          log.debug("Source: {}; Class: {}", node.sourceFile, node.name);
-          reader.accept(
-              new TraceClassVisitor(null, new ASMifier(), new PrintWriter(writer(log, name))),
-              0);
+        try (InputStream in = loader
+            .getResourceAsStream(cname.replace(".", "/") + ".class")) {
+          if (in == null) {
+            throw new IOException(cname);
+          }
+          ClassReader reader = new ClassReader(ByteStreams.toByteArray(in));
+          node = new ClassNode();
+          reader.accept(node, 0);
+          cache.put(cname, node);
+          if (log.isDebugEnabled()) {
+            log.debug("Source: {}; Class: {}", node.sourceFile, node.name);
+            reader.accept(
+                new TraceClassVisitor(null, new ASMifier(), new PrintWriter(writer(log, name))),
+                0);
+          }
         }
       }
       return node;
@@ -967,11 +1008,11 @@ public class BytecodeRouteParser {
         .name(route.name())
         .parameters(Arrays.asList(handler.getParameters()).stream()
             .filter(SKIP)
-            .map(BytecodeRouteParser::toRouteParameter)
+            .map(it -> BytecodeRouteParser.toRouteParameter(route.pattern(), it))
             .collect(Collectors.toList()));
   }
 
-  private static RouteParameter toRouteParameter(final Parameter p) {
+  private static RouteParameter toRouteParameter(String pattern, final Parameter p) {
     Annotation[] annotations = p.getAnnotations();
     Supplier<String> name = () -> {
       for (int i = 0; i < annotations.length; i++) {
@@ -986,6 +1027,7 @@ public class BytecodeRouteParser {
       return p.getName();
     };
 
+    String pname = name.get();
     Supplier<RouteParameter.Kind> kind = () -> {
       if (p.getType() == Upload.class) {
         return RouteParameter.Kind.FILE;
@@ -1006,9 +1048,12 @@ public class BytecodeRouteParser {
           .findFirst()
           .isPresent();
       boolean formLike = !hasBody && p.getDeclaringExecutable().getAnnotation(POST.class) != null;
-      return formLike ? RouteParameter.Kind.FORM : RouteParameter.Kind.QUERY;
+      if (formLike) {
+        return RouteParameter.Kind.FORM;
+      }
+      return isPathParam(pattern, pname) ? RouteParameter.Kind.PATH : RouteParameter.Kind.QUERY;
     };
-    return new RouteParameter(name.get(), kind.get(), p.getParameterizedType(), null);
+    return new RouteParameter(pname, kind.get(), p.getParameterizedType(), null);
   }
 
   static RuntimeException sneakyThrow(final Throwable x) {

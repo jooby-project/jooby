@@ -10,7 +10,7 @@ public class KtResourceTest {
 
   @Test
   public void shouldWorkWithKotlinResource() throws Exception {
-    new RouteMethodAssert(new ApiParser(dir()).parse(kt("kt.ResourceApp")))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(kt("kt.ResourceApp")))
         .next(r -> {
           r.returnType("java.util.List<kt.KR1>");
           r.pattern("/kr");

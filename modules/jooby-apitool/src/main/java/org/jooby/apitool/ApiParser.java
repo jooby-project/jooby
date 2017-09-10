@@ -204,16 +204,23 @@
 package org.jooby.apitool;
 
 import org.jooby.Jooby;
+import org.jooby.MediaType;
 import org.jooby.Route;
 import org.jooby.internal.apitool.BytecodeRouteParser;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.OptionalInt;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Parse and extract route metadata from bytecode and documentation from source code.
@@ -228,6 +235,7 @@ public class ApiParser {
   private final Path dir;
   private final Map<Predicate<RouteMethod>, Consumer<RouteMethod>> customizer = new LinkedHashMap<>();
   private final Predicate<RouteMethod> filter;
+  private ClassLoader loader = getClass().getClassLoader();
 
   /**
    * Creates a new {@link ApiParser}.
@@ -250,14 +258,17 @@ public class ApiParser {
   }
 
   /**
-   * Parse application bytecode and build route methods from it.
+   * Parse application bytecode, build route methods from it and merge output with the given routes.
    *
    * @param application Application to parse.
    * @return List of route methods.
    * @throws Exception If something goes wrong.
    */
-  public List<RouteMethod> parse(Jooby application) throws Exception {
-    return parse(application.getClass().getName(), Jooby.exportRoutes(application));
+  public List<RouteMethod> parseFully(Jooby application) throws Exception {
+    List<RouteMethod> methods = parseFully(application.getClass().getName(),
+        Jooby.exportRoutes(application));
+
+    return methods;
   }
 
   /**
@@ -269,33 +280,67 @@ public class ApiParser {
    * @return List of route methods.
    * @throws Exception If something goes wrong.
    */
-  public List<RouteMethod> export(Path outputBaseDir, Jooby application)
-      throws Exception {
-    return new BytecodeRouteParser(dir)
-        .export(outputBaseDir, application.getClass().getName(), Jooby.exportRoutes(application));
+  public Path export(Path outputBaseDir, String application) throws Exception {
+    return new BytecodeRouteParser(loader, dir).export(outputBaseDir, application);
   }
 
   /**
    * Parse application bytecode and build route methods from it.
    *
    * @param application Application to parse.
+   * @return List of route methods.
+   * @throws Exception If something goes wrong.
+   */
+  public List<RouteMethod> parse(String application) throws Exception {
+    return new BytecodeRouteParser(loader, dir).parse(application).stream()
+        .filter(filter)
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Parse application bytecode, build route methods from it and merge output with the given routes.
+   *
+   * @param application Application to parse.
    * @param routes Application routes.
    * @return List of route methods.
    * @throws Exception If something goes wrong.
    */
-  public List<RouteMethod> parse(String application, List<Route.Definition> routes)
+  public List<RouteMethod> parseFully(String application, List<Route.Definition> routes)
       throws Exception {
-    List<RouteMethod> response = new BytecodeRouteParser(dir).parse(application, routes).stream()
-        .filter(filter)
-        .collect(Collectors.toList());
+    List<RouteMethod> methods = parse(application);
+
+    BiFunction<String, String, OptionalInt> routeIndex = (verb, pattern) -> {
+      RouteMethod it = new RouteMethod(verb, pattern, new RouteResponse(void.class));
+      return IntStream.range(0, methods.size())
+          .filter(i -> methods.get(i).equals(it))
+          .findFirst();
+    };
+
+    List<RouteMethod> result = new ArrayList<>(routes.size());
+    for (Route.Definition route : routes) {
+      routeIndex.apply(route.method(), route.pattern())
+          .ifPresent(i -> result.add(complement(route, methods.remove(i))));
+    }
 
     customizer.entrySet().forEach(it ->
-        response.stream()
+        result.stream()
             .filter(it.getKey())
             .findFirst()
             .ifPresent(it.getValue())
     );
-    return response;
+
+    return result;
+  }
+
+  /**
+   * Set a class loader to use.
+   *
+   * @param loader Class loader.
+   * @return This parser.
+   */
+  public ApiParser with(ClassLoader loader) {
+    this.loader = Objects.requireNonNull(loader, "ClassLoader required.");
+    return this;
   }
 
   /**
@@ -312,4 +357,21 @@ public class ApiParser {
     return this;
   }
 
+  private RouteMethod complement(Route.Definition route, final RouteMethod method) {
+    method.attributes(route.attributes());
+    String name = route.name();
+    if (!name.equals("/anonymous")) {
+      method.name(name);
+    }
+
+    BiConsumer<List<MediaType>, Consumer<List<String>>> types = (values, setter) ->
+        setter.accept(values.stream()
+            .map(MediaType::name)
+            .filter(it -> !it.equals("*/*"))
+            .collect(Collectors.toList()));
+
+    types.accept(route.consumes(), method::consumes);
+    types.accept(route.produces(), method::produces);
+    return method;
+  }
 }

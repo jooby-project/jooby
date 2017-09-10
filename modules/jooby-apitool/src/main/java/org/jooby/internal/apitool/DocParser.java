@@ -238,6 +238,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -246,8 +247,12 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-public class DocParser {
+/**
+ * Not thread safe due to internal cache.
+ */
+class DocParser {
 
   private static class DocCollector extends FuzzyDocBaseListener {
     String prefix = "";
@@ -543,24 +548,57 @@ public class DocParser {
     private String str(final String text) {
       return text.substring(1, text.length() - 1);
     }
-
   }
 
-  public List<DocItem> javadoc(Path file) throws IOException {
+  private final Logger log = LoggerFactory.getLogger(getClass());
+
+  private final Path basedir;
+
+  private final Map<String, List<DocItem>> javadocCache = new HashMap<>();
+
+  public DocParser(Path basedir) {
+    this.basedir = basedir;
+  }
+
+  private List<DocItem> javadoc(Path file) throws IOException {
     return new DocCollector().collect(file);
   }
 
-  public static List<DocItem> javadoc(Path dir, String classname) throws IOException {
+  public Optional<DocItem> pop(final String classname, String method, String pattern) {
+    try {
+      List<DocItem> javadoc = javadoc(classname);
+      int pos = IntStream.range(0, javadoc.size())
+          .filter(i -> javadoc.get(i).matches(method, pattern))
+          .findFirst()
+          .orElse(-1);
+      if (pos >= 0) {
+        return Optional.ofNullable(javadoc.remove(pos));
+      }
+    } catch (Exception x) {
+      log.debug("Parsing of javadoc resulted in exception: {}", classname, x);
+    }
+    return Optional.empty();
+  }
+
+  private List<DocItem> javadoc(final String classname) throws IOException {
+    int i = classname.indexOf("$");
+    String toplevelClass = classname;
+    if (i > 0) {
+      toplevelClass = classname.substring(0, i);
+    }
+
+    List<DocItem> doc = javadocCache.get(toplevelClass);
+    if (doc != null) {
+      return doc;
+    }
+
     Function<String, Path> path = (name) -> Arrays.asList(name.split("\\."))
         .stream()
-        .reduce(dir, (base, segment) ->
-            dir.equals(base) ? Paths.get(segment) : base.resolve(segment), Path::resolve);
-    int i = classname.indexOf("$");
-    if (i > 0) {
-      classname = classname.substring(0, i);
-    }
-    Path filename = path.apply(classname);
-    Path location = Files.walk(dir)
+        .reduce(basedir, (base, segment) ->
+            basedir.equals(base) ? Paths.get(segment) : base.resolve(segment), Path::resolve);
+
+    Path filename = path.apply(toplevelClass);
+    Path location = Files.walk(basedir)
         .filter(it -> {
           if (Files.isRegularFile(it)) {
             String java = filename.toString() + ".java";
@@ -574,7 +612,9 @@ public class DocParser {
     if (location == null) {
       throw new FileNotFoundException(filename.toString());
     }
-    return new DocParser().javadoc(location);
+    doc = javadoc(location);
+    javadocCache.put(toplevelClass, doc);
+    return doc;
   }
 
 }

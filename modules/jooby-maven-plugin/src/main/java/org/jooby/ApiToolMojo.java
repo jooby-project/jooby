@@ -201,72 +201,55 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.jooby.internal.apitool;
+package org.jooby;
 
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.MethodNode;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
+import org.jooby.apitool.ApiParser;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.io.File;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
 
-class Insns {
+@Mojo(name = "apitool", requiresDependencyResolution = ResolutionScope.COMPILE,
+    defaultPhase = LifecyclePhase.PROCESS_CLASSES)
+public class ApiToolMojo extends AbstractMojo {
 
-  private InsnList instructions;
+  @Component
+  private MavenProject mavenProject;
 
-  @SuppressWarnings("rawtypes")
-  private Map<Predicate, Consumer> consumers = new LinkedHashMap<>();
+  @Parameter(property = "main.class", defaultValue = "${application.class}")
+  protected String mainClass;
 
-  private MethodNode method;
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException {
+    if (mainClass == null) {
+      throw new MojoExecutionException("main class not configured");
+    }
 
-  public Insns(final MethodNode method) {
-    this(method, method.instructions);
-  }
-
-  public Insns(final MethodNode method, final AbstractInsnNode n) {
-    this(method, instructions(method, n));
-  }
-
-  public Insns(final MethodNode method, final InsnList instructions) {
-    this.method = method;
-    this.instructions = instructions;
-  }
-
-  public Insn<AbstractInsnNode> last() {
-    return new Insn<>(method, instructions.getLast());
-  }
-
-  public <T extends AbstractInsnNode> Insns on(final Class<T> filter,
-      final Consumer<Insn<T>> consumer) {
-    return on(Filters.is(filter), consumer);
-  }
-
-  public <T extends AbstractInsnNode> Insns on(final Predicate<T> filter,
-      final Consumer<Insn<T>> consumer) {
-    consumers.put(filter, consumer);
-    return this;
-  }
-
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  public void forEach() {
-    for (int i = 0; i < instructions.size(); i++) {
-      AbstractInsnNode it = instructions.get(i);
-      for (Entry<Predicate, Consumer> consumer : consumers.entrySet()) {
-        if (consumer.getKey().test(it)) {
-          consumer.getValue().accept(new Insn<>(method, it));
-        }
-      }
+    try (URLClassLoader loader = new Classpath(mavenProject).toClassLoader()) {
+      Path srcdir = new File(mavenProject.getBuild().getSourceDirectory()).toPath();
+      Path bindir = new File(mavenProject.getBuild().getOutputDirectory()).toPath();
+      getLog().debug("Using classloader " + loader);
+      Path output = new ApiParser(srcdir)
+          .with(loader)
+          .export(bindir, mainClass);
+      getLog().info("API file: " + output);
+    } catch (Throwable x) {
+      throw new MojoFailureException("ApiTool resulted in exception: ", x);
     }
   }
 
-  private static InsnList instructions(final MethodNode method, final AbstractInsnNode n) {
-    InsnList instructions = new InsnList();
-    instructions.add(n);
-    new Insn<>(method, n).next().forEach(instructions::add);
-    return instructions;
+  @SuppressWarnings("unchecked")
+  private static <E extends Throwable> void sneakyThrow(final Throwable x) throws E {
+    throw (E) x;
   }
 
 }

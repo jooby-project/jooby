@@ -222,7 +222,7 @@ public class APIProvider implements Provider<List<RouteMethod>> {
   public APIProvider(ApiParser parser,
       @Named("application.class") String application, Set<Route.Definition> routes)
       throws Exception {
-    this.routes = parser.parse(application, new ArrayList<>(routes));
+    this.routes = parser.parseFully(application, new ArrayList<>(routes));
   }
 
   @Override public List<RouteMethod> get() {

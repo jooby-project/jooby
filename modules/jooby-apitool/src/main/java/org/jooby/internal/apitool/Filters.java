@@ -208,6 +208,7 @@ import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Route;
 import org.jooby.Router;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -220,12 +221,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
-public class Filters {
+class Filters {
 
   private static List<Signature> PARAMS = params();
 
-  private static List<Signature> ROUTES = collectScriptRoutes();
+  public static Predicate<MethodInsnNode> joobyRun() {
+    return call("org.jooby.JoobyKt", "run", "kotlin.jvm.functions.Function0",
+        String.class.getName() + "[]").or(
+        call("org.jooby.Jooby", "run", Supplier.class, String.class.getName() + "[]"));
+
+  }
 
   public static <T> Predicate<T> is(final Class<? extends T> type) {
     return type::isInstance;
@@ -263,6 +270,19 @@ public class Filters {
     });
   }
 
+  public static Predicate<MethodNode> access(final int access) {
+    return is(MethodNode.class).and(m -> {
+      return (m.access & access) != 0;
+    });
+  }
+
+  public static Predicate<MethodNode> kotlinRouteHandler() {
+    return is(MethodNode.class).and(m -> {
+      return (m.name.equals("invoke") || m.name.equals("handle")) && (
+          (m.access & Opcodes.ACC_SYNTHETIC) == 0);
+    });
+  }
+
   public static Predicate<MethodInsnNode> mount(final String owner) {
     Signature use1 = new Signature(owner, "use", Jooby.class);
     Signature use2 = new Signature(owner, "use", String.class
@@ -270,6 +290,12 @@ public class Filters {
     return is(MethodInsnNode.class).and(m -> {
       return use1.matches(m) || use2.matches(m);
     });
+  }
+
+  public static Predicate<MethodInsnNode> use(final String owner) {
+    Signature use = new Signature(owner, "use", Class.class);
+    Signature kuse = new Signature(owner, "use", "kotlin.reflect.KClass");
+    return is(MethodInsnNode.class).and(m -> use.matches(m) || kuse.matches(m));
   }
 
   public static Predicate<MethodNode> methodName(final String name) {
@@ -299,10 +325,11 @@ public class Filters {
     });
   }
 
-  public static Predicate<MethodInsnNode> scriptRoute() {
+  public static Predicate<MethodInsnNode> scriptRoute(ClassLoader loader) {
+    List<Signature> routes = collectScriptRoutes(loader);
     return is(MethodInsnNode.class).and(m -> {
       Signature signature = new Signature(m);
-      return ROUTES.stream()
+      return routes.stream()
           .filter(signature::matches)
           .findFirst()
           .isPresent();
@@ -387,11 +414,11 @@ public class Filters {
     return signatures;
   }
 
-  private static List<Signature> collectScriptRoutes() {
+  private static List<Signature> collectScriptRoutes(ClassLoader loader) {
 
     Function<String, Optional<Class<?>>> loadClass = name -> {
       try {
-        return Optional.of(Filters.class.getClassLoader().loadClass(name));
+        return Optional.of(loader.loadClass(name));
       } catch (ClassNotFoundException e) {
         return Optional.empty();
       }

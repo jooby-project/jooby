@@ -10,7 +10,7 @@ public class Issue537 {
 
   @Test
   public void shouldWorkWithDefaultConstructor() throws Exception {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new App537()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new App537()))
         .next(r -> {
           r.returnType(Cat.class);
           r.pattern("/api/cat/{name}");

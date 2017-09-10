@@ -203,6 +203,7 @@
  */
 package org.jooby.internal.apitool;
 
+import static org.jooby.internal.apitool.Filters.is;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -217,9 +218,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static org.jooby.internal.apitool.Filters.is;
-
-public class Insn<T extends AbstractInsnNode> {
+class Insn<T extends AbstractInsnNode> {
 
   private static class NodeIterator implements Iterator<AbstractInsnNode> {
 

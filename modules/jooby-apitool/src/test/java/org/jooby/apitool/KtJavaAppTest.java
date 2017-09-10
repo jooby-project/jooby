@@ -1,6 +1,5 @@
 package org.jooby.apitool;
 
-import org.jooby.Jooby;
 import org.junit.Test;
 
 import java.nio.file.Path;
@@ -10,7 +9,7 @@ public class KtJavaAppTest {
 
   @Test
   public void shouldWorkWithJavaAPI() throws Exception {
-    new RouteMethodAssert(new ApiParser(dir()).parse(kt("kt.JavaApp")))
+    new RouteMethodAssert(new ApiParser(dir()).parse("kt.JavaApp"))
         .next(r -> {
           r.returnType(String.class);
           r.pattern("/java");
@@ -23,10 +22,6 @@ public class KtJavaAppTest {
                 .kind(RouteParameter.Kind.QUERY);
           });
         }).done();
-  }
-
-  private Jooby kt(final String classname) throws Exception {
-    return (Jooby) getClass().getClassLoader().loadClass(classname).newInstance();
   }
 
   private Path dir() {

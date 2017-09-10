@@ -204,6 +204,8 @@
 package org.jooby.internal.apitool;
 
 import org.jooby.Route;
+import static org.jooby.internal.apitool.Filters.routeGroupOwner;
+import static org.jooby.internal.apitool.Insn.ldcFor;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -219,24 +221,22 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.jooby.internal.apitool.Filters.routeGroupOwner;
-import static org.jooby.internal.apitool.Insn.ldcFor;
-
-public class Lambda {
-
+class Lambda {
   public final String name;
   public final String pattern;
   public final String desc;
   public final String implementationName;
   public final String owner;
+  public final String declaringClass;
   public final Optional<MethodNode> method;
 
-  private Lambda(MethodInsnNode method, Handle h) {
-    this(h.getOwner(), h.getDesc(), h.getName(), method.name, null, null);
+  private Lambda(String declaringClass, MethodInsnNode method, Handle h) {
+    this(declaringClass, h.getOwner(), h.getDesc(), h.getName(), method.name, null, null);
   }
 
-  private Lambda(String owner, String desc, String implementationName, String name,
-      String pattern, MethodNode method) {
+  private Lambda(String declaringClass, String owner, String desc, String implementationName,
+      String name, String pattern, MethodNode method) {
+    this.declaringClass = declaringClass;
     this.owner = owner;
     this.desc = desc;
     this.implementationName = implementationName;
@@ -256,7 +256,7 @@ public class Lambda {
    * @return A new lambda.
    */
   public Lambda prefix(String prefix) {
-    return new Lambda(owner, desc, implementationName, name,
+    return new Lambda(declaringClass, owner, desc, implementationName, name,
         Route.normalize(prefix + "/" + pattern), method.orElse(null));
   }
 
@@ -267,7 +267,7 @@ public class Lambda {
    * @return A new lambda.
    */
   public Lambda method(MethodNode method) {
-    return new Lambda(owner, desc, implementationName, name, pattern, method);
+    return new Lambda(declaringClass, owner, desc, implementationName, name, pattern, method);
   }
 
   public static Stream<Lambda> create(String owner, Optional<String> prefix, MethodInsnNode method,
@@ -283,12 +283,13 @@ public class Lambda {
     });
     return patterns.stream()
         .map(pattern -> {
-          return new Lambda(owner, implementation.desc, implementation.name,
+          return new Lambda(owner, owner, implementation.desc, implementation.name,
               method.name.replace("$default", ""), pattern, implementation);
         });
   }
 
-  public static Stream<Lambda> create(InvokeDynamicInsnNode node, MethodNode implementation) {
+  public static Stream<Lambda> create(String declaringClass, InvokeDynamicInsnNode node,
+      MethodNode implementation) {
     return new Insn<>(null, node)
         .next()
         .filter(Filters.is(MethodInsnNode.class))
@@ -301,7 +302,7 @@ public class Lambda {
               .findFirst()
               .map(handle -> {
 
-                Lambda lambda = new Lambda(method, handle);
+                Lambda lambda = new Lambda(declaringClass, method, handle);
                 // Collect pattern
                 List<Type> args = Arrays.asList(Type.getArgumentTypes(method.desc));
                 AtomicInteger count = new AtomicInteger(IntStream.range(0, args.size())
@@ -358,8 +359,8 @@ public class Lambda {
                     .skip(from)
                     .limit(Math.min(count.get(), ldc.size()))
                     .flatMap(pattern ->
-                        Stream.of(new Lambda(lambda.owner, lambda.desc, lambda.implementationName,
-                            lambda.name, pattern, implementation))
+                        Stream.of(new Lambda(lambda.declaringClass, lambda.owner, lambda.desc,
+                            lambda.implementationName, lambda.name, pattern, implementation))
                     );
               }).orElse(Stream.of());
         }).orElse(Stream.of());

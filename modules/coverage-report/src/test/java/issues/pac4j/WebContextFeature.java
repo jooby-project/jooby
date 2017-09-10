@@ -42,14 +42,14 @@ public class WebContextFeature extends ServerFeature {
     request()
         .get("/auth/ctx?p1=v1")
         .expect("{\n"
-            + "  \"fullRequestURL\" : \"http://localhost:9999/auth/ctx?p1=v1\",\n"
+            + "  \"fullRequestURL\" : \"http://localhost:" + port + "/auth/ctx?p1=v1\",\n"
             + "  \"requestMethod\" : \"GET\",\n"
             + "  \"requestParameters\" : {\n"
             + "    \"p1\" : [ \"v1\" ]\n"
             + "  },\n"
             + "  \"scheme\" : \"http\",\n"
             + "  \"serverName\" : \"localhost\",\n"
-            + "  \"serverPort\" : 9999,\n"
+            + "  \"serverPort\" : " + port + ",\n"
             + "  \"toString\" : \"| Method | Path      | Source                            | Name       | Pattern   | Consumes | Produces |\\n|--------|-----------|-----------------------------------|------------|-----------|----------|----------|\\n| GET    | /auth/ctx | issues.pac4j.WebContextFeature:18 | /anonymous | /auth/ctx | [*/*]    | [*/*]    |\"\n"
             + "}");
   }

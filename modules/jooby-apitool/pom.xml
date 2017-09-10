@@ -45,62 +45,6 @@
           </execution>
         </executions>
       </plugin>
-      <!-- JarJar the ASM dependency.
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>jarjar-maven-plugin</artifactId>
-        <version>1.9</version>
-        <executions>
-          <execution>
-            <id>jarjar</id>
-            <goals>
-              <goal>jarjar</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>5.2</version>
-          </dependency>
-          <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-commons</artifactId>
-            <version>5.2</version>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <overwrite>true</overwrite>
-          <includes>
-            <include>org.ow2.asm:asm</include>
-            <include>org.ow2.asm:asm-tree</include>
-            <include>org.ow2.asm:asm-util</include>
-            <include>org.antlr:antlr4-runtime</include>
-          </includes>
-          <rules>
-            <rule>
-              <pattern>org.objectweb.asm.*</pattern>
-              <result>org.jooby.internal.apitool.asm.$@1</result>
-            </rule>
-            <rule>
-              <pattern>org.objectweb.asm.**.*</pattern>
-              <result>org.jooby.internal.apitool.asm.@1.$@2</result>
-            </rule>
-            <rule>
-              <pattern>org.antlr.v4.runtime.*</pattern>
-              <result>org.jooby.internal.apitool.antlr.$@1</result>
-            </rule>
-            <rule>
-              <pattern>org.antlr.v4.runtime.**.*</pattern>
-              <result>org.jooby.internal.apitool.antlr.@1.$@2</result>
-            </rule>
-            <keep>
-              <pattern>org.jooby.**</pattern>
-            </keep>
-          </rules>
-        </configuration>
-      </plugin>-->
 
       <plugin>
         <groupId>org.antlr</groupId>
@@ -259,12 +203,6 @@
       <artifactId>jackson-dataformat-yaml</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.module</groupId>
-      <artifactId>jackson-module-jsonSchema</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
-
     <!-- commons-lang3 -->
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -281,31 +219,21 @@
     <dependency>
       <groupId>io.swagger</groupId>
       <artifactId>swagger-core</artifactId>
-      <version>1.5.16</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.datatype</groupId>
-          <artifactId>jackson-datatype-joda</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>swagger-ui</artifactId>
-      <version>3.1.6</version>
     </dependency>
 
     <dependency>
       <groupId>org.webjars.bower</groupId>
       <artifactId>swagger-ui-themes</artifactId>
-      <version>3.0.0</version>
     </dependency>
 
     <dependency>
       <groupId>org.webjars.npm</groupId>
       <artifactId>api-console</artifactId>
-      <version>3.0.17</version>
     </dependency>
 
     <!-- Test dependencies -->

@@ -10,7 +10,7 @@ public class Issue538 {
 
   @Test
   public void shouldWorkWithInnerClasses() throws Exception {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new App538()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new App538()))
         .next(r -> {
           r.returnType(Cat.class);
           r.pattern("/api/inner/cat/{name}");

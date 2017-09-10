@@ -38,7 +38,7 @@ public class RouteParserTest {
 
   @Test
   public void fileApp() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new FileApp()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new FileApp()))
         .next(r -> {
           r.method("POST");
           r.pattern("/");
@@ -60,7 +60,7 @@ public class RouteParserTest {
 
   @Test
   public void apiLike() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new AppWithDoc()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new AppWithDoc()))
         .next(r -> {
           r.method("GET");
           r.pattern("/");
@@ -123,7 +123,7 @@ public class RouteParserTest {
 
   @Test
   public void edgeApp() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new EdgeApp()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new EdgeApp()))
         .next(r -> {
           r.method("*");
           r.pattern("/**");
@@ -143,7 +143,7 @@ public class RouteParserTest {
 
   @Test
   public void useRouteApp() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new UseRouteApp()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new UseRouteApp()))
         .next(r -> {
           r.method("*");
           r.pattern("/api/path");
@@ -160,7 +160,7 @@ public class RouteParserTest {
 
   @Test
   public void usePathApp() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new UsePathApp()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new UsePathApp()))
         .next(r -> {
           r.method("GET");
           r.pattern("/api/path");
@@ -180,7 +180,7 @@ public class RouteParserTest {
         })
         .done();
 
-    new RouteMethodAssert(new ApiParser(dir()).parse(kt("kt.UsePathApp")))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(kt("kt.UsePathApp")))
         .next(r -> {
           r.method("GET");
           r.summary("Summary API.");
@@ -209,7 +209,7 @@ public class RouteParserTest {
 
   @Test
   public void kotlinCompApp() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(kt("kt.CompApp")))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(kt("kt.CompApp")))
         .next(r -> {
           r.method("GET");
           r.pattern("/r1");
@@ -233,7 +233,7 @@ public class RouteParserTest {
 
   @Test
   public void kotlinJavaApp() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(kt("kt.JavaApp")))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(kt("kt.JavaApp")))
         .next(r -> {
           r.method("PUT");
           r.pattern("/java");
@@ -247,7 +247,7 @@ public class RouteParserTest {
 
   @Test
   public void kotlinApp() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(kt("kt.HelloWorld")))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(kt("kt.HelloWorld")))
         .next(r -> {
           r.method("GET");
           r.pattern("/");
@@ -347,7 +347,7 @@ public class RouteParserTest {
   @Test
   public void complexApp() throws Throwable {
     try {
-      new RouteMethodAssert(new ApiParser(dir()).parse(new ComplexApp()))
+      new RouteMethodAssert(new ApiParser(dir()).parseFully(new ComplexApp()))
           .next(r -> {
             r.method("GET");
             r.pattern("/c1");
@@ -454,7 +454,7 @@ public class RouteParserTest {
 
   @Test
   public void mvcApp() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new MvcApp()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new MvcApp()))
         .next(r -> {
           r.method("POST");
           r.pattern("/mvc");
@@ -498,7 +498,7 @@ public class RouteParserTest {
 
   @Test
   public void modularApp() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new CompApp()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new CompApp()))
         .next(r -> {
           r.method("GET");
           r.pattern("/c1");
@@ -543,7 +543,7 @@ public class RouteParserTest {
 
   @Test
   public void methodReference() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new MethodRefApp()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new MethodRefApp()))
         .next(r -> {
           r.returnType(listOf(String.class));
           r.param(p -> {
@@ -577,7 +577,7 @@ public class RouteParserTest {
 
   @Test
   public void body() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new FormAndBodyApp()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new FormAndBodyApp()))
         .next(r -> {
           r.method("POST");
           r.pattern("/f1");
@@ -629,7 +629,7 @@ public class RouteParserTest {
 
   @Test
   public void parse() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new HelloWorld()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new HelloWorld()))
         .next(r -> {
           r.method("GET");
           r.pattern("/map-level");
@@ -744,7 +744,7 @@ public class RouteParserTest {
 
   @Test
   public void params() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new ParamsApp()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new ParamsApp()))
         .next(r -> {
           r.method("GET");
           r.pattern("/r1");
@@ -876,7 +876,7 @@ public class RouteParserTest {
 
   @Test
   public void headers() throws Throwable {
-    new RouteMethodAssert(new ApiParser(dir()).parse(new HeadersApp()))
+    new RouteMethodAssert(new ApiParser(dir()).parseFully(new HeadersApp()))
         .next(r -> {
           r.returnType(String.class);
           r.param(p -> {

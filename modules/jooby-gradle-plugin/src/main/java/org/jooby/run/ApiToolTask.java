@@ -201,72 +201,60 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.jooby.internal.apitool;
+/**
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ */
+package org.jooby.run;
 
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.MethodNode;
+import org.gradle.api.Project;
+import org.gradle.api.internal.ConventionTask;
+import org.gradle.api.tasks.TaskAction;
+import org.jooby.apitool.ApiParser;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
 
-class Insns {
+public class ApiToolTask extends ConventionTask {
 
-  private InsnList instructions;
-
-  @SuppressWarnings("rawtypes")
-  private Map<Predicate, Consumer> consumers = new LinkedHashMap<>();
-
-  private MethodNode method;
-
-  public Insns(final MethodNode method) {
-    this(method, method.instructions);
+  @SuppressWarnings("serial")
+  private static class Done extends RuntimeException {
   }
 
-  public Insns(final MethodNode method, final AbstractInsnNode n) {
-    this(method, instructions(method, n));
-  }
+  private String mainClassName;
 
-  public Insns(final MethodNode method, final InsnList instructions) {
-    this.method = method;
-    this.instructions = instructions;
-  }
-
-  public Insn<AbstractInsnNode> last() {
-    return new Insn<>(method, instructions.getLast());
-  }
-
-  public <T extends AbstractInsnNode> Insns on(final Class<T> filter,
-      final Consumer<Insn<T>> consumer) {
-    return on(Filters.is(filter), consumer);
-  }
-
-  public <T extends AbstractInsnNode> Insns on(final Predicate<T> filter,
-      final Consumer<Insn<T>> consumer) {
-    consumers.put(filter, consumer);
-    return this;
-  }
-
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  public void forEach() {
-    for (int i = 0; i < instructions.size(); i++) {
-      AbstractInsnNode it = instructions.get(i);
-      for (Entry<Predicate, Consumer> consumer : consumers.entrySet()) {
-        if (consumer.getKey().test(it)) {
-          consumer.getValue().accept(new Insn<>(method, it));
-        }
-      }
+  @TaskAction
+  public void process() throws Throwable {
+    Project project = getProject();
+    JoobyProject joobyProject = new JoobyProject(project);
+    String mainClass = getMainClassName();
+    try (URLClassLoader loader = joobyProject.newClassLoader()) {
+      getLogger().debug("Using classloader " + loader);
+      Path srcdir = project.getProjectDir().toPath();
+      Path bindir = joobyProject.classes().toPath();
+      Path output = new ApiParser(srcdir)
+          .with(loader)
+          .export(bindir, mainClass);
+      getLogger().info("API file: " + output);
     }
   }
 
-  private static InsnList instructions(final MethodNode method, final AbstractInsnNode n) {
-    InsnList instructions = new InsnList();
-    instructions.add(n);
-    new Insn<>(method, n).next().forEach(instructions::add);
-    return instructions;
+  public String getMainClassName() {
+    return mainClassName;
+  }
+
+  public void setMainClassName(final String mainClassName) {
+    this.mainClassName = mainClassName;
   }
 
 }

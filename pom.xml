@@ -1108,6 +1108,18 @@
         <version>${swagger-ui.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>swagger-ui-themes</artifactId>
+        <version>${swagger-ui-themes.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.webjars.npm</groupId>
+        <artifactId>api-console</artifactId>
+        <version>${api-console.version}</version>
+      </dependency>
+
       <!-- Pac4j -->
       <dependency>
         <groupId>org.pac4j</groupId>
@@ -2991,8 +3003,10 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <gson.version>2.6.2</gson.version>
     <ehcache.version>2.10.0</ehcache.version>
     <pac4j.version>1.9.5</pac4j.version>
-    <swagger.version>1.5.8</swagger.version>
-    <swagger-ui.version>2.1.8-M1</swagger-ui.version>
+    <swagger.version>1.5.16</swagger.version>
+    <swagger-ui.version>3.1.6</swagger-ui.version>
+    <swagger-ui-themes.version>3.0.0</swagger-ui-themes.version>
+    <api-console.version>3.0.17</api-console.version>
     <commons-lang3.version>3.4</commons-lang3.version>
     <snakeyaml.version>1.15</snakeyaml.version>
     <spymemcached.version>2.12.0</spymemcached.version>

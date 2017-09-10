@@ -225,14 +225,15 @@ import org.jooby.apitool.RouteResponse;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -619,7 +620,7 @@ public class Raml {
     }
 
     /** Default consumes/produces: */
-    List<String> alltypes = new ArrayList<>();
+    Set<String> alltypes = new LinkedHashSet<>();
     Consumer<Function<RouteMethod, List<String>>> mediaTypes = types ->
         routes.stream().forEach(r -> types.apply(r).forEach(alltypes::add));
     mediaTypes.accept(RouteMethod::consumes);
@@ -627,7 +628,7 @@ public class Raml {
     if (alltypes.size() == 0) {
       raml.setMediaType(ImmutableList.of(MediaType.json.name()));
     } else if (alltypes.size() == 1) {
-      raml.setMediaType(alltypes);
+      raml.setMediaType(ImmutableList.of(alltypes.iterator().next()));
     }
 
     return raml;
