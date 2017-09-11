@@ -14,7 +14,7 @@ public class Issue198 extends ServerFeature {
   @Test
   public void oddpath() throws Exception {
     request()
-      .get("/js/jquery")
-      .expect(404);
+        .get("/js/oddpath")
+        .expect(404);
   }
 }

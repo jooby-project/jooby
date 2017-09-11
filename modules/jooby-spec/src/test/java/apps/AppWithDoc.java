@@ -1,10 +1,10 @@
 package apps;
 
-import java.util.List;
-
 import org.jooby.Err;
 import org.jooby.Jooby;
 import org.jooby.Status;
+
+import java.util.List;
 
 public class AppWithDoc extends Jooby {
 
@@ -56,18 +56,18 @@ public class AppWithDoc extends Jooby {
 
             return results;
           }).post(req -> {
-            LocalType body = req.body().to(LocalType.class);
+        LocalType body = req.body().to(LocalType.class);
 
-            DB db = req.require(DB.class);
-            body = db.create(body);
+        DB db = req.require(DB.class);
+        body = db.create(body);
 
-            return body;
-          }).delete("/:id", req -> {
-            int id = req.param("id").intValue();
-            DB db = req.require(DB.class);
-            LocalType result = db.delete(id);
-            return result;
-          });
+        return body;
+      }).delete("/:id", req -> {
+        int id = req.param("id").intValue();
+        DB db = req.require(DB.class);
+        LocalType result = db.delete(id);
+        return result;
+      });
     }
   }
 }

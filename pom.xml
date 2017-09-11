@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
@@ -223,6 +224,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-pac4j</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-apitool</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -1101,6 +1108,18 @@
         <version>${swagger-ui.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>swagger-ui-themes</artifactId>
+        <version>${swagger-ui-themes.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.webjars.npm</groupId>
+        <artifactId>api-console</artifactId>
+        <version>${api-console.version}</version>
+      </dependency>
+
       <!-- Pac4j -->
       <dependency>
         <groupId>org.pac4j</groupId>
@@ -1856,8 +1875,10 @@
               </goals>
               <configuration>
                 <transformers>
-                  <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <transformer
+                      implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                  <transformer
+                      implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                     <mainClass>${application.class}</mainClass>
                   </transformer>
                 </transformers>
@@ -2676,8 +2697,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
       <activation>
         <file>
           <exists>
-              ${basedir}${file.separator}src${file.separator}etc${file.separator}rocker.activator
-            </exists>
+            ${basedir}${file.separator}src${file.separator}etc${file.separator}rocker.activator
+          </exists>
         </file>
       </activation>
       <properties>
@@ -2832,6 +2853,13 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>${maven-javadoc-plugin.version}</version>
+            <configuration>
+              <excludePackageNames>
+                org.jooby.internal:org.jooby.test:com.impossibl.postgres.jdbc:org.skife.jdbi.v2
+              </excludePackageNames>
+              <aggregate>true</aggregate>
+              <show>public</show>
+            </configuration>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -2917,7 +2945,9 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
               </execution>
             </executions>
             <configuration>
-              <excludePackageNames>org.jooby.internal:org.jooby.test</excludePackageNames>
+              <excludePackageNames>
+                org.jooby.internal:org.jooby.test:com.impossibl.postgres.jdbc:org.skife.jdbi.v2
+              </excludePackageNames>
               <aggregate>true</aggregate>
               <show>public</show>
             </configuration>
@@ -2973,8 +3003,10 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <gson.version>2.6.2</gson.version>
     <ehcache.version>2.10.0</ehcache.version>
     <pac4j.version>1.9.5</pac4j.version>
-    <swagger.version>1.5.8</swagger.version>
-    <swagger-ui.version>2.1.8-M1</swagger-ui.version>
+    <swagger.version>1.5.16</swagger.version>
+    <swagger-ui.version>3.1.6</swagger-ui.version>
+    <swagger-ui-themes.version>3.0.0</swagger-ui-themes.version>
+    <api-console.version>3.0.17</api-console.version>
     <commons-lang3.version>3.4</commons-lang3.version>
     <snakeyaml.version>1.15</snakeyaml.version>
     <spymemcached.version>2.12.0</spymemcached.version>

@@ -1,4 +1,4 @@
-package org.jooby.issues;
+package issues;
 
 import org.jooby.Route;
 import org.jooby.mvc.Path;
@@ -37,27 +37,27 @@ public class Issue398 extends ServerFeature {
   public void directSrc() throws Exception {
     request()
         .get("/src")
-        .expect("org.jooby.issues.Issue398:20");
+        .expect("issues.Issue398:20");
   }
 
   @Test
   public void groupSrc() throws Exception {
     request()
         .get("/g/src")
-        .expect("org.jooby.issues.Issue398:25");
+        .expect("issues.Issue398:25");
   }
 
   @Test
   public void collection() throws Exception {
     request()
         .get("/src1")
-        .expect("org.jooby.issues.Issue398:29");
+        .expect("issues.Issue398:29");
   }
 
   @Test
   public void resource() throws Exception {
     request()
         .get("/r/src")
-        .expect("org.jooby.issues.Issue398$Resource:14");
+        .expect("issues.Issue398$Resource:14");
   }
 }
