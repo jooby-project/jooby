@@ -2,14 +2,122 @@ package org.jooby.apitool;
 
 import apps.AppWithDoc;
 import org.jooby.apitool.raml.Raml;
+import org.jooby.apitool.raml.RamlType;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class RamlTest {
+
+  public class Foo {
+
+  }
+
+  public class Client {
+    private UUID id;
+    private String name;
+
+    public UUID getId() {
+      return id;
+    }
+
+    public void setId(final UUID id) {
+      this.id = id;
+    }
+  }
+
+  @Test
+  public void shouldWorkWithUUID() throws Exception {
+    RouteMethod method = new RouteMethod();
+    method.pattern("/api/entry/{id}")
+        .method("GET")
+        .parameters(
+            Arrays.asList(new RouteParameter("id", RouteParameter.Kind.PATH, UUID.class, null)))
+        .response(new RouteResponse().type(Client.class));
+
+    Raml base = new Raml();
+    RamlType uuid = base.define(UUID.class, RamlType.STRING);
+    uuid.setPattern(
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+    List<RouteMethod> methods = Arrays.asList(method);
+    Raml raml = Raml.build(base, methods);
+
+    String yaml = raml.toYaml();
+    assertEquals("#%RAML 1.0\n"
+        + "---\n"
+        + "mediaType:\n"
+        + "- application/json\n"
+        + "types:\n"
+        + "  UUID:\n"
+        + "    type: string\n"
+        + "    pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$\n"
+        + "  Client:\n"
+        + "    type: object\n"
+        + "    properties:\n"
+        + "      id?: UUID\n"
+        + "    example:\n"
+        + "      id: null\n"
+        + "/api:\n"
+        + "  /entry:\n"
+        + "    /{id}:\n"
+        + "      uriParameters:\n"
+        + "        id:\n"
+        + "          required: true\n"
+        + "          type: UUID\n"
+        + "      get:\n"
+        + "        responses:\n"
+        + "          200:\n"
+        + "            body:\n"
+        + "              type: Client\n", yaml);
+  }
+
+  @Test
+  public void shouldUseCustomType() throws Exception {
+    RouteMethod method = new RouteMethod();
+    method.pattern("/api/entry/{id}")
+        .method("GET")
+        .parameters(
+            Arrays.asList(new RouteParameter("id", RouteParameter.Kind.PATH, UUID.class, null)))
+        .response(new RouteResponse().type(Foo.class));
+
+    Raml base = new Raml();
+    RamlType customObject = base.define(Foo.class, new RamlType("object"));
+    customObject.newProperty("bar", "string", true);
+    List<RouteMethod> methods = Arrays.asList(method);
+    Raml raml = Raml.build(base, methods);
+
+    String yaml = raml.toYaml();
+    assertEquals("#%RAML 1.0\n"
+        + "---\n"
+        + "mediaType:\n"
+        + "- application/json\n"
+        + "types:\n"
+        + "  Foo:\n"
+        + "    type: object\n"
+        + "    properties:\n"
+        + "      bar: string\n"
+        + "  UUID:\n"
+        + "    type: object\n"
+        + "    example: {}\n"
+        + "/api:\n"
+        + "  /entry:\n"
+        + "    /{id}:\n"
+        + "      uriParameters:\n"
+        + "        id:\n"
+        + "          required: true\n"
+        + "          type: UUID\n"
+        + "      get:\n"
+        + "        responses:\n"
+        + "          200:\n"
+        + "            body:\n"
+        + "              type: Foo\n", yaml);
+  }
+
   @Test
   public void shouldExportToRaml() throws Exception {
     ApiParser parser = new ApiParser(dir());

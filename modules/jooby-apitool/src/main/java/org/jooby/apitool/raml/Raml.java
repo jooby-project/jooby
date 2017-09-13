@@ -217,6 +217,7 @@ import io.swagger.models.properties.Property;
 import io.swagger.models.properties.PropertyBuilder;
 import io.swagger.models.properties.RefProperty;
 import io.swagger.models.properties.StringProperty;
+import io.swagger.models.properties.UUIDProperty;
 import org.jooby.MediaType;
 import org.jooby.apitool.RouteMethod;
 import org.jooby.apitool.RouteParameter;
@@ -234,6 +235,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -470,12 +472,13 @@ public class Raml {
               String propertyType = propertyType(((ArrayProperty) property).getItems()) + "[]";
               object.newProperty(name, propertyType, false);
             } else {
-              RamlType ramlType = RamlType.valueOf(property.getType());
+              String propertyType = propertyType(property);
               List<String> enums = null;
               if (property instanceof StringProperty) {
                 enums = ((StringProperty) property).getEnum();
               }
-              String propertyType = ramlType.isObject() ? property.getType() : ramlType.getType();
+              RamlType ramlType = RamlType.valueOf(propertyType);
+              // String propertyType = ramlType.isObject() ? property.getType() : ramlType.getType();
               object.newProperty(name, propertyType, false,
                   Optional.ofNullable(enums).map(it -> it.toArray(new String[it.size()]))
                       .orElse(new String[0]));
@@ -493,7 +496,13 @@ public class Raml {
     if (property instanceof RefProperty) {
       return ((RefProperty) property).getSimpleRef();
     }
-    return property.getType();
+    // Special handling for uuid type reported by Swagger converter
+    String type = property.getType();
+    if (property instanceof UUIDProperty) {
+      type = UUID.class.getSimpleName();
+    }
+    RamlType ramlType = types.get(type);
+    return ramlType == null ? property.getType() : ramlType.getRef().getType();
   }
 
   /**
