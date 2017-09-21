@@ -1,27 +1,24 @@
 package org.jooby.hazelcast;
 
-import static org.easymock.EasyMock.expect;
-
-import java.util.Properties;
-import java.util.function.Consumer;
-
-import org.jooby.Env;
-import org.jooby.test.MockUnit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.google.inject.Binder;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.typesafe.config.Config;
+import static org.easymock.EasyMock.expect;
+import org.jooby.Env;
+import org.jooby.test.MockUnit;
+import org.jooby.funzy.Throwing;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import javaslang.control.Try.CheckedRunnable;
+import java.util.Properties;
+import java.util.function.Consumer;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Hcast.class, Hazelcast.class, com.hazelcast.config.Config.class, Hazelcast.class })
+@PrepareForTest({Hcast.class, Hazelcast.class, com.hazelcast.config.Config.class, Hazelcast.class})
 public class HcastTest {
 
   @SuppressWarnings("unchecked")
@@ -59,7 +56,7 @@ public class HcastTest {
 
   private MockUnit.Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
   };
 
   @Test
@@ -71,7 +68,7 @@ public class HcastTest {
           new Hcast()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedRunnable.class).iterator().next().run();
+          unit.captured(Throwing.Runnable.class).iterator().next().run();
         });
   }
 
@@ -90,7 +87,7 @@ public class HcastTest {
               .doWith(unit.get(Consumer.class))
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedRunnable.class).iterator().next().run();
+          unit.captured(Throwing.Runnable.class).iterator().next().run();
         });
   }
 

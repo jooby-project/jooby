@@ -203,19 +203,18 @@
  */
 package org.jooby.internal.sitemap;
 
-import java.util.List;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
+import cz.jiripinkas.jsitemapgenerator.WebPage;
 import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Results;
 import org.jooby.Route;
 import org.jooby.sitemap.WebPageProvider;
+import org.jooby.funzy.Throwing;
 
-import cz.jiripinkas.jsitemapgenerator.WebPage;
-import javaslang.Function1;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 class SitemapHandler implements Route.OneArgHandler {
 
@@ -223,10 +222,10 @@ class SitemapHandler implements Route.OneArgHandler {
 
   private Predicate<Route.Definition> filter;
 
-  private Function1<List<WebPage>, String> gen;
+  private Throwing.Function<List<WebPage>, String> gen;
 
   public SitemapHandler(final String name, final Predicate<Route.Definition> filter,
-      final Function1<List<WebPage>, String> gen) {
+      final Throwing.Function<List<WebPage>, String> gen) {
     this.name = name;
     this.filter = filter;
     this.gen = gen;

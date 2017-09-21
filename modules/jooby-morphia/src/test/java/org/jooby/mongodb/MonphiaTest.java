@@ -1,23 +1,5 @@
 package org.jooby.mongodb;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-
-import org.jooby.Env;
-import org.jooby.Env.ServiceKey;
-import org.jooby.Registry;
-import org.jooby.internal.mongodb.AutoIncID;
-import org.jooby.internal.mongodb.GuiceObjectFactory;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
-import org.mongodb.morphia.mapping.Mapper;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
@@ -28,12 +10,26 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-
-import javaslang.control.Try.CheckedConsumer;
-import javaslang.control.Try.CheckedRunnable;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
+import org.jooby.Registry;
+import org.jooby.internal.mongodb.AutoIncID;
+import org.jooby.internal.mongodb.GuiceObjectFactory;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia;
+import org.mongodb.morphia.mapping.Mapper;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Monphia.class, Morphia.class, Mapper.class, MongoClient.class, AutoIncID.class })
+@PrepareForTest({Monphia.class, Morphia.class, Mapper.class, MongoClient.class, AutoIncID.class})
 public class MonphiaTest {
 
   private Config $mongodb = ConfigFactory.parseResources(Mongodb.class, "mongodb.conf");
@@ -72,13 +68,13 @@ public class MonphiaTest {
     expect(binder.bind(Key.get(MongoDatabase.class, Names.named("mydb")))).andReturn(dbABB);
 
     Env env = unit.get(Env.class);
-    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
   };
 
   @SuppressWarnings("unchecked")
   private Block objectFactory = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStart(unit.capture(CheckedConsumer.class))).andReturn(env);
+    expect(env.onStart(unit.capture(Throwing.Consumer.class))).andReturn(env);
   };
 
   @SuppressWarnings("unchecked")
@@ -91,7 +87,7 @@ public class MonphiaTest {
     Mapper mapper = unit.mockConstructor(Mapper.class);
     unit.registerMock(Mapper.class, mapper);
 
-    Morphia morphia = unit.mockConstructor(Morphia.class, new Class[]{Mapper.class },
+    Morphia morphia = unit.mockConstructor(Morphia.class, new Class[]{Mapper.class},
         mapper);
     unit.registerMock(Morphia.class, morphia);
 
@@ -155,7 +151,7 @@ public class MonphiaTest {
           new Monphia("db")
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedConsumer.class).iterator().next().accept(unit.get(Registry.class));
+          unit.captured(Throwing.Consumer.class).iterator().next().accept(unit.get(Registry.class));
         });
   }
 

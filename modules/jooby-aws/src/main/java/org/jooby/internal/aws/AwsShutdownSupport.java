@@ -203,10 +203,10 @@
  */
 package org.jooby.internal.aws;
 
-import static javaslang.API.$;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.instanceOf;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -214,12 +214,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javaslang.control.Try.CheckedRunnable;
-
-public class AwsShutdownSupport implements CheckedRunnable {
+public class AwsShutdownSupport implements Throwing.Runnable {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -231,11 +226,12 @@ public class AwsShutdownSupport implements CheckedRunnable {
   }
 
   @Override
-  public void run() throws Throwable {
+  public void tryRun() throws Throwable {
     if (dep == null) {
       return;
     }
-    try {
+
+    Try.run(() -> {
       Optional<Method> shutdown = Arrays.stream(dep.getClass().getMethods())
           .filter(m -> m.getName().startsWith("shutdown")
               && m.getParameterCount() == 0
@@ -247,13 +243,9 @@ public class AwsShutdownSupport implements CheckedRunnable {
       } else {
         log.debug("no shutdown method found for: {}", dep);
       }
-    } catch (InvocationTargetException ex) {
-      throw Match(ex.getTargetException()).of(
-          Case(instanceOf(Exception.class), x -> x),
-          Case($(), x -> new IllegalStateException("shutdown result in error", x)));
-    } finally {
-      dep = null;
-    }
+    }).unwrap(InvocationTargetException.class)
+        .onComplete(() -> this.dep = null)
+        .throwException();
   }
 
 }

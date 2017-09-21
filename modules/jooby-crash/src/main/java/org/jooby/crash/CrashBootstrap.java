@@ -204,9 +204,13 @@
 package org.jooby.crash;
 
 import static java.util.Arrays.asList;
-import static javaslang.Tuple.of;
+import org.crsh.plugin.CRaSHPlugin;
+import org.crsh.plugin.PluginContext;
+import org.crsh.plugin.PluginLifeCycle;
+import org.crsh.vfs.FS;
 import static org.jooby.crash.CrashFSDriver.endsWith;
 import static org.jooby.crash.CrashFSDriver.noneOf;
+import org.jooby.funzy.Try;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -224,13 +228,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
-import org.crsh.plugin.CRaSHPlugin;
-import org.crsh.plugin.PluginContext;
-import org.crsh.plugin.PluginLifeCycle;
-import org.crsh.vfs.FS;
-
-import javaslang.control.Try;
-
 class CrashBootstrap extends PluginLifeCycle {
 
   private static final Predicate<Path> ACCEPT = endsWith(".class").negate();
@@ -239,13 +236,13 @@ class CrashBootstrap extends PluginLifeCycle {
 
   public PluginContext start(final ClassLoader loader, final Properties props,
       final Map<String, Object> attributes, final Set<CRaSHPlugin<?>> plugins) throws IOException {
-    FS conffs = newFS(CrashFSDriver.parse(loader, asList(
-        of("crash", ACCEPT))));
+    FS conffs = newFS(CrashFSDriver.parse(loader, asList(new CrashPredicate("crash", ACCEPT))));
 
     FS cmdfs = newFS(CrashFSDriver.parse(loader, asList(
-        of("cmd", ACCEPT),
-        of("org/jooby/crash", ACCEPT),
-        of("crash/commands", noneOf("jndi.groovy", "jdbc.groovy", "jpa.groovy", "jul.groovy")))));
+        new CrashPredicate("cmd", ACCEPT),
+        new CrashPredicate("org/jooby/crash", ACCEPT),
+        new CrashPredicate("crash/commands",
+            noneOf("jndi.groovy", "jdbc.groovy", "jpa.groovy", "jul.groovy")))));
 
     setConfig(props);
 

@@ -1,34 +1,5 @@
 package org.jooby.scanner;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-import java.util.List;
-
-import javax.inject.Provider;
-
-import org.jooby.Env;
-import org.jooby.Jooby;
-import org.jooby.Registry;
-import org.jooby.Router;
-import org.jooby.mvc.Path;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.Service;
-import com.google.common.util.concurrent.ServiceManager;
-import com.google.inject.Binder;
-import com.google.inject.Module;
-import com.google.inject.binder.AnnotatedBindingBuilder;
-import com.typesafe.config.Config;
-
 import app.ns.AbsController;
 import app.ns.AbsFoo;
 import app.ns.FooApp;
@@ -41,13 +12,37 @@ import app.ns.GuiceModule;
 import app.ns.IFoo;
 import app.ns.NamedFoo;
 import app.ns.SingletonFoo;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Service;
+import com.google.common.util.concurrent.ServiceManager;
+import com.google.inject.Binder;
+import com.google.inject.Module;
+import com.google.inject.binder.AnnotatedBindingBuilder;
+import com.typesafe.config.Config;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
-import javaslang.control.Try.CheckedConsumer;
-import javaslang.control.Try.CheckedRunnable;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.Registry;
+import org.jooby.Router;
+import org.jooby.mvc.Path;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import javax.inject.Provider;
+import java.util.Arrays;
+import java.util.List;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Scanner.class, FastClasspathScanner.class, FooModule.class, ServiceManager.class })
+@PrepareForTest({Scanner.class, FastClasspathScanner.class, FooModule.class, ServiceManager.class})
 public class ScannerTest {
 
   private Block routes = unit -> {
@@ -324,8 +319,8 @@ public class ScannerTest {
           expect(binder.bind(ServiceManager.class)).andReturn(abbsm);
 
           Env env = unit.get(Env.class);
-          expect(env.onStart(unit.capture(CheckedConsumer.class))).andReturn(env);
-          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+          expect(env.onStart(unit.capture(Throwing.Consumer.class))).andReturn(env);
+          expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
         })
         .expect(unit -> {
           GuavaService service = unit.mock(GuavaService.class);
@@ -348,12 +343,12 @@ public class ScannerTest {
               .scan(Service.class)
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedConsumer.class).iterator().next().accept(unit.get(Registry.class));
+          unit.captured(Throwing.Consumer.class).iterator().next().accept(unit.get(Registry.class));
 
           assertEquals(unit.get(ServiceManager.class),
               unit.captured(Provider.class).iterator().next().get());
 
-          unit.captured(CheckedRunnable.class).iterator().next().run();
+          unit.captured(Throwing.Runnable.class).iterator().next().run();
         });
   }
 

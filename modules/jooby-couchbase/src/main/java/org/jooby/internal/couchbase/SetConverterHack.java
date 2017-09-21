@@ -203,23 +203,21 @@
  */
 package org.jooby.internal.couchbase;
 
-import java.lang.reflect.Field;
-
+import com.couchbase.client.java.repository.AsyncRepository;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.couchbase.client.java.repository.AsyncRepository;
-
-import javaslang.CheckedFunction1;
-import javaslang.control.Try;
+import java.lang.reflect.Field;
 
 public final class SetConverterHack {
 
   /** The logging system. */
   private static final Logger log = LoggerFactory.getLogger(SetConverterHack.class);
 
-  private static final CheckedFunction1<Class<?>, Field> FIELD = CheckedFunction1
-      .<Class<?>, Field> of(c -> {
+  private static final Throwing.Function<Class<?>, Field> FIELD = Throwing.<Class<?>, Field>throwingFunction(
+      c -> {
         Field fld = c.getDeclaredField("converter");
         fld.setAccessible(true);
         return fld;

@@ -203,7 +203,20 @@
  */
 package org.jooby.handlers;
 
+import com.google.common.base.Strings;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import static java.util.Objects.requireNonNull;
+import org.jooby.Asset;
+import org.jooby.Jooby;
+import org.jooby.MediaType;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Route;
+import org.jooby.Status;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
+import org.jooby.internal.URLAsset;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -214,23 +227,6 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
-
-import org.jooby.Asset;
-import org.jooby.Jooby;
-import org.jooby.MediaType;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Status;
-import org.jooby.internal.URLAsset;
-
-import com.google.common.base.Strings;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
-
-import javaslang.Function1;
-import javaslang.Function2;
-import javaslang.control.Try;
 
 /**
  * Serve static resources, via {@link Jooby#assets(String)} or variants.
@@ -274,9 +270,9 @@ public class AssetHandler implements Route.Handler {
     URL getResource(String name);
   }
 
-  private static final Function1<String, String> prefix = prefix().memoized();
+  private static final Throwing.Function<String, String> prefix = prefix().memoized();
 
-  private Function2<Request, String, String> fn;
+  private Throwing.Function2<Request, String, String> fn;
 
   private Loader loader;
 
@@ -431,7 +427,7 @@ public class AssetHandler implements Route.Handler {
    * @return This handler.
    */
   public AssetHandler maxAge(final String maxAge) {
-    Try.of(() -> Long.parseLong(maxAge))
+    Try.apply(() -> Long.parseLong(maxAge))
         .recover(x -> ConfigFactory.empty()
             .withValue("v", ConfigValueFactory.fromAnyRef(maxAge))
             .getDuration("v")
@@ -519,7 +515,7 @@ public class AssetHandler implements Route.Handler {
     rsp.send(asset);
   }
 
-  private URL resolve(final Request req, final String path) throws Exception {
+  private URL resolve(final Request req, final String path) throws Throwable {
     String target = fn.apply(req, path);
     return resolve(target);
   }
@@ -565,8 +561,7 @@ public class AssetHandler implements Route.Handler {
     return classloader::getResource;
   }
 
-  private static Function1<String, String> prefix() {
+  private static Throwing.Function<String, String> prefix() {
     return p -> p.substring(1);
   }
-
 }

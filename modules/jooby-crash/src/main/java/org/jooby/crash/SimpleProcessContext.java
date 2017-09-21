@@ -203,20 +203,16 @@
  */
 package org.jooby.crash;
 
-import static javaslang.API.$;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.instanceOf;
-
-import java.io.IOException;
-import java.util.function.Consumer;
-
 import org.crsh.shell.ShellProcessContext;
 import org.crsh.shell.ShellResponse;
 import org.crsh.text.Screenable;
 import org.crsh.text.Style;
 import org.jooby.Result;
 import org.jooby.Results;
+import org.jooby.Status;
+
+import java.io.IOException;
+import java.util.function.Consumer;
 
 class SimpleProcessContext implements ShellProcessContext {
 
@@ -233,7 +229,7 @@ class SimpleProcessContext implements ShellProcessContext {
   }
 
   public SimpleProcessContext(final Consumer<Result> deferred, final int width,
-      final int height) {
+    final int height) {
     this.deferred = deferred;
     this.width = width;
     this.height = height;
@@ -256,7 +252,7 @@ class SimpleProcessContext implements ShellProcessContext {
 
   @Override
   public String readLine(final String msg, final boolean echo)
-      throws IOException, InterruptedException, IllegalStateException {
+    throws IOException, InterruptedException, IllegalStateException {
     return null;
   }
 
@@ -292,7 +288,7 @@ class SimpleProcessContext implements ShellProcessContext {
 
   @Override
   public Appendable append(final CharSequence csq, final int start, final int end)
-      throws IOException {
+    throws IOException {
     buff.append(csq, start, end);
     return this;
   }
@@ -305,11 +301,12 @@ class SimpleProcessContext implements ShellProcessContext {
 
   @Override
   public void end(final ShellResponse response) {
-    org.jooby.Status status = Match(response).of(
-        Case(instanceOf(ShellResponse.Ok.class), org.jooby.Status.OK),
-        Case(instanceOf(ShellResponse.UnknownCommand.class), org.jooby.Status.BAD_REQUEST),
-        Case($(), org.jooby.Status.SERVER_ERROR));
-
+    Status status = Status.SERVER_ERROR;
+    if (response instanceof ShellResponse.Ok) {
+      status = Status.OK;
+    } else if (response instanceof ShellResponse.UnknownCommand) {
+      status = Status.BAD_REQUEST;
+    }
     deferred.accept(Results.with(buff.length() == 0 ? response.getMessage() : buff, status));
   }
 

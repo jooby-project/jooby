@@ -1,24 +1,30 @@
 package org.jooby.neo4j;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.google.inject.binder.LinkedBindingBuilder;
+import com.graphaware.neo4j.expire.ExpirationModuleBootstrapper;
+import com.graphaware.runtime.RuntimeRegistry;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
+import iot.jcypher.database.DBAccessFactory;
+import iot.jcypher.database.DBProperties;
+import iot.jcypher.database.IDBAccess;
+import iot.jcypher.database.embedded.EmbeddedDBAccess;
+import iot.jcypher.database.remote.BoltDBAccess;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
-import static org.junit.Assert.assertEquals;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.driver.v1.AuthToken;
@@ -33,28 +39,19 @@ import org.neo4j.logging.slf4j.Slf4jLogProvider;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.binder.LinkedBindingBuilder;
-import com.graphaware.neo4j.expire.ExpirationModuleBootstrapper;
-import com.graphaware.runtime.RuntimeRegistry;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
-
-import iot.jcypher.database.DBAccessFactory;
-import iot.jcypher.database.DBProperties;
-import iot.jcypher.database.IDBAccess;
-import iot.jcypher.database.embedded.EmbeddedDBAccess;
-import iot.jcypher.database.remote.BoltDBAccess;
-import javaslang.control.Try.CheckedRunnable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Neo4j.class, BoltDBAccess.class, DBAccessFactory.class, Properties.class,
     GraphDatabaseFactory.class, RuntimeRegistry.class, EmbeddedDBAccess.class, GraphDatabase.class,
-    AuthTokens.class })
+    AuthTokens.class})
 public class Neo4jTest {
 
   @Test(expected = ConfigException.Missing.class)
@@ -71,7 +68,7 @@ public class Neo4jTest {
   @Test
   public void config() throws Exception {
     assertEquals(ConfigFactory.empty(getClass().getName().toLowerCase() + ".conf")
-        .withValue("neo4j.session.label", ConfigValueFactory.fromAnyRef("session")),
+            .withValue("neo4j.session.label", ConfigValueFactory.fromAnyRef("session")),
         new Neo4j().config());
   }
 
@@ -112,9 +109,9 @@ public class Neo4jTest {
         .expect(logdb(null, dbdir.toString()))
         .expect(onStop())
         .run(unit -> {
-          Neo4j neo4j = new Neo4j("mem");
-          neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, closeOnStop(),
+              Neo4j neo4j = new Neo4j("mem");
+              neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            }, closeOnStop(),
             bind(GraphDatabaseService.class, 0),
             bind(IDBAccess.class, 1),
             unit -> {
@@ -123,7 +120,7 @@ public class Neo4jTest {
             });
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private Block bind(final Class class1, final int i) {
     return unit -> {
       List<Consumer> consumers = unit.captured(Consumer.class);
@@ -153,9 +150,9 @@ public class Neo4jTest {
         .expect(logdb(null, dbdir.toString()))
         .expect(onStop())
         .run(unit -> {
-          Neo4j neo4j = new Neo4j();
-          neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, closeOnStop(),
+              Neo4j neo4j = new Neo4j();
+              neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            }, closeOnStop(),
             bind(GraphDatabaseService.class, 0),
             bind(IDBAccess.class, 1),
             unit -> {
@@ -184,9 +181,9 @@ public class Neo4jTest {
         .expect(logdb("bolt://localhost:7687", null))
         .expect(onStop())
         .run(unit -> {
-          Neo4j neo4j = new Neo4j();
-          neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, closeOnStop(),
+              Neo4j neo4j = new Neo4j();
+              neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            }, closeOnStop(),
             bind(Driver.class, 0),
             bind(Session.class, 1));
   }
@@ -211,9 +208,9 @@ public class Neo4jTest {
         .expect(logdb("bolt://localhost:7687", null))
         .expect(onStop())
         .run(unit -> {
-          Neo4j neo4j = new Neo4j("mydb");
-          neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, closeOnStop(),
+              Neo4j neo4j = new Neo4j("mydb");
+              neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            }, closeOnStop(),
             bind(Driver.class, 0),
             bind(Session.class, 1));
   }
@@ -240,9 +237,9 @@ public class Neo4jTest {
         .expect(logdb(null, dbdir.toString()))
         .expect(onStop())
         .run(unit -> {
-          Neo4j neo4j = new Neo4j();
-          neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, closeOnStop(),
+              Neo4j neo4j = new Neo4j();
+              neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            }, closeOnStop(),
             bind(GraphDatabaseService.class, 0),
             bind(IDBAccess.class, 1),
             unit -> {
@@ -270,9 +267,9 @@ public class Neo4jTest {
         .expect(logdb(null, dbdir.toString()))
         .expect(onStop())
         .run(unit -> {
-          Neo4j neo4j = new Neo4j(dbdir);
-          neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, closeOnStop(),
+              Neo4j neo4j = new Neo4j(dbdir);
+              neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            }, closeOnStop(),
             bind(GraphDatabaseService.class, 0),
             bind(IDBAccess.class, 1),
             unit -> {
@@ -308,9 +305,9 @@ public class Neo4jTest {
         .expect(logdb(null, dbdir.toString()))
         .expect(onStop())
         .run(unit -> {
-          Neo4j neo4j = new Neo4j();
-          neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, closeOnStop(),
+              Neo4j neo4j = new Neo4j();
+              neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            }, closeOnStop(),
             bind(GraphDatabaseService.class, 0),
             bind(IDBAccess.class, 1),
             unit -> {
@@ -350,9 +347,9 @@ public class Neo4jTest {
         .expect(logdb(null, dbdir.toString()))
         .expect(onStop())
         .run(unit -> {
-          Neo4j neo4j = new Neo4j();
-          neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, closeOnStop(),
+              Neo4j neo4j = new Neo4j();
+              neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            }, closeOnStop(),
             bind(GraphDatabaseService.class, 0),
             bind(IDBAccess.class, 1),
             unit -> {
@@ -361,7 +358,7 @@ public class Neo4jTest {
             });
   }
 
-  @SuppressWarnings({"unchecked", "deprecation" })
+  @SuppressWarnings({"unchecked", "deprecation"})
   @Test
   public void embedded() throws Exception {
     Path dir = Paths.get("target", "des").toAbsolutePath();
@@ -391,9 +388,9 @@ public class Neo4jTest {
               .andReturn(builder);
         })
         .run(unit -> {
-          Neo4j neo4j = new Neo4j();
-          neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, closeOnStop(),
+              Neo4j neo4j = new Neo4j();
+              neo4j.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            }, closeOnStop(),
             bind(GraphDatabaseService.class, 0),
             bind(IDBAccess.class, 1),
             unit -> {
@@ -407,7 +404,7 @@ public class Neo4jTest {
 
   private Block closeOnStop() {
     return unit -> {
-      unit.captured(CheckedRunnable.class).get(0).run();
+      unit.captured(Throwing.Runnable.class).get(0).run();
     };
   }
 
@@ -415,7 +412,7 @@ public class Neo4jTest {
     return unit -> {
       Env env = unit.get(Env.class);
       unit.get(IDBAccess.class).close();
-      expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+      expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
     };
   }
 
@@ -427,7 +424,7 @@ public class Neo4jTest {
     };
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private Block embeddedAccess(final String dbkey) {
     return unit -> {
       EmbeddedDBAccess db = unit.constructor(EmbeddedDBAccess.class)
@@ -551,7 +548,7 @@ public class Neo4jTest {
     };
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private Block bolt(final String uri, final String dbkey, final String user, final String pass) {
     return unit -> {
       AuthToken token = unit.mock(AuthToken.class);

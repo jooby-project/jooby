@@ -1,8 +1,14 @@
 package org.jooby;
 
+import com.google.common.collect.ImmutableMap;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
+import org.jooby.funzy.Throwing;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.Locale;
@@ -10,16 +16,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
-
-import org.junit.Test;
-
-import com.google.common.collect.ImmutableMap;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
-
-import javaslang.control.Try.CheckedConsumer;
-import javaslang.control.Try.CheckedRunnable;
 
 public class EnvTest {
 
@@ -128,17 +124,17 @@ public class EnvTest {
     assertNotNull(new Env() {
 
       @Override
-      public LifeCycle onStart(final CheckedConsumer<Registry> task) {
+      public LifeCycle onStart(final Throwing.Consumer<Registry> task) {
         return null;
       }
 
       @Override
-      public LifeCycle onStarted(final CheckedConsumer<Registry> task) {
+      public LifeCycle onStarted(final Throwing.Consumer<Registry> task) {
         return null;
       }
 
       @Override
-      public LifeCycle onStop(final CheckedConsumer<Registry> task) {
+      public LifeCycle onStop(final Throwing.Consumer<Registry> task) {
         return null;
       }
 
@@ -173,17 +169,17 @@ public class EnvTest {
       }
 
       @Override
-      public List<CheckedConsumer<Registry>> startTasks() {
+      public List<Throwing.Consumer<Registry>> startTasks() {
         return null;
       }
 
       @Override
-      public List<CheckedConsumer<Registry>> startedTasks() {
+      public List<Throwing.Consumer<Registry>> startedTasks() {
         return null;
       }
 
       @Override
-      public List<CheckedConsumer<Registry>> stopTasks() {
+      public List<Throwing.Consumer<Registry>> stopTasks() {
         return null;
       }
 
@@ -285,16 +281,6 @@ public class EnvTest {
             .ifMode("dev", () -> "$prod"));
   }
 
-  @Test
-  public void when() {
-    assertEquals("$dev", Env.DEFAULT.build(ConfigFactory.empty()).when("dev", () -> "$dev").get());
-
-    assertEquals("$dev", Env.DEFAULT.build(ConfigFactory.empty()).when("dev", "$dev").get());
-
-    assertEquals("$dev",
-        Env.DEFAULT.build(ConfigFactory.empty()).when((env) -> env.equals("dev"), "$dev").get());
-  }
-
   @Test(expected = UnsupportedOperationException.class)
   public void noRouter() {
     Env.DEFAULT.build(ConfigFactory.empty()).router();
@@ -312,7 +298,7 @@ public class EnvTest {
   @Test
   public void onStart() throws Exception {
     Env env = Env.DEFAULT.build(ConfigFactory.empty());
-    CheckedRunnable task = () -> {
+    Throwing.Runnable task = () -> {
     };
     env.onStart(task);
 
@@ -322,7 +308,7 @@ public class EnvTest {
   @Test
   public void onStop() throws Exception {
     Env env = Env.DEFAULT.build(ConfigFactory.empty());
-    CheckedRunnable task = () -> {
+    Throwing.Runnable task = () -> {
     };
     env.onStop(task);
 

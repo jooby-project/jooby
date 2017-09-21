@@ -203,17 +203,6 @@
  */
 package org.jooby.querydsl;
 
-import static java.util.Objects.requireNonNull;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
-import org.jooby.Env;
-import org.jooby.Env.ServiceKey;
-import org.jooby.jdbc.Jdbc;
-
 import com.google.inject.Binder;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.DB2Templates;
@@ -227,6 +216,13 @@ import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.SQLTemplates;
 import com.querydsl.sql.SQLiteTemplates;
 import com.typesafe.config.Config;
+import static java.util.Objects.requireNonNull;
+import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
+import org.jooby.jdbc.Jdbc;
+
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * <h1>queryDSL</h1>
@@ -358,17 +354,29 @@ public class QueryDSL extends Jdbc {
   }
 
   static SQLTemplates toSQLTemplates(final String type) {
-    return Match(type).option(
-        Case("db2", DB2Templates::new),
-        Case("mysql", MySQLTemplates::new),
-        Case("mariadb", MySQLTemplates::new),
-        Case("h2", H2Templates::new),
-        Case("hsqldb", HSQLDBTemplates::new),
-        Case("pgsql", PostgreSQLTemplates::new),
-        Case("postgresql", PostgreSQLTemplates::new),
-        Case("sqlite", SQLiteTemplates::new),
-        Case("oracle", OracleTemplates::new),
-        Case("firebirdsql", FirebirdTemplates::new))
-        .getOrElseThrow(() -> new IllegalStateException("Unsupported database: " + type));
+    switch (type) {
+      case "db2":
+        return new DB2Templates();
+      case "mysql":
+        return new MySQLTemplates();
+      case "mariadb":
+        return new MySQLTemplates();
+      case "h2":
+        return new H2Templates();
+      case "hsqldb":
+        return new HSQLDBTemplates();
+      case "pgsql":
+        return new PostgreSQLTemplates();
+      case "postgresql":
+        return new PostgreSQLTemplates();
+      case "sqlite":
+        return new SQLiteTemplates();
+      case "oracle":
+        return new OracleTemplates();
+      case "firebirdsql":
+        return new FirebirdTemplates();
+      default:
+        throw new IllegalStateException("Unsupported database: " + type);
+    }
   }
 }

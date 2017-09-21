@@ -203,17 +203,16 @@
  */
 package org.jooby.internal.hbm;
 
-import java.sql.Connection;
-
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.context.internal.ManagedSessionContext;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.jooby.hbm.UnitOfWork;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
 
-import javaslang.control.Try;
-import javaslang.control.Try.CheckedFunction;
+import java.sql.Connection;
 
 public class RootUnitOfWork extends AbstractUnitOfWork {
 
@@ -289,7 +288,7 @@ public class RootUnitOfWork extends AbstractUnitOfWork {
   }
 
   @Override
-  public <T> T apply(final CheckedFunction<Session, T> callback) throws Throwable {
+  public <T> T apply(final Throwing.Function<Session, T> callback) throws Throwable {
     try {
       begin();
       T value = callback.apply(session);
@@ -318,7 +317,7 @@ public class RootUnitOfWork extends AbstractUnitOfWork {
       log.debug("closing session: {}", sessionId);
       Try.run(session::close)
           .onFailure(x -> log.error("session.close() resulted in exception: {}", sessionId, x))
-          .onSuccess(v -> log.debug("session closed: {}", sessionId));
+          .onSuccess(() -> log.debug("session closed: {}", sessionId));
       unbind(session.getSessionFactory());
     }
   }

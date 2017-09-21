@@ -1,22 +1,5 @@
 package org.jooby.cassandra;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.junit.Assert.assertEquals;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import org.jooby.Env;
-import org.jooby.Env.ServiceKey;
-import org.jooby.Router;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Cluster.Builder;
 import com.datastax.driver.core.CodecRegistry;
@@ -36,15 +19,29 @@ import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
+import org.jooby.Router;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import javaslang.control.Try.CheckedRunnable;
+import java.util.HashSet;
+import java.util.Set;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Cassandra.class, Cluster.class, Cluster.Builder.class, CodecRegistry.class,
-    MappingManager.class, Datastore.class, CassandraMapper.class })
+    MappingManager.class, Datastore.class, CassandraMapper.class})
 public class CassandraTest {
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private Block clusterBuilder = unit -> {
     String cname = Cluster.class.getName();
     unit.mockStatic(Cluster.class);
@@ -62,7 +59,7 @@ public class CassandraTest {
     expect(builder.build()).andReturn(cluster);
   };
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private Block clusterBuilderProvider = unit -> {
     String cname = Cluster.class.getName();
     unit.mockStatic(Cluster.class);
@@ -111,7 +108,7 @@ public class CassandraTest {
 
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
   };
 
   private Block routeMapper = unit -> {
@@ -129,62 +126,62 @@ public class CassandraTest {
   public void connectViaProperty() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
-            .expect(unit -> {
-              Config conf = unit.get(Config.class);
-              expect(conf.getString("db")).andReturn("cassandra://localhost/beers");
-            })
-            .expect(serviceKey(new Env.ServiceKey()))
-            .expect(clusterBuilder)
-            .expect(contactPoints("localhost"))
-            .expect(port(9042))
-            .expect(codecRegistry)
-            .expect(bind("beers", Cluster.class))
-            .expect(bind(null, Cluster.class))
-            .expect(bind("beers", Session.class))
-            .expect(bind(null, Session.class))
-            .expect(connect("beers"))
-            .expect(mapper)
-            .expect(bind("beers", MappingManager.class))
-            .expect(bind(null, MappingManager.class))
-            .expect(datastore)
-            .expect(bind("beers", Datastore.class))
-            .expect(bind(null, Datastore.class))
-            .expect(routeMapper).expect(onStop)
-            .run(unit -> {
-              new Cassandra()
-                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-            });
+        .expect(unit -> {
+          Config conf = unit.get(Config.class);
+          expect(conf.getString("db")).andReturn("cassandra://localhost/beers");
+        })
+        .expect(serviceKey(new Env.ServiceKey()))
+        .expect(clusterBuilder)
+        .expect(contactPoints("localhost"))
+        .expect(port(9042))
+        .expect(codecRegistry)
+        .expect(bind("beers", Cluster.class))
+        .expect(bind(null, Cluster.class))
+        .expect(bind("beers", Session.class))
+        .expect(bind(null, Session.class))
+        .expect(connect("beers"))
+        .expect(mapper)
+        .expect(bind("beers", MappingManager.class))
+        .expect(bind(null, MappingManager.class))
+        .expect(datastore)
+        .expect(bind("beers", Datastore.class))
+        .expect(bind(null, Datastore.class))
+        .expect(routeMapper).expect(onStop)
+        .run(unit -> {
+          new Cassandra()
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
   }
 
   @Test
   public void connectViaPropertySupplier() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
-            .expect(unit -> {
-              Config conf = unit.get(Config.class);
-              expect(conf.getString("db")).andReturn("cassandra://localhost/beers");
-            })
-            .expect(serviceKey(new Env.ServiceKey()))
-            .expect(clusterBuilderProvider)
-            .expect(contactPoints("localhost"))
-            .expect(port(9042))
-            .expect(codecRegistry)
-            .expect(bind("beers", Cluster.class))
-            .expect(bind(null, Cluster.class))
-            .expect(bind("beers", Session.class))
-            .expect(bind(null, Session.class))
-            .expect(connect("beers"))
-            .expect(mapper)
-            .expect(bind("beers", MappingManager.class))
-            .expect(bind(null, MappingManager.class))
-            .expect(datastore)
-            .expect(bind("beers", Datastore.class))
-            .expect(bind(null, Datastore.class))
-            .expect(routeMapper).expect(onStop)
-            .run(unit -> {
-              new Cassandra(() -> unit.get(Cluster.Builder.class))
-                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-            });
+        .expect(unit -> {
+          Config conf = unit.get(Config.class);
+          expect(conf.getString("db")).andReturn("cassandra://localhost/beers");
+        })
+        .expect(serviceKey(new Env.ServiceKey()))
+        .expect(clusterBuilderProvider)
+        .expect(contactPoints("localhost"))
+        .expect(port(9042))
+        .expect(codecRegistry)
+        .expect(bind("beers", Cluster.class))
+        .expect(bind(null, Cluster.class))
+        .expect(bind("beers", Session.class))
+        .expect(bind(null, Session.class))
+        .expect(connect("beers"))
+        .expect(mapper)
+        .expect(bind("beers", MappingManager.class))
+        .expect(bind(null, MappingManager.class))
+        .expect(datastore)
+        .expect(bind("beers", Datastore.class))
+        .expect(bind(null, Datastore.class))
+        .expect(routeMapper).expect(onStop)
+        .run(unit -> {
+          new Cassandra(() -> unit.get(Cluster.Builder.class))
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
   }
 
   private Block serviceKey(final ServiceKey serviceKey) {
@@ -198,127 +195,127 @@ public class CassandraTest {
   public void connectViaConnectionString() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
-            .expect(clusterBuilder)
-            .expect(serviceKey(new Env.ServiceKey()))
-            .expect(contactPoints("localhost"))
-            .expect(port(9042))
-            .expect(codecRegistry)
-            .expect(bind("beers", Cluster.class))
-            .expect(bind(null, Cluster.class))
-            .expect(bind("beers", Session.class))
-            .expect(bind(null, Session.class))
-            .expect(connect("beers"))
-            .expect(mapper)
-            .expect(bind("beers", MappingManager.class))
-            .expect(bind(null, MappingManager.class))
-            .expect(datastore)
-            .expect(bind("beers", Datastore.class))
-            .expect(bind(null, Datastore.class))
-            .expect(routeMapper).expect(onStop)
-            .run(unit -> {
-              new Cassandra("cassandra://localhost/beers")
-                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-            });
+        .expect(clusterBuilder)
+        .expect(serviceKey(new Env.ServiceKey()))
+        .expect(contactPoints("localhost"))
+        .expect(port(9042))
+        .expect(codecRegistry)
+        .expect(bind("beers", Cluster.class))
+        .expect(bind(null, Cluster.class))
+        .expect(bind("beers", Session.class))
+        .expect(bind(null, Session.class))
+        .expect(connect("beers"))
+        .expect(mapper)
+        .expect(bind("beers", MappingManager.class))
+        .expect(bind(null, MappingManager.class))
+        .expect(datastore)
+        .expect(bind("beers", Datastore.class))
+        .expect(bind(null, Datastore.class))
+        .expect(routeMapper).expect(onStop)
+        .run(unit -> {
+          new Cassandra("cassandra://localhost/beers")
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
   }
 
   @Test
   public void connectViaConnectionStringSupplier() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
-            .expect(clusterBuilderProvider)
-            .expect(serviceKey(new Env.ServiceKey()))
-            .expect(contactPoints("localhost"))
-            .expect(port(9042))
-            .expect(codecRegistry)
-            .expect(bind("beers", Cluster.class))
-            .expect(bind(null, Cluster.class))
-            .expect(bind("beers", Session.class))
-            .expect(bind(null, Session.class))
-            .expect(connect("beers"))
-            .expect(mapper)
-            .expect(bind("beers", MappingManager.class))
-            .expect(bind(null, MappingManager.class))
-            .expect(datastore)
-            .expect(bind("beers", Datastore.class))
-            .expect(bind(null, Datastore.class))
-            .expect(routeMapper).expect(onStop)
-            .run(unit -> {
-              new Cassandra("cassandra://localhost/beers", () -> unit.get(Cluster.Builder.class))
-                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-            });
+        .expect(clusterBuilderProvider)
+        .expect(serviceKey(new Env.ServiceKey()))
+        .expect(contactPoints("localhost"))
+        .expect(port(9042))
+        .expect(codecRegistry)
+        .expect(bind("beers", Cluster.class))
+        .expect(bind(null, Cluster.class))
+        .expect(bind("beers", Session.class))
+        .expect(bind(null, Session.class))
+        .expect(connect("beers"))
+        .expect(mapper)
+        .expect(bind("beers", MappingManager.class))
+        .expect(bind(null, MappingManager.class))
+        .expect(datastore)
+        .expect(bind("beers", Datastore.class))
+        .expect(bind(null, Datastore.class))
+        .expect(routeMapper).expect(onStop)
+        .run(unit -> {
+          new Cassandra("cassandra://localhost/beers", () -> unit.get(Cluster.Builder.class))
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
   }
 
   @Test
   public void onStop() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
-            .expect(clusterBuilder)
-            .expect(serviceKey(new Env.ServiceKey()))
-            .expect(contactPoints("localhost"))
-            .expect(port(9042))
-            .expect(codecRegistry)
-            .expect(bind("beers", Cluster.class))
-            .expect(bind(null, Cluster.class))
-            .expect(bind("beers", Session.class))
-            .expect(bind(null, Session.class))
-            .expect(connect("beers"))
-            .expect(mapper)
-            .expect(bind("beers", MappingManager.class))
-            .expect(bind(null, MappingManager.class))
-            .expect(datastore)
-            .expect(bind("beers", Datastore.class))
-            .expect(bind(null, Datastore.class))
-            .expect(routeMapper).expect(onStop)
-            .expect(unit -> {
-              Session session = unit.get(Session.class);
-              session.close();
+        .expect(clusterBuilder)
+        .expect(serviceKey(new Env.ServiceKey()))
+        .expect(contactPoints("localhost"))
+        .expect(port(9042))
+        .expect(codecRegistry)
+        .expect(bind("beers", Cluster.class))
+        .expect(bind(null, Cluster.class))
+        .expect(bind("beers", Session.class))
+        .expect(bind(null, Session.class))
+        .expect(connect("beers"))
+        .expect(mapper)
+        .expect(bind("beers", MappingManager.class))
+        .expect(bind(null, MappingManager.class))
+        .expect(datastore)
+        .expect(bind("beers", Datastore.class))
+        .expect(bind(null, Datastore.class))
+        .expect(routeMapper).expect(onStop)
+        .expect(unit -> {
+          Session session = unit.get(Session.class);
+          session.close();
 
-              Cluster cluster = unit.get(Cluster.class);
-              cluster.close();
-            })
-            .run(unit -> {
-              new Cassandra("cassandra://localhost/beers")
-                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-            }, unit -> {
-              unit.captured(CheckedRunnable.class).iterator().next().run();
-            });
+          Cluster cluster = unit.get(Cluster.class);
+          cluster.close();
+        })
+        .run(unit -> {
+          new Cassandra("cassandra://localhost/beers")
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(Throwing.Runnable.class).iterator().next().run();
+        });
   }
 
   @Test
   public void onStopSessionerr() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
-            .expect(clusterBuilder)
-            .expect(serviceKey(new Env.ServiceKey()))
-            .expect(contactPoints("localhost"))
-            .expect(port(9042))
-            .expect(codecRegistry)
-            .expect(bind("beers", Cluster.class))
-            .expect(bind(null, Cluster.class))
-            .expect(bind("beers", Session.class))
-            .expect(bind(null, Session.class))
-            .expect(connect("beers"))
-            .expect(mapper)
-            .expect(bind("beers", MappingManager.class))
-            .expect(bind(null, MappingManager.class))
-            .expect(datastore)
-            .expect(bind("beers", Datastore.class))
-            .expect(bind(null, Datastore.class))
-            .expect(routeMapper).expect(onStop)
-            .expect(unit -> {
-              Session session = unit.get(Session.class);
-              session.close();
-              expectLastCall().andThrow(new IllegalStateException("intentional err"));
+        .expect(clusterBuilder)
+        .expect(serviceKey(new Env.ServiceKey()))
+        .expect(contactPoints("localhost"))
+        .expect(port(9042))
+        .expect(codecRegistry)
+        .expect(bind("beers", Cluster.class))
+        .expect(bind(null, Cluster.class))
+        .expect(bind("beers", Session.class))
+        .expect(bind(null, Session.class))
+        .expect(connect("beers"))
+        .expect(mapper)
+        .expect(bind("beers", MappingManager.class))
+        .expect(bind(null, MappingManager.class))
+        .expect(datastore)
+        .expect(bind("beers", Datastore.class))
+        .expect(bind(null, Datastore.class))
+        .expect(routeMapper).expect(onStop)
+        .expect(unit -> {
+          Session session = unit.get(Session.class);
+          session.close();
+          expectLastCall().andThrow(new IllegalStateException("intentional err"));
 
-              Cluster cluster = unit.get(Cluster.class);
-              cluster.close();
-            })
-            .run(unit -> {
-              new Cassandra("cassandra://localhost/beers")
-                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-            }, unit -> {
-              unit.captured(CheckedRunnable.class).iterator().next().run();
-            });
+          Cluster cluster = unit.get(Cluster.class);
+          cluster.close();
+        })
+        .run(unit -> {
+          new Cassandra("cassandra://localhost/beers")
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(Throwing.Runnable.class).iterator().next().run();
+        });
   }
 
   @SuppressWarnings("unchecked")
@@ -327,104 +324,104 @@ public class CassandraTest {
     Object value = new Object();
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
-            .expect(clusterBuilder)
-            .expect(serviceKey(new Env.ServiceKey()))
-            .expect(contactPoints("localhost"))
-            .expect(port(9042))
-            .expect(codecRegistry)
-            .expect(bind("beers", Cluster.class))
-            .expect(bind(null, Cluster.class))
-            .expect(bind("beers", Session.class))
-            .expect(bind(null, Session.class))
-            .expect(connect("beers"))
-            .expect(mapper)
-            .expect(bind("beers", MappingManager.class))
-            .expect(bind(null, MappingManager.class))
-            .expect(datastore)
-            .expect(bind("beers", Datastore.class))
-            .expect(bind(null, Datastore.class))
-            .expect(routeMapper).expect(onStop)
-            .expect(unit -> {
-              MappingManager manager = unit.get(MappingManager.class);
-              expect(manager.createAccessor(Object.class)).andReturn(value);
+        .expect(clusterBuilder)
+        .expect(serviceKey(new Env.ServiceKey()))
+        .expect(contactPoints("localhost"))
+        .expect(port(9042))
+        .expect(codecRegistry)
+        .expect(bind("beers", Cluster.class))
+        .expect(bind(null, Cluster.class))
+        .expect(bind("beers", Session.class))
+        .expect(bind(null, Session.class))
+        .expect(connect("beers"))
+        .expect(mapper)
+        .expect(bind("beers", MappingManager.class))
+        .expect(bind(null, MappingManager.class))
+        .expect(datastore)
+        .expect(bind("beers", Datastore.class))
+        .expect(bind(null, Datastore.class))
+        .expect(routeMapper).expect(onStop)
+        .expect(unit -> {
+          MappingManager manager = unit.get(MappingManager.class);
+          expect(manager.createAccessor(Object.class)).andReturn(value);
 
-              AnnotatedBindingBuilder<Object> abb = unit.mock(AnnotatedBindingBuilder.class);
-              abb.toInstance(value);
+          AnnotatedBindingBuilder<Object> abb = unit.mock(AnnotatedBindingBuilder.class);
+          abb.toInstance(value);
 
-              Binder binder = unit.get(Binder.class);
-              expect(binder.bind(Object.class)).andReturn(abb);
-            })
-            .run(unit -> {
-              new Cassandra("cassandra://localhost/beers")
-                  .accesor(Object.class)
-                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-            });
+          Binder binder = unit.get(Binder.class);
+          expect(binder.bind(Object.class)).andReturn(abb);
+        })
+        .run(unit -> {
+          new Cassandra("cassandra://localhost/beers")
+              .accesor(Object.class)
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
   }
 
   @Test
   public void doWithCluster() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class, StateListener.class)
-            .expect(clusterBuilder)
-            .expect(serviceKey(new Env.ServiceKey()))
-            .expect(contactPoints("localhost"))
-            .expect(port(9042))
-            .expect(codecRegistry)
-            .expect(bind("beers", Cluster.class))
-            .expect(bind(null, Cluster.class))
-            .expect(bind("beers", Session.class))
-            .expect(bind(null, Session.class))
-            .expect(connect("beers"))
-            .expect(mapper)
-            .expect(bind("beers", MappingManager.class))
-            .expect(bind(null, MappingManager.class))
-            .expect(datastore)
-            .expect(bind("beers", Datastore.class))
-            .expect(bind(null, Datastore.class))
-            .expect(routeMapper).expect(onStop)
-            .expect(unit -> {
-              Cluster cluster = unit.get(Cluster.class);
-              expect(cluster.register(unit.get(StateListener.class))).andReturn(cluster);
-            })
-            .run(unit -> {
-              new Cassandra("cassandra://localhost/beers")
-                  .doWithCluster(c -> c.register(unit.get(StateListener.class)))
-                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-            });
+        .expect(clusterBuilder)
+        .expect(serviceKey(new Env.ServiceKey()))
+        .expect(contactPoints("localhost"))
+        .expect(port(9042))
+        .expect(codecRegistry)
+        .expect(bind("beers", Cluster.class))
+        .expect(bind(null, Cluster.class))
+        .expect(bind("beers", Session.class))
+        .expect(bind(null, Session.class))
+        .expect(connect("beers"))
+        .expect(mapper)
+        .expect(bind("beers", MappingManager.class))
+        .expect(bind(null, MappingManager.class))
+        .expect(datastore)
+        .expect(bind("beers", Datastore.class))
+        .expect(bind(null, Datastore.class))
+        .expect(routeMapper).expect(onStop)
+        .expect(unit -> {
+          Cluster cluster = unit.get(Cluster.class);
+          expect(cluster.register(unit.get(StateListener.class))).andReturn(cluster);
+        })
+        .run(unit -> {
+          new Cassandra("cassandra://localhost/beers")
+              .doWithCluster(c -> c.register(unit.get(StateListener.class)))
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
   }
 
   @Test
   public void doWithClusterBuilder() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
-            .expect(clusterBuilder)
-            .expect(serviceKey(new Env.ServiceKey()))
-            .expect(contactPoints("localhost"))
-            .expect(port(9042))
-            .expect(codecRegistry)
-            .expect(bind("beers", Cluster.class))
-            .expect(bind(null, Cluster.class))
-            .expect(bind("beers", Session.class))
-            .expect(bind(null, Session.class))
-            .expect(connect("beers"))
-            .expect(mapper)
-            .expect(bind("beers", MappingManager.class))
-            .expect(bind(null, MappingManager.class))
-            .expect(datastore)
-            .expect(bind("beers", Datastore.class))
-            .expect(bind(null, Datastore.class))
-            .expect(unit -> {
-              Builder builder = unit.get(Cluster.Builder.class);
-              expect(builder.withClusterName("mycluster")).andReturn(builder);
-            })
-            .expect(routeMapper).expect(onStop)
-            .run(unit -> {
-              new Cassandra("cassandra://localhost/beers")
-                  .doWithClusterBuilder(b -> {
-                    b.withClusterName("mycluster");
-                  })
-                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-            });
+        .expect(clusterBuilder)
+        .expect(serviceKey(new Env.ServiceKey()))
+        .expect(contactPoints("localhost"))
+        .expect(port(9042))
+        .expect(codecRegistry)
+        .expect(bind("beers", Cluster.class))
+        .expect(bind(null, Cluster.class))
+        .expect(bind("beers", Session.class))
+        .expect(bind(null, Session.class))
+        .expect(connect("beers"))
+        .expect(mapper)
+        .expect(bind("beers", MappingManager.class))
+        .expect(bind(null, MappingManager.class))
+        .expect(datastore)
+        .expect(bind("beers", Datastore.class))
+        .expect(bind(null, Datastore.class))
+        .expect(unit -> {
+          Builder builder = unit.get(Cluster.Builder.class);
+          expect(builder.withClusterName("mycluster")).andReturn(builder);
+        })
+        .expect(routeMapper).expect(onStop)
+        .run(unit -> {
+          new Cassandra("cassandra://localhost/beers")
+              .doWithClusterBuilder(b -> {
+                b.withClusterName("mycluster");
+              })
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
   }
 
   private Block connect(final String keyspace) {
@@ -434,7 +431,7 @@ public class CassandraTest {
     };
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private Block bind(final String name, final Class type) {
     return unit -> {
       Binder binder = unit.get(Binder.class);

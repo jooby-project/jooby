@@ -203,8 +203,20 @@
  */
 package org.jooby.assets;
 
+import com.eclipsesource.v8.V8;
+import com.eclipsesource.v8.V8Function;
 import static com.eclipsesource.v8.utils.V8ObjectUtils.toV8Array;
 import static com.eclipsesource.v8.utils.V8ObjectUtils.toV8Object;
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
+import com.google.common.io.BaseEncoding;
+import com.typesafe.config.Config;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.PNGTranscoder;
+import org.jooby.funzy.Try;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -220,21 +232,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.image.PNGTranscoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.eclipsesource.v8.V8;
-import com.eclipsesource.v8.V8Function;
-import com.google.common.hash.Hasher;
-import com.google.common.hash.Hashing;
-import com.google.common.io.BaseEncoding;
-import com.typesafe.config.Config;
-
-import javaslang.control.Try;
 
 /**
  * <h1>svg-sprites</h1>
@@ -325,8 +322,8 @@ public class SvgSprites extends AssetAggregator {
       throw new FileNotFoundException(spriteElementPath.toString());
     }
 
-    File workdir = new File(Try.of(() -> conf.getString("application.tmpdir"))
-        .getOrElse(System.getProperty("java.io.tmpdir")));
+    File workdir = new File(Try.apply(() -> conf.getString("application.tmpdir"))
+        .orElse(System.getProperty("java.io.tmpdir")));
 
     File spritePath = resolve(spritePath());
     File cssPath = resolve(cssPath());
@@ -372,7 +369,7 @@ public class SvgSprites extends AssetAggregator {
                   transcoder.transcode(new TranscoderInput(in), new TranscoderOutput(out));
                 }
               })
-                  .onSuccess(v -> callback.call(null, null))
+                  .onSuccess(() -> callback.call(null, null))
                   .onFailure(x -> {
                     log.debug("png-fallback resulted in exception", x);
                     callback.call(null, toV8Array(v8, Arrays.asList(x.getMessage())));

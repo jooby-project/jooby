@@ -1,27 +1,5 @@
 package org.jooby.couchbase;
 
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertEquals;
-
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import org.jooby.Env;
-import org.jooby.Env.ServiceKey;
-import org.jooby.Registry;
-import org.jooby.internal.couchbase.AsyncDatastoreImpl;
-import org.jooby.internal.couchbase.DatastoreImpl;
-import org.jooby.internal.couchbase.IdGenerator;
-import org.jooby.internal.couchbase.JacksonMapper;
-import org.jooby.internal.couchbase.SetConverterHack;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.CouchbaseCluster;
@@ -38,13 +16,32 @@ import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
+import org.jooby.Registry;
+import org.jooby.internal.couchbase.AsyncDatastoreImpl;
+import org.jooby.internal.couchbase.DatastoreImpl;
+import org.jooby.internal.couchbase.IdGenerator;
+import org.jooby.internal.couchbase.JacksonMapper;
+import org.jooby.internal.couchbase.SetConverterHack;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import javaslang.control.Try.CheckedConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(value = {DefaultCouchbaseEnvironment.class, CouchbaseCluster.class,
     SetConverterHack.class, AsyncDatastoreImpl.class, DatastoreImpl.class, System.class,
-    IdGenerator.class },
+    IdGenerator.class},
     fullyQualifiedNames = "org.jooby.couchbase.*")
 public class CouchbaseTest {
 
@@ -76,7 +73,7 @@ public class CouchbaseTest {
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
 
-    expect(env.onStop(unit.capture(CheckedConsumer.class))).andReturn(env);
+    expect(env.onStop(unit.capture(Throwing.Consumer.class))).andReturn(env);
   };
 
   @Test
@@ -444,7 +441,7 @@ public class CouchbaseTest {
           new Couchbase("couchbase://localhost/" + bucket)
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedConsumer.class).iterator().next().accept(unit.get(Registry.class));
+          unit.captured(Throwing.Consumer.class).iterator().next().accept(unit.get(Registry.class));
         });
   }
 
@@ -506,7 +503,7 @@ public class CouchbaseTest {
           new Couchbase("couchbase://localhost/" + bucket)
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedConsumer.class).iterator().next().accept(unit.get(Registry.class));
+          unit.captured(Throwing.Consumer.class).iterator().next().accept(unit.get(Registry.class));
         });
   }
 
@@ -568,7 +565,7 @@ public class CouchbaseTest {
           new Couchbase("couchbase://localhost/" + bucket)
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedConsumer.class).iterator().next().accept(unit.get(Registry.class));
+          unit.captured(Throwing.Consumer.class).iterator().next().accept(unit.get(Registry.class));
         });
   }
 
@@ -630,7 +627,7 @@ public class CouchbaseTest {
           new Couchbase("couchbase://localhost/" + bucket)
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedConsumer.class).iterator().next().accept(unit.get(Registry.class));
+          unit.captured(Throwing.Consumer.class).iterator().next().accept(unit.get(Registry.class));
         });
   }
 
@@ -923,7 +920,7 @@ public class CouchbaseTest {
     };
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private Block bind(final String name, final Class type) {
     return unit -> {
       Object value = unit.get(type);

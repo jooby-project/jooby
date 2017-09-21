@@ -204,24 +204,20 @@
 package org.jooby.banner;
 
 import static com.github.lalyos.jfiglet.FigletFont.convertOneLine;
-import static java.util.Objects.requireNonNull;
-
-import java.util.Optional;
-
-import javax.inject.Provider;
-
-import org.jooby.Env;
-import org.jooby.Jooby.Module;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.CharMatcher;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
+import static java.util.Objects.requireNonNull;
+import org.jooby.Env;
+import org.jooby.Jooby.Module;
+import org.jooby.funzy.Try;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javaslang.control.Try;
+import javax.inject.Provider;
+import java.util.Optional;
 
 /**
  * <h1>banner</h1>
@@ -306,9 +302,9 @@ public class Banner implements Module {
     String text = this.text.orElse(name);
 
     Provider<String> ascii = () -> Try
-        .of(() -> CharMatcher.WHITESPACE
+        .apply(() -> CharMatcher.whitespace()
             .trimTrailingFrom(convertOneLine(String.format(FONT, font), text)))
-        .getOrElse(text);
+        .orElse(text);
 
     binder.bind(Key.get(String.class, Names.named("application.banner"))).toProvider(ascii);
 

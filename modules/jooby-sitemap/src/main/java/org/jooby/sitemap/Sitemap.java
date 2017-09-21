@@ -203,16 +203,15 @@
  */
 package org.jooby.sitemap;
 
+import cz.jiripinkas.jsitemapgenerator.WebPage;
+import cz.jiripinkas.jsitemapgenerator.generator.SitemapGenerator;
+import org.jooby.Route;
+import org.jooby.internal.sitemap.JSitemap;
+import org.jooby.funzy.Throwing;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-
-import org.jooby.Route;
-import org.jooby.internal.sitemap.JSitemap;
-
-import cz.jiripinkas.jsitemapgenerator.WebPage;
-import cz.jiripinkas.jsitemapgenerator.generator.SitemapGenerator;
-import javaslang.Function1;
 
 /**
  * <h1>sitemap</h1>
@@ -455,7 +454,7 @@ public class Sitemap extends JSitemap<Sitemap> {
   }
 
   @Override
-  protected Function1<List<WebPage>, String> gen(final String baseurl) {
+  protected Throwing.Function<List<WebPage>, String> gen(final String baseurl) {
     return pages -> {
       SitemapGenerator generator = new SitemapGenerator(baseurl);
       generator.addPages(pages);

@@ -203,20 +203,6 @@
  */
 package org.jooby.cassandra;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import org.jooby.Env;
-import org.jooby.Env.ServiceKey;
-import org.jooby.Jooby.Module;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.CodecRegistry;
 import com.datastax.driver.core.Configuration;
@@ -229,9 +215,20 @@ import com.datastax.driver.mapping.MappingManager;
 import com.datastax.driver.mapping.annotations.Accessor;
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
+import static java.util.Objects.requireNonNull;
+import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
+import org.jooby.Jooby.Module;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javaslang.Function3;
-import javaslang.control.Try;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * <h1>cassandra</h1>
@@ -607,15 +604,15 @@ public class Cassandra implements Module {
     return doWithCluster((cc, c) -> configurer.accept(cc));
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    ConnectionString cstr = Try.of(() -> ConnectionString.parse(db))
-        .getOrElse(() -> ConnectionString.parse(conf.getString(db)));
+    ConnectionString cstr = Try.apply(() -> ConnectionString.parse(db))
+        .orElseGet(() -> ConnectionString.parse(conf.getString(db)));
 
     ServiceKey serviceKey = env.serviceKey();
 
-    Function3<Class, String, Object, Void> bind = (type, name, value) -> {
+    Throwing.Function3<Class, String, Object, Void> bind = (type, name, value) -> {
       serviceKey.generate(type, name, k -> {
         binder.bind(k).toInstance(value);
       });
@@ -670,7 +667,7 @@ public class Cassandra implements Module {
 
     env.onStop(() -> {
       log.debug("Stopping {}", cstr);
-      Try.run(() -> session.close())
+      Try.run(session::close)
           .onFailure(x -> log.error("session.close() resulted in exception", x));
 
       cluster.close();

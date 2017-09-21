@@ -203,7 +203,13 @@
  */
 package org.jooby;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import com.typesafe.config.Config;
 import static java.util.Objects.requireNonNull;
+import org.jooby.funzy.Throwing;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -218,18 +224,7 @@ import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-import com.typesafe.config.Config;
-
-import javaslang.API;
-import javaslang.control.Option;
-import javaslang.control.Try.CheckedConsumer;
 
 /**
  * Allows to optimize, customize or apply defaults values for application services.
@@ -520,11 +515,11 @@ public interface Env extends LifeCycle {
     String name = config.hasPath("application.env") ? config.getString("application.env") : "dev";
     return new Env() {
 
-      private ImmutableList.Builder<CheckedConsumer<Registry>> start = ImmutableList.builder();
+      private ImmutableList.Builder<Throwing.Consumer<Registry>> start = ImmutableList.builder();
 
-      private ImmutableList.Builder<CheckedConsumer<Registry>> started = ImmutableList.builder();
+      private ImmutableList.Builder<Throwing.Consumer<Registry>> started = ImmutableList.builder();
 
-      private ImmutableList.Builder<CheckedConsumer<Registry>> shutdown = ImmutableList.builder();
+      private ImmutableList.Builder<Throwing.Consumer<Registry>> shutdown = ImmutableList.builder();
 
       private Map<String, Function<String, String>> xss = new HashMap<>();
 
@@ -564,35 +559,35 @@ public interface Env extends LifeCycle {
       }
 
       @Override
-      public List<CheckedConsumer<Registry>> stopTasks() {
+      public List<Throwing.Consumer<Registry>> stopTasks() {
         return shutdown.build();
       }
 
       @Override
-      public Env onStop(final CheckedConsumer<Registry> task) {
+      public Env onStop(final Throwing.Consumer<Registry> task) {
         this.shutdown.add(task);
         return this;
       }
 
       @Override
-      public Env onStart(final CheckedConsumer<Registry> task) {
+      public Env onStart(final Throwing.Consumer<Registry> task) {
         this.start.add(task);
         return this;
       }
 
       @Override
-      public LifeCycle onStarted(final CheckedConsumer<Registry> task) {
+      public LifeCycle onStarted(final Throwing.Consumer<Registry> task) {
         this.started.add(task);
         return this;
       }
 
       @Override
-      public List<CheckedConsumer<Registry>> startTasks() {
+      public List<Throwing.Consumer<Registry>> startTasks() {
         return this.start.build();
       }
 
       @Override
-      public List<CheckedConsumer<Registry>> startedTasks() {
+      public List<Throwing.Consumer<Registry>> startedTasks() {
         return this.started.build();
       }
 
@@ -680,80 +675,6 @@ public interface Env extends LifeCycle {
   }
 
   /**
-   * Produces a {@link API.Match} of the current {@link Env}.
-   *
-   * <pre>
-   *   String accessKey = env.match()
-   *                          .when("dev", () {@literal ->} "1234")
-   *                          .when("stage", () {@literal ->} "4321")
-   *                          .when("prod", () {@literal ->} "abc")
-   *                          .get();
-   * </pre>
-   *
-   * @return A new matcher.
-   */
-  default API.Match<String> match() {
-    return API.Match(name());
-  }
-
-  /**
-   * Produces a {@link API.Match} of the current {@link Env}.
-   *
-   * <pre>
-   *   String accessKey = env.when("dev", () {@literal ->} "1234")
-   *                          .when("stage", () {@literal ->} "4321")
-   *                          .when("prod", () {@literal ->} "abc")
-   *                          .get();
-   * </pre>
-   *
-   * @param name A name to test for.
-   * @param fn A callback function.
-   * @param <T> A resulting type.
-   * @return A new matcher.
-   */
-  default <T> Option<T> when(final String name, final Supplier<T> fn) {
-    return match().option(API.Case(API.$(name), fn));
-  }
-
-  /**
-   * Produces a {@link API.Match} of the current {@link Env}.
-   *
-   * <pre>
-   *   String accessKey = env.when("dev", "1234")
-   *                          .when("stage", "4321")
-   *                          .when("prod", "abc")
-   *                          .get();
-   * </pre>
-   *
-   * @param name A name to test for.
-   * @param result A constant value to return.
-   * @param <T> A resulting type.
-   * @return A new matcher.
-   */
-  default <T> Option<T> when(final String name, final T result) {
-    return match().option(API.Case(API.$(name), result));
-  }
-
-  /**
-   * Produces a {@link API.Match} of the current {@link Env}.
-   *
-   * <pre>
-   *   String accessKey = env.when("dev", () {@literal ->} "1234")
-   *                          .when("stage", () {@literal ->} "4321")
-   *                          .when("prod", () {@literal ->} "abc")
-   *                          .get();
-   * </pre>
-   *
-   * @param predicate A predicate to use.
-   * @param result A constant value to return.
-   * @param <T> A resulting type.
-   * @return A new matcher.
-   */
-  default <T> Option<T> when(final Predicate<String> predicate, final T result) {
-    return match().option(API.Case(predicate, result));
-  }
-
-  /**
    * @return XSS escape functions.
    */
   Map<String, Function<String, String>> xss();
@@ -786,16 +707,16 @@ public interface Env extends LifeCycle {
   /**
    * @return List of start tasks.
    */
-  List<CheckedConsumer<Registry>> startTasks();
+  List<Throwing.Consumer<Registry>> startTasks();
 
   /**
    * @return List of start tasks.
    */
-  List<CheckedConsumer<Registry>> startedTasks();
+  List<Throwing.Consumer<Registry>> startedTasks();
 
   /**
    * @return List of stop tasks.
    */
-  List<CheckedConsumer<Registry>> stopTasks();
+  List<Throwing.Consumer<Registry>> stopTasks();
 
 }

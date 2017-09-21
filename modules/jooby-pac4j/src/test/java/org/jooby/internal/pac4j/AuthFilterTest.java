@@ -1,22 +1,18 @@
 package org.jooby.internal.pac4j;
 
 import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
-
 import org.jooby.Err;
 import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
+import org.jooby.funzy.Try;
 import org.jooby.pac4j.Auth;
 import org.jooby.pac4j.AuthStore;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pac4j.core.client.Client;
@@ -32,10 +28,12 @@ import org.pac4j.http.client.direct.ParameterClient;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import javaslang.control.Try;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AuthFilter.class, Clients.class, ParameterClient.class })
+@PrepareForTest({AuthFilter.class, Clients.class, ParameterClient.class})
 public class AuthFilterTest {
 
   private Block webctx = unit -> {
@@ -68,8 +66,8 @@ public class AuthFilterTest {
   @SuppressWarnings("rawtypes")
   private <C extends Client> Block findClient(final Class<C> clientType, final String client) {
     return unit -> {
-      C c = Try.of(() -> unit.get(clientType))
-          .getOrElse(() -> {
+      C c = Try.apply(() -> unit.get(clientType))
+          .orElseGet(() -> {
             C m = unit.powerMock(clientType);
             //C m = (C) new ParameterClient("token", new SimpleTestUsernamePasswordAuthenticator());
             unit.registerMock(clientType, m);
@@ -129,7 +127,7 @@ public class AuthFilterTest {
     };
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private <C extends Client> Block userProfile(final Class<C> clientType,
       final CommonProfile profile) {
     return unit -> {
@@ -148,7 +146,7 @@ public class AuthFilterTest {
     };
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private Block setProfile(final CommonProfile profile) {
     return unit -> {
       AuthStore store = unit.get(AuthStore.class);
@@ -185,11 +183,11 @@ public class AuthFilterTest {
 
     new MockUnit(Request.class, Response.class, Route.Chain.class, WebContext.class,
         ClientFinder.class, AuthStore.class, Clients.class).run(unit -> {
-          AuthFilter filter = new AuthFilter(ParameterClient.class, CommonProfile.class);
-          assertEquals("ParameterClient", filter.getName());
-          filter.setName("Basic");
-          assertEquals("ParameterClient,Basic", filter.getName());
-        });
+      AuthFilter filter = new AuthFilter(ParameterClient.class, CommonProfile.class);
+      assertEquals("ParameterClient", filter.getName());
+      filter.setName("Basic");
+      assertEquals("ParameterClient,Basic", filter.getName());
+    });
   }
 
   @Test
@@ -200,27 +198,27 @@ public class AuthFilterTest {
 
     new MockUnit(Request.class, Response.class, Route.Chain.class, WebContext.class,
         ClientFinder.class, AuthStore.class, Clients.class)
-            .expect(webctx)
-            .expect(cfinder)
-            .expect(astore)
-            .expect(clients)
-            .expect(clientName("ParameterClient"))
-            .expect(findClient(ParameterClient.class, "ParameterClient"))
-            .expect(reqAuthID(profileId))
-            .expect(reqAuthCNAME(ParameterClient.class))
-            .expect(authStore(profileId, null))
-            .expect(creds(ParameterClient.class))
-            .expect(userProfile(ParameterClient.class, profile))
-            .expect(setProfileId(profileId))
-            .expect(setProfile(profile))
-            .expect(seed(UserProfile.class, profile))
-            .expect(seed(CommonProfile.class, profile))
-            .expect(chainNext)
-            .run(unit -> {
-              new AuthFilter(ParameterClient.class, CommonProfile.class)
-                  .handle(unit.get(Request.class), unit.get(Response.class),
-                      unit.get(Route.Chain.class));
-            });
+        .expect(webctx)
+        .expect(cfinder)
+        .expect(astore)
+        .expect(clients)
+        .expect(clientName("ParameterClient"))
+        .expect(findClient(ParameterClient.class, "ParameterClient"))
+        .expect(reqAuthID(profileId))
+        .expect(reqAuthCNAME(ParameterClient.class))
+        .expect(authStore(profileId, null))
+        .expect(creds(ParameterClient.class))
+        .expect(userProfile(ParameterClient.class, profile))
+        .expect(setProfileId(profileId))
+        .expect(setProfile(profile))
+        .expect(seed(UserProfile.class, profile))
+        .expect(seed(CommonProfile.class, profile))
+        .expect(chainNext)
+        .run(unit -> {
+          new AuthFilter(ParameterClient.class, CommonProfile.class)
+              .handle(unit.get(Request.class), unit.get(Response.class),
+                  unit.get(Route.Chain.class));
+        });
   }
 
   @SuppressWarnings("rawtypes")
@@ -242,22 +240,22 @@ public class AuthFilterTest {
 
     new MockUnit(Request.class, Response.class, Route.Chain.class, WebContext.class,
         ClientFinder.class, AuthStore.class, Clients.class)
-            .expect(webctx)
-            .expect(cfinder)
-            .expect(astore)
-            .expect(clients)
-            .expect(clientName("ParameterClient"))
-            .expect(findNoClient(ParameterClient.class, "ParameterClient"))
-            .expect(findNoClient(ParameterClient.class, "ParameterClient"))
-            .run(unit -> {
-              try {
-                new AuthFilter(ParameterClient.class, CommonProfile.class)
-                    .handle(unit.get(Request.class), unit.get(Response.class));
-                fail("expecting 401");
-              } catch (Err ex) {
-                assertEquals(401, ex.statusCode());
-              }
-            });
+        .expect(webctx)
+        .expect(cfinder)
+        .expect(astore)
+        .expect(clients)
+        .expect(clientName("ParameterClient"))
+        .expect(findNoClient(ParameterClient.class, "ParameterClient"))
+        .expect(findNoClient(ParameterClient.class, "ParameterClient"))
+        .run(unit -> {
+          try {
+            new AuthFilter(ParameterClient.class, CommonProfile.class)
+                .handle(unit.get(Request.class), unit.get(Response.class));
+            fail("expecting 401");
+          } catch (Err ex) {
+            assertEquals(401, ex.statusCode());
+          }
+        });
   }
 
   @Test(expected = TechnicalException.class)
@@ -268,20 +266,20 @@ public class AuthFilterTest {
 
     new MockUnit(Request.class, Response.class, Route.Chain.class, WebContext.class,
         ClientFinder.class, AuthStore.class, Clients.class)
-            .expect(webctx)
-            .expect(cfinder)
-            .expect(astore)
-            .expect(clients)
-            .expect(clientName("ParameterClient"))
-            .expect(findClient(ParameterClient.class, "ParameterClient"))
-            .expect(reqAuthID(profileId))
-            .expect(authStore(profileId, null))
-            .expect(noCreds(ParameterClient.class))
-            .run(unit -> {
-              new AuthFilter(ParameterClient.class, CommonProfile.class)
-                  .handle(unit.get(Request.class), unit.get(Response.class),
-                      unit.get(Route.Chain.class));
-            });
+        .expect(webctx)
+        .expect(cfinder)
+        .expect(astore)
+        .expect(clients)
+        .expect(clientName("ParameterClient"))
+        .expect(findClient(ParameterClient.class, "ParameterClient"))
+        .expect(reqAuthID(profileId))
+        .expect(authStore(profileId, null))
+        .expect(noCreds(ParameterClient.class))
+        .run(unit -> {
+          new AuthFilter(ParameterClient.class, CommonProfile.class)
+              .handle(unit.get(Request.class), unit.get(Response.class),
+                  unit.get(Route.Chain.class));
+        });
   }
 
   @Test(expected = Err.class)
@@ -291,24 +289,24 @@ public class AuthFilterTest {
 
     new MockUnit(Request.class, Response.class, Route.Chain.class, WebContext.class,
         ClientFinder.class, AuthStore.class, Clients.class)
-            .expect(webctx)
-            .expect(cfinder)
-            .expect(astore)
-            .expect(clients)
-            .expect(clientName("ParameterClient"))
-            .expect(findClient(ParameterClient.class, "ParameterClient"))
-            .expect(findClient(ParameterClient.class, "ParameterClient"))
-            .expect(reqAuthID(profileId))
-            .expect(authStore(profileId, null))
-            .expect(creds(ParameterClient.class))
-            .expect(userProfile(ParameterClient.class, profile))
-            .expect(setProfileId(profileId))
-            .expect(setProfile(profile))
-            .run(unit -> {
-              new AuthFilter(ParameterClient.class, CommonProfile.class)
-                  .handle(unit.get(Request.class), unit.get(Response.class),
-                      unit.get(Route.Chain.class));
-            });
+        .expect(webctx)
+        .expect(cfinder)
+        .expect(astore)
+        .expect(clients)
+        .expect(clientName("ParameterClient"))
+        .expect(findClient(ParameterClient.class, "ParameterClient"))
+        .expect(findClient(ParameterClient.class, "ParameterClient"))
+        .expect(reqAuthID(profileId))
+        .expect(authStore(profileId, null))
+        .expect(creds(ParameterClient.class))
+        .expect(userProfile(ParameterClient.class, profile))
+        .expect(setProfileId(profileId))
+        .expect(setProfile(profile))
+        .run(unit -> {
+          new AuthFilter(ParameterClient.class, CommonProfile.class)
+              .handle(unit.get(Request.class), unit.get(Response.class),
+                  unit.get(Route.Chain.class));
+        });
   }
 
 }

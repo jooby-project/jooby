@@ -203,9 +203,26 @@
  */
 package org.jooby.jdbc;
 
+import com.google.common.base.CharMatcher;
 import static com.google.common.base.Preconditions.checkArgument;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValue;
+import com.typesafe.config.ConfigValueFactory;
+import com.typesafe.config.ConfigValueType;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import static java.util.Objects.requireNonNull;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -217,30 +234,6 @@ import java.util.Properties;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import javax.sql.DataSource;
-
-import org.jooby.Env;
-import org.jooby.Jooby;
-
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValue;
-import com.typesafe.config.ConfigValueFactory;
-import com.typesafe.config.ConfigValueType;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-
-import javaslang.Function3;
-import javaslang.Tuple;
-import javaslang.Tuple2;
-import javaslang.control.Try;
 
 /**
  * <h1>jdbc</h1>
@@ -407,18 +400,18 @@ import javaslang.control.Try;
  */
 public class Jdbc implements Jooby.Module {
 
-  static final Function<? super Throwable, ? extends Try<? extends Void>> CCE = x -> {
+  static final Function<Throwable, Void> CCE = x -> {
     if (x instanceof ClassCastException) {
       StackTraceElement src = x.getStackTrace()[0];
       if (src.getFileName() == null || src.getClassName().equals(Jdbc.class.getName())) {
-        return Try.success(null);
+        return null;
       }
     }
-    return Try.failure(x);
+    throw Throwing.sneakyThrow(x);
   };
 
   public static Function<String, String> DB_NAME = url -> {
-    Function3<String, String, String, Tuple2<String, Map<String, String>>> indexOf = (str, t1,
+    Throwing.Function3<String, String, String, Object[]> indexOf = (str, t1,
         t2) -> {
       int i = str.indexOf(t1);
       int len = i >= 0 ? i : str.length() - 1;
@@ -427,17 +420,17 @@ public class Jdbc implements Jooby.Module {
           .omitEmptyStrings()
           .withKeyValueSeparator('=')
           .split(str.substring(len + 1));
-      return Tuple.of(str.substring(0, len + 1), params);
+      return new Object[]{str.substring(0, len + 1), params};
     };
     // strip ; or ?
-    Tuple2<String, Map<String, String>> result = indexOf.apply(url, "?", "&");
-    Map<String, String> params = new HashMap<>(result._2);
-    result = indexOf.apply(result._1, ";", ";");
-    params.putAll(result._2);
+    Object[] result = indexOf.apply(url, "?", "&");
+    Map<String, String> params = new HashMap<>((Map<String, String>) result[1]);
+    result = indexOf.apply(result[0].toString(), ";", ";");
+    params.putAll((Map<String, String>) result[1]);
     List<String> parts = Splitter.on(CharMatcher.javaLetterOrDigit().negate())
         .trimResults()
         .omitEmptyStrings()
-        .splitToList(result._1);
+        .splitToList(result[0].toString());
     return Optional.ofNullable(params.get("database"))
         .orElse(Optional.ofNullable(params.get("databaseName"))
             .orElse(parts.get(parts.size() - 1)));
@@ -569,7 +562,7 @@ public class Jdbc implements Jooby.Module {
 
     if (db instanceof String) {
       // embedded db?
-      return Try.of(() -> source.getConfig("databases." + db))
+      return Try.apply(() -> source.getConfig("databases." + db))
           .map(it -> {
             // Rewrite embedded db
             Config dbtree = it.withValue("url", ConfigValueFactory.fromAnyRef(
@@ -578,7 +571,7 @@ public class Jdbc implements Jooby.Module {
             return ConfigFactory.empty()
                 .withValue(key, dbtree.root())
                 .withFallback(source);
-          }).getOrElse(() -> {
+          }).orElseGet(() -> {
             // assume it is a just the url
             return ConfigFactory.empty()
                 .withValue(key + ".url", ConfigValueFactory.fromAnyRef(db.toString()))
@@ -599,8 +592,9 @@ public class Jdbc implements Jooby.Module {
       props.setProperty(propertyName, propertyValue);
     };
 
-    Function<String, Config> dbconf = path -> Try.of(() -> config.getConfig(path))
-        .getOrElse(ConfigFactory.empty());
+    Throwing.Function<String, Config> dbconf = Throwing.<String, Config>throwingFunction(
+        path -> config.getConfig(path))
+        .orElse(ConfigFactory.empty());
 
     Config $hikari = dbconf.apply(key + ".hikari")
         .withFallback(dbconf.apply("db." + db + ".hikari"))
@@ -666,9 +660,11 @@ public class Jdbc implements Jooby.Module {
 
   @SuppressWarnings("unchecked")
   protected void callback(final Object value, final Config conf) {
-    this.callback.forEach(it -> Try.run(() -> it.accept(value, conf))
-        .recoverWith(CCE)
-        .getOrElseThrow(Throwables::propagate));
+    callback.forEach(it -> Try.apply(() -> {
+      it.accept(value, conf);
+      return null;
+      // FIXME: review recover
+    }).recover(CCE::apply).get());
   }
 
   private Optional<String> dbtype(final String url, final Config config) {

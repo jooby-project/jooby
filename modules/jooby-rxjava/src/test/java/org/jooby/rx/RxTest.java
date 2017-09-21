@@ -1,16 +1,12 @@
 package org.jooby.rx;
 
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
-import static org.junit.Assert.assertEquals;
-
-import java.util.Collections;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
-import java.util.function.Function;
-
 import org.jooby.Deferred;
 import org.jooby.Env;
 import org.jooby.Route;
@@ -18,29 +14,30 @@ import org.jooby.Router;
 import org.jooby.exec.Exec;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
-
-import javaslang.control.Try.CheckedRunnable;
 import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
 import rx.schedulers.Schedulers;
 
+import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.function.Function;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Rx.class, Exec.class, Executors.class, ForkJoinPool.class, Thread.class,
-    System.class, RxJavaPlugins.class, Schedulers.class })
+    System.class, RxJavaPlugins.class, Schedulers.class})
 public class RxTest {
 
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
   };
 
   @Test
@@ -69,17 +66,17 @@ public class RxTest {
 
           Env env = unit.get(Env.class);
           expect(env.router()).andReturn(routes);
-          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+          expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
         })
         .expect(onStop)
         .run(unit -> {
           new Rx().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedRunnable.class).get(1).run();
+          unit.captured(Throwing.Runnable.class).get(1).run();
         });
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void withObservableAdapter() throws Exception {
     Config conf = ConfigFactory.empty()
@@ -107,7 +104,7 @@ public class RxTest {
 
           Env env = unit.get(Env.class);
           expect(env.router()).andReturn(routes);
-          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+          expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
         })
         .expect(onStop)
         .expect(unit -> {
@@ -119,7 +116,7 @@ public class RxTest {
               .withObservable(unit.get(Function.class))
               .configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedRunnable.class).get(1).run();
+          unit.captured(Throwing.Runnable.class).get(1).run();
 
           Deferred deferred = (Deferred) unit.captured(Route.Mapper.class).get(0).map(value);
           deferred.handler(null, (r, x) -> {
@@ -127,7 +124,7 @@ public class RxTest {
         });
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void withSingleAdapter() throws Exception {
     Config conf = ConfigFactory.empty()
@@ -155,7 +152,7 @@ public class RxTest {
 
           Env env = unit.get(Env.class);
           expect(env.router()).andReturn(routes);
-          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+          expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
         })
         .expect(onStop)
         .expect(unit -> {
@@ -167,7 +164,7 @@ public class RxTest {
               .withSingle(unit.get(Function.class))
               .configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedRunnable.class).get(1).run();
+          unit.captured(Throwing.Runnable.class).get(1).run();
 
           Deferred deferred = (Deferred) unit.captured(Route.Mapper.class).get(0).map(value);
           deferred.handler(null, (r, x) -> {
@@ -175,7 +172,7 @@ public class RxTest {
         });
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void withCompletableAdapter() throws Exception {
     Config conf = ConfigFactory.empty()
@@ -203,7 +200,7 @@ public class RxTest {
 
           Env env = unit.get(Env.class);
           expect(env.router()).andReturn(routes);
-          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+          expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
         })
         .expect(onStop)
         .expect(unit -> {
@@ -215,7 +212,7 @@ public class RxTest {
               .withCompletable(unit.get(Function.class))
               .configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedRunnable.class).get(1).run();
+          unit.captured(Throwing.Runnable.class).get(1).run();
 
           Deferred deferred = (Deferred) unit.captured(Route.Mapper.class).get(0).map(value);
           deferred.handler(null, (r, x) -> {
@@ -249,14 +246,14 @@ public class RxTest {
           expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
 
           Env env = unit.get(Env.class);
-          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+          expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
           expect(env.router()).andReturn(routes);
         })
         .expect(onStop)
         .run(unit -> {
           new Rx().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedRunnable.class).get(1).run();
+          unit.captured(Throwing.Runnable.class).get(1).run();
         });
   }
 
@@ -288,7 +285,7 @@ public class RxTest {
           expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
 
           Env env = unit.get(Env.class);
-          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+          expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
           expect(env.router()).andReturn(routes);
 
         })
@@ -296,7 +293,7 @@ public class RxTest {
         .run(unit -> {
           new Rx().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedRunnable.class).get(1).run();
+          unit.captured(Throwing.Runnable.class).get(1).run();
         });
   }
 
@@ -327,14 +324,14 @@ public class RxTest {
           expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
 
           Env env = unit.get(Env.class);
-          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+          expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
           expect(env.router()).andReturn(routes);
         })
         .expect(onStop)
         .run(unit -> {
           new Rx().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedRunnable.class).get(1).run();
+          unit.captured(Throwing.Runnable.class).get(1).run();
         });
   }
 

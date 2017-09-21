@@ -1,35 +1,32 @@
 package org.jooby.internal.sitemap;
 
+import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.google.inject.binder.LinkedBindingBuilder;
+import com.google.inject.name.Names;
+import com.typesafe.config.Config;
+import cz.jiripinkas.jsitemapgenerator.WebPage;
+import cz.jiripinkas.jsitemapgenerator.generator.SitemapGenerator;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Predicate;
-
 import org.jooby.Env;
 import org.jooby.Router;
 import org.jooby.sitemap.Sitemap;
 import org.jooby.sitemap.WebPageProvider;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.binder.LinkedBindingBuilder;
-import com.google.inject.name.Names;
-import com.typesafe.config.Config;
-
-import cz.jiripinkas.jsitemapgenerator.WebPage;
-import cz.jiripinkas.jsitemapgenerator.generator.SitemapGenerator;
-import javaslang.Function1;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Predicate;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Sitemap.class, SitemapHandler.class, SitemapGenerator.class })
+@PrepareForTest({Sitemap.class, SitemapHandler.class, SitemapGenerator.class})
 public class SitemapTest {
 
   private Block confWithSiteMapUrl = unit -> {
@@ -58,8 +55,9 @@ public class SitemapTest {
 
   private Block handler = unit -> {
     SitemapHandler handler = unit.constructor(SitemapHandler.class)
-        .args(String.class, Predicate.class, Function1.class)
-        .build(eq("/sitemap.xml"), unit.capture(Predicate.class), unit.capture(Function1.class));
+        .args(String.class, Predicate.class, Throwing.Function.class)
+        .build(eq("/sitemap.xml"), unit.capture(Predicate.class),
+            unit.capture(Throwing.Function.class));
 
     unit.registerMock(SitemapHandler.class, handler);
   };
@@ -140,7 +138,7 @@ public class SitemapTest {
         });
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void build() throws Exception {
     List<WebPage> pages = Collections.emptyList();
@@ -160,7 +158,7 @@ public class SitemapTest {
           new Sitemap()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         }, unit -> {
-          Function1 fn = unit.captured(Function1.class).iterator().next();
+          Throwing.Function fn = unit.captured(Throwing.Function.class).iterator().next();
           fn.apply(pages);
         });
   }

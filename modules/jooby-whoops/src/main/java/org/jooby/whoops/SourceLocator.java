@@ -203,6 +203,9 @@
  */
 package org.jooby.whoops;
 
+import com.google.common.collect.Lists;
+import org.jooby.funzy.Try;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -217,14 +220,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
-
-import javaslang.control.Try;
-
 interface SourceLocator {
 
   public class Source {
-    private static final int[] RANGE = {0, 0 };
+    private static final int[] RANGE = {0, 0};
     private final Path path;
 
     private final List<String> lines;
@@ -249,7 +248,7 @@ interface SourceLocator {
         int to = Math.min(from + toset + size * 2, lines.size());
         int fromset = Math.abs((to - line) - size);
         from = Math.max(from - fromset, 0);
-        return new int[]{from, to };
+        return new int[]{from, to};
       }
       return RANGE;
     }
@@ -276,7 +275,7 @@ interface SourceLocator {
   static SourceLocator local(final Path path) {
     Path bin = path.resolve("bin");
     Path target = path.resolve("target");
-    return filename -> Try.of(() -> {
+    return filename -> Try.apply(() -> {
       List<String> files = Arrays.asList(filename,
           filename.replace(".", File.separator) + ".java");
       List<Path> source = Lists.newArrayList(Paths.get(filename));
@@ -307,8 +306,10 @@ interface SourceLocator {
         }
       });
       return new Source(source.get(0), Files.readAllLines(source.get(0), StandardCharsets.UTF_8));
-    }).getOrElse(new Source(Paths.get(filename), Collections.emptyList()));
-  };
+    }).orElse(new Source(Paths.get(filename), Collections.emptyList()));
+  }
+
+  ;
 
   Source source(String filename);
 

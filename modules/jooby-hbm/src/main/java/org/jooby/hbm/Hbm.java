@@ -203,21 +203,9 @@
  */
 package org.jooby.hbm;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import javax.inject.Provider;
-import javax.inject.Singleton;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
@@ -245,11 +233,20 @@ import org.jooby.internal.hbm.SessionProvider;
 import org.jooby.internal.hbm.UnitOfWorkProvider;
 import org.jooby.jdbc.Jdbc;
 
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-
-import javaslang.concurrent.Promise;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * <h1>hibernate</h1>
@@ -693,20 +690,20 @@ public class Hbm extends Jdbc {
 
       /** scan package? */
       List<URL> packages = sources.getAnnotatedPackages()
-          .stream()
-          .map(pkg -> getClass().getResource("/" + pkg.replace('.', '/')))
-          .collect(Collectors.toList());
+        .stream()
+        .map(pkg -> getClass().getResource("/" + pkg.replace('.', '/')))
+        .collect(Collectors.toList());
 
       Metadata metadata = sources.getMetadataBuilder()
-          .applyImplicitNamingStrategy(ImplicitNamingStrategyJpaCompliantImpl.INSTANCE)
-          .applyScanEnvironment(new ScanEnvImpl(packages))
-          .build();
+        .applyImplicitNamingStrategy(ImplicitNamingStrategyJpaCompliantImpl.INSTANCE)
+        .applyScanEnvironment(new ScanEnvImpl(packages))
+        .build();
 
       SessionFactoryBuilder sfb = metadata.getSessionFactoryBuilder();
       callback(sfb, conf);
       sfb.applyName(name);
 
-      Promise<Registry> registry = Promise.make();
+      CompletableFuture<Registry> registry = new CompletableFuture<>();
       sfb.applyBeanManager(GuiceBeanManager.beanManager(registry));
 
       SessionFactory sessionFactory = sfb.build();
@@ -716,25 +713,25 @@ public class Hbm extends Jdbc {
 
       ServiceKey serviceKey = env.serviceKey();
       serviceKey.generate(SessionFactory.class, name,
-          k -> binder.bind(k).toInstance(sessionFactory));
+        k -> binder.bind(k).toInstance(sessionFactory));
       serviceKey.generate(EntityManagerFactory.class, name,
-          k -> binder.bind(k).toInstance(sessionFactory));
+        k -> binder.bind(k).toInstance(sessionFactory));
 
       /** Session/Entity Manager . */
       serviceKey.generate(Session.class, name,
-          k -> binder.bind(k).toProvider(session));
+        k -> binder.bind(k).toProvider(session));
       serviceKey.generate(EntityManager.class, name,
-          k -> binder.bind(k).toProvider(session));
+        k -> binder.bind(k).toProvider(session));
 
       /** Unit of work . */
       Provider<UnitOfWork> uow = new UnitOfWorkProvider(sessionFactory);
       serviceKey.generate(UnitOfWork.class, name,
-          k -> binder.bind(k).toProvider(uow));
+        k -> binder.bind(k).toProvider(uow));
 
       bindings.forEach(it -> it.accept(binder));
 
       env.onStart(r -> {
-        registry.success(r);
+        registry.complete(r);
         listeners.forEach(it -> it.accept((SessionFactoryImplementor) sessionFactory, r));
       });
 
@@ -750,8 +747,8 @@ public class Hbm extends Jdbc {
   private static Map<Object, Object> settings(final Env env, final Config config) {
     Map<Object, Object> $ = new HashMap<>();
     config.getConfig("hibernate")
-        .entrySet()
-        .forEach(e -> $.put("hibernate." + e.getKey(), e.getValue().unwrapped()));
+      .entrySet()
+      .forEach(e -> $.put("hibernate." + e.getKey(), e.getValue().unwrapped()));
 
     return $;
   }

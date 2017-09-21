@@ -203,19 +203,16 @@
  */
 package org.jooby.internal.couchbase;
 
-import java.lang.reflect.Field;
-import java.util.function.Supplier;
-
-import org.jooby.couchbase.GeneratedValue;
-
 import com.couchbase.client.java.repository.annotation.Id;
-import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.UncheckedExecutionException;
+import org.jooby.couchbase.GeneratedValue;
+import org.jooby.funzy.Try;
 
-import javaslang.control.Try;
+import java.lang.reflect.Field;
+import java.util.function.Supplier;
 
 @SuppressWarnings("rawtypes")
 public final class IdGenerator {
@@ -253,11 +250,12 @@ public final class IdGenerator {
       if (fid.getType() != Long.class) {
         throw new IllegalArgumentException("Generated value must be of type Long: " + fid);
       }
-      id = Try.of(() -> {
+      id = Try.apply(() -> {
         Long seq = next.get();
         fid.set(bean, seq);
         return seq;
-      }).getOrElseThrow(x -> new IllegalStateException("Can't generate id for: " + fid, x));
+      }).wrap(x -> new IllegalStateException("Can't generate id for: " + fid, x))
+          .get();
 
     }
     return id;
@@ -269,13 +267,14 @@ public final class IdGenerator {
   }
 
   private static Field field(final Object bean) {
-    Field id = Try.of(() -> CACHE.getUnchecked(bean.getClass()))
-        .getOrElseThrow(x -> Throwables.propagate(((UncheckedExecutionException) x).getCause()));
+    Field id = Try.apply(() -> CACHE.getUnchecked(bean.getClass()))
+        .unwrap(UncheckedExecutionException.class)
+        .get();
     return id;
   }
 
   private static Object getId(final Object bean, final Field id) {
-    return Try.of(() -> id.get(bean)).get();
+    return Try.apply(() -> id.get(bean)).get();
   }
 
 }

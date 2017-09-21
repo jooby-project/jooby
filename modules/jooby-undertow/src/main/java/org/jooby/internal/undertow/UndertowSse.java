@@ -203,33 +203,31 @@
  */
 package org.jooby.internal.undertow;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Optional;
-import java.util.function.Consumer;
-
-import org.jooby.Sse;
-
-import com.google.common.util.concurrent.MoreExecutors;
-
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
-import javaslang.concurrent.Promise;
+import org.jooby.Sse;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class UndertowSse extends Sse {
 
   private static class DoneCallback implements IoCallback {
 
-    private Promise<Optional<Object>> promise;
+    private CompletableFuture<Optional<Object>> promise;
 
     private Consumer<Throwable> ifClose;
 
     private Optional<Object> id;
 
-    public DoneCallback(final Promise<Optional<Object>> promise, final Optional<Object> id,
-        final Consumer<Throwable> ifClose) {
+    public DoneCallback(final CompletableFuture<Optional<Object>> promise,
+      final Optional<Object> id,
+      final Consumer<Throwable> ifClose) {
       this.promise = promise;
       this.id = id;
       this.ifClose = ifClose;
@@ -237,13 +235,13 @@ public class UndertowSse extends Sse {
 
     @Override
     public void onComplete(final HttpServerExchange exchange, final Sender sender) {
-      promise.success(id);
+      promise.complete(id);
     }
 
     @Override
     public void onException(final HttpServerExchange exchange, final Sender sender,
-        final IOException cause) {
-      promise.failure(cause);
+      final IOException cause) {
+      promise.completeExceptionally(cause);
       ifClose.accept(cause);
     }
   }
@@ -262,18 +260,18 @@ public class UndertowSse extends Sse {
   @Override
   protected void handshake(final Runnable handler) throws Exception {
     exchange.getResponseHeaders()
-        .put(Headers.CONNECTION, "Close")
-        .put(Headers.CONTENT_TYPE, "text/event-stream; charset=utf-8");
+      .put(Headers.CONNECTION, "Close")
+      .put(Headers.CONTENT_TYPE, "text/event-stream; charset=utf-8");
     exchange.setStatusCode(200)
-        .setPersistent(false);
+      .setPersistent(false);
 
     exchange.dispatch(handler);
   }
 
   @Override
-  protected Promise<Optional<Object>> send(final Optional<Object> id, final byte[] data) {
+  protected CompletableFuture<Optional<Object>> send(final Optional<Object> id, final byte[] data) {
     synchronized (this) {
-      Promise<Optional<Object>> promise = Promise.make(MoreExecutors.newDirectExecutorService());
+      CompletableFuture<Optional<Object>> promise = new CompletableFuture<>();
       Sender sender = exchange.getResponseSender();
       sender.send(ByteBuffer.wrap(data), new DoneCallback(promise, id, this::ifClose));
       return promise;

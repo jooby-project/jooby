@@ -203,7 +203,27 @@
  */
 package org.jooby.internal;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.typesafe.config.Config;
 import static java.util.Objects.requireNonNull;
+import org.jooby.Cookie;
+import org.jooby.Env;
+import org.jooby.Err;
+import org.jooby.MediaType;
+import org.jooby.Mutant;
+import org.jooby.Parser;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Route;
+import org.jooby.Session;
+import org.jooby.Status;
+import org.jooby.Upload;
+import org.jooby.funzy.Try;
+import org.jooby.internal.parser.ParserExecutor;
+import org.jooby.spi.NativeRequest;
+import org.jooby.spi.NativeUpload;
 
 import java.io.File;
 import java.io.IOException;
@@ -221,29 +241,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import org.jooby.Cookie;
-import org.jooby.Env;
-import org.jooby.Err;
-import org.jooby.MediaType;
-import org.jooby.Mutant;
-import org.jooby.Parser;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Session;
-import org.jooby.Status;
-import org.jooby.Upload;
-import org.jooby.internal.parser.ParserExecutor;
-import org.jooby.spi.NativeRequest;
-import org.jooby.spi.NativeUpload;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.typesafe.config.Config;
-
-import javaslang.control.Try;
 
 public class RequestImpl implements Request {
 
@@ -507,7 +504,7 @@ public class RequestImpl implements Request {
   public Locale locale(final BiFunction<List<LanguageRange>, List<Locale>, Locale> filter) {
     Supplier<Locale> def = () -> filter.apply(ImmutableList.of(), locales);
     // don't fail on bad Accept-Language header, just fallback to default locale.
-    return lang.map(h -> Try.of(() -> filter.apply(LocaleUtils.range(h), locales)).getOrElse(def))
+    return lang.map(h -> Try.apply(() -> filter.apply(LocaleUtils.range(h), locales)).orElseGet(def))
         .orElseGet(def);
   }
 

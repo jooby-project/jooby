@@ -1,18 +1,20 @@
 package org.jooby.jooq;
 
+import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.google.inject.binder.AnnotatedBindingBuilder;
+import com.google.inject.name.Names;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigValueFactory;
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
-import static org.junit.Assert.assertEquals;
-
-import java.util.Properties;
-
-import javax.inject.Provider;
-import javax.sql.DataSource;
-
 import org.jooby.Env;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
 import org.jooq.Configuration;
 import org.jooq.ConnectionProvider;
 import org.jooq.DSLContext;
@@ -21,25 +23,19 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.DataSourceConnectionProvider;
 import org.jooq.impl.DefaultConfiguration;
 import org.jooq.impl.DefaultTransactionProvider;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.binder.AnnotatedBindingBuilder;
-import com.google.inject.name.Names;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValueFactory;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-
-import javaslang.control.Try.CheckedRunnable;
+import javax.inject.Provider;
+import javax.sql.DataSource;
+import java.util.Properties;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({jOOQ.class, DefaultConfiguration.class, DSL.class,
-    DataSourceConnectionProvider.class, DefaultTransactionProvider.class })
+    DataSourceConnectionProvider.class, DefaultTransactionProvider.class})
 public class jOOQTest {
 
   @SuppressWarnings("unchecked")
@@ -86,7 +82,7 @@ public class jOOQTest {
 
   private MockUnit.Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(isA(Throwing.Runnable.class))).andReturn(env);
   };
 
   @Test
@@ -207,18 +203,18 @@ public class jOOQTest {
 
       expect(properties
           .setProperty("dataSource.dataSourceClassName", dataSourceClassName))
-              .andReturn(null);
+          .andReturn(null);
       if (username != null) {
         expect(properties
             .setProperty("dataSource.user", username))
-                .andReturn(null);
+            .andReturn(null);
         expect(properties
             .setProperty("dataSource.password", password))
-                .andReturn(null);
+            .andReturn(null);
       }
       expect(properties
           .setProperty("dataSource.url", url))
-              .andReturn(null);
+          .andReturn(null);
 
       if (hasDataSourceClassName) {
         expect(properties.getProperty("dataSourceClassName")).andReturn(dataSourceClassName);

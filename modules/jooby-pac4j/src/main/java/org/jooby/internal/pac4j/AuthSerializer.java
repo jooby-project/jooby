@@ -203,15 +203,14 @@
  */
 package org.jooby.internal.pac4j;
 
+import com.google.common.io.BaseEncoding;
+import com.google.common.primitives.Primitives;
+import org.jooby.funzy.Try;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
-import com.google.common.io.BaseEncoding;
-import com.google.common.primitives.Primitives;
-
-import javaslang.control.Try;
 
 public final class AuthSerializer {
 
@@ -221,24 +220,27 @@ public final class AuthSerializer {
     if (value == null || !value.startsWith(PREFIX)) {
       return value;
     }
-    return Try.of(() -> {
+    return Try.apply(() -> {
       byte[] bytes = BaseEncoding.base64().decode(value.substring(PREFIX.length()));
       return new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject();
-    }).getOrElseThrow(
-        ex -> new IllegalArgumentException("Can't de-serialize value " + value, ex));
+    })
+        .wrap(x -> new IllegalArgumentException("Can't de-serialize value " + value, x))
+        .get();
   }
 
   public static final String objToStr(final Object value) {
     if (value instanceof CharSequence || Primitives.isWrapperType(value.getClass())) {
       return value.toString();
     }
-    return Try.of(() -> {
+    return Try.apply(() -> {
       ByteArrayOutputStream bytes = new ByteArrayOutputStream();
       ObjectOutputStream stream = new ObjectOutputStream(bytes);
       stream.writeObject(value);
       stream.flush();
       return PREFIX + BaseEncoding.base64().encode(bytes.toByteArray());
-    }).getOrElseThrow(ex -> new IllegalArgumentException("Can't serialize value " + value, ex));
+    })
+        .wrap(x -> new IllegalArgumentException("Can't serialize value " + value, x))
+        .get();
   }
 
 }

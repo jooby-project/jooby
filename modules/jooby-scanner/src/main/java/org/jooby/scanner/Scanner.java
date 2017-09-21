@@ -203,36 +203,6 @@
  */
 package org.jooby.scanner;
 
-import static javaslang.API.$;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.is;
-import static javaslang.Predicates.noneOf;
-
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-
-import org.jooby.Env;
-import org.jooby.Jooby;
-import org.jooby.Router;
-import org.jooby.mvc.Path;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -241,10 +211,31 @@ import com.google.common.util.concurrent.ServiceManager;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.typesafe.config.Config;
-
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
-import javaslang.control.Try;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.Router;
+import org.jooby.funzy.Throwing;
+import static org.jooby.funzy.Throwing.throwingConsumer;
+import static org.jooby.funzy.Throwing.throwingSupplier;
+import org.jooby.mvc.Path;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import java.lang.reflect.Modifier;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * <h1>scanner</h1>
@@ -377,7 +368,7 @@ public class Scanner implements Jooby.Module {
   private static final Predicate<Class> I = A.negate().and(Class::isInterface);
 
   @SuppressWarnings("rawtypes")
-  private static final Predicate<Class> S = noneOf(I, A);
+  private static final Predicate<Class> S = I.or(A).negate();
 
   private List<String> packages;
 
@@ -401,7 +392,7 @@ public class Scanner implements Jooby.Module {
   public Scanner() {
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
     List<String> packages = Optional.ofNullable(this.packages)
@@ -414,7 +405,7 @@ public class Scanner implements Jooby.Module {
     Router routes = env.router();
 
     ClassLoader loader = getClass().getClassLoader();
-    Function<String, Class> loadClass = name -> Try.of(() -> loader.loadClass(name)).get();
+    Throwing.Function<String, Class> loadClass = name -> loader.loadClass(name);
 
     // bind once as singleton + post/pre callbacks
     Set<Object> bindings = new HashSet<>();
@@ -446,14 +437,15 @@ public class Scanner implements Jooby.Module {
         .filter(once)
         .map(loadClass)
         .filter(C)
-        .forEach(klass -> Try
-            .run(() -> ((Jooby.Module) newObject(klass)).configure(env, conf, binder)).get());
+        .forEach(throwingConsumer(
+            klass -> ((Jooby.Module) newObject(klass)).configure(env, conf, binder)));
 
+    String mainClass = conf.getString("application.class");
     /** Apps: */
     result.getNamesOfSubclassesOf(Jooby.class)
         .stream()
         .filter(once)
-        .filter(is(conf.getString("application.class")).negate())
+        .filter(name -> !name.equals(mainClass))
         .map(loadClass)
         .filter(C)
         .forEach(klass -> routes.use(((Jooby) newObject(klass))));
@@ -473,7 +465,7 @@ public class Scanner implements Jooby.Module {
     /** Implements: */
     serviceTypes.stream()
         .filter(I)
-        .filter(noneOf(type(Jooby.Module.class), type(Module.class), type(Service.class)))
+        .filter(type -> type != Jooby.Module.class && type != Module.class && type != Service.class)
         .forEach(i -> {
           result.getNamesOfClassesImplementing(i)
               .stream()
@@ -533,25 +525,23 @@ public class Scanner implements Jooby.Module {
    */
   public Scanner scan(final Class<?> type) {
     // standard vs guice annotations
-    Match(type).of(
-        Case(is(Named.class),
-            Arrays.asList(Named.class, com.google.inject.name.Named.class)),
-        Case(is(com.google.inject.name.Named.class),
-            Arrays.asList(Named.class, com.google.inject.name.Named.class)),
-        Case(is(Singleton.class),
-            Arrays.asList(Singleton.class, com.google.inject.Singleton.class)),
-        Case(is(com.google.inject.Singleton.class),
-            Arrays.asList(Singleton.class, com.google.inject.Singleton.class)),
-        Case($(), Arrays.asList(type)))
-        .forEach(serviceTypes::add);
+    if (type == Named.class || type == com.google.inject.name.Named.class) {
+      serviceTypes.add(Named.class);
+      serviceTypes.add(com.google.inject.name.Named.class);
+    } else if (type == Singleton.class || type == com.google.inject.Singleton.class) {
+      serviceTypes.add(Singleton.class);
+      serviceTypes.add(com.google.inject.Singleton.class);
+    } else {
+      serviceTypes.add(type);
+    }
     return this;
   }
 
   private static <T> T newObject(final Class<T> klass) {
-    return Try.of(() -> klass.newInstance()).get();
+    return throwingSupplier(() -> klass.newInstance()).get();
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static void guavaServices(final Env env, final Binder binder,
       final Set<Class<Service>> serviceTypes) {
     Consumer<Class> guavaService = klass -> {
@@ -578,7 +568,7 @@ public class Scanner implements Jooby.Module {
     });
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static Predicate<Class> type(final Class type) {
     return klass -> klass.isAssignableFrom(type);
   }

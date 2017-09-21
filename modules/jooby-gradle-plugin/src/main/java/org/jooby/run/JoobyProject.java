@@ -217,11 +217,11 @@
  */
 package org.jooby.run;
 
-import javaslang.control.Try;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
+import static org.jooby.funzy.Throwing.throwingFunction;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -304,7 +304,7 @@ public class JoobyProject {
   public URLClassLoader newClassLoader() throws MalformedURLException {
     return toClassLoader(
         classpath().stream()
-            .map(f -> Try.of(() -> f.toURI().toURL()).get())
+            .map(throwingFunction(f -> f.toURI().toURL()))
             .collect(Collectors.toList()),
         getClass().getClassLoader());
   }

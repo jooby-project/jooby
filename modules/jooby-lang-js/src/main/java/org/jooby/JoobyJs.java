@@ -203,8 +203,7 @@
  */
 package org.jooby;
 
-import com.google.common.io.Closeables;
-import javaslang.control.Try;
+import org.jooby.funzy.Try;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -214,7 +213,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class JoobyJs {
@@ -232,7 +230,7 @@ public class JoobyJs {
 
   public Supplier<Jooby> run(final Reader reader) throws Exception {
     eval(reader);
-    return () -> Try.of(() -> (Jooby) engine.eval("this.__jooby_ && this.__jooby_()")).get();
+    return () -> Try.apply(() -> (Jooby) engine.eval("this.__jooby_ && this.__jooby_()")).get();
   }
 
   void eval(final InputStream stream) throws Exception {
@@ -241,10 +239,9 @@ public class JoobyJs {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   void eval(final Reader reader) throws Exception {
-    Consumer closer = x -> Closeables.closeQuietly(reader);
-    Try.run(() -> engine.eval(reader))
-        .onFailure(closer)
-        .onSuccess(closer);
+    Try.with(() -> reader)
+        .run(engine::eval)
+        .throwException();
   }
 
   public static void main(String[] mainargs) throws Throwable {

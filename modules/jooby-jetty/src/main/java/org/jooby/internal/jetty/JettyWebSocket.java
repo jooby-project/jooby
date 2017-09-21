@@ -204,15 +204,6 @@
 package org.jooby.internal.jetty;
 
 import static java.util.Objects.requireNonNull;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.SuspendToken;
@@ -222,10 +213,17 @@ import org.jooby.WebSocket;
 import org.jooby.WebSocket.OnError;
 import org.jooby.WebSocket.SuccessCallback;
 import org.jooby.spi.NativeWebSocket;
+import org.jooby.funzy.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javaslang.control.Try;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
 

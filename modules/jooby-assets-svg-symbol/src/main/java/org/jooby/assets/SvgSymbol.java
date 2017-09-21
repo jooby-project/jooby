@@ -203,6 +203,16 @@
  */
 package org.jooby.assets;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.typesafe.config.Config;
+import org.jooby.funzy.Throwing;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -216,20 +226,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
-import org.jsoup.parser.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.typesafe.config.Config;
-
-import javaslang.Lazy;
-import javaslang.Tuple;
-import javaslang.Tuple2;
 
 /**
  * <h1>svg-symbol</h1>
@@ -377,6 +373,16 @@ import javaslang.Tuple2;
  */
 public class SvgSymbol extends AssetAggregator {
 
+  public static class Tuple<T1, T2> {
+    public final T1 _1;
+    public final T2 _2;
+
+    public Tuple(final T1 _1, final T2 _2) {
+      this._1 = _1;
+      this._2 = _2;
+    }
+  }
+
   /** #3. */
   private static final int _3 = 3;
 
@@ -430,7 +436,7 @@ public class SvgSymbol extends AssetAggregator {
       String id = get("id.prefix") + file.getFileName().toString().replace(".svg", "")
           + get("id.suffix");
 
-      Tuple2<Element, Element> rewrite = symbol(file, id);
+      Tuple<Element, Element> rewrite = symbol(file, id);
       svg.appendChild(rewrite._2);
 
       cssout.add(css(id, rewrite._1));
@@ -462,13 +468,13 @@ public class SvgSymbol extends AssetAggregator {
    * @return Svg element (original) and a symbol element (converted).
    * @throws IOException If something goes wrong.
    */
-  private Tuple2<Element, Element> symbol(final Path file, final String id) throws IOException {
+  private Tuple<Element, Element> symbol(final Path file, final String id) throws IOException {
     Element svg = Jsoup.parse(file.toFile(), "UTF-8").select("svg").first();
     Element symbol = new Element(Tag.valueOf("symbol"), "")
         .attr("id", id)
         .attr("viewBox", svg.attr("viewBox"));
     new ArrayList<>(svg.childNodes()).forEach(symbol::appendChild);
-    return Tuple.of(svg, symbol);
+    return new Tuple(svg, symbol);
   }
 
   /**
@@ -480,17 +486,18 @@ public class SvgSymbol extends AssetAggregator {
    * @return A css rule.
    */
   private CharSequence css(final String id, final Element svg) {
-    Lazy<Tuple2<Tuple2<Number, String>, Tuple2<Number, String>>> viewBox = Lazy.of(() -> {
-      String vbox = svg.attr("viewBox");
-      String[] dimension = vbox.split("\\s+");
-      return Tuple.of(parse(dimension[2]), parse(dimension[_3]));
-    });
-    Tuple2<Number, String> w = Optional.ofNullable(Strings.emptyToNull(svg.attr("width")))
+    Throwing.Function<String, Tuple<Tuple<Number, String>, Tuple<Number, String>>> viewBox = Throwing
+        .<String, Tuple<Tuple<Number, String>, Tuple<Number, String>>>throwingFunction(name -> {
+          String vbox = svg.attr(name);
+          String[] dimension = vbox.split("\\s+");
+          return new Tuple(parse(dimension[2]), parse(dimension[_3]));
+        }).memoized();
+    Tuple<Number, String> w = Optional.ofNullable(Strings.emptyToNull(svg.attr("width")))
         .map(this::parse)
-        .orElseGet(() -> viewBox.get()._1);
-    Tuple2<Number, String> h = Optional.ofNullable(Strings.emptyToNull(svg.attr("height")))
+        .orElseGet(() -> viewBox.apply("viewBox")._1);
+    Tuple<Number, String> h = Optional.ofNullable(Strings.emptyToNull(svg.attr("height")))
         .map(this::parse)
-        .orElseGet(() -> viewBox.get()._2);
+        .orElseGet(() -> viewBox.apply("viewBox")._2);
     StringBuilder css = new StringBuilder();
     css.append(get("css.prefix").toString()).append(".").append(id)
         .append(" {\n  width: ").append(w._1).append(w._2).append(";\n")
@@ -505,14 +512,14 @@ public class SvgSymbol extends AssetAggregator {
    * @param value Value to parse.
    * @return A tuple with a number and unit(px, em, etc...)
    */
-  private Tuple2<Number, String> parse(final String value) {
+  private Tuple<Number, String> parse(final String value) {
     Matcher matcher = SIZE.matcher(value);
     if (matcher.find()) {
       String number = matcher.group(1);
       String unit = matcher.group(_3);
       boolean round = get("css.round");
       Number num = Double.parseDouble(number);
-      return Tuple.of(round ? Math.round(num.doubleValue()) : num, unit);
+      return new Tuple(round ? Math.round(num.doubleValue()) : num, unit);
     }
     return null;
   }
@@ -534,7 +541,7 @@ public class SvgSymbol extends AssetAggregator {
    * @return Generate a css path from <code>css.output</code> or fallback to <code>output</code>
    */
   private String cssPath() {
-    String css = Optional.<String> ofNullable(get("css.output")).orElse(get("output"));
+    String css = Optional.<String>ofNullable(get("css.output")).orElse(get("output"));
     return css.endsWith(".css") ? css : css + ".css";
   }
 
@@ -542,7 +549,7 @@ public class SvgSymbol extends AssetAggregator {
    * @return Generate a css path from <code>svg.output</code> or fallback to <code>output</code>
    */
   private String svgPath() {
-    String svg = Optional.<String> ofNullable(get("svg.output")).orElse(get("output"));
+    String svg = Optional.<String>ofNullable(get("svg.output")).orElse(get("output"));
     return svg.endsWith(".svg") ? svg : svg + ".svg";
   }
 

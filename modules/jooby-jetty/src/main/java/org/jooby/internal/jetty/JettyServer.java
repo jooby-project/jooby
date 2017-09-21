@@ -203,20 +203,9 @@
  */
 package org.jooby.internal.jetty;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.net.ssl.SSLContext;
-
+import com.google.common.primitives.Primitives;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
@@ -233,16 +222,23 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.api.WebSocketBehavior;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
+import org.jooby.funzy.Try;
 import org.jooby.spi.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Throwables;
-import com.google.common.primitives.Primitives;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
-
-import javaslang.control.Try;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.net.ssl.SSLContext;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class JettyServer implements org.jooby.spi.Server {
 
@@ -409,19 +405,14 @@ public class JettyServer implements org.jooby.spi.Server {
       }
       log.debug("{}.{}({})", source.getClass().getSimpleName(), option.getName(), optionValue);
       option.invoke(source, optionValue);
-    }).onFailure(x -> {
-      Throwable cause = x;
-      if (x instanceof InvocationTargetException) {
-        cause = ((InvocationTargetException) x).getTargetException();
-      }
-      Throwables.propagate(cause);
-    });
+    }).unwrap(InvocationTargetException.class)
+        .throwException();
   }
 
   private <T> T conf(final T source, final Config config, final String path) {
     Map<String, Method> methods = Arrays.stream(source.getClass().getMethods())
         .filter(m -> m.getName().startsWith("set") && m.getParameterCount() == 1)
-        .collect(Collectors.toMap(Method::getName, Function.<Method> identity()));
+        .collect(Collectors.toMap(Method::getName, Function.<Method>identity()));
 
     config.entrySet().forEach(entry -> {
       String key = "set" + entry.getKey();

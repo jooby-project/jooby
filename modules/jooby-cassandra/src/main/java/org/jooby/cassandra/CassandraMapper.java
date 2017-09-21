@@ -203,23 +203,17 @@
  */
 package org.jooby.cassandra;
 
-import static javaslang.API.$;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.instanceOf;
-
-import org.jooby.Deferred;
-import org.jooby.Route.Mapper;
-
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.mapping.Result;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import org.jooby.Deferred;
+import org.jooby.Route.Mapper;
 
 class CassandraMapper implements Mapper<Object> {
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static class DeferredHandler implements Deferred.Initializer0 {
 
     private ListenableFuture future;
@@ -251,17 +245,19 @@ class CassandraMapper implements Mapper<Object> {
 
   @Override
   public Object map(final Object value) throws Throwable {
-    return Match(value).of(
-        Case(instanceOf(ListenableFuture.class),
-            future -> new Deferred(new DeferredHandler(future))),
-        Case($(), resultSet(value)));
+    if (value instanceof ListenableFuture) {
+      return new Deferred(new DeferredHandler((ListenableFuture) value));
+    }
+    return resultSet(value);
   }
 
-  private static Object resultSet(final Object result) {
-    return Match(result).of(
-        Case(instanceOf(ResultSet.class), ResultSet::all),
-        Case(instanceOf(Result.class), Result::all),
-        Case($(), result));
+  private static Object resultSet(final Object value) {
+    if (value instanceof ResultSet) {
+      return ((ResultSet) value).all();
+    } else if (value instanceof Result) {
+      return ((Result) value).all();
+    }
+    return value;
   }
 
 }

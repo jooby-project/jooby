@@ -203,13 +203,6 @@
  */
 package org.jooby.internal.couchbase;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.jooby.couchbase.N1Q;
-
 import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonParser;
 import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonProcessingException;
@@ -225,10 +218,15 @@ import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.repository.mapping.EntityConverter;
 import com.couchbase.client.java.transcoder.JacksonTransformers;
+import org.jooby.couchbase.N1Q;
+import org.jooby.funzy.Try;
 
-import javaslang.control.Try;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-@SuppressWarnings({"rawtypes", "unchecked" })
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class JacksonMapper implements EntityConverter<JsonDocument> {
 
   static final ObjectMapper MAPPER;
@@ -291,7 +289,7 @@ public class JacksonMapper implements EntityConverter<JsonDocument> {
   }
 
   private Class type(final String cname, final Class deftype) {
-    return Try.of(() -> getClass().getClassLoader().loadClass(cname)).getOrElse(deftype);
+    return Try.apply(() -> getClass().getClassLoader().loadClass(cname)).orElse(deftype);
   }
 
 }

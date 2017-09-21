@@ -203,33 +203,17 @@
  */
 package org.jooby.cassandra;
 
-import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
-import static com.datastax.driver.core.querybuilder.QueryBuilder.insertInto;
-import static com.datastax.driver.core.querybuilder.QueryBuilder.raw;
-import static com.datastax.driver.core.querybuilder.QueryBuilder.select;
-import static com.datastax.driver.core.querybuilder.QueryBuilder.ttl;
-import static java.util.Objects.requireNonNull;
-
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import org.jooby.Session;
-import org.jooby.Session.Builder;
-import org.jooby.Session.Store;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.DataType;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
+import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
+import static com.datastax.driver.core.querybuilder.QueryBuilder.insertInto;
+import static com.datastax.driver.core.querybuilder.QueryBuilder.raw;
+import static com.datastax.driver.core.querybuilder.QueryBuilder.select;
+import static com.datastax.driver.core.querybuilder.QueryBuilder.ttl;
 import com.datastax.driver.core.schemabuilder.Create;
 import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import com.google.common.util.concurrent.FutureCallback;
@@ -237,8 +221,20 @@ import com.google.common.util.concurrent.Futures;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+import static java.util.Objects.requireNonNull;
+import org.jooby.Session;
+import org.jooby.Session.Builder;
+import org.jooby.Session.Store;
+import org.jooby.funzy.Throwing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javaslang.Lazy;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.Date;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <h1>cassandra session store</h1>
@@ -320,11 +316,11 @@ public class CassandraSessionStore implements Store {
 
   private final String tableName = "session";
 
-  private final Lazy<PreparedStatement> insertSQL;
+  private final Throwing.Function<String, PreparedStatement> insertSQL;
 
-  private Lazy<PreparedStatement> selectSQL;
+  private Throwing.Function<String, PreparedStatement> selectSQL;
 
-  private Lazy<PreparedStatement> deleteSQL;
+  private Throwing.Function<String, PreparedStatement> deleteSQL;
 
   public CassandraSessionStore(final com.datastax.driver.core.Session session, final int timeout) {
     this.session = requireNonNull(session, "Session required.");
@@ -332,9 +328,15 @@ public class CassandraSessionStore implements Store {
 
     createTableIfNotExists(session, tableName, log);
 
-    this.insertSQL = Lazy.of(() -> session.prepare(insertSQL(tableName, timeout)));
-    this.selectSQL = Lazy.of(() -> session.prepare(selectSQL(tableName)));
-    this.deleteSQL = Lazy.of(() -> session.prepare(deleteSQL(tableName)));
+    this.insertSQL = Throwing.<String, PreparedStatement>throwingFunction(table ->
+        session.prepare(insertSQL(table, timeout))
+    ).memoized();
+    this.selectSQL = Throwing.<String, PreparedStatement>throwingFunction(table ->
+        session.prepare(selectSQL(table))
+    ).memoized();
+    this.deleteSQL = Throwing.<String, PreparedStatement>throwingFunction(table ->
+        session.prepare(deleteSQL(table))
+    ).memoized();
   }
 
   @Inject
@@ -346,7 +348,7 @@ public class CassandraSessionStore implements Store {
   @Override
   public Session get(final Builder builder) {
     ResultSet rs = session
-        .execute(new BoundStatement(selectSQL.get()).bind(builder.sessionId()));
+        .execute(new BoundStatement(selectSQL.apply(tableName)).bind(builder.sessionId()));
     return Optional.ofNullable(rs.one())
         .map(row -> {
           long createdAt = row.getTimestamp(CREATED_AT).getTime();
@@ -370,7 +372,7 @@ public class CassandraSessionStore implements Store {
 
   @Override
   public void save(final Session session) {
-    this.session.execute(new BoundStatement(insertSQL.get())
+    this.session.execute(new BoundStatement(insertSQL.apply(tableName))
         .bind(
             session.id(),
             new Date(session.createdAt()),
@@ -386,7 +388,7 @@ public class CassandraSessionStore implements Store {
 
   @Override
   public void delete(final String id) {
-    session.execute(new BoundStatement(deleteSQL.get()).bind(id));
+    session.execute(new BoundStatement(deleteSQL.apply(tableName)).bind(id));
   }
 
   private static int seconds(final String value) {

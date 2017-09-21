@@ -9,21 +9,22 @@ import com.orbitz.consul.Consul;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-import javaslang.control.Try.CheckedRunnable;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
 import org.jooby.Env;
 import org.jooby.Route;
 import org.jooby.Router;
 import org.jooby.test.MockUnit;
+import org.jooby.funzy.Throwing;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Consul.class, Consul.Builder.class})
@@ -115,7 +116,7 @@ public class ConsulbyTest {
       expect(Consul.builder()).andReturn(consulBuilder);
 
       Env env = unit.get(Env.class);
-      expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
+      expect(env.onStop(isA(Throwing.Runnable.class))).andReturn(env);
 
       //noinspection unchecked
       AnnotatedBindingBuilder<Consul> consulABB = unit.mock(AnnotatedBindingBuilder.class);
@@ -138,8 +139,8 @@ public class ConsulbyTest {
       expect(consul.agentClient()).andReturn(agentClient);
 
       Env env = unit.get(Env.class);
-      expect(env.onStarted(isA(CheckedRunnable.class))).andReturn(env);
-      expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
+      expect(env.onStarted(isA(Throwing.Runnable.class))).andReturn(env);
+      expect(env.onStop(isA(Throwing.Runnable.class))).andReturn(env);
     };
   }
 
@@ -172,13 +173,15 @@ public class ConsulbyTest {
           .withRegistrationBuilder(builder -> registrationBuilderConsumerCalled.set(true))
           .configure(unit.get(Env.class), config, unit.get(Binder.class));
       assertTrue("Consul Builder Consumer should be called", consulBuilderConsumerCalled.get());
-      assertTrue("Registration Builder Consumer should be called", registrationBuilderConsumerCalled.get());
+      assertTrue("Registration Builder Consumer should be called",
+          registrationBuilderConsumerCalled.get());
     };
   }
 
   @SuppressWarnings("SameParameterValue")
   private MockUnit.Block createAndConfigureModule(String name, Config config) {
-    return unit -> new Consulby(name).configure(unit.get(Env.class), config, unit.get(Binder.class));
+    return unit -> new Consulby(name)
+        .configure(unit.get(Env.class), config, unit.get(Binder.class));
   }
 
   private Config resolvedConfig() {

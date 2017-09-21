@@ -203,24 +203,17 @@
  */
 package org.jooby;
 
-import static javaslang.API.$;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.instanceOf;
+import com.typesafe.config.Config;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-import com.typesafe.config.Config;
-
-import javaslang.control.Try.CheckedConsumer;
-import javaslang.control.Try.CheckedRunnable;
 
 /**
  * <h2>life cycle</h2>
@@ -350,7 +343,7 @@ public interface LifeCycle {
    * @param annotation Annotation to look for.
    * @return A callback to the method. Or empty.
    */
-  static Optional<CheckedConsumer<Object>> lifeCycleAnnotation(final Class<?> rawType,
+  static Optional<Throwing.Consumer<Object>> lifeCycleAnnotation(final Class<?> rawType,
       final Class<? extends Annotation> annotation) {
     for (Method method : rawType.getDeclaredMethods()) {
       if (method.getAnnotation(annotation) != null) {
@@ -372,20 +365,18 @@ public interface LifeCycle {
               + " method should not return anything: " + method);
         }
         return Optional.of(owner -> {
-          try {
+          Try.run(() -> {
             method.setAccessible(true);
             method.invoke(owner);
-          } catch (InvocationTargetException ex) {
-            throw Match(ex.getTargetException()).of(
-                Case(instanceOf(RuntimeException.class), x -> x),
-                Case($(), x -> new IllegalStateException(
-                    "execution of " + annotation + " resulted in error", x)));
-          }
+          }).unwrap(InvocationTargetException.class)
+              .throwException();
         });
       }
     }
     return Optional.empty();
-  };
+  }
+
+  ;
 
   /**
    * Add to lifecycle the given service. Any method annotated with {@link PostConstruct} or
@@ -443,7 +434,7 @@ public interface LifeCycle {
    * @param task Task to run.
    * @return This env.
    */
-  LifeCycle onStart(CheckedConsumer<Registry> task);
+  LifeCycle onStart(Throwing.Consumer<Registry> task);
 
   /**
    * Add a started lifecycle event. Started callbacks are executed when the application is ready:
@@ -457,7 +448,7 @@ public interface LifeCycle {
    * @param task Task to run.
    * @return This env.
    */
-  LifeCycle onStarted(CheckedConsumer<Registry> task);
+  LifeCycle onStarted(Throwing.Consumer<Registry> task);
 
   /**
    * Add a start lifecycle event, useful for initialize and/or start services at startup time.
@@ -470,7 +461,7 @@ public interface LifeCycle {
    * @param task Task to run.
    * @return This env.
    */
-  default LifeCycle onStart(final CheckedRunnable task) {
+  default LifeCycle onStart(final Throwing.Runnable task) {
     return onStart(app -> task.run());
   }
 
@@ -486,7 +477,7 @@ public interface LifeCycle {
    * @param task Task to run.
    * @return This env.
    */
-  default LifeCycle onStarted(final CheckedRunnable task) {
+  default LifeCycle onStarted(final Throwing.Runnable task) {
     return onStarted(app -> task.run());
   }
 
@@ -501,7 +492,7 @@ public interface LifeCycle {
    * @param task Task to run.
    * @return This env.
    */
-  default LifeCycle onStop(final CheckedRunnable task) {
+  default LifeCycle onStop(final Throwing.Runnable task) {
     return onStop(app -> task.run());
   }
 
@@ -516,6 +507,6 @@ public interface LifeCycle {
    * @param task Task to run.
    * @return This env.
    */
-  LifeCycle onStop(CheckedConsumer<Registry> task);
+  LifeCycle onStop(Throwing.Consumer<Registry> task);
 
 }

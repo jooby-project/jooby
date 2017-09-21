@@ -1,11 +1,8 @@
 package org.jooby.internal;
 
-import static org.junit.Assert.assertEquals;
-
 import org.jooby.Err;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-
-import javaslang.Tuple2;
 
 public class ByteRangeTest {
 
@@ -46,23 +43,23 @@ public class ByteRangeTest {
 
   @Test
   public void validRange() {
-    Tuple2<Long, Long> range = ByteRange.parse("bytes=1-10");
-    assertEquals(1L, range._1.longValue());
-    assertEquals(10L, range._2.longValue());
+    long[] range = ByteRange.parse("bytes=1-10");
+    assertEquals(1L, range[0]);
+    assertEquals(10L, range[1]);
   }
 
   @Test
   public void prefixRange() {
-    Tuple2<Long, Long> range = ByteRange.parse("bytes=99-");
-    assertEquals(99L, range._1.longValue());
-    assertEquals(-1L, range._2.longValue());
+    long[] range = ByteRange.parse("bytes=99-");
+    assertEquals(99L, range[0]);
+    assertEquals(-1L, range[1]);
   }
 
   @Test
   public void suffixRange() {
-    Tuple2<Long, Long> range = ByteRange.parse("bytes=-99");
-    assertEquals(-1L, range._1.longValue());
-    assertEquals(99L, range._2.longValue());
+    long[] range = ByteRange.parse("bytes=-99");
+    assertEquals(-1L, range[0]);
+    assertEquals(99L, range[1]);
   }
 
 }

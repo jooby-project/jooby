@@ -1,8 +1,19 @@
 package org.jooby.assets;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.common.io.ByteStreams;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
+import org.jooby.Asset;
+import org.jooby.MediaType;
+import org.jooby.internal.URLAsset;
+import org.jooby.funzy.Try;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,20 +26,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.jooby.Asset;
-import org.jooby.MediaType;
-import org.jooby.internal.URLAsset;
-import org.junit.Test;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.common.io.ByteStreams;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
-
-import javaslang.control.Try;
 
 public class AssetCompilerTest {
 
@@ -201,7 +198,7 @@ public class AssetCompilerTest {
             .forEach(it -> {
               assertTrue(it.exists());
               if (it.getName().endsWith(".css")) {
-                String css = Try.of(() -> Files.readAllLines(it.toPath()).stream()
+                String css = Try.apply(() -> Files.readAllLines(it.toPath()).stream()
                     .collect(Collectors.joining("\n"))).get();
                 assertTrue(css.contains(".dyn"));
               }

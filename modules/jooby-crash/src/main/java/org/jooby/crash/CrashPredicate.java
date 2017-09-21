@@ -201,50 +201,21 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.jooby.internal.memcached;
+package org.jooby.crash;
 
-import net.spy.memcached.ConnectionFactory;
-import net.spy.memcached.ConnectionFactoryBuilder;
-import net.spy.memcached.MemcachedClient;
-import static org.jooby.funzy.Throwing.throwingSupplier;
+import java.nio.file.Path;
+import java.util.function.Predicate;
 
-import javax.inject.Provider;
-import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+public class CrashPredicate implements Predicate<Path> {
+  public final String name;
+  public final Predicate<Path> predicate;
 
-public class MemcachedClientProvider implements Provider<MemcachedClient> {
-
-  private ConnectionFactoryBuilder builder;
-
-  private List<InetSocketAddress> servers;
-
-  private MemcachedClient client;
-
-  private long shutdownTimeout;
-
-  public MemcachedClientProvider(final ConnectionFactoryBuilder builder,
-      final List<InetSocketAddress> servers, final long shutdownTimeout) {
-    this.builder = builder;
-    this.servers = servers;
-    this.shutdownTimeout = shutdownTimeout;
+  public CrashPredicate(final String name, final Predicate<Path> predicate) {
+    this.name = name;
+    this.predicate = predicate;
   }
 
-  public void destroy() {
-    if (client != null) {
-      client.shutdown(shutdownTimeout, TimeUnit.MILLISECONDS);
-      client = null;
-    }
+  @Override public boolean test(final Path path) {
+    return predicate.test(path);
   }
-
-  @Override
-  public MemcachedClient get() {
-    client = throwingSupplier(() -> {
-      ConnectionFactory connectionFactory = builder.build();
-      this.builder = null;
-      return new MemcachedClient(connectionFactory, servers);
-    }).get();
-    return client;
-  }
-
 }

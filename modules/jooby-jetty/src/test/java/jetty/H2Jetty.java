@@ -1,29 +1,28 @@
 package jetty;
 
-import java.nio.charset.StandardCharsets;
-
+import com.google.common.io.ByteStreams;
 import org.jooby.Jooby;
 import org.jooby.MediaType;
 import org.jooby.Results;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.ByteStreams;
-
-import javaslang.Lazy;
-import javaslang.control.Try;
+import java.nio.charset.StandardCharsets;
 
 public class H2Jetty extends Jooby {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  Lazy<String> html = Lazy.of(() -> {
-    return Try.of(() -> {
-      byte[] bytes = ByteStreams.toByteArray(getClass().getResourceAsStream("/index.html"));
-      return new String(bytes, StandardCharsets.UTF_8);
-    }).get();
-  });
+  Throwing.Function<String, String> html = Throwing.<String, String>throwingFunction(path -> {
+    return Try.with(() -> getClass().getResourceAsStream(path))
+        .apply(in -> {
+          byte[] bytes = ByteStreams.toByteArray(in);
+          return new String(bytes, StandardCharsets.UTF_8);
+        }).get();
+  }).memoized();
 
   {
     http2();
@@ -36,7 +35,7 @@ public class H2Jetty extends Jooby {
     assets("/assets/**");
     get("/", req -> {
       req.push("/assets/index.js");
-      return Results.ok(html.get()).type(MediaType.html);
+      return Results.ok(html.apply("/index.html")).type(MediaType.html);
     });
 
   }

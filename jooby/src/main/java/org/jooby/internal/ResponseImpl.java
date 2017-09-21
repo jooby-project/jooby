@@ -203,23 +203,8 @@
  */
 package org.jooby.internal;
 
+import com.google.common.collect.ImmutableList;
 import static java.util.Objects.requireNonNull;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import org.jooby.Asset;
 import org.jooby.Cookie;
 import org.jooby.Cookie.Definition;
@@ -236,11 +221,23 @@ import org.jooby.Route.Complete;
 import org.jooby.Status;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeResponse;
+import org.jooby.funzy.Try;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
-
-import javaslang.control.Try;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class ResponseImpl implements Response {
 

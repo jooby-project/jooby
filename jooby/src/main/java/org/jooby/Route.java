@@ -213,15 +213,12 @@ import com.google.common.primitives.Primitives;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import static java.util.Objects.requireNonNull;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import javaslang.CheckedFunction1;
-import static javaslang.Predicates.instanceOf;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.RouteSourceImpl;
 import org.jooby.internal.SourceProvider;
+import org.jooby.funzy.Throwing;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -535,7 +532,7 @@ public interface Route {
      * @param <T> Value type.
      * @return A new mapper.
      */
-    static <T> Mapper<T> create(final String name, final CheckedFunction1<T, Object> fn) {
+    static <T> Mapper<T> create(final String name, final Throwing.Function<T, Object> fn) {
       return new Route.Mapper<T>() {
         @Override
         public String name() {
@@ -1463,13 +1460,16 @@ public interface Route {
     }
 
     private boolean valid(final Object value) {
-      return Match(value).option(
-          Case(v -> Primitives.isWrapperType(Primitives.wrap(v.getClass())), true),
-          Case(instanceOf(String.class), true),
-          Case(instanceOf(Enum.class), true),
-          Case(instanceOf(Class.class), true),
-          Case(c -> c.getClass().isArray(), v -> valid(Array.get(v, 0))))
-          .getOrElse(false);
+      if (Primitives.isWrapperType(Primitives.wrap(value.getClass()))) {
+        return true;
+      }
+      if (value instanceof String || value instanceof Enum || value instanceof Class) {
+        return true;
+      }
+      if (value.getClass().isArray()) {
+        return valid(Array.get(value, 0));
+      }
+      return false;
     }
 
     /**

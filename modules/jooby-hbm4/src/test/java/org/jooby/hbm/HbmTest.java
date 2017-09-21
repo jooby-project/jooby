@@ -1,21 +1,21 @@
 package org.jooby.hbm;
 
+import com.google.common.collect.Sets;
+import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.google.inject.binder.AnnotatedBindingBuilder;
+import com.google.inject.binder.LinkedBindingBuilder;
+import com.google.inject.multibindings.Multibinder;
+import com.google.inject.name.Names;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.inject.Provider;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-
 import org.hibernate.jpa.HibernateEntityManagerFactory;
 import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
@@ -30,29 +30,25 @@ import org.jooby.scope.Providers;
 import org.jooby.scope.RequestScoped;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.common.collect.Sets;
-import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.binder.AnnotatedBindingBuilder;
-import com.google.inject.binder.LinkedBindingBuilder;
-import com.google.inject.multibindings.Multibinder;
-import com.google.inject.name.Names;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-
-import javaslang.control.Try.CheckedRunnable;
+import javax.inject.Provider;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Hbm.class, HbmUnitDescriptor.class, Multibinder.class,
-    Route.Definition.class, Properties.class, Bootstrap.class, Providers.class })
+    Route.Definition.class, Properties.class, Bootstrap.class, Providers.class})
 public class HbmTest {
 
   Config config = ConfigFactory.parseResources(Hbm.class, "hbm.conf")
@@ -62,8 +58,8 @@ public class HbmTest {
 
   private MockUnit.Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
-    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
+    expect(env.onStop(isA(Throwing.Runnable.class))).andReturn(env);
   };
 
   @Test
@@ -143,7 +139,7 @@ public class HbmTest {
         .run(unit -> {
           new Hbm().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         }, unit -> {
-          List<CheckedRunnable> captured = unit.captured(CheckedRunnable.class);
+          List<Throwing.Runnable> captured = unit.captured(Throwing.Runnable.class);
           captured.get(0).run();
         });
   }
@@ -178,7 +174,7 @@ public class HbmTest {
   @Test
   public void config() {
     assertEquals(ConfigFactory.parseResources(Hbm.class, "hbm.conf")
-        .withFallback(ConfigFactory.parseResources(Jdbc.class, "jdbc.conf")),
+            .withFallback(ConfigFactory.parseResources(Jdbc.class, "jdbc.conf")),
         new Hbm().config());
   }
 
@@ -293,18 +289,18 @@ public class HbmTest {
 
       expect(properties
           .setProperty("dataSource.dataSourceClassName", dataSourceClassName))
-              .andReturn(null);
+          .andReturn(null);
       if (username != null) {
         expect(properties
             .setProperty("dataSource.user", username))
-                .andReturn(null);
+            .andReturn(null);
         expect(properties
             .setProperty("dataSource.password", password))
-                .andReturn(null);
+            .andReturn(null);
       }
       expect(properties
           .setProperty("dataSource.url", url))
-              .andReturn(null);
+          .andReturn(null);
 
       if (hasDataSourceClassName) {
         expect(properties.getProperty("dataSourceClassName")).andReturn(dataSourceClassName);

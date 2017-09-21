@@ -203,33 +203,29 @@
  */
 package org.jooby.internal.parser.bean;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.inject.Inject;
-
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
+import com.google.inject.TypeLiteral;
 import org.jooby.Request;
 import org.jooby.internal.ParameterNameProvider;
 import org.jooby.internal.mvc.RequestParam;
 import org.jooby.internal.mvc.RequestParamNameProviderImpl;
 import org.jooby.internal.mvc.RequestParamProviderImpl;
+import org.jooby.funzy.Throwing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Splitter;
-import com.google.inject.TypeLiteral;
-
-import javaslang.CheckedFunction1;
-import javaslang.Tuple;
-import javaslang.Tuple2;
+import javax.inject.Inject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("rawtypes")
 public class BeanPlan {
@@ -285,7 +281,7 @@ public class BeanPlan {
         .parameters(constructor);
   }
 
-  public Object newBean(final CheckedFunction1<RequestParam, Object> lookup,
+  public Object newBean(final Throwing.Function<RequestParam, Object> lookup,
       final Set<String> params) throws Throwable {
     log.debug("instantiating object {}", constructor);
 
@@ -313,30 +309,30 @@ public class BeanPlan {
     List<BeanPath> result = new ArrayList<>();
     while (it.hasNext()) {
       String path = it.next();
-      Tuple2<TypeLiteral, String> ckey = Tuple.of(beanType, path);
+      List<Object> ckey = Arrays.asList(beanType, path);
       BeanPath cached = cache.get(ckey);
       if (cached == null) {
-        List<Tuple2<String, Integer>> segments = segments(path);
+        List<Object[]> segments = segments(path);
         List<BeanPath> chain = new ArrayList<>();
         // traverse path
         TypeLiteral ittype = beanType;
         for (int i = 0; i < segments.size() - 1; i++) {
-          Tuple2<String, Integer> segment = segments.get(i);
+          Object[] segment = segments.get(i);
           final BeanPath cpath;
-          if (segment._2 != null) {
-            if (segment._1 == null) {
-              cpath = new BeanIndexedPath(null, segment._2, ittype);
+          if (segment[1] != null) {
+            if (segment[0] == null) {
+              cpath = new BeanIndexedPath(null, (Integer) segment[1], ittype);
             } else {
-              BeanPath getter = member("get", segment._1, ittype, 0);
+              BeanPath getter = member("get", (String) segment[0], ittype, 0);
               if (getter instanceof BeanMethodPath) {
-                ((BeanMethodPath) getter).setter = member("set", segment._1, ittype, 1);
+                ((BeanMethodPath) getter).setter = member("set", (String) segment[0], ittype, 1);
               }
-              cpath = new BeanIndexedPath(getter, segment._2, ittype);
+              cpath = new BeanIndexedPath(getter, (Integer) segment[1], ittype);
             }
           } else {
-            BeanPath getter = member("get", segment._1, ittype, 0);
+            BeanPath getter = member("get", (String) segment[0], ittype, 0);
             if (getter instanceof BeanMethodPath) {
-              ((BeanMethodPath) getter).setter = member("set", segment._1, ittype, 1);
+              ((BeanMethodPath) getter).setter = member("set", (String) segment[0], ittype, 1);
             }
             cpath = getter;
           }
@@ -347,15 +343,15 @@ public class BeanPlan {
         }
 
         // set path
-        Tuple2<String, Integer> last = segments.get(segments.size() - 1);
-        BeanPath cpath = member("set", last._1, ittype, 1);
+        Object[] last = segments.get(segments.size() - 1);
+        BeanPath cpath = member("set", (String) last[0], ittype, 1);
         if (cpath != null) {
-          if (last._2 != null) {
-            BeanPath getter = member("get", last._1, ittype, 0);
+          if (last[1] != null) {
+            BeanPath getter = member("get", (String) last[0], ittype, 0);
             if (getter instanceof BeanMethodPath) {
               ((BeanMethodPath) getter).setter = cpath;
             }
-            cpath = new BeanIndexedPath(getter, last._2, ittype);
+            cpath = new BeanIndexedPath(getter, (Integer) last[1], ittype);
           }
           if (chain.size() == 0) {
             cached = cpath;
@@ -372,22 +368,22 @@ public class BeanPlan {
     return result;
   }
 
-  private List<Tuple2<String, Integer>> segments(final String path) {
+  private List<Object[]> segments(final String path) {
     List<String> segments = Splitter.on(CharMatcher.anyOf("[].")).trimResults()
         .omitEmptyStrings()
         .splitToList(path);
-    List<Tuple2<String, Integer>> result = new ArrayList<>(segments.size());
+    List<Object[]> result = new ArrayList<>(segments.size());
     for (int i = 0; i < segments.size(); i++) {
       String segment = segments.get(i);
       try {
         int idx = Integer.parseInt(segment);
         if (result.size() > 0) {
-          result.set(result.size() - 1, Tuple.of(result.get(result.size() - 1)._1, idx));
+          result.set(result.size() - 1, new Object[]{result.get(result.size() - 1)[0], idx});
         } else {
-          result.add(Tuple.of(null, idx));
+          result.add(new Object[]{null, idx});
         }
       } catch (NumberFormatException x) {
-        result.add(Tuple.of(segment, null));
+        result.add(new Object[]{segment, null});
       }
     }
 

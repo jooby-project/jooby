@@ -1,15 +1,13 @@
 package org.jooby.banner;
 
-import java.util.List;
-
-import org.jooby.Env;
-import org.jooby.Registry;
-
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+import org.jooby.Env;
+import org.jooby.Registry;
+import org.jooby.funzy.Throwing;
 
-import javaslang.control.Try.CheckedConsumer;
+import java.util.List;
 
 public class BannerApp {
 
@@ -21,8 +19,8 @@ public class BannerApp {
     System.out.println(conf.getDuration("maxAge").getSeconds());
     Env env = Env.DEFAULT.build(conf);
     new Banner("jooby").configure(env, conf, null);
-    List<CheckedConsumer<Registry>> startTasks = env.startTasks();
-    for (CheckedConsumer<Registry> task : startTasks) {
+    List<Throwing.Consumer<Registry>> startTasks = env.startTasks();
+    for (Throwing.Consumer<Registry> task : startTasks) {
       task.accept(null);
     }
   }

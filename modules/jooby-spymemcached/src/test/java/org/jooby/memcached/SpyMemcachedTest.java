@@ -1,26 +1,10 @@
 package org.jooby.memcached;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-
-import java.util.Arrays;
-
-import org.jooby.Env;
-import org.jooby.internal.memcached.MemcachedClientProvider;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.google.inject.Binder;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
-
-import javaslang.control.Try.CheckedRunnable;
 import net.spy.memcached.ConnectionFactoryBuilder;
 import net.spy.memcached.ConnectionFactoryBuilder.Locator;
 import net.spy.memcached.ConnectionFactoryBuilder.Protocol;
@@ -28,9 +12,22 @@ import net.spy.memcached.FailureMode;
 import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.auth.AuthDescriptor;
 import net.spy.memcached.metrics.MetricType;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import org.jooby.Env;
+import org.jooby.internal.memcached.MemcachedClientProvider;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.Arrays;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SpyMemcached.class, ConnectionFactoryBuilder.class })
+@PrepareForTest({SpyMemcached.class, ConnectionFactoryBuilder.class})
 public class SpyMemcachedTest {
 
   private Block cfb = unit -> {
@@ -81,7 +78,7 @@ public class SpyMemcachedTest {
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
 
-    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
   };
 
   @Test
@@ -97,7 +94,7 @@ public class SpyMemcachedTest {
           new SpyMemcached()
               .configure(unit.get(Env.class), config, unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedRunnable.class).iterator().next().run();
+          unit.captured(Throwing.Runnable.class).iterator().next().run();
         });
   }
 

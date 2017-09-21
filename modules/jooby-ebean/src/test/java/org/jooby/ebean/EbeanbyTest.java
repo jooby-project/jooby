@@ -1,26 +1,5 @@
 package org.jooby.ebean;
 
-import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
-import org.jooby.Env;
-import org.jooby.Env.ServiceKey;
-import org.jooby.internal.ebean.EbeanEnhancer;
-import org.jooby.internal.ebean.EbeanManaged;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -32,16 +11,33 @@ import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
+import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import io.ebean.EbeanServer;
 import io.ebean.config.ContainerConfig;
 import io.ebean.config.ServerConfig;
-import javaslang.control.Try.CheckedRunnable;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
+import org.jooby.internal.ebean.EbeanEnhancer;
+import org.jooby.internal.ebean.EbeanManaged;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Properties;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Ebeanby.class, ServerConfig.class, EbeanEnhancer.class, Properties.class })
+@PrepareForTest({Ebeanby.class, ServerConfig.class, EbeanEnhancer.class, Properties.class})
 public class EbeanbyTest {
 
   private Block containerConfig = unit -> {
@@ -70,14 +66,14 @@ public class EbeanbyTest {
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
 
-    expect(env.onStart(isA(CheckedRunnable.class))).andReturn(env);
-    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
-    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStart(isA(Throwing.Runnable.class))).andReturn(env);
+    expect(env.onStop(isA(Throwing.Runnable.class))).andReturn(env);
+    expect(env.onStop(isA(Throwing.Runnable.class))).andReturn(env);
   };
 
   private Block onStart = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStart(unit.capture(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStart(unit.capture(Throwing.Runnable.class))).andReturn(env);
   };
 
   @Test
@@ -277,7 +273,7 @@ public class EbeanbyTest {
         .run(unit -> {
           new Ebeanby("db")
               .configure(unit.get(Env.class), config()
-                  .withValue("db", ConfigValueFactory.fromAnyRef("jdbc:db2://127.0.0.1/mydb")),
+                      .withValue("db", ConfigValueFactory.fromAnyRef("jdbc:db2://127.0.0.1/mydb")),
                   unit.get(Binder.class));
         });
   }
@@ -430,18 +426,18 @@ public class EbeanbyTest {
 
       expect(properties
           .setProperty("dataSource.dataSourceClassName", dataSourceClassName))
-              .andReturn(null);
+          .andReturn(null);
       if (username != null) {
         expect(properties
             .setProperty("dataSource.user", username))
-                .andReturn(null);
+            .andReturn(null);
         expect(properties
             .setProperty("dataSource.password", password))
-                .andReturn(null);
+            .andReturn(null);
       }
       expect(properties
           .setProperty("dataSource.url", url))
-              .andReturn(null);
+          .andReturn(null);
 
       if (hasDataSourceClassName) {
         expect(properties.getProperty("dataSourceClassName")).andReturn(dataSourceClassName);

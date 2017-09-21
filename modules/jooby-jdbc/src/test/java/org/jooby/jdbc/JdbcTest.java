@@ -1,21 +1,5 @@
 package org.jooby.jdbc;
 
-import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
-import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertEquals;
-
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
-import org.jooby.Env;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
@@ -23,21 +7,32 @@ import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import static org.easymock.EasyMock.expect;
+import org.jooby.Env;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import javaslang.control.Try.CheckedRunnable;
+import javax.sql.DataSource;
+import java.util.Properties;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Jdbc.class, Properties.class, HikariConfig.class, HikariDataSource.class,
-    System.class })
+    System.class})
 public class JdbcTest {
 
   static String POOL_SIZE = "9";
 
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
   };
 
   private Block mysql = unit -> {
@@ -105,7 +100,7 @@ public class JdbcTest {
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedRunnable.class).iterator().next().run();
+          unit.captured(Throwing.Runnable.class).iterator().next().run();
         });
   }
 
@@ -113,16 +108,16 @@ public class JdbcTest {
   public void cceExceptionInSource() throws Exception {
     ClassCastException cce = new ClassCastException();
     StackTraceElement e = new StackTraceElement(Jdbc.class.getName(), "accept", null, 0);
-    cce.setStackTrace(new StackTraceElement[]{e });
-    assertEquals(true, Jdbc.CCE.apply(cce).isSuccess());
+    cce.setStackTrace(new StackTraceElement[]{e});
+    Jdbc.CCE.apply(cce);
   }
 
   @Test
   public void cceExceptionWithoutSource() throws Exception {
     ClassCastException cce = new ClassCastException();
     StackTraceElement e = new StackTraceElement(JdbcTest.class.getName(), "accept", null, 0);
-    cce.setStackTrace(new StackTraceElement[]{e });
-    assertEquals(true, Jdbc.CCE.apply(cce).isSuccess());
+    cce.setStackTrace(new StackTraceElement[]{e});
+    Jdbc.CCE.apply(cce);
   }
 
   @Test
@@ -701,19 +696,19 @@ public class JdbcTest {
 
       expect(properties
           .setProperty("dataSource.dataSourceClassName", dataSourceClassName))
-              .andReturn(null);
+          .andReturn(null);
       if (username != null) {
         expect(properties
             .setProperty("dataSource.user", username))
-                .andReturn(null);
+            .andReturn(null);
         expect(properties
             .setProperty("dataSource.password", password))
-                .andReturn(null);
+            .andReturn(null);
       }
       if (url != null) {
         expect(properties
             .setProperty("dataSource.url", url))
-                .andReturn(null);
+            .andReturn(null);
       }
 
       if (hasDataSourceClassName) {

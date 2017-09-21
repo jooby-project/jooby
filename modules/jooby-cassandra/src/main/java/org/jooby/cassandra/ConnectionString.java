@@ -203,16 +203,12 @@
  */
 package org.jooby.cassandra;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.datastax.driver.core.ProtocolOptions;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
-import javaslang.Tuple;
-import javaslang.Tuple2;
+import java.util.List;
+import java.util.stream.Collectors;
 
 class ConnectionString {
 
@@ -246,47 +242,48 @@ class ConnectionString {
   public static ConnectionString parse(final String connectionString) {
     if (!connectionString.startsWith(SCHEMA)) {
       throw new IllegalArgumentException(
-          "Unknown schema " + connectionString + ", expected " + SAMPLE);
+        "Unknown schema " + connectionString + ", expected " + SAMPLE);
     }
     List<String> segments = Splitter.on('/')
-        .trimResults()
-        .omitEmptyStrings()
-        .splitToList(connectionString.replace(SCHEMA, ""));
+      .trimResults()
+      .omitEmptyStrings()
+      .splitToList(connectionString.replace(SCHEMA, ""));
     if (segments.size() != 2) {
       throw new IllegalArgumentException("Invalid " + connectionString + ", expected " + SAMPLE);
     }
     // host[, host]*
-    Set<Tuple2<String, Integer>> values = Splitter.on(',')
-        .trimResults()
-        .omitEmptyStrings()
-        .splitToList(segments.get(0))
-        .stream()
-        .map(v -> {
-          String host = v;
-          int idx = v.indexOf(':');
-          int port = ProtocolOptions.DEFAULT_PORT;
-          if (idx > 0) {
-            port = Integer.parseInt(v.substring(idx + 1));
-            host = v.substring(0, idx);
-          }
-          return Tuple.of(host, port);
-        })
-        .collect(Collectors.toSet());
+    List<Object[]> values = Splitter.on(',')
+      .trimResults()
+      .omitEmptyStrings()
+      .splitToList(segments.get(0))
+      .stream()
+      .map(v -> {
+        String host = v;
+        int idx = v.indexOf(':');
+        int port = ProtocolOptions.DEFAULT_PORT;
+        if (idx > 0) {
+          port = Integer.parseInt(v.substring(idx + 1));
+          host = v.substring(0, idx);
+        }
+        return new Object[]{host, port};
+      })
+      .collect(Collectors.toList());
 
     List<String> hosts = values.stream()
-        .map(Tuple2::_1)
-        .collect(Collectors.toList());
+      .map(t -> t[0].toString())
+      .collect(Collectors.toList());
 
-    Set<Integer> port = values.stream()
-        .map(Tuple2::_2)
-        .collect(Collectors.toSet());
+    List<Integer> port = values.stream()
+      .map(t -> (Integer) t[1])
+      .distinct()
+      .collect(Collectors.toList());
     if (port.size() > 1) {
       throw new IllegalArgumentException(
-          "Found multiple ports: " + port + ", only one port must be present. See " + SAMPLE);
+        "Found multiple ports: " + port + ", only one port must be present. See " + SAMPLE);
     }
     String keyspace = segments.get(1);
     return new ConnectionString(hosts.toArray(new String[hosts.size()]), port.iterator().next(),
-        keyspace);
+      keyspace);
   }
 
   @Override

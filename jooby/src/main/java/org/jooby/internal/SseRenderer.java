@@ -203,22 +203,22 @@
  */
 package org.jooby.internal;
 
+import com.google.common.io.ByteSource;
+import org.jooby.MediaType;
+import org.jooby.Renderer;
+import org.jooby.Sse;
+
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-
-import org.jooby.MediaType;
-import org.jooby.Renderer;
-import org.jooby.Sse;
-
-import com.google.common.io.ByteSource;
-
-import javaslang.Function1;
-import javaslang.Tuple;
-import javaslang.Tuple2;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 public class SseRenderer extends AbstractRendererContext {
 
@@ -233,30 +233,30 @@ public class SseRenderer extends AbstractRendererContext {
   private ByteSource data;
 
   public SseRenderer(final List<Renderer> renderers, final List<MediaType> produces,
-      final Charset charset, Locale locale, final Map<String, Object> locals) {
+    final Charset charset, Locale locale, final Map<String, Object> locals) {
     super(renderers, produces, charset, locale, locals);
   }
 
   public byte[] format(final Sse.Event event) throws Exception {
     // comment?
     data = event.comment()
-        .map(comment -> ByteSource.concat(COMMENT, bytes(comment), NL))
-        .orElse(ByteSource.empty());
+      .map(comment -> ByteSource.concat(COMMENT, bytes(comment), NL))
+      .orElse(ByteSource.empty());
 
     // id?
     data = event.id()
-        .map(id -> ByteSource.concat(data, ID, bytes(id.toString()), NL))
-        .orElse(data);
+      .map(id -> ByteSource.concat(data, ID, bytes(id.toString()), NL))
+      .orElse(data);
 
     // event?
     data = event.name()
-        .map(name -> ByteSource.concat(data, EVENT, bytes(name), NL))
-        .orElse(data);
+      .map(name -> ByteSource.concat(data, EVENT, bytes(name), NL))
+      .orElse(data);
 
     // retry?
     data = event.retry()
-        .map(retry -> ByteSource.concat(data, RETRY, bytes(Long.toString(retry)), NL))
-        .orElse(data);
+      .map(retry -> ByteSource.concat(data, RETRY, bytes(Long.toString(retry)), NL))
+      .orElse(data);
 
     Optional<Object> value = event.data();
     if (value.isPresent()) {
@@ -272,13 +272,13 @@ public class SseRenderer extends AbstractRendererContext {
 
   @Override
   protected void _send(final byte[] bytes) throws Exception {
-    List<Tuple2<Integer, Integer>> lines = split(bytes);
+    List<Integer[]> lines = split(bytes);
     if (lines.size() == 1) {
       data = ByteSource.concat(data, DATA, ByteSource.wrap(bytes), NL);
     } else {
-      for (Tuple2<Integer, Integer> line : lines) {
+      for (Integer[] line : lines) {
         data = ByteSource.concat(data, DATA, ByteSource.wrap(bytes)
-            .slice(line._1, line._2 - line._1), NL);
+          .slice(line[0], line[1] - line[0]), NL);
       }
     }
   }
@@ -309,10 +309,10 @@ public class SseRenderer extends AbstractRendererContext {
     return ByteSource.wrap(value.getBytes(StandardCharsets.UTF_8));
   }
 
-  private static List<Tuple2<Integer, Integer>> split(final byte[] bytes) {
-    List<Tuple2<Integer, Integer>> range = new ArrayList<>();
+  private static List<Integer[]> split(final byte[] bytes) {
+    List<Integer[]> range = new ArrayList<>();
 
-    Function1<Integer, Integer> nextLine = start -> {
+    Function<Integer, Integer> nextLine = start -> {
       for (int i = start; i < bytes.length; i++) {
         if (bytes[i] == nl) {
           return i;
@@ -324,12 +324,12 @@ public class SseRenderer extends AbstractRendererContext {
     int from = 0;
     int to = nextLine.apply(from);
     int len = bytes.length;
-    range.add(Tuple.of(from, to));
+    range.add(new Integer[]{from, to});
     while (to != len) {
       from = to + 1;
       to = nextLine.apply(from);
       if (to > from) {
-        range.add(Tuple.of(from, to));
+        range.add(new Integer[]{from, to});
       }
     }
     return range;

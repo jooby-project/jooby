@@ -203,29 +203,16 @@
  */
 package org.jooby.rx;
 
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import static java.util.Objects.requireNonNull;
-import static javaslang.API.$;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.instanceOf;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-
 import org.jooby.Deferred;
 import org.jooby.Env;
 import org.jooby.Route;
 import org.jooby.exec.Exec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-
 import rx.Completable;
 import rx.Observable;
 import rx.Scheduler;
@@ -234,6 +221,12 @@ import rx.Subscriber;
 import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
 import rx.schedulers.Schedulers;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 /**
  * <h1>rxjava</h1>
@@ -471,7 +464,7 @@ public class Rx extends Exec {
    * @return A new mapper.
    */
   public static Route.Mapper<Object> rx(final Function<Observable, Observable> observable,
-      final Function<Single, Single> single) {
+    final Function<Single, Single> single) {
     return rx(observable, single, Function.identity());
   }
 
@@ -510,26 +503,24 @@ public class Rx extends Exec {
    */
   @SuppressWarnings("unchecked")
   public static Route.Mapper<Object> rx(final Function<Observable, Observable> observable,
-      final Function<Single, Single> single, final Function<Completable, Completable> completable) {
+    final Function<Single, Single> single, final Function<Completable, Completable> completable) {
     requireNonNull(observable, "Observable's adapter is required.");
     requireNonNull(single, "Single's adapter is required.");
     requireNonNull(completable, "Completable's adapter is required.");
 
-    return Route.Mapper.create("rx", v -> Match(v).of(
-        /** Observable : */
-        Case(instanceOf(Observable.class),
-            it -> new Deferred(deferred -> observable.apply(it)
-                .subscribe(new DeferredSubscriber(deferred)))),
-        /** Single : */
-        Case(instanceOf(Single.class),
-            it -> new Deferred(deferred -> single.apply(it)
-                .subscribe(new DeferredSubscriber(deferred)))),
-        /** Completable : */
-        Case(instanceOf(Completable.class),
-            it -> new Deferred(deferred -> completable.apply(it)
-                .subscribe(new DeferredSubscriber(deferred)))),
-        /** Ignore */
-        Case($(), v)));
+    return Route.Mapper.create("rx", v -> {
+      if (v instanceof Observable) {
+        return new Deferred(
+          deferred -> observable.apply((Observable) v).subscribe(new DeferredSubscriber(deferred)));
+      } else if (v instanceof Single) {
+        return new Deferred(
+          deferred -> single.apply((Single) v).subscribe(new DeferredSubscriber(deferred)));
+      } else if (v instanceof Completable) {
+        return new Deferred(deferred -> completable.apply((Completable) v)
+          .subscribe(new DeferredSubscriber(deferred)));
+      }
+      return v;
+    });
   }
 
   /**
@@ -599,14 +590,14 @@ public class Rx extends Exec {
   public void configure(final Env env, final Config conf, final Binder binder) {
     // dump rx.* as system properties
     conf.getConfig("rx")
-        .withoutPath("schedulers").entrySet()
-        .forEach(
-            e -> System.setProperty("rx." + e.getKey(), e.getValue().unwrapped().toString()));
+      .withoutPath("schedulers").entrySet()
+      .forEach(
+        e -> System.setProperty("rx." + e.getKey(), e.getValue().unwrapped().toString()));
     Map<String, Executor> executors = new HashMap<>();
     super.configure(env, conf, binder, executors::put);
 
     env.router()
-        .map(rx(observable, single, completable));
+      .map(rx(observable, single, completable));
 
     /**
      * Side effects of global/evil static state. Hack to turn off some of this errors.

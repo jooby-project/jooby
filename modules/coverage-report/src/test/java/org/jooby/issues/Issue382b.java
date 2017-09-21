@@ -1,7 +1,5 @@
 package org.jooby.issues;
 
-import static javaslang.Predicates.is;
-
 import org.jooby.Err;
 import org.jooby.Status;
 import org.jooby.test.ServerFeature;
@@ -31,7 +29,7 @@ public class Issue382b extends ServerFeature {
       rsp.send("Not found");
     });
 
-    err(is(Status.BAD_REQUEST), (req, rsp, err) -> {
+    err(s -> s == Status.BAD_REQUEST, (req, rsp, err) -> {
       rsp.send(err.getCause().getClass().getSimpleName());
     });
 
@@ -43,20 +41,20 @@ public class Issue382b extends ServerFeature {
   @Test
   public void shouldHandleSpecificErrTypes() throws Exception {
     request()
-        .get("/err1")
-        .expect("IllegalArgumentException");
+      .get("/err1")
+      .expect("IllegalArgumentException");
 
     request()
-        .get("/err2")
-        .expect("Fallback");
+      .get("/err2")
+      .expect("Fallback");
 
     request()
-        .get("/400")
-        .expect("Not found");
+      .get("/400")
+      .expect("Not found");
 
     request()
-        .get("/500")
-        .expect("Fallback");
+      .get("/500")
+      .expect("Fallback");
   }
 
 }

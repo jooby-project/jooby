@@ -203,11 +203,7 @@
  */
 package org.jooby.crash;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-
+import com.google.common.collect.ImmutableMap;
 import org.crsh.cli.impl.Delimiter;
 import org.crsh.cli.impl.completion.CompletionMatch;
 import org.crsh.cli.spi.Completion;
@@ -218,12 +214,14 @@ import org.crsh.shell.ShellProcess;
 import org.crsh.util.Utils;
 import org.jooby.Request;
 import org.jooby.WebSocket;
+import org.jooby.funzy.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
-
-import javaslang.control.Try;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 class WebShellHandler implements WebSocket.OnOpen {
 

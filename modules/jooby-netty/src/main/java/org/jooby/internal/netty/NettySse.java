@@ -203,13 +203,6 @@
  */
 package org.jooby.internal.netty;
 
-import java.util.Optional;
-import java.util.function.Consumer;
-
-import org.jooby.Sse;
-
-import com.google.common.util.concurrent.MoreExecutors;
-
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -219,20 +212,25 @@ import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import javaslang.concurrent.Promise;
+import org.jooby.Sse;
+
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class NettySse extends Sse {
 
   private static class DoneCallback implements ChannelFutureListener {
 
-    private Promise<Optional<Object>> promise;
+    private CompletableFuture<Optional<Object>> promise;
 
     private Consumer<Throwable> ifClose;
 
     private Optional<Object> id;
 
-    public DoneCallback(final Promise<Optional<Object>> promise, final Optional<Object> id,
-        final Consumer<Throwable> ifClose) {
+    public DoneCallback(final CompletableFuture<Optional<Object>> promise,
+      final Optional<Object> id,
+      final Consumer<Throwable> ifClose) {
       this.id = id;
       this.promise = promise;
       this.ifClose = ifClose;
@@ -241,10 +239,10 @@ public class NettySse extends Sse {
     @Override
     public void operationComplete(final ChannelFuture future) throws Exception {
       if (future.isSuccess()) {
-        promise.success(id);
+        promise.complete(id);
       } else {
         Throwable cause = future.cause();
-        promise.failure(cause);
+        promise.completeExceptionally(cause);
         ifClose.accept(cause);
       }
     }
@@ -267,16 +265,16 @@ public class NettySse extends Sse {
     headers.set(HttpHeaderNames.CONNECTION, "Close");
     headers.set(HttpHeaderNames.CONTENT_TYPE, "text/event-stream; charset=utf-8");
     ctx.writeAndFlush(
-        new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, headers));
+      new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, headers));
     ctx.executor().execute(handler);
   }
 
   @Override
-  protected Promise<Optional<Object>> send(final Optional<Object> id, final byte[] data) {
+  protected CompletableFuture<Optional<Object>> send(final Optional<Object> id, final byte[] data) {
     synchronized (this) {
-      Promise<Optional<Object>> promise = Promise.make(MoreExecutors.newDirectExecutorService());
+      CompletableFuture<Optional<Object>> promise = new CompletableFuture<>();
       ctx.writeAndFlush(Unpooled.wrappedBuffer(data))
-          .addListener(new DoneCallback(promise, id, this::ifClose));
+        .addListener(new DoneCallback(promise, id, this::ifClose));
       return promise;
     }
   }
