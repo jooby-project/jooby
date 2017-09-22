@@ -18,6 +18,10 @@ import java.util.function.Function;
 
 public class RouteDefinitionTest {
 
+  enum HttpStatus {
+    OK
+  }
+
   @Test
   public void newHandler() throws Exception {
     new MockUnit(Request.class, Response.class, Route.Chain.class)
@@ -307,12 +311,12 @@ public class RouteDefinitionTest {
     Route.Definition r = route.apply("/")
         .attr("i", 7)
         .attr("s", "string")
-        .attr("enum", Status.OK)
+        .attr("enum", HttpStatus.OK)
         .attr("type", Route.class);
 
     assertEquals(Integer.valueOf(7), r.attr("i"));
     assertEquals("string", r.attr("s"));
-    assertEquals(Status.OK, r.attr("enum"));
+    assertEquals(HttpStatus.OK, r.attr("enum"));
     assertEquals(Route.class, r.attr("type"));
   }
 
