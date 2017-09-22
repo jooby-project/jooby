@@ -203,27 +203,22 @@
  */
 package org.jooby.internal.sitemap;
 
+import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import com.typesafe.config.Config;
+import cz.jiripinkas.jsitemapgenerator.WebPage;
 import static java.util.Objects.requireNonNull;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.Route;
+import org.jooby.sitemap.WebPageProvider;
+import org.jooby.funzy.Throwing;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-
-import org.jooby.Env;
-import org.jooby.Jooby;
-import org.jooby.Route;
-import org.jooby.sitemap.WebPageProvider;
-
-import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-import com.typesafe.config.Config;
-
-import cz.jiripinkas.jsitemapgenerator.WebPage;
-import javaslang.Function1;
 
 @SuppressWarnings("rawtypes")
 public abstract class JSitemap<T extends JSitemap> implements Jooby.Module {
@@ -277,17 +272,19 @@ public abstract class JSitemap<T extends JSitemap> implements Jooby.Module {
 
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    String baseurl = this.baseurl.orElseGet(() -> Match(conf.hasPath(SITEMAP_BASEURL)).of(
-        Case(true, () -> conf.getString(SITEMAP_BASEURL)),
-        Case(false, () -> {
-          Config $ = conf.getConfig("application");
-          return "http://" + $.getString("host") + ":" + $.getString("port") + $.getString("path");
-        })));
+    String baseurl = this.baseurl.orElseGet(() -> {
+      if (conf.hasPath(SITEMAP_BASEURL)) {
+        return conf.getString(SITEMAP_BASEURL);
+      } else {
+        Config $ = conf.getConfig("application");
+        return "http://" + $.getString("host") + ":" + $.getString("port") + $.getString("path");
+      }
+    });
 
     wpp.accept(binder);
     env.router().get(path, new SitemapHandler(path, NOT_ME.and(filter), gen(baseurl)));
   }
 
-  protected abstract Function1<List<WebPage>, String> gen(String baseurl);
+  protected abstract Throwing.Function<List<WebPage>, String> gen(String baseurl);
 
 }

@@ -203,16 +203,15 @@
  */
 package org.jooby.internal.memcached;
 
-import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Provider;
-
-import javaslang.control.Try;
 import net.spy.memcached.ConnectionFactory;
 import net.spy.memcached.ConnectionFactoryBuilder;
 import net.spy.memcached.MemcachedClient;
+import static org.jooby.funzy.Throwing.throwingSupplier;
+
+import javax.inject.Provider;
+import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MemcachedClientProvider implements Provider<MemcachedClient> {
 
@@ -240,7 +239,7 @@ public class MemcachedClientProvider implements Provider<MemcachedClient> {
 
   @Override
   public MemcachedClient get() {
-    client = Try.of(() -> {
+    client = throwingSupplier(() -> {
       ConnectionFactory connectionFactory = builder.build();
       this.builder = null;
       return new MemcachedClient(connectionFactory, servers);

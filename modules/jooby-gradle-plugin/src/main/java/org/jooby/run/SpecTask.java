@@ -217,10 +217,6 @@
  */
 package org.jooby.run;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.stream.Collectors;
-
 import org.gradle.api.Project;
 import org.gradle.api.internal.ConventionTask;
 import org.gradle.api.tasks.InputDirectory;
@@ -228,6 +224,10 @@ import org.gradle.api.tasks.TaskAction;
 import org.jooby.Jooby;
 import org.jooby.spec.RouteProcessor;
 import org.jooby.spec.RouteSpec;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.util.stream.Collectors;
 
 public class SpecTask extends ConventionTask {
 
@@ -247,7 +247,7 @@ public class SpecTask extends ConventionTask {
       Project project = getProject();
       new JoobyContainer(project)
           .run(getMainClassName(), app -> {
-            process(app, getSource().toPath(), new JoobyProject(project).buildResources().toPath());
+            process(app, getSource().toPath(), new JoobyProject(project).classes().toPath());
           });
     } catch (Done ex) {
       long end = System.currentTimeMillis();

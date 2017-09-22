@@ -203,10 +203,15 @@
  */
 package org.jooby.internal.pac4j;
 
-import javaslang.CheckedFunction1;
-import org.jooby.*;
+import static java.util.Objects.requireNonNull;
+import org.jooby.Err;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Route;
+import org.jooby.Status;
 import org.jooby.pac4j.Auth;
 import org.jooby.pac4j.AuthStore;
+import org.jooby.funzy.Throwing;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.DirectClient;
@@ -223,8 +228,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.function.Predicate;
-
-import static java.util.Objects.*;
 
 public class AuthFilter implements Route.Handler {
 
@@ -328,7 +331,7 @@ public class AuthFilter implements Route.Handler {
   @SuppressWarnings("rawtypes")
   private <T> T find(final ClientFinder finder, final Clients clients, final WebContext ctx,
       final Class<? extends Client<?, ?>> clientType, final String clientName,
-      final CheckedFunction1<Client, T> fn) throws Throwable {
+      final Throwing.Function<Client, T> fn) throws Throwable {
 
     List<Client> result = finder.find(clients, ctx, clientName);
     for (Client client : result) {

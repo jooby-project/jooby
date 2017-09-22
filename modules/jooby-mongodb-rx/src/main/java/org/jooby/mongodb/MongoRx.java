@@ -203,29 +203,6 @@
  */
 package org.jooby.mongodb;
 
-import static java.util.Objects.requireNonNull;
-import static javaslang.API.$;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.instanceOf;
-
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import org.bson.Document;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.jooby.Env;
-import org.jooby.Jooby.Module;
-import org.jooby.Route;
-import org.jooby.rx.Rx;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
@@ -255,10 +232,27 @@ import com.mongodb.rx.client.ObservableAdapter;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-
-import javaslang.Function3;
-import javaslang.control.Try;
+import static java.util.Objects.requireNonNull;
+import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.jooby.Env;
+import org.jooby.Jooby.Module;
+import org.jooby.Route;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
+import static org.jooby.funzy.When.when;
+import org.jooby.rx.Rx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rx.Observable;
+
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * <h1>mongodb-rx</h1>
@@ -576,17 +570,17 @@ public class MongoRx implements Module {
         .withValue("db", ConfigValueFactory.fromAnyRef("mongodb://localhost"));
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
     /** connection string */
-    ConnectionString cstr = Try.of(() -> new ConnectionString(db))
-        .getOrElse(() -> new ConnectionString(conf.getString(db)));
+    ConnectionString cstr = Try.apply(() -> new ConnectionString(db))
+        .orElseGet(() -> new ConnectionString(conf.getString(db)));
 
     log.debug("Starting {}", cstr);
 
     boolean first = instances.getAndIncrement() == 0;
-    Function3<Class, String, Object, Void> bind = (type, name, value) -> {
+    Throwing.Function3<Class, String, Object, Void> bind = (type, name, value) -> {
       binder.bind(Key.get(type, Names.named(name))).toInstance(value);
       if (first) {
         binder.bind(Key.get(type)).toInstance(value);
@@ -637,15 +631,24 @@ public class MongoRx implements Module {
 
   @SuppressWarnings("rawtypes")
   static Route.Mapper mapper() {
-    return Route.Mapper.create("mongo-rx", v -> Match(v).of(
-        Case(instanceOf(FindObservable.class), m -> m.toObservable().toList()),
-        Case(instanceOf(ListCollectionsObservable.class), m -> m.toObservable().toList()),
-        Case(instanceOf(ListDatabasesObservable.class), m -> m.toObservable().toList()),
-        Case(instanceOf(AggregateObservable.class), m -> m.toObservable().toList()),
-        Case(instanceOf(DistinctObservable.class), m -> m.toObservable().toList()),
-        Case(instanceOf(MapReduceObservable.class), m -> m.toObservable().toList()),
-        Case(instanceOf(MongoObservable.class), m -> m.toObservable()),
-        Case($(), v)));
+    return Route.Mapper.create("mongo-rx", v -> {
+      if (v instanceof FindObservable) {
+        return ((FindObservable) v).toObservable().toList();
+      } else if (v instanceof ListCollectionsObservable) {
+        return ((ListCollectionsObservable) v).toObservable().toList();
+      } else if (v instanceof ListDatabasesObservable) {
+        return ((ListDatabasesObservable) v).toObservable().toList();
+      } else if (v instanceof AggregateObservable) {
+        return ((AggregateObservable) v).toObservable().toList();
+      } else if (v instanceof DistinctObservable) {
+        return ((DistinctObservable) v).toObservable().toList();
+      } else if (v instanceof MapReduceObservable) {
+        return ((MapReduceObservable) v).toObservable().toList();
+      } else if (v instanceof MongoObservable) {
+        return ((MongoObservable) v).toObservable();
+      }
+      return v;
+    });
   }
 
   static MongoClientSettings.Builder settings(final ConnectionString cstr, final Config conf) {
@@ -655,13 +658,7 @@ public class MongoRx implements Module {
     settings.connectionPoolSettings(pool(cstr, conf));
     settings.heartbeatSocketSettings(socket("heartbeat", cstr, conf));
 
-    withStr("readConcern", conf,
-        v -> settings.readConcern(
-            Match(v.toUpperCase()).option(
-                Case("DEFAULT", ReadConcern.DEFAULT),
-                Case("LOCAL", ReadConcern.LOCAL),
-                Case("MAJORITY", ReadConcern.MAJORITY))
-                .getOrElseThrow(() -> new IllegalArgumentException("readConcern=" + v))));
+    withStr("readConcern", conf, v -> settings.readConcern(readConcern(v)));
 
     withStr("readPreference", conf,
         v -> settings.readPreference(ReadPreference.valueOf(v)));
@@ -670,18 +667,27 @@ public class MongoRx implements Module {
     settings.socketSettings(socket("socket", cstr, conf));
     settings.sslSettings(ssl(cstr, conf));
 
-    withStr("writeConcern", conf,
-        v -> settings.writeConcern(
-            Match(v.toUpperCase()).option(
-                Case("W1", WriteConcern.W1),
-                Case("W2", WriteConcern.W2),
-                Case("W3", WriteConcern.W3),
-                Case("ACKNOWLEDGED", WriteConcern.ACKNOWLEDGED),
-                Case("JOURNALED", WriteConcern.JOURNALED),
-                Case("MAJORITY", WriteConcern.MAJORITY))
-                .getOrElseThrow(() -> new IllegalArgumentException("writeConcern=" + v))));
+    withStr("writeConcern", conf, v -> settings.writeConcern(writeConcern(v)));
 
     return settings;
+  }
+
+  private static ReadConcern readConcern(final String value) {
+    return when(value.toUpperCase())
+        .is("DEFAULT", ReadConcern.DEFAULT)
+        .is("LOCAL", ReadConcern.LOCAL)
+        .is("MAJORITY", ReadConcern.MAJORITY)
+        .orElseThrow(() -> new IllegalArgumentException("readConcern: " + value));
+  }
+
+  private static WriteConcern writeConcern(final String value) {
+    return when(value.toUpperCase())
+        .is("W1", WriteConcern.W1)
+        .is("W2", WriteConcern.W2)
+        .is("W3", WriteConcern.W3)
+        .is("ACKNOWLEDGED", WriteConcern.ACKNOWLEDGED)
+        .is("MAJORITY", WriteConcern.MAJORITY)
+        .orElseThrow(() -> new IllegalArgumentException("writeConcern: " + value));
   }
 
   static SslSettings ssl(final ConnectionString cstr, final Config conf) {
@@ -755,7 +761,7 @@ public class MongoRx implements Module {
 
   static Config dbconf(final String db, final Config conf) {
     Function<String, Config> ifconf = path -> {
-      if (Try.of(() -> conf.hasPath(path)).getOrElse(Boolean.FALSE)) {
+      if (Try.apply(() -> conf.hasPath(path)).orElse(Boolean.FALSE)) {
         return conf.getConfig(path);
       }
       return ConfigFactory.empty();

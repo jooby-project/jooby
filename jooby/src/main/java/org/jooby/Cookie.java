@@ -206,9 +206,8 @@ package org.jooby;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.io.BaseEncoding;
-import javaslang.Tuple;
-import javaslang.Tuple2;
-import javaslang.control.Try;
+import static java.util.Objects.requireNonNull;
+import org.jooby.funzy.Throwing;
 import org.jooby.internal.CookieImpl;
 
 import javax.crypto.Mac;
@@ -224,8 +223,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Creates a cookie, a small amount of information sent by a server to
@@ -267,13 +264,13 @@ public interface Cookie {
    * separated by <code>&amp;</code>. Also, <code>k</code> and <code>v</code> are decoded using
    * {@link URLDecoder}.
    */
-  public static final Function<String, Map<String, String>> URL_DECODER = value -> {
+  Function<String, Map<String, String>> URL_DECODER = value -> {
     if (value == null) {
       return Collections.emptyMap();
     }
-    Function<String, String> decode = v -> Try
-        .of(() -> URLDecoder.decode(v, StandardCharsets.UTF_8.name()))
-        .get();
+    Throwing.Function<String, String> decode = v -> URLDecoder
+        .decode(v, StandardCharsets.UTF_8.name());
+
     return Splitter.on('&')
         .trimResults()
         .omitEmptyStrings()
@@ -283,21 +280,22 @@ public interface Cookie {
           Iterator<String> it = Splitter.on('=').trimResults().omitEmptyStrings()
               .split(v)
               .iterator();
-          Tuple2<String, String> t2 = Tuple
-              .of(decode.apply(it.next()), it.hasNext() ? decode.apply(it.next()) : null);
-          return t2;
+          return new String[]{
+              decode.apply(it.next()),
+              it.hasNext() ? decode.apply(it.next()) : null
+          };
         })
-        .filter(it -> Objects.nonNull(it._2))
-        .collect(Collectors.toMap(it -> it._1, it -> it._2));
+        .filter(it -> Objects.nonNull(it[1]))
+        .collect(Collectors.toMap(it -> it[0], it -> it[1]));
   };
 
   /**
    * Encode a hash into cookie value, like: <code>k1=v1&amp;...&amp;kn=vn</code>. Also,
    * <code>key</code> and <code>value</code> are encoded using {@link URLEncoder}.
    */
-  public static final Function<Map<String, String>, String> URL_ENCODER = value -> {
-    Function<String, String> encode = v -> Try
-        .of(() -> URLEncoder.encode(v, StandardCharsets.UTF_8.name())).get();
+  Function<Map<String, String>, String> URL_ENCODER = value -> {
+    Throwing.Function<String, String> encode = v -> URLEncoder
+        .encode(v, StandardCharsets.UTF_8.name());
     return value.entrySet().stream()
         .map(e -> new StringBuilder()
             .append(encode.apply(e.getKey()))

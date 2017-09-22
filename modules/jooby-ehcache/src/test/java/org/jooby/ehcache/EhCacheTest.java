@@ -1,29 +1,26 @@
 package org.jooby.ehcache;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-
-import java.util.Collections;
-import java.util.Map;
-
-import org.jooby.Env;
-import org.jooby.test.MockUnit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.google.inject.Binder;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-
-import javaslang.control.Try.CheckedRunnable;
 import net.sf.ehcache.CacheManager;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import org.jooby.Env;
+import org.jooby.test.MockUnit;
+import org.jooby.funzy.Throwing;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.Collections;
+import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Eh.class })
+@PrepareForTest({Eh.class})
 public class EhCacheTest {
 
   @SuppressWarnings("unchecked")
@@ -46,7 +43,7 @@ public class EhCacheTest {
         })
         .expect(unit -> {
           Env env = unit.get(Env.class);
-          expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
+          expect(env.onStop(isA(Throwing.Runnable.class))).andReturn(env);
         })
         .run(unit -> {
           new Eh()
@@ -56,7 +53,7 @@ public class EhCacheTest {
 
   private Config empty() {
     return ConfigFactory.empty()
-          .withValue("cache.default", ConfigValueFactory.fromAnyRef(defaultCache()));
+        .withValue("cache.default", ConfigValueFactory.fromAnyRef(defaultCache()));
   }
 
   private Map<String, Object> defaultCache() {

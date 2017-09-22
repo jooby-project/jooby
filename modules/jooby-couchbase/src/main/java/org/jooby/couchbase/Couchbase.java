@@ -203,27 +203,6 @@
  */
 package org.jooby.couchbase;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-
-import org.jooby.Env;
-import org.jooby.Env.ServiceKey;
-import org.jooby.Jooby.Module;
-import org.jooby.Session;
-import org.jooby.internal.couchbase.AsyncDatastoreImpl;
-import org.jooby.internal.couchbase.DatastoreImpl;
-import org.jooby.internal.couchbase.IdGenerator;
-import org.jooby.internal.couchbase.JacksonMapper;
-import org.jooby.internal.couchbase.SetConverterHack;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.couchbase.client.deps.io.netty.util.internal.MessagePassingQueue.Supplier;
 import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.Bucket;
@@ -243,10 +222,28 @@ import com.google.common.collect.Sets;
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-
-import javaslang.Function3;
-import javaslang.control.Try;
+import static java.util.Objects.requireNonNull;
+import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
+import org.jooby.Jooby.Module;
+import org.jooby.Session;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
+import org.jooby.internal.couchbase.AsyncDatastoreImpl;
+import org.jooby.internal.couchbase.DatastoreImpl;
+import org.jooby.internal.couchbase.IdGenerator;
+import org.jooby.internal.couchbase.JacksonMapper;
+import org.jooby.internal.couchbase.SetConverterHack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rx.Observable;
+
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 
 /**
  * <h1>couchbase</h1>
@@ -668,7 +665,7 @@ public class Couchbase implements Module {
     return this;
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
     String cstr = db.startsWith(ConnectionString.DEFAULT_SCHEME) ? db : conf.getString(db);
@@ -686,7 +683,7 @@ public class Couchbase implements Module {
     log.debug("Starting {}", cstr);
 
     ServiceKey serviceKey = env.serviceKey();
-    Function3<Class, String, Object, Void> bind = (type, name, value) -> {
+    Throwing.Function3<Class, String, Object, Void> bind = (type, name, value) -> {
       serviceKey.generate(type, name, k -> {
         binder.bind(k).toInstance(value);
       });
@@ -754,9 +751,9 @@ public class Couchbase implements Module {
 
     env.onStop(r -> {
       buckets.forEach(n -> {
-        Try.of(() -> r.require(n, Bucket.class).close())
+        Try.apply(() -> r.require(n, Bucket.class).close())
             .onFailure(x -> log.debug("bucket {} close operation resulted in exception", n, x))
-            .getOrElse(false);
+            .orElse(false);
       });
       Try.run(cluster::disconnect)
           .onFailure(x -> log.debug("disconnect operation resulted in exception", x));

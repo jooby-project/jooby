@@ -1,25 +1,5 @@
 package org.jooby.mongodb;
 
-import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.lang.reflect.Field;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.bson.codecs.configuration.CodecRegistry;
-import org.jooby.Env;
-import org.jooby.Route;
-import org.jooby.Router;
-import org.jooby.rx.Rx;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Binder;
 import com.google.inject.Key;
@@ -50,16 +30,33 @@ import com.mongodb.rx.client.MongoObservable;
 import com.mongodb.rx.client.ObservableAdapter;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-
-import javaslang.control.Try;
-import javaslang.control.Try.CheckedRunnable;
+import org.bson.codecs.configuration.CodecRegistry;
+import static org.easymock.EasyMock.expect;
+import org.jooby.Env;
+import org.jooby.Route;
+import org.jooby.Router;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
+import org.jooby.rx.Rx;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import rx.Observable;
 import rx.Scheduler;
+
+import java.lang.reflect.Field;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({MongoRx.class, MongoClients.class, MongoClientSettings.class,
     ClusterSettings.class, ConnectionPoolSettings.class, SocketSettings.class, ServerSettings.class,
-    SslSettings.class, Rx.class, Observable.class })
+    SslSettings.class, Rx.class, Observable.class})
 public class MongodbRxTest {
 
   private Block settings = unit -> {
@@ -106,7 +103,7 @@ public class MongodbRxTest {
 
     Env env = unit.get(Env.class);
     expect(env.router()).andReturn(routes);
-    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
   };
 
   private Block socket = unit -> {
@@ -195,11 +192,11 @@ public class MongodbRxTest {
           new MongoRx()
               .configure(unit.get(Env.class), conf(null, "db", db), unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedRunnable.class).iterator().next().run();
+          unit.captured(Throwing.Runnable.class).iterator().next().run();
         });
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   public void withObservable() throws Exception {
     String db = "mongodb://localhost/pets";
@@ -239,7 +236,8 @@ public class MongodbRxTest {
   @Test
   public void withCodecRegistry() throws Exception {
     String db = "mongodb://localhost/pets";
-    new MockUnit(Env.class, Binder.class, MongoClient.class, MongoDatabase.class, CodecRegistry.class)
+    new MockUnit(Env.class, Binder.class, MongoClient.class, MongoDatabase.class,
+        CodecRegistry.class)
         .expect(instances(1))
         .expect(cluster(db))
         .expect(pool(db))
@@ -293,73 +291,73 @@ public class MongodbRxTest {
         });
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   public void mongoRxMapper() throws Exception {
     String db = "mongodb://localhost";
     new MockUnit(Env.class, Binder.class, MongoClient.class, FindObservable.class,
         ListCollectionsObservable.class, ListDatabasesObservable.class, AggregateObservable.class,
         DistinctObservable.class, MapReduceObservable.class, MongoObservable.class)
-            .expect(instances(1))
-            .expect(cluster(db))
-            .expect(pool(db))
-            .expect(socket)
-            .expect(socket(db))
-            .expect(server)
-            .expect(ssl(db))
-            .expect(settings)
-            .expect(mongo)
-            .expect(bind(Key.get(MongoClient.class, Names.named("db"))))
-            .expect(env)
-            .expect(unit -> {
-              Observable observable = unit.powerMock(Observable.class);
-              expect(observable.toList()).andReturn(unit.powerMock(Observable.class)).times(6);
+        .expect(instances(1))
+        .expect(cluster(db))
+        .expect(pool(db))
+        .expect(socket)
+        .expect(socket(db))
+        .expect(server)
+        .expect(ssl(db))
+        .expect(settings)
+        .expect(mongo)
+        .expect(bind(Key.get(MongoClient.class, Names.named("db"))))
+        .expect(env)
+        .expect(unit -> {
+          Observable observable = unit.powerMock(Observable.class);
+          expect(observable.toList()).andReturn(unit.powerMock(Observable.class)).times(6);
 
-              Observable mobservable = unit.powerMock(Observable.class);
+          Observable mobservable = unit.powerMock(Observable.class);
 
-              FindObservable o1 = unit.get(FindObservable.class);
-              expect(o1.toObservable()).andReturn(observable);
+          FindObservable o1 = unit.get(FindObservable.class);
+          expect(o1.toObservable()).andReturn(observable);
 
-              ListCollectionsObservable o2 = unit.get(ListCollectionsObservable.class);
-              expect(o2.toObservable()).andReturn(observable);
+          ListCollectionsObservable o2 = unit.get(ListCollectionsObservable.class);
+          expect(o2.toObservable()).andReturn(observable);
 
-              ListDatabasesObservable o3 = unit.get(ListDatabasesObservable.class);
-              expect(o3.toObservable()).andReturn(observable);
+          ListDatabasesObservable o3 = unit.get(ListDatabasesObservable.class);
+          expect(o3.toObservable()).andReturn(observable);
 
-              AggregateObservable o4 = unit.get(AggregateObservable.class);
-              expect(o4.toObservable()).andReturn(observable);
+          AggregateObservable o4 = unit.get(AggregateObservable.class);
+          expect(o4.toObservable()).andReturn(observable);
 
-              DistinctObservable o5 = unit.get(DistinctObservable.class);
-              expect(o5.toObservable()).andReturn(observable);
+          DistinctObservable o5 = unit.get(DistinctObservable.class);
+          expect(o5.toObservable()).andReturn(observable);
 
-              MapReduceObservable o6 = unit.get(MapReduceObservable.class);
-              expect(o6.toObservable()).andReturn(observable);
+          MapReduceObservable o6 = unit.get(MapReduceObservable.class);
+          expect(o6.toObservable()).andReturn(observable);
 
-              MongoObservable o7 = unit.get(MongoObservable.class);
-              expect(o7.toObservable()).andReturn(mobservable);
-            })
-            .run(unit -> {
-              new MongoRx()
-                  .configure(unit.get(Env.class), conf(null, "db", db), unit.get(Binder.class));
-            }, unit -> {
-              Route.Mapper mongorx = unit.captured(Route.Mapper.class).iterator().next();
+          MongoObservable o7 = unit.get(MongoObservable.class);
+          expect(o7.toObservable()).andReturn(mobservable);
+        })
+        .run(unit -> {
+          new MongoRx()
+              .configure(unit.get(Env.class), conf(null, "db", db), unit.get(Binder.class));
+        }, unit -> {
+          Route.Mapper mongorx = unit.captured(Route.Mapper.class).iterator().next();
 
-              assertTrue(mongorx.map(unit.get(FindObservable.class)) instanceof Observable);
-              assertTrue(
-                  mongorx.map(unit.get(ListCollectionsObservable.class)) instanceof Observable);
-              assertTrue(
-                  mongorx.map(unit.get(ListDatabasesObservable.class)) instanceof Observable);
-              assertTrue(
-                  mongorx.map(unit.get(AggregateObservable.class)) instanceof Observable);
-              assertTrue(
-                  mongorx.map(unit.get(DistinctObservable.class)) instanceof Observable);
-              assertTrue(
-                  mongorx.map(unit.get(MapReduceObservable.class)) instanceof Observable);
-              assertTrue(
-                  mongorx.map(unit.get(MongoObservable.class)) instanceof Observable);
+          assertTrue(mongorx.map(unit.get(FindObservable.class)) instanceof Observable);
+          assertTrue(
+              mongorx.map(unit.get(ListCollectionsObservable.class)) instanceof Observable);
+          assertTrue(
+              mongorx.map(unit.get(ListDatabasesObservable.class)) instanceof Observable);
+          assertTrue(
+              mongorx.map(unit.get(AggregateObservable.class)) instanceof Observable);
+          assertTrue(
+              mongorx.map(unit.get(DistinctObservable.class)) instanceof Observable);
+          assertTrue(
+              mongorx.map(unit.get(MapReduceObservable.class)) instanceof Observable);
+          assertTrue(
+              mongorx.map(unit.get(MongoObservable.class)) instanceof Observable);
 
-              assertEquals("x", mongorx.map("x"));
-            });
+          assertEquals("x", mongorx.map("x"));
+        });
   }
 
   @Test
@@ -390,25 +388,25 @@ public class MongodbRxTest {
     String db = "mongodb://localhost/pets.Pets";
     new MockUnit(Env.class, Binder.class, MongoClient.class, MongoDatabase.class,
         MongoCollection.class)
-            .expect(instances(1))
-            .expect(cluster(db))
-            .expect(pool(db))
-            .expect(socket)
-            .expect(socket(db))
-            .expect(server)
-            .expect(ssl(db))
-            .expect(settings)
-            .expect(mongo)
-            .expect(bind(Key.get(MongoClient.class, Names.named("db"))))
-            .expect(database)
-            .expect(bind(Key.get(MongoDatabase.class, Names.named("pets"))))
-            .expect(collection)
-            .expect(bind(Key.get(MongoCollection.class, Names.named("Pets"))))
-            .expect(env)
-            .run(unit -> {
-              new MongoRx()
-                  .configure(unit.get(Env.class), conf(null, "db", db), unit.get(Binder.class));
-            });
+        .expect(instances(1))
+        .expect(cluster(db))
+        .expect(pool(db))
+        .expect(socket)
+        .expect(socket(db))
+        .expect(server)
+        .expect(ssl(db))
+        .expect(settings)
+        .expect(mongo)
+        .expect(bind(Key.get(MongoClient.class, Names.named("db"))))
+        .expect(database)
+        .expect(bind(Key.get(MongoDatabase.class, Names.named("pets"))))
+        .expect(collection)
+        .expect(bind(Key.get(MongoCollection.class, Names.named("Pets"))))
+        .expect(env)
+        .run(unit -> {
+          new MongoRx()
+              .configure(unit.get(Env.class), conf(null, "db", db), unit.get(Binder.class));
+        });
   }
 
   @Test
@@ -416,25 +414,25 @@ public class MongodbRxTest {
     String db = "mongodb://localhost/pets.Pets";
     new MockUnit(Env.class, Binder.class, MongoClient.class, MongoDatabase.class,
         MongoCollection.class)
-            .expect(instances(1))
-            .expect(cluster(db))
-            .expect(pool(db))
-            .expect(socket)
-            .expect(socket(db))
-            .expect(server)
-            .expect(ssl(db))
-            .expect(settings)
-            .expect(mongo)
-            .expect(bind(Key.get(MongoClient.class, Names.named(db))))
-            .expect(database)
-            .expect(bind(Key.get(MongoDatabase.class, Names.named("pets"))))
-            .expect(collection)
-            .expect(bind(Key.get(MongoCollection.class, Names.named("Pets"))))
-            .expect(env)
-            .run(unit -> {
-              new MongoRx(db)
-                  .configure(unit.get(Env.class), conf(null), unit.get(Binder.class));
-            });
+        .expect(instances(1))
+        .expect(cluster(db))
+        .expect(pool(db))
+        .expect(socket)
+        .expect(socket(db))
+        .expect(server)
+        .expect(ssl(db))
+        .expect(settings)
+        .expect(mongo)
+        .expect(bind(Key.get(MongoClient.class, Names.named(db))))
+        .expect(database)
+        .expect(bind(Key.get(MongoDatabase.class, Names.named("pets"))))
+        .expect(collection)
+        .expect(bind(Key.get(MongoCollection.class, Names.named("Pets"))))
+        .expect(env)
+        .run(unit -> {
+          new MongoRx(db)
+              .configure(unit.get(Env.class), conf(null), unit.get(Binder.class));
+        });
   }
 
   private Block instances(final int n) {
@@ -446,7 +444,7 @@ public class MongodbRxTest {
     };
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private Block bind(final Key key) {
     return unit -> {
       Binder binder = unit.get(Binder.class);
@@ -486,12 +484,12 @@ public class MongodbRxTest {
 
   private Block socket(final String db) {
     return unit -> {
-      SocketSettings settings = Try.of(() -> unit.get(SocketSettings.class))
-          .getOrElse(() -> unit.mock(SocketSettings.class));
+      SocketSettings settings = Try.apply(() -> unit.get(SocketSettings.class))
+          .orElseGet(() -> unit.mock(SocketSettings.class));
       unit.registerMock(SocketSettings.class, settings);
 
-      SocketSettings.Builder builder = Try.of(() -> unit.get(SocketSettings.Builder.class))
-          .getOrElse(() -> unit.mock(SocketSettings.Builder.class));
+      SocketSettings.Builder builder = Try.apply(() -> unit.get(SocketSettings.Builder.class))
+          .orElseGet(() -> unit.mock(SocketSettings.Builder.class));
       expect(builder.applyConnectionString(new ConnectionString(db))).andReturn(builder).times(2);
       expect(builder.build()).andReturn(settings).times(2);
 

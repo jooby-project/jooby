@@ -203,11 +203,6 @@
  */
 package org.jooby.internal.jetty;
 
-import java.util.Optional;
-import java.util.concurrent.Executor;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.eclipse.jetty.io.EofException;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpChannel;
@@ -215,11 +210,12 @@ import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.jooby.Sse;
+import org.jooby.funzy.Try;
 
-import com.google.common.util.concurrent.MoreExecutors;
-
-import javaslang.concurrent.Promise;
-import javaslang.control.Try;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 public class JettySse extends Sse {
 
@@ -258,18 +254,18 @@ public class JettySse extends Sse {
   }
 
   @Override
-  protected Promise<Optional<Object>> send(final Optional<Object> id, final byte[] data) {
+  protected CompletableFuture<Optional<Object>> send(final Optional<Object> id, final byte[] data) {
     synchronized (this) {
-      Promise<Optional<Object>> promise = Promise.make(MoreExecutors.newDirectExecutorService());
+      CompletableFuture<Optional<Object>> future = new CompletableFuture<>();
       try {
         out.write(data);
         out.flush();
-        promise.success(id);
+        future.complete(id);
       } catch (Throwable ex) {
-        promise.failure(ex);
+        future.completeExceptionally(ex);
         ifClose(ex);
       }
-      return promise;
+      return future;
     }
   }
 

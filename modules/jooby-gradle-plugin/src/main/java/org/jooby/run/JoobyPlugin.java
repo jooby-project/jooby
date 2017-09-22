@@ -203,16 +203,16 @@
  */
 package org.jooby.run;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.internal.ConventionMapping;
 import org.gradle.api.invocation.Gradle;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JoobyPlugin implements Plugin<Project> {
 
@@ -236,6 +236,7 @@ public class JoobyPlugin implements Plugin<Project> {
 
     configureJoobySpec(project);
 
+    configureApiTool(project);
   }
 
   private void configureJoobyRun(final Project project) throws IOException {
@@ -279,7 +280,7 @@ public class JoobyPlugin implements Plugin<Project> {
 
           mapping.map("mainClassName", () -> project.getProperties().get("mainClassName"));
 
-          mapping.map("output", () -> new JoobyProject(project).buildResources());
+          mapping.map("output", () -> new JoobyProject(project).classes());
 
           mapping.map("assemblyOutput", () -> new File(project.getBuildDir(), "__public_"));
         });
@@ -309,6 +310,24 @@ public class JoobyPlugin implements Plugin<Project> {
     options.put(Task.TASK_NAME, "joobySpec");
     options.put(Task.TASK_DESCRIPTION, "Export your API/microservices outside a Jooby application");
     options.put(Task.TASK_GROUP, "jooby");
+    project.getTasks().create(options);
+  }
+
+  private void configureApiTool(final Project project) {
+    project.getTasks()
+        .withType(ApiToolTask.class, task -> {
+          ConventionMapping mapping = task.getConventionMapping();
+          mapping.map("mainClassName", () -> project.getProperties().get("mainClassName"));
+        });
+
+    Map<String, Object> options = new HashMap<>();
+    options.put(Task.TASK_TYPE, ApiToolTask.class);
+    options.put(Task.TASK_DEPENDS_ON, "classes");
+    options.put(Task.TASK_NAME, "joobyApiTool");
+    options.put(Task.TASK_DESCRIPTION,
+        "Automatically export your HTTP API to open standards like Swagger and RAML");
+    options.put(Task.TASK_GROUP, "jooby");
+
     project.getTasks().create(options);
   }
 

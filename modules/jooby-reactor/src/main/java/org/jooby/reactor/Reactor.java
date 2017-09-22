@@ -203,24 +203,17 @@
  */
 package org.jooby.reactor;
 
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
 import static java.util.Objects.requireNonNull;
-import static javaslang.API.$;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.instanceOf;
-
-import java.util.function.Function;
-
 import org.jooby.Deferred;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Route;
-
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.function.Function;
 
 /**
  * <h1>reactor</h1>
@@ -350,21 +343,20 @@ public class Reactor implements Jooby.Module {
    */
   @SuppressWarnings("unchecked")
   public static Route.Mapper<Object> reactor(final Function<Flux, Flux> flux,
-      final Function<Mono, Mono> mono) {
+    final Function<Mono, Mono> mono) {
     requireNonNull(flux, "Flux's adapter is required.");
     requireNonNull(mono, "Mono's adapter is required.");
-    return Route.Mapper.create("reactor", value -> Match(value).of(
-        /** Flux: */
-        Case(instanceOf(Flux.class),
-            it -> new Deferred(deferred -> flux.apply(it)
-                .consume(deferred::set, deferred::set))),
-        /** Mono: */
-        Case(instanceOf(Mono.class),
-            it -> new Deferred(deferred -> mono.apply(it)
-                .consume(deferred::set, deferred::set))),
-        /** Ignore */
-        Case($(), value)));
-
+    return Route.Mapper.create("reactor", value -> {
+      if (value instanceof Flux) {
+        return new Deferred(deferred -> flux.apply((Flux) value)
+          .consume(deferred::set, deferred::set));
+      }
+      if (value instanceof Mono) {
+        return new Deferred(deferred -> mono.apply((Mono) value)
+          .consume(deferred::set, deferred::set));
+      }
+      return value;
+    });
   }
 
   /**
@@ -396,7 +388,7 @@ public class Reactor implements Jooby.Module {
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
     env.router()
-        .map(reactor(flux, mono));
+      .map(reactor(flux, mono));
   }
 
 }

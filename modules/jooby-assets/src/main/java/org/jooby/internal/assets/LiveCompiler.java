@@ -203,7 +203,18 @@
  */
 package org.jooby.internal.assets;
 
+import com.google.common.collect.Lists;
+import com.typesafe.config.Config;
 import static java.util.Objects.requireNonNull;
+import org.jooby.MediaType;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Route;
+import org.jooby.assets.AssetCompiler;
+import org.jooby.assets.AssetException;
+import org.jooby.assets.AssetProblem;
+import org.jooby.funzy.Try;
+import org.jooby.internal.URLAsset;
 
 import java.io.File;
 import java.io.IOException;
@@ -216,20 +227,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.jooby.MediaType;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.assets.AssetCompiler;
-import org.jooby.assets.AssetException;
-import org.jooby.assets.AssetProblem;
-import org.jooby.internal.URLAsset;
-
-import com.google.common.collect.Lists;
-import com.typesafe.config.Config;
-
-import javaslang.control.Try;
 
 public class LiveCompiler implements Route.Handler {
 
@@ -256,8 +253,9 @@ public class LiveCompiler implements Route.Handler {
   private void onChange(final Kind<?> kind, final Path path) {
     File outputdir = new File(conf.getString("application.tmpdir"), "__public_");
     outputdir.mkdirs();
-    String filename = Route.normalize(Try.of(() -> path.subpath(1, path.getNameCount()).toString())
-        .getOrElse(path.toString()));
+    String filename = Route
+        .normalize(Try.apply(() -> path.subpath(1, path.getNameCount()).toString())
+            .orElse(path.toString()));
     try {
       boolean firstRun = this.firstRun.compareAndSet(true, false);
       if (!firstRun && !path.equals(basedir)) {

@@ -16,4 +16,6 @@ These are the available modules for reading and saving session data in your appl
 
 {{doc/mongodb/mongodb-session.md}}
 
+{{doc/neo4j/neo4j-session.md}}
+
 {{doc/spymemcached/spymemcached-session.md}}

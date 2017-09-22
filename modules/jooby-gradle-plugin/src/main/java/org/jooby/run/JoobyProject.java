@@ -217,6 +217,12 @@
  */
 package org.jooby.run;
 
+import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.tasks.SourceSet;
+import static org.jooby.funzy.Throwing.throwingFunction;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -226,13 +232,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.tasks.SourceSet;
-
-import javaslang.control.Try;
-
 public class JoobyProject {
 
   private Project project;
@@ -241,11 +240,15 @@ public class JoobyProject {
     this.project = project;
   }
 
-  public File buildResources() {
+  /**
+   * @return Returns the output directory for .class file.
+   */
+  public File classes() {
     SourceSet sourceSet = sourceSet(project);
-    String resources = new File("resources", SourceSet.MAIN_SOURCE_SET_NAME).toString();
     return sourceSet.getRuntimeClasspath().getFiles().stream()
-        .filter(f -> f.isDirectory() && f.toString().endsWith(resources)).findFirst().get();
+        .filter(f -> f.exists() && f.isDirectory() && f.toString().contains("classes"))
+        .findFirst()
+        .get();
   }
 
   public Set<File> classpath() {
@@ -301,7 +304,7 @@ public class JoobyProject {
   public URLClassLoader newClassLoader() throws MalformedURLException {
     return toClassLoader(
         classpath().stream()
-            .map(f -> Try.of(() -> f.toURI().toURL()).get())
+            .map(throwingFunction(f -> f.toURI().toURL()))
             .collect(Collectors.toList()),
         getClass().getClassLoader());
   }

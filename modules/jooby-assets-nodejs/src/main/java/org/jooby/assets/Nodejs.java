@@ -203,7 +203,17 @@
  */
 package org.jooby.assets;
 
+import com.eclipsesource.v8.NodeJS;
+import com.eclipsesource.v8.V8;
+import com.eclipsesource.v8.utils.MemoryManager;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import static java.util.Objects.requireNonNull;
+import org.jooby.Route;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.File;
@@ -224,19 +234,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import org.jooby.Route;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.eclipsesource.v8.NodeJS;
-import com.eclipsesource.v8.V8;
-import com.eclipsesource.v8.utils.MemoryManager;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
-
-import javaslang.control.Try;
-import javaslang.control.Try.CheckedConsumer;
 
 /**
  * Helper class that allows you extract and unpack a nodejs library from classpath.
@@ -359,7 +356,7 @@ public class Nodejs {
    * @param library Library to unpack and execute this library.
    * @throws Throwable If something goes wrong.
    */
-  public void exec(final String library, final CheckedConsumer<V8> callback) throws Throwable {
+  public void exec(final String library, final Throwing.Consumer<V8> callback) throws Throwable {
     Path basedir = deploy(library);
     List<String> candidates = Arrays.asList(
         basedir.getFileName().toString() + ".js",
@@ -397,7 +394,7 @@ public class Nodejs {
     URI uri = url.toURI();
     log.debug("{}", uri);
     Path outdir = this.basedir.toPath().resolve("node_modules").resolve(library.replace("/", "."));
-    Optional<Path> basedir = Try.of(() -> Paths.get(uri)).toJavaOptional();
+    Optional<Path> basedir = Try.apply(() -> Paths.get(uri)).toOptional();
     String libroot = Route.normalize("/" + library);
     try (Library lib = loadLibrary(uri)) {
       try (Stream<Path> stream = lib.stream()) {
@@ -431,9 +428,9 @@ public class Nodejs {
   }
 
   private Library loadLibrary(final URI lib) {
-    return Try.of(() -> FileSystems.newFileSystem(lib, Maps.newHashMap()))
-        .map(it -> Try.of(() -> new Library(it)).get())
-        .recoverWith(x -> Try.of(() -> new Library(Paths.get(lib))))
+    return Try.apply(() -> FileSystems.newFileSystem(lib, Maps.newHashMap()))
+        .map(it -> Try.apply(() -> new Library(it)).get())
+        .recover(x -> Try.apply(() -> new Library(Paths.get(lib))).get())
         .get();
   }
 
@@ -442,7 +439,7 @@ public class Nodejs {
    *
    * @param callback Nodejs callback.
    */
-  public static void run(final CheckedConsumer<Nodejs> callback) {
+  public static void run(final Throwing.Consumer<Nodejs> callback) {
     run(new File(System.getProperty("java.io.tmpdir")), callback);
   }
 
@@ -452,7 +449,7 @@ public class Nodejs {
    * @param basedir Base dir where to deploy a library.
    * @param callback Nodejs callback.
    */
-  public static void run(final File basedir, final CheckedConsumer<Nodejs> callback) {
+  public static void run(final File basedir, final Throwing.Consumer<Nodejs> callback) {
     Nodejs node = new Nodejs(basedir);
     try {
       callback.accept(node);

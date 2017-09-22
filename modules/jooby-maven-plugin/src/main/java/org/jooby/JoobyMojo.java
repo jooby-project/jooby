@@ -203,18 +203,6 @@
  */
 package org.jooby;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
 import org.apache.maven.Maven;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
@@ -232,8 +220,19 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.jooby.run.Watcher;
+import org.jooby.funzy.Try;
 
-import javaslang.control.Try;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Mojo(name = "run", threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
 @Execute(phase = LifecyclePhase.TEST_COMPILE)
@@ -378,7 +377,7 @@ public class JoobyMojo extends AbstractMojo {
     // fork?
     Command runapp = fork
         ? new RunForkedApp(mavenProject.getBasedir(), debug, vmArgs, classpath, mId, mainClass,
-            appcp, includes, excludes, watchDirStr)
+        appcp, includes, excludes, watchDirStr)
         : new RunApp(mId, mainClass, appcp, includes, excludes, watchDirs);
 
     // run app at the end
@@ -492,7 +491,7 @@ public class JoobyMojo extends AbstractMojo {
     // logback
     File[] logbackFiles = {localFile("conf", "logback-test.xml"),
         localFile("conf", "logback.dev.xml"),
-        localFile("conf", "logback.xml") };
+        localFile("conf", "logback.xml")};
     for (File logback : logbackFiles) {
       if (logback.exists()) {
         System.setProperty("logback.configurationFile", logback.getAbsolutePath());

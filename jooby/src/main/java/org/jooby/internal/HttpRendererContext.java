@@ -203,6 +203,14 @@
  */
 package org.jooby.internal;
 
+import com.google.common.io.ByteStreams;
+import org.jooby.Err;
+import org.jooby.MediaType;
+import org.jooby.Renderer;
+import org.jooby.Renderer.Context;
+import org.jooby.Status;
+import org.jooby.spi.NativeResponse;
+
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -212,18 +220,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-
-import org.jooby.Err;
-import org.jooby.MediaType;
-import org.jooby.Renderer;
-import org.jooby.Renderer.Context;
-import org.jooby.Status;
-import org.jooby.spi.NativeResponse;
-
-import com.google.common.io.ByteStreams;
-
-import javaslang.Tuple;
-import javaslang.Tuple2;
 
 public class HttpRendererContext extends AbstractRendererContext {
 
@@ -236,9 +232,9 @@ public class HttpRendererContext extends AbstractRendererContext {
   private Optional<String> byteRange;
 
   public HttpRendererContext(final List<Renderer> renderers,
-      final NativeResponse rsp, final Consumer<Long> len, final Consumer<MediaType> type,
-      final Map<String, Object> locals, final List<MediaType> produces, final Charset charset,
-      final Locale locale, final Optional<String> byteRange) {
+    final NativeResponse rsp, final Consumer<Long> len, final Consumer<MediaType> type,
+    final Map<String, Object> locals, final List<MediaType> produces, final Charset charset,
+    final Locale locale, final Optional<String> byteRange) {
     super(renderers, produces, charset, locale, locals);
     this.byteRange = byteRange;
     this.rsp = rsp;
@@ -270,33 +266,33 @@ public class HttpRendererContext extends AbstractRendererContext {
 
   @Override
   protected void _send(final FileChannel file) throws Exception {
-    Tuple2<Long, Long> byteRange = byteRange();
+    long[] byteRange = byteRange();
     if (byteRange == null) {
       rsp.send(file);
     } else {
-      rsp.send(file, byteRange._1, byteRange._2);
+      rsp.send(file, byteRange[0], byteRange[1]);
     }
   }
 
   @Override
   protected void _send(final InputStream stream) throws Exception {
-    Tuple2<Long, Long> byteRange = byteRange();
+    long[] byteRange = byteRange();
     if (byteRange == null) {
       rsp.send(stream);
     } else {
-      stream.skip(byteRange._1);
-      rsp.send(ByteStreams.limit(stream, byteRange._2));
+      stream.skip(byteRange[0]);
+      rsp.send(ByteStreams.limit(stream, byteRange[1]));
     }
   }
 
-  private <T> Tuple2<Long, Long> byteRange() {
+  private long[] byteRange() {
     long len = rsp.header("Content-Length").map(Long::parseLong).orElse(-1L);
     if (len > 0) {
       if (byteRange.isPresent()) {
         String raw = byteRange.get();
-        Tuple2<Long, Long> range = ByteRange.parse(raw);
-        long start = range._1;
-        long end = range._2;
+        long[] range = ByteRange.parse(raw);
+        long start = range[0];
+        long end = range[1];
         if (start == -1) {
           start = len - end;
           end = len - 1;
@@ -313,7 +309,7 @@ public class HttpRendererContext extends AbstractRendererContext {
         rsp.header("Content-Range", "bytes " + start + "-" + end + "/" + len);
         rsp.header("Content-Length", Long.toString(limit));
         rsp.statusCode(Status.PARTIAL_CONTENT.value());
-        return Tuple.of(start, limit);
+        return new long[]{start, limit};
       }
     }
     return null;

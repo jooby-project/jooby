@@ -203,8 +203,24 @@
  */
 package org.jooby.assets;
 
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.hash.Hashing;
+import com.google.common.io.BaseEncoding;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Closeables;
+import com.google.common.io.Files;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValue;
 import static java.util.Objects.requireNonNull;
-import static javaslang.Predicates.instanceOf;
+import org.jooby.Asset;
+import org.jooby.MediaType;
+import org.jooby.funzy.Try;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -231,26 +247,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.jooby.Asset;
-import org.jooby.MediaType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.CaseFormat;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.hash.Hashing;
-import com.google.common.io.BaseEncoding;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Closeables;
-import com.google.common.io.Files;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValue;
-
-import javaslang.control.Try;
 
 /**
  * <h1>Asset compiler</h1>
@@ -357,8 +353,8 @@ public class AssetCompiler {
     return patterns(file -> !aggregators.stream()
         .filter(it -> it.fileset().contains(file))
         .findFirst().isPresent())
-            .map(v -> "/" + v + "/**")
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+        .map(v -> "/" + v + "/**")
+        .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   /**
@@ -670,7 +666,8 @@ public class AssetCompiler {
       candidates.forEach(it -> {
         Try.run(() -> {
           processors(assetconf, loader, null, ImmutableList.of(it.substring(1)), ImmutableSet.of())
-              .stream().filter(instanceOf(AssetAggregator.class))
+              .stream()
+              .filter(AssetAggregator.class::isInstance)
               .forEach(p -> {
                 AssetAggregator a = (AssetAggregator) p;
                 aggregators.accept(a);

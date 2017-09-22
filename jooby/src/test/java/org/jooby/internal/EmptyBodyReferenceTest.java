@@ -1,13 +1,11 @@
 package org.jooby.internal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import org.jooby.Err;
 import org.jooby.Status;
+import org.jooby.funzy.Throwing;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.Test;
-
-import javaslang.control.Try.CheckedConsumer;
 
 public class EmptyBodyReferenceTest {
 
@@ -31,7 +29,7 @@ public class EmptyBodyReferenceTest {
     assertEquals(0, new EmptyBodyReference().length());
   }
 
-  private void badRequest(final CheckedConsumer<EmptyBodyReference> callback) throws Throwable {
+  private void badRequest(final Throwing.Consumer<EmptyBodyReference> callback) throws Throwable {
     try {
       callback.accept(new EmptyBodyReference());
       fail();

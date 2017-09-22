@@ -203,7 +203,22 @@
  */
 package org.jooby.internal;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Injector;
+import com.google.inject.Key;
 import static java.util.Objects.requireNonNull;
+import org.jooby.Err;
+import org.jooby.MediaType;
+import org.jooby.Mutant;
+import org.jooby.Renderer;
+import org.jooby.Request;
+import org.jooby.WebSocket;
+import org.jooby.internal.parser.ParserExecutor;
+import org.jooby.spi.NativeWebSocket;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
@@ -214,28 +229,10 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.jooby.Err;
-import org.jooby.MediaType;
-import org.jooby.Mutant;
-import org.jooby.Renderer;
-import org.jooby.Request;
-import org.jooby.WebSocket;
-import org.jooby.internal.parser.ParserExecutor;
-import org.jooby.spi.NativeWebSocket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-
-import javaslang.control.Try;
-import javaslang.control.Try.CheckedRunnable;
-
 @SuppressWarnings("unchecked")
 public class WebSocketImpl implements WebSocket {
 
-  @SuppressWarnings({"rawtypes" })
+  @SuppressWarnings({"rawtypes"})
   private static final OnMessage NOOP = arg -> {
   };
 
@@ -510,7 +507,7 @@ public class WebSocketImpl implements WebSocket {
     }
   }
 
-  private CheckedRunnable sync(final CheckedRunnable task) {
+  private Throwing.Runnable sync(final Throwing.Runnable task) {
     return () -> {
       synchronized (this) {
         task.run();

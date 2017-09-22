@@ -203,28 +203,17 @@
  */
 package org.jooby.internal;
 
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Sets;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import com.typesafe.config.Config;
 import static java.util.Objects.requireNonNull;
-
-import java.nio.charset.Charset;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-
 import org.jooby.Deferred;
 import org.jooby.Err;
 import org.jooby.Err.Handler;
@@ -243,21 +232,28 @@ import org.jooby.spi.HttpHandler;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeResponse;
 import org.jooby.spi.NativeWebSocket;
+import org.jooby.funzy.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Sets;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-import com.typesafe.config.Config;
-
-import javaslang.control.Try;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import java.nio.charset.Charset;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Singleton
 public class HttpHandlerImpl implements HttpHandler {
@@ -456,8 +452,7 @@ public class HttpHandlerImpl implements HttpHandler {
     scope.put(RSP, rsp);
 
     // seed sse
-    Provider<Sse> sse = () -> Try.of(() -> request.upgrade(Sse.class))
-        .getOrElseThrow(() -> new UnsupportedOperationException("Server-sent events"));
+    Provider<Sse> sse = () -> Try.apply(() -> request.upgrade(Sse.class)).get();
     scope.put(SSE, sse);
 
     // seed session

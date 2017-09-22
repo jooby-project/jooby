@@ -203,12 +203,10 @@
  */
 package org.jooby.hbm;
 
-import javax.persistence.EntityManager;
-
 import org.hibernate.Session;
+import org.jooby.funzy.Throwing;
 
-import javaslang.control.Try.CheckedConsumer;
-import javaslang.control.Try.CheckedFunction;
+import javax.persistence.EntityManager;
 
 /**
  * <h2>unit of work</h2>
@@ -266,7 +264,7 @@ public interface UnitOfWork {
    * @param callback Callback to run.
    * @throws Throwable If something goes wrong.
    */
-  default void accept(final CheckedConsumer<Session> callback) throws Throwable {
+  default void accept(final Throwing.Consumer<Session> callback) throws Throwable {
     apply(session -> {
       callback.accept(session);
       return null;
@@ -281,5 +279,5 @@ public interface UnitOfWork {
    * @return Returns value.
    * @throws Throwable If something goes wrong.
    */
-  <T> T apply(final CheckedFunction<Session, T> callback) throws Throwable;
+  <T> T apply(final Throwing.Function<Session, T> callback) throws Throwable;
 }

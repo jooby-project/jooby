@@ -1,10 +1,11 @@
-package org.jooby;
+package issues;
+
+import org.jooby.Route;
+import org.jooby.test.ServerFeature;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-
-import org.jooby.test.ServerFeature;
-import org.junit.Test;
 
 public class RouteReferenceFeature extends ServerFeature {
 
@@ -18,16 +19,7 @@ public class RouteReferenceFeature extends ServerFeature {
       assertEquals("/", route.path());
       assertEquals("/", route.pattern());
       assertEquals("bar", route.attr("foo"));
-      assertEquals(
-          "| Method | Path | Source                             | Name       | Pattern | Consumes | Produces |\n"
-              +
-              "|--------|------|------------------------------------|------------|---------|----------|----------|\n"
-              +
-              "| GET    | /    | org.jooby.RouteReferenceFeature:13 | /anonymous | /       | [*/*]    | [*/*]    |"
-              +
-              "",
-          req.toString());
-      rsp.send("done");
+      rsp.send(req.toString());
     }).attr("foo", "bar");
 
     get("/:var", (req, rsp) -> {
@@ -46,7 +38,10 @@ public class RouteReferenceFeature extends ServerFeature {
   public void rootRoute() throws Exception {
     request()
         .get("/")
-        .expect("done");
+        .expect(
+            "| Method | Path | Source                          | Name       | Pattern | Consumes | Produces |\n"
+                + "|--------|------|---------------------------------|------------|---------|----------|----------|\n"
+                + "| GET    | /    | issues.RouteReferenceFeature:14 | /anonymous | /       | [*/*]    | [*/*]    |");
   }
 
   @Test

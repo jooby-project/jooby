@@ -274,7 +274,7 @@ public class RouteParamCollector extends VoidVisitorAdapter<Context> {
             .findFirst()
             .map(it -> ((StringLiteralExpr) it).getValue())
             .orElse(BODY);
-        Entry<Type, Object> typeDef = type(call.get(1), ctx);
+        Entry<Type, Object> typeDef = type(call.get(call.size() - 1), ctx);
         String doc = (String) this.doc.get(pname.equals(BODY) ? "body" : pname);
         params.add(new RouteParamImpl(pname, typeDef.getKey(), type(typeDef.getKey(), pname, cname),
             typeDef.getValue(), doc));
@@ -362,10 +362,13 @@ public class RouteParamCollector extends VoidVisitorAdapter<Context> {
         type = Optional.class;
       }
         break;
-      case "toUpload": {
-        type = ctx.resolveType(expr, "org.jooby.Upload").get();
+      case "file": {
+        return Maps.immutableEntry(ctx.resolveType(expr, "org.jooby.Upload").get(), null);
       }
-        break;
+      case "files": {
+        return Maps.immutableEntry(Types.listOf(ctx.resolveType(expr, "org.jooby.Upload").get()),
+            null);
+      }
     }
     Object defaultValue = null;
     List<Expression> args = expr.getArgs();
@@ -422,7 +425,7 @@ public class RouteParamCollector extends VoidVisitorAdapter<Context> {
     // req.
     it = it == null ? prev : it;
     if (names.contains(it.toStringWithoutComments())) {
-      // param(id).value
+      // param(id).value || file(id)
       if (call.size() == 2) {
         String cname = call.get(0).getName();
         if ("param".equals(cname) || "header".equals(cname)) {
@@ -433,6 +436,14 @@ public class RouteParamCollector extends VoidVisitorAdapter<Context> {
         } else if ("body".equals(call.get(0).getName())) {
           List<Expression> args = call.get(0).getArgs();
           if (args.size() == 0) {
+            return call;
+          }
+        }
+      } else if (call.size() == 1) {
+        String cname = call.get(0).getName();
+        if ("file".equals(cname) || "files".equals(cname)) {
+          List<Expression> args = call.get(0).getArgs();
+          if (args.size() == 1 && args.get(0) instanceof StringLiteralExpr) {
             return call;
           }
         }

@@ -215,16 +215,30 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javaslang.Tuple;
-import javaslang.Tuple4;
-
 public class RoutePattern {
+
+  private static class Rewrite {
+
+    private final Function<String, RouteMatcher> fn;
+    private final List<String> vars;
+    private final List<String> reverse;
+    private final boolean glob;
+
+    public Rewrite(final Function<String, RouteMatcher> fn, final List<String> vars,
+        final List<String> reverse, final boolean glob) {
+      this.fn = fn;
+      this.vars = vars;
+      this.reverse = reverse;
+      this.glob = glob;
+    }
+  }
 
   private static final Pattern GLOB = Pattern
       /**            ?| **    | * | :var           | {var(:.*)} */
-     //.compile("\\?|/\\*\\*|\\*|\\:((?:[^/]+)+?)              |\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
+      //.compile("\\?|/\\*\\*|\\*|\\:((?:[^/]+)+?)              |\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
       /**           ? | **:name            | * | :var           | */
-      .compile("\\?|/\\*\\*(\\:(?:[^/]+))?|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
+      .compile(
+          "\\?|/\\*\\*(\\:(?:[^/]+))?|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
 
   private static final Pattern SLASH = Pattern.compile("//+");
 
@@ -242,12 +256,11 @@ public class RoutePattern {
     requireNonNull(verb, "A HTTP verb is required.");
     requireNonNull(pattern, "A path pattern is required.");
     this.pattern = normalize(pattern);
-    Tuple4<Function<String, RouteMatcher>, List<String>, List<String>, Boolean> result = rewrite(this,
-        verb.toUpperCase(), this.pattern.replace("/**/", "/**"));
-    matcher = result._1;
-    vars = result._2;
-    reverse = result._3;
-    glob = result._4;
+    Rewrite rewrite = rewrite(this, verb.toUpperCase(), this.pattern.replace("/**/", "/**"));
+    matcher = rewrite.fn;
+    vars = rewrite.vars;
+    reverse = rewrite.reverse;
+    glob = rewrite.glob;
   }
 
   public boolean glob() {
@@ -282,7 +295,7 @@ public class RoutePattern {
     return matcher.apply(path);
   }
 
-  private static Tuple4<Function<String, RouteMatcher>, List<String>, List<String>, Boolean> rewrite(
+  private static Rewrite rewrite(
       final RoutePattern owner, final String verb, final String pattern) {
     List<String> vars = new LinkedList<>();
     String rwrverb = verbs(verb);
@@ -348,7 +361,7 @@ public class RoutePattern {
     String tail = pattern.substring(end, pattern.length());
     reverse.add(tail);
     patternBuilder.append(Pattern.quote(tail));
-    return Tuple.of(fn(owner, regex, regex ? patternBuilder.toString() : verb + pattern, vars),
+    return new Rewrite(fn(owner, regex, regex ? patternBuilder.toString() : verb + pattern, vars),
         vars, reverse, glob);
   }
 

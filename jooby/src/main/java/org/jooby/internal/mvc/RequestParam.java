@@ -206,6 +206,7 @@ package org.jooby.internal.mvc;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -218,6 +219,7 @@ import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Session;
+import org.jooby.Upload;
 import org.jooby.mvc.Body;
 import org.jooby.mvc.Flash;
 import org.jooby.mvc.Header;
@@ -272,6 +274,19 @@ public class RequestParam {
     builder.put(TypeLiteral.get(Session.class), (req, rsp, param) -> req.session());
     builder.put(TypeLiteral.get(Types.newParameterizedType(Optional.class, Session.class)),
         (req, rsp, param) -> req.ifSession());
+
+    /**
+     * Files
+     */
+    builder.put(TypeLiteral.get(Upload.class), (req, rsp, param) -> req.file(param.name));
+    builder.put(TypeLiteral.get(Types.newParameterizedType(Optional.class, Upload.class)),
+        (req, rsp, param) -> {
+          List<Upload> files = req.files(param.name);
+          return files.size() == 0 ? Optional.empty() : Optional.of(files.get(0));
+        });
+    builder.put(TypeLiteral.get(Types.newParameterizedType(List.class, Upload.class)),
+        (req, rsp, param) -> req.files(param.name));
+
     /**
      * Cookie
      */
@@ -307,7 +322,7 @@ public class RequestParam {
       if (param.type.getRawType() == Map.class) {
         return req.flash();
       }
-      return param.optional? req.ifFlash(param.name) : req.flash(param.name);
+      return param.optional ? req.ifFlash(param.name) : req.flash(param.name);
     });
 
     injector = builder.build();

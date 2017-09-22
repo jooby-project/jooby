@@ -1,23 +1,5 @@
 package org.jooby.metrics;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-
-import java.util.function.BiConsumer;
-
-import org.jooby.Env;
-import org.jooby.Jooby;
-import org.jooby.Route;
-import org.jooby.Router;
-import org.jooby.internal.metrics.HealthCheckRegistryInitializer;
-import org.jooby.internal.metrics.MetricRegistryInitializer;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Metric;
@@ -31,11 +13,26 @@ import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.Route;
+import org.jooby.Router;
+import org.jooby.internal.metrics.HealthCheckRegistryInitializer;
+import org.jooby.internal.metrics.MetricRegistryInitializer;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import javaslang.control.Try.CheckedConsumer;
+import java.util.function.BiConsumer;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Metrics.class, MapBinder.class, Multibinder.class })
+@PrepareForTest({Metrics.class, MapBinder.class, Multibinder.class})
 public class MetricsTest {
 
   @SuppressWarnings("unchecked")
@@ -120,7 +117,7 @@ public class MetricsTest {
   @SuppressWarnings("unchecked")
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStop(unit.capture(CheckedConsumer.class))).andReturn(env);
+    expect(env.onStop(unit.capture(Throwing.Consumer.class))).andReturn(env);
   };
 
   @SuppressWarnings("unchecked")
@@ -128,36 +125,36 @@ public class MetricsTest {
   public void basic() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, Jooby.class,
         MetricRegistryInitializer.class)
-            .expect(newMetricRegistry)
-            .expect(newHealthCheckRegistry)
-            .expect(mapBinderStatic)
-            .expect(mapbinder(Metric.class, (unit, binder) -> {
-            }))
-            .expect(mapbinder(HealthCheck.class, (unit, binder) -> {
-            }))
-            .expect(multibinderStatic)
-            .expect(routes)
-            .expect(setbinder(Reporter.class, (unit, binder) -> {
+        .expect(newMetricRegistry)
+        .expect(newHealthCheckRegistry)
+        .expect(mapBinderStatic)
+        .expect(mapbinder(Metric.class, (unit, binder) -> {
+        }))
+        .expect(mapbinder(HealthCheck.class, (unit, binder) -> {
+        }))
+        .expect(multibinderStatic)
+        .expect(routes)
+        .expect(setbinder(Reporter.class, (unit, binder) -> {
 
-            }))
-            .expect(bindMetricRegistry)
-            .expect(bindMetricRegistryInitializer)
-            .expect(bindHealthCheckRegistry)
-            .expect(bindHealthCheckRegistryInitializer)
-            .expect(onStop)
-            .expect(unit -> {
-              MetricRegistryInitializer closer = unit.get(MetricRegistryInitializer.class);
-              closer.close();
+        }))
+        .expect(bindMetricRegistry)
+        .expect(bindMetricRegistryInitializer)
+        .expect(bindHealthCheckRegistry)
+        .expect(bindHealthCheckRegistryInitializer)
+        .expect(onStop)
+        .expect(unit -> {
+          MetricRegistryInitializer closer = unit.get(MetricRegistryInitializer.class);
+          closer.close();
 
-              Jooby app = unit.get(Jooby.class);
-              expect(app.require(MetricRegistryInitializer.class)).andReturn(closer);
-            })
-            .run(unit -> {
-              new Metrics()
-                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-            }, unit -> {
-              unit.captured(CheckedConsumer.class).get(0).accept(unit.get(Jooby.class));
-            });
+          Jooby app = unit.get(Jooby.class);
+          expect(app.require(MetricRegistryInitializer.class)).andReturn(closer);
+        })
+        .run(unit -> {
+          new Metrics()
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(Throwing.Consumer.class).get(0).accept(unit.get(Jooby.class));
+        });
   }
 
   @Test

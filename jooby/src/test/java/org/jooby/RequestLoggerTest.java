@@ -4,10 +4,12 @@ import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 
 import java.time.ZoneId;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -16,6 +18,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({RequestLogger.class, System.class })
 public class RequestLoggerTest {
+
+  @BeforeClass
+  public static void before() {
+    Locale.setDefault(Locale.US);
+  }
 
   private Block capture = unit -> {
     Response rsp = unit.get(Response.class);

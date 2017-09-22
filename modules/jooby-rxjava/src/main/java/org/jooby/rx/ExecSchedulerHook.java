@@ -203,42 +203,38 @@
  */
 package org.jooby.rx;
 
-import java.util.Map;
-import java.util.concurrent.Executor;
-
-import com.google.common.collect.ImmutableMap;
-
-import javaslang.Lazy;
+import org.jooby.funzy.Throwing;
 import rx.Scheduler;
 import rx.plugins.RxJavaSchedulersHook;
 import rx.schedulers.Schedulers;
 
+import java.util.Map;
+import java.util.concurrent.Executor;
+
 class ExecSchedulerHook extends RxJavaSchedulersHook {
 
-  private Lazy<Map<String, Scheduler>> schedulers;
+  private Throwing.Function<String, Scheduler> schedulers;
 
   public ExecSchedulerHook(final Map<String, Executor> executors) {
     // we don't want eager initialization of Schedulers
-    this.schedulers = Lazy.of(() -> {
-      ImmutableMap.Builder<String, Scheduler> schedulers = ImmutableMap.builder();
-      executors.forEach((k, e) -> schedulers.put(k, Schedulers.from(e)));
-      return schedulers.build();
-    });
+    schedulers = Throwing.<String, Scheduler>throwingFunction(
+        name -> Schedulers.from(executors.get(name)))
+        .memoized();
   }
 
   @Override
   public Scheduler getComputationScheduler() {
-    return schedulers.get().get("computation");
+    return schedulers.apply("computation");
   }
 
   @Override
   public Scheduler getIOScheduler() {
-    return schedulers.get().get("io");
+    return schedulers.apply("io");
   }
 
   @Override
   public Scheduler getNewThreadScheduler() {
-    return schedulers.get().get("newThread");
+    return schedulers.apply("newThread");
   }
 
 }

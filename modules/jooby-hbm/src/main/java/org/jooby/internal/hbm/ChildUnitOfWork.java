@@ -204,10 +204,9 @@
 package org.jooby.internal.hbm;
 
 import org.hibernate.Session;
+import org.jooby.funzy.Throwing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javaslang.control.Try.CheckedFunction;
 
 public class ChildUnitOfWork extends AbstractUnitOfWork {
 
@@ -219,7 +218,7 @@ public class ChildUnitOfWork extends AbstractUnitOfWork {
   }
 
   @Override
-  public <T> T apply(final CheckedFunction<Session, T> callback) throws Throwable {
+  public <T> T apply(final Throwing.Function<Session, T> callback) throws Throwable {
     log.debug("using session: {}", oid(session));
     return callback.apply(session);
   }

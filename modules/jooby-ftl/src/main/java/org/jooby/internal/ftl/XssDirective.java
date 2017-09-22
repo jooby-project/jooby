@@ -203,15 +203,14 @@
  */
 package org.jooby.internal.ftl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.jooby.Env;
-
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 import freemarker.template.TemplateScalarModel;
-import javaslang.control.Try;
+import org.jooby.Env;
+import org.jooby.funzy.Try;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class XssDirective implements TemplateMethodModelEx {
 
@@ -221,11 +220,11 @@ public class XssDirective implements TemplateMethodModelEx {
     this.env = env;
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public Object exec(final List arguments) throws TemplateModelException {
     List<String> args = (List<String>) arguments.stream()
-        .map(it -> Try.of(() -> ((TemplateScalarModel) it).getAsString()).get())
+        .map(it -> Try.apply(() -> ((TemplateScalarModel) it).getAsString()).get())
         .collect(Collectors.toList());
     String[] xss = args.subList(1, args.size())
         .toArray(new String[arguments.size() - 1]);

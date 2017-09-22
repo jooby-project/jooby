@@ -1,0 +1,10 @@
+<project>
+  <target name="clean-idea">
+    <echo message="${user.dir}" />
+    <delete>
+      <fileset dir="${user.dir}" includes="**/*.iml"/>
+      <fileset dir="${user.dir}" includes="**/.idea/"/>
+      <fileset dir="${user.dir}" includes="**/pom.xml.versionsBackup"/>
+    </delete>
+  </target>
+</project>

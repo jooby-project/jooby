@@ -1,18 +1,5 @@
 package org.jooby.mongodb;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-import static org.junit.Assert.assertEquals;
-
-import org.jooby.Env;
-import org.jooby.Env.ServiceKey;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
@@ -23,11 +10,21 @@ import com.mongodb.client.MongoDatabase;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-
-import javaslang.control.Try.CheckedRunnable;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Mongodb.class, MongoClient.class })
+@PrepareForTest({Mongodb.class, MongoClient.class})
 public class MongodbTest {
 
   private Config $mongodb = ConfigFactory.parseResources(getClass(), "mongodb.conf");
@@ -66,7 +63,7 @@ public class MongodbTest {
     expect(binder.bind(Key.get(MongoDatabase.class, Names.named("mydb")))).andReturn(dbABB);
 
     Env env = unit.get(Env.class);
-    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
   };
 
   @Test
@@ -80,7 +77,7 @@ public class MongodbTest {
         })
         .expect(serviceKey(new ServiceKey()))
         .expect(mongodb)
-        .expect(unit-> {
+        .expect(unit -> {
           MongoClient client = unit.get(MongoClient.class);
           client.close();
         })
@@ -88,7 +85,7 @@ public class MongodbTest {
           Mongodb mongodb = new Mongodb();
           mongodb.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         }, unit -> {
-          unit.captured(CheckedRunnable.class).iterator().next().run();
+          unit.captured(Throwing.Runnable.class).iterator().next().run();
         });
   }
 

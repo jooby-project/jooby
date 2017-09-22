@@ -203,33 +203,32 @@
  */
 package org.jooby;
 
-import static java.util.Objects.requireNonNull;
-
-import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.jooby.Route.Chain;
-import org.jooby.internal.SseRenderer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import static java.util.Objects.requireNonNull;
+import org.jooby.Route.Chain;
+import org.jooby.internal.SseRenderer;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javaslang.concurrent.Future;
-import javaslang.concurrent.Promise;
-import javaslang.control.Try;
-import javaslang.control.Try.CheckedRunnable;
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <h1>Server Sent Events</h1>
@@ -328,7 +327,7 @@ import javaslang.control.Try.CheckedRunnable;
  *
  * <h2>connection lost</h2>
  * <p>
- * The {@link #onClose(CheckedRunnable)} callback allow you to clean and release resources on
+ * The {@link #onClose(Throwing.Runnable)} callback allow you to clean and release resources on
  * connection close. A connection is closed by calling {@link #close()} or when the client/browser
  * close the connection.
  * </p>
@@ -363,11 +362,11 @@ import javaslang.control.Try.CheckedRunnable;
  * <p>
  * The previous example will sent a <code>':'</code> message (empty comment) every 15 seconds to
  * keep the connection alive. If the client drop the connection, then the
- * {@link #onClose(CheckedRunnable)} event will be fired it.
+ * {@link #onClose(Throwing.Runnable)} event will be fired it.
  * </p>
  *
  * <p>
- * This feature is useful when you want to detect {@link #onClose(CheckedRunnable)} events without
+ * This feature is useful when you want to detect {@link #onClose(Throwing.Runnable)} events without
  * waiting for the next time you send a new event. But for example, if your application already
  * generate events every 15s, then the use of keep alive is useless and you can avoid it.
  * </p>
@@ -586,8 +585,8 @@ public abstract class Sse implements AutoCloseable {
      *
      * @return A future callback.
      */
-    public Future<Optional<Object>> send() {
-      Future<Optional<Object>> future = sse.send(this);
+    public CompletableFuture<Optional<Object>> send() {
+      CompletableFuture<Optional<Object>> future = sse.send(this);
       this.id = null;
       this.name = null;
       this.data = null;
@@ -613,11 +612,13 @@ public abstract class Sse implements AutoCloseable {
       rsp.send(new Deferred(deferred -> {
         try {
           sse.handshake(req, () -> {
-            Try.run(() -> handle(req, sse)).onSuccess(deferred::resolve).onFailure(ex -> {
-              deferred.reject(ex);
-              Logger log = LoggerFactory.getLogger(Sse.class);
-              log.error("execution of {} resulted in error", path, ex);
-            });
+            Try.run(() -> handle(req, sse))
+                .onSuccess(() -> deferred.resolve(null))
+                .onFailure(ex -> {
+                  deferred.reject(ex);
+                  Logger log = LoggerFactory.getLogger(Sse.class);
+                  log.error("execution of {} resulted in error", path, ex);
+                });
           });
         } catch (Exception ex) {
           deferred.reject(ex);
@@ -668,14 +669,16 @@ public abstract class Sse implements AutoCloseable {
     public void run() {
       String sseId = sse.id();
       log.debug("running heart beat for {}", sseId);
-      Try.run(() -> sse.send(Optional.of(sseId), HEART_BEAT).future().onFailure(ex -> {
-        log.debug("connection lost for {}", sseId);
-        sse.fireCloseEvent();
-        Try.run(sse::close);
-      }).onSuccess(id -> {
-        log.debug("reschedule heart beat for {}", id);
-        // reschedule
-        sse.keepAlive(retry);
+      Try.run(() -> sse.send(Optional.of(sseId), HEART_BEAT).whenComplete((id, x) -> {
+        if (x != null) {
+          log.debug("connection lost for {}", sseId, x);
+          sse.fireCloseEvent();
+          Try.run(sse::close);
+        } else {
+          log.debug("reschedule heart beat for {}", id);
+          // reschedule
+          sse.keepAlive(retry);
+        }
       }));
     }
 
@@ -705,7 +708,7 @@ public abstract class Sse implements AutoCloseable {
 
   private Map<String, Object> locals;
 
-  private AtomicReference<CheckedRunnable> onclose = new AtomicReference<>(null);
+  private AtomicReference<Throwing.Runnable> onclose = new AtomicReference<>(null);
 
   private Mutant lastEventId;
 
@@ -765,7 +768,7 @@ public abstract class Sse implements AutoCloseable {
    * @param task Task to run.
    * @return This instance.
    */
-  public Sse onClose(final CheckedRunnable task) {
+  public Sse onClose(final Throwing.Runnable task) {
     onclose.set(task);
     return this;
   }
@@ -777,29 +780,24 @@ public abstract class Sse implements AutoCloseable {
    *   sse.send(new MyObject(), "json");
    * }</pre>
    *
-   * On success the {@link Future#onSuccess(java.util.function.Consumer)} callback will be executed:
-   *
    * <pre>{@code
-   *   sse.send(new MyObject(), "json").onSuccess(id -> {
-   *     //
+   *   sse.send(new MyObject(), "json").whenComplete((id, x) -> {
+   *     if (x == null) {
+   *       handleSuccess();
+   *     } else {
+   *       handleError(x);
+   *     }
    *   });
    * }</pre>
    *
    * The <code>id</code> of the success callback correspond to the {@link Event#id()}.
-   *
-   * On error the {@link Future#onFailure(java.util.function.Consumer)} callback will be executed:
-   *
-   * <pre>{@code
-   *   sse.send(new MyObject(), "json").onFailure(cause -> {
-   *     //
-   *   });
    * }</pre>
    *
    * @param data Event data.
    * @param type Media type, like: json, xml.
    * @return A future. The success callback contains the {@link Event#id()}.
    */
-  public Future<Optional<Object>> send(final Object data, final String type) {
+  public CompletableFuture<Optional<Object>> send(final Object data, final String type) {
     return send(data, MediaType.valueOf(type));
   }
 
@@ -810,29 +808,23 @@ public abstract class Sse implements AutoCloseable {
    *   sse.send(new MyObject(), "json");
    * }</pre>
    *
-   * On success the {@link Future#onSuccess(java.util.function.Consumer)} callback will be executed:
-   *
    * <pre>{@code
-   *   sse.send(new MyObject(), "json").onSuccess(id -> {
-   *     //
+   *   sse.send(new MyObject(), "json").whenComplete((id, x) -> {
+   *     if (x == null) {
+   *       handleSuccess();
+   *     } else {
+   *       handleError(x);
+   *     }
    *   });
    * }</pre>
    *
    * The <code>id</code> of the success callback correspond to the {@link Event#id()}.
    *
-   * On error the {@link Future#onFailure(java.util.function.Consumer)} callback will be executed:
-   *
-   * <pre>{@code
-   *   sse.send(new MyObject(), "json").onFailure(cause -> {
-   *     //
-   *   });
-   * }</pre>
-   *
    * @param data Event data.
    * @param type Media type, like: json, xml.
    * @return A future. The success callback contains the {@link Event#id()}.
    */
-  public Future<Optional<Object>> send(final Object data, final MediaType type) {
+  public CompletableFuture<Optional<Object>> send(final Object data, final MediaType type) {
     return event(data).type(type).send();
   }
 
@@ -843,28 +835,22 @@ public abstract class Sse implements AutoCloseable {
    *   sse.send(new MyObject());
    * }</pre>
    *
-   * On success the {@link Future#onSuccess(java.util.function.Consumer)} callback will be executed:
-   *
    * <pre>{@code
-   *   sse.send(new MyObject()).onSuccess(id -> {
-   *     //
+   *   sse.send(new MyObject(), "json").whenComplete((id, x) -> {
+   *     if (x == null) {
+   *       handleSuccess();
+   *     } else {
+   *       handleError(x);
+   *     }
    *   });
    * }</pre>
    *
    * The <code>id</code> of the success callback correspond to the {@link Event#id()}.
    *
-   * On error the {@link Future#onFailure(java.util.function.Consumer)} callback will be executed:
-   *
-   * <pre>{@code
-   *   sse.send(new MyObject()).onFailure(cause -> {
-   *     //
-   *   });
-   * }</pre>
-   *
    * @param data Event data.
    * @return A future. The success callback contains the {@link Event#id()}.
    */
-  public Future<Optional<Object>> send(final Object data) {
+  public CompletableFuture<Optional<Object>> send(final Object data) {
     return event(data).send();
   }
 
@@ -960,11 +946,11 @@ public abstract class Sse implements AutoCloseable {
    * <p>
    * The previous example will sent a <code>':'</code> message (empty comment) every 15 seconds to
    * keep the connection alive. If the client drop the connection, then the
-   * {@link #onClose(CheckedRunnable)} event will be fired it.
+   * {@link #onClose(Throwing.Runnable)} event will be fired it.
    * </p>
    *
    * <p>
-   * This feature is useful when you want to detect {@link #onClose(CheckedRunnable)} events without
+   * This feature is useful when you want to detect {@link #onClose(Throwing.Runnable)} events without
    * waiting until you send a new event. But for example, if your application already generate
    * events
    * every 15s, then the use of keep alive is useless and you should avoid it.
@@ -992,11 +978,11 @@ public abstract class Sse implements AutoCloseable {
    * <p>
    * The previous example will sent a <code>':'</code> message (empty comment) every 15 seconds to
    * keep the connection alive. If the client drop the connection, then the
-   * {@link #onClose(CheckedRunnable)} event will be fired it.
+   * {@link #onClose(Throwing.Runnable)} event will be fired it.
    * </p>
    *
    * <p>
-   * This feature is useful when you want to detect {@link #onClose(CheckedRunnable)} events without
+   * This feature is useful when you want to detect {@link #onClose(Throwing.Runnable)} events without
    * waiting until you send a new event. But for example, if your application already generate
    * events
    * every 15s, then the use of keep alive is useless and you should avoid it.
@@ -1011,7 +997,7 @@ public abstract class Sse implements AutoCloseable {
   }
 
   /**
-   * Close the connection and fire an {@link #onClose(CheckedRunnable)} event.
+   * Close the connection and fire an {@link #onClose(Throwing.Runnable)} event.
    */
   @Override
   public final void close() throws Exception {
@@ -1030,7 +1016,7 @@ public abstract class Sse implements AutoCloseable {
 
   protected abstract void closeInternal();
 
-  protected abstract Promise<Optional<Object>> send(Optional<Object> id, byte[] data);
+  protected abstract CompletableFuture<Optional<Object>> send(Optional<Object> id, byte[] data);
 
   protected void ifClose(final Throwable cause) {
     if (shouldClose(cause)) {
@@ -1039,7 +1025,7 @@ public abstract class Sse implements AutoCloseable {
   }
 
   protected void fireCloseEvent() {
-    CheckedRunnable task = onclose.getAndSet(null);
+    Throwing.Runnable task = onclose.getAndSet(null);
     if (task != null) {
       Try.run(task).onFailure(ex -> log.error("close callback resulted in error", ex));
     }
@@ -1056,18 +1042,19 @@ public abstract class Sse implements AutoCloseable {
     return false;
   }
 
-  private Future<Optional<Object>> send(final Event event) {
-    List<MediaType> produces = event.type().<List<MediaType>> map(ImmutableList::of)
+  private CompletableFuture<Optional<Object>> send(final Event event) {
+    List<MediaType> produces = event.type().<List<MediaType>>map(ImmutableList::of)
         .orElse(this.produces);
     SseRenderer ctx = new SseRenderer(renderers, produces, StandardCharsets.UTF_8, locale, locals);
-    return Try.of(() -> {
+    return Try.apply(() -> {
       byte[] bytes = ctx.format(event);
       return send(event.id(), bytes);
-    }).recover(cause -> {
-      Promise<Optional<Object>> promise = Promise.make(MoreExecutors.newDirectExecutorService());
-      promise.failure(cause);
-      return promise;
-    }).get().future();
+    }).recover(x -> {
+      CompletableFuture<Optional<Object>> future = new CompletableFuture<>();
+      future.completeExceptionally(x);
+      return future;
+    })
+        .get();
   }
 
 }

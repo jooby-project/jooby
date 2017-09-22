@@ -203,21 +203,18 @@
  */
 package org.jooby.internal.metrics;
 
+import com.codahale.metrics.Metric;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Reporter;
+import org.jooby.funzy.Try;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 import java.io.Closeable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Reporter;
-
-import javaslang.control.Try;
 
 public class MetricRegistryInitializer {
 
@@ -238,7 +235,7 @@ public class MetricRegistryInitializer {
   }
 
   public void close() throws Exception {
-    reporters.forEach(r -> Try.run(() -> r.close())
+    reporters.forEach(r -> Try.run(r::close)
         .onFailure(cause -> log.error("close of {} resulted in error", r, cause)));
   }
 

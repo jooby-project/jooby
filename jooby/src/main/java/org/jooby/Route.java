@@ -203,11 +203,22 @@
  */
 package org.jooby;
 
+import com.google.common.base.CaseFormat;
 import static com.google.common.base.Preconditions.checkArgument;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Primitives;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import static java.util.Objects.requireNonNull;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.instanceOf;
+import org.jooby.internal.RouteImpl;
+import org.jooby.internal.RouteMatcher;
+import org.jooby.internal.RoutePattern;
+import org.jooby.internal.RouteSourceImpl;
+import org.jooby.internal.SourceProvider;
+import org.jooby.funzy.Throwing;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -221,23 +232,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.jooby.internal.RouteImpl;
-import org.jooby.internal.RouteMatcher;
-import org.jooby.internal.RoutePattern;
-import org.jooby.internal.RouteSourceImpl;
-
-import com.google.common.base.CaseFormat;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.primitives.Primitives;
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
-import com.google.inject.internal.util.SourceProvider;
-
-import javaslang.CheckedFunction1;
 
 /**
  * Routes are a key concept in Jooby. Routes are executed in the same order they are defined.
@@ -525,7 +519,7 @@ public interface Route {
      * @param next The second mapper to apply.
      * @return A new mapper.
      */
-    @SuppressWarnings({"rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     static Mapper<Object> chain(final Mapper it, final Mapper next) {
       return create(it.name() + ">" + next.name(), v -> next.map(it.map(v)));
     }
@@ -538,7 +532,7 @@ public interface Route {
      * @param <T> Value type.
      * @return A new mapper.
      */
-    static <T> Mapper<T> create(final String name, final CheckedFunction1<T, Object> fn) {
+    static <T> Mapper<T> create(final String name, final Throwing.Function<T, Object> fn) {
       return new Route.Mapper<T>() {
         @Override
         public String name() {
@@ -1100,7 +1094,9 @@ public interface Route {
       routes.add(route);
     }
 
-  };
+  }
+
+  ;
 
   /**
    * Collection of {@link Route.Props} useful for registering/setting route options at once.
@@ -1110,8 +1106,7 @@ public interface Route {
    * @author edgar
    * @since 0.5.0
    */
-  @SuppressWarnings({"unchecked", "rawtypes" })
-  class Collection implements Props<Collection> {
+  @SuppressWarnings({"unchecked", "rawtypes"}) class Collection implements Props<Collection> {
 
     /** List of definitions. */
     private final Route.Props[] routes;
@@ -1244,10 +1239,6 @@ public interface Route {
    */
   class Definition implements Props<Definition> {
 
-    private static final SourceProvider SRC = SourceProvider.DEFAULT_INSTANCE
-        .plusSkippedClasses(Definition.class, Jooby.class, Collection.class, Group.class,
-            javaslang.collection.List.class, Router.class, Forwarding.class, Deferred.class);
-
     /**
      * Route's name.
      */
@@ -1352,9 +1343,10 @@ public interface Route {
       // normalized pattern
       this.pattern = cpattern.pattern();
       this.filter = filter;
-      StackTraceElement source = SRC.get(new Throwable().getStackTrace());
-      this.line = source.getLineNumber();
-      this.declaringClass = source.getClassName();
+      SourceProvider.INSTANCE.get().ifPresent(source -> {
+        this.line = source.getLineNumber();
+        this.declaringClass = source.getClassName();
+      });
     }
 
     /**
@@ -1459,7 +1451,7 @@ public interface Route {
       requireNonNull(value, "Attribute value is required.");
 
       if (valid(value)) {
-        attributes = ImmutableMap.<String, Object> builder()
+        attributes = ImmutableMap.<String, Object>builder()
             .putAll(attributes)
             .put(name, value)
             .build();
@@ -1468,13 +1460,16 @@ public interface Route {
     }
 
     private boolean valid(final Object value) {
-      return Match(value).option(
-          Case(v -> Primitives.isWrapperType(Primitives.wrap(v.getClass())), true),
-          Case(instanceOf(String.class), true),
-          Case(instanceOf(Enum.class), true),
-          Case(instanceOf(Class.class), true),
-          Case(c -> c.getClass().isArray(), v -> valid(Array.get(v, 0))))
-          .getOrElse(false);
+      if (Primitives.isWrapperType(Primitives.wrap(value.getClass()))) {
+        return true;
+      }
+      if (value instanceof String || value instanceof Enum || value instanceof Class) {
+        return true;
+      }
+      if (value.getClass().isArray()) {
+        return valid(Array.get(value, 0));
+      }
+      return false;
     }
 
     /**
@@ -2404,7 +2399,7 @@ public interface Route {
   /**
    * Well known HTTP methods.
    */
-  List<String> METHODS = ImmutableList.<String> builder()
+  List<String> METHODS = ImmutableList.<String>builder()
       .add(GET,
           POST,
           PUT,
@@ -2570,9 +2565,9 @@ public interface Route {
    */
   default String print(final int indent) {
     StringBuilder buff = new StringBuilder();
-    String[] header = {"Method", "Path", "Source", "Name", "Pattern", "Consumes", "Produces" };
+    String[] header = {"Method", "Path", "Source", "Name", "Pattern", "Consumes", "Produces"};
     String[] values = {method(), path(), source().toString(), name(), pattern(),
-        consumes().toString(), produces().toString() };
+        consumes().toString(), produces().toString()};
 
     BiConsumer<Function<Integer, String>, Character> format = (v, s) -> {
       buff.append(Strings.padEnd("", indent, ' '))

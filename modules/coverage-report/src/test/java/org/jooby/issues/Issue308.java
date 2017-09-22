@@ -1,19 +1,16 @@
 package org.jooby.issues;
 
+import com.google.common.collect.ImmutableMap;
+import org.jooby.MediaType;
+import org.jooby.json.Jackson;
+import org.jooby.test.SseFeature;
+import org.jooby.funzy.Try;
 import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
-
-import org.jooby.MediaType;
-import org.jooby.json.Jackson;
-import org.jooby.test.SseFeature;
-import org.junit.Test;
-
-import com.google.common.collect.ImmutableMap;
-
-import javaslang.control.Try;
 
 public class Issue308 extends SseFeature {
 
@@ -25,31 +22,36 @@ public class Issue308 extends SseFeature {
       sse.event("d2").name("e2").send();
       sse.event("d3").name("e3").id("i3").type("plain").send();
       sse.event("d4").name("e4").id("i4").retry(5000L).send();
-      sse.event("d5").name("e5").id("i5").retry(1, TimeUnit.MINUTES).send().onSuccess(id -> {
-        assertEquals("i5", id.get());
-        Try.run(() -> sse.close());
-      });
+      sse.event("d5").name("e5").id("i5").retry(1, TimeUnit.MINUTES).send()
+          .whenComplete((id, x) -> {
+            if (x == null) {
+              assertEquals("i5", id.get());
+              Try.run(sse::close);
+            }
+          });
     }).produces(MediaType.plain);
 
     sse("/sse-json-local", sse -> {
       sse.send(ImmutableMap.of("username", "bobby", "text", "Hi everyone."), MediaType.plain);
       sse.send(ImmutableMap.of("username", "bobby", "text", "Hi everyone."), "json")
-          .onSuccess(value -> {
-            Try.run(() -> sse.close());
+          .whenComplete((id, x) -> {
+            if (x == null) {
+              Try.run(sse::close);
+            }
           });
     });
 
     sse("/sse-json-global", sse -> {
       sse.send(ImmutableMap.of("username", "bobby", "text", "Hi everyone."))
-          .onSuccess(value -> {
-            Try.run(() -> sse.close());
+          .whenComplete((id, x) -> {
+            Try.run(sse::close);
           });
     }).produces(MediaType.json);
 
     sse("/sse-multiline", sse -> {
       sse.send("<html>\n<body>\n\n</body>\n</html>\n")
-          .onSuccess(value -> {
-            Try.run(() -> sse.close());
+          .whenComplete((id, x) -> {
+            Try.run(sse::close);
           });
     }).produces(MediaType.plain);
 
@@ -61,21 +63,21 @@ public class Issue308 extends SseFeature {
           : ByteBuffer.allocateDirect(bytebuffer.length).put(bytebuffer);
       buffer.flip();
       sse.send(buffer)
-          .onSuccess(value -> {
-            Try.run(() -> sse.close());
+          .whenComplete((id, x) -> {
+            Try.run(sse::close);
           });
     }).produces(MediaType.plain);
 
     sse("/sse-comment", sse -> {
       sse.keepAlive(10, TimeUnit.MILLISECONDS);
-      sse.event("data").comment("this is a comment").send().onSuccess(value -> {
-        Try.run(() -> sse.close());
+      sse.event("data").comment("this is a comment").send().whenComplete((id, x) -> {
+        Try.run(sse::close);
       });
     }).produces(MediaType.plain);
 
     sse("/sse-last-event-id", sse -> {
-      sse.send(sse.lastEventId().get()).onSuccess(value -> {
-        Try.run(() -> sse.close());
+      sse.send(sse.lastEventId().get()).whenComplete((id, x) -> {
+        Try.run(sse::close);
       });
     }).produces(MediaType.plain);
 
@@ -108,7 +110,7 @@ public class Issue308 extends SseFeature {
   @Test
   public void ssejson() throws Exception {
     assertEquals("data:{username=bobby, text=Hi everyone.}\n\n" +
-        "data:{\"username\":\"bobby\",\"text\":\"Hi everyone.\"}\n\n",
+            "data:{\"username\":\"bobby\",\"text\":\"Hi everyone.\"}\n\n",
         sse("/sse-json-local", 1));
     assertEquals("data:{\"username\":\"bobby\",\"text\":\"Hi everyone.\"}\n\n",
         sse("/sse-json-global", 1));

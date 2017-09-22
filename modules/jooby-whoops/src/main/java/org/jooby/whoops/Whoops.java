@@ -203,13 +203,28 @@
  */
 package org.jooby.whoops;
 
-import static javaslang.API.$;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.instanceOf;
+import com.google.common.base.Throwables;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.io.ByteStreams;
+import com.google.inject.Binder;
+import com.mitchellbosecke.pebble.PebbleEngine;
+import com.mitchellbosecke.pebble.loader.ClasspathLoader;
+import com.mitchellbosecke.pebble.template.PebbleTemplate;
+import com.typesafe.config.Config;
+import org.jooby.Env;
+import org.jooby.Err;
+import org.jooby.Err.Handler;
+import org.jooby.Jooby;
+import org.jooby.MediaType;
+import org.jooby.Route;
+import org.jooby.Router;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -226,30 +241,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import org.jooby.Env;
-import org.jooby.Err;
-import org.jooby.Err.Handler;
-import org.jooby.Jooby;
-import org.jooby.MediaType;
-import org.jooby.Route;
-import org.jooby.Router;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Throwables;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Closeables;
-import com.google.inject.Binder;
-import com.mitchellbosecke.pebble.PebbleEngine;
-import com.mitchellbosecke.pebble.loader.ClasspathLoader;
-import com.mitchellbosecke.pebble.template.PebbleTemplate;
-import com.typesafe.config.Config;
-
-import javaslang.Lazy;
-import javaslang.control.Try;
 
 /**
  * <h1>whoops</h1>
@@ -398,7 +389,9 @@ public class Whoops implements Jooby.Module {
         .build();
 
     /** Lazy compile template and keep it */
-    Lazy<PebbleTemplate> template = Lazy.of(() -> Try.of(() -> engine.getTemplate("layout")).get());
+    Throwing.Function<String, PebbleTemplate> template = Throwing.
+        <String, PebbleTemplate>throwingFunction(name -> engine.getTemplate(name))
+        .memoized();
 
     return (req, rsp, err) -> {
       // only html, ignore any other request and fallback to default handler
@@ -446,7 +439,7 @@ public class Whoops implements Jooby.Module {
         // truncate frames
         frames = frames.subList(0, Math.min(maxStackSize, frames.size()));
 
-        Map<String, Object> context = ImmutableMap.<String, Object> builder()
+        Map<String, Object> context = ImmutableMap.<String, Object>builder()
             .put("stylesheet", css)
             .put("zepto", zepto)
             .put("clipboard", clipboard)
@@ -460,7 +453,7 @@ public class Whoops implements Jooby.Module {
             .build();
         Writer writer = new StringWriter();
 
-        template.get().evaluate(writer, context);
+        template.apply("layout").evaluate(writer, context);
 
         log.error("execution of: {}{} resulted in exception\nRoute:\n{}\n\nStacktrace:",
             req.method(), req.path(), req.route().print(6), err);
@@ -470,9 +463,10 @@ public class Whoops implements Jooby.Module {
   }
 
   private static String message(final Throwable cause) {
-    return Match(cause).of(
-        Case(instanceOf(Supplier.class), s -> s.get().toString()),
-        Case($(), () -> Optional.ofNullable(cause.getMessage()).orElse("")));
+    if (cause instanceof Supplier) {
+      return ((Supplier) cause).get().toString();
+    }
+    return Optional.ofNullable(cause.getMessage()).orElse("");
   }
 
   private static <T> Map<String, String> dump(final Supplier<Map<String, T>> hash) {
@@ -487,15 +481,9 @@ public class Whoops implements Jooby.Module {
   }
 
   static String readString(final ClassLoader loader, final String path) {
-    return Try.of(() -> {
-      InputStream stream = null;
-      try {
-        stream = loader.getResourceAsStream("whoops/" + path);
-        return new String(ByteStreams.toByteArray(stream), StandardCharsets.UTF_8);
-      } finally {
-        Closeables.closeQuietly(stream);
-      }
-    }).get();
+    return Try.with(() -> loader.getResourceAsStream("whoops/" + path))
+        .apply(stream -> new String(ByteStreams.toByteArray(stream), StandardCharsets.UTF_8))
+        .get();
   }
 
   static List<Map<String, Object>> frames(final ClassLoader loader, final SourceLocator locator,
@@ -523,7 +511,7 @@ public class Whoops implements Jooby.Module {
     Path filePath = source.getPath();
     Optional<Class> clazz = findClass(loader, className);
     String filename = Optional.ofNullable(e.getFileName()).orElse("~unknown");
-    return ImmutableMap.<String, Object> builder()
+    return ImmutableMap.<String, Object>builder()
         .put("fileName", new File(filename).getName())
         .put("methodName", Optional.ofNullable(e.getMethodName()).orElse("~unknown"))
         .put("lineNumber", line)
@@ -544,7 +532,7 @@ public class Whoops implements Jooby.Module {
   @SuppressWarnings("rawtypes")
   static String locationOf(final Class clazz) {
     return Optional.ofNullable(clazz.getResource(clazz.getSimpleName() + ".class"))
-        .map(url -> Try.of(() -> {
+        .map(url -> Try.apply(() -> {
           String path = url.getPath();
           int i = path.indexOf("!");
           if (i > 0) {
@@ -558,7 +546,7 @@ public class Whoops implements Jooby.Module {
               .toPath()
               .relativize(Paths.get(relativePath).toFile().getCanonicalFile().toPath())
               .toString();
-        }).getOrElse("~unknown"))
+        }).orElse("~unknown"))
         .orElse("~unknown");
   }
 
@@ -568,7 +556,8 @@ public class Whoops implements Jooby.Module {
         .asList(loader, Thread.currentThread().getContextClassLoader())
         .stream()
         // we don't care about exception
-        .map(cl -> Try.<Class> of(() -> cl.loadClass(name)).getOrElse((Class) null))
+        .map(Throwing.<ClassLoader, Class>throwingFunction(cl -> cl.loadClass(name))
+            .orElse((Class) null))
         .filter(Objects::nonNull)
         .findFirst();
   }

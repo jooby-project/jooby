@@ -203,23 +203,6 @@
  */
 package org.jooby.crash;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.ServiceLoader;
-import java.util.Set;
-
-import org.crsh.plugin.CRaSHPlugin;
-import org.crsh.plugin.PluginContext;
-import org.jooby.Env;
-import org.jooby.Jooby.Module;
-import org.jooby.Registry;
-import org.jooby.Route;
-import org.jooby.WebSocket;
-import org.slf4j.bridge.SLF4JBridgeHandler;
-
 import com.google.common.collect.Sets;
 import com.google.inject.Binder;
 import com.google.inject.Key;
@@ -227,8 +210,24 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.crsh.plugin.CRaSHPlugin;
+import org.crsh.plugin.PluginContext;
+import org.jooby.Env;
+import org.jooby.Jooby.Module;
+import org.jooby.Registry;
+import org.jooby.Route;
+import org.jooby.WebSocket;
+import static org.jooby.funzy.Throwing.throwingSupplier;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import javaslang.concurrent.Promise;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * <h1>crash</h1>
@@ -413,7 +412,7 @@ import javaslang.concurrent.Promise;
  * @author edgar
  * @since 1.0.0
  */
-@SuppressWarnings({"unchecked", "rawtypes" })
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class Crash implements Module {
 
   static {
@@ -424,8 +423,8 @@ public class Crash implements Module {
   }
 
   private static final Key<Set<CRaSHPlugin>> PLUGINS = Key
-      .get(new TypeLiteral<Set<CRaSHPlugin>>() {
-      });
+    .get(new TypeLiteral<Set<CRaSHPlugin>>() {
+    });
 
   private final Set<Class> plugins = new HashSet<>();
 
@@ -463,7 +462,7 @@ public class Crash implements Module {
     Properties props = new Properties();
     if (conf.hasPath("crash")) {
       conf.getConfig("crash").entrySet().forEach(
-          e -> props.setProperty("crash." + e.getKey(), e.getValue().unwrapped().toString()));
+        e -> props.setProperty("crash." + e.getKey(), e.getValue().unwrapped().toString()));
     }
 
     Map<String, Object> attributes = new HashMap<>();
@@ -485,8 +484,8 @@ public class Crash implements Module {
 
     CrashBootstrap crash = new CrashBootstrap();
 
-    Promise<PluginContext> promise = Promise.make();
-    binder.bind(PluginContext.class).toProvider(promise.future()::get);
+    CompletableFuture<PluginContext> ctx = new CompletableFuture<>();
+    binder.bind(PluginContext.class).toProvider(throwingSupplier(ctx::get)::get);
 
     env.onStart(r -> {
       Set<Route.Definition> routes = r.require(Route.KEY);
@@ -499,7 +498,7 @@ public class Crash implements Module {
       Set plugins = Sets.newHashSet(r.require(PLUGINS));
       ServiceLoader.load(CRaSHPlugin.class, this.loader).forEach(plugins::add);
 
-      promise.success(crash.start(loader, props, attributes, plugins));
+      ctx.complete(crash.start(loader, props, attributes, plugins));
     });
 
     env.onStop(crash::stop);

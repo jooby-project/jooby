@@ -203,8 +203,22 @@
  */
 package org.jooby.assets;
 
+import com.google.common.base.Splitter;
+import com.google.common.io.ByteStreams;
+import com.typesafe.config.Config;
+import io.bit3.jsass.CompilationException;
+import io.bit3.jsass.Compiler;
+import io.bit3.jsass.Options;
+import io.bit3.jsass.Output;
+import io.bit3.jsass.OutputStyle;
+import io.bit3.jsass.context.StringContext;
+import io.bit3.jsass.importer.Import;
+import io.bit3.jsass.importer.Importer;
+import org.jooby.MediaType;
+import static org.jooby.funzy.Throwing.throwingFunction;
+import org.jooby.funzy.Try;
+
 import java.io.File;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -218,22 +232,6 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import org.jooby.MediaType;
-
-import com.google.common.base.Splitter;
-import com.google.common.io.ByteStreams;
-import com.typesafe.config.Config;
-
-import io.bit3.jsass.CompilationException;
-import io.bit3.jsass.Compiler;
-import io.bit3.jsass.Options;
-import io.bit3.jsass.Output;
-import io.bit3.jsass.OutputStyle;
-import io.bit3.jsass.context.StringContext;
-import io.bit3.jsass.importer.Import;
-import io.bit3.jsass.importer.Importer;
-import javaslang.control.Try;
 
 /**
  * <h1>sass</h1>
@@ -283,9 +281,8 @@ import javaslang.control.Try;
  */
 public class Sass extends AssetProcessor {
 
-  static enum FileResolver implements Function<String, URI> {
+  enum FileResolver implements Function<String, URI> {
     FS {
-
       @Override
       public URI apply(final String it) {
         File file = new File(it);
@@ -298,7 +295,7 @@ public class Sass extends AssetProcessor {
       @Override
       public URI apply(final String it) {
         URL resource = Sass.class.getResource(it);
-        return resource == null ? null : Try.of(resource::toURI).get();
+        return resource == null ? null : Try.apply(resource::toURI).get();
       }
 
     };
@@ -331,14 +328,12 @@ public class Sass extends AssetProcessor {
           .map(resolver::apply)
           .filter(it -> it != null)
           .findFirst()
-          .map(it -> {
-            String content = Try.of(() -> {
-              try (InputStream in = it.toURL().openStream()) {
-                return new String(ByteStreams.toByteArray(in), StandardCharsets.UTF_8);
-              }
-            }).get();
-            return Arrays.asList(new Import(it, it, content));
-          })
+          .map(throwingFunction(it ->
+              Try.with(it.toURL()::openStream)
+                  .apply(in -> new String(ByteStreams.toByteArray(in), StandardCharsets.UTF_8))
+                  .map(content -> Arrays.asList(new Import(it, it, content)))
+                  .get()
+          ))
           .orElse(null);
     }
 
@@ -364,7 +359,7 @@ public class Sass extends AssetProcessor {
 
   static final Function<String, URI> CP = it -> {
     URL resource = Sass.class.getResource(it);
-    return resource == null ? null : Try.of(resource::toURI).get();
+    return resource == null ? null : Try.apply(resource::toURI).get();
   };
 
   public Sass() {

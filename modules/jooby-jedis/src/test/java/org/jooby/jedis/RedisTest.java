@@ -1,22 +1,5 @@
 package org.jooby.jedis;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-import static org.junit.Assert.assertEquals;
-
-import java.net.URI;
-
-import javax.inject.Provider;
-
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.jooby.Env;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
@@ -24,19 +7,32 @@ import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-
-import javaslang.control.Try.CheckedRunnable;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import org.jooby.Env;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import javax.inject.Provider;
+import java.net.URI;
+
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Redis.class, JedisPool.class, GenericObjectPoolConfig.class })
+@PrepareForTest({Redis.class, JedisPool.class, GenericObjectPoolConfig.class})
 public class RedisTest {
 
   private Block onManaged = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStart(isA(CheckedRunnable.class))).andReturn(env);
-    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStart(isA(Throwing.Runnable.class))).andReturn(env);
+    expect(env.onStop(isA(Throwing.Runnable.class))).andReturn(env);
   };
 
   @SuppressWarnings("unchecked")
@@ -72,7 +68,7 @@ public class RedisTest {
 
           JedisPool pool = unit.mockConstructor(
               JedisPool.class,
-              new Class[]{GenericObjectPoolConfig.class, URI.class, int.class },
+              new Class[]{GenericObjectPoolConfig.class, URI.class, int.class},
               poolConfig, URI.create("redis://localhost:6780"), 2000);
 
           AnnotatedBindingBuilder<JedisPool> jpABB = unit.mock(AnnotatedBindingBuilder.class);
@@ -129,7 +125,7 @@ public class RedisTest {
 
           JedisPool pool = unit.mockConstructor(
               JedisPool.class,
-              new Class[]{GenericObjectPoolConfig.class, URI.class, int.class },
+              new Class[]{GenericObjectPoolConfig.class, URI.class, int.class},
               poolConfig, URI.create("redis://localhost:6780"), 2000);
 
           expect(pool.getResource()).andReturn(unit.get(Jedis.class));
@@ -192,7 +188,7 @@ public class RedisTest {
 
           JedisPool pool = unit.mockConstructor(
               JedisPool.class,
-              new Class[]{GenericObjectPoolConfig.class, URI.class, int.class },
+              new Class[]{GenericObjectPoolConfig.class, URI.class, int.class},
               poolConfig, URI.create("redis://localhost:6780"), 2000);
 
           AnnotatedBindingBuilder<JedisPool> jpABB = unit.mock(AnnotatedBindingBuilder.class);

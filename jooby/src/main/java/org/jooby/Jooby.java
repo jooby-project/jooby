@@ -203,62 +203,48 @@
  */
 package org.jooby;
 
+import com.google.common.base.Joiner;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.escape.Escaper;
+import com.google.common.html.HtmlEscapers;
+import com.google.common.net.UrlEscapers;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.inject.Binder;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.Provider;
+import com.google.inject.Stage;
+import com.google.inject.TypeLiteral;
+import com.google.inject.multibindings.Multibinder;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
+import com.google.inject.util.Types;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValue;
+import com.typesafe.config.ConfigValueFactory;
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import static java.util.Objects.requireNonNull;
 import static org.jooby.Route.CONNECT;
 import static org.jooby.Route.DELETE;
+import org.jooby.Route.Definition;
 import static org.jooby.Route.GET;
 import static org.jooby.Route.HEAD;
+import org.jooby.Route.Mapper;
 import static org.jooby.Route.OPTIONS;
 import static org.jooby.Route.PATCH;
 import static org.jooby.Route.POST;
 import static org.jooby.Route.PUT;
 import static org.jooby.Route.TRACE;
-
-import java.io.File;
-import java.lang.reflect.Type;
-import java.nio.charset.Charset;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import javax.inject.Singleton;
-import javax.net.ssl.SSLContext;
-
-import org.jooby.Route.Definition;
-import org.jooby.Route.Mapper;
 import org.jooby.Session.Store;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.AppPrinter;
 import org.jooby.internal.BuiltinParser;
@@ -298,36 +284,43 @@ import org.jooby.spi.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.escape.Escaper;
-import com.google.common.html.HtmlEscapers;
-import com.google.common.net.UrlEscapers;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.inject.Binder;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Provider;
-import com.google.inject.Stage;
-import com.google.inject.TypeLiteral;
-import com.google.inject.multibindings.Multibinder;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
-import com.google.inject.util.Types;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValue;
-import com.typesafe.config.ConfigValueFactory;
-
-import javaslang.Predicates;
-import javaslang.control.Try;
-import javaslang.control.Try.CheckedConsumer;
-import javaslang.control.Try.CheckedRunnable;
+import javax.inject.Singleton;
+import javax.net.ssl.SSLContext;
+import java.io.File;
+import java.lang.reflect.Type;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * <h1>jooby</h1>
@@ -553,7 +546,7 @@ import javaslang.control.Try.CheckedRunnable;
  *
  * <h2>lifecyle</h2>
  * <p>
- * We do provide {@link #onStart(CheckedConsumer)} and {@link #onStop(CheckedConsumer)} callbacks.
+ * We do provide {@link #onStart(Throwing.Consumer)} and {@link #onStop(Throwing.Consumer)} callbacks.
  * These callbacks are executed are application startup or shutdown time:
  * </p>
  *
@@ -838,11 +831,11 @@ public class Jooby implements Router, LifeCycle, Registry {
   private transient String prefix;
 
   /** startup callback . */
-  private transient List<CheckedConsumer<Registry>> onStart = new ArrayList<>();
-  private transient List<CheckedConsumer<Registry>> onStarted = new ArrayList<>();
+  private transient List<Throwing.Consumer<Registry>> onStart = new ArrayList<>();
+  private transient List<Throwing.Consumer<Registry>> onStarted = new ArrayList<>();
 
   /** stop callback . */
-  private transient List<CheckedConsumer<Registry>> onStop = new ArrayList<>();
+  private transient List<Throwing.Consumer<Registry>> onStop = new ArrayList<>();
 
   /** Mappers . */
   @SuppressWarnings("rawtypes")
@@ -951,7 +944,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       } else if (it instanceof Route.Group) {
         ((Route.Group) it).routes().forEach(r -> this.bag.add(rewrite.apply(r)));
       } else if (it instanceof MvcClass) {
-        Object routes = path.<Object> map(p -> new MvcClass(((MvcClass) it).routeClass, p, prefix))
+        Object routes = path.<Object>map(p -> new MvcClass(((MvcClass) it).routeClass, p, prefix))
             .orElse(it);
         this.bag.add(routes);
       } else {
@@ -993,39 +986,39 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   @Override
-  public Jooby onStart(final CheckedRunnable callback) {
+  public Jooby onStart(final Throwing.Runnable callback) {
     LifeCycle.super.onStart(callback);
     return this;
   }
 
   @Override
-  public Jooby onStart(final CheckedConsumer<Registry> callback) {
+  public Jooby onStart(final Throwing.Consumer<Registry> callback) {
     requireNonNull(callback, "Callback is required.");
     onStart.add(callback);
     return this;
   }
 
   @Override
-  public Jooby onStarted(final CheckedRunnable callback) {
+  public Jooby onStarted(final Throwing.Runnable callback) {
     LifeCycle.super.onStarted(callback);
     return this;
   }
 
   @Override
-  public Jooby onStarted(final CheckedConsumer<Registry> callback) {
+  public Jooby onStarted(final Throwing.Consumer<Registry> callback) {
     requireNonNull(callback, "Callback is required.");
     onStarted.add(callback);
     return this;
   }
 
   @Override
-  public Jooby onStop(final CheckedRunnable callback) {
+  public Jooby onStop(final Throwing.Runnable callback) {
     LifeCycle.super.onStop(callback);
     return this;
   }
 
   @Override
-  public Jooby onStop(final CheckedConsumer<Registry> callback) {
+  public Jooby onStop(final Throwing.Consumer<Registry> callback) {
     requireNonNull(callback, "Callback is required.");
     onStop.add(callback);
     return this;
@@ -1292,34 +1285,33 @@ public class Jooby implements Router, LifeCycle, Registry {
     return this;
   }
 
+  private Route.Definition[] interceptors(String method, String pattern, Route.Filter head,
+      Route.Filter... tail) {
+    return ImmutableList.builder()
+        .add(head)
+        .add(tail)
+        .build()
+        .stream()
+        .map(h -> appendDefinition(new Route.Definition(method, pattern, (Route.Filter) h)))
+        .toArray(Route.Definition[]::new);
+  }
+
   @Override
   public Route.Collection before(final String method, final String pattern,
       final Route.Before handler, final Route.Before... chain) {
-    Route.Definition[] routes = javaslang.collection.List.of(handler)
-        .appendAll(Arrays.asList(chain))
-        .map(before -> appendDefinition(new Route.Definition(method, pattern, before)))
-        .toJavaArray(Route.Definition.class);
-    return new Route.Collection(routes);
+    return new Route.Collection(interceptors(method, pattern, handler, chain));
   }
 
   @Override
   public Route.Collection after(final String method, final String pattern,
       final Route.After handler, final Route.After... chain) {
-    Route.Definition[] routes = javaslang.collection.List.of(handler)
-        .appendAll(Arrays.asList(chain))
-        .map(after -> appendDefinition(new Route.Definition(method, pattern, after)))
-        .toJavaArray(Route.Definition.class);
-    return new Route.Collection(routes);
+    return new Route.Collection(interceptors(method, pattern, handler, chain));
   }
 
   @Override
   public Route.Collection complete(final String method, final String pattern,
       final Route.Complete handler, final Route.Complete... chain) {
-    Route.Definition[] routes = javaslang.collection.List.of(handler)
-        .appendAll(Arrays.asList(chain))
-        .map(complete -> appendDefinition(new Route.Definition(method, pattern, complete)))
-        .toJavaArray(Route.Definition.class);
-    return new Route.Collection(routes);
+    return new Route.Collection(interceptors(method, pattern, handler, chain));
   }
 
   @Override
@@ -1355,14 +1347,14 @@ public class Jooby implements Router, LifeCycle, Registry {
   @Override
   public Route.Collection get(final String path1, final String path2, final Route.Handler handler) {
     return new Route.Collection(
-        new Route.Definition[]{get(path1, handler), get(path2, handler) });
+        new Route.Definition[]{get(path1, handler), get(path2, handler)});
   }
 
   @Override
   public Route.Collection get(final String path1, final String path2, final String path3,
       final Route.Handler handler) {
     return new Route.Collection(
-        new Route.Definition[]{get(path1, handler), get(path2, handler), get(path3, handler) });
+        new Route.Definition[]{get(path1, handler), get(path2, handler), get(path3, handler)});
   }
 
   @Override
@@ -1374,14 +1366,14 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection get(final String path1, final String path2,
       final Route.OneArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{get(path1, handler), get(path2, handler) });
+        new Route.Definition[]{get(path1, handler), get(path2, handler)});
   }
 
   @Override
   public Route.Collection get(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{get(path1, handler), get(path2, handler), get(path3, handler) });
+        new Route.Definition[]{get(path1, handler), get(path2, handler), get(path3, handler)});
   }
 
   @Override
@@ -1393,14 +1385,14 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection get(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{get(path1, handler), get(path2, handler) });
+        new Route.Definition[]{get(path1, handler), get(path2, handler)});
   }
 
   @Override
   public Route.Collection get(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{get(path1, handler), get(path2, handler), get(path3, handler) });
+        new Route.Definition[]{get(path1, handler), get(path2, handler), get(path3, handler)});
   }
 
   @Override
@@ -1410,14 +1402,14 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Collection get(final String path1, final String path2, final Route.Filter filter) {
-    return new Route.Collection(new Route.Definition[]{get(path1, filter), get(path2, filter) });
+    return new Route.Collection(new Route.Definition[]{get(path1, filter), get(path2, filter)});
   }
 
   @Override
   public Route.Collection get(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
     return new Route.Collection(
-        new Route.Definition[]{get(path1, filter), get(path2, filter), get(path3, filter) });
+        new Route.Definition[]{get(path1, filter), get(path2, filter), get(path3, filter)});
   }
 
   @Override
@@ -1429,14 +1421,14 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection post(final String path1, final String path2,
       final Route.Handler handler) {
     return new Route.Collection(
-        new Route.Definition[]{post(path1, handler), post(path2, handler) });
+        new Route.Definition[]{post(path1, handler), post(path2, handler)});
   }
 
   @Override
   public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.Handler handler) {
     return new Route.Collection(
-        new Route.Definition[]{post(path1, handler), post(path2, handler), post(path3, handler) });
+        new Route.Definition[]{post(path1, handler), post(path2, handler), post(path3, handler)});
   }
 
   @Override
@@ -1448,14 +1440,14 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection post(final String path1, final String path2,
       final Route.OneArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{post(path1, handler), post(path2, handler) });
+        new Route.Definition[]{post(path1, handler), post(path2, handler)});
   }
 
   @Override
   public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{post(path1, handler), post(path2, handler), post(path3, handler) });
+        new Route.Definition[]{post(path1, handler), post(path2, handler), post(path3, handler)});
   }
 
   @Override
@@ -1467,14 +1459,14 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection post(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{post(path1, handler), post(path2, handler) });
+        new Route.Definition[]{post(path1, handler), post(path2, handler)});
   }
 
   @Override
   public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{post(path1, handler), post(path2, handler), post(path3, handler) });
+        new Route.Definition[]{post(path1, handler), post(path2, handler), post(path3, handler)});
   }
 
   @Override
@@ -1486,14 +1478,14 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection post(final String path1, final String path2,
       final Route.Filter filter) {
     return new Route.Collection(
-        new Route.Definition[]{post(path1, filter), post(path2, filter) });
+        new Route.Definition[]{post(path1, filter), post(path2, filter)});
   }
 
   @Override
   public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
     return new Route.Collection(
-        new Route.Definition[]{post(path1, filter), post(path2, filter), post(path3, filter) });
+        new Route.Definition[]{post(path1, filter), post(path2, filter), post(path3, filter)});
   }
 
   @Override
@@ -1562,14 +1554,14 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection put(final String path1, final String path2,
       final Route.Handler handler) {
     return new Route.Collection(
-        new Route.Definition[]{put(path1, handler), put(path2, handler) });
+        new Route.Definition[]{put(path1, handler), put(path2, handler)});
   }
 
   @Override
   public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.Handler handler) {
     return new Route.Collection(
-        new Route.Definition[]{put(path1, handler), put(path2, handler), put(path3, handler) });
+        new Route.Definition[]{put(path1, handler), put(path2, handler), put(path3, handler)});
   }
 
   @Override
@@ -1582,14 +1574,14 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection put(final String path1, final String path2,
       final Route.OneArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{put(path1, handler), put(path2, handler) });
+        new Route.Definition[]{put(path1, handler), put(path2, handler)});
   }
 
   @Override
   public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{put(path1, handler), put(path2, handler), put(path3, handler) });
+        new Route.Definition[]{put(path1, handler), put(path2, handler), put(path3, handler)});
   }
 
   @Override
@@ -1602,14 +1594,14 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection put(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{put(path1, handler), put(path2, handler) });
+        new Route.Definition[]{put(path1, handler), put(path2, handler)});
   }
 
   @Override
   public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{put(path1, handler), put(path2, handler), put(path3, handler) });
+        new Route.Definition[]{put(path1, handler), put(path2, handler), put(path3, handler)});
   }
 
   @Override
@@ -1622,14 +1614,14 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection put(final String path1, final String path2,
       final Route.Filter filter) {
     return new Route.Collection(
-        new Route.Definition[]{put(path1, filter), put(path2, filter) });
+        new Route.Definition[]{put(path1, filter), put(path2, filter)});
   }
 
   @Override
   public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
     return new Route.Collection(
-        new Route.Definition[]{put(path1, filter), put(path2, filter), put(path3, filter) });
+        new Route.Definition[]{put(path1, filter), put(path2, filter), put(path3, filter)});
   }
 
   @Override
@@ -1641,7 +1633,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection patch(final String path1, final String path2,
       final Route.Handler handler) {
     return new Route.Collection(
-        new Route.Definition[]{patch(path1, handler), patch(path2, handler) });
+        new Route.Definition[]{patch(path1, handler), patch(path2, handler)});
   }
 
   @Override
@@ -1649,7 +1641,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       final String path3, final Route.Handler handler) {
     return new Route.Collection(
         new Route.Definition[]{patch(path1, handler), patch(path2, handler),
-            patch(path3, handler) });
+            patch(path3, handler)});
   }
 
   @Override
@@ -1661,7 +1653,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection patch(final String path1, final String path2,
       final Route.OneArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{patch(path1, handler), patch(path2, handler) });
+        new Route.Definition[]{patch(path1, handler), patch(path2, handler)});
   }
 
   @Override
@@ -1669,7 +1661,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       final String path3, final Route.OneArgHandler handler) {
     return new Route.Collection(
         new Route.Definition[]{patch(path1, handler), patch(path2, handler),
-            patch(path3, handler) });
+            patch(path3, handler)});
   }
 
   @Override
@@ -1681,7 +1673,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection patch(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{patch(path1, handler), patch(path2, handler) });
+        new Route.Definition[]{patch(path1, handler), patch(path2, handler)});
   }
 
   @Override
@@ -1689,7 +1681,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       final String path3, final Route.ZeroArgHandler handler) {
     return new Route.Collection(
         new Route.Definition[]{patch(path1, handler), patch(path2, handler),
-            patch(path3, handler) });
+            patch(path3, handler)});
   }
 
   @Override
@@ -1702,7 +1694,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection patch(final String path1, final String path2,
       final Route.Filter filter) {
     return new Route.Collection(
-        new Route.Definition[]{patch(path1, filter), patch(path2, filter) });
+        new Route.Definition[]{patch(path1, filter), patch(path2, filter)});
   }
 
   @Override
@@ -1710,7 +1702,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       final String path3, final Route.Filter filter) {
     return new Route.Collection(
         new Route.Definition[]{patch(path1, filter), patch(path2, filter),
-            patch(path3, filter) });
+            patch(path3, filter)});
   }
 
   @Override
@@ -1722,7 +1714,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection delete(final String path1, final String path2,
       final Route.Handler handler) {
     return new Route.Collection(
-        new Route.Definition[]{delete(path1, handler), delete(path2, handler) });
+        new Route.Definition[]{delete(path1, handler), delete(path2, handler)});
   }
 
   @Override
@@ -1730,7 +1722,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       final Route.Handler handler) {
     return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler),
-            delete(path3, handler) });
+            delete(path3, handler)});
   }
 
   @Override
@@ -1742,7 +1734,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection delete(final String path1, final String path2,
       final Route.OneArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{delete(path1, handler), delete(path2, handler) });
+        new Route.Definition[]{delete(path1, handler), delete(path2, handler)});
   }
 
   @Override
@@ -1750,7 +1742,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       final Route.OneArgHandler handler) {
     return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler),
-            delete(path3, handler) });
+            delete(path3, handler)});
   }
 
   @Override
@@ -1763,7 +1755,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection delete(final String path1,
       final String path2, final Route.ZeroArgHandler handler) {
     return new Route.Collection(
-        new Route.Definition[]{delete(path1, handler), delete(path2, handler) });
+        new Route.Definition[]{delete(path1, handler), delete(path2, handler)});
   }
 
   @Override
@@ -1772,7 +1764,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       final Route.ZeroArgHandler handler) {
     return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler),
-            delete(path3, handler) });
+            delete(path3, handler)});
   }
 
   @Override
@@ -1784,7 +1776,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Route.Collection delete(final String path1, final String path2,
       final Route.Filter filter) {
     return new Route.Collection(
-        new Route.Definition[]{delete(path1, filter), delete(path2, filter) });
+        new Route.Definition[]{delete(path1, filter), delete(path2, filter)});
   }
 
   @Override
@@ -1792,7 +1784,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       final Route.Filter filter) {
     return new Route.Collection(
         new Route.Definition[]{delete(path1, filter), delete(path2, filter),
-            delete(path3, filter) });
+            delete(path3, filter)});
   }
 
   @Override
@@ -2053,8 +2045,8 @@ public class Jooby implements Router, LifeCycle, Registry {
     // collect latest routes and apply route props
     List<Route.Props> local = this.bag.stream()
         .skip(size)
-        .filter(Predicates.instanceOf(Route.Props.class))
-        .map(r -> (Route.Props) r)
+        .filter(Route.Props.class::isInstance)
+        .map(Route.Props.class::cast)
         .collect(Collectors.toList());
     return new Route.Collection(local.toArray(new Route.Props[local.size()]));
   }
@@ -2079,7 +2071,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @param args Application arguments.
    */
   public static void run(final Class<? extends Jooby> app, final String... args) {
-    run(() -> Try.of(() -> app.newInstance()).get(), args);
+    run(() -> Try.apply(() -> app.newInstance()).get(), args);
   }
 
   /**
@@ -2104,8 +2096,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return Application routes.
    */
   public static List<Definition> exportRoutes(final Jooby app) {
-    @SuppressWarnings("serial")
-    class Success extends RuntimeException {
+    @SuppressWarnings("serial") class Success extends RuntimeException {
       List<Definition> routes;
 
       Success(final List<Route.Definition> routes) {
@@ -2175,11 +2166,11 @@ public class Jooby implements Router, LifeCycle, Registry {
       ClassLoader loader = getClass().getClassLoader();
       Object internalOnStart = loader.loadClass(conf.getString("jooby.internal.onStart"))
           .newInstance();
-      onStart.add((CheckedConsumer<Registry>) internalOnStart);
+      onStart.add((Throwing.Consumer<Registry>) internalOnStart);
     }
 
     // start services
-    for (CheckedConsumer<Registry> onStart : this.onStart) {
+    for (Throwing.Consumer<Registry> onStart : this.onStart) {
       onStart.accept(this);
     }
 
@@ -2207,7 +2198,7 @@ public class Jooby implements Router, LifeCycle, Registry {
         printer);
 
     // started services
-    for (CheckedConsumer<Registry> onStarted : this.onStarted) {
+    for (Throwing.Consumer<Registry> onStarted : this.onStarted) {
       onStarted.accept(this);
     }
 
@@ -2316,7 +2307,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @param service Service.
    * @return This instance.
    */
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public Jooby bind(final Object service) {
     use((env, conf, binder) -> {
       Class type = service.getClass();
@@ -2360,7 +2351,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @param <T> Service type.
    * @return This instance.
    */
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public <T> Jooby bind(final Function<Config, T> provider) {
     use((env, conf, binder) -> {
       Object service = provider.apply(conf);
@@ -2755,7 +2746,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       List<Route.Definition> routes = bag.stream()
           .filter(it -> it instanceof Route.Definition)
           .map(it -> (Route.Definition) it)
-          .collect(Collectors.<Route.Definition> toList());
+          .collect(Collectors.<Route.Definition>toList());
       rcallback.accept(routes);
     }
 
@@ -2854,7 +2845,6 @@ public class Jooby implements Router, LifeCycle, Registry {
       parsers.addBinding().toInstance(BuiltinParser.Collection);
       parsers.addBinding().toInstance(BuiltinParser.Optional);
       parsers.addBinding().toInstance(BuiltinParser.Enum);
-      parsers.addBinding().toInstance(BuiltinParser.Upload);
       parsers.addBinding().toInstance(BuiltinParser.Bytes);
 
       /** basic render */
@@ -2882,7 +2872,7 @@ public class Jooby implements Router, LifeCycle, Registry {
             parsers,
             renderers,
             routeClasses).accept(it))
-            .getOrElseThrow(Throwables::propagate);
+            .throwException();
       }
 
       parsers.addBinding().toInstance(new DateParser(dateFormat));
@@ -3016,7 +3006,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     };
   }
 
-  private static CheckedConsumer<? super Object> bindService(final Set<Object> src,
+  private static Throwing.Consumer<? super Object> bindService(final Set<Object> src,
       final Config conf,
       final Env env,
       final RouteMetadata rm,
@@ -3110,7 +3100,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   private static void fireStop(final Jooby app, final Logger log,
-      final List<CheckedConsumer<Registry>> onStop) {
+      final List<Throwing.Consumer<Registry>> onStop) {
     // stop services
     onStop.forEach(c -> Try.run(() -> c.accept(app))
         .onFailure(x -> log.error("shutdown of {} resulted in error", c, x)));
@@ -3331,7 +3321,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * Install a {@link JoobyModule}.
+   * Install a {@link Jooby.Module}.
    *
    * @param module The module to install.
    * @param env Application env.

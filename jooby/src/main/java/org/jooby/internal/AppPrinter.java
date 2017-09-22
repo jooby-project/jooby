@@ -203,20 +203,14 @@
  */
 package org.jooby.internal;
 
-import static javaslang.API.$;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.instanceOf;
-
-import java.util.Set;
-import java.util.function.Function;
-
+import com.google.common.base.Strings;
+import com.typesafe.config.Config;
 import org.jooby.Route;
 import org.jooby.WebSocket;
 import org.slf4j.Logger;
 
-import com.google.common.base.Strings;
-import com.typesafe.config.Config;
+import java.util.Set;
+import java.util.function.Function;
 
 public class AppPrinter {
 
@@ -231,8 +225,8 @@ public class AppPrinter {
   private boolean h2cleartext;
 
   public AppPrinter(final Set<Route.Definition> routes,
-      final Set<WebSocket.Definition> sockets,
-      final Config conf) {
+    final Set<WebSocket.Definition> sockets,
+    final Config conf) {
     this.routes = routes;
     this.sockets = sockets;
     String host = conf.getString("application.host");
@@ -261,12 +255,12 @@ public class AppPrinter {
   private String configTree(final String[] sources, final int i) {
     if (i < sources.length) {
       return new StringBuilder()
-          .append(Strings.padStart("", i, ' '))
-          .append("└── ")
-          .append(sources[i])
-          .append("\n")
-          .append(configTree(sources, i + 1))
-          .toString();
+        .append(Strings.padStart("", i, ' '))
+        .append("└── ")
+        .append(sources[i])
+        .append("\n")
+        .append(configTree(sources, i + 1))
+        .toString();
     }
     return "";
   }
@@ -276,7 +270,7 @@ public class AppPrinter {
     StringBuilder buffer = new StringBuilder();
 
     routes(buffer);
-    String[] h2 = {h2(" ", http2 && h2cleartext), h2("", http2) };
+    String[] h2 = {h2(" ", http2 && h2cleartext), h2("", http2)};
     buffer.append("\nlistening on:");
     for (int i = 0; i < urls.length; i++) {
       if (urls[i] != null) {
@@ -292,11 +286,15 @@ public class AppPrinter {
 
   private void routes(final StringBuilder buffer) {
     Function<Route.Definition, String> p = route -> {
-      return Match(route.filter()).of(
-          Case(instanceOf(Route.Before.class), "{before}" + route.pattern()),
-          Case(instanceOf(Route.After.class), "{after}" + route.pattern()),
-          Case(instanceOf(Route.Complete.class), "{complete}" + route.pattern()),
-          Case($(), route.pattern()));
+      Route.Filter filter = route.filter();
+      if (filter instanceof Route.Before) {
+        return "{before}" + route.pattern();
+      } else if (filter instanceof Route.After) {
+        return "{after}" + route.pattern();
+      } else if (filter instanceof Route.Complete) {
+        return "{complete}" + route.pattern();
+      }
+      return route.pattern();
     };
 
     int verbMax = 0, routeMax = 0, consumesMax = 0, producesMax = 0;
@@ -311,19 +309,19 @@ public class AppPrinter {
     }
 
     String format = "  %-" + verbMax + "s %-" + routeMax + "s    %" + consumesMax
-        + "s     %" + producesMax + "s    (%s)\n";
+      + "s     %" + producesMax + "s    (%s)\n";
 
     for (Route.Definition route : routes) {
       buffer.append(
-          String.format(format, route.method(), p.apply(route), route.consumes(),
-              route.produces(), route.name()));
+        String.format(format, route.method(), p.apply(route), route.consumes(),
+          route.produces(), route.name()));
     }
 
     sockets(buffer, Math.max(verbMax, "WS".length()), routeMax, consumesMax, producesMax);
   }
 
   private void sockets(final StringBuilder buffer, final int verbMax, int routeMax,
-      int consumesMax, int producesMax) {
+    int consumesMax, int producesMax) {
     for (WebSocket.Definition socket : sockets) {
       routeMax = Math.max(routeMax, socket.pattern().length());
 
@@ -333,11 +331,11 @@ public class AppPrinter {
     }
 
     String format = "  %-" + verbMax + "s %-" + routeMax + "s    %" + consumesMax + "s     %"
-        + producesMax + "s\n";
+      + producesMax + "s\n";
 
     for (WebSocket.Definition socket : sockets) {
       buffer.append(String.format(format, "WS", socket.pattern(),
-          "[" + socket.consumes() + "]", "[" + socket.produces() + "]"));
+        "[" + socket.consumes() + "]", "[" + socket.produces() + "]"));
     }
   }
 }

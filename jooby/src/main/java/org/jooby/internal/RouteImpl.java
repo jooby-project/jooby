@@ -203,14 +203,6 @@
  */
 package org.jooby.internal;
 
-import static javaslang.API.$;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.instanceOf;
-
-import java.util.List;
-import java.util.Map;
-
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Request;
@@ -219,7 +211,8 @@ import org.jooby.Route;
 import org.jooby.Status;
 import org.jooby.internal.mvc.MvcHandler;
 
-import javaslang.control.Option;
+import java.util.List;
+import java.util.Map;
 
 public class RouteImpl implements RouteWithFilter {
 
@@ -246,28 +239,32 @@ public class RouteImpl implements RouteWithFilter {
   }
 
   public static RouteWithFilter fallback(final Filter filter, final String method,
-      final String path, final String name, final List<MediaType> produces) {
+    final String path, final String name, final List<MediaType> produces) {
     return new FallbackRoute(name, method, path, produces, filter);
   }
 
   public RouteImpl(final Filter filter, final Definition route, final String method,
-      final String path, final List<MediaType> produces, final Map<Object, String> vars,
-      final Mapper<?> mapper, final Source source) {
-    this.filter = Option.of(mapper)
-        .map(m -> Match(filter).of(
-            Case(instanceOf(Route.OneArgHandler.class),
-                f -> new MappedHandler((req, rsp) -> f.handle(req), mapper)),
-            Case(instanceOf(Route.ZeroArgHandler.class),
-                f -> new MappedHandler((req, rsp) -> f.handle(), mapper)),
-            Case(instanceOf(MvcHandler.class), f -> {
-              if (f.method().getReturnType() == void.class) {
-                // ignore void results
-                return filter;
-              }
-              return new MappedHandler((req, rsp) -> f.invoke(req, rsp), mapper);
-            }),
-            Case($(), filter)))
-        .getOrElse(filter);
+    final String path, final List<MediaType> produces, final Map<Object, String> vars,
+    final Mapper<?> mapper, final Source source) {
+    this.filter = filter;
+    if (mapper != null) {
+      if (filter instanceof Route.OneArgHandler) {
+        this.filter = new MappedHandler((req, rsp) -> ((Route.OneArgHandler) filter).handle(req),
+          mapper);
+      } else if (filter instanceof Route.ZeroArgHandler) {
+        this.filter = new MappedHandler((req, rsp) -> ((Route.ZeroArgHandler) filter).handle(),
+          mapper);
+      } else if (filter instanceof MvcHandler) {
+        if (((MvcHandler) filter).method().getReturnType() == void.class) {
+          this.filter = filter;
+        } else {
+          this.filter = new MappedHandler((req, rsp) -> ((MvcHandler) filter).invoke(req, rsp),
+            mapper);
+        }
+      } else {
+        this.filter = filter;
+      }
+    }
     this.route = route;
     this.method = method;
     this.produces = produces;
@@ -278,7 +275,7 @@ public class RouteImpl implements RouteWithFilter {
 
   @Override
   public void handle(final Request request, final Response response, final Chain chain)
-      throws Throwable {
+    throws Throwable {
     filter.handle(request, response, chain);
   }
 

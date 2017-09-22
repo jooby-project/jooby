@@ -209,11 +209,9 @@ import org.jooby.Mutant;
 import org.jooby.Parser;
 import org.jooby.Parser.Builder;
 import org.jooby.Parser.Callback;
-import org.jooby.Upload;
 import org.jooby.internal.BodyReferenceImpl;
 import org.jooby.internal.EmptyBodyReference;
 import org.jooby.internal.StrParamReferenceImpl;
-import org.jooby.internal.UploadParamReferenceImpl;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.TypeLiteral;
@@ -278,17 +276,6 @@ public class ParserBuilder implements Parser.Builder {
   @Override
   public Builder ifparams(final Callback<Map<String, Mutant>> callback) {
     return params(callback);
-  }
-
-  @Override
-  public Builder upload(final Callback<Parser.ParamReference<Upload>> callback) {
-    strategies.put(TypeLiteral.get(UploadParamReferenceImpl.class), callback);
-    return this;
-  }
-
-  @Override
-  public Builder ifupload(final Callback<Parser.ParamReference<Upload>> callback) {
-    return upload(callback);
   }
 
   @SuppressWarnings("unchecked")

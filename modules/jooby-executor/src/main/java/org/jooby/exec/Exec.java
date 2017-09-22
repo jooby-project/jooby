@@ -203,6 +203,26 @@
  */
 package org.jooby.exec;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValue;
+import com.typesafe.config.ConfigValueFactory;
+import com.typesafe.config.ConfigValueType;
+import org.jooby.Env;
+import org.jooby.Jooby.Module;
+import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -223,28 +243,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
-
-import org.jooby.Env;
-import org.jooby.Jooby.Module;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValue;
-import com.typesafe.config.ConfigValueFactory;
-import com.typesafe.config.ConfigValueType;
-
-import javaslang.Function4;
-import javaslang.control.Try;
 
 /**
  * <h1>executor</h1>
@@ -366,7 +364,7 @@ public class Exec implements Module {
 
   private int priority = Thread.NORM_PRIORITY;
 
-  private Map<String, Function4<String, Integer, Supplier<ThreadFactory>, Map<String, Object>, ExecutorService>> f =
+  private Map<String, Throwing.Function4<String, Integer, Supplier<ThreadFactory>, Map<String, Object>, ExecutorService>> f =
       /** executor factory. */
       ImmutableMap
           .of(
@@ -429,7 +427,7 @@ public class Exec implements Module {
       final BiConsumer<String, Executor> callback) {
     List<Map<String, Object>> executors = conf.hasPath(namespace)
         ? executors(conf.getValue(namespace), daemon, priority,
-            Runtime.getRuntime().availableProcessors())
+        Runtime.getRuntime().availableProcessors())
         : Collections.emptyList();
     List<Entry<String, ExecutorService>> services = new ArrayList<>(executors.size());
     for (Map<String, Object> options : executors) {
@@ -443,7 +441,7 @@ public class Exec implements Module {
       Integer n = (Integer) options.remove(type);
 
       // create executor
-      Function4<String, Integer, Supplier<ThreadFactory>, Map<String, Object>, ExecutorService> factory = f
+      Throwing.Function4<String, Integer, Supplier<ThreadFactory>, Map<String, Object>, ExecutorService> factory = f
           .get(type);
       if (factory == null) {
         throw new IllegalArgumentException(
@@ -473,7 +471,7 @@ public class Exec implements Module {
     });
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private static void bind(final Binder binder, final String name, final ExecutorService executor) {
     Class klass = executor.getClass();
 
@@ -555,16 +553,16 @@ public class Exec implements Module {
       String type = rawType.toString();
       options.put("type", type);
       options.put(type, config.containsKey("size") ?
-        Integer.parseInt(config.get("size").toString()) : n);
+          Integer.parseInt(config.get("size").toString()) : n);
       options.put("daemon", config.containsKey("daemon") ?
-        Boolean.parseBoolean(config.get("daemon").toString()) : daemon);
+          Boolean.parseBoolean(config.get("daemon").toString()) : daemon);
       options.put("asyncMode", config.containsKey("asyncMode") ?
-        Boolean.parseBoolean(config.get("asyncMode").toString()) : false);
+          Boolean.parseBoolean(config.get("asyncMode").toString()) : false);
       options.put("priority", config.containsKey("priority") ?
-        Integer.parseInt(config.get("priority").toString()) : priority);
+          Integer.parseInt(config.get("priority").toString()) : priority);
     } else {
       Iterable<String> spec = Splitter.on(",").trimResults().omitEmptyStrings()
-                                      .split(value.toString());
+          .split(value.toString());
       for (String option : spec) {
         String[] opt = option.split("=");
         String optname = opt[0].trim();

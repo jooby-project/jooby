@@ -3,6 +3,7 @@ package org.jooby;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -231,6 +232,11 @@ public class RequestTest {
 
     @Override
     public long timestamp() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Upload> files(final String name) throws IOException {
       throw new UnsupportedOperationException();
     }
 

@@ -1,6 +1,5 @@
 package org.jooby;
 
-import org.jooby.Upload;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -8,7 +7,7 @@ public class UploadHeadersFeature extends ServerFeature {
 
   {
     post("/file", req -> {
-      Upload upload = req.param("file").to(Upload.class);
+      Upload upload = req.file("file");
       String encoding = upload.header("Content-Transfer-Encoding").value();
       String type = upload.header("Content-Type").value();
       String disposition = upload.header("Content-Disposition").value();

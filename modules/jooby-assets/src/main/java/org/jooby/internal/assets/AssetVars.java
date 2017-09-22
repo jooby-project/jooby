@@ -203,14 +203,13 @@
  */
 package org.jooby.internal.assets;
 
-import java.util.List;
-
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.assets.AssetCompiler;
+import org.jooby.funzy.Throwing;
 
-import javaslang.Function1;
+import java.util.List;
 
 public class AssetVars implements Route.Handler {
 
@@ -218,8 +217,8 @@ public class AssetVars implements Route.Handler {
 
   private String cpath;
 
-  private Function1<String, List<String>> styles;
-  private Function1<String, List<String>> scripts;
+  private Throwing.Function<String, List<String>> styles;
+  private Throwing.Function<String, List<String>> scripts;
 
   public AssetVars(final AssetCompiler compiler, final String cpath, final boolean cache) {
     this.compiler = compiler;

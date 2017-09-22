@@ -203,17 +203,12 @@
  */
 package org.jooby.test;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.reflect.Reflection;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import org.jooby.Deferred;
 import org.jooby.Err;
 import org.jooby.Jooby;
@@ -227,15 +222,18 @@ import org.jooby.Route.After;
 import org.jooby.Route.Definition;
 import org.jooby.Route.Filter;
 import org.jooby.Status;
+import org.jooby.funzy.Try;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.reflect.Reflection;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-
-import javaslang.control.Try;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
  * <h1>tests</h1>
@@ -507,7 +505,7 @@ public class MockRouter {
     return set(null, dependency);
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public MockRouter set(final String name, final Object object) {
     traverse(object.getClass(), type -> {
       Object key = Optional.ofNullable(name)
@@ -619,7 +617,7 @@ public class MockRouter {
       Injector injector = proxyInjector(getClass().getClassLoader(), registry);
       field.set(app, injector);
       registry.put(Key.get(Injector.class), injector);
-    }).get();
+    }).throwException();
     return app;
   }
 
@@ -633,7 +631,7 @@ public class MockRouter {
           Object type = key.getAnnotation() != null ? key : key.getTypeLiteral();
           IllegalStateException iex = new IllegalStateException("Not found: " + type);
           // Skip proxy and some useless lines:
-          Try.of(() -> {
+          Try.apply(() -> {
             StackTraceElement[] stacktrace = iex.getStackTrace();
             return Lists.newArrayList(stacktrace).subList(CLEAN_STACK, stacktrace.length);
           }).onSuccess(stacktrace -> iex

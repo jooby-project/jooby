@@ -196,8 +196,8 @@ public class RouteParamCollectorTest extends ASTTest {
   @Test
   public void paramToUpload() throws ParseException {
     params(new RouteParamCollector().accept(expr("req -> {",
-        "req.param(\"p1\").toUpload();",
-        "req.param(\"p2\").toList(org.jooby.Upload.class);",
+        "req.file(\"p1\");",
+        "req.files(\"p2\");",
         "}"), ctx()))
     .next(p -> {
       assertEquals("p1", p.name());

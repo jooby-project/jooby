@@ -203,15 +203,8 @@
  */
 package org.jooby.internal;
 
-import static javaslang.API.$;
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.instanceOf;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.TypeLiteral;
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
@@ -219,11 +212,9 @@ import org.jooby.Parser;
 import org.jooby.Status;
 import org.jooby.internal.parser.ParserExecutor;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.TypeLiteral;
-
-import javaslang.Tuple;
-import javaslang.Tuple3;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * Default mutant implementation.
@@ -269,18 +260,18 @@ public class MutantImpl implements Mutant {
       try {
         result = parser.convert(type, mtype, data);
         if (result == ParserExecutor.NO_PARSER) {
-          Tuple3<String, String, Status> md = md();
-          throw new Err(md._3, String.format(FAILURE, md._2, type));
+          Object[] md = md();
+          throw new Err((Status) md[2], String.format(FAILURE, md[1], type));
         }
         results.put(type, result);
       } catch (NoSuchElementException ex) {
-        Tuple3<String, String, Status> md = md();
-        throw new Err.Missing(String.format(REQUIRED, md._2));
+        Object[] md = md();
+        throw new Err.Missing(String.format(REQUIRED, md[1]));
       } catch (Err ex) {
         throw ex;
       } catch (Throwable ex) {
-        Tuple3<String, String, Status> md = md();
-        throw new Err(parser.statusCode(ex), String.format(FAILURE, md._2, type), ex);
+        Object[] md = md();
+        throw new Err(parser.statusCode(ex), String.format(FAILURE, md[1], type), ex);
       }
     }
     return result;
@@ -292,7 +283,7 @@ public class MutantImpl implements Mutant {
     if (data instanceof Map) {
       return (Map<String, Mutant>) data;
     }
-    return ImmutableMap.of(md()._1, this);
+    return ImmutableMap.of((String) md()[0], this);
   }
 
   @SuppressWarnings("rawtypes")
@@ -307,13 +298,14 @@ public class MutantImpl implements Mutant {
     return ((Map) data).size() > 0;
   }
 
-  private Tuple3<String, String, Status> md() {
-    return Match(data).of(
-        Case(instanceOf(ParamReferenceImpl.class),
-            p -> Tuple.of(p.name(), p.type() + " '" + p.name() + "'", Status.BAD_REQUEST)),
-        Case(instanceOf(Parser.BodyReference.class),
-            Tuple.of("body", "body", Status.UNSUPPORTED_MEDIA_TYPE)),
-        Case($(), Tuple.of("params", "parameters", Status.BAD_REQUEST)));
+  private Object[] md() {
+    if (data instanceof ParamReferenceImpl) {
+      ParamReferenceImpl p = (ParamReferenceImpl) data;
+      return new Object[]{p.name(), p.type() + " '" + p.name() + "'", Status.BAD_REQUEST};
+    } else if (data instanceof Parser.BodyReference) {
+      return new Object[]{"body", "body", Status.UNSUPPORTED_MEDIA_TYPE};
+    }
+    return new Object[]{"params", "parameters", Status.BAD_REQUEST};
   }
 
   @Override

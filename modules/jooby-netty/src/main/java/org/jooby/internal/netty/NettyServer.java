@@ -203,31 +203,9 @@
  */
 package org.jooby.internal.netty;
 
-import static javaslang.API.Case;
-import static javaslang.API.Match;
-import static javaslang.Predicates.is;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadFactory;
-import java.util.function.BiConsumer;
-
-import javax.inject.Inject;
-
-import org.jooby.spi.HttpHandler;
-import org.jooby.spi.Server;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -246,6 +224,21 @@ import io.netty.util.ResourceLeakDetector.Level;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
+import org.jooby.spi.HttpHandler;
+import org.jooby.spi.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadFactory;
+import java.util.function.BiConsumer;
 
 public class NettyServer implements Server {
 
@@ -293,27 +286,27 @@ public class NettyServer implements Server {
       bootstrap(executor, NettySslContext.build(conf), conf.getInt("application.securePort"));
     }
   }
-
+  
   private Channel bootstrap(final EventExecutorGroup executor, final SslContext sslCtx,
-      final int port) throws InterruptedException {
+    final int port) throws InterruptedException {
     ServerBootstrap bootstrap = new ServerBootstrap();
 
     boolean epoll = bossLoop instanceof EpollEventLoopGroup;
     bootstrap.group(bossLoop, workerLoop)
-        .channel(epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
-        .handler(new LoggingHandler(Server.class, LogLevel.DEBUG))
-        .childHandler(new NettyPipeline(executor, dispatcher, conf, sslCtx));
+      .channel(epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
+      .handler(new LoggingHandler(Server.class, LogLevel.DEBUG))
+      .childHandler(new NettyPipeline(executor, dispatcher, conf, sslCtx));
 
     configure(conf.getConfig("netty.options"), "netty.options",
-        (option, value) -> bootstrap.option(option, value));
+      (option, value) -> bootstrap.option(option, value));
 
     configure(conf.getConfig("netty.worker.options"), "netty.worker.options",
-        (option, value) -> bootstrap.childOption(option, value));
+      (option, value) -> bootstrap.childOption(option, value));
 
     return bootstrap
-        .bind(host(conf.getString("application.host")), port)
-        .sync()
-        .channel();
+      .bind(host(conf.getString("application.host")), port)
+      .sync()
+      .channel();
   }
 
   private String host(final String host) {
@@ -335,19 +328,25 @@ public class NettyServer implements Server {
     return Optional.ofNullable(executor);
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private void configure(final Config config, final String path,
-      final BiConsumer<ChannelOption<Object>, Object> setter) {
+    final BiConsumer<ChannelOption<Object>, Object> setter) {
     config.entrySet().forEach(entry -> {
       Entry<ChannelOption, Class<?>> result = findOption(entry.getKey());
       if (result != null) {
         ChannelOption option = result.getKey();
         String optionName = entry.getKey();
         Class<?> optionType = result.getValue();
-        Object value = Match(optionType).of(
-            Case(is(Boolean.class), () -> config.getBoolean(optionName)),
-            Case(is(Integer.class), () -> config.getInt(optionName)),
-            Case(is(Long.class), () -> config.getLong(optionName)));
+        final Object value;
+        if (optionType == Boolean.class) {
+          value = config.getBoolean(optionName);
+        } else if (optionType == Integer.class) {
+          value = config.getInt(optionName);
+        } else if (optionType == Long.class) {
+          value = config.getLong(optionName);
+        } else {
+          value = config.getString(optionName);
+        }
         log.debug("{}.{}({})", path, option, value);
         setter.accept(option, value);
       } else {
@@ -363,7 +362,7 @@ public class NettyServer implements Server {
       Field field = EpollChannelOption.class.getField(optionName);
       ChannelOption option = (ChannelOption) field.get(null);
       Class optionType = (Class) ((ParameterizedType) field.getGenericType())
-          .getActualTypeArguments()[0];
+        .getActualTypeArguments()[0];
       return Maps.immutableEntry(option, optionType);
     } catch (NoSuchFieldException | SecurityException | IllegalAccessException ex) {
       return null;

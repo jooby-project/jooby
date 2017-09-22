@@ -203,6 +203,20 @@
  */
 package org.jooby.livereload;
 
+import com.google.common.base.CaseFormat;
+import com.google.common.collect.ImmutableSet;
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
+import org.jooby.Env;
+import org.jooby.Jooby.Module;
+import org.jooby.MediaType;
+import org.jooby.Route;
+import org.jooby.Router;
+import org.jooby.WebSocket;
+import org.jooby.filewatcher.FileWatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -217,24 +231,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
-
-import org.jooby.Env;
-import org.jooby.Jooby.Module;
-import org.jooby.MediaType;
-import org.jooby.Route;
-import org.jooby.Router;
-import org.jooby.WebSocket;
-import org.jooby.filewatcher.FileWatcher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.CaseFormat;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-
-import javaslang.Tuple;
-import javaslang.Tuple2;
 
 /**
  * <h1>liveReload</h1>
@@ -326,11 +322,11 @@ public class LiveReload implements Module {
   private static final Set<String> CSS = ImmutableSet.of(".css", ".scss", ".sass", ".less");
 
   private Predicate<Path> css = path -> CSS.stream()
-      .filter(ext -> path.toString().endsWith(ext))
-      .findFirst()
-      .isPresent();
+    .filter(ext -> path.toString().endsWith(ext))
+    .findFirst()
+    .isPresent();
 
-  private List<Tuple2<Path, List<String>>> paths = new ArrayList<>();
+  private List<Object[]> paths = new ArrayList<>();
 
   /**
    * Creates a new {@link LiveReload} module.
@@ -347,7 +343,7 @@ public class LiveReload implements Module {
    */
   public LiveReload register(final Path path, final String... includes) {
     if (Files.exists(path)) {
-      paths.add(Tuple.of(path, Arrays.asList(includes)));
+      paths.add(new Object[]{path, Arrays.asList(includes)});
     }
     return this;
   }
@@ -367,23 +363,23 @@ public class LiveReload implements Module {
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) throws Throwable {
     boolean enabled = conf.hasPath("livereload.enabled")
-        ? conf.getBoolean("livereload.enabled")
-        : "dev".equals(env.name());
+      ? conf.getBoolean("livereload.enabled")
+      : "dev".equals(env.name());
     if (enabled) {
       Router router = env.router();
       /**
        * Livereload client:
        */
       String livereloadjs = "/" + LiveReload.class.getPackage().getName().replace(".", "/")
-          + "/livereload.js";
+        + "/livereload.js";
       router.assets("/livereload.js", livereloadjs);
       /** {{liveReload}} local variable */
       router.use("*", (req, rsp) -> req.set("liveReload",
-          "<script src=\"" + req.contextPath() + "/livereload.js\"></script>"))
-          .name("livereload");
+        "<script src=\"" + req.contextPath() + "/livereload.js\"></script>"))
+        .name("livereload");
 
       String serverName = CaseFormat.LOWER_CAMEL
-          .to(CaseFormat.UPPER_CAMEL, conf.getString("application.name"));
+        .to(CaseFormat.UPPER_CAMEL, conf.getString("application.name"));
 
       Queue<WebSocket> broadcast = new ConcurrentLinkedQueue<>();
       AtomicBoolean first = new AtomicBoolean(true);
@@ -420,31 +416,31 @@ public class LiveReload implements Module {
 
       if (paths.isEmpty()) {
         register(Paths.get("public"),
-            "**/*.css",
-            "**/*.scss",
-            "**/*.sass",
-            "**/*.less",
-            "**/*.html",
-            "**/*.js",
-            "**/*.coffee",
-            "**/*.ts");
+          "**/*.css",
+          "**/*.scss",
+          "**/*.sass",
+          "**/*.less",
+          "**/*.html",
+          "**/*.js",
+          "**/*.coffee",
+          "**/*.ts");
         register(Paths.get("target"),
-            "**/*.class",
-            "**/*.conf",
-            "**/*.properties");
+          "**/*.class",
+          "**/*.conf",
+          "**/*.properties");
         register(Paths.get("build"),
-            "**/*.class",
-            "**/*.conf",
-            "**/*.properties");
+          "**/*.class",
+          "**/*.conf",
+          "**/*.properties");
       }
 
       FileWatcher watcher = new FileWatcher();
-      paths.forEach(it -> watcher.register(it._1, (kind, path) -> {
+      paths.forEach(it -> watcher.register((String) it[0], (kind, path) -> {
         Path relative = relative(paths, path.toAbsolutePath());
         log.debug("file changed {}: {}", relative, File.separator);
         Map<String, Object> reload = reload(
-            Route.normalize("/" + relative.toString().replace(File.separator, "/")),
-            css.test(relative));
+          Route.normalize("/" + relative.toString().replace(File.separator, "/")),
+          css.test(relative));
         for (WebSocket ws : broadcast) {
           try {
             log.info("sending: {}", reload);
@@ -453,7 +449,7 @@ public class LiveReload implements Module {
             log.debug("execution of {} resulted in exception", reload, x);
           }
         }
-      }, options -> it._2.forEach(options::includes)));
+      }, options -> ((List<String>) it[1]).forEach(options::includes)));
       watcher.configure(env, conf, binder);
     }
   }
@@ -464,27 +460,27 @@ public class LiveReload implements Module {
 
   @SuppressWarnings("unchecked")
   private Map<String, Object> handshake(final Map<String, Object> client,
-      final String serverName, final String version) {
+    final String serverName, final String version) {
     if (isHello(client)) {
       List<String> protocols = (List<String>) client.get("protocols");
       return protocols.stream()
-          .filter(protocol -> version.equalsIgnoreCase(protocol))
-          .map(protocol -> {
-            Map<String, Object> server = new LinkedHashMap<>();
-            server.put("command", "hello");
-            server.put("protocols", new String[]{protocol });
-            server.put("serverName", serverName);
-            return server;
-          })
-          .findFirst()
-          .orElse(null);
+        .filter(protocol -> version.equalsIgnoreCase(protocol))
+        .map(protocol -> {
+          Map<String, Object> server = new LinkedHashMap<>();
+          server.put("command", "hello");
+          server.put("protocols", new String[]{protocol});
+          server.put("serverName", serverName);
+          return server;
+        })
+        .findFirst()
+        .orElse(null);
     }
     return null;
   }
 
-  private Path relative(final List<Tuple2<Path, List<String>>> paths, final Path path) {
-    for (Tuple2<Path, List<String>> meta : paths) {
-      Path root = meta._1.toAbsolutePath();
+  private Path relative(final List<Object[]> paths, final Path path) {
+    for (Object[] meta : paths) {
+      Path root = ((Path) meta[0]).toAbsolutePath();
       Path relative = root.relativize(path);
       if (Files.exists(root.resolve(relative))) {
         return relative;

@@ -1,24 +1,20 @@
 package org.jooby.hbm;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.google.inject.binder.AnnotatedBindingBuilder;
+import com.google.inject.binder.LinkedBindingBuilder;
+import com.google.inject.name.Names;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
-import static javaslang.Predicates.instanceOf;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import hbm5.Beer;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
-import static org.junit.Assert.assertEquals;
-
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.stream.Collectors;
-
-import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Provider;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
@@ -50,32 +46,30 @@ import org.jooby.internal.hbm.UnitOfWorkProvider;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.binder.AnnotatedBindingBuilder;
-import com.google.inject.binder.LinkedBindingBuilder;
-import com.google.inject.name.Names;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-
-import hbm5.Beer;
-import javaslang.concurrent.Promise;
-import javaslang.control.Try.CheckedConsumer;
-import javaslang.control.Try.CheckedRunnable;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.inject.Provider;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Hbm.class, BootstrapServiceRegistryBuilder.class, JpaIntegrator.class,
-    MetadataSources.class, Promise.class, GuiceBeanManager.class, SessionProvider.class,
-    OpenSessionInView.class })
+    MetadataSources.class, CompletableFuture.class, GuiceBeanManager.class, SessionProvider.class,
+    OpenSessionInView.class})
 public class HbmTest {
 
   private Block bsrb = unit -> {
@@ -103,13 +97,13 @@ public class HbmTest {
   @SuppressWarnings("unchecked")
   private Block onStart = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStart(unit.capture(CheckedConsumer.class))).andReturn(env);
+    expect(env.onStart(unit.capture(Throwing.Consumer.class))).andReturn(env);
   };
 
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
-    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
+    expect(env.onStop(isA(Throwing.Runnable.class))).andReturn(env);
   };
 
   @Test
@@ -159,7 +153,7 @@ public class HbmTest {
         });
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   public void onStart() throws Exception {
     String url = "jdbc:h2:target/hbm";
@@ -199,12 +193,12 @@ public class HbmTest {
           new Hbm()
               .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
         }, unit -> {
-          CheckedConsumer<Registry> onStart = unit.captured(CheckedConsumer.class).iterator()
+          Throwing.Consumer<Registry> onStart = unit.captured(Throwing.Consumer.class).iterator()
               .next();
           onStart.accept(unit.get(Registry.class));
 
-          Promise promise = unit.captured(Promise.class).iterator().next();
-          assertEquals(unit.get(Registry.class), promise.future().get());
+          CompletableFuture promise = unit.captured(CompletableFuture.class).iterator().next();
+          assertEquals(unit.get(Registry.class), promise.get());
         });
   }
 
@@ -250,13 +244,13 @@ public class HbmTest {
           new Hbm()
               .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
         }, unit -> {
-          CheckedRunnable onStop = unit.captured(CheckedRunnable.class).iterator()
+          Throwing.Runnable onStop = unit.captured(Throwing.Runnable.class).iterator()
               .next();
           onStop.run();
         });
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   public void withEvent() throws Exception {
     String url = "jdbc:h2:target/hbm";
@@ -319,7 +313,7 @@ public class HbmTest {
               .onEvent(EventType.POST_LOAD, PostLoadEventListener.class)
               .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
         }, unit -> {
-          CheckedConsumer<Registry> onStart = unit.captured(CheckedConsumer.class).iterator()
+          Throwing.Consumer<Registry> onStart = unit.captured(Throwing.Consumer.class).iterator()
               .next();
           onStart.accept(unit.get(Registry.class));
         });
@@ -736,7 +730,7 @@ public class HbmTest {
     };
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private Block bind(final String name, final Class type) {
     return unit -> {
       LinkedBindingBuilder lbb = unit.mock(LinkedBindingBuilder.class);
@@ -747,7 +741,7 @@ public class HbmTest {
     };
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private Block bind(final String name, final Class type,
       final Class<? extends Provider> provider) {
     return unit -> {
@@ -768,7 +762,7 @@ public class HbmTest {
       BeanManager bm = unit.mock(BeanManager.class);
       unit.registerMock(BeanManager.class, bm);
 
-      expect(GuiceBeanManager.beanManager(unit.capture(Promise.class))).andReturn(bm);
+      expect(GuiceBeanManager.beanManager(unit.capture(CompletableFuture.class))).andReturn(bm);
 
       SessionFactoryBuilder sfb = unit.get(SessionFactoryBuilder.class);
       expect(sfb.applyBeanManager(bm)).andReturn(sfb);
@@ -817,13 +811,13 @@ public class HbmTest {
 
       List<String> packages = Arrays.asList(resources)
           .stream()
-          .filter(instanceOf(String.class))
+          .filter(String.class::isInstance)
           .map(s -> s.toString())
           .collect(Collectors.toList());
 
       List<Class> classes = Arrays.asList(resources)
           .stream()
-          .filter(instanceOf(Class.class))
+          .filter(Class.class::isInstance)
           .map(it -> (Class) it)
           .collect(Collectors.toList());
 
@@ -938,18 +932,18 @@ public class HbmTest {
 
       expect(properties
           .setProperty("dataSource.dataSourceClassName", dataSourceClassName))
-              .andReturn(null);
+          .andReturn(null);
       if (username != null) {
         expect(properties
             .setProperty("dataSource.user", username))
-                .andReturn(null);
+            .andReturn(null);
         expect(properties
             .setProperty("dataSource.password", password))
-                .andReturn(null);
+            .andReturn(null);
       }
       expect(properties
           .setProperty("dataSource.url", url))
-              .andReturn(null);
+          .andReturn(null);
 
       if (hasDataSourceClassName) {
         expect(properties.getProperty("dataSourceClassName")).andReturn(dataSourceClassName);

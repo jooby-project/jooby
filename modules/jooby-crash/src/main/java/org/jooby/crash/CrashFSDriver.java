@@ -203,6 +203,12 @@
  */
 package org.jooby.crash;
 
+import com.google.common.collect.ImmutableList;
+import org.crsh.vfs.spi.AbstractFSDriver;
+import org.jooby.funzy.Try;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -220,16 +226,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.crsh.vfs.spi.AbstractFSDriver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
-
-import javaslang.Predicates;
-import javaslang.Tuple2;
-import javaslang.control.Try;
 
 class CrashFSDriver extends AbstractFSDriver<Path> implements AutoCloseable {
 
@@ -293,7 +289,7 @@ class CrashFSDriver extends AbstractFSDriver<Path> implements AutoCloseable {
   }
 
   public boolean exists(final Predicate<Path> filter) {
-    try (Stream<Path> walk = Try.of(() -> Files.walk(root)).getOrElse(Stream.empty())) {
+    try (Stream<Path> walk = Try.apply(() -> Files.walk(root)).orElse(Stream.empty())) {
       return walk
           .skip(1)
           .filter(filter)
@@ -304,7 +300,7 @@ class CrashFSDriver extends AbstractFSDriver<Path> implements AutoCloseable {
 
   @Override
   public long getLastModified(final Path handle) throws IOException {
-    return Try.of(() -> Files.getLastModifiedTime(handle).toMillis()).getOrElse(-1L);
+    return Try.apply(() -> Files.getLastModifiedTime(handle).toMillis()).orElse(-1L);
   }
 
   @Override
@@ -325,17 +321,18 @@ class CrashFSDriver extends AbstractFSDriver<Path> implements AutoCloseable {
   }
 
   public static List<CrashFSDriver> parse(final ClassLoader loader,
-      final List<Tuple2<String, Predicate<Path>>> paths) {
+      final List<CrashPredicate> paths) {
     List<CrashFSDriver> drivers = new ArrayList<>();
     boolean loginFound = false;
 
-    for (Tuple2<String, Predicate<Path>> path : paths) {
-      for (URI uri : expandPath(loader, path._1)) {
+    for (CrashPredicate path : paths) {
+      for (URI uri : expandPath(loader, path.name)) {
         // classpath first
-        CrashFSDriver driver = Try.of(() -> FileSystems.newFileSystem(uri, Collections.emptyMap()))
-            .map(it -> Try.of(() -> new CrashFSDriver(uri, it, path._2)).get())
+        CrashFSDriver driver = Try
+            .apply(() -> FileSystems.newFileSystem(uri, Collections.emptyMap()))
+            .map(it -> Try.apply(() -> new CrashFSDriver(uri, it, path)).get())
             // file system fallback
-            .recoverWith(x -> Try.of(() -> new CrashFSDriver(uri, Paths.get(uri), path._2)))
+            .recover(x -> Try.apply(() -> new CrashFSDriver(uri, Paths.get(uri), path)).get())
             .get();
         // HACK to make sure login.groovy takes precedence over default one
         driver.log.debug("driver created: {}", driver);
@@ -360,19 +357,19 @@ class CrashFSDriver extends AbstractFSDriver<Path> implements AutoCloseable {
     Try.run(() -> {
       Collections.list(loader.getResources(pattern))
           .stream()
-          .map(it -> Try.of(() -> it.toURI()).get())
+          .map(it -> Try.apply(() -> it.toURI()).get())
           .forEach(result::add);
     });
     return result;
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static Predicate<Path> noneOf(final String... names) {
-    Predicate[] predicates = new Predicate[names.length];
-    for (int i = 0; i < predicates.length; i++) {
-      predicates[i] = fname(names[i]);
+    Predicate predicate = fname(names[0]);
+    for (int i = 1; i < names.length; i++) {
+      predicate = predicate.or(fname(names[i]));
     }
-    return Predicates.noneOf(predicates);
+    return predicate.negate();
   }
 
   public static Predicate<Path> fname(final String name) {

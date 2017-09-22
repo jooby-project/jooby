@@ -203,6 +203,17 @@
  */
 package org.jooby.filewatcher;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Binder;
+import com.google.inject.multibindings.Multibinder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import org.jooby.Env;
+import org.jooby.Jooby.Module;
+import org.jooby.funzy.Throwing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -213,21 +224,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import org.jooby.Env;
-import org.jooby.Jooby.Module;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Binder;
-import com.google.inject.multibindings.Multibinder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-
-import javaslang.CheckedFunction1;
-import javaslang.CheckedFunction2;
-import javaslang.control.Try.CheckedConsumer;
 
 /**
  * <h1>file watcher</h1>
@@ -386,7 +382,7 @@ public class FileWatcher implements Module {
    */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private final List<CheckedFunction2<Config, Binder, FileEventOptions>> bindings = new ArrayList<>();
+  private final List<Throwing.Function2<Config, Binder, FileEventOptions>> bindings = new ArrayList<>();
 
   private WatchService watcher;
 
@@ -508,7 +504,7 @@ public class FileWatcher implements Module {
   }
 
   private FileWatcher register(final Function<Config, Path> provider,
-      final CheckedFunction1<Path, FileEventOptions> handler,
+      final Throwing.Function<Path, FileEventOptions> handler,
       final Consumer<FileEventOptions> configurer) {
     bindings.add((conf, binder) -> {
       Path path = provider.apply(conf);
@@ -534,7 +530,7 @@ public class FileWatcher implements Module {
     paths(env.getClass().getClassLoader(), conf, "filewatcher.register", options -> {
       paths.add(register(binder, options));
     });
-    for (CheckedFunction2<Config, Binder, FileEventOptions> binding : bindings) {
+    for (Throwing.Function2<Config, Binder, FileEventOptions> binding : bindings) {
       paths.add(binding.apply(conf, binder));
     }
     binder.bind(FileMonitor.class).asEagerSingleton();
@@ -545,7 +541,7 @@ public class FileWatcher implements Module {
     return bindings.isEmpty();
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private void paths(final ClassLoader loader, final Config conf, final String name,
       final Consumer<FileEventOptions> callback) throws Throwable {
     list(conf, name, value -> {
@@ -562,7 +558,7 @@ public class FileWatcher implements Module {
   }
 
   @SuppressWarnings("rawtypes")
-  private void list(final Config conf, final String name, final CheckedConsumer<Object> callback)
+  private void list(final Config conf, final String name, final Throwing.Consumer<Object> callback)
       throws Throwable {
     if (conf.hasPath(name)) {
       Object value = conf.getAnyRef(name);
