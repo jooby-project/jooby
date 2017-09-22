@@ -205,7 +205,9 @@ package org.jooby.internal.pac4j;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
+import org.jooby.funzy.Try;
 import org.pac4j.core.profile.CommonProfile;
 
 public class ClientType {
@@ -216,10 +218,16 @@ public class ClientType {
     if (genericType instanceof ParameterizedType) {
       Type[] types = ((ParameterizedType) genericType).getActualTypeArguments();
       for (Type type : types) {
-        if (CommonProfile.class.isAssignableFrom((Class<?>) type)) {
-          return (Class<? extends CommonProfile>) type;
+        if (type instanceof Class) {
+          if (CommonProfile.class.isAssignableFrom((Class<?>) type)) {
+            return (Class<? extends CommonProfile>) type;
+          }
         }
       }
+    }
+    if (client.getSimpleName().equals("OidcClient")) {
+      return Try.apply(() -> (Class<? extends CommonProfile>) client.getClassLoader()
+          .loadClass("org.pac4j.oidc.profile.OidcProfile")).get();
     }
     return CommonProfile.class;
   }
