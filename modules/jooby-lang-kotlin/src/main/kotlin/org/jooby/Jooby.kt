@@ -16,153 +16,190 @@ class KRouteGroup(b: Route.Props<Route.Group>) : Route.Props<Route.Group> by b {
   private val g = b as Route.Group
 
   /** ALL */
-  fun all(pattern: String, filter: (Request, Response, Route.Chain) -> Unit) {
+  fun all(pattern: String, filter: (Request, Response, Route.Chain) -> Unit): Route.Definition {
     g.all(pattern, filter)
+    return g.routes().last()
   }
 
-  fun all(pattern: String, filter: (Request, Response) -> Unit) {
+  fun all(pattern: String, filter: (Request, Response) -> Unit): Route.Definition {
     g.all(pattern, filter)
+    return g.routes().last()
   }
 
-  fun all(filter: (Request, Response, Route.Chain) -> Unit) {
+  fun all(filter: (Request, Response, Route.Chain) -> Unit): Route.Definition {
     g.all(filter)
+    return g.routes().last()
   }
 
-  fun all(filter: (Request, Response) -> Unit) {
+  fun all(filter: (Request, Response) -> Unit): Route.Definition {
     g.all(filter)
+    return g.routes().last()
   }
 
-  fun all(pattern: String, init: Request.() -> Any) {
+  fun all(pattern: String, init: Request.() -> Any): Route.Definition {
     g.all(pattern, {req-> req.init()})
+    return g.routes().last()
   }
 
-  fun all(init: Request.() -> Any) {
+  fun all(init: Request.() -> Any): Route.Definition {
     g.all({req-> req.init()})
+    return g.routes().last()
   }
 
   /** GET */
-  fun get(pattern: String, filter: (Request, Response, Route.Chain) -> Unit) {
+  fun get(pattern: String, filter: (Request, Response, Route.Chain) -> Unit): Route.Definition {
     g.get(pattern, filter)
+    return g.routes().last()
   }
 
-  fun get(pattern: String, filter: (Request, Response) -> Unit) {
+  fun get(pattern: String, filter: (Request, Response) -> Unit): Route.Definition {
     g.get(pattern, filter)
+    return g.routes().last()
   }
 
-  fun get(filter: (Request, Response, Route.Chain) -> Unit) {
+  fun get(filter: (Request, Response, Route.Chain) -> Unit): Route.Definition {
     g.get(filter)
+    return g.routes().last()
   }
 
-  fun get(filter: (Request, Response) -> Unit) {
+  fun get(filter: (Request, Response) -> Unit): Route.Definition {
     g.get(filter)
+    return g.routes().last()
   }
 
-  fun get(pattern: String, init: Request.() -> Any) {
+  fun get(pattern: String, init: Request.() -> Any): Route.Definition {
     g.get(pattern, {req-> req.init()})
+    return g.routes().last()
   }
 
-  fun get(init: Request.() -> Any): Unit {
+  fun get(init: Request.() -> Any): Route.Definition {
     g.get({req-> req.init()})
+    return g.routes().last()
   }
 
   /** POST */
-  fun post(pattern: String, filter: (Request, Response, Route.Chain) -> Unit) {
+  fun post(pattern: String, filter: (Request, Response, Route.Chain) -> Unit): Route.Definition {
     g.post(pattern, filter)
+    return g.routes().last()
   }
 
-  fun post(pattern: String, filter: (Request, Response) -> Unit) {
+  fun post(pattern: String, filter: (Request, Response) -> Unit): Route.Definition {
     g.post(pattern, filter)
+    return g.routes().last()
   }
 
-  fun post(filter: (Request, Response, Route.Chain) -> Unit) {
+  fun post(filter: (Request, Response, Route.Chain) -> Unit): Route.Definition {
     g.post(filter)
+    return g.routes().last()
   }
 
-  fun post(filter: (Request, Response) -> Unit) {
+  fun post(filter: (Request, Response) -> Unit): Route.Definition {
     g.post(filter)
+    return g.routes().last()
   }
 
-  fun post(pattern: String, init: Request.() -> Any) {
+  fun post(pattern: String, init: Request.() -> Any): Route.Definition {
     g.post(pattern, {req-> req.init()})
+    return g.routes().last()
   }
 
-  fun post(init: Request.() -> Any) {
+  fun post(init: Request.() -> Any): Route.Definition {
     g.post({req-> req.init()})
+    return g.routes().last()
   }
 
   /** PUT */
-  fun put(pattern: String, filter: (Request, Response, Route.Chain) -> Unit) {
+  fun put(pattern: String, filter: (Request, Response, Route.Chain) -> Unit): Route.Definition {
     g.put(pattern, filter)
+    return g.routes().last()
   }
 
-  fun put(pattern: String, filter: (Request, Response) -> Unit) {
+  fun put(pattern: String, filter: (Request, Response) -> Unit): Route.Definition {
     g.put(pattern, filter)
+    return g.routes().last()
   }
 
-  fun put(filter: (Request, Response, Route.Chain) -> Unit) {
+  fun put(filter: (Request, Response, Route.Chain) -> Unit): Route.Definition {
     g.put(filter)
+    return g.routes().last()
   }
 
-  fun put(filter: (Request, Response) -> Unit) {
+  fun put(filter: (Request, Response) -> Unit): Route.Definition {
     g.put(filter)
+    return g.routes().last()
   }
 
-  fun put(pattern: String, init: Request.() -> Any) {
+  fun put(pattern: String, init: Request.() -> Any): Route.Definition {
     g.put(pattern, {req-> req.init()})
+    return g.routes().last()
   }
 
-  fun put(init: Request.() -> Any) {
+  fun put(init: Request.() -> Any): Route.Definition {
     g.put({req-> req.init()})
+    return g.routes().last()
   }
 
   /** PATCH */
-  fun patch(pattern: String, filter: (Request, Response, Route.Chain) -> Unit) {
+  fun patch(pattern: String, filter: (Request, Response, Route.Chain) -> Unit): Route.Definition {
     g.patch(pattern, filter)
+    return g.routes().last()
   }
 
-  fun patch(pattern: String, filter: (Request, Response) -> Unit) {
+  fun patch(pattern: String, filter: (Request, Response) -> Unit): Route.Definition {
     g.patch(pattern, filter)
+    return g.routes().last()
   }
 
-  fun patch(filter: (Request, Response, Route.Chain) -> Unit) {
+  fun patch(filter: (Request, Response, Route.Chain) -> Unit): Route.Definition {
     g.patch(filter)
+    return g.routes().last()
   }
 
-  fun patch(filter: (Request, Response) -> Unit) {
+  fun patch(filter: (Request, Response) -> Unit): Route.Definition {
     g.patch(filter)
+    return g.routes().last()
   }
 
-  fun patch(pattern: String, init: Request.() -> Any) {
+  fun patch(pattern: String, init: Request.() -> Any): Route.Definition {
     g.patch(pattern, {req-> req.init()})
+    return g.routes().last()
   }
 
-  fun patch(init: Request.() -> Any) {
+  fun patch(init: Request.() -> Any): Route.Definition {
     g.patch({req-> req.init()})
+    return g.routes().last()
   }
 
   /** DELETE */
-  fun delete(pattern: String, filter: (Request, Response, Route.Chain) -> Unit) {
+  fun delete(pattern: String, filter: (Request, Response, Route.Chain) -> Unit): Route.Definition {
     g.delete(pattern, filter)
+    return g.routes().last()
   }
 
-  fun delete(pattern: String, filter: (Request, Response) -> Unit) {
+  fun delete(pattern: String, filter: (Request, Response) -> Unit): Route.Definition {
     g.delete(pattern, filter)
+    return g.routes().last()
   }
 
-  fun delete(filter: (Request, Response, Route.Chain) -> Unit) {
+  fun delete(filter: (Request, Response, Route.Chain) -> Unit): Route.Definition {
     g.delete(filter)
+    return g.routes().last()
+
   }
 
-  fun delete(filter: (Request, Response) -> Unit) {
+  fun delete(filter: (Request, Response) -> Unit): Route.Definition {
     g.delete(filter)
+    return g.routes().last()
   }
 
-  fun delete(pattern: String, init: Request.() -> Any) {
+  fun delete(pattern: String, init: Request.() -> Any): Route.Definition {
     g.delete(pattern, {req-> req.init()})
+    return g.routes().last()
   }
   
-  fun delete(init: Request.() -> Any) {
+  fun delete(init: Request.() -> Any): Route.Definition {
     g.delete({req-> req.init()})
+    return g.routes().last()
   }
 }
 
