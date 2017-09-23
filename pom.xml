@@ -1915,6 +1915,12 @@
             </dependency>
           </dependencies>
         </plugin>
+
+        <plugin>
+          <groupId>org.owasp</groupId>
+          <artifactId>dependency-check-maven</artifactId>
+          <version>${depencency-check-maven.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -3123,6 +3129,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <fizzed-stork-maven-plugin.version>1.2.3</fizzed-stork-maven-plugin.version>
     <capsule-maven-plugin.version>1.0.4</capsule-maven-plugin.version>
     <docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
+    <depencency-check-maven.version>2.1.1</depencency-check-maven.version>
 
     <jooby.version>${project.version}</jooby.version>
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
