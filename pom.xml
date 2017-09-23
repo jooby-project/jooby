@@ -541,12 +541,6 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
-        <artifactId>jooby-lang-js</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jooby</groupId>
         <artifactId>jooby-livereload</artifactId>
         <version>${jooby.version}</version>
       </dependency>

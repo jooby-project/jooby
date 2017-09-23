@@ -29,7 +29,7 @@ want to contribute?
 author
 =====
 
- [Edgar Espina] (https://twitter.com/edgarespina)
+ [Edgar Espina](https://twitter.com/edgarespina)
 
 license
 =====

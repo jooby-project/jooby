@@ -76,7 +76,6 @@
     <module>jooby-crash</module>
     <module>jooby-thymeleaf</module>
     <module>jooby-filewatcher</module>
-    <module>jooby-lang-js</module>
     <module>jooby-lang-kotlin</module>
     <module>jooby-requery</module>
     <module>jooby-rocker</module>

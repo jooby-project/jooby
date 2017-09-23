@@ -4,7 +4,7 @@
 
 ## killer features
 
-* **Multi-language**. Write your application in Java, [Kotlin](https://github.com/jooby-project/jooby/tree/master/jooby-lang-kotlin) or [JavaScript](https://github.com/jooby-project/jooby/tree/master/jooby-lang-js)
+* Java and [Kotlin](https://github.com/jooby-project/jooby/tree/master/jooby-lang-kotlin) support
 * **Scripting programming model**. Like {{expressjs}}, {{sinatra}}, etc.. but also
 * **MVC programming model**. Like {{spring}} controllers or {{jersey}} resources
 * **Multi-server**. Including {{netty}}, {{jetty}} and {{undertow}}

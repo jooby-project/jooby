@@ -33,13 +33,3 @@ fun main(args: Array<String>) {
 }
 
 ```
-
-[JavaScript](http://jooby.org/doc/lang-js):
-
-```js
-
-var app = jooby();
-
-app.get('/', function () 'Hey Jooby!');
-
-```

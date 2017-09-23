@@ -18,6 +18,6 @@ public class Issue813 {
 
   @Test
   public void shouldNotThrowClassCastExceptionWithOidc() {
-    assertEquals(OidcClient.class, ClientType.typeOf(new OidcClient<OidcProfile>(new OidcConfiguration()).getClass()));
+    assertEquals(OidcProfile.class, ClientType.typeOf(new OidcClient<OidcProfile>(new OidcConfiguration()).getClass()));
   }
 }
