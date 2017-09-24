@@ -2,7 +2,7 @@
 
 Object-Relational-Mapping via {{ebean}}. It configures and exports ```EbeanServer``` instances.
 
-This module extends [jdbc module](/doc/jdbc), before going forward, make sure you read the doc of the [jdbc module](/doc/jooby-dbc) first.
+> This module depends on [jdbc module](/doc/jdbc).
  
 ## exports
 
@@ -22,6 +22,8 @@ This module extends [jdbc module](/doc/jdbc), before going forward, make sure yo
 
 ```java
 {
+  use(new Jdbc());
+
   use(new Ebeanby().doWith((ServerConfig conf) -> {
    conf.addClass(Pet.class);
   }));
@@ -34,9 +36,8 @@ This module extends [jdbc module](/doc/jdbc), before going forward, make sure yo
 }
 ```
 
-Usage is pretty straightforward, but of course we need to setup/configure the enhancement.
-
 ## enhancement
+
 The enhancement process comes in two flavors:
 
 1) Runtime: via a JVM Agent
@@ -93,8 +94,8 @@ Or programmatically:
 
 ```java
 {
-  use(new Ebeanby().doWith((ServerConfig conf) -> {
-    conf.setDisableClasspathSearch(false);
+  use(new Ebeanby().doWith(ebean -> {
+    ebean.setDisableClasspathSearch(false);
   }));
 }
 ```
