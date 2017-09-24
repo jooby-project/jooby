@@ -2,7 +2,7 @@
 
 <a href="http://www.jooq.org">jOOQ</a> generates Java code from your database and lets you build type safe SQL queries through its fluent API.
 
-This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of the [jdbc](/doc/jdbc) module.
+This module depends on [jdbc](/doc/jdbc) module.
 
 ## exports
 
@@ -22,6 +22,7 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 
 ```java
 {
+  use(new Jdbc());
   use(new jOOQ());
 
   get("/jooq", req -> {
@@ -43,8 +44,10 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 
 ```java
 {
+  use(new Jdbc("db.main"));
   use(new jOOQ("db.main"));
 
+  use(new Jdbc("db.audit"));
   use(new jOOQ("db.audit"));
 
   get("/main", req -> {
@@ -70,6 +73,7 @@ This module setup a ```Configuration``` object with a ```DataSource``` from [jdb
 
 ```java
 {
+  use(new Jdbc());
   use(new jOOQ().doWith(conf -> {
 
     conf.set(...);

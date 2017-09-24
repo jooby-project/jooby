@@ -203,13 +203,19 @@
  */
 package org.jooby.jooq;
 
+import java.util.NoSuchElementException;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import javax.inject.Provider;
 import javax.sql.DataSource;
 
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import com.zaxxer.hikari.HikariDataSource;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
+import org.jooby.Jooby;
 import org.jooby.jdbc.Jdbc;
 import org.jooq.Configuration;
 import org.jooq.ConnectionProvider;
@@ -231,13 +237,13 @@ import com.typesafe.config.Config;
  * </p>
  *
  * <p>
- * This module depends on {@link Jdbc} module, make sure you read the doc of the {@link Jdbc}
- * module.
+ * This module depends on {@link Jdbc} module.
  * </p>
  *
  * <h2>usage</h2>
  * <pre>
  * {
+ *   use(new Jdbc());
  *   use(new jOOQ());
  *
  *   get("/jooq", req {@literal ->} {
@@ -257,7 +263,10 @@ import com.typesafe.config.Config;
  *
  * <pre>
  * {
+ *   use(new Jdbc("db.main"));
  *   use(new jOOQ("db.main"));
+ *
+ *   use(new Jdbc("db.audit"));
  *   use(new jOOQ("db.audit"));
  *
  *   get("/main", req {@literal ->} {
@@ -282,6 +291,8 @@ import com.typesafe.config.Config;
  * </p>
  * <pre>
  * {
+ *   use(new Jdbc());
+ *
  *   use(new jOOQ().doWith(conf {@literal ->} {
  *     conf.set(...);
  *   });
@@ -299,7 +310,11 @@ import com.typesafe.config.Config;
  * @author edgar
  * @since 0.15.0
  */
-public class jOOQ extends Jdbc {
+public class jOOQ implements Jooby.Module {
+
+  private final String name;
+
+  private BiConsumer<Configuration, Config> callback;
 
   /**
    * Creates a new {@link jOOQ} module.
@@ -307,31 +322,56 @@ public class jOOQ extends Jdbc {
    * @param name Database name.
    */
   public jOOQ(final String name) {
-    super(name);
+    this.name = name;
   }
 
   /**
    * Creates a new {@link jOOQ} module.
    */
   public jOOQ() {
+    this("db");
+  }
+
+  /**
+   * Configuration callback.
+   *
+   * @param configurer Callback.
+   * @return This module.
+   */
+  public jOOQ doWith(BiConsumer<Configuration, Config> configurer) {
+    this.callback = configurer;
+    return this;
+  }
+
+  /**
+   * Configuration callback.
+   *
+   * @param configurer Callback.
+   * @return This module.
+   */
+  public jOOQ doWith(Consumer<Configuration> configurer) {
+    return doWith((configuration, conf) -> configurer.accept(configuration));
   }
 
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    super.configure(env, conf, binder, (name, ds) -> {
-      Configuration jooqconf = new DefaultConfiguration();
-      ConnectionProvider dscp = new DataSourceConnectionProvider(ds);
-      jooqconf.set(JDBCUtils.dialect(ds.getDataSourceProperties().getProperty("url")));
-      jooqconf.set(dscp);
-      jooqconf.set(new DefaultTransactionProvider(dscp));
+    Key<DataSource> dskey = Key.get(DataSource.class, Names.named(name));
+    HikariDataSource ds = (HikariDataSource) env.get(dskey)
+        .orElseThrow(() -> new NoSuchElementException("DataSource missing: " + dskey));
+    Configuration jooqconf = new DefaultConfiguration();
+    ConnectionProvider dscp = new DataSourceConnectionProvider(ds);
+    jooqconf.set(JDBCUtils.dialect(ds.getDataSourceProperties().getProperty("url")));
+    jooqconf.set(dscp);
+    jooqconf.set(new DefaultTransactionProvider(dscp));
 
-      callback(jooqconf, conf);
+    if (callback != null) {
+      callback.accept(jooqconf, conf);
+    }
 
-      ServiceKey serviceKey = env.serviceKey();
-      serviceKey.generate(Configuration.class, name, k -> binder.bind(k).toInstance(jooqconf));
+    ServiceKey serviceKey = env.serviceKey();
+    serviceKey.generate(Configuration.class, name, k -> binder.bind(k).toInstance(jooqconf));
 
-      Provider<DSLContext> dsl = () -> DSL.using(jooqconf);
-      serviceKey.generate(DSLContext.class, name, k -> binder.bind(k).toProvider(dsl));
-    });
+    Provider<DSLContext> dsl = () -> DSL.using(jooqconf);
+    serviceKey.generate(DSLContext.class, name, k -> binder.bind(k).toProvider(dsl));
   }
 }
