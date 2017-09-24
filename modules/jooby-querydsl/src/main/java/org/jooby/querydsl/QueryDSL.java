@@ -204,24 +204,24 @@
 package org.jooby.querydsl;
 
 import com.google.inject.Binder;
-import com.querydsl.sql.Configuration;
-import com.querydsl.sql.DB2Templates;
-import com.querydsl.sql.FirebirdTemplates;
-import com.querydsl.sql.H2Templates;
-import com.querydsl.sql.HSQLDBTemplates;
-import com.querydsl.sql.MySQLTemplates;
-import com.querydsl.sql.OracleTemplates;
-import com.querydsl.sql.PostgreSQLTemplates;
-import com.querydsl.sql.SQLQueryFactory;
-import com.querydsl.sql.SQLTemplates;
-import com.querydsl.sql.SQLiteTemplates;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import com.querydsl.sql.*;
 import com.typesafe.config.Config;
+
 import static java.util.Objects.requireNonNull;
+import static org.jooby.funzy.When.when;
+
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
+import org.jooby.Jooby;
+import org.jooby.funzy.When;
 import org.jooby.jdbc.Jdbc;
 
+import javax.sql.DataSource;
+import java.util.NoSuchElementException;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -243,6 +243,7 @@ import java.util.function.Function;
  * import org.jooby.querydsl.QueryDSL;
  *
  * {
+ *   use(new Jdbc());
  *   use(new QueryDSL());
  *
  *   get("/my-api", req {@literal ->} {
@@ -261,6 +262,7 @@ import java.util.function.Function;
  *
  * <pre>
  * {
+ *   use(new Jdbc());
  *   use(new QueryDSL().with(new MyCustomTemplates());
  * }
  * </pre>
@@ -271,7 +273,10 @@ import java.util.function.Function;
  * import org.jooby.querydsl.QueryDSL;
  *
  * {
+ *   use(new Jdbc("db.main"));
  *   use(new QueryDSL("db.main"));
+ *
+ *   use(new Jdbc("db.aux"));
  *   use(new QueryDSL("db.aux"));
  *
  *   get("/my-api", req {@literal ->} {
@@ -293,6 +298,7 @@ import java.util.function.Function;
  *
  * <pre>
  * {
+ *   use(new Jdbc());
  *   use(new QueryDSL().doWith(conf {@literal ->} {
  *     conf.set(...);
  *   });
@@ -310,9 +316,13 @@ import java.util.function.Function;
  * @since 1.0.0.CR
  * @author sjackel
  */
-public class QueryDSL extends Jdbc {
+public class QueryDSL implements Jooby.Module {
 
   private Function<String, SQLTemplates> templates = QueryDSL::toSQLTemplates;
+
+  private String name;
+
+  private BiConsumer<Configuration, Config> callback;
 
   /**
    * Creates a new {@link QueryDSL} module
@@ -320,31 +330,47 @@ public class QueryDSL extends Jdbc {
    * @param name Database name
    */
   public QueryDSL(final String name) {
-    super(name);
+    this.name = name;
   }
 
   /**
    * Creates a new {@link QueryDSL} module
    */
   public QueryDSL() {
+    this("db");
   }
 
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    super.configure(env, conf, binder, (name, ds) -> {
-      SQLTemplates templates = this.templates.apply(dbtype.orElse("unknown"));
+    Key<DataSource> dskey = Key.get(DataSource.class, Names.named(name));
+    DataSource ds = env.get(dskey)
+        .orElseThrow(() -> new NoSuchElementException("DataSource missing: " + dskey));
 
-      Configuration querydslconf = new Configuration(templates);
+    String dbtype = env.get(Key.get(String.class, Names.named(name + ".dbtype")))
+        .orElse("unknown");
+    SQLTemplates templates = this.templates.apply(dbtype);
 
-      callback(querydslconf, conf);
+    Configuration querydslconf = new Configuration(templates);
 
-      SQLQueryFactory sqfp = new SQLQueryFactory(querydslconf, ds);
+    if (callback != null) {
+      callback.accept(querydslconf, conf);
+    }
 
-      ServiceKey serviceKey = env.serviceKey();
-      serviceKey.generate(SQLTemplates.class, name, k -> binder.bind(k).toInstance(templates));
-      serviceKey.generate(Configuration.class, name, k -> binder.bind(k).toInstance(querydslconf));
-      serviceKey.generate(SQLQueryFactory.class, name, k -> binder.bind(k).toInstance(sqfp));
-    });
+    SQLQueryFactory sqfp = new SQLQueryFactory(querydslconf, ds);
+
+    ServiceKey serviceKey = env.serviceKey();
+    serviceKey.generate(SQLTemplates.class, name, k -> binder.bind(k).toInstance(templates));
+    serviceKey.generate(Configuration.class, name, k -> binder.bind(k).toInstance(querydslconf));
+    serviceKey.generate(SQLQueryFactory.class, name, k -> binder.bind(k).toInstance(sqfp));
+  }
+
+  public QueryDSL doWith(BiConsumer<Configuration, Config> configurer) {
+    this.callback = configurer;
+    return this;
+  }
+
+  public QueryDSL doWith(Consumer<Configuration> configurer) {
+    return doWith((confuration, conf) -> configurer.accept(confuration));
   }
 
   public QueryDSL with(final SQLTemplates templates) {
@@ -354,29 +380,18 @@ public class QueryDSL extends Jdbc {
   }
 
   static SQLTemplates toSQLTemplates(final String type) {
-    switch (type) {
-      case "db2":
-        return new DB2Templates();
-      case "mysql":
-        return new MySQLTemplates();
-      case "mariadb":
-        return new MySQLTemplates();
-      case "h2":
-        return new H2Templates();
-      case "hsqldb":
-        return new HSQLDBTemplates();
-      case "pgsql":
-        return new PostgreSQLTemplates();
-      case "postgresql":
-        return new PostgreSQLTemplates();
-      case "sqlite":
-        return new SQLiteTemplates();
-      case "oracle":
-        return new OracleTemplates();
-      case "firebirdsql":
-        return new FirebirdTemplates();
-      default:
-        throw new IllegalStateException("Unsupported database: " + type);
-    }
+    return when(type)
+        .<SQLTemplates>is("db2", DB2Templates::new)
+        .is("mysql", MySQLTemplates::new)
+        .is("mariadb", MySQLTemplates::new)
+        .is("h2", H2Templates::new)
+        .is("hsqldb", HSQLDBTemplates::new)
+        .is("pgsql", PostgreSQLTemplates::new)
+        .is("postgresql", PostgreSQLTemplates::new)
+        .is("sqlite", SQLiteTemplates::new)
+        .is("oracle", OracleTemplates::new)
+        .is("firebirdsql", FirebirdTemplates::new)
+        .is("sqlserver", SQLServer2012Templates::new)
+        .orElseThrow(() -> new IllegalStateException("Unsupported database: " + type));
   }
 }

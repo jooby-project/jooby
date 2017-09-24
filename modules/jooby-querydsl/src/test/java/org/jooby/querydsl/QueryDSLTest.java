@@ -5,37 +5,32 @@ import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.name.Names;
-import com.querydsl.sql.CUBRIDTemplates;
-import com.querydsl.sql.Configuration;
-import com.querydsl.sql.DB2Templates;
-import com.querydsl.sql.FirebirdTemplates;
-import com.querydsl.sql.H2Templates;
-import com.querydsl.sql.HSQLDBTemplates;
-import com.querydsl.sql.MySQLTemplates;
-import com.querydsl.sql.OracleTemplates;
-import com.querydsl.sql.PostgreSQLTemplates;
-import com.querydsl.sql.SQLCloseListener;
-import com.querydsl.sql.SQLQueryFactory;
-import com.querydsl.sql.SQLTemplates;
-import com.querydsl.sql.SQLiteTemplates;
+import com.querydsl.sql.*;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
+
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
+
 import org.jooby.Env;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.jooby.funzy.Throwing;
+
 import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.sql.DataSource;
+import java.util.Optional;
 import java.util.Properties;
 
 @RunWith(PowerMockRunner.class)
@@ -49,32 +44,33 @@ public class QueryDSLTest {
 
   private MockUnit.Block managed = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStop(isA(Throwing.Runnable.class))).andReturn(env);
   };
 
   private Block newSQLQueryFactory = unit -> {
     SQLQueryFactory factory = unit.constructor(SQLQueryFactory.class)
-        .build(unit.get(Configuration.class), unit.get(HikariDataSource.class));
+        .build(unit.get(Configuration.class), unit.get(DataSource.class));
     unit.registerMock(SQLQueryFactory.class, factory);
+  };
+  private Block ds = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.serviceKey()).andReturn(new Env.ServiceKey());
+    DataSource ds = unit.registerMock(DataSource.class);
+    expect(env.get(Key.get(DataSource.class, Names.named("db")))).andReturn(Optional.of(ds));
+    expect(env.get(Key.get(String.class, Names.named("db.dbtype")))).andReturn(Optional.of("h2"));
   };
 
   @Test
   public void defaults() throws Exception {
-    String url = "jdbc:h2:target/jdbctest";
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.jdbctest",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("jdbctest"))
+        .expect(ds)
         .expect(sqlTemplate(H2Templates.class, null))
-        .expect(sqlTemplate(H2Templates.class, "jdbctest"))
+        .expect(sqlTemplate(H2Templates.class, "db"))
         .expect(conf(H2Templates.class))
         .expect(bindconf(null))
-        .expect(bindconf("jdbctest"))
+        .expect(bindconf("db"))
         .expect(newSQLQueryFactory)
         .expect(sqlqueryfactory(null))
-        .expect(sqlqueryfactory("jdbctest"))
+        .expect(sqlqueryfactory("db"))
         .expect(managed)
         .run(unit -> {
           new QueryDSL()
@@ -84,21 +80,16 @@ public class QueryDSLTest {
 
   @Test
   public void dbProp() throws Exception {
-    String url = "jdbc:h2:target/jdbctest";
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.jdbctest",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("jdbctest"))
+        .expect(ds)
         .expect(sqlTemplate(H2Templates.class, null))
-        .expect(sqlTemplate(H2Templates.class, "jdbctest"))
+        .expect(sqlTemplate(H2Templates.class, "db"))
         .expect(conf(H2Templates.class))
         .expect(bindconf(null))
-        .expect(bindconf("jdbctest"))
+        .expect(bindconf("db"))
         .expect(newSQLQueryFactory)
         .expect(sqlqueryfactory(null))
-        .expect(sqlqueryfactory("jdbctest"))
+        .expect(sqlqueryfactory("db"))
         .expect(managed)
         .run(unit -> {
           new QueryDSL("db")
@@ -108,21 +99,16 @@ public class QueryDSLTest {
 
   @Test
   public void with() throws Exception {
-    String url = "jdbc:h2:target/jdbctest";
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.jdbctest",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("jdbctest"))
+        .expect(ds)
         .expect(sqlTemplate(CUBRIDTemplates.class, null))
-        .expect(sqlTemplate(CUBRIDTemplates.class, "jdbctest"))
+        .expect(sqlTemplate(CUBRIDTemplates.class, "db"))
         .expect(conf(CUBRIDTemplates.class))
         .expect(newSQLQueryFactory)
         .expect(bindconf(null))
-        .expect(bindconf("jdbctest"))
+        .expect(bindconf("db"))
         .expect(sqlqueryfactory(null))
-        .expect(sqlqueryfactory("jdbctest"))
+        .expect(sqlqueryfactory("db"))
         .expect(managed)
         .run(unit -> {
           new QueryDSL()
@@ -133,22 +119,17 @@ public class QueryDSLTest {
 
   @Test
   public void doWith() throws Exception {
-    String url = "jdbc:h2:target/jdbctest";
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.jdbctest",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("jdbctest"))
+        .expect(ds)
         .expect(sqlTemplate(H2Templates.class, null))
-        .expect(sqlTemplate(H2Templates.class, "jdbctest"))
+        .expect(sqlTemplate(H2Templates.class, "db"))
         .expect(conf(H2Templates.class))
         .expect(newSQLQueryFactory)
         .expect(closeconf)
         .expect(bindconf(null))
-        .expect(bindconf("jdbctest"))
+        .expect(bindconf("db"))
         .expect(sqlqueryfactory(null))
-        .expect(sqlqueryfactory("jdbctest"))
+        .expect(sqlqueryfactory("db"))
         .expect(managed)
         .run(unit -> {
           new QueryDSL()
@@ -161,22 +142,17 @@ public class QueryDSLTest {
 
   @Test
   public void newSQLFactory() throws Exception {
-    String url = "jdbc:h2:target/jdbctest";
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.jdbctest",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("jdbctest"))
+        .expect(ds)
         .expect(sqlTemplate(H2Templates.class, null))
-        .expect(sqlTemplate(H2Templates.class, "jdbctest"))
+        .expect(sqlTemplate(H2Templates.class, "db"))
         .expect(conf(H2Templates.class))
         .expect(newSQLQueryFactory)
         .expect(bindconf(null))
-        .expect(bindconf("jdbctest"))
+        .expect(bindconf("db"))
         .expect(sqlqueryfactory())
         .expect(sqlqueryfactory(null))
-        .expect(sqlqueryfactory("jdbctest"))
+        .expect(sqlqueryfactory("db"))
         .expect(managed)
         .run(unit -> {
           new QueryDSL()
@@ -232,6 +208,11 @@ public class QueryDSLTest {
   @Test
   public void firebirdsql() {
     assertEquals(FirebirdTemplates.class, QueryDSL.toSQLTemplates("firebirdsql").getClass());
+  }
+
+  @Test
+  public void sqlserver() {
+    assertEquals(SQLServer2012Templates.class, QueryDSL.toSQLTemplates("sqlserver").getClass());
   }
 
   @Test(expected = IllegalStateException.class)
@@ -294,84 +275,6 @@ public class QueryDSLTest {
 
   public Config config(final String db) {
     return new QueryDSL().config()
-        .withValue("db", ConfigValueFactory.fromAnyRef(db))
-        .withValue("application.ns", ConfigValueFactory.fromAnyRef("my.model"))
-        .withValue("application.tmpdir", ConfigValueFactory.fromAnyRef("target"))
-        .withValue("application.name", ConfigValueFactory.fromAnyRef("jdbctest"))
-        .withValue("application.charset", ConfigValueFactory.fromAnyRef("UTF-8"))
-        .withValue("runtime.processors-x2", fromAnyRef("4"))
         .resolve();
-  }
-
-  @SuppressWarnings("unchecked")
-  private Block serviceKey(final String db) {
-    return unit -> {
-      Env env = unit.get(Env.class);
-      expect(env.serviceKey()).andReturn(new Env.ServiceKey()).times(2);
-
-      AnnotatedBindingBuilder<DataSource> binding = unit.mock(AnnotatedBindingBuilder.class);
-      binding.toInstance(unit.get(HikariDataSource.class));
-      binding.toInstance(unit.get(HikariDataSource.class));
-
-      Binder binder = unit.get(Binder.class);
-      expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-      expect(binder.bind(Key.get(DataSource.class, Names.named(db)))).andReturn(binding);
-    };
-  }
-
-  private Block hikariConfig() {
-    return unit -> {
-      Properties properties = unit.get(Properties.class);
-      HikariConfig hikari = unit.constructor(HikariConfig.class)
-          .build(properties);
-      unit.registerMock(HikariConfig.class, hikari);
-    };
-  }
-
-  private Block hikariDataSource(final String url) {
-    return unit -> {
-      HikariConfig properties = unit.get(HikariConfig.class);
-      HikariDataSource hikari = unit.constructor(HikariDataSource.class)
-          .build(properties);
-
-      unit.registerMock(HikariDataSource.class, hikari);
-    };
-  }
-
-  private Block props(final String dataSourceClassName, final String url, final String name,
-      final String username, final String password, final boolean hasDataSourceClassName) {
-    return unit -> {
-      Properties properties = unit.constructor(Properties.class)
-          .build();
-
-      expect(properties
-          .setProperty("dataSource.dataSourceClassName", dataSourceClassName))
-          .andReturn(null);
-      if (username != null) {
-        expect(properties
-            .setProperty("dataSource.user", username))
-            .andReturn(null);
-        expect(properties
-            .setProperty("dataSource.password", password))
-            .andReturn(null);
-      }
-      expect(properties
-          .setProperty("dataSource.url", url))
-          .andReturn(null);
-
-      if (hasDataSourceClassName) {
-        expect(properties.getProperty("dataSourceClassName")).andReturn(dataSourceClassName);
-      } else {
-        expect(properties.getProperty("dataSourceClassName")).andReturn(null);
-        expect(properties.getProperty("dataSource.dataSourceClassName"))
-            .andReturn(dataSourceClassName);
-        expect(properties.setProperty("dataSourceClassName", dataSourceClassName)).andReturn(null);
-      }
-      expect(properties.remove("dataSource.dataSourceClassName")).andReturn(dataSourceClassName);
-      expect(properties.setProperty("poolName", name)).andReturn(null);
-      expect(properties.setProperty("maximumPoolSize", "4")).andReturn(null);
-
-      unit.registerMock(Properties.class, properties);
-    };
   }
 }

@@ -2,7 +2,7 @@
 
 SQL abstraction provided by <a href="http://www.querydsl.com">QueryDSL</a> using plain JDBC underneath.
 
-This module depends on [jdbc module](doc/jdbc), make sure you read the doc of the [jdbc module](doc/jdbc) module before using this module.
+This module depends on [jdbc](doc/jdbc) module.
 
 ## exports
 
@@ -23,6 +23,7 @@ This module depends on [jdbc module](doc/jdbc), make sure you read the doc of th
 ```java
 import org.jooby.querydsl.QueryDSL;
 {
+  use(new Jdbc());
   use(new QueryDSL());
 
   get("/my-api", req -> {
@@ -41,6 +42,7 @@ Dialect is detected automatically and usually you don't need to do anything. But
 
 ```java
 {
+  use(new Jdbc());
   use(new QueryDSL().with(new MyCustomTemplates());
 }
 ```
@@ -50,8 +52,10 @@ Dialect is detected automatically and usually you don't need to do anything. But
 ```java
 import org.jooby.querydsl.QueryDSL;
 {
+  use(new Jdbc("db.main"));
   use(new QueryDSL("db.main"));
 
+  use(new Jdbc("db.aux"));
   use(new QueryDSL("db.aux"));
 
   get("/my-api", req -> {
@@ -69,6 +73,7 @@ Advanced configuration can be added by invoking the ```doWith``` method, adding 
 
 ```java
 {
+  use(new Jdbc());
   use(new QueryDSL().doWith(conf -> {
     conf.set(...);
   });
