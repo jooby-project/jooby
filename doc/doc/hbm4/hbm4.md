@@ -2,7 +2,7 @@
 
 Object-Relational-Mapping via [Hibernate](http://hibernate.org/). exports an ```EntityManagerFactory``` and ```EntityManager``` services.
 
-This module extends [jdbc](/doc/jdbc) module, before going forward, make sure you read the doc of the [jdbc](/doc/jdbc) module first.
+> This module depends on [jdbc module](/doc/jdbc).
 
 This module provides an advanced and recommended [Open Session in View](https://developer.jboss.org/wiki/OpenSessionInView#jive_content_id_Can_I_use_two_transactions_in_one_Session)
 pattern, which basically keeps the ```Session``` opened until the view is rendered. But it uses two database transactions:
@@ -32,6 +32,8 @@ pattern, which basically keeps the ```Session``` opened until the view is render
 
 ```java
 {
+  use(new Jdbc());
+
   use(new Hbm(EntityA.class, EntityB.class));
 
   get("/", req -> {
@@ -92,6 +94,7 @@ If you don't care about bootstrap time and/or just like the auto-discover featur
 
 ```java
 {
+  use(new Jdbc());
   use(new Hbm().scan());
 }
 ```

@@ -4,7 +4,7 @@
 
 This module setup and configure <a href="http://hibernate.org/orm">Hibernate ORM</a> and ```JPA Provider```.
 
-This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of the [jdbc](/doc/jdbc) module.
+> This module depends on [jdbc](/doc/jdbc) module.
 
 ## exports
 
@@ -26,9 +26,9 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 
 ```java
 {
-  use(new Hbm("jdbc:mysql://localhost/mydb")
-      .classes(Beer.class)
-  );
+  use(new Jdbc());
+  use(new Hbm()
+      .classes(Beer.class));
 
   get("/api/beer/", req -> {
     return require(UnitOfWork.class).apply(em -> {
@@ -84,6 +84,7 @@ Here is an example on how to setup the open session in view filter:
 
 ```java
 {
+   use(new Jdbc());
    use(new Hbm());
    use("*", Hbm.openSessionInView());
 }
@@ -130,6 +131,7 @@ Persistent classes must be provided at application startup time via [classes(Cla
 
 ```java
 {
+  use(new Jdbc());
   use(new Hbm()
       .classes(Entity1.class, Entity2.class, ..., )
   );
@@ -141,6 +143,7 @@ Or via `scan`:
 
 ```java
 {
+  use(new Jdbc());
   use(new Hbm()
       .scan()
   );
@@ -153,6 +156,7 @@ Which ```scan``` the application package, or you can provide where to look:
 
 ```java
 {
+  use(new Jdbc());
   use(new Hbm()
       .scan("foo.bar", "x.y.z")
   );
@@ -162,15 +166,15 @@ Which ```scan``` the application package, or you can provide where to look:
 
 ## advanced configuration
 
-Advanced configuration is provided via [doWith(Consumer)]({{defdocs}}/hbm/Hbm.html#doWith-java.util.function.Consumer-) callbacks:
+Advanced configuration is provided via `doWithXXX` callbacks:
 
 ```java
 {
   use(new Hbm()
-      .doWith((BootstrapServiceRegistryBuilder bsrb) -> {
+      .doWithBootstrap(bsrb -> {
         // do with bsrb
       })
-      .doWith((StandardServiceRegistryBuilder ssrb) -> {
+      .doWithRegistry(ssrb -> {
         // do with ssrb
       })
   );

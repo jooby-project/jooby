@@ -203,20 +203,15 @@
  */
 package org.jooby.hbm;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 
+import com.google.inject.name.Names;
 import org.hibernate.Session;
 import org.hibernate.jpa.AvailableSettings;
 import org.hibernate.jpa.HibernateEntityManagerFactory;
@@ -224,6 +219,7 @@ import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
+import org.jooby.Jooby;
 import org.jooby.internal.hbm.HbmUnitDescriptor;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.scope.Providers;
@@ -352,16 +348,18 @@ import com.typesafe.config.ConfigFactory;
  * @author edgar
  * @since 0.1.0
  */
-public class Hbm extends Jdbc {
+public class Hbm implements Jooby.Module {
 
   private final List<Class<?>> classes = new LinkedList<>();
 
   private Set<String> pkgs = new LinkedHashSet<>();
 
+  private String name = "db";
+
   private boolean scan;
 
   public Hbm(final String name, final Class<?>... classes) {
-    super(name);
+    this.name = name;
     this.classes.addAll(Arrays.asList(classes));
   }
 
@@ -383,40 +381,41 @@ public class Hbm extends Jdbc {
 
   @Override
   public Config config() {
-    Config jdbc = super.config();
-    return ConfigFactory.parseResources(getClass(), "hbm.conf").withFallback(jdbc);
+    return ConfigFactory.parseResources(getClass(), "hbm.conf");
   }
 
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
-    configure(env, config, binder, (name, ds) -> {
-      if (scan) {
-        pkgs.add(config.getString("application.ns"));
-      }
+    Key<DataSource> dskey = Key.get(DataSource.class, Names.named(name));
+    DataSource ds = env.get(dskey)
+        .orElseThrow(() -> new NoSuchElementException("DataSource missing: " + dskey));
 
-      HbmUnitDescriptor descriptor = new HbmUnitDescriptor(getClass().getClassLoader(), ds,
-          config, pkgs);
+    if (scan) {
+      pkgs.add(config.getString("application.ns"));
+    }
 
-      Map<Object, Object> integration = config(env, config, classes);
-      EntityManagerFactoryBuilder builder = Bootstrap
-          .getEntityManagerFactoryBuilder(descriptor, integration);
-      HibernateEntityManagerFactory emf = (HibernateEntityManagerFactory) builder.build();
+    HbmUnitDescriptor descriptor = new HbmUnitDescriptor(getClass().getClassLoader(), ds,
+        config, pkgs);
 
-      ServiceKey serviceKey = env.serviceKey();
-      serviceKey.generate(EntityManagerFactory.class, name,
-          k -> binder.bind(k).toInstance(emf));
+    Map<Object, Object> integration = config(env, config, classes);
+    EntityManagerFactoryBuilder builder = Bootstrap
+        .getEntityManagerFactoryBuilder(descriptor, integration);
+    HibernateEntityManagerFactory emf = (HibernateEntityManagerFactory) builder.build();
 
-      List<Key<EntityManager>> emkeys = new ArrayList<>();
+    ServiceKey serviceKey = env.serviceKey();
+    serviceKey.generate(EntityManagerFactory.class, name,
+        k -> binder.bind(k).toInstance(emf));
 
-      serviceKey.generate(EntityManager.class, name, key -> {
-        binder.bind(key).toProvider(Providers.outOfScope(key)).in(RequestScoped.class);
-        emkeys.add(key);
-      });
+    List<Key<EntityManager>> emkeys = new ArrayList<>();
 
-      env.router().use("*", "*", new OpenSessionInView(emf, emkeys)).name("hbm");
-
-      env.onStop(emf::close);
+    serviceKey.generate(EntityManager.class, name, key -> {
+      binder.bind(key).toProvider(Providers.outOfScope(key)).in(RequestScoped.class);
+      emkeys.add(key);
     });
+
+    env.router().use("*", "*", new OpenSessionInView(emf, emkeys)).name("hbm");
+
+    env.onStop(emf::close);
   }
 
   private static Map<Object, Object> config(final Env env, final Config config,

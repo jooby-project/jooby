@@ -59,10 +59,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -89,8 +86,12 @@ public class HbmTest {
   };
 
   private Block applyDataSource = unit -> {
+    DataSource ds = unit.registerMock(DataSource.class);
+    Env env = unit.get(Env.class);
+    expect(env.get(Key.get(DataSource.class, Names.named("db")))).andReturn(Optional.of(ds));
+
     StandardServiceRegistryBuilder ssrb = unit.get(StandardServiceRegistryBuilder.class);
-    expect(ssrb.applySetting(AvailableSettings.DATASOURCE, unit.get(HikariDataSource.class)))
+    expect(ssrb.applySetting(AvailableSettings.DATASOURCE, unit.get(DataSource.class)))
         .andReturn(ssrb);
   };
 
@@ -103,24 +104,17 @@ public class HbmTest {
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
     expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
-    expect(env.onStop(isA(Throwing.Runnable.class))).andReturn(env);
   };
 
   @Test
   public void shouldLoadConfigFromClasspath() {
-    assertEquals(ConfigFactory.parseResources(Hbm.class, "hbm.conf")
-        .withFallback(ConfigFactory.parseResources(Jdbc.class, "jdbc.conf")), new Hbm().config());
+    assertEquals(ConfigFactory.parseResources(Hbm.class, "hbm.conf"), new Hbm().config());
   }
 
   @Test
   public void newHbm() throws Exception {
-    String url = "jdbc:h2:target/hbm";
+    String url = "jdbc:h2:target/db";
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.hbm",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("hbm"))
         .expect(env("dev"))
         .expect(bsrb)
         .expect(ssrb("update"))
@@ -131,20 +125,20 @@ public class HbmTest {
         .expect(applyDataSource)
         .expect(metadataSources())
         .expect(metadataBuilder())
-        .expect(sessionFactoryBuilder("hbm"))
+        .expect(sessionFactoryBuilder("db"))
         .expect(beanManager())
         .expect(bind(null, SessionFactory.class))
-        .expect(bind("hbm", SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
         .expect(bind(null, EntityManagerFactory.class))
-        .expect(bind("hbm", EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
         .expect(sessionProvider())
         .expect(bind(null, Session.class, SessionProvider.class))
-        .expect(bind("hbm", Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
         .expect(bind(null, EntityManager.class, SessionProvider.class))
-        .expect(bind("hbm", EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
         .expect(unitOfWork())
         .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
-        .expect(bind("hbm", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
         .expect(onStart)
         .expect(onStop)
         .run(unit -> {
@@ -158,11 +152,6 @@ public class HbmTest {
   public void onStart() throws Exception {
     String url = "jdbc:h2:target/hbm";
     new MockUnit(Env.class, Config.class, Binder.class, Registry.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.hbm",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("hbm"))
         .expect(env("dev"))
         .expect(bsrb)
         .expect(ssrb("update"))
@@ -173,24 +162,24 @@ public class HbmTest {
         .expect(applyDataSource)
         .expect(metadataSources())
         .expect(metadataBuilder())
-        .expect(sessionFactoryBuilder("hbm"))
+        .expect(sessionFactoryBuilder("db"))
         .expect(beanManager())
         .expect(bind(null, SessionFactory.class))
-        .expect(bind("hbm", SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
         .expect(bind(null, EntityManagerFactory.class))
-        .expect(bind("hbm", EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
         .expect(sessionProvider())
         .expect(bind(null, Session.class, SessionProvider.class))
-        .expect(bind("hbm", Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
         .expect(bind(null, EntityManager.class, SessionProvider.class))
-        .expect(bind("hbm", EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
         .expect(unitOfWork())
         .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
-        .expect(bind("hbm", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
         .expect(onStart)
         .expect(onStop)
         .run(unit -> {
-          new Hbm()
+          new Hbm("db")
               .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
         }, unit -> {
           Throwing.Consumer<Registry> onStart = unit.captured(Throwing.Consumer.class).iterator()
@@ -206,11 +195,6 @@ public class HbmTest {
   public void onStop() throws Exception {
     String url = "jdbc:h2:target/hbm";
     new MockUnit(Env.class, Config.class, Binder.class, Registry.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.hbm",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("hbm"))
         .expect(env("dev"))
         .expect(bsrb)
         .expect(ssrb("update"))
@@ -221,20 +205,20 @@ public class HbmTest {
         .expect(applyDataSource)
         .expect(metadataSources())
         .expect(metadataBuilder())
-        .expect(sessionFactoryBuilder("hbm"))
+        .expect(sessionFactoryBuilder("db"))
         .expect(beanManager())
         .expect(bind(null, SessionFactory.class))
-        .expect(bind("hbm", SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
         .expect(bind(null, EntityManagerFactory.class))
-        .expect(bind("hbm", EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
         .expect(sessionProvider())
         .expect(bind(null, Session.class, SessionProvider.class))
-        .expect(bind("hbm", Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
         .expect(bind(null, EntityManager.class, SessionProvider.class))
-        .expect(bind("hbm", EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
         .expect(unitOfWork())
         .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
-        .expect(bind("hbm", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
         .expect(onStart)
         .expect(onStop)
         .expect(unit -> {
@@ -255,11 +239,6 @@ public class HbmTest {
   public void withEvent() throws Exception {
     String url = "jdbc:h2:target/hbm";
     new MockUnit(Env.class, Config.class, Binder.class, Registry.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.hbm",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("hbm"))
         .expect(env("dev"))
         .expect(bsrb)
         .expect(ssrb("update"))
@@ -270,20 +249,20 @@ public class HbmTest {
         .expect(applyDataSource)
         .expect(metadataSources())
         .expect(metadataBuilder())
-        .expect(sessionFactoryBuilder("hbm"))
+        .expect(sessionFactoryBuilder("db"))
         .expect(beanManager())
         .expect(bind(null, SessionFactory.class))
-        .expect(bind("hbm", SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
         .expect(bind(null, EntityManagerFactory.class))
-        .expect(bind("hbm", EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
         .expect(sessionProvider())
         .expect(bind(null, Session.class, SessionProvider.class))
-        .expect(bind("hbm", Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
         .expect(bind(null, EntityManager.class, SessionProvider.class))
-        .expect(bind("hbm", EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
         .expect(unitOfWork())
         .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
-        .expect(bind("hbm", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
         .expect(onStart)
         .expect(onStop)
         .expect(unit -> {
@@ -323,11 +302,6 @@ public class HbmTest {
   public void addClass() throws Exception {
     String url = "jdbc:h2:target/hbm";
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.hbm",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("hbm"))
         .expect(env("dev"))
         .expect(bsrb)
         .expect(ssrb("update"))
@@ -338,20 +312,20 @@ public class HbmTest {
         .expect(applyDataSource)
         .expect(metadataSources(Beer.class))
         .expect(metadataBuilder())
-        .expect(sessionFactoryBuilder("hbm"))
+        .expect(sessionFactoryBuilder("db"))
         .expect(beanManager())
         .expect(bind(null, SessionFactory.class))
-        .expect(bind("hbm", SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
         .expect(bind(null, EntityManagerFactory.class))
-        .expect(bind("hbm", EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
         .expect(sessionProvider())
         .expect(bind(null, Session.class, SessionProvider.class))
-        .expect(bind("hbm", Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
         .expect(bind(null, EntityManager.class, SessionProvider.class))
-        .expect(bind("hbm", EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
         .expect(unitOfWork())
         .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
-        .expect(bind("hbm", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
         .expect(onStart)
         .expect(onStop)
         .run(unit -> {
@@ -363,13 +337,7 @@ public class HbmTest {
 
   @Test
   public void defaultScan() throws Exception {
-    String url = "jdbc:h2:target/hbm";
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.hbm",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("hbm"))
         .expect(env("dev"))
         .expect(bsrb)
         .expect(ssrb("update"))
@@ -380,20 +348,20 @@ public class HbmTest {
         .expect(applyDataSource)
         .expect(metadataSources("my.model"))
         .expect(metadataBuilder())
-        .expect(sessionFactoryBuilder("hbm"))
+        .expect(sessionFactoryBuilder("db"))
         .expect(beanManager())
         .expect(bind(null, SessionFactory.class))
-        .expect(bind("hbm", SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
         .expect(bind(null, EntityManagerFactory.class))
-        .expect(bind("hbm", EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
         .expect(sessionProvider())
         .expect(bind(null, Session.class, SessionProvider.class))
-        .expect(bind("hbm", Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
         .expect(bind(null, EntityManager.class, SessionProvider.class))
-        .expect(bind("hbm", EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
         .expect(unitOfWork())
         .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
-        .expect(bind("hbm", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
         .expect(onStart)
         .expect(onStop)
         .run(unit -> {
@@ -407,11 +375,6 @@ public class HbmTest {
   public void scan() throws Exception {
     String url = "jdbc:h2:target/hbm";
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.hbm",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("hbm"))
         .expect(env("dev"))
         .expect(bsrb)
         .expect(ssrb("update"))
@@ -422,20 +385,20 @@ public class HbmTest {
         .expect(applyDataSource)
         .expect(metadataSources("my.model"))
         .expect(metadataBuilder())
-        .expect(sessionFactoryBuilder("hbm"))
+        .expect(sessionFactoryBuilder("db"))
         .expect(beanManager())
         .expect(bind(null, SessionFactory.class))
-        .expect(bind("hbm", SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
         .expect(bind(null, EntityManagerFactory.class))
-        .expect(bind("hbm", EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
         .expect(sessionProvider())
         .expect(bind(null, Session.class, SessionProvider.class))
-        .expect(bind("hbm", Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
         .expect(bind(null, EntityManager.class, SessionProvider.class))
-        .expect(bind("hbm", EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
         .expect(unitOfWork())
         .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
-        .expect(bind("hbm", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
         .expect(onStart)
         .expect(onStop)
         .run(unit -> {
@@ -449,11 +412,6 @@ public class HbmTest {
   public void shouldPickupCustomHibernateProps() throws Exception {
     String url = "jdbc:h2:target/hbm";
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.hbm",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("hbm"))
         .expect(env("dev"))
         .expect(bsrb)
         .expect(ssrb("update"))
@@ -465,20 +423,20 @@ public class HbmTest {
         .expect(applyDataSource)
         .expect(metadataSources())
         .expect(metadataBuilder())
-        .expect(sessionFactoryBuilder("hbm"))
+        .expect(sessionFactoryBuilder("db"))
         .expect(beanManager())
         .expect(bind(null, SessionFactory.class))
-        .expect(bind("hbm", SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
         .expect(bind(null, EntityManagerFactory.class))
-        .expect(bind("hbm", EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
         .expect(sessionProvider())
         .expect(bind(null, Session.class, SessionProvider.class))
-        .expect(bind("hbm", Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
         .expect(bind(null, EntityManager.class, SessionProvider.class))
-        .expect(bind("hbm", EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
         .expect(unitOfWork())
         .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
-        .expect(bind("hbm", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
         .expect(onStart)
         .expect(onStop)
         .run(unit -> {
@@ -493,11 +451,6 @@ public class HbmTest {
   public void ddlAutoIsNoneOnProd() throws Exception {
     String url = "jdbc:h2:target/hbm";
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.hbm",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("hbm"))
         .expect(env("prod"))
         .expect(bsrb)
         .expect(ssrb("none"))
@@ -508,20 +461,20 @@ public class HbmTest {
         .expect(applyDataSource)
         .expect(metadataSources())
         .expect(metadataBuilder())
-        .expect(sessionFactoryBuilder("hbm"))
+        .expect(sessionFactoryBuilder("db"))
         .expect(beanManager())
         .expect(bind(null, SessionFactory.class))
-        .expect(bind("hbm", SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
         .expect(bind(null, EntityManagerFactory.class))
-        .expect(bind("hbm", EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
         .expect(sessionProvider())
         .expect(bind(null, Session.class, SessionProvider.class))
-        .expect(bind("hbm", Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
         .expect(bind(null, EntityManager.class, SessionProvider.class))
-        .expect(bind("hbm", EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
         .expect(unitOfWork())
         .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
-        .expect(bind("hbm", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
         .expect(onStart)
         .expect(onStop)
         .run(unit -> {
@@ -534,11 +487,6 @@ public class HbmTest {
   public void genericSetupCallbackShouldWork() throws Exception {
     String url = "jdbc:h2:target/hbm";
     new MockUnit(Env.class, Config.class, Binder.class, Integrator.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.hbm",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("hbm"))
         .expect(env("prod"))
         .expect(bsrb)
         .expect(ssrb("none"))
@@ -549,20 +497,20 @@ public class HbmTest {
         .expect(applyDataSource)
         .expect(metadataSources())
         .expect(metadataBuilder())
-        .expect(sessionFactoryBuilder("hbm"))
+        .expect(sessionFactoryBuilder("db"))
         .expect(beanManager())
         .expect(bind(null, SessionFactory.class))
-        .expect(bind("hbm", SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
         .expect(bind(null, EntityManagerFactory.class))
-        .expect(bind("hbm", EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
         .expect(sessionProvider())
         .expect(bind(null, Session.class, SessionProvider.class))
-        .expect(bind("hbm", Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
         .expect(bind(null, EntityManager.class, SessionProvider.class))
-        .expect(bind("hbm", EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
         .expect(unitOfWork())
         .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
-        .expect(bind("hbm", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
         .expect(onStart)
         .expect(onStop)
         .expect(unit -> {
@@ -571,7 +519,7 @@ public class HbmTest {
         })
         .run(unit -> {
           new Hbm()
-              .doWith((final BootstrapServiceRegistryBuilder bsrb) -> {
+              .doWithBootstrap((final BootstrapServiceRegistryBuilder bsrb) -> {
                 bsrb.applyIntegrator(unit.get(Integrator.class));
               })
               .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
@@ -615,7 +563,7 @@ public class HbmTest {
         .expect(onStop)
         .run(unit -> {
           new Hbm()
-              .doWith((final BootstrapServiceRegistryBuilder bsrb) -> {
+              .doWithBootstrap((final BootstrapServiceRegistryBuilder bsrb) -> {
                 Object value = "";
                 System.out.println(((Number) value).intValue());
               })
@@ -627,11 +575,6 @@ public class HbmTest {
   public void genericSetupCallbackShouldReportException() throws Exception {
     String url = "jdbc:h2:target/hbm";
     new MockUnit(Env.class, Config.class, Binder.class, Integrator.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.hbm",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("hbm"))
         .expect(env("prod"))
         .expect(bsrb)
         .expect(ssrb("none"))
@@ -642,25 +585,25 @@ public class HbmTest {
         .expect(applyDataSource)
         .expect(metadataSources())
         .expect(metadataBuilder())
-        .expect(sessionFactoryBuilder("hbm"))
+        .expect(sessionFactoryBuilder("db"))
         .expect(beanManager())
         .expect(bind(null, SessionFactory.class))
-        .expect(bind("hbm", SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
         .expect(bind(null, EntityManagerFactory.class))
-        .expect(bind("hbm", EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
         .expect(sessionProvider())
         .expect(bind(null, Session.class, SessionProvider.class))
-        .expect(bind("hbm", Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
         .expect(bind(null, EntityManager.class, SessionProvider.class))
-        .expect(bind("hbm", EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
         .expect(unitOfWork())
         .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
-        .expect(bind("hbm", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
         .expect(onStart)
         .expect(onStop)
         .run(unit -> {
           new Hbm()
-              .doWith((final SessionFactory bsrb) -> {
+              .doWithSessionFactory((final SessionFactory bsrb) -> {
                 throw new NullPointerException();
               })
               .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
@@ -669,13 +612,7 @@ public class HbmTest {
 
   @Test
   public void newHbmWithDbProp() throws Exception {
-    String url = "jdbc:h2:target/hbm";
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("org.h2.jdbcx.JdbcDataSource", url, "h2.hbm",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource(url))
-        .expect(serviceKey("hbm"))
         .expect(env("dev"))
         .expect(bsrb)
         .expect(ssrb("update"))
@@ -686,20 +623,20 @@ public class HbmTest {
         .expect(applyDataSource)
         .expect(metadataSources())
         .expect(metadataBuilder())
-        .expect(sessionFactoryBuilder("hbm"))
+        .expect(sessionFactoryBuilder("db"))
         .expect(beanManager())
         .expect(bind(null, SessionFactory.class))
-        .expect(bind("hbm", SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
         .expect(bind(null, EntityManagerFactory.class))
-        .expect(bind("hbm", EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
         .expect(sessionProvider())
         .expect(bind(null, Session.class, SessionProvider.class))
-        .expect(bind("hbm", Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
         .expect(bind(null, EntityManager.class, SessionProvider.class))
-        .expect(bind("hbm", EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
         .expect(unitOfWork())
         .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
-        .expect(bind("hbm", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
         .expect(onStart)
         .expect(onStop)
         .run(unit -> {
@@ -873,6 +810,8 @@ public class HbmTest {
   private Block env(final String name) {
     return unit -> {
       Env env = unit.get(Env.class);
+      ServiceKey skey = new Env.ServiceKey();
+      expect(env.serviceKey()).andReturn(skey);
       expect(env.name()).andReturn(name);
     };
   }

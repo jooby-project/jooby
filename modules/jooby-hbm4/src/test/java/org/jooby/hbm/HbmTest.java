@@ -10,12 +10,16 @@ import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
+
 import org.hibernate.jpa.HibernateEntityManagerFactory;
 import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
@@ -31,7 +35,9 @@ import org.jooby.scope.RequestScoped;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.jooby.funzy.Throwing;
+
 import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -41,10 +47,7 @@ import javax.inject.Provider;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Hbm.class, HbmUnitDescriptor.class, Multibinder.class,
@@ -59,7 +62,6 @@ public class HbmTest {
   private MockUnit.Block onStop = unit -> {
     Env env = unit.get(Env.class);
     expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
-    expect(env.onStop(isA(Throwing.Runnable.class))).andReturn(env);
   };
 
   @Test
@@ -73,15 +75,30 @@ public class HbmTest {
 
     new MockUnit(Env.class, Binder.class, HibernateEntityManagerFactory.class)
         .expect(env("dev"))
-        .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource())
-        .expect(serviceKey("jdbctest"))
         .expect(descriptor(Hbm.class.getClassLoader(), dbconf))
         .expect(entityManagerFactoryBuilder())
-        .expect(openSessionInView("jdbctest"))
+        .expect(serviceKey("db"))
+        .expect(openSessionInView("db"))
         .expect(onStop)
+        .run(unit -> {
+          new Hbm().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
+        });
+  }
+
+  @Test(expected = NoSuchElementException.class)
+  public void noDataSource() throws Exception {
+    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("fs"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("runtime.processors-x2", fromAnyRef("4"))
+        .resolve();
+
+    new MockUnit(Env.class, Binder.class, HibernateEntityManagerFactory.class)
+        .expect(unit -> {
+          Env env = unit.get(Env.class);
+          expect(env.get(Key.get(DataSource.class, Names.named("db")))).andReturn(Optional.empty());
+        })
         .run(unit -> {
           new Hbm().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
@@ -98,14 +115,10 @@ public class HbmTest {
 
     new MockUnit(Env.class, Binder.class, HibernateEntityManagerFactory.class)
         .expect(env("prod"))
-        .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource())
-        .expect(serviceKey("jdbctest"))
+        .expect(serviceKey("db"))
         .expect(descriptor(Hbm.class.getClassLoader(), dbconf))
         .expect(entityManagerFactoryBuilder())
-        .expect(openSessionInView("jdbctest"))
+        .expect(openSessionInView("db"))
         .expect(onStop)
         .run(unit -> {
           new Hbm().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -123,14 +136,10 @@ public class HbmTest {
 
     new MockUnit(Env.class, Binder.class, HibernateEntityManagerFactory.class)
         .expect(env("dev"))
-        .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource())
-        .expect(serviceKey("jdbctest"))
+        .expect(serviceKey("db"))
         .expect(descriptor(Hbm.class.getClassLoader(), dbconf))
         .expect(entityManagerFactoryBuilder())
-        .expect(openSessionInView("jdbctest"))
+        .expect(openSessionInView("db"))
         .expect(onStop)
         .expect(unit -> {
           HibernateEntityManagerFactory em = unit.get(HibernateEntityManagerFactory.class);
@@ -155,14 +164,10 @@ public class HbmTest {
 
     new MockUnit(Env.class, Binder.class, HibernateEntityManagerFactory.class)
         .expect(env("dev"))
-        .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
-            "sa", "", false))
-        .expect(hikariConfig())
-        .expect(hikariDataSource())
-        .expect(serviceKey("jdbctest"))
+        .expect(serviceKey("db"))
         .expect(descriptor(Hbm.class.getClassLoader(), dbconf, "x.y.z"))
         .expect(entityManagerFactoryBuilder())
-        .expect(openSessionInView("jdbctest"))
+        .expect(openSessionInView("db"))
         .expect(onStop)
         .run(unit -> {
           new Hbm()
@@ -173,9 +178,7 @@ public class HbmTest {
 
   @Test
   public void config() {
-    assertEquals(ConfigFactory.parseResources(Hbm.class, "hbm.conf")
-            .withFallback(ConfigFactory.parseResources(Jdbc.class, "jdbc.conf")),
-        new Hbm().config());
+    assertEquals(ConfigFactory.parseResources(Hbm.class, "hbm.conf"), new Hbm().config());
   }
 
   private Block openSessionInView(final String name) {
@@ -209,6 +212,10 @@ public class HbmTest {
   private Block descriptor(final ClassLoader classLoader, final Config dbconf,
       final String... packages) {
     return unit -> {
+      DataSource ds = unit.registerMock(HikariDataSource.class);
+      Env env = unit.get(Env.class);
+      expect(env.get(Key.get(DataSource.class, Names.named("db")))).andReturn(Optional.of(ds));
+
       HbmUnitDescriptor descriptor = unit.constructor(HbmUnitDescriptor.class)
           .build(classLoader, unit.get(HikariDataSource.class), dbconf, Sets.newHashSet(packages));
 
@@ -228,11 +235,7 @@ public class HbmTest {
     return unit -> {
       ServiceKey skey = new Env.ServiceKey();
       Env env = unit.get(Env.class);
-      expect(env.serviceKey()).andReturn(skey).times(2);
-
-      AnnotatedBindingBuilder<DataSource> binding = unit.mock(AnnotatedBindingBuilder.class);
-      binding.toInstance(unit.get(HikariDataSource.class));
-      binding.toInstance(unit.get(HikariDataSource.class));
+      expect(env.serviceKey()).andReturn(skey);
 
       LinkedBindingBuilder<EntityManagerFactory> emf = unit.mock(LinkedBindingBuilder.class);
       emf.toInstance(unit.get(HibernateEntityManagerFactory.class));
@@ -252,69 +255,12 @@ public class HbmTest {
       em.in(RequestScoped.class);
 
       Binder binder = unit.get(Binder.class);
-      expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-      expect(binder.bind(Key.get(DataSource.class, Names.named(db)))).andReturn(binding);
 
       expect(binder.bind(Key.get(EntityManagerFactory.class))).andReturn(emf);
       expect(binder.bind(Key.get(EntityManagerFactory.class, Names.named(db)))).andReturn(emf);
 
       expect(binder.bind(Key.get(EntityManager.class))).andReturn(em);
       expect(binder.bind(Key.get(EntityManager.class, Names.named(db)))).andReturn(em);
-    };
-  }
-
-  private Block hikariConfig() {
-    return unit -> {
-      Properties properties = unit.get(Properties.class);
-      HikariConfig hikari = unit.constructor(HikariConfig.class)
-          .build(properties);
-      unit.registerMock(HikariConfig.class, hikari);
-    };
-  }
-
-  private Block hikariDataSource() {
-    return unit -> {
-      HikariConfig properties = unit.get(HikariConfig.class);
-      HikariDataSource hikari = unit.constructor(HikariDataSource.class)
-          .build(properties);
-      unit.registerMock(HikariDataSource.class, hikari);
-    };
-  }
-
-  private Block props(final String dataSourceClassName, final String url, final String name,
-      final String username, final String password, final boolean hasDataSourceClassName) {
-    return unit -> {
-      Properties properties = unit.constructor(Properties.class)
-          .build();
-
-      expect(properties
-          .setProperty("dataSource.dataSourceClassName", dataSourceClassName))
-          .andReturn(null);
-      if (username != null) {
-        expect(properties
-            .setProperty("dataSource.user", username))
-            .andReturn(null);
-        expect(properties
-            .setProperty("dataSource.password", password))
-            .andReturn(null);
-      }
-      expect(properties
-          .setProperty("dataSource.url", url))
-          .andReturn(null);
-
-      if (hasDataSourceClassName) {
-        expect(properties.getProperty("dataSourceClassName")).andReturn(dataSourceClassName);
-      } else {
-        expect(properties.getProperty("dataSourceClassName")).andReturn(null);
-        expect(properties.getProperty("dataSource.dataSourceClassName"))
-            .andReturn(dataSourceClassName);
-        expect(properties.setProperty("dataSourceClassName", dataSourceClassName)).andReturn(null);
-      }
-      expect(properties.remove("dataSource.dataSourceClassName")).andReturn(dataSourceClassName);
-      expect(properties.setProperty("poolName", name)).andReturn(null);
-      expect(properties.setProperty("maximumPoolSize", "4")).andReturn(null);
-
-      unit.registerMock(Properties.class, properties);
     };
   }
 

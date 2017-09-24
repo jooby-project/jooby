@@ -204,6 +204,8 @@
 package org.jooby.hbm;
 
 import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.hibernate.Session;
@@ -224,6 +226,7 @@ import org.hibernate.jpa.event.spi.JpaIntegrator;
 import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
+import org.jooby.Jooby;
 import org.jooby.Registry;
 import org.jooby.Route;
 import org.jooby.internal.hbm.GuiceBeanManager;
@@ -237,12 +240,9 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -441,15 +441,15 @@ import java.util.stream.Collectors;
  *
  * <h2>advanced configuration</h2>
  * <p>
- * Advanced configuration is provided via {@link #doWith(Consumer)} callbacks:
+ * Advanced configuration is provided via <code>doWithXXX</code> callbacks:
  * </p>
  * <pre>{@code
  * {
  *   use(new Hbm()
- *       .doWith((BootstrapServiceRegistryBuilder bsrb) -> {
+ *       .doWithBootstrap(bsrb -> {
  *         // do with bsrb
  *       })
- *       .doWith((StandardServiceRegistryBuilder ssrb) -> {
+ *       .doWithRegistry(ssrb -> {
  *         // do with ssrb
  *       })
  *   );
@@ -510,7 +510,10 @@ import java.util.stream.Collectors;
  * @author edgar
  * @since 1.0.0.CR7
  */
-public class Hbm extends Jdbc {
+public class Hbm implements Jooby.Module {
+
+  private static final BiConsumer NOOP = (r, c) -> {
+  };
 
   private List<BiConsumer<SessionFactoryImplementor, Registry>> listeners = new ArrayList<>();
 
@@ -518,13 +521,25 @@ public class Hbm extends Jdbc {
 
   private List<BiConsumer<MetadataSources, Config>> sources = new ArrayList<>();
 
+  private String name;
+
+  private BiConsumer<BootstrapServiceRegistryBuilder, Config> bsrb = NOOP;
+
+  private BiConsumer<StandardServiceRegistryBuilder, Config> ssrb = NOOP;
+
+  private BiConsumer<MetadataSources, Config> metaSources = NOOP;
+
+  private BiConsumer<SessionFactoryBuilder, Config> sfb = NOOP;
+
+  private BiConsumer<SessionFactory, Config> sf = NOOP;
+
   /**
    * Creates a new {@link Hbm} module.
    *
    * @param db A jdbc connection string or a property with a jdbc connection string.
    */
   public Hbm(final String db) {
-    super(db);
+    this.name = db;
   }
 
   /**
@@ -532,6 +547,7 @@ public class Hbm extends Jdbc {
    * <code>.conf</code> file.
    */
   public Hbm() {
+    this("db");
   }
 
   /**
@@ -614,141 +630,198 @@ public class Hbm extends Jdbc {
   /**
    * Configurer callback to apply advanced configuration while bootstrapping hibernate:
    *
-   * <pre>{@code
-   * {
-   *   use(new Hbm()
-   *       .doWith((BootstrapServiceRegistryBuilder bsrb, Config conf) -> {
-   *         // do with bsrb
-   *       })
-   *       .doWith((StandardServiceRegistryBuilder ssrb, Config conf) -> {
-   *         // do with ssrb
-   *       })
-   *   );
-   * }
-   * }</pre>
-   *
    * @param configurer Configurer callback.
    * @return This module
    */
-  @Override
-  public <T> Hbm doWith(final BiConsumer<T, Config> configurer) {
-    super.doWith(configurer);
+  public <T> Hbm doWithBootstrap(final BiConsumer<BootstrapServiceRegistryBuilder, Config> configurer) {
+    this.bsrb = configurer;
     return this;
   }
 
   /**
    * Configurer callback to apply advanced configuration while bootstrapping hibernate:
    *
-   * <pre>{@code
-   * {
-   *   use(new Hbm()
-   *       .doWith((BootstrapServiceRegistryBuilder bsrb) -> {
-   *         // do with bsrb
-   *       })
-   *       .doWith((StandardServiceRegistryBuilder ssrb) -> {
-   *         // do with ssrb
-   *       })
-   *   );
-   * }
-   * }</pre>
+   * @param configurer Configurer callback.
+   * @return This module
+   */
+  public <T> Hbm doWithBootstrap(final Consumer<BootstrapServiceRegistryBuilder> configurer) {
+    return doWithBootstrap((builder, conf) -> configurer.accept(builder));
+  }
+
+  /**
+   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
    *
    * @param configurer Configurer callback.
    * @return This module
    */
-  @Override
-  public <T> Hbm doWith(final Consumer<T> configurer) {
-    super.doWith(configurer);
+  public <T> Hbm doWithRegistry(final Consumer<StandardServiceRegistryBuilder> configurer) {
+    return doWithRegistry((builder, conf) -> configurer.accept(builder));
+  }
+
+  /**
+   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
+   *
+   * @param configurer Configurer callback.
+   * @return This module
+   */
+  public <T> Hbm doWithRegistry(final BiConsumer<StandardServiceRegistryBuilder, Config> configurer) {
+    this.ssrb = configurer;
+    return this;
+  }
+
+  /**
+   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
+   *
+   * @param configurer Configurer callback.
+   * @return This module
+   */
+  public <T> Hbm doWithSources(final Consumer<MetadataSources> configurer) {
+    return doWithSources((builder, conf) -> configurer.accept(builder));
+  }
+
+  /**
+   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
+   *
+   * @param configurer Configurer callback.
+   * @return This module
+   */
+  public <T> Hbm doWithSources(final BiConsumer<MetadataSources, Config> configurer) {
+    this.metaSources = configurer;
+    return this;
+  }
+
+  /**
+   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
+   *
+   * @param configurer Configurer callback.
+   * @return This module
+   */
+  public <T> Hbm doWithSessionFactoryBuilder(final Consumer<SessionFactoryBuilder> configurer) {
+    return doWithSessionFactoryBuilder((builder, conf) -> configurer.accept(builder));
+  }
+
+  /**
+   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
+   *
+   * @param configurer Configurer callback.
+   * @return This module
+   */
+  public <T> Hbm doWithSessionFactory(final BiConsumer<SessionFactory, Config> configurer) {
+    this.sf = configurer;
+    return this;
+  }
+
+  /**
+   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
+   *
+   * @param configurer Configurer callback.
+   * @return This module
+   */
+  public <T> Hbm doWithSessionFactory(final Consumer<SessionFactory> configurer) {
+    return doWithSessionFactory((builder, conf) -> configurer.accept(builder));
+  }
+
+  /**
+   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
+   *
+   * @param configurer Configurer callback.
+   * @return This module
+   */
+  public <T> Hbm doWithSessionFactoryBuilder(final BiConsumer<SessionFactoryBuilder, Config> configurer) {
+    this.sfb = configurer;
     return this;
   }
 
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    super.configure(env, conf, binder, (name, ds) -> {
-      BootstrapServiceRegistryBuilder bsrb = new BootstrapServiceRegistryBuilder();
-      bsrb.applyIntegrator(new JpaIntegrator());
+    Key<DataSource> dskey = Key.get(DataSource.class, Names.named(name));
+    DataSource ds = env.get(dskey)
+        .orElseThrow(() -> new NoSuchElementException("DataSource missing: " + dskey));
 
-      callback(bsrb, conf);
+    BootstrapServiceRegistryBuilder bsrb = new BootstrapServiceRegistryBuilder();
+    bsrb.applyIntegrator(new JpaIntegrator());
 
-      String ddl_auto = env.name().equals("dev") ? "update" : "none";
+    this.bsrb.accept(bsrb, conf);
 
-      BootstrapServiceRegistry bsr = bsrb.build();
-      StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder(bsr);
-      ssrb.applySetting(AvailableSettings.HBM2DDL_AUTO, ddl_auto);
+    String ddl_auto = env.name().equals("dev") ? "update" : "none";
 
-      ssrb.applySettings(settings(env, conf));
+    BootstrapServiceRegistry bsr = bsrb.build();
+    StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder(bsr);
+    ssrb.applySetting(AvailableSettings.HBM2DDL_AUTO, ddl_auto);
 
-      callback(ssrb, conf);
+    ssrb.applySettings(settings(env, conf));
 
-      ssrb.applySetting(AvailableSettings.DATASOURCE, ds);
-      ssrb.applySetting(org.hibernate.jpa.AvailableSettings.DELAY_CDI_ACCESS, true);
+    this.ssrb.accept(ssrb, conf);
 
-      StandardServiceRegistry serviceRegistry = ssrb.build();
+    ssrb.applySetting(AvailableSettings.DATASOURCE, ds);
+    ssrb.applySetting(org.hibernate.jpa.AvailableSettings.DELAY_CDI_ACCESS, true);
 
-      MetadataSources sources = new MetadataSources(serviceRegistry);
-      this.sources.forEach(src -> src.accept(sources, conf));
-      callback(sources, conf);
+    StandardServiceRegistry serviceRegistry = ssrb.build();
 
-      /** scan package? */
-      List<URL> packages = sources.getAnnotatedPackages()
+    MetadataSources sources = new MetadataSources(serviceRegistry);
+    this.sources.forEach(src -> src.accept(sources, conf));
+    this.metaSources.accept(sources, conf);
+
+    /** scan package? */
+    List<URL> packages = sources.getAnnotatedPackages()
         .stream()
         .map(pkg -> getClass().getResource("/" + pkg.replace('.', '/')))
         .collect(Collectors.toList());
 
-      Metadata metadata = sources.getMetadataBuilder()
+    Metadata metadata = sources.getMetadataBuilder()
         .applyImplicitNamingStrategy(ImplicitNamingStrategyJpaCompliantImpl.INSTANCE)
         .applyScanEnvironment(new ScanEnvImpl(packages))
         .build();
 
-      SessionFactoryBuilder sfb = metadata.getSessionFactoryBuilder();
-      callback(sfb, conf);
-      sfb.applyName(name);
+    SessionFactoryBuilder sfb = metadata.getSessionFactoryBuilder();
+    this.sfb.accept(sfb, conf);
+    sfb.applyName(name);
 
-      CompletableFuture<Registry> registry = new CompletableFuture<>();
-      sfb.applyBeanManager(GuiceBeanManager.beanManager(registry));
+    CompletableFuture<Registry> registry = new CompletableFuture<>();
+    sfb.applyBeanManager(GuiceBeanManager.beanManager(registry));
 
-      SessionFactory sessionFactory = sfb.build();
-      callback(sessionFactory, conf);
+    SessionFactory sessionFactory = sfb.build();
+    this.sf.accept(sessionFactory, conf);
 
-      Provider<Session> session = new SessionProvider(sessionFactory);
+    Provider<Session> session = new SessionProvider(sessionFactory);
 
-      ServiceKey serviceKey = env.serviceKey();
-      serviceKey.generate(SessionFactory.class, name,
+    ServiceKey serviceKey = env.serviceKey();
+    serviceKey.generate(SessionFactory.class, name,
         k -> binder.bind(k).toInstance(sessionFactory));
-      serviceKey.generate(EntityManagerFactory.class, name,
+    serviceKey.generate(EntityManagerFactory.class, name,
         k -> binder.bind(k).toInstance(sessionFactory));
 
-      /** Session/Entity Manager . */
-      serviceKey.generate(Session.class, name,
+    /** Session/Entity Manager . */
+    serviceKey.generate(Session.class, name,
         k -> binder.bind(k).toProvider(session));
-      serviceKey.generate(EntityManager.class, name,
+    serviceKey.generate(EntityManager.class, name,
         k -> binder.bind(k).toProvider(session));
 
-      /** Unit of work . */
-      Provider<UnitOfWork> uow = new UnitOfWorkProvider(sessionFactory);
-      serviceKey.generate(UnitOfWork.class, name,
+    /** Unit of work . */
+    Provider<UnitOfWork> uow = new UnitOfWorkProvider(sessionFactory);
+    serviceKey.generate(UnitOfWork.class, name,
         k -> binder.bind(k).toProvider(uow));
 
-      bindings.forEach(it -> it.accept(binder));
+    bindings.forEach(it -> it.accept(binder));
 
-      env.onStart(r -> {
-        registry.complete(r);
-        listeners.forEach(it -> it.accept((SessionFactoryImplementor) sessionFactory, r));
-      });
-
-      env.onStop(sessionFactory::close);
+    env.onStart(r -> {
+      registry.complete(r);
+      listeners.forEach(it -> it.accept((SessionFactoryImplementor) sessionFactory, r));
     });
+
+    env.onStop(sessionFactory::close);
   }
 
   @Override
   public Config config() {
-    return ConfigFactory.parseResources(getClass(), "hbm.conf").withFallback(super.config());
+    return ConfigFactory.parseResources(getClass(), "hbm.conf");
   }
 
   private static Map<Object, Object> settings(final Env env, final Config config) {
     Map<Object, Object> $ = new HashMap<>();
     config.getConfig("hibernate")
-      .entrySet()
-      .forEach(e -> $.put("hibernate." + e.getKey(), e.getValue().unwrapped()));
+        .entrySet()
+        .forEach(e -> $.put("hibernate." + e.getKey(), e.getValue().unwrapped()));
 
     return $;
   }

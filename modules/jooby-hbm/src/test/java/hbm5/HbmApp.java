@@ -21,16 +21,16 @@ public class HbmApp extends Jooby {
 
     use(new Hbm("jdbc:h2:./target/hbm")
         .classes(Beer.class)
-        .doWith((final BootstrapServiceRegistryBuilder bsrb, final Config conf) -> {
+        .doWithBootstrap((final BootstrapServiceRegistryBuilder bsrb, final Config conf) -> {
           System.out.println();
           System.out.println(bsrb);
           System.out.println();
         })
-        .doWith((final StandardServiceRegistryBuilder ssrb) -> {
+        .doWithRegistry((final StandardServiceRegistryBuilder ssrb) -> {
           System.out.println(ssrb);
           System.out.println();
         })
-        .doWith((final SessionFactory sf) -> {
+        .doWithSessionFactory((final SessionFactory sf) -> {
           System.out.println();
           System.out.println(sf);
         })
