@@ -523,7 +523,19 @@ public interface Env extends LifeCycle {
 
       private Map<String, Function<String, String>> xss = new HashMap<>();
 
+      private Map<Object, Object> globals = new HashMap<>();
+
       private ServiceKey key = new ServiceKey();
+
+      public <T> Env set(Key<T> key, T value) {
+        globals.put(key, value);
+        return this;
+      }
+
+      public <T> Optional<T> get(Key<T> key) {
+        T value = (T) globals.get(key);
+        return Optional.ofNullable(value);
+      }
 
       @Override
       public String name() {
@@ -652,11 +664,10 @@ public interface Env extends LifeCycle {
   /**
    * Creates a new environment {@link Resolver}.
    *
-   * @return
+   * @return A resolver object.
    */
   default Resolver resolver() {
-    return new Resolver()
-        .source(config());
+    return new Resolver().source(config());
   }
 
   /**
@@ -719,4 +730,45 @@ public interface Env extends LifeCycle {
    */
   List<Throwing.Consumer<Registry>> stopTasks();
 
+  /**
+   * Add a global object.
+   *
+   * @param key Object key.
+   * @param value Object value.
+   * @param <T> Object type.
+   * @return This environment.
+   */
+  <T> Env set(Key<T> key, T value);
+
+  /**
+   * Add a global object.
+   *
+   * @param key Object key.
+   * @param value Object value.
+   * @param <T> Object type.
+   * @return This environment.
+   */
+  default <T> Env set(Class<T> key, T value) {
+    return set(Key.get(key), value);
+  }
+
+  /**
+   * Get an object by key or empty when missing.
+   *
+   * @param key Object key.
+   * @param <T> Object type.
+   * @return Object valur or empty.
+   */
+  <T> Optional<T> get(Key<T> key);
+
+  /**
+   * Get an object by key or empty when missing.
+   *
+   * @param key Object key.
+   * @param <T> Object type.
+   * @return Object valur or empty.
+   */
+  default <T> Optional<T> get(Class<T> key) {
+    return get(Key.get(key));
+  }
 }

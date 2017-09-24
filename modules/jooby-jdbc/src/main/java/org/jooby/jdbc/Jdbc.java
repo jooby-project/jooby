@@ -204,7 +204,9 @@
 package org.jooby.jdbc;
 
 import com.google.common.base.CharMatcher;
+
 import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.inject.Binder;
@@ -216,7 +218,9 @@ import com.typesafe.config.ConfigValueFactory;
 import com.typesafe.config.ConfigValueType;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
 import static java.util.Objects.requireNonNull;
+
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.funzy.Throwing;
@@ -512,12 +516,6 @@ public class Jdbc implements Jooby.Module {
 
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
-    configure(env, config, binder, (name, ds) -> {
-    });
-  }
-
-  protected void configure(final Env env, final Config config, final Binder binder,
-      final BiConsumer<String, HikariDataSource> extensions) {
     Config dbconf;
     String url, dbname, dbkey;
     boolean seturl = false;
@@ -544,10 +542,16 @@ public class Jdbc implements Jooby.Module {
     callback(hikariConf, config);
     HikariDataSource ds = new HikariDataSource(hikariConf);
 
-    extensions.accept(dbname, ds);
-
-    env.serviceKey()
-        .generate(DataSource.class, dbname, k -> binder.bind(k).toInstance(ds));
+    if (!dbkey.equals(dbname)) {
+      env.serviceKey().generate(DataSource.class, dbkey, k -> {
+        binder.bind(k).toInstance(ds);
+        env.set(k, ds);
+      });
+    }
+    env.serviceKey().generate(DataSource.class, dbname, k -> {
+      binder.bind(k).toInstance(ds);
+      env.set(k, ds);
+    });
 
     env.onStop(ds::close);
   }

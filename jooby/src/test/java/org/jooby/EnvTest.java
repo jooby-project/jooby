@@ -1,6 +1,7 @@
 package org.jooby;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.Key;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -114,6 +115,17 @@ public class EnvTest {
   }
 
   @Test
+  public void globalObject() {
+    Config config = ConfigFactory.empty()
+        .withValue("var", ConfigValueFactory.fromAnyRef("foo.bar"));
+
+    Env env = Env.DEFAULT.build(config);
+    Object value = new Object();
+    env.set(Object.class, value);
+    assertEquals(value, env.get(Object.class));
+  }
+
+  @Test
   public void serviceKey() {
     Config config = ConfigFactory.empty()
         .withValue("var", ConfigValueFactory.fromAnyRef("foo.bar"));
@@ -122,6 +134,13 @@ public class EnvTest {
     assertNotNull(env.serviceKey());
 
     assertNotNull(new Env() {
+      @Override public <T> Env set(Key<T> key, T value) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override public <T> Optional<T> get(Key<T> key) {
+        throw new UnsupportedOperationException();
+      }
 
       @Override
       public LifeCycle onStart(final Throwing.Consumer<Registry> task) {
