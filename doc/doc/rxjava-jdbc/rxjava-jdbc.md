@@ -3,7 +3,7 @@
 <a href="https://github.com/davidmoten/rxjava-jdbc">rxjava-jdbc</a> efficient execution, concise code, and functional composition of database calls using JDBC and RxJava Observable.
 
 
-> This module depends on [jdbc module](/doc/jdbc) and [rx module](/doc/rxjava), please read the documentation of [jdbc module](/doc/jdbc) and [rx module](/doc/rxjava) before using ```rx-jdbc```.
+> This module depends on [jdbc](/doc/jdbc) module.
 
 ## dependency
 
@@ -28,6 +28,7 @@ import org.jooby.rx.Rx;
 {
   // required
   use(new Rx());
+  use(new Jdbc());
 
   use(new RxJdbc());
 
@@ -49,12 +50,13 @@ The [Rx.rx()]({{defdocs}}/rx/Rx.html#rx--) mapper converts ```Observable``` to [
 import org.jooby.rx.RxJdbc;
 import org.jooby.rx.Rx;
 {
+  use(new Jdbc("db.main"));
   use(new RxJdbc("db.main"));
 
+  use(new Jdbc("db.audit"));
   use(new RxJdbc("db.audit"));
 
   get("/", req ->
-
     Databse db = require("db.main", Database.class);
     Databse audit = require("db.audit", Database.class);
     // ...

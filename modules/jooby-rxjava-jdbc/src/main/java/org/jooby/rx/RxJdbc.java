@@ -205,12 +205,17 @@ package org.jooby.rx;
 
 import javax.sql.DataSource;
 
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import org.jooby.Env;
+import org.jooby.Jooby;
 import org.jooby.jdbc.Jdbc;
 
 import com.github.davidmoten.rx.jdbc.Database;
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
+
+import java.util.NoSuchElementException;
 
 /**
  * <h1>rxjdbc</h1>
@@ -246,6 +251,7 @@ import com.typesafe.config.Config;
  * {
  *   // required by RxJdbc
  *   use(new Rx());
+ *   use(new Jdbc());
  *
  *   use(new RxJdbc());
  *
@@ -269,7 +275,10 @@ import com.typesafe.config.Config;
  *   // required by RxJdbc
  *   use(new Rx());
  *
+ *   use(new Jdbc("db.main"));
  *   use(new RxJdbc("db.main"));
+ *
+ *   use(new Jdbc("db.audit"));
  *   use(new RxJdbc("db.audit"));
  *
  *   get("/", req ->
@@ -292,7 +301,9 @@ import com.typesafe.config.Config;
  * @author edgar
  * @since 1.0.0.CR3
  */
-public class RxJdbc extends Jdbc {
+public class RxJdbc implements Jooby.Module {
+
+  private final String name;
 
   /**
    * Creates a new {@link RxJdbc} module.
@@ -300,24 +311,26 @@ public class RxJdbc extends Jdbc {
    * @param name Database name.
    */
   public RxJdbc(final String name) {
-    super(name);
+    this.name = name;
   }
 
   /**
    * Creates a new {@link RxJdbc} module.
    */
   public RxJdbc() {
+    this("db");
   }
 
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
-    super.configure(env, config, binder, (name, ds) -> {
-      Database db = Database.fromDataSource(ds);
+    Key<DataSource> dskey = Key.get(DataSource.class, Names.named(name));
+    DataSource ds = env.get(dskey)
+        .orElseThrow(() -> new NoSuchElementException("DataSource missing: " + dskey));
+    Database db = Database.fromDataSource(ds);
 
-      env.serviceKey().generate(Database.class, name, k -> binder.bind(k).toInstance(db));
+    env.serviceKey().generate(Database.class, name, k -> binder.bind(k).toInstance(db));
 
-      // close on shutdown
-      env.onStop(db::close);
-    });
+    // close on shutdown
+    env.onStop(db::close);
   }
 }
