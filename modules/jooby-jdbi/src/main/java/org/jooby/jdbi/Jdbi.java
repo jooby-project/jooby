@@ -205,11 +205,18 @@ package org.jooby.jdbi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import javax.inject.Provider;
+import javax.sql.DataSource;
 
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
+import org.jooby.Jooby;
 import org.jooby.jdbc.Jdbc;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.ExpandedStmtRewriter;
@@ -227,12 +234,9 @@ import com.typesafe.config.Config;
 
 /**
  * Exposes {@link DBI}, {@link Handle} and SQL Objects (a.k.a DAO).
- * This module extends the {@link Jdbc} module so all the services provided by the {@link Jdbc}
- * module are inherited.
  *
  * <p>
- * Before start, make sure you already setup a database connection as described in the {@link Jdbc}
- * module.
+ * This module depends on {@link Jdbc} module.
  * </p>
  *
  * <h1>usage</h1>
@@ -243,6 +247,7 @@ import com.typesafe.config.Config;
  *
  * <pre>
  * {
+ *   use(new Jdbc());
  *   use(new Jdbi());
  *
  *   get("/", req {@literal ->} {
@@ -264,10 +269,6 @@ import com.typesafe.config.Config;
  *
  * <h1>sql objects</h1>
  *
- * <p>
- * It is pretty straightforward (too):
- * </p>
- *
  * <pre>
  *
  * public interface MyRepository extends Closeable {
@@ -283,6 +284,7 @@ import com.typesafe.config.Config;
  *
  * ...
  * {
+ *   use(new Jdbc());
  *   use(new Jdbi());
  *
  *   get("/handle", req {@literal ->} {
@@ -306,6 +308,7 @@ import com.typesafe.config.Config;
  *
  * <pre>
  * {
+ *   use(new Jdbc());
  *   use(new Jdbi().doWith((dbi, config) {@literal ->} {
  *     // set custom option
  *   }));
@@ -319,7 +322,7 @@ import com.typesafe.config.Config;
  * @author edgar
  * @since 0.5.0
  */
-public class Jdbi extends Jdbc {
+public class Jdbi implements Jooby.Module {
 
   public static final String ARG_FACTORIES = "__argumentFactories_";
 
@@ -327,8 +330,8 @@ public class Jdbi extends Jdbc {
 
     private List<ArgumentFactory<?>> factories = new ArrayList<ArgumentFactory<?>>();
 
-    public DBI2(final ConnectionFactory connectionFactory) {
-      super(connectionFactory);
+    public DBI2(final DataSource ds) {
+      super(ds);
       define(ARG_FACTORIES, factories);
     }
 
@@ -340,37 +343,65 @@ public class Jdbi extends Jdbc {
 
   }
 
+  private final String name;
+
   private List<Class<?>> sqlObjects;
+
+  private BiConsumer<DBI, Config> callback;
 
   public Jdbi(final Class<?>... sqlObjects) {
     this("db", sqlObjects);
   }
 
   public Jdbi(final String db, final Class<?>... sqlObjects) {
-    super(db);
+    this.name = db;
     this.sqlObjects = Lists.newArrayList(sqlObjects);
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
-    configure(env, config, binder, (name, ds) -> {
-      DBI dbi = new DBI2(() -> ds.getConnection());
-      dbi.setSQLLog(new SLF4JLog());
-      dbi.registerArgumentFactory(new OptionalArgumentFactory());
-      dbi.registerArgumentFactory(new IterableArgumentFactory());
-      dbi.registerContainerFactory(new OptionalContainerFactory());
-      dbi.setStatementRewriter(new ExpandedStmtRewriter());
+    Key<DataSource> dskey = Key.get(DataSource.class, Names.named(name));
+    DataSource ds = env.get(dskey)
+        .orElseThrow(() -> new NoSuchElementException("DataSource missing: " + dskey));
 
-      ServiceKey serviceKey = env.serviceKey();
-      serviceKey.generate(DBI.class, name, k -> binder.bind(k).toInstance(dbi));
-      serviceKey.generate(Handle.class, name, k -> binder.bind(k).toProvider(() -> dbi.open()));
+    DBI dbi = new DBI2(ds);
+    dbi.setSQLLog(new SLF4JLog());
+    dbi.registerArgumentFactory(new OptionalArgumentFactory());
+    dbi.registerArgumentFactory(new IterableArgumentFactory());
+    dbi.registerContainerFactory(new OptionalContainerFactory());
+    dbi.setStatementRewriter(new ExpandedStmtRewriter());
 
-      sqlObjects.forEach(sqlObject -> binder.bind(sqlObject)
-          .toProvider((Provider) () -> dbi.open(sqlObject)));
+    ServiceKey serviceKey = env.serviceKey();
+    serviceKey.generate(DBI.class, name, k -> binder.bind(k).toInstance(dbi));
+    serviceKey.generate(Handle.class, name, k -> binder.bind(k).toProvider(() -> dbi.open()));
 
-      callback(dbi, config);
-    });
+    sqlObjects.forEach(sqlObject -> binder.bind(sqlObject)
+        .toProvider((Provider) () -> dbi.open(sqlObject)));
+
+    if (callback != null) {
+      callback.accept(dbi, config);
+    }
   }
 
+  /**
+   * Configure DBI instance.
+   *
+   * @param configurer Configurer.
+   * @return This module.
+   */
+  public Jdbi doWith(BiConsumer<DBI, Config> configurer) {
+    this.callback = configurer;
+    return this;
+  }
+
+  /**
+   * Configure DBI instance.
+   *
+   * @param configurer Configurer.
+   * @return This module.
+   */
+  public Jdbi doWith(Consumer<DBI> configurer) {
+    return doWith((dbi, conf) -> configurer.accept(dbi));
+  }
 }

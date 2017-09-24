@@ -210,6 +210,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
@@ -402,7 +404,7 @@ import java.util.function.Function;
  * @author edgar
  * @since 0.1.0
  */
-public class Jdbc implements Jooby.Module {
+public final class Jdbc implements Jooby.Module {
 
   static final Function<Throwable, Void> CCE = x -> {
     if (x instanceof ClassCastException) {
@@ -542,6 +544,7 @@ public class Jdbc implements Jooby.Module {
     callback(hikariConf, config);
     HikariDataSource ds = new HikariDataSource(hikariConf);
 
+    // bind datasource using dbkey and dbname
     if (!dbkey.equals(dbname)) {
       env.serviceKey().generate(DataSource.class, dbkey, k -> {
         binder.bind(k).toInstance(ds);
@@ -553,6 +556,10 @@ public class Jdbc implements Jooby.Module {
       env.set(k, ds);
     });
 
+    // db type
+    env.set(Key.get(String.class, Names.named(dbkey + ".dbtype")), dbtype.orElse("unknown"));
+
+    // cleanup everything
     env.onStop(ds::close);
   }
 
