@@ -207,6 +207,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.typesafe.config.Config;
+import org.jooby.funzy.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -282,11 +284,13 @@ public class Err extends RuntimeException {
     public void handle(final Request req, final Response rsp, final Err ex) throws Throwable {
       log.error("execution of: {}{} resulted in exception\nRoute:\n{}\n\nStacktrace:",
           req.method(), req.path(), req.route().print(6), ex);
-
+      Config conf = req.require(Config.class);
+      boolean stackstrace = Try.apply(() -> conf.getBoolean("err.stacktrace"))
+          .orElse(req.require(Env.class).name().equals("dev"));
       rsp.send(
           Results
-              .when(MediaType.html, () -> Results.html(VIEW).put("err", ex.toMap()))
-              .when(MediaType.all, () -> ex.toMap()));
+              .when(MediaType.html, () -> Results.html(VIEW).put("err", ex.toMap(stackstrace)))
+              .when(MediaType.all, () -> ex.toMap(stackstrace)));
     }
 
   }
@@ -434,7 +438,6 @@ public class Err extends RuntimeException {
    *
    * <pre>
    *  message: exception message (if present)
-   *  stacktrace: array with the stacktrace
    *  status: status code
    *  reason: a status code reason
    * </pre>
@@ -442,15 +445,32 @@ public class Err extends RuntimeException {
    * @return A lightweight view of the err.
    */
   public Map<String, Object> toMap() {
+    return toMap(false);
+  }
+
+  /**
+   * Produces a friendly view of the err, resulting map has these attributes:
+   *
+   * <pre>
+   *  message: exception message (if present)
+   *  stacktrace: array with the stacktrace
+   *  status: status code
+   *  reason: a status code reason
+   * </pre>
+   *
+   * @param stacktrace True for adding stacktrace.
+   * @return A lightweight view of the err.
+   */
+  public Map<String, Object> toMap(boolean stacktrace) {
     Status status = Status.valueOf(this.status);
     Throwable cause = Optional.ofNullable(getCause()).orElse(this);
     String message = Optional.ofNullable(cause.getMessage()).orElse(status.reason());
 
-    String[] stacktrace = Throwables.getStackTraceAsString(cause).replace("\r", "").split("\\n");
-
     Map<String, Object> err = new LinkedHashMap<>();
     err.put("message", message);
-    err.put("stacktrace", stacktrace);
+    if (stacktrace) {
+      err.put("stacktrace", Throwables.getStackTraceAsString(cause).replace("\r", "").split("\\n"));
+    }
     err.put("status", status.value());
     err.put("reason", status.reason());
 

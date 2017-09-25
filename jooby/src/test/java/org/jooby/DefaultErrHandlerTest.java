@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
 
+import com.typesafe.config.Config;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +32,7 @@ public class DefaultErrHandlerTest {
     ex.printStackTrace(new PrintWriter(writer));
     String[] stacktrace = writer.toString().replace("\r", "").split("\\n");
 
-    new MockUnit(Request.class, Response.class, Route.class)
+    new MockUnit(Request.class, Response.class, Route.class, Config.class, Env.class)
         .expect(unit -> {
           Logger log = unit.mock(Logger.class);
           log.error("execution of: {}{} resulted in exception\nRoute:\n{}\n\nStacktrace:", "GET",
@@ -43,8 +44,14 @@ public class DefaultErrHandlerTest {
           Route route = unit.get(Route.class);
           expect(route.print(6)).andReturn("route");
 
+          Config conf = unit.get(Config.class);
+          Env env = unit.get(Env.class);
+          expect(env.name()).andReturn("dev");
+
           Request req = unit.get(Request.class);
 
+          expect(req.require(Config.class)).andReturn(conf);
+          expect(req.require(Env.class)).andReturn(env);
           expect(req.path()).andReturn("/path");
           expect(req.method()).andReturn("GET");
           expect(req.route()).andReturn(route);
@@ -80,7 +87,7 @@ public class DefaultErrHandlerTest {
     ex.printStackTrace(new PrintWriter(writer));
     String[] stacktrace = writer.toString().replace("\r", "").split("\\n");
 
-    new MockUnit(Request.class, Response.class, Route.class)
+    new MockUnit(Request.class, Response.class, Route.class, Env.class, Config.class)
         .expect(unit -> {
           Logger log = unit.mock(Logger.class);
           log.error("execution of: {}{} resulted in exception\nRoute:\n{}\n\nStacktrace:", "GET",
@@ -92,7 +99,14 @@ public class DefaultErrHandlerTest {
           Route route = unit.get(Route.class);
           expect(route.print(6)).andReturn("route");
 
+          Config conf = unit.get(Config.class);
+          Env env = unit.get(Env.class);
+          expect(env.name()).andReturn("dev");
+
           Request req = unit.get(Request.class);
+
+          expect(req.require(Config.class)).andReturn(conf);
+          expect(req.require(Env.class)).andReturn(env);
 
           expect(req.path()).andReturn("/path");
           expect(req.method()).andReturn("GET");

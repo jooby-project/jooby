@@ -213,12 +213,6 @@ import org.jooby.View;
 
 public class DefaulErrRenderer implements Renderer {
 
-  private boolean showStacktrace;
-
-  public DefaulErrRenderer(final boolean stacktrace) {
-    this.showStacktrace = stacktrace;
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public void render(final Object object, final Context ctx) throws Exception {
@@ -230,7 +224,7 @@ public class DefaulErrRenderer implements Renderer {
         Object status = model.get("status");
         Object reason = model.get("reason");
         Object message = model.get("message");
-        String[] stacktrace = this.showStacktrace ? (String[]) model.get("stacktrace") : null;
+        String[] stacktrace = (String[]) model.get("stacktrace");
 
         StringBuilder html = new StringBuilder("<!doctype html>\n")
             .append("<html>\n")

@@ -2887,10 +2887,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       binder.bind(ParserExecutor.class).in(Singleton.class);
 
       /** override(able) renderer */
-      boolean stacktrace = finalConfig.hasPath("err.stacktrace")
-          ? finalConfig.getBoolean("err.stacktrace")
-          : "dev".equals(envname);
-      renderers.addBinding().toInstance(new DefaulErrRenderer(stacktrace));
+      renderers.addBinding().toInstance(new DefaulErrRenderer());
       renderers.addBinding().toInstance(BuiltinRenderer.text);
 
       binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
