@@ -303,7 +303,7 @@ public class UndertowResponse implements NativeResponse {
 
   @Override
   public boolean committed() {
-    return exchange.isComplete();
+    return exchange.isResponseStarted();
   }
 
   @Override
