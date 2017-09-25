@@ -1,5 +1,6 @@
 package org.jooby.issues;
 
+import org.jooby.jdbc.Jdbc;
 import org.jooby.jdbi.Jdbi;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -14,6 +15,7 @@ public class Issue401 extends ServerFeature {
   {
     use(ConfigFactory.empty().withValue("db", ConfigValueFactory.fromAnyRef("mem")));
 
+    use(new Jdbc());
     use(new Jdbi());
 
     onStart(registry -> {

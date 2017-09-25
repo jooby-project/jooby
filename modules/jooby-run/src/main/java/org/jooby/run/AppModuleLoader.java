@@ -368,9 +368,4 @@ public class AppModuleLoader extends ModuleLoader {
     }
   }
 
-  public static void main(final String[] args) throws MalformedURLException {
-    URI jaruri = URI.create(
-        "jar:file:/Users/edgar/.m2/repository/org/jooby/jooby-run/1.0.4-SNAPSHOT/jooby-run-1.0.4-SNAPSHOT.jar!/org/jooby/internal/run__/JoobyRef.class");
-    System.out.println(jaruri.toURL().toExternalForm());
-  }
 }

@@ -122,7 +122,7 @@ public class EnvTest {
     Env env = Env.DEFAULT.build(config);
     Object value = new Object();
     env.set(Object.class, value);
-    assertEquals(value, env.get(Object.class));
+    assertEquals(value, env.get(Object.class).get());
   }
 
   @Test

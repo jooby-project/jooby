@@ -2,6 +2,7 @@ package org.jooby.issues;
 
 import java.util.List;
 
+import org.jooby.jdbc.Jdbc;
 import org.jooby.jdbi.Jdbi;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -18,6 +19,7 @@ public class Issue196 extends ServerFeature {
     use(ConfigFactory.empty()
         .withValue("db", ConfigValueFactory.fromAnyRef("mem")));
 
+    use(new Jdbc());
     use(new Jdbi());
 
     get("/npe", req -> {

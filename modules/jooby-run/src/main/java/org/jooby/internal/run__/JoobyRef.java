@@ -203,15 +203,15 @@
  */
 package org.jooby.internal.run__;
 
-import javaslang.control.Try;
-
 import java.util.concurrent.atomic.AtomicReference;
 
-public class JoobyRef implements Try.CheckedConsumer {
+import org.jooby.funzy.Throwing.Consumer;
+
+public class JoobyRef implements Consumer {
 
   public static final AtomicReference ref = new AtomicReference<>();
 
-  @Override public void accept(final Object value) throws Throwable {
+  @Override public void tryAccept(final Object value) throws Throwable {
     ref.compareAndSet(null, value);
   }
 }

@@ -2,6 +2,7 @@ package org.jooby.jdbi;
 
 import java.util.List;
 
+import org.jooby.jdbc.Jdbc;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.skife.jdbi.v2.Handle;
@@ -17,6 +18,7 @@ public class JdbiInClauseFeature extends ServerFeature {
     use(ConfigFactory.empty()
         .withValue("db", ConfigValueFactory.fromAnyRef("mem")));
 
+    use(new Jdbc());
     use(new Jdbi());
 
     get("/named", req -> {

@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import javax.persistence.EntityManager;
 
 import org.jooby.hbm.data.Member;
+import org.jooby.jdbc.Jdbc;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -17,6 +18,7 @@ public class HbmParamConverterFeature extends ServerFeature {
     use(ConfigFactory.empty()
         .withValue("db", ConfigValueFactory.fromAnyRef("mem")));
 
+    use(new Jdbc());
     use(new Hbm().classes(Member.class));
 
     use("*", Hbm.openSessionInView());

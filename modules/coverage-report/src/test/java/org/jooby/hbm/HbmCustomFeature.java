@@ -7,6 +7,7 @@ import javax.persistence.Query;
 
 import org.jooby.Results;
 import org.jooby.hbm.data.Member;
+import org.jooby.jdbc.Jdbc;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -20,6 +21,7 @@ public class HbmCustomFeature extends ServerFeature {
     use(ConfigFactory.empty()
         .withValue("db.audit", ConfigValueFactory.fromAnyRef("mem")));
 
+    use(new Jdbc("db.audit"));
     use(new Hbm("db.audit").classes(Member.class));
 
     use("*", Hbm.openSessionInView());

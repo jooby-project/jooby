@@ -2,6 +2,7 @@ package org.jooby.jdbi;
 
 import java.io.Closeable;
 
+import org.jooby.jdbc.Jdbc;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.skife.jdbi.v2.sqlobject.Bind;
@@ -28,6 +29,7 @@ public class JdbiSqlObjectFeature extends ServerFeature {
 
     use(ConfigFactory.empty().withValue("db", ConfigValueFactory.fromAnyRef("mem")));
 
+    use(new Jdbc());
     use(new Jdbi(MyRepository.class));
 
     get("/jdbi-handle", req -> {

@@ -2,6 +2,7 @@ package org.jooby.issues;
 
 import static org.junit.Assert.assertEquals;
 
+import org.jooby.jdbc.Jdbc;
 import org.jooby.rx.Rx;
 import org.jooby.rx.RxJdbc;
 import org.jooby.test.ServerFeature;
@@ -17,6 +18,7 @@ public class Issue351 extends ServerFeature {
     use(ConfigFactory.empty()
         .withValue("db", ConfigValueFactory.fromAnyRef("mem")));
 
+    use(new Jdbc());
     use(new RxJdbc());
 
     onStart(r -> {

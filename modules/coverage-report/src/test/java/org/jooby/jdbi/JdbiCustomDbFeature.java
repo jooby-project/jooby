@@ -1,5 +1,6 @@
 package org.jooby.jdbi;
 
+import org.jooby.jdbc.Jdbc;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.skife.jdbi.v2.Handle;
@@ -14,6 +15,7 @@ public class JdbiCustomDbFeature extends ServerFeature {
 
     use(ConfigFactory.empty().withValue("db1", ConfigValueFactory.fromAnyRef("mem")));
 
+    use(new Jdbc("db1"));
     use(new Jdbi("db1"));
 
     get("/jdbi-handle", req -> {

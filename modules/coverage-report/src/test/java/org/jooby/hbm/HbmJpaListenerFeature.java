@@ -8,6 +8,7 @@ import javax.persistence.TypedQuery;
 
 import org.jooby.Results;
 import org.jooby.hbm.data.Member;
+import org.jooby.jdbc.Jdbc;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -20,6 +21,7 @@ public class HbmJpaListenerFeature extends ServerFeature {
     use(ConfigFactory.empty()
         .withValue("db", ConfigValueFactory.fromAnyRef("mem")));
 
+    use(new Jdbc());
     use(new Hbm()
         .classes(Member.class));
 

@@ -7,6 +7,7 @@ import javax.persistence.Query;
 
 import org.jooby.Results;
 import org.jooby.hbm.data.Member;
+import org.jooby.jdbc.Jdbc;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -21,6 +22,7 @@ public class HbmProdEnvFeature extends ServerFeature {
         .withValue("db", ConfigValueFactory.fromAnyRef("mem"))
         .withValue("hibernate.hbm2ddl.auto", ConfigValueFactory.fromAnyRef("update")));
 
+    use(new Jdbc());
     use(new Hbm().classes(Member.class));
 
     use("*", Hbm.openSessionInView());

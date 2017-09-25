@@ -2,6 +2,7 @@ package org.jooby.jooq;
 
 import static org.junit.Assert.assertEquals;
 
+import org.jooby.jdbc.Jdbc;
 import org.jooby.test.ServerFeature;
 import org.jooq.Configuration;
 import org.jooq.DSLContext;
@@ -28,6 +29,7 @@ public class JooqFeature extends ServerFeature {
     use(ConfigFactory.empty()
         .withValue("db", ConfigValueFactory.fromAnyRef("mem")));
 
+    use(new Jdbc());
     use(new jOOQ());
 
     get("/jooq", req -> {

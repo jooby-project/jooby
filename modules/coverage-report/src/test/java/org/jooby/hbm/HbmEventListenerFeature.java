@@ -12,6 +12,7 @@ import org.hibernate.event.spi.PostLoadEvent;
 import org.hibernate.event.spi.PostLoadEventListener;
 import org.jooby.Results;
 import org.jooby.hbm.data.Member;
+import org.jooby.jdbc.Jdbc;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -48,6 +49,7 @@ public class HbmEventListenerFeature extends ServerFeature {
     use(ConfigFactory.empty()
         .withValue("db", ConfigValueFactory.fromAnyRef("mem")));
 
+    use(new Jdbc());
     use(new Hbm()
         .onEvent(EventType.POST_LOAD, MemberPostLoad.class)
         .classes(Member.class));
