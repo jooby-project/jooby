@@ -219,17 +219,42 @@ import com.google.common.base.Throwables;
 public class MvcHandler implements Route.MethodHandler {
 
   private Method handler;
+  
+  private Class<?> implementingClass;
 
   private RequestParamProvider provider;
 
+  /**
+   * Constructor for MvcHandler using handler.getDeclaringClass() as implementing class.
+   * 
+   * @param handler the method to handle the request
+   * @param provider the request parameter provider
+   * @deprecated In order to support abstract classes use constructor with concrete implementing class {@link #MvcHandler(Method, Class, RequestParamProvider)}.
+   * This constructor is left for backward compatibility reasons.
+   */
   public MvcHandler(final Method handler, final RequestParamProvider provider) {
-    this.handler = requireNonNull(handler, "Handler method is required.");
-    this.provider = requireNonNull(provider, "Param prodiver is required.");
+	  this(handler, handler.getDeclaringClass(), provider);
+  }
+
+  /**
+   * Constructor for MvcHandler using handler.getDeclaringClass() as implementing class.
+   * 
+   * @param handler the method to handle the request
+   * @param provider the request parameter provider
+   */
+  public MvcHandler(final Method handler, final Class<?> implementingClass, final RequestParamProvider provider) {
+	  this.handler = requireNonNull(handler, "Handler method is required.");
+	  this.implementingClass = requireNonNull(implementingClass, "Implementing class is required.");
+	  this.provider = requireNonNull(provider, "Param prodiver is required.");
   }
 
   @Override
   public Method method() {
     return handler;
+  }
+  
+  public Class<?> implementingClass() {
+	  return implementingClass;
   }
 
   @Override
@@ -249,7 +274,7 @@ public class MvcHandler implements Route.MethodHandler {
 
   public Object invoke(final Request req, final Response rsp) throws Throwable {
     try {
-      Object target = req.require(handler.getDeclaringClass());
+      Object target = req.require(implementingClass);
 
       List<RequestParam> parameters = provider.parameters(handler);
       Object[] args = new Object[parameters.size()];
@@ -262,8 +287,8 @@ public class MvcHandler implements Route.MethodHandler {
       return result;
     } catch (InvocationTargetException ex) {
       Throwable cause = ex.getCause();
-      Throwables.propagateIfInstanceOf(cause, Exception.class);
-      throw Throwables.propagate(cause);
+      Throwables.throwIfInstanceOf(cause, Exception.class);
+      throw new RuntimeException(cause);
     }
   }
 }
