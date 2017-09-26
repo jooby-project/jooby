@@ -1965,13 +1965,14 @@ public interface Route {
 
   /**
    * A handler for a MVC route, it extends {@link Handler} by adding a reference to the method
-   * behind this route.
+   * and class behind this route.
    *
    * @author edgar
    * @since 0.6.2
    */
   interface MethodHandler extends Handler {
     Method method();
+    Class<?> implementingClass();
   }
 
   /**

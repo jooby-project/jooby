@@ -244,7 +244,6 @@ public class MvcRoutes {
 
   private static final String[] EMPTY = new String[0];
 
-  @SuppressWarnings("unchecked")
   private static final Set<Class<? extends Annotation>> VERBS = ImmutableSet.of(GET.class,
       POST.class, PUT.class, DELETE.class, PATCH.class, HEAD.class, OPTIONS.class, TRACE.class,
       CONNECT.class);
@@ -312,11 +311,11 @@ public class MvcRoutes {
               String[] excludes = excludes(method, rootExcludes);
 
               Definition definition = new Route.Definition(
-                  verb.getSimpleName(), rpath + "/" + path, new MvcHandler(method, paramProvider))
+                  verb.getSimpleName(), rpath + "/" + path, new MvcHandler(method, routeClass, paramProvider))
                   .produces(produces)
                   .consumes(consumes)
                   .excludes(excludes)
-                  .declaringClass(method.getDeclaringClass().getName())
+                  .declaringClass(routeClass.getName())
                   .line(classInfo.startAt(method) - 1)
                   .name(name);
 
