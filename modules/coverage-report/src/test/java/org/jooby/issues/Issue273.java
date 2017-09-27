@@ -48,7 +48,7 @@ public class Issue273 extends ServerFeature {
 
     request().get("/273")
         .header("Accept-Language", "en-AU")
-        .expect("fr-CA");
+        .expect("en");
   }
 
   @Test
