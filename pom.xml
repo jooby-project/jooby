@@ -103,6 +103,12 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
+        <artifactId>jooby-jdbi3</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
         <artifactId>jooby-jooq</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -874,6 +880,12 @@
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi</artifactId>
         <version>${jdbi.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3</artifactId>
+        <version>${jdbi3.version}</version>
       </dependency>
 
       <!-- Apache Camel -->
@@ -2996,6 +3008,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <asm.version>5.0.3</asm.version>
     <quartz.version>2.2.2</quartz.version>
     <jdbi.version>2.78</jdbi.version>
+    <jdbi3.version>3.0.0-beta2</jdbi3.version>
     <freemarker.version>2.3.26-incubating</freemarker.version>
     <camel.version>2.18.3</camel.version>
     <jedis.version>2.9.0</jedis.version>

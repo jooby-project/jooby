@@ -90,6 +90,7 @@
                     <source>${project.parent.basedir}/jooby-requery/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-rocker/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-neo4j/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-jdbi3/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -155,6 +156,7 @@
                     <source>${project.parent.basedir}/jooby-requery/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-rocker/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-neo4j/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-jdbi3/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -321,6 +323,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-hbv</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-jdbi3</artifactId>
       <version>${project.version}</version>
     </dependency>
 

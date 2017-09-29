@@ -36,6 +36,7 @@
     <module>jooby-neo4j</module>
     <module>jooby-quartz</module>
     <module>jooby-jdbi</module>
+    <module>jooby-jdbi3</module>
     <module>jooby-run</module>
     <module>jooby-jedis</module>
     <module>jooby-mongodb</module>

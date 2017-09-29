@@ -18,7 +18,7 @@ The [hibernate](/doc/hbm) module provides object relational mapping via {{hibern
 
 ## jdbi
 
-The [jdbi](/doc/jdbi) module provides a fluent and lightweight SQL library for *jdbc*.
+The [jdbi](/doc/jdbi3) module provides a fluent and lightweight SQL library for *jdbc*.
 
 ## jooq
 
