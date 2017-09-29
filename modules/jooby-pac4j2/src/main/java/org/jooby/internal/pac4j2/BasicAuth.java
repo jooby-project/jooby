@@ -203,10 +203,10 @@
  */
 package org.jooby.internal.pac4j2;
 
-import javax.inject.Inject;
-
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
+
+import javax.inject.Inject;
 
 public class BasicAuth extends ClientProvider<IndirectBasicAuthClient> {
 

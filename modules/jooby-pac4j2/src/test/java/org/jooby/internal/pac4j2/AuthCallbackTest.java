@@ -13,6 +13,7 @@ import org.pac4j.core.client.Clients;
 import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.exception.HttpAction;
 import org.pac4j.core.profile.CommonProfile;
@@ -315,7 +316,7 @@ public class AuthCallbackTest {
       }
 
       @Override
-      public Object getSessionIdentifier() {
+      public String getSessionIdentifier() {
         return null;
       }
 
@@ -335,6 +336,15 @@ public class AuthCallbackTest {
 
       @Override
       public void addResponseCookie(final Cookie cookie) {
+      }
+
+      @Override
+      public SessionStore getSessionStore() {
+        return null;
+      }
+
+      @Override
+      public void setSessionStore(SessionStore sessionStore) {
       }
     };
   }

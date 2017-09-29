@@ -213,7 +213,11 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.multibindings.OptionalBinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.jooby.*;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.Route;
+import org.jooby.Router;
+import org.jooby.Session;
 import org.jooby.internal.pac4j2.*;
 import org.jooby.scope.Providers;
 import org.jooby.scope.RequestScoped;
@@ -226,6 +230,7 @@ import org.pac4j.core.client.finder.ClientFinder;
 import org.pac4j.core.client.finder.DefaultClientFinder;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
@@ -234,12 +239,17 @@ import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.*;
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>pac4j module</h1>
@@ -851,6 +861,8 @@ public class Auth implements Jooby.Module {
     binder.bind(AuthCallback.class);
 
     binder.bind(AuthStore.class).to(storeClass);
+
+    binder.bind(new TypeLiteral<SessionStore<AuthContext>>() {}).to(JoobySessionStore.class);
 
     binder.bind(WebContext.class).to(AuthContext.class).in(RequestScoped.class);
 

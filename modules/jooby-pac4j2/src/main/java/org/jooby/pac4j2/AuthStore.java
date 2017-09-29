@@ -203,9 +203,9 @@
  */
 package org.jooby.pac4j2;
 
-import java.util.Optional;
-
 import org.pac4j.core.profile.CommonProfile;
+
+import java.util.Optional;
 
 /**
  * Contract for saving and restoring {@link CommonProfile}.

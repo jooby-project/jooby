@@ -205,9 +205,14 @@ package org.jooby.internal.pac4j2;
 
 import com.google.common.collect.ImmutableMap;
 import org.jooby.Cookie.Definition;
-import org.jooby.*;
+import org.jooby.Err;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Session;
+import org.jooby.Status;
 import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -229,13 +234,16 @@ public class AuthContext implements WebContext {
 
   private Response rsp;
 
+  private SessionStore<AuthContext> sessionStore;
+
   private Map<String, String[]> params;
 
   @Inject
-  public AuthContext(final Request req, final Response rsp) {
+  public AuthContext(final Request req, final Response rsp, final SessionStore<AuthContext> sessionStore) {
     this.req = req;
     this.rsp = rsp;
-    params = params(req);
+    this.params = params(req);
+    setSessionStore(sessionStore);
   }
 
   @Override
@@ -347,7 +355,7 @@ public class AuthContext implements WebContext {
   }
 
   @Override
-  public Object getSessionIdentifier() {
+  public String getSessionIdentifier() {
     return req.session().id();
   }
 
@@ -394,4 +402,22 @@ public class AuthContext implements WebContext {
     rsp.cookie(c);
   }
 
+  Request getJoobyRequest() {
+    return req;
+  }
+
+  @Override
+  public SessionStore getSessionStore() {
+    return sessionStore;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void setSessionStore(final SessionStore sessionStore) {
+    if (sessionStore == null) {
+      this.sessionStore = new JoobySessionStore();
+    } else {
+      this.sessionStore = sessionStore;
+    }
+  }
 }

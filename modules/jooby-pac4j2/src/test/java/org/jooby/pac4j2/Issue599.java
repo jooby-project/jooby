@@ -9,6 +9,7 @@ import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.pac4j.core.context.session.SessionStore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -38,7 +39,7 @@ public class Issue599 {
 
   @Test
   public void shouldKeepQueryString() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params)
         .expect(unit -> {
           Request req = unit.get(Request.class);
@@ -50,14 +51,14 @@ public class Issue599 {
           expect(req.queryString()).andReturn(Optional.of("bar=1"));
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals("http://localhost:8080/foo?bar=1", ctx.getFullRequestURL());
         });
   }
 
   @Test
   public void shouldKeepQueryStringWithContextpath() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params)
         .expect(unit -> {
           Request req = unit.get(Request.class);
@@ -69,7 +70,7 @@ public class Issue599 {
           expect(req.queryString()).andReturn(Optional.of("bar=1"));
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals("http://localhost:8080/cpath/foo?bar=1", ctx.getFullRequestURL());
         });
   }

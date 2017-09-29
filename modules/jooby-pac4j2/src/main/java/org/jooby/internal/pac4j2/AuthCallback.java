@@ -226,7 +226,7 @@ import javax.inject.Named;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Objects.*;
+import static java.util.Objects.requireNonNull;
 
 @SuppressWarnings("rawtypes")
 public class AuthCallback implements Route.Filter {

@@ -203,11 +203,6 @@
  */
 package org.jooby.internal.pac4j2;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Arrays;
-import java.util.Map;
-
 import org.jooby.Err;
 import org.jooby.Request;
 import org.jooby.Response;
@@ -220,6 +215,11 @@ import org.pac4j.core.context.WebContext;
 import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.Map;
+
+import static java.util.Objects.requireNonNull;
 
 public class AuthorizerFilter implements Route.Handler {
 

@@ -203,15 +203,14 @@
  */
 package org.jooby.internal.pac4j2;
 
-import static java.util.Objects.requireNonNull;
 import org.jooby.Err;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Status;
+import org.jooby.funzy.Throwing;
 import org.jooby.pac4j2.Auth;
 import org.jooby.pac4j2.AuthStore;
-import org.jooby.funzy.Throwing;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.DirectClient;
@@ -228,6 +227,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.function.Predicate;
+
+import static java.util.Objects.requireNonNull;
 
 public class AuthFilter implements Route.Handler {
 

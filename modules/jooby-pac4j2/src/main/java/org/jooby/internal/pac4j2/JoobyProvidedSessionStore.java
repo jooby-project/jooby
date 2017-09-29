@@ -203,32 +203,29 @@
  */
 package org.jooby.internal.pac4j2;
 
-import org.jooby.funzy.Try;
-import org.pac4j.core.profile.CommonProfile;
+import org.jooby.Session;
+import org.pac4j.core.context.session.SessionStore;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import static java.util.Objects.requireNonNull;
 
-public class ClientType {
+/**
+ * A {@link SessionStore} that works on the provided session.
+ * This is very similar to {@link org.pac4j.core.context.session.J2EProvidedSessionStore}
+ *
+ * @author nlochschmidt
+ * @since 1.2.0
+ */
+class JoobyProvidedSessionStore extends JoobySessionStore {
 
-  @SuppressWarnings("unchecked")
-  public static Class<? extends CommonProfile> typeOf(final Class<?> client) {
-    Type genericType = client.getGenericSuperclass();
-    if (genericType instanceof ParameterizedType) {
-      Type[] types = ((ParameterizedType) genericType).getActualTypeArguments();
-      for (Type type : types) {
-        if (type instanceof Class) {
-          if (CommonProfile.class.isAssignableFrom((Class<?>) type)) {
-            return (Class<? extends CommonProfile>) type;
-          }
-        }
-      }
-    }
-    if (client.getSimpleName().equals("OidcClient")) {
-      return Try.apply(() -> (Class<? extends CommonProfile>) client.getClassLoader()
-          .loadClass("org.pac4j.oidc.profile.OidcProfile")).get();
-    }
-    return CommonProfile.class;
+  private final Session session;
+
+  public JoobyProvidedSessionStore(Session session) {
+    requireNonNull(session, "Session is required");
+    this.session = session;
   }
 
+  @Override
+  protected Session getSession(AuthContext ctx) {
+    return session;
+  }
 }
