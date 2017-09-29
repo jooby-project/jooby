@@ -49,6 +49,7 @@
     <module>jooby-maven-plugin</module>
     <module>jooby-ehcache</module>
     <module>jooby-pac4j</module>
+    <module>jooby-pac4j2</module>
     <module>jooby-swagger</module>
     <module>jooby-raml</module>
     <module>jooby-spymemcached</module>
