@@ -215,21 +215,37 @@ import org.jooby.Route;
 import org.jooby.Status;
 
 import com.google.common.base.Throwables;
+import org.jooby.funzy.Try;
 
 public class MvcHandler implements Route.MethodHandler {
 
   private Method handler;
 
+  private Class<?> implementingClass;
+
   private RequestParamProvider provider;
 
-  public MvcHandler(final Method handler, final RequestParamProvider provider) {
+  /**
+   * Constructor for MvcHandler.
+   *
+   * @param handler the method to handle the request
+   * @param implementingClass Target class (method owner).
+   * @param provider the request parameter provider
+   */
+  public MvcHandler(final Method handler, final Class<?> implementingClass,
+      final RequestParamProvider provider) {
     this.handler = requireNonNull(handler, "Handler method is required.");
+    this.implementingClass = requireNonNull(implementingClass, "Implementing class is required.");
     this.provider = requireNonNull(provider, "Param prodiver is required.");
   }
 
   @Override
   public Method method() {
     return handler;
+  }
+
+  public Class<?> implementingClass() {
+    return implementingClass;
   }
 
   @Override
@@ -247,9 +263,9 @@ public class MvcHandler implements Route.MethodHandler {
     rsp.send(result);
   }
 
-  public Object invoke(final Request req, final Response rsp) throws Throwable {
-    try {
-      Object target = req.require(handler.getDeclaringClass());
+  public Object invoke(final Request req, final Response rsp) {
+    return Try.apply(() -> {
+      Object target = req.require(implementingClass);
 
       List<RequestParam> parameters = provider.parameters(handler);
       Object[] args = new Object[parameters.size()];
@@ -260,10 +276,7 @@ public class MvcHandler implements Route.MethodHandler {
       final Object result = handler.invoke(target, args);
 
       return result;
-    } catch (InvocationTargetException ex) {
-      Throwable cause = ex.getCause();
-      Throwables.propagateIfInstanceOf(cause, Exception.class);
-      throw Throwables.propagate(cause);
-    }
+    }).unwrap(InvocationTargetException.class)
+        .get();
   }
 }

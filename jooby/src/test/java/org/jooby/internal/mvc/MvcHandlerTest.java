@@ -22,9 +22,9 @@ public class MvcHandlerTest {
 
   @Test
   public void defaults() throws Exception {
-    new MockUnit(Method.class, RequestParamProvider.class)
+    new MockUnit(Method.class, Object.class, RequestParamProvider.class)
         .run(unit -> {
-          new MvcHandler(unit.get(Method.class), unit.get(RequestParamProvider.class));
+          new MvcHandler(unit.get(Method.class), unit.get(Object.class).getClass(), unit.get(RequestParamProvider.class));
         });
   }
 
@@ -50,7 +50,35 @@ public class MvcHandlerTest {
           expect(paramProvider.parameters(method)).andReturn(params);
         })
         .run(unit -> {
-          new MvcHandler(method, unit.get(RequestParamProvider.class))
+          new MvcHandler(method, handlerClass, unit.get(RequestParamProvider.class))
+              .handle(unit.get(Request.class), unit.get(Response.class));
+        });
+  }
+  
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  @Test
+  public void handleAbstractHandlers() throws Exception {
+	Class handlerClass = FinalMvcHandler.class;
+	Class abstractHandlerClass = AbstractMvcHandler.class;
+    FinalMvcHandler handler = new FinalMvcHandler();
+    Method method = abstractHandlerClass.getDeclaredMethod("abstrStrHandle");
+    new MockUnit(RequestParamProvider.class, Request.class, Response.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.require(FinalMvcHandler.class)).andReturn(handler);
+        })
+        .expect(unit -> {
+          Response rsp = unit.get(Response.class);
+          expect(rsp.status(Status.OK)).andReturn(rsp);
+          rsp.send("abstrStrHandle");
+        })
+        .expect(unit -> {
+          List<RequestParam> params = Collections.emptyList();
+          RequestParamProvider paramProvider = unit.get(RequestParamProvider.class);
+          expect(paramProvider.parameters(method)).andReturn(params);
+        })
+        .run(unit -> {
+          new MvcHandler(method, handlerClass, unit.get(RequestParamProvider.class))
               .handle(unit.get(Request.class), unit.get(Response.class));
         });
   }
@@ -72,7 +100,7 @@ public class MvcHandlerTest {
           expect(paramProvider.parameters(method)).andReturn(params);
         })
         .run(unit -> {
-          new MvcHandler(method, unit.get(RequestParamProvider.class))
+          new MvcHandler(method, handlerClass, unit.get(RequestParamProvider.class))
               .handle(unit.get(Request.class), unit.get(Response.class));
         });
   }
@@ -94,7 +122,7 @@ public class MvcHandlerTest {
           expect(paramProvider.parameters(method)).andReturn(params);
         })
         .run(unit -> {
-          new MvcHandler(method, unit.get(RequestParamProvider.class))
+          new MvcHandler(method, handlerClass, unit.get(RequestParamProvider.class))
               .handle(unit.get(Request.class), unit.get(Response.class));
         });
   }
@@ -110,5 +138,15 @@ public class MvcHandlerTest {
   public String throwablehandle() throws Throwable {
     throw new Throwable("intentional err");
   }
+}
 
+abstract class AbstractMvcHandler {
+	public abstract String abstrStrHandle() throws Exception;
+	
+}
+
+final class FinalMvcHandler extends AbstractMvcHandler {
+	public String abstrStrHandle() throws Exception {
+		return "abstrStrHandle";
+	}
 }

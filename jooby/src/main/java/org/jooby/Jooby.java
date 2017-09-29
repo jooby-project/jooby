@@ -287,6 +287,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Singleton;
 import javax.net.ssl.SSLContext;
 import java.io.File;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -3040,12 +3041,14 @@ public class Jooby implements Router, LifeCycle, Registry {
         Route.Definition rdef = (Definition) it;
         Route.Filter h = rdef.filter();
         if (h instanceof Route.MethodHandler) {
-          Class<?> routeClass = ((Route.MethodHandler) h).method().getDeclaringClass();
+          Class<?> routeClass = ((Route.MethodHandler) h).implementingClass();
           if (routeClasses.add(routeClass)) {
             binder.bind(routeClass);
           }
+          definitions.addBinding().toInstance(rdef);
+        } else {
+          definitions.addBinding().toInstance(rdef);
         }
-        definitions.addBinding().toInstance(rdef);
       } else if (it instanceof WebSocket.Definition) {
         sockets.addBinding().toInstance((WebSocket.Definition) it);
       } else if (it instanceof Parser) {
