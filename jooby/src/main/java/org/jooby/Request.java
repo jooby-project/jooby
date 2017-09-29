@@ -1168,8 +1168,7 @@ public interface Request extends Registry {
    * @return A matching locale.
    */
   default Locale locale() {
-    return locale((ranges, locales) -> Locale.filter(ranges, locales).stream()
-        .findFirst()
+    return locale((priorityList, locales) -> Optional.ofNullable(Locale.lookup(priorityList, locales))
         .orElse(locales.get(0)));
   }
 
