@@ -582,7 +582,7 @@ import java.util.stream.Collectors;
  */
 public class Jooby implements Router, LifeCycle, Registry {
 
-  /**
+    /**
    * <pre>{@code
    * {
    *   on("dev", () -> {
@@ -831,6 +831,9 @@ public class Jooby implements Router, LifeCycle, Registry {
   /** Route's prefix. */
   private transient String prefix;
 
+  /** Chain's prefix **/
+  private String chainPrefix;
+
   /** startup callback . */
   private transient List<Throwing.Consumer<Registry>> onStart = new ArrayList<>();
   private transient List<Throwing.Consumer<Registry>> onStarted = new ArrayList<>();
@@ -898,13 +901,25 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   @Override
+  public Router chain(String path) {
+    this.chainPrefix = path;
+    return this;
+  }
+
+  @Override
   public Jooby use(final Jooby app) {
     return use(Optional.empty(), app);
   }
 
   @Override
   public Jooby use(final String path, final Jooby app) {
-    return use(Optional.of(path), app);
+      if (this.chainPrefix != null) {
+          Optional<String> optional = Optional.of(path)
+                  .map(tPath -> this.chainPrefix + tPath);
+          return use(optional, app);
+      } else {
+          return use(Optional.of(path), app);
+      }
   }
 
   /**

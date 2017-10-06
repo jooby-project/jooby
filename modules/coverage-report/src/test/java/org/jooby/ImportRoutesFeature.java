@@ -62,6 +62,10 @@ public class ImportRoutesFeature extends ServerFeature {
     use("/d", new D());
 
     get("/1", req -> req.path());
+
+    chain("/chained")
+            .use("/v1", new B())
+            .use("/v2", new C());
   }
 
   @Test
@@ -105,5 +109,9 @@ public class ImportRoutesFeature extends ServerFeature {
     request()
         .get("/d/routes/2")
         .expect("/d/routes/2");
+
+    request()
+        .get("/chained/v1/b/1")
+        .expect("/chained/v1/b/1");
   }
 }
