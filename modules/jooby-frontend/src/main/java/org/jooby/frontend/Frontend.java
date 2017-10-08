@@ -355,6 +355,7 @@ public abstract class Frontend implements Jooby.Module {
   public Frontend(String nodeVersion) {
     this.nodeVersion = requireNonNull(nodeVersion, "Node version required.");
   }
+
   /**
    * Set working directory (location of package.json).
    *
@@ -447,25 +448,13 @@ public abstract class Frontend implements Jooby.Module {
       throws IOException {
     Path tmp = Paths.get(conf.getString("application.tmpdir"), "frontend");
     Files.createDirectories(tmp);
-
-    Throwing.Consumer<String> syncPackageJson = existingSha1 -> {
-      Path packageJson = workDirectory.resolve("package.json");
-      String sha1 = Hashing.sha1().hashBytes(Files.readAllBytes(packageJson)).toString();
-      if (!existingSha1.equals(sha1)) {
-        action.accept("install");
-        Files.write(tmp.resolve("package.json." + sha1), Arrays.asList(""));
-      }
-    };
-
-    if (!Files.exists(workDirectory.resolve("node_modules"))) {
-      syncPackageJson.accept("");
-    } else {
-      String existingSha1 = Files
-          .find(tmp, 1, (path, attr) -> path.getFileName().toString().startsWith("package.json."))
-          .findFirst()
-          .map(path -> path.getFileName().toString().replace("package.json.", ""))
-          .orElse("");
-      syncPackageJson.accept(existingSha1);
+    String sha1 = Hashing.sha1()
+        .hashBytes(Files.readAllBytes(workDirectory.resolve("package.json")))
+        .toString();
+    Path lastSha1 = tmp.resolve(sha1 + ".package.json");
+    if (!Files.exists(lastSha1) || !Files.exists(workDirectory.resolve("node_modules"))) {
+      action.accept("install");
+      Files.write(tmp.resolve(lastSha1), Arrays.asList(""));
     }
   }
 
