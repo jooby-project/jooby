@@ -2,7 +2,7 @@
 
 <a href="https://github.com/lukehutch/fast-classpath-scanner">FastClasspathScanner</a> is an uber-fast, ultra-lightweight classpath scanner for Java, Scala and other JVM languages.
 
-This module provides `class-path` scanning services for `MVC routes`, `modules`, `services` and `applications`.
+This module provides `class-path` scanning services for `MVC routes`, `services` and `applications`.
 
 ## dependency
 

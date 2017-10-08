@@ -62,7 +62,6 @@ public class ScannerTest {
         .expect(scanResult("app.ns"))
         .expect(routes)
         .expect(annotations(Path.class))
-        .expect(implementing(Jooby.Module.class))
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .run(unit -> {
@@ -78,7 +77,6 @@ public class ScannerTest {
         .expect(scanResult("test.pkg"))
         .expect(routes)
         .expect(annotations(Path.class))
-        .expect(implementing(Jooby.Module.class))
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .run(unit -> {
@@ -95,33 +93,11 @@ public class ScannerTest {
         .expect(scanResult("app.ns"))
         .expect(routes)
         .expect(annotations(Path.class, FooController.class.getName()))
-        .expect(implementing(Jooby.Module.class))
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .expect(unit -> {
           Router routes = unit.get(Router.class);
           expect(routes.use(FooController.class)).andReturn(null);
-        })
-        .run(unit -> {
-          new Scanner()
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        });
-  }
-
-  @Test
-  public void scanModule() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
-        .expect(ns("app.ns"))
-        .expect(runtimeProcessors)
-        .expect(scanResult("app.ns"))
-        .expect(routes)
-        .expect(annotations(Path.class))
-        .expect(implementing(Jooby.Module.class, FooModule.class.getName()))
-        .expect(subClassesOf(Jooby.class))
-        .expect(appclass(ScannerTest.class.getName()))
-        .expect(unit -> {
-          Binder binder = unit.get(Binder.class);
-          expect(binder.bind(FooModule.class)).andReturn(null);
         })
         .run(unit -> {
           new Scanner()
@@ -137,7 +113,6 @@ public class ScannerTest {
         .expect(scanResult("app.ns"))
         .expect(routes)
         .expect(annotations(Path.class))
-        .expect(implementing(Jooby.Module.class))
         .expect(subClassesOf(Jooby.class, FooApp.class.getName()))
         .expect(appclass(ScannerTest.class.getName()))
         .expect(unit -> {
@@ -159,7 +134,6 @@ public class ScannerTest {
         .expect(scanResult("app.ns", "javax.inject", "com.google.inject.name"))
         .expect(routes)
         .expect(annotations(Path.class))
-        .expect(implementing(Jooby.Module.class))
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .expect(annotations(javax.inject.Named.class, NamedFoo.class.getName()))
@@ -190,7 +164,6 @@ public class ScannerTest {
         .expect(scanResult("app.ns", "javax.inject", "com.google.inject"))
         .expect(routes)
         .expect(annotations(Path.class))
-        .expect(implementing(Jooby.Module.class))
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .expect(annotations(javax.inject.Singleton.class, SingletonFoo.class.getName()))
@@ -221,7 +194,6 @@ public class ScannerTest {
         .expect(scanResult("app.ns"))
         .expect(routes)
         .expect(annotations(Path.class))
-        .expect(implementing(Jooby.Module.class))
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .expect(implementing(IFoo.class, FooImpl.class.getName()))
@@ -251,7 +223,6 @@ public class ScannerTest {
         .expect(scanResult("app.ns"))
         .expect(routes)
         .expect(annotations(Path.class))
-        .expect(implementing(Jooby.Module.class))
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .expect(subClassesOf(AbsFoo.class, FooSub.class.getName()))
@@ -280,7 +251,6 @@ public class ScannerTest {
         .expect(scanResult("app.ns", "com.google.inject"))
         .expect(routes)
         .expect(annotations(Path.class))
-        .expect(implementing(Jooby.Module.class))
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .expect(implementing(Module.class, GuiceModule.class.getName()))
@@ -304,7 +274,6 @@ public class ScannerTest {
         .expect(scanResult("app.ns", "com.google.common.util.concurrent"))
         .expect(routes)
         .expect(annotations(Path.class))
-        .expect(implementing(Jooby.Module.class))
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .expect(implementing(Service.class, GuavaService.class.getName()))
@@ -360,7 +329,6 @@ public class ScannerTest {
         .expect(scanResult("app.ns", "com.google.common.util.concurrent"))
         .expect(routes)
         .expect(annotations(Path.class))
-        .expect(implementing(Jooby.Module.class))
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .expect(implementing(Service.class))
@@ -380,7 +348,6 @@ public class ScannerTest {
         .expect(routes)
         .expect(
             annotations(Path.class, FooController.class.getName(), FooController.class.getName()))
-        .expect(implementing(Jooby.Module.class))
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .expect(unit -> {
@@ -402,7 +369,6 @@ public class ScannerTest {
         .expect(routes)
         .expect(
             annotations(Path.class, AbsController.class.getName()))
-        .expect(implementing(Jooby.Module.class))
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .run(unit -> {
