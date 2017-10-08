@@ -260,11 +260,11 @@ public class JoobyMojo extends AbstractMojo {
     @Override
     public void run() {
       if (watcher != null) {
-        log.info("stopping: watcher");
+        log.debug("stopping: watcher");
         Try.run(watcher::stop).onFailure(ex -> log.debug("Stop of watcher resulted in error", ex));
       }
       commands.forEach(cmd -> {
-        log.info("stopping: " + cmd);
+        log.debug("stopping: " + cmd);
         Try.run(cmd::stop).onFailure(ex -> log.error("Stop of " + cmd + " resulted in error", ex));
       });
     }
