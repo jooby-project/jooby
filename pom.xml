@@ -313,6 +313,12 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
+        <artifactId>jooby-frontend</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
         <artifactId>jooby-assets</artifactId>
         <version>${jooby.version}</version>
       </dependency>
