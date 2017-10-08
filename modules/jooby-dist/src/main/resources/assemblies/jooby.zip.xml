@@ -12,22 +12,6 @@
 
   <fileSets>
     <fileSet>
-      <directory>${project.basedir}</directory>
-      <outputDirectory></outputDirectory>
-      <includes>
-        <include>*.js</include>
-      </includes>
-    </fileSet>
-
-    <fileSet>
-      <directory>${project.basedir}${file.separator}src</directory>
-      <outputDirectory>src</outputDirectory>
-      <includes>
-        <include>*.js</include>
-      </includes>
-    </fileSet>
-
-    <fileSet>
       <directory>${project.build.directory}</directory>
       <outputDirectory></outputDirectory>
       <excludes>
@@ -68,6 +52,28 @@
       </includes>
     </fileSet>
 
+    <!-- compiled assets -->
+    <fileSet>
+      <directory>
+        ${project.build.directory}${file.separator}__public_
+      </directory>
+      <outputDirectory>public</outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+    </fileSet>
+
+    <!-- compiled assets public/dist -->
+    <fileSet>
+      <directory>
+        ${project.basedir}${file.separator}public${file.separator}dist
+      </directory>
+      <outputDirectory>public${file.separator}dist</outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+    </fileSet>
+
     <fileSet>
       <directory>
         ${project.basedir}${file.separator}public
@@ -78,12 +84,12 @@
       </includes>
     </fileSet>
 
-    <!-- compiled assets -->
+    <!-- dist -->
     <fileSet>
       <directory>
-        ${project.build.directory}${file.separator}__public_
+        ${project.basedir}${file.separator}dist
       </directory>
-      <outputDirectory>public</outputDirectory>
+      <outputDirectory>dist</outputDirectory>
       <includes>
         <include>**/*</include>
       </includes>
