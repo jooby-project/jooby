@@ -428,10 +428,7 @@ public class Scanner implements Jooby.Module {
         .filter(once)
         .map(loadClass)
         .filter(C)
-        .forEach(k -> {
-          System.out.println("KKK "+ k);
-          routes.use(k);
-        });
+        .forEach(routes::use);
 
     String mainClass = conf.getString("application.class");
     /** Apps: */
