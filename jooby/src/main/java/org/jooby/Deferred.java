@@ -205,6 +205,7 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -331,7 +332,7 @@ public class Deferred extends Result {
    * @author edgar
    * @since 0.10.0
    */
-  public static interface Initializer0 {
+  public interface Initializer0 {
 
     /**
      * Run the initializer block.
@@ -348,7 +349,7 @@ public class Deferred extends Result {
    * @author edgar
    * @since 0.10.0
    */
-  public static interface Initializer {
+  public interface Initializer {
 
     /**
      * Run the initializer block.
@@ -366,7 +367,7 @@ public class Deferred extends Result {
    * @author edgar
    * @since 0.10.0
    */
-  public static interface Handler {
+  public interface Handler {
     void handle(Result result, Throwable exception);
   }
 
@@ -432,6 +433,7 @@ public class Deferred extends Result {
    * @param value Resolved value.
    */
   @Override
+  @Nonnull
   public Result set(final Object value) {
     if (value instanceof Throwable) {
       reject((Throwable) value);
@@ -447,6 +449,7 @@ public class Deferred extends Result {
    *
    * @return Executor to use or fallback to global/application executor.
    */
+  @Nonnull
   public Optional<String> executor() {
     return Optional.ofNullable(executor);
   }
@@ -456,6 +459,7 @@ public class Deferred extends Result {
    *
    * @return Name of the caller thread (thread that creates this deferred object).
    */
+  @Nonnull
   public String callerThread() {
     return callerThread;
   }
@@ -466,6 +470,7 @@ public class Deferred extends Result {
    *
    * @param value A value for this deferred.
    */
+  @Nonnull
   public void resolve(final Object value) {
     if (value == null) {
       handler.handle(null, null);
@@ -539,6 +544,7 @@ public class Deferred extends Result {
    * @param handler Application block.
    * @return A new deferred handler.
    */
+  @Nonnull
   public static Deferred deferred(final Route.OneArgHandler handler) {
     return deferred(null, handler);
   }
@@ -574,6 +580,7 @@ public class Deferred extends Result {
    * @param handler Application block.
    * @return A new deferred.
    */
+  @Nonnull
   public static Deferred deferred(final Route.ZeroArgHandler handler) {
     return deferred(null, handler);
   }
@@ -599,6 +606,7 @@ public class Deferred extends Result {
    * @param handler Application block.
    * @return A new deferred handler.
    */
+  @Nonnull
   public static Deferred deferred(final String executor, final Route.ZeroArgHandler handler) {
     return deferred(executor, req -> handler.handle());
   }
@@ -624,6 +632,7 @@ public class Deferred extends Result {
    * @param handler Application block.
    * @return A new deferred handler.
    */
+  @Nonnull
   public static Deferred deferred(final String executor, final Route.OneArgHandler handler) {
     return new Deferred(executor, (req, deferred) -> {
       try {

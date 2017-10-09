@@ -94,6 +94,12 @@
   </build>
 
   <dependencies>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- Logging System -->
     <dependency>
       <groupId>org.slf4j</groupId>

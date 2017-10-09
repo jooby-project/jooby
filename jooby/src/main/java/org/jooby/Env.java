@@ -211,6 +211,7 @@ import com.typesafe.config.Config;
 import static java.util.Objects.requireNonNull;
 import org.jooby.funzy.Throwing;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -263,6 +264,7 @@ public interface Env extends LifeCycle {
      * @return Value or throw {@link NoSuchElementException}.
      * @throws NoSuchElementException If property is missing.
      */
+    @Nonnull
     String get(String key) throws NoSuchElementException;
   }
 
@@ -620,6 +622,7 @@ public interface Env extends LifeCycle {
   /**
    * @return Env's name.
    */
+  @Nonnull
   String name();
 
   /**
@@ -628,21 +631,25 @@ public interface Env extends LifeCycle {
    * @return Available {@link Router}.
    * @throws UnsupportedOperationException if router isn't available.
    */
+  @Nonnull
   Router router() throws UnsupportedOperationException;
 
   /**
    * @return environment properties.
    */
+  @Nonnull
   Config config();
 
   /**
    * @return Default locale from <code>application.lang</code>.
    */
+  @Nonnull
   Locale locale();
 
   /**
    * @return Utility method for generating keys for named services.
    */
+  @Nonnull
   default ServiceKey serviceKey() {
     return new ServiceKey();
   }
@@ -657,6 +664,7 @@ public interface Env extends LifeCycle {
    * @param text Text to process.
    * @return A processed string.
    */
+  @Nonnull
   default String resolve(final String text) {
     return resolver().resolve(text);
   }
@@ -666,6 +674,7 @@ public interface Env extends LifeCycle {
    *
    * @return A resolver object.
    */
+  @Nonnull
   default Resolver resolver() {
     return new Resolver().source(config());
   }
@@ -678,6 +687,7 @@ public interface Env extends LifeCycle {
    * @param <T> A resulting type.
    * @return A resulting object.
    */
+  @Nonnull
   default <T> Optional<T> ifMode(final String name, final Supplier<T> fn) {
     if (name().equals(name)) {
       return Optional.of(fn.get());
@@ -688,6 +698,7 @@ public interface Env extends LifeCycle {
   /**
    * @return XSS escape functions.
    */
+  @Nonnull
   Map<String, Function<String, String>> xss();
 
   /**
@@ -696,6 +707,7 @@ public interface Env extends LifeCycle {
    * @param xss XSS to combine.
    * @return Chain of required xss functions.
    */
+  @Nonnull
   default Function<String, String> xss(final String... xss) {
     Map<String, Function<String, String>> fn = xss();
     BinaryOperator<Function<String, String>> reduce = Function::andThen;
@@ -713,21 +725,25 @@ public interface Env extends LifeCycle {
    * @param escaper Escape function.
    * @return This environment.
    */
+  @Nonnull
   Env xss(String name, Function<String, String> escaper);
 
   /**
    * @return List of start tasks.
    */
+  @Nonnull
   List<Throwing.Consumer<Registry>> startTasks();
 
   /**
    * @return List of start tasks.
    */
+  @Nonnull
   List<Throwing.Consumer<Registry>> startedTasks();
 
   /**
    * @return List of stop tasks.
    */
+  @Nonnull
   List<Throwing.Consumer<Registry>> stopTasks();
 
   /**
@@ -738,6 +754,7 @@ public interface Env extends LifeCycle {
    * @param <T> Object type.
    * @return This environment.
    */
+  @Nonnull
   <T> Env set(Key<T> key, T value);
 
   /**
@@ -748,6 +765,7 @@ public interface Env extends LifeCycle {
    * @param <T> Object type.
    * @return This environment.
    */
+  @Nonnull
   default <T> Env set(Class<T> key, T value) {
     return set(Key.get(key), value);
   }
@@ -759,6 +777,7 @@ public interface Env extends LifeCycle {
    * @param <T> Object type.
    * @return Object valur or empty.
    */
+  @Nonnull
   <T> Optional<T> get(Key<T> key);
 
   /**
@@ -768,6 +787,7 @@ public interface Env extends LifeCycle {
    * @param <T> Object type.
    * @return Object valur or empty.
    */
+  @Nonnull
   default <T> Optional<T> get(Class<T> key) {
     return get(Key.get(key));
   }

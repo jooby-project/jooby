@@ -1474,6 +1474,13 @@
         <version>${maven-antrun-plugin.version}</version>
       </dependency>
 
+      <!-- jsr350-->
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>${jsr305.version}</version>
+      </dependency>
+
       <!-- sitemap -->
       <dependency>
         <groupId>cz.jiripinkas</groupId>
@@ -3007,7 +3014,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <hikariCP.version>2.6.1</hikariCP.version>
     <hibernate.version>5.2.1.Final</hibernate.version>
     <hibernate4.version>4.3.9.Final</hibernate4.version>
-    <jsr305.version>3.0.0</jsr305.version>
+    <jsr305.version>3.0.2</jsr305.version>
     <http-client.version>4.5.2</http-client.version>
     <rest-assured.version>3.0.1</rest-assured.version>
     <async-http-client.version>1.9.36</async-http-client.version>

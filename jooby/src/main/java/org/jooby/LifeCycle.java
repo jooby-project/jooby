@@ -207,6 +207,7 @@ import com.typesafe.config.Config;
 import org.jooby.funzy.Throwing;
 import org.jooby.funzy.Try;
 
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.lang.annotation.Annotation;
@@ -414,6 +415,7 @@ public interface LifeCycle {
    * @param service Service type. Must be a singleton object.
    * @return This instance.
    */
+  @Nonnull
   default LifeCycle lifeCycle(final Class<?> service) {
     lifeCycleAnnotation(service, PostConstruct.class)
         .ifPresent(it -> onStart(app -> it.accept(app.require(service))));
@@ -434,6 +436,7 @@ public interface LifeCycle {
    * @param task Task to run.
    * @return This env.
    */
+  @Nonnull
   LifeCycle onStart(Throwing.Consumer<Registry> task);
 
   /**
@@ -448,6 +451,7 @@ public interface LifeCycle {
    * @param task Task to run.
    * @return This env.
    */
+  @Nonnull
   LifeCycle onStarted(Throwing.Consumer<Registry> task);
 
   /**
@@ -461,6 +465,7 @@ public interface LifeCycle {
    * @param task Task to run.
    * @return This env.
    */
+  @Nonnull
   default LifeCycle onStart(final Throwing.Runnable task) {
     return onStart(app -> task.run());
   }
@@ -477,6 +482,7 @@ public interface LifeCycle {
    * @param task Task to run.
    * @return This env.
    */
+  @Nonnull
   default LifeCycle onStarted(final Throwing.Runnable task) {
     return onStarted(app -> task.run());
   }
@@ -492,6 +498,7 @@ public interface LifeCycle {
    * @param task Task to run.
    * @return This env.
    */
+  @Nonnull
   default LifeCycle onStop(final Throwing.Runnable task) {
     return onStop(app -> task.run());
   }
@@ -507,6 +514,7 @@ public interface LifeCycle {
    * @param task Task to run.
    * @return This env.
    */
+  @Nonnull
   LifeCycle onStop(Throwing.Consumer<Registry> task);
 
 }

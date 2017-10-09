@@ -213,6 +213,8 @@ import com.google.common.primitives.Primitives;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Types;
 
+import javax.annotation.Nonnull;
+
 /**
  * <p>
  * A type safe {@link Mutant} useful for reading parameters/headers/session attributes, etc..
@@ -338,6 +340,7 @@ public interface Mutant {
   /**
    * @return Get a string when possible.
    */
+  @Nonnull
   default String value() {
     return to(String.class);
   }
@@ -346,6 +349,7 @@ public interface Mutant {
    * @param value Default value to use.
    * @return Get a string.
    */
+  @Nonnull
   default String value(final String value) {
     return toOptional().orElse(value);
   }
@@ -385,6 +389,7 @@ public interface Mutant {
    * @param <T> Enum type.
    * @return Get an enum when possible.
    */
+  @Nonnull
   default <T extends Enum<T>> T toEnum(final Class<T> type) {
     return to(type);
   }
@@ -395,6 +400,7 @@ public interface Mutant {
    * @return Get an enum.
    */
   @SuppressWarnings("unchecked")
+  @Nonnull
   default <T extends Enum<T>> T toEnum(final T value) {
     Optional<T> optional = (Optional<T>) toOptional(value.getClass());
     return optional.orElse(value);
@@ -406,6 +412,7 @@ public interface Mutant {
    * @return Get list of values when possible.
    */
   @SuppressWarnings("unchecked")
+  @Nonnull
   default <T> List<T> toList(final Class<T> type) {
     return (List<T>) to(TypeLiteral.get(Types.listOf(Primitives.wrap(type))));
   }
@@ -413,6 +420,7 @@ public interface Mutant {
   /**
    * @return Get list of values when possible.
    */
+  @Nonnull
   default List<String> toList() {
     return toList(String.class);
   }
@@ -420,6 +428,7 @@ public interface Mutant {
   /**
    * @return Get set of values when possible.
    */
+  @Nonnull
   default Set<String> toSet() {
     return toSet(String.class);
   }
@@ -430,6 +439,7 @@ public interface Mutant {
    * @return Get set of values when possible.
    */
   @SuppressWarnings("unchecked")
+  @Nonnull
   default <T> Set<T> toSet(final Class<T> type) {
     return (Set<T>) to(TypeLiteral.get(Types.setOf(Primitives.wrap(type))));
   }
@@ -437,6 +447,7 @@ public interface Mutant {
   /**
    * @return Get sorted set of values when possible.
    */
+  @Nonnull
   default SortedSet<String> toSortedSet() {
     return toSortedSet(String.class);
   }
@@ -447,6 +458,7 @@ public interface Mutant {
    * @return Get sorted set of values when possible.
    */
   @SuppressWarnings("unchecked")
+  @Nonnull
   default <T extends Comparable<T>> SortedSet<T> toSortedSet(final Class<T> type) {
     return (SortedSet<T>) to(TypeLiteral.get(
         Types.newParameterizedType(SortedSet.class, Primitives.wrap(type))));
@@ -455,6 +467,7 @@ public interface Mutant {
   /**
    * @return An optional string value.
    */
+  @Nonnull
   default Optional<String> toOptional() {
     return toOptional(String.class);
   }
@@ -465,6 +478,7 @@ public interface Mutant {
    * @return Get an optional value when possible.
    */
   @SuppressWarnings("unchecked")
+  @Nonnull
   default <T> Optional<T> toOptional(final Class<T> type) {
     return (Optional<T>) to(TypeLiteral.get(
         Types.newParameterizedType(Optional.class, Primitives.wrap(type))));
@@ -477,6 +491,7 @@ public interface Mutant {
    * @param <T> Target type.
    * @return Get a value when possible.
    */
+  @Nonnull
   default <T> T to(final Class<T> type) {
     return to(TypeLiteral.get(type));
   }
@@ -488,6 +503,7 @@ public interface Mutant {
    * @param <T> Target type.
    * @return Get a value when possible.
    */
+  @Nonnull
   <T> T to(TypeLiteral<T> type);
 
   /**
@@ -499,6 +515,7 @@ public interface Mutant {
    * @param <T> Target type.
    * @return Get a value when possible.
    */
+  @Nonnull
   default <T> T to(final Class<T> type, final String mtype) {
     return to(type, MediaType.valueOf(mtype));
   }
@@ -512,6 +529,7 @@ public interface Mutant {
    * @param <T> Target type.
    * @return Get a value when possible.
    */
+  @Nonnull
   default <T> T to(final Class<T> type, final MediaType mtype) {
     return to(TypeLiteral.get(type), mtype);
   }
@@ -525,6 +543,7 @@ public interface Mutant {
    * @param <T> Target type.
    * @return Get a value when possible.
    */
+  @Nonnull
   default <T> T to(final TypeLiteral<T> type, final String mtype) {
     return to(type, MediaType.valueOf(mtype));
   }
@@ -538,6 +557,7 @@ public interface Mutant {
    * @param <T> Target type.
    * @return Get a value when possible.
    */
+  @Nonnull
   <T> T to(TypeLiteral<T> type, MediaType mtype);
 
   /**
@@ -554,6 +574,7 @@ public interface Mutant {
    *
    * @return A map view of this mutant.
    */
+  @Nonnull
   Map<String, Mutant> toMap();
 
   /**

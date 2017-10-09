@@ -211,6 +211,8 @@ import java.util.function.Predicate;
 import org.jooby.Route.Mapper;
 import org.jooby.handlers.AssetHandler;
 
+import javax.annotation.Nonnull;
+
 /**
  * Route DSL. Constructs and creates several flavors of jooby routes.
  *
@@ -226,6 +228,7 @@ public interface Router {
    * @param app Routes provider.
    * @return This jooby instance.
    */
+  @Nonnull
   Router use(final Jooby app);
 
   /**
@@ -236,6 +239,7 @@ public interface Router {
    * @param app Routes provider.
    * @return This jooby instance.
    */
+  @Nonnull
   Router use(final String path, final Jooby app);
 
   /**
@@ -252,6 +256,7 @@ public interface Router {
    * @param pattern Global pattern to use.
    * @return A route namespace.
    */
+  @Nonnull
   Route.Group use(String pattern);
 
   /**
@@ -261,6 +266,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition use(String path, Route.Filter filter);
 
   /**
@@ -271,6 +277,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition use(String method, String path, Route.Filter filter);
 
   /**
@@ -283,6 +290,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition use(String method, String path, Route.Handler handler);
 
   /**
@@ -294,6 +302,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition use(String path, Route.Handler handler);
 
   /**
@@ -303,6 +312,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition use(String path, Route.OneArgHandler handler);
 
   /**
@@ -318,6 +328,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition get(String path, Route.Handler handler);
 
   /**
@@ -334,6 +345,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, Route.Handler handler);
 
   /**
@@ -351,6 +363,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, String path3, Route.Handler handler);
 
   /**
@@ -366,6 +379,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition get(String path, Route.OneArgHandler handler);
 
   /**
@@ -382,6 +396,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, Route.OneArgHandler handler);
 
   /**
@@ -399,6 +414,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, String path3, Route.OneArgHandler handler);
 
   /**
@@ -414,6 +430,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition get(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -430,6 +447,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
@@ -447,6 +465,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, String path3, Route.ZeroArgHandler handler);
 
   /**
@@ -462,6 +481,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition get(String path, Route.Filter filter);
 
   /**
@@ -479,6 +499,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, Route.Filter filter);
 
   /**
@@ -496,6 +517,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, String path3, Route.Filter filter);
 
   /**
@@ -511,6 +533,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition post(String path, Route.Handler handler);
 
   /**
@@ -527,6 +550,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, Route.Handler handler);
 
   /**
@@ -544,6 +568,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, String path3, Route.Handler handler);
 
   /**
@@ -559,6 +584,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition post(String path, Route.OneArgHandler handler);
 
   /**
@@ -575,6 +601,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, Route.OneArgHandler handler);
 
   /**
@@ -592,6 +619,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, String path3, Route.OneArgHandler handler);
 
   /**
@@ -607,6 +635,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition post(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -623,6 +652,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
@@ -640,6 +670,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, String path3, Route.ZeroArgHandler handler);
 
   /**
@@ -655,6 +686,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition post(String path, Route.Filter filter);
 
   /**
@@ -671,6 +703,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, Route.Filter filter);
 
   /**
@@ -688,6 +721,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, String path3, Route.Filter filter);
 
   /**
@@ -703,6 +737,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition head(String path, Route.Handler handler);
 
   /**
@@ -718,6 +753,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition head(String path, Route.OneArgHandler handler);
 
   /**
@@ -733,6 +769,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition head(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -748,6 +785,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition head(String path, Route.Filter filter);
 
   /**
@@ -761,6 +799,7 @@ public interface Router {
    *
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition head();
 
   /**
@@ -776,6 +815,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition options(String path, Route.Handler handler);
 
   /**
@@ -791,6 +831,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition options(String path, Route.OneArgHandler handler);
 
   /**
@@ -806,6 +847,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition options(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -822,6 +864,7 @@ public interface Router {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition options(String path, Route.Filter filter);
 
   /**
@@ -843,6 +886,7 @@ public interface Router {
    *
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition options();
 
   /**
@@ -858,6 +902,7 @@ public interface Router {
    * @param handler A route to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition put(String path, Route.Handler handler);
 
   /**
@@ -874,6 +919,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, Route.Handler handler);
 
   /**
@@ -891,6 +937,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, String path3, Route.Handler handler);
 
   /**
@@ -906,6 +953,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition put(String path, Route.OneArgHandler handler);
 
   /**
@@ -922,6 +970,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2,
       Route.OneArgHandler handler);
 
@@ -942,6 +991,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, String path3, Route.OneArgHandler handler);
 
   /**
@@ -957,6 +1007,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition put(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -975,6 +1026,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
@@ -994,6 +1046,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, String path3, Route.ZeroArgHandler handler);
 
   /**
@@ -1009,6 +1062,7 @@ public interface Router {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition put(String path, Route.Filter filter);
 
   /**
@@ -1025,6 +1079,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, Route.Filter filter);
 
   /**
@@ -1044,6 +1099,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, String path3, Route.Filter filter);
 
   /**
@@ -1059,6 +1115,7 @@ public interface Router {
    * @param handler A route to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition patch(String path, Route.Handler handler);
 
   /**
@@ -1075,6 +1132,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, Route.Handler handler);
 
   /**
@@ -1109,6 +1167,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition patch(String path, Route.OneArgHandler handler);
 
   /**
@@ -1127,6 +1186,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, Route.OneArgHandler handler);
 
   /**
@@ -1146,6 +1206,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, String path3, Route.OneArgHandler handler);
 
   /**
@@ -1163,6 +1224,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition patch(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -1181,6 +1243,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
@@ -1200,6 +1263,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, String path3, Route.ZeroArgHandler handler);
 
   /**
@@ -1215,6 +1279,7 @@ public interface Router {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition patch(String path, Route.Filter filter);
 
   /**
@@ -1231,6 +1296,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, Route.Filter filter);
 
   /**
@@ -1248,6 +1314,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, String path3, Route.Filter filter);
 
   /**
@@ -1265,6 +1332,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition delete(String path, Route.Handler handler);
 
   /**
@@ -1283,6 +1351,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, Route.Handler handler);
 
   /**
@@ -1302,6 +1371,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, String path3, Route.Handler handler);
 
   /**
@@ -1319,6 +1389,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition delete(String path, Route.OneArgHandler handler);
 
   /**
@@ -1337,6 +1408,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, Route.OneArgHandler handler);
 
   /**
@@ -1356,6 +1428,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, String path3, Route.OneArgHandler handler);
 
   /**
@@ -1373,6 +1446,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition delete(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -1389,6 +1463,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
@@ -1406,6 +1481,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, String path3, Route.ZeroArgHandler handler);
 
   /**
@@ -1422,6 +1498,7 @@ public interface Router {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition delete(String path, Route.Filter filter);
 
   /**
@@ -1439,6 +1516,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, Route.Filter filter);
 
   /**
@@ -1457,6 +1535,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1,
       String path2, String path3,
       Route.Filter filter);
@@ -1474,6 +1553,7 @@ public interface Router {
    * @param handler A callback to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition trace(String path, Route.Handler handler);
 
   /**
@@ -1489,6 +1569,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition trace(String path, Route.OneArgHandler handler);
 
   /**
@@ -1504,6 +1585,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition trace(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -1519,6 +1601,7 @@ public interface Router {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition trace(String path, Route.Filter filter);
 
   /**
@@ -1533,6 +1616,7 @@ public interface Router {
    *
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition trace();
 
   /**
@@ -1547,6 +1631,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition connect(String path, Route.Handler handler);
 
   /**
@@ -1562,6 +1647,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition connect(String path, Route.OneArgHandler handler);
 
   /**
@@ -1577,6 +1663,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition connect(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -1592,6 +1679,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition connect(String path, Route.Filter filter);
 
   /**
@@ -1621,6 +1709,7 @@ public interface Router {
    * @param path The path to publish.
    * @return A new route definition.
    */
+  @Nonnull
   default Route.Definition assets(final String path) {
     return assets(path, "/");
   }
@@ -1654,6 +1743,7 @@ public interface Router {
    * @param basedir Base directory.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition assets(final String path, Path basedir);
 
   /**
@@ -1699,6 +1789,7 @@ public interface Router {
    * @param location A resource location.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition assets(String path, String location);
 
   /**
@@ -1709,6 +1800,7 @@ public interface Router {
    * @param handler Asset handler.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition assets(String path, AssetHandler handler);
 
   /**
@@ -1745,6 +1837,7 @@ public interface Router {
    * @param routeClass A route(s) class.
    * @return This jooby instance.
    */
+  @Nonnull
   Route.Collection use(Class<?> routeClass);
 
   /**
@@ -1802,6 +1895,7 @@ public interface Router {
    * @param chain Chain of before handler.
    * @return A new route definition.
    */
+  @Nonnull
   default Route.Collection before(final Route.Before handler, final Route.Before... chain) {
     return before("*", handler, chain);
   }
@@ -1861,6 +1955,7 @@ public interface Router {
    * @param chain Chain of before handler.
    * @return A new route definition.
    */
+  @Nonnull
   default Route.Collection before(final String pattern, final Route.Before handler,
       final Route.Before... chain) {
     return before("*", pattern, handler, chain);
@@ -1922,6 +2017,7 @@ public interface Router {
    * @param chain Chain of before handler.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection before(String method, String pattern, Route.Before handler,
       Route.Before... chain);
 
@@ -1988,6 +2084,7 @@ public interface Router {
    * @param chain After chain.
    * @return A new route definition.
    */
+  @Nonnull
   default Route.Collection after(final Route.After handler, final Route.After... chain) {
     return after("*", handler, chain);
   }
@@ -2054,6 +2151,7 @@ public interface Router {
    * @param chain After chain.
    * @return A new route definition.
    */
+  @Nonnull
   default Route.Collection after(final String pattern, final Route.After handler,
       final Route.After... chain) {
     return after("*", pattern, handler, chain);
@@ -2123,6 +2221,7 @@ public interface Router {
    * @param chain After chain.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection after(String method, String pattern, Route.After handler, Route.After... chain);
 
   /**
@@ -2228,6 +2327,7 @@ public interface Router {
    * @param chain Complete chain.
    * @return A new route definition.
    */
+  @Nonnull
   default Route.Collection complete(final Route.Complete handler, final Route.Complete... chain) {
     return complete("*", handler, chain);
   }
@@ -2336,6 +2436,7 @@ public interface Router {
    * @param chain Complete chain.
    * @return A new route definition.
    */
+  @Nonnull
   default Route.Collection complete(final String pattern, final Route.Complete handler,
       final Route.Complete... chain) {
     return complete("*", pattern, handler, chain);
@@ -2445,6 +2546,7 @@ public interface Router {
    * @param chain Complete chain.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection complete(String method, String pattern, Route.Complete handler,
       Route.Complete... chain);
 
@@ -2465,6 +2567,7 @@ public interface Router {
    * @param handler A connect callback.
    * @return A new WebSocket definition.
    */
+  @Nonnull
   default WebSocket.Definition ws(final String path, final WebSocket.OnOpen1 handler) {
     return ws(path, (WebSocket.OnOpen) handler);
   }
@@ -2486,12 +2589,36 @@ public interface Router {
    * @param handler A connect callback.
    * @return A new WebSocket definition.
    */
+  @Nonnull
   WebSocket.Definition ws(String path, WebSocket.OnOpen handler);
 
+  /**
+   * Append a new WebSocket handler under the given path.
+   *
+   * <pre>
+   *   ws(MyHandler.class);
+   * </pre>
+   *
+   *  @param handler A message callback.
+   * @return A new WebSocket definition.
+   */
+  @Nonnull
   default <T> WebSocket.Definition ws(final Class<? extends WebSocket.OnMessage<T>> handler) {
     return ws("", handler);
   }
 
+  /**
+   * Append a new WebSocket handler under the given path.
+   *
+   * <pre>
+   *   ws("/ws", MyHandler.class);
+   * </pre>
+   *
+   * @param path A path pattern.
+   * @param handler A message callback.
+   * @return A new WebSocket definition.
+   */
+  @Nonnull
   <T> WebSocket.Definition ws(String path, Class<? extends WebSocket.OnMessage<T>> handler);
 
   /**
@@ -2510,6 +2637,7 @@ public interface Router {
    * @param handler Callback. It might executed in a different thread (web server choice).
    * @return A route definition.
    */
+  @Nonnull
   Route.Definition sse(String path, Sse.Handler handler);
 
   /**
@@ -2528,6 +2656,7 @@ public interface Router {
    * @param handler Callback. It might executed in a different thread (web server choice).
    * @return A route definition.
    */
+  @Nonnull
   Route.Definition sse(String path, Sse.Handler1 handler);
 
   /**
@@ -2554,6 +2683,7 @@ public interface Router {
    * @param callback Route callback.
    * @return A route collection.
    */
+  @Nonnull
   Route.Collection with(Runnable callback);
 
   /**
@@ -2574,6 +2704,7 @@ public interface Router {
    * @param mapper Route mapper to append.
    * @return This instance.
    */
+  @Nonnull
   Router map(final Mapper<?> mapper);
 
   /**
@@ -2610,6 +2741,7 @@ public interface Router {
    * @param err A route error handler.
    * @return This jooby instance.
    */
+  @Nonnull
   Router err(Err.Handler err);
 
   /**
@@ -2621,6 +2753,7 @@ public interface Router {
    * @param handler A route error handler.
    * @return This jooby instance.
    */
+  @Nonnull
   default Router err(final Class<? extends Throwable> type, final Err.Handler handler) {
     return err((req, rsp, x) -> {
       if (type.isInstance(x) || type.isInstance(x.getCause())) {
@@ -2637,6 +2770,7 @@ public interface Router {
    * @param handler A route error handler.
    * @return This jooby instance.
    */
+  @Nonnull
   default Router err(final int statusCode, final Err.Handler handler) {
     return err((req, rsp, x) -> {
       if (statusCode == x.statusCode()) {
@@ -2653,6 +2787,7 @@ public interface Router {
    * @param handler A route error handler.
    * @return This jooby instance.
    */
+  @Nonnull
   default Router err(final Status code, final Err.Handler handler) {
     return err((req, rsp, x) -> {
       if (code.value() == x.statusCode()) {
@@ -2669,6 +2804,7 @@ public interface Router {
    * @param handler A route error handler.
    * @return This jooby instance.
    */
+  @Nonnull
   default Router err(final Predicate<Status> predicate, final Err.Handler handler) {
     return err((req, rsp, err) -> {
       if (predicate.test(Status.valueOf(err.statusCode()))) {
@@ -2735,6 +2871,7 @@ public interface Router {
    * @return A new deferred handler.
    * @see Deferred
    */
+  @Nonnull
   Route.OneArgHandler promise(Deferred.Initializer initializer);
 
   /**
@@ -2768,6 +2905,7 @@ public interface Router {
    * @return A new deferred handler.
    * @see Deferred
    */
+  @Nonnull
   Route.OneArgHandler promise(String executor, Deferred.Initializer initializer);
 
   /**
@@ -2796,6 +2934,7 @@ public interface Router {
    * @return A new deferred handler.
    * @see Deferred
    */
+  @Nonnull
   Route.OneArgHandler promise(Deferred.Initializer0 initializer);
 
   /**
@@ -2819,6 +2958,7 @@ public interface Router {
    * @return A new deferred handler.
    * @see Deferred
    */
+  @Nonnull
   Route.OneArgHandler promise(String executor, Deferred.Initializer0 initializer);
 
   /**
@@ -2842,6 +2982,7 @@ public interface Router {
    * @param handler Application block.
    * @return A new deferred handler.
    */
+  @Nonnull
   default Route.ZeroArgHandler deferred(final String executor, final Route.OneArgHandler handler) {
     return () -> Deferred.deferred(executor, handler);
   }
@@ -2877,6 +3018,7 @@ public interface Router {
    * @param handler Application block.
    * @return A new deferred handler.
    */
+  @Nonnull
   default Route.ZeroArgHandler deferred(final Route.OneArgHandler handler) {
     return () -> Deferred.deferred(handler);
   }
@@ -2902,6 +3044,7 @@ public interface Router {
    * @param handler Application block.
    * @return A new deferred handler.
    */
+  @Nonnull
   default Route.ZeroArgHandler deferred(final String executor, final Route.ZeroArgHandler handler) {
     return () -> Deferred.deferred(executor, handler);
   }
@@ -2937,6 +3080,7 @@ public interface Router {
    * @param handler Application block.
    * @return A new deferred handler.
    */
+  @Nonnull
   default Route.ZeroArgHandler deferred(final Route.ZeroArgHandler handler) {
     return () -> Deferred.deferred(handler);
   }

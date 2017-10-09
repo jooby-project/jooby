@@ -205,6 +205,7 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
+import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 /**
@@ -221,6 +222,7 @@ public class Results {
    * @param entity A result value.
    * @return A new result.
    */
+  @Nonnull
   public static Result with(final Object entity) {
     return new Result().set(entity);
   }
@@ -232,6 +234,7 @@ public class Results {
    * @param status A HTTP status.
    * @return A new result.
    */
+  @Nonnull
   public static Result with(final Object entity, final Status status) {
     return new Result().status(status).set(entity);
   }
@@ -243,6 +246,7 @@ public class Results {
    * @param status A HTTP status.
    * @return A new result.
    */
+  @Nonnull
   public static Result with(final Object entity, final int status) {
     return with(entity, Status.valueOf(status));
   }
@@ -253,6 +257,7 @@ public class Results {
    * @param status A status!
    * @return A new result.
    */
+  @Nonnull
   public static Result with(final Status status) {
     requireNonNull(status, "A HTTP status is required.");
     return new Result().status(status);
@@ -264,6 +269,7 @@ public class Results {
    * @param status A status!
    * @return A new result.
    */
+  @Nonnull
   public static Result with(final int status) {
     requireNonNull(status, "A HTTP status is required.");
     return new Result().status(status);
@@ -272,6 +278,7 @@ public class Results {
   /**
    * @return A new result with {@link Status#OK}.
    */
+  @Nonnull
   public static Result ok() {
     return with(Status.OK);
   }
@@ -280,6 +287,7 @@ public class Results {
    * @param view View to render.
    * @return A new view.
    */
+  @Nonnull
   public static View html(final String view) {
     return new View(view);
   }
@@ -288,6 +296,7 @@ public class Results {
    * @param entity A result content!
    * @return A new json result.
    */
+  @Nonnull
   public static Result json(final Object entity) {
     return with(entity, 200).type(MediaType.json);
   }
@@ -296,6 +305,7 @@ public class Results {
    * @param entity A result content!
    * @return A new json result.
    */
+  @Nonnull
   public static Result xml(final Object entity) {
     return with(entity, 200).type(MediaType.xml);
   }
@@ -304,6 +314,7 @@ public class Results {
    * @param entity A result content!
    * @return A new result with {@link Status#OK} and given content.
    */
+  @Nonnull
   public static Result ok(final Object entity) {
     return ok().set(entity);
   }
@@ -311,6 +322,7 @@ public class Results {
   /**
    * @return A new result with {@link Status#ACCEPTED}.
    */
+  @Nonnull
   public static Result accepted() {
     return with(Status.ACCEPTED);
   }
@@ -319,6 +331,7 @@ public class Results {
    * @param content A result content!
    * @return A new result with {@link Status#ACCEPTED}.
    */
+  @Nonnull
   public static Result accepted(final Object content) {
     return accepted().set(content);
   }
@@ -326,6 +339,7 @@ public class Results {
   /**
    * @return A new result with {@link Status#NO_CONTENT}.
    */
+  @Nonnull
   public static Result noContent() {
     return with(Status.NO_CONTENT);
   }
@@ -388,6 +402,7 @@ public class Results {
    * @param location A location.
    * @return A new result.
    */
+  @Nonnull
   public static Result redirect(final String location) {
     return redirect(Status.FOUND, location);
   }
@@ -450,6 +465,7 @@ public class Results {
    * @param location A location.
    * @return A new result.
    */
+  @Nonnull
   public static Result tempRedirect(final String location) {
     return redirect(Status.TEMPORARY_REDIRECT, location);
   }
@@ -512,6 +528,7 @@ public class Results {
    * @param location A location.
    * @return A new result.
    */
+  @Nonnull
   public static Result moved(final String location) {
     return redirect(Status.MOVED_PERMANENTLY, location);
   }
@@ -574,6 +591,7 @@ public class Results {
    * @param location A location.
    * @return A new result.
    */
+  @Nonnull
   public static Result seeOther(final String location) {
     return redirect(Status.SEE_OTHER, location);
   }
@@ -597,6 +615,7 @@ public class Results {
    * @param supplier A result supplier.
    * @return A new result.
    */
+  @Nonnull
   public static Result when(final String type, final Supplier<Object> supplier) {
     return new Result().when(type, supplier);
   }
@@ -620,6 +639,7 @@ public class Results {
    * @param supplier A result supplier.
    * @return A new result.
    */
+  @Nonnull
   public static Result when(final MediaType type, final Supplier<Object> supplier) {
     return new Result().when(type, supplier);
   }

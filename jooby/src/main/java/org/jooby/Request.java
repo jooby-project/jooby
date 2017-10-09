@@ -223,6 +223,8 @@ import com.google.common.net.UrlEscapers;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
+import javax.annotation.Nonnull;
+
 /**
  * Give you access at the current HTTP request in order to read parameters, headers and body.
  *
@@ -671,6 +673,7 @@ public interface Request extends Registry {
    *
    * @return The request URL pathname.
    */
+  @Nonnull
   default String path() {
     return path(false);
   }
@@ -680,6 +683,7 @@ public interface Request extends Registry {
    *
    * @return Raw path, like {@link #path()} but without decoding.
    */
+  @Nonnull
   String rawPath();
 
   /**
@@ -687,6 +691,7 @@ public interface Request extends Registry {
    *
    * @return The query string, without the leading <code>?</code>.
    */
+  @Nonnull
   Optional<String> queryString();
 
   /**
@@ -701,6 +706,7 @@ public interface Request extends Registry {
    * @param escape True if we want to escape this path.
    * @return The request URL pathname.
    */
+  @Nonnull
   default String path(final boolean escape) {
     String path = route().path();
     return escape ? UrlEscapers.urlFragmentEscaper().escape(path) : path;
@@ -712,11 +718,13 @@ public interface Request extends Registry {
    *
    * @return Application context path..
    */
+  @Nonnull
   String contextPath();
 
   /**
    * @return HTTP method.
    */
+  @Nonnull
   default String method() {
     return route().method();
   }
@@ -724,11 +732,13 @@ public interface Request extends Registry {
   /**
    * @return The <code>Content-Type</code> header. Default is: {@literal*}/{@literal*}.
    */
+  @Nonnull
   MediaType type();
 
   /**
    * @return The value of the <code>Accept header</code>. Default is: {@literal*}/{@literal*}.
    */
+  @Nonnull
   List<MediaType> accept();
 
   /**
@@ -762,6 +772,7 @@ public interface Request extends Registry {
    * @param types Types to test.
    * @return The best acceptable type.
    */
+  @Nonnull
   default Optional<MediaType> accepts(final String... types) {
     return accepts(MediaType.valueOf(types));
   }
@@ -835,6 +846,7 @@ public interface Request extends Registry {
    * @param types Types to test.
    * @return The best acceptable type.
    */
+  @Nonnull
   default Optional<MediaType> accepts(final MediaType... types) {
     return accepts(ImmutableList.copyOf(types));
   }
@@ -870,6 +882,7 @@ public interface Request extends Registry {
    * @param types Types to test for.
    * @return The best acceptable type.
    */
+  @Nonnull
   Optional<MediaType> accepts(List<MediaType> types);
 
   /**
@@ -885,6 +898,7 @@ public interface Request extends Registry {
    *
    * @return All the parameters.
    */
+  @Nonnull
   Mutant params();
 
   /**
@@ -901,6 +915,7 @@ public interface Request extends Registry {
    * @param xss Xss filter to apply.
    * @return All the parameters.
    */
+  @Nonnull
   Mutant params(String... xss);
 
   /**
@@ -910,6 +925,7 @@ public interface Request extends Registry {
    * @param <T> Value type.
    * @return Instance of object.
    */
+  @Nonnull
   default <T> T params(final Class<T> type) {
     return params().to(type);
   }
@@ -921,6 +937,7 @@ public interface Request extends Registry {
    * @param <T> Value type.
    * @return Instance of object.
    */
+  @Nonnull
   default <T> T form(final Class<T> type) {
     return params().to(type);
   }
@@ -933,6 +950,7 @@ public interface Request extends Registry {
    * @param <T> Value type.
    * @return Instance of object.
    */
+  @Nonnull
   default <T> T params(final Class<T> type, final String... xss) {
     return params(xss).to(type);
   }
@@ -945,6 +963,7 @@ public interface Request extends Registry {
    * @param <T> Value type.
    * @return Instance of object.
    */
+  @Nonnull
   default <T> T form(final Class<T> type, final String... xss) {
     return params(xss).to(type);
   }
@@ -976,6 +995,7 @@ public interface Request extends Registry {
    * @param name A parameter's name.
    * @return A HTTP request parameter.
    */
+  @Nonnull
   Mutant param(String name);
 
   /**
@@ -1006,6 +1026,7 @@ public interface Request extends Registry {
    * @param xss Xss filter to apply.
    * @return A HTTP request parameter.
    */
+  @Nonnull
   Mutant param(String name, String... xss);
 
   /**
@@ -1016,6 +1037,7 @@ public interface Request extends Registry {
    * @return An {@link Upload}.
    * @throws IOException
    */
+  @Nonnull
   default Upload file(final String name) throws IOException {
     List<Upload> files = files(name);
     if (files.size() == 0) {
@@ -1032,6 +1054,7 @@ public interface Request extends Registry {
    * @return An {@link Upload}.
    * @throws IOException
    */
+  @Nonnull
   default Optional<Upload> ifFile(final String name) throws IOException {
     List<Upload> files = files(name);
     return files.size() == 0 ? Optional.empty() : Optional.of(files.get(0));
@@ -1045,6 +1068,7 @@ public interface Request extends Registry {
    * @return A list of {@link Upload}.
    * @throws IOException
    */
+  @Nonnull
   List<Upload> files(final String name) throws IOException;
 
   /**
@@ -1053,6 +1077,7 @@ public interface Request extends Registry {
    * @param name A header's name.
    * @return A HTTP request header.
    */
+  @Nonnull
   Mutant header(String name);
 
   /**
@@ -1062,11 +1087,13 @@ public interface Request extends Registry {
    * @param xss Xss escapers.
    * @return A HTTP request header.
    */
+  @Nonnull
   Mutant header(final String name, final String... xss);
 
   /**
    * @return All the headers.
    */
+  @Nonnull
   Map<String, Mutant> headers();
 
   /**
@@ -1075,11 +1102,13 @@ public interface Request extends Registry {
    * @param name Cookie's name.
    * @return A cookie or an empty optional.
    */
+  @Nonnull
   Mutant cookie(String name);
 
   /**
    * @return All the cookies.
    */
+  @Nonnull
   List<Cookie> cookies();
 
   /**
@@ -1089,6 +1118,7 @@ public interface Request extends Registry {
    * @return The HTTP body.
    * @throws Exception If body can't be converted or there is no HTTP body.
    */
+  @Nonnull
   Mutant body() throws Exception;
 
   /**
@@ -1102,6 +1132,7 @@ public interface Request extends Registry {
    * @return Instance of object.
    * @throws Exception If body can't be converted or there is no HTTP body.
    */
+  @Nonnull
   default <T> T body(final Class<T> type) throws Exception {
     return body().to(type);
   }
@@ -1112,6 +1143,7 @@ public interface Request extends Registry {
    *
    * @return A current charset.
    */
+  @Nonnull
   Charset charset();
 
   /**
@@ -1119,6 +1151,7 @@ public interface Request extends Registry {
    *
    * @return A list of matching locales or empty list.
    */
+  @Nonnull
   default List<Locale> locales() {
     return locales(Locale::filter);
   }
@@ -1140,6 +1173,7 @@ public interface Request extends Registry {
    * @param filter A locale filter.
    * @return A list of matching locales.
    */
+  @Nonnull
   List<Locale> locales(BiFunction<List<Locale.LanguageRange>, List<Locale>, List<Locale>> filter);
 
   /**
@@ -1159,6 +1193,7 @@ public interface Request extends Registry {
    * @param filter A locale filter.
    * @return A matching locale.
    */
+  @Nonnull
   Locale locale(BiFunction<List<Locale.LanguageRange>, List<Locale>, Locale> filter);
 
   /**
@@ -1167,6 +1202,7 @@ public interface Request extends Registry {
    *
    * @return A matching locale.
    */
+  @Nonnull
   default Locale locale() {
     return locale((priorityList, locales) -> Optional.ofNullable(Locale.lookup(priorityList, locales))
         .orElse(locales.get(0)));
@@ -1181,6 +1217,7 @@ public interface Request extends Registry {
   /**
    * @return The IP address of the client or last proxy that sent the request.
    */
+  @Nonnull
   String ip();
 
   /**
@@ -1192,6 +1229,7 @@ public interface Request extends Registry {
   /**
    * @return The currently matched {@link Route}.
    */
+  @Nonnull
   Route route();
 
   /**
@@ -1200,17 +1238,20 @@ public interface Request extends Registry {
    *
    * @return The fully qualified name of the server.
    */
+  @Nonnull
   String hostname();
 
   /**
    * @return The current session associated with this request or if the request does not have a
    *         session, creates one.
    */
+  @Nonnull
   Session session();
 
   /**
    * @return The current session associated with this request if there is one.
    */
+  @Nonnull
   Optional<Session> ifSession();
 
   /**
@@ -1227,6 +1268,7 @@ public interface Request extends Registry {
    * @return The name and version of the protocol the request uses in the form
    *         <i>protocol/majorVersion.minorVersion</i>, for example, HTTP/1.1
    */
+  @Nonnull
   String protocol();
 
   /**
@@ -1241,6 +1283,7 @@ public interface Request extends Registry {
    * @param value Attribute's local. NOT null.
    * @return This request.
    */
+  @Nonnull
   Request set(String name, Object value);
 
   /**
@@ -1264,6 +1307,7 @@ public interface Request extends Registry {
    * @return A mutable map with attributes from {@link FlashScope}.
    * @throws Err Bad request error if the {@link FlashScope} was not installed it.
    */
+  @Nonnull
   default Map<String, String> flash() throws Err {
     Optional<Map<String, String>> flash = ifGet(FlashScope.NAME);
     return flash.orElseThrow(() -> new Err(Status.BAD_REQUEST,
@@ -1280,6 +1324,7 @@ public interface Request extends Registry {
    * @param value Attribute's value.
    * @return This request.
    */
+  @Nonnull
   default Request flash(final String name, final Object value) {
     requireNonNull(name, "Attribute's name is required.");
     Map<String, String> flash = flash();
@@ -1297,6 +1342,7 @@ public interface Request extends Registry {
    * @param name Attribute's name.
    * @return Optional flash attribute.
    */
+  @Nonnull
   default Optional<String> ifFlash(final String name) {
     return Optional.ofNullable(flash().get(name));
   }
@@ -1308,6 +1354,7 @@ public interface Request extends Registry {
    * @return Flash attribute.
    * @throws Err Bad request error if flash attribute is missing.
    */
+  @Nonnull
   default String flash(final String name) throws Err {
     return ifFlash(name)
         .orElseThrow(() -> new Err(Status.BAD_REQUEST,
@@ -1329,6 +1376,7 @@ public interface Request extends Registry {
    * @param <T> Target type.
    * @return A local attribute.
    */
+  @Nonnull
   <T> Optional<T> ifGet(String name);
 
   /**
@@ -1339,6 +1387,7 @@ public interface Request extends Registry {
    * @param <T> Target type.
    * @return A local attribute.
    */
+  @Nonnull
   default <T> T get(final String name, final T def) {
     Optional<T> opt = ifGet(name);
     return opt.orElse(def);
@@ -1352,6 +1401,7 @@ public interface Request extends Registry {
    * @return A local attribute.
    * @throws Err with {@link Status#BAD_REQUEST}.
    */
+  @Nonnull
   default <T> T get(final String name) {
     Optional<T> opt = ifGet(name);
     return opt.orElseThrow(
@@ -1365,6 +1415,7 @@ public interface Request extends Registry {
    * @param <T> Target type.
    * @return A local attribute.
    */
+  @Nonnull
   <T> Optional<T> unset(String name);
 
   /**
@@ -1372,6 +1423,7 @@ public interface Request extends Registry {
    *
    * @return Attributes locals.
    */
+  @Nonnull
   Map<String, Object> attributes();
 
   /**
@@ -1381,6 +1433,7 @@ public interface Request extends Registry {
    * @param value Actual object to bind.
    * @return Current request.
    */
+  @Nonnull
   default Request set(final Class<?> type, final Object value) {
     return set(TypeLiteral.get(type), value);
   }
@@ -1392,6 +1445,7 @@ public interface Request extends Registry {
    * @param value Actual object to bind.
    * @return Current request.
    */
+  @Nonnull
   default Request set(final TypeLiteral<?> type, final Object value) {
     return set(Key.get(type), value);
   }
@@ -1403,6 +1457,7 @@ public interface Request extends Registry {
    * @param value Actual object to bind.
    * @return Current request.
    */
+  @Nonnull
   Request set(Key<?> key, Object value);
 
   /**
@@ -1411,6 +1466,7 @@ public interface Request extends Registry {
    * @param path Path of the resource to push.
    * @return This request.
    */
+  @Nonnull
   default Request push(final String path) {
     return push(path, ImmutableMap.of());
   }
@@ -1422,6 +1478,7 @@ public interface Request extends Registry {
    * @param headers Headers to send.
    * @return This request.
    */
+  @Nonnull
   Request push(final String path, final Map<String, Object> headers);
 
   /**
