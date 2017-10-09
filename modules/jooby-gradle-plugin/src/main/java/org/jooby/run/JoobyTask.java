@@ -281,6 +281,7 @@ public class JoobyTask extends ConventionTask {
     getLogger().info("compiler is {}", compiler);
     if ("on".equalsIgnoreCase(compiler)) {
       Path[] watchDirs = getSrc().stream()
+          .filter(File::exists)
           .map(File::toPath)
           .collect(Collectors.toList())
           .toArray(new Path[0]);

@@ -211,6 +211,7 @@ import org.gradle.api.invocation.Gradle;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -250,7 +251,7 @@ public class JoobyPlugin implements Plugin<Project> {
 
           mapping.map("mainClassName", () -> project.getProperties().get("mainClassName"));
 
-          mapping.map("srcExtensions", () -> new String[] {".java", ".conf", ".properties"});
+          mapping.map("srcExtensions", () -> Arrays.asList(".java", ".conf", ".properties"));
 
           mapping.map("compiler", () -> {
             File eclipseClasspath = new File(project.getProjectDir(), ".classpath");
