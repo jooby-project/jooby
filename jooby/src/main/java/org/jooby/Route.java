@@ -1462,7 +1462,7 @@ public interface Route {
       return pattern;
     }
 
-    @Nonnull
+    @Nullable
     public String renderer() {
       return renderer;
     }

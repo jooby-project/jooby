@@ -290,6 +290,19 @@ import javax.annotation.Nonnull;
 public interface Request extends Registry {
 
   /**
+   * Flash scope.
+   *
+   * @author edgar
+   * @since 1.2.0
+   */
+  interface Flash extends Map<String, String> {
+    /**
+     * Keep flash cookie for next request.
+     */
+    void keep();
+  }
+
+  /**
    * Forwarding request.
    *
    * @author edgar
@@ -605,7 +618,7 @@ public interface Request extends Registry {
     }
 
     @Override
-    public Map<String, String> flash() throws NoSuchElementException {
+    public Flash flash() throws NoSuchElementException {
       return req.flash();
     }
 
@@ -1308,8 +1321,8 @@ public interface Request extends Registry {
    * @throws Err Bad request error if the {@link FlashScope} was not installed it.
    */
   @Nonnull
-  default Map<String, String> flash() throws Err {
-    Optional<Map<String, String>> flash = ifGet(FlashScope.NAME);
+  default Flash flash() throws Err {
+    Optional<Flash> flash = ifGet(FlashScope.NAME);
     return flash.orElseThrow(() -> new Err(Status.BAD_REQUEST,
         "Flash scope isn't available. Install via: use(new FlashScope());"));
   }

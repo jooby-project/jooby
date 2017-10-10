@@ -319,7 +319,8 @@ public class RequestParam {
      * Flash
      */
     builder.put(flashType, (req, rsp, param) -> {
-      if (param.type.getRawType() == Map.class) {
+      Class rawType = param.type.getRawType();
+      if (Map.class.isAssignableFrom(rawType)) {
         return req.flash();
       }
       return param.optional ? req.ifFlash(param.name) : req.flash(param.name);
