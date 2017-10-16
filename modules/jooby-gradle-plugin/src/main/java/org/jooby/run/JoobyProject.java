@@ -265,7 +265,6 @@ public class JoobyProject {
     Configuration provided = project.getConfigurations().findByName("provided");
     if (provided != null) {
       provided.getFiles().forEach(cp::add);
-      ;
     }
 
     return cp;
