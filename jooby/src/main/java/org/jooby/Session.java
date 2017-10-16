@@ -294,6 +294,17 @@ import javax.annotation.Nonnull;
  */
 public interface Session {
 
+  /**
+   * Throw when session access is required but the session has been destroyed.\
+   *
+   * See {@link Session#destroy()}.
+   */
+  class Destroyed extends RuntimeException {
+    public Destroyed() {
+      super("Session has been destroyed.");
+    }
+  }
+
   /** Global/Shared id of cookie sessions. */
   String COOKIE_SESSION = "cookieSession";
 
@@ -740,8 +751,15 @@ public interface Session {
   Session unset();
 
   /**
-   * Invalidates this session then unset any objects bound to it.
+   * Invalidates this session then unset any objects bound to it. This is a noop if the session has
+   * been destroyed.
    */
   void destroy();
 
+  /**
+   * True if the session was {@link #destroy()}.
+   *
+   * @return True if the session was {@link #destroy()}.
+   */
+  boolean isDestroyed();
 }

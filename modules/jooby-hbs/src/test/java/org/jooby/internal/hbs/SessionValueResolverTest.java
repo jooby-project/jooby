@@ -26,6 +26,7 @@ public class SessionValueResolverTest {
     new MockUnit(Session.class)
         .expect(unit -> {
           Session session = unit.get(Session.class);
+          expect(session.isDestroyed()).andReturn(false);
           Mutant v = unit.mock(Mutant.class);
           expect(v.toOptional()).andReturn(Optional.of("x"));
           expect(session.get("prop")).andReturn(v);
@@ -36,10 +37,23 @@ public class SessionValueResolverTest {
   }
 
   @Test
+  public void resolveDestroyedSessionToNull() throws Exception {
+    new MockUnit(Session.class)
+        .expect(unit -> {
+          Session session = unit.get(Session.class);
+          expect(session.isDestroyed()).andReturn(true);
+        })
+        .run(unit -> {
+          assertEquals(ValueResolver.UNRESOLVED, new SessionValueResolver().resolve(unit.get(Session.class), "prop"));
+        });
+  }
+
+  @Test
   public void resolveMissingProperty() throws Exception {
     new MockUnit(Session.class)
         .expect(unit -> {
           Session session = unit.get(Session.class);
+          expect(session.isDestroyed()).andReturn(false);
           Mutant v = unit.mock(Mutant.class);
           expect(v.toOptional()).andReturn(Optional.empty());
           expect(session.get("prop")).andReturn(v);
