@@ -222,6 +222,14 @@ import javax.annotation.Nonnull;
 public interface Router {
 
   /**
+   * Chain multiple Jooby apps under the same URL prefix during setup
+   *
+   * @param path
+   * @return
+   */
+  Router chain(String path);
+
+  /**
    * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
    * etc.).
    *
