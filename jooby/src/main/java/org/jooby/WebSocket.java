@@ -962,7 +962,6 @@ public interface WebSocket extends Closeable, Registry {
    */
   default void broadcast(final Object data, final OnError err) throws Exception {
     broadcast(data, SUCCESS, err);
-    ;
   }
 
   /**

@@ -124,7 +124,7 @@ public class WebSocketImplTest {
   public void resetSessions() throws Exception {
     Field field = WebSocketImpl.class.getDeclaredField("sessions");
     field.setAccessible(true);
-    Queue<WebSocket> sessions = (Queue<WebSocket>) field.get(null);
+    Map<String, List<WebSocket>> sessions = (Map<String, List<WebSocket>>) field.get(null);
     sessions.clear();
   }
 

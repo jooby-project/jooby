@@ -222,12 +222,15 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @SuppressWarnings("unchecked")
 public class WebSocketImpl implements WebSocket {
@@ -243,7 +246,7 @@ public class WebSocketImpl implements WebSocket {
   private final Logger log = LoggerFactory.getLogger(WebSocket.class);
 
   /** All connected websocket. */
-  private static final Queue<WebSocket> sessions = new ConcurrentLinkedQueue<>();
+  private static final ConcurrentMap<String, List<WebSocket>> sessions = new ConcurrentHashMap<>();
 
   private Locale locale;
 
@@ -290,7 +293,7 @@ public class WebSocketImpl implements WebSocket {
 
   @Override
   public void close(final CloseStatus status) {
-    sessions.remove(this);
+    removeSession(this);
     synchronized (this) {
       open = false;
       ws.close(status.code(), status.reason());
@@ -299,7 +302,7 @@ public class WebSocketImpl implements WebSocket {
 
   @Override
   public void resume() {
-    sessions.add(this);
+    addSession(this);
     synchronized (this) {
       if (suspended) {
         ws.resume();
@@ -310,7 +313,7 @@ public class WebSocketImpl implements WebSocket {
 
   @Override
   public void pause() {
-    sessions.remove(this);
+    removeSession(this);
     synchronized (this) {
       if (!suspended) {
         ws.pause();
@@ -321,7 +324,7 @@ public class WebSocketImpl implements WebSocket {
 
   @Override
   public void terminate() throws Exception {
-    sessions.remove(this);
+    removeSession(this);
     synchronized (this) {
       open = false;
       ws.terminate();
@@ -336,7 +339,7 @@ public class WebSocketImpl implements WebSocket {
   @Override
   public void broadcast(final Object data, final SuccessCallback success, final OnError err)
       throws Exception {
-    for (WebSocket ws : sessions) {
+    for (WebSocket ws : sessions.getOrDefault(this.pattern, Collections.emptyList())) {
       try {
         ws.send(data, success, err);
       } catch (Exception ex) {
@@ -394,7 +397,7 @@ public class WebSocketImpl implements WebSocket {
         .onFailure(this::handleErr));
 
     ws.onCloseMessage((code, reason) -> {
-      sessions.remove(this);
+      removeSession(this);
 
       Try.run(sync(() -> {
         this.open = false;
@@ -410,7 +413,7 @@ public class WebSocketImpl implements WebSocket {
 
     // connect now
     try {
-      sessions.add(this);
+      addSession(this);
       handler.onOpen(req, this);
     } catch (Throwable ex) {
       handleErr(ex);
@@ -515,5 +518,11 @@ public class WebSocketImpl implements WebSocket {
     };
   }
 
-  ;
+  private static void addSession(WebSocketImpl ws) {
+    sessions.computeIfAbsent(ws.pattern, k -> new CopyOnWriteArrayList<>()).add(ws);
+  }
+
+  private static  void removeSession(WebSocketImpl ws) {
+    Optional.ofNullable(sessions.get(ws.pattern)).ifPresent(list-> list.remove(ws));
+  }
 }
