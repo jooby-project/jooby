@@ -206,6 +206,7 @@ package org.jooby;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.jooby.Route.Mapper;
@@ -226,10 +227,27 @@ public interface Router {
    * etc.).
    *
    * @param app Routes provider.
-   * @return This jooby instance.
+   * @return This router.
    */
   @Nonnull
   Router use(final Jooby app);
+
+  /**
+   * Group one or more routes under a common path.
+   *
+   * <pre>
+   *   {
+   *     path("/api/pets", () -> {
+   *
+   *     });
+   *   }
+   * </pre>
+   *
+   * @param path Common path.
+   * @param action Router action.
+   * @return This router.
+   */
+  Router path(String path, Runnable action);
 
   /**
    * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
@@ -237,7 +255,7 @@ public interface Router {
    *
    * @param path Path to mount the given app.
    * @param app Routes provider.
-   * @return This jooby instance.
+   * @return This router.
    */
   @Nonnull
   Router use(final String path, final Jooby app);
@@ -255,8 +273,10 @@ public interface Router {
    *
    * @param pattern Global pattern to use.
    * @return A route namespace.
+   * @deprecated Replaced by {@link #path(String, Runnable)}.
    */
   @Nonnull
+  @Deprecated
   Route.Group use(String pattern);
 
   /**
@@ -319,6 +339,23 @@ public interface Router {
    * Append a route that matches the HTTP GET method:
    *
    * <pre>
+   *   get((req, rsp) {@literal ->} {
+   *     rsp.send(something);
+   *   });
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition get(Route.Handler handler) {
+    return get("/", handler);
+  }
+
+  /**
+   * Append a route that matches the HTTP GET method:
+   *
+   * <pre>
    *   get("/", (req, rsp) {@literal ->} {
    *     rsp.send(something);
    *   });
@@ -370,6 +407,23 @@ public interface Router {
    * Append route that matches the HTTP GET method:
    *
    * <pre>
+   *   get(req {@literal ->} {
+   *     return "hello";
+   *   });
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition get(Route.OneArgHandler handler) {
+    return get("/", handler);
+  }
+
+  /**
+   * Append route that matches the HTTP GET method:
+   *
+   * <pre>
    *   get("/", req {@literal ->} {
    *     return "hello";
    *   });
@@ -416,6 +470,23 @@ public interface Router {
    */
   @Nonnull
   Route.Collection get(String path1, String path2, String path3, Route.OneArgHandler handler);
+
+  /**
+   * Append route that matches HTTP GET method:
+   *
+   * <pre>
+   *   get(() {@literal ->}
+   *     "hello"
+   *   );
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition get(Route.ZeroArgHandler handler) {
+    return get("/", handler);
+  }
 
   /**
    * Append route that matches HTTP GET method:
@@ -524,6 +595,23 @@ public interface Router {
    * Append a route that supports HTTP POST method:
    *
    * <pre>
+   *   post((req, rsp) {@literal ->} {
+   *     rsp.send(something);
+   *   });
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition post(Route.Handler handler) {
+    return post("/", handler);
+  }
+
+  /**
+   * Append a route that supports HTTP POST method:
+   *
+   * <pre>
    *   post("/", (req, rsp) {@literal ->} {
    *     rsp.send(something);
    *   });
@@ -575,6 +663,23 @@ public interface Router {
    * Append route that supports HTTP POST method:
    *
    * <pre>
+   *   post(req {@literal ->}
+   *     "hello"
+   *   );
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition post(Route.OneArgHandler handler) {
+    return post("/", handler);
+  }
+
+  /**
+   * Append route that supports HTTP POST method:
+   *
+   * <pre>
    *   post("/", req {@literal ->}
    *     "hello"
    *   );
@@ -621,6 +726,23 @@ public interface Router {
    */
   @Nonnull
   Route.Collection post(String path1, String path2, String path3, Route.OneArgHandler handler);
+
+  /**
+   * Append route that supports HTTP POST method:
+   *
+   * <pre>
+   *   post(() {@literal ->}
+   *     "hello"
+   *   );
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition post(Route.ZeroArgHandler handler) {
+    return post("/", handler);
+  }
 
   /**
    * Append route that supports HTTP POST method:
@@ -893,6 +1015,23 @@ public interface Router {
    * Append route that supports HTTP PUT method:
    *
    * <pre>
+   *   put((req, rsp) {@literal ->} {
+   *     rsp.send(something);
+   *   });
+   * </pre>
+   *
+   * @param handler A route to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition put(Route.Handler handler) {
+    return put("/", handler);
+  }
+
+  /**
+   * Append route that supports HTTP PUT method:
+   *
+   * <pre>
    *   put("/", (req, rsp) {@literal ->} {
    *     rsp.send(something);
    *   });
@@ -944,6 +1083,23 @@ public interface Router {
    * Append route that supports HTTP PUT method:
    *
    * <pre>
+   *   put(req {@literal ->}
+   *    return Results.accepted();
+   *   );
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition put(Route.OneArgHandler handler) {
+    return put("/", handler);
+  }
+
+  /**
+   * Append route that supports HTTP PUT method:
+   *
+   * <pre>
    *   put("/", req {@literal ->}
    *    return Results.accepted();
    *   );
@@ -971,8 +1127,7 @@ public interface Router {
    * @return A new route definition.
    */
   @Nonnull
-  Route.Collection put(String path1, String path2,
-      Route.OneArgHandler handler);
+  Route.Collection put(String path1, String path2, Route.OneArgHandler handler);
 
   /**
    * Append three routes that supports HTTP PUT method on the same handler:
@@ -993,6 +1148,23 @@ public interface Router {
    */
   @Nonnull
   Route.Collection put(String path1, String path2, String path3, Route.OneArgHandler handler);
+
+  /**
+   * Append route that supports HTTP PUT method:
+   *
+   * <pre>
+   *   put(() {@literal ->} {
+   *     return Results.accepted()
+   *   });
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition put(Route.ZeroArgHandler handler) {
+    return put("/", handler);
+  }
 
   /**
    * Append route that supports HTTP PUT method:
@@ -1106,6 +1278,23 @@ public interface Router {
    * Append route that supports HTTP PATCH method:
    *
    * <pre>
+   *   patch((req, rsp) {@literal ->} {
+   *     rsp.send(something);
+   *   });
+   * </pre>
+   *
+   * @param handler A route to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition patch(Route.Handler handler) {
+    return patch("/", handler);
+  }
+
+  /**
+   * Append route that supports HTTP PATCH method:
+   *
+   * <pre>
    *   patch("/", (req, rsp) {@literal ->} {
    *     rsp.send(something);
    *   });
@@ -1151,6 +1340,25 @@ public interface Router {
    * @return A new route definition.
    */
   Route.Collection patch(String path1, String path2, String path3, Route.Handler handler);
+
+  /**
+   * Append route that supports HTTP PATCH method:
+   *
+   * <pre>
+   *   patch(req {@literal ->}
+   *    Results.ok()
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition patch(Route.OneArgHandler handler) {
+    return patch("/", handler);
+  }
 
   /**
    * Append route that supports HTTP PATCH method:
@@ -1208,6 +1416,25 @@ public interface Router {
    */
   @Nonnull
   Route.Collection patch(String path1, String path2, String path3, Route.OneArgHandler handler);
+
+  /**
+   * Append route that supports HTTP PATCH method:
+   *
+   * <pre>
+   *   patch(() {@literal ->} {
+   *     return Results.ok();
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition patch(Route.ZeroArgHandler handler) {
+    return patch("/", handler);
+  }
 
   /**
    * Append route that supports HTTP PATCH method:
@@ -1321,6 +1548,25 @@ public interface Router {
    * Append a route that supports HTTP DELETE method:
    *
    * <pre>
+   *   delete((req, rsp) {@literal ->} {
+   *     rsp.status(204);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition delete(Route.Handler handler) {
+    return delete("/", handler);
+  }
+
+  /**
+   * Append a route that supports HTTP DELETE method:
+   *
+   * <pre>
    *   delete("/", (req, rsp) {@literal ->} {
    *     rsp.status(204);
    *   });
@@ -1378,6 +1624,25 @@ public interface Router {
    * Append route that supports HTTP DELETE method:
    *
    * <pre>
+   *   delete(req {@literal ->}
+   *     return Results.noContent();
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition delete(Route.OneArgHandler handler) {
+    return delete("/", handler);
+  }
+
+  /**
+   * Append route that supports HTTP DELETE method:
+   *
+   * <pre>
    *   delete("/", req {@literal ->}
    *     return Results.noContent();
    *   );
@@ -1430,6 +1695,25 @@ public interface Router {
    */
   @Nonnull
   Route.Collection delete(String path1, String path2, String path3, Route.OneArgHandler handler);
+
+  /**
+   * Append route that supports HTTP DELETE method:
+   *
+   * <pre>
+   *   delete(() {@literal ->}
+   *     return Results.noContent();
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition delete(Route.ZeroArgHandler handler) {
+    return delete("/", handler);
+  }
 
   /**
    * Append route that supports HTTP DELETE method:
@@ -1536,9 +1820,7 @@ public interface Router {
    * @return A new route definition.
    */
   @Nonnull
-  Route.Collection delete(String path1,
-      String path2, String path3,
-      Route.Filter filter);
+  Route.Collection delete(String path1, String path2, String path3, Route.Filter filter);
 
   /**
    * Append a route that supports HTTP TRACE method:
@@ -1835,7 +2117,7 @@ public interface Router {
    * </p>
    *
    * @param routeClass A route(s) class.
-   * @return This jooby instance.
+   * @return This router.
    */
   @Nonnull
   Route.Collection use(Class<?> routeClass);
@@ -2739,7 +3021,7 @@ public interface Router {
    * HTTP status code will be set too.
    *
    * @param err A route error handler.
-   * @return This jooby instance.
+   * @return This router.
    */
   @Nonnull
   Router err(Err.Handler err);
@@ -2751,7 +3033,7 @@ public interface Router {
    * @param type Exception type. The error handler will be executed if the current exception is an
    *        instance of this type.
    * @param handler A route error handler.
-   * @return This jooby instance.
+   * @return This router.
    */
   @Nonnull
   default Router err(final Class<? extends Throwable> type, final Err.Handler handler) {
@@ -2768,7 +3050,7 @@ public interface Router {
    *
    * @param statusCode The status code to match.
    * @param handler A route error handler.
-   * @return This jooby instance.
+   * @return This router.
    */
   @Nonnull
   default Router err(final int statusCode, final Err.Handler handler) {
@@ -2785,7 +3067,7 @@ public interface Router {
    *
    * @param code The status code to match.
    * @param handler A route error handler.
-   * @return This jooby instance.
+   * @return This router.
    */
   @Nonnull
   default Router err(final Status code, final Err.Handler handler) {
@@ -2802,7 +3084,7 @@ public interface Router {
    *
    * @param predicate Apply the error handler if the predicate evaluates to <code>true</code>.
    * @param handler A route error handler.
-   * @return This jooby instance.
+   * @return This router.
    */
   @Nonnull
   default Router err(final Predicate<Status> predicate, final Err.Handler handler) {

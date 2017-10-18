@@ -298,6 +298,11 @@ class Filters {
     return is(MethodInsnNode.class).and(m -> use.matches(m) || kuse.matches(m));
   }
 
+  public static Predicate<MethodInsnNode> path(final String owner) {
+    Signature path = new Signature(owner, "path", String.class, Runnable.class);
+    return is(MethodInsnNode.class).and(m -> path.matches(m));
+  }
+
   public static Predicate<MethodNode> methodName(final String name) {
     return is(MethodNode.class).and(m -> m.name.equals(name));
   }

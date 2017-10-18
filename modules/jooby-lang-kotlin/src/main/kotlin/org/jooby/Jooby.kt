@@ -12,6 +12,7 @@ annotation class DslJooby
  * Collection of utility class and method to make Jooby more Kotlin.
  */
 @DslJooby
+@Deprecated("Replaced by path() operation")
 class KRouteGroup(b: Route.Props<Route.Group>) : Route.Props<Route.Group> by b {
   private val g = b as Route.Group
 
@@ -231,6 +232,7 @@ open class Kooby constructor(): Jooby() {
    * @param pattern Route group pattern.
    * @param init Group Initializer.
    */
+  @Deprecated("Replaced by path() operation")
   fun route(pattern: String, init: KRouteGroup.() -> Unit): KRouteGroup {
     val group = KRouteGroup(this.use(pattern))
     group.init()

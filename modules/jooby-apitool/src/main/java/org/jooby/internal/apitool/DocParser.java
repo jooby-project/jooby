@@ -312,6 +312,17 @@ class DocParser {
       }
     }
 
+    @Override public void enterPath(FuzzyDocParser.PathContext ctx) {
+      this.prefix = str(ctx.pattern.getText());
+      this.insideRoute = true;
+      this.summary = cleanJavadoc(file, ctx.doc.getText());
+    }
+
+    @Override public void exitPath(FuzzyDocParser.PathContext ctx) {
+      this.prefix = "";
+      this.insideRoute = false;
+    }
+
     /**
      * <pre>{@code
      *   route("/api/pattern");

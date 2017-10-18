@@ -355,6 +355,11 @@ class Lambda {
                             .forEach(i -> ldc.set(i, prefix.get(0) + ldc.get(i)));
                       });
                 }
+                if (ldc.size() == 0) {
+                  // default path:
+                  ldc.add("/");
+                  count.incrementAndGet();
+                }
                 return ldc.stream()
                     .skip(from)
                     .limit(Math.min(count.get(), ldc.size()))

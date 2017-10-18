@@ -277,7 +277,7 @@ import java.util.function.Predicate;
  *   /**
  *     * Everything about your Pets.
  *     *&#47;
- *   use("/api/pets")
+ *   patch("/api/pets", () -> {
  *     /**
  *       * List pets ordered by name.
  *       *
@@ -285,62 +285,61 @@ import java.util.function.Predicate;
  *       * @param max Max page size, useful for paging. Default is <code>200</code>.
  *       * @return Pets ordered by name.
  *       *&#47;
- *      .get(req {@literal ->} {
+ *      get(req {@literal ->} {
  *        int start = req.param("start").intValue(0);
  *        int max = req.param("max").intValue(200);
  *        DB db = req.require(DB.class);
  *        List&lt;Pet&gt; pets = db.findAll(Pet.class, start, max);
  *        return pets;
- *      })
+ *      });
  *     /**
  *       * Find pet by ID
  *       *
  *       * @param id Pet ID.
  *       * @return Returns <code>200</code> with a single pet or <code>404</code>
  *       *&#47;
- *       .get("/:id",req {@literal ->} {
+ *       get("/:id",req {@literal ->} {
  *         int id = req.param("id").intValue();
  *         DB db = req.require(DB.class);
  *         Pet pet = db.find(Pet.class,id);
  *         return pet;
- *       })
+ *       });
  *     /**
  *       * Add a new pet to the store.
  *       *
  *       * @param body Pet object that needs to be added to the store.
  *       * @return Returns a saved pet.
  *       *&#47;
- *       .post(req {@literal ->} {
+ *       post(req {@literal ->} {
  *         Pet pet = req.body().to(Pet.class);
  *         DB db = req.require(DB.class);
  *         db.save(pet);
  *         return pet;
- *       })
+ *       });
  *     /**
  *       * Update an existing pet.
  *       *
  *       * @param body Pet object that needs to be updated.
  *       * @return Returns a saved pet.
  *       *&#47;
- *       .put(req {@literal ->} {
+ *       put(req {@literal ->} {
  *         Pet pet = req.body().to(Pet.class);
  *         DB db = req.require(DB.class);db.save(pet);
  *         return pet;
- *       })
+ *       });
  *     /**
  *       * Deletes a pet by ID.
  *       *
  *       * @param id Pet ID.
  *       * @return A <code>204</code>
  *       *&#47;
- *       .delete("/:id",req {@literal ->} {
+ *       delete("/:id",req {@literal ->} {
  *         int id = req.param("id").intValue();
  *         DB db = req.require(DB.class);
  *         db.delete(Pet.class,id);
  *         return Results.noContent();
- *       })
- *       .produces("json")
- *       .consumes("json");
+ *       });
+ *    });
  *
  *    /**
  *     * Install API Doc and export your HTTP API:

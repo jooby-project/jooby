@@ -734,7 +734,9 @@ public interface Route {
    * Group one ore more routes under a base path, see {@link Router#use(String)}.
    *
    * @author edgar
+   * @deprecated Replaced by {@link Router#path(String, Runnable)}.
    */
+  @Deprecated
   class Group implements Props<Group> {
 
     /** List of definitions. */

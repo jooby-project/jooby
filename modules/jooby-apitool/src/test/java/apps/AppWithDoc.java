@@ -23,67 +23,68 @@ public class AppWithDoc extends Jooby {
     /**
      * Everything about your Pets.
      */
-    use("/api/pets")
-        /**
-         * Find pet by ID.
-         *
-         * @param id Pet ID.
-         * @return Returns <code>200</code> with a single pet or <code>404</code>
-         */
-        .get("/:id", req -> {
-          int id = req.param("id").intValue();
-          DB db = req.require(DB.class);
-          Pet result = db.find(id);
-          if (result == null) {
-            throw new Err(Status.NOT_FOUND);
-          }
-          return result;
-        })
-        /**
-         *
-         * List pets ordered by id.
-         *
-         * @param start Start offset, useful for paging. Default is <code>0</code>.
-         * @param max Max page size, useful for paging. Default is <code>50</code>.
-         * @return Pets ordered by name.
-         */
-        .get(req -> {
-          int start = req.param("start").intValue(START);
-          int max = req.param("max").intValue(MAX);
+    path("/api/pets", () -> {
+      /**
+       * Find pet by ID.
+       *
+       * @param id Pet ID.
+       * @return Returns <code>200</code> with a single pet or <code>404</code>
+       */
+      get("/:id", req -> {
+        int id = req.param("id").intValue();
+        DB db = req.require(DB.class);
+        Pet result = db.find(id);
+        if (result == null) {
+          throw new Err(Status.NOT_FOUND);
+        }
+        return result;
+      });
+      /**
+       *
+       * List pets ordered by id.
+       *
+       * @param start Start offset, useful for paging. Default is <code>0</code>.
+       * @param max Max page size, useful for paging. Default is <code>50</code>.
+       * @return Pets ordered by name.
+       */
+      get(req -> {
+        int start = req.param("start").intValue(START);
+        int max = req.param("max").intValue(MAX);
 
-          DB db = req.require(DB.class);
-          List<Pet> results = db.findAll(start, max);
+        DB db = req.require(DB.class);
+        List<Pet> results = db.findAll(start, max);
 
-          return results;
-        })
-        /**
-         *
-         * Add a new pet to the store.
-         *
-         * @param body Pet object that needs to be added to the store.
-         * @return Returns a saved pet.
-         */
-        .post(req -> {
-          Pet body = req.body(Pet.class);
+        return results;
+      });
+      /**
+       *
+       * Add a new pet to the store.
+       *
+       * @param body Pet object that needs to be added to the store.
+       * @return Returns a saved pet.
+       */
+      post(req -> {
+        Pet body = req.body(Pet.class);
 
-          DB db = req.require(DB.class);
-          body = db.create(body);
+        DB db = req.require(DB.class);
+        body = db.create(body);
 
-          return body;
-        })
-        /**
-         *
-         * Deletes a pet by ID.
-         *
-         * @param id Pet ID.
-         * @return A <code>204</code>
-         */
-        .delete("/:id", req -> {
-          int id = req.param("id").intValue();
-          DB db = req.require(DB.class);
-          Pet result = db.delete(id);
-          return result;
-        });
+        return body;
+      });
+      /**
+       *
+       * Deletes a pet by ID.
+       *
+       * @param id Pet ID.
+       * @return A <code>204</code>
+       */
+      delete("/:id", req -> {
+        int id = req.param("id").intValue();
+        DB db = req.require(DB.class);
+        Pet result = db.delete(id);
+        return result;
+      });
+    });
 
     use(new ApiTool()
         .filter(r -> r.pattern().startsWith("/api/"))

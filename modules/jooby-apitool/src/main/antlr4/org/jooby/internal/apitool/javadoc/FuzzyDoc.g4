@@ -2,25 +2,52 @@ grammar FuzzyDoc;
 
 source: .*? (routes .*?)+;
 
-routes: route | use | script | clazz | mvcRoute;
+routes: path | route | use | script | clazz | mvcRoute;
 
 use:
      doc=DOC 'use' '(' pattern=STRING ')'
    | doc=DOC 'use' '(' method=STRING comma+=',' pattern=STRING comma+=','
    | doc=DOC 'use' '(' pattern=STRING comma+=',';
 
-route: doc=DOC 'route' '(' pattern=STRING ')' routeBody;
+path:
+      doc=DOC 'path' '(' pattern=STRING ',' '(' ')' '->' scripts
+    | doc=DOC 'path' '(' pattern=STRING ')' scripts;
 
-routeBody: '{' (routeBody | script | .)*? '}';
+route: doc=DOC 'route' '(' pattern=STRING ')' scripts;
+
+scripts: '{' (scripts | script | .)*? '}';
 
 clazz: doc=DOC annotations+=annotation+ (isClass='class'|.)*? '{' classBody  '}';
 
 classBody: (mvcRoute | .)*?;
 
 script:
-        doc=DOC dot='.'?     method=METHOD '{'
-      | doc=DOC dot='.'? method=METHOD '(' pattern=STRING?;
+        doc=DOC dot='.'? method=METHOD kotlinScriptBody
+      | doc=DOC dot='.'? method=METHOD '(' ')' kotlinScriptBody
+      | doc=DOC dot='.'? method=METHOD '(' kotlinScriptBody ')'
+      | doc=DOC dot='.'? method=METHOD '(' pattern=STRING ')' kotlinScriptBody
 
+      | doc=DOC dot='.'? method=METHOD '(' pattern=STRING ',' 'req'  scriptBody
+      | doc=DOC dot='.'? method=METHOD '(' pattern=STRING ',' '(' ')' scriptBody
+      | doc=DOC dot='.'? method=METHOD '(' pattern=STRING ',' '(' 'req' ')' scriptBody
+      | doc=DOC dot='.'? method=METHOD '(' pattern=STRING ',' '(' 'req' ',' 'rsp' ')' scriptBody
+      | doc=DOC dot='.'? method=METHOD '(' pattern=STRING ',' '(' 'req' ',' 'rsp' ',' 'chain' ')' scriptBody
+
+      | doc=DOC dot='.'? method=METHOD '(' 'req'  scriptBody
+      | doc=DOC dot='.'? method=METHOD '(' '(' ')' scriptBody
+      | doc=DOC dot='.'? method=METHOD '(' '(' 'req' ')' scriptBody
+      | doc=DOC dot='.'? method=METHOD '(' '(' 'req' ',' 'rsp' ')' scriptBody
+      | doc=DOC dot='.'? method=METHOD '(' '(' 'req' ',' 'rsp' ',' 'chain' ')' scriptBody;
+
+scriptBody:
+      '->' '{' (scriptBody | .)*? '}' ')'
+    | '->' .*? ')';
+
+kotlinScriptBody:
+      '{' '->' (kotlinScriptBody | .)*? '}'
+    | '{' 'req' '->' (kotlinScriptBody | .)*? '}'
+    | '{' 'req' ',' 'rsp' '->' (kotlinScriptBody | .)*? '}'
+    | '{' (kotlinScriptBody | .)*? '}';
 
 mvcRoute: doc=DOC annotations+=annotation+;
 
