@@ -877,9 +877,11 @@ public class Jooby implements Router, LifeCycle, Registry {
    */
   private transient BiFunction<Stage, com.google.inject.Module, Injector> injectorFactory = Guice::createInjector;
 
-  private List<Jooby> apprefs;
+  private transient List<Jooby> apprefs;
 
-  private String path;
+  private transient String path;
+
+  private transient String confname;
 
   /**
    * Creates a new {@link Jooby} application.
@@ -1981,6 +1983,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This jooby instance.
    */
   public Jooby conf(final String path) {
+    this.confname = path;
     use(ConfigFactory.parseResources(path));
     return this;
   }
@@ -1993,6 +1996,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This jooby instance.
    */
   public Jooby conf(final File path) {
+    this.confname = path.getName();
     use(ConfigFactory.parseFile(path));
     return this;
   }
@@ -2726,8 +2730,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   private Injector bootstrap(final Config args,
       final Consumer<List<Route.Definition>> rcallback) throws Throwable {
-    Config appconf = ConfigFactory.parseResources("application.conf");
-    Config initconf = srcconf == null ? appconf : srcconf.withFallback(appconf);
+    Config initconf = Optional.ofNullable(srcconf).orElseGet(() -> ConfigFactory.parseResources("application.conf"));
     List<Config> modconf = modconf(this.bag);
     Config conf = buildConfig(initconf, args, modconf);
 
@@ -3158,10 +3161,10 @@ public class Jooby implements Router, LifeCycle, Registry {
         .map(c -> c.getString("application.path"))
         .orElse("/");
 
-    Config envcof = envConf(source, env);
+    Config envconf = envConf(source, env);
 
     // application.[env].conf -> application.conf
-    Config conf = envcof.withFallback(source);
+    Config conf = envconf.withFallback(source);
 
     return system
         .withFallback(args)
@@ -3218,20 +3221,24 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return A config env.
    */
   private Config envConf(final Config source, final String env) {
-    String origin = source.origin().resource();
+    String name = Optional.ofNullable(this.confname).orElse(source.origin().resource());
     Config result = ConfigFactory.empty();
-    if (origin != null) {
+    if (name != null) {
       // load [resource].[env].[ext]
-      int dot = origin.lastIndexOf('.');
-      String originConf = origin.substring(0, dot) + "." + env + origin.substring(dot);
-
-      result = fileConfig(originConf).withFallback(ConfigFactory.parseResources(originConf));
+      int dot = name.lastIndexOf('.');
+      name = name.substring(0, dot);
+    } else {
+      name = "application";
     }
-    String appConfig = "application." + env + ".conf";
+    String envconfname = name + "." + env + ".conf";
+    Config envconf = fileConfig(envconfname);
+    Config appconf = fileConfig(name + ".conf");
     return result
-        .withFallback(fileConfig(appConfig))
-        .withFallback(fileConfig("application.conf"))
-        .withFallback(ConfigFactory.parseResources(appConfig));
+        // file system:
+        .withFallback(envconf)
+        .withFallback(appconf)
+        // classpath:
+        .withFallback(ConfigFactory.parseResources(envconfname));
   }
 
   /**
