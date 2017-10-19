@@ -1182,7 +1182,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public <T> T require(final Key<T> type) {
-    checkState(injector != null, "App didn't start yet");
+    checkState(injector != null, "Registry is not ready. Require calls are available at application startup time, see http://jooby.org/doc/#application-life-cycle");
     return injector.getInstance(type);
   }
 
