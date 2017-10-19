@@ -225,7 +225,6 @@ import org.jooby.apitool.RouteMethod;
 import org.jooby.apitool.RouteParameter;
 import org.jooby.apitool.RouteResponse;
 import org.jooby.funzy.Try;
-import org.jooby.funzy.When;
 import static org.jooby.funzy.When.when;
 import org.jooby.internal.RouteMetadata;
 import static org.jooby.internal.apitool.Filters.access;
@@ -574,7 +573,7 @@ public class BytecodeRouteParser {
   private void mvcRoutes(final Class type, Consumer<RouteMethod> callback) {
     Env env = Env.DEFAULT.build(ConfigFactory.empty()
         .withValue("application.env", ConfigValueFactory.fromAnyRef("dev")));
-    MvcRoutes.routes(env, new RouteMetadata(env), "", type)
+    MvcRoutes.routes(env, new RouteMetadata(env), "", true, type)
         .forEach(r -> {
           RouteMethod method = toRouteMethod(r);
           javadoc(method, javadoc.pop(type.getName(), r.method(), r.pattern()));

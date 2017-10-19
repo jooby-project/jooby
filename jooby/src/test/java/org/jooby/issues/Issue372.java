@@ -34,7 +34,7 @@ public class Issue372 {
         })
         .run(unit -> {
           Env env = unit.get(Env.class);
-          MvcRoutes.routes(env, new RouteMetadata(env), "", PingRoute.class);
+          MvcRoutes.routes(env, new RouteMetadata(env), "", true, PingRoute.class);
         });
   }
 
@@ -47,7 +47,7 @@ public class Issue372 {
         })
         .run(unit -> {
           Env env = unit.get(Env.class);
-          MvcRoutes.routes(env, new RouteMetadata(env), "", Ext.class);
+          MvcRoutes.routes(env, new RouteMetadata(env), "", true, Ext.class);
         });
   }
 

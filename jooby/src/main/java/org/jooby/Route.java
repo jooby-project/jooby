@@ -1384,6 +1384,19 @@ public interface Route {
      * @param verb A HTTP verb or <code>*</code>.
      * @param pattern A path pattern.
      * @param handler A route handler.
+     * @param caseSensitiveRouting Configure case for routing algorithm.
+     */
+    public Definition(final String verb, final String pattern,
+        final Route.Handler handler, boolean caseSensitiveRouting) {
+      this(verb, pattern, (Route.Filter) handler, caseSensitiveRouting);
+    }
+
+    /**
+     * Creates a new route definition.
+     *
+     * @param verb A HTTP verb or <code>*</code>.
+     * @param pattern A path pattern.
+     * @param handler A route handler.
      */
     public Definition(final String verb, final String pattern,
         final Route.OneArgHandler handler) {
@@ -1409,13 +1422,25 @@ public interface Route {
      * @param pattern A path pattern.
      * @param filter A callback to execute.
      */
+    public Definition(final String method, final String pattern, final Filter filter) {
+      this(method, pattern, filter, true);
+    }
+
+    /**
+     * Creates a new route definition.
+     *
+     * @param method A HTTP verb or <code>*</code>.
+     * @param pattern A path pattern.
+     * @param filter A callback to execute.
+     * @param caseSensitiveRouting Configure case for routing algorithm.
+     */
     public Definition(final String method, final String pattern,
-        final Filter filter) {
+        final Filter filter, boolean caseSensitiveRouting) {
       requireNonNull(pattern, "A route path is required.");
       requireNonNull(filter, "A filter is required.");
 
       this.method = method.toUpperCase();
-      this.cpattern = new RoutePattern(method, pattern);
+      this.cpattern = new RoutePattern(method, pattern, !caseSensitiveRouting);
       // normalized pattern
       this.pattern = cpattern.pattern();
       this.filter = filter;

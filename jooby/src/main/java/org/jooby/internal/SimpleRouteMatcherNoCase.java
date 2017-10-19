@@ -203,30 +203,15 @@
  */
 package org.jooby.internal;
 
-import static java.util.Objects.requireNonNull;
+class SimpleRouteMatcherNoCase extends SimpleRouteMatcher {
 
-class SimpleRouteMatcher implements RouteMatcher {
-
-  protected final String fullpath;
-
-  private final String path;
-
-  protected String pattern;
-
-  public SimpleRouteMatcher(final String pattern, final String path, final String fullpath) {
-    this.pattern = requireNonNull(pattern, "A pattern is required.");
-    this.path = requireNonNull(path, "A path is required.");
-    this.fullpath = requireNonNull(fullpath, "A full path is required.");
-  }
-
-  @Override
-  public String path() {
-    return path;
+  public SimpleRouteMatcherNoCase(String pattern, String path, String fullpath) {
+    super(pattern, path, fullpath);
   }
 
   @Override
   public boolean matches() {
-    return fullpath.equals(pattern);
+    return fullpath.equalsIgnoreCase(pattern);
   }
 
 }

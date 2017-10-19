@@ -37,7 +37,8 @@ public class MvcRoutesTest {
         })
         .run(unit -> {
           Env env = unit.get(Env.class);
-          List<Definition> routes = MvcRoutes.routes(env, new RouteMetadata(env), "", NoPath.class);
+          List<Definition> routes = MvcRoutes.routes(env, new RouteMetadata(env), "",
+              true, NoPath.class);
           System.out.println(routes);
         });
   }
