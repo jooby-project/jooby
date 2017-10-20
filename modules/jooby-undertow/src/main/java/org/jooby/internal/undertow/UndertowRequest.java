@@ -217,6 +217,7 @@ import java.util.stream.Collectors;
 
 import org.jooby.Cookie;
 import org.jooby.MediaType;
+import org.jooby.Router;
 import org.jooby.Sse;
 import org.jooby.spi.NativePushPromise;
 import org.jooby.spi.NativeRequest;
@@ -260,7 +261,7 @@ public class UndertowRequest implements NativeRequest {
     this.exchange = exchange;
     this.blocking = Suppliers.memoize(() -> this.exchange.startBlocking());
     this.conf = conf;
-    this.path = URLDecoder.decode(exchange.getRequestPath(), "UTF-8");
+    this.path = Router.decode(exchange.getRequestPath());
   }
 
   @Override

@@ -203,6 +203,7 @@
  */
 package org.jooby.internal.netty;
 
+import com.google.common.escape.Escapers;
 import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
 
 import java.io.IOException;
@@ -217,6 +218,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jooby.MediaType;
+import org.jooby.Router;
 import org.jooby.Sse;
 import org.jooby.spi.NativePushPromise;
 import org.jooby.spi.NativeRequest;
@@ -290,7 +292,7 @@ public class NettyRequest implements NativeRequest {
     this.req = req;
     this.tmpdir = tmpdir;
     this.query = new QueryStringDecoder(req.uri());
-    this.path = URLDecoder.decode(query.path(), "UTF-8");
+    this.path =  Router.decode(query.path());
     this.wsMaxMessageSize = wsMaxMessageSize;
     Channel channel = ctx.channel();
     channel.attr(ASYNC).set(false);

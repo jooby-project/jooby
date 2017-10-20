@@ -203,13 +203,17 @@
  */
 package org.jooby;
 
+import java.net.URLDecoder;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import com.google.common.escape.Escaper;
+import com.google.common.net.PercentEscaper;
 import org.jooby.Route.Mapper;
+import org.jooby.funzy.Try;
 import org.jooby.handlers.AssetHandler;
 
 import javax.annotation.Nonnull;
@@ -221,6 +225,16 @@ import javax.annotation.Nonnull;
  * @since 0.16.0
  */
 public interface Router {
+
+  /**
+   * Decode a path by delegating to {@link URLDecoder#decode(String, String)}. This function keeps
+   * the <code>+</code> character.
+   *
+   * @param path Path to decoded.
+   */
+  static String decode(String path) {
+    return Try.apply(() -> URLDecoder.decode(path.replace("+", "%2b"), "UTF-8")).get();
+  }
 
   /**
    * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
