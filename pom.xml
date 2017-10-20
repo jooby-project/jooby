@@ -1474,13 +1474,6 @@
         <version>${maven-antrun-plugin.version}</version>
       </dependency>
 
-      <!-- jsr350-->
-      <dependency>
-        <groupId>com.google.code.findbugs</groupId>
-        <artifactId>jsr305</artifactId>
-        <version>${jsr305.version}</version>
-      </dependency>
-
       <!-- sitemap -->
       <dependency>
         <groupId>cz.jiripinkas</groupId>
