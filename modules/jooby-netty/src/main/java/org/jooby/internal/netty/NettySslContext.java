@@ -222,6 +222,7 @@ import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
 import io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
 import io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
 import io.netty.handler.ssl.ApplicationProtocolNames;
+import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -239,7 +240,8 @@ public class NettySslContext {
         ? conf.getString("ssl.keystore.password") : null;
     SslContextBuilder scb = SslContextBuilder.forServer(keyStoreCert, keyStoreKey, keyStorePass);
     if (conf.hasPath("ssl.trust.cert")) {
-      scb.trustManager(toFile(conf.getString("ssl.trust.cert"), tmpdir));
+      scb.trustManager(toFile(conf.getString("ssl.trust.cert"), tmpdir))
+         .clientAuth(ClientAuth.REQUIRE);
     }
     if (http2) {
       SslProvider provider = OpenSsl.isAlpnSupported() ? SslProvider.OPENSSL : SslProvider.JDK;

@@ -26,6 +26,7 @@ import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
 import io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
 import io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
 import io.netty.handler.ssl.ApplicationProtocolNames;
+import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -61,6 +62,7 @@ public class NettySslContextTest {
         .expect(unit-> {
           SslContextBuilder scb = unit.get(SslContextBuilder.class);
           expect(scb.trustManager(Paths.get("target", "unsecure.crt").toFile())).andReturn(scb);
+          expect(scb.clientAuth(ClientAuth.REQUIRE)).andReturn(scb);
         })
         .run(unit -> {
           assertNotNull(NettySslContext.build(conf.withValue("ssl.trust.cert",
