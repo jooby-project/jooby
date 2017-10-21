@@ -27,7 +27,6 @@
     <module>jooby-jdbc</module>
     <module>jooby-jooq</module>
     <module>jooby-hbm</module>
-    <module>jooby-hbm4</module>
     <module>jooby-dist</module>
     <module>jooby-undertow</module>
     <module>jooby-servlet</module>
