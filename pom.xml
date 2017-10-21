@@ -3029,7 +3029,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <commons-email.version>1.4</commons-email.version>
     <jongo.version>1.3.0</jongo.version>
     <bson4jackson.version>2.5.0</bson4jackson.version>
-    <flyway.version>4.0</flyway.version>
+    <flyway.version>4.2.0</flyway.version>
     <hazelcast.version>3.6.1</hazelcast.version>
     <less4j.version>1.13.0</less4j.version>
     <ebean.version>10.1.7</ebean.version>

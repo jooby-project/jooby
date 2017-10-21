@@ -35,8 +35,7 @@
     <!-- Jooby -->
     <dependency>
       <groupId>org.jooby</groupId>
-      <artifactId>jooby</artifactId>
-      <version>${project.version}</version>
+      <artifactId>jooby-jdbc</artifactId>
     </dependency>
 
     <!-- Flyway -->

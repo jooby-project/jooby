@@ -3,6 +3,7 @@ package org.jooby.flyway;
 import java.util.Arrays;
 
 import org.flywaydb.core.Flyway;
+import org.jooby.jdbc.Jdbc;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -13,12 +14,12 @@ public class FlywayFeature extends ServerFeature {
 
   {
     use(ConfigFactory.empty()
-        .withValue("flyway.url",
-            ConfigValueFactory.fromAnyRef("jdbc:h2:mem:1436458102203;DB_CLOSE_DELAY=-1"))
         .withValue("flyway.locations", ConfigValueFactory
             .fromAnyRef(Arrays.asList("org/jooby/flyway"))));
 
-    use(new Flywaydb());
+    use(new Jdbc("jdbc:h2:mem:foo;DB_CLOSE_DELAY=-1"));
+
+    use(new Flywaydb("foo"));
 
     get("/flyway/info", req -> req.require(Flyway.class).info().current().getDescription());
   }
