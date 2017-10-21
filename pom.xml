@@ -421,12 +421,6 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
-        <artifactId>jooby-assets-react</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jooby</groupId>
         <artifactId>jooby-assets-svg-sprites</artifactId>
         <version>${jooby.version}</version>
       </dependency>

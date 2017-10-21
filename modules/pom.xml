@@ -103,7 +103,6 @@
     <module>jooby-assets-svg-sprites</module>
     <module>jooby-assets-svg-symbol</module>
     <module>jooby-assets-autoprefixer</module>
-    <module>jooby-assets-react</module>
     <module>coverage-report</module>
   </modules>
 
