@@ -1,1 +1,1 @@
-mvn -pl '!modules/coverage-report' clean deploy
+mvn -pl '!modules/coverage-report' clean deploy -DskipTests
