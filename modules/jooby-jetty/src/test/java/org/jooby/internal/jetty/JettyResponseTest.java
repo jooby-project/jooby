@@ -77,6 +77,7 @@ public class JettyResponseTest {
           output.sendContent(unit.capture(ByteBuffer.class));
 
           Response rsp = unit.get(Response.class);
+          rsp.setHeader("Transfer-Encoding", null);
           expect(rsp.getHttpOutput()).andReturn(output);
         })
         .run(unit -> {
@@ -212,6 +213,7 @@ public class JettyResponseTest {
               output.close();
 
               Response rsp = unit.get(Response.class);
+              rsp.setHeader("Transfer-Encoding", null);
               expect(rsp.getHttpOutput()).andReturn(output).times(2);
             })
             .expect(noAsyncStarted)

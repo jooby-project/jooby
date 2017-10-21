@@ -267,6 +267,7 @@ public class ServletServletResponse implements NativeResponse {
 
   @Override
   public void send(final byte[] bytes) throws Exception {
+    rsp.setHeader("Transfer-Encoding", null);
     ServletOutputStream output = rsp.getOutputStream();
     output.write(bytes);
     output.close();

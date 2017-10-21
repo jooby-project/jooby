@@ -141,6 +141,7 @@ public class ServletServletResponseTest {
           output.close();
 
           HttpServletResponse rsp = unit.get(HttpServletResponse.class);
+          rsp.setHeader("Transfer-Encoding", null);
           expect(rsp.getOutputStream()).andReturn(output);
         })
         .run(unit -> {
