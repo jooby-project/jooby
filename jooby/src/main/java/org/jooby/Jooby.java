@@ -284,6 +284,7 @@ import org.jooby.spi.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 import javax.net.ssl.SSLContext;
 import java.io.File;
@@ -1302,33 +1303,22 @@ public class Jooby implements Router, LifeCycle, Registry {
     return this;
   }
 
-  private Route.Definition[] interceptors(String method, String pattern, Route.Filter head,
-      Route.Filter... tail) {
-    return ImmutableList.builder()
-        .add(head)
-        .add(tail)
-        .build()
-        .stream()
-        .map(h -> appendDefinition(method, pattern, (Route.Filter) h))
-        .toArray(Route.Definition[]::new);
+  @Override
+  public Route.Definition before(final String method, final String pattern,
+      final Route.Before handler) {
+    return appendDefinition(method, pattern, handler);
   }
 
   @Override
-  public Route.Collection before(final String method, final String pattern,
-      final Route.Before handler, final Route.Before... chain) {
-    return new Route.Collection(interceptors(method, pattern, handler, chain));
+  public Route.Definition after(final String method, final String pattern,
+      final Route.After handler) {
+    return appendDefinition(method, pattern, handler);
   }
 
   @Override
-  public Route.Collection after(final String method, final String pattern,
-      final Route.After handler, final Route.After... chain) {
-    return new Route.Collection(interceptors(method, pattern, handler, chain));
-  }
-
-  @Override
-  public Route.Collection complete(final String method, final String pattern,
-      final Route.Complete handler, final Route.Complete... chain) {
-    return new Route.Collection(interceptors(method, pattern, handler, chain));
+  public Route.Definition complete(final String method, final String pattern,
+      final Route.Complete handler) {
+    return appendDefinition(method, pattern, handler);
   }
 
   @Override

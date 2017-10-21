@@ -10,10 +10,13 @@ class App: Kooby() {
    * Configure your application
    */
   init {
+    before("*") {req, rsp ->
+      rsp.header("foo", "bar")
+    }
+
     get ("/") {
       "Hi Kotlin"
     }
-
   }
 }
 
