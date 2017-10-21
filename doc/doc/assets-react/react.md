@@ -9,7 +9,7 @@ Write <a href="https://facebook.github.io/react">React</a> applications easily i
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-react</artifactId>
+ <artifactId>jooby-assets-react</artifactId>
  <version>{{version}}</version>
  <scope>provided</scope>
 </dependency>
