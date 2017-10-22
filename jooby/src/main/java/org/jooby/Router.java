@@ -230,13 +230,12 @@ import javax.annotation.Nonnull;
 public interface Router {
 
   /**
-   * Decode a path by delegating to {@link URLDecoder#decode(String, String)}. This function keeps
-   * the <code>+</code> character.
+   * Decode a path by delegating to {@link URLDecoder#decode(String, String)}.
    *
    * @param path Path to decoded.
    */
   static String decode(String path) {
-    return Try.apply(() -> URLDecoder.decode(path.replace("+", "%2b"), "UTF-8")).get();
+    return Try.apply(() -> URLDecoder.decode(path, "UTF-8")).get();
   }
 
   /**

@@ -18,7 +18,7 @@ public class Issue900 extends ServerFeature {
     int ch = '+';
     System.out.println(Integer.toHexString(ch));
     request().get("/900/a+b")
-        .expect("a+b");
+        .expect("a b");
   }
 
 }

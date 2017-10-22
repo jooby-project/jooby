@@ -17,6 +17,6 @@ public class PathVarMustBeDecodedFeature extends ServerFeature {
 
     request()
         .get("/plus+plus")
-        .expect("plus+plus");
+        .expect("plus plus");
   }
 }
