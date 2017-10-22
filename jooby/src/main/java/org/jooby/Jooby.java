@@ -3316,36 +3316,37 @@ public class Jooby implements Router, LifeCycle, Registry {
     String version = Optional.ofNullable(getClass().getPackage().getImplementationVersion())
         .orElse("0.0.0");
     Config defs = ConfigFactory.parseResources(Jooby.class, "jooby.conf")
-        .withValue("contextPath", ConfigValueFactory.fromAnyRef(cpath.equals("/") ? "" : cpath))
-        .withValue("application.name", ConfigValueFactory.fromAnyRef(appname))
-        .withValue("application.version", ConfigValueFactory.fromAnyRef(version))
-        .withValue("application.class", ConfigValueFactory.fromAnyRef(getClass().getName()))
-        .withValue("application.ns", ConfigValueFactory.fromAnyRef(ns))
-        .withValue("application.lang", ConfigValueFactory.fromAnyRef(lang))
-        .withValue("application.tz", ConfigValueFactory.fromAnyRef(tz))
-        .withValue("application.numberFormat", ConfigValueFactory.fromAnyRef(nf))
-        .withValue("server.http2.enabled", ConfigValueFactory.fromAnyRef(http2))
-        .withValue("runtime.processors", ConfigValueFactory.fromAnyRef(processors))
-        .withValue("runtime.processors-plus1", ConfigValueFactory.fromAnyRef(processors + 1))
-        .withValue("runtime.processors-plus2", ConfigValueFactory.fromAnyRef(processors + 2))
-        .withValue("runtime.processors-x2", ConfigValueFactory.fromAnyRef(processors * 2))
-        .withValue("runtime.processors-x4", ConfigValueFactory.fromAnyRef(processors * 4))
-        .withValue("runtime.processors-x8", ConfigValueFactory.fromAnyRef(processors * 8))
-        .withValue("runtime.concurrencyLevel", ConfigValueFactory
-            .fromAnyRef(Math.max(4, processors)));
+        .withValue("contextPath", fromAnyRef(cpath.equals("/") ? "" : cpath))
+        .withValue("application.name", fromAnyRef(appname))
+        .withValue("application.version", fromAnyRef(version))
+        .withValue("application.class", fromAnyRef(getClass().getName()))
+        .withValue("application.ns", fromAnyRef(ns))
+        .withValue("application.lang", fromAnyRef(lang))
+        .withValue("application.tz", fromAnyRef(tz))
+        .withValue("application.numberFormat", fromAnyRef(nf))
+        .withValue("server.http2.enabled", fromAnyRef(http2))
+        .withValue("runtime.processors", fromAnyRef(processors))
+        .withValue("runtime.processors-plus1", fromAnyRef(processors + 1))
+        .withValue("runtime.processors-plus2", fromAnyRef(processors + 2))
+        .withValue("runtime.processors-x2", fromAnyRef(processors * 2))
+        .withValue("runtime.processors-x4", fromAnyRef(processors * 4))
+        .withValue("runtime.processors-x8", fromAnyRef(processors * 8))
+        .withValue("runtime.concurrencyLevel", fromAnyRef(Math.max(4, processors)))
+        .withValue("server.threads.Min", fromAnyRef(Math.max(4, processors)))
+        .withValue("server.threads.Max", fromAnyRef(Math.max(32, processors * 8)));
 
     if (charset != null) {
-      defs = defs.withValue("application.charset", ConfigValueFactory.fromAnyRef(charset.name()));
+      defs = defs.withValue("application.charset", fromAnyRef(charset.name()));
     }
     if (port != null) {
-      defs = defs.withValue("application.port", ConfigValueFactory.fromAnyRef(port.intValue()));
+      defs = defs.withValue("application.port", fromAnyRef(port.intValue()));
     }
     if (securePort != null) {
       defs = defs.withValue("application.securePort",
-          ConfigValueFactory.fromAnyRef(securePort.intValue()));
+          fromAnyRef(securePort.intValue()));
     }
     if (dateFormat != null) {
-      defs = defs.withValue("application.dateFormat", ConfigValueFactory.fromAnyRef(dateFormat));
+      defs = defs.withValue("application.dateFormat", fromAnyRef(dateFormat));
     }
     return defs;
   }
