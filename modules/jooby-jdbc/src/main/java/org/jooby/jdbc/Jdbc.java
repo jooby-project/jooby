@@ -442,6 +442,8 @@ public final class Jdbc implements Jooby.Module {
             .orElse(parts.get(parts.size() - 1)));
   };
 
+  private static final int DEFAULT_POOL_SIZE = 10;
+
   @SuppressWarnings("rawtypes")
   private final List<BiConsumer> callback = new ArrayList<>();
 
@@ -594,7 +596,7 @@ public final class Jdbc implements Jooby.Module {
   }
 
   private HikariConfig hikariConfig(final String url, final String key, final String db,
-      final Config config) {
+      final Config conf) {
     Properties props = new Properties();
 
     BiConsumer<String, Entry<String, ConfigValue>> dumper = (prefix, entry) -> {
@@ -604,7 +606,7 @@ public final class Jdbc implements Jooby.Module {
     };
 
     Throwing.Function<String, Config> dbconf = Throwing.<String, Config>throwingFunction(
-        path -> config.getConfig(path))
+        path -> conf.getConfig(path))
         .orElse(ConfigFactory.empty());
 
     Config $hikari = dbconf.apply(key + ".hikari")
@@ -612,7 +614,7 @@ public final class Jdbc implements Jooby.Module {
         .withFallback(dbconf.apply("hikari"));
 
     // figure it out db type.
-    dbtype = dbtype(url, config);
+    dbtype = dbtype(url, conf);
 
     /**
      * dump properties from less to higher precedence
@@ -621,7 +623,7 @@ public final class Jdbc implements Jooby.Module {
      * # db.* -> dataSource.*
      * # hikari.* -> * (no prefix)
      */
-    dbtype.ifPresent(type -> dbconf(config, type)
+    dbtype.ifPresent(type -> dbconf(conf, type)
         .entrySet().forEach(entry -> dumper.accept("dataSource.", entry)));
 
     dbconf.apply(key)
@@ -641,6 +643,10 @@ public final class Jdbc implements Jooby.Module {
     props.remove("dataSource.dataSourceClassName");
     // set pool name
     props.setProperty("poolName", dbtype.map(type -> type + "." + db).orElse(db));
+
+    Integer defaultPoolSize = Math.max(DEFAULT_POOL_SIZE, conf.getInt("runtime.processors-x2") + 1);
+    props.setProperty("maximumPoolSize",
+        props.getOrDefault("maximumPoolSize", defaultPoolSize.toString()).toString());
 
     return new HikariConfig(props);
   }

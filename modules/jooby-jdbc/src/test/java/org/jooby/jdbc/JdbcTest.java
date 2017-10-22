@@ -32,7 +32,7 @@ import java.util.Properties;
     System.class})
 public class JdbcTest {
 
-  static String POOL_SIZE = "9";
+  static String POOL_SIZE = "12";
 
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
@@ -72,7 +72,35 @@ public class JdbcTest {
         .expect(currentTimeMillis(123))
         .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:mem:123;DB_CLOSE_DELAY=-1", "h2.123",
             "sa", "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
+        .expect(hikariDataSource())
+        .expect(serviceKey("db", "h2"))
+        .expect(serviceKey("123"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
+        });
+  }
+
+  @Test
+  public void minpoolsize() throws Exception {
+    Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
+    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("mem"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("runtime.processors-x2", fromAnyRef(2))
+        .resolve();
+
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(currentTimeMillis(123))
+        .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:mem:123;DB_CLOSE_DELAY=-1", "h2.123",
+            "sa", "", false, false))
+        .expect(unit -> {
+          Properties props = unit.get(Properties.class);
+          expect(props.setProperty("maximumPoolSize", "10")).andReturn(null);
+        })
+        .expect(hikariConfig(2, null))
         .expect(hikariDataSource())
         .expect(serviceKey("db", "h2"))
         .expect(serviceKey("123"))
@@ -95,7 +123,7 @@ public class JdbcTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
             "sa", "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("db", "h2"))
         .expect(serviceKey("jdbctest"))
@@ -139,7 +167,7 @@ public class JdbcTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
             "sa", "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("jdbctest"))
         .expect(serviceKey("db", "h2"))
@@ -174,7 +202,7 @@ public class JdbcTest {
         .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:mysql://localhost/db",
             "mysql.db", "foo", "bar", false))
         .expect(mysql)
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("db", "mysql"))
         .expect(onStop)
@@ -196,7 +224,7 @@ public class JdbcTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.apache.derby.jdbc.ClientDataSource", "jdbc:derby:testdb", "derby.testdb",
             null, "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("testdb"))
         .expect(serviceKey("db", "derby"))
@@ -218,7 +246,7 @@ public class JdbcTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.apache.derby.jdbc.ClientDataSource", null, "derby.testdb",
             null, "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(unit -> {
           Properties props = unit.mock(Properties.class);
           expect(props.setProperty("url", "jdbc:derby:testdb")).andReturn(null);
@@ -249,7 +277,7 @@ public class JdbcTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("com.ibm.db2.jcc.DB2SimpleDataSource", "jdbc:db2://127.0.0.1:50000/SAMPLE",
             "db2.SAMPLE", null, "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("SAMPLE"))
         .expect(serviceKey("db", "db2"))
@@ -273,7 +301,7 @@ public class JdbcTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.hsqldb.jdbc.JDBCDataSource", "jdbc:hsqldb:file",
             "hsqldb.file", null, "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("file"))
         .expect(serviceKey("db", "hsqldb"))
@@ -297,7 +325,7 @@ public class JdbcTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.mariadb.jdbc.MySQLDataSource", "jdbc:mariadb://localhost/db",
             "mariadb.db", null, "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("db", "mariadb"))
         .expect(onStop)
@@ -322,7 +350,7 @@ public class JdbcTest {
         .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:mysql://localhost/db",
             "mysql.db", null, "", false))
         .expect(mysql)
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("db", "mysql"))
         .expect(onStop)
@@ -354,7 +382,7 @@ public class JdbcTest {
           Properties props = unit.get(Properties.class);
           expect(props.setProperty("dataSource.cachePrepStmts", "false")).andReturn(null);
         })
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("db", "mysql"))
         .expect(onStop)
@@ -366,7 +394,7 @@ public class JdbcTest {
   @Test
   public void setHikariOptions() throws Exception {
     long connectionTimeout = 1000;
-    int maximumPoolSize = 10;
+    int maximumPoolSize = 12;
     long idleTimeout = 800000;
 
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
@@ -386,12 +414,13 @@ public class JdbcTest {
             "sa", "", false, false))
         .expect(unit -> {
           Properties props = unit.get(Properties.class);
-          expect(props.setProperty("maximumPoolSize", "10")).andReturn(null);
+          expect(props.setProperty("maximumPoolSize", "12")).andReturn(null);
+          expect(props.setProperty("maximumPoolSize", "12")).andReturn(null);
           expect(props.setProperty("connectionTimeout", "1000")).andReturn(null);
           expect(props.setProperty("idleTimeout", "800000")).andReturn(null);
           expect(props.setProperty("autoCommit", "false")).andReturn(null);
         })
-        .expect(hikariConfig())
+        .expect(hikariConfig(12))
         .expect(hikariDataSource())
         .expect(serviceKey("jdbctest"))
         .expect(serviceKey("db", "h2"))
@@ -420,7 +449,7 @@ public class JdbcTest {
           expect(properties.setProperty("dataSourceClassName", "test.MyDataSource"))
               .andReturn(null);
         })
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("jdbctest"))
         .expect(serviceKey("db", "h2"))
@@ -453,7 +482,7 @@ public class JdbcTest {
           expect(properties.setProperty("dataSourceClassName", "test.MyDataSource"))
               .andReturn(null);
         })
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("audit"))
         .expect(serviceKey("db.audit", "h2"))
@@ -480,7 +509,7 @@ public class JdbcTest {
             props("com.microsoft.sqlserver.jdbc.SQLServerDataSource",
                 "jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;integratedSecurity=true;",
                 "sqlserver.AdventureWorks", null, "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("AdventureWorks"))
         .expect(serviceKey("db", "sqlserver"))
@@ -505,7 +534,7 @@ public class JdbcTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("oracle.jdbc.pool.OracleDataSource", "jdbc:oracle:thin:@myhost:1521:orcl",
             "oracle.orcl", null, "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("orcl"))
         .expect(serviceKey("db", "oracle"))
@@ -530,7 +559,7 @@ public class JdbcTest {
         .expect(
             props("com.impossibl.postgres.jdbc.PGDataSourceWithUrl", "jdbc:pgsql://server/database",
                 "pgsql.database", null, "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("database"))
         .expect(serviceKey("db", "pgsql"))
@@ -554,7 +583,7 @@ public class JdbcTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.postgresql.ds.PGSimpleDataSource", "jdbc:postgresql://server/database",
             "postgresql.database", null, "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("database"))
         .expect(serviceKey("db", "postgresql"))
@@ -578,7 +607,7 @@ public class JdbcTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("com.sybase.jdbcx.SybDataSource", "jdbc:jtds:sybase://server/database",
             "sybase.database", null, "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("database"))
         .expect(serviceKey("db", "sybase"))
@@ -602,7 +631,7 @@ public class JdbcTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.firebirdsql.pool.FBSimpleDataSource", "jdbc:firebirdsql:host:mydb",
             "firebirdsql.mydb", null, "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("mydb"))
         .expect(serviceKey("db", "firebirdsql"))
@@ -626,7 +655,7 @@ public class JdbcTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("org.sqlite.SQLiteDataSource", "jdbc:sqlite:testdb",
             "sqlite.testdb", null, "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("testdb"))
         .expect(serviceKey("db", "sqlite"))
@@ -652,7 +681,7 @@ public class JdbcTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(props("custom.DS", "jdbc:custom:testdb",
             "custom.testdb", null, "", false))
-        .expect(hikariConfig())
+        .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("testdb"))
         .expect(serviceKey("db", "custom"))
@@ -688,9 +717,25 @@ public class JdbcTest {
     };
   }
 
-  private Block hikariConfig() {
+  private Block hikariConfig(Object poolsize) {
+    return hikariConfig(Integer.parseInt(POOL_SIZE) + 1, poolsize);
+  }
+
+  private Block hikariConfig(Integer defpoolsize, Object poolsize) {
     return unit -> {
       Properties properties = unit.get(Properties.class);
+      if (poolsize == null) {
+        if (defpoolsize < 10) {
+          expect(properties.getOrDefault("maximumPoolSize", "10"))
+              .andReturn("10");
+        } else {
+          expect(properties.getOrDefault("maximumPoolSize", defpoolsize.toString()))
+              .andReturn(POOL_SIZE);
+        }
+      } else {
+        expect(properties.getOrDefault("maximumPoolSize", defpoolsize.toString()))
+            .andReturn(poolsize);
+      }
       HikariConfig hikari = unit.constructor(HikariConfig.class)
           .build(properties);
       unit.registerMock(HikariConfig.class, hikari);
