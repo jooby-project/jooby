@@ -423,7 +423,7 @@ public class HttpHandlerImpl implements HttpHandler {
     Map<Object, Object> scope = new HashMap<>(16);
 
     String method = _method == null ? request.method() : method(_method, request);
-    String path = normalizeURI(request.path());
+    String path = normalizeURI(request.rawPath());
     if (rpath != null) {
       path = rpath.apply(path);
     }
