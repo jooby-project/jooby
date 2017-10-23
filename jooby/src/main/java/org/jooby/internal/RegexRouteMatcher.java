@@ -210,6 +210,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+import org.jooby.Router;
+
 public class RegexRouteMatcher implements RouteMatcher {
 
   private final Matcher matcher;
@@ -239,15 +241,12 @@ public class RegexRouteMatcher implements RouteMatcher {
       int varCount = varNames.size();
       int groupCount = matcher.groupCount();
       for (int idx = 0; idx < groupCount; idx++) {
-        String var = matcher.group(idx + 1);
-        if (var.startsWith("/")) {
-          var = var.substring(1);
-        }
+        String var = Router.decode(matcher.group(idx + 1));
         // idx indices
         vars.put(idx, var);
         // named vars
         if (idx < varCount) {
-          vars.put(varNames.get(idx), matcher.group("v" + idx));
+          vars.put(varNames.get(idx), var);
         }
       }
     }

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -48,6 +49,20 @@ public class RoutePatternTest {
         System.err.println(message);
       }
       assertFalse(message, matches);
+      return this;
+    }
+
+    public RoutePathAssert reverse(String result, Object... toReverse) {
+      String reversed = path.reverse(toReverse);
+      assertEquals(result, reversed);
+      RouteMatcher matcher = path.matcher("GET" + result);
+      assertTrue(matcher.matches());
+      Map<Object, String> expectedVars = new HashMap<>();
+      for (int i = 0; i < path.vars().size(); ++i) {
+        expectedVars.put(path.vars().get(i), toReverse[i].toString());
+        expectedVars.put(i, toReverse[i].toString());
+      }
+      assertEquals(expectedVars, matcher.vars());
       return this;
     }
   }
@@ -457,4 +472,15 @@ public class RoutePatternTest {
         .matches("GET/Path1");
   }
 
+  @Test
+  public void reverseEscape() {
+    new RoutePathAssert("GET", "/path/:after")
+        .reverse("/path/arg", "arg")
+        .reverse("/path/%2F", "/")
+        .reverse("/path/%252F", "%2F");
+    new RoutePathAssert("GET", "/:user/:title")
+        .reverse("/shakespeare/othello", "shakespeare", "othello")
+        .reverse("/shakes%2Fpeare/othello", "shakes/peare", "othello")
+        .reverse("/shakes%252Fpeare/othello", "shakes%2Fpeare", "othello");
+  }
 }

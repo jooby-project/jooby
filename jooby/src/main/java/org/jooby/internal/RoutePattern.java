@@ -215,6 +215,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.jooby.Router;
+
 public class RoutePattern {
 
   private static class Rewrite {
@@ -282,7 +284,14 @@ public class RoutePattern {
 
   public String reverse(final Map<String, Object> vars) {
     return reverse.stream()
-        .map(segment -> vars.getOrDefault(segment, segment).toString())
+        .map(segment -> {
+          Object replacement = vars.get(segment);
+          if (replacement != null) {
+            return Router.encode(replacement.toString());
+          } else {
+            return segment;
+          }
+        })
         .collect(Collectors.joining(""));
   }
 

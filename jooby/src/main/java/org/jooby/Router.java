@@ -204,17 +204,15 @@
 package org.jooby;
 
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import com.google.common.escape.Escaper;
-import com.google.common.net.PercentEscaper;
 import org.jooby.Route.Mapper;
 import org.jooby.funzy.Try;
 import org.jooby.handlers.AssetHandler;
@@ -236,6 +234,10 @@ public interface Router {
    */
   static String decode(String path) {
     return Try.apply(() -> URLDecoder.decode(path, "UTF-8")).get();
+  }
+
+  static String encode(String path) {
+    return Try.apply(() -> URLEncoder.encode(path, "UTF-8")).get();
   }
 
   /**
