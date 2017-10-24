@@ -351,6 +351,7 @@ import io.swagger.util.Yaml;
  * @author edgar
  * @since 0.6.2
  */
+@Deprecated
 public class SwaggerUI {
 
   private static final Pattern TAG = Pattern.compile("(api)|/");

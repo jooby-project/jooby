@@ -1,23 +1,37 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/modules/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/modules)
+[![javadoc](https://javadoc.io/badge/org.jooby/modules.svg)](https://javadoc.io/doc/org.jooby/modules/1.2.0)
+[![modules website](https://img.shields.io/badge/modules-brightgreen.svg)](http://jooby.org/doc/modules)
 [![Build Status](https://travis-ci.org/jooby-project/jooby.svg?branch=master)](https://travis-ci.org/jooby-project/jooby)
-[![Coverage Status](https://img.shields.io/coveralls/jooby-project/jooby.svg)](https://coveralls.io/r/jooby-project/jooby?branch=master)
-[![Google Group](https://img.shields.io/badge/google-group-orange.svg)](https://groups.google.com/forum/#!forum/jooby-project)
+[![coveralls.io](https://img.shields.io/coveralls/jooby-project/jooby.svg)](https://coveralls.io/r/jooby-project/jooby?branch=master)
+[![codecov.io](https://codecov.io/gh/jooby-project/jooby/branch/master/graph/badge.svg)](https://codecov.io/gh/jooby-project/jooby)
+[![Google Group](https://img.shields.io/badge/group-joobyproject-orange.svg)](https://groups.google.com/forum/#!forum/jooby-project)
 [![Join the chat at https://gitter.im/jooby-project/jooby](https://badges.gitter.im/jooby-project/jooby.svg)](https://gitter.im/jooby-project/jooby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby)
-[![@joobyproject](https://img.shields.io/badge/twitter--blue.svg)](https://twitter.com/joobyproject)
+[![Follow us on twitter](https://img.shields.io/badge/twitter-@joobyproject-blue.svg)](https://twitter.com/joobyproject)
 
 # &infin; do more, more easily
 
-[Jooby](http://jooby.org) a scalable, fast and modular micro web framework for Java, [JavaScript](http://jooby.org/doc/lang-js) and [Kotlin](http://jooby.org/doc/lang-kotlin).
+[Jooby](http://jooby.org) a modular micro web framework for Java and [Kotlin](http://jooby.org/doc/lang-kotlin):
 
-* **Simple, effective and easy to learn**. Ideal for small but also large scale applications.
+* **Simple, effective and easy to learn**
 
-* **Scalable**. Stateless application development.
+* **Fast development cycles**: run, debug and reload your application using [devtools](http://jooby.org/doc/devtools) available for Maven and Gradle
 
-* **Fast**. Thanks to the most popular [NIO web servers](http://jooby.org/doc/servers).
+* **Script routes**: annotation and reflection free programming model using lambdas. Similar to [express.js](http://expressjs.com), [Sinatra](http://www.sinatrarb.com), etc..
 
-* **Modular**. Make it **full-stack** via the extensive [module eco-system](http://jooby.org/modules).
+* **MVC routes**: annotation and reflection programming model using controller classes. Similar to [Spring](http://spring.io), [Jersey](https://jersey.java.net), etc..
 
-* **Ready for the modern web**, with the awesome and powerful [asset module](https://github.com/jooby-project/jooby/tree/master/jooby-assets)
+* **Multi-server**: [Jetty](http://www.eclipse.org/jetty/), [Netty](http://netty.io) and [Undertow](http://undertow.io)
+
+* **Multi-protocol**: `HTTP`, `HTTPS`, `HTTP 2.0`, `Server-Sent Events` and `Web-Socket`
+
+* **Modular**. Make it **full-stack** via the extensive [module eco-system](http://jooby.org/modules)
+
+* **Ready for the modern web** with the [asset management](http://jooby.org/doc/asset-management) tools
+
+## found this project useful :heart:
+
+* Support by clicking the :star: button on the upper right of this page. :v:
 
 ## hello world!
 
@@ -41,46 +55,22 @@ public class App extends Jooby {
 
 [Kotlin](http://jooby.org/doc/lang-kotlin):
 
-```kotlin
+```java
 
 import org.jooby.*
 
-fun main(args: Array<String>) {
-  run(*args) {
-    get {
-      "Hello Kotlin"
-    }
+class App: Kooby({
+  get {
+    "Hello Jooby!"
   }
+})
+
+fun main(args: Array<String>) {
+  run(::App, *args)
 }
 
 ```
 
-[JavaScript](http://jooby.org/doc/lang-js):
-
-```js
-
-var app = jooby();
-
-app.get('/', function () 'Hey Jooby!');
-
-```
-
-## found this project useful :heart:
-
-* Support by clicking the :star: button on the upper right of this page. :v:
-
-## killer features
-
-* **Multi-language**. Write your application in Java, [Kotlin](https://github.com/jooby-project/jooby/tree/master/jooby-lang-kotlin) or [JavaScript](https://github.com/jooby-project/jooby/tree/master/jooby-lang-js)
-* **Scripting programming model**. Like [express.js](http://expressjs.com), [Sinatra](http://www.sinatrarb.com), etc.. but also
-* **MVC programming model**. Like [Spring](http://spring.io) controllers or [Jersey](https://jersey.java.net) resources
-* **Multi-server**. Including [Netty](http://netty.io), [Jetty](http://www.eclipse.org/jetty/) and [Undertow](http://undertow.io)
-* **HTTPS**
-* **HTTP/2**
-* **Server-Sent Events**
-* **Web-Socket**
-* **Dependency Injection**
-* **Hot reload** for development
 
 want to contribute?
 =====
@@ -101,7 +91,7 @@ want to contribute?
 author
 =====
 
- [Edgar Espina] (https://twitter.com/edgarespina)
+ [Edgar Espina](https://twitter.com/edgarespina)
 
 license
 =====

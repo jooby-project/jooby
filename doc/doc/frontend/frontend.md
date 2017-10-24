@@ -89,3 +89,8 @@ The next example executes a script without waiting to finish (useful for backgro
 }
 ```
 
+## starter project
+
+Checkout the [webpack-starter](https://github.com/jooby-project/webpack-starter) demo project.
+
+That's all folks!!

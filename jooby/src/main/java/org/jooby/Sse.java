@@ -796,7 +796,6 @@ public abstract class Sse implements AutoCloseable {
    * }</pre>
    *
    * The <code>id</code> of the success callback correspond to the {@link Event#id()}.
-   * }</pre>
    *
    * @param data Event data.
    * @param type Media type, like: json, xml.

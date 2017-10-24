@@ -237,7 +237,7 @@ public class Err extends RuntimeException {
     /**
      * Creates a new {@link BadMediaType}.
      *
-     * @param message
+     * @param message Error message.
      */
     public BadMediaType(final String message) {
       super(Status.BAD_REQUEST, message);

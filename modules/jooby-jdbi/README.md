@@ -1,10 +1,13 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jdbi/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jdbi)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jdbi.svg)](https://javadoc.io/doc/org.jooby/jooby-jdbi/1.2.0)
+[![jooby-jdbi website](https://img.shields.io/badge/jooby-jdbi-brightgreen.svg)](http://jooby.org/doc/jdbi)
 # jdbi
 
 [JDBI](http://www.jdbi.org/) is a SQL convenience library for Java.
 
-This module extends the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module so all the services provided by the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc)  module are inherited.
+> **DEPRECATED**: try the [jdbi3](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi3) module.
 
-Before start, make sure you already setup a database connection as described in the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
+> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
 
 ## exports
 
@@ -18,7 +21,7 @@ Before start, make sure you already setup a database connection as described in 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbi</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 

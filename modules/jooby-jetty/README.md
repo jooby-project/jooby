@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jetty/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jetty)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jetty.svg)](https://javadoc.io/doc/org.jooby/jooby-jetty/1.2.0)
+[![jooby-jetty website](https://img.shields.io/badge/jooby-jetty-brightgreen.svg)](http://jooby.org/doc/jetty)
 # jetty
 
 [Jetty](https://www.eclipse.org/jetty) provides a Web server and javax.servlet container, plus support for HTTP/2, WebSocket and many other integrations.
@@ -12,7 +15,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jetty</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 

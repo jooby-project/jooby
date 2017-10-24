@@ -1,3 +1,5 @@
+> **DEPRECATED**: This module has been deprecated. Please use the new [apitool](https://github.com/jooby-project/jooby/tree/master/jooby-apitool) module.
+
 The spec module allows you to export your API/microservices outside a {{jooby}} application.
 
 The goal of this module is to define a common way to write APIs and provide tools like live doc and testing **with no extra effort**.

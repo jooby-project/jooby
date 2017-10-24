@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-consul/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-consul)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-consul.svg)](https://javadoc.io/doc/org.jooby/jooby-consul/1.2.0)
+[![jooby-consul website](https://img.shields.io/badge/jooby-consul-brightgreen.svg)](http://jooby.org/doc/consul)
 # consul
 
 [Consul](https://www.consul.io) client module. 
@@ -12,7 +15,7 @@ Also register the application as a service and setup a health check.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-consul</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 

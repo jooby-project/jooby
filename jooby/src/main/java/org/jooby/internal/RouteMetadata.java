@@ -212,6 +212,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jooby.Env;
+import org.jooby.funzy.Try;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
@@ -255,11 +256,9 @@ public class RouteMetadata implements ParameterNameProvider {
   }
 
   private Map<String, Object> md(final Executable exec) {
-    try {
-      return cache.getUnchecked(exec.getDeclaringClass());
-    } catch (UncheckedExecutionException ex) {
-      throw Throwables.propagate(ex.getCause());
-    }
+    return Try.apply(() -> cache.getUnchecked(exec.getDeclaringClass()))
+        .unwrap(UncheckedExecutionException.class)
+        .get();
   }
 
   private static Map<String, Object> extractMetadata(final Class<?> owner) {

@@ -673,6 +673,7 @@ public class Jooby implements Router, LifeCycle, Registry {
      * @return Produces a module config object (when need it). By default a module doesn't produce
      *         any configuration object.
      */
+    @Nonnull
     default Config config() {
       return ConfigFactory.empty();
     }
@@ -685,6 +686,7 @@ public class Jooby implements Router, LifeCycle, Registry {
      * @param env The current application's env. Not null.
      * @param conf The current config object. Not null.
      * @param binder A guice binder. Not null.
+     * @throws Throwable If something goes wrong.
      */
     void configure(Env env, Config conf, Binder binder) throws Throwable;
 

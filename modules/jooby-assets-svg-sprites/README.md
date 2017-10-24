@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-svg-sprites/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-svg-sprites)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-svg-sprites.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-svg-sprites/1.2.0)
+[![jooby-assets-svg-sprites website](https://img.shields.io/badge/jooby-assets-svg-sprites-brightgreen.svg)](http://jooby.org/doc/assets-svg-sprites)
 # svg-sprites
 
 An [AssetAggregator](/apidocs/org/jooby/assets/AssetAggregator.html) that creates SVG sprites with PNG fallbacks at needed sizes via <a href="https://github.com/drdk/dr-svg-sprites">dr-svg-sprites</a>.
@@ -10,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-assets-svg-sprites</artifactId>
- <version>1.1.3</version>
+ <version>1.2.0</version>
  <scope>provided</scope>
 </dependency>
 ```
@@ -96,8 +99,6 @@ Please refer to <a href="https://github.com/drdk/dr-svg-sprites">dr-svg-sprites<
 * [jshint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jshint): JavaScript linter, helps to detect errors and potential problems in code..
 
 * [babel](https://github.com/jooby-project/jooby/tree/master/jooby-assets-babel): Ecma6 now via <a href="http://babeljs.io/">Babel</a>.
-
-* [react](https://github.com/jooby-project/jooby/tree/master/jooby-assets-react): <a href="https://facebook.github.io/react">React</a> support.
 
 * [rollup](https://github.com/jooby-project/jooby/tree/master/jooby-assets-rollup): <a href="http://rollupjs.org/">rollup.js</a> the next-generation ES6 module bundler.
 

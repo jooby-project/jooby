@@ -2,7 +2,7 @@
 
 SQL abstraction provided by <a href="http://www.querydsl.com">QueryDSL</a> using plain JDBC underneath.
 
-This module depends on [jdbc](doc/jdbc) module.
+> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
 
 ## exports
 

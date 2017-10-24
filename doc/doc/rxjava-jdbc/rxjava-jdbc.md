@@ -2,8 +2,7 @@
 
 <a href="https://github.com/davidmoten/rxjava-jdbc">rxjava-jdbc</a> efficient execution, concise code, and functional composition of database calls using JDBC and RxJava Observable.
 
-
-> This module depends on [jdbc](/doc/jdbc) module.
+> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
 
 ## dependency
 

@@ -379,6 +379,7 @@ import com.typesafe.config.ConfigFactory;
  * @author edgar
  * @since 0.15.0
  */
+@Deprecated
 public class Raml {
 
   private static final String DISABLE_TRY_IT = "disable-try-it";

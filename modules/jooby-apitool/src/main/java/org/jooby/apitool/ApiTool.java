@@ -236,18 +236,13 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * <h1>API doc</h1>
+ * <h1>API tool</h1>
  * <p>
  *  Automatically export your HTTP API to open standards like
  *  <a href="https://swagger.io/">Swagger</a> and <a href="https://raml.org/">RAML</a>.
  * </p>
  * <p>
- *   Writing documentation in general is a hard and tedious task and once done it doesn't end
- *   there. You also need to keep it synchronize every time you change something.
- * </p>
- * <p>
- *   This module generates live documentation from your HTTP API, every new change is automatically
- *   reflected keeping documentation up-to-date with no extra effort.
+ *   This module generates live documentation from your HTTP API.
  * </p>
  *
  * <h2>usage</h2>
@@ -265,9 +260,6 @@ import java.util.function.Predicate;
  *   Those lines export your API to <a href="https://swagger.io/">Swagger</a> and
  *   <a href="https://raml.org/">RAML</a>.
  * </p>
- * <p>
- *   Swagger UI will be available at <code>/swagger</code> path while the definition file
- * </p>
  *
  * <h2>example</h2>
  * <p>Suppose you have a <code>Pet API</code> like:</p>
@@ -277,7 +269,7 @@ import java.util.function.Predicate;
  *   /**
  *     * Everything about your Pets.
  *     *&#47;
- *   patch("/api/pets", () -> {
+ *   path("/api/pets", () {@literal ->} {
  *     /**
  *       * List pets ordered by name.
  *       *
@@ -353,8 +345,8 @@ import java.util.function.Predicate;
  * </pre>
  *
  * <p>
- *   Write your <code>API</code> and the <code>ApiTool</code> module automatically
- *   export it to <a href="https://swagger.io/">Swagger</a> and <a href="https://raml.org/">RAML</a>.
+ *   The <code>ApiTool</code> module automatically exports your application to
+ *   <a href="https://swagger.io/">Swagger</a> and <a href="https://raml.org/">RAML</a>.
  * </p>
  *
  * <p>
@@ -364,10 +356,10 @@ import java.util.function.Predicate;
  * <h2>keep documentation</h2>
  * <p>
  *   The {@link ApiTool} module parse documentation from source code. It works well as long as the
- *   source code is present, but it won't work once deployed it.
+ *   source code is present, but it won't work after you deploy your application.
  * </p>
  * <p>
- *   To fix this we do provide a <a href="https://maven.apache.org">Maven</a> and
+ *   To fix this we provide a <a href="https://maven.apache.org">Maven</a> and
  *   <a href="https://gradle.org">Gradle</a> tasks that process your API at build time and keep the
  *   documentation available for later usage.
  * </p>
@@ -421,7 +413,7 @@ import java.util.function.Predicate;
  *
  * <h3>filter</h3>
  * <p>
- *   The <code>filter</code> option control what routes are exported.
+ *   The <code>filter</code> option controls what routes are exported.
  * </p>
  * <pre>{@code
  *  {
@@ -527,11 +519,11 @@ import java.util.function.Predicate;
  *   {
  *     use(new ApiTool()
  *       .swagger(swagger -> {
- *         // Deal with Swagger API
+ *         // Modify swagger resources.
  *         ...
  *       })
  *       .raml(raml -> {
- *         // Deal with Swagger API
+ *         // Modify raml resources.
  *         ...
  *       });
  *     );

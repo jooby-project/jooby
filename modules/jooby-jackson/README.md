@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jackson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jackson)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jackson.svg)](https://javadoc.io/doc/org.jooby/jooby-jackson/1.2.0)
+[![jooby-jackson website](https://img.shields.io/badge/jooby-jackson-brightgreen.svg)](http://jooby.org/doc/jackson)
 # jackson
 
 JSON support from the excellent [Jackson](https://github.com/FasterXML/jackson) library.
@@ -14,7 +17,7 @@ JSON support from the excellent [Jackson](https://github.com/FasterXML/jackson) 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jackson</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 

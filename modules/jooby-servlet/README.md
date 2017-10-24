@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-servlet/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-servlet)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-servlet.svg)](https://javadoc.io/doc/org.jooby/jooby-servlet/1.2.0)
+[![jooby-servlet website](https://img.shields.io/badge/jooby-servlet-brightgreen.svg)](http://jooby.org/doc/servlet)
 # servlets
 
 This module exists for strict environments where the ONLY option is to deploy into a Servlet Container.
@@ -303,9 +306,9 @@ server {
 
   threads {
 
-    Min = ${runtime.processors}
+    # Min = Math.max(4, ${runtime.processors})
 
-    Max = ${runtime.processors-x8}
+    # Max = Math.max(32, ${runtime.processors-x8})
 
     IdleTimeout = 60s
 

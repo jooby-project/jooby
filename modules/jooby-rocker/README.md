@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-rocker/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-rocker)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-rocker.svg)](https://javadoc.io/doc/org.jooby/jooby-rocker/1.2.0)
+[![jooby-rocker website](https://img.shields.io/badge/jooby-rocker-brightgreen.svg)](http://jooby.org/doc/rocker)
 # rocker
 
 Java 8 optimized, memory efficient, speedy template engine producing statically typed, plain java objects.
@@ -14,7 +17,7 @@ Java 8 optimized, memory efficient, speedy template engine producing statically 
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-rocker</artifactId>
- <version>1.1.3</version>
+ <version>1.2.0</version>
 </dependency>
 ```
 

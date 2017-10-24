@@ -1,3 +1,13 @@
+# welcome
+
+Welcome to the getting started guide, you will find here a step by step guide using a **Maven archetype**. Optionally, you might want to try the one of the starter projects:
+
+ - [Starter projects](https://github.com/search?q=topic%3Astarter+org%3Ajooby-project&type=Repositories)
+ - [Gradle starter](https://github.com/jooby-project/gradle-starter)
+ - [Kotlin starter](https://github.com/jooby-project/kotlin-starter)
+ - [Kotlin gradle starter](https://github.com/jooby-project/kotlin-gradle-starter)
+
+
 requirements
 =====
 

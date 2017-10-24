@@ -1,8 +1,11 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-querydsl/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-querydsl)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-querydsl.svg)](https://javadoc.io/doc/org.jooby/jooby-querydsl/1.2.0)
+[![jooby-querydsl website](https://img.shields.io/badge/jooby-querydsl-brightgreen.svg)](http://jooby.org/doc/querydsl)
 # queryDSL
 
 SQL abstraction provided by <a href="http://www.querydsl.com">QueryDSL</a> using plain JDBC underneath.
 
-This module depends on [jdbc module](doc/jdbc), make sure you read the doc of the [jdbc module](doc/jdbc) module before using this module.
+> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
 
 ## exports
 
@@ -14,7 +17,7 @@ This module depends on [jdbc module](doc/jdbc), make sure you read the doc of th
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-querydsl</artifactId>
- <version>1.1.3</version>
+ <version>1.2.0</version>
 </dependency>
 ```
 
@@ -23,6 +26,7 @@ This module depends on [jdbc module](doc/jdbc), make sure you read the doc of th
 ```java
 import org.jooby.querydsl.QueryDSL;
 {
+  use(new Jdbc());
   use(new QueryDSL());
 
   get("/my-api", req -> {
@@ -41,6 +45,7 @@ Dialect is detected automatically and usually you don't need to do anything. But
 
 ```java
 {
+  use(new Jdbc());
   use(new QueryDSL().with(new MyCustomTemplates());
 }
 ```
@@ -50,8 +55,10 @@ Dialect is detected automatically and usually you don't need to do anything. But
 ```java
 import org.jooby.querydsl.QueryDSL;
 {
+  use(new Jdbc("db.main"));
   use(new QueryDSL("db.main"));
 
+  use(new Jdbc("db.aux"));
   use(new QueryDSL("db.aux"));
 
   get("/my-api", req -> {
@@ -69,6 +76,7 @@ Advanced configuration can be added by invoking the ```doWith``` method, adding 
 
 ```java
 {
+  use(new Jdbc());
   use(new QueryDSL().doWith(conf -> {
     conf.set(...);
   });

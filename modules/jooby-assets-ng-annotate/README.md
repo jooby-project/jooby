@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-ng-annotate/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-ng-annotate)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-ng-annotate.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-ng-annotate/1.2.0)
+[![jooby-assets-ng-annotate website](https://img.shields.io/badge/jooby-assets-ng-annotate-brightgreen.svg)](http://jooby.org/doc/assets-ng-annotate)
 # ng-annotate
 
 <a href="https://github.com/olov/ng-annotate">ng-annotate</a> add, remove and rebuild AngularJS dependency injection annotations.
@@ -10,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-ng-annotate</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.0</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -74,8 +77,6 @@ assets {
 * [jshint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jshint): JavaScript linter, helps to detect errors and potential problems in code..
 
 * [babel](https://github.com/jooby-project/jooby/tree/master/jooby-assets-babel): Ecma6 now via <a href="http://babeljs.io/">Babel</a>.
-
-* [react](https://github.com/jooby-project/jooby/tree/master/jooby-assets-react): <a href="https://facebook.github.io/react">React</a> support.
 
 * [rollup](https://github.com/jooby-project/jooby/tree/master/jooby-assets-rollup): <a href="http://rollupjs.org/">rollup.js</a> the next-generation ES6 module bundler.
 

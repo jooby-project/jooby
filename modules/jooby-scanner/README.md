@@ -1,8 +1,11 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-scanner/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-scanner)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-scanner.svg)](https://javadoc.io/doc/org.jooby/jooby-scanner/1.2.0)
+[![jooby-scanner website](https://img.shields.io/badge/jooby-scanner-brightgreen.svg)](http://jooby.org/doc/scanner)
 # scanner
 
 <a href="https://github.com/lukehutch/fast-classpath-scanner">FastClasspathScanner</a> is an uber-fast, ultra-lightweight classpath scanner for Java, Scala and other JVM languages.
 
-This module provides `class-path` scanning services for `MVC routes`, `modules`, `services` and `applications`.
+This module provides `class-path` scanning services for `MVC routes`, `services` and `applications`.
 
 ## dependency
 
@@ -10,7 +13,7 @@ This module provides `class-path` scanning services for `MVC routes`, `modules`,
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-scanner</artifactId>
- <version>1.1.3</version>
+ <version>1.2.0</version>
 </dependency>
 ```
 

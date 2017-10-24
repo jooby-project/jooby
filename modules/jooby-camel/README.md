@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-camel/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-camel)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-camel.svg)](https://javadoc.io/doc/org.jooby/jooby-camel/1.2.0)
+[![jooby-camel website](https://img.shields.io/badge/jooby-camel-brightgreen.svg)](http://jooby.org/doc/camel)
 # camel
 
 Enterprise Integration Patterns via [Apache Camel](http://camel.apache.org).
@@ -23,7 +26,7 @@ depend on [camel-guice](http://camel.apache.org/guice.html), but it provides sim
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-camel</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 

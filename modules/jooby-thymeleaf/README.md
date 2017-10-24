@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-thymeleaf/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-thymeleaf)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-thymeleaf.svg)](https://javadoc.io/doc/org.jooby/jooby-thymeleaf/1.2.0)
+[![jooby-thymeleaf website](https://img.shields.io/badge/jooby-thymeleaf-brightgreen.svg)](http://jooby.org/doc/thymeleaf)
 # thymeleaf
 
 <a href="http://www.thymeleaf.org">Thymeleaf</a> is a modern server-side Java template engine for both web and standalone environments.
@@ -8,7 +11,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-thymeleaf</artifactId>
- <version>1.1.3</version>
+ <version>1.2.0</version>
 </dependency>
 ```
 

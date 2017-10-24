@@ -2,7 +2,7 @@
 
 <a href="http://www.jooq.org">jOOQ</a> generates Java code from your database and lets you build type safe SQL queries through its fluent API.
 
-This module depends on [jdbc](/doc/jdbc) module.
+> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
 
 ## exports
 

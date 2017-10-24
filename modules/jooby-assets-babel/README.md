@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-babel/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-babel)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-babel.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-babel/1.2.0)
+[![jooby-assets-babel website](https://img.shields.io/badge/jooby-assets-babel-brightgreen.svg)](http://jooby.org/doc/assets-babel)
 # babel
 
 <a href="http://babeljs.io/">Babel</a> is a JavaScript compiler with a set of ES2015 syntax transformers that allow you to use new syntax, right now without waiting for browser support.
@@ -10,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-babel</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.0</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -35,7 +38,7 @@ assets {
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-babel</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.0</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -93,8 +96,6 @@ assets {
 * [jshint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jshint): JavaScript linter, helps to detect errors and potential problems in code..
 
 * [babel](https://github.com/jooby-project/jooby/tree/master/jooby-assets-babel): Ecma6 now via <a href="http://babeljs.io/">Babel</a>.
-
-* [react](https://github.com/jooby-project/jooby/tree/master/jooby-assets-react): <a href="https://facebook.github.io/react">React</a> support.
 
 * [rollup](https://github.com/jooby-project/jooby/tree/master/jooby-assets-rollup): <a href="http://rollupjs.org/">rollup.js</a> the next-generation ES6 module bundler.
 

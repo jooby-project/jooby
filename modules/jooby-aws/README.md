@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-aws/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-aws)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-aws.svg)](https://javadoc.io/doc/org.jooby/jooby-aws/1.2.0)
+[![jooby-aws website](https://img.shields.io/badge/jooby-aws-brightgreen.svg)](http://jooby.org/doc/aws)
 # aws
 
 Small utility module that exports ```AmazonWebServiceClient``` services.
@@ -14,7 +17,7 @@ It also give you access to aws credentials (access and secret keys).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-aws</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 

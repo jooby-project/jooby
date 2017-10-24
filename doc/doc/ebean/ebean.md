@@ -2,7 +2,7 @@
 
 Object-Relational-Mapping via {{ebean}}. It configures and exports ```EbeanServer``` instances.
 
-> This module depends on [jdbc module](/doc/jdbc).
+> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
  
 ## exports
 

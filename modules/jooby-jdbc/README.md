@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jdbc/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jdbc)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jdbc.svg)](https://javadoc.io/doc/org.jooby/jooby-jdbc/1.2.0)
+[![jooby-jdbc website](https://img.shields.io/badge/jooby-jdbc-brightgreen.svg)](http://jooby.org/doc/jdbc)
 # jdbc
 
 Production-ready jdbc data source, powered by the [HikariCP](https://github.com/brettwooldridge/HikariCP) library.
@@ -12,7 +15,7 @@ Production-ready jdbc data source, powered by the [HikariCP](https://github.com/
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbc</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 

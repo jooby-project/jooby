@@ -233,6 +233,7 @@ public interface Router {
    * Decode a path by delegating to {@link URLDecoder#decode(String, String)}.
    *
    * @param path Path to decoded.
+   * @return Decode a path by delegating to {@link URLDecoder#decode(String, String)}.
    */
   static String decode(String path) {
     return Try.apply(() -> URLDecoder.decode(path, "UTF-8")).get();
@@ -251,13 +252,13 @@ public interface Router {
   /**
    * Group one or more routes under a common path.
    *
-   * <pre>
+   * <pre>{@code
    *   {
    *     path("/api/pets", () -> {
    *
    *     });
    *   }
-   * </pre>
+   * }</pre>
    *
    * @param path Common path.
    * @param action Router action.
@@ -3395,7 +3396,8 @@ public interface Router {
    *   ws(MyHandler.class);
    * </pre>
    *
-   *  @param handler A message callback.
+   * @param handler A message callback.
+   * @param <T> Message type.
    * @return A new WebSocket definition.
    */
   @Nonnull
@@ -3412,6 +3414,7 @@ public interface Router {
    *
    * @param path A path pattern.
    * @param handler A message callback.
+   * @param <T> Message type.
    * @return A new WebSocket definition.
    */
   @Nonnull

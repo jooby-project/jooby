@@ -4,7 +4,7 @@
 
 This module setup and configure <a href="http://hibernate.org/orm">Hibernate ORM</a> and ```JPA Provider```.
 
-> This module depends on [jdbc](/doc/jdbc) module.
+> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
 
 ## exports
 

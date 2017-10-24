@@ -214,6 +214,7 @@ import java.util.Optional;
  * @author edgar
  * @since 0.15.0
  */
+@Deprecated
 public interface RouteResponse extends Serializable {
 
   /**

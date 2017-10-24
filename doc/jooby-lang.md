@@ -20,16 +20,18 @@ public class App extends Jooby {
 
 [Kotlin](http://jooby.org/doc/lang-kotlin):
 
-```kotlin
+```java
 
 import org.jooby.*
 
-fun main(args: Array<String>) {
-  run(*args) {
-    get {
-      "Hello Kotlin"
-    }
+class App: Kooby({
+  get {
+    "Hello Jooby!"
   }
+})
+
+fun main(args: Array<String>) {
+  run(::App, *args)
 }
 
 ```

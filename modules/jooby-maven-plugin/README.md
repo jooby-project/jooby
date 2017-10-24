@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-maven-plugin)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-maven-plugin.svg)](https://javadoc.io/doc/org.jooby/jooby-maven-plugin/1.2.0)
+[![jooby-maven-plugin website](https://img.shields.io/badge/jooby-maven-plugin-brightgreen.svg)](http://jooby.org/doc/maven-plugin)
 # maven
 
 [Maven 3+](http://maven.apache.org/) plugin for running, debugging and reloading your application.
@@ -40,7 +43,7 @@ It's worth to mention that dynamic reload of classes is done via [JBoss Modules]
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.0</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -56,6 +59,7 @@ It's worth to mention that dynamic reload of classes is done via [JBoss Modules]
     </includes>
     <excludes>
     </excludes>
+    <srcExtensions>.java,.kt,.conf,.properties</srcExtensions>
   </configuration>
 </plugin>
 ```
@@ -113,7 +117,7 @@ List of commands to execute before starting the ```application```. Useful for [n
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.0</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -134,7 +138,7 @@ Set one or more ```JVM args```:
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.0</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <fork>true</fork>
@@ -150,4 +154,8 @@ Make sure to enable the ```fork``` option too, otherwise ```vmArgs``` are ignore
 
 ### includes / excludes
 
-List of file patterns to listen for file changes.
+List of file patterns to listen for file changes and trigger restarting the server.
+
+### srcExtensions
+
+List of file extensions to listen for file changes and trigger re-compilation.

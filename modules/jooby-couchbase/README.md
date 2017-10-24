@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-couchbase/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-couchbase)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-couchbase.svg)](https://javadoc.io/doc/org.jooby/jooby-couchbase/1.2.0)
+[![jooby-couchbase website](https://img.shields.io/badge/jooby-couchbase-brightgreen.svg)](http://jooby.org/doc/couchbase)
 # couchbase
 
 <a href="http://www.couchbase.com">Couchbase</a> is a NoSQL document database with a distributed architecture for performance, scalability, and availability. It enables developers to build applications easier and faster by leveraging the power of SQL with the flexibility of JSON.
@@ -10,7 +13,7 @@ This module provides <a href="http://www.couchbase.com">couchbase</a> access via
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-couchbase</artifactId>
- <version>1.1.3</version>
+ <version>1.2.0</version>
 </dependency>
 ```
 
@@ -279,7 +282,7 @@ A [Session.Store](/apidocs/org/jooby/couchbase/CouchbaseSessionStore) powered by
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-couchbase</artifactId>
- <version>1.1.3</version>
+ <version>1.2.0</version>
 </dependency>
 ```
 

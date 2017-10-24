@@ -701,6 +701,7 @@ import java.util.Optional;
  * @see RouteProcessor
  * @since 0.15.0
  */
+@Deprecated
 public interface RouteSpec extends Serializable {
 
   /**
