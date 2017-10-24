@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -118,7 +118,9 @@
       <div class="datalist-content"> 
        <p><a href="http://hibernate.org/orm" target="_blank">Hibernate ORM</a> enables developers to more easily write applications whose data outlives the application process. As an Object/Relational Mapping (ORM) framework, Hibernate is concerned with data persistence as it applies to relational databases.</p> 
        <p>This module setup and configure <a href="http://hibernate.org/orm" target="_blank">Hibernate ORM</a> and <code class="highlighter-rouge codehilite">JPA Provider</code>.</p> 
-       <p>This module depends on <a href="/doc/jdbc">jdbc</a> module, make sure you read the doc of the <a href="/doc/jdbc">jdbc</a> module.</p> 
+       <blockquote> 
+        <p>NOTE: This module depends on <a href="/doc/jdbc">jdbc</a> module.</p> 
+       </blockquote> 
        <h3 id="hibernate-exports">exports</h3> 
        <ul> 
         <li>SessionFactory / EntityManagerFactory</li> 
@@ -133,7 +135,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-hbm<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.1.3<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.2.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -143,9 +145,9 @@
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">(</span><span class="s">"jdbc:mysql://localhost/mydb"</span><span class="o">)</span>
-      <span class="o">.</span><span class="na">classes</span><span class="o">(</span><span class="n">Beer</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-  <span class="o">);</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">());</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">classes</span><span class="o">(</span><span class="n">Beer</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
 
   <span class="n">get</span><span class="o">(</span><span class="s">"/api/beer/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="k">return</span> <span class="n">require</span><span class="o">(</span><span class="n">UnitOfWork</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">apply</span><span class="o">(</span><span class="n">em</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -202,6 +204,7 @@
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
+   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">());</span>
    <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">());</span>
    <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="n">Hbm</span><span class="o">.</span><span class="na">openSessionInView</span><span class="o">());</span>
 <span class="o">}</span>
@@ -251,6 +254,7 @@
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">());</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">()</span>
       <span class="o">.</span><span class="na">classes</span><span class="o">(</span><span class="n">Entity1</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">Entity2</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="o">...,</span> <span class="o">)</span>
   <span class="o">);</span>
@@ -264,6 +268,7 @@
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">());</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">()</span>
       <span class="o">.</span><span class="na">scan</span><span class="o">()</span>
   <span class="o">);</span>
@@ -277,6 +282,7 @@
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">());</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">()</span>
       <span class="o">.</span><span class="na">scan</span><span class="o">(</span><span class="s">"foo.bar"</span><span class="o">,</span> <span class="s">"x.y.z"</span><span class="o">)</span>
   <span class="o">);</span>
@@ -285,17 +291,17 @@
 </code></pre> 
        </div> 
        <h3 id="hibernate-advanced-configuration">advanced configuration</h3> 
-       <p>Advanced configuration is provided via <a href="/apidocs/org/jooby/hbm/Hbm.html#doWith-java.util.function.Consumer-" target="_blank">doWith(Consumer)</a> callbacks:</p> 
+       <p>Advanced configuration is provided via <code class="highlighter-rouge codehilite">doWithXXX</code> callbacks:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">()</span>
-      <span class="o">.</span><span class="na">doWith</span><span class="o">((</span><span class="n">BootstrapServiceRegistryBuilder</span> <span class="n">bsrb</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="o">.</span><span class="na">doWithBootstrap</span><span class="o">(</span><span class="n">bsrb</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="c1">// do with bsrb</span>
       <span class="o">})</span>
-      <span class="o">.</span><span class="na">doWith</span><span class="o">((</span><span class="n">StandardServiceRegistryBuilder</span> <span class="n">ssrb</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="o">.</span><span class="na">doWithRegistry</span><span class="o">(</span><span class="n">ssrb</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="c1">// do with ssrb</span>
       <span class="o">})</span>
   <span class="o">);</span>
@@ -339,10 +345,6 @@
   <footer class="site-footer"> 
    <div class="row"> 
     <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
-    <div class="altquimia">
-     DG 
-     <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
-    </div> 
     <div class="follow-us pull-right"> 
      <p>Follow us</p>
      <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>

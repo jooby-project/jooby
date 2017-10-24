@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>jooby: API tool module</title> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, API tool"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="canonical" href="#"> 
+  <link rel="publisher" href="#"> 
+  <meta name="robots" content="robots.txt"> 
+  <meta name="og:title" content="jooby: apitool module"> 
+  <meta name="og:description" content="Automatically export your HTTP API to open standards like Swagger and RAML"> 
+  <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    --> 
+  <meta name="og:type" content="website"> 
+  <meta name="og:url" content="http://jooby.org"> 
+  <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    --> 
+  <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
+  <meta name="og:site_name" content="jooby: apitool module"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:title" content="jooby: apitool module"> 
+  <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    --> 
+  <meta name="twitter:image" content="http://jooby.org/resources/images/apps/twitter.jpg"> 
+  <meta name="twitter:site" content="@joobyproject"> 
+  <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
+  <meta name="twitter:domain" content="http://jooby.org"> 
+  <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:description" content="Automatically export your HTTP API to open standards like Swagger and RAML"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180"> 
+  <link href="/resources/images/apps/favicon.ico" rel="shortcut icon"> 
+  <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png"> 
+  <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png"> 
+  <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png"> 
+  <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png"> 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700"> 
+  <link rel="stylesheet" href="/resources/styles/application.css"> 
+  <link rel="stylesheet" href="/resources/styles/github.css"> 
+  <link rel="stylesheet" href="/resources/styles/devices.css"> 
+  <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+ </head> 
+ <body class="page-section page-sidebar"> 
+  <header class="site-header"> 
+   <div class="row">
+    <a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a>
+    <a class="show-mobile open-menu"><span></span></a> 
+    <nav class="site-nav"> 
+     <ul> 
+      <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
+      <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
+      <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
+      <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.0" target="_blank" title="API docs">API DOCS</a></li> 
+     </ul> 
+    </nav> 
+   </div> 
+  </header> 
+  <main role="main" class="site-content"> 
+   <div class="section-title"> 
+    <div class="row"> 
+     <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
+     <h1>API tool</h1> 
+    </div> 
+   </div> 
+   <div class="row"> 
+    <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
+     <div class="show-mobile menu-open">
+      API tool
+     </div> 
+     <ul> 
+      <li class="active"> <a href="#API-tool">API tool</a>
+       <ul> 
+        <li> <a href="#API-tool-dependency">dependency</a></li> 
+        <li> <a href="#API-tool-usage">usage</a></li> 
+        <li> <a href="#API-tool-example">example</a></li> 
+        <li> <a href="#API-tool-keep-documentation">keep documentation</a></li> 
+        <li> <a href="#API-tool-options">options</a></li> 
+        <li> <a href="#API-tool-advanced-usage">advanced usage</a></li>
+       </ul></li> 
+      <li class=""> <a href="#starter-project">starter project</a></li> 
+     </ul> 
+    </div> 
+    <div class="section-content"> 
+     <div class="datalist" id="API-tool"> 
+      <div class="datalist-title active"> 
+       <h2>API tool</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>Automatically export your HTTP API to open standards like <a href="https://swagger.io/" target="_blank">Swagger</a> and <a href="https://raml.org/" target="_blank">RAML</a>.</p> 
+       <p>This module generates live documentation from your HTTP API.</p> 
+       <h3 id="API-tool-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+ <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+ <span class="nt">&lt;artifactId&gt;</span>jooby-api tool<span class="nt">&lt;/artifactId&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.2.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
+       <h3 id="API-tool-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ApiTool</span><span class="o">()</span>
+     <span class="o">.</span><span class="na">swagger</span><span class="o">(</span><span class="s">"/swagger"</span><span class="o">)</span>
+     <span class="o">.</span><span class="na">raml</span><span class="o">(</span><span class="s">"/raml"</span><span class="o">)</span>
+   <span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Those lines export your API to <a href="https://swagger.io/" target="_blank">Swagger</a> and <a href="https://raml.org/" target="_blank">RAML</a>.</p> 
+       <h3 id="API-tool-example">example</h3> 
+       <p>Suppose you have a <code class="highlighter-rouge codehilite">Pet API</code> like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  
+  <span class="cm">/**</span>
+   <span class="cm">* </span>
+   <span class="cm">* Everything about your Pets. </span>
+   <span class="cm">*/</span>
+  <span class="n">path</span><span class="o">(</span><span class="s">"/api/pets"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="cm">/**</span>
+     <span class="cm">* </span>
+     <span class="cm">* List pets ordered by name.</span>
+     <span class="cm">* </span>
+     <span class="cm">* @param start Start offset, useful for paging. Default is ```0```.</span>
+     <span class="cm">* @param max Max page size, useful for paging. Default is ```200```.</span>
+     <span class="cm">* @return Pets ordered by name. </span>
+     <span class="cm">*/</span>
+     <span class="n">get</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+       <span class="kt">int</span> <span class="n">start</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"start"</span><span class="o">).</span><span class="na">intValue</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+       <span class="kt">int</span> <span class="n">max</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"max"</span><span class="o">).</span><span class="na">intValue</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+       <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+       <span class="n">List</span><span class="o">&lt;</span><span class="n">Pet</span><span class="o">&gt;</span> <span class="n">pets</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">findAll</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">start</span><span class="o">,</span> <span class="n">max</span><span class="o">);</span>
+       <span class="k">return</span> <span class="n">pets</span><span class="o">;</span>
+     <span class="o">});</span>
+
+    <span class="cm">/**</span>
+     <span class="cm">* </span>
+     <span class="cm">* Find pet by ID</span>
+     <span class="cm">* @param id Pet ID.</span>
+     <span class="cm">* @return Returns ```200``` with a single pet or ```404``` </span>
+     <span class="cm">*/</span>
+     <span class="n">get</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+       <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">();</span>
+       <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+       <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">find</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
+       <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
+     <span class="o">});</span>
+
+    <span class="cm">/**</span>
+     <span class="cm">* </span>
+     <span class="cm">* Add a new pet to the store.</span>
+     <span class="cm">* @param body Pet object that needs to be added to the store.</span>
+     <span class="cm">* @return Returns a saved pet. </span>
+     <span class="cm">*/</span>
+     <span class="n">post</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+       <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">body</span><span class="o">().</span><span class="na">to</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+       <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+       <span class="n">db</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">pet</span><span class="o">);</span>
+       <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
+     <span class="o">});</span>
+
+    <span class="cm">/**</span>
+     <span class="cm">* </span>
+     <span class="cm">* Update an existing pet.</span>
+     <span class="cm">* @param body Pet object that needs to be updated.</span>
+     <span class="cm">* @return Returns a saved pet. </span>
+     <span class="cm">*/</span>
+     <span class="n">put</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+       <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">body</span><span class="o">().</span><span class="na">to</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+       <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+       <span class="n">db</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">pet</span><span class="o">);</span>
+       <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
+    <span class="o">});</span>
+
+    <span class="cm">/**</span>
+     <span class="cm">* </span>
+     <span class="cm">* Deletes a pet by ID.</span>
+     <span class="cm">* @param id Pet ID.</span>
+     <span class="cm">* @return A ```204``` </span>
+     <span class="cm">*/</span>
+     <span class="n">delete</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+       <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">();</span>
+       <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+       <span class="n">db</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
+       <span class="k">return</span> <span class="n">Results</span><span class="o">.</span><span class="na">noContent</span><span class="o">();</span>
+     <span class="o">});</span>
+  <span class="o">});</span>
+
+   <span class="cm">/**</span>
+    <span class="cm">* </span>
+    <span class="cm">* Install API Doc and export your HTTP API: </span>
+    <span class="cm">*/</span>
+   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ApiTool</span><span class="o">()</span>
+     <span class="o">.</span><span class="na">swagger</span><span class="o">(</span><span class="s">"/swagger"</span><span class="o">)</span>
+     <span class="o">.</span><span class="na">raml</span><span class="o">(</span><span class="s">"/raml"</span><span class="o">)</span>
+   <span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>The <a href="/apidocs/org/jooby/apitool/ApiTool.html" target="_blank">ApiTool</a> module automatically exports your application to <a href="https://swagger.io/" target="_blank">Swagger</a> and <a href="https://raml.org/" target="_blank">RAML</a>.</p> 
+       <p>Works for <code class="highlighter-rouge codehilite">MVC routes</code> and <a href="http://jooby.org/doc/lang-kotlin">Kotlin</a>.</p> 
+       <h3 id="API-tool-keep-documentation">keep documentation</h3> 
+       <p>The <a href="/apidocs/org/jooby/apitool/ApiTool.html" target="_blank">ApiTool</a> module parses documentation from source code. It works well as long as the source code is present, but it won’t work after you deploy your application.</p> 
+       <p>To fix this we provide a <a href="https://maven.apache.org" target="_blank">Maven</a> and <a href="https://gradle.org" target="_blank">Gradle</a> tasks that process your API at build time and keep the documentation available for later usage.</p> 
+       <h4 id="API-tool-maven-plugin">maven plugin</h4> 
+       <p>Go to the <code class="highlighter-rouge codehilite">plugins</code> section of your <code class="highlighter-rouge codehilite">pom.xml</code> and add these lines:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;executions&gt;</span>
+    <span class="nt">&lt;execution&gt;</span>
+      <span class="nt">&lt;goals&gt;</span>
+        <span class="nt">&lt;goal&gt;</span>apitool<span class="nt">&lt;/goal&gt;</span>
+      <span class="nt">&lt;/goals&gt;</span> 
+    <span class="nt">&lt;/execution&gt;</span> 
+  <span class="nt">&lt;/executions&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span>
+</code></pre> 
+       </div> 
+       <p>Now, compile your application the <code class="highlighter-rouge codehilite">apitool</code> plugin generates a <code class="highlighter-rouge codehilite">.json</code> file for your API.</p> 
+       <h4 id="API-tool-gradle-task">gradle task</h4> 
+       <p>Go to <code class="highlighter-rouge codehilite">build.gradle</code> and add these lines:</p> 
+       <pre><code class="language-gradke">buildscript {
+    dependencies {
+        classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.2.0'
+    }
+}
+apply plugin: 'jooby'
+</code></pre> 
+       <p>Then run:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>joobyApiTool
+</code></pre> 
+       </div> 
+       <h3 id="API-tool-options">options</h3> 
+       <h4 id="API-tool-filter">filter</h4> 
+       <p>The <code class="highlighter-rouge codehilite">filter</code> option controls what routes are exported.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ApiTool</span><span class="o">()</span>
+       <span class="c1">// Keep /api/* routes:</span>
+      <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">route</span> <span class="o">-&gt;</span> <span class="n">route</span><span class="o">.</span><span class="na">pattern</span><span class="o">().</span><span class="na">startWiths</span><span class="o">(</span><span class="s">"/api/"</span><span class="o">)</span>
+   <span class="o">);</span>
+ <span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4 id="API-tool-disable-try-it">disable try it</h4> 
+       <p>Disable the <code class="highlighter-rouge codehilite">tryIt</code> button in <a href="https://swagger.io/" target="_blank">Swagger</a> or <a href="https://raml.org/" target="_blank">RAML</a>.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ApiTool</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">disableTryIt</span><span class="o">()</span>
+   <span class="o">);</span>
+ <span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4 id="API-tool-disable-UI">disable UI</h4> 
+       <p>Disable <code class="highlighter-rouge codehilite">UI</code> for <a href="https://swagger.io/" target="_blank">Swagger</a> or <a href="https://raml.org/" target="_blank">RAML</a>.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ApiTool</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">disableUI</span><span class="o">()</span>
+   <span class="o">);</span>
+ <span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4 id="API-tool-theme">theme</h4> 
+       <p>Set the default theme for <a href="https://swagger.io/" target="_blank">Swagger</a> or <a href="https://raml.org/" target="_blank">RAML</a>.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ApiTool</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">raml</span><span class="o">(</span>
+         <span class="k">new</span> <span class="n">Options</span><span class="o">(</span><span class="s">"/raml"</span><span class="o">)</span>
+           <span class="o">.</span><span class="na">theme</span><span class="o">(</span><span class="s">"dark"</span><span class="o">)</span>
+      <span class="o">)</span>
+      <span class="o">.</span><span class="na">swagger</span><span class="o">(</span>
+         <span class="k">new</span> <span class="n">Options</span><span class="o">(</span><span class="s">"/swagger"</span><span class="o">)</span>
+           <span class="o">.</span><span class="na">theme</span><span class="o">(</span><span class="s">"muted"</span><span class="o">)</span>
+      <span class="o">)</span>
+   <span class="o">);</span>
+ <span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Themes can set at runtime too via <code class="highlighter-rouge codehilite">theme</code> query parameter:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>/swagger?theme=material
+/raml?theme=dark
+</code></pre> 
+       </div> 
+       <p>Complete list of <a href="https://swagger.io/" target="_blank">Swagger</a> theme are available <a href="https://github.com/ostranme/swagger-ui-themes" target="_blank">here</a>.</p> 
+       <p>Raml comes with only two themes: <code class="highlighter-rouge codehilite">light</code> and <code class="highlighter-rouge codehilite">dark</code>.</p> 
+       <h3 id="API-tool-advanced-usage">advanced usage</h3> 
+       <p>Sometimes the <a href="/apidocs/org/jooby/apitool/ApiTool.html" target="_blank">ApiTool</a> module doesn’t generate correct metadata like type, names, documentation, etc. When that happens you need to manually fix/provide metadata.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+    <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ApiTool</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">modify</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span> <span class="n">r</span><span class="o">.</span><span class="na">pattern</span><span class="o">().</span><span class="na">equals</span><span class="o">(</span><span class="s">"/api/pet/{id}"</span><span class="o">,</span> <span class="n">route</span> <span class="o">-&gt;</span> <span class="o">{</span>
+        <span class="c1">// Fix java doc for id parameter</span>
+        <span class="n">route</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">,</span> <span class="n">param</span> <span class="o">-&gt;</span> <span class="o">{</span>
+          <span class="n">param</span><span class="o">.</span><span class="na">description</span><span class="o">(</span><span class="s">"Fixing doc for ID"</span><span class="o">);</span>
+        <span class="o">});</span>
+        <span class="c1">// Set response type</span>
+        <span class="n">route</span><span class="o">.</span><span class="na">response</span><span class="o">()</span>
+          <span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+      <span class="o">});</span>
+    <span class="o">);</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>It is possible to customize Swagger/RAML objects:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+    <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ApiTool</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">swagger</span><span class="o">(</span><span class="n">swagger</span> <span class="o">-&gt;</span> <span class="o">{</span>
+        <span class="c1">// Modify swagger resources.</span>
+        <span class="o">...</span>
+      <span class="o">})</span>
+      <span class="o">.</span><span class="na">raml</span><span class="o">(</span><span class="n">raml</span> <span class="o">-&gt;</span> <span class="o">{</span>
+        <span class="c1">// Modify raml resources.</span>
+        <span class="o">...</span>
+      <span class="o">});</span>
+    <span class="o">);</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>This option is required when you want to customize/complement Swagger/RAML objects.</p> 
+      </div> 
+     </div> 
+     <div class="datalist" id="starter-project"> 
+      <div class="datalist-title "> 
+       <h2>starter project</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>We do provide an <a href="https://github.com/jooby-project/apitool-starter" target="_blank">apitool-starter</a> project.</p> 
+       <p>That’s all folks!!</p> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+  </main> 
+  <footer class="site-footer"> 
+   <div class="row"> 
+    <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <div class="follow-us pull-right"> 
+     <p>Follow us</p>
+     <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
+     <a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a> 
+    </div> 
+   </div> 
+  </footer> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script src="/resources/scripts/libs/swiper.min.js"></script> 
+  <script src="/resources/scripts/application.js"></script> 
+  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
+  <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-57151281-1', 'auto');
+      ga('send', 'pageview');
+    </script>  
+ </body>
+</html>

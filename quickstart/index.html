@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
   <title>jooby: getting started</title> 
   <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, requirements"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, welcome"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
@@ -78,7 +78,7 @@
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -91,6 +91,14 @@
    </div> 
    <div class="row"> 
     <div class="section-content"> 
+     <h2>welcome</h2> 
+     <p>Welcome to the getting started guide, you will find here a step by step guide using a <strong>Maven archetype</strong>. Optionally, you might want to try the one of the starter projects:</p> 
+     <ul> 
+      <li><a href="https://github.com/search?q=topic%3Astarter+org%3Ajooby-project&amp;type=Repositories" target="_blank">Starter projects</a></li> 
+      <li><a href="https://github.com/jooby-project/gradle-starter" target="_blank">Gradle starter</a></li> 
+      <li><a href="https://github.com/jooby-project/kotlin-starter" target="_blank">Kotlin starter</a></li> 
+      <li><a href="https://github.com/jooby-project/kotlin-gradle-starter" target="_blank">Kotlin gradle starter</a></li> 
+     </ul> 
      <h2>requirements</h2> 
      <ul> 
       <li>Install <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">JDK 8+</a></li> 
@@ -102,7 +110,7 @@
       <div class="copy-bar"> 
        <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
       </div> 
-      <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.1.3
+      <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.2.0
 </code></pre> 
      </div> 
      <p>You might want to edit/change:</p> 
@@ -116,7 +124,7 @@
       <div class="copy-bar"> 
        <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
       </div> 
-      <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.1.3
+      <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.2.0
 <span class="nb">cd </span>my-app
 mvn jooby:run
 </code></pre> 
@@ -235,10 +243,6 @@ listening on:
   <footer class="site-footer"> 
    <div class="row"> 
     <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
-    <div class="altquimia">
-     DG 
-     <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
-    </div> 
     <div class="follow-us pull-right"> 
      <p>Follow us</p>
      <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>

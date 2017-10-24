@@ -2,11 +2,10 @@
 <html lang="en">
  <head> 
   <meta charset="UTF-8"> 
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="flattr:id" content="njovpg">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
   <title>jooby - do more! more easily!!</title> 
   <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, hello world!"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, found this project useful :heart:"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
@@ -79,7 +78,7 @@
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -149,7 +148,7 @@
         </div> 
         <div class="slider-data"> 
          <h3>Ready for modern web</h3> 
-         <p>With the awesome and powerful <a href="/doc/assets" title="A library to validate, concatenate, minify or compress JavaScript and CSS files!">asset module</a></p> 
+         <p>With the awesome and powerful <a href="/doc/asset-management" title="Build modern web applications easily">asset management tools</a></p> 
         </div> 
        </div> 
       </div> 
@@ -166,7 +165,6 @@
        <ul class="nav-lang"> 
         <li data-lang="java" class="active">Java</li> 
         <li data-lang="kotlin">Kotlin</li> 
-        <li data-lang="js">Javascript</li> 
        </ul> 
        <ul class="lang"> 
         <li class="java active"> 
@@ -195,29 +193,16 @@
           </div> 
           <pre class="highlight"><code class="language-kotlin" data-lang="kotlin"><span class="kn">import</span> <span class="nn">org.jooby.*</span><span class="o"></span>
 
-<span class="kd">fun</span> <span class="nf">main</span><span class="o">(</span><span class="n">args</span><span class="o">:</span><span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="o">)</span> <span class="o">{</span>
-  <span class="n">run</span><span class="o">(</span><span class="o">*</span><span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">get</span> <span class="o">{</span>
-      <span class="s">"Hey Jooby!"</span>
-    <span class="o">}</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-</code></pre> 
-         </div> </li> 
-        <li class="js"> 
-         <div class="highlighter-rouge codehilite">
-          <div class="copy-bar"> 
-           <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-          </div> 
-          <pre class="highlight"><code class="language-js" data-lang="js"><span class="cm">/**</span>
-<span class="cm"> * Creates a new App via: jooby()</span>
-<span class="cm"> */</span>
-<span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">jooby</span><span class="p">();</span>
+<span class="kd">class</span> <span class="nc">App</span> <span class="kd">:</span> <span class="n">Kooby</span> <span class="o">(</span><span class="o">{</span>
 
-<span class="cm">/**</span>
-<span class="cm"> * Add routes</span>
-<span class="cm"> */</span>
-<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="s1">'Hey Jooby!'</span><span class="p">);</span>
+    <span class="n">get</span> <span class="o">{</span>
+        <span class="s">"Hey Jooby!"</span>
+    <span class="o">}</span>
+<span class="o">})</span>
+
+<span class="kd">fun</span> <span class="nf">main</span><span class="o">(</span><span class="n">args</span><span class="o">:</span><span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">run</span><span class="o">(</span><span class="o">::</span><span class="nf">App</span><span class="o">, </span><span class="o">*</span><span class="n">args</span><span class="o">)</span>
+<span class="o">}</span>
 </code></pre> 
          </div> </li> 
        </ul> 
@@ -229,7 +214,7 @@
     <div class="row"> 
      <div class="mod mod-features"> 
       <div class="mod-header"> 
-       <h3 class="mod-title">Killer Features</h3> 
+       <h3 class="mod-title">Features</h3> 
       </div> 
       <div data-slider data-pagination=".swiper-pagination" data-effect="fade" class="mod-content"> 
        <div class="swiper-pagination"></div> 
@@ -325,10 +310,6 @@
   <footer class="site-footer"> 
    <div class="row"> 
     <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
-    <div class="altquimia">
-     DG 
-     <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
-    </div> 
     <div class="follow-us pull-right"> 
      <p>Follow us</p>
      <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>

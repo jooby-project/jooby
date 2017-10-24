@@ -1,6 +1,7 @@
-com.impossibl.postgres.jdbc
 org.jooby
 org.jooby.akka
+org.jooby.apitool
+org.jooby.apitool.raml
 org.jooby.assets
 org.jooby.aws
 org.jooby.banner
@@ -17,6 +18,7 @@ org.jooby.elasticsearch
 org.jooby.exec
 org.jooby.filewatcher
 org.jooby.flyway
+org.jooby.frontend
 org.jooby.ftl
 org.jooby.guava
 org.jooby.handlers
@@ -37,6 +39,7 @@ org.jooby.memcached
 org.jooby.metrics
 org.jooby.mongodb
 org.jooby.mvc
+org.jooby.neo4j
 org.jooby.netty
 org.jooby.pac4j
 org.jooby.pebble
@@ -59,4 +62,3 @@ org.jooby.thymeleaf
 org.jooby.unbescape
 org.jooby.undertow
 org.jooby.whoops
-org.skife.jdbi.v2
