@@ -1,12 +1,10 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/modules/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/modules)
 [![javadoc](https://javadoc.io/badge/org.jooby/modules.svg)](https://javadoc.io/doc/org.jooby/modules/1.2.0)
-[![modules website](https://img.shields.io/badge/modules-brightgreen.svg)](http://jooby.org/doc/modules)
 [![Build Status](https://travis-ci.org/jooby-project/jooby.svg?branch=master)](https://travis-ci.org/jooby-project/jooby)
 [![coveralls.io](https://img.shields.io/coveralls/jooby-project/jooby.svg)](https://coveralls.io/r/jooby-project/jooby?branch=master)
 [![codecov.io](https://codecov.io/gh/jooby-project/jooby/branch/master/graph/badge.svg)](https://codecov.io/gh/jooby-project/jooby)
 [![Google Group](https://img.shields.io/badge/group-joobyproject-orange.svg)](https://groups.google.com/forum/#!forum/jooby-project)
 [![Join the chat at https://gitter.im/jooby-project/jooby](https://badges.gitter.im/jooby-project/jooby.svg)](https://gitter.im/jooby-project/jooby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby)
 [![Follow us on twitter](https://img.shields.io/badge/twitter-@joobyproject-blue.svg)](https://twitter.com/joobyproject)
 
 # &infin; do more, more easily
