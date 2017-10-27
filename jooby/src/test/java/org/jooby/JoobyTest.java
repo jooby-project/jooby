@@ -2241,8 +2241,10 @@ public class JoobyTest {
 
           LinkedBindingBuilder<Route.Definition> binding = unit
               .mock(LinkedBindingBuilder.class);
-          expect(multibinder.addBinding()).andReturn(binding).times(5);
+          expect(multibinder.addBinding()).andReturn(binding).times(7);
 
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
@@ -2268,6 +2270,7 @@ public class JoobyTest {
               jooby.use(SingletonTestRoute.class);
               jooby.use(GuiceSingletonTestRoute.class);
               jooby.use(ProtoTestRoute.class);
+              jooby.use("/test", SingletonTestRoute.class);
               jooby.start();
 
             },
@@ -2275,7 +2278,7 @@ public class JoobyTest {
             unit -> {
               // assert routes
               List<Route.Definition> defs = unit.captured(Route.Definition.class);
-              assertEquals(5, defs.size());
+              assertEquals(7, defs.size());
 
               assertEquals("GET", defs.get(0).method());
               assertEquals("/singleton", defs.get(0).pattern());
@@ -2296,6 +2299,14 @@ public class JoobyTest {
               assertEquals("GET", defs.get(4).method());
               assertEquals("/proto", defs.get(4).pattern());
               assertEquals("/ProtoTestRoute.m1", defs.get(4).name());
+
+              assertEquals("GET", defs.get(5).method());
+              assertEquals("/test/singleton", defs.get(5).pattern());
+              assertEquals("/SingletonTestRoute.m1", defs.get(5).name());
+
+              assertEquals("POST", defs.get(6).method());
+              assertEquals("/test/singleton", defs.get(6).pattern());
+              assertEquals("/SingletonTestRoute.m1", defs.get(6).name());
             });
   }
 
