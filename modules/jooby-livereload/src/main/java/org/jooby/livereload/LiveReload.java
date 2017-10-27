@@ -435,7 +435,7 @@ public class LiveReload implements Module {
       }
 
       FileWatcher watcher = new FileWatcher();
-      paths.forEach(it -> watcher.register((String) it[0], (kind, path) -> {
+      paths.forEach(it -> watcher.register((Path) it[0], (kind, path) -> {
         Path relative = relative(paths, path.toAbsolutePath());
         log.debug("file changed {}: {}", relative, File.separator);
         Map<String, Object> reload = reload(
