@@ -2140,6 +2140,44 @@ public interface Router {
   Route.Collection use(Class<?> routeClass);
 
   /**
+   * <p>
+   * Append MVC routes from a controller like class:
+   * </p>
+   *
+   * <pre>
+   *   use("/pets", MyRoute.class);
+   * </pre>
+   *
+   * Where MyRoute.java is:
+   *
+   * <pre>
+   *   {@literal @}Path("/")
+   *   public class MyRoute {
+   *
+   *    {@literal @}GET
+   *    public String hello() {
+   *      return "Hello Jooby";
+   *    }
+   *   }
+   * </pre>
+   * <p>
+   * Programming model is quite similar to JAX-RS/Jersey with some minor differences and/or
+   * simplifications.
+   * </p>
+   *
+   * <p>
+   * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
+   * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}.
+   * </p>
+   *
+   * @param path Path to mount the route.
+   * @param routeClass A route(s) class.
+   * @return This router.
+   */
+  @Nonnull
+  Route.Collection use(String path, Class<?> routeClass);
+
+  /**
    * <h2>before</h2>
    *
    * Allows for customized handler execution chains. It will be invoked before the actual handler.

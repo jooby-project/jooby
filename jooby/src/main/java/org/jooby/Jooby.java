@@ -1931,8 +1931,14 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Collection use(final Class<?> routeClass) {
+      return use("", routeClass);
+  }
+
+  @Override
+  public Route.Collection use(final String path, final Class<?> routeClass) {
     requireNonNull(routeClass, "Route class is required.");
-    MvcClass mvc = new MvcClass(routeClass, "", prefix);
+    requireNonNull(path, "Path is required");
+    MvcClass mvc = new MvcClass(routeClass, path, prefix);
     bag.add(mvc);
     return new Route.Collection(mvc);
   }
