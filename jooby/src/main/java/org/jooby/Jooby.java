@@ -907,11 +907,11 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   @Override
-  public Jooby path(String path, Runnable action) {
+  public Route.Collection path(String path, Runnable action) {
     this.path = Route.normalize(path);
-    action.run();
+    Route.Collection collection = with(action);
     this.path = null;
-    return this;
+    return collection;
   }
 
   @Override

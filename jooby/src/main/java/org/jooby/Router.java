@@ -264,7 +264,7 @@ public interface Router {
    * @param action Router action.
    * @return This router.
    */
-  Router path(String path, Runnable action);
+  Route.Collection path(String path, Runnable action);
 
   /**
    * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
