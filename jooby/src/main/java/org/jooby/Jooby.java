@@ -2949,6 +2949,8 @@ public class Jooby implements Router, LifeCycle, Registry {
 
       binder.bind(Request.class).toProvider(Providers.outOfScope(Request.class))
           .in(RequestScoped.class);
+      binder.bind(Route.Chain.class).toProvider(Providers.outOfScope(Route.Chain.class))
+          .in(RequestScoped.class);
       binder.bind(Response.class).toProvider(Providers.outOfScope(Response.class))
           .in(RequestScoped.class);
       /** server sent event */

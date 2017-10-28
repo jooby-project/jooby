@@ -416,11 +416,18 @@ public class JoobyTest {
     ScopedBindingBuilder reqscope = unit.mock(ScopedBindingBuilder.class);
     reqscope.in(RequestScoped.class);
     reqscope.in(RequestScoped.class);
+    reqscope.in(RequestScoped.class);
+
 
     AnnotatedBindingBuilder<Request> reqbinding = unit.mock(AnnotatedBindingBuilder.class);
     expect(reqbinding.toProvider(isA(Provider.class))).andReturn(reqscope);
 
     expect(binder.bind(Request.class)).andReturn(reqbinding);
+
+    AnnotatedBindingBuilder<Route.Chain> chainbinding = unit.mock(AnnotatedBindingBuilder.class);
+    expect(chainbinding.toProvider(isA(Provider.class))).andReturn(reqscope);
+
+    expect(binder.bind(Route.Chain.class)).andReturn(chainbinding);
 
     ScopedBindingBuilder rspscope = unit.mock(ScopedBindingBuilder.class);
     rspscope.in(RequestScoped.class);

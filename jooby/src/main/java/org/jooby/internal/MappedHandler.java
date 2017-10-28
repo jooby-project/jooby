@@ -215,18 +215,23 @@ import org.jooby.funzy.Try;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class MappedHandler implements Filter {
 
-  private Throwing.Function2<Request, Response, Object> supplier;
+  private Throwing.Function3<Request, Response, Route.Chain, Object> supplier;
   private Mapper mapper;
 
-  public MappedHandler(final Throwing.Function2<Request, Response, Object> supplier,
+  public MappedHandler(final Throwing.Function3<Request, Response, Route.Chain, Object> supplier,
       final Route.Mapper mapper) {
     this.supplier = supplier;
     this.mapper = mapper;
   }
 
+  public MappedHandler(final Throwing.Function2<Request, Response, Object> supplier,
+      final Route.Mapper mapper) {
+    this((req, rsp, chain) -> supplier.apply(req, rsp), mapper);
+  }
+
   @Override
   public void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
-    Object input = supplier.apply(req, rsp);
+    Object input = supplier.apply(req, rsp, chain);
     Object output = Try
         .apply(() -> mapper.map(input))
         .recover(ClassCastException.class, input)
