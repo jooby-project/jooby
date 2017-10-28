@@ -205,10 +205,12 @@ package org.jooby.jdbi;
 
 import com.google.inject.Key;
 import com.google.inject.name.Names;
+import static java.util.Objects.requireNonNull;
 import org.jdbi.v3.core.Handle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -235,7 +237,7 @@ public class TransactionalRequest {
    * @return This object.
    */
   public TransactionalRequest doWith(Consumer<Handle> configurer) {
-    this.configurer = configurer;
+    this.configurer = requireNonNull(configurer, "Handle configurer required.");
     return this;
   }
 
