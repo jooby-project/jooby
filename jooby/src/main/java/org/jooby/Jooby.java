@@ -261,6 +261,7 @@ import org.jooby.internal.ServerExecutorProvider;
 import org.jooby.internal.ServerLookup;
 import org.jooby.internal.ServerSessionManager;
 import org.jooby.internal.SessionManager;
+import org.jooby.internal.SourceProvider;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.handlers.HeadHandler;
 import org.jooby.internal.handlers.OptionsHandler;
@@ -888,6 +889,8 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   private transient boolean caseSensitiveRouting = true;
 
+  private transient String classname;
+
   /**
    * Creates a new {@link Jooby} application.
    */
@@ -904,6 +907,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Jooby(final String prefix) {
     this.prefix = prefix;
     use(server);
+    this.classname = classname(getClass().getName());
   }
 
   @Override
@@ -3329,7 +3333,7 @@ public class Jooby implements Router, LifeCycle, Registry {
         .withValue("contextPath", fromAnyRef(cpath.equals("/") ? "" : cpath))
         .withValue("application.name", fromAnyRef(appname))
         .withValue("application.version", fromAnyRef(version))
-        .withValue("application.class", fromAnyRef(getClass().getName()))
+        .withValue("application.class", fromAnyRef(classname))
         .withValue("application.ns", fromAnyRef(ns))
         .withValue("application.lang", fromAnyRef(lang))
         .withValue("application.tz", fromAnyRef(tz))
@@ -3468,4 +3472,18 @@ public class Jooby implements Router, LifeCycle, Registry {
     });
   }
 
+  /**
+   * Class name is this, except for script bootstrap.
+   *
+   * @param name Default classname.
+   * @return Classname.
+   */
+  private String classname(String name) {
+    if (name.equals(Jooby.class.getName()) || name.equals("org.jooby.Kooby")) {
+      return SourceProvider.INSTANCE.get()
+          .map(StackTraceElement::getClassName)
+          .orElse(name);
+    }
+    return name;
+  }
 }
