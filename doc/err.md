@@ -2,6 +2,8 @@
 
 An error handler in Jooby is represented by the [Err.Handler]({{defdocs}}/Err.Handler.html) class and allows you to log and render exceptions.
 
+> NOTE: All headers are reset while generating the error response.
+
 ## default err handler
 
 The [default error handler]({{defdocs}}/Err.DefHandler.html) does content negotiation and optionally displays friendly error pages using a naming convention.

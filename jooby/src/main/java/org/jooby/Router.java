@@ -3585,6 +3585,8 @@ public interface Router {
    * Setup a custom error handler.The error handler will be executed if the current exception is an
    * instance of given type type.
    *
+   * All headers are reset while generating the error response.
+   *
    * @param type Exception type. The error handler will be executed if the current exception is an
    *        instance of this type.
    * @param handler A route error handler.
@@ -3603,6 +3605,8 @@ public interface Router {
    * Setup a route error handler. The error handler will be executed if current status code matches
    * the one provided.
    *
+   * All headers are reset while generating the error response.
+   *
    * @param statusCode The status code to match.
    * @param handler A route error handler.
    * @return This router.
@@ -3620,6 +3624,8 @@ public interface Router {
    * Setup a route error handler. The error handler will be executed if current status code matches
    * the one provided.
    *
+   * All headers are reset while generating the error response.
+   *
    * @param code The status code to match.
    * @param handler A route error handler.
    * @return This router.
@@ -3636,6 +3642,8 @@ public interface Router {
   /**
    * Setup a route error handler. The error handler will be executed if current status code matches
    * the one provided.
+   *
+   * All headers are reset while generating the error response.
    *
    * @param predicate Apply the error handler if the predicate evaluates to <code>true</code>.
    * @param handler A route error handler.
