@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-ng-annotate/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-ng-annotate)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-ng-annotate.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-ng-annotate/1.2.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-ng-annotate.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-ng-annotate/1.2.1)
 [![jooby-assets-ng-annotate website](https://img.shields.io/badge/jooby-assets-ng-annotate-brightgreen.svg)](http://jooby.org/doc/assets-ng-annotate)
 # ng-annotate
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-ng-annotate</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <scope>provided</scope>
 </dependency>
 ```

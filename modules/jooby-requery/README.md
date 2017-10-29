@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-requery/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-requery)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-requery.svg)](https://javadoc.io/doc/org.jooby/jooby-requery/1.2.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-requery.svg)](https://javadoc.io/doc/org.jooby/jooby-requery/1.2.1)
 [![jooby-requery website](https://img.shields.io/badge/jooby-requery-brightgreen.svg)](http://jooby.org/doc/requery)
 # requery
 
@@ -15,7 +15,7 @@ Safe, clean and efficient database access via <a href="https://github.com/requer
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-requery</artifactId>
- <version>1.2.0</version>
+ <version>1.2.1</version>
 </dependency>
 ```
 
@@ -114,9 +114,24 @@ public class PersonDAO {
 
 Please note we don't inject a `raw` `EntityStore`. Instead we ask for a `Person` `EntityStore`. You can safely inject a `EntityStore` per each of your domain objects.
 
-## async and reactive idioms
+## kotlin, async and reactive idioms
 
-Rxjava:
+### Kotlin
+
+Add the [kotlin dependency](https://mvnrepository.com/artifact/io.requery/requery-kotlin) to your project, then use it:
+
+```java
+{
+  use(Requery.kotlin(Models.DEFAULT));
+  
+  get("/", () -> {
+      KotlinEntityDataStore<Model> store = require(KotlinEntityDataStore.class);
+      // work with reactive store
+    });
+}
+```
+
+### Rxjava
 
 ```java
 {
@@ -130,7 +145,7 @@ Rxjava:
 }
 ```
 
-Reactor:
+### Reactor
 
 ```java
 {
@@ -144,7 +159,7 @@ Reactor:
 }
 ```
 
-Java 8:
+### Java 8
 
 ```java
 {

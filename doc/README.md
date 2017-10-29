@@ -3,7 +3,6 @@
 [![codecov.io](https://codecov.io/gh/jooby-project/jooby/branch/master/graph/badge.svg)](https://codecov.io/gh/jooby-project/jooby)
 [![Google Group](https://img.shields.io/badge/group-joobyproject-orange.svg)](https://groups.google.com/forum/#!forum/jooby-project)
 [![Join the chat at https://gitter.im/jooby-project/jooby](https://badges.gitter.im/jooby-project/jooby.svg)](https://gitter.im/jooby-project/jooby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby)
 [![Follow us on twitter](https://img.shields.io/badge/twitter-@joobyproject-blue.svg)](https://twitter.com/joobyproject)
 
 {{jooby-pre.md}}

@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jade/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jade)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jade.svg)](https://javadoc.io/doc/org.jooby/jooby-jade/1.2.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jade.svg)](https://javadoc.io/doc/org.jooby/jooby-jade/1.2.1)
 [![jooby-jade website](https://img.shields.io/badge/jooby-jade-brightgreen.svg)](http://jooby.org/doc/jade)
 # jade
 
@@ -16,7 +16,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-jade</artifactId>
- <version>1.2.0</version>
+ <version>1.2.1</version>
 </dependency>
 ```
 

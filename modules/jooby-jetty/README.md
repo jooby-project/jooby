@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jetty/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jetty)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jetty.svg)](https://javadoc.io/doc/org.jooby/jooby-jetty/1.2.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jetty.svg)](https://javadoc.io/doc/org.jooby/jooby-jetty/1.2.1)
 [![jooby-jetty website](https://img.shields.io/badge/jooby-jetty-brightgreen.svg)](http://jooby.org/doc/jetty)
 # jetty
 
@@ -15,7 +15,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jetty</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
 </dependency>
 ```
 

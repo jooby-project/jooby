@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-hazelcast/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-hazelcast)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hazelcast.svg)](https://javadoc.io/doc/org.jooby/jooby-hazelcast/1.2.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hazelcast.svg)](https://javadoc.io/doc/org.jooby/jooby-hazelcast/1.2.1)
 [![jooby-hazelcast website](https://img.shields.io/badge/jooby-hazelcast-brightgreen.svg)](http://jooby.org/doc/hazelcast)
 # hazelcast
 
@@ -16,7 +16,7 @@ Provides cache solution and session storage via [Hazelcast](http://hazelcast.org
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hazelcast</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Configuration can be done programmatically via: ```doWith(Consumer)```
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hazelcast</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
 </dependency>
 ```
 

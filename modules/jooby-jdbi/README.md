@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jdbi/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jdbi)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jdbi.svg)](https://javadoc.io/doc/org.jooby/jooby-jdbi/1.2.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jdbi.svg)](https://javadoc.io/doc/org.jooby/jooby-jdbi/1.2.1)
 [![jooby-jdbi website](https://img.shields.io/badge/jooby-jdbi-brightgreen.svg)](http://jooby.org/doc/jdbi)
 # jdbi
 
@@ -21,7 +21,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbi</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
 </dependency>
 ```
 

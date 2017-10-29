@@ -211,7 +211,7 @@ import org.jooby.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CommitTransaction implements Route.After {
+class CommitTransaction implements Route.After {
   private final Logger logger = LoggerFactory.getLogger(TransactionalRequest.class);
 
   private final Handle handle;

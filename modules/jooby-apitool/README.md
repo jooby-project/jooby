@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-apitool/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-apitool)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-apitool.svg)](https://javadoc.io/doc/org.jooby/jooby-apitool/1.2.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-apitool.svg)](https://javadoc.io/doc/org.jooby/jooby-apitool/1.2.1)
 [![jooby-apitool website](https://img.shields.io/badge/jooby-apitool-brightgreen.svg)](http://jooby.org/doc/apitool)
 # API tool
 
@@ -7,13 +7,23 @@ Automatically export your HTTP API to open standards like <a href="https://swagg
 
 This module generates live documentation from your HTTP API.
 
+## screenshots
+
+### swagger
+
+![Swagger ApiTool](http://jooby.org/resources/images/apitool-swagger.png)
+
+### raml
+
+![RAML ApiTool](http://jooby.org/resources/images/apitool-raml.png)
+
 ## dependency
 
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-api tool</artifactId>
- <version>1.2.0</version>
+ <version>1.2.1</version>
 </dependency>
 ```
 
@@ -153,7 +163,7 @@ Go to ```build.gradle``` and add these lines:
 ```gradke
 buildscript {
     dependencies {
-        classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.2.0'
+        classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.2.1'
     }
 }
 apply plugin: 'jooby'

@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-yui-compressor/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-yui-compressor)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-yui-compressor.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-yui-compressor/1.2.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-yui-compressor.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-yui-compressor/1.2.1)
 [![jooby-assets-yui-compressor website](https://img.shields.io/badge/jooby-assets-yui-compressor-brightgreen.svg)](http://jooby.org/doc/assets-yui-compressor)
 # yui-css
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-yui-compressor</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <scope>provided</scope>
 </dependency>
 ```

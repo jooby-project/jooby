@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-whoops/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-whoops)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-whoops.svg)](https://javadoc.io/doc/org.jooby/jooby-whoops/1.2.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-whoops.svg)](https://javadoc.io/doc/org.jooby/jooby-whoops/1.2.1)
 [![jooby-whoops website](https://img.shields.io/badge/jooby-whoops-brightgreen.svg)](http://jooby.org/doc/whoops)
 # whoops
 
@@ -15,7 +15,7 @@ Pretty error page that helps you debug your web application.
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-whoops</artifactId>
- <version>1.2.0</version>
+ <version>1.2.1</version>
 </dependency>
 ```
 

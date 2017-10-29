@@ -4,6 +4,16 @@ Automatically export your HTTP API to open standards like <a href="https://swagg
 
 This module generates live documentation from your HTTP API.
 
+## screenshots
+
+### swagger
+
+![Swagger ApiTool](http://jooby.org/resources/images/apitool-swagger.png)
+
+### raml
+
+![RAML ApiTool](http://jooby.org/resources/images/apitool-raml.png)
+
 ## dependency
 
 ```xml

@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <packaging>pom</packaging>
   <name>jooby-bom</name>
   <description>Jooby (Bill of Materials)</description>
   <url>https://github.com/jooby-project/jooby</url>
   <properties>
-  <jooby.version>1.2.0</jooby.version>
+  <jooby.version>1.2.1</jooby.version>
   <funzy.version>0.1.0</funzy.version>
   <jackson.version>2.9.2</jackson.version>
   <undertow.version>1.4.20.Final</undertow.version>
@@ -94,7 +94,7 @@
   <thymeleaf.version>3.0.2.RELEASE</thymeleaf.version>
   <rocker.version>0.16.0</rocker.version>
   <kotlin.version>1.1.51</kotlin.version>
-  <requery.version>1.2.0</requery.version>
+  <requery.version>1.4.0</requery.version>
   <neo4j.runtime.version>3.2.1.51</neo4j.runtime.version>
   <neo4j.expire.version>3.2.1.51.4</neo4j.expire.version>
   <neo4j.version>3.2.1</neo4j.version>
@@ -109,7 +109,7 @@
   <couchbase-client.version>2.3.1</couchbase-client.version>
   <cassandra.version>3.2.0</cassandra.version>
   <mongo-driver-driver-rx.version>1.2.0</mongo-driver-driver-rx.version>
-  <fast-classpath-scanner.version>2.0.7</fast-classpath-scanner.version>
+  <fast-classpath-scanner.version>2.8.1</fast-classpath-scanner.version>
   <zt-zip.version>1.9</zt-zip.version>
   <batik.version>1.8</batik.version>
   <coverity-escapers.version>1.1.1</coverity-escapers.version>
