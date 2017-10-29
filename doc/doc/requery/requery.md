@@ -111,9 +111,24 @@ public class PersonDAO {
 
 Please note we don't inject a `raw` `EntityStore`. Instead we ask for a `Person` `EntityStore`. You can safely inject a `EntityStore` per each of your domain objects.
 
-## async and reactive idioms
+## kotlin, async and reactive idioms
 
-Rxjava:
+### Kotlin
+
+Add the [kotlin dependency](https://mvnrepository.com/artifact/io.requery/requery-kotlin) to your project, then use it:
+
+```java
+{
+  use(Requery.kotlin(Models.DEFAULT));
+  
+  get("/", () -> {
+      KotlinEntityDataStore<Model> store = require(KotlinEntityDataStore.class);
+      // work with reactive store
+    });
+}
+```
+
+### Rxjava
 
 ```java
 {
@@ -127,7 +142,7 @@ Rxjava:
 }
 ```
 
-Reactor:
+### Reactor
 
 ```java
 {
@@ -141,7 +156,7 @@ Reactor:
 }
 ```
 
-Java 8:
+### Java 8
 
 ```java
 {

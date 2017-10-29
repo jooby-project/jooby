@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.binder.LinkedBindingBuilder;
+import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 import com.typesafe.config.Config;
 import io.requery.EntityStore;
@@ -22,6 +23,7 @@ import io.requery.sql.Configuration;
 import io.requery.sql.ConfigurationBuilder;
 import io.requery.sql.EntityDataStore;
 import io.requery.sql.EntityStateListener;
+import io.requery.sql.KotlinEntityDataStore;
 import io.requery.sql.SchemaModifier;
 import io.requery.sql.StatementListener;
 import io.requery.sql.TableCreationMode;
@@ -45,12 +47,14 @@ import javax.inject.Provider;
 import javax.sql.CommonDataSource;
 import javax.sql.DataSource;
 import java.sql.Statement;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Requery.class, ConfigurationBuilder.class, EntityDataStore.class,
-    SchemaModifier.class, ReactiveSupport.class})
+    SchemaModifier.class, ReactiveSupport.class, KotlinEntityDataStore.class})
 public class RequeryTest {
 
   public static class Person implements Persistable {
@@ -105,6 +109,7 @@ public class RequeryTest {
   @Test
   public void newModule() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class)
+        .expect(newDataSource(true))
         .expect(keys)
         .expect(zeroModels)
         .expect(store(EntityStore.class, "DEFAULT"))
@@ -115,16 +120,25 @@ public class RequeryTest {
         });
   }
 
+  @Test(expected = NoSuchElementException.class)
+  public void missingDataSource() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class)
+        .expect(newDataSource(false))
+        .run(unit -> {
+          new Requery(unit.get(EntityModel.class))
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
+  }
+
   @SuppressWarnings("unchecked")
   @Test
   public void shouldBindDataSource() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class,
-        DataSource.class)
+    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class)
+        .expect(newDataSource(true))
         .expect(keys)
         .expect(zeroModels).expect(noSchema)
         .expect(store(EntityStore.class, "DEFAULT"))
         .expect(onStart)
-        .expect(dataSource(Key.get(DataSource.class)))
         .expect(configurationBuilder)
         .expect(eds)
         .run(unit -> {
@@ -139,29 +153,8 @@ public class RequeryTest {
   @SuppressWarnings("unchecked")
   @Test
   public void shouldBindDataSouxrce() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class,
-        DataSource.class)
-        .expect(keys)
-        .expect(zeroModels).expect(noSchema)
-        .expect(store(EntityStore.class, "DEFAULT"))
-        .expect(onStart)
-        .expect(dataSource(Key.get(DataSource.class)))
-        .expect(configurationBuilder)
-        .expect(eds)
-        .run(unit -> {
-          new Requery(unit.get(EntityModel.class))
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, unit -> {
-          unit.captured(Throwing.Consumer.class).iterator().next()
-              .accept(unit.get(Registry.class));
-        });
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  public void shouldBindCustomDataSouxrce() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class,
-        DataSource.class)
+    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class)
+        .expect(newDataSource(true))
         .expect(keys)
         .expect(zeroModels).expect(noSchema)
         .expect(store(EntityStore.class, "DEFAULT"))
@@ -170,7 +163,6 @@ public class RequeryTest {
         .expect(eds)
         .run(unit -> {
           new Requery(unit.get(EntityModel.class))
-              .dataSource(() -> unit.get(DataSource.class))
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         }, unit -> {
           unit.captured(Throwing.Consumer.class).iterator().next()
@@ -181,13 +173,12 @@ public class RequeryTest {
   @SuppressWarnings("unchecked")
   @Test
   public void reactiveStore() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class,
-        DataSource.class)
+    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class)
+        .expect(newDataSource(true))
         .expect(keys)
         .expect(zeroModels).expect(noSchema)
         .expect(store(ReactiveEntityStore.class, "DEFAULT"))
         .expect(onStart)
-        .expect(dataSource(Key.get(DataSource.class)))
         .expect(configurationBuilder)
         .expect(eds)
         .expect(unit -> {
@@ -207,13 +198,13 @@ public class RequeryTest {
   @SuppressWarnings("unchecked")
   @Test
   public void reactorStore() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class,
-        DataSource.class)
+    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class)
+        .expect(newDataSource(true))
         .expect(keys)
-        .expect(zeroModels).expect(noSchema)
+        .expect(zeroModels)
+        .expect(noSchema)
         .expect(store(ReactorEntityStore.class, "DEFAULT"))
         .expect(onStart)
-        .expect(dataSource(Key.get(DataSource.class)))
         .expect(configurationBuilder)
         .expect(eds)
         .expect(unit -> {
@@ -231,14 +222,37 @@ public class RequeryTest {
 
   @SuppressWarnings("unchecked")
   @Test
+  public void kotlinStore() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class)
+        .expect(newDataSource(true))
+        .expect(keys)
+        .expect(zeroModels)
+        .expect(noSchema)
+        .expect(store(KotlinEntityDataStore.class, "DEFAULT"))
+        .expect(onStart)
+        .expect(configurationBuilder)
+        .expect(unit -> {
+          unit.constructor(KotlinEntityDataStore.class)
+              .build(unit.get(Configuration.class));
+        })
+        .run(unit -> {
+          Requery.kotlin(unit.get(EntityModel.class))
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(Throwing.Consumer.class).iterator().next()
+              .accept(unit.get(Registry.class));
+        });
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
   public void completableEntityStore() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class,
-        DataSource.class)
+    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class)
+        .expect(newDataSource(true))
         .expect(keys)
         .expect(zeroModels).expect(noSchema)
         .expect(store(CompletionStageEntityStore.class, "DEFAULT"))
         .expect(onStart)
-        .expect(dataSource(Key.get(DataSource.class)))
         .expect(configurationBuilder)
         .expect(eds)
         .expect(unit -> {
@@ -257,13 +271,12 @@ public class RequeryTest {
   @SuppressWarnings("unchecked")
   @Test
   public void shouldInvokeConfigurerCallback() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class,
-        DataSource.class)
+    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class)
+        .expect(newDataSource(true))
         .expect(keys)
         .expect(zeroModels).expect(noSchema)
         .expect(store(EntityStore.class, "DEFAULT"))
         .expect(onStart)
-        .expect(dataSource(Key.get(DataSource.class)))
         .expect(configurationBuilder)
         .expect(eds)
         .expect(unit -> {
@@ -316,13 +329,12 @@ public class RequeryTest {
 
     }
     MyListener listener = new MyListener();
-    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class,
-        DataSource.class)
+    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class)
+        .expect(newDataSource(true))
         .expect(keys)
         .expect(zeroModels).expect(noSchema)
         .expect(store(EntityStore.class, "DEFAULT"))
         .expect(onStart)
-        .expect(dataSource(Key.get(DataSource.class)))
         .expect(configurationBuilder)
         .expect(eds)
         .expect(unit -> {
@@ -374,13 +386,12 @@ public class RequeryTest {
       }
     }
     MyListener listener = new MyListener();
-    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class,
-        DataSource.class)
+    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class)
+        .expect(newDataSource(true))
         .expect(keys)
         .expect(zeroModels).expect(noSchema)
         .expect(store(EntityStore.class, "DEFAULT"))
         .expect(onStart)
-        .expect(dataSource(Key.get(DataSource.class)))
         .expect(configurationBuilder)
         .expect(eds)
         .expect(unit -> {
@@ -430,13 +441,12 @@ public class RequeryTest {
       }
     }
     MyListener listener = new MyListener();
-    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class,
-        DataSource.class)
+    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class)
+        .expect(newDataSource(true))
         .expect(keys)
         .expect(zeroModels).expect(noSchema)
         .expect(store(EntityStore.class, "DEFAULT"))
         .expect(onStart)
-        .expect(dataSource(Key.get(DataSource.class)))
         .expect(configurationBuilder)
         .expect(eds)
         .expect(unit -> {
@@ -461,13 +471,12 @@ public class RequeryTest {
   @SuppressWarnings("unchecked")
   @Test
   public void shouldCreateSchema() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class,
-        DataSource.class)
+    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class)
+        .expect(newDataSource(true))
         .expect(keys)
         .expect(zeroModels).expect(noSchema)
         .expect(store(EntityStore.class, "DEFAULT"))
         .expect(onStart)
-        .expect(dataSource(Key.get(DataSource.class)))
         .expect(configurationBuilder)
         .expect(eds)
         .expect(unit -> {
@@ -489,13 +498,12 @@ public class RequeryTest {
   @SuppressWarnings("unchecked")
   @Test
   public void shouldCreateSchemaFromProperty() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class,
-        DataSource.class)
+    new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class, Registry.class)
+        .expect(newDataSource(true))
         .expect(keys)
         .expect(zeroModels)
         .expect(store(EntityStore.class, "DEFAULT"))
         .expect(onStart)
-        .expect(dataSource(Key.get(DataSource.class)))
         .expect(configurationBuilder)
         .expect(eds)
         .expect(unit -> {
@@ -522,17 +530,22 @@ public class RequeryTest {
   @SuppressWarnings({"rawtypes", "unchecked"})
   public void newModuleWithTypes() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class)
+        .expect(newDataSource(true))
         .expect(keys)
         .expect(unit -> {
           Type type = unit.mock(Type.class);
           expect(type.getClassType()).andReturn(Person.class);
 
           LinkedBindingBuilder lbb = unit.mock(LinkedBindingBuilder.class);
-          expect(lbb.toProvider(isA(Provider.class))).andReturn(lbb);
+          lbb.toInstance(isA(EntityStore.class));
+          lbb.toInstance(isA(EntityStore.class));
 
           Binder binder = unit.get(Binder.class);
           expect(binder.bind(Key
               .get(Types.newParameterizedType(EntityStore.class, Persistable.class, Person.class))))
+              .andReturn(lbb);
+          expect(binder.bind(Key
+              .get(Types.newParameterizedType(EntityStore.class, Person.class))))
               .andReturn(lbb);
 
           EntityModel model = unit.get(EntityModel.class);
@@ -552,13 +565,14 @@ public class RequeryTest {
   public void bindEntityStore() throws Exception {
     Key k = Key.get(Object.class);
     new MockUnit(Env.class, Config.class, Binder.class, EntityModel.class)
+        .expect(newDataSource(true))
         .expect(keys)
         .expect(zeroModels)
         .expect(store(EntityStore.class, "DEFAULT"))
         .expect(onStart)
         .expect(unit -> {
           LinkedBindingBuilder lbb = unit.mock(LinkedBindingBuilder.class);
-          expect(lbb.toProvider(isA(Provider.class))).andReturn(lbb);
+          lbb.toInstance(isA(EntityStore.class));
           Binder binder = unit.get(Binder.class);
           expect(binder.bind(k)).andReturn(lbb);
         })
@@ -571,7 +585,7 @@ public class RequeryTest {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private Block store(final Class<? extends EntityStore> storeType, final String db) {
+  private Block store(final Class<?> storeType, final String db) {
     return unit -> {
       Env.ServiceKey keys = unit.get(Env.ServiceKey.class);
       keys.generate(eq(storeType), eq(db), unit.capture(Consumer.class));
@@ -584,6 +598,15 @@ public class RequeryTest {
 
       Registry registry = unit.get(Registry.class);
       expect(registry.require(DataSource.class)).andReturn(ds);
+    };
+  }
+
+  private Block newDataSource(boolean present) {
+    return unit -> {
+      DataSource ds = unit.registerMock(DataSource.class);
+      Env env = unit.get(Env.class);
+      expect(env.get(Key.get(DataSource.class, Names.named("db"))))
+          .andReturn(!present ? Optional.empty() : Optional.of(ds));
     };
   }
 }

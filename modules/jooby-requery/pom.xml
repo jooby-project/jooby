@@ -23,6 +23,12 @@
     </dependency>
 
     <dependency>
+      <groupId>io.requery</groupId>
+      <artifactId>requery-kotlin</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jul-to-slf4j</artifactId>
       <version>${slf4j-api.version}</version>
