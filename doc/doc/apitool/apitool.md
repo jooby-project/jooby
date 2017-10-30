@@ -8,11 +8,11 @@ This module generates live documentation from your HTTP API.
 
 ### swagger
 
-![Swagger ApiTool](http://jooby.org/resources/images/apitool-swagger.png)
+<img alt="Swagger ApiTool!" style="width: 800px" src="http://jooby.org/resources/images/apitool-swagger.png">
 
 ### raml
 
-![RAML ApiTool](http://jooby.org/resources/images/apitool-raml.png)
+<img alt="RAML ApiTool!" style="width: 800px" src="http://jooby.org/resources/images/apitool-raml.png">
 
 ## dependency
 
