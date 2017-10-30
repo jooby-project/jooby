@@ -78,7 +78,7 @@
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.0" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.1" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -2871,6 +2871,9 @@ GET /assets/bootstrap/3.3.4/css/bootstrap.css
       </div> 
       <div class="datalist-content"> 
        <p>An error handler in Jooby is represented by the <a href="/apidocs/org/jooby/Err.Handler.html" target="_blank">Err.Handler</a> class and allows you to log and render exceptions.</p> 
+       <blockquote> 
+        <p>NOTE: All headers are reset while generating the error response.</p> 
+       </blockquote> 
        <h3 id="error-handling-default-err-handler">default err handler</h3> 
        <p>The <a href="/apidocs/org/jooby/Err.DefHandler.html" target="_blank">default error handler</a> does content negotiation and optionally displays friendly error pages using a naming convention.</p> 
        <div class="highlighter-rouge codehilite">

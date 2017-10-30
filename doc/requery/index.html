@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.0" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.1" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -104,7 +104,7 @@
         <li> <a href="#requery-code-generation">code generation</a></li> 
         <li> <a href="#requery-schema-generation">schema generation</a></li> 
         <li> <a href="#requery-Type-Safe-injection">Type-Safe injection</a></li> 
-        <li> <a href="#requery-async-and-reactive-idioms">async and reactive idioms</a></li> 
+        <li> <a href="#requery-kotlin-async-and-reactive-idioms">kotlin, async and reactive idioms</a></li> 
         <li> <a href="#requery-advanced-configuration">advanced configuration</a></li> 
         <li> <a href="#requery-starter-project">starter project</a></li>
        </ul></li> 
@@ -129,7 +129,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-requery<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.2.0<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.2.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -227,8 +227,24 @@
 </code></pre> 
        </div> 
        <p>Please note we don’t inject a <code class="highlighter-rouge codehilite">raw</code> <code class="highlighter-rouge codehilite">EntityStore</code>. Instead we ask for a <code class="highlighter-rouge codehilite">Person</code> <code class="highlighter-rouge codehilite">EntityStore</code>. You can safely inject a <code class="highlighter-rouge codehilite">EntityStore</code> per each of your domain objects.</p> 
-       <h3 id="requery-async-and-reactive-idioms">async and reactive idioms</h3> 
-       <p>Rxjava:</p> 
+       <h3 id="requery-kotlin-async-and-reactive-idioms">kotlin, async and reactive idioms</h3> 
+       <h4 id="requery-Kotlin">Kotlin</h4> 
+       <p>Add the <a href="https://mvnrepository.com/artifact/io.requery/requery-kotlin" target="_blank">kotlin dependency</a> to your project, then use it:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="n">Requery</span><span class="o">.</span><span class="na">kotlin</span><span class="o">(</span><span class="n">Models</span><span class="o">.</span><span class="na">DEFAULT</span><span class="o">));</span>
+  
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">KotlinEntityDataStore</span><span class="o">&lt;</span><span class="n">Model</span><span class="o">&gt;</span> <span class="n">store</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">KotlinEntityDataStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+      <span class="c1">// work with reactive store</span>
+    <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4 id="requery-Rxjava">Rxjava</h4> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -244,7 +260,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Reactor:</p> 
+       <h4 id="requery-Reactor">Reactor</h4> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -260,7 +276,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Java 8:</p> 
+       <h4 id="requery-Java-8">Java 8</h4> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
