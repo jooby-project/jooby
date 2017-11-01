@@ -227,10 +227,10 @@ class Filters {
 
   private static List<Signature> PARAMS = params();
 
-  public static Predicate<MethodInsnNode> joobyRun() {
-    return call("org.jooby.JoobyKt", "run", "kotlin.jvm.functions.Function0",
+  public static Predicate<MethodInsnNode> joobyRun(final ClassLoader loader) {
+    return call(loader, "org.jooby.JoobyKt", "run", "kotlin.jvm.functions.Function0",
         String.class.getName() + "[]").or(
-        call("org.jooby.Jooby", "run", Supplier.class, String.class.getName() + "[]"));
+        call(loader, "org.jooby.Jooby", "run", Supplier.class, String.class.getName() + "[]"));
 
   }
 
@@ -259,14 +259,14 @@ class Filters {
 
   public static Predicate<MethodInsnNode> call(final Class owner, final String name,
       final Object... args) {
-    return call(Type.getInternalName(owner), name, args);
+    return call(owner.getClassLoader(), Type.getInternalName(owner), name, args);
   }
 
   @SuppressWarnings("rawtypes")
-  public static Predicate<MethodInsnNode> call(final String owner, final String name,
+  public static Predicate<MethodInsnNode> call(final ClassLoader loader,final String owner, final String name,
       final Object... args) {
     return is(MethodInsnNode.class).and(m -> {
-      return new Signature(owner, name, args).matches(m);
+      return new Signature(loader, owner, name, args).matches(m);
     });
   }
 
@@ -283,23 +283,23 @@ class Filters {
     });
   }
 
-  public static Predicate<MethodInsnNode> mount(final String owner) {
-    Signature use1 = new Signature(owner, "use", Jooby.class);
-    Signature use2 = new Signature(owner, "use", String.class
+  public static Predicate<MethodInsnNode> mount(final ClassLoader loader, final String owner) {
+    Signature use1 = new Signature(loader, owner, "use", Jooby.class);
+    Signature use2 = new Signature(loader, owner, "use", String.class
         , Jooby.class);
     return is(MethodInsnNode.class).and(m -> {
       return use1.matches(m) || use2.matches(m);
     });
   }
 
-  public static Predicate<MethodInsnNode> use(final String owner) {
-    Signature use = new Signature(owner, "use", Class.class);
-    Signature kuse = new Signature(owner, "use", "kotlin.reflect.KClass");
+  public static Predicate<MethodInsnNode> use(final ClassLoader loader, final String owner) {
+    Signature use = new Signature(loader, owner, "use", Class.class);
+    Signature kuse = new Signature(loader, owner, "use", "kotlin.reflect.KClass");
     return is(MethodInsnNode.class).and(m -> use.matches(m) || kuse.matches(m));
   }
 
-  public static Predicate<MethodInsnNode> path(final String owner) {
-    Signature path = new Signature(owner, "path", String.class, Runnable.class);
+  public static Predicate<MethodInsnNode> path(final ClassLoader loader,final String owner) {
+    Signature path = new Signature(loader, owner, "path", String.class, Runnable.class);
     return is(MethodInsnNode.class).and(m -> path.matches(m));
   }
 
@@ -333,7 +333,7 @@ class Filters {
   public static Predicate<MethodInsnNode> scriptRoute(ClassLoader loader) {
     List<Signature> routes = collectScriptRoutes(loader);
     return is(MethodInsnNode.class).and(m -> {
-      Signature signature = new Signature(m);
+      Signature signature = new Signature(loader, m);
       return routes.stream()
           .filter(signature::matches)
           .findFirst()
@@ -375,9 +375,9 @@ class Filters {
     };
   }
 
-  public static Predicate<MethodInsnNode> param() {
+  public static Predicate<MethodInsnNode> param(final ClassLoader loader) {
     return is(MethodInsnNode.class).and(m -> {
-      Signature signature = new Signature(m);
+      Signature signature = new Signature(loader, m);
       return PARAMS.stream()
           .filter(signature::matches)
           .findFirst()

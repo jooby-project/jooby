@@ -213,26 +213,31 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 class Signature {
+  private final ClassLoader loader;
+
   private Set<String> owners;
 
   private String name;
 
   private Type[] args;
 
-  public Signature(final String owner, final String name, final Object... args) {
-    this.owners = expand(getClass().getClassLoader(), owner);
+  public Signature(final ClassLoader loader, final String owner, final String name, final Object... args) {
+    this.owners = expand(loader, owner);
+    this.loader = loader;
     this.name = name;
     this.args = args(args);
   }
 
   public Signature(final Method method) {
     this.owners = expand(method.getDeclaringClass());
+    this.loader = method.getDeclaringClass().getClassLoader();
     this.name = method.getName();
     this.args = args((Object[]) method.getParameterTypes());
   }
 
-  public Signature(final MethodInsnNode method) {
-    this.owners = expand(getClass().getClassLoader(), method.owner);
+  public Signature(final ClassLoader loader, final MethodInsnNode method) {
+    this.owners = expand(loader, method.owner);
+    this.loader = loader;
     this.name = method.name;
     this.args = Type.getArgumentTypes(method.desc);
   }
@@ -242,7 +247,7 @@ class Signature {
   }
 
   public boolean matches(final MethodInsnNode method) {
-    return matches(new Signature(method));
+    return matches(new Signature(loader, method));
   }
 
   public boolean matches(final Signature signature) {
@@ -264,7 +269,7 @@ class Signature {
 
   @Override
   public String toString() {
-    return owners.iterator().next() + "." + name + "(" + Arrays.toString(args) + ")";
+    return owners + "." + name + "(" + Arrays.toString(args) + ")";
   }
 
   private Set<String> expand(final ClassLoader classLoader, final String owner) {

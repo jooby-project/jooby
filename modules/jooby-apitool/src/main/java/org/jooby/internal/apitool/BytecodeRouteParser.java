@@ -277,6 +277,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -341,7 +342,7 @@ public class BytecodeRouteParser {
 
   private final Predicate<MethodInsnNode> scriptRoute;
 
-  private ClassLoader loader;
+  private final ClassLoader loader;
 
   public BytecodeRouteParser(ClassLoader loader, Path dir) {
     javadoc = new DocParser(dir);
@@ -466,21 +467,27 @@ public class BytecodeRouteParser {
     new Insns(method)
         // get(pattern, ); or post, put, etc...
         .on(InvokeDynamicInsnNode.class, it -> {
+          log.debug("found route: " + it);
           it.next()
               .filter(is(MethodInsnNode.class))
               .map(MethodInsnNode.class::cast)
               .filter(scriptRoute)
               .findFirst()
-              .ifPresent(m -> Lambda.create(owner.name.replace("/", "."),
-                  it.node, null)
-                  .forEach(result::add));
+              .ifPresent(m -> {
+                log.debug("script route: {}", m);
+                Lambda.create(loader, owner.name.replace("/", "."),
+                    it.node, null)
+                    .forEach(result::add);
+              });
         })
         // path(String)
-        .on(path(owner.name), it -> {
+        .on(path(loader, owner.name), it -> {
+          log.debug("found path: " + it);
           result.addAll(pathOperator(owner, owner.methods, it));
         })
         // use(Mvc class)
-        .on(use(owner.name), it -> {
+        .on(use(loader, owner.name), it -> {
+          log.debug("found mvc: " + it);
           it.prev()
               .filter(is(LdcInsnNode.class))
               .findFirst()
@@ -492,7 +499,8 @@ public class BytecodeRouteParser {
               );
         })
         // use(new App());
-        .on(mount(owner.name), it -> {
+        .on(mount(loader, owner.name), it -> {
+          log.debug("found mount: " + it);
           it.prev()
               .filter(and(is(MethodInsnNode.class), opcode(INVOKESPECIAL)))
               .findFirst()
@@ -513,6 +521,7 @@ public class BytecodeRouteParser {
               });
         })
         .forEach();
+    log.debug("results: {}", result);
     return result;
   }
 
@@ -537,6 +546,7 @@ public class BytecodeRouteParser {
                           .filter(m -> m.name.equals(handle.getName()))
                           .findFirst()
                           .ifPresent(pathAction -> {
+                            log.debug("pathAction {}", path);
                             lambdas(loader, owner, pathAction).stream()
                                 .filter(Lambda.class::isInstance)
                                 .map(Lambda.class::cast)
@@ -548,6 +558,7 @@ public class BytecodeRouteParser {
                     });
               });
         });
+    log.debug("pathOperator: {}", result);
     return result;
   }
 
@@ -594,7 +605,7 @@ public class BytecodeRouteParser {
           .ifPresent(main -> {
             log.debug("found main method: {}.main", owner.name);
             new Insns(main)
-                .on(joobyRun(), n -> {
+                .on(joobyRun(loader), n -> {
                   log.debug("found run(::Type, *args)");
                   n.prev()
                       .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
@@ -660,7 +671,7 @@ public class BytecodeRouteParser {
               });
         })
         // use(Mvc class)
-        .on(use("org.jooby.Kooby"), it -> {
+        .on(use(loader, "org.jooby.Kooby"), it -> {
           it.prev()
               .filter(is(LdcInsnNode.class))
               .findFirst()
@@ -672,7 +683,7 @@ public class BytecodeRouteParser {
               );
         })
         // route ("...") {...}
-        .on(call("org.jooby.Kooby", "route", String.class,
+        .on(call(loader, "org.jooby.Kooby", "route", String.class,
             "kotlin.jvm.functions.Function1"), it -> {
           Optional<String> prefix = Insn.ldcFor(it.node).stream()
               .map(e -> e.cst.toString())
@@ -706,7 +717,7 @@ public class BytecodeRouteParser {
               });
         })
         // use(Jooby())
-        .on(mount(Jooby.class.getName()), it -> {
+        .on(mount(loader, Jooby.class.getName()), it -> {
           it.prev()
               .filter(and(is(MethodInsnNode.class), opcode(INVOKESPECIAL)))
               .findFirst()
@@ -714,7 +725,7 @@ public class BytecodeRouteParser {
               .ifPresent(n -> result.addAll(lambdas(loader, loadClass(n.owner))));
         })
         // path(String) {...}
-        .on(path("org.jooby.Kooby"), it -> {
+        .on(path(loader, "org.jooby.Kooby"), it -> {
           result.addAll(kotlinPathOperator(owner, owner.methods, it));
         })
         .forEach();
@@ -777,7 +788,7 @@ public class BytecodeRouteParser {
     List<RouteParameter> result = new ArrayList<>();
 
     new Insns(lambda)
-        .on(param(), it -> {
+        .on(param(loader), it -> {
           String name = parameterName(loader, it.method, it.node)
               .orElse("arg" + result.size());
 
@@ -1047,7 +1058,7 @@ public class BytecodeRouteParser {
 
       @Override
       public void flush() throws IOException {
-        log.info("{}:\n{}", owner, buff);
+        log.debug("{}:\n{}", owner, buff);
       }
 
       @Override
@@ -1061,17 +1072,17 @@ public class BytecodeRouteParser {
       String cname = name.replace("/", ".");
       ClassNode node = cache.get(cname);
       if (node == null) {
-        try (InputStream in = loader
-            .getResourceAsStream(cname.replace(".", "/") + ".class")) {
+        String rname = cname.replace(".", "/") + ".class";
+        try (InputStream in = loader.getResourceAsStream(rname)) {
           if (in == null) {
-            throw new IOException(cname);
+            throw new FileNotFoundException(rname + " using " + loader);
           }
           ClassReader reader = new ClassReader(ByteStreams.toByteArray(in));
           node = new ClassNode();
           reader.accept(node, 0);
           cache.put(cname, node);
           if (log.isDebugEnabled()) {
-            log.info("Source: {}; Class: {}", node.sourceFile, node.name);
+            log.debug("Source: {}; Class: {}", node.sourceFile, node.name);
             reader.accept(
                 new TraceClassVisitor(null, new ASMifier(), new PrintWriter(writer(log, name))),
                 0);
