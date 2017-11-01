@@ -64,4 +64,45 @@ public class PebbleRendererTest {
           assertEquals("pebble", engine.toString());
         });
   }
+
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  @Test
+  public void renderWithLeadingSlash() throws Exception {
+    new MockUnit(PebbleEngine.class, View.class, Renderer.Context.class)
+        .expect(unit -> {
+          Locale locale = Locale.UK;
+          Map vmodel = unit.mock(Map.class);
+          Map<String, Object> locals = unit.mock(Map.class);
+          expect(locals.getOrDefault("locale", locale)).andReturn(locale);
+
+          Map model = unit.constructor(HashMap.class).build();
+          model.putAll(locals);
+          expect(model.putIfAbsent("_vname", "vname")).andReturn(null);
+          expect(model.putIfAbsent("locale", locale)).andReturn(null);
+          model.putAll(vmodel);
+
+          View view = unit.get(View.class);
+          expect(view.name()).andReturn("/vname");
+          expect(view.model()).andReturn(vmodel);
+
+          StringWriter writer = unit.constructor(StringWriter.class).build();
+
+          Renderer.Context ctx = unit.get(Renderer.Context.class);
+          expect(ctx.locale()).andReturn(locale);
+          expect(ctx.locals()).andReturn(locals);
+          expect(ctx.type(MediaType.html)).andReturn(ctx);
+          ctx.send(writer.toString());
+
+          PebbleTemplate template = unit.mock(PebbleTemplate.class);
+          template.evaluate(writer, model, locale);
+
+          PebbleEngine pebble = unit.get(PebbleEngine.class);
+          expect(pebble.getTemplate("vname")).andReturn(template);
+        })
+        .run(unit -> {
+          PebbleRenderer engine = new PebbleRenderer(unit.get(PebbleEngine.class));
+          engine.render(unit.get(View.class), unit.get(Renderer.Context.class));
+          assertEquals("pebble", engine.toString());
+        });
+  }
 }

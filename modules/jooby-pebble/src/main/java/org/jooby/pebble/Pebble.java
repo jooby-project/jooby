@@ -203,6 +203,7 @@
  */
 package org.jooby.pebble;
 
+import com.google.common.base.Strings;
 import static java.util.Objects.requireNonNull;
 
 import java.util.function.BiConsumer;
@@ -428,9 +429,9 @@ public class Pebble implements Jooby.Module {
   private static String safePrefix(final String prefix) {
     if (prefix != null && prefix.length() > 0) {
       if (prefix.startsWith("/")) {
-        String rewrite = prefix.substring(1);
-        return rewrite.length() == 0 ? null : rewrite;
+        return Strings.emptyToNull(prefix.substring(1));
       }
+      return prefix;
     }
     return null;
   }
