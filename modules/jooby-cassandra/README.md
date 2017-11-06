@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-cassandra/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-cassandra)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-cassandra.svg)](https://javadoc.io/doc/org.jooby/jooby-cassandra/1.2.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-cassandra.svg)](https://javadoc.io/doc/org.jooby/jooby-cassandra/1.2.2)
 [![jooby-cassandra website](https://img.shields.io/badge/jooby-cassandra-brightgreen.svg)](http://jooby.org/doc/cassandra)
 # cassandra
 
@@ -13,7 +13,7 @@ This module offers <a href="http://cassandra.apache.org">cassandra</a> database 
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-cassandra</artifactId>
- <version>1.2.1</version>
+ <version>1.2.2</version>
 </dependency>
 ```
 
@@ -211,7 +211,7 @@ A [Session.Store](/apidocs/org/jooby/cassandra/CassandraSessionStore.html) power
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-cassandra</artifactId>
- <version>1.2.1</version>
+ <version>1.2.2</version>
 </dependency>
 ```
 

@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-apitool/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-apitool)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-apitool.svg)](https://javadoc.io/doc/org.jooby/jooby-apitool/1.2.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-apitool.svg)](https://javadoc.io/doc/org.jooby/jooby-apitool/1.2.2)
 [![jooby-apitool website](https://img.shields.io/badge/jooby-apitool-brightgreen.svg)](http://jooby.org/doc/apitool)
 # API tool
 
@@ -11,11 +11,11 @@ This module generates live documentation from your HTTP API.
 
 ### swagger
 
-![Swagger ApiTool](http://jooby.org/resources/images/apitool-swagger.png)
+<img alt="Swagger ApiTool!" style="width: 800px" src="http://jooby.org/resources/images/apitool-swagger.png">
 
 ### raml
 
-![RAML ApiTool](http://jooby.org/resources/images/apitool-raml.png)
+<img alt="RAML ApiTool!" style="width: 800px" src="http://jooby.org/resources/images/apitool-raml.png">
 
 ## dependency
 
@@ -23,7 +23,7 @@ This module generates live documentation from your HTTP API.
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-api tool</artifactId>
- <version>1.2.1</version>
+ <version>1.2.2</version>
 </dependency>
 ```
 
@@ -163,7 +163,7 @@ Go to ```build.gradle``` and add these lines:
 ```gradke
 buildscript {
     dependencies {
-        classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.2.1'
+        classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.2.2'
     }
 }
 apply plugin: 'jooby'
