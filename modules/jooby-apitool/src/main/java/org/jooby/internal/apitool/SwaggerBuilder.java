@@ -383,9 +383,11 @@ public class SwaggerBuilder {
       Response response = new Response();
       String doc = returns.description().orElse(status.get(statusCode));
       response.description(doc);
-      // make sure type definition gets in
-      modelFactory.apply(returns.type());
-      response.schema(converter.readAsProperty(returns.type()));
+      if (!"void".equals(returns.type().getTypeName())) {
+        // make sure type definition gets in
+        modelFactory.apply(returns.type());
+        response.schema(converter.readAsProperty(returns.type()));
+      }
       op.addResponse(statusCode.toString(), response);
       status.entrySet().stream()
           .filter(it -> !statusCode.equals(it.getKey()))

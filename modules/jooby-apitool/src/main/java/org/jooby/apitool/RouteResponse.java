@@ -207,6 +207,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -304,7 +305,12 @@ public class RouteResponse {
    * @return This response.
    */
   public RouteResponse status(final Map<Integer, String> status) {
-    this.status = status;
+    if (status != null) {
+      if (this.status == null) {
+        this.status = new LinkedHashMap<>();
+        this.status.putAll(status);
+      }
+    }
     return this;
   }
 

@@ -207,6 +207,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Primitives;
@@ -218,8 +219,10 @@ import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Request;
 import org.jooby.Response;
+import org.jooby.Result;
 import org.jooby.Route;
 import org.jooby.Session;
+import org.jooby.Status;
 import org.jooby.Upload;
 import org.jooby.apitool.RouteMethod;
 import org.jooby.apitool.RouteParameter;
@@ -409,9 +412,22 @@ public class BytecodeRouteParser {
             returnType = TypeDescriptorParser.parse(loader,
                 Optional.ofNullable(method.signature).orElse(method.desc));
           }
+          Integer status;
+          if (returnType instanceof TypeWithStatus) {
+            status = ((TypeWithStatus) returnType).status;
+            returnType = ((TypeWithStatus) returnType).type();
+          } else {
+            status = null;
+          }
           List<RouteParameter> parameters = params(loader, owner, lambda.pattern, method);
+          RouteResponse routeResponse = new RouteResponse(simplifyType(returnType));
+          if (status != null) {
+            routeResponse.status(ImmutableMap.of(status,
+                Try.apply(() -> Status.valueOf(status.intValue()).reason())
+                    .orElse(status.toString())));
+          }
           RouteMethod route = new RouteMethod(lambda.name, lambda.pattern,
-              new RouteResponse(simplifyType(returnType))).parameters(parameters);
+              routeResponse).parameters(parameters);
           javadoc(route, javadoc.pop(lambda.declaringClass, lambda.name, lambda.pattern));
           methods.add(route);
         } else {
@@ -984,12 +1000,16 @@ public class BytecodeRouteParser {
         .map(previous -> {
           /** return 1; return true; return new Foo(); */
           if (previous instanceof MethodInsnNode) {
-            MethodInsnNode methodNode = ((MethodInsnNode) previous);
-            if (methodNode.name.equals("<init>")) {
-              return loadType(loader, methodNode.owner);
+            MethodInsnNode minnsn = ((MethodInsnNode) previous);
+            if (minnsn.name.equals("<init>")) {
+              return loadType(loader, minnsn.owner);
             }
-            String desc = methodNode.desc;
-            return TypeDescriptorParser.parse(loader, desc);
+            String desc = minnsn.desc;
+            java.lang.reflect.Type type = TypeDescriptorParser.parse(loader, desc);
+            if (type.getTypeName().equals(Result.class.getName())) {
+              return new TypeWithStatus(type, statusCodeFor(minnsn));
+            }
+            return type;
           }
           /** return "String" | int | double */
           if (previous instanceof LdcInsnNode) {
@@ -1007,6 +1027,28 @@ public class BytecodeRouteParser {
 
           return Object.class;
         }).orElse(Object.class);
+  }
+
+  private Integer statusCodeFor(MethodInsnNode node) {
+    if (node.name.equals("noContent")) {
+      return 204;
+    }
+    if (node.name.equals("with")) {
+      AbstractInsnNode previous = node.getPrevious();
+      if (previous instanceof IntInsnNode) {
+        return ((IntInsnNode) previous).operand;
+      }
+      if (previous instanceof FieldInsnNode) {
+        String owner = ((FieldInsnNode) previous).owner.replace("/", ".");
+        if (owner.equals(Status.class.getName())) {
+          String statusName = ((FieldInsnNode) previous).name;
+          return Try.apply(() -> Status.class.getDeclaredField(statusName).get(null))
+              .map(it -> ((Status) it).value())
+              .orElse(null);
+        }
+      }
+    }
+    return null;
   }
 
   @SuppressWarnings("unchecked")
@@ -1058,7 +1100,7 @@ public class BytecodeRouteParser {
 
       @Override
       public void flush() throws IOException {
-        log.debug("{}:\n{}", owner, buff);
+        log.info("{}:\n{}", owner, buff);
       }
 
       @Override
@@ -1146,6 +1188,27 @@ public class BytecodeRouteParser {
       return isPathParam(pattern, pname) ? RouteParameter.Kind.PATH : RouteParameter.Kind.QUERY;
     };
     return new RouteParameter(pname, kind.get(), p.getParameterizedType(), null);
+  }
+
+  private static class TypeWithStatus implements java.lang.reflect.Type {
+    private final java.lang.reflect.Type forwarding;
+    final Integer status;
+
+    TypeWithStatus(java.lang.reflect.Type forwarding, Integer status) {
+      this.forwarding = forwarding;
+      this.status = status;
+    }
+
+    public java.lang.reflect.Type type() {
+      if (status != null && status == 204 && forwarding.getTypeName().equals(Result.class.getName())) {
+        return void.class;
+      }
+      return forwarding;
+    }
+
+    @Override public String getTypeName() {
+      return forwarding.getTypeName();
+    }
   }
 
 }
