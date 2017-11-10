@@ -467,15 +467,15 @@ public class BytecodeRouteParser {
     new Insns(method)
         // get(pattern, ); or post, put, etc...
         .on(InvokeDynamicInsnNode.class, it -> {
-          log.debug("found route: " + it);
+          log.debug("found candidate: {}", it);
           it.next()
               .filter(is(MethodInsnNode.class))
               .map(MethodInsnNode.class::cast)
               .filter(scriptRoute)
               .findFirst()
               .ifPresent(m -> {
-                log.debug("script route: {}", m);
-                Lambda.create(loader, owner.name.replace("/", "."),
+                log.debug("found script route: {}.{}{}", m.owner, m.name, m.desc);
+                Lambda.create(loader, scriptRoute, owner.name.replace("/", "."),
                     it.node, null)
                     .forEach(result::add);
               });

@@ -212,11 +212,14 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -288,13 +291,15 @@ class Lambda {
         });
   }
 
-  public static Stream<Lambda> create(ClassLoader loader, String declaringClass,
+  public static Stream<Lambda> create(ClassLoader loader,
+      Predicate<MethodInsnNode> scriptRoute, String declaringClass,
       InvokeDynamicInsnNode node, MethodNode implementation) {
     return new Insn<>(null, node)
         .next()
         .filter(Filters.is(MethodInsnNode.class))
         .findFirst()
         .map(MethodInsnNode.class::cast)
+        .filter(scriptRoute)
         .map(method -> {
           return Arrays.asList(node.bsmArgs).stream()
               .filter(Handle.class::isInstance)
@@ -367,7 +372,9 @@ class Lambda {
                         Stream.of(new Lambda(lambda.declaringClass, lambda.owner, lambda.desc,
                             lambda.implementationName, lambda.name, pattern, implementation))
                     );
-              }).orElse(Stream.of());
-        }).orElse(Stream.of());
+              })
+              .orElse(Stream.of());
+        })
+        .orElse(Stream.of());
   }
 }

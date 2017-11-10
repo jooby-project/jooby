@@ -218,7 +218,7 @@ class TypeJsonDeserializer extends JsonDeserializer<Type> {
   @Override public Type deserialize(final JsonParser p, final DeserializationContext ctxt)
       throws IOException {
     String type = p.getValueAsString();
-    if (type != null) {
+    if (type != null && type.length() > 0) {
       ClassLoader loader = getClass().getClassLoader();
       try {
         return BytecodeRouteParser.loadType(loader, type);
