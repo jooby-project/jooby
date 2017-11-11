@@ -22,7 +22,7 @@ This module generates live documentation from your HTTP API.
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-api tool</artifactId>
+ <artifactId>jooby-apitool</artifactId>
  <version>1.2.2</version>
 </dependency>
 ```
