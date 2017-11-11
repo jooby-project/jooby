@@ -1,37 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>jooby: deployment</title>
-    <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty.">
-    <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, " />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="canonical" href="#">
-    <link rel="publisher" href="#">
-    <meta name="robots" content="robots.txt">
-    <meta name="og:title" content="jooby">
-    <meta name="og:description" content="Scalable, fast and modular micro web framework for Java">
-    <!--
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>jooby: </title> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, deployment"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="canonical" href="#"> 
+  <link rel="publisher" href="#"> 
+  <meta name="robots" content="robots.txt"> 
+  <meta name="og:title" content="jooby"> 
+  <meta name="og:description" content="Scalable, fast and modular micro web framework for Java"> 
+  <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
     "website" por "article"
-    -->
-    <meta name="og:type" content="website">
-    <meta name="og:url" content="http://jooby.org">
-    <!--
+    --> 
+  <meta name="og:type" content="website"> 
+  <meta name="og:url" content="http://jooby.org"> 
+  <!--
     og:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
     CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
     ANCHO: 200
     ALTO: 200
     FORMATO: JPG
-    -->
-    <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg">
-    <meta name="og:site_name" content="jooby">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="jooby - do more! more easily!!">
-    <!--
+    --> 
+  <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
+  <meta name="og:site_name" content="jooby"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:title" content="jooby - do more! more easily!!"> 
+  <!--
     twitter:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
     CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
@@ -39,532 +39,113 @@
     ALTO: 150
     FORMATO: JPG
     TAMAÑO MAXIMO: 1MB
-    -->
-    <meta name="twitter:image" content="http://jooby.org/resources/images/apps/twitter.jpg">
-    <meta name="twitter:site" content="@joobyproject">
-    <meta name="twitter:creator" content="https://twitter.com/edgarespina">
-    <meta name="twitter:domain" content="http://jooby.org">
-    <meta name="twitter:url" content="https://twitter.com/joobyproject">
-    <meta name="twitter:description" content="Scalable, fast and modular micro web framework for Java">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180">
-    <link href="/resources/images/apps/favicon.ico" rel="shortcut icon">
-    <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png">
-    <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png">
-    <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png">
-    <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700">
-    <link rel="stylesheet" href="/resources/styles/application.css">
-    <link rel="stylesheet" href="/resources/styles/github.css">
-    <link rel="stylesheet" href="/resources/styles/devices.css">
-    <link rel="stylesheet" href="/resources/styles/sprites.css">
-    
-<script async defer src="https://buttons.github.io/buttons.js"></script>
-
-  </head>
-  <body class="page-section page-sidebar">
-    <header class="site-header">
-      <div class="row"><a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a><a class="show-mobile open-menu"><span></span></a>
-        <nav class="site-nav">
-          <ul>
-            <li class="# welcome
-
-Welcome to the getting started guide, you will find here a step by step guide using a **Maven archetype**. Optionally, you might want to try the one of the starter projects:
-
- - [Starter projects](https://github.com/search?q&#x3D;topic%3Astarter+org%3Ajooby-project&amp;type&#x3D;Repositories)
- - [Gradle starter](https://github.com/jooby-project/gradle-starter)
- - [Kotlin starter](https://github.com/jooby-project/kotlin-starter)
- - [Kotlin gradle starter](https://github.com/jooby-project/kotlin-gradle-starter)
-
-
-requirements
-&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
-
-* Install 
-* Install 
-
-quickstart
-&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
-
-Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
-
-&#x60;&#x60;&#x60;bash
-mvn archetype:generate -B -DgroupId&#x3D;com.mycompany -DartifactId&#x3D;my-app -Dversion&#x3D;1.0-SNAPSHOT -DarchetypeArtifactId&#x3D;jooby-archetype -DarchetypeGroupId&#x3D;org.jooby -DarchetypeVersion&#x3D;
-&#x60;&#x60;&#x60;
-
-You might want to edit/change:
-
-* -DgroupId: A Java package&#x27;s name
-
-* -DartifactId: A project&#x27;s name in lower case and without spaces
-
-* -Dversion: A project&#x27;s version, like &#x60;&#x60;&#x60;1.0-SNAPSHOT&#x60;&#x60;&#x60; or &#x60;&#x60;&#x60;1.0.0-SNAPSHOT&#x60;&#x60;&#x60;
-
-
-Let&#x27;s try it!:
-
-&#x60;&#x60;&#x60;bash
-mvn archetype:generate -B -DgroupId&#x3D;com.mycompany -DartifactId&#x3D;my-app -Dversion&#x3D;1.0-SNAPSHOT -DarchetypeArtifactId&#x3D;jooby-archetype -DarchetypeGroupId&#x3D;org.jooby -DarchetypeVersion&#x3D;
-cd my-app
-mvn jooby:run
-&#x60;&#x60;&#x60;
-
-You should see something similar to this at the end of the output:
-
-&#x60;&#x60;&#x60;bash
-INFO  [2015-03-19 21:34:00,365] Hotswap available on: [my-app/public, my-app/conf, my-app/target/classes]
-INFO  [2015-03-19 21:34:00,368]   includes: [**/*.class,**/*.conf,**/*.properties]
-INFO  [2015-03-19 21:34:00,369]   excludes: []
-INFO  [2015-03-19 21:34:00,937] [dev@netty]: App server started in 502ms
-
-GET /             [*/*]     [*/*]    (anonymous)
-
-listening on:
-  http://0.0.0.0:8080/
-&#x60;&#x60;&#x60;
-
-**Jooby**! is up and running!
-
-getting started
-&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
-
-exploring the newly created project
------
-
-A new directory was created: &#x60;&#x60;&#x60;my-app&#x60;&#x60;&#x60;. Let&#x27;s see what it looks like:
-
-&#x60;&#x60;&#x60;bash
-.
-├── public
-|   └── (empty)
-├── conf
-|   ├── application.conf
-|   └── logback.xml
-└── src
-    ├── main
-    |   └── java
-    |       └── com
-    |           └── mycompany
-    |               └── App.java
-    └── test
-        └── java
-            └── com
-                └── mycompany
-                    └── AppTest.java
-&#x60;&#x60;&#x60;
-
-The **public** folder contains static content like &#x60;&#x60;&#x60;*.html&#x60;&#x60;&#x60;, &#x60;&#x60;&#x60;*.js&#x60;&#x60;&#x60;, &#x60;&#x60;&#x60;*.css&#x60;&#x60;&#x60;, ..., &#x60;&#x60;&#x60;*.png&#x60;&#x60;&#x60; files.
-
-The **conf** folder contains &#x60;&#x60;&#x60;*.conf&#x60;&#x60;&#x60;.
-
-The **src/main/java** folder contains &#x60;&#x60;&#x60;*.java&#x60;&#x60;&#x60; files (of course).
-
-The **src/test/java** folder contains unit and integration tests.
-
-&gt; **NOTE**: The &#x60;&#x60;&#x60;public&#x60;&#x60;&#x60; and &#x60;&#x60;&#x60;conf&#x60;&#x60;&#x60; folders are part of the classpath.
-
-### App.java
-
-
-&#x60;&#x60;&#x60;java
-
-import org.jooby.Jooby;
-
-public class App extends Jooby { // 1
-
-  {
-    // 2
-    get(&quot;/&quot;, () -&gt; &quot;Hello World!&quot;);
-  }
-
-  public static void main(final String[] args) {
-    run(App::new, args); // 3. start the application.
-  }
-
-}
-
-&#x60;&#x60;&#x60;
-
-Steps involved are:
-
-1) extend Jooby
-
-2) define some routes
-
-3) call the &#x60;&#x60;&#x60;run&#x60;&#x60;&#x60; method
-
-running
------
-
-Open a console and type:
-
-    mvn jooby:run
-
-The maven plugin will compile the code (if necessary) and start the application.
-
-Of course, you can generate the IDE metadata from Maven or import as a Maven project in your favorite IDE.
-Afterwards, all you have to do is run the: &#x60;&#x60;&#x60;App.java&#x60;&#x60;&#x60; class. After all, this is a plain Java application with a &#x60;&#x60;&#x60;main&#x60;&#x60;&#x60; method.
-
-where to go now?
------
-
-* read the [documentation](/doc)
-* check out one of the 
-"><a href="/quickstart" title="Quick start">QUICK START</a></li>
-            <li class=""><a href="/doc" title="Doc">DOCS</a></li>
-            <li class="# modules
-
-Modules are a **key concept** for building **reusable** and **configurable** pieces of software.
-
-Modules (unlike in other frameworks) are thin and do a lot of work to bootstrap and configure an external library, but they **DO NOT provide a new level of abstraction** nor [do] they provide a custom API to access functionality in that library. Instead they **expose** the **library** components as **they are**.
-
-Modules like in [Guice](https://github.com/google/guice) are used to wire services, connect data, etc...
-
-There is an extensive [module ecosystem](/modules) which makes Jooby a **full stack** framework (when needed).
-
-## do less and be flexible
-
-**Do less** might sounds confusing, but is the key to **flexibility**.
-
-A module does as **little as possible** (a key difference with other frameworks). A module for a library &#x60;X&#x60; should:
-
-* Bootstrap X
-* Configure X
-* export the API of X
-
-This means that a module should NOT create a wrapper for a library. Instead it should provide a way to extend, configure and use the external library.
-
-&gt; This principle keeps modules small, maintainable and flexible.
-
-## creating modules
-
-A module is represented by the [Jooby.Module](/Jooby.Module.html) class. The configure callback looks like this:
-
-&#x60;&#x60;&#x60;java
-public class M1 implements Jooby.Module {
-
-    public void configure(Env env, Config conf, Binder binder) {
-      binder.bind(...).to(...);
-    }
-
-}
-&#x60;&#x60;&#x60;
-
-The configure callback is similar to a [Guice module](https://github.com/google/guice), except you can access to the [Env](/Env.html) and [config](https://github.com/typesafehub/config) objects.
-
-## properties
-
-In addition to the **configure** callback, a module in  has one additional method: [Module.config](/Jooby.Module.html#config--). The &#x60;&#x60;&#x60;config&#x60;&#x60;&#x60; method allows a module to set default properties.
-
-&#x60;&#x60;&#x60;java
-public class M1 implements Jooby.Module {
-  public void configure(Env env, Config config, Binder binder) {
-    binder.bind(...).to(...);
-  }
-
-  public Config config() {
-    return ConfigFactory.parseResources(getClass(), &quot;m1.properties&quot;);
-  }
-}
-&#x60;&#x60;&#x60;
-
-## usage
-
-A module must be registered at startup time:
-
-&#x60;&#x60;&#x60;java
-
-import org.jooby.Jooby;
-
-public class MyApp extends Jooby {
-
-  {
-     // as lambda
-     use((env, config, binder) -&gt; {
-        binder.bind(...).to(...);
-     });
-     // as instance
-     use(new M1());
-     use(new M2());
-  }
-
-}
-&#x60;&#x60;&#x60;
-
-You can start or stop services from a module:
-
-&#x60;&#x60;&#x60;java
-public class M1 implements Jooby.Module {
-    public void configure(Env env, Config config, Binder binder) {
-      env.onStart(() -&gt; {
-        // Start services
-      });
-      env.onStop(() -&gt; {
-        // Stop services
-      });
-    }
-}
-&#x60;&#x60;&#x60;
-
-Or export routes:
-
-&#x60;&#x60;&#x60;java
-public class M1 implements Jooby.Module {
-    public void configure(Env env, Config config, Binder binder) {
-      Router router &#x3D; env.router();
-      router.get(&quot;/m1&quot;, () -&gt; &quot;I&#x27;m a module!&quot;);
-    }
-}
-&#x60;&#x60;&#x60;
-"><a href="/modules" title="Modules">MODULES</a></li>
-            <li class=""><a href="/community" title="Community">COMMUNITY</a></li>
-            <li class="# status
-
-* &lt;a target&#x3D;&quot;_blank&quot; href&#x3D;&quot;https://travis-ci.org/jooby-project/jooby&quot;&gt;&lt;img src&#x3D;&quot;https://travis-ci.org/jooby-project/jooby.svg?branch&#x3D;master&quot; alt&#x3D;&quot;Build Status&quot;&gt;&lt;/a&gt;
-
-* &lt;a target&#x3D;&quot;_blank&quot; href&#x3D;&quot;https://coveralls.io/r/jooby-project/jooby?branch&#x3D;master&quot;&gt;&lt;img src&#x3D;&quot;https://img.shields.io/coveralls/jooby-project/jooby.svg&quot; alt&#x3D;&quot;Coverage Status&quot;&gt;&lt;/a&gt;
-
-* Code coverage is composed by unit and integration tests. Integration tests can be found &lt;a target&#x3D;&quot;_blank&quot; href&#x3D;&quot;https://github.com/jooby-project/jooby/tree/master/coverage-report&quot;&gt;here&lt;/a&gt;
-
-* Integration tests run again each of the available servers: ,  and 
-
-# general
-
-## what jvm do I need?
-
-* Java 8 or higher
-
-# development
- 
-## where are the default properties?
-
-* Default properties can be found [here](/doc/#misc-jooby-conf)
-
-## how do I deploy my application?
-
-* Deployment options can be found [here](/doc/deployment)
-
-## can I use Gradle?
-
-Yes, with some limitations that are being documented [here](/doc/gradle).
-
-## how do I run code on start/stop?
-
-Documentation for [lifeCycle](/LifeCycle.html) events is available [here](/doc/#application-life-cycle)
-
-# mime types
-
-## what mime types are supported?
-
-* Full list of MIME types can be found [here](/doc/#misc-mime-properties)
-
-## how do I add a new/override mime type?
-
-* Create a &#x60;&#x60;&#x60;mime.properties&#x60;&#x60;&#x60; file inside the &#x60;&#x60;&#x60;conf&#x60;&#x60;&#x60; directory. Then, add the new mime type there.
-"><a href="/faq" title="FAQ">FAQ</a></li>
-            <li><a href="https://javadoc.io/doc/org.jooby/jooby/" target="_blank" title="API docs">API DOCS</a></li>
-          </ul>
-        </nav>
-      </div>
-    </header>
-    <main role="main" class="site-content">
-      
-<div class="section-title"> 
-  <div class="row">
-    <a href="/guides" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a>
-    <h1>deployment</h1>
-  </div>
-</div>
-<div class="row">
-  <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;">
-    <div class="show-mobile menu-open">deployment</div>
-    <ul>
-<li class="active">
-<a href="#deployment">deployment</a></li>
-<li class="">
-<a href="#jar-deployment">jar deployment</a><ul>
-<li>
-<a href="#jar-deployment-build-and-package">build and package</a></li>
-<li>
-<a href="#jar-deployment-run-start">run / start</a></li>
-<li>
-<a href="#jar-deployment-env-and-conf">env and conf</a></li></ul></li>
-<li class="">
-<a href="#zip-deployment">zip deployment</a><ul>
-<li>
-<a href="#zip-deployment-build-and-package">build and package</a></li>
-<li>
-<a href="#zip-deployment-run-start">run / start</a></li>
-<li>
-<a href="#zip-deployment-env-and-conf">env and conf</a></li></ul></li>
-<li class="">
-<a href="#conclusion">conclusion</a></li>
-</ul>
-  </div>
-  <div class="section-content">
-  <div class="datalist" id="deployment">
- <div class="datalist-title active"> 
-  <h2>deployment</h2> 
- </div> 
- <div class="datalist-content"> 
-  <p>In this guide you will learn how to deploy a <strong>Jooby</strong> application into a <strong>production like</strong> environment.</p>
- </div> 
-</div>  
-<div class="datalist" id="jar-deployment">
- <div class="datalist-title "> 
-  <h2>jar deployment</h2> 
- </div> 
- <div class="datalist-content"> 
-  <p>Jooby is a micro-web framework, it doesn’t run inside a container or <strong>Servlet</strong> environment. Instead, the web server: <a href="http://netty.io" target="_blank">Netty</a>, <a href="http://www.eclipse.org/jetty/" target="_blank">Jetty</a> or <a href="http://undertow.io" target="_blank">Undertow</a> is packaged within your app.<br> This techniques is known as: <strong>fat jar</strong> distribution or deployment, which basically means everything is bundle into a single <strong>.jar</strong> file.</p>
-  <h3 id="jar-deployment-build-and-package">build and package</h3>
-  <p>In order to create a <strong>fat jar</strong> go to your project home, open a terminal and run:</p>
-  <div class="highlighter-rouge codehilite"> 
-   <pre class="highlight"><code>mvn clean package
-</code></pre> 
-  </div>
-  <p>Once it’s finished, the jar will be available inside the <code class="highlighter-rouge codehilite">target</code> directory.</p>
-  <h3 id="jar-deployment-run-start">run / start</h3>
-  <p>Since everything was bundle into a single <code class="highlighter-rouge codehilite">jar</code> file, all you have to do is:</p>
-  <div class="highlighter-rouge codehilite"> 
-   <pre class="highlight"><code>java -jar myapp.jar
-</code></pre> 
-  </div>
-  <p>Pretty easy! No complex deployment, <strong>no heavy-weight servers</strong>, <strong>no classpath hell</strong>. Your application is up and running!</p>
-  <h3 id="jar-deployment-env-and-conf">env and conf</h3>
-  <p><strong>Jooby</strong> is built around the <code class="highlighter-rouge codehilite">environment</code> concept, which means a <strong>Jooby</strong> app always known when it runs in <code class="highlighter-rouge codehilite">dev</code> or anything else (prod like).</p>
-  <p>The <code class="highlighter-rouge codehilite">application.env</code> property controls the <code class="highlighter-rouge codehilite">environment</code>, by default this property is set to <code class="highlighter-rouge codehilite">dev</code> (the unique and well known env).</p>
-  <p>Now, suppose you need to deploy your awesome app into <code class="highlighter-rouge codehilite">prod</code> and you need to set a few properties. The <code class="highlighter-rouge codehilite">application.conf</code> file looks like:</p>
-  <div class="highlighter-rouge codehilite"> 
-   <pre class="highlight"><code>...
-aws.accessKey = AKIAIOSFODNN7EXAMPLE
-aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-...
-</code></pre> 
-  </div>
-  <p>Now, for <code class="highlighter-rouge codehilite">prod</code> you have a new key value pair… all you have to do is to create a new file <code class="highlighter-rouge codehilite">application.prod.conf</code> and just add those new keys:</p>
-  <div class="highlighter-rouge codehilite"> 
-   <pre class="highlight"><code>aws.accessKey = AKIAIOSFODNN7PROD
-aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
-</code></pre> 
-  </div>
-  <blockquote> 
-   <p><strong>TIP</strong>: You don’t have to add all the properties, just those which differ for the environment.</p> 
-  </blockquote>
-  <p>The final step is to start the app with <code class="highlighter-rouge codehilite">application.env=prod</code>:</p>
-  <div class="highlighter-rouge codehilite"> 
-   <pre class="highlight"><code>java -Dapplication.env=prod myapp.jar
-</code></pre> 
-  </div>
-  <p>Your application will run now in <code class="highlighter-rouge codehilite">prod</code>. It will find your <code class="highlighter-rouge codehilite">application.conf</code> and overrides the properties defined there with those from <code class="highlighter-rouge codehilite">application.prod.conf</code></p>
-  <p>It works for <code class="highlighter-rouge codehilite">logback.xml</code> too, if <code class="highlighter-rouge codehilite">logback.[env].xml</code> is present, then <strong>Jooby</strong> will use it, otherwise it falls back to <code class="highlighter-rouge codehilite">logback.xml</code>.</p>
- </div> 
-</div>                      
-<div class="datalist" id="zip-deployment">
- <div class="datalist-title "> 
-  <h2>zip deployment</h2> 
- </div> 
- <div class="datalist-content"> 
-  <p>A <strong>Jooby</strong> app created from <a href="http://maven.apache.org/" target="_blank">Maven 3+</a> <code class="highlighter-rouge codehilite">archetype</code> will also generates a <code class="highlighter-rouge codehilite">myapp.zip</code> file, each time you run:</p>
-  <div class="highlighter-rouge codehilite"> 
-   <pre class="highlight"><code>mvn clean package
-</code></pre> 
-  </div>
-  <p>This <code class="highlighter-rouge codehilite">.zip</code> file <strong>mimics</strong> a typical server layout:</p>
-  <div class="highlighter-rouge codehilite"> 
-   <pre class="highlight"><code>.
-├── public
-|   ├── &lt;public content goes here&gt;
-├── conf
-|   ├── application.conf
-|   └── logback.xml
-├── myapp.jar
-├── start.sh
-└── stop.sh
-</code></pre> 
-  </div>
-  <p>The scripts: <code class="highlighter-rouge codehilite">start/stop.sh</code> are very simple and they will start/stop a <strong>Jooby</strong> app.</p>
-  <p>The scripts are inside the <code class="highlighter-rouge codehilite">src/etc/bin</code> directory you can edit them, add more, etc. They will be always included in the final <code class="highlighter-rouge codehilite">.zip</code>.</p>
-  <p>The <code class="highlighter-rouge codehilite">zip</code> deployment makes sense when you want to have more control over your application. For example:</p>
-  <ul> 
-   <li>If you want to turn on/off loggers at runtime via: <code class="highlighter-rouge codehilite">conf/logback.xml</code></li> 
-   <li>The <code class="highlighter-rouge codehilite">public</code> folder contains all your static files, you can configure <a href="https://www.nginx.com" target="_blank">nginx</a> or <a href="https://httpd.apache.org" target="_blank">apache</a> server to serve them from disk</li> 
-  </ul>
-  <h3 id="zip-deployment-build-and-package">build and package</h3>
-  <p>You don’t have to do anything special to get a <code class="highlighter-rouge codehilite">.zip</code> if you created the app from <a href="http://maven.apache.org/" target="_blank">Maven 3+</a> <code class="highlighter-rouge codehilite">archetype</code>.</p>
-  <p>If you don’t you then open the <code class="highlighter-rouge codehilite">pom.xml</code> add these lines:</p>
-  <div class="highlighter-rouge codehilite"> 
-   <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>maven-assembly-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;configuration&gt;</span>
-    <span class="nt">&lt;descriptorRefs&gt;</span>
-      <span class="nt">&lt;descriptorRef&gt;</span>jooby.zip<span class="nt">&lt;/descriptorRef&gt;</span>
-    <span class="nt">&lt;/descriptorRefs&gt;</span>
-  <span class="nt">&lt;/configuration&gt;</span>
-<span class="nt">&lt;/plugin&gt;</span>
-</code></pre> 
-  </div>
-  <p>The <code class="highlighter-rouge codehilite">maven-assembly-plugin</code> will generate the <code class="highlighter-rouge codehilite">.zip</code> file.</p>
-  <h3 id="zip-deployment-run-start">run / start</h3>
-  <p>Usually done via <code class="highlighter-rouge codehilite">start.sh</code>:</p>
-  <div class="highlighter-rouge codehilite"> 
-   <pre class="highlight"><code>./start.sh prod
-</code></pre> 
-  </div>
-  <h3 id="zip-deployment-env-and-conf">env and conf</h3>
-  <p>It works like the <a href="#jar-deployment-env-and-conf">jar deployment</a></p>
- </div> 
-</div>                   
-<div class="datalist" id="conclusion">
- <div class="datalist-title "> 
-  <h2>conclusion</h2> 
- </div> 
- <div class="datalist-content"> 
-  <p><strong>Jar deployment</strong> makes perfect sense for PaaS like Heroku, AppEngine, etc.</p>
-  <p><strong>Zip deployment</strong> give you more control for starting and stopping but also control the application log at runtime.</p>
-  <p>Happy coding!</p>
- </div> 
-</div>
-  </div>
-</div>
-<!-- AddToAny BEGIN -->
-<div class="row share-network">
-  <div class="section-content">
-    <h3>Share</h3>
-    <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="" data-a2a-title="">
-      <a class="a2a_button_twitter" data-text=""></a>
-      <a class="a2a_button_reddit a2a_counter"></a>
-      <a class="a2a_button_linkedin a2a_counter"></a>
-      <a class="a2a_button_facebook a2a_counter"></a>
-      <a class="a2a_button_google_plus a2a_counter"></a>
-    </div>
-  </div>
-</div>
-<script async src="https://static.addtoany.com/menu/page.js"></script>
-<!-- AddToAny END -->
-
-    </main>
-    <footer class="site-footer">
-      <div class="row">
-        <p class="pull-left">©2014- <a href="https://twitter.com/joobyproject">The Jooby Project</a>, all rights reserved.</p>
-        <div class="follow-us pull-right">
-          <p>Follow us</p><a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a><a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a>
-        </div>
-      </div>
-    </footer>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script>
-    <script src="/resources/scripts/libs/swiper.min.js"></script>
-    <script src="/resources/scripts/application.js"></script>
-    <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>
-    <script>
+    --> 
+  <meta name="twitter:image" content="http://jooby.org/resources/images/apps/twitter.jpg"> 
+  <meta name="twitter:site" content="@joobyproject"> 
+  <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
+  <meta name="twitter:domain" content="http://jooby.org"> 
+  <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:description" content="Scalable, fast and modular micro web framework for Java"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180"> 
+  <link href="/resources/images/apps/favicon.ico" rel="shortcut icon"> 
+  <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png"> 
+  <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png"> 
+  <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png"> 
+  <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png"> 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700"> 
+  <link rel="stylesheet" href="/resources/styles/application.css"> 
+  <link rel="stylesheet" href="/resources/styles/github.css"> 
+  <link rel="stylesheet" href="/resources/styles/devices.css"> 
+  <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+  <script async defer src="https://buttons.github.io/buttons.js"></script> 
+ </head> 
+ <body class="page-section page-sidebar"> 
+  <header class="site-header"> 
+   <div class="row">
+    <a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a>
+    <a class="show-mobile open-menu"><span></span></a> 
+    <nav class="site-nav"> 
+     <ul> 
+      <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
+      <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
+      <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
+      <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.2" target="_blank" title="API docs">API DOCS</a></li> 
+     </ul> 
+    </nav> 
+   </div> 
+  </header> 
+  <main role="main" class="site-content"> 
+   <div class="section-title"> 
+    <div class="row"> 
+     <a href="/guides" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
+     <h1></h1> 
+    </div> 
+   </div> 
+   <div class="row"> 
+    <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
+     <div class="show-mobile menu-open"></div> 
+     <ul> 
+      <li class="active"> <a href="#deployment">deployment</a></li> 
+      <li class=""> <a href="#jar-deployment">jar deployment</a>
+       <ul> 
+        <li> <a href="#jar-deployment-build-and-package">build and package</a></li> 
+        <li> <a href="#jar-deployment-run-start">run / start</a></li> 
+        <li> <a href="#jar-deployment-env-and-conf">env and conf</a></li>
+       </ul></li> 
+      <li class=""> <a href="#zip-deployment">zip deployment</a>
+       <ul> 
+        <li> <a href="#zip-deployment-build-and-package">build and package</a></li> 
+        <li> <a href="#zip-deployment-run-start">run / start</a></li> 
+        <li> <a href="#zip-deployment-env-and-conf">env and conf</a></li>
+       </ul></li> 
+      <li class=""> <a href="#conclusion">conclusion</a></li> 
+     </ul> 
+    </div> 
+    <div class="section-content"> 
+    </div> 
+   </div> 
+   <!-- AddToAny BEGIN --> 
+   <div class="row share-network"> 
+    <div class="section-content"> 
+     <h3>Share</h3> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/guides/deployment" data-a2a-title=""> 
+      <a class="a2a_button_twitter" data-text=""></a> 
+      <a class="a2a_button_reddit a2a_counter"></a> 
+      <a class="a2a_button_linkedin a2a_counter"></a> 
+      <a class="a2a_button_facebook a2a_counter"></a> 
+      <a class="a2a_button_google_plus a2a_counter"></a> 
+     </div> 
+    </div> 
+   </div> 
+   <script async src="https://static.addtoany.com/menu/page.js"></script> 
+   <!-- AddToAny END --> 
+  </main> 
+  <footer class="site-footer"> 
+   <div class="row"> 
+    <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <div class="follow-us pull-right"> 
+     <p>Follow us</p>
+     <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
+     <a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a> 
+    </div> 
+   </div> 
+  </footer> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script src="/resources/scripts/libs/swiper.min.js"></script> 
+  <script src="/resources/scripts/application.js"></script> 
+  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
+  <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -572,6 +153,6 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
 
       ga('create', 'UA-57151281-1', 'auto');
       ga('send', 'pageview');
-    </script>
-  </body>
+    </script>  
+ </body>
 </html>
