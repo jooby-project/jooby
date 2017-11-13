@@ -240,6 +240,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -255,13 +256,13 @@ import java.util.stream.IntStream;
 class DocParser {
 
   private static class DocCollector extends FuzzyDocBaseListener {
-    String prefix = "";
+    LinkedList<String> prefix = new LinkedList<>();
 
     boolean insideRoute;
 
     List<DocItem> doc;
 
-    String summary = "";
+    LinkedList<String> summary = new LinkedList<>();
 
     Path file;
 
@@ -304,22 +305,26 @@ class DocParser {
         String method = Optional.ofNullable(ctx.method).map(it -> str(it.getText())).orElse("*");
         String pattern = Optional.ofNullable(ctx.pattern).map(it -> str(it.getText()))
             .orElse("*");
-        doc.add(doc(method, normalize(pattern), file, summary, comment));
+        doc.add(
+            doc(method, normalize(pattern), file, summary(), comment));
       } else {
-        this.prefix = str(ctx.pattern.getText());
+        this.prefix.addLast(Route.normalize(str(ctx.pattern.getText())));
         this.insideRoute = false;
-        this.summary = cleanJavadoc(file, ctx.doc.getText());
+        this.summary.addLast(cleanJavadoc(file, ctx.doc.getText()));
       }
     }
 
     @Override public void enterPath(FuzzyDocParser.PathContext ctx) {
-      this.prefix = str(ctx.pattern.getText());
+      this.prefix.addLast(Route.normalize(str(ctx.pattern.getText())));
       this.insideRoute = true;
-      this.summary = cleanJavadoc(file, ctx.doc.getText());
+      if (ctx.doc != null) {
+        this.summary.addLast(cleanJavadoc(file, ctx.doc.getText()));
+      }
     }
 
     @Override public void exitPath(FuzzyDocParser.PathContext ctx) {
-      this.prefix = "";
+      popPrefix();
+      popSummary();
       this.insideRoute = false;
     }
 
@@ -330,13 +335,14 @@ class DocParser {
      * @param ctx
      */
     @Override public void enterRoute(final FuzzyDocParser.RouteContext ctx) {
-      this.prefix = str(ctx.pattern.getText());
+      this.prefix.addLast(Route.normalize(str(ctx.pattern.getText())));
       this.insideRoute = true;
-      this.summary = cleanJavadoc(file, ctx.doc.getText());
+      this.summary.addLast(cleanJavadoc(file, ctx.doc.getText()));
     }
 
     @Override public void exitRoute(final FuzzyDocParser.RouteContext ctx) {
-      this.prefix = "";
+      popPrefix();
+      popSummary();
       this.insideRoute = false;
     }
 
@@ -354,15 +360,28 @@ class DocParser {
          *
          * but ignore dot when route(prefix) is present (kotlin)
          */
-        this.prefix = "";
-        this.summary = "";
+        popPrefix();
+        popSummary();
       }
-      String comment = ctx.doc.getText();
-      String method = ctx.method.getText();
-      String pattern =
-          prefix + "/" + Optional.ofNullable(ctx.pattern).map(it -> str(it.getText()))
-              .orElse("/");
-      doc.add(doc(method, normalize(pattern), file, summary, comment));
+      String comment = Optional.ofNullable(ctx.doc).map(it -> it.getText()).orElse("");
+      if (ctx.method != null) {
+        String method = ctx.method.getText();
+        String pattern =
+            prefix.stream().collect(Collectors.joining("")) + "/" + Optional.ofNullable(ctx.pattern)
+                .map(it -> str(it.getText()))
+                .orElse("/");
+        doc.add(doc(method, normalize(pattern), file, summary(), comment));
+      }
+    }
+
+    private void popSummary() {
+      if (summary.size() > 0) {
+        summary.removeLast();
+      }
+    }
+
+    private String summary() {
+      return summary.stream().collect(Collectors.joining());
     }
 
     @Override public void enterClazz(final FuzzyDocParser.ClazzContext ctx) {
@@ -374,27 +393,33 @@ class DocParser {
          */
         boolean isClass = ctx.isClass != null;
         if (isClass) {
-          this.prefix = normalize(pattern);
-          this.summary = cleanJavadoc(file, ctx.doc.getText());
+          this.prefix.addLast(normalize(pattern));
+          this.summary.addLast(cleanJavadoc(file, ctx.doc.getText()));
         } else {
-          this.prefix = "";
-          this.summary = "";
+          popPrefix();
+          popSummary();
           List<String> methods = methods(ctx.annotations);
           String comment = ctx.doc.getText();
           if (methods.size() == 0) {
-            doc.add(doc("get", normalize(pattern), file, summary, comment));
+            doc.add(doc("get", normalize(pattern), file, summary(), comment));
           } else {
             methods.stream()
-                .forEach(it -> doc.add(doc(it, normalize(pattern), file, summary, comment)));
+                .forEach(it -> doc.add(doc(it, normalize(pattern), file, summary(), comment)));
           }
         }
       } else {
-        this.prefix = "";
+        popPrefix();
       }
     }
 
     @Override public void exitClazz(final FuzzyDocParser.ClazzContext ctx) {
-      this.prefix = "";
+      popPrefix();
+    }
+
+    private void popPrefix() {
+      if (prefix.size() > 0) {
+        prefix.pop();
+      }
     }
 
     private String pattern(List<FuzzyDocParser.AnnotationContext> annotations) {
@@ -420,12 +445,14 @@ class DocParser {
         return;
       }
       String comment = ctx.doc.getText();
-      String pattern = prefix + "/" + Optional.ofNullable(path).orElse("/");
+      String pattern =
+          prefix.stream().collect(Collectors.joining()) + "/" + Optional.ofNullable(path)
+              .orElse("/");
       if (methods.size() == 0) {
-        doc.add(doc("get", normalize(pattern), file, summary, comment));
+        doc.add(doc("get", normalize(pattern), file, summary(), comment));
       } else {
         methods.stream()
-            .forEach(method -> doc.add(doc(method, normalize(pattern), file, summary, comment)));
+            .forEach(method -> doc.add(doc(method, normalize(pattern), file, summary(), comment)));
       }
     }
 

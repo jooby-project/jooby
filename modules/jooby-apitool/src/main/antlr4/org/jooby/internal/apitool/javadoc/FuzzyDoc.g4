@@ -10,8 +10,8 @@ use:
    | doc=DOC 'use' '(' pattern=STRING comma+=',';
 
 path:
-      doc=DOC 'path' '(' pattern=STRING ',' '(' ')' '->' scripts
-    | doc=DOC 'path' '(' pattern=STRING ')' scripts;
+      doc=DOC? 'path' '(' pattern=STRING ',' '(' ')' '->' scripts
+    | doc=DOC? 'path' '(' pattern=STRING ')' scripts;
 
 route: doc=DOC 'route' '(' pattern=STRING ')' scripts;
 
@@ -37,7 +37,8 @@ script:
       | doc=DOC dot='.'? method=METHOD '(' '(' ')' scriptBody
       | doc=DOC dot='.'? method=METHOD '(' '(' 'req' ')' scriptBody
       | doc=DOC dot='.'? method=METHOD '(' '(' 'req' ',' 'rsp' ')' scriptBody
-      | doc=DOC dot='.'? method=METHOD '(' '(' 'req' ',' 'rsp' ',' 'chain' ')' scriptBody;
+      | doc=DOC dot='.'? method=METHOD '(' '(' 'req' ',' 'rsp' ',' 'chain' ')' scriptBody
+      | path;
 
 scriptBody:
       '->' '{' (scriptBody | .)*? '}' ')'

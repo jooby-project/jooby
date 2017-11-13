@@ -1,7 +1,5 @@
 package org.jooby.apitool;
 
-import apps.Tag;
-import apps.VarApp;
 import org.junit.Test;
 import parser.CommonPathApp;
 

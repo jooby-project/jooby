@@ -228,7 +228,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
-import com.typesafe.config.ConfigValueFactory;
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import static java.util.Objects.requireNonNull;
 import static org.jooby.Route.CONNECT;
@@ -289,7 +288,6 @@ import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 import javax.net.ssl.SSLContext;
 import java.io.File;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -305,6 +303,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -883,7 +882,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   private transient List<Jooby> apprefs;
 
-  private transient String path;
+  private transient LinkedList<String> path = new LinkedList<>();
 
   private transient String confname;
 
@@ -912,21 +911,28 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Collection path(String path, Runnable action) {
-    this.path = Route.normalize(path);
+    this.path.addLast(Route.normalize(path));
     Route.Collection collection = with(action);
-    this.path = null;
+    this.path.removeLast();
     return collection;
   }
 
   @Override
   public Jooby use(final Jooby app) {
-    return use(Optional.ofNullable(path), app);
+    return use(prefixPath(null), app);
+  }
+
+  private Optional<String> prefixPath(String tail) {
+    return path.size() == 0
+        ? tail == null ? Optional.empty() : Optional.of(Route.normalize(tail))
+        : Optional.of(path.stream()
+        .collect(Collectors.joining("", "", tail == null
+            ? "" : Route.normalize(tail))));
   }
 
   @Override
   public Jooby use(final String path, final Jooby app) {
-    return use(Optional.of(Optional.ofNullable(this.path).map(p -> p + '/').orElse("") + path),
-        app);
+    return use(prefixPath(path), app);
   }
 
   /**
@@ -1935,7 +1941,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Collection use(final Class<?> routeClass) {
-      return use("", routeClass);
+    return use("", routeClass);
   }
 
   @Override
@@ -1956,7 +1962,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return The same route definition.
    */
   private Route.Definition appendDefinition(String method, String pattern, Route.Filter filter) {
-    String pathPattern = this.path == null ? pattern : this.path + "/" + pattern;
+    String pathPattern = prefixPath(pattern).orElse(pattern);
     Route.Definition route = new Route.Definition(method, pathPattern, filter,
         caseSensitiveRouting);
     if (prefix != null) {
