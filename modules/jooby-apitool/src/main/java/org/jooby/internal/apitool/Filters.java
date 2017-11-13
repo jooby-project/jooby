@@ -263,7 +263,8 @@ class Filters {
   }
 
   @SuppressWarnings("rawtypes")
-  public static Predicate<MethodInsnNode> call(final ClassLoader loader,final String owner, final String name,
+  public static Predicate<MethodInsnNode> call(final ClassLoader loader, final String owner,
+      final String name,
       final Object... args) {
     return is(MethodInsnNode.class).and(m -> {
       return new Signature(loader, owner, name, args).matches(m);
@@ -294,11 +295,14 @@ class Filters {
 
   public static Predicate<MethodInsnNode> use(final ClassLoader loader, final String owner) {
     Signature use = new Signature(loader, owner, "use", Class.class);
+    Signature usepath = new Signature(loader, owner, "use", String.class, Class.class);
     Signature kuse = new Signature(loader, owner, "use", "kotlin.reflect.KClass");
-    return is(MethodInsnNode.class).and(m -> use.matches(m) || kuse.matches(m));
+    Signature kusepath = new Signature(loader, owner, "use", String.class, "kotlin.reflect.KClass");
+    return is(MethodInsnNode.class)
+        .and(m -> use.matches(m) || usepath.matches(m) || kuse.matches(m) || kusepath.matches(m));
   }
 
-  public static Predicate<MethodInsnNode> path(final ClassLoader loader,final String owner) {
+  public static Predicate<MethodInsnNode> path(final ClassLoader loader, final String owner) {
     Signature path = new Signature(loader, owner, "path", String.class, Runnable.class);
     return is(MethodInsnNode.class).and(m -> path.matches(m));
   }

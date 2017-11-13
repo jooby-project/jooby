@@ -502,18 +502,7 @@ public class BytecodeRouteParser {
           result.addAll(pathOperator(owner, owner.methods, it));
         })
         // use(Mvc class)
-        .on(use(loader, owner.name), it -> {
-          log.debug("found mvc: " + it);
-          it.prev()
-              .filter(is(LdcInsnNode.class))
-              .findFirst()
-              .map(LdcInsnNode.class::cast)
-              .filter(ldc -> ldc.cst instanceof Type)
-              .map(ldc -> ((Type) ldc.cst).getClassName())
-              .ifPresent(mvcClass ->
-                  mvcRoutes((Class) loadType(loader, mvcClass), result::add)
-              );
-        })
+        .on(use(loader, owner.name), it -> mvc(it, result::add))
         // use(new App());
         .on(mount(loader, owner.name), it -> {
           log.debug("found mount: " + it);
@@ -597,13 +586,16 @@ public class BytecodeRouteParser {
     }
   }
 
-  private void mvcRoutes(final Class type, Consumer<RouteMethod> callback) {
+  private void mvcRoutes(String path, final Class type, Consumer<RouteMethod> callback) {
     Env env = Env.DEFAULT.build(ConfigFactory.empty()
         .withValue("application.env", ConfigValueFactory.fromAnyRef("dev")));
     MvcRoutes.routes(env, new RouteMetadata(env), "", true, type)
         .forEach(r -> {
           RouteMethod method = toRouteMethod(r);
           javadoc(method, javadoc.pop(type.getName(), r.method(), r.pattern()));
+          if (path.length() >0) {
+            method.pattern(Route.normalize(path) + method.pattern());
+          }
           callback.accept(method);
         });
   }
@@ -687,17 +679,7 @@ public class BytecodeRouteParser {
               });
         })
         // use(Mvc class)
-        .on(use(loader, "org.jooby.Kooby"), it -> {
-          it.prev()
-              .filter(is(LdcInsnNode.class))
-              .findFirst()
-              .map(LdcInsnNode.class::cast)
-              .filter(ldc -> ldc.cst instanceof Type)
-              .map(ldc -> ((Type) ldc.cst).getClassName())
-              .ifPresent(mvcClass ->
-                  mvcRoutes((Class) loadType(loader, mvcClass), result::add)
-              );
-        })
+        .on(use(loader, "org.jooby.Kooby"), it -> mvc(it, result::add))
         // route ("...") {...}
         .on(call(loader, "org.jooby.Kooby", "route", String.class,
             "kotlin.jvm.functions.Function1"), it -> {
@@ -746,6 +728,30 @@ public class BytecodeRouteParser {
         })
         .forEach();
     return result;
+  }
+
+  private void mvc(Insn<MethodInsnNode> it, Consumer<Object> consumer) {
+    log.debug("found mvc {}", it);
+    it.prev()
+        .filter(is(LdcInsnNode.class))
+        .findFirst()
+        .map(LdcInsnNode.class::cast)
+        .filter(ldc -> ldc.cst instanceof Type)
+        .ifPresent(ldc -> {
+          String arg0 = Type.getArgumentTypes(it.node.desc)[0].getClassName();
+          String prefix = "";
+          if (arg0.equals(String.class.getName())) {
+            prefix = new Insn<>(it.method, ldc.getPrevious())
+                .prev()
+                .filter(is(LdcInsnNode.class))
+                .findFirst()
+                .map(LdcInsnNode.class::cast)
+                .map(n -> n.cst.toString())
+                .orElse("");
+          }
+          String mvcClass = ((Type) ldc.cst).getClassName();
+          mvcRoutes(prefix, (Class) loadType(loader, mvcClass), consumer::accept);
+        });
   }
 
   private List<Object> kotlinLambda(final ClassLoader loader, final ClassNode owner) {
@@ -1200,7 +1206,8 @@ public class BytecodeRouteParser {
     }
 
     public java.lang.reflect.Type type() {
-      if (status != null && status == 204 && forwarding.getTypeName().equals(Result.class.getName())) {
+      if (status != null && status == 204 && forwarding.getTypeName()
+          .equals(Result.class.getName())) {
         return void.class;
       }
       return forwarding;

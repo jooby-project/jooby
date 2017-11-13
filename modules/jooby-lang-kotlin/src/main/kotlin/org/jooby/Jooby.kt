@@ -217,6 +217,10 @@ open class Kooby constructor(): Jooby() {
     return use(klass.java)
   }
 
+  fun <T:Any> use(path: String, klass: KClass<T>): Route.Collection {
+    return use(path, klass.java)
+  }
+
   fun <T:Session.Store> session(klass: KClass<T>): Session.Definition {
     return session(klass.java)
   }
