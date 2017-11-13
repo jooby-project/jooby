@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
-  <version>1.2.2</version>
+  <version>1.2.3</version>
   <packaging>pom</packaging>
   <name>jooby-bom</name>
   <description>Jooby (Bill of Materials)</description>
   <url>https://github.com/jooby-project/jooby</url>
   <properties>
-  <jooby.version>1.2.2</jooby.version>
+  <jooby.version>1.2.3</jooby.version>
   <funzy.version>0.1.0</funzy.version>
   <jackson.version>2.9.2</jackson.version>
   <undertow.version>1.4.20.Final</undertow.version>

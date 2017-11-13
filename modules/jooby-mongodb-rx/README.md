@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-mongodb-rx/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-mongodb-rx)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-mongodb-rx.svg)](https://javadoc.io/doc/org.jooby/jooby-mongodb-rx/1.2.2)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-mongodb-rx.svg)](https://javadoc.io/doc/org.jooby/jooby-mongodb-rx/1.2.3)
 [![jooby-mongodb-rx website](https://img.shields.io/badge/jooby-mongodb-rx-brightgreen.svg)](http://jooby.org/doc/mongodb-rx)
 # mongodb-rx
 
@@ -16,7 +16,7 @@ A MongoDB based driver providing support for <a href="http://reactivex.io">React
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-mongodb-rx</artifactId>
- <version>1.2.2</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 

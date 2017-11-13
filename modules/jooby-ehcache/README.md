@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ehcache/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ehcache)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-ehcache.svg)](https://javadoc.io/doc/org.jooby/jooby-ehcache/1.2.2)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-ehcache.svg)](https://javadoc.io/doc/org.jooby/jooby-ehcache/1.2.3)
 [![jooby-ehcache website](https://img.shields.io/badge/jooby-ehcache-brightgreen.svg)](http://jooby.org/doc/ehcache)
 # ehcache
 
@@ -16,7 +16,7 @@ Provides advanced cache features via [Ehcache](http://ehcache.org)
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ehcache</artifactId>
-  <version>1.2.2</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 
@@ -120,7 +120,7 @@ Please note the ```default``` cache works as a template and isn't a real/usable 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ehcache</artifactId>
-  <version>1.2.2</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 

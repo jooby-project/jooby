@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-elasticsearch/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-elasticsearch)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-elasticsearch.svg)](https://javadoc.io/doc/org.jooby/jooby-elasticsearch/1.2.2)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-elasticsearch.svg)](https://javadoc.io/doc/org.jooby/jooby-elasticsearch/1.2.3)
 [![jooby-elasticsearch website](https://img.shields.io/badge/jooby-elasticsearch-brightgreen.svg)](http://jooby.org/doc/elasticsearch)
 # elasticsearch
 
@@ -15,7 +15,7 @@ Open Source, Distributed, RESTful Search Engine via [Elastic Search](https://git
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-elasticsearch</artifactId>
-  <version>1.2.2</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 

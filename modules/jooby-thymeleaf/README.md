@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-thymeleaf/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-thymeleaf)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-thymeleaf.svg)](https://javadoc.io/doc/org.jooby/jooby-thymeleaf/1.2.2)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-thymeleaf.svg)](https://javadoc.io/doc/org.jooby/jooby-thymeleaf/1.2.3)
 [![jooby-thymeleaf website](https://img.shields.io/badge/jooby-thymeleaf-brightgreen.svg)](http://jooby.org/doc/thymeleaf)
 # thymeleaf
 
@@ -11,7 +11,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-thymeleaf</artifactId>
- <version>1.2.2</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 

@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-clean-css/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-clean-css)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-clean-css.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-clean-css/1.2.2)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-clean-css.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-clean-css/1.2.3)
 [![jooby-assets-clean-css website](https://img.shields.io/badge/jooby-assets-clean-css-brightgreen.svg)](http://jooby.org/doc/assets-clean-css)
 # clean-css
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-clean-css</artifactId>
-  <version>1.2.2</version>
+  <version>1.2.3</version>
   <scope>provided</scope>
 </dependency>
 ```

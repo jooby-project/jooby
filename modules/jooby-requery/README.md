@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-requery/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-requery)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-requery.svg)](https://javadoc.io/doc/org.jooby/jooby-requery/1.2.2)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-requery.svg)](https://javadoc.io/doc/org.jooby/jooby-requery/1.2.3)
 [![jooby-requery website](https://img.shields.io/badge/jooby-requery-brightgreen.svg)](http://jooby.org/doc/requery)
 # requery
 
@@ -15,7 +15,7 @@ Safe, clean and efficient database access via <a href="https://github.com/requer
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-requery</artifactId>
- <version>1.2.2</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 
