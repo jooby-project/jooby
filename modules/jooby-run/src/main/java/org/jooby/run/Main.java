@@ -441,13 +441,15 @@ public class Main {
         Field reffld = appref.getDeclaredField("ref");
         AtomicReference ref = (AtomicReference) reffld.get(null);
         this.app = ref.get();
-        Method started = app.getClass().getMethod("isStarted");
-        Boolean success = (Boolean) started.invoke(this.app);
-        if (success) {
-          debug("started: %s", alias);
-        } else {
-          debug("not started: %s", alias);
-          System.exit(1);
+        if (this.app != null) {
+          Method started = app.getClass().getMethod("isStarted");
+          Boolean success = (Boolean) started.invoke(this.app);
+          if (success) {
+            debug("started: %s", alias);
+          } else {
+            debug("not started: %s", alias);
+            System.exit(1);
+          }
         }
       } catch (Throwable ex) {
         Throwable cause = ex;
