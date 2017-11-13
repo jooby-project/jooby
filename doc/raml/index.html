@@ -3,15 +3,15 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby: raml module</title> 
+  <title>jooby:  module</title> 
   <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, raml"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, "> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: raml module"> 
-  <meta name="og:description" content="RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifecycle from design to sharing"> 
+  <meta name="og:description" content="Scalable, fast and modular micro web framework for Java"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifecycle from design to sharing"> 
+  <meta name="twitter:description" content="Scalable, fast and modular micro web framework for Java"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.2" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.3" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -87,58 +87,39 @@
    <div class="section-title"> 
     <div class="row"> 
      <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
-     <h1>raml</h1> 
+     <h1></h1> 
     </div> 
    </div> 
    <div class="row"> 
     <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
-     <div class="show-mobile menu-open">
-      raml
-     </div> 
+     <div class="show-mobile menu-open"></div> 
      <ul> 
-      <li class="active"> <a href="#raml">raml</a>
-       <ul> 
-        <li> <a href="#raml-exports">exports</a></li> 
-        <li> <a href="#raml-dependency">dependency</a></li> 
-        <li> <a href="#raml-usage">usage</a></li> 
-        <li> <a href="#raml-options">options</a></li> 
-        <li> <a href="#raml-live-demo">live demo</a></li>
-       </ul></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
-     <div class="datalist" id="raml"> 
-      <div class="datalist-title active"> 
-       <h2>raml</h2> 
+     <h3>exports</h3> 
+     <ul> 
+      <li><code class="highlighter-rouge codehilite">/raml</code> route with <a href="https://github.com/mulesoft/api-console" target="_blank">api-console</a></li> 
+      <li><code class="highlighter-rouge codehilite">/raml/api.raml</code> route</li> 
+     </ul> 
+     <h3>dependency</h3> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
       </div> 
-      <div class="datalist-content"> 
-       <p>RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifecycle from design to sharing. It’s concise - you only write what you need to define - and reusable. It is machine readable API design that is actually human friendly. More at <a href="http://raml.org/" target="_blank">http://raml.org</a></p> 
-       <blockquote> 
-        <p>NOTE: This module depends on <a href="/doc/spec/spec.html">route spec</a>, please read the <a href="/doc/spec/spec.html">route spec</a> documentation to learn how to write powerful APIs.</p> 
-       </blockquote> 
-       <h3 id="raml-exports">exports</h3> 
-       <ul> 
-        <li><code class="highlighter-rouge codehilite">/raml</code> route with <a href="https://github.com/mulesoft/api-console" target="_blank">api-console</a></li> 
-        <li><code class="highlighter-rouge codehilite">/raml/api.raml</code> route</li> 
-       </ul> 
-       <h3 id="raml-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+      <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-raml<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.2.2<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.2.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
-       </div> 
-       <h3 id="raml-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
+     </div> 
+     <h3>usage</h3> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
+      <pre class="highlight"><code><span class="o">{</span>
   <span class="c1">// define your API... via script or MVC:</span>
   <span class="cm">/**</span>
    <span class="cm">* </span>
@@ -162,13 +143,13 @@
 
 <span class="o">}</span>
 </code></pre> 
-       </div> 
-       <p>Now the <code class="highlighter-rouge codehilite">jooby:spec</code> maven plugin:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
+     </div> 
+     <p>Now the <code class="highlighter-rouge codehilite">jooby:spec</code> maven plugin:</p> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
+      <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;executions&gt;</span>
@@ -180,36 +161,36 @@
   <span class="nt">&lt;/executions&gt;</span>
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre> 
-       </div> 
-       <p>Start your app and try:</p> 
-       <ul> 
-        <li>The <a href="https://github.com/mulesoft/api-console" target="_blank">api-console</a> at <code class="highlighter-rouge codehilite">/raml</code></li> 
-        <li>The <code class="highlighter-rouge codehilite">.raml</code> file at <code class="highlighter-rouge codehilite">/raml/api.raml</code></li> 
-       </ul> 
-       <h3 id="raml-options">options</h3> 
-       <p>There are a few options available, let’s see what they are:</p> 
-       <h4 id="raml-path">path</h4> 
-       <p>The <code class="highlighter-rouge codehilite">path</code> option controls where to mount the <a href="http://raml.org" target="_blank">RAML</a> routes:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
+     </div> 
+     <p>Start your app and try:</p> 
+     <ul> 
+      <li>The <a href="https://github.com/mulesoft/api-console" target="_blank">api-console</a> at <code class="highlighter-rouge codehilite">/raml</code></li> 
+      <li>The <code class="highlighter-rouge codehilite">.raml</code> file at <code class="highlighter-rouge codehilite">/raml/api.raml</code></li> 
+     </ul> 
+     <h3>options</h3> 
+     <p>There are a few options available, let’s see what they are:</p> 
+     <h4>path</h4> 
+     <p>The <code class="highlighter-rouge codehilite">path</code> option controls where to mount the <a href="http://raml.org" target="_blank">RAML</a> routes:</p> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
+      <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
   <span class="k">new</span> <span class="n">Raml</span><span class="o">(</span><span class="s">"docs"</span><span class="o">).</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 
 <span class="o">}</span>
 </code></pre> 
-       </div> 
-       <p>Produces: <code class="highlighter-rouge codehilite">/docs</code> for api-console and <code class="highlighter-rouge codehilite">/docs/api.raml</code>. Default path is: <code class="highlighter-rouge codehilite">/raml</code>.</p> 
-       <h4 id="raml-filter">filter</h4> 
-       <p>The <code class="highlighter-rouge codehilite">filter</code> option controls what is exported to <a href="http://raml.org" target="_blank">RAML</a>:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
+     </div> 
+     <p>Produces: <code class="highlighter-rouge codehilite">/docs</code> for api-console and <code class="highlighter-rouge codehilite">/docs/api.raml</code>. Default path is: <code class="highlighter-rouge codehilite">/raml</code>.</p> 
+     <h4>filter</h4> 
+     <p>The <code class="highlighter-rouge codehilite">filter</code> option controls what is exported to <a href="http://raml.org" target="_blank">RAML</a>:</p> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
+      <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
   <span class="k">new</span> <span class="n">Raml</span><span class="o">()</span>
@@ -219,15 +200,15 @@
     <span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 <span class="o">}</span>
 </code></pre> 
-       </div> 
-       <p>Default filter keeps <code class="highlighter-rouge codehilite">/api/*</code> routes.</p> 
-       <h4 id="raml-noConsole">noConsole</h4> 
-       <p>This option turn off the api-console:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
+     </div> 
+     <p>Default filter keeps <code class="highlighter-rouge codehilite">/api/*</code> routes.</p> 
+     <h4>noConsole</h4> 
+     <p>This option turn off the api-console:</p> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
+      <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
   <span class="k">new</span> <span class="n">Raml</span><span class="o">()</span>
@@ -235,14 +216,14 @@
     <span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 <span class="o">}</span>
 </code></pre> 
-       </div> 
-       <h4 id="raml-theme">theme</h4> 
-       <p>Set the ui-theme for api-console. Available options are <code class="highlighter-rouge codehilite">light</code> and <code class="highlighter-rouge codehilite">dark</code>. Default is: <code class="highlighter-rouge codehilite">light</code>.</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
+     </div> 
+     <h4>theme</h4> 
+     <p>Set the ui-theme for api-console. Available options are <code class="highlighter-rouge codehilite">light</code> and <code class="highlighter-rouge codehilite">dark</code>. Default is: <code class="highlighter-rouge codehilite">light</code>.</p> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
+      <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
   <span class="k">new</span> <span class="n">Raml</span><span class="o">()</span>
@@ -250,16 +231,14 @@
     <span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 <span class="o">}</span>
 </code></pre> 
-       </div> 
-       <h4 id="raml-clientGenerator">clientGenerator</h4> 
-       <p>Shows/hide the client generator button from api-console.</p> 
-       <h4 id="raml-tryIt">tryIt</h4> 
-       <p>Expand/collapse the try it panel from api-console.</p> 
-       <h3 id="raml-live-demo">live demo</h3> 
-       <p>Check out the a live demo for <a href="https://jooby-spec.herokuapp.com/raml" target="_blank">RAML</a>.</p> 
-       <p>Source code available at <a href="https://github.com/jooby-guides/route-spec" target="_blank">github</a></p> 
-      </div> 
      </div> 
+     <h4>clientGenerator</h4> 
+     <p>Shows/hide the client generator button from api-console.</p> 
+     <h4>tryIt</h4> 
+     <p>Expand/collapse the try it panel from api-console.</p> 
+     <h3>live demo</h3> 
+     <p>Check out the a live demo for <a href="https://jooby-spec.herokuapp.com/raml" target="_blank">RAML</a>.</p> 
+     <p>Source code available at <a href="https://github.com/jooby-guides/route-spec" target="_blank">github</a></p> 
     </div> 
    </div> 
   </main> 

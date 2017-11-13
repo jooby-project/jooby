@@ -78,7 +78,7 @@
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.2" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.3" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -106,8 +106,7 @@
         <li> <a href="#conf-env-and-logging-environment">environment</a></li> 
         <li> <a href="#conf-env-and-logging-turning-features-on-or-off">turning features on or off</a></li> 
         <li> <a href="#conf-env-and-logging-special-properties">special properties</a></li> 
-        <li> <a href="#conf-env-and-logging-precedence">precedence</a></li> 
-        <li> <a href="#conf-env-and-logging-logging">logging</a></li>
+        <li> <a href="#conf-env-and-logging-precedence">precedence</a></li>
        </ul></li> 
       <li class=""> <a href="#modules">modules</a>
        <ul> 
@@ -210,8 +209,8 @@
        <ul> 
         <li> <a href="#misc-cors">cors</a></li> 
         <li> <a href="#misc-xss">xss</a></li> 
-        <li> <a href="#misc-jooby-conf">jooby.conf</a></li> 
-        <li> <a href="#misc-mime-properties">mime.properties</a></li>
+        <li> <a href="#misc-mime-properties">mime.properties</a></li> 
+        <li> <a href="#misc-jooby-conf">jooby.conf</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -669,14 +668,7 @@
        </div> 
        <p>First-listed are higher priority.</p> 
        <p>For more details, please refer to the <a href="https://github.com/typesafehub/config" target="_blank">config documentation</a>.</p> 
-       <h3 id="conf-env-and-logging-logging">logging</h3> 
-       <p>Logging is done via <a href="http://logback.qos.ch" target="_blank">logback</a>. Logback bootstrap and configuration is described in detail <a href="http://logback.qos.ch/manual/configuration.html" target="_blank">here</a>.</p> 
-       <p>You will usually find the <code class="highlighter-rouge codehilite">logback.xml</code> file inside the <code class="highlighter-rouge codehilite">conf</code> directory. Also, you can define a <code class="highlighter-rouge codehilite">logback.xml</code> file per <code class="highlighter-rouge codehilite">application.env</code> by appending the <code class="highlighter-rouge codehilite">env</code>. See some examples:</p> 
-       <ul> 
-        <li><code class="highlighter-rouge codehilite">logback.uat.xml</code> when <code class="highlighter-rouge codehilite">application.env = uat</code></li> 
-        <li><code class="highlighter-rouge codehilite">logback.prod.xml</code> when <code class="highlighter-rouge codehilite">application.env = prod</code></li> 
-       </ul> 
-       <p>If the <code class="highlighter-rouge codehilite">logback[.env].xml</code> file isn’t present, <code class="highlighter-rouge codehilite">logback.xml</code> will be used as a fallback.</p> 
+       <p>{{logging.md}}</p> 
       </div> 
      </div> 
      <div class="datalist" id="modules"> 
@@ -4398,268 +4390,6 @@ application.securePort = 8443
         <li><a href="/doc/unbescape">unbescape</a>: XSS escapers via <a href="https://github.com/unbescape/unbescape" target="_blank">unbescape</a></li> 
         <li><a href="/doc/csl">csl</a>: XSS escapers via <a href="https://github.com/coverity/coverity-security-library" target="_blank">coverity-security-library</a></li> 
        </ul> 
-       <h3 id="misc-jooby-conf">jooby.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="c">################################################################################################### </span>
-<span class="c">#! application </span>
-<span class="c">################################################################################################### </span>
-<span class="err">application</span> <span class="err">{</span>
-
-  <span class="c"># environment default is: dev </span>
-  <span class="py">env</span> <span class="p">=</span> <span class="s">dev</span>
-
-  <span class="c"># contains the simple name of package of your application bootstrap class. </span>
-  <span class="c"># For example: com.foo.App -&gt; foo </span>
-  <span class="c"># name = App.class.getPackage().getName().lastSegment() </span>
-  <span class="c"># application namespace, default to app package. set it at runtime </span>
-  <span class="c"># ns = App.class.getPackage().getName() </span>
-  <span class="c"># class = App.class.getName() </span>
-  <span class="c"># tmpdir </span>
-  <span class="py">tmpdir</span> <span class="p">=</span> <span class="s">${java.io.tmpdir}/${application.name}</span>
-
-  <span class="c"># path (a.k.a. as contextPath) </span>
-  <span class="py">path</span> <span class="p">=</span> <span class="s">/</span>
-
-  <span class="c"># localhost </span>
-  <span class="py">host</span> <span class="p">=</span> <span class="s">localhost</span>
-
-  <span class="c"># HTTP ports </span>
-  <span class="py">port</span> <span class="p">=</span> <span class="s">8080</span>
-
-  <span class="c"># uncomment to enabled HTTPS </span>
-  <span class="c"># securePort = 8443 </span>
-  <span class="c"># we do UTF-8 </span>
-  <span class="py">charset</span> <span class="p">=</span> <span class="s">UTF-8</span>
-
-  <span class="c"># date format </span>
-  <span class="py">dateFormat</span> <span class="p">=</span> <span class="s">dd-MMM-yyyy</span>
-
-  <span class="c"># number format, system default. set it at runtime </span>
-  <span class="c"># numberFormat = DecimalFormat.getInstance(${application.lang})).toPattern() </span>
-  <span class="c"># comma separated list of locale using the language tag format. Default to: Locale.getDefault() </span>
-  <span class="c"># lang = Locale.getDefault() </span>
-  <span class="c"># timezone, system default. set it at runtime </span>
-  <span class="c"># tz = ZoneId.systemDefault().getId() </span>
-  <span class="c"># redirect to/force https </span>
-  <span class="c"># example: https://my.domain.com/{0} </span>
-  <span class="py">redirect_https</span> <span class="p">=</span> <span class="s">""</span>
-
-<span class="err">}</span>
-
-<span class="err">ssl</span> <span class="err">{</span>
-
-  <span class="c"># An X.509 certificate chain file in PEM format, provided certificate should NOT be used in prod. </span>
-  <span class="py">keystore.cert</span> <span class="p">=</span> <span class="s">org/jooby/unsecure.crt </span>
-
-  <span class="c"># A PKCS#8 private key file in PEM format, provided key should NOT be used in prod. </span>
-  <span class="py">keystore.key</span> <span class="p">=</span> <span class="s">org/jooby/unsecure.key</span>
-
-  <span class="c"># password of the keystore.key (if any) </span>
-  <span class="c"># keystore.password = </span>
-  <span class="c"># Trusted certificates for verifying the remote endpoint's certificate. The file should </span>
-  <span class="c"># contain an X.509 certificate chain in PEM format. Default uses the system default. </span>
-  <span class="c"># trust.cert = </span>
-  <span class="c"># Set the size of the cache used for storing SSL session objects. 0 to use the </span>
-  <span class="c"># default value. </span>
-  <span class="py">session.cacheSize</span> <span class="p">=</span> <span class="s">0</span>
-
-  <span class="c"># Timeout for the cached SSL session objects, in seconds. 0 to use the default value. </span>
-  <span class="py">session.timeout</span> <span class="p">=</span> <span class="s">0</span>
-
-<span class="err">}</span>
-
-<span class="c">################################################################################################### </span>
-<span class="c">#! session defaults </span>
-<span class="c">################################################################################################### </span>
-<span class="err">session</span> <span class="err">{</span>
-
-  <span class="c"># we suggest a timeout, but usage and an implementation is specific to a Session.Store implementation </span>
-  <span class="py">timeout</span> <span class="p">=</span> <span class="s">30m</span>
-
-  <span class="c"># save interval, how frequently we must save a none-dirty session (in millis). </span>
-  <span class="py">saveInterval</span> <span class="p">=</span> <span class="s">60s</span>
-
-  <span class="err">cookie</span> <span class="err">{</span>
-
-    <span class="c"># name of the cookie </span>
-    <span class="py">name</span> <span class="p">=</span> <span class="s">jooby.sid</span>
-
-    <span class="c"># cookie path </span>
-    <span class="py">path</span> <span class="p">=</span> <span class="s">/</span>
-
-    <span class="c"># expires when the user closes the web browser </span>
-    <span class="py">maxAge</span> <span class="p">=</span> <span class="s">-1</span>
-
-    <span class="py">httpOnly</span> <span class="p">=</span> <span class="s">true</span>
-
-    <span class="py">secure</span> <span class="p">=</span> <span class="s">false</span>
-
-  <span class="err">}</span>
-
-<span class="err">}</span>
-
-<span class="c">################################################################################################### </span>
-<span class="c">#! flash scope defaults </span>
-<span class="c">################################################################################################### </span>
-<span class="err">flash</span> <span class="err">{</span>
-
-  <span class="err">cookie</span> <span class="err">{</span>
-
-    <span class="py">name</span> <span class="p">=</span> <span class="s">jooby.flash</span>
-
-    <span class="py">path</span> <span class="p">=</span> <span class="s">${application.path}</span>
-
-    <span class="py">httpOnly</span> <span class="p">=</span> <span class="s">true</span>
-
-    <span class="py">secure</span> <span class="p">=</span> <span class="s">false</span>
-
-  <span class="err">}</span>
-
-<span class="err">}</span>
-
-<span class="c">################################################################################################### </span>
-<span class="c">#! server defaults </span>
-<span class="c">################################################################################################### </span>
-<span class="err">server</span> <span class="err">{</span>
-
-  <span class="err">http</span> <span class="err">{</span>
-
-    <span class="py">HeaderSize</span> <span class="p">=</span> <span class="s">8k</span>
-
-    <span class="c"># Max response buffer size </span>
-    <span class="py">ResponseBufferSize</span> <span class="p">=</span> <span class="s">16k</span>
-
-    <span class="c"># Max request body size to keep in memory </span>
-    <span class="py">RequestBufferSize</span> <span class="p">=</span> <span class="s">1m</span>
-
-    <span class="c"># Max request size total (body + header) </span>
-    <span class="py">MaxRequestSize</span> <span class="p">=</span> <span class="s">200k</span>
-
-    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">0</span>
-
-    <span class="py">Method</span> <span class="p">=</span> <span class="s">""</span>
-
-  <span class="err">}</span>
-
-  <span class="err">threads</span> <span class="err">{</span>
-
-    <span class="c"># Min = Math.max(4, ${runtime.processors}) </span>
-    <span class="c"># Max = Math.max(32, ${runtime.processors-x8}) </span>
-    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">60s</span>
-
-  <span class="err">}</span>
-
-  <span class="err">routes</span> <span class="err">{</span>
-
-    <span class="c"># Guava Cache Spec </span>
-    <span class="py">Cache</span> <span class="p">=</span> <span class="s">"concurrencyLevel="${runtime.concurrencyLevel}",maximumSize="${server.threads.Max}</span>
-
-  <span class="err">}</span>
-
-  <span class="err">ws</span> <span class="err">{</span>
-
-    <span class="c"># The maximum size of a text message. </span>
-    <span class="py">MaxTextMessageSize</span> <span class="p">=</span> <span class="s">16k</span>
-
-    <span class="c"># The maximum size of a binary message. </span>
-    <span class="py">MaxBinaryMessageSize</span> <span class="p">=</span> <span class="s">16k</span>
-
-    <span class="c"># The time in ms (milliseconds) that a websocket may be idle before closing. </span>
-    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">5minutes</span>
-
-  <span class="err">}</span>
-
-  <span class="err">http2</span> <span class="err">{</span>
-
-    <span class="py">cleartext</span> <span class="p">=</span> <span class="s">true</span>
-
-    <span class="py">enabled</span> <span class="p">=</span> <span class="s">false</span>
-
-  <span class="err">}</span>
-
-<span class="err">}</span>
-
-<span class="c">################################################################################################### </span>
-<span class="c">#! assets </span>
-<span class="c">################################################################################################### </span>
-<span class="err">assets</span> <span class="err">{</span>
-
-  <span class="c">#! If asset CDN is present, the asset router will do a redirect to CDN and wont serve the file locally </span>
-  <span class="c">#! /assets/js/index.js -&gt; redirectTo(cdn + assets/js/index.js) </span>
-  <span class="py">cdn</span> <span class="p">=</span>  <span class="s">""</span>
-
-  <span class="py">etag</span> <span class="p">=</span> <span class="s">true</span>
-
-  <span class="py">lastModified</span> <span class="p">=</span> <span class="s">true</span>
-
-  <span class="py">env</span> <span class="p">=</span> <span class="s">${application.env}</span>
-
-  <span class="py">charset</span> <span class="p">=</span> <span class="s">${application.charset}</span>
-
-  <span class="c"># -1 to disable or HOCON duration value </span>
-  <span class="py">cache.maxAge</span> <span class="p">=</span> <span class="s">-1</span>
-
-<span class="err">}</span>
-
-<span class="c">################################################################################################### </span>
-<span class="c">#! Cross origin resource sharing </span>
-<span class="c">################################################################################################### </span>
-<span class="err">cors</span> <span class="err">{</span>
-
-  <span class="c"># Configures the Access-Control-Allow-Origin CORS header. Possibly values: *, domain, regex or a list of previous values. </span>
-  <span class="c"># Example: </span>
-  <span class="c"># "*" </span>
-  <span class="c"># ["http://foo.com"] </span>
-  <span class="c"># ["http://*.com"] </span>
-  <span class="c"># ["http://foo.com", "http://bar.com"] </span>
-  <span class="py">origin</span><span class="p">:</span> <span class="s">"*"</span>
-
-  <span class="c"># If true, set the Access-Control-Allow-Credentials header </span>
-  <span class="py">credentials</span><span class="p">:</span> <span class="s">true</span>
-
-  <span class="c"># Allowed methods: Set the Access-Control-Allow-Methods header </span>
-  <span class="py">allowedMethods</span><span class="p">:</span> <span class="s">[GET, POST]</span>
-
-  <span class="c"># Allowed headers: set the Access-Control-Allow-Headers header. Possibly values: *, header name or a list of previous values. </span>
-  <span class="c"># Examples </span>
-  <span class="c"># "*" </span>
-  <span class="c"># Custom-Header </span>
-  <span class="c"># [Header-1, Header-2] </span>
-  <span class="py">allowedHeaders</span><span class="p">:</span> <span class="s">[X-Requested-With, Content-Type, Accept, Origin]</span>
-
-  <span class="c"># Preflight max age: number of seconds that preflight requests can be cached by the client </span>
-  <span class="py">maxAge</span><span class="p">:</span> <span class="s">30m</span>
-
-  <span class="c"># Set the Access-Control-Expose-Headers header </span>
-  <span class="c"># exposedHeaders: [] </span>
-<span class="err">}</span>
-
-<span class="c">################################################################################################### </span>
-<span class="c">#! runtime </span>
-<span class="c">################################################################################################### </span>
-<span class="c">#! number of available processors, set it at runtime </span>
-<span class="c">#! runtime.processors = Runtime.getRuntime().availableProcessors() </span>
-<span class="c">#! runtime.processors-plus1 = ${runtime.processors} + 1 </span>
-<span class="c">#! runtime.processors-plus2 = ${runtime.processors} + 2 </span>
-<span class="c">#! runtime.processors-x2 = ${runtime.processors} * 2 </span>
-<span class="c">################################################################################################### </span>
-<span class="c">#! status codes </span>
-<span class="c">################################################################################################### </span>
-<span class="py">err.java.lang.IllegalArgumentException</span> <span class="p">=</span> <span class="s">400</span>
-
-<span class="py">err.java.util.NoSuchElementException</span> <span class="p">=</span> <span class="s">400</span>
-
-<span class="py">err.java.io.FileNotFoundException</span> <span class="p">=</span> <span class="s">404</span>
-
-<span class="c">################################################################################################### </span>
-<span class="c">#! alias </span>
-<span class="c">################################################################################################### </span>
-<span class="py">contextPath</span> <span class="p">=</span> <span class="s">${application.path}</span>
-</code></pre> 
-       </div> 
        <h3 id="misc-mime-properties">mime.properties</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -5060,6 +4790,268 @@ application.securePort = 8443
 <span class="py">mime.map</span><span class="p">=</span><span class="s">text/plain</span>
 
 <span class="py">mime.mp4</span><span class="p">=</span><span class="s">video/mp4</span>
+</code></pre> 
+       </div> 
+       <h3 id="misc-jooby-conf">jooby.conf</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="c">################################################################################################### </span>
+<span class="c">#! application </span>
+<span class="c">################################################################################################### </span>
+<span class="err">application</span> <span class="err">{</span>
+
+  <span class="c"># environment default is: dev </span>
+  <span class="py">env</span> <span class="p">=</span> <span class="s">dev</span>
+
+  <span class="c"># contains the simple name of package of your application bootstrap class. </span>
+  <span class="c"># For example: com.foo.App -&gt; foo </span>
+  <span class="c"># name = App.class.getPackage().getName().lastSegment() </span>
+  <span class="c"># application namespace, default to app package. set it at runtime </span>
+  <span class="c"># ns = App.class.getPackage().getName() </span>
+  <span class="c"># class = App.class.getName() </span>
+  <span class="c"># tmpdir </span>
+  <span class="py">tmpdir</span> <span class="p">=</span> <span class="s">${java.io.tmpdir}/${application.name}</span>
+
+  <span class="c"># path (a.k.a. as contextPath) </span>
+  <span class="py">path</span> <span class="p">=</span> <span class="s">/</span>
+
+  <span class="c"># localhost </span>
+  <span class="py">host</span> <span class="p">=</span> <span class="s">localhost</span>
+
+  <span class="c"># HTTP ports </span>
+  <span class="py">port</span> <span class="p">=</span> <span class="s">8080</span>
+
+  <span class="c"># uncomment to enabled HTTPS </span>
+  <span class="c"># securePort = 8443 </span>
+  <span class="c"># we do UTF-8 </span>
+  <span class="py">charset</span> <span class="p">=</span> <span class="s">UTF-8</span>
+
+  <span class="c"># date format </span>
+  <span class="py">dateFormat</span> <span class="p">=</span> <span class="s">dd-MMM-yyyy</span>
+
+  <span class="c"># number format, system default. set it at runtime </span>
+  <span class="c"># numberFormat = DecimalFormat.getInstance(${application.lang})).toPattern() </span>
+  <span class="c"># comma separated list of locale using the language tag format. Default to: Locale.getDefault() </span>
+  <span class="c"># lang = Locale.getDefault() </span>
+  <span class="c"># timezone, system default. set it at runtime </span>
+  <span class="c"># tz = ZoneId.systemDefault().getId() </span>
+  <span class="c"># redirect to/force https </span>
+  <span class="c"># example: https://my.domain.com/{0} </span>
+  <span class="py">redirect_https</span> <span class="p">=</span> <span class="s">""</span>
+
+<span class="err">}</span>
+
+<span class="err">ssl</span> <span class="err">{</span>
+
+  <span class="c"># An X.509 certificate chain file in PEM format, provided certificate should NOT be used in prod. </span>
+  <span class="py">keystore.cert</span> <span class="p">=</span> <span class="s">org/jooby/unsecure.crt </span>
+
+  <span class="c"># A PKCS#8 private key file in PEM format, provided key should NOT be used in prod. </span>
+  <span class="py">keystore.key</span> <span class="p">=</span> <span class="s">org/jooby/unsecure.key</span>
+
+  <span class="c"># password of the keystore.key (if any) </span>
+  <span class="c"># keystore.password = </span>
+  <span class="c"># Trusted certificates for verifying the remote endpoint's certificate. The file should </span>
+  <span class="c"># contain an X.509 certificate chain in PEM format. Default uses the system default. </span>
+  <span class="c"># trust.cert = </span>
+  <span class="c"># Set the size of the cache used for storing SSL session objects. 0 to use the </span>
+  <span class="c"># default value. </span>
+  <span class="py">session.cacheSize</span> <span class="p">=</span> <span class="s">0</span>
+
+  <span class="c"># Timeout for the cached SSL session objects, in seconds. 0 to use the default value. </span>
+  <span class="py">session.timeout</span> <span class="p">=</span> <span class="s">0</span>
+
+<span class="err">}</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! session defaults </span>
+<span class="c">################################################################################################### </span>
+<span class="err">session</span> <span class="err">{</span>
+
+  <span class="c"># we suggest a timeout, but usage and an implementation is specific to a Session.Store implementation </span>
+  <span class="py">timeout</span> <span class="p">=</span> <span class="s">30m</span>
+
+  <span class="c"># save interval, how frequently we must save a none-dirty session (in millis). </span>
+  <span class="py">saveInterval</span> <span class="p">=</span> <span class="s">60s</span>
+
+  <span class="err">cookie</span> <span class="err">{</span>
+
+    <span class="c"># name of the cookie </span>
+    <span class="py">name</span> <span class="p">=</span> <span class="s">jooby.sid</span>
+
+    <span class="c"># cookie path </span>
+    <span class="py">path</span> <span class="p">=</span> <span class="s">/</span>
+
+    <span class="c"># expires when the user closes the web browser </span>
+    <span class="py">maxAge</span> <span class="p">=</span> <span class="s">-1</span>
+
+    <span class="py">httpOnly</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="py">secure</span> <span class="p">=</span> <span class="s">false</span>
+
+  <span class="err">}</span>
+
+<span class="err">}</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! flash scope defaults </span>
+<span class="c">################################################################################################### </span>
+<span class="err">flash</span> <span class="err">{</span>
+
+  <span class="err">cookie</span> <span class="err">{</span>
+
+    <span class="py">name</span> <span class="p">=</span> <span class="s">jooby.flash</span>
+
+    <span class="py">path</span> <span class="p">=</span> <span class="s">${application.path}</span>
+
+    <span class="py">httpOnly</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="py">secure</span> <span class="p">=</span> <span class="s">false</span>
+
+  <span class="err">}</span>
+
+<span class="err">}</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! server defaults </span>
+<span class="c">################################################################################################### </span>
+<span class="err">server</span> <span class="err">{</span>
+
+  <span class="err">http</span> <span class="err">{</span>
+
+    <span class="py">HeaderSize</span> <span class="p">=</span> <span class="s">8k</span>
+
+    <span class="c"># Max response buffer size </span>
+    <span class="py">ResponseBufferSize</span> <span class="p">=</span> <span class="s">16k</span>
+
+    <span class="c"># Max request body size to keep in memory </span>
+    <span class="py">RequestBufferSize</span> <span class="p">=</span> <span class="s">1m</span>
+
+    <span class="c"># Max request size total (body + header) </span>
+    <span class="py">MaxRequestSize</span> <span class="p">=</span> <span class="s">200k</span>
+
+    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">0</span>
+
+    <span class="py">Method</span> <span class="p">=</span> <span class="s">""</span>
+
+  <span class="err">}</span>
+
+  <span class="err">threads</span> <span class="err">{</span>
+
+    <span class="c"># Min = Math.max(4, ${runtime.processors}) </span>
+    <span class="c"># Max = Math.max(32, ${runtime.processors-x8}) </span>
+    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">60s</span>
+
+  <span class="err">}</span>
+
+  <span class="err">routes</span> <span class="err">{</span>
+
+    <span class="c"># Guava Cache Spec </span>
+    <span class="py">Cache</span> <span class="p">=</span> <span class="s">"concurrencyLevel="${runtime.concurrencyLevel}",maximumSize="${server.threads.Max}</span>
+
+  <span class="err">}</span>
+
+  <span class="err">ws</span> <span class="err">{</span>
+
+    <span class="c"># The maximum size of a text message. </span>
+    <span class="py">MaxTextMessageSize</span> <span class="p">=</span> <span class="s">16k</span>
+
+    <span class="c"># The maximum size of a binary message. </span>
+    <span class="py">MaxBinaryMessageSize</span> <span class="p">=</span> <span class="s">16k</span>
+
+    <span class="c"># The time in ms (milliseconds) that a websocket may be idle before closing. </span>
+    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">5minutes</span>
+
+  <span class="err">}</span>
+
+  <span class="err">http2</span> <span class="err">{</span>
+
+    <span class="py">cleartext</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="py">enabled</span> <span class="p">=</span> <span class="s">false</span>
+
+  <span class="err">}</span>
+
+<span class="err">}</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! assets </span>
+<span class="c">################################################################################################### </span>
+<span class="err">assets</span> <span class="err">{</span>
+
+  <span class="c">#! If asset CDN is present, the asset router will do a redirect to CDN and wont serve the file locally </span>
+  <span class="c">#! /assets/js/index.js -&gt; redirectTo(cdn + assets/js/index.js) </span>
+  <span class="py">cdn</span> <span class="p">=</span>  <span class="s">""</span>
+
+  <span class="py">etag</span> <span class="p">=</span> <span class="s">true</span>
+
+  <span class="py">lastModified</span> <span class="p">=</span> <span class="s">true</span>
+
+  <span class="py">env</span> <span class="p">=</span> <span class="s">${application.env}</span>
+
+  <span class="py">charset</span> <span class="p">=</span> <span class="s">${application.charset}</span>
+
+  <span class="c"># -1 to disable or HOCON duration value </span>
+  <span class="py">cache.maxAge</span> <span class="p">=</span> <span class="s">-1</span>
+
+<span class="err">}</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! Cross origin resource sharing </span>
+<span class="c">################################################################################################### </span>
+<span class="err">cors</span> <span class="err">{</span>
+
+  <span class="c"># Configures the Access-Control-Allow-Origin CORS header. Possibly values: *, domain, regex or a list of previous values. </span>
+  <span class="c"># Example: </span>
+  <span class="c"># "*" </span>
+  <span class="c"># ["http://foo.com"] </span>
+  <span class="c"># ["http://*.com"] </span>
+  <span class="c"># ["http://foo.com", "http://bar.com"] </span>
+  <span class="py">origin</span><span class="p">:</span> <span class="s">"*"</span>
+
+  <span class="c"># If true, set the Access-Control-Allow-Credentials header </span>
+  <span class="py">credentials</span><span class="p">:</span> <span class="s">true</span>
+
+  <span class="c"># Allowed methods: Set the Access-Control-Allow-Methods header </span>
+  <span class="py">allowedMethods</span><span class="p">:</span> <span class="s">[GET, POST]</span>
+
+  <span class="c"># Allowed headers: set the Access-Control-Allow-Headers header. Possibly values: *, header name or a list of previous values. </span>
+  <span class="c"># Examples </span>
+  <span class="c"># "*" </span>
+  <span class="c"># Custom-Header </span>
+  <span class="c"># [Header-1, Header-2] </span>
+  <span class="py">allowedHeaders</span><span class="p">:</span> <span class="s">[X-Requested-With, Content-Type, Accept, Origin]</span>
+
+  <span class="c"># Preflight max age: number of seconds that preflight requests can be cached by the client </span>
+  <span class="py">maxAge</span><span class="p">:</span> <span class="s">30m</span>
+
+  <span class="c"># Set the Access-Control-Expose-Headers header </span>
+  <span class="c"># exposedHeaders: [] </span>
+<span class="err">}</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! runtime </span>
+<span class="c">################################################################################################### </span>
+<span class="c">#! number of available processors, set it at runtime </span>
+<span class="c">#! runtime.processors = Runtime.getRuntime().availableProcessors() </span>
+<span class="c">#! runtime.processors-plus1 = ${runtime.processors} + 1 </span>
+<span class="c">#! runtime.processors-plus2 = ${runtime.processors} + 2 </span>
+<span class="c">#! runtime.processors-x2 = ${runtime.processors} * 2 </span>
+<span class="c">################################################################################################### </span>
+<span class="c">#! status codes </span>
+<span class="c">################################################################################################### </span>
+<span class="py">err.java.lang.IllegalArgumentException</span> <span class="p">=</span> <span class="s">400</span>
+
+<span class="py">err.java.util.NoSuchElementException</span> <span class="p">=</span> <span class="s">400</span>
+
+<span class="py">err.java.io.FileNotFoundException</span> <span class="p">=</span> <span class="s">404</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c">#! alias </span>
+<span class="c">################################################################################################### </span>
+<span class="py">contextPath</span> <span class="p">=</span> <span class="s">${application.path}</span>
 </code></pre> 
        </div> 
       </div> 
