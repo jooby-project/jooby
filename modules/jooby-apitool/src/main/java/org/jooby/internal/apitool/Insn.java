@@ -208,6 +208,10 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.util.ASMifier;
+import org.objectweb.asm.util.Printer;
+import org.objectweb.asm.util.Textifier;
+import org.objectweb.asm.util.TraceMethodVisitor;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -262,6 +266,13 @@ class Insn<T extends AbstractInsnNode> {
   public Stream<AbstractInsnNode> next() {
     return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new NodeIterator(node,
         AbstractInsnNode::getNext), Spliterator.ORDERED), false);
+  }
+
+  @Override public String toString() {
+    Printer printer = new ASMifier();
+    TraceMethodVisitor visitor = new TraceMethodVisitor(printer);
+    node.accept(visitor);
+    return printer.getText().toString();
   }
 
   public static AbstractInsnNode first(AbstractInsnNode node) {

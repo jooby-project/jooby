@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-lang-kotlin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-lang-kotlin)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-lang-kotlin.svg)](https://javadoc.io/doc/org.jooby/jooby-lang-kotlin/1.2.3)
+[![jooby-lang-kotlin website](https://img.shields.io/badge/jooby-lang-kotlin-brightgreen.svg)](http://jooby.org/doc/lang-kotlin)
 # kotlin
 
 A tiny module that makes a Jooby application more Kotlin idiomatic.
@@ -8,15 +11,32 @@ A tiny module that makes a Jooby application more Kotlin idiomatic.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-lang-kotlin</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 
 ## usage
 
+via Kooby class (preferred):
+
+```kt
+
+import org.jooby.*
+
+Class App: Kooby({
+  get {
+    "Hello Kotlin"
+  }
+})
+
+fun main(args: Array<String>) {
+  run(::App, *args)
+}
+```
+
 via run function:
 
-```java
+```kt
 
 import org.jooby.*
 
@@ -32,23 +52,6 @@ fun main(args: Array<String>) {
 
 The `run` function is a [type-safe builder](http://kotlinlang.org/docs/reference/type-safe-builders.html) that initializes, configures and executes a [Jooby](http://jooby.org) application.
 
-via Kooby class:
-
-```java
-
-import org.jooby.*
-
-Class App: Kooby({
-  get {
-    "Hello Kotlin"
-  }
-})
-
-fun main(args: Array<String>) {
-  run(::App, *args)
-}
-```
-
 ## idioms
 
 
@@ -57,7 +60,7 @@ fun main(args: Array<String>) {
 Access to the [request](/apidocs/org/jooby/Request.html) is available via a **request callback**:
 
 ```java
-run(*args) {
+{
   get("/:name") {req ->
     val name = req.param("name").value
     "Hi $name!"
@@ -68,7 +71,7 @@ run(*args) {
 The **request** idiom gives you implicit access to the [request](/apidocs/org/jooby/Request.html) object. The previous example can be written as:
 
 ```java
-run(*args) {
+{
   get("/:name") {
     val name = param("name").value
     "Hi $name!"
@@ -79,7 +82,7 @@ run(*args) {
 Reified `param`, `header`, `body` calls:
 
 ```java
-run(*args) {
+{
   get("/:name") {
     val count = param<Int>("count")
     count
@@ -92,24 +95,24 @@ run(*args) {
 }
 ```
 
-### route group
+### path group
 
 This idiom allows grouping one or more routes under a common `path`:
 
 ```java
-run(*args) {
+{
 
-  route("/api/pets") {
+  path("/api/pets") {
 
-    get {-> 
+    get { 
       // List all pets
     }
 
-    get("/:id") {-> 
+    get("/:id") { 
       // Get a Pet by ID
     }
 
-    post {-> 
+    post {
       // Create a new Pet
     }
   }
@@ -123,7 +126,7 @@ run(*args) {
 Example 1: Register a `MVC routes`
 
 ```java
-run(*args) {
+{
   use(Pets::class)
 }
 ```
@@ -131,13 +134,12 @@ run(*args) {
 Example 2: Get an application service:
 
 ```java
-run(*args) {
+{
 
   get("/query") {
     val db = require(MyDatabase::class)
     db.list()
   }
-
 }
 ```
 
@@ -154,15 +156,17 @@ import org.jooby.json.*
 
 data class User(val name: String, val age: Int)
 
-fun main(args: Array<String>) {
-  run(*args) {
+class App: Kooby({
+  use(Jackson())
 
-    use(Jackson())
-
-    get("/user") {
-      User("Pedro", 42)
-    }
+  get("/user") {
+    User("Pedro", 42)
   }
+
+})
+
+fun main(args: Array<String>) {
+  run(::App, *args)
 }
 
 ```
@@ -195,6 +199,6 @@ fun main(args: Array<String>) {
 
 ## starter project
 
-[Jooby](http://jooby.org) provides a [kotlin-starter](https://github.com/jooby-project/kotlin-starter) project. Go and [fork it](https://github.com/jooby-project/kotlin-starter).
+We do provide a [kotlin-starter](https://github.com/jooby-project/kotlin-starter) demo project.
 
 That's all folks!

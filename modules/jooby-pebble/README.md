@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-pebble/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-pebble)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-pebble.svg)](https://javadoc.io/doc/org.jooby/jooby-pebble/1.2.3)
+[![jooby-pebble website](https://img.shields.io/badge/jooby-pebble-brightgreen.svg)](http://jooby.org/doc/pebble)
 # pebble
 
 <a href="http://www.mitchellbosecke.com/pebble">Pebble</a> a lightweight but rock solid Java templating engine.
@@ -13,7 +16,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-pebble</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 

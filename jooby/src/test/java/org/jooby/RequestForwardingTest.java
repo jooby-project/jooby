@@ -763,10 +763,10 @@ public class RequestForwardingTest {
 
   @Test
   public void flash() throws Exception {
-    new MockUnit(Request.class, Map.class)
+    new MockUnit(Request.class, Map.class, Request.Flash.class)
         .expect(unit -> {
           Request req = unit.get(Request.class);
-          expect(req.flash()).andReturn(Collections.emptyMap());
+          expect(req.flash()).andReturn(unit.get(Request.Flash.class));
         })
         .run(unit -> {
           new Request.Forwarding(unit.get(Request.class)).flash();

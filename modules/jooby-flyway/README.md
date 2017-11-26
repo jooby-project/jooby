@@ -1,8 +1,13 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-flyway/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-flyway)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-flyway.svg)](https://javadoc.io/doc/org.jooby/jooby-flyway/1.2.3)
+[![jooby-flyway website](https://img.shields.io/badge/jooby-flyway-brightgreen.svg)](http://jooby.org/doc/flyway)
 # flyway
 
 Evolve your Database Schema easily and reliably across all your instances.
 
 This module run [Flyway](http://flywaydb.org) on startup and apply database migration.
+
+> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module so all the services provided by the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
 
 ## dependency
 
@@ -10,17 +15,11 @@ This module run [Flyway](http://flywaydb.org) on startup and apply database migr
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-flyway</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 
 ## usage
-
-```properties
-flyway.url = ...
-flyway.user = ...
-flyway.password = ...
-```
 
 ```java
 {
@@ -32,18 +31,13 @@ flyway.password = ...
 
 If for any reason you need to maintain two or more databases:
 
-```properties
-flyway.db1.url = "..."
-flyway.db1.locations = db1/migration
-
-flyway.db2.url = "..."
-flyway.db2.locations = db2/migration
-```
-
 ```java
 {
-  use(new Flywaydb("flyway.db1"));
-  use(new Flywaydb("flyway.db2"));
+  use(new Jdbc("db1"));
+  use(new Flywaydb("db1"));
+
+  use(new Jdbc("db2"));
+  use(new Flywaydb("db2"));
 }
 ```
 

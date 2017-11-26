@@ -267,6 +267,7 @@ import com.typesafe.config.ConfigFactory;
  * @author edgar
  * @since 0.15.0
  */
+@Deprecated
 public class RouteProcessor {
 
   /** SKIP MVC parameters of type: */

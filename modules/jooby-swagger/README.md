@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-swagger/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-swagger)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-swagger.svg)](https://javadoc.io/doc/org.jooby/jooby-swagger/1.2.3)
+[![jooby-swagger website](https://img.shields.io/badge/jooby-swagger-brightgreen.svg)](http://jooby.org/doc/swagger)
 ## exports
 
 * ```/swagger``` rout with SwaggerUI
@@ -10,7 +13,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-swagger</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 

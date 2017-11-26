@@ -265,7 +265,6 @@ public class JoobyProject {
     Configuration provided = project.getConfigurations().findByName("provided");
     if (provided != null) {
       provided.getFiles().forEach(cp::add);
-      ;
     }
 
     return cp;
@@ -278,8 +277,8 @@ public class JoobyProject {
     // conf & public
     sourceSet.getResources().getSrcDirs().forEach(src::add);
 
-    // source java
-    sourceSet.getJava().getSrcDirs().forEach(src::add);
+    // source java: always add parent file: should be src/main
+    sourceSet.getJava().getSrcDirs().forEach(f -> src.add(f.getParentFile()));
 
     return src;
   }

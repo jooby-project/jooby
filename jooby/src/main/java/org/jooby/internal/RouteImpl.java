@@ -258,7 +258,8 @@ public class RouteImpl implements RouteWithFilter {
         if (((MvcHandler) filter).method().getReturnType() == void.class) {
           this.filter = filter;
         } else {
-          this.filter = new MappedHandler((req, rsp) -> ((MvcHandler) filter).invoke(req, rsp),
+          this.filter = new MappedHandler((req, rsp, chain) -> ((MvcHandler) filter).invoke(req, rsp,
+              chain),
             mapper);
         }
       } else {

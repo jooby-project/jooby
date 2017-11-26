@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-livereload/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-livereload)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-livereload.svg)](https://javadoc.io/doc/org.jooby/jooby-livereload/1.2.3)
+[![jooby-livereload website](https://img.shields.io/badge/jooby-livereload-brightgreen.svg)](http://jooby.org/doc/livereload)
 # liveReload
 
 <a href="http://livereload.com">LiveReload</a> monitors changes in the file system. As soon as you save a file, it is preprocessed as needed, and the browser is refreshed.
@@ -15,7 +18,7 @@ Even cooler, when you change a CSS file or an image, the browser is updated inst
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-livereload</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 

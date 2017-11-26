@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-undertow/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-undertow)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-undertow.svg)](https://javadoc.io/doc/org.jooby/jooby-undertow/1.2.3)
+[![jooby-undertow website](https://img.shields.io/badge/jooby-undertow-brightgreen.svg)](http://jooby.org/doc/undertow)
 # undertow
 
 [Undertow](http://undertow.io/) is a flexible performant web server written in java, providing both blocking and non-blocking API’s based on NIO.
@@ -12,7 +15,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-undertow</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 

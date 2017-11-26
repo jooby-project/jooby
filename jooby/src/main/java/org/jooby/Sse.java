@@ -216,6 +216,7 @@ import org.jooby.funzy.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
@@ -737,6 +738,7 @@ public abstract class Sse implements AutoCloseable {
    *
    * @return Sse unique ID (like a session ID).
    */
+  @Nonnull
   public String id() {
     return id;
   }
@@ -746,6 +748,7 @@ public abstract class Sse implements AutoCloseable {
    *
    * @return Last event id.
    */
+  @Nonnull
   public Optional<String> lastEventId() {
     return lastEventId(String.class);
   }
@@ -757,6 +760,7 @@ public abstract class Sse implements AutoCloseable {
    * @param <T> Event id type.
    * @return Last event id.
    */
+  @Nonnull
   public <T> Optional<T> lastEventId(final Class<T> type) {
     return lastEventId.toOptional(type);
   }
@@ -768,6 +772,7 @@ public abstract class Sse implements AutoCloseable {
    * @param task Task to run.
    * @return This instance.
    */
+  @Nonnull
   public Sse onClose(final Throwing.Runnable task) {
     onclose.set(task);
     return this;
@@ -791,12 +796,12 @@ public abstract class Sse implements AutoCloseable {
    * }</pre>
    *
    * The <code>id</code> of the success callback correspond to the {@link Event#id()}.
-   * }</pre>
    *
    * @param data Event data.
    * @param type Media type, like: json, xml.
    * @return A future. The success callback contains the {@link Event#id()}.
    */
+  @Nonnull
   public CompletableFuture<Optional<Object>> send(final Object data, final String type) {
     return send(data, MediaType.valueOf(type));
   }
@@ -824,6 +829,7 @@ public abstract class Sse implements AutoCloseable {
    * @param type Media type, like: json, xml.
    * @return A future. The success callback contains the {@link Event#id()}.
    */
+  @Nonnull
   public CompletableFuture<Optional<Object>> send(final Object data, final MediaType type) {
     return event(data).type(type).send();
   }
@@ -850,6 +856,7 @@ public abstract class Sse implements AutoCloseable {
    * @param data Event data.
    * @return A future. The success callback contains the {@link Event#id()}.
    */
+  @Nonnull
   public CompletableFuture<Optional<Object>> send(final Object data) {
     return event(data).send();
   }
@@ -883,6 +890,7 @@ public abstract class Sse implements AutoCloseable {
    * @param data Event data.
    * @return A new event.
    */
+  @Nonnull
   public Event event(final Object data) {
     return new Event(this, data);
   }
@@ -894,6 +902,7 @@ public abstract class Sse implements AutoCloseable {
    * @param <T> Service type.
    * @return A ready to use object.
    */
+  @Nonnull
   public <T> T require(final Class<T> type) {
     return require(Key.get(type));
   }
@@ -906,6 +915,7 @@ public abstract class Sse implements AutoCloseable {
    * @param <T> Service type.
    * @return A ready to use object.
    */
+  @Nonnull
   public <T> T require(final String name, final Class<T> type) {
     return require(Key.get(type, Names.named(name)));
   }
@@ -917,6 +927,7 @@ public abstract class Sse implements AutoCloseable {
    * @param <T> Service type.
    * @return A ready to use object.
    */
+  @Nonnull
   public <T> T require(final TypeLiteral<T> type) {
     return require(Key.get(type));
   }
@@ -928,6 +939,7 @@ public abstract class Sse implements AutoCloseable {
    * @param <T> Service type.
    * @return A ready to use object.
    */
+  @Nonnull
   public <T> T require(final Key<T> key) {
     return injector.getInstance(key);
   }
@@ -960,6 +972,7 @@ public abstract class Sse implements AutoCloseable {
    * @param unit Time unit.
    * @return This instance.
    */
+  @Nonnull
   public Sse keepAlive(final int time, final TimeUnit unit) {
     return keepAlive(unit.toMillis(time));
   }
@@ -991,6 +1004,7 @@ public abstract class Sse implements AutoCloseable {
    * @param millis Keep alive time in millis.
    * @return This instance.
    */
+  @Nonnull
   public Sse keepAlive(final long millis) {
     scheduler.schedule(new KeepAlive(this, millis), millis, TimeUnit.MILLISECONDS);
     return this;

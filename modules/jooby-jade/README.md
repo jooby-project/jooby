@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jade/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jade)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jade.svg)](https://javadoc.io/doc/org.jooby/jooby-jade/1.2.3)
+[![jooby-jade website](https://img.shields.io/badge/jooby-jade-brightgreen.svg)](http://jooby.org/doc/jade)
 # jade
 
 <a href="https://github.com/neuland/jade4j">jade4j's</a> intention is to be able to process jade templates in Java without the need of a JavaScript environment, while being fully compatible with the original jade syntax.
@@ -13,7 +16,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-jade</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 

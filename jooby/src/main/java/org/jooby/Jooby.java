@@ -1,205 +1,205 @@
 /**
- *                                  Apache License
- *                            Version 2.0, January 2004
- *                         http://www.apache.org/licenses/
+ * Apache License
+ * Version 2.0, January 2004
+ * http://www.apache.org/licenses/
  *
- *    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+ * TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
  *
- *    1. Definitions.
+ * 1. Definitions.
  *
- *       "License" shall mean the terms and conditions for use, reproduction,
- *       and distribution as defined by Sections 1 through 9 of this document.
+ * "License" shall mean the terms and conditions for use, reproduction,
+ * and distribution as defined by Sections 1 through 9 of this document.
  *
- *       "Licensor" shall mean the copyright owner or entity authorized by
- *       the copyright owner that is granting the License.
+ * "Licensor" shall mean the copyright owner or entity authorized by
+ * the copyright owner that is granting the License.
  *
- *       "Legal Entity" shall mean the union of the acting entity and all
- *       other entities that control, are controlled by, or are under common
- *       control with that entity. For the purposes of this definition,
- *       "control" means (i) the power, direct or indirect, to cause the
- *       direction or management of such entity, whether by contract or
- *       otherwise, or (ii) ownership of fifty percent (50%) or more of the
- *       outstanding shares, or (iii) beneficial ownership of such entity.
+ * "Legal Entity" shall mean the union of the acting entity and all
+ * other entities that control, are controlled by, or are under common
+ * control with that entity. For the purposes of this definition,
+ * "control" means (i) the power, direct or indirect, to cause the
+ * direction or management of such entity, whether by contract or
+ * otherwise, or (ii) ownership of fifty percent (50%) or more of the
+ * outstanding shares, or (iii) beneficial ownership of such entity.
  *
- *       "You" (or "Your") shall mean an individual or Legal Entity
- *       exercising permissions granted by this License.
+ * "You" (or "Your") shall mean an individual or Legal Entity
+ * exercising permissions granted by this License.
  *
- *       "Source" form shall mean the preferred form for making modifications,
- *       including but not limited to software source code, documentation
- *       source, and configuration files.
+ * "Source" form shall mean the preferred form for making modifications,
+ * including but not limited to software source code, documentation
+ * source, and configuration files.
  *
- *       "Object" form shall mean any form resulting from mechanical
- *       transformation or translation of a Source form, including but
- *       not limited to compiled object code, generated documentation,
- *       and conversions to other media types.
+ * "Object" form shall mean any form resulting from mechanical
+ * transformation or translation of a Source form, including but
+ * not limited to compiled object code, generated documentation,
+ * and conversions to other media types.
  *
- *       "Work" shall mean the work of authorship, whether in Source or
- *       Object form, made available under the License, as indicated by a
- *       copyright notice that is included in or attached to the work
- *       (an example is provided in the Appendix below).
+ * "Work" shall mean the work of authorship, whether in Source or
+ * Object form, made available under the License, as indicated by a
+ * copyright notice that is included in or attached to the work
+ * (an example is provided in the Appendix below).
  *
- *       "Derivative Works" shall mean any work, whether in Source or Object
- *       form, that is based on (or derived from) the Work and for which the
- *       editorial revisions, annotations, elaborations, or other modifications
- *       represent, as a whole, an original work of authorship. For the purposes
- *       of this License, Derivative Works shall not include works that remain
- *       separable from, or merely link (or bind by name) to the interfaces of,
- *       the Work and Derivative Works thereof.
+ * "Derivative Works" shall mean any work, whether in Source or Object
+ * form, that is based on (or derived from) the Work and for which the
+ * editorial revisions, annotations, elaborations, or other modifications
+ * represent, as a whole, an original work of authorship. For the purposes
+ * of this License, Derivative Works shall not include works that remain
+ * separable from, or merely link (or bind by name) to the interfaces of,
+ * the Work and Derivative Works thereof.
  *
- *       "Contribution" shall mean any work of authorship, including
- *       the original version of the Work and any modifications or additions
- *       to that Work or Derivative Works thereof, that is intentionally
- *       submitted to Licensor for inclusion in the Work by the copyright owner
- *       or by an individual or Legal Entity authorized to submit on behalf of
- *       the copyright owner. For the purposes of this definition, "submitted"
- *       means any form of electronic, verbal, or written communication sent
- *       to the Licensor or its representatives, including but not limited to
- *       communication on electronic mailing lists, source code control systems,
- *       and issue tracking systems that are managed by, or on behalf of, the
- *       Licensor for the purpose of discussing and improving the Work, but
- *       excluding communication that is conspicuously marked or otherwise
- *       designated in writing by the copyright owner as "Not a Contribution."
+ * "Contribution" shall mean any work of authorship, including
+ * the original version of the Work and any modifications or additions
+ * to that Work or Derivative Works thereof, that is intentionally
+ * submitted to Licensor for inclusion in the Work by the copyright owner
+ * or by an individual or Legal Entity authorized to submit on behalf of
+ * the copyright owner. For the purposes of this definition, "submitted"
+ * means any form of electronic, verbal, or written communication sent
+ * to the Licensor or its representatives, including but not limited to
+ * communication on electronic mailing lists, source code control systems,
+ * and issue tracking systems that are managed by, or on behalf of, the
+ * Licensor for the purpose of discussing and improving the Work, but
+ * excluding communication that is conspicuously marked or otherwise
+ * designated in writing by the copyright owner as "Not a Contribution."
  *
- *       "Contributor" shall mean Licensor and any individual or Legal Entity
- *       on behalf of whom a Contribution has been received by Licensor and
- *       subsequently incorporated within the Work.
+ * "Contributor" shall mean Licensor and any individual or Legal Entity
+ * on behalf of whom a Contribution has been received by Licensor and
+ * subsequently incorporated within the Work.
  *
- *    2. Grant of Copyright License. Subject to the terms and conditions of
- *       this License, each Contributor hereby grants to You a perpetual,
- *       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
- *       copyright license to reproduce, prepare Derivative Works of,
- *       publicly display, publicly perform, sublicense, and distribute the
- *       Work and such Derivative Works in Source or Object form.
+ * 2. Grant of Copyright License. Subject to the terms and conditions of
+ * this License, each Contributor hereby grants to You a perpetual,
+ * worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+ * copyright license to reproduce, prepare Derivative Works of,
+ * publicly display, publicly perform, sublicense, and distribute the
+ * Work and such Derivative Works in Source or Object form.
  *
- *    3. Grant of Patent License. Subject to the terms and conditions of
- *       this License, each Contributor hereby grants to You a perpetual,
- *       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
- *       (except as stated in this section) patent license to make, have made,
- *       use, offer to sell, sell, import, and otherwise transfer the Work,
- *       where such license applies only to those patent claims licensable
- *       by such Contributor that are necessarily infringed by their
- *       Contribution(s) alone or by combination of their Contribution(s)
- *       with the Work to which such Contribution(s) was submitted. If You
- *       institute patent litigation against any entity (including a
- *       cross-claim or counterclaim in a lawsuit) alleging that the Work
- *       or a Contribution incorporated within the Work constitutes direct
- *       or contributory patent infringement, then any patent licenses
- *       granted to You under this License for that Work shall terminate
- *       as of the date such litigation is filed.
+ * 3. Grant of Patent License. Subject to the terms and conditions of
+ * this License, each Contributor hereby grants to You a perpetual,
+ * worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+ * (except as stated in this section) patent license to make, have made,
+ * use, offer to sell, sell, import, and otherwise transfer the Work,
+ * where such license applies only to those patent claims licensable
+ * by such Contributor that are necessarily infringed by their
+ * Contribution(s) alone or by combination of their Contribution(s)
+ * with the Work to which such Contribution(s) was submitted. If You
+ * institute patent litigation against any entity (including a
+ * cross-claim or counterclaim in a lawsuit) alleging that the Work
+ * or a Contribution incorporated within the Work constitutes direct
+ * or contributory patent infringement, then any patent licenses
+ * granted to You under this License for that Work shall terminate
+ * as of the date such litigation is filed.
  *
- *    4. Redistribution. You may reproduce and distribute copies of the
- *       Work or Derivative Works thereof in any medium, with or without
- *       modifications, and in Source or Object form, provided that You
- *       meet the following conditions:
+ * 4. Redistribution. You may reproduce and distribute copies of the
+ * Work or Derivative Works thereof in any medium, with or without
+ * modifications, and in Source or Object form, provided that You
+ * meet the following conditions:
  *
- *       (a) You must give any other recipients of the Work or
- *           Derivative Works a copy of this License; and
+ * (a) You must give any other recipients of the Work or
+ * Derivative Works a copy of this License; and
  *
- *       (b) You must cause any modified files to carry prominent notices
- *           stating that You changed the files; and
+ * (b) You must cause any modified files to carry prominent notices
+ * stating that You changed the files; and
  *
- *       (c) You must retain, in the Source form of any Derivative Works
- *           that You distribute, all copyright, patent, trademark, and
- *           attribution notices from the Source form of the Work,
- *           excluding those notices that do not pertain to any part of
- *           the Derivative Works; and
+ * (c) You must retain, in the Source form of any Derivative Works
+ * that You distribute, all copyright, patent, trademark, and
+ * attribution notices from the Source form of the Work,
+ * excluding those notices that do not pertain to any part of
+ * the Derivative Works; and
  *
- *       (d) If the Work includes a "NOTICE" text file as part of its
- *           distribution, then any Derivative Works that You distribute must
- *           include a readable copy of the attribution notices contained
- *           within such NOTICE file, excluding those notices that do not
- *           pertain to any part of the Derivative Works, in at least one
- *           of the following places: within a NOTICE text file distributed
- *           as part of the Derivative Works; within the Source form or
- *           documentation, if provided along with the Derivative Works; or,
- *           within a display generated by the Derivative Works, if and
- *           wherever such third-party notices normally appear. The contents
- *           of the NOTICE file are for informational purposes only and
- *           do not modify the License. You may add Your own attribution
- *           notices within Derivative Works that You distribute, alongside
- *           or as an addendum to the NOTICE text from the Work, provided
- *           that such additional attribution notices cannot be construed
- *           as modifying the License.
+ * (d) If the Work includes a "NOTICE" text file as part of its
+ * distribution, then any Derivative Works that You distribute must
+ * include a readable copy of the attribution notices contained
+ * within such NOTICE file, excluding those notices that do not
+ * pertain to any part of the Derivative Works, in at least one
+ * of the following places: within a NOTICE text file distributed
+ * as part of the Derivative Works; within the Source form or
+ * documentation, if provided along with the Derivative Works; or,
+ * within a display generated by the Derivative Works, if and
+ * wherever such third-party notices normally appear. The contents
+ * of the NOTICE file are for informational purposes only and
+ * do not modify the License. You may add Your own attribution
+ * notices within Derivative Works that You distribute, alongside
+ * or as an addendum to the NOTICE text from the Work, provided
+ * that such additional attribution notices cannot be construed
+ * as modifying the License.
  *
- *       You may add Your own copyright statement to Your modifications and
- *       may provide additional or different license terms and conditions
- *       for use, reproduction, or distribution of Your modifications, or
- *       for any such Derivative Works as a whole, provided Your use,
- *       reproduction, and distribution of the Work otherwise complies with
- *       the conditions stated in this License.
+ * You may add Your own copyright statement to Your modifications and
+ * may provide additional or different license terms and conditions
+ * for use, reproduction, or distribution of Your modifications, or
+ * for any such Derivative Works as a whole, provided Your use,
+ * reproduction, and distribution of the Work otherwise complies with
+ * the conditions stated in this License.
  *
- *    5. Submission of Contributions. Unless You explicitly state otherwise,
- *       any Contribution intentionally submitted for inclusion in the Work
- *       by You to the Licensor shall be under the terms and conditions of
- *       this License, without any additional terms or conditions.
- *       Notwithstanding the above, nothing herein shall supersede or modify
- *       the terms of any separate license agreement you may have executed
- *       with Licensor regarding such Contributions.
+ * 5. Submission of Contributions. Unless You explicitly state otherwise,
+ * any Contribution intentionally submitted for inclusion in the Work
+ * by You to the Licensor shall be under the terms and conditions of
+ * this License, without any additional terms or conditions.
+ * Notwithstanding the above, nothing herein shall supersede or modify
+ * the terms of any separate license agreement you may have executed
+ * with Licensor regarding such Contributions.
  *
- *    6. Trademarks. This License does not grant permission to use the trade
- *       names, trademarks, service marks, or product names of the Licensor,
- *       except as required for reasonable and customary use in describing the
- *       origin of the Work and reproducing the content of the NOTICE file.
+ * 6. Trademarks. This License does not grant permission to use the trade
+ * names, trademarks, service marks, or product names of the Licensor,
+ * except as required for reasonable and customary use in describing the
+ * origin of the Work and reproducing the content of the NOTICE file.
  *
- *    7. Disclaimer of Warranty. Unless required by applicable law or
- *       agreed to in writing, Licensor provides the Work (and each
- *       Contributor provides its Contributions) on an "AS IS" BASIS,
- *       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *       implied, including, without limitation, any warranties or conditions
- *       of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
- *       PARTICULAR PURPOSE. You are solely responsible for determining the
- *       appropriateness of using or redistributing the Work and assume any
- *       risks associated with Your exercise of permissions under this License.
+ * 7. Disclaimer of Warranty. Unless required by applicable law or
+ * agreed to in writing, Licensor provides the Work (and each
+ * Contributor provides its Contributions) on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied, including, without limitation, any warranties or conditions
+ * of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+ * PARTICULAR PURPOSE. You are solely responsible for determining the
+ * appropriateness of using or redistributing the Work and assume any
+ * risks associated with Your exercise of permissions under this License.
  *
- *    8. Limitation of Liability. In no event and under no legal theory,
- *       whether in tort (including negligence), contract, or otherwise,
- *       unless required by applicable law (such as deliberate and grossly
- *       negligent acts) or agreed to in writing, shall any Contributor be
- *       liable to You for damages, including any direct, indirect, special,
- *       incidental, or consequential damages of any character arising as a
- *       result of this License or out of the use or inability to use the
- *       Work (including but not limited to damages for loss of goodwill,
- *       work stoppage, computer failure or malfunction, or any and all
- *       other commercial damages or losses), even if such Contributor
- *       has been advised of the possibility of such damages.
+ * 8. Limitation of Liability. In no event and under no legal theory,
+ * whether in tort (including negligence), contract, or otherwise,
+ * unless required by applicable law (such as deliberate and grossly
+ * negligent acts) or agreed to in writing, shall any Contributor be
+ * liable to You for damages, including any direct, indirect, special,
+ * incidental, or consequential damages of any character arising as a
+ * result of this License or out of the use or inability to use the
+ * Work (including but not limited to damages for loss of goodwill,
+ * work stoppage, computer failure or malfunction, or any and all
+ * other commercial damages or losses), even if such Contributor
+ * has been advised of the possibility of such damages.
  *
- *    9. Accepting Warranty or Additional Liability. While redistributing
- *       the Work or Derivative Works thereof, You may choose to offer,
- *       and charge a fee for, acceptance of support, warranty, indemnity,
- *       or other liability obligations and/or rights consistent with this
- *       License. However, in accepting such obligations, You may act only
- *       on Your own behalf and on Your sole responsibility, not on behalf
- *       of any other Contributor, and only if You agree to indemnify,
- *       defend, and hold each Contributor harmless for any liability
- *       incurred by, or claims asserted against, such Contributor by reason
- *       of your accepting any such warranty or additional liability.
+ * 9. Accepting Warranty or Additional Liability. While redistributing
+ * the Work or Derivative Works thereof, You may choose to offer,
+ * and charge a fee for, acceptance of support, warranty, indemnity,
+ * or other liability obligations and/or rights consistent with this
+ * License. However, in accepting such obligations, You may act only
+ * on Your own behalf and on Your sole responsibility, not on behalf
+ * of any other Contributor, and only if You agree to indemnify,
+ * defend, and hold each Contributor harmless for any liability
+ * incurred by, or claims asserted against, such Contributor by reason
+ * of your accepting any such warranty or additional liability.
  *
- *    END OF TERMS AND CONDITIONS
+ * END OF TERMS AND CONDITIONS
  *
- *    APPENDIX: How to apply the Apache License to your work.
+ * APPENDIX: How to apply the Apache License to your work.
  *
- *       To apply the Apache License to your work, attach the following
- *       boilerplate notice, with the fields enclosed by brackets "{}"
- *       replaced with your own identifying information. (Don't include
- *       the brackets!)  The text should be enclosed in the appropriate
- *       comment syntax for the file format. We also recommend that a
- *       file or class name and description of purpose be included on the
- *       same "printed page" as the copyright notice for easier
- *       identification within third-party archives.
+ * To apply the Apache License to your work, attach the following
+ * boilerplate notice, with the fields enclosed by brackets "{}"
+ * replaced with your own identifying information. (Don't include
+ * the brackets!)  The text should be enclosed in the appropriate
+ * comment syntax for the file format. We also recommend that a
+ * file or class name and description of purpose be included on the
+ * same "printed page" as the copyright notice for easier
+ * identification within third-party archives.
  *
- *    Copyright 2014 Edgar Espina
+ * Copyright 2014 Edgar Espina
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.jooby;
 
@@ -228,7 +228,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
-import com.typesafe.config.ConfigValueFactory;
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import static java.util.Objects.requireNonNull;
 import static org.jooby.Route.CONNECT;
@@ -261,6 +260,7 @@ import org.jooby.internal.ServerExecutorProvider;
 import org.jooby.internal.ServerLookup;
 import org.jooby.internal.ServerSessionManager;
 import org.jooby.internal.SessionManager;
+import org.jooby.internal.SourceProvider;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.handlers.HeadHandler;
 import org.jooby.internal.handlers.OptionsHandler;
@@ -284,10 +284,10 @@ import org.jooby.spi.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 import javax.net.ssl.SSLContext;
 import java.io.File;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -303,6 +303,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -672,6 +673,7 @@ public class Jooby implements Router, LifeCycle, Registry {
      * @return Produces a module config object (when need it). By default a module doesn't produce
      *         any configuration object.
      */
+    @Nonnull
     default Config config() {
       return ConfigFactory.empty();
     }
@@ -684,6 +686,7 @@ public class Jooby implements Router, LifeCycle, Registry {
      * @param env The current application's env. Not null.
      * @param conf The current config object. Not null.
      * @param binder A guice binder. Not null.
+     * @throws Throwable If something goes wrong.
      */
     void configure(Env env, Config conf, Binder binder) throws Throwable;
 
@@ -877,7 +880,15 @@ public class Jooby implements Router, LifeCycle, Registry {
    */
   private transient BiFunction<Stage, com.google.inject.Module, Injector> injectorFactory = Guice::createInjector;
 
-  private List<Jooby> apprefs;
+  private transient List<Jooby> apprefs;
+
+  private transient LinkedList<String> path = new LinkedList<>();
+
+  private transient String confname;
+
+  private transient boolean caseSensitiveRouting = true;
+
+  private transient String classname;
 
   /**
    * Creates a new {@link Jooby} application.
@@ -895,16 +906,33 @@ public class Jooby implements Router, LifeCycle, Registry {
   public Jooby(final String prefix) {
     this.prefix = prefix;
     use(server);
+    this.classname = classname(getClass().getName());
+  }
+
+  @Override
+  public Route.Collection path(String path, Runnable action) {
+    this.path.addLast(Route.normalize(path));
+    Route.Collection collection = with(action);
+    this.path.removeLast();
+    return collection;
   }
 
   @Override
   public Jooby use(final Jooby app) {
-    return use(Optional.empty(), app);
+    return use(prefixPath(null), app);
+  }
+
+  private Optional<String> prefixPath(String tail) {
+    return path.size() == 0
+        ? tail == null ? Optional.empty() : Optional.of(Route.normalize(tail))
+        : Optional.of(path.stream()
+        .collect(Collectors.joining("", "", tail == null
+            ? "" : Route.normalize(tail))));
   }
 
   @Override
   public Jooby use(final String path, final Jooby app) {
-    return use(Optional.of(path), app);
+    return use(prefixPath(path), app);
   }
 
   /**
@@ -1171,7 +1199,8 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public <T> T require(final Key<T> type) {
-    checkState(injector != null, "App didn't start yet");
+    checkState(injector != null,
+        "Registry is not ready. Require calls are available at application startup time, see http://jooby.org/doc/#application-life-cycle");
     return injector.getInstance(type);
   }
 
@@ -1286,63 +1315,52 @@ public class Jooby implements Router, LifeCycle, Registry {
     return this;
   }
 
-  private Route.Definition[] interceptors(String method, String pattern, Route.Filter head,
-      Route.Filter... tail) {
-    return ImmutableList.builder()
-        .add(head)
-        .add(tail)
-        .build()
-        .stream()
-        .map(h -> appendDefinition(new Route.Definition(method, pattern, (Route.Filter) h)))
-        .toArray(Route.Definition[]::new);
+  @Override
+  public Route.Definition before(final String method, final String pattern,
+      final Route.Before handler) {
+    return appendDefinition(method, pattern, handler);
   }
 
   @Override
-  public Route.Collection before(final String method, final String pattern,
-      final Route.Before handler, final Route.Before... chain) {
-    return new Route.Collection(interceptors(method, pattern, handler, chain));
+  public Route.Definition after(final String method, final String pattern,
+      final Route.After handler) {
+    return appendDefinition(method, pattern, handler);
   }
 
   @Override
-  public Route.Collection after(final String method, final String pattern,
-      final Route.After handler, final Route.After... chain) {
-    return new Route.Collection(interceptors(method, pattern, handler, chain));
-  }
-
-  @Override
-  public Route.Collection complete(final String method, final String pattern,
-      final Route.Complete handler, final Route.Complete... chain) {
-    return new Route.Collection(interceptors(method, pattern, handler, chain));
+  public Route.Definition complete(final String method, final String pattern,
+      final Route.Complete handler) {
+    return appendDefinition(method, pattern, handler);
   }
 
   @Override
   public Route.Definition use(final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition("*", path, filter));
+    return appendDefinition("*", path, filter);
   }
 
   @Override
   public Route.Definition use(final String verb, final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition(verb, path, filter));
+    return appendDefinition(verb, path, filter);
   }
 
   @Override
   public Route.Definition use(final String verb, final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition(verb, path, handler));
+    return appendDefinition(verb, path, handler);
   }
 
   @Override
   public Route.Definition use(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition("*", path, handler));
+    return appendDefinition("*", path, handler);
   }
 
   @Override
   public Route.Definition use(final String path, final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition("*", path, handler));
+    return appendDefinition("*", path, handler);
   }
 
   @Override
   public Route.Definition get(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition(GET, path, handler));
+    return appendDefinition(GET, path, handler);
   }
 
   @Override
@@ -1360,7 +1378,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition get(final String path, final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition(GET, path, handler));
+    return appendDefinition(GET, path, handler);
   }
 
   @Override
@@ -1379,7 +1397,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition get(final String path, final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition(GET, path, handler));
+    return appendDefinition(GET, path, handler);
   }
 
   @Override
@@ -1398,7 +1416,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition get(final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition(GET, path, filter));
+    return appendDefinition(GET, path, filter);
   }
 
   @Override
@@ -1415,7 +1433,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition post(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition(POST, path, handler));
+    return appendDefinition(POST, path, handler);
   }
 
   @Override
@@ -1434,7 +1452,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition post(final String path, final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition(POST, path, handler));
+    return appendDefinition(POST, path, handler);
   }
 
   @Override
@@ -1453,7 +1471,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition post(final String path, final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition(POST, path, handler));
+    return appendDefinition(POST, path, handler);
   }
 
   @Override
@@ -1472,7 +1490,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition post(final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition(POST, path, filter));
+    return appendDefinition(POST, path, filter);
   }
 
   @Override
@@ -1491,64 +1509,62 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition head(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition(HEAD, path, handler));
+    return appendDefinition(HEAD, path, handler);
   }
 
   @Override
   public Route.Definition head(final String path,
       final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition(HEAD, path, handler));
+    return appendDefinition(HEAD, path, handler);
   }
 
   @Override
   public Route.Definition head(final String path, final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition(HEAD, path, handler));
+    return appendDefinition(HEAD, path, handler);
   }
 
   @Override
   public Route.Definition head(final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition(HEAD, path, filter));
+    return appendDefinition(HEAD, path, filter);
   }
 
   @Override
   public Route.Definition head() {
-    return appendDefinition(new Route.Definition(HEAD, "*", filter(HeadHandler.class))
-        .name("*.head"));
+    return appendDefinition(HEAD, "*", filter(HeadHandler.class)).name("*.head");
   }
 
   @Override
   public Route.Definition options(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition(OPTIONS, path, handler));
+    return appendDefinition(OPTIONS, path, handler);
   }
 
   @Override
   public Route.Definition options(final String path,
       final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition(OPTIONS, path, handler));
+    return appendDefinition(OPTIONS, path, handler);
   }
 
   @Override
   public Route.Definition options(final String path,
       final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition(OPTIONS, path, handler));
+    return appendDefinition(OPTIONS, path, handler);
   }
 
   @Override
   public Route.Definition options(final String path,
       final Route.Filter filter) {
-    return appendDefinition(new Route.Definition(OPTIONS, path, filter));
+    return appendDefinition(OPTIONS, path, filter);
   }
 
   @Override
   public Route.Definition options() {
-    return appendDefinition(new Route.Definition(OPTIONS, "*", handler(OptionsHandler.class))
-        .name("*.options"));
+    return appendDefinition(OPTIONS, "*", handler(OptionsHandler.class)).name("*.options");
   }
 
   @Override
   public Route.Definition put(final String path,
       final Route.Handler handler) {
-    return appendDefinition(new Route.Definition(PUT, path, handler));
+    return appendDefinition(PUT, path, handler);
   }
 
   @Override
@@ -1568,7 +1584,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   @Override
   public Route.Definition put(final String path,
       final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition(PUT, path, handler));
+    return appendDefinition(PUT, path, handler);
   }
 
   @Override
@@ -1588,7 +1604,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   @Override
   public Route.Definition put(final String path,
       final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition(PUT, path, handler));
+    return appendDefinition(PUT, path, handler);
   }
 
   @Override
@@ -1608,7 +1624,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   @Override
   public Route.Definition put(final String path,
       final Route.Filter filter) {
-    return appendDefinition(new Route.Definition(PUT, path, filter));
+    return appendDefinition(PUT, path, filter);
   }
 
   @Override
@@ -1627,7 +1643,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition patch(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition(PATCH, path, handler));
+    return appendDefinition(PATCH, path, handler);
   }
 
   @Override
@@ -1647,7 +1663,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition patch(final String path, final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition(PATCH, path, handler));
+    return appendDefinition(PATCH, path, handler);
   }
 
   @Override
@@ -1667,7 +1683,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition patch(final String path, final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition(PATCH, path, handler));
+    return appendDefinition(PATCH, path, handler);
   }
 
   @Override
@@ -1688,7 +1704,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   @Override
   public Route.Definition patch(final String path,
       final Route.Filter filter) {
-    return appendDefinition(new Route.Definition(PATCH, path, filter));
+    return appendDefinition(PATCH, path, filter);
   }
 
   @Override
@@ -1708,7 +1724,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition delete(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition(DELETE, path, handler));
+    return appendDefinition(DELETE, path, handler);
   }
 
   @Override
@@ -1728,7 +1744,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition delete(final String path, final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition(DELETE, path, handler));
+    return appendDefinition(DELETE, path, handler);
   }
 
   @Override
@@ -1749,7 +1765,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   @Override
   public Route.Definition delete(final String path,
       final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition(DELETE, path, handler));
+    return appendDefinition(DELETE, path, handler);
   }
 
   @Override
@@ -1760,8 +1776,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   @Override
-  public Route.Collection delete(final String path1,
-      final String path2, final String path3,
+  public Route.Collection delete(final String path1, final String path2, final String path3,
       final Route.ZeroArgHandler handler) {
     return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler),
@@ -1770,7 +1785,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition delete(final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition(DELETE, path, filter));
+    return appendDefinition(DELETE, path, filter);
   }
 
   @Override
@@ -1790,48 +1805,47 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition trace(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition(TRACE, path, handler));
+    return appendDefinition(TRACE, path, handler);
   }
 
   @Override
   public Route.Definition trace(final String path, final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition(TRACE, path, handler));
+    return appendDefinition(TRACE, path, handler);
   }
 
   @Override
   public Route.Definition trace(final String path, final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition(TRACE, path, handler));
+    return appendDefinition(TRACE, path, handler);
   }
 
   @Override
   public Route.Definition trace(final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition(TRACE, path, filter));
+    return appendDefinition(TRACE, path, filter);
   }
 
   @Override
   public Route.Definition trace() {
-    return appendDefinition(new Route.Definition(TRACE, "*", handler(TraceHandler.class))
-        .name("*.trace"));
+    return appendDefinition(TRACE, "*", handler(TraceHandler.class)).name("*.trace");
   }
 
   @Override
   public Route.Definition connect(final String path, final Route.Handler handler) {
-    return appendDefinition(new Route.Definition(CONNECT, path, handler));
+    return appendDefinition(CONNECT, path, handler);
   }
 
   @Override
   public Route.Definition connect(final String path, final Route.OneArgHandler handler) {
-    return appendDefinition(new Route.Definition(CONNECT, path, handler));
+    return appendDefinition(CONNECT, path, handler);
   }
 
   @Override
   public Route.Definition connect(final String path, final Route.ZeroArgHandler handler) {
-    return appendDefinition(new Route.Definition(CONNECT, path, handler));
+    return appendDefinition(CONNECT, path, handler);
   }
 
   @Override
   public Route.Definition connect(final String path, final Route.Filter filter) {
-    return appendDefinition(new Route.Definition(CONNECT, path, filter));
+    return appendDefinition(CONNECT, path, filter);
   }
 
   /**
@@ -1922,13 +1936,19 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition assets(final String path, final AssetHandler handler) {
-    return appendDefinition(new Route.Definition(GET, path, handler));
+    return appendDefinition(GET, path, handler);
   }
 
   @Override
   public Route.Collection use(final Class<?> routeClass) {
+    return use("", routeClass);
+  }
+
+  @Override
+  public Route.Collection use(final String path, final Class<?> routeClass) {
     requireNonNull(routeClass, "Route class is required.");
-    MvcClass mvc = new MvcClass(routeClass, "", prefix);
+    requireNonNull(path, "Path is required");
+    MvcClass mvc = new MvcClass(routeClass, path, prefix);
     bag.add(mvc);
     return new Route.Collection(mvc);
   }
@@ -1936,13 +1956,20 @@ public class Jooby implements Router, LifeCycle, Registry {
   /**
    * Keep track of routes in the order user define them.
    *
-   * @param route A route definition to append.
+   * @param method Route method.
+   * @param pattern Route pattern.
+   * @param filter Route filter.
    * @return The same route definition.
    */
-  private Route.Definition appendDefinition(final Route.Definition route) {
-    route.prefix = prefix;
-    // reset name will update the name if prefix != null
-    route.name(route.name());
+  private Route.Definition appendDefinition(String method, String pattern, Route.Filter filter) {
+    String pathPattern = prefixPath(pattern).orElse(pattern);
+    Route.Definition route = new Route.Definition(method, pathPattern, filter,
+        caseSensitiveRouting);
+    if (prefix != null) {
+      route.prefix = prefix;
+      // reset name will update the name if prefix != null
+      route.name(route.name());
+    }
     bag.add(route);
     return route;
   }
@@ -1968,6 +1995,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This jooby instance.
    */
   public Jooby conf(final String path) {
+    this.confname = path;
     use(ConfigFactory.parseResources(path));
     return this;
   }
@@ -1980,6 +2008,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This jooby instance.
    */
   public Jooby conf(final File path) {
+    this.confname = path.getName();
     use(ConfigFactory.parseFile(path));
     return this;
   }
@@ -2029,12 +2058,12 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.Definition sse(final String path, final Sse.Handler handler) {
-    return appendDefinition(new Route.Definition(GET, path, handler)).consumes(MediaType.sse);
+    return appendDefinition(GET, path, handler).consumes(MediaType.sse);
   }
 
   @Override
   public Route.Definition sse(final String path, final Sse.Handler1 handler) {
-    return appendDefinition(new Route.Definition(GET, path, handler)).consumes(MediaType.sse);
+    return appendDefinition(GET, path, handler).consumes(MediaType.sse);
   }
 
   @SuppressWarnings("rawtypes")
@@ -2661,15 +2690,26 @@ public class Jooby implements Router, LifeCycle, Registry {
    * }
    * </pre>
    *
-   * @return
+   * @return This instance.
    */
   public Jooby throwBootstrapException() {
     this.throwBootstrapException = true;
     return this;
   }
 
+  /**
+   * Configure case for routing algorithm. Default is <code>case sensitive</code>.
+   *
+   * @param enabled True for case sensitive, false otherwise.
+   * @return This instance.
+   */
+  public Jooby caseSensitiveRouting(boolean enabled) {
+    this.caseSensitiveRouting = enabled;
+    return this;
+  }
+
   private static List<Object> normalize(final List<Object> services, final Env env,
-      final RouteMetadata classInfo, final String prefix) {
+      final RouteMetadata classInfo, final boolean caseSensitiveRouting) {
     List<Object> result = new ArrayList<>();
     List<Object> snapshot = services;
     /** modules, routes, parsers, renderers and websockets */
@@ -2683,7 +2723,7 @@ public class Jooby implements Router, LifeCycle, Registry {
         MvcClass mvcRoute = ((MvcClass) candidate);
         Class<?> mvcClass = mvcRoute.routeClass;
         String path = ((MvcClass) candidate).path;
-        MvcRoutes.routes(env, classInfo, path, mvcClass)
+        MvcRoutes.routes(env, classInfo, path, caseSensitiveRouting, mvcClass)
             .forEach(route -> result.add(mvcRoute.apply(route)));
       } else {
         result.add(candidate);
@@ -2713,8 +2753,8 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   private Injector bootstrap(final Config args,
       final Consumer<List<Route.Definition>> rcallback) throws Throwable {
-    Config appconf = ConfigFactory.parseResources("application.conf");
-    Config initconf = srcconf == null ? appconf : srcconf.withFallback(appconf);
+    Config initconf = Optional.ofNullable(srcconf)
+        .orElseGet(() -> ConfigFactory.parseResources("application.conf"));
     List<Config> modconf = modconf(this.bag);
     Config conf = buildConfig(initconf, args, modconf);
 
@@ -2740,7 +2780,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     RouteMetadata rm = new RouteMetadata(env);
     List<Object> realbag = processEnvDep(this.bag, env);
     List<Config> realmodconf = modconf(realbag);
-    List<Object> bag = normalize(realbag, env, rm, prefix);
+    List<Object> bag = normalize(realbag, env, rm, caseSensitiveRouting);
 
     // collect routes and fire route callback
     if (rcallback != null) {
@@ -2872,7 +2912,9 @@ public class Jooby implements Router, LifeCycle, Registry {
             ehandlers,
             parsers,
             renderers,
-            routeClasses).accept(it))
+            routeClasses,
+            caseSensitiveRouting)
+            .accept(it))
             .throwException();
       }
 
@@ -2916,6 +2958,8 @@ public class Jooby implements Router, LifeCycle, Registry {
       }
 
       binder.bind(Request.class).toProvider(Providers.outOfScope(Request.class))
+          .in(RequestScoped.class);
+      binder.bind(Route.Chain.class).toProvider(Providers.outOfScope(Route.Chain.class))
           .in(RequestScoped.class);
       binder.bind(Response.class).toProvider(Providers.outOfScope(Response.class))
           .in(RequestScoped.class);
@@ -3014,7 +3058,8 @@ public class Jooby implements Router, LifeCycle, Registry {
       final Multibinder<Err.Handler> ehandlers,
       final Multibinder<Parser> parsers,
       final Multibinder<Renderer> renderers,
-      final Set<Object> routeClasses) {
+      final Set<Object> routeClasses,
+      final boolean caseSensitiveRouting) {
     return it -> {
       if (it instanceof Jooby.Module) {
         int from = src.size();
@@ -3022,7 +3067,8 @@ public class Jooby implements Router, LifeCycle, Registry {
         int to = src.size();
         // collect any route a module might add
         if (to > from) {
-          List<Object> elements = normalize(new ArrayList<>(src).subList(from, to), env, rm, null);
+          List<Object> elements = normalize(new ArrayList<>(src).subList(from, to), env, rm,
+              caseSensitiveRouting);
           for (Object e : elements) {
             bindService(src,
                 conf,
@@ -3034,7 +3080,7 @@ public class Jooby implements Router, LifeCycle, Registry {
                 ehandlers,
                 parsers,
                 renderers,
-                routeClasses).accept(e);
+                routeClasses, caseSensitiveRouting).accept(e);
           }
         }
       } else if (it instanceof Route.Definition) {
@@ -3145,10 +3191,10 @@ public class Jooby implements Router, LifeCycle, Registry {
         .map(c -> c.getString("application.path"))
         .orElse("/");
 
-    Config envcof = envConf(source, env);
+    Config envconf = envConf(source, env);
 
     // application.[env].conf -> application.conf
-    Config conf = envcof.withFallback(source);
+    Config conf = envconf.withFallback(source);
 
     return system
         .withFallback(args)
@@ -3205,20 +3251,24 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return A config env.
    */
   private Config envConf(final Config source, final String env) {
-    String origin = source.origin().resource();
+    String name = Optional.ofNullable(this.confname).orElse(source.origin().resource());
     Config result = ConfigFactory.empty();
-    if (origin != null) {
+    if (name != null) {
       // load [resource].[env].[ext]
-      int dot = origin.lastIndexOf('.');
-      String originConf = origin.substring(0, dot) + "." + env + origin.substring(dot);
-
-      result = fileConfig(originConf).withFallback(ConfigFactory.parseResources(originConf));
+      int dot = name.lastIndexOf('.');
+      name = name.substring(0, dot);
+    } else {
+      name = "application";
     }
-    String appConfig = "application." + env + ".conf";
+    String envconfname = name + "." + env + ".conf";
+    Config envconf = fileConfig(envconfname);
+    Config appconf = fileConfig(name + ".conf");
     return result
-        .withFallback(fileConfig(appConfig))
-        .withFallback(fileConfig("application.conf"))
-        .withFallback(ConfigFactory.parseResources(appConfig));
+        // file system:
+        .withFallback(envconf)
+        .withFallback(appconf)
+        // classpath:
+        .withFallback(ConfigFactory.parseResources(envconfname));
   }
 
   /**
@@ -3286,36 +3336,37 @@ public class Jooby implements Router, LifeCycle, Registry {
     String version = Optional.ofNullable(getClass().getPackage().getImplementationVersion())
         .orElse("0.0.0");
     Config defs = ConfigFactory.parseResources(Jooby.class, "jooby.conf")
-        .withValue("contextPath", ConfigValueFactory.fromAnyRef(cpath.equals("/") ? "" : cpath))
-        .withValue("application.name", ConfigValueFactory.fromAnyRef(appname))
-        .withValue("application.version", ConfigValueFactory.fromAnyRef(version))
-        .withValue("application.class", ConfigValueFactory.fromAnyRef(getClass().getName()))
-        .withValue("application.ns", ConfigValueFactory.fromAnyRef(ns))
-        .withValue("application.lang", ConfigValueFactory.fromAnyRef(lang))
-        .withValue("application.tz", ConfigValueFactory.fromAnyRef(tz))
-        .withValue("application.numberFormat", ConfigValueFactory.fromAnyRef(nf))
-        .withValue("server.http2.enabled", ConfigValueFactory.fromAnyRef(http2))
-        .withValue("runtime.processors", ConfigValueFactory.fromAnyRef(processors))
-        .withValue("runtime.processors-plus1", ConfigValueFactory.fromAnyRef(processors + 1))
-        .withValue("runtime.processors-plus2", ConfigValueFactory.fromAnyRef(processors + 2))
-        .withValue("runtime.processors-x2", ConfigValueFactory.fromAnyRef(processors * 2))
-        .withValue("runtime.processors-x4", ConfigValueFactory.fromAnyRef(processors * 4))
-        .withValue("runtime.processors-x8", ConfigValueFactory.fromAnyRef(processors * 8))
-        .withValue("runtime.concurrencyLevel", ConfigValueFactory
-            .fromAnyRef(Math.max(4, processors)));
+        .withValue("contextPath", fromAnyRef(cpath.equals("/") ? "" : cpath))
+        .withValue("application.name", fromAnyRef(appname))
+        .withValue("application.version", fromAnyRef(version))
+        .withValue("application.class", fromAnyRef(classname))
+        .withValue("application.ns", fromAnyRef(ns))
+        .withValue("application.lang", fromAnyRef(lang))
+        .withValue("application.tz", fromAnyRef(tz))
+        .withValue("application.numberFormat", fromAnyRef(nf))
+        .withValue("server.http2.enabled", fromAnyRef(http2))
+        .withValue("runtime.processors", fromAnyRef(processors))
+        .withValue("runtime.processors-plus1", fromAnyRef(processors + 1))
+        .withValue("runtime.processors-plus2", fromAnyRef(processors + 2))
+        .withValue("runtime.processors-x2", fromAnyRef(processors * 2))
+        .withValue("runtime.processors-x4", fromAnyRef(processors * 4))
+        .withValue("runtime.processors-x8", fromAnyRef(processors * 8))
+        .withValue("runtime.concurrencyLevel", fromAnyRef(Math.max(4, processors)))
+        .withValue("server.threads.Min", fromAnyRef(Math.max(4, processors)))
+        .withValue("server.threads.Max", fromAnyRef(Math.max(32, processors * 8)));
 
     if (charset != null) {
-      defs = defs.withValue("application.charset", ConfigValueFactory.fromAnyRef(charset.name()));
+      defs = defs.withValue("application.charset", fromAnyRef(charset.name()));
     }
     if (port != null) {
-      defs = defs.withValue("application.port", ConfigValueFactory.fromAnyRef(port.intValue()));
+      defs = defs.withValue("application.port", fromAnyRef(port.intValue()));
     }
     if (securePort != null) {
       defs = defs.withValue("application.securePort",
-          ConfigValueFactory.fromAnyRef(securePort.intValue()));
+          fromAnyRef(securePort.intValue()));
     }
     if (dateFormat != null) {
-      defs = defs.withValue("application.dateFormat", ConfigValueFactory.fromAnyRef(dateFormat));
+      defs = defs.withValue("application.dateFormat", fromAnyRef(dateFormat));
     }
     return defs;
   }
@@ -3427,4 +3478,18 @@ public class Jooby implements Router, LifeCycle, Registry {
     });
   }
 
+  /**
+   * Class name is this, except for script bootstrap.
+   *
+   * @param name Default classname.
+   * @return Classname.
+   */
+  private String classname(String name) {
+    if (name.equals(Jooby.class.getName()) || name.equals("org.jooby.Kooby")) {
+      return SourceProvider.INSTANCE.get()
+          .map(StackTraceElement::getClassName)
+          .orElse(name);
+    }
+    return name;
+  }
 }

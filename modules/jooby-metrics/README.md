@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-metrics/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-metrics)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-metrics.svg)](https://javadoc.io/doc/org.jooby/jooby-metrics/1.2.3)
+[![jooby-metrics website](https://img.shields.io/badge/jooby-metrics-brightgreen.svg)](http://jooby.org/doc/metrics)
 # metrics
 
 [Metrics](http://metrics.dropwizard.io) provides a powerful toolkit of ways to measure the behavior of critical components in your production environment.
@@ -8,7 +11,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-metrics</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 

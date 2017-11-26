@@ -235,6 +235,7 @@ public class JettyResponse extends ServletServletResponse implements Callback {
 
   @Override
   public void send(final byte[] bytes) throws Exception {
+    rsp.setHeader("Transfer-Encoding", null);
     sender().sendContent(ByteBuffer.wrap(bytes));
   }
 

@@ -218,8 +218,10 @@
 package org.jooby.run;
 
 import java.net.URLClassLoader;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import com.typesafe.config.Config;
 import org.gradle.api.Project;
 import org.jooby.Jooby;
 
@@ -236,14 +238,17 @@ public class JoobyContainer {
     this.project = new JoobyProject(project);
   }
 
-  public void run(final String mainClass, final Consumer<Jooby> callback, final String... args)
+  public void run(final String mainClass, final BiConsumer<Jooby, Config> callback, final String... args)
       throws Throwable {
     ClassLoader global = Thread.currentThread().getContextClassLoader();
     try (URLClassLoader local = project.newClassLoader()) {
       Thread.currentThread().setContextClassLoader(local);
+      if (mainClass == null) {
+        throw new IllegalArgumentException("Main class missing. Please set, like: mainClassName = \"my.App\"");
+      }
       Jooby app = (Jooby) local.loadClass(mainClass).newInstance();
-      callback.accept(app);
-      app.start(args);
+      Config conf = Jooby.exportConf(app);
+      callback.accept(app, conf);
     } finally {
       Thread.currentThread().setContextClassLoader(global);
     }

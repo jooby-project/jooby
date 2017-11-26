@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-caffeine/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-caffeine)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-caffeine.svg)](https://javadoc.io/doc/org.jooby/jooby-caffeine/1.2.3)
+[![jooby-caffeine website](https://img.shields.io/badge/jooby-caffeine-brightgreen.svg)](http://jooby.org/doc/caffeine)
 # caffeine
 
 Provides cache solution and session storage via: <a href="https://github.com/ben-manes/caffeine">Caffeine</a>.
@@ -12,7 +15,7 @@ Provides cache solution and session storage via: <a href="https://github.com/ben
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-caffeine</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 

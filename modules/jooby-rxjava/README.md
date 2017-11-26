@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-rxjava/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-rxjava)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-rxjava.svg)](https://javadoc.io/doc/org.jooby/jooby-rxjava/1.2.3)
+[![jooby-rxjava website](https://img.shields.io/badge/jooby-rxjava-brightgreen.svg)](http://jooby.org/doc/rxjava)
 # rxjava
 
 Make your web application reactive with <a href="https://github.com/ReactiveX/RxJava">RxJava</a>.
@@ -10,7 +13,7 @@ RxJava is a Java VM implementation of <a href="http://reactivex.io">Reactive Ext
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-rxjava</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 

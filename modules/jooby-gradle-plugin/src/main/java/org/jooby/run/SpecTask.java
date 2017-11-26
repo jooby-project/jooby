@@ -246,7 +246,7 @@ public class SpecTask extends ConventionTask {
     try {
       Project project = getProject();
       new JoobyContainer(project)
-          .run(getMainClassName(), app -> {
+          .run(getMainClassName(), (app, conf) -> {
             process(app, getSource().toPath(), new JoobyProject(project).classes().toPath());
           });
     } catch (Done ex) {

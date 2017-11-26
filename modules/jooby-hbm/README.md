@@ -1,10 +1,13 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-hbm/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-hbm)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hbm.svg)](https://javadoc.io/doc/org.jooby/jooby-hbm/1.2.3)
+[![jooby-hbm website](https://img.shields.io/badge/jooby-hbm-brightgreen.svg)](http://jooby.org/doc/hbm)
 # hibernate
 
 <a href="http://hibernate.org/orm">Hibernate ORM</a> enables developers to more easily write applications whose data outlives the application process. As an Object/Relational Mapping (ORM) framework, Hibernate is concerned with data persistence as it applies to relational databases.
 
 This module setup and configure <a href="http://hibernate.org/orm">Hibernate ORM</a> and ```JPA Provider```.
 
-This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of the [jdbc](/doc/jdbc) module.
+> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
 
 ## exports
 
@@ -18,7 +21,7 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-hbm</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 
@@ -26,9 +29,9 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 
 ```java
 {
-  use(new Hbm("jdbc:mysql://localhost/mydb")
-      .classes(Beer.class)
-  );
+  use(new Jdbc());
+  use(new Hbm()
+      .classes(Beer.class));
 
   get("/api/beer/", req -> {
     return require(UnitOfWork.class).apply(em -> {
@@ -84,6 +87,7 @@ Here is an example on how to setup the open session in view filter:
 
 ```java
 {
+   use(new Jdbc());
    use(new Hbm());
    use("*", Hbm.openSessionInView());
 }
@@ -130,6 +134,7 @@ Persistent classes must be provided at application startup time via [classes(Cla
 
 ```java
 {
+  use(new Jdbc());
   use(new Hbm()
       .classes(Entity1.class, Entity2.class, ..., )
   );
@@ -141,6 +146,7 @@ Or via `scan`:
 
 ```java
 {
+  use(new Jdbc());
   use(new Hbm()
       .scan()
   );
@@ -153,6 +159,7 @@ Which ```scan``` the application package, or you can provide where to look:
 
 ```java
 {
+  use(new Jdbc());
   use(new Hbm()
       .scan("foo.bar", "x.y.z")
   );
@@ -162,15 +169,15 @@ Which ```scan``` the application package, or you can provide where to look:
 
 ## advanced configuration
 
-Advanced configuration is provided via [doWith(Consumer)](/apidocs/org/jooby/hbm/Hbm.html#doWith-java.util.function.Consumer-) callbacks:
+Advanced configuration is provided via `doWithXXX` callbacks:
 
 ```java
 {
   use(new Hbm()
-      .doWith((BootstrapServiceRegistryBuilder bsrb) -> {
+      .doWithBootstrap(bsrb -> {
         // do with bsrb
       })
-      .doWith((StandardServiceRegistryBuilder ssrb) -> {
+      .doWithRegistry(ssrb -> {
         // do with ssrb
       })
   );

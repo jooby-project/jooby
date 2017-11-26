@@ -210,6 +210,8 @@ import static java.util.Objects.requireNonNull;
 import org.jooby.funzy.Throwing;
 import org.jooby.internal.CookieImpl;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URLDecoder;
@@ -387,6 +389,7 @@ public interface Cookie {
      *
      * @return A new cookie.
      */
+    @Nonnull
     public Cookie toCookie() {
       return new CookieImpl(this);
     }
@@ -402,6 +405,7 @@ public interface Cookie {
      * @param name A cookie's name.
      * @return This definition.
      */
+    @Nonnull
     public Definition name(final String name) {
       this.name = requireNonNull(name, "A cookie name is required.");
       return this;
@@ -410,6 +414,7 @@ public interface Cookie {
     /**
      * @return Cookie's name.
      */
+    @Nonnull
     public Optional<String> name() {
       return Optional.ofNullable(name);
     }
@@ -420,6 +425,7 @@ public interface Cookie {
      * @param value A value.
      * @return This definition.
      */
+    @Nonnull
     public Definition value(final String value) {
       this.value = requireNonNull(value, "A cookie value is required.");
       return this;
@@ -428,6 +434,7 @@ public interface Cookie {
     /**
      * @return Cookie's value.
      */
+    @Nonnull
     public Optional<String> value() {
       if (Strings.isNullOrEmpty(value)) {
         return Optional.empty();
@@ -441,6 +448,7 @@ public interface Cookie {
      * @param domain Cookie's domain.
      * @return This definition.
      */
+    @Nonnull
     public Definition domain(final String domain) {
       this.domain = requireNonNull(domain, "A cookie domain is required.");
       return this;
@@ -449,6 +457,7 @@ public interface Cookie {
     /**
      * @return A cookie's domain.
      */
+    @Nonnull
     public Optional<String> domain() {
       return Optional.ofNullable(domain);
     }
@@ -459,6 +468,7 @@ public interface Cookie {
      * @param path Cookie's path.
      * @return This definition.
      */
+    @Nonnull
     public Definition path(final String path) {
       this.path = requireNonNull(path, "A cookie path is required.");
       return this;
@@ -467,6 +477,7 @@ public interface Cookie {
     /**
      * @return Get cookie's path.
      */
+    @Nonnull
     public Optional<String> path() {
       return Optional.ofNullable(path);
     }
@@ -477,6 +488,7 @@ public interface Cookie {
      * @param comment A cookie's comment.
      * @return This definition.
      */
+    @Nonnull
     public Definition comment(final String comment) {
       this.comment = requireNonNull(comment, "A cookie comment is required.");
       return this;
@@ -485,6 +497,7 @@ public interface Cookie {
     /**
      * @return Cookie's comment.
      */
+    @Nonnull
     public Optional<String> comment() {
       return Optional.ofNullable(comment);
     }
@@ -495,6 +508,7 @@ public interface Cookie {
      * @param httpOnly True, for HTTP Only.
      * @return This definition.
      */
+    @Nonnull
     public Definition httpOnly(final boolean httpOnly) {
       this.httpOnly = httpOnly;
       return this;
@@ -503,6 +517,7 @@ public interface Cookie {
     /**
      * @return HTTP only flag.
      */
+    @Nonnull
     public Optional<Boolean> httpOnly() {
       return Optional.ofNullable(httpOnly);
     }
@@ -513,6 +528,7 @@ public interface Cookie {
      * @param secure True, ensure that the session cookie is only transmitted via HTTPS.
      * @return This definition.
      */
+    @Nonnull
     public Definition secure(final boolean secure) {
       this.secure = secure;
       return this;
@@ -521,6 +537,7 @@ public interface Cookie {
     /**
      * @return True, ensure that the session cookie is only transmitted via HTTPS.
      */
+    @Nonnull
     public Optional<Boolean> secure() {
       return Optional.ofNullable(secure);
     }
@@ -543,6 +560,7 @@ public interface Cookie {
      * means the cookie is not stored; if zero, deletes the cookie.
      * @return This definition.
      */
+    @Nonnull
     public Definition maxAge(final int maxAge) {
       this.maxAge = maxAge;
       return this;
@@ -564,6 +582,7 @@ public interface Cookie {
      *
      * @return Cookie's max age in seconds.
      */
+    @Nonnull
     public Optional<Integer> maxAge() {
       return Optional.ofNullable(maxAge);
     }
@@ -608,6 +627,7 @@ public interface Cookie {
      * @param secret A secret key.
      * @return A signed value.
      */
+    @Nonnull
     public static String sign(final String value, final String secret) {
       requireNonNull(value, "A value is required.");
       requireNonNull(secret, "A secret is required.");
@@ -628,8 +648,9 @@ public interface Cookie {
      *
      * @param value A signed value.
      * @param secret A secret key.
-     * @return A new signed value.
+     * @return A new signed value or null.
      */
+    @Nullable
     public static String unsign(final String value, final String secret) {
       requireNonNull(value, "A value is required.");
       requireNonNull(secret, "A secret is required.");
@@ -659,21 +680,25 @@ public interface Cookie {
   /**
    * @return Cookie's name.
    */
+  @Nonnull
   String name();
 
   /**
    * @return Cookie's value.
    */
+  @Nonnull
   Optional<String> value();
 
   /**
    * @return An optional comment.
    */
+  @Nonnull
   Optional<String> comment();
 
   /**
    * @return Cookie's domain.
    */
+  @Nonnull
   Optional<String> domain();
 
   /**
@@ -692,6 +717,7 @@ public interface Cookie {
   /**
    * @return Cookie's path.
    */
+  @Nonnull
   Optional<String> path();
 
   /**
@@ -710,5 +736,6 @@ public interface Cookie {
   /**
    * @return Encode the cookie.
    */
+  @Nonnull
   String encode();
 }

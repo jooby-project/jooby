@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.4-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -42,12 +42,12 @@
     <!-- Akka -->
     <dependency>
       <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-actor_2.11</artifactId>
+      <artifactId>akka-actor_2.12</artifactId>
     </dependency>
 
     <dependency>
       <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-slf4j_2.11</artifactId>
+      <artifactId>akka-slf4j_2.12</artifactId>
     </dependency>
 
     <!-- Test dependencies -->

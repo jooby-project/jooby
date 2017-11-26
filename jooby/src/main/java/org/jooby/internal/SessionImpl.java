@@ -301,6 +301,8 @@ public class SessionImpl implements Session {
 
   private volatile long savedAt;
 
+  private volatile boolean destroyed;
+
   private ParserExecutor resolver;
 
   public SessionImpl(final ParserExecutor resolver, final boolean isNew, final String sessionId,
@@ -384,7 +386,12 @@ public class SessionImpl implements Session {
 
   @Override
   public void destroy() {
+    destroyed = true;
     unset();
+  }
+
+  @Override public boolean isDestroyed() {
+    return destroyed;
   }
 
   public boolean isNew() {

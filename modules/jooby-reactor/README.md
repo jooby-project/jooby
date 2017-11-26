@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-reactor/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-reactor)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-reactor.svg)](https://javadoc.io/doc/org.jooby/jooby-reactor/1.2.3)
+[![jooby-reactor website](https://img.shields.io/badge/jooby-reactor-brightgreen.svg)](http://jooby.org/doc/reactor)
 # reactor
 
 <a href="http://projectreactor.io">Reactor</a> is a second-generation Reactive library for building non-blocking applications on the JVM based on the <a href="http://www.reactive-streams.org">Reactive Streams Specification</a>
@@ -8,7 +11,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-reactor</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 

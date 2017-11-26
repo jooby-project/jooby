@@ -212,6 +212,7 @@ import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -257,25 +258,26 @@ public abstract class AbstractRendererContext implements Renderer.Context {
 
   public void render(final Object value) throws Exception {
     int i = 0;
-    List<String> notFound = new ArrayList<>();
+    FileNotFoundException notFound = null;
     while (!committed && i < rsize) {
       Renderer next = renderers.get(i);
       try {
         next.render(value, this);
-      } catch (FileNotFoundException ex) {
+      } catch (FileNotFoundException x) {
         // view engine should recover from a template not found
         if (next instanceof View.Engine) {
-          notFound.add(next.toString());
+          if (notFound == null) {
+            notFound = x;
+          }
         } else {
-          throw ex;
+          throw x;
         }
       }
       i += 1;
     }
     if (!committed) {
-      if (notFound.size() > 0) {
-        throw new FileNotFoundException("Template not found: " + ((View) value).name() + " in "
-            + notFound);
+      if (notFound != null) {
+        throw notFound;
       }
       throw new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(produces));
     }

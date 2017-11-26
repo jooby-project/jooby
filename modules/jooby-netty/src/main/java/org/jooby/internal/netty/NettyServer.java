@@ -261,7 +261,6 @@ public class NettyServer implements Server {
   public NettyServer(final HttpHandler dispatcher, final Config config) {
     this.dispatcher = dispatcher;
     this.conf = config;
-    ResourceLeakDetector.setLevel(Level.DISABLED);
   }
 
   @Override
@@ -270,7 +269,7 @@ public class NettyServer implements Server {
     bossLoop = eventLoop(bossThreads, "boss");
     int workerThreads = conf.getInt("netty.threads.Worker");
     if (workerThreads > 0) {
-      workerLoop = eventLoop(workerThreads, "worker");
+      workerLoop = eventLoop(Math.max(4, workerThreads), "worker");
     } else {
       workerLoop = bossLoop;
     }

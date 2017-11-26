@@ -215,10 +215,14 @@ import java.util.stream.Collectors;
 
 import org.gradle.api.Project;
 import org.gradle.api.internal.ConventionTask;
+import org.gradle.api.invocation.Gradle;
+import org.gradle.api.tasks.GradleBuild;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecSpec;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
+import org.jooby.funzy.Try;
 
 public class JoobyTask extends ConventionTask {
 
@@ -248,9 +252,13 @@ public class JoobyTask extends ConventionTask {
 
   private List<String> watchDirs;
 
+  private List<String> srcExtensions;
+
   private String mainClassName;
 
   private String compiler;
+
+  private ProjectConnection connection;
 
   @TaskAction
   public void run() throws Exception {
@@ -279,18 +287,29 @@ public class JoobyTask extends ConventionTask {
     getLogger().info("compiler is {}", compiler);
     if ("on".equalsIgnoreCase(compiler)) {
       Path[] watchDirs = getSrc().stream()
+          .filter(File::exists)
           .map(File::toPath)
           .collect(Collectors.toList())
           .toArray(new Path[0]);
-      // don't start watcher if continuous is ON
-      new Watcher((k, path) -> {
-        if (path.toString().endsWith(".java")) {
-          runTask(project, path, "classes");
-        } else if (path.toString().endsWith(".conf")
-            || path.toString().endsWith(".properties")) {
-          runTask(project, path, "classes");
+      getLogger().info("watching directories {}", Arrays.asList(watchDirs));
+
+      connection = GradleConnector.newConnector()
+          .useInstallation(project.getGradle().getGradleHomeDir())
+          .forProjectDirectory(project.getRootDir())
+          .connect();
+
+      Watcher watcher = new Watcher((k, path) -> {
+        if (getSrcExtensions().stream()
+            .anyMatch(ext -> path.toString().endsWith(ext))) {
+          runTask(connection, path, "classes");
         }
-      }, watchDirs).start();
+      }, watchDirs);
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        Try.run(() -> watcher.stop())
+          .onComplete(() -> connection.close())
+          .throwException();
+      }));
+      watcher.start();
     }
 
     String[] args = project.getGradle().getStartParameter().getProjectProperties()
@@ -307,18 +326,12 @@ public class JoobyTask extends ConventionTask {
     return files;
   }
 
-  private void runTask(final Project project, final Path path, final String task) {
+  private void runTask(final ProjectConnection connection, final Path path, final String task) {
     synchronized (LOCK) {
-      ProjectConnection connection = null;
       Map<String, String> xml = new HashMap<>();
       try {
         // clean jaxp
         XML_PROPS.forEach(p -> xml.put(p, (String) System.getProperties().remove(p)));
-
-        connection = GradleConnector.newConnector()
-            .useInstallation(project.getGradle().getGradleHomeDir())
-            .forProjectDirectory(project.getRootDir())
-            .connect();
 
         try {
           connection.newBuild()
@@ -337,9 +350,6 @@ public class JoobyTask extends ConventionTask {
             System.setProperty(k, v);
           }
         });
-        if (connection != null) {
-          connection.close();
-        }
       }
     }
   }
@@ -409,6 +419,14 @@ public class JoobyTask extends ConventionTask {
     this.watchDirs = watchDirs;
   }
 
+  public List<String> getSrcExtensions() {
+    return srcExtensions;
+  }
+
+  public void setSrcExtensions(final List<String> srcExtensions) {
+    this.srcExtensions = srcExtensions;
+  }
+
   public String getCompiler() {
     return compiler;
   }
@@ -416,4 +434,5 @@ public class JoobyTask extends ConventionTask {
   public void setCompiler(final String compiler) {
     this.compiler = compiler;
   }
+
 }

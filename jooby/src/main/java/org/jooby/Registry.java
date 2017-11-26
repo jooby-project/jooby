@@ -207,6 +207,8 @@ import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
+import javax.annotation.Nonnull;
+
 /**
  * <h1>service registry</h1>
  * <p>
@@ -226,6 +228,7 @@ public interface Registry {
    * @param <T> Service type.
    * @return A ready to use object.
    */
+  @Nonnull
   default <T> T require(final Class<T> type) {
     return require(Key.get(type));
   }
@@ -238,6 +241,7 @@ public interface Registry {
    * @param <T> Service type.
    * @return A ready to use object.
    */
+  @Nonnull
   default <T> T require(final String name, final Class<T> type) {
     return require(Key.get(type, Names.named(name)));
   }
@@ -249,6 +253,7 @@ public interface Registry {
    * @param <T> Service type.
    * @return A ready to use object.
    */
+  @Nonnull
   default <T> T require(final TypeLiteral<T> type) {
     return require(Key.get(type));
   }
@@ -260,6 +265,7 @@ public interface Registry {
    * @param <T> Service type.
    * @return A ready to use object.
    */
+  @Nonnull
   <T> T require(Key<T> key);
 
 }

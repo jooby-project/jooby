@@ -2,7 +2,11 @@
 
 <a href="https://jdbi.github.io">Jdbi</a> provides a convenience interface for SQL operations in Java.
 
-This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module so all the services provided by the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
+> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
+
+## exports
+
+* A ```Jdbi``` object
 
 ## dependency
 

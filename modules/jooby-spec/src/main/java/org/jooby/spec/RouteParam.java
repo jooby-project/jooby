@@ -211,6 +211,7 @@ import java.util.Optional;
  *
  * @author edgar
  */
+@Deprecated
 public interface RouteParam {
 
   /**

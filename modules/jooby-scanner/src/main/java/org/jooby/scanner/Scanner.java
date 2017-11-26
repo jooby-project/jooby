@@ -256,8 +256,7 @@ import java.util.stream.Collectors;
  *
  * <p>
  * This modules scan the application class-path and automatically discover and register
- * <code>MVC routes/controllers</code>, {@link org.jooby.Jooby.Module} and {@link Jooby}
- * applications.
+ * <code>MVC routes/controllers</code> and {@link Jooby} applications.
  * </p>
  *
  * <p>
@@ -430,15 +429,6 @@ public class Scanner implements Jooby.Module {
         .map(loadClass)
         .filter(C)
         .forEach(routes::use);
-
-    /** Modules: */
-    result.getNamesOfClassesImplementing(Jooby.Module.class)
-        .stream()
-        .filter(once)
-        .map(loadClass)
-        .filter(C)
-        .forEach(throwingConsumer(
-            klass -> ((Jooby.Module) newObject(klass)).configure(env, conf, binder)));
 
     String mainClass = conf.getString("application.class");
     /** Apps: */

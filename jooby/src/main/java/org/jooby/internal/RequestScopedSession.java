@@ -248,57 +248,68 @@ public class RequestScopedSession implements Session {
 
   @Override
   public String id() {
+    notDestroyed();
     return session.id();
   }
 
   @Override
   public long createdAt() {
+    notDestroyed();
     return session.createdAt();
   }
 
   @Override
   public long accessedAt() {
+    notDestroyed();
     return session.accessedAt();
   }
 
   @Override
   public long savedAt() {
+    notDestroyed();
     return session.savedAt();
   }
 
   @Override
   public long expiryAt() {
+    notDestroyed();
     return session.expiryAt();
   }
 
   @Override
   public Mutant get(final String name) {
+    notDestroyed();
     return session.get(name);
   }
 
   @Override
   public Map<String, String> attributes() {
+    notDestroyed();
     return session.attributes();
   }
 
   @Override
   public Session set(final String name, final String value) {
+    notDestroyed();
     session.set(name, value);
     return this;
   }
 
   @Override
   public boolean isSet(final String name) {
+    notDestroyed();
     return session.isSet(name);
   }
 
   @Override
   public Mutant unset(final String name) {
+    notDestroyed();
     return session.unset(name);
   }
 
   @Override
   public Session unset() {
+    notDestroyed();
     session.unset();
     return this;
   }
@@ -326,12 +337,24 @@ public class RequestScopedSession implements Session {
     }
   }
 
+  @Override public boolean isDestroyed() {
+    return session == null || session.isDestroyed();
+  }
+
   @Override
   public String toString() {
+    notDestroyed();
     return session.toString();
   }
 
   public Session session() {
+    notDestroyed();
     return session;
+  }
+
+  private void notDestroyed() {
+    if (isDestroyed()) {
+      throw new Session.Destroyed();
+    }
   }
 }

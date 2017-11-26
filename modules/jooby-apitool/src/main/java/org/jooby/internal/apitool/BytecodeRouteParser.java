@@ -1,205 +1,205 @@
 /**
- *                                  Apache License
- *                            Version 2.0, January 2004
- *                         http://www.apache.org/licenses/
+ * Apache License
+ * Version 2.0, January 2004
+ * http://www.apache.org/licenses/
  *
- *    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+ * TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
  *
- *    1. Definitions.
+ * 1. Definitions.
  *
- *       "License" shall mean the terms and conditions for use, reproduction,
- *       and distribution as defined by Sections 1 through 9 of this document.
+ * "License" shall mean the terms and conditions for use, reproduction,
+ * and distribution as defined by Sections 1 through 9 of this document.
  *
- *       "Licensor" shall mean the copyright owner or entity authorized by
- *       the copyright owner that is granting the License.
+ * "Licensor" shall mean the copyright owner or entity authorized by
+ * the copyright owner that is granting the License.
  *
- *       "Legal Entity" shall mean the union of the acting entity and all
- *       other entities that control, are controlled by, or are under common
- *       control with that entity. For the purposes of this definition,
- *       "control" means (i) the power, direct or indirect, to cause the
- *       direction or management of such entity, whether by contract or
- *       otherwise, or (ii) ownership of fifty percent (50%) or more of the
- *       outstanding shares, or (iii) beneficial ownership of such entity.
+ * "Legal Entity" shall mean the union of the acting entity and all
+ * other entities that control, are controlled by, or are under common
+ * control with that entity. For the purposes of this definition,
+ * "control" means (i) the power, direct or indirect, to cause the
+ * direction or management of such entity, whether by contract or
+ * otherwise, or (ii) ownership of fifty percent (50%) or more of the
+ * outstanding shares, or (iii) beneficial ownership of such entity.
  *
- *       "You" (or "Your") shall mean an individual or Legal Entity
- *       exercising permissions granted by this License.
+ * "You" (or "Your") shall mean an individual or Legal Entity
+ * exercising permissions granted by this License.
  *
- *       "Source" form shall mean the preferred form for making modifications,
- *       including but not limited to software source code, documentation
- *       source, and configuration files.
+ * "Source" form shall mean the preferred form for making modifications,
+ * including but not limited to software source code, documentation
+ * source, and configuration files.
  *
- *       "Object" form shall mean any form resulting from mechanical
- *       transformation or translation of a Source form, including but
- *       not limited to compiled object code, generated documentation,
- *       and conversions to other media types.
+ * "Object" form shall mean any form resulting from mechanical
+ * transformation or translation of a Source form, including but
+ * not limited to compiled object code, generated documentation,
+ * and conversions to other media types.
  *
- *       "Work" shall mean the work of authorship, whether in Source or
- *       Object form, made available under the License, as indicated by a
- *       copyright notice that is included in or attached to the work
- *       (an example is provided in the Appendix below).
+ * "Work" shall mean the work of authorship, whether in Source or
+ * Object form, made available under the License, as indicated by a
+ * copyright notice that is included in or attached to the work
+ * (an example is provided in the Appendix below).
  *
- *       "Derivative Works" shall mean any work, whether in Source or Object
- *       form, that is based on (or derived from) the Work and for which the
- *       editorial revisions, annotations, elaborations, or other modifications
- *       represent, as a whole, an original work of authorship. For the purposes
- *       of this License, Derivative Works shall not include works that remain
- *       separable from, or merely link (or bind by name) to the interfaces of,
- *       the Work and Derivative Works thereof.
+ * "Derivative Works" shall mean any work, whether in Source or Object
+ * form, that is based on (or derived from) the Work and for which the
+ * editorial revisions, annotations, elaborations, or other modifications
+ * represent, as a whole, an original work of authorship. For the purposes
+ * of this License, Derivative Works shall not include works that remain
+ * separable from, or merely link (or bind by name) to the interfaces of,
+ * the Work and Derivative Works thereof.
  *
- *       "Contribution" shall mean any work of authorship, including
- *       the original version of the Work and any modifications or additions
- *       to that Work or Derivative Works thereof, that is intentionally
- *       submitted to Licensor for inclusion in the Work by the copyright owner
- *       or by an individual or Legal Entity authorized to submit on behalf of
- *       the copyright owner. For the purposes of this definition, "submitted"
- *       means any form of electronic, verbal, or written communication sent
- *       to the Licensor or its representatives, including but not limited to
- *       communication on electronic mailing lists, source code control systems,
- *       and issue tracking systems that are managed by, or on behalf of, the
- *       Licensor for the purpose of discussing and improving the Work, but
- *       excluding communication that is conspicuously marked or otherwise
- *       designated in writing by the copyright owner as "Not a Contribution."
+ * "Contribution" shall mean any work of authorship, including
+ * the original version of the Work and any modifications or additions
+ * to that Work or Derivative Works thereof, that is intentionally
+ * submitted to Licensor for inclusion in the Work by the copyright owner
+ * or by an individual or Legal Entity authorized to submit on behalf of
+ * the copyright owner. For the purposes of this definition, "submitted"
+ * means any form of electronic, verbal, or written communication sent
+ * to the Licensor or its representatives, including but not limited to
+ * communication on electronic mailing lists, source code control systems,
+ * and issue tracking systems that are managed by, or on behalf of, the
+ * Licensor for the purpose of discussing and improving the Work, but
+ * excluding communication that is conspicuously marked or otherwise
+ * designated in writing by the copyright owner as "Not a Contribution."
  *
- *       "Contributor" shall mean Licensor and any individual or Legal Entity
- *       on behalf of whom a Contribution has been received by Licensor and
- *       subsequently incorporated within the Work.
+ * "Contributor" shall mean Licensor and any individual or Legal Entity
+ * on behalf of whom a Contribution has been received by Licensor and
+ * subsequently incorporated within the Work.
  *
- *    2. Grant of Copyright License. Subject to the terms and conditions of
- *       this License, each Contributor hereby grants to You a perpetual,
- *       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
- *       copyright license to reproduce, prepare Derivative Works of,
- *       publicly display, publicly perform, sublicense, and distribute the
- *       Work and such Derivative Works in Source or Object form.
+ * 2. Grant of Copyright License. Subject to the terms and conditions of
+ * this License, each Contributor hereby grants to You a perpetual,
+ * worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+ * copyright license to reproduce, prepare Derivative Works of,
+ * publicly display, publicly perform, sublicense, and distribute the
+ * Work and such Derivative Works in Source or Object form.
  *
- *    3. Grant of Patent License. Subject to the terms and conditions of
- *       this License, each Contributor hereby grants to You a perpetual,
- *       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
- *       (except as stated in this section) patent license to make, have made,
- *       use, offer to sell, sell, import, and otherwise transfer the Work,
- *       where such license applies only to those patent claims licensable
- *       by such Contributor that are necessarily infringed by their
- *       Contribution(s) alone or by combination of their Contribution(s)
- *       with the Work to which such Contribution(s) was submitted. If You
- *       institute patent litigation against any entity (including a
- *       cross-claim or counterclaim in a lawsuit) alleging that the Work
- *       or a Contribution incorporated within the Work constitutes direct
- *       or contributory patent infringement, then any patent licenses
- *       granted to You under this License for that Work shall terminate
- *       as of the date such litigation is filed.
+ * 3. Grant of Patent License. Subject to the terms and conditions of
+ * this License, each Contributor hereby grants to You a perpetual,
+ * worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+ * (except as stated in this section) patent license to make, have made,
+ * use, offer to sell, sell, import, and otherwise transfer the Work,
+ * where such license applies only to those patent claims licensable
+ * by such Contributor that are necessarily infringed by their
+ * Contribution(s) alone or by combination of their Contribution(s)
+ * with the Work to which such Contribution(s) was submitted. If You
+ * institute patent litigation against any entity (including a
+ * cross-claim or counterclaim in a lawsuit) alleging that the Work
+ * or a Contribution incorporated within the Work constitutes direct
+ * or contributory patent infringement, then any patent licenses
+ * granted to You under this License for that Work shall terminate
+ * as of the date such litigation is filed.
  *
- *    4. Redistribution. You may reproduce and distribute copies of the
- *       Work or Derivative Works thereof in any medium, with or without
- *       modifications, and in Source or Object form, provided that You
- *       meet the following conditions:
+ * 4. Redistribution. You may reproduce and distribute copies of the
+ * Work or Derivative Works thereof in any medium, with or without
+ * modifications, and in Source or Object form, provided that You
+ * meet the following conditions:
  *
- *       (a) You must give any other recipients of the Work or
- *           Derivative Works a copy of this License; and
+ * (a) You must give any other recipients of the Work or
+ * Derivative Works a copy of this License; and
  *
- *       (b) You must cause any modified files to carry prominent notices
- *           stating that You changed the files; and
+ * (b) You must cause any modified files to carry prominent notices
+ * stating that You changed the files; and
  *
- *       (c) You must retain, in the Source form of any Derivative Works
- *           that You distribute, all copyright, patent, trademark, and
- *           attribution notices from the Source form of the Work,
- *           excluding those notices that do not pertain to any part of
- *           the Derivative Works; and
+ * (c) You must retain, in the Source form of any Derivative Works
+ * that You distribute, all copyright, patent, trademark, and
+ * attribution notices from the Source form of the Work,
+ * excluding those notices that do not pertain to any part of
+ * the Derivative Works; and
  *
- *       (d) If the Work includes a "NOTICE" text file as part of its
- *           distribution, then any Derivative Works that You distribute must
- *           include a readable copy of the attribution notices contained
- *           within such NOTICE file, excluding those notices that do not
- *           pertain to any part of the Derivative Works, in at least one
- *           of the following places: within a NOTICE text file distributed
- *           as part of the Derivative Works; within the Source form or
- *           documentation, if provided along with the Derivative Works; or,
- *           within a display generated by the Derivative Works, if and
- *           wherever such third-party notices normally appear. The contents
- *           of the NOTICE file are for informational purposes only and
- *           do not modify the License. You may add Your own attribution
- *           notices within Derivative Works that You distribute, alongside
- *           or as an addendum to the NOTICE text from the Work, provided
- *           that such additional attribution notices cannot be construed
- *           as modifying the License.
+ * (d) If the Work includes a "NOTICE" text file as part of its
+ * distribution, then any Derivative Works that You distribute must
+ * include a readable copy of the attribution notices contained
+ * within such NOTICE file, excluding those notices that do not
+ * pertain to any part of the Derivative Works, in at least one
+ * of the following places: within a NOTICE text file distributed
+ * as part of the Derivative Works; within the Source form or
+ * documentation, if provided along with the Derivative Works; or,
+ * within a display generated by the Derivative Works, if and
+ * wherever such third-party notices normally appear. The contents
+ * of the NOTICE file are for informational purposes only and
+ * do not modify the License. You may add Your own attribution
+ * notices within Derivative Works that You distribute, alongside
+ * or as an addendum to the NOTICE text from the Work, provided
+ * that such additional attribution notices cannot be construed
+ * as modifying the License.
  *
- *       You may add Your own copyright statement to Your modifications and
- *       may provide additional or different license terms and conditions
- *       for use, reproduction, or distribution of Your modifications, or
- *       for any such Derivative Works as a whole, provided Your use,
- *       reproduction, and distribution of the Work otherwise complies with
- *       the conditions stated in this License.
+ * You may add Your own copyright statement to Your modifications and
+ * may provide additional or different license terms and conditions
+ * for use, reproduction, or distribution of Your modifications, or
+ * for any such Derivative Works as a whole, provided Your use,
+ * reproduction, and distribution of the Work otherwise complies with
+ * the conditions stated in this License.
  *
- *    5. Submission of Contributions. Unless You explicitly state otherwise,
- *       any Contribution intentionally submitted for inclusion in the Work
- *       by You to the Licensor shall be under the terms and conditions of
- *       this License, without any additional terms or conditions.
- *       Notwithstanding the above, nothing herein shall supersede or modify
- *       the terms of any separate license agreement you may have executed
- *       with Licensor regarding such Contributions.
+ * 5. Submission of Contributions. Unless You explicitly state otherwise,
+ * any Contribution intentionally submitted for inclusion in the Work
+ * by You to the Licensor shall be under the terms and conditions of
+ * this License, without any additional terms or conditions.
+ * Notwithstanding the above, nothing herein shall supersede or modify
+ * the terms of any separate license agreement you may have executed
+ * with Licensor regarding such Contributions.
  *
- *    6. Trademarks. This License does not grant permission to use the trade
- *       names, trademarks, service marks, or product names of the Licensor,
- *       except as required for reasonable and customary use in describing the
- *       origin of the Work and reproducing the content of the NOTICE file.
+ * 6. Trademarks. This License does not grant permission to use the trade
+ * names, trademarks, service marks, or product names of the Licensor,
+ * except as required for reasonable and customary use in describing the
+ * origin of the Work and reproducing the content of the NOTICE file.
  *
- *    7. Disclaimer of Warranty. Unless required by applicable law or
- *       agreed to in writing, Licensor provides the Work (and each
- *       Contributor provides its Contributions) on an "AS IS" BASIS,
- *       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *       implied, including, without limitation, any warranties or conditions
- *       of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
- *       PARTICULAR PURPOSE. You are solely responsible for determining the
- *       appropriateness of using or redistributing the Work and assume any
- *       risks associated with Your exercise of permissions under this License.
+ * 7. Disclaimer of Warranty. Unless required by applicable law or
+ * agreed to in writing, Licensor provides the Work (and each
+ * Contributor provides its Contributions) on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied, including, without limitation, any warranties or conditions
+ * of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+ * PARTICULAR PURPOSE. You are solely responsible for determining the
+ * appropriateness of using or redistributing the Work and assume any
+ * risks associated with Your exercise of permissions under this License.
  *
- *    8. Limitation of Liability. In no event and under no legal theory,
- *       whether in tort (including negligence), contract, or otherwise,
- *       unless required by applicable law (such as deliberate and grossly
- *       negligent acts) or agreed to in writing, shall any Contributor be
- *       liable to You for damages, including any direct, indirect, special,
- *       incidental, or consequential damages of any character arising as a
- *       result of this License or out of the use or inability to use the
- *       Work (including but not limited to damages for loss of goodwill,
- *       work stoppage, computer failure or malfunction, or any and all
- *       other commercial damages or losses), even if such Contributor
- *       has been advised of the possibility of such damages.
+ * 8. Limitation of Liability. In no event and under no legal theory,
+ * whether in tort (including negligence), contract, or otherwise,
+ * unless required by applicable law (such as deliberate and grossly
+ * negligent acts) or agreed to in writing, shall any Contributor be
+ * liable to You for damages, including any direct, indirect, special,
+ * incidental, or consequential damages of any character arising as a
+ * result of this License or out of the use or inability to use the
+ * Work (including but not limited to damages for loss of goodwill,
+ * work stoppage, computer failure or malfunction, or any and all
+ * other commercial damages or losses), even if such Contributor
+ * has been advised of the possibility of such damages.
  *
- *    9. Accepting Warranty or Additional Liability. While redistributing
- *       the Work or Derivative Works thereof, You may choose to offer,
- *       and charge a fee for, acceptance of support, warranty, indemnity,
- *       or other liability obligations and/or rights consistent with this
- *       License. However, in accepting such obligations, You may act only
- *       on Your own behalf and on Your sole responsibility, not on behalf
- *       of any other Contributor, and only if You agree to indemnify,
- *       defend, and hold each Contributor harmless for any liability
- *       incurred by, or claims asserted against, such Contributor by reason
- *       of your accepting any such warranty or additional liability.
+ * 9. Accepting Warranty or Additional Liability. While redistributing
+ * the Work or Derivative Works thereof, You may choose to offer,
+ * and charge a fee for, acceptance of support, warranty, indemnity,
+ * or other liability obligations and/or rights consistent with this
+ * License. However, in accepting such obligations, You may act only
+ * on Your own behalf and on Your sole responsibility, not on behalf
+ * of any other Contributor, and only if You agree to indemnify,
+ * defend, and hold each Contributor harmless for any liability
+ * incurred by, or claims asserted against, such Contributor by reason
+ * of your accepting any such warranty or additional liability.
  *
- *    END OF TERMS AND CONDITIONS
+ * END OF TERMS AND CONDITIONS
  *
- *    APPENDIX: How to apply the Apache License to your work.
+ * APPENDIX: How to apply the Apache License to your work.
  *
- *       To apply the Apache License to your work, attach the following
- *       boilerplate notice, with the fields enclosed by brackets "{}"
- *       replaced with your own identifying information. (Don't include
- *       the brackets!)  The text should be enclosed in the appropriate
- *       comment syntax for the file format. We also recommend that a
- *       file or class name and description of purpose be included on the
- *       same "printed page" as the copyright notice for easier
- *       identification within third-party archives.
+ * To apply the Apache License to your work, attach the following
+ * boilerplate notice, with the fields enclosed by brackets "{}"
+ * replaced with your own identifying information. (Don't include
+ * the brackets!)  The text should be enclosed in the appropriate
+ * comment syntax for the file format. We also recommend that a
+ * file or class name and description of purpose be included on the
+ * same "printed page" as the copyright notice for easier
+ * identification within third-party archives.
  *
- *    Copyright 2014 Edgar Espina
+ * Copyright 2014 Edgar Espina
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.jooby.internal.apitool;
 
@@ -207,6 +207,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Primitives;
@@ -218,13 +219,18 @@ import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Request;
 import org.jooby.Response;
+import org.jooby.Result;
 import org.jooby.Route;
 import org.jooby.Session;
+import org.jooby.Status;
 import org.jooby.Upload;
 import org.jooby.apitool.RouteMethod;
 import org.jooby.apitool.RouteParameter;
 import org.jooby.apitool.RouteResponse;
+import org.jooby.funzy.Try;
+import static org.jooby.funzy.When.when;
 import org.jooby.internal.RouteMetadata;
+import static org.jooby.internal.apitool.Filters.access;
 import static org.jooby.internal.apitool.Filters.and;
 import static org.jooby.internal.apitool.Filters.call;
 import static org.jooby.internal.apitool.Filters.file;
@@ -233,11 +239,13 @@ import static org.jooby.internal.apitool.Filters.is;
 import static org.jooby.internal.apitool.Filters.joobyRun;
 import static org.jooby.internal.apitool.Filters.kotlinRouteHandler;
 import static org.jooby.internal.apitool.Filters.method;
+import static org.jooby.internal.apitool.Filters.methodName;
 import static org.jooby.internal.apitool.Filters.mount;
 import static org.jooby.internal.apitool.Filters.mutantToSomething;
 import static org.jooby.internal.apitool.Filters.mutantValue;
 import static org.jooby.internal.apitool.Filters.opcode;
 import static org.jooby.internal.apitool.Filters.param;
+import static org.jooby.internal.apitool.Filters.path;
 import static org.jooby.internal.apitool.Filters.scriptRoute;
 import static org.jooby.internal.apitool.Filters.use;
 import org.jooby.internal.mvc.MvcRoutes;
@@ -247,6 +255,7 @@ import org.jooby.mvc.Header;
 import org.jooby.mvc.Local;
 import org.jooby.mvc.POST;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
@@ -271,6 +280,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -335,7 +345,7 @@ public class BytecodeRouteParser {
 
   private final Predicate<MethodInsnNode> scriptRoute;
 
-  private ClassLoader loader;
+  private final ClassLoader loader;
 
   public BytecodeRouteParser(ClassLoader loader, Path dir) {
     javadoc = new DocParser(dir);
@@ -402,9 +412,22 @@ public class BytecodeRouteParser {
             returnType = TypeDescriptorParser.parse(loader,
                 Optional.ofNullable(method.signature).orElse(method.desc));
           }
+          Integer status;
+          if (returnType instanceof TypeWithStatus) {
+            status = ((TypeWithStatus) returnType).status;
+            returnType = ((TypeWithStatus) returnType).type();
+          } else {
+            status = null;
+          }
           List<RouteParameter> parameters = params(loader, owner, lambda.pattern, method);
+          RouteResponse routeResponse = new RouteResponse(simplifyType(returnType));
+          if (status != null) {
+            routeResponse.status(ImmutableMap.of(status,
+                Try.apply(() -> Status.valueOf(status.intValue()).reason())
+                    .orElse(status.toString())));
+          }
           RouteMethod route = new RouteMethod(lambda.name, lambda.pattern,
-              new RouteResponse(simplifyType(returnType))).parameters(parameters);
+              routeResponse).parameters(parameters);
           javadoc(route, javadoc.pop(lambda.declaringClass, lambda.name, lambda.pattern));
           methods.add(route);
         } else {
@@ -455,6 +478,95 @@ public class BytecodeRouteParser {
         .collect(Collectors.toList());
   }
 
+  private List<Object> lambdas(final ClassLoader loader, final ClassNode owner, MethodNode method) {
+    List<Object> result = new ArrayList<>();
+    new Insns(method)
+        // get(pattern, ); or post, put, etc...
+        .on(InvokeDynamicInsnNode.class, it -> {
+          log.debug("found candidate: {}", it);
+          it.next()
+              .filter(is(MethodInsnNode.class))
+              .map(MethodInsnNode.class::cast)
+              .filter(scriptRoute)
+              .findFirst()
+              .ifPresent(m -> {
+                log.debug("found script route: {}.{}{}", m.owner, m.name, m.desc);
+                Lambda.create(loader, scriptRoute, owner.name.replace("/", "."),
+                    it.node, null)
+                    .forEach(result::add);
+              });
+        })
+        // path(String)
+        .on(path(loader, owner.name), it -> {
+          log.debug("found path: " + it);
+          result.addAll(pathOperator(owner, owner.methods, it));
+        })
+        // use(Mvc class)
+        .on(use(loader, owner.name), it -> mvc(it, result::add))
+        // use(new App());
+        .on(mount(loader, owner.name), it -> {
+          log.debug("found mount: " + it);
+          it.prev()
+              .filter(and(is(MethodInsnNode.class), opcode(INVOKESPECIAL)))
+              .findFirst()
+              .map(MethodInsnNode.class::cast)
+              .ifPresent(node -> {
+                List<Lambda> lambdas = lambdas(loader, loadClass(node.owner)).stream()
+                    .filter(Lambda.class::isInstance)
+                    .map(Lambda.class::cast)
+                    .collect(Collectors.toList());
+                Insn.ldcFor(node).stream()
+                    .map(e -> e.cst.toString())
+                    .findFirst()
+                    .ifPresent(prefix -> {
+                      IntStream.range(0, lambdas.size())
+                          .forEach(i -> lambdas.set(i, lambdas.get(i).prefix(prefix)));
+                    });
+                result.addAll(lambdas);
+              });
+        })
+        .forEach();
+    log.debug("results: {}", result);
+    return result;
+  }
+
+  private List<Lambda> pathOperator(ClassNode owner, List<MethodNode> methods,
+      Insn<MethodInsnNode> it) {
+    List<Lambda> result = new ArrayList<>();
+    Insn.ldcFor(it.node).stream()
+        .map(e -> e.cst.toString())
+        .findFirst()
+        .ifPresent(path -> {
+          it.prev()
+              .filter(is(InvokeDynamicInsnNode.class))
+              .findFirst()
+              .map(InvokeDynamicInsnNode.class::cast)
+              .ifPresent(n -> {
+                Arrays.asList(n.bsmArgs).stream()
+                    .filter(Handle.class::isInstance)
+                    .findFirst()
+                    .map(Handle.class::cast)
+                    .ifPresent(handle -> {
+                      methods.stream()
+                          .filter(m -> m.name.equals(handle.getName()))
+                          .findFirst()
+                          .ifPresent(pathAction -> {
+                            log.debug("pathAction {}", path);
+                            lambdas(loader, owner, pathAction).stream()
+                                .filter(Lambda.class::isInstance)
+                                .map(Lambda.class::cast)
+                                .forEach(lambda -> {
+                                  result.add(lambda.prefix(path));
+                                });
+                          });
+
+                    });
+              });
+        });
+    log.debug("pathOperator: {}", result);
+    return result;
+  }
+
   @SuppressWarnings("unchecked")
   private List<Object> lambdas(final ClassLoader loader, final ClassNode owner) {
     List compiled = read(owner.name);
@@ -466,67 +578,24 @@ public class BytecodeRouteParser {
       return kotlinSource(loader, owner);
     } else {
       List<MethodNode> methods = owner.methods;
-      List<Object> handles = methods.stream().flatMap(method -> {
-        List<Object> result = new ArrayList<>();
-        new Insns(method)
-            // get(pattern, ); or post, put, etc...
-            .on(InvokeDynamicInsnNode.class, it -> {
-              it.next()
-                  .filter(is(MethodInsnNode.class))
-                  .map(MethodInsnNode.class::cast)
-                  .filter(scriptRoute)
-                  .findFirst()
-                  .ifPresent(m -> Lambda.create(owner.name.replace("/", "."),
-                      it.node, null)
-                      .forEach(result::add));
-            })
-            // use(Mvc class)
-            .on(use(owner.name), it -> {
-              it.prev()
-                  .filter(is(LdcInsnNode.class))
-                  .findFirst()
-                  .map(LdcInsnNode.class::cast)
-                  .filter(ldc -> ldc.cst instanceof Type)
-                  .map(ldc -> ((Type) ldc.cst).getClassName())
-                  .ifPresent(mvcClass ->
-                      mvcRoutes((Class) loadType(loader, mvcClass), result::add)
-                  );
-            })
-            // use(new App());
-            .on(mount(owner.name), it -> {
-              it.prev()
-                  .filter(and(is(MethodInsnNode.class), opcode(INVOKESPECIAL)))
-                  .findFirst()
-                  .map(MethodInsnNode.class::cast)
-                  .ifPresent(node -> {
-                    List<Lambda> lambdas = lambdas(loader, loadClass(node.owner)).stream()
-                        .filter(e -> e instanceof Lambda)
-                        .map(Lambda.class::cast)
-                        .collect(Collectors.toList());
-                    Insn.ldcFor(node).stream()
-                        .map(e -> e.cst.toString())
-                        .findFirst()
-                        .ifPresent(prefix -> {
-                          IntStream.range(0, lambdas.size())
-                              .forEach(i -> lambdas.set(i, lambdas.get(i).prefix(prefix)));
-                        });
-                    result.addAll(lambdas);
-                  });
-            })
-            .forEach();
-        return result.stream();
-      }).collect(Collectors.toList());
+      List<Object> handles = methods.stream()
+          .filter(access(Opcodes.ACC_SYNTHETIC).negate())
+          .flatMap(method -> lambdas(loader, owner, method).stream())
+          .collect(Collectors.toList());
       return handles;
     }
   }
 
-  private void mvcRoutes(final Class type, Consumer<RouteMethod> callback) {
+  private void mvcRoutes(String path, final Class type, Consumer<RouteMethod> callback) {
     Env env = Env.DEFAULT.build(ConfigFactory.empty()
         .withValue("application.env", ConfigValueFactory.fromAnyRef("dev")));
-    MvcRoutes.routes(env, new RouteMetadata(env), "", type)
+    MvcRoutes.routes(env, new RouteMetadata(env), "", true, type)
         .forEach(r -> {
           RouteMethod method = toRouteMethod(r);
           javadoc(method, javadoc.pop(type.getName(), r.method(), r.pattern()));
+          if (path.length() >0) {
+            method.pattern(Route.normalize(path) + method.pattern());
+          }
           callback.accept(method);
         });
   }
@@ -544,7 +613,7 @@ public class BytecodeRouteParser {
           .ifPresent(main -> {
             log.debug("found main method: {}.main", owner.name);
             new Insns(main)
-                .on(joobyRun(), n -> {
+                .on(joobyRun(loader), n -> {
                   log.debug("found run(::Type, *args)");
                   n.prev()
                       .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
@@ -586,6 +655,105 @@ public class BytecodeRouteParser {
     return result;
   }
 
+  private List<Object> kotlinLambda(final ClassLoader loader, final ClassNode owner,
+      MethodNode method) {
+    List<Object> result = new ArrayList<>();
+    new Insns(method)
+        .on(scriptRoute, it -> {
+          log.debug("  lambda candidate: {}", it.node);
+          it.prev()
+              .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
+              .findFirst()
+              .map(FieldInsnNode.class::cast)
+              .ifPresent(field -> {
+                ClassNode lambda = loadClass(field.owner);
+                log.debug("  lambda: {}", field.owner);
+                lambda.methods.stream()
+                    .filter(kotlinRouteHandler())
+                    .forEach(e -> {
+                      MethodNode m = (MethodNode) e;
+                      log.debug("    implementation: {}.{}()", lambda.name, m.name, m.desc);
+                      Lambda.create(field.owner, Optional.empty(), it.node, m)
+                          .forEach(result::add);
+                    });
+              });
+        })
+        // use(Mvc class)
+        .on(use(loader, "org.jooby.Kooby"), it -> mvc(it, result::add))
+        // route ("...") {...}
+        .on(call(loader, "org.jooby.Kooby", "route", String.class,
+            "kotlin.jvm.functions.Function1"), it -> {
+          Optional<String> prefix = Insn.ldcFor(it.node).stream()
+              .map(e -> e.cst.toString())
+              .findFirst();
+          it.prev()
+              .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
+              .findFirst()
+              .map(FieldInsnNode.class::cast)
+              .ifPresent(field -> {
+                ClassNode lambda = loadClass(field.owner);
+                lambda.methods.stream()
+                    .filter(method("invoke", "org.jooby.KRouteGroup"))
+                    .forEach(m -> {
+                      new Insns((MethodNode) m)
+                          .on(scriptRoute, n -> {
+                            n.prev()
+                                .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
+                                .findFirst()
+                                .map(FieldInsnNode.class::cast)
+                                .ifPresent(f -> {
+                                  ClassNode route = loadClass(f.owner);
+                                  route.methods.stream()
+                                      .filter(kotlinRouteHandler())
+                                      .forEach(e -> Lambda
+                                          .create(f.owner, prefix, n.node, (MethodNode) e)
+                                          .forEach(result::add)
+                                      );
+                                });
+                          }).forEach();
+                    });
+              });
+        })
+        // use(Jooby())
+        .on(mount(loader, Jooby.class.getName()), it -> {
+          it.prev()
+              .filter(and(is(MethodInsnNode.class), opcode(INVOKESPECIAL)))
+              .findFirst()
+              .map(MethodInsnNode.class::cast)
+              .ifPresent(n -> result.addAll(lambdas(loader, loadClass(n.owner))));
+        })
+        // path(String) {...}
+        .on(path(loader, "org.jooby.Kooby"), it -> {
+          result.addAll(kotlinPathOperator(owner, owner.methods, it));
+        })
+        .forEach();
+    return result;
+  }
+
+  private void mvc(Insn<MethodInsnNode> it, Consumer<Object> consumer) {
+    log.debug("found mvc {}", it);
+    it.prev()
+        .filter(is(LdcInsnNode.class))
+        .findFirst()
+        .map(LdcInsnNode.class::cast)
+        .filter(ldc -> ldc.cst instanceof Type)
+        .ifPresent(ldc -> {
+          String arg0 = Type.getArgumentTypes(it.node.desc)[0].getClassName();
+          String prefix = "";
+          if (arg0.equals(String.class.getName())) {
+            prefix = new Insn<>(it.method, ldc.getPrevious())
+                .prev()
+                .filter(is(LdcInsnNode.class))
+                .findFirst()
+                .map(LdcInsnNode.class::cast)
+                .map(n -> n.cst.toString())
+                .orElse("");
+          }
+          String mvcClass = ((Type) ldc.cst).getClassName();
+          mvcRoutes(prefix, (Class) loadType(loader, mvcClass), consumer::accept);
+        });
+  }
+
   private List<Object> kotlinLambda(final ClassLoader loader, final ClassNode owner) {
     List<Object> result = new ArrayList<>();
     log.debug("visiting lambda class: {}", owner.name);
@@ -596,81 +764,43 @@ public class BytecodeRouteParser {
         .findFirst()
         .ifPresent(method -> {
           log.debug("  invoke: {}", method.desc);
-          new Insns(method)
-              .on(scriptRoute, it -> {
-                log.debug("  lambda candidate: {}", it.node);
-                it.prev()
-                    .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
-                    .findFirst()
-                    .map(FieldInsnNode.class::cast)
-                    .ifPresent(field -> {
-                      ClassNode lambda = loadClass(field.owner);
-                      log.debug("  lambda: {}", field.owner);
-                      lambda.methods.stream()
-                          .filter(kotlinRouteHandler())
-                          .forEach(e -> {
-                            MethodNode m = (MethodNode) e;
-                            log.debug("    implementation: {}.{}()", lambda.name, m.name, m.desc);
-                            Lambda.create(field.owner, Optional.empty(), it.node, m)
-                                .forEach(result::add);
-                          });
-                    });
-              })
-              // use(Mvc class)
-              .on(use("org.jooby.Kooby"), it -> {
-                it.prev()
-                    .filter(is(LdcInsnNode.class))
-                    .findFirst()
-                    .map(LdcInsnNode.class::cast)
-                    .filter(ldc -> ldc.cst instanceof Type)
-                    .map(ldc -> ((Type) ldc.cst).getClassName())
-                    .ifPresent(mvcClass ->
-                        mvcRoutes((Class) loadType(loader, mvcClass), result::add)
-                    );
-              })
-              // route ("...") {...}
-              .on(call("org.jooby.Kooby", "route", String.class,
-                  "kotlin.jvm.functions.Function1"), it -> {
-                Optional<String> prefix = Insn.ldcFor(it.node).stream()
-                    .map(e -> e.cst.toString())
-                    .findFirst();
-                it.prev()
-                    .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
-                    .findFirst()
-                    .map(FieldInsnNode.class::cast)
-                    .ifPresent(field -> {
-                      ClassNode lambda = loadClass(field.owner);
-                      lambda.methods.stream()
-                          .filter(method("invoke", "org.jooby.KRouteGroup"))
-                          .forEach(m -> {
-                            new Insns((MethodNode) m)
-                                .on(scriptRoute, n -> {
-                                  n.prev()
-                                      .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
-                                      .findFirst()
-                                      .map(FieldInsnNode.class::cast)
-                                      .ifPresent(f -> {
-                                        ClassNode route = loadClass(f.owner);
-                                        route.methods.stream()
-                                            .filter(kotlinRouteHandler())
-                                            .forEach(e -> Lambda
-                                                .create(f.owner, prefix, n.node, (MethodNode) e)
-                                                .forEach(result::add)
-                                            );
-                                      });
-                                }).forEach();
-                          });
-                    });
-              })
-              // use(Jooby())
-              .on(mount(Jooby.class.getName()), it -> {
+          result.addAll(kotlinLambda(loader, owner, method));
+        });
+    return result;
+  }
+
+  private List<Lambda> kotlinPathOperator(ClassNode owner, List<MethodNode> methods,
+      Insn<MethodInsnNode> it) {
+    List<Lambda> result = new ArrayList<>();
+    it.prev()
+        .filter(and(is(MethodInsnNode.class), opcode(INVOKESPECIAL)))
+        .findFirst()
+        .map(MethodInsnNode.class::cast)
+        .ifPresent(node -> {
+          Insn.ldcFor(node).stream()
+              .map(e -> e.cst.toString())
+              .findFirst()
+              .ifPresent(path -> {
                 it.prev()
                     .filter(and(is(MethodInsnNode.class), opcode(INVOKESPECIAL)))
                     .findFirst()
                     .map(MethodInsnNode.class::cast)
-                    .ifPresent(n -> result.addAll(lambdas(loader, loadClass(n.owner))));
-              })
-              .forEach();
+                    .ifPresent(n -> {
+                      ClassNode classNode = loadClass(n.owner);
+                      classNode.methods.stream()
+                          .map(MethodNode.class::cast)
+                          .filter(methodName("run"))
+                          .findFirst()
+                          .ifPresent(runMethod -> {
+                            kotlinLambda(loader, owner, (MethodNode) runMethod)
+                                .stream()
+                                .filter(Lambda.class::isInstance)
+                                .map(Lambda.class::cast)
+                                .map(lambda -> lambda.prefix(path))
+                                .forEach(result::add);
+                          });
+                    });
+              });
         });
     return result;
   }
@@ -680,7 +810,7 @@ public class BytecodeRouteParser {
     List<RouteParameter> result = new ArrayList<>();
 
     new Insns(lambda)
-        .on(param(), it -> {
+        .on(param(loader), it -> {
           String name = parameterName(loader, it.method, it.node)
               .orElse("arg" + result.size());
 
@@ -876,12 +1006,16 @@ public class BytecodeRouteParser {
         .map(previous -> {
           /** return 1; return true; return new Foo(); */
           if (previous instanceof MethodInsnNode) {
-            MethodInsnNode methodNode = ((MethodInsnNode) previous);
-            if (methodNode.name.equals("<init>")) {
-              return loadType(loader, methodNode.owner);
+            MethodInsnNode minnsn = ((MethodInsnNode) previous);
+            if (minnsn.name.equals("<init>")) {
+              return loadType(loader, minnsn.owner);
             }
-            String desc = methodNode.desc;
-            return TypeDescriptorParser.parse(loader, desc);
+            String desc = minnsn.desc;
+            java.lang.reflect.Type type = TypeDescriptorParser.parse(loader, desc);
+            if (type.getTypeName().equals(Result.class.getName())) {
+              return new TypeWithStatus(type, statusCodeFor(minnsn));
+            }
+            return type;
           }
           /** return "String" | int | double */
           if (previous instanceof LdcInsnNode) {
@@ -901,6 +1035,28 @@ public class BytecodeRouteParser {
         }).orElse(Object.class);
   }
 
+  private Integer statusCodeFor(MethodInsnNode node) {
+    if (node.name.equals("noContent")) {
+      return 204;
+    }
+    if (node.name.equals("with")) {
+      AbstractInsnNode previous = node.getPrevious();
+      if (previous instanceof IntInsnNode) {
+        return ((IntInsnNode) previous).operand;
+      }
+      if (previous instanceof FieldInsnNode) {
+        String owner = ((FieldInsnNode) previous).owner.replace("/", ".");
+        if (owner.equals(Status.class.getName())) {
+          String statusName = ((FieldInsnNode) previous).name;
+          return Try.apply(() -> Status.class.getDeclaredField(statusName).get(null))
+              .map(it -> ((Status) it).value())
+              .orElse(null);
+        }
+      }
+    }
+    return null;
+  }
+
   @SuppressWarnings("unchecked")
   static java.lang.reflect.Type localVariable(final ClassLoader loader, final MethodNode m,
       final VarInsnNode varInsn) {
@@ -918,31 +1074,17 @@ public class BytecodeRouteParser {
     return Object.class;
   }
 
-  static java.lang.reflect.Type loadType(final ClassLoader loader, final String name) {
-    try {
-      switch (name) {
-        case "boolean":
-          return boolean.class;
-        case "char":
-          return char.class;
-        case "byte":
-          return byte.class;
-        case "short":
-          return short.class;
-        case "int":
-          return int.class;
-        case "long":
-          return long.class;
-        case "float":
-          return float.class;
-        case "double":
-          return double.class;
-        default:
-          return loader.loadClass(name.replace("/", "."));
-      }
-    } catch (Exception x) {
-      throw sneakyThrow(x);
-    }
+  static Class loadType(final ClassLoader loader, final String name) {
+    return when(name)
+        .<Class>is("boolean", boolean.class)
+        .is("char", char.class)
+        .is("byte", byte.class)
+        .is("short", short.class)
+        .is("int", int.class)
+        .is("long", long.class)
+        .is("float", float.class)
+        .is("double", double.class)
+        .orElseGet(() -> loader.loadClass(name.replace("/", ".")));
   }
 
   static java.lang.reflect.Type simplifyType(final java.lang.reflect.Type type) {
@@ -974,14 +1116,14 @@ public class BytecodeRouteParser {
   }
 
   private ClassNode loadClass(String name) {
-    try {
+    return Try.apply(() -> {
       String cname = name.replace("/", ".");
       ClassNode node = cache.get(cname);
       if (node == null) {
-        try (InputStream in = loader
-            .getResourceAsStream(cname.replace(".", "/") + ".class")) {
+        String rname = cname.replace(".", "/") + ".class";
+        try (InputStream in = loader.getResourceAsStream(rname)) {
           if (in == null) {
-            throw new IOException(cname);
+            throw new FileNotFoundException(rname + " using " + loader);
           }
           ClassReader reader = new ClassReader(ByteStreams.toByteArray(in));
           node = new ClassNode();
@@ -996,9 +1138,7 @@ public class BytecodeRouteParser {
         }
       }
       return node;
-    } catch (Exception x) {
-      throw sneakyThrow(x);
-    }
+    }).get();
   }
 
   private static RouteMethod toRouteMethod(final Route.Definition route) {
@@ -1056,13 +1196,26 @@ public class BytecodeRouteParser {
     return new RouteParameter(pname, kind.get(), p.getParameterizedType(), null);
   }
 
-  static RuntimeException sneakyThrow(final Throwable x) {
-    sneakyThrow0(x);
-    return null;
+  private static class TypeWithStatus implements java.lang.reflect.Type {
+    private final java.lang.reflect.Type forwarding;
+    final Integer status;
+
+    TypeWithStatus(java.lang.reflect.Type forwarding, Integer status) {
+      this.forwarding = forwarding;
+      this.status = status;
+    }
+
+    public java.lang.reflect.Type type() {
+      if (status != null && status == 204 && forwarding.getTypeName()
+          .equals(Result.class.getName())) {
+        return void.class;
+      }
+      return forwarding;
+    }
+
+    @Override public String getTypeName() {
+      return forwarding.getTypeName();
+    }
   }
 
-  @SuppressWarnings("unchecked")
-  static <E extends Throwable> void sneakyThrow0(final Throwable x) throws E {
-    throw (E) x;
-  }
 }

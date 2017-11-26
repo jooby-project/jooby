@@ -1,8 +1,11 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ebean/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ebean)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-ebean.svg)](https://javadoc.io/doc/org.jooby/jooby-ebean/1.2.3)
+[![jooby-ebean website](https://img.shields.io/badge/jooby-ebean-brightgreen.svg)](http://jooby.org/doc/ebean)
 # ebean
 
 Object-Relational-Mapping via [Ebean ORM](http://ebean-orm.github.io). It configures and exports ```EbeanServer``` instances.
 
-This module extends [jdbc module](/doc/jdbc), before going forward, make sure you read the doc of the [jdbc module](/doc/jooby-dbc) first.
+> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
  
 ## exports
 
@@ -14,7 +17,7 @@ This module extends [jdbc module](/doc/jdbc), before going forward, make sure yo
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ebean</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 
@@ -22,6 +25,8 @@ This module extends [jdbc module](/doc/jdbc), before going forward, make sure yo
 
 ```java
 {
+  use(new Jdbc());
+
   use(new Ebeanby().doWith((ServerConfig conf) -> {
    conf.addClass(Pet.class);
   }));
@@ -34,9 +39,8 @@ This module extends [jdbc module](/doc/jdbc), before going forward, make sure yo
 }
 ```
 
-Usage is pretty straightforward, but of course we need to setup/configure the enhancement.
-
 ## enhancement
+
 The enhancement process comes in two flavors:
 
 1) Runtime: via a JVM Agent
@@ -93,8 +97,8 @@ Or programmatically:
 
 ```java
 {
-  use(new Ebeanby().doWith((ServerConfig conf) -> {
-    conf.setDisableClasspathSearch(false);
+  use(new Ebeanby().doWith(ebean -> {
+    ebean.setDisableClasspathSearch(false);
   }));
 }
 ```

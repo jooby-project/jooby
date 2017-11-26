@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-servlet/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-servlet)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-servlet.svg)](https://javadoc.io/doc/org.jooby/jooby-servlet/1.2.3)
+[![jooby-servlet website](https://img.shields.io/badge/jooby-servlet-brightgreen.svg)](http://jooby.org/doc/servlet)
 # servlets
 
 This module exists for strict environments where the ONLY option is to deploy into a Servlet Container.
@@ -103,365 +106,6 @@ When the generated file isn't enough, follow these steps:
 1. create a dir: ```src/etc/war/WEB-INF```
 2. save a ```web.xml``` file inside that dir
 3. run: ```mvn clean package```
-
-## jooby.conf
-
-```properties
-###################################################################################################
-
-#! application
-
-###################################################################################################
-
-application {
-
-  # environment default is: dev
-
-  env = dev
-
-  # contains the simple name of package of your application bootstrap class.
-
-  # For example: com.foo.App -> foo
-
-  # name = App.class.getPackage().getName().lastSegment()
-
-  # application namespace, default to app package. set it at runtime
-
-  # ns = App.class.getPackage().getName()
-
-  # class = App.class.getName() 
-
-  # tmpdir
-
-  tmpdir = ${java.io.tmpdir}/${application.name}
-
-  # path (a.k.a. as contextPath)
-
-  path = /
-
-  # localhost
-
-  host = localhost
-
-  # HTTP ports
-
-  port = 8080
-
-  # uncomment to enabled HTTPS
-
-  # securePort = 8443
-
-  # we do UTF-8
-
-  charset = UTF-8
-
-  # date format
-
-  dateFormat = dd-MMM-yyyy
-
-  # number format, system default. set it at runtime
-
-  # numberFormat = DecimalFormat.getInstance(${application.lang})).toPattern()
-
-  # comma separated list of locale using the language tag format. Default to: Locale.getDefault()
-
-  # lang = Locale.getDefault()
-
-  # timezone, system default. set it at runtime
-
-  # tz = ZoneId.systemDefault().getId()
-
-  # redirect to/force https
-
-  # example: https://my.domain.com/{0}
-
-  redirect_https = ""
-
-}
-
-ssl {
-
-  # An X.509 certificate chain file in PEM format, provided certificate should NOT be used in prod.
-
-  keystore.cert = org/jooby/unsecure.crt 
-
-  # A PKCS#8 private key file in PEM format, provided key should NOT be used in prod.
-
-  keystore.key = org/jooby/unsecure.key
-
-  # password of the keystore.key (if any)
-
-  # keystore.password =
-
-  # Trusted certificates for verifying the remote endpoint's certificate. The file should
-
-  # contain an X.509 certificate chain in PEM format. Default uses the system default.
-
-  # trust.cert =
-
-  # Set the size of the cache used for storing SSL session objects. 0 to use the
-
-  # default value.
-
-  session.cacheSize = 0
-
-  # Timeout for the cached SSL session objects, in seconds. 0 to use the default value.
-
-  session.timeout = 0
-
-}
-
-###################################################################################################
-
-#! session defaults
-
-###################################################################################################
-
-session {
-
-  # we suggest a timeout, but usage and an implementation is specific to a Session.Store implementation
-
-  timeout = 30m
-
-  # save interval, how frequently we must save a none-dirty session (in millis).
-
-  saveInterval = 60s
-
-  cookie {
-
-    # name of the cookie
-
-    name = jooby.sid
-
-    # cookie path
-
-    path = /
-
-    # expires when the user closes the web browser
-
-    maxAge = -1
-
-    httpOnly = true
-
-    secure = false
-
-  }
-
-}
-
-###################################################################################################
-
-#! flash scope defaults
-
-###################################################################################################
-
-flash {
-
-  cookie {
-
-    name = jooby.flash
-
-    path = ${application.path}
-
-    httpOnly = true
-
-    secure = false
-
-  }
-
-}
-
-###################################################################################################
-
-#! server defaults
-
-###################################################################################################
-
-server {
-
-  http {
-
-    HeaderSize = 8k
-
-    # Max response buffer size
-
-    ResponseBufferSize = 16k
-
-    # Max request body size to keep in memory
-
-    RequestBufferSize = 1m
-
-    # Max request size total (body + header)
-
-    MaxRequestSize = 200k
-
-    IdleTimeout = 0
-
-    Method = ""
-
-  }
-
-  threads {
-
-    Min = ${runtime.processors}
-
-    Max = ${runtime.processors-x8}
-
-    IdleTimeout = 60s
-
-  }
-
-  routes {
-
-    # Guava Cache Spec
-
-    Cache = "concurrencyLevel="${runtime.concurrencyLevel}",maximumSize="${server.threads.Max}
-
-  }
-
-  ws {
-
-    # The maximum size of a text message.
-
-    MaxTextMessageSize = 16k
-
-    # The maximum size of a binary message.
-
-    MaxBinaryMessageSize = 16k
-
-    # The time in ms (milliseconds) that a websocket may be idle before closing.
-
-    IdleTimeout = 5minutes
-
-  }
-
-  http2 {
-
-    cleartext = true
-
-    enabled = false
-
-  }
-
-}
-
-###################################################################################################
-
-#! assets
-
-###################################################################################################
-
-assets {
-
-  #! If asset CDN is present, the asset router will do a redirect to CDN and wont serve the file locally
-
-  #! /assets/js/index.js -> redirectTo(cdn + assets/js/index.js)
-
-  cdn =  ""
-
-  etag = true
-
-  lastModified = true
-
-  env = ${application.env}
-
-  charset = ${application.charset}
-
-  # -1 to disable or HOCON duration value
-
-  cache.maxAge = -1
-
-}
-
-###################################################################################################
-
-#! Cross origin resource sharing
-
-###################################################################################################
-
-cors {
-
-  # Configures the Access-Control-Allow-Origin CORS header. Possibly values: *, domain, regex or a list of previous values.
-
-  # Example:
-
-  # "*"
-
-  # ["http://foo.com"]
-
-  # ["http://*.com"]
-
-  # ["http://foo.com", "http://bar.com"]
-
-  origin: "*"
-
-  # If true, set the Access-Control-Allow-Credentials header
-
-  credentials: true
-
-  # Allowed methods: Set the Access-Control-Allow-Methods header
-
-  allowedMethods: [GET, POST]
-
-  # Allowed headers: set the Access-Control-Allow-Headers header. Possibly values: *, header name or a list of previous values.
-
-  # Examples
-
-  # "*"
-
-  # Custom-Header
-
-  # [Header-1, Header-2]
-
-  allowedHeaders: [X-Requested-With, Content-Type, Accept, Origin]
-
-  # Preflight max age: number of seconds that preflight requests can be cached by the client
-
-  maxAge: 30m
-
-  # Set the Access-Control-Expose-Headers header
-
-  # exposedHeaders: []
-
-}
-
-###################################################################################################
-
-#! runtime
-
-###################################################################################################
-
-#! number of available processors, set it at runtime
-
-#! runtime.processors = Runtime.getRuntime().availableProcessors()
-
-#! runtime.processors-plus1 = ${runtime.processors} + 1
-
-#! runtime.processors-plus2 = ${runtime.processors} + 2
-
-#! runtime.processors-x2 = ${runtime.processors} * 2
-
-###################################################################################################
-
-#! status codes
-
-###################################################################################################
-
-err.java.lang.IllegalArgumentException = 400
-
-err.java.util.NoSuchElementException = 400
-
-err.java.io.FileNotFoundException = 404
-
-###################################################################################################
-
-#! alias
-
-###################################################################################################
-
-contextPath = ${application.path}
-```
-
 
 ## mime.properties
 
@@ -863,4 +507,363 @@ mime.woff2=application/font-woff2
 mime.map=text/plain
 
 mime.mp4=video/mp4
+```
+
+
+## jooby.conf
+
+```properties
+###################################################################################################
+
+#! application
+
+###################################################################################################
+
+application {
+
+  # environment default is: dev
+
+  env = dev
+
+  # contains the simple name of package of your application bootstrap class.
+
+  # For example: com.foo.App -> foo
+
+  # name = App.class.getPackage().getName().lastSegment()
+
+  # application namespace, default to app package. set it at runtime
+
+  # ns = App.class.getPackage().getName()
+
+  # class = App.class.getName() 
+
+  # tmpdir
+
+  tmpdir = ${java.io.tmpdir}/${application.name}
+
+  # path (a.k.a. as contextPath)
+
+  path = /
+
+  # localhost
+
+  host = localhost
+
+  # HTTP ports
+
+  port = 8080
+
+  # uncomment to enabled HTTPS
+
+  # securePort = 8443
+
+  # we do UTF-8
+
+  charset = UTF-8
+
+  # date format
+
+  dateFormat = dd-MMM-yyyy
+
+  # number format, system default. set it at runtime
+
+  # numberFormat = DecimalFormat.getInstance(${application.lang})).toPattern()
+
+  # comma separated list of locale using the language tag format. Default to: Locale.getDefault()
+
+  # lang = Locale.getDefault()
+
+  # timezone, system default. set it at runtime
+
+  # tz = ZoneId.systemDefault().getId()
+
+  # redirect to/force https
+
+  # example: https://my.domain.com/{0}
+
+  redirect_https = ""
+
+}
+
+ssl {
+
+  # An X.509 certificate chain file in PEM format, provided certificate should NOT be used in prod.
+
+  keystore.cert = org/jooby/unsecure.crt 
+
+  # A PKCS#8 private key file in PEM format, provided key should NOT be used in prod.
+
+  keystore.key = org/jooby/unsecure.key
+
+  # password of the keystore.key (if any)
+
+  # keystore.password =
+
+  # Trusted certificates for verifying the remote endpoint's certificate. The file should
+
+  # contain an X.509 certificate chain in PEM format. Default uses the system default.
+
+  # trust.cert =
+
+  # Set the size of the cache used for storing SSL session objects. 0 to use the
+
+  # default value.
+
+  session.cacheSize = 0
+
+  # Timeout for the cached SSL session objects, in seconds. 0 to use the default value.
+
+  session.timeout = 0
+
+}
+
+###################################################################################################
+
+#! session defaults
+
+###################################################################################################
+
+session {
+
+  # we suggest a timeout, but usage and an implementation is specific to a Session.Store implementation
+
+  timeout = 30m
+
+  # save interval, how frequently we must save a none-dirty session (in millis).
+
+  saveInterval = 60s
+
+  cookie {
+
+    # name of the cookie
+
+    name = jooby.sid
+
+    # cookie path
+
+    path = /
+
+    # expires when the user closes the web browser
+
+    maxAge = -1
+
+    httpOnly = true
+
+    secure = false
+
+  }
+
+}
+
+###################################################################################################
+
+#! flash scope defaults
+
+###################################################################################################
+
+flash {
+
+  cookie {
+
+    name = jooby.flash
+
+    path = ${application.path}
+
+    httpOnly = true
+
+    secure = false
+
+  }
+
+}
+
+###################################################################################################
+
+#! server defaults
+
+###################################################################################################
+
+server {
+
+  http {
+
+    HeaderSize = 8k
+
+    # Max response buffer size
+
+    ResponseBufferSize = 16k
+
+    # Max request body size to keep in memory
+
+    RequestBufferSize = 1m
+
+    # Max request size total (body + header)
+
+    MaxRequestSize = 200k
+
+    IdleTimeout = 0
+
+    Method = ""
+
+  }
+
+  threads {
+
+    # Min = Math.max(4, ${runtime.processors})
+
+    # Max = Math.max(32, ${runtime.processors-x8})
+
+    IdleTimeout = 60s
+
+  }
+
+  routes {
+
+    # Guava Cache Spec
+
+    Cache = "concurrencyLevel="${runtime.concurrencyLevel}",maximumSize="${server.threads.Max}
+
+  }
+
+  ws {
+
+    # The maximum size of a text message.
+
+    MaxTextMessageSize = 16k
+
+    # The maximum size of a binary message.
+
+    MaxBinaryMessageSize = 16k
+
+    # The time in ms (milliseconds) that a websocket may be idle before closing.
+
+    IdleTimeout = 5minutes
+
+  }
+
+  http2 {
+
+    cleartext = true
+
+    enabled = false
+
+  }
+
+}
+
+###################################################################################################
+
+#! assets
+
+###################################################################################################
+
+assets {
+
+  #! If asset CDN is present, the asset router will do a redirect to CDN and wont serve the file locally
+
+  #! /assets/js/index.js -> redirectTo(cdn + assets/js/index.js)
+
+  cdn =  ""
+
+  etag = true
+
+  lastModified = true
+
+  env = ${application.env}
+
+  charset = ${application.charset}
+
+  # -1 to disable or HOCON duration value
+
+  cache.maxAge = -1
+
+}
+
+###################################################################################################
+
+#! Cross origin resource sharing
+
+###################################################################################################
+
+cors {
+
+  # Configures the Access-Control-Allow-Origin CORS header. Possibly values: *, domain, regex or a list of previous values.
+
+  # Example:
+
+  # "*"
+
+  # ["http://foo.com"]
+
+  # ["http://*.com"]
+
+  # ["http://foo.com", "http://bar.com"]
+
+  origin: "*"
+
+  # If true, set the Access-Control-Allow-Credentials header
+
+  credentials: true
+
+  # Allowed methods: Set the Access-Control-Allow-Methods header
+
+  allowedMethods: [GET, POST]
+
+  # Allowed headers: set the Access-Control-Allow-Headers header. Possibly values: *, header name or a list of previous values.
+
+  # Examples
+
+  # "*"
+
+  # Custom-Header
+
+  # [Header-1, Header-2]
+
+  allowedHeaders: [X-Requested-With, Content-Type, Accept, Origin]
+
+  # Preflight max age: number of seconds that preflight requests can be cached by the client
+
+  maxAge: 30m
+
+  # Set the Access-Control-Expose-Headers header
+
+  # exposedHeaders: []
+
+}
+
+###################################################################################################
+
+#! runtime
+
+###################################################################################################
+
+#! number of available processors, set it at runtime
+
+#! runtime.processors = Runtime.getRuntime().availableProcessors()
+
+#! runtime.processors-plus1 = ${runtime.processors} + 1
+
+#! runtime.processors-plus2 = ${runtime.processors} + 2
+
+#! runtime.processors-x2 = ${runtime.processors} * 2
+
+###################################################################################################
+
+#! status codes
+
+###################################################################################################
+
+err.java.lang.IllegalArgumentException = 400
+
+err.java.util.NoSuchElementException = 400
+
+err.java.io.FileNotFoundException = 404
+
+###################################################################################################
+
+#! alias
+
+###################################################################################################
+
+contextPath = ${application.path}
 ```

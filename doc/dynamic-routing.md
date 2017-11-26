@@ -27,25 +27,6 @@ If you load the application from `http://foo.com` the `foo-branding` route will 
 
 Dynamic routing is done over [route.name()]({{defdocs}}/Route.html#name--). From {{req_filter}} you provide a `name filter` via [chain.next(name, req, rsp)](/apidocs/org/jooby/Route.Chain.html#next-java.lang.String-org.jooby.Request-org.jooby.Response-) method. 
 
-You can group routes via [use(path)]({{defdocs}}/Jooby.html#use-java.lang.String-) method and globally set a name to all the child routes:
-
-```java
-{
-  use("/")
-    .get(() -> Results.html("foo"))
-    .get("/api", () -> ...)
-    // apply name to all routes
-    .name("foo-branding");
-
-  use("/")
-    Results.html("bar")
-    .get(() -> Results.html("bar"))
-    .get("/api", () -> ...)
-    // apply name to all routes
-    .name("bar-branding");
-}
-```
-
 Or group routes via [with(Runnable)]({{defdocs}}/Jooby.html#with-java.lang.Runnable-):
 
 ```java

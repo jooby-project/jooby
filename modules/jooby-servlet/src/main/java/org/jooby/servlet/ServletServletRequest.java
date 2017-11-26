@@ -223,6 +223,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.jooby.Cookie;
 import org.jooby.MediaType;
+import org.jooby.Router;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 
@@ -251,7 +252,7 @@ public class ServletServletRequest implements NativeRequest {
     if (pathInfo == null) {
       pathInfo = "/";
     }
-    this.path = req.getContextPath() + URLDecoder.decode(pathInfo, "UTF-8");
+    this.path = req.getContextPath() + Router.decode(pathInfo);
   }
 
   public HttpServletRequest servletRequest() {

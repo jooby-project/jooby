@@ -217,6 +217,7 @@ import org.jooby.Asset;
 import org.jooby.MediaType;
 
 import com.google.common.io.Closeables;
+import org.jooby.funzy.Try;
 
 public class URLAsset implements Asset {
 

@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-guava-cache/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-guava-cache)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-guava-cache.svg)](https://javadoc.io/doc/org.jooby/jooby-guava-cache/1.2.3)
+[![jooby-guava-cache website](https://img.shields.io/badge/jooby-guava-cache-brightgreen.svg)](http://jooby.org/doc/guava-cache)
 # guava-cache
 
 Provides cache solution and session storage via: <a href="https://github.com/google/guava">Guava</a>.
@@ -12,7 +15,7 @@ Provides cache solution and session storage via: <a href="https://github.com/goo
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-guava-cache</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 
@@ -104,7 +107,7 @@ public MyService(Cache<Integer, String> cache) {
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-guava-cache</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 

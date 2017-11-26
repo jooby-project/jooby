@@ -1,8 +1,11 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jooq/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jooq)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jooq.svg)](https://javadoc.io/doc/org.jooby/jooby-jooq/1.2.3)
+[![jooby-jooq website](https://img.shields.io/badge/jooby-jooq-brightgreen.svg)](http://jooby.org/doc/jooq)
 # jOOQ
 
 <a href="http://www.jooq.org">jOOQ</a> generates Java code from your database and lets you build type safe SQL queries through its fluent API.
 
-This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of the [jdbc](/doc/jdbc) module.
+> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
 
 ## exports
 
@@ -14,7 +17,7 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-jooq</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 
@@ -22,6 +25,7 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 
 ```java
 {
+  use(new Jdbc());
   use(new jOOQ());
 
   get("/jooq", req -> {
@@ -43,8 +47,10 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 
 ```java
 {
+  use(new Jdbc("db.main"));
   use(new jOOQ("db.main"));
 
+  use(new Jdbc("db.audit"));
   use(new jOOQ("db.audit"));
 
   get("/main", req -> {
@@ -70,6 +76,7 @@ This module setup a ```Configuration``` object with a ```DataSource``` from [jdb
 
 ```java
 {
+  use(new Jdbc());
   use(new jOOQ().doWith(conf -> {
 
     conf.set(...);

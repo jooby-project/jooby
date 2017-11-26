@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.4-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -586,6 +586,12 @@
       <groupId>org.jooby</groupId>
       <artifactId>jooby-requery</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.requery</groupId>
+      <artifactId>requery-kotlin</artifactId>
+      <version>${requery.version}</version>
     </dependency>
 
     <dependency>

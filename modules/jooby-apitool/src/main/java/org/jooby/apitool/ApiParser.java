@@ -372,6 +372,7 @@ public class ApiParser {
 
     types.accept(route.consumes(), method::consumes);
     types.accept(route.produces(), method::produces);
+
     return method;
   }
 }

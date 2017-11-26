@@ -236,7 +236,7 @@ public class RequestParam {
 
   private interface GetValue {
 
-    Object apply(Request req, Response rsp, RequestParam param) throws Exception;
+    Object apply(Request req, Response rsp, Route.Chain chain, RequestParam param) throws Exception;
 
   }
 
@@ -255,56 +255,60 @@ public class RequestParam {
     /**
      * Body
      */
-    builder.put(bodyType, (req, rsp, param) -> req.body().to(param.type));
+    builder.put(bodyType, (req, rsp, chain, param) -> req.body().to(param.type));
     /**
      * Request
      */
-    builder.put(TypeLiteral.get(Request.class), (req, rsp, param) -> req);
+    builder.put(TypeLiteral.get(Request.class), (req, rsp, chain, param) -> req);
     /**
      * Route
      */
-    builder.put(TypeLiteral.get(Route.class), (req, rsp, param) -> req.route());
+    builder.put(TypeLiteral.get(Route.class), (req, rsp, chain, param) -> req.route());
     /**
      * Response
      */
-    builder.put(TypeLiteral.get(Response.class), (req, rsp, param) -> rsp);
+    builder.put(TypeLiteral.get(Response.class), (req, rsp, chain, param) -> rsp);
+    /**
+     * Route.Chain
+     */
+    builder.put(TypeLiteral.get(Route.Chain.class), (req, rsp, chain, param) -> chain);
     /**
      * Session
      */
-    builder.put(TypeLiteral.get(Session.class), (req, rsp, param) -> req.session());
+    builder.put(TypeLiteral.get(Session.class), (req, rsp, chain, param) -> req.session());
     builder.put(TypeLiteral.get(Types.newParameterizedType(Optional.class, Session.class)),
-        (req, rsp, param) -> req.ifSession());
+        (req, rsp, chain, param) -> req.ifSession());
 
     /**
      * Files
      */
-    builder.put(TypeLiteral.get(Upload.class), (req, rsp, param) -> req.file(param.name));
+    builder.put(TypeLiteral.get(Upload.class), (req, rsp, chain, param) -> req.file(param.name));
     builder.put(TypeLiteral.get(Types.newParameterizedType(Optional.class, Upload.class)),
-        (req, rsp, param) -> {
+        (req, rsp, chain, param) -> {
           List<Upload> files = req.files(param.name);
           return files.size() == 0 ? Optional.empty() : Optional.of(files.get(0));
         });
     builder.put(TypeLiteral.get(Types.newParameterizedType(List.class, Upload.class)),
-        (req, rsp, param) -> req.files(param.name));
+        (req, rsp, chain, param) -> req.files(param.name));
 
     /**
      * Cookie
      */
-    builder.put(TypeLiteral.get(Cookie.class), (req, rsp, param) -> req.cookies().stream()
+    builder.put(TypeLiteral.get(Cookie.class), (req, rsp, chain, param) -> req.cookies().stream()
         .filter(c -> c.name().equalsIgnoreCase(param.name)).findFirst().get());
-    builder.put(TypeLiteral.get(Types.listOf(Cookie.class)), (req, rsp, param) -> req.cookies());
+    builder.put(TypeLiteral.get(Types.listOf(Cookie.class)), (req, rsp, chain, param) -> req.cookies());
     builder.put(TypeLiteral.get(Types.newParameterizedType(Optional.class, Cookie.class)),
-        (req, rsp, param) -> req.cookies().stream()
+        (req, rsp, chain, param) -> req.cookies().stream()
             .filter(c -> c.name().equalsIgnoreCase(param.name)).findFirst());
     /**
      * Header
      */
-    builder.put(headerType, (req, rsp, param) -> req.header(param.name).to(param.type));
+    builder.put(headerType, (req, rsp, chain, param) -> req.header(param.name).to(param.type));
 
     /**
      * Local
      */
-    builder.put(localType, (req, rsp, param) -> {
+    builder.put(localType, (req, rsp, chain, param) -> {
       if (param.type.getRawType() == Map.class) {
         return req.attributes();
       }
@@ -318,8 +322,9 @@ public class RequestParam {
     /**
      * Flash
      */
-    builder.put(flashType, (req, rsp, param) -> {
-      if (param.type.getRawType() == Map.class) {
+    builder.put(flashType, (req, rsp, chain, param) -> {
+      Class rawType = param.type.getRawType();
+      if (Map.class.isAssignableFrom(rawType)) {
         return req.flash();
       }
       return param.optional ? req.ifFlash(param.name) : req.flash(param.name);
@@ -359,8 +364,8 @@ public class RequestParam {
     this.strategy = injector.getOrDefault(strategyType, param());
   }
 
-  public Object value(final Request req, final Response rsp) throws Throwable {
-    return strategy.apply(req, rsp, this);
+  public Object value(final Request req, final Response rsp, final Route.Chain chain) throws Throwable {
+    return strategy.apply(req, rsp, chain, this);
   }
 
   public static String nameFor(final Parameter param) {
@@ -386,7 +391,7 @@ public class RequestParam {
   }
 
   private static final GetValue param() {
-    return (req, rsp, param) -> {
+    return (req, rsp, chain, param) -> {
       Mutant mutant = req.param(param.name);
       if (mutant.isSet() || param.optional) {
         return mutant.to(param.type);
@@ -399,5 +404,4 @@ public class RequestParam {
       }
     };
   }
-
 }

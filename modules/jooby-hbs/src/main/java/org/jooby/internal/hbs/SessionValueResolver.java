@@ -223,7 +223,8 @@ public class SessionValueResolver implements ValueResolver {
   public Object resolve(final Object context, final String name) {
     Object value = null;
     if (context instanceof Session) {
-      value = ((Session) context).get(name).toOptional().orElse(null);
+      Session session = (Session) context;
+      value = session.isDestroyed() ? null : session.get(name).toOptional().orElse(null);
     }
     return value == null ? UNRESOLVED : value;
   }

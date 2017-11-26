@@ -213,6 +213,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.io.BaseEncoding;
 
+import javax.annotation.Nonnull;
+
 /**
  * <p>
  * Sessions are created on demand via: {@link Request#session()}.
@@ -291,6 +293,17 @@ import com.google.common.io.BaseEncoding;
  * @since 0.1.0
  */
 public interface Session {
+
+  /**
+   * Throw when session access is required but the session has been destroyed.\
+   *
+   * See {@link Session#destroy()}.
+   */
+  class Destroyed extends RuntimeException {
+    public Destroyed() {
+      super("Session has been destroyed.");
+    }
+  }
 
   /** Global/Shared id of cookie sessions. */
   String COOKIE_SESSION = "cookieSession";
@@ -525,6 +538,7 @@ public interface Session {
    *
    * @return Session ID.
    */
+  @Nonnull
   String id();
 
   /**
@@ -574,11 +588,13 @@ public interface Session {
    * @param name Attribute's name.
    * @return Value as mutant.
    */
+  @Nonnull
   Mutant get(final String name);
 
   /**
    * @return An immutable copy of local attributes.
    */
+  @Nonnull
   Map<String, String> attributes();
 
   /**
@@ -597,6 +613,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
+  @Nonnull
   default Session set(final String name, final byte value) {
     return set(name, Byte.toString(value));
   }
@@ -609,6 +626,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
+  @Nonnull
   default Session set(final String name, final char value) {
     return set(name, Character.toString(value));
   }
@@ -621,6 +639,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
+  @Nonnull
   default Session set(final String name, final boolean value) {
     return set(name, Boolean.toString(value));
   }
@@ -633,6 +652,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
+  @Nonnull
   default Session set(final String name, final short value) {
     return set(name, Short.toString(value));
   }
@@ -645,6 +665,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
+  @Nonnull
   default Session set(final String name, final int value) {
     return set(name, Integer.toString(value));
   }
@@ -657,6 +678,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
+  @Nonnull
   default Session set(final String name, final long value) {
     return set(name, Long.toString(value));
   }
@@ -669,6 +691,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
+  @Nonnull
   default Session set(final String name, final float value) {
     return set(name, Float.toString(value));
   }
@@ -681,6 +704,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
+  @Nonnull
   default Session set(final String name, final double value) {
     return set(name, Double.toString(value));
   }
@@ -693,6 +717,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
+  @Nonnull
   default Session set(final String name, final CharSequence value) {
     return set(name, value.toString());
   }
@@ -705,6 +730,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
+  @Nonnull
   Session set(final String name, final String value);
 
   /**
@@ -713,6 +739,7 @@ public interface Session {
    * @param name Attribute's name.
    * @return Existing value or empty optional.
    */
+  @Nonnull
   Mutant unset(final String name);
 
   /**
@@ -720,11 +747,19 @@ public interface Session {
    *
    * @return This session.
    */
+  @Nonnull
   Session unset();
 
   /**
-   * Invalidates this session then unset any objects bound to it.
+   * Invalidates this session then unset any objects bound to it. This is a noop if the session has
+   * been destroyed.
    */
   void destroy();
 
+  /**
+   * True if the session was {@link #destroy()}.
+   *
+   * @return True if the session was {@link #destroy()}.
+   */
+  boolean isDestroyed();
 }

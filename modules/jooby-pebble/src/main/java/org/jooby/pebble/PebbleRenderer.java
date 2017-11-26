@@ -209,9 +209,11 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jooby.MediaType;
 import org.jooby.Renderer;
+import org.jooby.Route;
 import org.jooby.View;
 
 import com.mitchellbosecke.pebble.PebbleEngine;
@@ -232,6 +234,9 @@ class PebbleRenderer implements View.Engine {
     try {
       Map<String, Object> locals = ctx.locals();
 
+      if (vname.charAt(0) == '/') {
+        vname = vname.substring(1);
+      }
       PebbleTemplate template = pebble.getTemplate(vname);
       Writer writer = new StringWriter();
       Map<String, Object> model = new HashMap<>();
@@ -253,7 +258,9 @@ class PebbleRenderer implements View.Engine {
       ctx.type(MediaType.html)
           .send(writer.toString());
     } catch (LoaderException x) {
-      throw new FileNotFoundException(vname);
+      FileNotFoundException fnf = new FileNotFoundException(x.getMessage().replace("Could not find template", "").trim());
+      fnf.initCause(x);
+      throw fnf;
     }
   }
 

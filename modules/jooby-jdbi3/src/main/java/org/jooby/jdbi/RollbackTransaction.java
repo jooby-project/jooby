@@ -224,9 +224,9 @@ class RollbackTransaction implements Route.Complete {
 
   @Override
   public void handle(final Request req, final Response rsp, final Optional<Throwable> cause) {
-    cause.ifPresent(e -> {
+    cause.ifPresent(x -> {
       if (handle.isInTransaction()) {
-        logger.debug("rollback transaction: {}", handle);
+        logger.debug("rollback transaction: {} ", handle, x);
         handle.rollback();
       } else {
         logger.warn("unable to rollback inactive transaction: {}", handle);

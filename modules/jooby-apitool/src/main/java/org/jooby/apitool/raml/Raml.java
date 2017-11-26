@@ -487,7 +487,9 @@ public class Raml {
             }
           }));
       definition = object;
-      object.setExample(example);
+      if (example.values().stream().filter(Objects::nonNull).count() > 0) {
+        object.setExample(example);
+      }
     }
     return definition;
   }

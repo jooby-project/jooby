@@ -220,6 +220,8 @@ import org.jooby.internal.RouteSourceImpl;
 import org.jooby.internal.SourceProvider;
 import org.jooby.funzy.Throwing;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -448,6 +450,7 @@ public interface Route {
     /**
      * @return Class where the route
      */
+    @Nonnull
     Optional<String> declaringClass();
   }
 
@@ -520,6 +523,7 @@ public interface Route {
      * @return A new mapper.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
+    @Nonnull
     static Mapper<Object> chain(final Mapper it, final Mapper next) {
       return create(it.name() + ">" + next.name(), v -> next.map(it.map(v)));
     }
@@ -532,6 +536,7 @@ public interface Route {
      * @param <T> Value type.
      * @return A new mapper.
      */
+    @Nonnull
     static <T> Mapper<T> create(final String name, final Throwing.Function<T, Object> fn) {
       return new Route.Mapper<T>() {
         @Override
@@ -554,6 +559,7 @@ public interface Route {
     /**
      * @return Mapper's name.
      */
+    @Nonnull
     default String name() {
       String name = Optional.ofNullable(Strings.emptyToNull(getClass().getSimpleName()))
           .orElseGet(() -> {
@@ -570,6 +576,7 @@ public interface Route {
      * @return Mapped value.
      * @throws Throwable If mapping fails.
      */
+    @Nonnull
     Object map(T value) throws Throwable;
   }
 
@@ -590,6 +597,7 @@ public interface Route {
      * @param value Attribute's value.
      * @return This instance.
      */
+    @Nonnull
     T attr(String name, Object value);
 
     /**
@@ -598,6 +606,7 @@ public interface Route {
      * @param name A renderer's name.
      * @return This instance.
      */
+    @Nonnull
     T renderer(final String name);
 
     /**
@@ -605,6 +614,7 @@ public interface Route {
      *
      * @return Explicit renderer to use or <code>null</code>.
      */
+    @Nullable
     String renderer();
 
     /**
@@ -615,6 +625,7 @@ public interface Route {
      * @param name A route's name.
      * @return This instance.
      */
+    @Nonnull
     T name(final String name);
 
     /**
@@ -623,6 +634,7 @@ public interface Route {
      * @param consumes The media types to test for.
      * @return This instance.
      */
+    @Nonnull
     default T consumes(final MediaType... consumes) {
       return consumes(Arrays.asList(consumes));
     }
@@ -633,6 +645,7 @@ public interface Route {
      * @param consumes The media types to test for.
      * @return This instance.
      */
+    @Nonnull
     default T consumes(final String... consumes) {
       return consumes(MediaType.valueOf(consumes));
     }
@@ -643,6 +656,7 @@ public interface Route {
      * @param consumes The media types to test for.
      * @return This instance.
      */
+    @Nonnull
     T consumes(final List<MediaType> consumes);
 
     /**
@@ -651,6 +665,7 @@ public interface Route {
      * @param produces The media types to test for.
      * @return This instance.
      */
+    @Nonnull
     default T produces(final MediaType... produces) {
       return produces(Arrays.asList(produces));
     }
@@ -661,6 +676,7 @@ public interface Route {
      * @param produces The media types to test for.
      * @return This instance.
      */
+    @Nonnull
     default T produces(final String... produces) {
       return produces(MediaType.valueOf(produces));
     }
@@ -671,6 +687,7 @@ public interface Route {
      * @param produces The media types to test for.
      * @return This instance.
      */
+    @Nonnull
     T produces(final List<MediaType> produces);
 
     /**
@@ -687,6 +704,7 @@ public interface Route {
      * @param excludes A path pattern.
      * @return This instance.
      */
+    @Nonnull
     default T excludes(final String... excludes) {
       return excludes(Arrays.asList(excludes));
     }
@@ -705,8 +723,10 @@ public interface Route {
      * @param excludes A path pattern.
      * @return This instance.
      */
+    @Nonnull
     T excludes(final List<String> excludes);
 
+    @Nonnull
     T map(Mapper<?> mapper);
   }
 
@@ -714,7 +734,9 @@ public interface Route {
    * Group one ore more routes under a base path, see {@link Router#use(String)}.
    *
    * @author edgar
+   * @deprecated Replaced by {@link Router#path(String, Runnable)}.
    */
+  @Deprecated
   class Group implements Props<Group> {
 
     /** List of definitions. */
@@ -754,41 +776,49 @@ public interface Route {
     // ********************************************************************************************
     // ALL
     // ********************************************************************************************
+    @Nonnull
     public Group all(final String pattern, final Route.Filter filter) {
       newRoute("*", pattern, filter);
       return this;
     }
 
+    @Nonnull
     public Group all(final String pattern, final Route.Handler handler) {
       newRoute("*", pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group all(final String pattern, final Route.OneArgHandler handler) {
       newRoute("*", pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group all(final String pattern, final Route.ZeroArgHandler handler) {
       newRoute("*", pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group all(final Route.Filter filter) {
       newRoute("*", "", filter);
       return this;
     }
 
+    @Nonnull
     public Group all(final Route.Handler handler) {
       newRoute("*", "", handler);
       return this;
     }
 
+    @Nonnull
     public Group all(final Route.OneArgHandler handler) {
       newRoute("*", "", handler);
       return this;
     }
 
+    @Nonnull
     public Group all(final Route.ZeroArgHandler handler) {
       newRoute("*", "", handler);
       return this;
@@ -797,41 +827,49 @@ public interface Route {
     // ********************************************************************************************
     // GET
     // ********************************************************************************************
+    @Nonnull
     public Group get(final String pattern, final Route.Filter filter) {
       newRoute(GET, pattern, filter);
       return this;
     }
 
+    @Nonnull
     public Group get(final String pattern, final Route.Handler handler) {
       newRoute(GET, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group get(final String pattern, final Route.OneArgHandler handler) {
       newRoute(GET, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group get(final String pattern, final Route.ZeroArgHandler handler) {
       newRoute(GET, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group get(final Route.Filter filter) {
       newRoute(GET, "", filter);
       return this;
     }
 
+    @Nonnull
     public Group get(final Route.Handler handler) {
       newRoute(GET, "", handler);
       return this;
     }
 
+    @Nonnull
     public Group get(final Route.OneArgHandler handler) {
       newRoute(GET, "", handler);
       return this;
     }
 
+    @Nonnull
     public Group get(final Route.ZeroArgHandler handler) {
       newRoute(GET, "", handler);
       return this;
@@ -840,41 +878,49 @@ public interface Route {
     // ********************************************************************************************
     // POST
     // ********************************************************************************************
+    @Nonnull
     public Group post(final String pattern, final Route.Filter filter) {
       newRoute(POST, pattern, filter);
       return this;
     }
 
+    @Nonnull
     public Group post(final String pattern, final Route.Handler handler) {
       newRoute(POST, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group post(final String pattern, final Route.OneArgHandler handler) {
       newRoute(POST, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group post(final String pattern, final Route.ZeroArgHandler handler) {
       newRoute(POST, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group post(final Route.Filter filter) {
       newRoute(POST, "", filter);
       return this;
     }
 
+    @Nonnull
     public Group post(final Route.Handler handler) {
       newRoute(POST, "", handler);
       return this;
     }
 
+    @Nonnull
     public Group post(final Route.OneArgHandler handler) {
       newRoute(POST, "", handler);
       return this;
     }
 
+    @Nonnull
     public Group post(final Route.ZeroArgHandler handler) {
       newRoute(POST, "", handler);
       return this;
@@ -883,41 +929,49 @@ public interface Route {
     // ********************************************************************************************
     // PUT
     // ********************************************************************************************
+    @Nonnull
     public Group put(final String pattern, final Route.Filter filter) {
       newRoute(PUT, pattern, filter);
       return this;
     }
 
+    @Nonnull
     public Group put(final String pattern, final Route.Handler handler) {
       newRoute(PUT, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group put(final String pattern, final Route.OneArgHandler handler) {
       newRoute(PUT, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group put(final String pattern, final Route.ZeroArgHandler handler) {
       newRoute(PUT, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group put(final Route.Filter filter) {
       newRoute(PUT, "", filter);
       return this;
     }
 
+    @Nonnull
     public Group put(final Route.Handler handler) {
       newRoute(PUT, "", handler);
       return this;
     }
 
+    @Nonnull
     public Group put(final Route.OneArgHandler handler) {
       newRoute(PUT, "", handler);
       return this;
     }
 
+    @Nonnull
     public Group put(final Route.ZeroArgHandler handler) {
       newRoute(PUT, "", handler);
       return this;
@@ -926,41 +980,49 @@ public interface Route {
     // ********************************************************************************************
     // DELETE
     // ********************************************************************************************
+    @Nonnull
     public Group delete(final String pattern, final Route.Filter filter) {
       newRoute(DELETE, pattern, filter);
       return this;
     }
 
+    @Nonnull
     public Group delete(final String pattern, final Route.Handler handler) {
       newRoute(DELETE, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group delete(final String pattern, final Route.OneArgHandler handler) {
       newRoute(DELETE, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group delete(final String pattern, final Route.ZeroArgHandler handler) {
       newRoute(DELETE, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group delete(final Route.Filter filter) {
       newRoute(DELETE, "", filter);
       return this;
     }
 
+    @Nonnull
     public Group delete(final Route.Handler handler) {
       newRoute(DELETE, "", handler);
       return this;
     }
 
+    @Nonnull
     public Group delete(final Route.OneArgHandler handler) {
       newRoute(DELETE, "", handler);
       return this;
     }
 
+    @Nonnull
     public Group delete(final Route.ZeroArgHandler handler) {
       newRoute(DELETE, "", handler);
       return this;
@@ -969,41 +1031,49 @@ public interface Route {
     // ********************************************************************************************
     // PATCH
     // ********************************************************************************************
+    @Nonnull
     public Group patch(final String pattern, final Route.Filter filter) {
       newRoute(PATCH, pattern, filter);
       return this;
     }
 
+    @Nonnull
     public Group patch(final String pattern, final Route.Handler handler) {
       newRoute(PATCH, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group patch(final String pattern, final Route.OneArgHandler handler) {
       newRoute(PATCH, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group patch(final String pattern, final Route.ZeroArgHandler handler) {
       newRoute(PATCH, pattern, handler);
       return this;
     }
 
+    @Nonnull
     public Group patch(final Route.Filter filter) {
       newRoute(PATCH, "", filter);
       return this;
     }
 
+    @Nonnull
     public Group patch(final Route.Handler handler) {
       newRoute(PATCH, "", handler);
       return this;
     }
 
+    @Nonnull
     public Group patch(final Route.OneArgHandler handler) {
       newRoute(PATCH, "", handler);
       return this;
     }
 
+    @Nonnull
     public Group patch(final Route.ZeroArgHandler handler) {
       newRoute(PATCH, "", handler);
       return this;
@@ -1016,6 +1086,7 @@ public interface Route {
      * @return This instance.
      */
     @Override
+    @Nonnull
     public Group name(final String name) {
       for (Definition definition : routes) {
         if (prefix != null) {
@@ -1028,6 +1099,7 @@ public interface Route {
     }
 
     @Override
+    @Nonnull
     public Group consumes(final List<MediaType> types) {
       for (Definition definition : routes) {
         definition.consumes(types);
@@ -1036,6 +1108,7 @@ public interface Route {
     }
 
     @Override
+    @Nonnull
     public Group produces(final List<MediaType> types) {
       for (Definition definition : routes) {
         definition.produces(types);
@@ -1044,6 +1117,7 @@ public interface Route {
     }
 
     @Override
+    @Nonnull
     public Group attr(final String name, final Object value) {
       for (Definition definition : routes) {
         definition.attr(name, value);
@@ -1052,6 +1126,7 @@ public interface Route {
     }
 
     @Override
+    @Nonnull
     public Group excludes(final List<String> excludes) {
       for (Definition definition : routes) {
         definition.excludes(excludes);
@@ -1060,6 +1135,7 @@ public interface Route {
     }
 
     @Override
+    @Nonnull
     public Group map(final Mapper<?> mapper) {
       for (Definition definition : routes) {
         definition.map(mapper);
@@ -1308,6 +1384,19 @@ public interface Route {
      * @param verb A HTTP verb or <code>*</code>.
      * @param pattern A path pattern.
      * @param handler A route handler.
+     * @param caseSensitiveRouting Configure case for routing algorithm.
+     */
+    public Definition(final String verb, final String pattern,
+        final Route.Handler handler, boolean caseSensitiveRouting) {
+      this(verb, pattern, (Route.Filter) handler, caseSensitiveRouting);
+    }
+
+    /**
+     * Creates a new route definition.
+     *
+     * @param verb A HTTP verb or <code>*</code>.
+     * @param pattern A path pattern.
+     * @param handler A route handler.
      */
     public Definition(final String verb, final String pattern,
         final Route.OneArgHandler handler) {
@@ -1333,13 +1422,25 @@ public interface Route {
      * @param pattern A path pattern.
      * @param filter A callback to execute.
      */
+    public Definition(final String method, final String pattern, final Filter filter) {
+      this(method, pattern, filter, true);
+    }
+
+    /**
+     * Creates a new route definition.
+     *
+     * @param method A HTTP verb or <code>*</code>.
+     * @param pattern A path pattern.
+     * @param filter A callback to execute.
+     * @param caseSensitiveRouting Configure case for routing algorithm.
+     */
     public Definition(final String method, final String pattern,
-        final Filter filter) {
+        final Filter filter, boolean caseSensitiveRouting) {
       requireNonNull(pattern, "A route path is required.");
       requireNonNull(filter, "A filter is required.");
 
       this.method = method.toUpperCase();
-      this.cpattern = new RoutePattern(method, pattern);
+      this.cpattern = new RoutePattern(method, pattern, !caseSensitiveRouting);
       // normalized pattern
       this.pattern = cpattern.pattern();
       this.filter = filter;
@@ -1383,11 +1484,12 @@ public interface Route {
      *
      * @return A path pattern.
      */
+    @Nonnull
     public String pattern() {
       return pattern;
     }
 
-    @Override
+    @Nullable
     public String renderer() {
       return renderer;
     }
@@ -1401,6 +1503,7 @@ public interface Route {
     /**
      * @return List of path variables (if any).
      */
+    @Nonnull
     public List<String> vars() {
       return cpattern.vars();
     }
@@ -1412,6 +1515,7 @@ public interface Route {
      * @return Indicates if the {@link #pattern()} contains a glob charecter, like <code>?</code>,
      *         <code>*</code> or <code>**</code>.
      */
+    @Nonnull
     public boolean glob() {
       return cpattern.glob();
     }
@@ -1421,6 +1525,7 @@ public interface Route {
      *
      * @return Source information (where the route was defined).
      */
+    @Nonnull
     public Route.Source source() {
       return new RouteSourceImpl(declaringClass, line);
     }
@@ -1431,6 +1536,7 @@ public interface Route {
      * @param vars Path variables.
      * @return A route pattern.
      */
+    @Nonnull
     public String reverse(final Map<String, Object> vars) {
       return cpattern.reverse(vars);
     }
@@ -1441,11 +1547,13 @@ public interface Route {
      * @param values Path variable values.
      * @return A route pattern.
      */
+    @Nonnull
     public String reverse(final Object... values) {
       return cpattern.reverse(values);
     }
 
     @Override
+    @Nonnull
     public Definition attr(final String name, final Object value) {
       requireNonNull(name, "Attribute name is required.");
       requireNonNull(value, "Attribute value is required.");
@@ -1480,6 +1588,7 @@ public interface Route {
      * @return Attribute's value or <code>null</code>.
      */
     @SuppressWarnings("unchecked")
+    @Nonnull
     public <T> T attr(final String name) {
       return (T) attributes.get(name);
     }
@@ -1487,6 +1596,7 @@ public interface Route {
     /**
      * @return A read only view of attributes.
      */
+    @Nonnull
     public Map<String, Object> attributes() {
       return attributes;
     }
@@ -1500,6 +1610,7 @@ public interface Route {
      * @param accept The <code>Accept</code> header.
      * @return A route or an empty optional.
      */
+    @Nonnull
     public Optional<Route> matches(final String method,
         final String path, final MediaType contentType,
         final List<MediaType> accept) {
@@ -1524,6 +1635,7 @@ public interface Route {
     /**
      * @return HTTP method or <code>*</code>.
      */
+    @Nonnull
     public String method() {
       return method;
     }
@@ -1531,6 +1643,7 @@ public interface Route {
     /**
      * @return Handler behind this route.
      */
+    @Nonnull
     public Route.Filter filter() {
       return filter;
     }
@@ -1541,6 +1654,7 @@ public interface Route {
      *
      * @return Route name. Default is: <code>anonymous</code>.
      */
+    @Nonnull
     public String name() {
       return name;
     }
@@ -1554,6 +1668,7 @@ public interface Route {
      * @return This definition.
      */
     @Override
+    @Nonnull
     public Definition name(final String name) {
       checkArgument(!Strings.isNullOrEmpty(name), "A route's name is required.");
       this.name = normalize(prefix != null ? prefix + "/" + name : name);
@@ -1645,6 +1760,7 @@ public interface Route {
     /**
      * @return List of exclusion filters (if any).
      */
+    @Nonnull
     public List<String> excludes() {
       return excludes.stream().map(r -> r.pattern()).collect(Collectors.toList());
     }
@@ -1661,6 +1777,7 @@ public interface Route {
     /**
      * @return All the types this route can consumes.
      */
+    @Nonnull
     public List<MediaType> consumes() {
       return Collections.unmodifiableList(this.consumes);
     }
@@ -1668,11 +1785,13 @@ public interface Route {
     /**
      * @return All the types this route can produces.
      */
+    @Nonnull
     public List<MediaType> produces() {
       return Collections.unmodifiableList(this.produces);
     }
 
     @Override
+    @Nonnull
     public Definition map(final Mapper<?> mapper) {
       this.mapper = requireNonNull(mapper, "Mapper is required.");
       return this;
@@ -1684,6 +1803,7 @@ public interface Route {
      * @param line Line number.
      * @return This instance.
      */
+    @Nonnull
     public Definition line(final int line) {
       this.line = line;
       return this;
@@ -1695,6 +1815,7 @@ public interface Route {
      * @param declaringClass A source class.
      * @return This instance.
      */
+    @Nonnull
     public Definition declaringClass(final String declaringClass) {
       this.declaringClass = declaringClass;
       return this;
@@ -1976,6 +2097,7 @@ public interface Route {
      *
      * @return Target method.
      */
+    @Nonnull
     Method method();
 
     /**
@@ -1983,6 +2105,7 @@ public interface Route {
      *
      * @return Target class.
      */
+    @Nonnull
     Class<?> implementingClass();
   }
 
@@ -2426,16 +2549,19 @@ public interface Route {
   /**
    * @return Current request path.
    */
+  @Nonnull
   String path();
 
   /**
    * @return Current HTTP method.
    */
+  @Nonnull
   String method();
 
   /**
    * @return The currently matched pattern.
    */
+  @Nonnull
   String pattern();
 
   /**
@@ -2444,6 +2570,7 @@ public interface Route {
    *
    * @return Route name, defaults to <code>"anonymous"</code>
    */
+  @Nonnull
   String name();
 
   /**
@@ -2457,16 +2584,19 @@ public interface Route {
    *
    * @return The currently matched path variables (if any).
    */
+  @Nonnull
   Map<Object, String> vars();
 
   /**
    * @return List all the types this route can consumes, defaults is: {@code * / *}.
    */
+  @Nonnull
   List<MediaType> consumes();
 
   /**
    * @return List all the types this route can produces, defaults is: {@code * / *}.
    */
+  @Nonnull
   List<MediaType> produces();
 
   /**
@@ -2483,6 +2613,7 @@ public interface Route {
   /**
    * @return All the available attributes in the execution chain.
    */
+  @Nonnull
   Map<String, Object> attributes();
 
   /**
@@ -2493,6 +2624,7 @@ public interface Route {
    * @return Attribute value.
    */
   @SuppressWarnings("unchecked")
+  @Nonnull
   default <T> T attr(final String name) {
     return (T) attributes().get(name);
   }
@@ -2502,6 +2634,7 @@ public interface Route {
    *
    * @return Explicit renderer to use or <code>null</code>.
    */
+  @Nonnull
   String renderer();
 
   /**
@@ -2519,6 +2652,7 @@ public interface Route {
    * @param vars Path variables.
    * @return A route pattern.
    */
+  @Nonnull
   String reverse(final Map<String, Object> vars);
 
   /**
@@ -2527,6 +2661,7 @@ public interface Route {
    * @param values Path variable values.
    * @return A route pattern.
    */
+  @Nonnull
   String reverse(final Object... values);
 
   /**
@@ -2535,6 +2670,7 @@ public interface Route {
    * @param path A path to normalize.
    * @return A normalized path.
    */
+  @Nonnull
   static String normalize(final String path) {
     return RoutePattern.normalize(path);
   }
@@ -2545,6 +2681,7 @@ public interface Route {
    * @param path Path.
    * @return Original path.
    */
+  @Nonnull
   static String unerrpath(final String path) {
     if (path.charAt(0) == OUT_OF_PATH) {
       return path.substring(1);
@@ -2558,6 +2695,7 @@ public interface Route {
    * @param path Path.
    * @return Invalid path.
    */
+  @Nonnull
   static String errpath(final String path) {
     return OUT_OF_PATH + path;
   }
@@ -2567,6 +2705,7 @@ public interface Route {
    *
    * @return Source information (where the route was defined).
    */
+  @Nonnull
   Route.Source source();
 
   /**
@@ -2575,6 +2714,7 @@ public interface Route {
    * @param indent Indent level
    * @return Output.
    */
+  @Nonnull
   default String print(final int indent) {
     StringBuilder buff = new StringBuilder();
     String[] header = {"Method", "Path", "Source", "Name", "Pattern", "Consumes", "Produces"};
@@ -2604,6 +2744,7 @@ public interface Route {
    *
    * @return Output.
    */
+  @Nonnull
   default String print() {
     return print(0);
   }

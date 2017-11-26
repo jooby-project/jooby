@@ -1,11 +1,6 @@
-# raml
-
-RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifecycle from design to sharing. It's concise - you only write what you need to define - and reusable. It is machine readable API design that is actually human friendly. More at <a href="http://raml.org/">http://raml.org</a>
-
-
-> NOTE: This module depends on [route spec](/doc/spec/spec.html), please read the [route spec](/doc/spec/spec.html) documentation to learn how to write powerful APIs. 
-
-
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-raml/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-raml)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-raml.svg)](https://javadoc.io/doc/org.jooby/jooby-raml/1.2.3)
+[![jooby-raml website](https://img.shields.io/badge/jooby-raml-brightgreen.svg)](http://jooby.org/doc/raml)
 ## exports
 
 * ```/raml``` route with [api-console](https://github.com/mulesoft/api-console)
@@ -17,7 +12,7 @@ RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifec
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-raml</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 

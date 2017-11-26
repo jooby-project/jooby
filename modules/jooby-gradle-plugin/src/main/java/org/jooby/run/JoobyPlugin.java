@@ -211,6 +211,7 @@ import org.gradle.api.invocation.Gradle;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -226,11 +227,7 @@ public class JoobyPlugin implements Plugin<Project> {
 
   @Override
   public void apply(final Project project) {
-    try {
-      configureJoobyRun(project);
-    } catch (IOException ex) {
-      throw new IllegalStateException("Unable to configure joobyRun", ex);
-    }
+    configureJoobyRun(project);
 
     configureJoobyAssets(project);
 
@@ -239,7 +236,7 @@ public class JoobyPlugin implements Plugin<Project> {
     configureApiTool(project);
   }
 
-  private void configureJoobyRun(final Project project) throws IOException {
+  private void configureJoobyRun(final Project project) {
     project.getTasks()
         .withType(JoobyTask.class, joobyRun -> {
           ConventionMapping mapping = joobyRun.getConventionMapping();
@@ -249,6 +246,8 @@ public class JoobyPlugin implements Plugin<Project> {
           mapping.map("src", () -> new JoobyProject(project).sources());
 
           mapping.map("mainClassName", () -> project.getProperties().get("mainClassName"));
+
+          mapping.map("srcExtensions", () -> Arrays.asList(".java", ".conf", ".properties", ".kt"));
 
           mapping.map("compiler", () -> {
             File eclipseClasspath = new File(project.getProjectDir(), ".classpath");
@@ -324,8 +323,8 @@ public class JoobyPlugin implements Plugin<Project> {
     options.put(Task.TASK_TYPE, ApiToolTask.class);
     options.put(Task.TASK_DEPENDS_ON, "classes");
     options.put(Task.TASK_NAME, "joobyApiTool");
-    options.put(Task.TASK_DESCRIPTION,
-        "Automatically export your HTTP API to open standards like Swagger and RAML");
+    options
+        .put(Task.TASK_DESCRIPTION, "Export your HTTP API to open standards like Swagger and RAML");
     options.put(Task.TASK_GROUP, "jooby");
 
     project.getTasks().create(options);

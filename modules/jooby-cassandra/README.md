@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-cassandra/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-cassandra)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-cassandra.svg)](https://javadoc.io/doc/org.jooby/jooby-cassandra/1.2.3)
+[![jooby-cassandra website](https://img.shields.io/badge/jooby-cassandra-brightgreen.svg)](http://jooby.org/doc/cassandra)
 # cassandra
 
 <a href="http://cassandra.apache.org">The Apache Cassandra</a> database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data. Cassandra's support for replicating across multiple datacenters is best-in-class, providing lower latency for your users and the peace of mind of knowing that you can survive regional outages.
@@ -10,7 +13,7 @@ This module offers <a href="http://cassandra.apache.org">cassandra</a> database 
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-cassandra</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 
@@ -208,7 +211,7 @@ A [Session.Store](/apidocs/org/jooby/cassandra/CassandraSessionStore.html) power
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-cassandra</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 

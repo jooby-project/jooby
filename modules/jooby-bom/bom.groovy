@@ -2,13 +2,16 @@
 // usage: groovy bom.groovy ../pom.xml > pom.xml
 import groovy.xml.*
 
-def xml = new XmlSlurper().parse(new File(args[0]));
+def jooby = new XmlSlurper().parse(new File("../../pom.xml"));
+def modules = new XmlSlurper().parse(new File("../pom.xml"));
 def sw = new StringWriter()
-def b = new MarkupBuilder(sw)
+def props = new StringWriter()
+def deps = new MarkupBuilder(sw)
+def bprops = new MarkupBuilder(props)
 def template = new java.io.File("pom.template.xml").getText("UTF-8")
 
-b.dependencies {
-  for (m in xml.modules.module) {
+deps.dependencies {
+  for (m in modules.modules.module) {
           if (m.text().endsWith('-bom') || m.text().contains('coverage-report')) continue;
           dependency {
                   groupId('${project.groupId}');
@@ -18,4 +21,13 @@ b.dependencies {
   }
 }
 
-println template.replace("@version", xml.version.text()).replace("@dependencies", sw.toString())
+bprops.properties {
+  "jooby.version"(jooby.version.text())
+  jooby.properties.each {properties ->
+      properties.children().each {property ->
+          "${property.name()}"("${property.text()}")
+      }
+  }
+}
+
+println template.replace("@version", jooby.version.text()).replace("@dependencies", sw.toString()).replace("@properties", props.toString())

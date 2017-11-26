@@ -257,7 +257,7 @@ public class MvcRoutes {
       .build();
 
   public static List<Route.Definition> routes(final Env env, final RouteMetadata classInfo,
-      final String rpath, final Class<?> routeClass) {
+      final String rpath, boolean caseSensitiveRouting, final Class<?> routeClass) {
 
     // check and fail fast
     methods(routeClass, methods -> {
@@ -311,7 +311,7 @@ public class MvcRoutes {
               String[] excludes = excludes(method, rootExcludes);
 
               Definition definition = new Route.Definition(
-                  verb.getSimpleName(), rpath + "/" + path, new MvcHandler(method, routeClass, paramProvider))
+                  verb.getSimpleName(), rpath + "/" + path, new MvcHandler(method, routeClass, paramProvider), caseSensitiveRouting)
                   .produces(produces)
                   .consumes(consumes)
                   .excludes(excludes)

@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-svg-symbol/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-svg-symbol)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-svg-symbol.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-svg-symbol/1.2.3)
+[![jooby-assets-svg-symbol website](https://img.shields.io/badge/jooby-assets-svg-symbol-brightgreen.svg)](http://jooby.org/doc/assets-svg-symbol)
 # svg-symbol
 
 SVG ```symbol``` for icons: merge svg files from a folder and generates a ```sprite.svg``` and ```sprite.css``` files.
@@ -10,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-assets-svg-symbol</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
  <scope>provided</scope>
 </dependency>
 ```
@@ -166,8 +169,6 @@ This option is useful for generating more specific css class selectors.
 * [jshint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jshint): JavaScript linter, helps to detect errors and potential problems in code..
 
 * [babel](https://github.com/jooby-project/jooby/tree/master/jooby-assets-babel): Ecma6 now via <a href="http://babeljs.io/">Babel</a>.
-
-* [react](https://github.com/jooby-project/jooby/tree/master/jooby-assets-react): <a href="https://facebook.github.io/react">React</a> support.
 
 * [rollup](https://github.com/jooby-project/jooby/tree/master/jooby-assets-rollup): <a href="http://rollupjs.org/">rollup.js</a> the next-generation ES6 module bundler.
 

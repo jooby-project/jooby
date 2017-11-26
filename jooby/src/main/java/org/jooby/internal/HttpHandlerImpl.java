@@ -312,6 +312,8 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private static final Key<Request> REQ = Key.get(Request.class);
 
+  private static final Key<Route.Chain> CHAIN = Key.get(Route.Chain.class);
+
   private static final Key<Response> RSP = Key.get(Response.class);
 
   private static final Key<Sse> SSE = Key.get(Sse.class);
@@ -489,7 +491,9 @@ public class HttpHandlerImpl implements HttpHandler {
       Route[] routes = routeCache
           .getUnchecked(new RouteKey(method, path, type, req.accept()));
 
-      new RouteChain(req, rsp, routes).next(req, rsp);
+      RouteChain chain = new RouteChain(req, rsp, routes);
+      scope.put(CHAIN, chain);
+      chain.next(req, rsp);
 
     } catch (DeferredExecution ex) {
       deferred = true;

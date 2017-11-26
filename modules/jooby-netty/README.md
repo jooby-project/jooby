@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-netty/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-netty)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-netty.svg)](https://javadoc.io/doc/org.jooby/jooby-netty/1.2.3)
+[![jooby-netty website](https://img.shields.io/badge/jooby-netty-brightgreen.svg)](http://jooby.org/doc/netty)
 # netty
 
 [Netty](http://netty.io) is an asynchronous event-driven network application framework for rapid development of maintainable high performance protocol servers & clients.
@@ -12,7 +15,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-netty</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 

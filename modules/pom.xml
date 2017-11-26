@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.jooby</groupId>
     <artifactId>jooby-project</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>modules</artifactId>
@@ -27,7 +27,6 @@
     <module>jooby-jdbc</module>
     <module>jooby-jooq</module>
     <module>jooby-hbm</module>
-    <module>jooby-hbm4</module>
     <module>jooby-dist</module>
     <module>jooby-undertow</module>
     <module>jooby-servlet</module>
@@ -83,6 +82,7 @@
     <module>jooby-rocker</module>
     <module>jooby-livereload</module>
     <!-- Assets -->
+    <module>jooby-frontend</module>
     <module>jooby-assets</module>
     <module>jooby-assets-j2v8</module>
     <module>jooby-assets-nodejs</module>
@@ -103,7 +103,6 @@
     <module>jooby-assets-svg-sprites</module>
     <module>jooby-assets-svg-symbol</module>
     <module>jooby-assets-autoprefixer</module>
-    <module>jooby-assets-react</module>
     <module>coverage-report</module>
   </modules>
 

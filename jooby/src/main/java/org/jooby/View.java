@@ -205,6 +205,7 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
+import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
@@ -273,6 +274,7 @@ public class View extends Result {
   /**
    * @return View's name.
    */
+  @Nonnull
   public String name() {
     return name;
   }
@@ -284,6 +286,7 @@ public class View extends Result {
    * @param value Attribute's value.
    * @return This view.
    */
+  @Nonnull
   public View put(final String name, final Object value) {
     requireNonNull(name, "Model name is required.");
     model.put(name, value);
@@ -296,6 +299,7 @@ public class View extends Result {
    * @param values Attribute's value.
    * @return This view.
    */
+  @Nonnull
   public View put(final Map<String, ?> values) {
     values.forEach((k, v) -> model.put(k, v));
     return this;
@@ -304,11 +308,14 @@ public class View extends Result {
   /**
    * @return View's model.
    */
+
+  @Nonnull
   public Map<String, ?> model() {
     return model;
   }
 
   @Override
+  @Nonnull
   public Result set(final Object content) {
     throw new UnsupportedOperationException("Not allowed in views, use one of the put methods.");
   }

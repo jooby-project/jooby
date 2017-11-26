@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-uglify/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-uglify)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-uglify.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-uglify/1.2.3)
+[![jooby-assets-uglify website](https://img.shields.io/badge/jooby-assets-uglify-brightgreen.svg)](http://jooby.org/doc/assets-uglify)
 # uglify
 
 <a href="https://github.com/mishoo/UglifyJS2">UglifyJs2</a> JavaScript parser / mangler / compressor / beautifier toolkit.
@@ -10,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-uglify</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.3</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -76,8 +79,6 @@ assets {
 * [jshint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jshint): JavaScript linter, helps to detect errors and potential problems in code..
 
 * [babel](https://github.com/jooby-project/jooby/tree/master/jooby-assets-babel): Ecma6 now via <a href="http://babeljs.io/">Babel</a>.
-
-* [react](https://github.com/jooby-project/jooby/tree/master/jooby-assets-react): <a href="https://facebook.github.io/react">React</a> support.
 
 * [rollup](https://github.com/jooby-project/jooby/tree/master/jooby-assets-rollup): <a href="http://rollupjs.org/">rollup.js</a> the next-generation ES6 module bundler.
 

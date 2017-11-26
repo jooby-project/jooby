@@ -215,6 +215,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Utility class for HTTP responses. Usually you start with a result {@link Results builder} and
  * then you customize (or not) one or more HTTP attribute.
@@ -336,6 +339,7 @@ public class Result {
    * @param status A new response status to use.
    * @return This content.
    */
+  @Nonnull
   public Result status(final Status status) {
     this.status = requireNonNull(status, "A status is required.");
     return this;
@@ -347,6 +351,7 @@ public class Result {
    * @param status A new response status to use.
    * @return This content.
    */
+  @Nonnull
   public Result status(final int status) {
     return status(Status.valueOf(status));
   }
@@ -357,6 +362,7 @@ public class Result {
    * @param type A content type.
    * @return This content.
    */
+  @Nonnull
   public Result type(final MediaType type) {
     this.type = requireNonNull(type, "A content type is required.");
     return this;
@@ -368,6 +374,7 @@ public class Result {
    * @param type A content type.
    * @return This content.
    */
+  @Nonnull
   public Result type(final String type) {
     return type(MediaType.valueOf(type));
   }
@@ -378,6 +385,7 @@ public class Result {
    * @param content A result content.
    * @return This content.
    */
+  @Nonnull
   public Result set(final Object content) {
     this.value = content;
     return this;
@@ -390,6 +398,7 @@ public class Result {
    * @param supplier An object supplier.
    * @return This result.
    */
+  @Nonnull
   public Result when(final String type, final Supplier<Object> supplier) {
     return when(MediaType.valueOf(type), supplier);
   }
@@ -401,6 +410,7 @@ public class Result {
    * @param supplier An object supplier.
    * @return This result.
    */
+  @Nonnull
   public Result when(final MediaType type, final Supplier<Object> supplier) {
     return new ContentNegotiation(this).when(type, supplier);
   }
@@ -408,6 +418,7 @@ public class Result {
   /**
    * @return headers for content.
    */
+  @Nonnull
   public Map<String, Object> headers() {
     return headers;
   }
@@ -415,6 +426,7 @@ public class Result {
   /**
    * @return Body status.
    */
+  @Nonnull
   public Optional<Status> status() {
     return Optional.ofNullable(status);
   }
@@ -422,6 +434,7 @@ public class Result {
   /**
    * @return Body type.
    */
+  @Nonnull
   public Optional<MediaType> type() {
     return Optional.ofNullable(type);
   }
@@ -431,6 +444,7 @@ public class Result {
    *
    * @return Value or <code>empty</code>
    */
+  @Nonnull
   public Optional<Object> ifGet() {
     return ifGet(MediaType.ALL);
   }
@@ -442,6 +456,7 @@ public class Result {
    * @return Value or <code>null</code>
    */
   @SuppressWarnings("unchecked")
+  @Nullable
   public <T> T get() {
     return (T) value;
   }
@@ -452,6 +467,7 @@ public class Result {
    * @param types Accept header.
    * @return Result content.
    */
+  @Nonnull
   public Optional<Object> ifGet(final List<MediaType> types) {
     return Optional.ofNullable(value);
   }
@@ -464,6 +480,7 @@ public class Result {
    * @return Result content or <code>null</code>.
    */
   @SuppressWarnings("unchecked")
+  @Nullable
   public <T> T get(final List<MediaType> types) {
     return (T) value;
   }
@@ -476,6 +493,7 @@ public class Result {
    * @param value Header's value.
    * @return This content.
    */
+  @Nonnull
   public Result header(final String name, final Object value) {
     requireNonNull(name, "Header's name is required.");
     requireNonNull(value, "Header's value is required.");
@@ -492,6 +510,7 @@ public class Result {
    * @param values Header's values.
    * @return This content.
    */
+  @Nonnull
   public Result header(final String name, final Object... values) {
     requireNonNull(name, "Header's name is required.");
     requireNonNull(values, "Header's values are required.");
@@ -507,6 +526,7 @@ public class Result {
    * @param values Header's values.
    * @return This content.
    */
+  @Nonnull
   public Result header(final String name, final Iterable<Object> values) {
     requireNonNull(name, "Header's name is required.");
     requireNonNull(values, "Header's values are required.");

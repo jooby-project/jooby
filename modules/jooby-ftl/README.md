@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ftl/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ftl)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-ftl.svg)](https://javadoc.io/doc/org.jooby/jooby-ftl/1.2.3)
+[![jooby-ftl website](https://img.shields.io/badge/jooby-ftl-brightgreen.svg)](http://jooby.org/doc/ftl)
 # freemarker
 
 [Freemarker](http://freemarker.org) templates for [Jooby](/).
@@ -13,7 +16,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 

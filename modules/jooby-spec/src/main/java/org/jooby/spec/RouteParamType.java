@@ -209,6 +209,7 @@ package org.jooby.spec;
  * @author edgar
  * @since 0.15.0
  */
+@Deprecated
 public enum RouteParamType {
 
   /** HTTP param inside a query. */

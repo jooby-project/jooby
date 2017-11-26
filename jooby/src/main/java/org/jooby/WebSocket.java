@@ -219,6 +219,8 @@ import com.google.common.base.Preconditions;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
+import javax.annotation.Nonnull;
+
 /**
  * <h1>WebSockets</h1>
  * <p>
@@ -766,26 +768,31 @@ public interface WebSocket extends Closeable, Registry {
   /**
    * @return Current request path.
    */
+  @Nonnull
   String path();
 
   /**
    * @return The currently matched pattern.
    */
+  @Nonnull
   String pattern();
 
   /**
    * @return The currently matched path variables (if any).
    */
+  @Nonnull
   Map<Object, String> vars();
 
   /**
    * @return The type this route can consumes, defaults is: {@code * / *}.
    */
+  @Nonnull
   MediaType consumes();
 
   /**
    * @return The type this route can produces, defaults is: {@code * / *}.
    */
+  @Nonnull
   MediaType produces();
 
   /**
@@ -955,7 +962,6 @@ public interface WebSocket extends Closeable, Registry {
    */
   default void broadcast(final Object data, final OnError err) throws Exception {
     broadcast(data, SUCCESS, err);
-    ;
   }
 
   /**
@@ -968,7 +974,5 @@ public interface WebSocket extends Closeable, Registry {
    * @param err An err callback.
    * @throws Exception If something goes wrong.
    */
-  void broadcast(Object data, SuccessCallback success, OnError err)
-      throws Exception;
-
+  void broadcast(Object data, SuccessCallback success, OnError err) throws Exception;
 }

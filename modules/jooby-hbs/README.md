@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-hbs/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-hbs)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hbs.svg)](https://javadoc.io/doc/org.jooby/jooby-hbs/1.2.3)
+[![jooby-hbs website](https://img.shields.io/badge/jooby-hbs-brightgreen.svg)](http://jooby.org/doc/hbs)
 # handlebars
 
 Logic-less and semantic templates via [Handlebars.java](https://github.com/jknack/handlebars.java).
@@ -13,7 +16,7 @@ Logic-less and semantic templates via [Handlebars.java](https://github.com/jknac
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbs</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 

@@ -240,7 +240,7 @@ public class NettyServerTest {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void serverWithWorkerEventLoop() throws Exception {
-    Config config = this.config.withValue("netty.threads.Worker", ConfigValueFactory.fromAnyRef(1));
+    Config config = this.config.withValue("netty.threads.Worker", ConfigValueFactory.fromAnyRef(4));
     new MockUnit(HttpHandler.class)
         .expect(parentThreadFactory("nio-boss"))
         .expect(noepoll)
@@ -264,7 +264,7 @@ public class NettyServerTest {
         .expect(unit -> {
           NioEventLoopGroup eventLoop = unit.constructor(NioEventLoopGroup.class)
               .args(int.class, ThreadFactory.class)
-              .build(1, unit.get(DefaultThreadFactory.class));
+              .build(4, unit.get(DefaultThreadFactory.class));
           unit.registerMock(NioEventLoopGroup.class, eventLoop);
 
           Future future = unit.mock(Future.class);
@@ -296,7 +296,7 @@ public class NettyServerTest {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void eventLoopError() throws Exception {
-    Config config = this.config.withValue("netty.threads.Worker", ConfigValueFactory.fromAnyRef(1));
+    Config config = this.config.withValue("netty.threads.Worker", ConfigValueFactory.fromAnyRef(5));
     new MockUnit(HttpHandler.class)
         .expect(parentThreadFactory("nio-boss"))
         .expect(noepoll)
@@ -320,7 +320,7 @@ public class NettyServerTest {
         .expect(unit -> {
           NioEventLoopGroup eventLoop = unit.constructor(NioEventLoopGroup.class)
               .args(int.class, ThreadFactory.class)
-              .build(1, unit.get(DefaultThreadFactory.class));
+              .build(5, unit.get(DefaultThreadFactory.class));
           unit.registerMock(NioEventLoopGroup.class, eventLoop);
 
           Future future = unit.mock(Future.class);

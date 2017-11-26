@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-crash/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-crash)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-crash.svg)](https://javadoc.io/doc/org.jooby/jooby-crash/1.2.3)
+[![jooby-crash website](https://img.shields.io/badge/jooby-crash-brightgreen.svg)](http://jooby.org/doc/crash)
 # crash
 
 <a href="http://www.crashub.org">CRaSH</a> remote shell: connect and monitor JVM resources via HTTP, SSH or telnet.</a>
@@ -8,7 +11,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-crash</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 

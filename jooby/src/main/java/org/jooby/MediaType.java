@@ -695,20 +695,7 @@ public class MediaType implements Comparable<MediaType> {
   private static List<MediaType> parseInternal(final String value) {
     String[] types = value.split(",");
     @SuppressWarnings("serial")
-    List<MediaType> result = new ArrayList<MediaType>(types.length) {
-      int hc = 1;
-
-      @Override
-      public boolean add(final MediaType e) {
-        hc = 31 * hc + e.hashCode();
-        return super.add(e);
-      }
-
-      @Override
-      public int hashCode() {
-        return hc;
-      }
-    };
+    List<MediaType> result = new ArrayList<>(types.length);
     for (String type : types) {
       String[] parts = type.trim().split(";");
       if (parts[0].equals("*")) {

@@ -3,6 +3,7 @@
 Small module to build concurrent & distributed applications via [Akka](http://akka.io).
 
 ## exports
+
 * An ```ActorSystem```
 
 ## dependency

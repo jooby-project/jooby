@@ -219,7 +219,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 
 @Mojo(name = "apitool", requiresDependencyResolution = ResolutionScope.COMPILE,
-    defaultPhase = LifecyclePhase.PROCESS_CLASSES)
+    defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
 public class ApiToolMojo extends AbstractMojo {
 
   @Component
@@ -238,6 +238,8 @@ public class ApiToolMojo extends AbstractMojo {
       Path srcdir = new File(mavenProject.getBuild().getSourceDirectory()).toPath();
       Path bindir = new File(mavenProject.getBuild().getOutputDirectory()).toPath();
       getLog().debug("Using classloader " + loader);
+      getLog().debug("    source: " + srcdir);
+      getLog().debug("    bin: " + bindir);
       Path output = new ApiParser(srcdir)
           .with(loader)
           .export(bindir, mainClass);

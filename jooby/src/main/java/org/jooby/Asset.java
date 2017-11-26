@@ -211,6 +211,8 @@ import java.net.URL;
 import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.Longs;
 
+import javax.annotation.Nonnull;
+
 /**
  * Usually a public file/resource like javascript, css, images files, etc...
  * An asset consist of content type, stream and last modified since attributes, between others.
@@ -286,6 +288,7 @@ public interface Asset {
    *
    * @return The asset name (without path).
    */
+  @Nonnull
   default String name() {
     String path = path();
     int slash = path.lastIndexOf('/');
@@ -302,17 +305,20 @@ public interface Asset {
    *
    * @return The asset requested path, includes the name.
    */
+  @Nonnull
   String path();
 
   /**
    * @return URL representing the resource.
    */
+  @Nonnull
   URL resource();
 
   /**
    * @return Generate a weak Etag using the {@link #path()}, {@link #lastModified()} and
    *         {@link #length()}.
    */
+  @Nonnull
   default String etag() {
     StringBuilder b = new StringBuilder(32);
     b.append("W/\"");
@@ -340,10 +346,12 @@ public interface Asset {
    * @return The content of this asset.
    * @throws Exception If content can't be read it.
    */
+  @Nonnull
   InputStream stream() throws Exception;
 
   /**
    * @return Asset media type.
    */
+  @Nonnull
   MediaType type();
 }

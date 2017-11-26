@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-sass/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-sass)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-sass.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-sass/1.2.3)
+[![jooby-assets-sass website](https://img.shields.io/badge/jooby-assets-sass-brightgreen.svg)](http://jooby.org/doc/assets-sass)
 # sass
 
 <a href="http://sass-lang.com/">sass-lang</a> implementation from <a href="https://github.com/bit3/jsass">Java sass compiler</a>. Sass is the most mature, stable, and powerful professional grade CSS extension language in the world.
@@ -10,7 +13,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-assets-sass</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
  <scope>provided</scope>
 </dependency>
 ```
@@ -86,8 +89,6 @@ assets {
 * [jshint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jshint): JavaScript linter, helps to detect errors and potential problems in code..
 
 * [babel](https://github.com/jooby-project/jooby/tree/master/jooby-assets-babel): Ecma6 now via <a href="http://babeljs.io/">Babel</a>.
-
-* [react](https://github.com/jooby-project/jooby/tree/master/jooby-assets-react): <a href="https://facebook.github.io/react">React</a> support.
 
 * [rollup](https://github.com/jooby-project/jooby/tree/master/jooby-assets-rollup): <a href="http://rollupjs.org/">rollup.js</a> the next-generation ES6 module bundler.
 

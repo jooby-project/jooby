@@ -1,6 +1,7 @@
 package org.jooby;
 
 import static org.easymock.EasyMock.expect;
+import org.jooby.internal.handlers.FlashScopeHandler;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
@@ -372,10 +373,10 @@ public class RequestTest {
 
   @Test
   public void setFlashAttr() throws Exception {
-    Map<String, String> flash = new HashMap<>();
+    FlashScopeHandler.FlashMap flash = new FlashScopeHandler.FlashMap(new HashMap<>());
     new RequestMock() {
       @Override
-      public Map<String, String> flash() {
+      public Flash flash() {
         return flash;
       }
     }.flash("foo", "bar");
@@ -384,11 +385,11 @@ public class RequestTest {
 
   @Test
   public void removeFlashAttr() throws Exception {
-    Map<String, String> flash = new HashMap<>();
+    FlashScopeHandler.FlashMap flash = new FlashScopeHandler.FlashMap(new HashMap<>());
     flash.put("foo", "bar");
     new RequestMock() {
       @Override
-      public Map<String, String> flash() {
+      public Request.Flash flash() {
         return flash;
       }
     }.flash("foo", null);
@@ -397,11 +398,11 @@ public class RequestTest {
 
   @Test
   public void getFlashAttr() throws Exception {
-    Map<String, String> flash = new HashMap<>();
+    FlashScopeHandler.FlashMap flash = new FlashScopeHandler.FlashMap(new HashMap<>());
     flash.put("foo", "bar");
     RequestMock req = new RequestMock() {
       @Override
-      public Map<String, String> flash() {
+      public Request.Flash flash() {
         return flash;
       }
     };
@@ -410,10 +411,10 @@ public class RequestTest {
 
   @Test(expected = Err.class)
   public void noSuchFlashAttr() throws Exception {
-    Map<String, String> flash = new HashMap<>();
+    FlashScopeHandler.FlashMap flash = new FlashScopeHandler.FlashMap(new HashMap<>());
     RequestMock req = new RequestMock() {
       @Override
-      public Map<String, String> flash() {
+      public Request.Flash flash() {
         return flash;
       }
     };

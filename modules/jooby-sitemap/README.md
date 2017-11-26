@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-sitemap/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-sitemap)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-sitemap.svg)](https://javadoc.io/doc/org.jooby/jooby-sitemap/1.2.3)
+[![jooby-sitemap website](https://img.shields.io/badge/jooby-sitemap-brightgreen.svg)](http://jooby.org/doc/sitemap)
 # sitemap
 
 Generate <a href="https://en.wikipedia.org/wiki/Sitemaps">sitemap.xml</a> files using <a href="https://github.com/jirkapinkas/jsitemapgenerator">jsitemapgenerator</a>.
@@ -12,7 +15,7 @@ Generate <a href="https://en.wikipedia.org/wiki/Sitemaps">sitemap.xml</a> files 
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-sitemap</artifactId>
- <version>1.1.3</version>
+ <version>1.2.3</version>
 </dependency>
 ```
 

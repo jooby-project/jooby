@@ -215,6 +215,8 @@ import org.jooby.Cookie.Definition;
 
 import com.google.common.collect.ImmutableList;
 
+import javax.annotation.Nonnull;
+
 /**
  * Give you access to the actual HTTP response. You can read/write headers and write HTTP body.
  *
@@ -496,6 +498,7 @@ public interface Response {
    * @param value A cookie's value.
    * @return This response.
    */
+  @Nonnull
   default Response cookie(final String name, final String value) {
     return cookie(new Cookie.Definition(name, value));
   }
@@ -506,6 +509,7 @@ public interface Response {
    * @param cookie A cookie definition.
    * @return This response.
    */
+  @Nonnull
   Response cookie(final Cookie.Definition cookie);
 
   /**
@@ -514,6 +518,7 @@ public interface Response {
    * @param cookie A cookie.
    * @return This response.
    */
+  @Nonnull
   Response cookie(Cookie cookie);
 
   /**
@@ -522,6 +527,7 @@ public interface Response {
    * @param name Cookie's name.
    * @return This response.
    */
+  @Nonnull
   Response clearCookie(String name);
 
   /**
@@ -530,6 +536,7 @@ public interface Response {
    * @param name A name.
    * @return A HTTP header.
    */
+  @Nonnull
   Mutant header(String name);
 
   /**
@@ -540,6 +547,7 @@ public interface Response {
    * @param value Header's value.
    * @return This response.
    */
+  @Nonnull
   Response header(String name, Object value);
 
   /**
@@ -550,6 +558,7 @@ public interface Response {
    * @param values Header's value.
    * @return This response.
    */
+  @Nonnull
   default Response header(final String name, final Object... values) {
     return header(name, ImmutableList.builder().add(values).build());
   }
@@ -562,6 +571,7 @@ public interface Response {
    * @param values Header's value.
    * @return This response.
    */
+  @Nonnull
   Response header(String name, Iterable<Object> values);
 
   /**
@@ -571,6 +581,7 @@ public interface Response {
    *
    * @return A current charset.
    */
+  @Nonnull
   Charset charset();
 
   /**
@@ -580,6 +591,7 @@ public interface Response {
    * @param charset A charset.
    * @return This response.
    */
+  @Nonnull
   Response charset(Charset charset);
 
   /**
@@ -588,11 +600,13 @@ public interface Response {
    * @param length Length of response.
    * @return This response.
    */
+  @Nonnull
   Response length(long length);
 
   /**
    * @return Get the response type.
    */
+  @Nonnull
   Optional<MediaType> type();
 
   /**
@@ -601,6 +615,7 @@ public interface Response {
    * @param type A media type.
    * @return This response.
    */
+  @Nonnull
   Response type(MediaType type);
 
   /**
@@ -609,6 +624,7 @@ public interface Response {
    * @param type A media type.
    * @return This response.
    */
+  @Nonnull
   default Response type(final String type) {
     return type(MediaType.valueOf(type));
   }
@@ -767,6 +783,7 @@ public interface Response {
   /**
    * @return A HTTP status or empty if status was not set yet.
    */
+  @Nonnull
   Optional<Status> status();
 
   /**
@@ -775,6 +792,7 @@ public interface Response {
    * @param status A HTTP status.
    * @return This response.
    */
+  @Nonnull
   Response status(Status status);
 
   /**
@@ -783,6 +801,7 @@ public interface Response {
    * @param status A HTTP status.
    * @return This response.
    */
+  @Nonnull
   default Response status(final int status) {
     return status(Status.valueOf(status));
   }

@@ -207,11 +207,11 @@ import static java.util.Objects.requireNonNull;
 
 class SimpleRouteMatcher implements RouteMatcher {
 
-  private final String fullpath;
+  protected final String fullpath;
 
   private final String path;
 
-  private String pattern;
+  protected String pattern;
 
   public SimpleRouteMatcher(final String pattern, final String path, final String fullpath) {
     this.pattern = requireNonNull(pattern, "A pattern is required.");

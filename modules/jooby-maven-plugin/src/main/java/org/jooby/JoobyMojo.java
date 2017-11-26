@@ -224,19 +224,25 @@ import org.jooby.funzy.Try;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Mojo(name = "run", threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
 @Execute(phase = LifecyclePhase.TEST_COMPILE)
 public class JoobyMojo extends AbstractMojo {
+  private static final Object LOCK = new Object();
+
+  private static final List<String> XML_PROPS = Arrays.asList(
+      "javax.xml.parsers.DocumentBuilderFactory",
+      "javax.xml.parsers.SAXParserFactory",
+      "javax.xml.stream.XMLInputFactory",
+      "javax.xml.stream.XMLEventFactory",
+      "javax.xml.transform.TransformerFactory",
+      "javax.xml.stream.XMLOutputFactory",
+      "javax.xml.datatype.DatatypeFactory",
+      "org.xml.sax.driver");
+
 
   private static class ShutdownHook extends Thread {
     private Log log;
@@ -254,11 +260,11 @@ public class JoobyMojo extends AbstractMojo {
     @Override
     public void run() {
       if (watcher != null) {
-        log.info("stopping: watcher");
+        log.debug("stopping: watcher");
         Try.run(watcher::stop).onFailure(ex -> log.debug("Stop of watcher resulted in error", ex));
       }
       commands.forEach(cmd -> {
-        log.info("stopping: " + cmd);
+        log.debug("stopping: " + cmd);
         Try.run(cmd::stop).onFailure(ex -> log.error("Stop of " + cmd + " resulted in error", ex));
       });
     }
@@ -290,6 +296,9 @@ public class JoobyMojo extends AbstractMojo {
 
   @Parameter(property = "jooby.excludes")
   private List<String> excludes;
+
+  @Parameter(property = "jooby.srcExtensions", defaultValue = ".java,.kt,.conf,.properties")
+  private List<String> srcExtensions;
 
   @Parameter(property = "application.debug", defaultValue = "true")
   private String debug;
@@ -388,7 +397,7 @@ public class JoobyMojo extends AbstractMojo {
       getLog().debug("cmd: " + cmd.debug());
     }
 
-    Watcher watcher = setupCompiler(mavenProject, compiler, goal -> {
+    Watcher watcher = setupCompiler(mavenProject, compiler, srcExtensions, goal -> {
       maven.execute(DefaultMavenExecutionRequest.copy(session.getRequest())
           .setGoals(Arrays.asList(goal)));
     });
@@ -455,7 +464,7 @@ public class JoobyMojo extends AbstractMojo {
 
   @SuppressWarnings("unchecked")
   private static Watcher setupCompiler(final MavenProject project, final String compiler,
-      final Consumer<String> task) throws MojoFailureException {
+      final List<String> srcExtensions, final Consumer<String> task) throws MojoFailureException {
     File eclipseClasspath = new File(project.getBasedir(), ".classpath");
     if ("off".equalsIgnoreCase(compiler) || eclipseClasspath.exists()) {
       return null;
@@ -472,11 +481,9 @@ public class JoobyMojo extends AbstractMojo {
         ClassLoader currentloader = Thread.currentThread().getContextClassLoader();
         try {
           Thread.currentThread().setContextClassLoader(backloader);
-          if (path.toString().endsWith(".java")) {
-            task.accept("compile");
-          } else if (path.toString().endsWith(".conf")
-              || path.toString().endsWith(".properties")) {
-            task.accept("compile");
+          if (srcExtensions.stream()
+              .anyMatch(ext -> path.toString().endsWith(ext))) {
+            runCompile(task);
           }
         } finally {
           Thread.currentThread().setContextClassLoader(currentloader);
@@ -484,6 +491,19 @@ public class JoobyMojo extends AbstractMojo {
       }, paths.toArray(new Path[paths.size()]));
     } catch (Exception ex) {
       throw new MojoFailureException("Can't compile source code", ex);
+    }
+  }
+
+  private static void runCompile(Consumer<String> task) {
+    synchronized (LOCK) {
+      Map<String, String> xml = new HashMap<>();
+      XML_PROPS.forEach(p -> xml.put(p, (String) System.getProperties().remove(p)));
+      task.accept("compile");
+      xml.forEach((k, v) -> {
+        if (v != null) {
+          System.setProperty(k, v);
+        }
+      });
     }
   }
 

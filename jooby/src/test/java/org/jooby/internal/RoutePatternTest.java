@@ -15,8 +15,12 @@ public class RoutePatternTest {
 
     RoutePattern path;
 
+    public RoutePathAssert(final String method, final String pattern, boolean ignoreCase) {
+      path = new RoutePattern(method, pattern, ignoreCase);
+    }
+
     public RoutePathAssert(final String method, final String pattern) {
-      path = new RoutePattern(method, pattern);
+      this(method, pattern, false);
     }
 
     public RoutePathAssert matches(final String path) {
@@ -436,7 +440,21 @@ public class RoutePatternTest {
 
     new RoutePathAssert("GET", "/m/**")
         .butNot("GET/merge/login");
+  }
 
+  @Test
+  public void ignoreCase() {
+    new RoutePathAssert("GET", "/path/:id", true)
+        .matches("GET/path/aB", vars -> {
+          assertEquals("aB", vars.get(0));
+        })
+        .matches("GET/Path/ab", vars -> {
+          assertEquals("ab", vars.get(0));
+        });
+
+    new RoutePathAssert("GET", "/path1", true)
+        .matches("GET/path1")
+        .matches("GET/Path1");
   }
 
 }

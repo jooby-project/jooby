@@ -329,12 +329,6 @@ public class LiveReload implements Module {
   private List<Object[]> paths = new ArrayList<>();
 
   /**
-   * Creates a new {@link LiveReload} module.
-   */
-  public LiveReload() {
-  }
-
-  /**
    * Add the given path to the watcher.
    *
    * @param path Path to watch.
@@ -415,7 +409,8 @@ public class LiveReload implements Module {
       }).consumes(MediaType.json).produces(MediaType.json);
 
       if (paths.isEmpty()) {
-        register(Paths.get("public"),
+        Path basedir = Paths.get(System.getProperty("user.dir"));
+        register(basedir.resolve("public"),
           "**/*.css",
           "**/*.scss",
           "**/*.sass",
@@ -424,33 +419,37 @@ public class LiveReload implements Module {
           "**/*.js",
           "**/*.coffee",
           "**/*.ts");
-        register(Paths.get("target"),
+        register(basedir.resolve("target"),
           "**/*.class",
           "**/*.conf",
           "**/*.properties");
-        register(Paths.get("build"),
+        register(basedir.resolve("build"),
           "**/*.class",
           "**/*.conf",
           "**/*.properties");
       }
 
-      FileWatcher watcher = new FileWatcher();
-      paths.forEach(it -> watcher.register((String) it[0], (kind, path) -> {
-        Path relative = relative(paths, path.toAbsolutePath());
-        log.debug("file changed {}: {}", relative, File.separator);
-        Map<String, Object> reload = reload(
-          Route.normalize("/" + relative.toString().replace(File.separator, "/")),
-          css.test(relative));
-        for (WebSocket ws : broadcast) {
-          try {
-            log.info("sending: {}", reload);
-            ws.send(reload);
-          } catch (Exception x) {
-            log.debug("execution of {} resulted in exception", reload, x);
+      if (paths.size() > 0) {
+        FileWatcher watcher = new FileWatcher();
+        paths.forEach(it -> watcher.register((Path) it[0], (kind, path) -> {
+          Path relative = relative(paths, path.toAbsolutePath());
+          log.debug("file changed {}: {}", relative, File.separator);
+          Map<String, Object> reload = reload(
+              Route.normalize("/" + relative.toString().replace(File.separator, "/")),
+              css.test(relative));
+          for (WebSocket ws : broadcast) {
+            try {
+              log.debug("sending: {}", reload);
+              ws.send(reload);
+            } catch (Exception x) {
+              log.debug("execution of {} resulted in exception", reload, x);
+            }
           }
-        }
-      }, options -> ((List<String>) it[1]).forEach(options::includes)));
-      watcher.configure(env, conf, binder);
+        }, options -> ((List<String>) it[1]).forEach(options::includes)));
+        watcher.configure(env, conf, binder);
+      } else {
+        log.warn("File watcher is off");
+      }
     }
   }
 

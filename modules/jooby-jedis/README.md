@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jedis/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jedis)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jedis.svg)](https://javadoc.io/doc/org.jooby/jooby-jedis/1.2.3)
+[![jooby-jedis website](https://img.shields.io/badge/jooby-jedis-brightgreen.svg)](http://jooby.org/doc/jedis)
 # jedis
 
 [Redis](http://redis.io/) cache and key/value data store for Jooby. exports a [Jedis](https://github.com/xetorthio/jedis) service.
@@ -8,7 +11,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 
@@ -96,7 +99,7 @@ For more information about [Jedis](https://github.com/xetorthio/jedis) checkout 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 

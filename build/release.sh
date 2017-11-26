@@ -6,6 +6,6 @@ mvn -Dalpn-boot-version=$ALPN_VERSION -pl '!modules/coverage-report' clean deplo
 
 cd modules/jooby-bom
 
-groovy bom.groovy ../../pom.xml > pom.xml
+groovy bom.groovy > pom.xml
 
 mvn -Dalpn-boot-version=$ALPN_VERSION clean deploy -P sonatype-oss-release

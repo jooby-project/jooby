@@ -62,6 +62,7 @@ joobyRun {
   includes = ['**/*.class', '**/*.conf', '**/*.properties']
   excludes = []
   logLevel = 'info'
+  srcExtensions = [".java", ".kt", ".conf", ".properties"]
 }
 
 ```
@@ -86,4 +87,8 @@ Compilation success or error messages are displayed in the console (not in the b
 
 ### includes / excludes
 
-List of file patterns to watch for file changes.
+List of file patterns to watch for file changes and trigger restarting the server.
+
+### srcExtensions
+
+List of file extensions watch for changes and trigger re-compilation.
