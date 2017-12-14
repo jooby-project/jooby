@@ -274,8 +274,13 @@ public class NettyServer implements Server {
       workerLoop = bossLoop;
     }
 
-    ThreadFactory threadFactory = new DefaultThreadFactory(conf.getString("netty.threads.Name"));
-    this.executor = new DefaultEventExecutorGroup(conf.getInt("netty.threads.Max"), threadFactory);
+    int executorThreads = conf.getInt("netty.threads.Max");
+    if (executorThreads > 0) {
+      ThreadFactory threadFactory = new DefaultThreadFactory(conf.getString("netty.threads.Name"));
+      this.executor = new DefaultEventExecutorGroup(conf.getInt("netty.threads.Max"), threadFactory);
+    } else {
+      this.executor = null;
+    }
 
     this.ch = bootstrap(executor, null, conf.getInt("application.port"));
 
@@ -314,7 +319,11 @@ public class NettyServer implements Server {
 
   @Override
   public void stop() throws Exception {
-    shutdownGracefully(ImmutableList.of(bossLoop, workerLoop, executor).iterator());
+    if (executor == null) {
+      shutdownGracefully(ImmutableList.of((EventExecutorGroup)bossLoop, workerLoop).iterator());
+    } else {
+      shutdownGracefully(ImmutableList.of(bossLoop, workerLoop, executor).iterator());
+    }
   }
 
   @Override

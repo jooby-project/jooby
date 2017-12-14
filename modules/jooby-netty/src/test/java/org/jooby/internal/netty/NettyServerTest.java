@@ -2,6 +2,7 @@ package org.jooby.internal.netty;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -378,6 +379,28 @@ public class NettyServerTest {
           NettyServer server = new NettyServer(unit.get(HttpHandler.class), config);
           try {
             server.start();
+            server.join();
+          } finally {
+            server.stop();
+          }
+        });
+  }
+
+    @Test
+  public void serverWithoutExecutor() throws Exception {
+    Config config = this.config.withValue("netty.threads.Max", ConfigValueFactory.fromAnyRef(0));
+    new MockUnit(HttpHandler.class)
+        .expect(parentThreadFactory("nio-boss"))
+        .expect(noepoll)
+        .expect(parentEventLoop)
+        .expect(channel)
+        .expect(bootstrap(6789))
+        .run(unit -> {
+          NettyServer server = new NettyServer(unit.get(HttpHandler.class), config);
+          try {
+            assertNotNull(server.executor());
+            server.start();
+            assertFalse(server.executor().isPresent());
             server.join();
           } finally {
             server.stop();
