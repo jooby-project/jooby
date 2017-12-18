@@ -203,17 +203,98 @@
  */
 package org.jooby.internal.pac4j;
 
-import javax.inject.Inject;
+import org.jooby.Request;
+import org.jooby.Session;
+import org.pac4j.core.context.session.SessionStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.pac4j.core.credentials.authenticator.Authenticator;
-import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
-public class BasicAuth extends ClientProvider<IndirectBasicAuthClient> {
+/**
+ * A {@link SessionStore} to allow pac4j to access the session inside AuthContext.
+ *
+ * This is very similar to {@link org.pac4j.core.context.session.J2ESessionStore}
+ *
+ * @author nlochschmidt
+ * @since 1.2.0
+ */
+public class JoobySessionStore implements SessionStore<AuthContext> {
 
-  @SuppressWarnings("rawtypes")
-  @Inject
-  public BasicAuth(final Authenticator auth) {
-    super(new IndirectBasicAuthClient(auth));
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(getClass());
+
+  protected Session getSession(AuthContext ctx) {
+    return ctx.getJoobyRequest().session();
   }
 
+  @Override
+  public String getOrCreateSessionId(AuthContext ctx) {
+    return getSession(ctx).id();
+  }
+
+  @Override
+  public Object get(AuthContext ctx, String key) {
+    Session session = getSession(ctx);
+    return unmarshal(session.get(key).toOptional());
+  }
+
+  @Override
+  public void set(AuthContext ctx, String key, Object value) {
+    Session session = getSession(ctx);
+    session.set(key, marshal(value));
+  }
+
+  @Override
+  public boolean destroySession(AuthContext ctx) {
+    getSession(ctx).destroy();
+    return true;
+  }
+
+  @Override
+  public Object getTrackableSession(AuthContext ctx) {
+    return getSession(ctx);
+  }
+
+  @Override
+  public SessionStore<AuthContext> buildFromTrackableSession(AuthContext ctx, Object trackableSession) {
+    if (trackableSession != null) {
+      return new JoobyProvidedSessionStore((Session) trackableSession);
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  public boolean renewSession(AuthContext ctx) {
+    final Request request = ctx.getJoobyRequest();
+    final Optional<Session> sessionOpt = request.ifSession();
+    if (sessionOpt.isPresent()) {
+      final Session session = sessionOpt.get();
+      log.debug("Discard old session: {}", session.id());
+      final Map<String, String> copiedAttributes = new HashMap<>(session.attributes());
+      session.destroy();
+      final Session newSession = request.session();
+      log.debug("And copy all data to the new one: {}", newSession.id());
+      copiedAttributes.forEach(newSession::set);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
+  private String marshal(Object value) {
+    return AuthSerializer.objToStr(value);
+  }
+
+  private Object unmarshal(final Optional<String> value) {
+    Object result = null;
+    if (value.isPresent()) {
+      result = AuthSerializer.strToObject(value.get());
+    }
+    return result;
+  }
 }

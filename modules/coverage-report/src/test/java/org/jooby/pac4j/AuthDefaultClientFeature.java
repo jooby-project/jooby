@@ -1,16 +1,15 @@
 package org.jooby.pac4j;
 
-import static org.junit.Assert.assertEquals;
-
 import org.jooby.test.ServerFeature;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class AuthDefaultClientFeature extends ServerFeature {
 
   {
-
     use(new Auth());
 
     get("/", req -> req.path());

@@ -9,9 +9,9 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-pac4j</artifactId>
+  <artifactId>jooby-pac4j2</artifactId>
 
-  <name>pac4j module</name>
+  <name>pac4j 2.x module</name>
 
   <build>
     <plugins>
@@ -127,4 +127,7 @@
 
   </dependencies>
 
+  <properties>
+    <pac4j.version>2.1.0</pac4j.version>
+  </properties>
 </project>

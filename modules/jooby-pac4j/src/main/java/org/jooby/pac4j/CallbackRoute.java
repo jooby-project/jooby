@@ -201,224 +201,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jooby.internal.pac4j;
+package org.jooby.pac4j;
 
-import com.google.common.collect.ImmutableMap;
-import org.jooby.Cookie.Definition;
-import org.jooby.*;
-import org.pac4j.core.context.Cookie;
-import org.pac4j.core.context.HttpConstants;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Route;
+import org.jooby.internal.pac4j.AuthContext;
+import org.jooby.internal.pac4j.JoobyHttpActionAdapter;
+import org.pac4j.core.config.Config;
+import org.pac4j.core.engine.DefaultCallbackLogic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-public class AuthContext implements WebContext {
+public class CallbackRoute implements Route.Handler {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private Request req;
+    private DefaultCallbackLogic<Object, AuthContext> callbackLogic = new DefaultCallbackLogic<>();
 
-    private Response rsp;
+    private Config config;
 
-    private SessionStore<AuthContext> sessionStore;
+    private String defaultUrl;
 
-    private Map<String, String[]> params;
+    private Boolean multiProfile;
 
-    @Inject
-    public AuthContext(final Request req, final Response rsp, final SessionStore<AuthContext> sessionStore) {
-        this.req = req;
-        this.rsp = rsp;
-        this.params = params(req);
-        setSessionStore(sessionStore);
+    private Boolean renewSession;
+
+    public CallbackRoute() {
+        this(null);
     }
 
+    public CallbackRoute(final String defaultUrl) {
+        this(defaultUrl, null);
+    }
+
+    public CallbackRoute(final String defaultUrl, final Boolean multiProfile) {
+        this(defaultUrl, multiProfile, null);
+    }
+
+    public CallbackRoute(final String defaultUrl, final Boolean multiProfile, final Boolean renewSession) {
+        this.defaultUrl = defaultUrl;
+        this.multiProfile = multiProfile;
+        this.renewSession = renewSession;
+    }
+
+
+    @SuppressWarnings({"unchecked"})
     @Override
-    public String getRequestParameter(final String name) {
-        String[] values = params.get(name);
-        return values == null ? null : values[0];
-    }
-
-    @Override
-    public Map<String, String[]> getRequestParameters() {
-        return params;
-    }
-
-    @Override
-    public String getRequestHeader(final String name) {
-        return req.header(name).value(null);
-    }
-
-    @Override
-    public void setSessionAttribute(final String name, final Object value) {
-        Session session = req.session();
-        if (value == null) {
-            session.unset(name);
-        } else {
-            session.set(name, AuthSerializer.objToStr(value));
-        }
-    }
-
-    @Override
-    public Object getSessionAttribute(final String name) {
-        Session session = req.session();
-        return AuthSerializer.strToObject(session.get(name).value(null));
-    }
-
-    @Override
-    public String getRequestMethod() {
-        return req.method();
-    }
-
-    @Override
-    public void writeResponseContent(final String content) {
-        try {
-            rsp.send(content);
-        } catch (Throwable ex) {
-            throw new Err(Status.SERVER_ERROR, ex);
-        }
-    }
-
-    @Override
-    public void setResponseStatus(final int code) {
-        rsp.status(code);
-    }
-
-    @Override
-    public void setResponseHeader(final String name, final String value) {
-        rsp.header(name, value);
-    }
-
-    @Override
-    public String getServerName() {
-        return req.hostname();
-    }
-
-    @Override
-    public int getServerPort() {
-        return req.port();
-    }
-
-    @Override
-    public String getScheme() {
-        return req.secure() ? "https" : "http";
-    }
-
-    @Override
-    public String getFullRequestURL() {
-        String query = req.queryString().map(it -> "?" + it).orElse("");
-        return getScheme() + "://" + getServerName() + ":" + getServerPort() + req.contextPath() + req
-                .path() + query;
-    }
-
-    private Map<String, String[]> params(final Request req) {
-        ImmutableMap.Builder<String, String[]> result = ImmutableMap.<String, String[]>builder();
-
-        req.params().toMap().forEach((name, value) -> {
-            try {
-                List<String> values = value.toList();
-                result.put(name, values.toArray(new String[values.size()]));
-            } catch (Err ignored) {
-                log.debug("ignoring HTTP param: " + name, ignored);
-            }
-        });
-        return result.build();
-    }
-
-    @Override
-    public String toString() {
-        return req.toString();
-    }
-
-    @Override
-    public Object getRequestAttribute(final String name) {
-        Optional<Object> attr = req.ifGet(name);
-        return attr.orElse(null);
-    }
-
-    @Override
-    public void setRequestAttribute(final String name, final Object value) {
-        req.set(name, value);
-    }
-
-    @Override
-    public String getSessionIdentifier() {
-        return req.session().id();
-    }
-
-    @Override
-    public String getRemoteAddr() {
-        return req.ip();
-    }
-
-    @Override
-    public void setResponseContentType(final String content) {
-        rsp.type(content);
-    }
-
-    @Override
-    public String getPath() {
-        return req.path();
-    }
-
-    @Override
-    public boolean isSecure() {
-        return req.secure();
-    }
-
-    @Override
-    public Collection<Cookie> getRequestCookies() {
-        return req.cookies().stream().map(c -> {
-            Cookie cookie = new Cookie(c.name(), c.value().orElse(null));
-            c.domain().ifPresent(cookie::setDomain);
-            c.path().ifPresent(cookie::setPath);
-            cookie.setHttpOnly(c.httpOnly());
-            cookie.setSecure(c.secure());
-            return cookie;
-        }).collect(Collectors.toList());
-    }
-
-    @Override
-    public void addResponseCookie(final Cookie cookie) {
-        Definition c = new Definition(cookie.getName(), cookie.getValue());
-        Optional.ofNullable(cookie.getDomain()).ifPresent(c::domain);
-        Optional.ofNullable(cookie.getPath()).ifPresent(c::path);
-        c.httpOnly(cookie.isHttpOnly());
-        c.maxAge(cookie.getMaxAge());
-        c.secure(cookie.isSecure());
-        rsp.cookie(c);
-    }
-
-    public Request getJoobyRequest() {
-        return req;
-    }
-
-    public Response getJoobyResponse() {
-        return rsp;
-    }
-
-    @Override
-    public SessionStore getSessionStore() {
-        return sessionStore;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void setSessionStore(final SessionStore sessionStore) {
-        if (sessionStore == null) {
-            this.sessionStore = new JoobySessionStore();
-        } else {
-            this.sessionStore = sessionStore;
-        }
-    }
-
-    public String getLocation() {
-        return rsp.header(HttpConstants.LOCATION_HEADER).value();
+    public void handle(final Request req, final Response rsp) throws Throwable {
+        Config config = req.require(Config.class);
+        AuthContext context = req.require(AuthContext.class);
+        callbackLogic.perform(context, config, new JoobyHttpActionAdapter(), this.defaultUrl, this.multiProfile, this.renewSession);
     }
 }

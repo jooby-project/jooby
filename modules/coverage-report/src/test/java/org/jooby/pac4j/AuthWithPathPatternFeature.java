@@ -1,10 +1,10 @@
 package org.jooby.pac4j;
 
-import static org.junit.Assert.assertEquals;
-
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.pac4j.core.profile.CommonProfile;
+
+import static org.junit.Assert.assertEquals;
 
 public class AuthWithPathPatternFeature extends ServerFeature {
 

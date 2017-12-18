@@ -1,14 +1,13 @@
 package org.jooby.pac4j;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Singleton;
-
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.pac4j.core.profile.CommonProfile;
+
+import javax.inject.Singleton;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class AuthWithStoreFeature extends ServerFeature {
 

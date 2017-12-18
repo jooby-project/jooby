@@ -1,7 +1,5 @@
 package org.jooby.pac4j;
 
-import javax.inject.Inject;
-
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.pac4j.core.context.WebContext;
@@ -10,6 +8,8 @@ import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.CredentialsException;
 import org.pac4j.core.exception.HttpAction;
 import org.pac4j.core.profile.CommonProfile;
+
+import javax.inject.Inject;
 
 
 public class CustomHeaderClientAuthFeature extends ServerFeature {

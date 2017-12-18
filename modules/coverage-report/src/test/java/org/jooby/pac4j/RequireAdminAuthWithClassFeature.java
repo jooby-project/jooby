@@ -1,7 +1,5 @@
 package org.jooby.pac4j;
 
-import static org.junit.Assert.assertEquals;
-
 import org.jooby.test.ServerFeature;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -14,6 +12,8 @@ import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.profile.CommonProfile;
 
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class RequireAdminAuthWithClassFeature extends ServerFeature {
 

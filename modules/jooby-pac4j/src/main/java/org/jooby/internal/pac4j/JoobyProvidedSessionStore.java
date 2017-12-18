@@ -203,32 +203,29 @@
  */
 package org.jooby.internal.pac4j;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import org.jooby.Session;
+import org.pac4j.core.context.session.SessionStore;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
+import static java.util.Objects.requireNonNull;
 
-import org.pac4j.core.authorization.authorizer.Authorizer;
-import org.pac4j.core.client.Clients;
-import org.pac4j.core.config.Config;
+/**
+ * A {@link SessionStore} that works on the provided session.
+ * This is very similar to {@link org.pac4j.core.context.session.J2EProvidedSessionStore}
+ *
+ * @author nlochschmidt
+ * @since 1.2.0
+ */
+class JoobyProvidedSessionStore extends JoobySessionStore {
 
-public class ConfigProvider implements Provider<Config> {
+  private final Session session;
 
-  private Config config;
-
-  @SuppressWarnings("rawtypes")
-  @Inject
-  public ConfigProvider(final Clients clients, final Map<String, Authorizer> authorizers) {
-    config = new Config(clients);
-    for (Entry<String, Authorizer> entry : authorizers.entrySet()) {
-      config.addAuthorizer(entry.getKey(), entry.getValue());
-    }
+  public JoobyProvidedSessionStore(Session session) {
+    requireNonNull(session, "Session is required");
+    this.session = session;
   }
 
   @Override
-  public Config get() {
-    return config;
+  protected Session getSession(AuthContext ctx) {
+    return session;
   }
-
 }

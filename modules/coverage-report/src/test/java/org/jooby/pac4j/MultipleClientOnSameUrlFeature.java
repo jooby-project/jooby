@@ -1,5 +1,6 @@
 package org.jooby.pac4j;
 
+import com.google.common.io.BaseEncoding;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.pac4j.core.context.WebContext;
@@ -11,8 +12,6 @@ import org.pac4j.core.profile.creator.AuthenticatorProfileCreator;
 import org.pac4j.http.client.direct.DirectBasicAuthClient;
 import org.pac4j.http.client.direct.HeaderClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
-
-import com.google.common.io.BaseEncoding;
 
 @SuppressWarnings("rawtypes")
 public class MultipleClientOnSameUrlFeature extends ServerFeature {

@@ -27,7 +27,7 @@ public class Issue351 extends ServerFeature {
           .execute();
 
       db.update("insert into something (id, name) values (?, ?)")
-          .parameters(1, "jooby")
+          .parameters(1, "org/jooby")
           .execute();
     });
 
@@ -57,13 +57,13 @@ public class Issue351 extends ServerFeature {
   @Test
   public void rxjdbc() throws Exception {
     request().get("/351/reactive")
-        .expect("jooby");
+        .expect("org/jooby");
   }
 
   @Test
   public void rxjdbcBlocking() throws Exception {
     request().get("/351/blocking")
-        .expect("jooby");
+        .expect("org/jooby");
   }
 
   @Test

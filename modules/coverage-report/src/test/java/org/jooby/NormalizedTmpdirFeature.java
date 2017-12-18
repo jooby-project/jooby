@@ -18,7 +18,7 @@ public class NormalizedTmpdirFeature extends ServerFeature {
   @Test
   public void tmpdir() throws Exception {
     String tmpdir = Paths.get(System.getProperty("java.io.tmpdir") + File.separator,
-        "jooby").normalize().toString();
+            "org/jooby").normalize().toString();
     request()
         .get("/tmpdir")
         .expect(tmpdir);
