@@ -244,7 +244,7 @@ public class AuthFilter implements Route.Filter {
     public void handle(final Request req, final Response rsp, final Route.Chain chain) throws Throwable {
         Config config = req.require(Config.class);
         AuthContext ctx = req.require(AuthContext.class);
-        securityLogic.perform(ctx, config, (parameters, context) -> {
+        securityLogic.perform(ctx, config, (context, parameters) -> {
             log.info("success");
             chain.next(req, rsp);
             return null;

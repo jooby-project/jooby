@@ -56,7 +56,7 @@
                     <source>${project.parent.basedir}/jooby-hbv/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-gson/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-ehcache/src/main/java</source>
-                    <source>${project.parent.basedir}/jooby-pac4j2/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-pac4j/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-aws/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-spymemcached/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-commons-email/src/main/java</source>
@@ -122,7 +122,7 @@
                     <source>${project.parent.basedir}/jooby-hbv/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-gson/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-ehcache/src/test/java</source>
-                    <source>${project.parent.basedir}/jooby-pac4j2/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-pac4j/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-aws/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-spymemcached/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-commons-email/src/test/java</source>
@@ -540,7 +540,7 @@
 
     <dependency>
       <groupId>org.jooby</groupId>
-      <artifactId>jooby-pac4j2</artifactId>
+      <artifactId>jooby-pac4j</artifactId>
       <version>${project.version}</version>
     </dependency>
 

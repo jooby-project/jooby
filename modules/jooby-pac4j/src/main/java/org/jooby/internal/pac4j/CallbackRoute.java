@@ -201,7 +201,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jooby.pac4j;
+package org.jooby.internal.pac4j;
 
 import org.jooby.Request;
 import org.jooby.Response;

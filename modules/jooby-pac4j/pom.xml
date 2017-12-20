@@ -9,7 +9,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-pac4j2</artifactId>
+  <artifactId>jooby-pac4j</artifactId>
 
   <name>pac4j 2.x module</name>
 

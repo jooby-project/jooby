@@ -5,6 +5,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 import org.pac4j.core.authorization.authorizer.Authorizer;
+import org.pac4j.core.authorization.authorizer.RequireAnyPermissionAuthorizer;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
@@ -43,8 +44,10 @@ public class RequireAdminAuthWithClassFeature extends ServerFeature {
   {
 
     use(new Auth()
-        .form("*", AdminRole.class)
-        .authorizer("admin", "/admin/**", RequireAdmin.class));
+            .basic(new RequireAdminAuthFeature.AdminRole())
+            .authorizer("admin", RequireAdmin.class));
+
+    use("*", new AuthFilter("IndirectBasicAuthClient", "admin"));
 
     get("/", req -> req.path());
 

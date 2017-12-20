@@ -1,4 +1,4 @@
-package org.jooby.internal.pac4j2;
+package org.jooby.internal.pac4j;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;

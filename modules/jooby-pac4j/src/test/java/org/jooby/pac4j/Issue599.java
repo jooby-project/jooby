@@ -3,8 +3,8 @@ package org.jooby.pac4j;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.jooby.*;
-import org.jooby.internal.pac4j2.AuthContext;
-import org.jooby.internal.pac4j2.AuthSerializer;
+import org.jooby.internal.pac4j.AuthContext;
+import org.jooby.internal.pac4j.AuthSerializer;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.easymock.EasyMock.*;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AuthContext.class, AuthSerializer.class})

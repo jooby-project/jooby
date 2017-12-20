@@ -1,4 +1,4 @@
-package org.jooby.internal.pac4j2;
+package org.jooby.internal.pac4j;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

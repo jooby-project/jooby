@@ -32,8 +32,10 @@ public class RequireAdminAuthFeature extends ServerFeature {
   {
 
     use(new Auth()
-        .form("*", AdminRole.class)
-        .authorizer("admin", "/admin/**", new RequireAnyPermissionAuthorizer<>("admin")));
+        .basic(new AdminRole())
+        .authorizer("admin", new RequireAnyPermissionAuthorizer<>("admin")));
+
+    use("*", new AuthFilter("IndirectBasicAuthClient", "admin"));
 
     get("/", req -> req.path());
 

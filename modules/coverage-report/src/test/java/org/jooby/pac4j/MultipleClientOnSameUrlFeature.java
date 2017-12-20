@@ -8,18 +8,21 @@ import org.pac4j.core.credentials.TokenCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.CredentialsException;
 import org.pac4j.core.profile.CommonProfile;
+import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.profile.creator.AuthenticatorProfileCreator;
 import org.pac4j.http.client.direct.DirectBasicAuthClient;
 import org.pac4j.http.client.direct.HeaderClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 
+import java.util.Optional;
+
 @SuppressWarnings("rawtypes")
 public class MultipleClientOnSameUrlFeature extends ServerFeature {
 
-  public static class HeaderAuthenticator implements Authenticator<TokenCredentials> {
+  public static class HeaderAuthenticator implements Authenticator<TokenCredentials>  {
 
     @Override
-    public void validate(final TokenCredentials credentials, final WebContext context) {
+    public void validate(final TokenCredentials credentials, final WebContext context) throws CredentialsException {
       if (credentials == null || !credentials.getToken().equals("1234")) {
         throw new CredentialsException("Bad token");
       }
@@ -38,12 +41,15 @@ public class MultipleClientOnSameUrlFeature extends ServerFeature {
       return profile;
     });
     use(new Auth()
-        .client("/multi-client/**", client)
-        .client("/multi-client/**", new DirectBasicAuthClient(
+        .client(client)
+        .client(new DirectBasicAuthClient(
             new SimpleTestUsernamePasswordAuthenticator(),
-            new AuthenticatorProfileCreator())));
+            new AuthenticatorProfileCreator<>())));
 
-    get("/multi-client", req -> req.get(Auth.CNAME));
+    get("/multi-client", req -> {
+      Optional<CommonProfile> op = req.require(ProfileManager.class).get(true);
+      return op.map(p -> p.getClientName()).orElse("not logged in");
+    });
   }
 
   @Test
