@@ -420,16 +420,13 @@ public abstract class GuavaCache<K, V> implements Jooby.Module {
       List<TypeLiteral> types = cacheType(name, cache, getClass().getGenericSuperclass());
 
       types.forEach(type -> {
-        binder.bind(Key.get(type, Names.named(name)))
-            .toInstance(cache);
+        binder.bind(Key.get(type, Names.named(name))).toInstance(cache);
         if (name.equals("cache")) {
           // unnamed cache for default cache
           binder.bind(type).toInstance(cache);
           // raw type for default cache
           binder.bind(type.getRawType()).toInstance(cache);
-        }
-        if (name.equals("session")) {
-          binder.bind(Key.get(type, Names.named(name))).toInstance(cache);
+        } else if(!name.isEmpty()) { // any type of cache names under "guava.cache" in conf file even for the "session" name
           binder.bind(Key.get(type.getRawType(), Names.named(name))).toInstance(cache);
         }
       });
