@@ -43,7 +43,7 @@ assets {
 
     syntax: scss
     dev {
-      sourceMap: inline
+      sourcemap: inline
     }
     dist {
       style: compressed
