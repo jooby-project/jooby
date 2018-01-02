@@ -2462,7 +2462,7 @@ public interface Route {
      * @param rsp A HTTP response.
      * @throws Throwable If invocation goes wrong.
      */
-    void next(String prefix, Request req, Response rsp) throws Throwable;
+    void next(@Nullable String prefix, Request req, Response rsp) throws Throwable;
 
     /**
      * Invokes the next route in the chain.
