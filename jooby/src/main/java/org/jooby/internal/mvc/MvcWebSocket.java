@@ -213,6 +213,7 @@ import org.jooby.WebSocket.CloseStatus;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.function.Predicate;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class MvcWebSocket implements WebSocket.Handler<Mutant> {
@@ -223,7 +224,7 @@ public class MvcWebSocket implements WebSocket.Handler<Mutant> {
 
   MvcWebSocket(final WebSocket ws, final Class handler) {
     Injector injector = ws.require(Injector.class)
-      .createChildInjector(binder -> binder.bind(WebSocket.class).toInstance(ws));
+        .createChildInjector(binder -> binder.bind(WebSocket.class).toInstance(ws));
     this.handler = injector.getInstance(handler);
     this.messageType = TypeLiteral.get(messageType(handler));
   }
@@ -278,13 +279,17 @@ public class MvcWebSocket implements WebSocket.Handler<Mutant> {
 
   static Type messageType(final Class handler) {
     return Arrays.asList(handler.getGenericInterfaces())
-      .stream()
-      .filter(it -> TypeLiteral.get(it).getRawType().isAssignableFrom(WebSocket.OnMessage.class))
-      .findFirst()
-      .filter(ParameterizedType.class::isInstance)
-      .map(it -> ((ParameterizedType) it).getActualTypeArguments()[0])
-      .orElseThrow(() -> new IllegalArgumentException(
-        "Can't extract message type from: " + handler.getName()));
+        .stream()
+        .filter(rawTypeIs(WebSocket.Handler.class).or(rawTypeIs(WebSocket.OnMessage.class)))
+        .findFirst()
+        .filter(ParameterizedType.class::isInstance)
+        .map(it -> ((ParameterizedType) it).getActualTypeArguments()[0])
+        .orElseThrow(() -> new IllegalArgumentException(
+            "Can't extract message type from: " + handler.getName()));
+  }
+
+  private static Predicate<Type> rawTypeIs(Class<?> type) {
+    return it -> TypeLiteral.get(it).getRawType().isAssignableFrom(type);
   }
 
 }
