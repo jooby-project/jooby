@@ -1,7 +1,5 @@
 package org.jooby.pac4j;
 
-import static org.junit.Assert.assertEquals;
-
 import org.jooby.test.ServerFeature;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,6 +10,8 @@ import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.profile.CommonProfile;
+
+import static org.junit.Assert.assertEquals;
 
 public class RequireAdminAuthFeature extends ServerFeature {
 
@@ -32,8 +32,10 @@ public class RequireAdminAuthFeature extends ServerFeature {
   {
 
     use(new Auth()
-        .form("*", AdminRole.class)
-        .authorizer("admin", "/admin/**", new RequireAnyPermissionAuthorizer<>("admin")));
+        .basic(new AdminRole())
+        .authorizer("admin", new RequireAnyPermissionAuthorizer<>("admin")));
+
+    use("*", new AuthFilter("IndirectBasicAuthClient", "admin"));
 
     get("/", req -> req.path());
 

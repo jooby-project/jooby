@@ -203,32 +203,28 @@
  */
 package org.jooby.internal.pac4j;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
 import org.pac4j.core.authorization.authorizer.Authorizer;
+import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 
+import java.util.List;
+import java.util.Map;
+
 public class ConfigProvider implements Provider<Config> {
+    private Config config;
 
-  private Config config;
-
-  @SuppressWarnings("rawtypes")
-  @Inject
-  public ConfigProvider(final Clients clients, final Map<String, Authorizer> authorizers) {
-    config = new Config(clients);
-    for (Entry<String, Authorizer> entry : authorizers.entrySet()) {
-      config.addAuthorizer(entry.getKey(), entry.getValue());
+    @Inject
+    public ConfigProvider(@Named("auth.callback") final String callback, List<Client> clients, final Map<String, Authorizer> authorizers) {
+        config = new Config(authorizers);
+        config.setClients(new Clients(callback, clients));
     }
-  }
 
-  @Override
-  public Config get() {
-    return config;
-  }
-
+    @Override
+    public Config get() {
+        return config;
+    }
 }

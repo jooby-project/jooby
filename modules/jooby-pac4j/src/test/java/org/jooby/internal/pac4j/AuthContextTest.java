@@ -3,11 +3,20 @@ package org.jooby.internal.pac4j;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import org.jooby.*;
+import org.jooby.Cookie;
+import org.jooby.Err;
+import org.jooby.Mutant;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Session;
+import org.jooby.Status;
+import org.jooby.internal.pac4j.AuthContext;
+import org.jooby.internal.pac4j.AuthSerializer;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.pac4j.core.context.session.SessionStore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -15,8 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.isA;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AuthContext.class, AuthSerializer.class})
@@ -38,19 +50,19 @@ public class AuthContextTest {
 
   @Test
   public void defaults() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .run(unit -> {
-          new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
         });
   }
 
   @Test
   public void param() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals("v1", ctx.getRequestParameter("p1"));
           assertEquals(null, ctx.getRequestParameter("p2"));
         });
@@ -58,10 +70,10 @@ public class AuthContextTest {
 
   @Test
   public void params() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           Map<String, String[]> params = ctx.getRequestParameters();
           assertArrayEquals(new String[]{"v1"}, params.get("p1"));
         });
@@ -69,7 +81,7 @@ public class AuthContextTest {
 
   @Test
   public void header() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Mutant header = unit.get(Mutant.class);
@@ -81,7 +93,7 @@ public class AuthContextTest {
           expect(req.header("h2")).andReturn(header);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals("v1", ctx.getRequestHeader("h1"));
           assertEquals(null, ctx.getRequestHeader("h2"));
         });
@@ -89,7 +101,7 @@ public class AuthContextTest {
 
   @Test
   public void setSessionAttr() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Session session = unit.mock(Session.class);
@@ -100,12 +112,12 @@ public class AuthContextTest {
           expect(req.session()).andReturn(session).times(2);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           ctx.setSessionAttribute("s", "v");
           ctx.setSessionAttribute("u", null);
         });
 
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Session session = unit.mock(Session.class);
@@ -115,12 +127,12 @@ public class AuthContextTest {
           expect(req.session()).andReturn(session);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           ctx.setSessionAttribute("s", 7);
         });
 
     List<Integer> value = Lists.newArrayList(1, 2, 3);
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Session session = unit.mock(Session.class);
@@ -131,14 +143,14 @@ public class AuthContextTest {
           expect(req.session()).andReturn(session);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           ctx.setSessionAttribute("s", value);
         });
   }
 
   @Test
   public void getSessionAttr() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Mutant attr = unit.mock(Mutant.class);
@@ -151,12 +163,12 @@ public class AuthContextTest {
           expect(req.session()).andReturn(session);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals("v", ctx.getSessionAttribute("s"));
         });
 
     // null
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Mutant attr = unit.mock(Mutant.class);
@@ -169,13 +181,13 @@ public class AuthContextTest {
           expect(req.session()).andReturn(session);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals(null, ctx.getSessionAttribute("s"));
         });
 
     // serializable
     String ser = "b64~rO0ABXNyABNqYXZhLnV0aWwuQXJyYXlMaXN0eIHSHZnHYZ0DAAFJAARzaXpleHAAAAADdwQAAAADc3IAEWphdmEubGFuZy5JbnRlZ2VyEuKgpPeBhzgCAAFJAAV2YWx1ZXhyABBqYXZhLmxhbmcuTnVtYmVyhqyVHQuU4IsCAAB4cAAAAAFzcQB+AAIAAAACc3EAfgACAAAAA3g=";
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           unit.mockStatic(AuthSerializer.class);
@@ -191,7 +203,7 @@ public class AuthContextTest {
           expect(req.session()).andReturn(session);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals(Lists.newArrayList(1, 2, 3), ctx.getSessionAttribute("s"));
         });
 
@@ -199,39 +211,39 @@ public class AuthContextTest {
 
   @Test
   public void getReqAttr() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Request req = unit.get(Request.class);
           expect(req.ifGet("r")).andReturn(Optional.of("v"));
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals("v", ctx.getRequestAttribute("r"));
         });
 
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Request req = unit.get(Request.class);
           expect(req.ifGet("r")).andReturn(Optional.empty());
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals(null, ctx.getRequestAttribute("r"));
         });
   }
 
   @Test
   public void setAttr() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Request req = unit.get(Request.class);
           expect(req.set("r", "v")).andReturn(req);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           ctx.setRequestAttribute("r", "v");
         });
 
@@ -239,7 +251,7 @@ public class AuthContextTest {
 
   @Test
   public void sessionID() throws Exception {
-    new MockUnit(Request.class, Response.class, Session.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Session.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Session session = unit.get(Session.class);
@@ -249,42 +261,42 @@ public class AuthContextTest {
           expect(req.session()).andReturn(session);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals("sid", ctx.getSessionIdentifier());
         });
   }
 
   @Test
   public void getRemmoteAddr() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Request req = unit.get(Request.class);
           expect(req.ip()).andReturn("0.0.0.0");
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals("0.0.0.0", ctx.getRemoteAddr());
         });
   }
 
   @Test
   public void setContentType() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
           expect(rsp.type("text/html")).andReturn(rsp);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           ctx.setResponseContentType("text/html");
         });
   }
 
   @Test
   public void getCookies() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Cookie c = unit.mock(Cookie.class);
@@ -300,7 +312,7 @@ public class AuthContextTest {
           expect(req.cookies()).andReturn(cookies);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals(1, ctx.getRequestCookies().size());
         });
   }
@@ -314,77 +326,77 @@ public class AuthContextTest {
     cookie.setSecure(false);
     cookie.setMaxAge(-1);
 
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
           expect(rsp.cookie(isA(Cookie.Definition.class))).andReturn(rsp);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           ctx.addResponseCookie(cookie);
         });
   }
 
   @Test
   public void method() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Request req = unit.get(Request.class);
           expect(req.method()).andReturn("GET");
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals("GET", ctx.getRequestMethod());
         });
   }
 
   @Test
   public void path() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Request req = unit.get(Request.class);
           expect(req.path()).andReturn("/path");
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals("/path", ctx.getPath());
         });
   }
 
   @Test
   public void secure() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Request req = unit.get(Request.class);
           expect(req.secure()).andReturn(true);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals(true, ctx.isSecure());
         });
   }
 
   @Test
   public void writeResponse() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
           rsp.send("text");
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           ctx.writeResponseContent("text");
         });
   }
 
   @Test(expected = Err.class)
   public void writeResponseWithErr() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
@@ -392,70 +404,70 @@ public class AuthContextTest {
           expectLastCall().andThrow(new RuntimeException());
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           ctx.writeResponseContent("text");
         });
   }
 
   @Test
   public void setResponseStatus() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
           expect(rsp.status(200)).andReturn(rsp);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           ctx.setResponseStatus(200);
         });
   }
 
   @Test
   public void setResponseHeader() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
           expect(rsp.header("h1", "v1")).andReturn(rsp);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           ctx.setResponseHeader("h1", "v1");
         });
   }
 
   @Test
   public void serverName() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Request req = unit.get(Request.class);
           expect(req.hostname()).andReturn("localhost");
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals("localhost", ctx.getServerName());
         });
   }
 
   @Test
   public void serverPort() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Request req = unit.get(Request.class);
           expect(req.port()).andReturn(8080);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals(8080, ctx.getServerPort());
         });
   }
 
   @Test
   public void scheme() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Request req = unit.get(Request.class);
@@ -463,7 +475,7 @@ public class AuthContextTest {
           expect(req.secure()).andReturn(true);
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals("http", ctx.getScheme());
           assertEquals("https", ctx.getScheme());
         });
@@ -471,7 +483,7 @@ public class AuthContextTest {
 
   @Test
   public void fullRequestURL() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
+    new MockUnit(Request.class, Response.class, Mutant.class, SessionStore.class)
         .expect(params1)
         .expect(unit -> {
           Request req = unit.get(Request.class);
@@ -483,7 +495,7 @@ public class AuthContextTest {
           expect(req.queryString()).andReturn(Optional.empty());
         })
         .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class), unit.get(SessionStore.class));
           assertEquals("http://localhost:8080/login", ctx.getFullRequestURL());
         });
   }

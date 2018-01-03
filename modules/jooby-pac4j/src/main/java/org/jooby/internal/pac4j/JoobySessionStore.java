@@ -203,153 +203,98 @@
  */
 package org.jooby.internal.pac4j;
 
-import static java.util.Objects.requireNonNull;
-import org.jooby.Err;
 import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Status;
-import org.jooby.pac4j.Auth;
-import org.jooby.pac4j.AuthStore;
-import org.jooby.funzy.Throwing;
-import org.pac4j.core.client.Client;
-import org.pac4j.core.client.Clients;
-import org.pac4j.core.client.DirectClient;
-import org.pac4j.core.client.IndirectClient;
-import org.pac4j.core.client.finder.ClientFinder;
-import org.pac4j.core.context.Pac4jConstants;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.credentials.Credentials;
-import org.pac4j.core.exception.HttpAction;
-import org.pac4j.core.exception.TechnicalException;
-import org.pac4j.core.profile.CommonProfile;
+import org.jooby.Session;
+import org.pac4j.core.context.session.SessionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.function.Predicate;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
-public class AuthFilter implements Route.Handler {
+/**
+ * A {@link SessionStore} to allow pac4j to access the session inside AuthContext.
+ *
+ * This is very similar to {@link org.pac4j.core.context.session.J2ESessionStore}
+ *
+ * @author nlochschmidt
+ * @since 1.2.0
+ */
+public class JoobySessionStore implements SessionStore<AuthContext> {
 
-  @SuppressWarnings("rawtypes")
-  private static final Predicate<Client> useSession = c -> c instanceof IndirectClient;
-
-  /**
-   * The logging system.
-   */
+  /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private String clientName;
-
-  private Class<? extends CommonProfile> profileType;
-
-  public AuthFilter(final Class<? extends Client<?, ?>> clientType,
-      final Class<? extends CommonProfile> profileType) {
-    this.clientName = clientType.getSimpleName();
-    this.profileType = requireNonNull(profileType, "ProfileType is required.");
+  protected Session getSession(AuthContext ctx) {
+    return ctx.getJoobyRequest().session();
   }
 
-  public AuthFilter setName(final String clientName) {
-    this.clientName += Pac4jConstants.ELEMENT_SEPRATOR + clientName;
-    return this;
-  }
-
-  public String getName() {
-    return clientName;
-  }
-
-  @SuppressWarnings({"unchecked"})
   @Override
-  public void handle(final Request req, final Response rsp) throws Throwable {
-    Clients clients = req.require(Clients.class);
-    String clientName = req.param(clients.getClientNameParameter()).value(this.clientName);
+  public String getOrCreateSessionId(AuthContext ctx) {
+    return getSession(ctx).id();
+  }
 
-    WebContext ctx = req.require(WebContext.class);
-    ClientFinder finder = req.require(ClientFinder.class);
-    AuthStore<CommonProfile> store = req.require(AuthStore.class);
+  @Override
+  public Object get(AuthContext ctx, String key) {
+    Session session = getSession(ctx);
+    return unmarshal(session.get(key).toOptional());
+  }
 
-    // stateless or previously authenticated stateful
-    CommonProfile profile = find(finder, clients, ctx, null, clientName, client -> {
-      String profileId = profileID(useSession.test(client), req);
-      CommonProfile identity = profileId == null ? null : store.get(profileId).orElse(null);
+  @Override
+  public void set(AuthContext ctx, String key, Object value) {
+    Session session = getSession(ctx);
+    session.set(key, marshal(value));
+  }
 
-      if (identity == null) {
-        if (client instanceof DirectClient) {
-          log.debug("Performing authentication for client: {}", client);
-          try {
-            Credentials credentials = client.getCredentials(ctx);
-            log.debug("credentials: {}", credentials);
-            identity = client.getUserProfile(credentials, ctx);
-            log.debug("profile: {}", identity);
-            if (identity != null) {
-              req.set(Auth.ID, identity.getId());
-              req.set(Auth.CNAME, client.getName());
-              store.set(identity);
-            }
-          } catch (HttpAction e) {
-            throw new TechnicalException("Unexpected HTTP action", e);
-          }
-        }
-      }
-      return identity;
-    });
+  @Override
+  public boolean destroySession(AuthContext ctx) {
+    getSession(ctx).destroy();
+    return true;
+  }
 
-    if (profile == null) {
-      // try stateful auth
-      Boolean redirected = find(finder, clients, ctx, null, clientName, client -> {
-        if (useSession.test(client)) {
-          // indirect client, start authentication
-          try {
-            String queryString = req.queryString().map(it -> "?" + it).orElse("");
-            final String requestedUrl = req.path() + queryString;
-            log.debug("requestedUrl: {}", requestedUrl);
-            ctx.setSessionAttribute(Pac4jConstants.REQUESTED_URL, requestedUrl);
-            client.redirect(ctx);
-            rsp.end();
-          } catch (HttpAction ex) {
-            new AuthResponse(rsp).handle(client, ex);
-          }
-          return Boolean.TRUE;
-        } else {
-          return null;
-        }
-      });
-      if (redirected != Boolean.TRUE) {
-        throw new Err(Status.UNAUTHORIZED);
-      }
+  @Override
+  public Object getTrackableSession(AuthContext ctx) {
+    return getSession(ctx);
+  }
+
+  @Override
+  public SessionStore<AuthContext> buildFromTrackableSession(AuthContext ctx, Object trackableSession) {
+    if (trackableSession != null) {
+      return new JoobyProvidedSessionStore((Session) trackableSession);
     } else {
-      log.debug("profile found: {}", profile);
-      seed(req, profileType, profile);
+      return null;
     }
   }
 
-  private String profileID(final boolean useSession, final Request req) {
-    return req.<String>ifGet(Auth.ID)
-        .orElseGet(() -> useSession ? req.session().get(Auth.ID).value(null) : null);
-  }
-
-  @SuppressWarnings("rawtypes")
-  private <T> T find(final ClientFinder finder, final Clients clients, final WebContext ctx,
-      final Class<? extends Client<?, ?>> clientType, final String clientName,
-      final Throwing.Function<Client, T> fn) throws Throwable {
-
-    List<Client> result = finder.find(clients, ctx, clientName);
-    for (Client client : result) {
-      T value = fn.apply(client);
-      if (value != null) {
-        return value;
-      }
-    }
-
-    return null;
-  }
-
-  @SuppressWarnings("rawtypes")
-  private void seed(final Request req, Class type, final Object profile) {
-    while (type != Object.class) {
-      req.set(type, profile);
-      type = type.getSuperclass();
+  @Override
+  public boolean renewSession(AuthContext ctx) {
+    final Request request = ctx.getJoobyRequest();
+    final Optional<Session> sessionOpt = request.ifSession();
+    if (sessionOpt.isPresent()) {
+      final Session session = sessionOpt.get();
+      log.debug("Discard old session: {}", session.id());
+      final Map<String, String> copiedAttributes = new HashMap<>(session.attributes());
+      session.destroy();
+      final Session newSession = request.session();
+      log.debug("And copy all data to the new one: {}", newSession.id());
+      copiedAttributes.forEach(newSession::set);
+      return true;
+    } else {
+      return false;
     }
   }
 
+
+  private String marshal(Object value) {
+    return AuthSerializer.objToStr(value);
+  }
+
+  private Object unmarshal(final Optional<String> value) {
+    Object result = null;
+    if (value.isPresent()) {
+      result = AuthSerializer.strToObject(value.get());
+    }
+    return result;
+  }
 }

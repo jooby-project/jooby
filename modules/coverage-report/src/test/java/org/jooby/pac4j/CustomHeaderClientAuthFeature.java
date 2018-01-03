@@ -1,7 +1,5 @@
 package org.jooby.pac4j;
 
-import javax.inject.Inject;
-
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.pac4j.core.context.WebContext;
@@ -11,13 +9,15 @@ import org.pac4j.core.exception.CredentialsException;
 import org.pac4j.core.exception.HttpAction;
 import org.pac4j.core.profile.CommonProfile;
 
+import javax.inject.Inject;
+
 
 public class CustomHeaderClientAuthFeature extends ServerFeature {
 
   public static class HeaderAuthenticator implements Authenticator<TokenCredentials> {
 
     @Override
-    public void validate(final TokenCredentials credentials, final WebContext context) throws HttpAction {
+    public void validate(final TokenCredentials credentials, final WebContext context) throws HttpAction, CredentialsException {
       if (credentials == null || !credentials.getToken().equals("1234")) {
         throw new CredentialsException("Bad token");
       }
@@ -42,7 +42,7 @@ public class CustomHeaderClientAuthFeature extends ServerFeature {
 
   {
 
-    use(new Auth().client(CustomHeaderClient.class));
+    use(new Auth().client(new CustomHeaderClient(new HeaderAuthenticator())));
 
     get("/auth/header", req -> req.path());
   }

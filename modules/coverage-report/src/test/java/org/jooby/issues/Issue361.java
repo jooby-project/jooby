@@ -8,7 +8,7 @@ import org.junit.Test;
 public class Issue361 extends ServerFeature {
 
   {
-    use(new Auth().form());
+    use(new Auth().basic());
 
     get("/", () -> "OK");
 

@@ -203,18 +203,55 @@
  */
 package org.jooby.internal.pac4j;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import org.jooby.Err;
+import org.jooby.Response;
+import org.pac4j.core.context.HttpConstants;
+import org.pac4j.core.exception.TechnicalException;
+import org.pac4j.core.http.HttpActionAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.pac4j.core.credentials.authenticator.Authenticator;
-import org.pac4j.http.client.indirect.FormClient;
+/**
+ * Default implementation.
+ *
+ * @author lodrantl
+ * @since 2.0.0
+ */
+public class JoobyHttpActionAdapter implements HttpActionAdapter<Object, AuthContext> {
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-public class FormAuth extends ClientProvider<FormClient> {
+    @Override
+    public Object adapt(final int code, final AuthContext context) {
+        logger.debug("requires HTTP action: {}", code);
+        Response response = context.getJoobyResponse();
 
-  @SuppressWarnings("rawtypes")
-  @Inject
-  public FormAuth(@Named("auth.form.loginUrl") final String login, final Authenticator auth) {
-    super(new FormClient(login, auth));
-  }
+        if (code == 401) {
+            try {
+                response.status(code).send(response.header(HttpConstants.AUTHENTICATE_HEADER));
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+            return null;
+        }
+        if (code >= 400) {
+            throw new Err(code);
+        }
 
+        try {
+            if (code == HttpConstants.TEMP_REDIRECT) {
+                response.redirect(context.getLocation());
+            } else if (code == HttpConstants.OK) {
+                final String content = context.getRequestContent();
+                logger.debug("render: {}", content);
+                response.status(code).send(content);
+            } else {
+                final String message = "Unsupported HTTP action: " + code;
+                logger.error(message);
+                throw new TechnicalException(message);
+            }
+        } catch (Throwable throwable) {
+            throw new TechnicalException(throwable);
+        }
+        return null;
+    }
 }

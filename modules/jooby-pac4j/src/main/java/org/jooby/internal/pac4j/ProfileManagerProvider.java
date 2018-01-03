@@ -203,17 +203,20 @@
  */
 package org.jooby.internal.pac4j;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import org.pac4j.core.profile.ProfileManager;
 
-import org.pac4j.core.credentials.authenticator.Authenticator;
-import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
+public class ProfileManagerProvider implements Provider<ProfileManager> {
+    AuthContext context;
 
-public class BasicAuth extends ClientProvider<IndirectBasicAuthClient> {
+    @Inject
+    public ProfileManagerProvider(AuthContext context) {
+        this.context = context;
+    }
 
-  @SuppressWarnings("rawtypes")
-  @Inject
-  public BasicAuth(final Authenticator auth) {
-    super(new IndirectBasicAuthClient(auth));
-  }
-
+    @Override
+    public ProfileManager get() {
+        return new ProfileManager(context);
+    }
 }

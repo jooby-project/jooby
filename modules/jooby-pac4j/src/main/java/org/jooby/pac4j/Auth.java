@@ -203,700 +203,150 @@
  */
 package org.jooby.pac4j;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import com.google.inject.Binder;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
-import com.google.inject.multibindings.OptionalBinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.jooby.*;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.Router;
 import org.jooby.internal.pac4j.*;
-import org.jooby.scope.Providers;
 import org.jooby.scope.RequestScoped;
 import org.pac4j.core.authorization.authorizer.Authorizer;
-import org.pac4j.core.authorization.checker.AuthorizationChecker;
-import org.pac4j.core.authorization.checker.DefaultAuthorizationChecker;
 import org.pac4j.core.client.Client;
-import org.pac4j.core.client.Clients;
-import org.pac4j.core.client.finder.ClientFinder;
-import org.pac4j.core.client.finder.DefaultClientFinder;
-import org.pac4j.core.context.Pac4jConstants;
+import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
-import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.profile.CommonProfile;
+import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.*;
-import java.util.function.BiFunction;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static java.util.Objects.*;
+import static java.util.Objects.requireNonNull;
 
-/**
- * <h1>pac4j module</h1>
- * <p>
- * Authentication module via: <a href="https://github.com/pac4j/pac4j">pac4j</a>.
- * </p>
- *
- * <h2>exposes</h2>
- * <ul>
- * <li>{@link Clients}</li>
- * <li>{@link WebContext} as {@link RequestScoped}</li>
- * <li>{@link Route.Filter} per each registered {@link Client}</li>
- * <li>Callback {@link Route.Filter}</li>
- * </ul>
- *
- * <h2>usage</h2>
- *
- * <pre>
- * {
- *
- *   get("/public", () {@literal ->} ..);
- *
- *   use(new Auth());
- *
- *   get("/private", () {@literal ->} ..);
- * }
- * </pre>
- * <p>
- * Previous example adds a very basic but ready to use form login auth every time you try to access
- * to <code>/private</code> or any route defined below the auth module.
- * </p>
- *
- * <h2>clients</h2>
- * <p>
- * <a href="https://github.com/pac4j/pac4j">pac4j</a> is a powerful library that supports multiple
- * clients and/or authentication protocols. In the next example, we will see how to configure the
- * most basic of them, but also some complex protocols.
- * </p>
- *
- * <h3>basic auth</h3>
- * <p>
- * If basic auth is all you need, then:
- * </p>
- *
- * <pre>
- * {
- *   use(new Auth().basic());
- * }
- * </pre>
- *
- * <p>
- * A {@link IndirectBasicAuthClient} depends on {@link Authenticator}, default is
- * {@link SimpleTestUsernamePasswordAuthenticator} which is great for development, but nothing good
- * for other environments. Next example setup a basic auth with a custom {@link Authenticator}:
- * </p>
- *
- * <pre>
- * {
- *   use(new Auth().basic("*", MyUsernamePasswordAuthenticator.class));
- * }
- * </pre>
- *
- * <h3>form auth</h3>
- * <p>
- * Form authentication will be activated by calling {@link #form()}:
- * </p>
- *
- * <pre>
- * {
- *   use(new Auth().form());
- * }
- * </pre>
- *
- * <p>
- * Form is the default authentication method so previous example is the same as:
- * </p>
- *
- * <pre>
- * {
- *   use(new Auth());
- * }
- * </pre>
- *
- * <p>
- * Like basic auth, form auth depends on a {@link Authenticator}.
- * </p>
- *
- * <p>
- * A login form will be ready under the path: <code>/login</code>. Again, it is a very basic login
- * form useful for development. If you need a custom login page, just add a route before the
- * {@link Auth} module, like:
- * </p>
- *
- * <pre>
- * {
- *   get("/login", () {@literal ->} Results.html("login"));
- *
- *   use(new Auth());
- * }
- * </pre>
- *
- * <p>
- * Simply and easy!
- * </p>
- *
- * <h3>oauth, openid, etc...</h3>
- * <p>
- * Twitter, example:
- * </p>
- *
- * <pre>
- * {
- *   use(new Auth()
- *     .client(conf {@literal ->}
- *        new TwitterClient(conf.getString("twitter.key"), conf.getString("twitter.secret"))));
- * }
- * </pre>
- *
- * <p>
- * Keep in mind you will have to add the require Maven dependency to your project, beside that it is
- * pretty straight forward.
- * </p>
- *
- * <h2>protecting urls</h2>
- * <p>
- * By default a {@link Client} will protect all the urls defined below the module, because routes in
- * {@link Jooby} are executed in the order they where defined.
- * </p>
- * <p>
- * You can customize what urls are protected by specifying a path pattern:
- * </p>
- *
- * <pre>
- * {
- *   use(new Auth().form("/private/**"));
- *
- *   get("/hello", () {@literal ->} "no auth");
- *
- *   get("/private", () {@literal ->} "auth");
- * }
- * </pre>
- *
- * <p>
- * Here the <code>/hello</code> path is un-protected, because the client will intercept everything
- * under <code>/private</code>.
- * </p>
- *
- * <h2>user profile</h2>
- * <p>
- * Jooby relies on {@link AuthStore} for saving and retrieving a {@link CommonProfile}. By default,
- * the {@link CommonProfile} is stored in the {@link Session} via {@link AuthSessionStore}.
- * </p>
- * <p>
- * After a successful authentication the {@link CommonProfile} is accessible as a request scoped
- * attribute:
- * </p>
- *
- * <pre>
- * {
- *   use(new Auth().form());
- *
- *   get("/private", req {@literal ->} req.require(HttpProfile.class));
- * }
- * </pre>
- *
- * <p>
- * facebook (or any oauth, openid, etc...)
- * <p>
- * <pre>
- * {
- *   use(new Auth().client(new FacebookClient(key, secret));
- *
- *   get("/private", req {@literal ->} req.require(FacebookProfile.class));
- * }
- * </pre>
- *
- * <p>
- * Custom {@link AuthStore} is provided via {@link Auth#store(Class)} method:
- * </p>
- *
- * <pre>
- * {
- *   use(new Auth().store(MyDbStore.class));
- *
- *   get("/private", req {@literal ->} req.require(HttpProfile.class));
- * }
- * </pre>
- *
- * <h2>logout</h2>
- * <p>
- * A default <code>/logout</code> handler is provided it too. The handler will remove the profile
- * from {@link AuthStore} by calling the {@link AuthStore#unset(String)} method. The default login
- * will redirect to <code>/</code>.
- * </p>
- * <p>
- * A custom logout and redirect urls can be set via <code>.conf</code> file or programmatically:
- * </p>
- *
- * <pre>
- * {
- *   use(new Auth().logout("/mylogout", "/redirectTo"));
- * }
- * </pre>
- *
- * @author edgar
- * @since 0.6.0
- */
 public class Auth implements Jooby.Module {
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
-  /**
-   * Name of the local request variable that holds the username.
-   */
-  public static final String ID = Auth.class.getName() + ".id";
+    private Map<String, Object> authorizers = new HashMap<>();
 
-  public static final String CNAME = Auth.class.getName() + ".client.id";
+    private List<Function<Config, Client<?, ?>>> clientProviders = new ArrayList<>();
+    private List<Class<? extends Client>> clientClasses = new ArrayList<>();
 
-  private Multimap<String, BiFunction<Binder, Config, AuthFilter>> bindings = ArrayListMultimap
-      .create();
-
-  @SuppressWarnings("rawtypes")
-  private Class<? extends AuthStore> storeClass = AuthSessionStore.class;
-
-  private Optional<String> logoutUrl = Optional.empty();
-
-  private Optional<String> redirecTo = Optional.empty();
-
-  private Multimap<String, Map.Entry<String, Object>> authorizers = ArrayListMultimap.create();
-
-  private Set<Object> bindedProfiles = new HashSet<>();
-
-  /**
-   * Protect one or more urls with an {@link Authorizer}. For example:
-   *
-   * <pre>
-   * {
-   *   use(new Auth()
-   *     .form("*")
-   *     .authorizer("admin", "/admin/**", new RequireAnyRoleAuthorizer("admin"))
-   *     );
-   * }
-   * </pre>
-   *
-   * <p>
-   * Previous example will protect any url with form authentication and require and admin role for
-   * <code>/admin/</code> or subpath of it.
-   * </p>
-   * <p>
-   * NOTE: make sure url is protected by one pac4j client.
-   * </p>
-   *
-   * @param name Authorizer name.
-   * @param pattern URL pattern to protected.
-   * @param authorizer Authorizer to apply.
-   * @return This module.
-   */
-  public Auth authorizer(final String name, final String pattern,
-      final Authorizer<?> authorizer) {
-    authorizer(authorizer, name, pattern);
-    return this;
-  }
-
-  /**
-   * Protect one or more urls with an {@link Authorizer}. For example:
-   * <pre>
-   * {
-   *   use(new Auth()
-   *     .form("*")
-   *     .authorizer("admin", "/admin/**", MyAuthorizer.class)
-   *     );
-   * }
-   * </pre>
-   * <p>
-   * Previous example will protect any url with form authentication and require and admin role for
-   * <code>/admin/</code> or subpath of it.
-   * </p>
-   * <p>
-   * NOTE: make sure url is protected by one pac4j client.
-   * </p>
-   *
-   * @param name Authorizer name.
-   * @param pattern URL pattern to protected.
-   * @param authorizer Authorizer to apply.
-   * @return This module.
-   */
-  @SuppressWarnings("rawtypes")
-  public Auth authorizer(final String name, final String pattern,
-      final Class<? extends Authorizer> authorizer) {
-    authorizer(authorizer, name, pattern);
-    return this;
-  }
-
-  /**
-   * Protect one or more urls with an {@link Authorizer}. For example:
-   * <pre>
-   * {
-   *   use(new Auth()
-   *     .form("*")
-   *     .authorizer("admin", "/admin/**", MyAuthorizer.class)
-   *     );
-   * }
-   * </pre>
-   * <p>
-   * Previous example will protect any url with form authentication and require and admin role for
-   * <code>/admin/</code> or subpath of it.
-   * </p>
-   *
-   * @param name Authorizer name.
-   * @param pattern URL pattern to protected.
-   * @param authorizer Authorizer to apply.
-   */
-  private void authorizer(final Object authorizer, final String name, final String pattern) {
-    requireNonNull(name, "An authorizer's name is required.");
-    requireNonNull(pattern, "An authorizer's pattern is required.");
-    requireNonNull(authorizer, "An authorizer is required.");
-    authorizers.put(pattern, Maps.immutableEntry(name, authorizer));
-  }
-
-  /**
-   * Add a form auth client.
-   *
-   * @param pattern URL pattern to protect.
-   * @param authenticator Authenticator to use.
-   * @return This module.
-   */
-  public Auth form(final String pattern,
-      final Class<? extends Authenticator<UsernamePasswordCredentials>> authenticator) {
-    bindings.put(pattern, (binder, conf) -> {
-      TypeLiteral<Authenticator<UsernamePasswordCredentials>> usernamePasswordAuthenticator = new TypeLiteral<Authenticator<UsernamePasswordCredentials>>() {
-      };
-      binder.bind(usernamePasswordAuthenticator.getRawType()).to(authenticator);
-
-      bindProfile(binder, CommonProfile.class);
-
-      Multibinder.newSetBinder(binder, Client.class)
-          .addBinding().toProvider(FormAuth.class);
-
-      return new FormFilter(conf.getString("auth.form.loginUrl"),
-          conf.getString("application.path") + authCallbackPath(conf));
-    });
-
-    return this;
-  }
-
-  /**
-   * Add a form auth client. It setup a {@link SimpleTestUsernamePasswordAuthenticator}.
-   * Useful for development.
-   *
-   * @param pattern URL pattern to protect.
-   * @return This module.
-   */
-  public Auth form(final String pattern) {
-    return form(pattern, SimpleTestUsernamePasswordAuthenticator.class);
-  }
-
-  /**
-   * Add a form auth client, protecting all the urls <code>*</code>. It setup a
-   * {@link SimpleTestUsernamePasswordAuthenticator}. Useful for development.
-   *
-   * @return This module.
-   */
-  public Auth form() {
-    return form("*");
-  }
-
-  /**
-   * Add a basic auth client.
-   *
-   * @param pattern URL pattern to protect.
-   * @param authenticator Authenticator to use.
-   * @return This module.
-   */
-  public Auth basic(final String pattern,
-      final Class<? extends Authenticator<UsernamePasswordCredentials>> authenticator) {
-    bindings.put(pattern, (binder, config) -> {
-      TypeLiteral<Authenticator<UsernamePasswordCredentials>> usernamePasswordAuthenticator = new TypeLiteral<Authenticator<UsernamePasswordCredentials>>() {
-      };
-      binder.bind(usernamePasswordAuthenticator.getRawType()).to(authenticator);
-
-      bindProfile(binder, CommonProfile.class);
-
-      Multibinder.newSetBinder(binder, Client.class)
-          .addBinding().toProvider(BasicAuth.class);
-
-      return new AuthFilter(IndirectBasicAuthClient.class, CommonProfile.class);
-    });
-    return this;
-  }
-
-  /**
-   * Add a basic auth client. It setup a {@link SimpleTestUsernamePasswordAuthenticator}. Useful
-   * for development.
-   *
-   * @param pattern URL pattern to protect.
-   * @return This module.
-   */
-  public Auth basic(final String pattern) {
-    return basic(pattern, SimpleTestUsernamePasswordAuthenticator.class);
-  }
-
-  /**
-   * Add a basic auth client, protecting all the urls <code>*</code>. It setup a
-   * {@link SimpleTestUsernamePasswordAuthenticator}. Useful for development.
-   *
-   * @return This module.
-   */
-  public Auth basic() {
-    return basic("*");
-  }
-
-  /**
-   * Add an auth client, like facebook, twitter, github, etc...Please note the require dependency
-   * must be in the classpath.
-   *
-   * @param client Client to add.
-   * @param <C> Credentials.
-   * @param <U> CommonProfile.
-   * @return This module.
-   */
-  public <C extends Credentials, U extends CommonProfile> Auth client(final Client<C, U> client) {
-    return client("*", client);
-  }
-
-  /**
-   * Add an auth client, like facebook, twitter, github, etc...Please note the require dependency
-   * must be in the classpath.
-   *
-   * @param client Client to add.
-   * @param <C> Credentials.
-   * @param <U> CommonProfile.
-   * @return This module.
-   */
-  public <C extends Credentials, U extends CommonProfile> Auth client(
-      final Class<? extends Client<C, U>> client) {
-    return client("*", client);
-  }
-
-  /**
-   * Add an auth client, like facebook, twitter, github, etc...Please note the require dependency
-   * must be in the classpath.
-   *
-   * @param pattern URL pattern to protect.
-   * @param client Client to add.
-   * @param <C> Credentials.
-   * @param <U> CommonProfile.
-   * @return This module.
-   */
-  public <C extends Credentials, U extends CommonProfile> Auth client(final String pattern,
-      final Client<C, U> client) {
-    return client(pattern, config -> client);
-  }
-
-  /**
-   * Add an auth client, like facebook, twitter, github, etc...Please note the require dependency
-   * must be in the classpath.
-   *
-   * @param provider Client to add.
-   * @param <C> Credentials.
-   * @param <U> CommonProfile.
-   * @return This module.
-   */
-  public <C extends Credentials, U extends CommonProfile> Auth client(
-      final Function<Config, Client<C, U>> provider) {
-    return client("*", provider);
-  }
-
-  /**
-   * Add an auth client, like facebook, twitter, github, etc...Please note the require dependency
-   * must be in the classpath.
-   *
-   * @param pattern URL pattern to protect.
-   * @param provider Client to add.
-   * @param <C> Credentials.
-   * @param <U> CommonProfile.
-   * @return This module.
-   */
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public <C extends Credentials, U extends CommonProfile> Auth client(final String pattern,
-      final Function<Config, Client<C, U>> provider) {
-    bindings.put(pattern, (binder, config) -> {
-
-      Client<C, U> client = provider.apply(config);
-      Multibinder.newSetBinder(binder, Client.class)
-          .addBinding().toInstance(client);
-      Class clientType = client.getClass();
-      Class profileType = ClientType.typeOf(clientType);
-
-      bindProfile(binder, profileType);
-
-      return new AuthFilter(clientType, profileType);
-    });
-    return this;
-  }
-
-  /**
-   * Add an auth client, like facebook, twitter, github, etc...Please note the require dependency
-   * must be in the classpath.
-   *
-   * @param pattern URL pattern to protect.
-   * @param client Client to add.
-   * @param <C> Credentials.
-   * @param <U> CommonProfile.
-   * @return This module.
-   */
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  public <C extends Credentials, U extends CommonProfile> Auth client(final String pattern,
-      final Class<? extends Client<C, U>> client) {
-    bindings.put(pattern, (binder, config) -> {
-
-      Multibinder.newSetBinder(binder, Client.class)
-          .addBinding().to(client);
-
-      Class profileType = ClientType.typeOf(client);
-
-      bindProfile(binder, profileType);
-
-      return new AuthFilter(client, profileType);
-
-    });
-    return this;
-  }
-
-  /**
-   * Setup the {@link AuthStore} to use. Keep in mind the store is binded it as singleton.
-   *
-   * @param store Store to use.
-   * @return This module.
-   */
-  public <U extends CommonProfile> Auth store(final Class<? extends AuthStore<U>> store) {
-    this.storeClass = requireNonNull(store, "Store is required.");
-    return this;
-  }
-
-  /**
-   * Set the logout and redirect URL patterns.
-   *
-   * @param logoutUrl Logout url, default is <code>/logout</code>.
-   * @param redirecTo Redirect url, default is <code>/</code>.
-   * @return This module.
-   */
-  public Auth logout(final String logoutUrl, final String redirecTo) {
-    this.logoutUrl = Optional.of(logoutUrl);
-    this.redirecTo = Optional.of(redirecTo);
-
-    return this;
-  }
-
-  /**
-   * Set the logout and redirect URL patterns.
-   *
-   * @param logoutUrl Logout url, default is <code>/logout</code>.
-   * @return This module.
-   */
-  public Auth logout(final String logoutUrl) {
-    this.logoutUrl = Optional.of(logoutUrl);
-    this.redirecTo = Optional.empty();
-
-    return this;
-  }
-
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  @Override
-  public void configure(final Env env, final Config conf, final Binder binder) {
-    binder.bind(Clients.class).toProvider(ClientsProvider.class);
-
-    binder.bind(org.pac4j.core.config.Config.class).toProvider(ConfigProvider.class);
-
-    OptionalBinder.newOptionalBinder(binder, AuthorizationChecker.class)
-        .setDefault().toInstance(new DefaultAuthorizationChecker());
-
-    OptionalBinder.newOptionalBinder(binder, ClientFinder.class)
-        .setDefault().toInstance(new DefaultClientFinder());
-
-    Router routes = env.router();
-
-    MapBinder<String, Authorizer> authorizers = MapBinder
-        .newMapBinder(binder, String.class, Authorizer.class);
-
-    routes.use("*", authCallbackPath(conf), (req, rsp, chain) -> req
-        .require(AuthCallback.class).handle(req, rsp, chain))
-        .excludes("/favicon.ico")
-        .name("auth(Callback)");
-
-    routes.use("*", logoutUrl.orElse(conf.getString("auth.logout.url")),
-        new AuthLogout(redirecTo.orElse(conf.getString("auth.logout.redirectTo"))))
-        .name("auth(Logout)");
-
-    if (bindings.size() == 0) {
-      // no auth client, go dev friendly and add a form auth
-      form();
+    public Auth authorizer(final String name, final Authorizer<?> authorizer) {
+        authorizer(authorizer, name);
+        return this;
     }
-    // bindings.values().forEach(it -> it.accept(binder, config));
-    bindings.asMap().entrySet().forEach(e -> {
-      String pattern = e.getKey();
-      List<AuthFilter> filters = new ArrayList<>();
-      e.getValue().forEach(it -> {
-        AuthFilter filter = it.apply(binder, conf);
-        if (filters.size() == 0) {
-          // push 1st filter
-          filters.add(filter);
-        } else {
-          // push recentely created filter to head and discard it.
-          filters.get(0).setName(filter.getName());
-        }
-      });
-      AuthFilter head = filters.get(0);
-      routes.use("*", pattern, head).name("auth(" + head.getName() + ")").excludes("/favicon.ico");
-    });
 
-    binder.bind(AuthCallback.class);
-
-    binder.bind(AuthStore.class).to(storeClass);
-
-    binder.bind(WebContext.class).to(AuthContext.class).in(RequestScoped.class);
-
-    this.authorizers.asMap().entrySet().forEach(e -> {
-      String pattern = e.getKey();
-      String names = e.getValue().stream()
-          .map(Map.Entry::getKey)
-          .collect(Collectors.joining(Pac4jConstants.ELEMENT_SEPRATOR));
-      // bind route
-      routes.use("*", pattern, new AuthorizerFilter(names))
-          .name("auth(" + names + ")");
-
-      // bind authorizers
-      e.getValue().forEach(v -> {
-        String name = v.getKey();
-        Object authorizer = v.getValue();
-        if (authorizer instanceof Authorizer) {
-          authorizers.addBinding(name).toInstance((Authorizer) authorizer);
-        } else {
-          authorizers.addBinding(name).to((Class) authorizer);
-        }
-      });
-    });
-  }
-
-  private String authCallbackPath(final Config conf) {
-    String fullcallback = conf.getString("auth.callback");
-    String root = conf.getString("application.path");
-    String callback = URI.create(fullcallback).getPath().replace(root, "");
-    return Route.normalize(callback);
-  }
-
-  @Override
-  public Config config() {
-    return ConfigFactory.parseResources(getClass(), "auth.conf");
-  }
-
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  private void bindProfile(final Binder binder, final Class root) {
-    Class profile = root;
-    while (profile != Object.class) {
-      if (bindedProfiles.add(profile)) {
-        binder.bind(profile).toProvider(Providers.outOfScope(profile)).in(RequestScoped.class);
-      }
-      profile = profile.getSuperclass();
+    public Auth authorizer(final String name, final Class<? extends Authorizer> authorizer) {
+        authorizer(authorizer, name);
+        return this;
     }
-  }
+
+    private void authorizer(final Object authorizer, final String name) {
+        requireNonNull(name, "An authorizer's name is required.");
+        requireNonNull(authorizer, "An authorizer is required.");
+
+        authorizers.put(name, authorizer);
+    }
+
+    public <C extends Credentials, U extends CommonProfile> Auth client(final Class<? extends Client<C, U>> client) {
+        clientClasses.add(client);
+        return this;
+    }
+
+    public <C extends Credentials, U extends CommonProfile> Auth client(final Client<C, U> client) {
+        return client(config -> client);
+    }
+
+    public <C extends Credentials, U extends CommonProfile> Auth client(final Function<Config, Client<?, ?>> provider) {
+        clientProviders.add(provider);
+        return this;
+    }
+
+    public Auth basic(final Authenticator authenticator) {
+        client(new IndirectBasicAuthClient(authenticator));
+        return this;
+    }
+
+    public Auth basic() {
+        basic(new SimpleTestUsernamePasswordAuthenticator());
+        return this;
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Override
+    public void configure(final Env env, final Config conf, final Binder binder) {
+        final boolean[] indirect = {false};
+        Multibinder<Client> clientBinder = Multibinder.newSetBinder(binder, Client.class);
+        clientProviders.forEach(provider -> {
+            Client client = provider.apply(conf);
+            indirect[0] = indirect[0] || (client instanceof IndirectClient);
+            clientBinder.addBinding().toInstance(client);
+        });
+        clientClasses.forEach(client -> {
+            indirect[0] = indirect[0] || (IndirectClient.class.isAssignableFrom(client));
+            clientBinder.addBinding().to(client);
+        });
+
+        MapBinder<String, Authorizer> authorizerBinder = MapBinder.newMapBinder(binder, String.class, Authorizer.class);
+        authorizers.forEach((name, authorizer) -> {
+            if (authorizer instanceof Authorizer) {
+                authorizerBinder.addBinding(name).toInstance((Authorizer) authorizer);
+            } else {
+                authorizerBinder.addBinding(name).to((Class) authorizer);
+            }
+        });
+
+        binder.bind(org.pac4j.core.config.Config.class).toProvider(ConfigProvider.class);
+
+        binder.bind(new TypeLiteral<SessionStore<AuthContext>>() {
+        }).to(JoobySessionStore.class);
+
+        binder.bind(WebContext.class).to(AuthContext.class).in(RequestScoped.class);
+
+        binder.bind(ProfileManager.class).toProvider(ProfileManagerProvider.class).in(RequestScoped.class);
+
+        Router routes = env.router();
+
+        if (indirect[0]) {
+            routes.use("*", authCallbackPath(conf), new CallbackRoute())
+                    .name("auth(Callback)");
+        }
+
+        //TODO logout
+/*
+        routes.use("*", logoutUrl.orElse(conf.getString("auth.logout.url")),
+                new AuthLogout(redirecTo.orElse(conf.getString("auth.logout.redirectTo"))))
+                .name("auth(Logout)");*/
+
+        // bindings.values().forEach(it -> it.accept(binder, config));
+    }
+
+    private String authCallbackPath(final Config conf) {
+        String fullcallback = conf.getString("auth.callback");
+        String root = conf.getString("application.path");
+        String callback = URI.create(fullcallback).getPath().replace(root, "");
+        log.info(callback);
+
+        return fullcallback;
+    }
+
+    @Override
+    public Config config() {
+        return ConfigFactory.parseResources(getClass(), "auth.conf");
+    }
 
 }

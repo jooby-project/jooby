@@ -17,6 +17,8 @@ public class BasicAuthAsClientFeature extends ServerFeature {
             new SimpleTestUsernamePasswordAuthenticator(),
             new AuthenticatorProfileCreator())
         ));
+    use("*", new AuthFilter("IndirectBasicAuthClient"));
+
 
     get("/auth/basic", req -> req.path());
   }

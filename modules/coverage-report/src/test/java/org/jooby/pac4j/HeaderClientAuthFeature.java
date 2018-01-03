@@ -14,7 +14,7 @@ public class HeaderClientAuthFeature extends ServerFeature {
   public static class HeaderAuthenticator implements Authenticator<TokenCredentials> {
 
     @Override
-    public void validate(final TokenCredentials credentials, final WebContext context) {
+    public void validate(final TokenCredentials credentials, final WebContext context) throws CredentialsException {
       if (credentials == null || !credentials.getToken().equals("1234")) {
         throw new CredentialsException("Bad token");
       }
@@ -33,6 +33,7 @@ public class HeaderClientAuthFeature extends ServerFeature {
       return profile;
     });
     use(new Auth().client(client));
+    use("*", new AuthFilter("HeaderClient"));
 
     get("/auth/header", req -> req.path());
   }

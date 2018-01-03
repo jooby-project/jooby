@@ -203,31 +203,29 @@
  */
 package org.jooby.internal.pac4j;
 
-import java.util.Set;
+import org.jooby.Session;
+import org.pac4j.core.context.session.SessionStore;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
+import static java.util.Objects.requireNonNull;
 
-import org.pac4j.core.client.Client;
-import org.pac4j.core.client.Clients;
+/**
+ * A {@link SessionStore} that works on the provided session.
+ * This is very similar to {@link org.pac4j.core.context.session.J2EProvidedSessionStore}
+ *
+ * @author nlochschmidt
+ * @since 1.2.0
+ */
+class JoobyProvidedSessionStore extends JoobySessionStore {
 
-import com.google.common.collect.ImmutableList;
+  private final Session session;
 
-@SuppressWarnings("rawtypes")
-public class ClientsProvider implements Provider<Clients> {
-
-  private Clients clients;
-
-  @Inject
-  public ClientsProvider(@Named("auth.callback") final String callback,
-      final Set<Client> clients) {
-    this.clients = new Clients(callback, ImmutableList.copyOf(clients));
+  public JoobyProvidedSessionStore(Session session) {
+    requireNonNull(session, "Session is required");
+    this.session = session;
   }
 
   @Override
-  public Clients get() {
-    return clients;
+  protected Session getSession(AuthContext ctx) {
+    return session;
   }
-
 }
