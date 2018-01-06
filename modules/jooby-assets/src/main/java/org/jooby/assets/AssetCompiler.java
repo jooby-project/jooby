@@ -290,14 +290,14 @@ public class AssetCompiler {
     String basedir = conf.hasPath("assets.basedir") ? spath(conf.getString("assets.basedir")) : "";
     this.charset = Charset.forName(this.conf.getString("assets.charset"));
     if (this.conf.hasPath("assets.fileset")) {
-      this.fileset = fileset(loader, basedir, this.conf, aggregators::add);
+      this.fileset = fileset(this.loader, basedir, this.conf, aggregators::add);
     } else {
       this.fileset = new HashMap<>();
     }
     this.scripts = predicate(this.conf, ".js", ".coffee", ".ts");
     this.styles = predicate(this.conf, ".css", ".scss", ".sass", ".less");
     if (this.fileset.size() > 0) {
-      this.pipeline = pipeline(loader, this.conf.getConfig("assets"));
+      this.pipeline = pipeline(this.loader, this.conf.getConfig("assets"));
     } else {
       this.pipeline = Collections.emptyMap();
     }
