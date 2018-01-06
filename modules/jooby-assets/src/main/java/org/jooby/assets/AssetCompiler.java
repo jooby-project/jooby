@@ -595,7 +595,11 @@ public class AssetCompiler {
         long start = System.currentTimeMillis();
         try {
           log.debug("    executing: {}", pname);
-          contents = processor.process(filename, contents, conf);
+          if(processor instanceof FileLoadingAssetProcessor) {
+            contents = ((FileLoadingAssetProcessor)processor).process(filename, contents, conf, loader);
+          } else {
+            contents = processor.process(filename, contents, conf);
+          }
         } finally {
           long end = System.currentTimeMillis();
           log.debug("    {} took {}ms", pname, end - start);
