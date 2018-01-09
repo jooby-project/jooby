@@ -142,7 +142,7 @@ Request parameters will be covered later. For now all you need to know is that y
 
   ```**``` - matches any path at any level
 
-  ```*``` - matches any path at any level, shortcut for ```**```
+  ```*``` - matches anything except `/`
   
   ```**:name``` or ```{name:**}``` - matches any path at any level and binds the match to the request parameter ```name```
 
