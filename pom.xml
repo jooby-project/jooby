@@ -229,6 +229,12 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
+        <artifactId>jooby-pac4j2</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
         <artifactId>jooby-apitool</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -1137,79 +1143,79 @@
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-core</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-oauth</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-cas</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-http</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-openid</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-saml</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-gae</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-oidc</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-jwt</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-ldap</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-sql</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-mongo</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-stormpath</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <!-- AWS -->
@@ -3013,6 +3019,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <gson.version>2.8.2</gson.version>
     <ehcache.version>2.10.0</ehcache.version>
     <pac4j.version>1.9.5</pac4j.version>
+    <pac4j2.version>2.2.1</pac4j2.version>
     <swagger.version>1.5.16</swagger.version>
     <swagger-ui.version>3.1.6</swagger-ui.version>
     <swagger-ui-themes.version>3.0.0</swagger-ui-themes.version>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <groupId>org.jooby</groupId>
@@ -9,9 +10,9 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-pac4j</artifactId>
+  <artifactId>jooby-pac4j2</artifactId>
 
-  <name>pac4j module</name>
+  <name>pac4j2 module</name>
 
   <build>
     <plugins>
@@ -42,56 +43,63 @@
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-core</artifactId>
-      <version>${pac4j.version}</version>
+      <version>${pac4j2.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-http</artifactId>
-      <version>${pac4j.version}</version>
+      <version>${pac4j2.version}</version>
     </dependency>
 
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-oauth</artifactId>
+      <version>${pac4j2.version}</version>
       <scope>test</scope>
-      <version>${pac4j.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-cas</artifactId>
+      <version>${pac4j2.version}</version>
       <scope>test</scope>
-      <version>${pac4j.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-openid</artifactId>
+      <version>${pac4j2.version}</version>
       <scope>test</scope>
-      <version>${pac4j.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-saml</artifactId>
+      <version>${pac4j2.version}</version>
       <scope>test</scope>
-      <version>${pac4j.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-gae</artifactId>
+      <version>${pac4j2.version}</version>
       <scope>test</scope>
-      <version>${pac4j.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-oidc</artifactId>
+      <version>${pac4j2.version}</version>
       <scope>test</scope>
-      <version>${pac4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-oauth</artifactId>
+      <version>${pac4j2.version}</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -130,6 +138,19 @@
       <groupId>org.jacoco</groupId>
       <artifactId>org.jacoco.agent</artifactId>
       <classifier>runtime</classifier>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-netty</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- ASM -->
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm</artifactId>
       <scope>test</scope>
     </dependency>
 
