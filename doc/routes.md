@@ -46,10 +46,10 @@ If you need a `POST`:
 post("/", () -> "hey jooby");
 ```
 
-or need to listen to any `HTTP method`:
+or listen to any `HTTP method`:
 
 ```java
-use("*", "/", () -> "hey jooby");
+use("*", "/", (req, rsp) -> "hey jooby");
 ```
 
 It's also possible to name a route explicitly:

@@ -77,7 +77,7 @@ public class BarBranding extends Jooby {
 /** Merge everything .*/
 public class App extends Jooby {
   {
-     use("*", (req, rsp) -> {
+     use("*", (req, rsp, chain) -> {
        if (req.hostname().equals("foo.com")) {
          chain.next("/foo-branding", req, rsp);
        } else {
