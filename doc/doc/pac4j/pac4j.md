@@ -2,6 +2,10 @@
 
 Authentication module via: {{pac4j}}.
 
+
+> **DEPRECATED**: This module has been replaced by [Pac4j 2.x](/doc/pac4j2).
+
+
 ## exports
 
 * ```Clients```

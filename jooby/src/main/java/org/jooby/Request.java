@@ -203,8 +203,15 @@
  */
 package org.jooby;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.net.UrlEscapers;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import static java.util.Objects.requireNonNull;
+import org.jooby.scope.RequestScoped;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -214,16 +221,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.BiFunction;
-
-import org.jooby.scope.RequestScoped;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.net.UrlEscapers;
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
-
-import javax.annotation.Nonnull;
 
 /**
  * Give you access at the current HTTP request in order to read parameters, headers and body.
@@ -728,6 +725,9 @@ public interface Request extends Registry {
   /**
    * Application path (a.k.a context path). It is the value defined by:
    * <code>application.path</code>. Default is: <code>/</code>
+   *
+   * This method returns empty string for <code>/</code>. Otherwise, it is identical the value of
+   * <code>application.path</code>.
    *
    * @return Application context path..
    */

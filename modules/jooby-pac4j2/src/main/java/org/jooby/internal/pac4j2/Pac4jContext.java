@@ -201,264 +201,181 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.jooby.internal.apitool;
+package org.jooby.internal.pac4j2;
 
-import static com.google.common.base.CaseFormat.LOWER_CAMEL;
-import static com.google.common.base.CaseFormat.UPPER_CAMEL;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.inject.TypeLiteral;
-import io.swagger.converter.ModelConverter;
-import io.swagger.converter.ModelConverterContext;
-import io.swagger.converter.ModelConverters;
-import io.swagger.jackson.AbstractModelConverter;
-import io.swagger.models.Model;
-import io.swagger.models.Operation;
-import io.swagger.models.Path;
-import io.swagger.models.Response;
-import io.swagger.models.Swagger;
-import io.swagger.models.Tag;
-import io.swagger.models.parameters.AbstractSerializableParameter;
-import io.swagger.models.parameters.BodyParameter;
-import io.swagger.models.parameters.FormParameter;
-import io.swagger.models.parameters.HeaderParameter;
-import io.swagger.models.parameters.Parameter;
-import io.swagger.models.parameters.PathParameter;
-import io.swagger.models.parameters.QueryParameter;
-import io.swagger.models.parameters.SerializableParameter;
-import io.swagger.models.properties.ArrayProperty;
-import io.swagger.models.properties.FileProperty;
-import io.swagger.models.properties.Property;
-import io.swagger.models.properties.PropertyBuilder;
-import io.swagger.models.properties.PropertyBuilder.PropertyId;
-import io.swagger.util.Json;
-import org.jooby.MediaType;
-import org.jooby.Upload;
-import org.jooby.apitool.RouteMethod;
-import org.jooby.apitool.RouteParameter;
-import org.jooby.apitool.RouteResponse;
+import com.google.common.collect.ImmutableMap;
+import org.jooby.Err;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.funzy.Try;
+import org.pac4j.core.context.Cookie;
+import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
+import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.EnumMap;
-import java.util.Iterator;
+import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class SwaggerBuilder {
-  private static final Pattern TAG = Pattern.compile("(api)|/");
+public class Pac4jContext implements WebContext {
 
-  private static final Function<RouteMethod, String> TAG_PROVIDER = r -> {
-    Iterator<String> segments = Splitter.on(TAG)
-        .trimResults()
-        .omitEmptyStrings()
-        .split(r.pattern())
-        .iterator();
-    return segments.hasNext() ? segments.next() : "";
-  };
-  private Function<RouteMethod, String> tagger = TAG_PROVIDER;
+  private static final String[] NO_PARAM = {null};
 
-  static {
-    /** Convert Upload to Swagger FileProperty: */
-    ModelConverters.getInstance().addConverter(new AbstractModelConverter(Json.mapper()) {
-      @Override public Property resolveProperty(Type type, ModelConverterContext context,
-          Annotation[] annotations, Iterator<ModelConverter> chain) {
-        TypeLiteral<?> typeLiteral = TypeLiteral.get(type);
-        String typeName = typeLiteral.getType().getTypeName();
-        if (typeName.equals("java.util.List<org.jooby.Upload>") ||
-            typeName.equals("java.util.Set<org.jooby.Upload>")) {
-          return new ArrayProperty(new FileProperty());
-        }
-        if (typeName.equals(Upload.class.getName())) {
-          return new FileProperty();
-        }
-        return super.resolveProperty(type, context, annotations, chain);
+  private final Map<String, String[]> params;
+  private final Request req;
+  private final Response rsp;
+  private SessionStore sessionStore;
+
+  @Inject
+  public Pac4jContext(Request req, Response rsp, SessionStore<WebContext> sessionStore) {
+    this.req = req;
+    this.rsp = rsp;
+    this.params = params(req);
+    this.sessionStore = sessionStore;
+  }
+
+  @Override public SessionStore getSessionStore() {
+    return sessionStore;
+  }
+
+  @Deprecated
+  @Override public void setSessionStore(SessionStore sessionStore) {
+    // NOOP
+  }
+
+  @Override public String getRequestParameter(String name) {
+    String value  = req.ifGet("pac4j." + name)
+        .map(Objects::toString)
+        .orElse(params.getOrDefault(name, NO_PARAM)[0]);
+    return value;
+  }
+
+  @Override public Map<String, String[]> getRequestParameters() {
+    return params;
+  }
+
+  @Override public Object getRequestAttribute(String name) {
+    return req.ifGet(name).orElse(null);
+  }
+
+  @Override public void setRequestAttribute(String name, Object value) {
+    req.set(name, value);
+  }
+
+  @Override public String getRequestHeader(String name) {
+    return req.header(name).toOptional().orElse(null);
+  }
+
+  @Override public void setSessionAttribute(String name, Object value) {
+    sessionStore.set(this, name, value);
+  }
+
+  @Override public Object getSessionAttribute(String name) {
+    return sessionStore.get(this, name);
+  }
+
+  @Override public String getSessionIdentifier() {
+    return sessionStore.getOrCreateSessionId(this);
+  }
+
+  @Override public String getRequestMethod() {
+    return req.method();
+  }
+
+  @Override public String getRemoteAddr() {
+    return req.ip();
+  }
+
+  @Override public void writeResponseContent(String content) {
+    Try.run(() -> rsp.send(content));
+  }
+
+  @Override public void setResponseStatus(int code) {
+    rsp.status(code);
+  }
+
+  @Override public void setResponseHeader(String name, String value) {
+    rsp.header(name, value);
+  }
+
+  @Override public void setResponseContentType(String content) {
+    rsp.type(content);
+  }
+
+  @Override public String getServerName() {
+    return req.hostname();
+  }
+
+  @Override public int getServerPort() {
+    return req.port();
+  }
+
+  @Override public String getScheme() {
+    return req.secure() ? "https" : "http";
+  }
+
+  @Override public boolean isSecure() {
+    return req.secure();
+  }
+
+  @Override public String getFullRequestURL() {
+    return getFullRequestURL(this, req, getPath());
+  }
+
+  public static String getFullRequestURL(WebContext ctx, Request req, String path) {
+    StringBuilder url = new StringBuilder();
+    url.append(ctx.getScheme()).append("://").append(ctx.getServerName()).append(":")
+        .append(ctx.getServerPort());
+    url.append(req.contextPath()).append(path);
+    req.queryString().ifPresent(query -> url.append("?").append(query));
+    return url.toString();
+  }
+
+  @Override public Collection<Cookie> getRequestCookies() {
+    return req.cookies().stream().map(c -> {
+      Cookie cookie = new Cookie(c.name(), c.value().orElse(null));
+      c.domain().ifPresent(cookie::setDomain);
+      c.path().ifPresent(cookie::setPath);
+      cookie.setSecure(c.secure());
+      cookie.setHttpOnly(c.httpOnly());
+      return cookie;
+    }).collect(Collectors.toList());
+  }
+
+  @Override public void addResponseCookie(Cookie cookie) {
+    org.jooby.Cookie.Definition c = new org.jooby.Cookie.Definition(cookie.getName(),
+        cookie.getValue());
+    Optional.ofNullable(cookie.getDomain()).ifPresent(c::domain);
+    Optional.ofNullable(cookie.getPath()).ifPresent(c::path);
+    c.httpOnly(cookie.isHttpOnly());
+    c.maxAge(cookie.getMaxAge());
+    c.secure(cookie.isSecure());
+    rsp.cookie(c);
+  }
+
+  @Override public String getPath() {
+    return req.path();
+  }
+
+  @Override public String getRequestContent() {
+    return Try.apply(() -> req.body().value()).get();
+  }
+
+  private static Map<String, String[]> params(final Request req) {
+    ImmutableMap.Builder<String, String[]> result = ImmutableMap.<String, String[]>builder();
+
+    req.params().toMap().forEach((name, value) -> {
+      try {
+        List<String> values = value.toList();
+        result.put(name, values.toArray(new String[values.size()]));
+      } catch (Err ignored) {
+        LoggerFactory.getLogger(Pac4jContext.class).debug("ignoring HTTP param: " + name, ignored);
       }
     });
-  }
-
-  public SwaggerBuilder() {
-  }
-
-  public SwaggerBuilder groupBy(Function<RouteMethod, String> tag) {
-    this.tagger = tag;
-    return this;
-  }
-
-  public Swagger build(Swagger base, final List<RouteMethod> routes) throws Exception {
-    Swagger swagger = Optional.ofNullable(base).orElseGet(Swagger::new);
-
-    /** Tags: */
-    Function<String, Tag> tagFactory = value ->
-        Optional.ofNullable(swagger.getTag(value))
-            .orElseGet(() -> {
-              Tag tag = new Tag();
-              if (value.length() > 0) {
-                tag.name(Character.toUpperCase(value.charAt(0)) + value.substring(1));
-              } else {
-                tag.name(value);
-              }
-              swagger.addTag(tag);
-              return tag;
-            });
-
-    /** Paths: */
-    Function<String, Path> pathFactory = pattern ->
-        Optional.ofNullable(swagger.getPath(pattern))
-            .orElseGet(() -> {
-              Path path = new Path();
-              swagger.path(pattern, path);
-              return path;
-            });
-
-    ModelConverters converter = ModelConverters.getInstance();
-    /** Model factory: */
-    Function<Type, Model> modelFactory = type -> {
-      Property property = converter.readAsProperty(type);
-
-      Map<PropertyId, Object> args = new EnumMap<>(PropertyId.class);
-      for (Map.Entry<String, Model> entry : converter.readAll(type).entrySet()) {
-        swagger.addDefinition(entry.getKey(), entry.getValue());
-      }
-      return PropertyBuilder.toModel(PropertyBuilder.merge(property, args));
-    };
-
-    for (RouteMethod route : routes) {
-      /** Find or create tag: */
-      Tag tag = tagFactory.apply(this.tagger.apply(route));
-      // groupBy summary
-      route.summary().ifPresent(tag::description);
-
-      /** Find or create path: */
-      Path path = pathFactory.apply(route.pattern());
-
-      /** Operation: */
-      Operation op = new Operation();
-      op.addTag(tag.getName());
-      op.operationId(route.name().orElseGet(
-          () -> route.method().toLowerCase() + tag.getName() + route.parameters().stream()
-              .filter(it -> route.method().equalsIgnoreCase("get")
-                  && it.kind() == RouteParameter.Kind.PATH)
-              .findFirst()
-              .map(it -> "By" + LOWER_CAMEL.to(UPPER_CAMEL, it.name()))
-              .orElse("")));
-
-      /** Doc and summary: */
-      route.description().ifPresent(description -> {
-        int dot = description.indexOf('.');
-        if (dot > 0) {
-          op.summary(description.substring(0, dot));
-        }
-        String summary = Optional.ofNullable(op.getSummary()).orElse("");
-        op.description(description.replace(summary + ".", ""));
-      });
-      route.response().description()
-          .ifPresent(returns -> (Strings.nullToEmpty(op.getDescription()) + " " + returns).trim());
-
-      /** Consumes/Produces . */
-      route.consumes().forEach(op::addConsumes);
-      route.produces().forEach(op::addProduces);
-
-      /** Parameters: */
-      route.parameters().stream().map(it -> {
-        Type type = it.type();
-        final Property property = converter.readAsProperty(type);
-        Parameter parameter = it.accept(new RouteParameter.Visitor<Parameter>() {
-          @Override public Parameter visitBody(final RouteParameter parameter) {
-            return new BodyParameter().schema(modelFactory.apply(parameter.type()));
-          }
-
-          @Override public Parameter visitFile(final RouteParameter parameter) {
-            return complement(property, parameter, new FormParameter());
-          }
-
-          @Override public Parameter visitForm(final RouteParameter parameter) {
-            return complement(property, parameter, new FormParameter());
-          }
-
-          @Override public Parameter visitHeader(final RouteParameter parameter) {
-            return complement(property, parameter, new HeaderParameter());
-          }
-
-          @Override public Parameter visitPath(final RouteParameter parameter) {
-            return complement(property, parameter, new PathParameter());
-          }
-
-          @Override public Parameter visitQuery(final RouteParameter parameter) {
-            return complement(property, parameter, new QueryParameter());
-          }
-        });
-        if (it.kind() == RouteParameter.Kind.FILE) {
-          op.setConsumes(ImmutableList.of(MediaType.multipart.name()));
-        }
-        parameter.setName(it.name());
-        parameter.setRequired(!it.optional());
-        parameter.setDescription(property.getDescription());
-        it.description().ifPresent(parameter::setDescription);
-        return parameter;
-      }).forEach(op::addParameter);
-
-      /** Response: */
-      RouteResponse returns = route.response();
-      Map<Integer, String> status = returns.status();
-      Integer statusCode = returns.statusCode();
-      Response response = new Response();
-      String doc = returns.description().orElse(status.get(statusCode));
-      response.description(doc);
-      if (!"void".equals(returns.type().getTypeName())) {
-        // make sure type definition gets in
-        modelFactory.apply(returns.type());
-        response.schema(converter.readAsProperty(returns.type()));
-      }
-      op.addResponse(statusCode.toString(), response);
-      status.entrySet().stream()
-          .filter(it -> !statusCode.equals(it.getKey()))
-          .forEach(it -> op.addResponse(it.getKey().toString(), new Response()
-              .description(it.getValue())));
-
-      /** Done: */
-      path.set(route.method().toLowerCase(), op);
-    }
-    Function<Function<RouteMethod, List<String>>, List<String>> mediaTypes = types ->
-        routes.stream().flatMap(it -> types.apply(it).stream()).collect(Collectors.toList());
-    /** Default consumes/produces: */
-    List<String> consumes = mediaTypes.apply(RouteMethod::consumes);
-    if (consumes.size() == 0) {
-      swagger.consumes(MediaType.json.name());
-    } else if (consumes.size() == 1) {
-      swagger.consumes(consumes);
-    }
-    List<String> produces = mediaTypes.apply(RouteMethod::produces);
-    if (produces.size() == 0) {
-      swagger.produces(MediaType.json.name());
-    } else if (produces.size() == 1) {
-      swagger.produces(produces);
-    }
-    return swagger;
-  }
-
-  private SerializableParameter complement(Property property, RouteParameter source,
-      SerializableParameter param) {
-    param.setType(property.getType());
-    param.setFormat(property.getFormat());
-    // array param:
-    if (property instanceof ArrayProperty) {
-      param.setItems(((ArrayProperty) property).getItems());
-    }
-    // enum values:
-    List<String> enums = source.enums();
-    if (enums.size() > 0) {
-      param.setEnum(enums);
-    }
-    // default value:
-    if (param instanceof AbstractSerializableParameter) {
-      ((AbstractSerializableParameter) param).setDefault(source.defaultValue());
-    }
-    return param;
+    return result.build();
   }
 }
