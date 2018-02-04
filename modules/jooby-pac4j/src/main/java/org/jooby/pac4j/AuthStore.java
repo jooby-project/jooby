@@ -203,9 +203,9 @@
  */
 package org.jooby.pac4j;
 
-import java.util.Optional;
-
 import org.pac4j.core.profile.CommonProfile;
+
+import java.util.Optional;
 
 /**
  * Contract for saving and restoring {@link CommonProfile}.
@@ -213,6 +213,7 @@ import org.pac4j.core.profile.CommonProfile;
  * @author edgar
  * @param <U> User profile to work with.
  */
+@Deprecated
 public interface AuthStore<U extends CommonProfile> {
 
   /**
