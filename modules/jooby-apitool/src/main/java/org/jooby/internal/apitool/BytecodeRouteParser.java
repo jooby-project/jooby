@@ -985,13 +985,22 @@ public class BytecodeRouteParser {
       // mv.visitLdcInsn("req.param(\"p1\")");
       // mv.visitMethodInsn(INVOKESTATIC, "kotlin/jvm/internal/Intrinsics", "checkExpressionValueIsNotNull", "(Ljava/lang/Object;Ljava/lang/String;)V", false);
       // mv.visitMethodInsn(INVOKESTATIC, "org/jooby/JoobyKt", "getValue", "(Lorg/jooby/Mutant;)Ljava/lang/String;", false);
-      AbstractInsnNode methodInsnNode = new Insn<>(null, n)
+      AbstractInsnNode next = new Insn<>(null, n)
           .next()
           .filter(MethodInsnNode.class::isInstance)
           .skip(1)
           .findFirst()
           .orElse(null);
-      return parameterType(loader, methodInsnNode);
+      java.lang.reflect.Type result = parameterType(loader, next);
+      if (result == Object.class) {
+        next = new Insn<>(null, n)
+            .next()
+            .filter(TypeInsnNode.class::isInstance)
+            .findFirst()
+            .orElse(null);
+        result = parameterType(loader, next);
+      }
+      return result;
     }
     return Object.class;
   }
