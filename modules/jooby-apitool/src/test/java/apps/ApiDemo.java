@@ -123,6 +123,9 @@ public class ApiDemo extends Jooby {
         });
 
     use(new ApiTool()
+        .modify(r -> r.pattern().startsWith("/api"), it-> {
+          System.out.println(it);
+        })
         .raml("/raml")
         .swagger("/swagger"));
   }

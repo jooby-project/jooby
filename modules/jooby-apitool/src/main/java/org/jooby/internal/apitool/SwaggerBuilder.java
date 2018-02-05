@@ -268,16 +268,21 @@ public class SwaggerBuilder {
     ModelConverters.getInstance().addConverter(new AbstractModelConverter(Json.mapper()) {
       @Override public Property resolveProperty(Type type, ModelConverterContext context,
           Annotation[] annotations, Iterator<ModelConverter> chain) {
-        TypeLiteral<?> typeLiteral = TypeLiteral.get(type);
-        String typeName = typeLiteral.getType().getTypeName();
-        if (typeName.equals("java.util.List<org.jooby.Upload>") ||
-            typeName.equals("java.util.Set<org.jooby.Upload>")) {
-          return new ArrayProperty(new FileProperty());
+        try {
+          TypeLiteral<?> typeLiteral = TypeLiteral.get(type);
+          String typeName = typeLiteral.getType().getTypeName();
+          if (typeName.equals("java.util.List<org.jooby.Upload>") ||
+              typeName.equals("java.util.Set<org.jooby.Upload>")) {
+            return new ArrayProperty(new FileProperty());
+          }
+          if (typeName.equals(Upload.class.getName())) {
+            return new FileProperty();
+          }
+          return super.resolveProperty(type, context, annotations, chain);
+        } catch (IllegalArgumentException x) {
+          // shhh
+          return super.resolveProperty(type, context, annotations, chain);
         }
-        if (typeName.equals(Upload.class.getName())) {
-          return new FileProperty();
-        }
-        return super.resolveProperty(type, context, annotations, chain);
       }
     });
   }
