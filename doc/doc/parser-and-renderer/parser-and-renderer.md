@@ -1,6 +1,6 @@
 # parser and renderer
 
-Jooby includes modules for rendering with many common template engines.
+Choose your favorite template engine and/or serialization library.
 
 # template engines
 

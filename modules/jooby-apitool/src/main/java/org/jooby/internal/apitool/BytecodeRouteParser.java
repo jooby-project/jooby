@@ -593,7 +593,7 @@ public class BytecodeRouteParser {
         .forEach(r -> {
           RouteMethod method = toRouteMethod(r);
           javadoc(method, javadoc.pop(type.getName(), r.method(), r.pattern()));
-          if (path.length() >0) {
+          if (path.length() > 0) {
             method.pattern(Route.normalize(path) + method.pattern());
           }
           callback.accept(method);
@@ -979,6 +979,28 @@ public class BytecodeRouteParser {
       if (typeInsn.getOpcode() == Opcodes.CHECKCAST) {
         return loadType(loader, typeInsn.desc);
       }
+    } else if (n != null && Opcodes.DUP == n.getOpcode()) {
+      // Kotlin 1.2.x
+      // mv.visitInsn(DUP);
+      // mv.visitLdcInsn("req.param(\"p1\")");
+      // mv.visitMethodInsn(INVOKESTATIC, "kotlin/jvm/internal/Intrinsics", "checkExpressionValueIsNotNull", "(Ljava/lang/Object;Ljava/lang/String;)V", false);
+      // mv.visitMethodInsn(INVOKESTATIC, "org/jooby/JoobyKt", "getValue", "(Lorg/jooby/Mutant;)Ljava/lang/String;", false);
+      AbstractInsnNode next = new Insn<>(null, n)
+          .next()
+          .filter(MethodInsnNode.class::isInstance)
+          .skip(1)
+          .findFirst()
+          .orElse(null);
+      java.lang.reflect.Type result = parameterType(loader, next);
+      if (result == Object.class) {
+        next = new Insn<>(null, n)
+            .next()
+            .filter(TypeInsnNode.class::isInstance)
+            .findFirst()
+            .orElse(null);
+        result = parameterType(loader, next);
+      }
+      return result;
     }
     return Object.class;
   }
@@ -1130,7 +1152,7 @@ public class BytecodeRouteParser {
           reader.accept(node, 0);
           cache.put(cname, node);
           if (log.isDebugEnabled()) {
-            log.debug("Source: {}; Class: {}", node.sourceFile, node.name);
+            log.info("Source: {}; Class: {}", node.sourceFile, node.name);
             reader.accept(
                 new TraceClassVisitor(null, new ASMifier(), new PrintWriter(writer(log, name))),
                 0);

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-class RouteMethodAssert {
+public class RouteMethodAssert {
 
   public static class RouteParameterMatcher {
     private final Iterator<RouteParameter> parameters;

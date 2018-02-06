@@ -14,8 +14,7 @@
 
 ## exports
 
-* {@link TemplateEngine} 
-* {@link View.Engine} 
+* TemplateEngine 
 
 ## usage
 
@@ -30,7 +29,7 @@
   // Or Thymeleaf API:
   get("/thymeleaf-api", () -> {
     TemplateEngine engine = require(TemplateEngine.class);
-    engine.processs("template", ...);
+    engine.process("template", ...);
   });
 }
 ```

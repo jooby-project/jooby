@@ -204,15 +204,13 @@
 package org.jooby.pac4j;
 
 import static java.util.Objects.requireNonNull;
-
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-
 import org.jooby.Session;
 import org.jooby.internal.pac4j.AuthSerializer;
 import org.pac4j.core.profile.CommonProfile;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import java.util.Optional;
 
 /**
  * An {@link AuthStore} on top of the {@link Session}. This is the default {@link AuthStore}.
@@ -221,6 +219,7 @@ import org.pac4j.core.profile.CommonProfile;
  * @since 0.6.0
  * @param <U> User profile to work with.
  */
+@Deprecated
 public class AuthSessionStore<U extends CommonProfile> implements AuthStore<U> {
 
   public final static String USER_PROFILE = "pac4jUserProfile";

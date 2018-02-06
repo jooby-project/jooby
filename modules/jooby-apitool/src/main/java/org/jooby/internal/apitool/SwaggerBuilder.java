@@ -208,7 +208,11 @@ import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.TypeLiteral;
+import io.swagger.converter.ModelConverter;
+import io.swagger.converter.ModelConverterContext;
 import io.swagger.converter.ModelConverters;
+import io.swagger.jackson.AbstractModelConverter;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
 import io.swagger.models.Path;
@@ -224,14 +228,18 @@ import io.swagger.models.parameters.PathParameter;
 import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.parameters.SerializableParameter;
 import io.swagger.models.properties.ArrayProperty;
+import io.swagger.models.properties.FileProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.PropertyBuilder;
 import io.swagger.models.properties.PropertyBuilder.PropertyId;
+import io.swagger.util.Json;
 import org.jooby.MediaType;
+import org.jooby.Upload;
 import org.jooby.apitool.RouteMethod;
 import org.jooby.apitool.RouteParameter;
 import org.jooby.apitool.RouteResponse;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.EnumMap;
 import java.util.Iterator;
@@ -254,6 +262,30 @@ public class SwaggerBuilder {
     return segments.hasNext() ? segments.next() : "";
   };
   private Function<RouteMethod, String> tagger = TAG_PROVIDER;
+
+  static {
+    /** Convert Upload to Swagger FileProperty: */
+    ModelConverters.getInstance().addConverter(new AbstractModelConverter(Json.mapper()) {
+      @Override public Property resolveProperty(Type type, ModelConverterContext context,
+          Annotation[] annotations, Iterator<ModelConverter> chain) {
+        try {
+          TypeLiteral<?> typeLiteral = TypeLiteral.get(type);
+          String typeName = typeLiteral.getType().getTypeName();
+          if (typeName.equals("java.util.List<org.jooby.Upload>") ||
+              typeName.equals("java.util.Set<org.jooby.Upload>")) {
+            return new ArrayProperty(new FileProperty());
+          }
+          if (typeName.equals(Upload.class.getName())) {
+            return new FileProperty();
+          }
+          return super.resolveProperty(type, context, annotations, chain);
+        } catch (IllegalArgumentException x) {
+          // shhh
+          return super.resolveProperty(type, context, annotations, chain);
+        }
+      }
+    });
+  }
 
   public SwaggerBuilder() {
   }

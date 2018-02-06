@@ -213,8 +213,23 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.multibindings.OptionalBinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.jooby.*;
-import org.jooby.internal.pac4j.*;
+import static java.util.Objects.requireNonNull;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.Route;
+import org.jooby.Router;
+import org.jooby.Session;
+import org.jooby.internal.pac4j.AuthCallback;
+import org.jooby.internal.pac4j.AuthContext;
+import org.jooby.internal.pac4j.AuthFilter;
+import org.jooby.internal.pac4j.AuthLogout;
+import org.jooby.internal.pac4j.AuthorizerFilter;
+import org.jooby.internal.pac4j.BasicAuth;
+import org.jooby.internal.pac4j.ClientType;
+import org.jooby.internal.pac4j.ClientsProvider;
+import org.jooby.internal.pac4j.ConfigProvider;
+import org.jooby.internal.pac4j.FormAuth;
+import org.jooby.internal.pac4j.FormFilter;
 import org.jooby.scope.Providers;
 import org.jooby.scope.RequestScoped;
 import org.pac4j.core.authorization.authorizer.Authorizer;
@@ -234,12 +249,15 @@ import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.*;
 
 /**
  * <h1>pac4j module</h1>
@@ -447,6 +465,7 @@ import static java.util.Objects.*;
  * @author edgar
  * @since 0.6.0
  */
+@Deprecated
 public class Auth implements Jooby.Module {
 
   /**

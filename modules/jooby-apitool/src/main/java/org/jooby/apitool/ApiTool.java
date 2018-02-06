@@ -665,11 +665,12 @@ public class ApiTool implements Jooby.Module {
 
     binder.bind(ApiParser.class).toInstance(parser);
 
+    String contextPath = conf.getString("application.path");
     if (swaggerOptions != null) {
-      swagger(env.router(), swaggerOptions, swagger);
+      swagger(contextPath, env.router(), swaggerOptions, swagger);
     }
     if (ramlOptions != null) {
-      raml(env.router(), ramlOptions, raml);
+      raml(contextPath, env.router(), ramlOptions, raml);
     }
   }
 
@@ -837,7 +838,7 @@ public class ApiTool implements Jooby.Module {
     return this;
   }
 
-  private static void raml(Router router, Options options, Consumer<Raml> configurer)
+  private static void raml(String contextPath, Router router, Options options, Consumer<Raml> configurer)
       throws IOException {
     String api = options.path + "/api.raml";
     /** /api.raml: */
@@ -855,13 +856,15 @@ public class ApiTool implements Jooby.Module {
     if (options.showUI) {
       router.assets(options.path + "/static/**", RAML_STATIC + "{0}");
 
+      String staticPath = Route.normalize(contextPath + options.path);
+      String ramlPath = Route.normalize(contextPath + api);
       String index = readFile(RAML_STATIC + "index.html")
-          .replace("styles/", options.path + "/static/styles/")
-          .replace("scripts/", options.path + "/static/scripts/")
+          .replace("styles/", staticPath + "/static/styles/")
+          .replace("scripts/", staticPath + "/static/scripts/")
           .replace("<raml-initializer></raml-initializer>",
               "<raml-console-loader options=\"{ disableRamlClientGenerator: true, disableThemeSwitcher: true, disableTryIt: "
                   + (!options.tryIt) + " }\" src=\""
-                  + api
+                  + ramlPath
                   + "\"></raml-console-loader>");
       /** API console: */
       router.get(options.path, req -> {
@@ -874,7 +877,7 @@ public class ApiTool implements Jooby.Module {
     }
   }
 
-  private static void swagger(Router router, Options options, Consumer<Swagger> configurer)
+  private static void swagger(String contextPath, Router router, Options options, Consumer<Swagger> configurer)
       throws IOException {
     /** /swagger.json or /swagger.raml: */
     router.get(options.path + "/swagger.json", options.path + "/swagger.yml", req -> {
@@ -897,17 +900,19 @@ public class ApiTool implements Jooby.Module {
       router.assets(staticPath + "**", SWAGGER_STATIC + "{0}");
       router.assets(staticPath + "**", SWAGGER_THEME + "{0}");
 
+      String fullStaticPath = Route.normalize(contextPath + staticPath) + "/";
+      String swaggerJsonPath = Route.normalize(contextPath + options.path) + "/swagger.json";
       String index = readFile(SWAGGER_STATIC + "index.html")
-          .replace("./", staticPath)
+          .replace("./", fullStaticPath)
           .replace("http://petstore.swagger.io/v2/swagger.json\",",
-              options.path + "/swagger.json\", validatorUrl: null,")
+              swaggerJsonPath + "\", validatorUrl: null,")
           .replace("</head>",
               options.tryIt ? "</head>" : "<style> .try-out {display: none;}</style></head>");
 
       router.get(options.path, req -> {
         String page = Optional.ofNullable(req.param("theme").value(options.theme))
             .map(theme -> index.replace("<style>", "<link rel=\"stylesheet\" "
-                + "type=\"text/css\" href=\"" + staticPath + "theme-" + theme.toLowerCase()
+                + "type=\"text/css\" href=\"" + fullStaticPath + "theme-" + theme.toLowerCase()
                 + ".css\">\n<style>"))
             .orElse(index);
         return Results.ok(page).type(MediaType.html);

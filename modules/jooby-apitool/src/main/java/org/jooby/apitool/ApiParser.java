@@ -325,8 +325,7 @@ public class ApiParser {
     customizer.entrySet().forEach(it ->
         result.stream()
             .filter(it.getKey())
-            .findFirst()
-            .ifPresent(it.getValue())
+            .forEach(it.getValue())
     );
 
     return result;

@@ -7,6 +7,11 @@ import org.junit.Test;
 
 import com.typesafe.config.ConfigFactory;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class JSassTest {
 
   @Test
@@ -125,7 +130,7 @@ public class JSassTest {
                 "}\n",
             ConfigFactory.empty()));
   }
-
+  
   @Test
   public void importDirectiveRelative() throws Exception {
     assertEquals(".relative {\n" +
@@ -143,6 +148,28 @@ public class JSassTest {
                 "  color: $primary-color;\n" +
                 "}\n",
             ConfigFactory.empty()));
+  }
+  
+  @Test
+  public void importDirectiveFromDir() throws Exception {
+    Sass sass = new Sass();
+    // manually create a URLClassLoader that points to the resources directory, normally handled by the AssetClassLoader class
+    Path dirPath = Paths.get(JSassTest.class.getResource("/relative/nested/bar.scss").toURI()).getParent();
+    ClassLoader classLoader = new URLClassLoader(new URL[]{dirPath.toUri().toURL()});
+    String result = sass.process("/styles.scss",
+        "@import 'bar';\n\n" +
+            "\n" +
+            "body {\n" +
+            "  color: blue;\n" +
+            "}\n",
+        ConfigFactory.empty(), classLoader);
+    
+    assertEquals(".bar {\n" +
+            "  color: green; }\n" +
+            "\n" +
+            "body {\n" +
+            "  color: blue; }\n",
+        result);
   }
 
   @Test

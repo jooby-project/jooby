@@ -3299,7 +3299,9 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return default properties.
    */
   private Config defaultConfig(final Config conf, final String cpath) {
-    String ns = getClass().getPackage().getName();
+    String ns = Optional.ofNullable(getClass().getPackage())
+        .map(Package::getName)
+        .orElse("default." + getClass().getName());
     String[] parts = ns.split("\\.");
     String appname = parts[parts.length - 1];
 
@@ -3333,7 +3335,9 @@ public class Jooby implements Router, LifeCycle, Registry {
     }
 
     int processors = Runtime.getRuntime().availableProcessors();
-    String version = Optional.ofNullable(getClass().getPackage().getImplementationVersion())
+    String version = Optional.ofNullable(getClass().getPackage())
+        .map(Package::getImplementationVersion)
+        .filter(Objects::nonNull)
         .orElse("0.0.0");
     Config defs = ConfigFactory.parseResources(Jooby.class, "jooby.conf")
         .withValue("contextPath", fromAnyRef(cpath.equals("/") ? "" : cpath))

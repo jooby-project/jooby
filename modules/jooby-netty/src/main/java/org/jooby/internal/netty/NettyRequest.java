@@ -203,36 +203,14 @@
  */
 package org.jooby.internal.netty;
 
-import com.google.common.escape.Escapers;
-import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.net.URLDecoder;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.jooby.MediaType;
-import org.jooby.Router;
-import org.jooby.Sse;
-import org.jooby.spi.NativePushPromise;
-import org.jooby.spi.NativeRequest;
-import org.jooby.spi.NativeUpload;
-import org.jooby.spi.NativeWebSocket;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.Channel;
+import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
@@ -252,6 +230,23 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCounted;
+import org.jooby.MediaType;
+import org.jooby.Router;
+import org.jooby.Sse;
+import org.jooby.spi.NativePushPromise;
+import org.jooby.spi.NativeRequest;
+import org.jooby.spi.NativeUpload;
+import org.jooby.spi.NativeWebSocket;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class NettyRequest implements NativeRequest {
 
@@ -265,7 +260,8 @@ public class NettyRequest implements NativeRequest {
       .newInstance(NettyRequest.class.getName() + ".async");
 
   public static final AttributeKey<Boolean> SECURE = AttributeKey
-      .newInstance(NettyRequest.class.getName() + ".secure");;
+      .newInstance(NettyRequest.class.getName() + ".secure");
+  ;
 
   private HttpRequest req;
 
@@ -292,7 +288,7 @@ public class NettyRequest implements NativeRequest {
     this.req = req;
     this.tmpdir = tmpdir;
     this.query = new QueryStringDecoder(req.uri());
-    this.path =  Router.decode(query.path());
+    this.path = Router.decode(query.path());
     this.wsMaxMessageSize = wsMaxMessageSize;
     Channel channel = ctx.channel();
     channel.attr(ASYNC).set(false);
@@ -480,15 +476,11 @@ public class NettyRequest implements NativeRequest {
           };
           while (hasNext.apply(decoder)) {
             HttpData field = (HttpData) decoder.next();
-            try {
-              String name = field.getName();
-              if (field.getHttpDataType() == HttpDataType.FileUpload) {
-                files.put(name, new NettyUpload((FileUpload) field, tmpdir));
-              } else {
-                params.put(name, field.getString());
-              }
-            } finally {
-              field.release();
+            String name = field.getName();
+            if (field.getHttpDataType() == HttpDataType.FileUpload) {
+              files.put(name, new NettyUpload((FileUpload) field, tmpdir));
+            } else {
+              params.put(name, field.getString());
             }
           }
         } finally {

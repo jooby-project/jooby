@@ -42,11 +42,13 @@
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-core</artifactId>
+      <version>${pac4j.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-http</artifactId>
+      <version>${pac4j.version}</version>
     </dependency>
 
     <!-- Test dependencies -->
@@ -54,36 +56,42 @@
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-oauth</artifactId>
       <scope>test</scope>
+      <version>${pac4j.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-cas</artifactId>
       <scope>test</scope>
+      <version>${pac4j.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-openid</artifactId>
       <scope>test</scope>
+      <version>${pac4j.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-saml</artifactId>
       <scope>test</scope>
+      <version>${pac4j.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-gae</artifactId>
       <scope>test</scope>
+      <version>${pac4j.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-oidc</artifactId>
       <scope>test</scope>
+      <version>${pac4j.version}</version>
     </dependency>
 
     <dependency>

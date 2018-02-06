@@ -338,8 +338,31 @@ public abstract class AssetProcessor extends AssetOptions {
   }
 
   public abstract boolean matches(final MediaType type);
-
+  
+  /**
+   * Method that processes the provided source and returns the processed contents. 
+   *
+   * @param filename name of the file
+   * @param source   contents of the file
+   * @param conf     application configuration
+   * @return the processed file contents
+   * @throws Exception if any error occurred
+   */
   public abstract String process(String filename, String source, Config conf) throws Exception;
+  
+  /**
+   * Method that processes the provided source and returns the processed contents, with access to the ClassLoader.
+   *
+   * @param filename name of the file
+   * @param source   contents of the file
+   * @param conf     application configuration
+   * @param loader   loader to use if any additional files need to be loaded from disk
+   * @return the processed file contents
+   * @throws Exception if any error occurred
+   */
+  public String process(String filename, String source, Config conf, ClassLoader loader) throws Exception {
+    return process(filename, source, conf);
+  }
 
   @Override
   public String toString() {
