@@ -61,7 +61,7 @@
   <swagger-ui-themes.version>3.0.0</swagger-ui-themes.version>
   <api-console.version>3.0.17</api-console.version>
   <commons-lang3.version>3.4</commons-lang3.version>
-  <snakeyaml.version>1.15</snakeyaml.version>
+  <snakeyaml.version>1.19</snakeyaml.version>
   <spymemcached.version>2.12.0</spymemcached.version>
   <aws-java-sdk.version>1.11.43</aws-java-sdk.version>
   <commons-email.version>1.4</commons-email.version>
