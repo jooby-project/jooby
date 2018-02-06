@@ -203,23 +203,21 @@
  */
 package org.jooby;
 
+import com.google.common.base.Preconditions;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import static java.util.Objects.requireNonNull;
-
-import java.io.Closeable;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.WebSocketImpl;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
-
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.Closeable;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * <h1>WebSockets</h1>
@@ -975,4 +973,54 @@ public interface WebSocket extends Closeable, Registry {
    * @throws Exception If something goes wrong.
    */
   void broadcast(Object data, SuccessCallback success, OnError err) throws Exception;
+
+  /**
+   * Set a web socket attribute.
+   *
+   * @param name Attribute name.
+   * @param value Attribute value.
+   * @return This socket.
+   */
+  @Nullable
+  WebSocket set(String name, Object value);
+
+  /**
+   * Get a web socket attribute.
+   *
+   * @param name Attribute name.
+   * @return Attribute value.
+   */
+  <T> T get(String name);
+
+  /**
+   * Get a web socket attribute or empty value.
+   *
+   * @param name Attribute name.
+   * @param <T> Attribute type.
+   * @return Attribute value or empty value.
+   */
+  <T> Optional<T> ifGet(String name);
+
+  /**
+   * Clear/remove a web socket attribute.
+   *
+   * @param name Attribute name.
+   * @param <T> Attribute type.
+   * @return Attribute value (if any).
+   */
+  <T> Optional<T> unset(String name);
+
+  /**
+   * Clear/reset all the web socket attributes.
+   *
+   * @return This socket.
+   */
+  WebSocket unset();
+
+  /**
+   * Web socket attributes.
+   *
+   * @return Web socket attributes.
+   */
+  Map<String, Object> attributes();
 }

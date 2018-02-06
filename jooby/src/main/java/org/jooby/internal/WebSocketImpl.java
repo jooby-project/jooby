@@ -220,6 +220,7 @@ import org.jooby.funzy.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -279,6 +280,8 @@ public class WebSocketImpl implements WebSocket {
   private List<Renderer> renderers;
 
   private volatile boolean open;
+
+  private ConcurrentMap<String, Object> attributes = new ConcurrentHashMap<>();
 
   public WebSocketImpl(final OnOpen handler, final String path,
       final String pattern, final Map<Object, String> vars,
@@ -469,6 +472,32 @@ public class WebSocketImpl implements WebSocket {
   @Override
   public void onClose(final WebSocket.OnClose callback) throws Exception {
     this.closeCallback = requireNonNull(callback, "A callback is required.");
+  }
+
+  @Override public <T> T get(String name) {
+    return (T) ifGet(name).orElseThrow(() -> new NullPointerException(name));
+  }
+
+  @Override public <T> Optional<T> ifGet(String name) {
+    return Optional.ofNullable((T) attributes.get(name));
+  }
+
+  @Nullable @Override public WebSocket set(String name, Object value) {
+    attributes.put(name, value);
+    return this;
+  }
+
+  @Override public <T> Optional<T> unset(String name) {
+    return Optional.ofNullable((T) attributes.remove(name));
+  }
+
+  @Override public WebSocket unset() {
+    attributes.clear();
+    return this;
+  }
+
+  @Override public Map<String, Object> attributes() {
+    return Collections.unmodifiableMap(attributes);
   }
 
   private void handleErr(final Throwable cause) {
