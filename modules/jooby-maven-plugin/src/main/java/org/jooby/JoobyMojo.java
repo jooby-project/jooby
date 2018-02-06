@@ -498,7 +498,7 @@ public class JoobyMojo extends AbstractMojo {
     synchronized (LOCK) {
       Map<String, String> xml = new HashMap<>();
       XML_PROPS.forEach(p -> xml.put(p, (String) System.getProperties().remove(p)));
-      task.accept("compile");
+      task.accept("process-classes");
       xml.forEach((k, v) -> {
         if (v != null) {
           System.setProperty(k, v);
