@@ -662,7 +662,7 @@ public class RequestImpl implements Request {
   }
 
   private Session setSession(final SessionManager sm, final Response rsp, final Session gsession) {
-    Session rsession = new RequestScopedSession(sm, rsp, gsession, this::destroySession);
+    Session rsession = new RequestScopedSession(sm, rsp, (SessionImpl) gsession, this::destroySession);
     reqSession = Optional.of(rsession);
     return rsession;
   }

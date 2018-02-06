@@ -217,13 +217,13 @@
  */
 package org.jooby.internal;
 
-import java.util.Map;
-
 import org.jooby.Mutant;
 import org.jooby.Response;
 import org.jooby.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 public class RequestScopedSession implements Session {
 
@@ -234,12 +234,12 @@ public class RequestScopedSession implements Session {
 
   private Response rsp;
 
-  private Session session;
+  private SessionImpl session;
 
   private Runnable resetSession;
 
   public RequestScopedSession(final SessionManager sm, final Response rsp,
-      final Session session, final Runnable resetSession) {
+      final SessionImpl session, final Runnable resetSession) {
     this.sm = sm;
     this.rsp = rsp;
     this.session = session;
@@ -338,12 +338,20 @@ public class RequestScopedSession implements Session {
   }
 
   @Override public boolean isDestroyed() {
-    return session == null || session.isDestroyed();
+    if (session == null) {
+      return true;
+    }
+    return session.isDestroyed();
+  }
+
+  @Override public Session renewId() {
+    // Ignore client sessions
+    sm.renewId(session, rsp);
+    return this;
   }
 
   @Override
   public String toString() {
-    notDestroyed();
     return session.toString();
   }
 

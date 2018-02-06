@@ -217,19 +217,17 @@
  */
 package org.jooby.internal;
 
+import com.google.common.collect.ImmutableList;
 import static java.util.Objects.requireNonNull;
+import org.jooby.Mutant;
+import org.jooby.Session;
+import org.jooby.internal.parser.ParserExecutor;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import org.jooby.Mutant;
-import org.jooby.Session;
-import org.jooby.internal.parser.ParserExecutor;
-
-import com.google.common.collect.ImmutableList;
 
 public class SessionImpl implements Session {
 
@@ -410,6 +408,16 @@ public class SessionImpl implements Session {
   void markAsSaved() {
     isNew = false;
     dirty = false;
+  }
+
+  @Override public Session renewId() {
+    // NOOP
+    return this;
+  }
+
+  public void renewId(String newId) {
+    this.sessionId = newId;
+    isNew = true;
   }
 
   public void touch() {

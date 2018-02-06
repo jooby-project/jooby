@@ -217,11 +217,7 @@
  */
 package org.jooby.internal;
 
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
+import com.typesafe.config.Config;
 import org.jooby.Cookie;
 import org.jooby.Request;
 import org.jooby.Response;
@@ -230,7 +226,9 @@ import org.jooby.internal.parser.ParserExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.typesafe.config.Config;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class ServerSessionManager implements SessionManager {
@@ -305,6 +303,15 @@ public class ServerSessionManager implements SessionManager {
     } catch (Exception ex) {
       log.error("Unable to create/update HTTP session", ex);
     }
+  }
+
+  @Override public void renewId(Session session, Response rsp) {
+    destroy(session);
+
+    ((SessionImpl) session).renewId(store.generateID());
+    Cookie.Definition cookie = cookie(session);
+    log.debug("  renewing cookie: {}", cookie);
+    rsp.cookie(cookie);
   }
 
   @Override

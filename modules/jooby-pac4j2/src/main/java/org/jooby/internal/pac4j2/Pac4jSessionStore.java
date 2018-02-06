@@ -216,8 +216,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Pac4jSessionStore implements SessionStore<WebContext> {
   private static final String PREFIX = "b64~";
@@ -267,15 +265,8 @@ public class Pac4jSessionStore implements SessionStore<WebContext> {
   }
 
   @Override public boolean renewSession(WebContext ctx) {
-    return req.ifSession()
-        .map(session -> {
-          final Map<String, String> attributes = new HashMap<>(session.attributes());
-          session.destroy();
-          final Session newSession = req.session();
-          attributes.forEach(newSession::set);
-          return true;
-        })
-        .orElse(false);
+    req.ifSession().ifPresent(Session::renewId);
+    return true;
   }
 
   static final Object strToObject(final String value) {

@@ -220,4 +220,6 @@ public interface SessionManager {
 
   Cookie.Definition cookie();
 
+  void renewId(Session session, Response rsp);
+
 }

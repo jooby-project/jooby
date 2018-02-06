@@ -1,6 +1,5 @@
 package org.jooby.internal.pac4j2;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import static org.easymock.EasyMock.expect;
 import org.jooby.Mutant;
@@ -12,7 +11,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.pac4j.core.context.WebContext;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class Pac4jSessionStoreTest {
@@ -159,15 +157,7 @@ public class Pac4jSessionStoreTest {
         .expect(ifSession(true))
         .expect(unit -> {
           Session session = unit.get(Session.class);
-          Map<String, String> attributes = ImmutableMap.of("foo", "bar");
-          expect(session.attributes()).andReturn(attributes);
-          session.destroy();
-
-          Session newSession = unit.mock(Session.class);
-          expect(newSession.set("foo", "bar")).andReturn(newSession);
-
-          Request req = unit.get(Request.class);
-          expect(req.session()).andReturn(newSession);
+          expect(session.renewId()).andReturn(session);
         })
         .run(unit -> {
           Pac4jSessionStore session = new Pac4jSessionStore(unit.get(Request.class));
@@ -181,7 +171,7 @@ public class Pac4jSessionStoreTest {
         .expect(ifSession(false))
         .run(unit -> {
           Pac4jSessionStore session = new Pac4jSessionStore(unit.get(Request.class));
-          assertEquals(false, session.renewSession(unit.get(WebContext.class)));
+          assertEquals(true, session.renewSession(unit.get(WebContext.class)));
         });
   }
 

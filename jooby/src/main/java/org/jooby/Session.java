@@ -203,17 +203,15 @@
  */
 package org.jooby;
 
+import com.google.common.io.BaseEncoding;
 import static java.util.Objects.requireNonNull;
 
+import javax.annotation.Nonnull;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import com.google.common.io.BaseEncoding;
-
-import javax.annotation.Nonnull;
 
 /**
  * <p>
@@ -762,4 +760,10 @@ public interface Session {
    * @return True if the session was {@link #destroy()}.
    */
   boolean isDestroyed();
+
+  /**
+   * Assign a new ID to the existing session.
+   * @return This session.
+   */
+  Session renewId();
 }

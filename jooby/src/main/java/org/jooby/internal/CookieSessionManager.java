@@ -282,6 +282,10 @@ public class CookieSessionManager implements SessionManager {
     return new Definition(cookie);
   }
 
+  @Override public void renewId(Session session, Response rsp) {
+    // NOOP
+  }
+
   private Map<String, String> attributes(final String raw) {
     String unsigned = Cookie.Signature.unsign(raw, secret);
     return Cookie.URL_DECODER.apply(unsigned);
