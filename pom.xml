@@ -2978,7 +2978,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jackson.version>2.9.2</jackson.version>
     <undertow.version>1.4.20.Final</undertow.version>
     <servlet.version>3.1.0</servlet.version>
-    <jetty.version>9.4.7.v20170914</jetty.version>
+    <jetty.version>9.4.8.v20171121</jetty.version>
     <netty.version>4.1.20.Final</netty.version>
     <boringssl.version>2.0.7.Final</boringssl.version>
     <javassist.version>3.20.0-GA</javassist.version>
