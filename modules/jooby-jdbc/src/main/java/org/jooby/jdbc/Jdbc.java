@@ -204,15 +204,13 @@
 package org.jooby.jdbc;
 
 import com.google.common.base.CharMatcher;
-
 import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
@@ -220,9 +218,7 @@ import com.typesafe.config.ConfigValueFactory;
 import com.typesafe.config.ConfigValueType;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import static java.util.Objects.requireNonNull;
-
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.funzy.Throwing;
@@ -240,6 +236,7 @@ import java.util.Properties;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * <h1>jdbc</h1>
@@ -578,6 +575,7 @@ public final class Jdbc implements Jooby.Module {
       return Try.apply(() -> source.getConfig("databases." + db))
           .map(it -> {
             // Rewrite embedded db
+            it = it.getConfig("dataSource");
             Config dbtree = it.withValue("url", ConfigValueFactory.fromAnyRef(
                 it.getString("url").replace("{mem.seed}", System.currentTimeMillis() + "")));
             // write embedded with current key
@@ -605,8 +603,7 @@ public final class Jdbc implements Jooby.Module {
       props.setProperty(propertyName, propertyValue);
     };
 
-    Throwing.Function<String, Config> dbconf = Throwing.<String, Config>throwingFunction(
-        path -> conf.getConfig(path))
+    Throwing.Function<String, Config> dbconf = Throwing.<String, Config>throwingFunction(path -> conf.getConfig(path))
         .orElse(ConfigFactory.empty());
 
     Config $hikari = dbconf.apply(key + ".hikari")
@@ -614,7 +611,7 @@ public final class Jdbc implements Jooby.Module {
         .withFallback(dbconf.apply("hikari"));
 
     // figure it out db type.
-    dbtype = dbtype(url, conf);
+    dbtype = dbtype(url);
 
     /**
      * dump properties from less to higher precedence
@@ -623,8 +620,9 @@ public final class Jdbc implements Jooby.Module {
      * # db.* -> dataSource.*
      * # hikari.* -> * (no prefix)
      */
-    dbtype.ifPresent(type -> dbconf(conf, type)
-        .entrySet().forEach(entry -> dumper.accept("dataSource.", entry)));
+    Stream.of(url.split(":"))
+        .forEach(type -> dbconf(conf, type)
+            .entrySet().forEach(entry -> dumper.accept("", entry)));
 
     dbconf.apply(key)
         .withoutPath("hikari")
@@ -632,15 +630,10 @@ public final class Jdbc implements Jooby.Module {
 
     $hikari.entrySet().forEach(entry -> dumper.accept("", entry));
 
-    String dataSourceClassName = props.getProperty("dataSourceClassName");
-    if (Strings.isNullOrEmpty(dataSourceClassName)) {
-      // adjust dataSourceClassName when missing
-      dataSourceClassName = props.getProperty("dataSource.dataSourceClassName");
-      props.setProperty("dataSourceClassName", dataSourceClassName);
+    if (props.containsKey("driverClassName")) {
+      props.remove("dataSourceClassName");
+      props.setProperty("jdbcUrl", url);
     }
-
-    // remove dataSourceClassName under dataSource
-    props.remove("dataSource.dataSourceClassName");
     // set pool name
     props.setProperty("poolName", dbtype.map(type -> type + "." + db).orElse(db));
 
@@ -653,17 +646,21 @@ public final class Jdbc implements Jooby.Module {
 
   @SuppressWarnings("unchecked")
   private Config dbconf(final Config conf, final String type) {
-    String dbtype = "databases." + type;
-    ConfigValue value = conf.getValue(dbtype);
-    if (value.valueType() == ConfigValueType.OBJECT) {
-      return ((ConfigObject) value).toConfig();
+    try {
+      String dbtype = "databases." + type;
+      ConfigValue value = conf.getValue(dbtype);
+      if (value.valueType() == ConfigValueType.OBJECT) {
+        return ((ConfigObject) value).toConfig();
+      }
+      List<Config> list = (List<Config>) conf.getConfigList(dbtype);
+      ClassLoader loader = getClass().getClassLoader();
+      return list.stream()
+          .filter(it -> dataSourcePresent(loader, it.getString("dataSourceClassName")))
+          .findFirst()
+          .orElse(list.get(0));
+    } catch (ConfigException.Missing | ConfigException.BadPath x) {
+      return ConfigFactory.empty();
     }
-    List<Config> list = (List<Config>) conf.getConfigList(dbtype);
-    ClassLoader loader = getClass().getClassLoader();
-    return list.stream()
-        .filter(it -> dataSourcePresent(loader, it.getString("dataSourceClassName")))
-        .findFirst()
-        .orElse(list.get(0));
   }
 
   private boolean dataSourcePresent(final ClassLoader loader, final String className) {
@@ -684,9 +681,9 @@ public final class Jdbc implements Jooby.Module {
     }).recover(CCE::apply).get());
   }
 
-  private Optional<String> dbtype(final String url, final Config config) {
+  private Optional<String> dbtype(final String url) {
     String type = Arrays.stream(url.toLowerCase().split(":"))
-        .filter(token -> !(token.equals("jdbc") || token.equals("jtds")))
+        .filter(token -> !(token.equals("jdbc") || token.equals("jtds")|| token.equals("log4jdbc")))
         .findFirst()
         .get();
 
