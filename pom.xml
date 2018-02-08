@@ -3040,7 +3040,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <ebean-maven-plugin.version>10.1.7</ebean-maven-plugin.version>
     <akka.version>2.4.19</akka.version>
     <yuicompressor.version>2.4.8</yuicompressor.version>
-    <closure-compiler.version>v20150901</closure-compiler.version>
+    <closure-compiler.version>v20180204</closure-compiler.version>
     <jruby.version>9.0.1.0</jruby.version>
     <j2v8.version>4.6.0</j2v8.version>
     <metrics.version>3.1.2</metrics.version>

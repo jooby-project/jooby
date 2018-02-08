@@ -1,20 +1,18 @@
 package org.jooby.assets;
 
+import com.typesafe.config.ConfigFactory;
+import org.jooby.MediaType;
 import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.util.Arrays;
-
-import org.jooby.MediaType;
-import org.junit.Test;
-
-import com.typesafe.config.ConfigFactory;
 
 public class ClosureCompilerTest {
 
   @Test
   public void ws() throws Exception {
-    assertEquals("function xs(longvar){return longvar*2};",
+    assertEquals("'use strict';function xs(longvar){return longvar*2};",
         new ClosureCompiler().set("level", "ws")
             .process("/x.js", "function xs(longvar) {\nreturn longvar * 2;\n}",
                 ConfigFactory.empty()));
@@ -22,24 +20,24 @@ public class ClosureCompilerTest {
 
   @Test
   public void simple() throws Exception {
-    assertEquals("function xs(a){return 2*a};",
+    assertEquals("'use strict';function xs(a){return 2*a};",
         new ClosureCompiler().process("/x.js", "function xs(longvar) {\nreturn longvar * 2;\n}",
             ConfigFactory.empty()));
   }
 
   @Test
   public void advanced() throws Exception {
-    assertEquals("",
+    assertEquals("'use strict';",
         new ClosureCompiler().set("level", "advanced")
             .process("/x.js", "function xs(longvar) {\nreturn longvar * 2;\n}",
                 ConfigFactory.empty()));
 
-    assertEquals("window.a=function(b){return 2*b};",
+    assertEquals("'use strict';window.a=function(b){return 2*b};",
         new ClosureCompiler().set("level", "advanced")
             .process("/x.js", "function xs(longvar) {\nreturn longvar * 2;\n}; window.keep=xs;",
                 ConfigFactory.empty()));
 
-    assertEquals("window.a=function(){return 2*keep};",
+    assertEquals("'use strict';window.a=function(){return 2*keep};",
         new ClosureCompiler()
             .set("level", "advanced")
             .set("externs", Arrays.asList("myextern.js"))
