@@ -3056,7 +3056,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <consul.version>1.0.1</consul.version>
     <groovy.version>2.4.7</groovy.version>
     <thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
-    <rocker.version>0.16.0</rocker.version>
+    <rocker.version>0.23.0</rocker.version>
     <kotlin.version>1.2.21</kotlin.version>
     <requery.version>1.4.0</requery.version>
     <neo4j.runtime.version>3.3.2.52</neo4j.runtime.version>
