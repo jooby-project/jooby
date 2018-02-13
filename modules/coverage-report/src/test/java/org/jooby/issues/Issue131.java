@@ -7,7 +7,7 @@ public class Issue131 extends ServerFeature {
 
   {
 
-    assets("/swagger/ui/**", "/META-INF/resources/webjars/swagger-ui/3.1.6/{0}");
+    assets("/swagger/ui/**", "/META-INF/resources/webjars/swagger-ui/3.9.3/{0}");
 
   }
 
@@ -16,6 +16,6 @@ public class Issue131 extends ServerFeature {
     request()
         .get("/swagger/ui/swagger-ui.js")
         .expect(200)
-        .header("Content-Length", 296283);
+        .header("Content-Length", 349262);
   }
 }

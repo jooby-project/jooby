@@ -203,7 +203,16 @@
  */
 package org.jooby.jade;
 
+import com.google.inject.Binder;
+import com.google.inject.multibindings.Multibinder;
+import com.typesafe.config.Config;
+import de.neuland.jade4j.JadeConfiguration;
+import de.neuland.jade4j.template.ClasspathTemplateLoader;
+import de.neuland.jade4j.template.TemplateLoader;
 import static java.util.Objects.requireNonNull;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.Renderer;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -212,18 +221,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
-import org.jooby.Env;
-import org.jooby.Jooby;
-import org.jooby.Renderer;
-
-import com.google.inject.Binder;
-import com.google.inject.multibindings.Multibinder;
-import com.typesafe.config.Config;
-
-import de.neuland.jade4j.JadeConfiguration;
-import de.neuland.jade4j.template.ClasspathTemplateLoader;
-import de.neuland.jade4j.template.TemplateLoader;
 
 /**
  * <h1>jade</h1>
@@ -251,9 +248,7 @@ import de.neuland.jade4j.template.TemplateLoader;
  * </pre>
  *
  * <p>
- * Templates are loaded from root of classpath: <code>/</code> and must ends with:
- * <code>.jade</code>
- * file extension.
+ * Templates are loaded from root of classpath: <code>/</code>.
  * </p>
  *
  * <h2>req locals</h2>
@@ -279,18 +274,17 @@ import de.neuland.jade4j.template.TemplateLoader;
  *
  * <h2>template loader</h2>
  * <p>
- * Templates are loaded from the root of classpath and must ends with <code>.jade</code>. You can
- * change the extensions too:
+ * Templates are loaded from the root of classpath. Using a custom file extension:
  * </p>
  *
  * <pre>
  * {
- *   use(new Jade(".html"));
+ *   use(new Jade(".jade"));
  * }
  * </pre>
  *
  * <p>
- * Keep in mind if you change it file name must ends with: <code>.html.jade</code>.
+ * Default file extension is: <code>.html</code>.
  * </p>
  *
  * <h2>template cache</h2>
@@ -324,6 +318,10 @@ public class Jade implements Jooby.Module {
     @Override
     public long getLastModified(final String name) throws IOException {
       return loader.getLastModified(name);
+    }
+
+    @Override public String getExtension() {
+      return loader.getExtension();
     }
 
     @Override
@@ -399,7 +397,7 @@ public class Jade implements Jooby.Module {
     sharedVariables.put("xss", new XssHelper(env));
     jadeconf.setSharedVariables(sharedVariables);
 
-    jadeconf.setTemplateLoader(new ClasspathTemplateLoader());
+    jadeconf.setTemplateLoader(new ClasspathTemplateLoader("UTF-8", suffix));
 
     if (callback != null) {
       callback.accept(jadeconf, conf);

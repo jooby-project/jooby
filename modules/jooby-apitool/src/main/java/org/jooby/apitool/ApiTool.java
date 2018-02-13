@@ -614,7 +614,7 @@ public class ApiTool implements Jooby.Module {
 
   private static final String RAML_STATIC = "/META-INF/resources/webjars/api-console/3.0.17/dist/";
 
-  private static final String SWAGGER_STATIC = "/META-INF/resources/webjars/swagger-ui/3.1.6/";
+  private static final String SWAGGER_STATIC = "/META-INF/resources/webjars/swagger-ui/3.9.3/";
 
   private static final String SWAGGER_THEME = "/META-INF/resources/webjars/swagger-ui-themes/3.0.0/themes/3.x/";
 

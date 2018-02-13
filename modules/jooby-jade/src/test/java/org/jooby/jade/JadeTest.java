@@ -1,35 +1,32 @@
 package org.jooby.jade;
 
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
-import java.io.FileNotFoundException;
-import java.io.Reader;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.jooby.Env;
-import org.jooby.Renderer;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.google.inject.Binder;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
-
 import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.template.ClasspathTemplateLoader;
 import de.neuland.jade4j.template.TemplateLoader;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import org.jooby.Env;
+import org.jooby.Renderer;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.io.FileNotFoundException;
+import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Jade.class, JadeConfiguration.class, Multibinder.class, HashMap.class })
@@ -150,7 +147,8 @@ public class JadeTest {
       jadeConfiguration.setSharedVariables(sharedVariables);
 
       ClasspathTemplateLoader classpathTemplateLoader = unit
-          .mockConstructor(ClasspathTemplateLoader.class);
+          .constructor(ClasspathTemplateLoader.class)
+          .build("UTF-8", suffix);
       jadeConfiguration.setTemplateLoader(classpathTemplateLoader);
       expect(jadeConfiguration.getTemplateLoader()).andReturn(classpathTemplateLoader);
 
