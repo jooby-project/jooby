@@ -212,8 +212,8 @@ import org.eclipse.jetty.websocket.api.WriteCallback;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.OnError;
 import org.jooby.WebSocket.SuccessCallback;
-import org.jooby.spi.NativeWebSocket;
 import org.jooby.funzy.Try;
+import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -293,6 +293,7 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
 
   @Override
   public void terminate() throws IOException {
+    onCloseCallback.accept(1006, Optional.of("Harsh disconnect"));
     session.disconnect();
   }
 

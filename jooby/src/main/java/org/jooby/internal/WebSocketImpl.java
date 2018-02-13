@@ -213,14 +213,15 @@ import org.jooby.Mutant;
 import org.jooby.Renderer;
 import org.jooby.Request;
 import org.jooby.WebSocket;
-import org.jooby.internal.parser.ParserExecutor;
-import org.jooby.spi.NativeWebSocket;
 import org.jooby.funzy.Throwing;
 import org.jooby.funzy.Try;
+import org.jooby.internal.parser.ParserExecutor;
+import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.EOFException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -232,6 +233,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
 
 @SuppressWarnings("unchecked")
 public class WebSocketImpl implements WebSocket {
@@ -242,6 +244,12 @@ public class WebSocketImpl implements WebSocket {
 
   private static final OnClose CLOSE_NOOP = arg -> {
   };
+
+  private static final Predicate<Throwable> RESET_BY_PEER = ConnectionResetByPeer::test;
+
+  private static final Predicate<Throwable> SILENT = RESET_BY_PEER
+      .or(ClosedChannelException.class::isInstance)
+      .or(EOFException.class::isInstance);
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(WebSocket.class);
@@ -502,8 +510,7 @@ public class WebSocketImpl implements WebSocket {
 
   private void handleErr(final Throwable cause) {
     Try.run(() -> {
-      boolean silent = ConnectionResetByPeer.test(cause) || cause instanceof ClosedChannelException;
-      if (silent) {
+      if (SILENT.test(cause)) {
         log.debug("execution of WS" + path() + " resulted in exception", cause);
       } else {
         exceptionCallback.onError(cause);

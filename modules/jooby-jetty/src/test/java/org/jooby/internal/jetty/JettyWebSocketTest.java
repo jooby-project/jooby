@@ -2,9 +2,6 @@ package org.jooby.internal.jetty;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
-
-import java.util.function.Consumer;
-
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.SuspendToken;
 import org.eclipse.jetty.websocket.api.WriteCallback;
@@ -14,6 +11,8 @@ import org.jooby.WebSocket.SuccessCallback;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.slf4j.Logger;
+
+import java.util.function.Consumer;
 
 public class JettyWebSocketTest {
 
