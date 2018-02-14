@@ -14,7 +14,6 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import hbm5.Beer;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
@@ -38,15 +37,14 @@ import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
 import org.jooby.Registry;
+import org.jooby.funzy.Throwing;
 import org.jooby.internal.hbm.GuiceBeanManager;
 import org.jooby.internal.hbm.OpenSessionInView;
 import org.jooby.internal.hbm.ScanEnvImpl;
 import org.jooby.internal.hbm.SessionProvider;
 import org.jooby.internal.hbm.UnitOfWorkProvider;
-import org.jooby.jdbc.Jdbc;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
-import org.jooby.funzy.Throwing;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,7 +57,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.net.URL;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -113,7 +116,6 @@ public class HbmTest {
 
   @Test
   public void newHbm() throws Exception {
-    String url = "jdbc:h2:target/db";
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(env("dev"))
         .expect(bsrb)
@@ -141,6 +143,19 @@ public class HbmTest {
         .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
         .expect(onStart)
         .expect(onStop)
+        .run(unit -> {
+          new Hbm()
+              .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
+        });
+  }
+
+  @Test(expected = NoSuchElementException.class)
+  public void newHbmNoDataSource() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(unit -> {
+          Env env = unit.get(Env.class);
+          expect(env.get(Key.get(DataSource.class, Names.named("db")))).andReturn(Optional.empty());
+        })
         .run(unit -> {
           new Hbm()
               .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
@@ -372,6 +387,45 @@ public class HbmTest {
   }
 
   @Test
+  public void scanViaProperty() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(env("dev"))
+        .expect(bsrb)
+        .expect(ssrb("update"))
+        .expect(applySettins(ImmutableMap.of(
+            AvailableSettings.SESSION_FACTORY_NAME_IS_JNDI, false,
+            AvailableSettings.SCANNER_DISCOVERY, "class",
+            AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "managed")))
+        .expect(applyDataSource)
+        .expect(metadataSources("foo.bar"))
+        .expect(metadataBuilder())
+        .expect(sessionFactoryBuilder("db"))
+        .expect(beanManager())
+        .expect(bind(null, SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
+        .expect(bind(null, EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
+        .expect(sessionProvider())
+        .expect(bind(null, Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
+        .expect(bind(null, EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
+        .expect(unitOfWork())
+        .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(onStart)
+        .expect(onStop)
+        .run(unit -> {
+          new Hbm()
+              .scan()
+              .configure(unit.get(Env.class), config("hbm")
+                      .withValue("hibernate.packagesToScan",
+                          ConfigValueFactory.fromAnyRef(Arrays.asList("foo.bar"))),
+                  unit.get(Binder.class));
+        });
+  }
+
+  @Test
   public void scan() throws Exception {
     String url = "jdbc:h2:target/hbm";
     new MockUnit(Env.class, Config.class, Binder.class)
@@ -526,6 +580,132 @@ public class HbmTest {
         });
   }
 
+  @Test
+  public void doWithRegistry() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class, Integrator.class)
+        .expect(env("prod"))
+        .expect(bsrb)
+        .expect(ssrb("none"))
+        .expect(applySettins(ImmutableMap.of(
+            AvailableSettings.SESSION_FACTORY_NAME_IS_JNDI, false,
+            AvailableSettings.SCANNER_DISCOVERY, "class",
+            AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "managed")))
+        .expect(applyDataSource)
+        .expect(metadataSources())
+        .expect(metadataBuilder())
+        .expect(sessionFactoryBuilder("db"))
+        .expect(beanManager())
+        .expect(bind(null, SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
+        .expect(bind(null, EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
+        .expect(sessionProvider())
+        .expect(bind(null, Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
+        .expect(bind(null, EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
+        .expect(unitOfWork())
+        .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(onStart)
+        .expect(onStop)
+        .expect(unit -> {
+          StandardServiceRegistryBuilder builder = unit.get(StandardServiceRegistryBuilder.class);
+          expect(builder.configure("resourceName")).andReturn(builder);
+        })
+        .run(unit -> {
+          new Hbm()
+              .doWithRegistry((final StandardServiceRegistryBuilder builder) -> {
+                builder.configure("resourceName");
+              })
+              .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
+        });
+  }
+
+  @Test
+  public void doWithSources() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class, Integrator.class)
+        .expect(env("prod"))
+        .expect(bsrb)
+        .expect(ssrb("none"))
+        .expect(applySettins(ImmutableMap.of(
+            AvailableSettings.SESSION_FACTORY_NAME_IS_JNDI, false,
+            AvailableSettings.SCANNER_DISCOVERY, "class",
+            AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "managed")))
+        .expect(applyDataSource)
+        .expect(metadataSources())
+        .expect(metadataBuilder())
+        .expect(sessionFactoryBuilder("db"))
+        .expect(beanManager())
+        .expect(bind(null, SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
+        .expect(bind(null, EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
+        .expect(sessionProvider())
+        .expect(bind(null, Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
+        .expect(bind(null, EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
+        .expect(unitOfWork())
+        .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(onStart)
+        .expect(onStop)
+        .expect(unit -> {
+          MetadataSources builder = unit.get(MetadataSources.class);
+          expect(builder.addPackage("foo.bar")).andReturn(builder);
+        })
+        .run(unit -> {
+          new Hbm()
+              .doWithSources((final MetadataSources builder) -> {
+                builder.addPackage("foo.bar");
+              })
+              .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
+        });
+  }
+
+  @Test
+  public void doWithSessionFactoryBuilder() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class, Integrator.class)
+        .expect(env("prod"))
+        .expect(bsrb)
+        .expect(ssrb("none"))
+        .expect(applySettins(ImmutableMap.of(
+            AvailableSettings.SESSION_FACTORY_NAME_IS_JNDI, false,
+            AvailableSettings.SCANNER_DISCOVERY, "class",
+            AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "managed")))
+        .expect(applyDataSource)
+        .expect(metadataSources())
+        .expect(metadataBuilder())
+        .expect(sessionFactoryBuilder("db"))
+        .expect(beanManager())
+        .expect(bind(null, SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
+        .expect(bind(null, EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
+        .expect(sessionProvider())
+        .expect(bind(null, Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
+        .expect(bind(null, EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
+        .expect(unitOfWork())
+        .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(onStart)
+        .expect(onStop)
+        .expect(unit -> {
+          SessionFactoryBuilder builder = unit.get(SessionFactoryBuilder.class);
+          expect(builder.applyAutoClosing(true)).andReturn(builder);
+        })
+        .run(unit -> {
+          new Hbm()
+              .doWithSessionFactoryBuilder((final SessionFactoryBuilder builder) -> {
+                builder.applyAutoClosing(true);
+              })
+              .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
+        });
+  }
+
   @Test(expected = ClassCastException.class)
   public void genericSetupCallbackShouldReportClassCastException() throws Exception {
     String url = "jdbc:h2:target/hbm";
@@ -605,6 +785,48 @@ public class HbmTest {
           new Hbm()
               .doWithSessionFactory((final SessionFactory bsrb) -> {
                 throw new NullPointerException();
+              })
+              .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
+        });
+  }
+
+  @Test
+  public void doWithSessionFactory() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class, Integrator.class)
+        .expect(env("prod"))
+        .expect(bsrb)
+        .expect(ssrb("none"))
+        .expect(applySettins(ImmutableMap.of(
+            AvailableSettings.SESSION_FACTORY_NAME_IS_JNDI, false,
+            AvailableSettings.SCANNER_DISCOVERY, "class",
+            AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "managed")))
+        .expect(applyDataSource)
+        .expect(metadataSources())
+        .expect(metadataBuilder())
+        .expect(sessionFactoryBuilder("db"))
+        .expect(beanManager())
+        .expect(bind(null, SessionFactory.class))
+        .expect(bind("db", SessionFactory.class))
+        .expect(bind(null, EntityManagerFactory.class))
+        .expect(bind("db", EntityManagerFactory.class))
+        .expect(sessionProvider())
+        .expect(bind(null, Session.class, SessionProvider.class))
+        .expect(bind("db", Session.class, SessionProvider.class))
+        .expect(bind(null, EntityManager.class, SessionProvider.class))
+        .expect(bind("db", EntityManager.class, SessionProvider.class))
+        .expect(unitOfWork())
+        .expect(bind(null, UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(bind("db", UnitOfWork.class, UnitOfWorkProvider.class))
+        .expect(onStart)
+        .expect(onStop)
+        .expect(unit-> {
+          SessionFactory sessionFactory = unit.get(SessionFactory.class);
+          expect(sessionFactory.isClosed()).andReturn(true);
+        })
+        .run(unit -> {
+          new Hbm()
+              .doWithSessionFactory((final SessionFactory factory) -> {
+                factory.isClosed();
               })
               .configure(unit.get(Env.class), config("hbm"), unit.get(Binder.class));
         });

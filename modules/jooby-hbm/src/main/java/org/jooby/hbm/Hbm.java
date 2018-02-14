@@ -247,6 +247,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * <h1>hibernate</h1>
@@ -428,7 +429,8 @@ import java.util.stream.Collectors;
  * }</pre>
  *
  * <p>
- * Which <code>scan</code> the application package, or you can provide where to look:
+ * Which <code>scan</code> the application package defined by <code>hibernate.packagesToScan</code>,
+ * or you can provide where to look:
  * <p>
  *
  * <pre>{@code
@@ -457,7 +459,7 @@ import java.util.stream.Collectors;
  * }</pre>
  *
  * <p>
- * Or via <code>hibernate.*</code> property from your <code>.conf</code> file:
+ * Or via <code>hibernate.*</code> properties from your <code>.conf</code> file:
  * </p>
  *
  * <pre>{@code
@@ -574,13 +576,23 @@ public class Hbm implements Jooby.Module {
   }
 
   /**
-   * Scan the application package (that's the package where you application was defined) and
-   * discover persistent classes (annotated with Entity).
+   * Scan the packages defined by <code>hibernate.packagesToScan</code> property or the application
+   * package (that's the package where you application was defined) and discover persistent classes
+   * (annotated with Entity).
    *
    * @return This module.
    */
   public Hbm scan() {
-    sources.add((m, c) -> m.addPackage(c.getString("application.ns")));
+    sources.add((m, conf) ->
+        Stream.of(conf.getAnyRef("hibernate.packagesToScan"))
+            .flatMap(it -> {
+              if (it instanceof List) {
+                return ((List) it).stream();
+              }
+              return Stream.of(it);
+            })
+            .forEach(it -> m.addPackage(it.toString()))
+    );
     return this;
   }
 
@@ -633,7 +645,8 @@ public class Hbm implements Jooby.Module {
    * @param configurer Configurer callback.
    * @return This module
    */
-  public <T> Hbm doWithBootstrap(final BiConsumer<BootstrapServiceRegistryBuilder, Config> configurer) {
+  public <T> Hbm doWithBootstrap(
+      final BiConsumer<BootstrapServiceRegistryBuilder, Config> configurer) {
     this.bsrb = configurer;
     return this;
   }
@@ -664,7 +677,8 @@ public class Hbm implements Jooby.Module {
    * @param configurer Configurer callback.
    * @return This module
    */
-  public <T> Hbm doWithRegistry(final BiConsumer<StandardServiceRegistryBuilder, Config> configurer) {
+  public <T> Hbm doWithRegistry(
+      final BiConsumer<StandardServiceRegistryBuilder, Config> configurer) {
     this.ssrb = configurer;
     return this;
   }
@@ -727,7 +741,8 @@ public class Hbm implements Jooby.Module {
    * @param configurer Configurer callback.
    * @return This module
    */
-  public <T> Hbm doWithSessionFactoryBuilder(final BiConsumer<SessionFactoryBuilder, Config> configurer) {
+  public <T> Hbm doWithSessionFactoryBuilder(
+      final BiConsumer<SessionFactoryBuilder, Config> configurer) {
     this.sfb = configurer;
     return this;
   }
@@ -821,6 +836,8 @@ public class Hbm implements Jooby.Module {
     Map<Object, Object> $ = new HashMap<>();
     config.getConfig("hibernate")
         .entrySet()
+        .stream()
+        .filter(it -> !it.getKey().equals("packagesToScan"))
         .forEach(e -> $.put("hibernate." + e.getKey(), e.getValue().unwrapped()));
 
     return $;

@@ -151,7 +151,7 @@ Or via `scan`:
 }
 ```
 
-Which ```scan``` the application package, or you can provide where to look:
+Which ```scan``` the application package defined by `hibernate.packagesToScan` property, or you can provide where to look:
 
 
 ```java
