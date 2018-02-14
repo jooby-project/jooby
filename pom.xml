@@ -3072,7 +3072,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jooq.version>3.7.3</jooq.version>
 
     <!-- QueryDSL -->
-    <querydsl.version>4.0.9</querydsl.version>
+    <querydsl.version>4.1.4</querydsl.version>
 
     <!-- javaslang -->
     <javaslang.version>2.0.4</javaslang.version>
