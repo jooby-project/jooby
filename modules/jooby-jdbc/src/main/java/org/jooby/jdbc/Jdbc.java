@@ -206,6 +206,7 @@ package org.jooby.jdbc;
 import com.google.common.base.CharMatcher;
 import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Sets;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
@@ -228,11 +229,13 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -544,21 +547,25 @@ public final class Jdbc implements Jooby.Module {
     HikariDataSource ds = new HikariDataSource(hikariConf);
 
     // bind datasource using dbkey and dbname
-    if (!dbkey.equals(dbname)) {
-      env.serviceKey().generate(DataSource.class, dbkey, k -> {
-        binder.bind(k).toInstance(ds);
-        env.set(k, ds);
-      });
-    }
-    env.serviceKey().generate(DataSource.class, dbname, k -> {
-      binder.bind(k).toInstance(ds);
-      env.set(k, ds);
-    });
+    Set<Key<DataSource>> dskeys = new HashSet<>();
+    Sets.newHashSet(dbkey, dbname).forEach(it ->
+        env.serviceKey().generate(DataSource.class, it, k -> {
+          binder.bind(k).toInstance(ds);
+          env.set(k, ds);
+          dskeys.add(k);
+        })
+    );
+
+    // dbnamekey.url
+    env.set(Key.get(String.class, Names.named(dbkey + ".url")), url);
 
     // db type
     env.set(Key.get(String.class, Names.named(dbkey + ".dbtype")), dbtype.orElse("unknown"));
 
-    // cleanup everything
+    // remove global datasource access once application has been initialized:
+    env.onStarted(() -> dskeys.forEach(env::unset));
+
+    // close datasource on shutdown:
     env.onStop(ds::close);
   }
 
@@ -603,7 +610,8 @@ public final class Jdbc implements Jooby.Module {
       props.setProperty(propertyName, propertyValue);
     };
 
-    Throwing.Function<String, Config> dbconf = Throwing.<String, Config>throwingFunction(path -> conf.getConfig(path))
+    Throwing.Function<String, Config> dbconf = Throwing.<String, Config>throwingFunction(
+        path -> conf.getConfig(path))
         .orElse(ConfigFactory.empty());
 
     Config $hikari = dbconf.apply(key + ".hikari")
@@ -683,7 +691,8 @@ public final class Jdbc implements Jooby.Module {
 
   private Optional<String> dbtype(final String url) {
     String type = Arrays.stream(url.toLowerCase().split(":"))
-        .filter(token -> !(token.equals("jdbc") || token.equals("jtds")|| token.equals("log4jdbc")))
+        .filter(
+            token -> !(token.equals("jdbc") || token.equals("jtds") || token.equals("log4jdbc")))
         .findFirst()
         .get();
 

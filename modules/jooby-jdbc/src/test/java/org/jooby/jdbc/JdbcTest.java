@@ -37,6 +37,7 @@ public class JdbcTest {
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
     expect(env.onStop(unit.capture(Throwing.Runnable.class))).andReturn(env);
+    expect(env.onStarted(unit.capture(Throwing.Runnable.class))).andReturn(env);
   };
 
   private Block mysql = unit -> {
@@ -72,16 +73,18 @@ public class JdbcTest {
         .expect(currentTimeMillis(123))
         .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:mem:123;DB_CLOSE_DELAY=-1", "h2.123",
             "sa", "", false))
-        .expect(unit-> {
+        .expect(unit -> {
           Properties properties = unit.get(Properties.class);
-          expect(properties.setProperty("dataSource.url", "jdbc:h2:mem:{mem.seed};DB_CLOSE_DELAY=-1")).andReturn(null);
+          expect(
+              properties.setProperty("dataSource.url", "jdbc:h2:mem:{mem.seed};DB_CLOSE_DELAY=-1"))
+              .andReturn(null);
           expect(properties.setProperty("dataSource.user", "sa")).andReturn(null);
           expect(properties.setProperty("dataSource.password", "")).andReturn(null);
         })
         .expect(withDriver(false, "jdbc:h2:mem:123;DB_CLOSE_DELAY=-1"))
         .expect(hikariConfig(null))
         .expect(hikariDataSource())
-        .expect(serviceKey("db", "h2"))
+        .expect(serviceKey("db", "h2", "jdbc:h2:mem:123;DB_CLOSE_DELAY=-1"))
         .expect(serviceKey("123"))
         .expect(onStop)
         .run(unit -> {
@@ -114,9 +117,11 @@ public class JdbcTest {
         .expect(currentTimeMillis(123))
         .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:mem:123;DB_CLOSE_DELAY=-1", "h2.123",
             "sa", "", false, false))
-        .expect(unit-> {
+        .expect(unit -> {
           Properties properties = unit.get(Properties.class);
-          expect(properties.setProperty("dataSource.url", "jdbc:h2:mem:{mem.seed};DB_CLOSE_DELAY=-1")).andReturn(null);
+          expect(
+              properties.setProperty("dataSource.url", "jdbc:h2:mem:{mem.seed};DB_CLOSE_DELAY=-1"))
+              .andReturn(null);
           expect(properties.setProperty("dataSource.user", "sa")).andReturn(null);
           expect(properties.setProperty("dataSource.password", "")).andReturn(null);
         })
@@ -127,7 +132,7 @@ public class JdbcTest {
         })
         .expect(hikariConfig(2, null))
         .expect(hikariDataSource())
-        .expect(serviceKey("db", "h2"))
+        .expect(serviceKey("db", "h2", "jdbc:h2:mem:123;DB_CLOSE_DELAY=-1"))
         .expect(serviceKey("123"))
         .expect(onStop)
         .run(unit -> {
@@ -150,7 +155,7 @@ public class JdbcTest {
             "sa", "", false))
         .expect(hikariConfig(null))
         .expect(hikariDataSource())
-        .expect(serviceKey("db", "h2"))
+        .expect(serviceKey("db", "h2", "jdbc:h2:target/jdbctest"))
         .expect(serviceKey("jdbctest"))
         .expect(withDriver(false, "jdbc:h2:target/jdbctest"))
         .expect(onStop)
@@ -196,7 +201,7 @@ public class JdbcTest {
         .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("jdbctest"))
-        .expect(serviceKey("db", "h2"))
+        .expect(serviceKey("db", "h2", "jdbc:h2:target/jdbctest"))
         .expect(onStop)
         .expect(withDriver(false, "jdbc:h2:target/jdbctest"))
         .expect(unit -> {
@@ -232,7 +237,7 @@ public class JdbcTest {
         .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(withDriver(false, "jdbc:mysql://localhost/db"))
-        .expect(serviceKey("db", "mysql"))
+        .expect(serviceKey("db", "mysql", "jdbc:mysql://localhost/db"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -256,7 +261,7 @@ public class JdbcTest {
         .expect(withDriver(false, "jdbc:derby:testdb"))
         .expect(hikariDataSource())
         .expect(serviceKey("testdb"))
-        .expect(serviceKey("db", "derby"))
+        .expect(serviceKey("db", "derby", "jdbc:derby:testdb"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -285,7 +290,7 @@ public class JdbcTest {
         })
         .expect(hikariDataSource())
         .expect(withDriver(false, "jdbc:derby:testdb"))
-        .expect(serviceKey("testdb", "derby"))
+        .expect(serviceKey("testdb", "derby", "jdbc:derby:testdb"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc("jdbc:derby:testdb").configure(unit.get(Env.class), config,
@@ -311,7 +316,7 @@ public class JdbcTest {
         .expect(hikariDataSource())
         .expect(withDriver(false, "jdbc:db2://127.0.0.1:50000/SAMPLE"))
         .expect(serviceKey("SAMPLE"))
-        .expect(serviceKey("db", "db2"))
+        .expect(serviceKey("db", "db2", "jdbc:db2://127.0.0.1:50000/SAMPLE"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -336,7 +341,7 @@ public class JdbcTest {
         .expect(hikariDataSource())
         .expect(withDriver(false, "jdbc:hsqldb:file"))
         .expect(serviceKey("file"))
-        .expect(serviceKey("db", "hsqldb"))
+        .expect(serviceKey("db", "hsqldb", "jdbc:hsqldb:file"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -359,7 +364,7 @@ public class JdbcTest {
             "mariadb.db", null, "", false))
         .expect(hikariConfig(null))
         .expect(hikariDataSource())
-        .expect(serviceKey("db", "mariadb"))
+        .expect(serviceKey("db", "mariadb", "jdbc:mariadb://localhost/db"))
         .expect(withDriver(false, "jdbc:mariadb://localhost/db"))
         .expect(onStop)
         .run(unit -> {
@@ -386,7 +391,7 @@ public class JdbcTest {
         .expect(withDriver(false, "jdbc:mysql://localhost/db"))
         .expect(hikariConfig(null))
         .expect(hikariDataSource())
-        .expect(serviceKey("db", "mysql"))
+        .expect(serviceKey("db", "mysql", "jdbc:mysql://localhost/db"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -405,17 +410,19 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:log4jdbc:mysql://localhost/db",
+        .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource",
+            "jdbc:log4jdbc:mysql://localhost/db",
             "mysql.db", null, "", false))
         .expect(mysql)
         .expect(withDriver(true, "jdbc:log4jdbc:mysql://localhost/db"))
-        .expect(unit-> {
+        .expect(unit -> {
           Properties properties = unit.get(Properties.class);
-          expect(properties.setProperty("driverClassName", "net.sf.log4jdbc.DriverSpy")).andReturn(null);
+          expect(properties.setProperty("driverClassName", "net.sf.log4jdbc.DriverSpy"))
+              .andReturn(null);
         })
         .expect(hikariConfig(null))
         .expect(hikariDataSource())
-        .expect(serviceKey("db", "mysql"))
+        .expect(serviceKey("db", "mysql", "jdbc:log4jdbc:mysql://localhost/db"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -445,10 +452,12 @@ public class JdbcTest {
           Properties props = unit.get(Properties.class);
           expect(props.setProperty("dataSource.cachePrepStmts", "false")).andReturn(null);
         })
-        .expect(withDriver(false, "jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8"))
+        .expect(
+            withDriver(false, "jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8"))
         .expect(hikariConfig(null))
         .expect(hikariDataSource())
-        .expect(serviceKey("db", "mysql"))
+        .expect(serviceKey("db", "mysql",
+            "jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -488,7 +497,7 @@ public class JdbcTest {
         .expect(hikariDataSource())
         .expect(withDriver(false, "jdbc:h2:target/jdbctest"))
         .expect(serviceKey("jdbctest"))
-        .expect(serviceKey("db", "h2"))
+        .expect(serviceKey("db", "h2", "jdbc:h2:target/jdbctest"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -518,7 +527,7 @@ public class JdbcTest {
         .expect(withDriver(false, "jdbc:h2:target/jdbctest"))
         .expect(hikariDataSource())
         .expect(serviceKey("jdbctest"))
-        .expect(serviceKey("db", "h2"))
+        .expect(serviceKey("db", "h2", "jdbc:h2:target/jdbctest"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -548,9 +557,11 @@ public class JdbcTest {
           expect(properties.setProperty("dataSourceClassName", "test.MyDataSource"))
               .andReturn(null);
         })
-        .expect(unit-> {
+        .expect(unit -> {
           Properties properties = unit.get(Properties.class);
-          expect(properties.setProperty("dataSource.url", "jdbc:h2:mem:{mem.seed};DB_CLOSE_DELAY=-1")).andReturn(null);
+          expect(
+              properties.setProperty("dataSource.url", "jdbc:h2:mem:{mem.seed};DB_CLOSE_DELAY=-1"))
+              .andReturn(null);
           expect(properties.setProperty("dataSource.user", "sa")).andReturn(null);
           expect(properties.setProperty("dataSource.password", "")).andReturn(null);
         })
@@ -558,7 +569,7 @@ public class JdbcTest {
         .expect(hikariConfig(null))
         .expect(hikariDataSource())
         .expect(serviceKey("audit"))
-        .expect(serviceKey("db.audit", "h2"))
+        .expect(serviceKey("db.audit", "h2", "jdbc:h2:mem:audit;DB_CLOSE_DELAY=-1"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc("db.audit").configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -584,9 +595,11 @@ public class JdbcTest {
                 "sqlserver.AdventureWorks", null, "", false))
         .expect(hikariConfig(null))
         .expect(hikariDataSource())
-        .expect(withDriver(false, "jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;integratedSecurity=true;"))
+        .expect(withDriver(false,
+            "jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;integratedSecurity=true;"))
         .expect(serviceKey("AdventureWorks"))
-        .expect(serviceKey("db", "sqlserver"))
+        .expect(serviceKey("db", "sqlserver",
+            "jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;integratedSecurity=true;"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -612,7 +625,7 @@ public class JdbcTest {
         .expect(hikariDataSource())
         .expect(withDriver(false, "jdbc:oracle:thin:@myhost:1521:orcl"))
         .expect(serviceKey("orcl"))
-        .expect(serviceKey("db", "oracle"))
+        .expect(serviceKey("db", "oracle", "jdbc:oracle:thin:@myhost:1521:orcl"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -638,7 +651,7 @@ public class JdbcTest {
         .expect(hikariDataSource())
         .expect(withDriver(false, "jdbc:pgsql://server/database"))
         .expect(serviceKey("database"))
-        .expect(serviceKey("db", "pgsql"))
+        .expect(serviceKey("db", "pgsql", "jdbc:pgsql://server/database"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -663,7 +676,7 @@ public class JdbcTest {
         .expect(hikariDataSource())
         .expect(withDriver(false, "jdbc:postgresql://server/database"))
         .expect(serviceKey("database"))
-        .expect(serviceKey("db", "postgresql"))
+        .expect(serviceKey("db", "postgresql", "jdbc:postgresql://server/database"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -688,7 +701,7 @@ public class JdbcTest {
         .expect(hikariDataSource())
         .expect(withDriver(false, "jdbc:jtds:sybase://server/database"))
         .expect(serviceKey("database"))
-        .expect(serviceKey("db", "sybase"))
+        .expect(serviceKey("db", "sybase", "jdbc:jtds:sybase://server/database"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -713,7 +726,7 @@ public class JdbcTest {
         .expect(hikariDataSource())
         .expect(withDriver(false, "jdbc:firebirdsql:host:mydb"))
         .expect(serviceKey("mydb"))
-        .expect(serviceKey("db", "firebirdsql"))
+        .expect(serviceKey("db", "firebirdsql", "jdbc:firebirdsql:host:mydb"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -738,7 +751,7 @@ public class JdbcTest {
         .expect(hikariDataSource())
         .expect(withDriver(false, "jdbc:sqlite:testdb"))
         .expect(serviceKey("testdb"))
-        .expect(serviceKey("db", "sqlite"))
+        .expect(serviceKey("db", "sqlite", "jdbc:sqlite:testdb"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -765,7 +778,7 @@ public class JdbcTest {
         .expect(hikariDataSource())
         .expect(withDriver(false, "jdbc:custom:testdb"))
         .expect(serviceKey("testdb"))
-        .expect(serviceKey("db", "custom"))
+        .expect(serviceKey("db", "custom", "jdbc:custom:testdb"))
         .expect(onStop)
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
@@ -778,11 +791,11 @@ public class JdbcTest {
   }
 
   private Block serviceKey(final String db) {
-    return serviceKey(db, null);
+    return serviceKey(db, null, null);
   }
 
   @SuppressWarnings("unchecked")
-  private Block serviceKey(final String db, String dbtype) {
+  private Block serviceKey(final String db, String dbtype, String url) {
     return unit -> {
       Env env = unit.get(Env.class);
       expect(env.serviceKey()).andReturn(new Env.ServiceKey());
@@ -797,6 +810,9 @@ public class JdbcTest {
       expect(env.set(Key.get(DataSource.class), unit.get(HikariDataSource.class))).andReturn(env);
       expect(env.set(Key.get(DataSource.class, Names.named(db)), unit.get(HikariDataSource.class)))
           .andReturn(env);
+      if (url != null) {
+        expect(env.set(Key.get(String.class, Names.named(db + ".url")), url)).andReturn(env);
+      }
       if (dbtype != null) {
         expect(env.set(Key.get(String.class, Names.named(db + ".dbtype")), dbtype)).andReturn(env);
       }

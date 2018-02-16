@@ -5,16 +5,12 @@ import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValueFactory;
-import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
-import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 import org.jooby.Env;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
-import org.jooby.funzy.Throwing;
 import org.jooq.Configuration;
 import org.jooq.ConnectionProvider;
 import org.jooq.DSLContext;
@@ -31,8 +27,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.inject.Provider;
 import javax.sql.DataSource;
+import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Properties;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({jOOQ.class, DefaultConfiguration.class, DSL.class,
@@ -43,12 +39,9 @@ public class jOOQTest {
   private MockUnit.Block configuration = unit -> {
     Env env = unit.get(Env.class);
     expect(env.serviceKey()).andReturn(new Env.ServiceKey());
-
-    Properties properties = unit.mock(Properties.class);
-    expect(properties.getProperty("url")).andReturn("jdbc:h2:");
+    expect(env.get(Key.get(String.class, Names.named("db.url")))).andReturn(Optional.of("jdbc:h2:mem"));
 
     HikariDataSource ds = unit.registerMock(HikariDataSource.class);
-    expect(ds.getDataSourceProperties()).andReturn(properties);
     expect(env.get(Key.get(DataSource.class, Names.named("db")))).andReturn(Optional.of(ds));
 
     DataSourceConnectionProvider dscp = unit.constructor(DataSourceConnectionProvider.class)
@@ -94,17 +87,36 @@ public class jOOQTest {
   private MockUnit.Block onStop = unit -> {
   };
 
+  private Block dburl = unit -> {
+    Env env = unit.get(Env.class);
+
+  };
+
   @Test
   public void defaults() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(configuration)
         .expect(ctx)
+        .expect(dburl)
         .expect(onStop)
         .run(unit -> {
           new jOOQ()
               .configure(unit.get(Env.class), config(), unit.get(Binder.class));
         }, unit -> {
           unit.captured(Provider.class).iterator().next().get();
+        });
+  }
+
+  @Test(expected = NoSuchElementException.class)
+  public void noDataSource() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(unit -> {
+          Env env = unit.get(Env.class);
+          expect(env.get(Key.get(DataSource.class, Names.named("db")))).andReturn(Optional.empty());
+        })
+        .run(unit -> {
+          new jOOQ()
+              .configure(unit.get(Env.class), config(), unit.get(Binder.class));
         });
   }
 

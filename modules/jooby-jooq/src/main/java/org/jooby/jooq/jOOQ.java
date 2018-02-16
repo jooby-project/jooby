@@ -203,15 +203,10 @@
  */
 package org.jooby.jooq;
 
-import java.util.NoSuchElementException;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
-import javax.inject.Provider;
-import javax.sql.DataSource;
-
+import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
+import com.typesafe.config.Config;
 import com.zaxxer.hikari.HikariDataSource;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
@@ -226,8 +221,12 @@ import org.jooq.impl.DefaultConfiguration;
 import org.jooq.impl.DefaultTransactionProvider;
 import org.jooq.tools.jdbc.JDBCUtils;
 
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
+import javax.inject.Provider;
+import javax.sql.DataSource;
+import java.util.NoSuchElementException;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * <h1>jOOQ</h1>
@@ -356,11 +355,13 @@ public class jOOQ implements Jooby.Module {
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
     Key<DataSource> dskey = Key.get(DataSource.class, Names.named(name));
-    HikariDataSource ds = (HikariDataSource) env.get(dskey)
-        .orElseThrow(() -> new NoSuchElementException("DataSource missing: " + dskey));
+    Supplier<NoSuchElementException> noSuchElement = () -> new NoSuchElementException(
+        "DataSource missing: " + dskey);
+    HikariDataSource ds = (HikariDataSource) env.get(dskey).orElseThrow(noSuchElement);
     Configuration jooqconf = new DefaultConfiguration();
     ConnectionProvider dscp = new DataSourceConnectionProvider(ds);
-    jooqconf.set(JDBCUtils.dialect(ds.getDataSourceProperties().getProperty("url")));
+    jooqconf.set(JDBCUtils.dialect(env.get(Key.get(String.class, Names.named(name + ".url")))
+        .orElseThrow(noSuchElement)));
     jooqconf.set(dscp);
     jooqconf.set(new DefaultTransactionProvider(dscp));
 

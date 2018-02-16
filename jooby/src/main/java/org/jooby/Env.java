@@ -212,6 +212,7 @@ import static java.util.Objects.requireNonNull;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -534,6 +535,10 @@ public interface Env extends LifeCycle {
         return this;
       }
 
+      public <T> T unset(Key<T> key) {
+        return (T) globals.remove(key);
+      }
+
       public <T> Optional<T> get(Key<T> key) {
         T value = (T) globals.get(key);
         return Optional.ofNullable(value);
@@ -769,6 +774,15 @@ public interface Env extends LifeCycle {
   default <T> Env set(Class<T> key, T value) {
     return set(Key.get(key), value);
   }
+
+  /**
+   * Remove a global object.
+   *
+   * @param key Object key.
+   * @param <T> Object type.
+   * @return Object value might be null.
+   */
+  @Nullable <T> T unset(Key<T> key);
 
   /**
    * Get an object by key or empty when missing.

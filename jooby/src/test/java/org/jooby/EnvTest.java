@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -139,6 +140,10 @@ public class EnvTest {
       }
 
       @Override public <T> Optional<T> get(Key<T> key) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Nullable @Override public <T> T unset(Key<T> key) {
         throw new UnsupportedOperationException();
       }
 
