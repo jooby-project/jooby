@@ -3062,7 +3062,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <neo4j.runtime.version>3.3.2.52</neo4j.runtime.version>
     <neo4j.expire.version>3.3.2.51.4</neo4j.expire.version>
     <neo4j.version>3.3.2</neo4j.version>
-    <jcypher.version>3.7.0</jcypher.version>
+    <jcypher.version>3.9.0</jcypher.version>
 
     <!-- config -->
     <ebean.agent.packages>**</ebean.agent.packages>
