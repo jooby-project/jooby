@@ -226,7 +226,6 @@ import org.jooby.funzy.Throwing;
 import org.jooby.funzy.Try;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -406,16 +405,6 @@ import java.util.stream.Stream;
  */
 public final class Jdbc implements Jooby.Module {
 
-  static final Function<Throwable, Void> CCE = x -> {
-    if (x instanceof ClassCastException) {
-      StackTraceElement src = x.getStackTrace()[0];
-      if (src.getFileName() == null || src.getClassName().equals(Jdbc.class.getName())) {
-        return null;
-      }
-    }
-    throw Throwing.sneakyThrow(x);
-  };
-
   public static Function<String, String> DB_NAME = url -> {
     Throwing.Function3<String, String, String, Object[]> indexOf = (str, t1,
         t2) -> {
@@ -444,8 +433,7 @@ public final class Jdbc implements Jooby.Module {
 
   private static final int DEFAULT_POOL_SIZE = 10;
 
-  @SuppressWarnings("rawtypes")
-  private final List<BiConsumer> callback = new ArrayList<>();
+  private BiConsumer<HikariConfig, Config> callback;
 
   protected final String dbref;
 
@@ -471,40 +459,34 @@ public final class Jdbc implements Jooby.Module {
   }
 
   /**
-   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
+   * Apply advanced configuration options:
    *
    * <pre>{@code
    * {
    *   use(new Jdbc()
-   *       .doWith((HikariConfig conf) -> {
-   *         // do with conf
-   *       })
-   *       .doWith((HikariDataSource ds) -> {
-   *         // do with ds
+   *       .doWith((hikari, conf) -> {
+   *         // do with hikari
    *       })
    *   );
    * }
    * }</pre>
    *
    * @param configurer Configurer callback.
-   * @return This module
+   * @return This module.
    */
-  public <T> Jdbc doWith(final BiConsumer<T, Config> configurer) {
-    this.callback.add(requireNonNull(configurer, "Configurer required."));
+  public <T> Jdbc doWith(final BiConsumer<HikariConfig, Config> configurer) {
+    this.callback = requireNonNull(configurer, "Callback required.");
     return this;
   }
 
   /**
-   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
+   * Apply advanced configuration options:
    *
    * <pre>{@code
    * {
    *   use(new Jdbc()
-   *       .doWith((HikariConfig conf) -> {
-   *         // do with conf
-   *       })
-   *       .doWith((HikariDataSource ds) -> {
-   *         // do with ds
+   *       .doWith(hikari -> {
+   *         // do with hikari
    *       })
    *   );
    * }
@@ -513,9 +495,9 @@ public final class Jdbc implements Jooby.Module {
    * @param configurer Configurer callback.
    * @return This module
    */
-  public <T> Jdbc doWith(final Consumer<T> configurer) {
+  public Jdbc doWith(final Consumer<HikariConfig> configurer) {
     requireNonNull(configurer, "Configurer required.");
-    return doWith((final T b, final Config c) -> configurer.accept(b));
+    return doWith((h, c) -> configurer.accept(h));
   }
 
   @Override
@@ -543,7 +525,9 @@ public final class Jdbc implements Jooby.Module {
       props.setProperty("url", url);
     }
 
-    callback(hikariConf, config);
+    if (callback != null) {
+      callback.accept(hikariConf, config);
+    }
     HikariDataSource ds = new HikariDataSource(hikariConf);
 
     // bind datasource using dbkey and dbname
@@ -678,15 +662,6 @@ public final class Jdbc implements Jooby.Module {
     } catch (ClassNotFoundException e) {
       return false;
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  protected void callback(final Object value, final Config conf) {
-    callback.forEach(it -> Try.apply(() -> {
-      it.accept(value, conf);
-      return null;
-      // FIXME: review recover
-    }).recover(CCE::apply).get());
   }
 
   private Optional<String> dbtype(final String url) {

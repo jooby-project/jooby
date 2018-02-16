@@ -170,22 +170,6 @@ public class JdbcTest {
   }
 
   @Test
-  public void cceExceptionInSource() throws Exception {
-    ClassCastException cce = new ClassCastException();
-    StackTraceElement e = new StackTraceElement(Jdbc.class.getName(), "accept", null, 0);
-    cce.setStackTrace(new StackTraceElement[]{e});
-    Jdbc.CCE.apply(cce);
-  }
-
-  @Test
-  public void cceExceptionWithoutSource() throws Exception {
-    ClassCastException cce = new ClassCastException();
-    StackTraceElement e = new StackTraceElement(JdbcTest.class.getName(), "accept", null, 0);
-    cce.setStackTrace(new StackTraceElement[]{e});
-    Jdbc.CCE.apply(cce);
-  }
-
-  @Test
   public void dbWithCallback() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("fs"))
@@ -783,11 +767,6 @@ public class JdbcTest {
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void cceShouldRethrowException() throws Exception {
-    Jdbc.CCE.apply(new IllegalStateException());
   }
 
   private Block serviceKey(final String db) {
