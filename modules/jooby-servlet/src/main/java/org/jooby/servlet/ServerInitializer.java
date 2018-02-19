@@ -203,20 +203,17 @@
  */
 package org.jooby.servlet;
 
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
 import static java.util.Objects.requireNonNull;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.funzy.Throwing;
+import org.jooby.spi.Server;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
-import org.jooby.Env;
-import org.jooby.Jooby;
-import org.jooby.spi.Server;
-
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
 
 public class ServerInitializer implements ServletContextListener {
 
@@ -234,22 +231,12 @@ public class ServerInitializer implements ServletContextListener {
     ServletContext ctx = sce.getServletContext();
     String appClass = ctx.getInitParameter("application.class");
     requireNonNull(appClass, "Context param NOT found: application.class");
-    try {
 
+    Jooby.run(Throwing.throwingSupplier(() -> {
       Jooby app = (Jooby) ctx.getClassLoader().loadClass(appClass).newInstance();
-
-      app.use(ConfigFactory.empty()
-          .withValue("application.path", ConfigValueFactory.fromAnyRef(ctx.getContextPath()))
-          .withValue("server.module", ConfigValueFactory.fromAnyRef(ServletModule.class.getName())));
-
-      app.start();
-
       ctx.setAttribute(Jooby.class.getName(), app);
-
-    } catch (Throwable ex) {
-      throw new IllegalStateException("App didn't to start: " + appClass, ex);
-    }
-
+      return app;
+    }), "application.path=" + ctx.getContextPath(), "server.module=" + ServletModule.class.getName());
   }
 
   @Override

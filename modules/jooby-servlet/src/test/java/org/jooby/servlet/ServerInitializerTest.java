@@ -3,13 +3,12 @@ package org.jooby.servlet;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-
 import org.jooby.Jooby;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
 
 public class ServerInitializerTest {
 
@@ -44,7 +43,7 @@ public class ServerInitializerTest {
   }
 
   @SuppressWarnings({"rawtypes" })
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = ClassNotFoundException.class)
   public void contextInitializedShouldReThrowException() throws Exception {
     new MockUnit(ServletContextEvent.class)
         .expect(

@@ -203,8 +203,16 @@
  */
 package org.jooby.servlet;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.io.ByteStreams;
 import static java.util.Objects.requireNonNull;
+import org.jooby.funzy.Try;
+import org.jooby.spi.NativeResponse;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -214,17 +222,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import javax.servlet.AsyncContext;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.jooby.funzy.Try;
-import org.jooby.spi.NativeResponse;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.ByteStreams;
 
 public class ServletServletResponse implements NativeResponse {
 
@@ -285,17 +282,16 @@ public class ServletServletResponse implements NativeResponse {
 
   @Override
   public void send(final FileChannel file) throws Exception {
-    try (FileChannel src = file) {
+    Try.of(file).run(src -> {
       WritableByteChannel dest = Channels.newChannel(rsp.getOutputStream());
       src.transferTo(0, src.size(), dest);
       dest.close();
       committed = true;
-    }
+    }).throwException();
   }
 
   @Override
-  public void send(final FileChannel channel, final long position, final long count)
-      throws Exception {
+  public void send(final FileChannel channel, final long position, final long count) {
     Try.of(channel).run(src -> {
       WritableByteChannel dest = Channels.newChannel(rsp.getOutputStream());
       src.transferTo(position, count, dest);
