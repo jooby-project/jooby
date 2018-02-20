@@ -210,6 +210,7 @@ import com.typesafe.config.Config;
 import org.jooby.Env;
 import org.jooby.Jooby.Module;
 import org.jooby.MediaType;
+import org.jooby.Request;
 import org.jooby.Route;
 import org.jooby.Router;
 import org.jooby.WebSocket;
@@ -322,9 +323,9 @@ public class LiveReload implements Module {
   private static final Set<String> CSS = ImmutableSet.of(".css", ".scss", ".sass", ".less");
 
   private Predicate<Path> css = path -> CSS.stream()
-    .filter(ext -> path.toString().endsWith(ext))
-    .findFirst()
-    .isPresent();
+      .filter(ext -> path.toString().endsWith(ext))
+      .findFirst()
+      .isPresent();
 
   private List<Object[]> paths = new ArrayList<>();
 
@@ -357,23 +358,22 @@ public class LiveReload implements Module {
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) throws Throwable {
     boolean enabled = conf.hasPath("livereload.enabled")
-      ? conf.getBoolean("livereload.enabled")
-      : "dev".equals(env.name());
+        ? conf.getBoolean("livereload.enabled")
+        : "dev".equals(env.name());
     if (enabled) {
       Router router = env.router();
       /**
        * Livereload client:
        */
       String livereloadjs = "/" + LiveReload.class.getPackage().getName().replace(".", "/")
-        + "/livereload.js";
+          + "/livereload.js";
       router.assets("/livereload.js", livereloadjs);
       /** {{liveReload}} local variable */
-      router.use("*", (req, rsp) -> req.set("liveReload",
-        "<script src=\"" + req.contextPath() + "/livereload.js\"></script>"))
-        .name("livereload");
+      router.use("*", (req, rsp) -> req.set("liveReload", template(req)))
+          .name("livereload");
 
       String serverName = CaseFormat.LOWER_CAMEL
-        .to(CaseFormat.UPPER_CAMEL, conf.getString("application.name"));
+          .to(CaseFormat.UPPER_CAMEL, conf.getString("application.name"));
 
       Queue<WebSocket> broadcast = new ConcurrentLinkedQueue<>();
       AtomicBoolean first = new AtomicBoolean(true);
@@ -411,22 +411,22 @@ public class LiveReload implements Module {
       if (paths.isEmpty()) {
         Path basedir = Paths.get(System.getProperty("user.dir"));
         register(basedir.resolve("public"),
-          "**/*.css",
-          "**/*.scss",
-          "**/*.sass",
-          "**/*.less",
-          "**/*.html",
-          "**/*.js",
-          "**/*.coffee",
-          "**/*.ts");
+            "**/*.css",
+            "**/*.scss",
+            "**/*.sass",
+            "**/*.less",
+            "**/*.html",
+            "**/*.js",
+            "**/*.coffee",
+            "**/*.ts");
         register(basedir.resolve("target"),
-          "**/*.class",
-          "**/*.conf",
-          "**/*.properties");
+            "**/*.class",
+            "**/*.conf",
+            "**/*.properties");
         register(basedir.resolve("build"),
-          "**/*.class",
-          "**/*.conf",
-          "**/*.properties");
+            "**/*.class",
+            "**/*.conf",
+            "**/*.properties");
       }
 
       if (paths.size() > 0) {
@@ -453,26 +453,37 @@ public class LiveReload implements Module {
     }
   }
 
+  private String template(Request req) {
+    String contextPath = req.contextPath();
+    return "<script>"
+        + "window.LiveReloadOptions = {"
+        + "host: '" + req.hostname() + "',"
+        + "port: '" + req.port() + contextPath + "'"
+        + "};"
+        + "</script>\n"
+        + "<script src=\"" + contextPath + "/livereload.js\"></script>";
+  }
+
   private boolean isHello(final Map<String, Object> message) {
     return "hello".equals(message.get("command"));
   }
 
   @SuppressWarnings("unchecked")
   private Map<String, Object> handshake(final Map<String, Object> client,
-    final String serverName, final String version) {
+      final String serverName, final String version) {
     if (isHello(client)) {
       List<String> protocols = (List<String>) client.get("protocols");
       return protocols.stream()
-        .filter(protocol -> version.equalsIgnoreCase(protocol))
-        .map(protocol -> {
-          Map<String, Object> server = new LinkedHashMap<>();
-          server.put("command", "hello");
-          server.put("protocols", new String[]{protocol});
-          server.put("serverName", serverName);
-          return server;
-        })
-        .findFirst()
-        .orElse(null);
+          .filter(protocol -> version.equalsIgnoreCase(protocol))
+          .map(protocol -> {
+            Map<String, Object> server = new LinkedHashMap<>();
+            server.put("command", "hello");
+            server.put("protocols", new String[]{protocol});
+            server.put("serverName", serverName);
+            return server;
+          })
+          .findFirst()
+          .orElse(null);
     }
     return null;
   }
