@@ -44,13 +44,6 @@
       <artifactId>flyway-core</artifactId>
     </dependency>
 
-    <!-- Hibernate -->
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-entitymanager</artifactId>
-      <optional>true</optional>
-    </dependency>
-
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.jooby</groupId>

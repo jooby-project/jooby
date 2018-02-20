@@ -203,26 +203,23 @@
  */
 package org.jooby.flyway;
 
+import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import static java.util.Objects.requireNonNull;
+import org.flywaydb.core.Flyway;
+import org.jooby.Env;
+import org.jooby.Jooby.Module;
+import org.jooby.funzy.Try;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.stream.Collectors;
-
-import org.flywaydb.core.Flyway;
-import org.jooby.Env;
-import org.jooby.Jooby.Module;
-
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import org.jooby.funzy.Try;
-
-import javax.sql.DataSource;
 
 /**
  * <h1>flyway module</h1>
@@ -359,8 +356,8 @@ public class Flywaydb implements Module {
 
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    Config $base = conf.getConfig("flyway");
-    Config $flyway = Try.apply(() -> conf.getConfig(name).withFallback($base))
+    Config $base = conf.getConfig("flyway").withoutPath(name);
+    Config $flyway = Try.apply(() -> conf.getConfig("flyway." + name).withFallback($base))
         .orElse($base);
 
     Flyway flyway = new Flyway();
@@ -376,9 +373,8 @@ public class Flywaydb implements Module {
         .generate(Flyway.class, name, key -> binder.bind(key).toInstance(flyway));
     // run
     Iterable<Command> cmds = commands($flyway);
-    env.onStart(registry -> {
-      cmds.forEach(cmd -> cmd.run(flyway));
-    });
+    // eager initialization
+    cmds.forEach(cmd -> cmd.run(flyway));
   }
 
   @Override

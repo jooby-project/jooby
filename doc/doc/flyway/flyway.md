@@ -1,10 +1,10 @@
 # flyway
 
-Evolve your Database Schema easily and reliably across all your instances.
+Evolve your database schema easily and reliably across all your instances.
 
-This module run {{flyway}} on startup and apply database migration.
+This module run {{flyway}} on startup and apply database migrations.
 
-> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module so all the services provided by the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
+> NOTE: This module depends on [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module to acquire a database connection.
 
 ## dependency
 
@@ -60,7 +60,7 @@ flyway.run = [clean, migrate, validate, info]
 ## configuration
 
 Configuration is done via ```application.conf``` under the ```flyway.*``` path.
-There are some defaults setting that you can see in the appendix.
+There are some defaults setting that you can see in the appendix section.
 
 
 For more information, please visit the {{flyway}} site.
