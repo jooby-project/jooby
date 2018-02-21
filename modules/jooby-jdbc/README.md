@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jdbc/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jdbc)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jdbc.svg)](https://javadoc.io/doc/org.jooby/jooby-jdbc/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jdbc.svg)](https://javadoc.io/doc/org.jooby/jooby-jdbc/1.3.0)
 [![jooby-jdbc website](https://img.shields.io/badge/jooby-jdbc-brightgreen.svg)](http://jooby.org/doc/jdbc)
 # jdbc
 
@@ -15,7 +15,7 @@ Production-ready jdbc data source, powered by the [HikariCP](https://github.com/
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbc</artifactId>
-  <version>1.2.3</version>
+  <version>1.3.0</version>
 </dependency>
 ```
 
@@ -206,4 +206,259 @@ public class Service {
     // ...
   }
 }
+```
+
+## jdbc.conf
+These are the default properties for jdbc:
+
+```properties
+# Jdbc defaults
+
+databases {
+
+  ###############################################################################################
+
+  # connection templates
+
+  ###############################################################################################
+
+  mem {
+
+    dataSource.url = "jdbc:h2:mem:{mem.seed};DB_CLOSE_DELAY=-1"
+
+    dataSource.user = sa
+
+    dataSource.password = ""
+
+  }
+
+  fs {
+
+    dataSource.url = "jdbc:h2:"${application.tmpdir}/${application.name}
+
+    dataSource.user = sa
+
+    dataSource.password = ""
+
+  }
+
+  ###############################################################################################
+
+  # derby
+
+  #      url => jdbc:derby:${db};create=true
+
+  ###############################################################################################
+
+  derby {
+
+    dataSourceClassName = org.apache.derby.jdbc.ClientDataSource
+
+  }
+
+  ###############################################################################################
+
+  # db2
+
+  #    url => jdbc:db2://127.0.0.1:50000/SAMPLE 
+
+  ###############################################################################################
+
+  db2 {
+
+    dataSourceClassName = com.ibm.db2.jcc.DB2SimpleDataSource
+
+  }
+
+  ###############################################################################################
+
+  # h2
+
+  #   url => mem, fs or jdbc:h2:${db}
+
+  ###############################################################################################
+
+  h2 {
+
+    dataSourceClassName = org.h2.jdbcx.JdbcDataSource
+
+  }
+
+  ###############################################################################################
+
+  # hsqldb
+
+  #       url =>  jdbc:hsqldb:file:${db}
+
+  ###############################################################################################
+
+  hsqldb {
+
+    dataSourceClassName = org.hsqldb.jdbc.JDBCDataSource
+
+  }
+
+  ###############################################################################################
+
+  # mariadb
+
+  #        url jdbc:mariadb://<host>:<port>/<database>?<key1>=<value1>&<key2>=<value2>...
+
+  ###############################################################################################
+
+  mariadb {
+
+    dataSourceClassName = org.mariadb.jdbc.MySQLDataSource
+
+  }
+
+  ###############################################################################################
+
+  # mysql
+
+  #      url jdbc:mysql://<host>:<port>/<database>?<key1>=<value1>&<key2>=<value2>...
+
+  ###############################################################################################
+
+  mysql: [{
+
+    # v6.x
+
+    dataSourceClassName = com.mysql.cj.jdbc.MysqlDataSource
+
+  }, {
+
+    # v5.x
+
+    dataSourceClassName = com.mysql.jdbc.jdbc2.optional.MysqlDataSource
+
+    dataSource.encoding = ${application.charset}
+
+    dataSource.cachePrepStmts = true
+
+    dataSource.prepStmtCacheSize = 250
+
+    dataSource.prepStmtCacheSqlLimit = 2048
+
+    dataSource.useServerPrepStmts = true
+
+  }]
+
+  ###############################################################################################
+
+  # sqlserver
+
+  #          url => jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
+
+  ###############################################################################################
+
+  sqlserver {
+
+    dataSourceClassName = com.microsoft.sqlserver.jdbc.SQLServerDataSource
+
+  }
+
+  ###############################################################################################
+
+  # oracle
+
+  #       url => jdbc:oracle:thin:@//<host>:<port>/<service_name>
+
+  ###############################################################################################
+
+  oracle {
+
+    dataSourceClassName = oracle.jdbc.pool.OracleDataSource
+
+  }
+
+  ###############################################################################################
+
+  # pgjdbc-ng
+
+  #          url => jdbc:pgsql://<server>[:<port>]/<database>
+
+  ###############################################################################################
+
+  pgsql {
+
+    dataSourceClassName = com.impossibl.postgres.jdbc.PGDataSourceWithUrl
+
+  }
+
+  ###############################################################################################
+
+  # postgresql
+
+  #            url => jdbc:postgresql://host:port/database
+
+  ###############################################################################################
+
+  postgresql {
+
+    dataSourceClassName = org.postgresql.ds.PGSimpleDataSource
+
+  }
+
+  ###############################################################################################
+
+  # sybase
+
+  #        url => jdbc:jtds:sybase://<host>[:<port>][/<database_name>]
+
+  ###############################################################################################
+
+  sybase {
+
+    dataSourceClassName = com.sybase.jdbcx.SybDataSource
+
+  }
+
+  ###############################################################################################
+
+  # firebird
+
+  #         jdbc:firebirdsql:host[/port]:<database>
+
+  ###############################################################################################
+
+  firebirdsql {
+
+    dataSourceClassName = org.firebirdsql.pool.FBSimpleDataSource
+
+  }
+
+  ###############################################################################################
+
+  # sqlite
+
+  #        jdbc:sqlite:${db}
+
+  ############################################################################################### 
+
+  sqlite {
+
+    dataSourceClassName = org.sqlite.SQLiteDataSource
+
+  }
+
+  ###############################################################################################
+
+  # log4jdbc
+
+  #        jdbc:log4jdbc:${dbtype}:${db}
+
+  ###############################################################################################
+
+  log4jdbc {
+
+    driverClassName = net.sf.log4jdbc.DriverSpy
+
+  }
+
+}
+
+##
+
+# hikari.maximumPoolSize = Math.max(10, ${runtime.processors-x2})
 ```

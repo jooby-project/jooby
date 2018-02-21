@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-babel/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-babel)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-babel.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-babel/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-babel.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-babel/1.3.0)
 [![jooby-assets-babel website](https://img.shields.io/badge/jooby-assets-babel-brightgreen.svg)](http://jooby.org/doc/assets-babel)
 # babel
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-babel</artifactId>
-  <version>1.2.3</version>
+  <version>1.3.0</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -38,7 +38,7 @@ assets {
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-babel</artifactId>
-  <version>1.2.3</version>
+  <version>1.3.0</version>
   <scope>provided</scope>
 </dependency>
 ```

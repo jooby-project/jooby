@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-spec/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-spec)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-spec.svg)](https://javadoc.io/doc/org.jooby/jooby-spec/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-spec.svg)](https://javadoc.io/doc/org.jooby/jooby-spec/1.3.0)
 [![jooby-spec website](https://img.shields.io/badge/jooby-spec-brightgreen.svg)](http://jooby.org/doc/spec)
 # route spec
 
@@ -438,7 +438,7 @@ buildscript {
 
   dependencies {
     /** joobyRun */
-    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.2.3'
+    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.3.0'
   }
 }
 

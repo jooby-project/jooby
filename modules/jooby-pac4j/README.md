@@ -1,9 +1,13 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-pac4j/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-pac4j)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-pac4j.svg)](https://javadoc.io/doc/org.jooby/jooby-pac4j/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-pac4j.svg)](https://javadoc.io/doc/org.jooby/jooby-pac4j/1.3.0)
 [![jooby-pac4j website](https://img.shields.io/badge/jooby-pac4j-brightgreen.svg)](http://jooby.org/doc/pac4j)
 # pac4j
 
-Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
+Authentication module via: [Pac4j 1.x](https://github.com/pac4j/pac4j).
+
+
+> **DEPRECATED**: This module has been replaced by [Pac4j 2.x](/doc/pac4j2).
+
 
 ## exports
 
@@ -18,7 +22,7 @@ Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-pac4j</artifactId>
-  <version>1.2.3</version>
+  <version>1.3.0</version>
 </dependency>
 ```
 
@@ -40,7 +44,7 @@ access to ```/private``` or any route defined below the auth module.
 
 
 ## clients
-[Pac4j](https://github.com/pac4j/pac4j) is a powerful library that supports multiple [clients](http://www.pac4j.org/docs/clients.html) and/or authentication protocols. In
+[Pac4j 1.x](https://github.com/pac4j/pac4j) is a powerful library that supports multiple [clients](http://www.pac4j.org/docs/clients.html) and/or authentication protocols. In
 the next example, we will see how to configure the most basic of them, but also some complex protocols.
 
 ### basic auth
@@ -185,3 +189,40 @@ A custom logout and redirect urls can be set via ```.conf``` file or programmati
 ```
 
 That's all folks! Enjoy it!!!
+
+## auth.conf
+These are the default properties for pac4j:
+
+```properties
+auth {
+
+  # default callback, like http://localhost:8080/auth
+
+  callback = "http://"${application.host}":"${application.port}${contextPath}"/auth"
+
+  # login options
+
+  login {
+
+    # Where to go after a successful login? Default is: ${application.path}
+
+    redirectTo = ""
+
+  }
+
+  # logout options
+
+  logout {
+
+    url = /logout
+
+    redirectTo = ${application.path}
+
+  }
+
+  # form auth
+
+  form.loginUrl = /login
+
+}
+```

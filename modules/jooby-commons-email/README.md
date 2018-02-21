@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-commons-email/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-commons-email)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-commons-email.svg)](https://javadoc.io/doc/org.jooby/jooby-commons-email/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-commons-email.svg)](https://javadoc.io/doc/org.jooby/jooby-commons-email/1.3.0)
 [![jooby-commons-email website](https://img.shields.io/badge/jooby-commons-email-brightgreen.svg)](http://jooby.org/doc/commons-email)
 # commons-email
 
@@ -19,7 +19,7 @@ Small but helpful module that provides access to ```Email``` instances.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-commons-email</artifactId>
-  <version>1.2.3</version>
+  <version>1.3.0</version>
 </dependency>
 ```
 
@@ -50,3 +50,34 @@ application.conf:
 ```
 
 That's all it does! Every time you require an email, it creates one and setup properties from ```mail.*```.
+
+## commons-email.conf
+These are the default properties for commons-email:
+
+```properties
+mail {
+
+  charset: ${application.charset}
+
+  debug: false
+
+  sendPartial: false
+
+  smtpPort: 25
+
+  starttls: false
+
+  # SSL
+
+  ssl.smtpPort: 465
+
+  ssl.onConnect: false
+
+  # advanced
+
+  socketConnectionTimeout: 60s
+
+  socketTimeout: 60s
+
+}
+```

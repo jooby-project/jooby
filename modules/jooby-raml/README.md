@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-raml/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-raml)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-raml.svg)](https://javadoc.io/doc/org.jooby/jooby-raml/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-raml.svg)](https://javadoc.io/doc/org.jooby/jooby-raml/1.3.0)
 [![jooby-raml website](https://img.shields.io/badge/jooby-raml-brightgreen.svg)](http://jooby.org/doc/raml)
 ## exports
 
@@ -12,7 +12,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-raml</artifactId>
- <version>1.2.3</version>
+ <version>1.3.0</version>
 </dependency>
 ```
 
@@ -141,3 +141,22 @@ Expand/collapse the try it panel from api-console.
 Check out the a live demo for [RAML](https://jooby-spec.herokuapp.com/raml).
 
 Source code available at [github](https://github.com/jooby-guides/route-spec)
+
+## raml.conf
+These are the default properties for raml:
+
+```properties
+raml {
+
+  title: ${application.name} API
+
+  version: ${application.version}
+
+  baseUri: "http://"${application.host}":"${application.port}${application.path}
+
+  mediaType: "application/json"
+
+  protocols: [HTTP]
+
+}
+```

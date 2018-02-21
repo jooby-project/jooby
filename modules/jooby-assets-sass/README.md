@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-sass/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-sass)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-sass.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-sass/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-sass.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-sass/1.3.0)
 [![jooby-assets-sass website](https://img.shields.io/badge/jooby-assets-sass-brightgreen.svg)](http://jooby.org/doc/assets-sass)
 # sass
 
@@ -13,7 +13,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-assets-sass</artifactId>
- <version>1.2.3</version>
+ <version>1.3.0</version>
  <scope>provided</scope>
 </dependency>
 ```

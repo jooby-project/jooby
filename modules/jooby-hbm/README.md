@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-hbm/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-hbm)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hbm.svg)](https://javadoc.io/doc/org.jooby/jooby-hbm/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hbm.svg)](https://javadoc.io/doc/org.jooby/jooby-hbm/1.3.0)
 [![jooby-hbm website](https://img.shields.io/badge/jooby-hbm-brightgreen.svg)](http://jooby.org/doc/hbm)
 # hibernate
 
@@ -21,7 +21,7 @@ This module setup and configure <a href="http://hibernate.org/orm">Hibernate ORM
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-hbm</artifactId>
- <version>1.2.3</version>
+ <version>1.3.0</version>
 </dependency>
 ```
 
@@ -154,7 +154,7 @@ Or via `scan`:
 }
 ```
 
-Which ```scan``` the application package, or you can provide where to look:
+Which ```scan``` the application package defined by `hibernate.packagesToScan` property, or you can provide where to look:
 
 
 ```java
@@ -213,3 +213,16 @@ public class MySingleton {
 Still, we strongly recommend to leave your services in the default scope and avoid `Singleton` objects, except of course for really expensive resources. This is also recommend approach by Guice.
 
 Services in the default scope won't have this problem and are free to inject the `Session` or `EntityManager` directly.
+
+## hbm.conf
+These are the default properties for hbm:
+
+```properties
+hibernate.session_factory_name_is_jndi = false
+
+hibernate.archive.autodetection = class
+
+hibernate.current_session_context_class = managed
+
+hibernate.packagesToScan = ${application.ns}
+```

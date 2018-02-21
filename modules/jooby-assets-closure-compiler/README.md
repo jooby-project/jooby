@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-closure-compiler/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-closure-compiler)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-closure-compiler.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-closure-compiler/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-closure-compiler.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-closure-compiler/1.3.0)
 [![jooby-assets-closure-compiler website](https://img.shields.io/badge/jooby-assets-closure-compiler-brightgreen.svg)](http://jooby.org/doc/assets-closure-compiler)
 # closure-compiler
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-closure-compiler</artifactId>
-  <version>1.2.3</version>
+  <version>1.3.0</version>
   <scope>provided</scope>
 </dependency>
 ```

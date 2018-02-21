@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-neo4j/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-neo4j)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-neo4j.svg)](https://javadoc.io/doc/org.jooby/jooby-neo4j/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-neo4j.svg)](https://javadoc.io/doc/org.jooby/jooby-neo4j/1.3.0)
 [![jooby-neo4j website](https://img.shields.io/badge/jooby-neo4j-brightgreen.svg)](http://jooby.org/doc/neo4j)
 # neo4j
 
@@ -13,7 +13,7 @@ This module give you access to <a href="https://neo4j.com">neo4j</a> and <a href
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-neo4j</artifactId>
- <version>1.2.3</version>
+ <version>1.3.0</version>
 </dependency>
 ```
 
@@ -176,7 +176,7 @@ A [Session.Store](/apidocs/org/jooby/neo4j/Neo4jSessionStore) powered by <a href
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-neo4j</artifactId>
- <version>1.2.3</version>
+ <version>1.3.0</version>
 </dependency>
 ```
 

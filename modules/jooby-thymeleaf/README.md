@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-thymeleaf/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-thymeleaf)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-thymeleaf.svg)](https://javadoc.io/doc/org.jooby/jooby-thymeleaf/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-thymeleaf.svg)](https://javadoc.io/doc/org.jooby/jooby-thymeleaf/1.3.0)
 [![jooby-thymeleaf website](https://img.shields.io/badge/jooby-thymeleaf-brightgreen.svg)](http://jooby.org/doc/thymeleaf)
 # thymeleaf
 
@@ -11,14 +11,13 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-thymeleaf</artifactId>
- <version>1.2.3</version>
+ <version>1.3.0</version>
 </dependency>
 ```
 
 ## exports
 
-* {@link TemplateEngine} 
-* {@link View.Engine} 
+* TemplateEngine 
 
 ## usage
 
@@ -33,7 +32,7 @@
   // Or Thymeleaf API:
   get("/thymeleaf-api", () -> {
     TemplateEngine engine = require(TemplateEngine.class);
-    engine.processs("template", ...);
+    engine.process("template", ...);
   });
 }
 ```

@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-quartz/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-quartz)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-quartz.svg)](https://javadoc.io/doc/org.jooby/jooby-quartz/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-quartz.svg)](https://javadoc.io/doc/org.jooby/jooby-quartz/1.3.0)
 [![jooby-quartz website](https://img.shields.io/badge/jooby-quartz-brightgreen.svg)](http://jooby.org/doc/quartz)
 # quartz
 
@@ -11,7 +11,7 @@ Cron triggers, job scheduling and async processing via [Quartz](http://quartz-sc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>1.2.3</version>
+  <version>1.3.0</version>
 </dependency>
 ```
 
@@ -212,4 +212,21 @@ Example 3: build and set everything from scratch
    })
   );
 }
+```
+
+## quartz.conf
+These are the default properties for quartz:
+
+```properties
+org.quartz.scheduler.instanceName = quartz
+
+org.quartz.scheduler.instanceId = local
+
+# thread pool
+
+org.quartz.threadPool.threadNamePrefix = quartz
+
+org.quartz.threadPool.threadCount = ${runtime.processors}
+
+org.quartz.scheduler.skipUpdateCheck = true
 ```

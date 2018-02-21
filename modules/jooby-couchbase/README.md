@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-couchbase/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-couchbase)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-couchbase.svg)](https://javadoc.io/doc/org.jooby/jooby-couchbase/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-couchbase.svg)](https://javadoc.io/doc/org.jooby/jooby-couchbase/1.3.0)
 [![jooby-couchbase website](https://img.shields.io/badge/jooby-couchbase-brightgreen.svg)](http://jooby.org/doc/couchbase)
 # couchbase
 
@@ -13,7 +13,7 @@ This module provides <a href="http://www.couchbase.com">couchbase</a> access via
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-couchbase</artifactId>
- <version>1.2.3</version>
+ <version>1.3.0</version>
 </dependency>
 ```
 
@@ -270,6 +270,31 @@ couchbase.cluster.username = foo
 couchbase.cluster.password = bar
 ```
 
+## couchbase.conf
+These are the default properties for couchbase:
+
+```properties
+# configure the environment by adding properties to the `couchbase.env` namespace, like:
+
+# couchbase.env.kvEndpoints = 2
+
+# Some custom error codes
+
+err {
+
+  com.couchbase.client.java.error.BucketAlreadyExistsException = 400
+
+  com.couchbase.client.java.error.BucketDoesNotExistException = 404
+
+  com.couchbase.client.java.error.DocumentAlreadyExistsException = 400
+
+  com.couchbase.client.java.error.DocumentDoesNotExistException = 404
+
+  com.couchbase.client.java.error.QueryExecutionException = 400
+
+}
+```
+
 
 
 # couchbase session store
@@ -282,7 +307,7 @@ A [Session.Store](/apidocs/org/jooby/couchbase/CouchbaseSessionStore) powered by
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-couchbase</artifactId>
- <version>1.2.3</version>
+ <version>1.3.0</version>
 </dependency>
 ```
 

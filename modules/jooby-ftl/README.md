@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ftl/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ftl)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-ftl.svg)](https://javadoc.io/doc/org.jooby/jooby-ftl/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-ftl.svg)](https://javadoc.io/doc/org.jooby/jooby-ftl/1.3.0)
 [![jooby-ftl website](https://img.shields.io/badge/jooby-ftl-brightgreen.svg)](http://jooby.org/doc/ftl)
 # freemarker
 
@@ -16,7 +16,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>1.2.3</version>
+  <version>1.3.0</version>
 </dependency>
 ```
 
@@ -105,3 +105,28 @@ freemarker.cache = "expireAfterWrite=1h"
 ```
 
 See [CacheBuilderSpec](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/CacheBuilderSpec.html) for more detailed expressions.
+
+## freemarker.conf
+These are the default properties for ftl:
+
+```properties
+#freemarker defaults
+
+freemarker.locale = ${application.lang}
+
+freemarker.number_format = ${application.numberFormat}
+
+freemarker.date_format = ${application.dateFormat}
+
+freemarker.time_zone = ${application.tz}
+
+freemarker.object_wrapper = default
+
+freemarker.template_exception_handler = default
+
+freemarker.defaultEncoding = ${application.charset}
+
+# cache for env != dev
+
+freemarker.cache = "maximumSize=100"
+```

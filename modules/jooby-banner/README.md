@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-banner/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-banner)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-banner.svg)](https://javadoc.io/doc/org.jooby/jooby-banner/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-banner.svg)](https://javadoc.io/doc/org.jooby/jooby-banner/1.3.0)
 [![jooby-banner website](https://img.shields.io/badge/jooby-banner-brightgreen.svg)](http://jooby.org/doc/banner)
 # banner
 
@@ -11,7 +11,7 @@ Prints out an ASCII art banner on startup using <a href="https://github.com/laly
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-banner</artifactId>
- <version>1.2.3</version>
+ <version>1.3.0</version>
 </dependency>
 ```
 

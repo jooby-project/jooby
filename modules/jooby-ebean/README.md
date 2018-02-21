@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ebean/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ebean)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-ebean.svg)](https://javadoc.io/doc/org.jooby/jooby-ebean/1.2.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-ebean.svg)](https://javadoc.io/doc/org.jooby/jooby-ebean/1.3.0)
 [![jooby-ebean website](https://img.shields.io/badge/jooby-ebean-brightgreen.svg)](http://jooby.org/doc/ebean)
 # ebean
 
@@ -17,7 +17,7 @@ Object-Relational-Mapping via [Ebean ORM](http://ebean-orm.github.io). It config
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ebean</artifactId>
-  <version>1.2.3</version>
+  <version>1.3.0</version>
 </dependency>
 ```
 
@@ -108,3 +108,54 @@ Or programmatically:
 We do provide an [ebean-starter](https://github.com/jooby-project/ebean-starter) project. Go and [fork it](https://github.com/jooby-project/ebean-starter).
 
 That's all folks!!
+
+## ebean.conf
+These are the default properties for ebean:
+
+```properties
+ebean.defaultServer = true
+
+ebean.register = true
+
+ebean.ddl.generate=false
+
+ebean.ddl.run=false
+
+ebean.debug.sql=true
+
+ebean.debug.lazyload=false
+
+ebean.disableClasspathSearch = true
+
+# -------------------------------------------------------------
+
+# Transaction Logging
+
+# -------------------------------------------------------------
+
+# Use java util logging to log transaction details
+
+ebean.loggingToJavaLogger=false
+
+# General logging level: (none, explicit, all)
+
+ebean.logging=all
+
+# Sharing log files: (none, explicit, all)
+
+ebean.logging.logfilesharing=all
+
+# location of transaction logs
+
+ebean.logging.directory=logs
+
+# Specific Log levels (none, summary, binding, sql)
+
+ebean.logging.iud=sql
+
+ebean.logging.query=sql
+
+ebean.logging.sqlquery=sql
+
+ebean.logging.txnCommit=none
+```
