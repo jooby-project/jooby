@@ -1,14 +1,13 @@
 package org.jooby.issues;
 
-import java.util.Arrays;
-
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import org.flywaydb.core.Flyway;
 import org.jooby.flyway.Flywaydb;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
+import java.util.Arrays;
 
 public class Issue623 extends ServerFeature {
 

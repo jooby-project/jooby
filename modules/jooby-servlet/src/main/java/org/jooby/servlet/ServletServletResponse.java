@@ -206,7 +206,6 @@ package org.jooby.servlet;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import static java.util.Objects.requireNonNull;
-import org.jooby.funzy.Try;
 import org.jooby.spi.NativeResponse;
 
 import javax.servlet.AsyncContext;
@@ -282,22 +281,18 @@ public class ServletServletResponse implements NativeResponse {
 
   @Override
   public void send(final FileChannel file) throws Exception {
-    Try.of(file).run(src -> {
-      WritableByteChannel dest = Channels.newChannel(rsp.getOutputStream());
-      src.transferTo(0, src.size(), dest);
-      dest.close();
-      committed = true;
-    }).throwException();
+    send(file, 0, file.size());
   }
 
   @Override
-  public void send(final FileChannel channel, final long position, final long count) {
-    Try.of(channel).run(src -> {
+  public void send(final FileChannel channel, final long position, final long count)
+      throws Exception {
+    try (FileChannel src = channel) {
       WritableByteChannel dest = Channels.newChannel(rsp.getOutputStream());
       src.transferTo(position, count, dest);
       dest.close();
       committed = true;
-    }).throwException();
+    }
   }
 
   @Override

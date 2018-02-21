@@ -208,6 +208,8 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import static com.typesafe.config.ConfigFactory.empty;
+import com.typesafe.config.ConfigValueType;
 import static java.util.Objects.requireNonNull;
 import org.flywaydb.core.Flyway;
 import org.jooby.Env;
@@ -356,8 +358,8 @@ public class Flywaydb implements Module {
 
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    Config $base = conf.getConfig("flyway").withoutPath(name);
-    Config $flyway = Try.apply(() -> conf.getConfig("flyway." + name).withFallback($base))
+    Config $base = flyway(conf.getConfig("flyway"));
+    Config $flyway = Try.apply(() -> conf.getConfig(name).withFallback($base))
         .orElse($base);
 
     Flyway flyway = new Flyway();
@@ -375,6 +377,14 @@ public class Flywaydb implements Module {
     Iterable<Command> cmds = commands($flyway);
     // eager initialization
     cmds.forEach(cmd -> cmd.run(flyway));
+  }
+
+  private Config flyway(Config conf) {
+    Config flyway = conf.root().entrySet().stream()
+        .filter(it -> it.getValue().valueType() != ConfigValueType.OBJECT)
+        .reduce(empty(), (seed, entry) -> seed.withValue(entry.getKey(), entry.getValue()),
+            Config::withFallback);
+    return flyway;
   }
 
   @Override

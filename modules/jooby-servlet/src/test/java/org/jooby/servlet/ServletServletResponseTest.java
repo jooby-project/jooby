@@ -1,8 +1,18 @@
 package org.jooby.servlet;
 
+import com.google.common.io.ByteStreams;
 import static org.easymock.EasyMock.expect;
+import org.jooby.funzy.Throwing;
+import org.jooby.test.MockUnit;
 import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -12,21 +22,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.jooby.test.MockUnit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-import com.google.common.io.ByteStreams;
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ServletServletResponse.class, Channels.class, ByteStreams.class,
-    FileChannel.class })
+    FileChannel.class, Throwing.class, Throwing.Runnable.class})
 public class ServletServletResponseTest {
 
   @Test
@@ -178,7 +176,7 @@ public class ServletServletResponseTest {
   public void sendFileChannel() throws Exception {
     new MockUnit(HttpServletRequest.class, HttpServletResponse.class, ServletOutputStream.class)
         .expect(unit -> {
-          FileChannel channel = unit.powerMock(FileChannel.class);
+          FileChannel channel = unit.partialMock(FileChannel.class, "transferTo", "close");
           unit.registerMock(FileChannel.class, channel);
         })
         .expect(unit -> {
@@ -192,7 +190,6 @@ public class ServletServletResponseTest {
           expect(Channels.newChannel(output)).andReturn(channel);
 
           expect(fchannel.transferTo(0L, 10L, channel)).andReturn(1L);
-
           fchannel.close();
           channel.close();
 
@@ -209,23 +206,23 @@ public class ServletServletResponseTest {
   public void sendInputStream() throws Exception {
     new MockUnit(HttpServletRequest.class, HttpServletResponse.class, InputStream.class,
         ServletOutputStream.class)
-            .expect(unit -> {
-              InputStream in = unit.get(InputStream.class);
-              ServletOutputStream output = unit.get(ServletOutputStream.class);
+        .expect(unit -> {
+          InputStream in = unit.get(InputStream.class);
+          ServletOutputStream output = unit.get(ServletOutputStream.class);
 
-              unit.mockStatic(ByteStreams.class);
-              expect(ByteStreams.copy(in, output)).andReturn(0L);
+          unit.mockStatic(ByteStreams.class);
+          expect(ByteStreams.copy(in, output)).andReturn(0L);
 
-              output.close();
-              in.close();
+          output.close();
+          in.close();
 
-              HttpServletResponse rsp = unit.get(HttpServletResponse.class);
-              expect(rsp.getOutputStream()).andReturn(output);
-            })
-            .run(unit -> {
-              new ServletServletResponse(unit.get(HttpServletRequest.class),
-                  unit.get(HttpServletResponse.class)).send(unit.get(InputStream.class));
-            });
+          HttpServletResponse rsp = unit.get(HttpServletResponse.class);
+          expect(rsp.getOutputStream()).andReturn(output);
+        })
+        .run(unit -> {
+          new ServletServletResponse(unit.get(HttpServletRequest.class),
+              unit.get(HttpServletResponse.class)).send(unit.get(InputStream.class));
+        });
   }
 
 }
