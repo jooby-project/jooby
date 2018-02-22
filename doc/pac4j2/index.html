@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>jooby: pac4j module module</title> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, pac4j module"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="canonical" href="#"> 
+  <link rel="publisher" href="#"> 
+  <meta name="robots" content="robots.txt"> 
+  <meta name="og:title" content="jooby: pac4j2 module"> 
+  <meta name="og:description" content="Authentication module via: Pac4j 2"> 
+  <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    --> 
+  <meta name="og:type" content="website"> 
+  <meta name="og:url" content="http://jooby.org"> 
+  <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    --> 
+  <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
+  <meta name="og:site_name" content="jooby: pac4j2 module"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:title" content="jooby: pac4j2 module"> 
+  <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    --> 
+  <meta name="twitter:image" content="http://jooby.org/resources/images/apps/twitter.jpg"> 
+  <meta name="twitter:site" content="@joobyproject"> 
+  <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
+  <meta name="twitter:domain" content="http://jooby.org"> 
+  <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:description" content="Authentication module via: Pac4j 2"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180"> 
+  <link href="/resources/images/apps/favicon.ico" rel="shortcut icon"> 
+  <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png"> 
+  <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png"> 
+  <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png"> 
+  <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png"> 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700"> 
+  <link rel="stylesheet" href="/resources/styles/application.css"> 
+  <link rel="stylesheet" href="/resources/styles/github.css"> 
+  <link rel="stylesheet" href="/resources/styles/devices.css"> 
+  <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+ </head> 
+ <body class="page-section page-sidebar"> 
+  <header class="site-header"> 
+   <div class="row">
+    <a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a>
+    <a class="show-mobile open-menu"><span></span></a> 
+    <nav class="site-nav"> 
+     <ul> 
+      <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
+      <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
+      <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
+      <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.3.0" target="_blank" title="API docs">API DOCS</a></li> 
+     </ul> 
+    </nav> 
+   </div> 
+  </header> 
+  <main role="main" class="site-content"> 
+   <div class="section-title"> 
+    <div class="row"> 
+     <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
+     <h1>pac4j module</h1> 
+    </div> 
+   </div> 
+   <div class="row"> 
+    <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
+     <div class="show-mobile menu-open">
+      pac4j module
+     </div> 
+     <ul> 
+      <li class="active"> <a href="#pac4j-module">pac4j module</a>
+       <ul> 
+        <li> <a href="#pac4j-module-exports">exports</a></li> 
+        <li> <a href="#pac4j-module-dependency">dependency</a></li> 
+        <li> <a href="#pac4j-module-usage">usage</a></li> 
+        <li> <a href="#pac4j-module-clients">clients</a></li> 
+        <li> <a href="#pac4j-module-protecting-urls">protecting urls</a></li> 
+        <li> <a href="#pac4j-module-user-profile">user profile</a></li> 
+        <li> <a href="#pac4j-module-authorizer">authorizer</a></li> 
+        <li> <a href="#pac4j-module-advanced-usage">advanced usage</a></li> 
+        <li> <a href="#pac4j-module-starter-project">starter project</a></li> 
+        <li> <a href="#pac4j-module-pac4j-conf">pac4j.conf</a></li>
+       </ul></li> 
+     </ul> 
+    </div> 
+    <div class="section-content"> 
+     <div class="datalist" id="pac4j-module"> 
+      <div class="datalist-title active"> 
+       <h2>pac4j module</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>Authentication module via: <a href="https://github.com/pac4j/pac4j" target="_blank">Pac4j 2.x</a>.</p> 
+       <h3 id="pac4j-module-exports">exports</h3> 
+       <ul> 
+        <li>Pac4j <code class="highlighter-rouge codehilite">UserProfile</code> object</li> 
+        <li>Pac4j <code class="highlighter-rouge codehilite">Config</code> object</li> 
+        <li>Pac4j <code class="highlighter-rouge codehilite">WebContext</code> object</li> 
+        <li>Pac4j <code class="highlighter-rouge codehilite">ProfileManager</code> object</li> 
+        <li>Routes for Pac4j callback, security filter and logout</li> 
+       </ul> 
+       <h3 id="pac4j-module-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+ <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+ <span class="nt">&lt;artifactId&gt;</span>jooby-pac4j module<span class="nt">&lt;/artifactId&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.3.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
+       <h3 id="pac4j-module-usage">usage</h3> 
+       <p>Display a basic login-form and restrict access to all the routes defined after the <a href="/apidocs/org/jooby/pac4j/Pac4j.html" target="_blank">Pac4j</a> module:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/public"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">});</span>
+
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Pac4j</span><span class="o">());</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/private"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="pac4j-module-clients">clients</h3> 
+       <p>A <a href="http://www.pac4j.org/docs/clients.html" target="_blank">Client</a> represents an authentication mechanism. It performs the login process and returns (if successful) a user profile</p> 
+       <p>Clients are configured at bootstrap time using the <a href="/apidocs/org/jooby/pac4j/Pac4j.html" target="_blank">Pac4j</a> DSL:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Pac4j</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">client</span><span class="o">(</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="n">FacebookClient</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"fb.key"</span><span class="o">),</span> <span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"fb.secret"</span><span class="o">));</span>
+    <span class="o">})</span>
+  <span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>You can chain calls to add multiple clients:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Pac4j</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">client</span><span class="o">(</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="n">FormClient</span><span class="o">(</span><span class="s">"/login"</span><span class="o">,</span> <span class="k">new</span> <span class="n">SimpleTestSimpleTestUsernamePasswordAuthenticator</span><span class="o">());</span>
+    <span class="o">})</span>
+    <span class="o">.</span><span class="na">client</span><span class="o">(</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="n">FacebookClient</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"fb.key"</span><span class="o">),</span> <span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"fb.secret"</span><span class="o">));</span>
+    <span class="o">})</span>
+    <span class="o">.</span><span class="na">client</span><span class="o">(</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="n">TwitterClient</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"twitter.key"</span><span class="o">),</span> <span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"twitter.secret"</span><span class="o">));</span>
+    <span class="o">})</span>
+  <span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="pac4j-module-protecting-urls">protecting urls</h3> 
+       <p>By default <a href="/apidocs/org/jooby/pac4j/Pac4j.html" target="_blank">Pac4j</a> restrict access to all the routes defined after the <a href="/apidocs/org/jooby/pac4j/Pac4j.html" target="_blank">Pac4j</a> module. You can specify what url must be protected using a path pattern:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Pac4j</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">client</span><span class="o">(</span><span class="s">"/admin/**"</span><span class="o">,</span> <span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="n">FormClient</span><span class="o">(</span><span class="s">"/login"</span><span class="o">,</span> <span class="k">new</span> <span class="n">SimpleTestSimpleTestUsernamePasswordAuthenticator</span><span class="o">());</span>
+   <span class="o">}));</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Now all the routes under <code class="highlighter-rouge codehilite">/admin</code> are protected by <a href="/apidocs/org/jooby/pac4j/Pac4j.html" target="_blank">Pac4j</a>.</p> 
+       <h3 id="pac4j-module-user-profile">user profile</h3> 
+       <p>After login the user profile (current logged user) is accessible via <code class="highlighter-rouge codehilite">require</code> calls:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Pac4j</span><span class="o">().</span><span class="na">form</span><span class="o">());</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/profile"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">CommonProfile</span> <span class="n">profile</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">CommonProfile</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="o">...</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Access to specific profile type depends on the authentication client:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Pac4j</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">client</span><span class="o">(</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="n">FacebookClient</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"fb.key"</span><span class="o">),</span> <span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"fb.secret"</span><span class="o">));</span>
+    <span class="o">})</span>
+  <span class="o">);</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/profile"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">FacebookProfile</span> <span class="n">profile</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">FacebookProfile</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="o">...</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Pac4j API is also available:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Pac4j</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">client</span><span class="o">(</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="n">FacebookClient</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"fb.key"</span><span class="o">),</span> <span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"fb.secret"</span><span class="o">));</span>
+    <span class="o">})</span>
+  <span class="o">);</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/profile"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="n">ProfileManager</span> <span class="n">pm</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">ProfileManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Commonprofile</span><span class="o">&gt;</span> <span class="n">profiles</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="na">getAll</span><span class="o">(</span><span class="n">req</span><span class="o">.</span><span class="na">ifSession</span><span class="o">().</span><span class="na">isPresent</span><span class="o">());</span>
+    <span class="o">...</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="pac4j-module-authorizer">authorizer</h3> 
+       <p>Authorizers are provided via <code class="highlighter-rouge codehilite">client</code> DSL. You can provider an instance of an auhtorizer or class reference to an authorizer.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Pac4j</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">client</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="n">MyAuthorizer</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="n">FacebookClient</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"fb.key"</span><span class="o">),</span> <span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"fb.secret"</span><span class="o">));</span>
+    <span class="o">})</span>
+  <span class="o">);</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Here <code class="highlighter-rouge codehilite">MyAuthorizer</code> will be provisioned by Guice.</p> 
+       <h3 id="pac4j-module-advanced-usage">advanced usage</h3> 
+       <p>For advanced usage is available via <a href="/apidocs/org/jooby/pac4j/Pac4j.html#doWith(--java.util.function.Consumer--)" target="_blank">doWith</a> method:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Pac4j</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">doWith</span><span class="o">(</span><span class="n">pac4j</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">pac4j</span><span class="o">.</span><span class="na">setSecurityLogic</span><span class="o">(...);</span>
+      <span class="n">pac4j</span><span class="o">.</span><span class="na">setHttpActionAdapter</span><span class="o">(...);</span>
+    <span class="o">})</span>
+  <span class="o">);</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="pac4j-module-starter-project">starter project</h3> 
+       <p>We do provide a <a href="https://github.com/jooby-project/pac4j-starter" target="_blank">pac4j-starter</a> project. Go and <a href="https://github.com/jooby-project/pac4j-starter" target="_blank">fork it</a>.</p> 
+       <p>That’s all folks!!</p> 
+       <h3 id="pac4j-module-pac4j-conf">pac4j.conf</h3> 
+       <p>These are the default properties for pac4j2:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="err">pac4j</span> <span class="err">{</span>
+
+  <span class="c"># default callback, like http://localhost:8080/auth </span>
+  <span class="err">callback</span> <span class="err">{</span>
+
+    <span class="py">method</span> <span class="p">=</span> <span class="s">"*"</span>
+
+    <span class="py">path</span> <span class="p">=</span> <span class="s">/callback</span>
+
+    <span class="py">url</span> <span class="p">=</span> <span class="s">"http://"${application.host}":"${application.port}${application.path}${pac4j.callback.path}</span>
+
+    <span class="py">renewSession</span> <span class="p">=</span> <span class="s">false</span>
+
+    <span class="py">redirectTo</span> <span class="p">=</span> <span class="s">""</span>
+
+  <span class="err">}</span>
+
+  <span class="c"># security filters </span>
+  <span class="err">securityFilter</span> <span class="err">{</span>
+
+    <span class="py">method</span> <span class="p">=</span> <span class="s">"*"</span>
+
+  <span class="err">}</span>
+
+  <span class="c"># logout options </span>
+  <span class="err">logout</span> <span class="err">{</span>
+
+    <span class="py">path</span> <span class="p">=</span> <span class="s">/logout</span>
+
+    <span class="py">redirectTo</span> <span class="p">=</span> <span class="s">${application.path}</span>
+
+    <span class="py">method</span> <span class="p">=</span> <span class="s">"*"</span>
+
+    <span class="py">pattern</span> <span class="p">=</span> <span class="s">"/.*"</span>
+
+    <span class="py">destroySession</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="py">local</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="py">central</span> <span class="p">=</span> <span class="s">false</span>
+
+  <span class="err">}</span>
+
+  <span class="py">excludePaths</span> <span class="p">=</span> <span class="s">["/favicon.ico"]</span>
+
+<span class="err">}</span>
+</code></pre> 
+       </div> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+  </main> 
+  <footer class="site-footer"> 
+   <div class="row"> 
+    <p class="pull-left">©2014-2018 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <div class="follow-us pull-right"> 
+     <p>Follow us</p>
+     <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
+     <a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a> 
+    </div> 
+   </div> 
+  </footer> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/libs/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script src="/resources/scripts/libs/swiper.min.js"></script> 
+  <script src="/resources/scripts/application.js"></script> 
+  <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-57151281-1', 'auto');
+      ga('send', 'pageview');
+    </script>  
+ </body>
+</html>

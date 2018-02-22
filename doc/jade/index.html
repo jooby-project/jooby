@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.3" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.3.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -128,7 +128,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-jade<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.2.3<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.3.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -152,7 +152,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Templates are loaded from root of classpath: <code class="highlighter-rouge codehilite">/</code> and must ends with: <code class="highlighter-rouge codehilite">.jade</code> file extension.</p> 
+       <p>Templates are loaded from root of classpath: <code class="highlighter-rouge codehilite">/</code> and must ends with: <code class="highlighter-rouge codehilite">.html</code> file extension.</p> 
        <h3 id="jade-request-locals">request locals</h3> 
        <p>A template engine has access to <code class="highlighter-rouge codehilite">request locals</code> (a.k.a attributes). Here is an example:</p> 
        <div class="highlighter-rouge codehilite">
@@ -177,17 +177,17 @@
 </code></pre> 
        </div> 
        <h3 id="jade-template-loader">template loader</h3> 
-       <p>Templates are loaded from the root of classpath and must ends with <code class="highlighter-rouge codehilite">.jade</code>. You can change the extensions too:</p> 
+       <p>Templates are loaded from the root of classpath and must ends with <code class="highlighter-rouge codehilite">.html</code>. Using a custom file extension:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jade</span><span class="o">(</span><span class="s">".html"</span><span class="o">));</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jade</span><span class="o">(</span><span class="s">".jade"</span><span class="o">));</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Keep in mind if you change it file name must ends with: <code class="highlighter-rouge codehilite">.html.jade</code>.</p> 
+       <p>Default file extension is: <code class="highlighter-rouge codehilite">.html</code>.</p> 
        <h3 id="jade-template-cache">template cache</h3> 
        <p>Cache is OFF when <code class="highlighter-rouge codehilite">application.env = dev</code> (useful for template reloading), otherwise is ON and does not expire, unless you explicitly set <code class="highlighter-rouge codehilite">jade.caching</code>.</p> 
        <h3 id="jade-pretty-print">pretty print</h3> 
@@ -199,7 +199,7 @@
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <p class="pull-left">©2014-2018 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
     <div class="follow-us pull-right"> 
      <p>Follow us</p>
      <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
@@ -208,10 +208,9 @@
    </div> 
   </footer> 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
-  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/libs/jquery-2.1.4.min.js"><\/script>')</script> 
   <script src="/resources/scripts/libs/swiper.min.js"></script> 
   <script src="/resources/scripts/application.js"></script> 
-  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
   <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

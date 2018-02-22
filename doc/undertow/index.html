@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.3" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.3.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -101,7 +101,8 @@
         <li> <a href="#undertow-exports">exports</a></li> 
         <li> <a href="#undertow-dependency">dependency</a></li> 
         <li> <a href="#undertow-usage">usage</a></li> 
-        <li> <a href="#undertow-http-2">http/2</a></li>
+        <li> <a href="#undertow-http-2">http/2</a></li> 
+        <li> <a href="#undertow-server-conf">server.conf</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -124,7 +125,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-undertow<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.2.3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.3.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -143,6 +144,95 @@
        </div> 
        <p>You need <code class="highlighter-rouge codehilite">Java 8 Update 71</code> or higher (integration tests uses <code class="highlighter-rouge codehilite">Java 8 Update 101</code>).</p> 
        <p>See <a href="https://www.java.com/en/download/faq/release_dates.xml" target="_blank">Java 8 releases</a> for more details.</p> 
+       <h3 id="undertow-server-conf">server.conf</h3> 
+       <p>These are the default properties for undertow:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="c"># undertow defaults </span>
+<span class="py">server.module</span> <span class="p">=</span> <span class="s">org.jooby.undertow.Undertow</span>
+
+<span class="py">server.http2.cleartext</span> <span class="p">=</span> <span class="s">true</span>
+
+<span class="err">undertow</span> <span class="err">{</span>
+
+  <span class="py">bufferSize</span> <span class="p">=</span> <span class="s">${server.http.ResponseBufferSize}</span>
+
+  <span class="py">workerThreads</span> <span class="p">=</span> <span class="s">${server.threads.Max}</span>
+
+  <span class="c"># Waits a set length of time for the handler to shut down. It provides a way to prevent the server </span>
+  <span class="c"># from accepting new requests, and wait for existing requests to complete </span>
+  <span class="py">awaitShutdown</span> <span class="p">=</span> <span class="s">1000</span>
+
+  <span class="err">server</span> <span class="err">{</span>
+
+    <span class="py">ALLOW_EQUALS_IN_COOKIE_VALUE</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="py">ALWAYS_SET_KEEP_ALIVE</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="c"># The maximum size in bytes of a http request header. </span>
+    <span class="py">MAX_HEADER_SIZE</span> <span class="p">=</span> <span class="s">${server.http.HeaderSize}</span>
+
+    <span class="c"># The default maximum size of the HTTP entity body. </span>
+    <span class="py">MAX_ENTITY_SIZE</span> <span class="p">=</span> <span class="s">${server.http.MaxRequestSize}</span>
+
+    <span class="c"># The maximum number of parameters that will be parsed. This is used to protect against hash </span>
+    <span class="c"># vulnerabilities. </span>
+    <span class="c"># This applies to both query parameters, and to POST data, but is not cumulative </span>
+    <span class="c"># (i.e. you can potentially have max parameters * 2 total parameters). </span>
+    <span class="py">MAX_PARAMETERS</span> <span class="p">=</span> <span class="s">1000</span>
+
+    <span class="c"># The maximum number of headers that will be parsed. This is used to protect against hash </span>
+    <span class="c"># vulnerabilities. </span>
+    <span class="py">MAX_HEADERS</span> <span class="p">=</span> <span class="s">200</span>
+
+    <span class="c"># The maximum number of headers that will be parsed. This is used to protect against hash </span>
+    <span class="c"># vulnerabilities. </span>
+    <span class="py">MAX_COOKIES</span> <span class="p">=</span> <span class="s">200</span>
+
+    <span class="py">URL_CHARSET</span> <span class="p">=</span> <span class="s">${application.charset}</span>
+
+    <span class="c"># If this is true then the parser will decode the URL and query parameters using the selected </span>
+    <span class="c"># character encoding (URL_CHARSET by default). If this is false they will not be decoded. </span>
+    <span class="c"># This will allow a later handler to decode them into whatever charset is desired. </span>
+    <span class="py">DECODE_URL</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="c"># The idle timeout in milliseconds after which the channel will be closed. </span>
+    <span class="c"># If the underlying channel already has a read or write timeout set the smaller of the two values will be used </span>
+    <span class="c"># for read/write timeouts. </span>
+    <span class="py">IDLE_TIMEOUT</span> <span class="p">=</span> <span class="s">${server.http.IdleTimeout}</span>
+
+  <span class="err">}</span>
+
+  <span class="err">worker</span> <span class="err">{</span>
+
+    <span class="py">WORKER_NAME</span> <span class="p">=</span> <span class="s">utow</span>
+
+  <span class="err">}</span>
+
+  <span class="err">socket</span> <span class="err">{</span>
+
+    <span class="py">BACKLOG</span> <span class="p">=</span> <span class="s">1024</span>
+
+  <span class="err">}</span>
+
+  <span class="err">ws</span> <span class="err">{</span>
+
+    <span class="c"># The maximum size of a text message during parsing/generating. </span>
+    <span class="py">MaxTextBufferSize</span> <span class="p">=</span> <span class="s">${server.ws.MaxTextMessageSize}</span>
+
+    <span class="c"># The maximum size of a binary message during parsing/generating. </span>
+    <span class="py">MaxBinaryBufferSize</span> <span class="p">=</span> <span class="s">${server.ws.MaxBinaryMessageSize}</span>
+
+    <span class="c"># The time in ms (milliseconds) that a websocket may be idle before closing. </span>
+    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">${server.ws.IdleTimeout}</span>
+
+  <span class="err">}</span>
+
+<span class="err">}</span>
+</code></pre> 
+       </div> 
       </div> 
      </div> 
     </div> 
@@ -150,7 +240,7 @@
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <p class="pull-left">©2014-2018 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
     <div class="follow-us pull-right"> 
      <p>Follow us</p>
      <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
@@ -159,10 +249,9 @@
    </div> 
   </footer> 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
-  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/libs/jquery-2.1.4.min.js"><\/script>')</script> 
   <script src="/resources/scripts/libs/swiper.min.js"></script> 
   <script src="/resources/scripts/application.js"></script> 
-  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
   <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

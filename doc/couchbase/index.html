@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.3" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.3.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -105,7 +105,8 @@
         <li> <a href="#couchbase-reactive-usage">reactive usage</a></li> 
         <li> <a href="#couchbase-multiple-buckets">multiple buckets</a></li> 
         <li> <a href="#couchbase-multiple-clusters">multiple clusters</a></li> 
-        <li> <a href="#couchbase-options">options</a></li>
+        <li> <a href="#couchbase-options">options</a></li> 
+        <li> <a href="#couchbase-couchbase-conf">couchbase.conf</a></li>
        </ul></li> 
       <li class=""> <a href="#couchbase-session-store">couchbase session store</a>
        <ul> 
@@ -131,7 +132,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-couchbase<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.2.3<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.3.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -402,6 +403,30 @@
 couchbase.cluster.password = bar
 </code></pre> 
        </div> 
+       <h3 id="couchbase-couchbase-conf">couchbase.conf</h3> 
+       <p>These are the default properties for couchbase:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="c"># configure the environment by adding properties to the `couchbase.env` namespace, like: </span>
+<span class="c"># couchbase.env.kvEndpoints = 2 </span>
+<span class="c"># Some custom error codes </span>
+<span class="err">err</span> <span class="err">{</span>
+
+  <span class="py">com.couchbase.client.java.error.BucketAlreadyExistsException</span> <span class="p">=</span> <span class="s">400</span>
+
+  <span class="py">com.couchbase.client.java.error.BucketDoesNotExistException</span> <span class="p">=</span> <span class="s">404</span>
+
+  <span class="py">com.couchbase.client.java.error.DocumentAlreadyExistsException</span> <span class="p">=</span> <span class="s">400</span>
+
+  <span class="py">com.couchbase.client.java.error.DocumentDoesNotExistException</span> <span class="p">=</span> <span class="s">404</span>
+
+  <span class="py">com.couchbase.client.java.error.QueryExecutionException</span> <span class="p">=</span> <span class="s">400</span>
+
+<span class="err">}</span>
+</code></pre> 
+       </div> 
       </div> 
      </div> 
      <div class="datalist" id="couchbase-session-store"> 
@@ -418,7 +443,7 @@ couchbase.cluster.password = bar
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-couchbase<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.2.3<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.3.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -488,7 +513,7 @@ couchbase.cluster.password = bar
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <p class="pull-left">©2014-2018 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
     <div class="follow-us pull-right"> 
      <p>Follow us</p>
      <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
@@ -497,10 +522,9 @@ couchbase.cluster.password = bar
    </div> 
   </footer> 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
-  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/libs/jquery-2.1.4.min.js"><\/script>')</script> 
   <script src="/resources/scripts/libs/swiper.min.js"></script> 
   <script src="/resources/scripts/application.js"></script> 
-  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
   <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

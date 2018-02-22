@@ -11,7 +11,7 @@
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: pac4j module"> 
-  <meta name="og:description" content="Authentication module via: Pac4j"> 
+  <meta name="og:description" content="Authentication module via: Pac4j 1"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="Authentication module via: Pac4j"> 
+  <meta name="twitter:description" content="Authentication module via: Pac4j 1"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.3" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.3.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -104,7 +104,8 @@
         <li> <a href="#pac4j-clients">clients</a></li> 
         <li> <a href="#pac4j-protecting-urls">protecting urls</a></li> 
         <li> <a href="#pac4j-user-profile">user profile</a></li> 
-        <li> <a href="#pac4j-logout">logout</a></li>
+        <li> <a href="#pac4j-logout">logout</a></li> 
+        <li> <a href="#pac4j-auth-conf">auth.conf</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -114,7 +115,10 @@
        <h2>pac4j</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Authentication module via: <a href="https://github.com/pac4j/pac4j" target="_blank">Pac4j</a>.</p> 
+       <p>Authentication module via: <a href="https://github.com/pac4j/pac4j" target="_blank">Pac4j 1.x</a>.</p> 
+       <blockquote> 
+        <p><strong>DEPRECATED</strong>: This module has been replaced by <a href="/doc/pac4j2">Pac4j 2.x</a>.</p> 
+       </blockquote> 
        <h3 id="pac4j-exports">exports</h3> 
        <ul> 
         <li><code class="highlighter-rouge codehilite">Clients</code></li> 
@@ -130,7 +134,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-pac4j<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.2.3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.3.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -151,7 +155,7 @@
        </div> 
        <p>Previous example adds a very basic but ready to use form login auth every time you try to access to <code class="highlighter-rouge codehilite">/private</code> or any route defined below the auth module.</p> 
        <h3 id="pac4j-clients">clients</h3> 
-       <p><a href="https://github.com/pac4j/pac4j" target="_blank">Pac4j</a> is a powerful library that supports multiple <a href="http://www.pac4j.org/docs/clients.html" target="_blank">clients</a> and/or authentication protocols. In the next example, we will see how to configure the most basic of them, but also some complex protocols.</p> 
+       <p><a href="https://github.com/pac4j/pac4j" target="_blank">Pac4j 1.x</a> is a powerful library that supports multiple <a href="http://www.pac4j.org/docs/clients.html" target="_blank">clients</a> and/or authentication protocols. In the next example, we will see how to configure the most basic of them, but also some complex protocols.</p> 
        <h4 id="pac4j-basic-auth">basic auth</h4> 
        <p>If basic auth is all you need, then:</p> 
        <div class="highlighter-rouge codehilite">
@@ -290,6 +294,40 @@
 </code></pre> 
        </div> 
        <p>That’s all folks! Enjoy it!!!</p> 
+       <h3 id="pac4j-auth-conf">auth.conf</h3> 
+       <p>These are the default properties for pac4j:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="err">auth</span> <span class="err">{</span>
+
+  <span class="c"># default callback, like http://localhost:8080/auth </span>
+  <span class="py">callback</span> <span class="p">=</span> <span class="s">"http://"${application.host}":"${application.port}${contextPath}"/auth"</span>
+
+  <span class="c"># login options </span>
+  <span class="err">login</span> <span class="err">{</span>
+
+    <span class="c"># Where to go after a successful login? Default is: ${application.path} </span>
+    <span class="py">redirectTo</span> <span class="p">=</span> <span class="s">""</span>
+
+  <span class="err">}</span>
+
+  <span class="c"># logout options </span>
+  <span class="err">logout</span> <span class="err">{</span>
+
+    <span class="py">url</span> <span class="p">=</span> <span class="s">/logout</span>
+
+    <span class="py">redirectTo</span> <span class="p">=</span> <span class="s">${application.path}</span>
+
+  <span class="err">}</span>
+
+  <span class="c"># form auth </span>
+  <span class="py">form.loginUrl</span> <span class="p">=</span> <span class="s">/login</span>
+
+<span class="err">}</span>
+</code></pre> 
+       </div> 
       </div> 
      </div> 
     </div> 
@@ -297,7 +335,7 @@
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <p class="pull-left">©2014-2018 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
     <div class="follow-us pull-right"> 
      <p>Follow us</p>
      <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
@@ -306,10 +344,9 @@
    </div> 
   </footer> 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
-  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/libs/jquery-2.1.4.min.js"><\/script>')</script> 
   <script src="/resources/scripts/libs/swiper.min.js"></script> 
   <script src="/resources/scripts/application.js"></script> 
-  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
   <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

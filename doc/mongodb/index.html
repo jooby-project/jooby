@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.3" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.3.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -108,7 +108,8 @@
        <ul> 
         <li> <a href="#mongodb-session-store-dependency">dependency</a></li> 
         <li> <a href="#mongodb-session-store-usage">usage</a></li> 
-        <li> <a href="#mongodb-session-store-options">options</a></li>
+        <li> <a href="#mongodb-session-store-options">options</a></li> 
+        <li> <a href="#mongodb-session-store-mongodb-conf">mongodb.conf</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -133,7 +134,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-mongodb<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.2.3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.3.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -252,7 +253,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-mongodb<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.2.3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.3.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -298,6 +299,47 @@
        <h4 id="mongodb-session-store-session-collection">session collection</h4> 
        <p>Default <a href="http://mongodb.github.io/mongo-java-driver/" target="_blank">MongoDB</a> collection is <code class="highlighter-rouge codehilite">sessions</code>.</p> 
        <p>It’s possible to change the default key setting the <code class="highlighter-rouge codehilite">mongodb.sesssion.collection</code> properties.</p> 
+       <h3 id="mongodb-session-store-mongodb-conf">mongodb.conf</h3> 
+       <p>These are the default properties for mongodb:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="c">################################################################################################### </span>
+<span class="c"># mongodb </span>
+<span class="c">################################################################################################### </span>
+<span class="py">mongodb.connectionsPerHost</span> <span class="p">=</span> <span class="s">100</span>
+
+<span class="py">mongodb.threadsAllowedToBlockForConnectionMultiplier</span> <span class="p">=</span> <span class="s">5</span>
+
+<span class="py">mongodb.maxWaitTime</span> <span class="p">=</span> <span class="s">120s</span>
+
+<span class="py">mongodb.connectTimeout</span> <span class="p">=</span> <span class="s">10s</span>
+
+<span class="py">mongodb.socketTimeout</span> <span class="p">=</span> <span class="s">0</span>
+
+<span class="py">mongodb.socketKeepAlive</span> <span class="p">=</span> <span class="s">false</span>
+
+<span class="py">mongodb.cursorFinalizerEnabled</span> <span class="p">=</span> <span class="s">true</span>
+
+<span class="py">mongodb.alwaysUseMBeans</span> <span class="p">=</span> <span class="s">false</span>
+
+<span class="py">mongodb.heartbeatFrequency</span> <span class="p">=</span> <span class="s">5000</span>
+
+<span class="py">mongodb.minHeartbeatFrequency</span> <span class="p">=</span> <span class="s">500</span>
+
+<span class="py">mongodb.heartbeatConnectTimeout</span> <span class="p">=</span> <span class="s">20s</span>
+
+<span class="py">mongodb.heartbeatSocketTimeout</span> <span class="p">=</span> <span class="s">20s</span>
+
+<span class="c">################################################################################################### </span>
+<span class="c"># session datastore </span>
+<span class="c"># collection: sessions </span>
+<span class="c"># timeout: 30m </span>
+<span class="c">################################################################################################### </span>
+<span class="py">mongodb.session.collection</span> <span class="p">=</span> <span class="s">sessions</span>
+</code></pre> 
+       </div> 
       </div> 
      </div> 
     </div> 
@@ -305,7 +347,7 @@
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <p class="pull-left">©2014-2018 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
     <div class="follow-us pull-right"> 
      <p>Follow us</p>
      <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
@@ -314,10 +356,9 @@
    </div> 
   </footer> 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
-  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/libs/jquery-2.1.4.min.js"><\/script>')</script> 
   <script src="/resources/scripts/libs/swiper.min.js"></script> 
   <script src="/resources/scripts/application.js"></script> 
-  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
   <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

@@ -11,7 +11,7 @@
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: flyway module"> 
-  <meta name="og:description" content="Evolve your Database Schema easily and reliably across all your instances"> 
+  <meta name="og:description" content="Evolve your database schema easily and reliably across all your instances"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="Evolve your Database Schema easily and reliably across all your instances"> 
+  <meta name="twitter:description" content="Evolve your database schema easily and reliably across all your instances"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.2.3" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.3.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -102,7 +102,8 @@
         <li> <a href="#flyway-usage">usage</a></li> 
         <li> <a href="#flyway-migration-scripts">migration scripts</a></li> 
         <li> <a href="#flyway-commands">commands</a></li> 
-        <li> <a href="#flyway-configuration">configuration</a></li>
+        <li> <a href="#flyway-configuration">configuration</a></li> 
+        <li> <a href="#flyway-flyway-conf">flyway.conf</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -112,10 +113,10 @@
        <h2>flyway</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Evolve your Database Schema easily and reliably across all your instances.</p> 
-       <p>This module run <a href="http://flywaydb.org" target="_blank">Flyway</a> on startup and apply database migration.</p> 
+       <p>Evolve your database schema easily and reliably across all your instances.</p> 
+       <p>This module run <a href="http://flywaydb.org" target="_blank">Flyway</a> on startup and apply database migrations.</p> 
        <blockquote> 
-        <p>NOTE: This module depends on <a href="/doc/jdbc">jdbc</a> module so all the services provided by the <a href="/doc/jdbc">jdbc</a> module.</p> 
+        <p>NOTE: This module depends on <a href="/doc/jdbc">jdbc</a> module to acquire a database connection.</p> 
        </blockquote> 
        <h3 id="flyway-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
@@ -125,7 +126,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-flyway<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.2.3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.3.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -176,8 +177,116 @@ v0.1.1_My_small_change.sql
 </code></pre> 
        </div> 
        <h3 id="flyway-configuration">configuration</h3> 
-       <p>Configuration is done via <code class="highlighter-rouge codehilite">application.conf</code> under the <code class="highlighter-rouge codehilite">flyway.*</code> path. There are some defaults setting that you can see in the appendix.</p> 
+       <p>Configuration is done via <code class="highlighter-rouge codehilite">application.conf</code> under the <code class="highlighter-rouge codehilite">flyway.*</code> path. There are some defaults setting that you can see in the appendix section.</p> 
        <p>For more information, please visit the <a href="http://flywaydb.org" target="_blank">Flyway</a> site.</p> 
+       <h3 id="flyway-flyway-conf">flyway.conf</h3> 
+       <p>These are the default properties for flyway:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="c"># </span>
+<span class="c"># Copyright 2010-2015 Axel Fontaine </span>
+<span class="c"># </span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the "License"); </span>
+<span class="c"># you may not use this file except in compliance with the License. </span>
+<span class="c"># You may obtain a copy of the License at </span>
+<span class="c"># </span>
+<span class="c"># http://www.apache.org/licenses/LICENSE-2.0 </span>
+<span class="c"># </span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software </span>
+<span class="c"># distributed under the License is distributed on an "AS IS" BASIS, </span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. </span>
+<span class="c"># See the License for the specific language governing permissions and </span>
+<span class="c"># limitations under the License. </span>
+<span class="c"># </span>
+<span class="c"># If present, flyway will run as standalone on application startup. Otherwise, it depends on a DataSource provided by Jdbc module (usally) </span>
+<span class="c"># flyway.url= </span>
+<span class="c"># list of commands to run on startup </span>
+<span class="py">flyway.run</span> <span class="p">=</span> <span class="s">[migrate]</span>
+
+<span class="c"># Fully qualified classname of the jdbc driver (autodetected by default based on flyway.url) </span>
+<span class="c"># flyway.driver= </span>
+<span class="c"># User to use to connect to the database (default: &lt;&lt;null&gt;&gt;) </span>
+<span class="c"># flyway.user= </span>
+<span class="c"># Password to use to connect to the database (default: &lt;&lt;null&gt;&gt;) </span>
+<span class="c"># flyway.password= </span>
+<span class="c"># List of schemas managed by Flyway. These schema names are case-sensitive. </span>
+<span class="c"># (default: The default schema for the datasource connection) </span>
+<span class="c"># Consequences: </span>
+<span class="c"># - The first schema in the list will be automatically set as the default one during the migration. </span>
+<span class="c"># - The first schema in the list will also be the one containing the metadata table. </span>
+<span class="c"># - The schemas will be cleaned in the order of this list. </span>
+<span class="c"># flyway.schemas= </span>
+<span class="c"># Name of Flyway's metadata table (default: schema_version) </span>
+<span class="c"># By default (single-schema mode) the metadata table is placed in the default schema for the connection provided by the datasource. </span>
+<span class="c"># When the flyway.schemas property is set (multi-schema mode), the metadata table is placed in the first schema of the list. </span>
+<span class="c"># flyway.table= </span>
+<span class="c"># List of locations to scan recursively for migrations. </span>
+<span class="c"># The location type is determined by its prefix. </span>
+<span class="c"># Unprefixed locations or locations starting with classpath: point to a package on the classpath and may contain both sql and java-based migrations. </span>
+<span class="c"># Locations starting with filesystem: point to a directory on the filesystem and may only contain sql migrations. </span>
+<span class="py">flyway.locations</span><span class="p">=</span> <span class="s">[db/migration]</span>
+
+<span class="c"># List of fully qualified class names of custom MigrationResolver to use for resolving migrations. </span>
+<span class="c"># flyway.resolvers= </span>
+<span class="c"># File name prefix for Sql migrations (default: v ) </span>
+<span class="c"># Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix , </span>
+<span class="c"># which using the defaults translates to V1_1__My_description.sql </span>
+<span class="py">flyway.sqlMigrationPrefix</span><span class="p">=</span><span class="s">v</span>
+
+<span class="c"># File name separator for Sql migrations (default: _) </span>
+<span class="c"># Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix , </span>
+<span class="c"># which using the defaults translates to V1_1__My_description.sql </span>
+<span class="py">flyway.sqlMigrationSeparator</span><span class="p">=</span><span class="s">_</span>
+
+<span class="c"># File name suffix for Sql migrations (default: .sql) </span>
+<span class="c"># Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix , </span>
+<span class="c"># which using the defaults translates to V1_1__My_description.sql </span>
+<span class="c"># flyway.sqlMigrationSuffix= </span>
+<span class="c"># Encoding of Sql migrations (default: UTF-8) </span>
+<span class="py">flyway.encoding</span><span class="p">=</span><span class="s">${application.charset}</span>
+
+<span class="c"># Whether placeholders should be replaced. (default: true) </span>
+<span class="c"># flyway.placeholderReplacement= </span>
+<span class="c"># Placeholders to replace in Sql migrations </span>
+<span class="c"># flyway.placeholders.user= </span>
+<span class="c"># flyway.placeholders.my_other_placeholder= </span>
+<span class="c"># Prefix of every placeholder (default: ${ ) </span>
+<span class="c"># flyway.placeholderPrefix= </span>
+<span class="c"># Suffix of every placeholder (default: } ) </span>
+<span class="c"># flyway.placeholderSuffix= </span>
+<span class="c"># Target version up to which Flyway should consider migrations. </span>
+<span class="c"># The special value 'current' designates the current version of the schema. (default: &lt;&lt;latest version&gt;&gt;) </span>
+<span class="c"># flyway.target= </span>
+<span class="c"># Whether to automatically call validate or not when running migrate. (default: true) </span>
+<span class="c"># flyway.validateOnMigrate= </span>
+<span class="c"># Whether to automatically call clean or not when a validation error occurs. (default: false) </span>
+<span class="c"># This is exclusively intended as a convenience for development. Even tough we </span>
+<span class="c"># strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a </span>
+<span class="c"># way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that </span>
+<span class="c"># the next migration will bring you back to the state checked into SCM. </span>
+<span class="c"># Warning ! Do not enable in production ! </span>
+<span class="c"># flyway.cleanOnValidationError= </span>
+<span class="c"># The version to tag an existing schema with when executing baseline. (default: 1) </span>
+<span class="c"># flyway.baselineVersion= </span>
+<span class="c"># The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;) </span>
+<span class="c"># flyway.baselineDescription= </span>
+<span class="c"># Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table. </span>
+<span class="c"># This schema will then be initialized with the baselineVersion before executing the migrations. </span>
+<span class="c"># Only migrations above baselineVersion will then be applied. </span>
+<span class="c"># This is useful for initial Flyway production deployments on projects with an existing DB. </span>
+<span class="c"># Be careful when enabling this as it removes the safety net that ensures </span>
+<span class="c"># Flyway does not migrate the wrong database in case of a configuration mistake! (default: false) </span>
+<span class="c"># flyway.baselineOnMigrate= </span>
+<span class="c"># Allows migrations to be run "out of order" (default: false). </span>
+<span class="c"># If you already have versions 1 and 3 applied, and now a version 2 is found, </span>
+<span class="c"># it will be applied too instead of being ignored. </span>
+<span class="c"># flyway.outOfOrder= </span>
+<span class="c"># This allows you to tie in custom code and logic to the Flyway lifecycle notifications (default: empty). </span>
+<span class="c"># Set this to a comma-separated list of fully qualified FlywayCallback class name implementations </span>
+<span class="c"># flyway.callbacks= </span></code></pre> 
+       </div> 
       </div> 
      </div> 
     </div> 
@@ -185,7 +294,7 @@ v0.1.1_My_small_change.sql
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2017 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <p class="pull-left">©2014-2018 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
     <div class="follow-us pull-right"> 
      <p>Follow us</p>
      <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
@@ -194,10 +303,9 @@ v0.1.1_My_small_change.sql
    </div> 
   </footer> 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
-  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/libs/jquery-2.1.4.min.js"><\/script>')</script> 
   <script src="/resources/scripts/libs/swiper.min.js"></script> 
   <script src="/resources/scripts/application.js"></script> 
-  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
   <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
