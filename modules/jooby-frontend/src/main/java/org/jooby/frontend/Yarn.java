@@ -205,15 +205,14 @@ package org.jooby.frontend;
 
 import com.github.eirslett.maven.plugins.frontend.lib.FrontendPluginFactory;
 import com.github.eirslett.maven.plugins.frontend.lib.InstallationException;
-import com.github.eirslett.maven.plugins.frontend.lib.NpmRunner;
 import com.github.eirslett.maven.plugins.frontend.lib.ProxyConfig;
+import com.github.eirslett.maven.plugins.frontend.lib.YarnRunner;
 import com.typesafe.config.Config;
 import org.jooby.funzy.Throwing;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -348,17 +347,16 @@ public class Yarn extends Frontend {
   protected NodeTask newTask(FrontendPluginFactory factory, Config conf, ProxyConfig proxy,
       Map<String, String> env, String nodeVersion) throws InstallationException {
     Function<String, String> property = key -> conf.hasPath(key) ? conf.getString(key) : null;
-    factory.getNPMInstaller(proxy)
-        .setNpmVersion(yarnVersion)
-        .setNodeVersion(nodeVersion)
-        .setNpmDownloadRoot(conf.getString("yarn.downloadRoot"))
-        .setUserName(property.apply("yarn.username"))
-        .setPassword(property.apply("yarn.password"))
-        .install();
-    NpmRunner npm = factory.getNpmRunner(proxy, conf.getString("yarn.registryURL"));
+    factory.getYarnInstaller(proxy)
+            .setYarnVersion(yarnVersion)
+            .setYarnDownloadRoot(conf.getString("yarn.downloadRoot"))
+            .setUserName(property.apply("yarn.username"))
+            .setPassword(property.apply("yarn.password"))
+            .install();
+    YarnRunner yarn = factory.getYarnRunner(proxy, conf.getString("npm.registryURL"));
     return (cmd, args) -> {
       String cmdline = cmd + " " + Arrays.asList(args).stream().collect(Collectors.joining(" "));
-      npm.execute(cmdline, env);
+      yarn.execute(cmdline, env);
     };
   }
 
