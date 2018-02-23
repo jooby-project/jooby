@@ -348,17 +348,16 @@ public class Yarn extends Frontend {
   protected NodeTask newTask(FrontendPluginFactory factory, Config conf, ProxyConfig proxy,
       Map<String, String> env, String nodeVersion) throws InstallationException {
     Function<String, String> property = key -> conf.hasPath(key) ? conf.getString(key) : null;
-    factory.getNPMInstaller(proxy)
-        .setNpmVersion(yarnVersion)
-        .setNodeVersion(nodeVersion)
-        .setNpmDownloadRoot(conf.getString("yarn.downloadRoot"))
-        .setUserName(property.apply("yarn.username"))
-        .setPassword(property.apply("yarn.password"))
-        .install();
-    NpmRunner npm = factory.getNpmRunner(proxy, conf.getString("yarn.registryURL"));
+    factory.getYarnInstaller(proxy)
+            .setYarnVersion(yarnVersion)
+            .setYarnDownloadRoot(conf.getString("yarn.downloadRoot"))
+            .setUserName(property.apply("yarn.username"))
+            .setPassword(property.apply("yarn.password"))
+            .install();
+    YarnRunner yarn = factory.getYarnRunner(proxy, conf.getString("npm.registryURL"));
     return (cmd, args) -> {
       String cmdline = cmd + " " + Arrays.asList(args).stream().collect(Collectors.joining(" "));
-      npm.execute(cmdline, env);
+      yarn.execute(cmdline, env);
     };
   }
 
