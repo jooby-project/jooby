@@ -3551,7 +3551,7 @@ server.threads.Max = ${runtime.processors}
        </ul> 
        <p>Testing <code class="highlighter-rouge codehilite">MVC</code> routes is pretty straightforward since a route is bound to a method of some class. This makes it simple to mock and run unit tests against these kinds of routes.</p> 
        <p>To test <code class="highlighter-rouge codehilite">script</code> routes is more involved since a route is represented by a <code class="highlighter-rouge codehilite">lambda</code> and there is no easy or simple way to get access to the lambda object.</p> 
-       <p>For this reason there’s a <a href="/apidocs/org/jooby/mvc/MockRouter.html" target="_blank">MockRouter</a> provided to simplify unit testing of <code class="highlighter-rouge codehilite">script routes</code>:</p> 
+       <p>For this reason there’s a <a href="/apidocs/org/jooby/test/MockRouter.html" target="_blank">MockRouter</a> provided to simplify unit testing of <code class="highlighter-rouge codehilite">script routes</code>:</p> 
        <h4 id="tests-usage">usage</h4> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -3579,7 +3579,7 @@ server.threads.Max = ${runtime.processors}
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Just create a new instance of <a href="/apidocs/org/jooby/mvc/MockRouter.html" target="_blank">MockRouter</a> with your application and call one of the HTTP method, like <code class="highlighter-rouge codehilite">get</code>, <code class="highlighter-rouge codehilite">post</code>, etc…</p> 
+       <p>Just create a new instance of <a href="/apidocs/org/jooby/test/MockRouter.html" target="_blank">MockRouter</a> with your application and call one of the HTTP method, like <code class="highlighter-rouge codehilite">get</code>, <code class="highlighter-rouge codehilite">post</code>, etc…</p> 
        <h4 id="tests-mocks">mocks</h4> 
        <p>You’re free to choose the mock library of your choice. Here is an example using <a href="http://easymock.org" target="_blank">EasyMock</a>:</p> 
        <div class="highlighter-rouge codehilite">
@@ -3689,7 +3689,7 @@ server.threads.Max = ${runtime.processors}
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>The <a href="/apidocs/org/jooby/mvc/MockRouter.html#set-java.lang.Object-" target="_blank">MockRouter#set(Object)</a> calls push and will register an external dependency (usually a mock). This makes it possible to resolve services from <code class="highlighter-rouge codehilite">require</code> calls.</p> 
+       <p>The <a href="/apidocs/org/jooby/test/MockRouter.html#set-java.lang.Object-" target="_blank">MockRouter#set(Object)</a> calls push and will register an external dependency (usually a mock). This makes it possible to resolve services from <code class="highlighter-rouge codehilite">require</code> calls.</p> 
        <h4 id="tests-deferred">deferred</h4> 
        <p>Mocking of promises is possible as well:</p> 
        <div class="highlighter-rouge codehilite">
