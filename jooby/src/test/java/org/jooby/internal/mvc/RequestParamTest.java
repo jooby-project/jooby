@@ -67,14 +67,14 @@ public class RequestParamTest {
     RequestParam requestParam = new RequestParam(param, "myLocal", param.getParameterizedType());
     
     // verify that with a mock request we can indeed retrieve the 'myLocal' value
-    new MockUnit(RequestParam.class, Request.class, Response.class, Route.Chain.class)
+    new MockUnit(Request.class)
         .expect(unit -> {
           Request request = unit.get(Request.class);
           expect(request.ifGet("myLocal")).andReturn(Optional.of("myCustomValue"));
           verify();
         })
         .run((unit) -> {
-          Object output = requestParam.value(unit.get(Request.class), unit.get(Response.class), unit.get(Route.Chain.class));
+          Object output = requestParam.value(unit.get(Request.class), null, null);
           assertEquals("myCustomValue", output);
         });
   }
@@ -85,7 +85,7 @@ public class RequestParamTest {
     RequestParam requestParam = new RequestParam(param, "myLocal", param.getParameterizedType());
     
     // verify that we return a descriptive error when myLocal could not be located
-    new MockUnit(RequestParam.class, Request.class, Response.class, Route.Chain.class)
+    new MockUnit(Request.class)
         .expect(unit -> {
           Request request = unit.get(Request.class);
           expect(request.path()).andReturn("/mypath");
@@ -95,10 +95,9 @@ public class RequestParamTest {
         .run((unit) -> {
           RuntimeException exception = null;
           try {
-            requestParam.value(unit.get(Request.class), unit.get(Response.class), unit.get(Route.Chain.class));
+            requestParam.value(unit.get(Request.class), null, null);
           } catch(RuntimeException e) {
             exception = e;
-            e.printStackTrace();
           }
           assertNotNull("Should have thrown an exception because the myLocal is not present", exception);
           assertEquals("Server Error(500): Could not find required local 'myLocal', which was required on /mypath", exception.getMessage());
