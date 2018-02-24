@@ -212,14 +212,7 @@ import java.util.Optional;
 
 import javax.inject.Named;
 
-import org.jooby.Cookie;
-import org.jooby.Err;
-import org.jooby.Mutant;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Session;
-import org.jooby.Upload;
+import org.jooby.*;
 import org.jooby.mvc.Body;
 import org.jooby.mvc.Flash;
 import org.jooby.mvc.Header;
@@ -316,7 +309,11 @@ public class RequestParam {
       if (param.optional) {
         return local;
       }
-      return local.get();
+      if(local.isPresent()) {
+        return local.get();
+      } else {
+        throw new Err(Status.SERVER_ERROR, "Could not find required local '" + param.name + "', which was required on " + req.path());
+      }
     });
 
     /**
