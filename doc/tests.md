@@ -13,7 +13,7 @@ Testing ```MVC``` routes is pretty straightforward since a route is bound to a m
 
 To test ```script``` routes is more involved since a route is represented by a ```lambda``` and there is no easy or simple way to get access to the lambda object.
 
-For this reason there's a [MockRouter]({{defdocs}}/mvc/MockRouter.html) provided to simplify unit testing of ```script routes```:
+For this reason there's a [MockRouter]({{defdocs}}/test/MockRouter.html) provided to simplify unit testing of ```script routes```:
 
 ### usage
 
@@ -38,7 +38,7 @@ public void simpleTest() {
 }
 ```
 
-Just create a new instance of [MockRouter]({{defdocs}}/mvc/MockRouter.html) with your application and call one of the HTTP method, like ```get```, ```post```, etc...
+Just create a new instance of [MockRouter]({{defdocs}}/test/MockRouter.html) with your application and call one of the HTTP method, like ```get```, ```post```, etc...
 
 ### mocks
 
@@ -137,7 +137,7 @@ public void shouldMockExternalDependencies() {
 }
 ```
 
-The [MockRouter#set(Object)]({{defdocs}}/mvc/MockRouter.html#set-java.lang.Object-) calls push and will register an external dependency (usually a mock). This makes it possible to resolve services from ```require``` calls.
+The [MockRouter#set(Object)]({{defdocs}}/test/MockRouter.html#set-java.lang.Object-) calls push and will register an external dependency (usually a mock). This makes it possible to resolve services from ```require``` calls.
 
 ### deferred
 

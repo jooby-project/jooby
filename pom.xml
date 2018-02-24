@@ -2879,9 +2879,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>${maven-javadoc-plugin.version}</version>
             <configuration>
-              <excludePackageNames>
-                org.jooby.internal:org.jooby.test:com.impossibl.postgres.jdbc:org.skife.jdbi.v2
-              </excludePackageNames>
+              <excludePackageNames>${javadoc.excludes}</excludePackageNames>
               <aggregate>true</aggregate>
               <show>public</show>
             </configuration>
@@ -2959,9 +2957,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
               </execution>
             </executions>
             <configuration>
-              <excludePackageNames>
-                org.jooby.internal:org.jooby.test:com.impossibl.postgres.jdbc:org.skife.jdbi.v2
-              </excludePackageNames>
+              <excludePackageNames>${javadoc.excludes}</excludePackageNames>
               <aggregate>true</aggregate>
               <show>public</show>
             </configuration>
@@ -3142,5 +3138,6 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
 
     <jooby.version>${project.version}</jooby.version>
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
+    <javadoc.excludes>org.jooby.internal:com.impossibl.postgres.jdbc:org.skife.jdbi.v2</javadoc.excludes>
   </properties>
 </project>
