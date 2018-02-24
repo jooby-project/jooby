@@ -390,26 +390,33 @@ Local attributes (a.k.a request attributes) are bound to the current request. Th
 }
 ```
 
-In ```mvc routes``` request locals can be injected via the ```@Local``` annotation:
+In ```mvc routes``` request locals can be injected via the ```@Local``` annotation by defining a method parameter with the same name as a request local:
 
 ```java
 
   @GET
   public Result localAttr(@Local String var) {
-    ...
+    // either var will be set to a previously configured value or an error is thrown when this method is requested
   }
 
   @GET
   public Result ifLocalAttr(@Local Optional<String> var) {
-    ...
+    // var will contain an optional that may be empty if no value was previously configured
   }
 
   @GET
   public Result attributes(@Local Map<String, Object> attributes) {
-    ...
+    // attributes contains the map of local attributes
   }
 
 ```
+
+Locals that are available by default include:
+
+* `path`: the request path, i.e. `/myroute`
+* `contextPath`: application path (a.k.a context path). It is the value defined by: `application.path`.
+* When the `Assets` module is enabled: your asset filesets postfixed with `_css` and `_js`
+* When the `Flash` module is enabled: `flash`, the map of flash key/values
 
 ## flash scope
 
