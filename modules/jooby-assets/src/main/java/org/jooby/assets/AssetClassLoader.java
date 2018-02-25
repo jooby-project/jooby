@@ -210,13 +210,32 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-class AssetClassLoader {
-
+public class AssetClassLoader {
+  
+  /**
+   * Constructs a new AssetClassLoader that includes the 'public' dir if present in the current working dir
+   *
+   * @param parent parent classloader
+   * @return classloader that includes the public dir if present
+   * @throws IOException if an exception occurred
+   */
   public static ClassLoader classLoader(final ClassLoader parent) throws IOException {
+    return classLoader(parent, new File(""));
+  }
+  
+  /**
+   * Constructs a new AssetClassLoader that includes the 'public' dir if present in the provided working dir
+   *
+   * @param parent parent classloader
+   * @param projectDir working dir to use
+   * @return classloader that includes the public dir if present
+   * @throws IOException if an exception occurred
+   */
+  public static ClassLoader classLoader(final ClassLoader parent, File projectDir) throws IOException {
     requireNonNull(parent, "ClassLoader required.");
-    File publicDir = new File("public");
-    if (publicDir.exists()) {
-      return new URLClassLoader(new URL[]{publicDir.toURI().toURL() }, parent);
+    File publicDir = new File(projectDir, "public");
+    if(publicDir.exists()) {
+      return new URLClassLoader(new URL[]{publicDir.toURI().toURL()}, parent);
     }
     return parent;
   }

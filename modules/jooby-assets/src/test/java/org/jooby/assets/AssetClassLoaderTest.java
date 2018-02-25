@@ -43,8 +43,10 @@ public class AssetClassLoaderTest {
 
   private Block publicDir(final boolean exists, final File file) {
     return unit -> {
+      File root = unit.constructor(File.class)
+          .build("");
       File f = unit.constructor(File.class)
-          .build("public");
+          .build(root, "public");
       expect(f.exists()).andReturn(exists);
       if (exists) {
         expect(f.toURI()).andReturn(file.toURI());

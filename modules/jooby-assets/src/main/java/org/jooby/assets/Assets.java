@@ -494,7 +494,8 @@ public class Assets implements Jooby.Module {
     ClassLoader loader = getClass().getClassLoader();
     Config conf = conf(dev, loader, config);
     String cpath = config.getString("application.path");
-    AssetCompiler compiler = new AssetCompiler(loader, conf);
+    ClassLoader assetClassLoader = AssetClassLoader.classLoader(loader);
+    AssetCompiler compiler = new AssetCompiler(assetClassLoader, conf);
 
     Router routes = env.router();
     List<String> dist = dev ? ImmutableList.of("dev") : ImmutableList.of(envname, "dist");
