@@ -890,7 +890,7 @@
 
       <dependency>
         <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3</artifactId>
+        <artifactId>jdbi3-core</artifactId>
         <version>${jdbi3.version}</version>
       </dependency>
 
@@ -2999,7 +2999,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <asm.version>5.0.3</asm.version>
     <quartz.version>2.2.2</quartz.version>
     <jdbi.version>2.78</jdbi.version>
-    <jdbi3.version>3.0.0-beta2</jdbi3.version>
+    <jdbi3.version>3.0.1</jdbi3.version>
     <freemarker.version>2.3.26-incubating</freemarker.version>
     <camel.version>2.18.3</camel.version>
     <jedis.version>2.9.0</jedis.version>
