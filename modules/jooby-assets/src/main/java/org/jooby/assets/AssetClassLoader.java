@@ -220,7 +220,7 @@ public class AssetClassLoader {
    * @throws IOException if an exception occurred
    */
   public static ClassLoader classLoader(final ClassLoader parent) throws IOException {
-    return classLoader(parent, new File(""));
+    return classLoader(parent, new File(System.getProperty("user.dir")));
   }
   
   /**

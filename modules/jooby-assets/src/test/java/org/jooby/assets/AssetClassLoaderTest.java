@@ -44,7 +44,7 @@ public class AssetClassLoaderTest {
   private Block publicDir(final boolean exists, final File file) {
     return unit -> {
       File root = unit.constructor(File.class)
-          .build("");
+          .build(System.getProperty("user.dir"));
       File f = unit.constructor(File.class)
           .build(root, "public");
       expect(f.exists()).andReturn(exists);
