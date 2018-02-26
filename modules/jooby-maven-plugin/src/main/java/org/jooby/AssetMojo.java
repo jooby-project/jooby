@@ -220,6 +220,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.jooby.assets.AssetClassLoader;
 import org.jooby.assets.AssetCompiler;
 
 import com.google.common.base.Throwables;
@@ -278,8 +279,8 @@ public class AssetMojo extends AbstractMojo {
           .withFallback(conf);
 
       getLog().debug("assets.conf: " + assetConf.getConfig("assets"));
-
-      AssetCompiler compiler = new AssetCompiler(loader, assetConf);
+      ClassLoader assetLoader = AssetClassLoader.classLoader(loader, mavenProject.getBasedir());
+      AssetCompiler compiler = new AssetCompiler(assetLoader, assetConf);
 
       Map<String, List<File>> fileset = compiler.build(env, output);
 

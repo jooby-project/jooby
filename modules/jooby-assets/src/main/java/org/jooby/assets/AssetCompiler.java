@@ -281,11 +281,11 @@ public class AssetCompiler {
   private ClassLoader loader;
 
   public AssetCompiler(final Config conf) throws Exception {
-    this(conf.getClass().getClassLoader(), conf);
+    this(AssetClassLoader.classLoader(conf.getClass().getClassLoader()), conf);
   }
 
   public AssetCompiler(final ClassLoader loader, final Config conf) throws Exception {
-    this.loader = AssetClassLoader.classLoader(loader);
+    this.loader = loader;
     this.conf = requireNonNull(conf, "Assets conf is required.");
     String basedir = conf.hasPath("assets.basedir") ? spath(conf.getString("assets.basedir")) : "";
     this.charset = Charset.forName(this.conf.getString("assets.charset"));
