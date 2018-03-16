@@ -55,7 +55,7 @@
 * [swagger](https://github.com/jooby-project/jooby/tree/master/jooby-swagger): powerful representation of your RESTful API.
 
 ## auth & security
-* [pac4j](https://github.com/jooby-project/jooby/tree/master/jooby-pac4j): authentication module via: {{pac4j}}.
+* [pac4j](https://github.com/jooby-project/jooby/tree/master/jooby-pac4j2): authentication module via: {{pac4j}}.
 
 ## scheduling
 * [quartz](https://github.com/jooby-project/jooby/tree/master/jooby-quartz): advanced job scheduling.
