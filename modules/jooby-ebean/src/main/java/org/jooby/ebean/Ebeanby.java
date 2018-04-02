@@ -212,23 +212,24 @@ import com.typesafe.config.ConfigFactory;
 import io.ebean.EbeanServer;
 import io.ebean.config.ContainerConfig;
 import io.ebean.config.ServerConfig;
+import static java.util.Objects.requireNonNull;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
 import org.jooby.Jooby;
+import org.jooby.funzy.Throwing;
 import org.jooby.internal.ebean.EbeanEnhancer;
 import org.jooby.internal.ebean.EbeanManaged;
 import org.jooby.jdbc.Jdbc;
-import org.jooby.funzy.Throwing;
 
 import javax.sql.DataSource;
-import javax.xml.crypto.Data;
-import java.util.*;
-import java.util.concurrent.Future;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>ebean module</h1>
@@ -408,7 +409,9 @@ public class Ebeanby implements Jooby.Module {
       packages = ImmutableList.of(conf.getString("application.ns"));
     }
     config.setPackages(packages);
-    PKG.get().addAll(packages);
+    if (PKG.get() != null) {
+      PKG.get().addAll(packages);
+    }
 
     EbeanManaged ebean = new EbeanManaged(conf, config);
     env.onStart(ebean::start);
