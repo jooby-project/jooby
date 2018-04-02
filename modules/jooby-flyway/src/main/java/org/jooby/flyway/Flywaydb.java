@@ -203,6 +203,7 @@
  */
 package org.jooby.flyway;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
@@ -222,6 +223,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * <h1>flyway module</h1>
@@ -363,8 +365,9 @@ public class Flywaydb implements Module {
         .orElse($base);
 
     Flyway flyway = new Flyway();
-    flyway.configure(props($flyway));
-    if (!$flyway.hasPath("url")) {
+    Properties props = props($flyway);
+    flyway.configure(props);
+    if (!props.containsKey("flyway.url")) {
       Key<DataSource> dskey = Key.get(DataSource.class, Names.named(name));
       DataSource dataSource = env.get(dskey)
           .orElseThrow(() -> new NoSuchElementException("DataSource missing: " + dskey));
@@ -373,8 +376,9 @@ public class Flywaydb implements Module {
     // bind
     env.serviceKey()
         .generate(Flyway.class, name, key -> binder.bind(key).toInstance(flyway));
-    // run
+    // commands:
     Iterable<Command> cmds = commands($flyway);
+
     // eager initialization
     cmds.forEach(cmd -> cmd.run(flyway));
   }
@@ -400,9 +404,26 @@ public class Flywaydb implements Module {
       if (value instanceof List) {
         value = ((List) value).stream().collect(Collectors.joining(","));
       }
-      props.setProperty("flyway." + prop.getKey(), value.toString());
+      String propertyName = prop.getKey();
+      if (isFlywayProperty(propertyName)) {
+        props.setProperty("flyway." + prop.getKey(), value.toString());
+      }
     });
     return props;
+  }
+
+  /**
+   * Filter residual/external properties from jdbc module. See #1044.
+   * @param name Property name.
+   * @return True if this is a valid flyway property.
+   */
+  static boolean isFlywayProperty(String name) {
+    String setter = "set" + name;
+    return Stream.of(Flyway.class.getMethods())
+        .filter(m -> m.getName().equalsIgnoreCase(setter))
+        .findFirst()
+        .map(m -> true)
+        .orElseGet(() -> ImmutableSet.of("driver", "url", "user", "password").contains(name));
   }
 
   @SuppressWarnings("unchecked")
@@ -412,7 +433,9 @@ public class Flywaydb implements Module {
     if (value instanceof List) {
       commands.addAll((List<? extends String>) value);
     } else {
-      commands.add(value.toString());
+      Stream.of(value.toString().split(","))
+          .map(String::trim)
+          .forEach(commands::add);
     }
     return commands.stream()
         .map(command -> Command.valueOf(command.toLowerCase()))
