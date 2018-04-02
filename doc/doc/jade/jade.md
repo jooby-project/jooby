@@ -35,7 +35,7 @@
 }
 ```
 
-Templates are loaded from root of classpath: ```/``` and must ends with: ```.html``` file extension.
+Templates are loaded from root of classpath: ```/``` and must ends with: ```.jade``` file extension.
 
 ## request locals
 
@@ -60,15 +60,15 @@ Then from template:
 
 ## template loader
 
-Templates are loaded from the root of classpath and must ends with ```.html```. Using a custom file extension:
+Templates are loaded from the root of classpath and must ends with ```.jade```. Using a custom file extension:
 
 ```java
 {
-  use(new Jade(".jade"));
+  use(new Jade(".html"));
 }
 ```
 
-Default file extension is: `.html`.
+Default file extension is: `.jade`.
 
 ## template cache
 

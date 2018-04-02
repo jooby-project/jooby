@@ -37,7 +37,7 @@ public class JadeTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(env("dev"))
         .expect(conf(".jade", false, false))
-        .expect(jade(".jade", false, true))
+        .expect(jade("jade", false, true))
         .run(unit -> {
           new Jade()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -49,7 +49,7 @@ public class JadeTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(env("dev"))
         .expect(conf(".html", false, false))
-        .expect(jade(".html", false, true))
+        .expect(jade("html", false, true))
         .run(unit -> {
           new Jade(".html")
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -61,7 +61,7 @@ public class JadeTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(env("prod"))
         .expect(conf(".jade", true, false))
-        .expect(jade(".jade", true, false))
+        .expect(jade("jade", true, false))
         .run(unit -> {
           new Jade()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -73,7 +73,7 @@ public class JadeTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(env("prod"))
         .expect(conf(".jade", false, false))
-        .expect(jade(".jade", true, false))
+        .expect(jade("jade", true, false))
         .run(unit -> {
           new Jade()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -89,7 +89,7 @@ public class JadeTest {
           Config config = unit.get(Config.class);
           expect(config.getBoolean("jade.prettyprint")).andReturn(true);
         })
-        .expect(jade(".jade", false, true))
+        .expect(jade("jade", false, true))
         .run(unit -> {
           new Jade()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -101,7 +101,7 @@ public class JadeTest {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(env("dev"))
         .expect(conf(".jade", false, false))
-        .expect(jade(".jade", false, true))
+        .expect(jade("jade", false, true))
         .run(unit -> {
           new Jade()
               .doWith(jade -> assertNotNull(jade))
@@ -166,7 +166,7 @@ public class JadeTest {
 
       Engine engine = unit.mockConstructor(
           Engine.class, new Class[]{JadeConfiguration.class, String.class },
-          jadeConfiguration, suffix);
+          jadeConfiguration, "." + suffix);
 
       LinkedBindingBuilder<Renderer> ffLBB = unit.mock(LinkedBindingBuilder.class);
       ffLBB.toInstance(engine);

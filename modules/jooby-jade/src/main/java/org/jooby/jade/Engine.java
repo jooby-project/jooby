@@ -203,16 +203,15 @@
  */
 package org.jooby.jade;
 
+import de.neuland.jade4j.JadeConfiguration;
+import de.neuland.jade4j.template.JadeTemplate;
+import org.jooby.MediaType;
+import org.jooby.View;
+
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
-import org.jooby.MediaType;
-import org.jooby.View;
-
-import de.neuland.jade4j.JadeConfiguration;
-import de.neuland.jade4j.template.JadeTemplate;
 
 class Engine implements View.Engine {
 

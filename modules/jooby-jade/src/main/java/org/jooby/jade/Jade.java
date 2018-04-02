@@ -284,7 +284,7 @@ import java.util.function.Consumer;
  * </pre>
  *
  * <p>
- * Default file extension is: <code>.html</code>.
+ * Default file extension is: <code>.jade</code>.
  * </p>
  *
  * <h2>template cache</h2>
@@ -342,8 +342,7 @@ public class Jade implements Jooby.Module {
   /**
    * Creates a {@link Jade} instance with a custom suffix.
    *
-   * @param suffix A suffix like <code>.html</code>. But keep in mind the final extension will be
-   *        <code>.html.jade</code>
+   * @param suffix A suffix like <code>.html</code>.
    */
   public Jade(final String suffix) {
     this.suffix = requireNonNull(suffix, "Suffix is required.");
@@ -397,7 +396,8 @@ public class Jade implements Jooby.Module {
     sharedVariables.put("xss", new XssHelper(env));
     jadeconf.setSharedVariables(sharedVariables);
 
-    jadeconf.setTemplateLoader(new ClasspathTemplateLoader("UTF-8", suffix));
+    String ext = suffix.startsWith(".") ? suffix.substring(1) : suffix;
+    jadeconf.setTemplateLoader(new ClasspathTemplateLoader("UTF-8", ext));
 
     if (callback != null) {
       callback.accept(jadeconf, conf);
