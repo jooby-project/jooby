@@ -222,6 +222,12 @@
     </dependency>
 
     <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-parser</artifactId>
+      <version>1.0.34</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>swagger-ui</artifactId>
     </dependency>

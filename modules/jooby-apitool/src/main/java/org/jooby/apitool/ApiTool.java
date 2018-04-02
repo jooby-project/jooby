@@ -210,6 +210,7 @@ import com.google.inject.binder.ScopedBindingBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.swagger.models.Swagger;
+import io.swagger.parser.SwaggerParser;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
 import org.jooby.Env;
@@ -225,6 +226,7 @@ import org.jooby.internal.apitool.SwaggerBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
@@ -234,6 +236,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * <h1>API tool</h1>
@@ -551,6 +554,8 @@ public class ApiTool implements Jooby.Module {
 
     String theme;
 
+    String file;
+
     private Options() {
     }
 
@@ -601,10 +606,59 @@ public class ApiTool implements Jooby.Module {
      * </p>
      *
      * @param theme Theme name.
-     * @return This option.
+     * @return This options.
      */
     public Options theme(String theme) {
       this.theme = Objects.requireNonNull(theme, "Theme required.");
+      return this;
+    }
+
+    /**
+     * Set specification file like <code>swagger.json</code>, <code>api.raml</code>, etc...
+     * If this file is present the ApiTool module uses it (no source scan occurs).
+     *
+     * <pre>{@code
+     *
+     *   use(new ApiTool()
+     *     .swagger(options -> {
+     *       options.use("my-swagger.json");
+     *     });
+     *   );
+     *
+     * }</pre>
+     *
+     * @param file Classpath file location.
+     * @return This options.
+     */
+    public Options use(String file) {
+      Objects.requireNonNull(file, "File location required.");
+      if (file.startsWith("/")) {
+        this.file = file;
+      } else {
+        this.file = "/" + file;
+      }
+      return this;
+    }
+
+    /**
+     * Set specification file like <code>swagger.json</code>, <code>api.raml</code>, etc...
+     * If this file is present the ApiTool module uses it (no source scan occurs).
+     *
+     * <pre>{@code
+     *
+     *   use(new ApiTool()
+     *     .swagger(options -> {
+     *       options.use("my-swagger.json");
+     *     });
+     *   );
+     *
+     * }</pre>
+     *
+     * @param file External file location.
+     * @return This options.
+     */
+    public Options use(Path file) {
+      this.file = Objects.requireNonNull(file, "File location required.").toString();
       return this;
     }
   }
@@ -652,18 +706,25 @@ public class ApiTool implements Jooby.Module {
 
   @Override public void configure(final Env env, final Config conf, final Binder binder)
       throws Exception {
-    boolean dev = env.name().equals("dev");
-    ScopedBindingBuilder provider = binder.bind(M)
-        .toProvider(APIProvider.class);
-    if (!dev) {
-      provider.asEagerSingleton();
+    boolean useFile = Stream.of(swaggerOptions, ramlOptions)
+        .filter(Objects::nonNull)
+        .filter(it -> it.file != null)
+        .findFirst()
+        .isPresent();
+    if (!useFile) {
+      boolean dev = env.name().equals("dev");
+      ScopedBindingBuilder provider = binder.bind(M)
+          .toProvider(APIProvider.class);
+      if (!dev) {
+        provider.asEagerSingleton();
+      }
+      Path dir = Optional.ofNullable(basedir).orElse(Paths.get(conf.getString("user.dir")));
+
+      ApiParser parser = new ApiParser(dir, filter);
+      customizer.forEach(parser::modify);
+
+      binder.bind(ApiParser.class).toInstance(parser);
     }
-    Path dir = Optional.ofNullable(basedir).orElse(Paths.get(conf.getString("user.dir")));
-
-    ApiParser parser = new ApiParser(dir, filter);
-    customizer.forEach(parser::modify);
-
-    binder.bind(ApiParser.class).toInstance(parser);
 
     String contextPath = conf.getString("application.path");
     if (swaggerOptions != null) {
@@ -838,27 +899,35 @@ public class ApiTool implements Jooby.Module {
     return this;
   }
 
-  private static void raml(String contextPath, Router router, Options options, Consumer<Raml> configurer)
+  private static void raml(String contextPath, Router router, Options options,
+      Consumer<Raml> configurer)
       throws IOException {
     String api = options.path + "/api.raml";
     /** /api.raml: */
-    router.get(api, req -> {
-      Config conf = req.require(Config.class);
-      Map<String, Object> hash = conf.getConfig("raml").root().unwrapped();
-      Raml base = Json.mapper().convertValue(hash, Raml.class);
-      if (configurer != null) {
-        configurer.accept(base);
-      }
-      Raml raml = Raml.build(base, req.require(M));
-      return Results.ok(raml.toYaml()).type("text/yml");
-    });
+    if (options.file == null) {
+      router.get(api, req -> {
+        Config conf = req.require(Config.class);
+        Map<String, Object> hash = conf.getConfig("raml").root().unwrapped();
+        Raml base = Json.mapper().convertValue(hash, Raml.class);
+        if (configurer != null) {
+          configurer.accept(base);
+        }
+        Raml raml = Raml.build(base, req.require(M));
+        return Results.ok(raml.toYaml()).type("text/yml");
+      });
+    } else {
+      byte[] ramlString = readRaml(options.file);
+      router.get(api, req -> {
+        return Results.ok(ramlString).type("text/yml");
+      });
+    }
 
     if (options.showUI) {
       router.assets(options.path + "/static/**", RAML_STATIC + "{0}");
 
       String staticPath = Route.normalize(contextPath + options.path);
       String ramlPath = Route.normalize(contextPath + api);
-      String index = readFile(RAML_STATIC + "index.html")
+      String index = fileString(RAML_STATIC + "index.html")
           .replace("styles/", staticPath + "/static/styles/")
           .replace("scripts/", staticPath + "/static/scripts/")
           .replace("<raml-initializer></raml-initializer>",
@@ -877,23 +946,38 @@ public class ApiTool implements Jooby.Module {
     }
   }
 
-  private static void swagger(String contextPath, Router router, Options options, Consumer<Swagger> configurer)
+  private static void swagger(String contextPath, Router router, Options options,
+      Consumer<Swagger> configurer)
       throws IOException {
-    /** /swagger.json or /swagger.raml: */
-    router.get(options.path + "/swagger.json", options.path + "/swagger.yml", req -> {
-      Config conf = req.require(Config.class);
-      Map<String, Object> hash = conf.getConfig("swagger").root().unwrapped();
-      Swagger base = Json.mapper().convertValue(hash, Swagger.class);
+    /** /swagger.json or /swagger.yml: */
+    if (options.file == null) {
+      router.get(options.path + "/swagger.json", options.path + "/swagger.yml", req -> {
+        Config conf = req.require(Config.class);
+        Map<String, Object> hash = conf.getConfig("swagger").root().unwrapped();
+        Swagger base = Json.mapper().convertValue(hash, Swagger.class);
+        if (configurer != null) {
+          configurer.accept(base);
+        }
+        boolean json = req.path().endsWith(".json");
+        Swagger swagger = new SwaggerBuilder().build(base, req.require(M));
+        if (json) {
+          return Results.json(Json.mapper().writer().writeValueAsBytes(swagger));
+        }
+        return Results.ok(Yaml.mapper().writer().writeValueAsBytes(swagger)).type("text/yml");
+      });
+    } else {
+      Swagger swagger = parseSwagger(options.file);
       if (configurer != null) {
-        configurer.accept(base);
+        configurer.accept(swagger);
       }
-      boolean json = req.path().endsWith(".json");
-      Swagger swagger = new SwaggerBuilder().build(base, req.require(M));
-      if (json) {
-        return Results.json(Json.mapper().writer().writeValueAsBytes(swagger));
-      }
-      return Results.ok(Yaml.mapper().writer().writeValueAsBytes(swagger)).type("text/yml");
-    });
+      router.get(options.path + "/swagger.json", options.path + "/swagger.yml", req -> {
+        boolean json = req.path().endsWith(".json");
+        if (json) {
+          return Results.json(Json.mapper().writer().writeValueAsBytes(swagger));
+        }
+        return Results.ok(Yaml.mapper().writer().writeValueAsBytes(swagger)).type("text/yml");
+      });
+    }
 
     if (options.showUI) {
       String staticPath = options.path + "/static/";
@@ -902,7 +986,7 @@ public class ApiTool implements Jooby.Module {
 
       String fullStaticPath = Route.normalize(contextPath + staticPath) + "/";
       String swaggerJsonPath = Route.normalize(contextPath + options.path) + "/swagger.json";
-      String index = readFile(SWAGGER_STATIC + "index.html")
+      String index = fileString(SWAGGER_STATIC + "index.html")
           .replace("./", fullStaticPath)
           .replace("http://petstore.swagger.io/v2/swagger.json\",",
               swaggerJsonPath + "\", validatorUrl: null,")
@@ -920,9 +1004,26 @@ public class ApiTool implements Jooby.Module {
     }
   }
 
-  private static String readFile(String name) throws IOException {
+  private static Swagger parseSwagger(String location) {
+    SwaggerParser parser = new SwaggerParser();
+    return parser.read(location);
+  }
+
+  private static byte[] readRaml(String location) throws IOException {
+    Path path = Paths.get(location);
+    if (Files.exists(path)) {
+      return Files.readAllBytes(path);
+    }
+    return fileBytes(location);
+  }
+
+  private static String fileString(String name) throws IOException {
+    return new String(fileBytes(name), StandardCharsets.UTF_8);
+  }
+
+  private static byte[] fileBytes(String name) throws IOException {
     try (InputStream in = ApiTool.class.getResourceAsStream(name)) {
-      return new String(ByteStreams.toByteArray(in), StandardCharsets.UTF_8);
+      return ByteStreams.toByteArray(in);
     }
   }
 
