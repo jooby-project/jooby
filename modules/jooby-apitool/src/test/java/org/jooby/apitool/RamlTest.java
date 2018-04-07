@@ -71,7 +71,8 @@ public class RamlTest {
         + "        responses:\n"
         + "          200:\n"
         + "            body:\n"
-        + "              type: Client\n", yaml);
+        + "              application/json:\n"
+        + "                type: Client\n", yaml);
   }
 
   @Test
@@ -112,7 +113,8 @@ public class RamlTest {
         + "        responses:\n"
         + "          200:\n"
         + "            body:\n"
-        + "              type: Foo\n", yaml);
+        + "              application/json:\n"
+        + "                type: Foo\n", yaml);
   }
 
   @Test
@@ -166,7 +168,8 @@ public class RamlTest {
         + "    responses:\n"
         + "      200:\n"
         + "        body:\n"
-        + "          type: string\n"
+        + "          application/json:\n"
+        + "            type: string\n"
         + "/api:\n"
         + "  /pets:\n"
         + "    description: Everything about your Pets.\n"
@@ -187,14 +190,16 @@ public class RamlTest {
         + "        200:\n"
         + "          description: Pets ordered by name.\n"
         + "          body:\n"
-        + "            type: Pet[]\n"
+        + "            application/json:\n"
+        + "              type: Pet[]\n"
         + "    post:\n"
         + "      description: Add a new pet to the store.\n"
         + "      responses:\n"
         + "        200:\n"
         + "          description: Returns a saved pet.\n"
         + "          body:\n"
-        + "            type: Pet\n"
+        + "            application/json:\n"
+        + "              type: Pet\n"
         + "      body:\n"
         + "        type: Pet\n"
         + "    /{id}:\n"
@@ -210,7 +215,8 @@ public class RamlTest {
         + "          200:\n"
         + "            description: Returns <code>200</code> with a single pet or <code>404</code>\n"
         + "            body:\n"
-        + "              type: Pet\n"
+        + "              application/json:\n"
+        + "                type: Pet\n"
         + "          404:\n"
         + "            description: Not Found\n"
         + "      delete:\n"
@@ -219,7 +225,8 @@ public class RamlTest {
         + "          204:\n"
         + "            description: A <code>204</code>\n"
         + "            body:\n"
-        + "              type: Pet\n", yaml);
+        + "              application/json:\n"
+        + "                type: Pet\n", yaml);
   }
 
   private Path dir() {

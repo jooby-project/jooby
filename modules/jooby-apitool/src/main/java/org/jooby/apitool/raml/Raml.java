@@ -558,6 +558,21 @@ public class Raml {
       p.setDefault(parameter.defaultValue());
     };
 
+    /** Default consumes/produces: */
+    Set<String> alltypes = new LinkedHashSet<>();
+    Consumer<Function<RouteMethod, List<String>>> mediaTypes = types ->
+        routes.stream().forEach(r -> types.apply(r).forEach(alltypes::add));
+    mediaTypes.accept(RouteMethod::consumes);
+    mediaTypes.accept(RouteMethod::produces);
+    boolean defaultMediaType = false;
+    if (alltypes.size() == 0) {
+      raml.setMediaType(ImmutableList.of(MediaType.json.name()));
+      defaultMediaType = true;
+    } else if (alltypes.size() == 1) {
+      raml.setMediaType(ImmutableList.of(alltypes.iterator().next()));
+      defaultMediaType = true;
+    }
+
     for (RouteMethod route : routes) {
       List<String> segments = Splitter.on("/")
           .trimResults()
@@ -602,6 +617,13 @@ public class Raml {
             .filter(it -> it.kind() == RouteParameter.Kind.QUERY)
             .forEach(it -> parameterFactory.accept(method::queryParameter, it));
       }
+      /** Consumes: */
+      List<String> consumes = route.consumes();
+      if (consumes.size() == 0 && !defaultMediaType) {
+        consumes = ImmutableList.of(MediaType.json.name());
+      }
+      method.setMediaType(consumes);
+
       /** Headers: */
       route.parameters().stream()
           .filter(it -> it.kind() == RouteParameter.Kind.HEADER)
@@ -615,31 +637,19 @@ public class Raml {
             method.setBody(raml.define(it.type()));
           });
       /** Response: */
+      List<String> produces = route.produces();
+      if (produces.size() == 0) {
+        produces = ImmutableList.of(MediaType.json.name());
+      }
       RouteResponse returns = route.response();
       Map<Integer, String> status = returns.status();
       Integer statusCode = returns.statusCode();
       RamlResponse response = method.response(statusCode);
       response.setDescription(yamlText(returns.description().orElse(status.get(statusCode))));
-      if (route.produces().size() > 0) {
-        route.produces().forEach(type -> response.setMediaType(type, raml.define(returns.type())));
-      } else {
-        response.setMediaType(null, raml.define(returns.type()));
-      }
+      produces.forEach(type -> response.setMediaType(type, raml.define(returns.type())));
       status.entrySet().stream()
           .filter(it -> !statusCode.equals(it.getKey()))
           .forEach(it -> method.response(it.getKey()).setDescription(it.getValue()));
-    }
-
-    /** Default consumes/produces: */
-    Set<String> alltypes = new LinkedHashSet<>();
-    Consumer<Function<RouteMethod, List<String>>> mediaTypes = types ->
-        routes.stream().forEach(r -> types.apply(r).forEach(alltypes::add));
-    mediaTypes.accept(RouteMethod::consumes);
-    mediaTypes.accept(RouteMethod::produces);
-    if (alltypes.size() == 0) {
-      raml.setMediaType(ImmutableList.of(MediaType.json.name()));
-    } else if (alltypes.size() == 1) {
-      raml.setMediaType(ImmutableList.of(alltypes.iterator().next()));
     }
 
     return raml;

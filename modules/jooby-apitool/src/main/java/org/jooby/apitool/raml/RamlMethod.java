@@ -211,7 +211,6 @@ import org.jooby.MediaType;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -466,18 +465,21 @@ public class RamlMethod {
   @JsonAnyGetter
   Map<String, Object> attributes() {
     Map<String, Object> attributes = new LinkedHashMap<>();
-    Optional.ofNullable(formParameters).ifPresent(form -> {
+    if (formParameters != null) {
       attributes.put("body",
-          ImmutableMap.of(MediaType.multipart.name(), ImmutableMap.of("properties", form)));
-    });
-    Optional.ofNullable(body).ifPresent(body -> {
+          ImmutableMap
+              .of(MediaType.multipart.name(), ImmutableMap.of("properties", formParameters)));
+    } else if (body != null) {
       if (mediaType != null) {
         attributes.put("body", mediaType.stream()
             .collect(Collectors.toMap(Function.identity(), it -> body.getRef())));
       } else {
         attributes.put("body", body.getRef());
       }
-    });
+    } else if (mediaType != null) {
+      attributes.put("body", mediaType.stream()
+          .collect(Collectors.toMap(Function.identity(), it -> ImmutableMap.of())));
+    }
     return attributes;
   }
 }

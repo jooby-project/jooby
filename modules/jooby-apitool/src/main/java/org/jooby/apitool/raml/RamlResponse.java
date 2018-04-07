@@ -241,16 +241,9 @@ public class RamlResponse {
   Map<String, Object> attributes() {
     Map<String, Object> attributes = new LinkedHashMap<>();
     if (mediaType != null) {
-      if (mediaType.size() == 1) {
-        Map.Entry<String, RamlType> e = mediaType.entrySet().iterator().next();
-        if (e.getKey() == null) {
-          attributes.put("body", e.getValue().getRef());
-        }
-      } else {
-        Map<String, Object> body = new LinkedHashMap<>();
-        mediaType.forEach((type, bodyType) -> body.put(type, bodyType.getRef()));
-        attributes.put("body", body);
-      }
+      Map<String, Object> body = new LinkedHashMap<>();
+      mediaType.forEach((type, bodyType) -> body.put(type, bodyType.getRef()));
+      attributes.put("body", body);
     }
     return attributes.size() == 0 ? null : attributes;
   }
