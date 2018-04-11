@@ -1209,11 +1209,14 @@ public class BytecodeRouteParser {
               .isPresent())
           .findFirst()
           .isPresent();
+      if (isPathParam(pattern, pname)) {
+        return RouteParameter.Kind.PATH;
+      }
       boolean formLike = !hasBody && p.getDeclaringExecutable().getAnnotation(POST.class) != null;
       if (formLike) {
         return RouteParameter.Kind.FORM;
       }
-      return isPathParam(pattern, pname) ? RouteParameter.Kind.PATH : RouteParameter.Kind.QUERY;
+      return RouteParameter.Kind.QUERY;
     };
     return new RouteParameter(pname, kind.get(), p.getParameterizedType(), null);
   }
