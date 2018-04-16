@@ -394,17 +394,21 @@ class DocParser {
         boolean isClass = ctx.isClass != null;
         if (isClass) {
           this.prefix.addLast(normalize(pattern));
-          this.summary.addLast(cleanJavadoc(file, ctx.doc.getText()));
+          if (ctx.doc != null) {
+            this.summary.addLast(cleanJavadoc(file, ctx.doc.getText()));
+          }
         } else {
           popPrefix();
           popSummary();
           List<String> methods = methods(ctx.annotations);
-          String comment = ctx.doc.getText();
-          if (methods.size() == 0) {
-            doc.add(doc("get", normalize(pattern), file, summary(), comment));
-          } else {
-            methods.stream()
-                .forEach(it -> doc.add(doc(it, normalize(pattern), file, summary(), comment)));
+          if (ctx.doc != null) {
+            String comment = ctx.doc.getText();
+            if (methods.size() == 0) {
+              doc.add(doc("get", normalize(pattern), file, summary(), comment));
+            } else {
+              methods.stream()
+                  .forEach(it -> doc.add(doc(it, normalize(pattern), file, summary(), comment)));
+            }
           }
         }
       } else {

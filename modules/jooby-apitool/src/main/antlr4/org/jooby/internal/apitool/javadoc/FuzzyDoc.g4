@@ -17,9 +17,9 @@ route: doc=DOC 'route' '(' pattern=STRING ')' scripts;
 
 scripts: '{' (scripts | script | .)*? '}';
 
-clazz: doc=DOC annotations+=annotation+ (isClass='class'|.)*? '{' classBody  '}';
+clazz: doc=DOC? annotations+=annotation+ (isClass='class'|.)*? classBody;
 
-classBody: (mvcRoute | .)*?;
+classBody: '{' (classBody | mvcRoute | .)*? '}';
 
 script:
         doc=DOC dot='.'? method=METHOD kotlinScriptBody
