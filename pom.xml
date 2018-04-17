@@ -2971,7 +2971,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
   <properties>
     <!-- Dependencies -->
     <funzy.version>0.1.0</funzy.version>
-    <jackson.version>2.9.4</jackson.version>
+    <jackson.version>2.9.5</jackson.version>
     <undertow.version>1.4.23.Final</undertow.version>
     <servlet.version>3.1.0</servlet.version>
     <jetty.version>9.4.9.v20180320</jetty.version>
@@ -3025,7 +3025,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <spymemcached.version>2.12.0</spymemcached.version>
     <aws-java-sdk.version>1.11.273</aws-java-sdk.version>
     <commons-email.version>1.4</commons-email.version>
-    <jongo.version>1.3.0</jongo.version>
+    <jongo.version>1.4.0</jongo.version>
     <bson4jackson.version>2.9.0</bson4jackson.version>
     <flyway.version>5.0.7</flyway.version>
     <hazelcast.version>3.9.2</hazelcast.version>
