@@ -2147,14 +2147,16 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * Start an application.
+   * Start an application. Fire the {@link #onStart(Throwing.Runnable)} event and the
+   * {@link #onStarted(Throwing.Runnable)} events.
    */
   public void start() {
     start(new String[0]);
   }
 
   /**
-   * Start an application.
+   * Start an application. Fire the {@link #onStart(Throwing.Runnable)} event and the
+   * {@link #onStarted(Throwing.Runnable)} events.
    *
    * @param args Application arguments.
    */
@@ -3125,7 +3127,23 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * Stop the application, close all the modules and stop the web server.
+   * Stop the application, fire the {@link #onStop(Throwing.Runnable)} event and shutdown the
+   * web server.
+   *
+   * Stop listeners run in the order they were added:
+   *
+   * <pre>{@code
+   * {
+   *
+   *   onStop(() -> System.out.println("first"));
+   *
+   *   onStop(() -> System.out.println("second"));
+   *
+   *   ...
+   * }
+   * }</pre>
+   *
+   *
    */
   public void stop() {
     if (started.compareAndSet(true, false)) {
