@@ -2972,11 +2972,11 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <!-- Dependencies -->
     <funzy.version>0.1.0</funzy.version>
     <jackson.version>2.9.4</jackson.version>
-    <undertow.version>1.4.20.Final</undertow.version>
+    <undertow.version>1.4.23.Final</undertow.version>
     <servlet.version>3.1.0</servlet.version>
-    <jetty.version>9.4.8.v20171121</jetty.version>
-    <netty.version>4.1.22.Final</netty.version>
-    <boringssl.version>2.0.7.Final</boringssl.version>
+    <jetty.version>9.4.9.v20180320</jetty.version>
+    <netty.version>4.1.23.Final</netty.version>
+    <boringssl.version>2.0.8.Final</boringssl.version>
     <javassist.version>3.22.0-GA</javassist.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
     <slf4j-api.version>1.7.25</slf4j-api.version>
