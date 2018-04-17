@@ -14,6 +14,8 @@ documentation
 
 {{conf.md}}
 
+{{logging.md}}
+
 {{modules.md}}
 
 {{routes.md}}

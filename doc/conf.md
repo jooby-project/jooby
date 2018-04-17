@@ -260,5 +260,3 @@ As mentioned earlier, the default `conf` file is `application.conf`, but you can
 First-listed are higher priority.
 
 For more details, please refer to the [config documentation](https://github.com/typesafehub/config).
-
-{{logging.md}}
