@@ -1696,7 +1696,7 @@
                   <version>[3.0,)</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
-                  <version>${java.source.version}</version>
+                  <version>[1.8,)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
@@ -1973,7 +1973,7 @@
                       <version>[3.0,)</version>
                     </requireMavenVersion>
                     <requireJavaVersion>
-                      <version>${java.source.version}</version>
+                      <version>[1.8,)</version>
                     </requireJavaVersion>
                   </rules>
                 </configuration>
@@ -2996,7 +2996,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <rest-assured.version>3.0.1</rest-assured.version>
     <async-http-client.version>1.9.36</async-http-client.version>
     <cglib.version>3.2.0</cglib.version>
-    <asm.version>5.0.3</asm.version>
+    <asm.version>6.1.1</asm.version>
     <quartz.version>2.2.2</quartz.version>
     <jdbi.version>2.78</jdbi.version>
     <jdbi3.version>3.0.1</jdbi3.version>
@@ -3105,7 +3105,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
     <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
     <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-    <maven-enforcer-plugin.version>1.3.1</maven-enforcer-plugin.version>
+    <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
     <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
     <maven-eclipse-plugin.version>2.9</maven-eclipse-plugin.version>
     <maven-java-formatter-plugin.version>0.4</maven-java-formatter-plugin.version>
