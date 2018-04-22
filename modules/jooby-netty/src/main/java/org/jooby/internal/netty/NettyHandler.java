@@ -203,6 +203,8 @@
  */
 package org.jooby.internal.netty;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaders;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 import org.jooby.internal.ConnectionResetByPeer;
@@ -268,9 +270,10 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
       try {
         String streamId = req.headers().get(STREAM_ID);
 
+        HttpHeaders headers = new DefaultHttpHeaders();
         handler.handle(
-            new NettyRequest(ctx, req, tmpdir, wsMaxMessageSize),
-            new NettyResponse(ctx, bufferSize, keepAlive, streamId));
+            new NettyRequest(ctx, req, headers, tmpdir, wsMaxMessageSize),
+            new NettyResponse(ctx, headers, bufferSize, keepAlive, streamId));
 
       } catch (Throwable ex) {
         exceptionCaught(ctx, ex);

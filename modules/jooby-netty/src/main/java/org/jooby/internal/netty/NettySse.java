@@ -207,9 +207,9 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.jooby.Sse;
@@ -229,8 +229,8 @@ public class NettySse extends Sse {
     private Optional<Object> id;
 
     public DoneCallback(final CompletableFuture<Optional<Object>> promise,
-      final Optional<Object> id,
-      final Consumer<Throwable> ifClose) {
+        final Optional<Object> id,
+        final Consumer<Throwable> ifClose) {
       this.id = id;
       this.promise = promise;
       this.ifClose = ifClose;
@@ -248,10 +248,12 @@ public class NettySse extends Sse {
     }
   }
 
-  private ChannelHandlerContext ctx;
+  private final ChannelHandlerContext ctx;
+  private final HttpHeaders headers;
 
-  public NettySse(final ChannelHandlerContext ctx) {
+  public NettySse(final ChannelHandlerContext ctx, final HttpHeaders headers) {
     this.ctx = ctx;
+    this.headers = headers;
   }
 
   @Override
@@ -261,11 +263,10 @@ public class NettySse extends Sse {
 
   @Override
   protected void handshake(final Runnable handler) throws Exception {
-    DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.set(HttpHeaderNames.CONNECTION, "Close");
     headers.set(HttpHeaderNames.CONTENT_TYPE, "text/event-stream; charset=utf-8");
     ctx.writeAndFlush(
-      new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, headers));
+        new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, headers));
     ctx.executor().execute(handler);
   }
 
@@ -274,7 +275,7 @@ public class NettySse extends Sse {
     synchronized (this) {
       CompletableFuture<Optional<Object>> promise = new CompletableFuture<>();
       ctx.writeAndFlush(Unpooled.wrappedBuffer(data))
-        .addListener(new DoneCallback(promise, id, this::ifClose));
+          .addListener(new DoneCallback(promise, id, this::ifClose));
       return promise;
     }
   }

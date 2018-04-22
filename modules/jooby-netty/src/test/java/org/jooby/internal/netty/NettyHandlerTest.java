@@ -1,24 +1,11 @@
 package org.jooby.internal.netty;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-
-import java.io.IOException;
-
-import org.jooby.spi.HttpHandler;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.typesafe.config.Config;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
@@ -30,6 +17,17 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.Attribute;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import org.jooby.spi.HttpHandler;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.io.IOException;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NettyHandler.class, NettyRequest.class, NettyResponse.class,
@@ -51,7 +49,8 @@ public class NettyHandlerTest {
         FullHttpRequest.class)
             .expect(channel)
             .expect(unit -> {
-              HttpHeaders headers = unit.mock(HttpHeaders.class);
+              HttpHeaders headers = unit.constructor(DefaultHttpHeaders.class)
+                  .build();
               expect(headers.get(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text()))
                   .andReturn(null);
 
@@ -83,12 +82,12 @@ public class NettyHandlerTest {
               expect(channel.attr(NettyHandler.PATH)).andReturn(attr);
 
               NettyRequest nreq = unit.constructor(NettyRequest.class)
-                  .args(ChannelHandlerContext.class, HttpRequest.class, String.class, int.class)
-                  .build(unit.get(ChannelHandlerContext.class), req, "target", 3000);
+                  .args(ChannelHandlerContext.class, HttpRequest.class, HttpHeaders.class, String.class, int.class)
+                  .build(unit.get(ChannelHandlerContext.class), req, headers, "target", 3000);
 
               NettyResponse nrsp = unit.constructor(NettyResponse.class)
-                  .args(ChannelHandlerContext.class, int.class, boolean.class, String.class)
-                  .build(unit.get(ChannelHandlerContext.class), 8192, true, null);
+                  .args(ChannelHandlerContext.class, HttpHeaders.class, int.class, boolean.class, String.class)
+                  .build(unit.get(ChannelHandlerContext.class), headers, 8192, true, null);
 
               unit.get(HttpHandler.class).handle(nreq, nrsp);
             })
@@ -117,8 +116,8 @@ public class NettyHandlerTest {
         FullHttpRequest.class)
             .expect(channel)
             .expect(unit -> {
-
-              HttpHeaders headers = unit.mock(HttpHeaders.class);
+              HttpHeaders headers = unit.constructor(DefaultHttpHeaders.class)
+                  .build();
               expect(headers.get(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text()))
                   .andReturn(null);
 
@@ -144,12 +143,12 @@ public class NettyHandlerTest {
               expect(channel.attr(NettyHandler.PATH)).andReturn(attr);
 
               NettyRequest nreq = unit.constructor(NettyRequest.class)
-                  .args(ChannelHandlerContext.class, HttpRequest.class, String.class, int.class)
-                  .build(unit.get(ChannelHandlerContext.class), req, "target", 3000);
+                  .args(ChannelHandlerContext.class, HttpRequest.class, HttpHeaders.class, String.class, int.class)
+                  .build(unit.get(ChannelHandlerContext.class), req, headers, "target", 3000);
 
               NettyResponse nrsp = unit.constructor(NettyResponse.class)
-                  .args(ChannelHandlerContext.class, int.class, boolean.class, String.class)
-                  .build(unit.get(ChannelHandlerContext.class), 8192, true, null);
+                  .args(ChannelHandlerContext.class, HttpHeaders.class, int.class, boolean.class, String.class)
+                  .build(unit.get(ChannelHandlerContext.class), headers, 8192, true, null);
 
               unit.get(HttpHandler.class).handle(nreq, nrsp);
             })
@@ -271,7 +270,8 @@ public class NettyHandlerTest {
             .expect(unit -> {
               ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
 
-              HttpHeaders headers = unit.mock(HttpHeaders.class);
+              HttpHeaders headers = unit.constructor(DefaultHttpHeaders.class)
+                  .build();
               expect(headers.get(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text()))
                   .andReturn(null);
 
@@ -279,12 +279,12 @@ public class NettyHandlerTest {
               expect(request.headers()).andReturn(headers);
 
               NettyRequest req = unit.constructor(NettyRequest.class)
-                  .args(ChannelHandlerContext.class, HttpRequest.class, String.class, int.class)
-                  .build(ctx, request, "target", 3000);
+                  .args(ChannelHandlerContext.class, HttpRequest.class, HttpHeaders.class, String.class, int.class)
+                  .build(ctx, request, headers, "target", 3000);
 
               NettyResponse rsp = unit.constructor(NettyResponse.class)
-                  .args(ChannelHandlerContext.class, int.class, boolean.class, String.class)
-                  .build(ctx, 8192, true, null);
+                  .args(ChannelHandlerContext.class, HttpHeaders.class, int.class, boolean.class, String.class)
+                  .build(ctx, headers, 8192, true, null);
 
               HttpHandler dispatcher = unit.get(HttpHandler.class);
               dispatcher.handle(req, rsp);

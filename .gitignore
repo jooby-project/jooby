@@ -22,3 +22,4 @@ pom.xml.versionsBackup
 jacoco.exec
 .*.md.html
 node
+dump

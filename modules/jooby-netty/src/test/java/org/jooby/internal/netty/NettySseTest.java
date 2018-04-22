@@ -30,30 +30,29 @@ public class NettySseTest {
 
   @Test
   public void defaults() throws Exception {
-    new MockUnit(ChannelHandlerContext.class)
+    new MockUnit(ChannelHandlerContext.class, HttpHeaders.class)
       .run(unit -> {
-        new NettySse(unit.get(ChannelHandlerContext.class));
+        new NettySse(unit.get(ChannelHandlerContext.class), unit.get(HttpHeaders.class));
       });
   }
 
   @Test
   public void close() throws Exception {
-    new MockUnit(ChannelHandlerContext.class)
+    new MockUnit(ChannelHandlerContext.class, HttpHeaders.class)
       .expect(unit -> {
         expect(unit.get(ChannelHandlerContext.class).close()).andReturn(null);
       })
       .run(unit -> {
-        new NettySse(unit.get(ChannelHandlerContext.class))
+        new NettySse(unit.get(ChannelHandlerContext.class), unit.get(HttpHeaders.class))
           .close();
       });
   }
 
   @Test
   public void handshake() throws Exception {
-    new MockUnit(ChannelHandlerContext.class, EventExecutor.class, Runnable.class)
+    new MockUnit(ChannelHandlerContext.class, EventExecutor.class, Runnable.class, DefaultHttpHeaders.class)
       .expect(unit -> {
-        DefaultHttpHeaders headers = unit.constructor(DefaultHttpHeaders.class)
-          .build();
+        DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
 
         expect(headers.set(HttpHeaderNames.CONNECTION, "Close")).andReturn(headers);
         expect(headers.set(HttpHeaderNames.CONTENT_TYPE, "text/event-stream; charset=utf-8"))
@@ -71,7 +70,7 @@ public class NettySseTest {
         expect(ctx.executor()).andReturn(executor);
       })
       .run(unit -> {
-        new NettySse(unit.get(ChannelHandlerContext.class))
+        new NettySse(unit.get(ChannelHandlerContext.class), unit.get(DefaultHttpHeaders.class))
           .handshake(unit.get(Runnable.class));
       });
   }
@@ -80,7 +79,7 @@ public class NettySseTest {
   public void send() throws Exception {
     byte[] bytes = {0};
     CountDownLatch latch = new CountDownLatch(1);
-    new MockUnit(ChannelHandlerContext.class, ChannelFuture.class)
+    new MockUnit(ChannelHandlerContext.class, ChannelFuture.class, HttpHeaders.class)
       .expect(unit -> {
         ChannelFuture future = unit.get(ChannelFuture.class);
         expect(future.isSuccess()).andReturn(true);
@@ -90,7 +89,7 @@ public class NettySseTest {
         expect(ctx.writeAndFlush(isA(ByteBuf.class))).andReturn(future);
       })
       .run(unit -> {
-        new NettySse(unit.get(ChannelHandlerContext.class))
+        new NettySse(unit.get(ChannelHandlerContext.class), unit.get(HttpHeaders.class))
           .send(Optional.of("id"), bytes).whenComplete((id, x) -> {
           if (x == null) {
             assertEquals("id", id.get());
@@ -108,14 +107,14 @@ public class NettySseTest {
   @Test(expected = IllegalStateException.class)
   public void sendErr() throws Exception {
     byte[] bytes = {0};
-    new MockUnit(ChannelHandlerContext.class)
+    new MockUnit(ChannelHandlerContext.class, HttpHeaders.class)
       .expect(unit -> {
         ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
         expect(ctx.writeAndFlush(isA(ByteBuf.class)))
           .andThrow(new IllegalStateException("intentional error"));
       })
       .run(unit -> {
-        new NettySse(unit.get(ChannelHandlerContext.class))
+        new NettySse(unit.get(ChannelHandlerContext.class), unit.get(HttpHeaders.class))
           .send(Optional.of("id"), bytes);
       });
   }
@@ -125,7 +124,7 @@ public class NettySseTest {
     byte[] bytes = {0};
     CountDownLatch latch = new CountDownLatch(1);
     IOException ex = new IOException("intentional err");
-    new MockUnit(ChannelHandlerContext.class, ChannelFuture.class)
+    new MockUnit(ChannelHandlerContext.class, ChannelFuture.class, HttpHeaders.class)
       .expect(unit -> {
         ChannelFuture future = unit.get(ChannelFuture.class);
         expect(future.isSuccess()).andReturn(false);
@@ -136,7 +135,7 @@ public class NettySseTest {
         expect(ctx.writeAndFlush(isA(ByteBuf.class))).andReturn(future);
       })
       .run(unit -> {
-        new NettySse(unit.get(ChannelHandlerContext.class))
+        new NettySse(unit.get(ChannelHandlerContext.class), unit.get(HttpHeaders.class))
           .send(Optional.of("id"), bytes).whenComplete((id, cause) -> {
           if (cause != null) {
             assertEquals(ex, cause);

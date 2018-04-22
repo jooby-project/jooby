@@ -1,5 +1,6 @@
 package org.jooby.internal.netty;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import static org.easymock.EasyMock.expect;
 
 import org.jooby.test.MockUnit;
@@ -36,24 +37,24 @@ public class NettyRequestTest {
 
   @Test
   public void newObject() throws Exception {
-    new MockUnit(ChannelHandlerContext.class, HttpRequest.class)
+    new MockUnit(ChannelHandlerContext.class, HttpRequest.class, HttpHeaders.class)
         .expect(channel)
         .expect(newObject)
         .run(unit -> {
-          new NettyRequest(unit.get(ChannelHandlerContext.class), unit.get(HttpRequest.class),
-              "target", 60);
+          new NettyRequest(unit.get(ChannelHandlerContext.class),
+              unit.get(HttpRequest.class), unit.get(HttpHeaders.class), "target", 60);
         });
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void unknownUpgrade() throws Exception {
-    new MockUnit(ChannelHandlerContext.class, HttpRequest.class)
+    new MockUnit(ChannelHandlerContext.class, HttpRequest.class, HttpHeaders.class)
         .expect(channel)
         .expect(newObject)
         .run(unit -> {
-          new NettyRequest(unit.get(ChannelHandlerContext.class), unit.get(HttpRequest.class),
-              "target", 60)
-                  .upgrade(Object.class);
+          new NettyRequest(unit.get(ChannelHandlerContext.class),
+              unit.get(HttpRequest.class), unit.get(HttpHeaders.class), "target", 60)
+              .upgrade(Object.class);
         });
   }
 

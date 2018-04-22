@@ -203,29 +203,17 @@
  */
 package org.jooby.internal.netty;
 
-import static io.netty.channel.ChannelFutureListener.CLOSE;
-
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import org.jooby.spi.NativeResponse;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
+import static io.netty.channel.ChannelFutureListener.CLOSE;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpChunkedInput;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -240,6 +228,14 @@ import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.Attribute;
+import org.jooby.spi.NativeResponse;
+
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class NettyResponse implements NativeResponse {
 
@@ -255,17 +251,17 @@ public class NettyResponse implements NativeResponse {
 
   private int bufferSize;
 
-  public NettyResponse(final ChannelHandlerContext ctx, final int bufferSize,
-      final boolean keepAlive) {
-    this(ctx, bufferSize, keepAlive, null);
+  public NettyResponse(final ChannelHandlerContext ctx, final HttpHeaders headers,
+      final int bufferSize, final boolean keepAlive) {
+    this(ctx, headers, bufferSize, keepAlive, null);
   }
 
-  public NettyResponse(final ChannelHandlerContext ctx, final int bufferSize,
-      final boolean keepAlive, final String streamId) {
+  public NettyResponse(final ChannelHandlerContext ctx, final HttpHeaders headers,
+      final int bufferSize, final boolean keepAlive, final String streamId) {
     this.ctx = ctx;
     this.bufferSize = bufferSize;
     this.keepAlive = keepAlive;
-    this.headers = new DefaultHttpHeaders();
+    this.headers = headers;
     if (streamId != null) {
       headers.set(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text(), streamId);
     }

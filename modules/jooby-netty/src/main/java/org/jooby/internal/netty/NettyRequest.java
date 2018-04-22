@@ -215,6 +215,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
@@ -261,9 +262,10 @@ public class NettyRequest implements NativeRequest {
 
   public static final AttributeKey<Boolean> SECURE = AttributeKey
       .newInstance(NettyRequest.class.getName() + ".secure");
-  ;
 
   private HttpRequest req;
+
+  private final HttpHeaders responseHeaders;
 
   private QueryStringDecoder query;
 
@@ -281,11 +283,11 @@ public class NettyRequest implements NativeRequest {
 
   private int wsMaxMessageSize;
 
-  public NettyRequest(final ChannelHandlerContext ctx,
-      final HttpRequest req, final String tmpdir,
-      final int wsMaxMessageSize) throws IOException {
+  public NettyRequest(final ChannelHandlerContext ctx, final HttpRequest req,
+      final HttpHeaders responseHeaders, final String tmpdir, final int wsMaxMessageSize) {
     this.ctx = ctx;
     this.req = req;
+    this.responseHeaders = responseHeaders;
     this.tmpdir = tmpdir;
     this.query = new QueryStringDecoder(req.uri());
     this.path = Router.decode(query.path());
@@ -369,7 +371,7 @@ public class NettyRequest implements NativeRequest {
   }
 
   @Override
-  public InputStream in() throws IOException {
+  public InputStream in() {
     ByteBuf content = ((HttpContent) req).content();
     return new ByteBufInputStream(content);
   }
@@ -394,7 +396,7 @@ public class NettyRequest implements NativeRequest {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T upgrade(final Class<T> type) throws Exception {
+  public <T> T upgrade(final Class<T> type) {
     if (type == NativeWebSocket.class) {
       String protocol = ifSecure("wss", "ws");
       String webSocketURL = protocol + "://" + req.headers().get(HttpHeaderNames.HOST) + path;
@@ -411,7 +413,7 @@ public class NettyRequest implements NativeRequest {
       ctx.channel().attr(NettyWebSocket.KEY).set(result);
       return (T) result;
     } else if (type == Sse.class) {
-      NettySse sse = new NettySse(ctx);
+      NettySse sse = new NettySse(ctx, responseHeaders);
       return (T) sse;
     } else if (type == NativePushPromise.class) {
       return (T) new NettyPush(ctx,
