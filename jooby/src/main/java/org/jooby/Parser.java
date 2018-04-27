@@ -567,7 +567,7 @@ public interface Parser {
    *      return ctx.param(values {@literal ->} new MyType(values.get(0)));
    *    }
    *    // no luck! move next
-   *    return next.next();
+   *    return ctx.next();
    *  }
    * </pre>
    *
@@ -583,7 +583,7 @@ public interface Parser {
    *        .get(((ParameterizedType) toType.getType()).getActualTypeArguments()[0]);
    *
    *      // Ask param converter to resolve the new/next type.
-   *      Object result = next.next(paramType);
+   *      Object result = ctx.next(paramType);
    *      return new MyType(result);
    *    }
    *    // no luck! move next

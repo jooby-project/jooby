@@ -132,7 +132,7 @@ parser((type, ctx) -> {
     return ctx.param(values -> new MyType(values.get(0)));
   }
   // no luck! move to next converter
-  return next.next();
+  return ctx.next();
 });
 
 get("/", req -> {
