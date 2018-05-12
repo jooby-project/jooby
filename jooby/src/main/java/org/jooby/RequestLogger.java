@@ -225,7 +225,7 @@ import org.slf4j.LoggerFactory;
  *
  * <pre>{@code
  * {
- *   use("*", new RequestLog());
+ *   use("*", new RequestLogger());
  *
  *   ...
  * }
@@ -240,7 +240,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  *
  * <p>
- * You probably want to configure the <code>RequestLog</code> logger to save output into a new file:
+ * You probably want to configure the <code>RequestLogger</code> logger to save output into a new file:
  * </p>
  *
  * <pre>
