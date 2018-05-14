@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-project</artifactId>
-  <version>1.1.1-SNAPSHOT</version>
+  <version>1.3.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>jooby-project</name>
@@ -15,93 +17,7 @@
 
   <modules>
     <module>jooby</module>
-    <module>jooby-spec</module>
-    <module>jooby-executor</module>
-    <module>jooby-jackson</module>
-    <module>jooby-gson</module>
-    <module>jooby-hbs</module>
-    <module>jooby-ftl</module>
-    <module>jooby-pebble</module>
-    <module>jooby-jade</module>
-    <module>jooby-caffeine</module>
-    <module>jooby-guava-cache</module>
-    <module>jooby-jdbc</module>
-    <module>jooby-jooq</module>
-    <module>jooby-hbm</module>
-    <module>jooby-hbm4</module>
-    <module>jooby-dist</module>
-    <module>jooby-undertow</module>
-    <module>jooby-servlet</module>
-    <module>jooby-jetty</module>
-    <module>jooby-netty</module>
-    <module>jooby-quartz</module>
-    <module>jooby-jdbi</module>
-    <module>jooby-run</module>
-    <module>jooby-jedis</module>
-    <module>jooby-mongodb</module>
-    <module>jooby-mongodb-rx</module>
-    <module>jooby-morphia</module>
-    <module>jooby-camel</module>
-    <module>jooby-elasticsearch</module>
-    <module>jooby-hbv</module>
-    <module>jooby-archetype</module>
-    <module>jooby-maven-plugin</module>
-    <module>jooby-ehcache</module>
-    <module>jooby-pac4j</module>
-    <module>jooby-swagger</module>
-    <module>jooby-raml</module>
-    <module>jooby-spymemcached</module>
-    <module>jooby-aws</module>
-    <module>jooby-commons-email</module>
-    <module>jooby-jongo</module>
-    <module>jooby-flyway</module>
-    <module>jooby-hazelcast</module>
-    <module>jooby-ebean</module>
-    <module>jooby-akka</module>
-    <module>jooby-metrics</module>
-    <module>jooby-querydsl</module>
-    <module>jooby-sitemap</module>
-    <module>jooby-rxjava</module>
-    <module>jooby-rxjava-jdbc</module>
-    <module>jooby-banner</module>
-    <module>jooby-reactor</module>
-    <module>jooby-whoops</module>
-    <module>jooby-gradle-plugin</module>
-    <module>jooby-couchbase</module>
-    <module>jooby-cassandra</module>
-    <module>jooby-scanner</module>
-    <module>jooby-csl</module>
-    <module>jooby-unbescape</module>
-    <module>jooby-crash</module>
-    <module>jooby-thymeleaf</module>
-    <module>jooby-filewatcher</module>
-    <module>jooby-lang-js</module>
-    <module>jooby-lang-kotlin</module>
-    <module>jooby-requery</module>
-    <module>jooby-rocker</module>
-    <module>jooby-livereload</module>
-    <!-- Assets -->
-    <module>jooby-assets</module>
-    <module>jooby-assets-j2v8</module>
-    <module>jooby-assets-nodejs</module>
-    <module>jooby-assets-jshint</module>
-    <module>jooby-assets-jscs</module>
-    <module>jooby-assets-less</module>
-    <module>jooby-assets-less4j</module>
-    <module>jooby-assets-csslint</module>
-    <module>jooby-assets-ng-annotate</module>
-    <module>jooby-assets-uglify</module>
-    <module>jooby-assets-clean-css</module>
-    <module>jooby-assets-yui-compressor</module>
-    <module>jooby-assets-closure-compiler</module>
-    <module>jooby-assets-sass</module>
-    <module>jooby-assets-requirejs</module>
-    <module>jooby-assets-babel</module>
-    <module>jooby-assets-rollup</module>
-    <module>jooby-assets-svg-sprites</module>
-    <module>jooby-assets-svg-symbol</module>
-    <module>jooby-assets-autoprefixer</module>
-    <module>coverage-report</module>
+    <module>modules</module>
   </modules>
 
   <licenses>
@@ -157,12 +73,6 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
-        <artifactId>jooby-hbm4</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jooby</groupId>
         <artifactId>jooby-hbv</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -182,6 +92,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-jdbi</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-jdbi3</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -313,6 +229,18 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
+        <artifactId>jooby-pac4j2</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-apitool</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
         <artifactId>jooby-swagger</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -343,6 +271,12 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
+        <artifactId>jooby-consul</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
         <artifactId>jooby-jongo</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -368,6 +302,18 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-akka</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-neo4j</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-frontend</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -601,12 +547,6 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
-        <artifactId>jooby-lang-js</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jooby</groupId>
         <artifactId>jooby-livereload</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -633,6 +573,12 @@
       <dependency>
         <groupId>io.requery</groupId>
         <artifactId>requery</artifactId>
+        <version>${requery.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.requery</groupId>
+        <artifactId>requery-kotlin</artifactId>
         <version>${requery.version}</version>
       </dependency>
 
@@ -759,6 +705,13 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
+      </dependency>
+
+      <!-- funzy -->
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>funzy</artifactId>
+        <version>${funzy.version}</version>
       </dependency>
 
       <!-- javaslang -->
@@ -935,6 +888,12 @@
         <version>${jdbi.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-core</artifactId>
+        <version>${jdbi3.version}</version>
+      </dependency>
+
       <!-- Apache Camel -->
       <dependency>
         <groupId>org.apache.camel</groupId>
@@ -1102,6 +1061,13 @@
         <version>${mysql-connector-java.version}</version>
       </dependency>
 
+      <!-- pgjdbc-ng -->
+      <dependency>
+        <groupId>com.impossibl.pgjdbc-ng</groupId>
+        <artifactId>pgjdbc-ng</artifactId>
+        <version>${pgjdbc-ng.version}</version>
+      </dependency>
+
       <!-- Elasticsearch -->
       <dependency>
         <groupId>org.elasticsearch.client</groupId>
@@ -1161,83 +1127,95 @@
         <version>${swagger-ui.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>swagger-ui-themes</artifactId>
+        <version>${swagger-ui-themes.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.webjars.npm</groupId>
+        <artifactId>api-console</artifactId>
+        <version>${api-console.version}</version>
+      </dependency>
+
       <!-- Pac4j -->
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-core</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-oauth</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-cas</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-http</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-openid</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-saml</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-gae</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-oidc</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-jwt</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-ldap</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-sql</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-mongo</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-stormpath</artifactId>
-        <version>${pac4j.version}</version>
+        <version>${pac4j2.version}</version>
       </dependency>
 
       <!-- AWS -->
@@ -1262,13 +1240,13 @@
       <!-- Akka -->
       <dependency>
         <groupId>com.typesafe.akka</groupId>
-        <artifactId>akka-actor_2.11</artifactId>
+        <artifactId>akka-actor_2.12</artifactId>
         <version>${akka.version}</version>
       </dependency>
 
       <dependency>
         <groupId>com.typesafe.akka</groupId>
-        <artifactId>akka-slf4j_2.11</artifactId>
+        <artifactId>akka-slf4j_2.12</artifactId>
         <version>${akka.version}</version>
       </dependency>
 
@@ -1431,6 +1409,18 @@
 
       <dependency>
         <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-stdlib-jre7</artifactId>
+        <version>${kotlin.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-stdlib-jre8</artifactId>
+        <version>${kotlin.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
         <artifactId>kotlin-reflect</artifactId>
         <version>${kotlin.version}</version>
       </dependency>
@@ -1587,6 +1577,60 @@
         <version>${crash.version}</version>
       </dependency>
 
+      <!-- Consul client -->
+      <dependency>
+        <groupId>com.orbitz.consul</groupId>
+        <artifactId>consul-client</artifactId>
+        <version>${consul.version}</version>
+      </dependency>
+
+      <!-- neo4j -->
+      <dependency>
+        <groupId>com.graphaware.neo4j</groupId>
+        <artifactId>runtime</artifactId>
+        <version>${neo4j.runtime.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-graphdb-api</artifactId>
+        <version>${neo4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j</artifactId>
+        <version>${neo4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-slf4j</artifactId>
+        <version>${neo4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.graphaware.neo4j</groupId>
+        <artifactId>expire</artifactId>
+        <version>${neo4j.expire.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.iot-solutions.graphdb</groupId>
+        <artifactId>jcypher</artifactId>
+        <version>${jcypher.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-kernel</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-io</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
       <!-- Test dependencies -->
       <dependency>
         <groupId>junit</groupId>
@@ -1652,7 +1696,7 @@
                   <version>[3.0,)</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
-                  <version>${java.source.version}</version>
+                  <version>[1.8,)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
@@ -1793,7 +1837,7 @@
 
         <!-- avaje-enchancer -->
         <plugin>
-          <groupId>org.avaje.ebean</groupId>
+          <groupId>io.ebean</groupId>
           <artifactId>ebean-maven-plugin</artifactId>
           <version>${ebean-maven-plugin.version}</version>
           <executions>
@@ -1850,8 +1894,10 @@
               </goals>
               <configuration>
                 <transformers>
-                  <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <transformer
+                      implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                  <transformer
+                      implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                     <mainClass>${application.class}</mainClass>
                   </transformer>
                 </transformers>
@@ -1887,6 +1933,12 @@
             </dependency>
           </dependencies>
         </plugin>
+
+        <plugin>
+          <groupId>org.owasp</groupId>
+          <artifactId>dependency-check-maven</artifactId>
+          <version>${depencency-check-maven.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -1921,7 +1973,7 @@
                       <version>[3.0,)</version>
                     </requireMavenVersion>
                     <requireJavaVersion>
-                      <version>${java.source.version}</version>
+                      <version>[1.8,)</version>
                     </requireJavaVersion>
                   </rules>
                 </configuration>
@@ -2052,13 +2104,13 @@
           <!-- stork:generate -->
           <plugin>
             <groupId>com.fizzed</groupId>
-            <artifactId>fizzed-stork-maven-plugin</artifactId>
-            <version>${fizzed-stork-maven-plugin.version}</version>
+            <artifactId>stork-maven-plugin</artifactId>
+            <version>${stork-maven-plugin.version}</version>
             <executions>
               <execution>
                 <phase>package</phase>
                 <goals>
-                  <goal>generate</goal>
+                  <goal>launcher</goal>
                 </goals>
               </execution>
             </executions>
@@ -2445,7 +2497,7 @@
         </file>
       </activation>
       <dependencies>
-        <!-- ebean-runtime-enchancer -->
+        <!-- ebean-runtime-enhancer -->
         <dependency>
           <groupId>io.ebean</groupId>
           <artifactId>ebean-agent</artifactId>
@@ -2460,8 +2512,9 @@
       </dependencies>
       <build>
         <plugins>
-          <!-- ebean-enchancer -->
+          <!-- ebean-enhancer -->
           <plugin>
+            <groupId>io.ebean</groupId>
             <artifactId>ebean-maven-plugin</artifactId>
             <version>${ebean-maven-plugin.version}</version>
           </plugin>
@@ -2669,8 +2722,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
       <activation>
         <file>
           <exists>
-              ${basedir}${file.separator}src${file.separator}etc${file.separator}rocker.activator
-            </exists>
+            ${basedir}${file.separator}src${file.separator}etc${file.separator}rocker.activator
+          </exists>
         </file>
       </activation>
       <properties>
@@ -2825,6 +2878,11 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>${maven-javadoc-plugin.version}</version>
+            <configuration>
+              <excludePackageNames>${javadoc.excludes}</excludePackageNames>
+              <aggregate>true</aggregate>
+              <show>public</show>
+            </configuration>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -2847,26 +2905,15 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
                 <goals>
                   <goal>sign</goal>
                 </goals>
+                <configuration>
+                  <keyname>${gpg.keyname}</keyname>
+                  <passphraseServerId>${gpg.keyname}</passphraseServerId>
+                </configuration>
               </execution>
             </executions>
           </plugin>
 
           <!-- Release plugin -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-release-plugin</artifactId>
-            <version>${maven-release-plugin.version}</version>
-            <configuration>
-              <mavenExecutorId>forked-path</mavenExecutorId>
-              <useReleaseProfile>false</useReleaseProfile>
-              <arguments>-Psonatype-oss-release</arguments>
-              <autoVersionSubmodules>true</autoVersionSubmodules>
-              <tagNameFormat>v@{project.version}</tagNameFormat>
-              <scmCommentPrefix>release</scmCommentPrefix>
-              <goals>deploy</goals>
-            </configuration>
-          </plugin>
-
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -2910,7 +2957,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
               </execution>
             </executions>
             <configuration>
-              <excludePackageNames>org.jooby.internal:org.jooby.test</excludePackageNames>
+              <excludePackageNames>${javadoc.excludes}</excludePackageNames>
               <aggregate>true</aggregate>
               <show>public</show>
             </configuration>
@@ -2921,78 +2968,80 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
 
   </profiles>
 
-  <prerequisites>
-    <maven>3.0</maven>
-  </prerequisites>
-
   <properties>
     <!-- Dependencies -->
-    <jackson.version>2.8.3</jackson.version>
-    <undertow.version>1.4.9.Final</undertow.version>
+    <funzy.version>0.1.0</funzy.version>
+    <jackson.version>2.9.5</jackson.version>
+    <undertow.version>1.4.23.Final</undertow.version>
     <servlet.version>3.1.0</servlet.version>
-    <jetty.version>9.4.3.v20170317</jetty.version>
-    <netty.version>4.1.9.Final</netty.version>
-    <javassist.version>3.20.0-GA</javassist.version>
+    <jetty.version>9.4.9.v20180320</jetty.version>
+    <netty.version>4.1.23.Final</netty.version>
+    <boringssl.version>2.0.8.Final</boringssl.version>
+    <javassist.version>3.22.0-GA</javassist.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
-    <slf4j-api.version>1.7.21</slf4j-api.version>
-    <logback-classic.version>1.1.7</logback-classic.version>
-    <caffeine.version>2.3.3</caffeine.version>
-    <guava.version>19.0</guava.version>
+    <slf4j-api.version>1.7.25</slf4j-api.version>
+    <logback-classic.version>1.2.3</logback-classic.version>
+    <caffeine.version>2.6.1</caffeine.version>
+    <guava.version>21.0</guava.version>
     <guice.version>4.1.0</guice.version>
-    <config.version>1.3.1</config.version>
-    <handlebars.version>4.0.5</handlebars.version>
-    <h2.version>1.4.190</h2.version>
-    <mysql-connector-java.version>5.1.38</mysql-connector-java.version>
-    <hikariCP.version>2.6.1</hikariCP.version>
+    <config.version>1.3.2</config.version>
+    <handlebars.version>4.0.6</handlebars.version>
+    <h2.version>1.4.196</h2.version>
+    <mysql-connector-java.version>5.1.42</mysql-connector-java.version>
+    <pgjdbc-ng.version>0.7.1</pgjdbc-ng.version>
+    <hikariCP.version>2.7.7</hikariCP.version>
     <hibernate.version>5.2.1.Final</hibernate.version>
-    <hibernate4.version>4.3.9.Final</hibernate4.version>
-    <jsr305.version>3.0.0</jsr305.version>
+    <jsr305.version>3.0.2</jsr305.version>
     <http-client.version>4.5.2</http-client.version>
     <rest-assured.version>3.0.1</rest-assured.version>
     <async-http-client.version>1.9.36</async-http-client.version>
     <cglib.version>3.2.0</cglib.version>
-    <asm.version>5.0.3</asm.version>
+    <asm.version>6.1.1</asm.version>
     <quartz.version>2.2.2</quartz.version>
-    <jdbi.version>2.72</jdbi.version>
-    <freemarker.version>2.3.23</freemarker.version>
-    <camel.version>2.17.0</camel.version>
-    <jedis.version>2.8.1</jedis.version>
+    <jdbi.version>2.78</jdbi.version>
+    <jdbi3.version>3.0.1</jdbi3.version>
+    <freemarker.version>2.3.26-incubating</freemarker.version>
+    <camel.version>2.18.3</camel.version>
+    <jedis.version>2.9.0</jedis.version>
     <mongo-driver-core.version>3.2.2</mongo-driver-core.version>
     <mongo-java-driver.version>3.2.2</mongo-java-driver.version>
     <mongodb-driver-async.version>${mongo-java-driver.version}</mongodb-driver-async.version>
     <morphia.version>1.1.1</morphia.version>
-    <jboss-modules.version>1.4.5.Final</jboss-modules.version>
-    <elasticsearch>5.0.0</elasticsearch>
+    <jboss-modules.version>1.7.0.Beta3</jboss-modules.version>
+    <elasticsearch>5.5.3</elasticsearch>
     <hibernate-validator.version>5.1.3.Final</hibernate-validator.version>
     <javax.el-api.version>2.2.5</javax.el-api.version>
     <javax.el-ref.version>2.2.6</javax.el-ref.version>
-    <gson.version>2.6.2</gson.version>
+    <gson.version>2.8.2</gson.version>
     <ehcache.version>2.10.0</ehcache.version>
-    <pac4j.version>1.9.5</pac4j.version>
-    <swagger.version>1.5.8</swagger.version>
-    <swagger-ui.version>2.1.8-M1</swagger-ui.version>
+    <pac4j.version>1.9.9</pac4j.version>
+    <pac4j2.version>2.2.1</pac4j2.version>
+    <swagger.version>1.5.16</swagger.version>
+    <swagger-ui.version>3.9.3</swagger-ui.version>
+    <swagger-ui-themes.version>3.0.0</swagger-ui-themes.version>
+    <api-console.version>3.0.17</api-console.version>
     <commons-lang3.version>3.4</commons-lang3.version>
-    <snakeyaml.version>1.15</snakeyaml.version>
+    <snakeyaml.version>1.19</snakeyaml.version>
     <spymemcached.version>2.12.0</spymemcached.version>
-    <aws-java-sdk.version>1.11.43</aws-java-sdk.version>
+    <aws-java-sdk.version>1.11.273</aws-java-sdk.version>
     <commons-email.version>1.4</commons-email.version>
-    <jongo.version>1.2</jongo.version>
-    <bson4jackson.version>2.5.0</bson4jackson.version>
-    <flyway.version>4.0</flyway.version>
-    <hazelcast.version>3.6.1</hazelcast.version>
+    <jongo.version>1.4.0</jongo.version>
+    <bson4jackson.version>2.9.0</bson4jackson.version>
+    <flyway.version>5.0.7</flyway.version>
+    <hazelcast.version>3.9.2</hazelcast.version>
     <less4j.version>1.13.0</less4j.version>
-    <ebean.version>10.1.6</ebean.version>
+    <ebean.version>10.1.7</ebean.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
-    <ebean-agent.version>10.1.2</ebean-agent.version>
-    <ebean-maven-plugin.version>10.1.4</ebean-maven-plugin.version>
-    <akka.version>2.4.11</akka.version>
+    <ebean-agent.version>10.1.7</ebean-agent.version>
+    <ebean-maven-plugin.version>10.1.7</ebean-maven-plugin.version>
+    <akka.version>2.5.9</akka.version>
     <yuicompressor.version>2.4.8</yuicompressor.version>
-    <closure-compiler.version>v20150901</closure-compiler.version>
+    <closure-compiler.version>v20180204</closure-compiler.version>
     <jruby.version>9.0.1.0</jruby.version>
-    <j2v8.version>4.5.0</j2v8.version>
+    <j2v8.version>4.6.0</j2v8.version>
     <metrics.version>3.1.2</metrics.version>
-    <pebble.version>2.2.1</pebble.version>
-    <jade4j.version>1.1.4</jade4j.version>
+    <pebble.version>2.4.0</pebble.version>
+    <jade4j.version>1.2.7</jade4j.version>
     <jsoup.version>1.8.3</jsoup.version>
     <rxjava.version>1.1.5</rxjava.version>
     <rxjava-string.version>1.1.0</rxjava-string.version>
@@ -3000,11 +3049,16 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <rxjava-jdbc.version>0.7</rxjava-jdbc.version>
     <reactor.version>2.5.0.M3</reactor.version>
     <crash.version>1.3.1</crash.version>
+    <consul.version>1.0.1</consul.version>
     <groovy.version>2.4.7</groovy.version>
-    <thymeleaf.version>3.0.2.RELEASE</thymeleaf.version>
-    <rocker.version>0.16.0</rocker.version>
-    <kotlin.version>1.1.0</kotlin.version>
-    <requery.version>1.2.0</requery.version>
+    <thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
+    <rocker.version>0.23.0</rocker.version>
+    <kotlin.version>1.2.21</kotlin.version>
+    <requery.version>1.4.0</requery.version>
+    <neo4j.runtime.version>3.3.2.52</neo4j.runtime.version>
+    <neo4j.expire.version>3.3.2.52.4</neo4j.expire.version>
+    <neo4j.version>3.3.2</neo4j.version>
+    <jcypher.version>3.9.0</jcypher.version>
 
     <!-- config -->
     <ebean.agent.packages>**</ebean.agent.packages>
@@ -3014,7 +3068,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jooq.version>3.7.3</jooq.version>
 
     <!-- QueryDSL -->
-    <querydsl.version>4.0.9</querydsl.version>
+    <querydsl.version>4.1.4</querydsl.version>
 
     <!-- javaslang -->
     <javaslang.version>2.0.4</javaslang.version>
@@ -3023,12 +3077,12 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
 
     <jfiglet.version>0.0.7</jfiglet.version>
     <couchbase-client.version>2.3.1</couchbase-client.version>
-    <cassandra.version>3.0.3</cassandra.version>
+    <cassandra.version>3.4.0</cassandra.version>
 
     <mongo-driver-driver-rx.version>1.2.0</mongo-driver-driver-rx.version>
-    <fast-classpath-scanner.version>2.0.7</fast-classpath-scanner.version>
+    <fast-classpath-scanner.version>2.8.1</fast-classpath-scanner.version>
     <zt-zip.version>1.9</zt-zip.version>
-    <batik.version>1.8</batik.version>
+    <batik.version>1.9.1</batik.version>
     <coverity-escapers.version>1.1.1</coverity-escapers.version>
     <unbescape.version>1.1.3.RELEASE</unbescape.version>
 
@@ -3045,19 +3099,19 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <timestamp>${maven.build.timestamp}</timestamp>
 
     <!-- Maven plugins -->
-    <maven-compiler-plugin.version>3.5</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
     <maven-release-plugin.version>2.5.1</maven-release-plugin.version>
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
     <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
-    <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
-    <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
-    <maven-enforcer-plugin.version>1.3.1</maven-enforcer-plugin.version>
+    <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
+    <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+    <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
     <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
     <maven-eclipse-plugin.version>2.9</maven-eclipse-plugin.version>
     <maven-java-formatter-plugin.version>0.4</maven-java-formatter-plugin.version>
     <nexus-staging-maven-plugin.version>1.6.5</nexus-staging-maven-plugin.version>
     <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
-    <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
+    <maven-shade-plugin.version>3.1.0</maven-shade-plugin.version>
     <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
     <coveralls-maven-plugin.version>3.1.0</coveralls-maven-plugin.version>
     <exec-maven-plugin.version>1.3.2</exec-maven-plugin.version>
@@ -3077,11 +3131,13 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
     <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
     <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
-    <fizzed-stork-maven-plugin.version>1.2.3</fizzed-stork-maven-plugin.version>
+    <stork-maven-plugin.version>2.7.0</stork-maven-plugin.version>
     <capsule-maven-plugin.version>1.0.4</capsule-maven-plugin.version>
     <docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
+    <depencency-check-maven.version>2.1.1</depencency-check-maven.version>
 
     <jooby.version>${project.version}</jooby.version>
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
+    <javadoc.excludes>org.jooby.internal:com.impossibl.postgres.jdbc:org.skife.jdbi.v2</javadoc.excludes>
   </properties>
 </project>

@@ -1,14 +1,12 @@
 package org.jooby;
 
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.LinkedList;
-import java.util.Map;
-
 import org.jooby.WebSocket.CloseStatus;
 import org.jooby.test.MockUnit;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -16,8 +14,10 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
+import javax.annotation.Nullable;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Optional;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({WebSocket.class, LoggerFactory.class })
@@ -112,6 +112,29 @@ public class WebSocketTest {
       throw new UnsupportedOperationException();
     }
 
+    @Override public <T> T get(String name) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override public <T> Optional<T> ifGet(String name) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Nullable @Override public WebSocket set(String name, Object value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override public WebSocket unset() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override public <T> Optional<T> unset(String name) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override public Map<String, Object> attributes() {
+      throw new UnsupportedOperationException();
+    }
   }
 
   @Test

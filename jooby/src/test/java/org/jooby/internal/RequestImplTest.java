@@ -64,7 +64,8 @@ public class RequestImplTest {
         .run(unit -> {
           RequestImpl req = new RequestImpl(unit.get(Injector.class), unit.get(NativeRequest.class),
               "/", 8080,
-              unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH), ImmutableMap.of(),
+              unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH),
+              ImmutableMap.of(),
               ImmutableMap.of(), 1L);
           assertEquals(true, req.matches("/path/**"));
         });
@@ -82,7 +83,8 @@ public class RequestImplTest {
         .run(unit -> {
           RequestImpl req = new RequestImpl(unit.get(Injector.class), unit.get(NativeRequest.class),
               "/", 8080,
-              unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH), ImmutableMap.of(),
+              unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH),
+              ImmutableMap.of(),
               ImmutableMap.of(), 1L);
           assertEquals(Locale.ENGLISH, req.locale());
         });
@@ -102,12 +104,12 @@ public class RequestImplTest {
         .run(unit -> {
           try {
             new RequestImpl(unit.get(Injector.class), unit.get(NativeRequest.class), "/", 8080,
-                unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH), ImmutableMap.of(),
-                ImmutableMap.of(), 1L).param("f");
+                unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH),
+                ImmutableMap.of(),
+                ImmutableMap.of(), 1L).file("f");
             fail("expecting error");
-          } catch (Err ex) {
-            assertEquals(400, ex.statusCode());
-            assertEquals(cause, ex.getCause());
+          } catch (IOException ex) {
+            assertEquals(cause, ex);
           }
         });
   }
@@ -129,7 +131,8 @@ public class RequestImplTest {
         .run(unit -> {
           try {
             new RequestImpl(unit.get(Injector.class), unit.get(NativeRequest.class), "/", 8080,
-                unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH), ImmutableMap.of(),
+                unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH),
+                ImmutableMap.of(),
                 ImmutableMap.of(), 1L).params();
             fail("expecting error");
           } catch (Err ex) {
@@ -151,13 +154,13 @@ public class RequestImplTest {
           expect(route.vars()).andReturn(ImmutableMap.of());
 
           NativeRequest req = unit.get(NativeRequest.class);
-          expect(req.files("p")).andReturn(ImmutableList.of());
           expect(req.params("p")).andThrow(cause);
         })
         .run(unit -> {
           try {
             new RequestImpl(unit.get(Injector.class), unit.get(NativeRequest.class), "/", 8080,
-                unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH), ImmutableMap.of(),
+                unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH),
+                ImmutableMap.of(),
                 ImmutableMap.of(), 1L).param("p");
             fail("expecting error");
           } catch (Err ex) {

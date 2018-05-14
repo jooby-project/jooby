@@ -254,7 +254,7 @@ public class RouteGroupTest {
     ns.patch("/p", (req, rsp, chain) -> {
     }).renderer("json");
 
-    assertEquals("json", ns.routes().iterator().next().attr("renderer"));
+    assertEquals("json", ns.renderer());
   }
 
   @Test

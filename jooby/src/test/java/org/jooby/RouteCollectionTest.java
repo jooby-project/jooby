@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
+import org.jooby.Route.Collection;
 import org.jooby.Route.Definition;
 import org.junit.Test;
 
@@ -11,12 +12,11 @@ public class RouteCollectionTest {
 
   @Test
   public void renderer() {
-    Definition def = new Route.Definition("*", "*", (req, rsp, chain) -> {
-    });
-    new Route.Collection(def)
+    Collection col = new Route.Collection(new Route.Definition("*", "*", (req, rsp, chain) -> {
+    }))
         .renderer("json");
 
-    assertEquals("json", def.attributes().get("renderer"));
+    assertEquals("json", col.renderer());
   }
 
   @Test

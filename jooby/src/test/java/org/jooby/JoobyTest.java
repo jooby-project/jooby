@@ -1,33 +1,32 @@
 package org.jooby;
 
+import com.google.common.escape.Escaper;
+import com.google.common.html.HtmlEscapers;
+import com.google.common.net.UrlEscapers;
+import com.google.inject.Binder;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.Module;
+import com.google.inject.Stage;
+import com.google.inject.TypeLiteral;
+import com.google.inject.binder.AnnotatedBindingBuilder;
+import com.google.inject.binder.AnnotatedConstantBindingBuilder;
+import com.google.inject.binder.ConstantBindingBuilder;
+import com.google.inject.binder.LinkedBindingBuilder;
+import com.google.inject.binder.ScopedBindingBuilder;
+import com.google.inject.multibindings.Multibinder;
+import com.google.inject.multibindings.OptionalBinder;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
+import com.google.inject.util.Types;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.nio.charset.Charset;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.function.Function;
-
-import javax.inject.Provider;
-import javax.inject.Singleton;
-import javax.net.ssl.SSLContext;
-
 import org.jooby.Session.Definition;
 import org.jooby.Session.Store;
 import org.jooby.internal.AppPrinter;
@@ -59,6 +58,10 @@ import org.jooby.spi.HttpHandler;
 import org.jooby.spi.Server;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
+import org.jooby.funzy.Throwing;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -66,44 +69,36 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.escape.Escaper;
-import com.google.common.html.HtmlEscapers;
-import com.google.common.net.UrlEscapers;
-import com.google.inject.Binder;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Module;
-import com.google.inject.Stage;
-import com.google.inject.TypeLiteral;
-import com.google.inject.binder.AnnotatedBindingBuilder;
-import com.google.inject.binder.AnnotatedConstantBindingBuilder;
-import com.google.inject.binder.ConstantBindingBuilder;
-import com.google.inject.binder.LinkedBindingBuilder;
-import com.google.inject.binder.ScopedBindingBuilder;
-import com.google.inject.multibindings.Multibinder;
-import com.google.inject.multibindings.OptionalBinder;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
-import com.google.inject.util.Types;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
-
-import javaslang.control.Try;
-import javaslang.control.Try.CheckedRunnable;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import javax.net.ssl.SSLContext;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.function.Function;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Jooby.class, Guice.class, TypeConverters.class, Multibinder.class,
     OptionalBinder.class, Runtime.class, Thread.class, UrlEscapers.class, HtmlEscapers.class,
-    LoggerFactory.class })
+    LoggerFactory.class})
 @SuppressWarnings("unchecked")
 public class JoobyTest {
 
-  public static class InternalOnStart implements Try.CheckedConsumer<Registry> {
+  public static class InternalOnStart implements Throwing.Consumer<Registry> {
 
     @Override
-    public void accept(final Registry value) throws Throwable {
+    public void tryAccept(final Registry value) throws Throwable {
 
     }
   }
@@ -421,11 +416,18 @@ public class JoobyTest {
     ScopedBindingBuilder reqscope = unit.mock(ScopedBindingBuilder.class);
     reqscope.in(RequestScoped.class);
     reqscope.in(RequestScoped.class);
+    reqscope.in(RequestScoped.class);
+
 
     AnnotatedBindingBuilder<Request> reqbinding = unit.mock(AnnotatedBindingBuilder.class);
     expect(reqbinding.toProvider(isA(Provider.class))).andReturn(reqscope);
 
     expect(binder.bind(Request.class)).andReturn(reqbinding);
+
+    AnnotatedBindingBuilder<Route.Chain> chainbinding = unit.mock(AnnotatedBindingBuilder.class);
+    expect(chainbinding.toProvider(isA(Provider.class))).andReturn(reqscope);
+
+    expect(binder.bind(Route.Chain.class)).andReturn(chainbinding);
 
     ScopedBindingBuilder rspscope = unit.mock(ScopedBindingBuilder.class);
     rspscope.in(RequestScoped.class);
@@ -491,7 +493,7 @@ public class JoobyTest {
   private MockUnit.Block shutdown = unit -> {
     unit.mockStatic(Runtime.class);
 
-    Thread thread = unit.mockConstructor(Thread.class, new Class<?>[]{Runnable.class },
+    Thread thread = unit.mockConstructor(Thread.class, new Class<?>[]{Runnable.class},
         unit.capture(Runnable.class));
 
     Runtime runtime = unit.mock(Runtime.class);
@@ -799,7 +801,7 @@ public class JoobyTest {
   @Test
   public void onStartStopCallback() throws Exception {
 
-    new MockUnit(Binder.class, CheckedRunnable.class)
+    new MockUnit(Binder.class, Throwing.Runnable.class)
         .expect(guice)
         .expect(shutdown)
         .expect(config)
@@ -825,14 +827,14 @@ public class JoobyTest {
         .expect(internalOnStart(false))
         .expect(executor("deferred"))
         .expect(unit -> {
-          unit.get(CheckedRunnable.class).run();
-          unit.get(CheckedRunnable.class).run();
+          unit.get(Throwing.Runnable.class).run();
+          unit.get(Throwing.Runnable.class).run();
         })
         .run(unit -> {
 
           Jooby app = new Jooby()
-              .onStart(unit.get(CheckedRunnable.class))
-              .onStop(unit.get(CheckedRunnable.class));
+              .onStart(unit.get(Throwing.Runnable.class))
+              .onStop(unit.get(Throwing.Runnable.class));
           app.start();
           app.stop();
 
@@ -847,7 +849,7 @@ public class JoobyTest {
   @Test
   public void onStopCallbackLogError() throws Exception {
 
-    new MockUnit(Binder.class, CheckedRunnable.class)
+    new MockUnit(Binder.class, Throwing.Runnable.class)
         .expect(guice)
         .expect(shutdown)
         .expect(config)
@@ -873,15 +875,15 @@ public class JoobyTest {
         .expect(internalOnStart(false))
         .expect(executor("deferred"))
         .expect(unit -> {
-          unit.get(CheckedRunnable.class).run();
-          unit.get(CheckedRunnable.class).run();
+          unit.get(Throwing.Runnable.class).run();
+          unit.get(Throwing.Runnable.class).run();
           expectLastCall().andThrow(new IllegalStateException("intentional err"));
         })
         .run(unit -> {
 
           Jooby app = new Jooby()
-              .onStart(unit.get(CheckedRunnable.class))
-              .onStop(unit.get(CheckedRunnable.class));
+              .onStart(unit.get(Throwing.Runnable.class))
+              .onStop(unit.get(Throwing.Runnable.class));
           app.start();
           app.stop();
 
@@ -1164,31 +1166,31 @@ public class JoobyTest {
         .expect(executor("deferred"))
         .run(unit -> {
 
-          Jooby jooby = new Jooby();
+              Jooby jooby = new Jooby();
 
-          Route.Definition first = jooby.use("/filter", unit.get(Route.Filter.class));
-          assertNotNull(first);
-          assertEquals("/filter", first.pattern());
-          assertEquals("*", first.method());
-          assertEquals("/anonymous", first.name());
-          assertEquals(MediaType.ALL, first.consumes());
-          assertEquals(MediaType.ALL, first.produces());
+              Route.Definition first = jooby.use("/filter", unit.get(Route.Filter.class));
+              assertNotNull(first);
+              assertEquals("/filter", first.pattern());
+              assertEquals("*", first.method());
+              assertEquals("/anonymous", first.name());
+              assertEquals(MediaType.ALL, first.consumes());
+              assertEquals(MediaType.ALL, first.produces());
 
-          expected.add(first);
+              expected.add(first);
 
-          Route.Definition second = jooby.use("GET", "*", unit.get(Route.Filter.class));
-          assertNotNull(second);
-          assertEquals("/**", second.pattern());
-          assertEquals("GET", second.method());
-          assertEquals("/anonymous", second.name());
-          assertEquals(MediaType.ALL, second.consumes());
-          assertEquals(MediaType.ALL, second.produces());
+              Route.Definition second = jooby.use("GET", "*", unit.get(Route.Filter.class));
+              assertNotNull(second);
+              assertEquals("/**", second.pattern());
+              assertEquals("GET", second.method());
+              assertEquals("/anonymous", second.name());
+              assertEquals(MediaType.ALL, second.consumes());
+              assertEquals(MediaType.ALL, second.produces());
 
-          expected.add(second);
+              expected.add(second);
 
-          jooby.start();
+              jooby.start();
 
-        }, boot,
+            }, boot,
             unit -> {
               List<Route.Definition> found = unit.captured(Route.Definition.class);
               assertEquals(expected, found);
@@ -1240,31 +1242,31 @@ public class JoobyTest {
         .expect(executor("deferred"))
         .run(unit -> {
 
-          Jooby jooby = new Jooby();
+              Jooby jooby = new Jooby();
 
-          Route.Definition first = jooby.use("/first", unit.get(Route.Handler.class));
-          assertNotNull(first);
-          assertEquals("/first", first.pattern());
-          assertEquals("*", first.method());
-          assertEquals("/anonymous", first.name());
-          assertEquals(MediaType.ALL, first.consumes());
-          assertEquals(MediaType.ALL, first.produces());
+              Route.Definition first = jooby.use("/first", unit.get(Route.Handler.class));
+              assertNotNull(first);
+              assertEquals("/first", first.pattern());
+              assertEquals("*", first.method());
+              assertEquals("/anonymous", first.name());
+              assertEquals(MediaType.ALL, first.consumes());
+              assertEquals(MediaType.ALL, first.produces());
 
-          expected.add(first);
+              expected.add(first);
 
-          Route.Definition second = jooby.use("GET", "*", unit.get(Route.Handler.class));
-          assertNotNull(second);
-          assertEquals("/**", second.pattern());
-          assertEquals("GET", second.method());
-          assertEquals("/anonymous", second.name());
-          assertEquals(MediaType.ALL, second.consumes());
-          assertEquals(MediaType.ALL, second.produces());
+              Route.Definition second = jooby.use("GET", "*", unit.get(Route.Handler.class));
+              assertNotNull(second);
+              assertEquals("/**", second.pattern());
+              assertEquals("GET", second.method());
+              assertEquals("/anonymous", second.name());
+              assertEquals(MediaType.ALL, second.consumes());
+              assertEquals(MediaType.ALL, second.produces());
 
-          expected.add(second);
+              expected.add(second);
 
-          jooby.start();
+              jooby.start();
 
-        }, boot,
+            }, boot,
             unit -> {
               List<Route.Definition> found = unit.captured(Route.Definition.class);
               assertEquals(expected, found);
@@ -1278,46 +1280,46 @@ public class JoobyTest {
 
     new MockUnit(Binder.class, Route.Handler.class, Route.OneArgHandler.class,
         Route.ZeroArgHandler.class, Route.Filter.class)
-            .expect(guice)
-            .expect(shutdown)
-            .expect(config)
-            .expect(env)
-            .expect(classInfo)
-            .expect(ssl)
-            .expect(charset)
-            .expect(locale)
-            .expect(zoneId)
-            .expect(timeZone)
-            .expect(dateTimeFormatter)
-            .expect(numberFormat)
-            .expect(decimalFormat)
-            .expect(renderers)
-            .expect(session)
-            .expect(unit -> {
-              Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(unit -> {
+          Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
 
-              Binder binder = unit.get(Binder.class);
+          Binder binder = unit.get(Binder.class);
 
-              expect(Multibinder.newSetBinder(binder, Route.Definition.class))
-                  .andReturn(multibinder);
+          expect(Multibinder.newSetBinder(binder, Route.Definition.class))
+              .andReturn(multibinder);
 
-              LinkedBindingBuilder<Route.Definition> binding = unit
-                  .mock(LinkedBindingBuilder.class);
-              expect(multibinder.addBinding()).andReturn(binding).times(4);
+          LinkedBindingBuilder<Route.Definition> binding = unit
+              .mock(LinkedBindingBuilder.class);
+          expect(multibinder.addBinding()).andReturn(binding).times(4);
 
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-            })
-            .expect(routeHandler)
-            .expect(params)
-            .expect(requestScope)
-            .expect(webSockets)
-            .expect(tmpdir)
-            .expect(internalOnStart(false))
-            .expect(err).expect(executor("deferred"))
-            .run(unit -> {
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+        })
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(internalOnStart(false))
+        .expect(err).expect(executor("deferred"))
+        .run(unit -> {
 
               Jooby jooby = new Jooby();
 
@@ -1364,10 +1366,10 @@ public class JoobyTest {
               jooby.start();
 
             }, boot,
-                unit -> {
-                  List<Route.Definition> found = unit.captured(Route.Definition.class);
-                  assertEquals(expected, found);
-                });
+            unit -> {
+              List<Route.Definition> found = unit.captured(Route.Definition.class);
+              assertEquals(expected, found);
+            });
   }
 
   @Test
@@ -1377,46 +1379,46 @@ public class JoobyTest {
 
     new MockUnit(Binder.class, Route.Handler.class, Route.OneArgHandler.class,
         Route.ZeroArgHandler.class, Route.Filter.class)
-            .expect(guice)
-            .expect(shutdown)
-            .expect(config)
-            .expect(env)
-            .expect(classInfo)
-            .expect(ssl)
-            .expect(charset)
-            .expect(locale)
-            .expect(zoneId)
-            .expect(timeZone)
-            .expect(dateTimeFormatter)
-            .expect(numberFormat)
-            .expect(decimalFormat)
-            .expect(renderers)
-            .expect(session)
-            .expect(unit -> {
-              Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(unit -> {
+          Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
 
-              Binder binder = unit.get(Binder.class);
+          Binder binder = unit.get(Binder.class);
 
-              expect(Multibinder.newSetBinder(binder, Route.Definition.class))
-                  .andReturn(multibinder);
+          expect(Multibinder.newSetBinder(binder, Route.Definition.class))
+              .andReturn(multibinder);
 
-              LinkedBindingBuilder<Route.Definition> binding = unit
-                  .mock(LinkedBindingBuilder.class);
-              expect(multibinder.addBinding()).andReturn(binding).times(4);
+          LinkedBindingBuilder<Route.Definition> binding = unit
+              .mock(LinkedBindingBuilder.class);
+          expect(multibinder.addBinding()).andReturn(binding).times(4);
 
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-            })
-            .expect(routeHandler)
-            .expect(params)
-            .expect(requestScope)
-            .expect(webSockets)
-            .expect(tmpdir)
-            .expect(internalOnStart(false))
-            .expect(err).expect(executor("deferred"))
-            .run(unit -> {
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+        })
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(internalOnStart(false))
+        .expect(err).expect(executor("deferred"))
+        .run(unit -> {
 
               Jooby jooby = new Jooby();
 
@@ -1463,10 +1465,10 @@ public class JoobyTest {
               jooby.start();
 
             }, boot,
-                unit -> {
-                  List<Route.Definition> found = unit.captured(Route.Definition.class);
-                  assertEquals(expected, found);
-                });
+            unit -> {
+              List<Route.Definition> found = unit.captured(Route.Definition.class);
+              assertEquals(expected, found);
+            });
   }
 
   @Test
@@ -1476,47 +1478,47 @@ public class JoobyTest {
 
     new MockUnit(Binder.class, Route.Handler.class, Route.OneArgHandler.class,
         Route.ZeroArgHandler.class, Route.Filter.class)
-            .expect(guice)
-            .expect(shutdown)
-            .expect(config)
-            .expect(env)
-            .expect(classInfo)
-            .expect(ssl)
-            .expect(charset)
-            .expect(locale)
-            .expect(zoneId)
-            .expect(timeZone)
-            .expect(dateTimeFormatter)
-            .expect(numberFormat)
-            .expect(decimalFormat)
-            .expect(renderers)
-            .expect(session)
-            .expect(unit -> {
-              Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(unit -> {
+          Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
 
-              Binder binder = unit.get(Binder.class);
+          Binder binder = unit.get(Binder.class);
 
-              expect(Multibinder.newSetBinder(binder, Route.Definition.class))
-                  .andReturn(multibinder);
+          expect(Multibinder.newSetBinder(binder, Route.Definition.class))
+              .andReturn(multibinder);
 
-              LinkedBindingBuilder<Route.Definition> binding = unit
-                  .mock(LinkedBindingBuilder.class);
-              expect(multibinder.addBinding()).andReturn(binding).times(4);
+          LinkedBindingBuilder<Route.Definition> binding = unit
+              .mock(LinkedBindingBuilder.class);
+          expect(multibinder.addBinding()).andReturn(binding).times(4);
 
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-            })
-            .expect(routeHandler)
-            .expect(params)
-            .expect(requestScope)
-            .expect(webSockets)
-            .expect(tmpdir)
-            .expect(internalOnStart(false))
-            .expect(err)
-            .expect(executor("deferred"))
-            .run(unit -> {
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+        })
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(internalOnStart(false))
+        .expect(err)
+        .expect(executor("deferred"))
+        .run(unit -> {
 
               Jooby jooby = new Jooby();
 
@@ -1565,10 +1567,10 @@ public class JoobyTest {
               jooby.start();
 
             }, boot,
-                unit -> {
-                  List<Route.Definition> found = unit.captured(Route.Definition.class);
-                  assertEquals(expected, found);
-                });
+            unit -> {
+              List<Route.Definition> found = unit.captured(Route.Definition.class);
+              assertEquals(expected, found);
+            });
   }
 
   @Test
@@ -1578,46 +1580,46 @@ public class JoobyTest {
 
     new MockUnit(Binder.class, Route.Handler.class, Route.OneArgHandler.class,
         Route.ZeroArgHandler.class, Route.Filter.class)
-            .expect(guice)
-            .expect(shutdown)
-            .expect(config)
-            .expect(env)
-            .expect(classInfo)
-            .expect(ssl)
-            .expect(charset)
-            .expect(locale)
-            .expect(zoneId)
-            .expect(timeZone)
-            .expect(dateTimeFormatter)
-            .expect(numberFormat)
-            .expect(decimalFormat)
-            .expect(renderers)
-            .expect(session)
-            .expect(unit -> {
-              Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(unit -> {
+          Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
 
-              Binder binder = unit.get(Binder.class);
+          Binder binder = unit.get(Binder.class);
 
-              expect(Multibinder.newSetBinder(binder, Route.Definition.class))
-                  .andReturn(multibinder);
+          expect(Multibinder.newSetBinder(binder, Route.Definition.class))
+              .andReturn(multibinder);
 
-              LinkedBindingBuilder<Route.Definition> binding = unit
-                  .mock(LinkedBindingBuilder.class);
-              expect(multibinder.addBinding()).andReturn(binding).times(4);
+          LinkedBindingBuilder<Route.Definition> binding = unit
+              .mock(LinkedBindingBuilder.class);
+          expect(multibinder.addBinding()).andReturn(binding).times(4);
 
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-            })
-            .expect(routeHandler)
-            .expect(params)
-            .expect(requestScope)
-            .expect(webSockets)
-            .expect(tmpdir)
-            .expect(internalOnStart(false))
-            .expect(err).expect(executor("deferred"))
-            .run(unit -> {
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+        })
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(internalOnStart(false))
+        .expect(err).expect(executor("deferred"))
+        .run(unit -> {
 
               Jooby jooby = new Jooby();
 
@@ -1664,10 +1666,10 @@ public class JoobyTest {
               jooby.start();
 
             }, boot,
-                unit -> {
-                  List<Route.Definition> found = unit.captured(Route.Definition.class);
-                  assertEquals(expected, found);
-                });
+            unit -> {
+              List<Route.Definition> found = unit.captured(Route.Definition.class);
+              assertEquals(expected, found);
+            });
   }
 
   @Test
@@ -1677,46 +1679,46 @@ public class JoobyTest {
 
     new MockUnit(Binder.class, Route.Handler.class, Route.OneArgHandler.class,
         Route.ZeroArgHandler.class, Route.Filter.class)
-            .expect(guice)
-            .expect(shutdown)
-            .expect(config)
-            .expect(env)
-            .expect(classInfo)
-            .expect(ssl)
-            .expect(charset)
-            .expect(locale)
-            .expect(zoneId)
-            .expect(timeZone)
-            .expect(dateTimeFormatter)
-            .expect(numberFormat)
-            .expect(decimalFormat)
-            .expect(renderers)
-            .expect(session)
-            .expect(unit -> {
-              Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(unit -> {
+          Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
 
-              Binder binder = unit.get(Binder.class);
+          Binder binder = unit.get(Binder.class);
 
-              expect(Multibinder.newSetBinder(binder, Route.Definition.class))
-                  .andReturn(multibinder);
+          expect(Multibinder.newSetBinder(binder, Route.Definition.class))
+              .andReturn(multibinder);
 
-              LinkedBindingBuilder<Route.Definition> binding = unit
-                  .mock(LinkedBindingBuilder.class);
-              expect(multibinder.addBinding()).andReturn(binding).times(4);
+          LinkedBindingBuilder<Route.Definition> binding = unit
+              .mock(LinkedBindingBuilder.class);
+          expect(multibinder.addBinding()).andReturn(binding).times(4);
 
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-            })
-            .expect(routeHandler)
-            .expect(params)
-            .expect(requestScope)
-            .expect(webSockets)
-            .expect(tmpdir)
-            .expect(internalOnStart(false))
-            .expect(err).expect(executor("deferred"))
-            .run(unit -> {
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+        })
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(internalOnStart(false))
+        .expect(err).expect(executor("deferred"))
+        .run(unit -> {
 
               Jooby jooby = new Jooby();
 
@@ -1763,10 +1765,10 @@ public class JoobyTest {
               jooby.start();
 
             }, boot,
-                unit -> {
-                  List<Route.Definition> found = unit.captured(Route.Definition.class);
-                  assertEquals(expected, found);
-                });
+            unit -> {
+              List<Route.Definition> found = unit.captured(Route.Definition.class);
+              assertEquals(expected, found);
+            });
   }
 
   @Test
@@ -1776,46 +1778,46 @@ public class JoobyTest {
 
     new MockUnit(Binder.class, Route.Handler.class, Route.OneArgHandler.class,
         Route.ZeroArgHandler.class, Route.Filter.class)
-            .expect(guice)
-            .expect(shutdown)
-            .expect(config)
-            .expect(env)
-            .expect(classInfo)
-            .expect(ssl)
-            .expect(charset)
-            .expect(locale)
-            .expect(zoneId)
-            .expect(timeZone)
-            .expect(dateTimeFormatter)
-            .expect(numberFormat)
-            .expect(decimalFormat)
-            .expect(renderers)
-            .expect(session)
-            .expect(unit -> {
-              Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(unit -> {
+          Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
 
-              Binder binder = unit.get(Binder.class);
+          Binder binder = unit.get(Binder.class);
 
-              expect(Multibinder.newSetBinder(binder, Route.Definition.class))
-                  .andReturn(multibinder);
+          expect(Multibinder.newSetBinder(binder, Route.Definition.class))
+              .andReturn(multibinder);
 
-              LinkedBindingBuilder<Route.Definition> binding = unit
-                  .mock(LinkedBindingBuilder.class);
-              expect(multibinder.addBinding()).andReturn(binding).times(4);
+          LinkedBindingBuilder<Route.Definition> binding = unit
+              .mock(LinkedBindingBuilder.class);
+          expect(multibinder.addBinding()).andReturn(binding).times(4);
 
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-            })
-            .expect(routeHandler)
-            .expect(params)
-            .expect(requestScope)
-            .expect(webSockets)
-            .expect(tmpdir)
-            .expect(internalOnStart(false))
-            .expect(err).expect(executor("deferred"))
-            .run(unit -> {
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+        })
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(internalOnStart(false))
+        .expect(err).expect(executor("deferred"))
+        .run(unit -> {
 
               Jooby jooby = new Jooby();
 
@@ -1863,10 +1865,10 @@ public class JoobyTest {
               jooby.start();
 
             }, boot,
-                unit -> {
-                  List<Route.Definition> found = unit.captured(Route.Definition.class);
-                  assertEquals(expected, found);
-                });
+            unit -> {
+              List<Route.Definition> found = unit.captured(Route.Definition.class);
+              assertEquals(expected, found);
+            });
   }
 
   @Test
@@ -1876,46 +1878,46 @@ public class JoobyTest {
 
     new MockUnit(Binder.class, Route.Handler.class, Route.OneArgHandler.class,
         Route.ZeroArgHandler.class, Route.Filter.class)
-            .expect(guice)
-            .expect(shutdown)
-            .expect(config)
-            .expect(env)
-            .expect(classInfo)
-            .expect(ssl)
-            .expect(charset)
-            .expect(locale)
-            .expect(zoneId)
-            .expect(timeZone)
-            .expect(dateTimeFormatter)
-            .expect(numberFormat)
-            .expect(decimalFormat)
-            .expect(renderers)
-            .expect(session)
-            .expect(unit -> {
-              Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(unit -> {
+          Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
 
-              Binder binder = unit.get(Binder.class);
+          Binder binder = unit.get(Binder.class);
 
-              expect(Multibinder.newSetBinder(binder, Route.Definition.class))
-                  .andReturn(multibinder);
+          expect(Multibinder.newSetBinder(binder, Route.Definition.class))
+              .andReturn(multibinder);
 
-              LinkedBindingBuilder<Route.Definition> binding = unit
-                  .mock(LinkedBindingBuilder.class);
-              expect(multibinder.addBinding()).andReturn(binding).times(4);
+          LinkedBindingBuilder<Route.Definition> binding = unit
+              .mock(LinkedBindingBuilder.class);
+          expect(multibinder.addBinding()).andReturn(binding).times(4);
 
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-            })
-            .expect(routeHandler)
-            .expect(params)
-            .expect(requestScope)
-            .expect(webSockets)
-            .expect(tmpdir)
-            .expect(internalOnStart(false))
-            .expect(err).expect(executor("deferred"))
-            .run(unit -> {
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+        })
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(internalOnStart(false))
+        .expect(err).expect(executor("deferred"))
+        .run(unit -> {
 
               Jooby jooby = new Jooby();
 
@@ -1964,10 +1966,10 @@ public class JoobyTest {
               jooby.start();
 
             }, boot,
-                unit -> {
-                  List<Route.Definition> found = unit.captured(Route.Definition.class);
-                  assertEquals(expected, found);
-                });
+            unit -> {
+              List<Route.Definition> found = unit.captured(Route.Definition.class);
+              assertEquals(expected, found);
+            });
   }
 
   @Test
@@ -1977,46 +1979,46 @@ public class JoobyTest {
 
     new MockUnit(Binder.class, Route.Handler.class, Route.OneArgHandler.class,
         Route.ZeroArgHandler.class, Route.Filter.class)
-            .expect(guice)
-            .expect(shutdown)
-            .expect(config)
-            .expect(env)
-            .expect(classInfo)
-            .expect(ssl)
-            .expect(charset)
-            .expect(locale)
-            .expect(zoneId)
-            .expect(timeZone)
-            .expect(dateTimeFormatter)
-            .expect(numberFormat)
-            .expect(decimalFormat)
-            .expect(renderers)
-            .expect(session)
-            .expect(unit -> {
-              Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(unit -> {
+          Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
 
-              Binder binder = unit.get(Binder.class);
+          Binder binder = unit.get(Binder.class);
 
-              expect(Multibinder.newSetBinder(binder, Route.Definition.class))
-                  .andReturn(multibinder);
+          expect(Multibinder.newSetBinder(binder, Route.Definition.class))
+              .andReturn(multibinder);
 
-              LinkedBindingBuilder<Route.Definition> binding = unit
-                  .mock(LinkedBindingBuilder.class);
-              expect(multibinder.addBinding()).andReturn(binding).times(4);
+          LinkedBindingBuilder<Route.Definition> binding = unit
+              .mock(LinkedBindingBuilder.class);
+          expect(multibinder.addBinding()).andReturn(binding).times(4);
 
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-              binding.toInstance(unit.capture(Route.Definition.class));
-            })
-            .expect(routeHandler)
-            .expect(params)
-            .expect(requestScope)
-            .expect(webSockets)
-            .expect(tmpdir)
-            .expect(internalOnStart(false))
-            .expect(err).expect(executor("deferred"))
-            .run(unit -> {
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
+        })
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(internalOnStart(false))
+        .expect(err).expect(executor("deferred"))
+        .run(unit -> {
 
               Jooby jooby = new Jooby();
 
@@ -2063,10 +2065,10 @@ public class JoobyTest {
               jooby.start();
 
             }, boot,
-                unit -> {
-                  List<Route.Definition> found = unit.captured(Route.Definition.class);
-                  assertEquals(expected, found);
-                });
+            unit -> {
+              List<Route.Definition> found = unit.captured(Route.Definition.class);
+              assertEquals(expected, found);
+            });
   }
 
   @Test
@@ -2246,8 +2248,10 @@ public class JoobyTest {
 
           LinkedBindingBuilder<Route.Definition> binding = unit
               .mock(LinkedBindingBuilder.class);
-          expect(multibinder.addBinding()).andReturn(binding).times(5);
+          expect(multibinder.addBinding()).andReturn(binding).times(7);
 
+          binding.toInstance(unit.capture(Route.Definition.class));
+          binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
@@ -2269,18 +2273,19 @@ public class JoobyTest {
         .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
-          Jooby jooby = new Jooby();
-          jooby.use(SingletonTestRoute.class);
-          jooby.use(GuiceSingletonTestRoute.class);
-          jooby.use(ProtoTestRoute.class);
-          jooby.start();
+              Jooby jooby = new Jooby();
+              jooby.use(SingletonTestRoute.class);
+              jooby.use(GuiceSingletonTestRoute.class);
+              jooby.use(ProtoTestRoute.class);
+              jooby.use("/test", SingletonTestRoute.class);
+              jooby.start();
 
-        },
+            },
             boot,
             unit -> {
               // assert routes
               List<Route.Definition> defs = unit.captured(Route.Definition.class);
-              assertEquals(5, defs.size());
+              assertEquals(7, defs.size());
 
               assertEquals("GET", defs.get(0).method());
               assertEquals("/singleton", defs.get(0).pattern());
@@ -2301,6 +2306,14 @@ public class JoobyTest {
               assertEquals("GET", defs.get(4).method());
               assertEquals("/proto", defs.get(4).pattern());
               assertEquals("/ProtoTestRoute.m1", defs.get(4).name());
+
+              assertEquals("GET", defs.get(5).method());
+              assertEquals("/test/singleton", defs.get(5).pattern());
+              assertEquals("/SingletonTestRoute.m1", defs.get(5).name());
+
+              assertEquals("POST", defs.get(6).method());
+              assertEquals("/test/singleton", defs.get(6).pattern());
+              assertEquals("/SingletonTestRoute.m1", defs.get(6).name());
             });
   }
 

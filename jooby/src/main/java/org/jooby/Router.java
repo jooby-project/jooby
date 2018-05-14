@@ -1,30 +1,225 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ *                                  Apache License
+ *                            Version 2.0, January 2004
+ *                         http://www.apache.org/licenses/
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *    1. Definitions.
+ *
+ *       "License" shall mean the terms and conditions for use, reproduction,
+ *       and distribution as defined by Sections 1 through 9 of this document.
+ *
+ *       "Licensor" shall mean the copyright owner or entity authorized by
+ *       the copyright owner that is granting the License.
+ *
+ *       "Legal Entity" shall mean the union of the acting entity and all
+ *       other entities that control, are controlled by, or are under common
+ *       control with that entity. For the purposes of this definition,
+ *       "control" means (i) the power, direct or indirect, to cause the
+ *       direction or management of such entity, whether by contract or
+ *       otherwise, or (ii) ownership of fifty percent (50%) or more of the
+ *       outstanding shares, or (iii) beneficial ownership of such entity.
+ *
+ *       "You" (or "Your") shall mean an individual or Legal Entity
+ *       exercising permissions granted by this License.
+ *
+ *       "Source" form shall mean the preferred form for making modifications,
+ *       including but not limited to software source code, documentation
+ *       source, and configuration files.
+ *
+ *       "Object" form shall mean any form resulting from mechanical
+ *       transformation or translation of a Source form, including but
+ *       not limited to compiled object code, generated documentation,
+ *       and conversions to other media types.
+ *
+ *       "Work" shall mean the work of authorship, whether in Source or
+ *       Object form, made available under the License, as indicated by a
+ *       copyright notice that is included in or attached to the work
+ *       (an example is provided in the Appendix below).
+ *
+ *       "Derivative Works" shall mean any work, whether in Source or Object
+ *       form, that is based on (or derived from) the Work and for which the
+ *       editorial revisions, annotations, elaborations, or other modifications
+ *       represent, as a whole, an original work of authorship. For the purposes
+ *       of this License, Derivative Works shall not include works that remain
+ *       separable from, or merely link (or bind by name) to the interfaces of,
+ *       the Work and Derivative Works thereof.
+ *
+ *       "Contribution" shall mean any work of authorship, including
+ *       the original version of the Work and any modifications or additions
+ *       to that Work or Derivative Works thereof, that is intentionally
+ *       submitted to Licensor for inclusion in the Work by the copyright owner
+ *       or by an individual or Legal Entity authorized to submit on behalf of
+ *       the copyright owner. For the purposes of this definition, "submitted"
+ *       means any form of electronic, verbal, or written communication sent
+ *       to the Licensor or its representatives, including but not limited to
+ *       communication on electronic mailing lists, source code control systems,
+ *       and issue tracking systems that are managed by, or on behalf of, the
+ *       Licensor for the purpose of discussing and improving the Work, but
+ *       excluding communication that is conspicuously marked or otherwise
+ *       designated in writing by the copyright owner as "Not a Contribution."
+ *
+ *       "Contributor" shall mean Licensor and any individual or Legal Entity
+ *       on behalf of whom a Contribution has been received by Licensor and
+ *       subsequently incorporated within the Work.
+ *
+ *    2. Grant of Copyright License. Subject to the terms and conditions of
+ *       this License, each Contributor hereby grants to You a perpetual,
+ *       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+ *       copyright license to reproduce, prepare Derivative Works of,
+ *       publicly display, publicly perform, sublicense, and distribute the
+ *       Work and such Derivative Works in Source or Object form.
+ *
+ *    3. Grant of Patent License. Subject to the terms and conditions of
+ *       this License, each Contributor hereby grants to You a perpetual,
+ *       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+ *       (except as stated in this section) patent license to make, have made,
+ *       use, offer to sell, sell, import, and otherwise transfer the Work,
+ *       where such license applies only to those patent claims licensable
+ *       by such Contributor that are necessarily infringed by their
+ *       Contribution(s) alone or by combination of their Contribution(s)
+ *       with the Work to which such Contribution(s) was submitted. If You
+ *       institute patent litigation against any entity (including a
+ *       cross-claim or counterclaim in a lawsuit) alleging that the Work
+ *       or a Contribution incorporated within the Work constitutes direct
+ *       or contributory patent infringement, then any patent licenses
+ *       granted to You under this License for that Work shall terminate
+ *       as of the date such litigation is filed.
+ *
+ *    4. Redistribution. You may reproduce and distribute copies of the
+ *       Work or Derivative Works thereof in any medium, with or without
+ *       modifications, and in Source or Object form, provided that You
+ *       meet the following conditions:
+ *
+ *       (a) You must give any other recipients of the Work or
+ *           Derivative Works a copy of this License; and
+ *
+ *       (b) You must cause any modified files to carry prominent notices
+ *           stating that You changed the files; and
+ *
+ *       (c) You must retain, in the Source form of any Derivative Works
+ *           that You distribute, all copyright, patent, trademark, and
+ *           attribution notices from the Source form of the Work,
+ *           excluding those notices that do not pertain to any part of
+ *           the Derivative Works; and
+ *
+ *       (d) If the Work includes a "NOTICE" text file as part of its
+ *           distribution, then any Derivative Works that You distribute must
+ *           include a readable copy of the attribution notices contained
+ *           within such NOTICE file, excluding those notices that do not
+ *           pertain to any part of the Derivative Works, in at least one
+ *           of the following places: within a NOTICE text file distributed
+ *           as part of the Derivative Works; within the Source form or
+ *           documentation, if provided along with the Derivative Works; or,
+ *           within a display generated by the Derivative Works, if and
+ *           wherever such third-party notices normally appear. The contents
+ *           of the NOTICE file are for informational purposes only and
+ *           do not modify the License. You may add Your own attribution
+ *           notices within Derivative Works that You distribute, alongside
+ *           or as an addendum to the NOTICE text from the Work, provided
+ *           that such additional attribution notices cannot be construed
+ *           as modifying the License.
+ *
+ *       You may add Your own copyright statement to Your modifications and
+ *       may provide additional or different license terms and conditions
+ *       for use, reproduction, or distribution of Your modifications, or
+ *       for any such Derivative Works as a whole, provided Your use,
+ *       reproduction, and distribution of the Work otherwise complies with
+ *       the conditions stated in this License.
+ *
+ *    5. Submission of Contributions. Unless You explicitly state otherwise,
+ *       any Contribution intentionally submitted for inclusion in the Work
+ *       by You to the Licensor shall be under the terms and conditions of
+ *       this License, without any additional terms or conditions.
+ *       Notwithstanding the above, nothing herein shall supersede or modify
+ *       the terms of any separate license agreement you may have executed
+ *       with Licensor regarding such Contributions.
+ *
+ *    6. Trademarks. This License does not grant permission to use the trade
+ *       names, trademarks, service marks, or product names of the Licensor,
+ *       except as required for reasonable and customary use in describing the
+ *       origin of the Work and reproducing the content of the NOTICE file.
+ *
+ *    7. Disclaimer of Warranty. Unless required by applicable law or
+ *       agreed to in writing, Licensor provides the Work (and each
+ *       Contributor provides its Contributions) on an "AS IS" BASIS,
+ *       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *       implied, including, without limitation, any warranties or conditions
+ *       of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+ *       PARTICULAR PURPOSE. You are solely responsible for determining the
+ *       appropriateness of using or redistributing the Work and assume any
+ *       risks associated with Your exercise of permissions under this License.
+ *
+ *    8. Limitation of Liability. In no event and under no legal theory,
+ *       whether in tort (including negligence), contract, or otherwise,
+ *       unless required by applicable law (such as deliberate and grossly
+ *       negligent acts) or agreed to in writing, shall any Contributor be
+ *       liable to You for damages, including any direct, indirect, special,
+ *       incidental, or consequential damages of any character arising as a
+ *       result of this License or out of the use or inability to use the
+ *       Work (including but not limited to damages for loss of goodwill,
+ *       work stoppage, computer failure or malfunction, or any and all
+ *       other commercial damages or losses), even if such Contributor
+ *       has been advised of the possibility of such damages.
+ *
+ *    9. Accepting Warranty or Additional Liability. While redistributing
+ *       the Work or Derivative Works thereof, You may choose to offer,
+ *       and charge a fee for, acceptance of support, warranty, indemnity,
+ *       or other liability obligations and/or rights consistent with this
+ *       License. However, in accepting such obligations, You may act only
+ *       on Your own behalf and on Your sole responsibility, not on behalf
+ *       of any other Contributor, and only if You agree to indemnify,
+ *       defend, and hold each Contributor harmless for any liability
+ *       incurred by, or claims asserted against, such Contributor by reason
+ *       of your accepting any such warranty or additional liability.
+ *
+ *    END OF TERMS AND CONDITIONS
+ *
+ *    APPENDIX: How to apply the Apache License to your work.
+ *
+ *       To apply the Apache License to your work, attach the following
+ *       boilerplate notice, with the fields enclosed by brackets "{}"
+ *       replaced with your own identifying information. (Don't include
+ *       the brackets!)  The text should be enclosed in the appropriate
+ *       comment syntax for the file format. We also recommend that a
+ *       file or class name and description of purpose be included on the
+ *       same "printed page" as the copyright notice for easier
+ *       identification within third-party archives.
+ *
+ *    Copyright 2014 Edgar Espina
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.jooby;
 
+import java.net.URLDecoder;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import com.google.common.escape.Escaper;
+import com.google.common.net.PercentEscaper;
 import org.jooby.Route.Mapper;
+import org.jooby.funzy.Try;
 import org.jooby.handlers.AssetHandler;
+
+import javax.annotation.Nonnull;
 
 /**
  * Route DSL. Constructs and creates several flavors of jooby routes.
@@ -35,13 +230,41 @@ import org.jooby.handlers.AssetHandler;
 public interface Router {
 
   /**
+   * Decode a path by delegating to {@link URLDecoder#decode(String, String)}.
+   *
+   * @param path Path to decoded.
+   * @return Decode a path by delegating to {@link URLDecoder#decode(String, String)}.
+   */
+  static String decode(String path) {
+    return Try.apply(() -> URLDecoder.decode(path, "UTF-8")).get();
+  }
+
+  /**
    * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
    * etc.).
    *
    * @param app Routes provider.
-   * @return This jooby instance.
+   * @return This router.
    */
+  @Nonnull
   Router use(final Jooby app);
+
+  /**
+   * Group one or more routes under a common path.
+   *
+   * <pre>{@code
+   *   {
+   *     path("/api/pets", () -> {
+   *
+   *     });
+   *   }
+   * }</pre>
+   *
+   * @param path Common path.
+   * @param action Router action.
+   * @return This router.
+   */
+  Route.Collection path(String path, Runnable action);
 
   /**
    * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
@@ -49,8 +272,9 @@ public interface Router {
    *
    * @param path Path to mount the given app.
    * @param app Routes provider.
-   * @return This jooby instance.
+   * @return This router.
    */
+  @Nonnull
   Router use(final String path, final Jooby app);
 
   /**
@@ -66,7 +290,10 @@ public interface Router {
    *
    * @param pattern Global pattern to use.
    * @return A route namespace.
+   * @deprecated Replaced by {@link #path(String, Runnable)}.
    */
+  @Nonnull
+  @Deprecated
   Route.Group use(String pattern);
 
   /**
@@ -76,6 +303,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition use(String path, Route.Filter filter);
 
   /**
@@ -86,6 +314,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition use(String method, String path, Route.Filter filter);
 
   /**
@@ -98,6 +327,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition use(String method, String path, Route.Handler handler);
 
   /**
@@ -109,6 +339,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition use(String path, Route.Handler handler);
 
   /**
@@ -118,7 +349,25 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition use(String path, Route.OneArgHandler handler);
+
+  /**
+   * Append a route that matches the HTTP GET method:
+   *
+   * <pre>
+   *   get((req, rsp) {@literal ->} {
+   *     rsp.send(something);
+   *   });
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition get(Route.Handler handler) {
+    return get("/", handler);
+  }
 
   /**
    * Append a route that matches the HTTP GET method:
@@ -133,6 +382,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition get(String path, Route.Handler handler);
 
   /**
@@ -149,6 +399,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, Route.Handler handler);
 
   /**
@@ -166,7 +417,25 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, String path3, Route.Handler handler);
+
+  /**
+   * Append route that matches the HTTP GET method:
+   *
+   * <pre>
+   *   get(req {@literal ->} {
+   *     return "hello";
+   *   });
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition get(Route.OneArgHandler handler) {
+    return get("/", handler);
+  }
 
   /**
    * Append route that matches the HTTP GET method:
@@ -181,6 +450,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition get(String path, Route.OneArgHandler handler);
 
   /**
@@ -197,6 +467,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, Route.OneArgHandler handler);
 
   /**
@@ -214,7 +485,25 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, String path3, Route.OneArgHandler handler);
+
+  /**
+   * Append route that matches HTTP GET method:
+   *
+   * <pre>
+   *   get(() {@literal ->}
+   *     "hello"
+   *   );
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition get(Route.ZeroArgHandler handler) {
+    return get("/", handler);
+  }
 
   /**
    * Append route that matches HTTP GET method:
@@ -229,6 +518,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition get(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -245,6 +535,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
@@ -262,6 +553,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, String path3, Route.ZeroArgHandler handler);
 
   /**
@@ -277,6 +569,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition get(String path, Route.Filter filter);
 
   /**
@@ -294,6 +587,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, Route.Filter filter);
 
   /**
@@ -311,7 +605,25 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection get(String path1, String path2, String path3, Route.Filter filter);
+
+  /**
+   * Append a route that supports HTTP POST method:
+   *
+   * <pre>
+   *   post((req, rsp) {@literal ->} {
+   *     rsp.send(something);
+   *   });
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition post(Route.Handler handler) {
+    return post("/", handler);
+  }
 
   /**
    * Append a route that supports HTTP POST method:
@@ -326,6 +638,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition post(String path, Route.Handler handler);
 
   /**
@@ -342,6 +655,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, Route.Handler handler);
 
   /**
@@ -359,7 +673,25 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, String path3, Route.Handler handler);
+
+  /**
+   * Append route that supports HTTP POST method:
+   *
+   * <pre>
+   *   post(req {@literal ->}
+   *     "hello"
+   *   );
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition post(Route.OneArgHandler handler) {
+    return post("/", handler);
+  }
 
   /**
    * Append route that supports HTTP POST method:
@@ -374,6 +706,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition post(String path, Route.OneArgHandler handler);
 
   /**
@@ -390,6 +723,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, Route.OneArgHandler handler);
 
   /**
@@ -407,7 +741,25 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, String path3, Route.OneArgHandler handler);
+
+  /**
+   * Append route that supports HTTP POST method:
+   *
+   * <pre>
+   *   post(() {@literal ->}
+   *     "hello"
+   *   );
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition post(Route.ZeroArgHandler handler) {
+    return post("/", handler);
+  }
 
   /**
    * Append route that supports HTTP POST method:
@@ -422,6 +774,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition post(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -438,6 +791,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
@@ -455,6 +809,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, String path3, Route.ZeroArgHandler handler);
 
   /**
@@ -470,6 +825,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition post(String path, Route.Filter filter);
 
   /**
@@ -486,6 +842,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, Route.Filter filter);
 
   /**
@@ -503,6 +860,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection post(String path1, String path2, String path3, Route.Filter filter);
 
   /**
@@ -518,6 +876,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition head(String path, Route.Handler handler);
 
   /**
@@ -533,6 +892,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition head(String path, Route.OneArgHandler handler);
 
   /**
@@ -548,6 +908,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition head(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -563,6 +924,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition head(String path, Route.Filter filter);
 
   /**
@@ -576,6 +938,7 @@ public interface Router {
    *
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition head();
 
   /**
@@ -591,6 +954,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition options(String path, Route.Handler handler);
 
   /**
@@ -606,6 +970,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition options(String path, Route.OneArgHandler handler);
 
   /**
@@ -621,6 +986,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition options(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -637,6 +1003,7 @@ public interface Router {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition options(String path, Route.Filter filter);
 
   /**
@@ -658,7 +1025,25 @@ public interface Router {
    *
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition options();
+
+  /**
+   * Append route that supports HTTP PUT method:
+   *
+   * <pre>
+   *   put((req, rsp) {@literal ->} {
+   *     rsp.send(something);
+   *   });
+   * </pre>
+   *
+   * @param handler A route to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition put(Route.Handler handler) {
+    return put("/", handler);
+  }
 
   /**
    * Append route that supports HTTP PUT method:
@@ -673,6 +1058,7 @@ public interface Router {
    * @param handler A route to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition put(String path, Route.Handler handler);
 
   /**
@@ -689,6 +1075,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, Route.Handler handler);
 
   /**
@@ -706,7 +1093,25 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, String path3, Route.Handler handler);
+
+  /**
+   * Append route that supports HTTP PUT method:
+   *
+   * <pre>
+   *   put(req {@literal ->}
+   *    return Results.accepted();
+   *   );
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition put(Route.OneArgHandler handler) {
+    return put("/", handler);
+  }
 
   /**
    * Append route that supports HTTP PUT method:
@@ -721,6 +1126,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition put(String path, Route.OneArgHandler handler);
 
   /**
@@ -737,8 +1143,8 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection put(String path1, String path2,
-      Route.OneArgHandler handler);
+  @Nonnull
+  Route.Collection put(String path1, String path2, Route.OneArgHandler handler);
 
   /**
    * Append three routes that supports HTTP PUT method on the same handler:
@@ -757,7 +1163,25 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, String path3, Route.OneArgHandler handler);
+
+  /**
+   * Append route that supports HTTP PUT method:
+   *
+   * <pre>
+   *   put(() {@literal ->} {
+   *     return Results.accepted()
+   *   });
+   * </pre>
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition put(Route.ZeroArgHandler handler) {
+    return put("/", handler);
+  }
 
   /**
    * Append route that supports HTTP PUT method:
@@ -772,6 +1196,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition put(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -790,6 +1215,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
@@ -809,6 +1235,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, String path3, Route.ZeroArgHandler handler);
 
   /**
@@ -824,6 +1251,7 @@ public interface Router {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition put(String path, Route.Filter filter);
 
   /**
@@ -840,6 +1268,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, Route.Filter filter);
 
   /**
@@ -859,7 +1288,25 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection put(String path1, String path2, String path3, Route.Filter filter);
+
+  /**
+   * Append route that supports HTTP PATCH method:
+   *
+   * <pre>
+   *   patch((req, rsp) {@literal ->} {
+   *     rsp.send(something);
+   *   });
+   * </pre>
+   *
+   * @param handler A route to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition patch(Route.Handler handler) {
+    return patch("/", handler);
+  }
 
   /**
    * Append route that supports HTTP PATCH method:
@@ -874,6 +1321,7 @@ public interface Router {
    * @param handler A route to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition patch(String path, Route.Handler handler);
 
   /**
@@ -890,6 +1338,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, Route.Handler handler);
 
   /**
@@ -913,6 +1362,25 @@ public interface Router {
    * Append route that supports HTTP PATCH method:
    *
    * <pre>
+   *   patch(req {@literal ->}
+   *    Results.ok()
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition patch(Route.OneArgHandler handler) {
+    return patch("/", handler);
+  }
+
+  /**
+   * Append route that supports HTTP PATCH method:
+   *
+   * <pre>
    *   patch("/", req {@literal ->}
    *    Results.ok()
    *   );
@@ -924,6 +1392,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition patch(String path, Route.OneArgHandler handler);
 
   /**
@@ -942,6 +1411,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, Route.OneArgHandler handler);
 
   /**
@@ -961,7 +1431,27 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, String path3, Route.OneArgHandler handler);
+
+  /**
+   * Append route that supports HTTP PATCH method:
+   *
+   * <pre>
+   *   patch(() {@literal ->} {
+   *     return Results.ok();
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition patch(Route.ZeroArgHandler handler) {
+    return patch("/", handler);
+  }
 
   /**
    * Append route that supports HTTP PATCH method:
@@ -978,6 +1468,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition patch(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -996,6 +1487,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
@@ -1015,6 +1507,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, String path3, Route.ZeroArgHandler handler);
 
   /**
@@ -1030,6 +1523,7 @@ public interface Router {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition patch(String path, Route.Filter filter);
 
   /**
@@ -1046,6 +1540,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, Route.Filter filter);
 
   /**
@@ -1063,7 +1558,27 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection patch(String path1, String path2, String path3, Route.Filter filter);
+
+  /**
+   * Append a route that supports HTTP DELETE method:
+   *
+   * <pre>
+   *   delete((req, rsp) {@literal ->} {
+   *     rsp.status(204);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition delete(Route.Handler handler) {
+    return delete("/", handler);
+  }
 
   /**
    * Append a route that supports HTTP DELETE method:
@@ -1080,6 +1595,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition delete(String path, Route.Handler handler);
 
   /**
@@ -1098,6 +1614,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, Route.Handler handler);
 
   /**
@@ -1117,7 +1634,27 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, String path3, Route.Handler handler);
+
+  /**
+   * Append route that supports HTTP DELETE method:
+   *
+   * <pre>
+   *   delete(req {@literal ->}
+   *     return Results.noContent();
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition delete(Route.OneArgHandler handler) {
+    return delete("/", handler);
+  }
 
   /**
    * Append route that supports HTTP DELETE method:
@@ -1134,6 +1671,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition delete(String path, Route.OneArgHandler handler);
 
   /**
@@ -1152,6 +1690,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, Route.OneArgHandler handler);
 
   /**
@@ -1171,7 +1710,27 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, String path3, Route.OneArgHandler handler);
+
+  /**
+   * Append route that supports HTTP DELETE method:
+   *
+   * <pre>
+   *   delete(() {@literal ->}
+   *     return Results.noContent();
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Definition delete(Route.ZeroArgHandler handler) {
+    return delete("/", handler);
+  }
 
   /**
    * Append route that supports HTTP DELETE method:
@@ -1188,6 +1747,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition delete(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -1204,6 +1764,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
@@ -1221,6 +1782,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, String path3, Route.ZeroArgHandler handler);
 
   /**
@@ -1237,6 +1799,7 @@ public interface Router {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition delete(String path, Route.Filter filter);
 
   /**
@@ -1254,6 +1817,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Collection delete(String path1, String path2, Route.Filter filter);
 
   /**
@@ -1272,9 +1836,8 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  Route.Collection delete(String path1,
-      String path2, String path3,
-      Route.Filter filter);
+  @Nonnull
+  Route.Collection delete(String path1, String path2, String path3, Route.Filter filter);
 
   /**
    * Append a route that supports HTTP TRACE method:
@@ -1289,6 +1852,7 @@ public interface Router {
    * @param handler A callback to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition trace(String path, Route.Handler handler);
 
   /**
@@ -1304,6 +1868,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition trace(String path, Route.OneArgHandler handler);
 
   /**
@@ -1319,6 +1884,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition trace(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -1334,6 +1900,7 @@ public interface Router {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition trace(String path, Route.Filter filter);
 
   /**
@@ -1348,6 +1915,7 @@ public interface Router {
    *
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition trace();
 
   /**
@@ -1362,6 +1930,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition connect(String path, Route.Handler handler);
 
   /**
@@ -1377,6 +1946,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition connect(String path, Route.OneArgHandler handler);
 
   /**
@@ -1392,6 +1962,7 @@ public interface Router {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition connect(String path, Route.ZeroArgHandler handler);
 
   /**
@@ -1407,6 +1978,7 @@ public interface Router {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition connect(String path, Route.Filter filter);
 
   /**
@@ -1436,6 +2008,7 @@ public interface Router {
    * @param path The path to publish.
    * @return A new route definition.
    */
+  @Nonnull
   default Route.Definition assets(final String path) {
     return assets(path, "/");
   }
@@ -1469,6 +2042,7 @@ public interface Router {
    * @param basedir Base directory.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition assets(final String path, Path basedir);
 
   /**
@@ -1514,6 +2088,7 @@ public interface Router {
    * @param location A resource location.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition assets(String path, String location);
 
   /**
@@ -1524,6 +2099,7 @@ public interface Router {
    * @param handler Asset handler.
    * @return A new route definition.
    */
+  @Nonnull
   Route.Definition assets(String path, AssetHandler handler);
 
   /**
@@ -1558,9 +2134,48 @@ public interface Router {
    * </p>
    *
    * @param routeClass A route(s) class.
-   * @return This jooby instance.
+   * @return This router.
    */
+  @Nonnull
   Route.Collection use(Class<?> routeClass);
+
+  /**
+   * <p>
+   * Append MVC routes from a controller like class:
+   * </p>
+   *
+   * <pre>
+   *   use("/pets", MyRoute.class);
+   * </pre>
+   *
+   * Where MyRoute.java is:
+   *
+   * <pre>
+   *   {@literal @}Path("/")
+   *   public class MyRoute {
+   *
+   *    {@literal @}GET
+   *    public String hello() {
+   *      return "Hello Jooby";
+   *    }
+   *   }
+   * </pre>
+   * <p>
+   * Programming model is quite similar to JAX-RS/Jersey with some minor differences and/or
+   * simplifications.
+   * </p>
+   *
+   * <p>
+   * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
+   * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}.
+   * </p>
+   *
+   * @param path Path to mount the route.
+   * @param routeClass A route(s) class.
+   * @return This router.
+   */
+  @Nonnull
+  Route.Collection use(String path, Class<?> routeClass);
 
   /**
    * <h2>before</h2>
@@ -1614,11 +2229,71 @@ public interface Router {
    * </p>
    *
    * @param handler Before handler.
-   * @param chain Chain of before handler.
    * @return A new route definition.
    */
-  default Route.Collection before(final Route.Before handler, final Route.Before... chain) {
-    return before("*", handler, chain);
+  @Nonnull
+  default Route.Definition before(final Route.Before handler) {
+    return before("*", handler);
+  }
+
+  /**
+   * <h2>before</h2>
+   *
+   * Allows for customized handler execution chains. It will be invoked before the actual handler.
+   *
+   * <pre>{@code
+   * {
+   *   before((req, rsp) -> {
+   *     // your code goes here
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are allowed to modify the request and response objects.
+   *
+   * Please note that the <code>before</code> handler is just syntax sugar for {@link Route.Filter}.
+   * For example, the <code>before</code> handler was implemented as:
+   *
+   * <pre>{@code
+   * {
+   *   use("*", "*", (req, rsp, chain) -> {
+   *     before(req, rsp);
+   *     // your code goes here
+   *     chain.next(req, rsp);
+   *   });
+   * }
+   * }</pre>
+   *
+   * A <code>before</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   before((req, rsp) -> {
+   *     // your code goes here
+   *   });
+   *
+   *   get("/path", req -> {
+   *     // your code goes here
+   *     return ...;
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * @param handler Before handler.
+   * @param next Next handler.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Collection before(final Route.Before handler, Route.Before... next) {
+    return before("*", handler, next);
   }
 
   /**
@@ -1673,12 +2348,71 @@ public interface Router {
    *
    * @param pattern Pattern to intercept.
    * @param handler Before handler.
-   * @param chain Chain of before handler.
    * @return A new route definition.
    */
-  default Route.Collection before(final String pattern, final Route.Before handler,
-      final Route.Before... chain) {
-    return before("*", pattern, handler, chain);
+  @Nonnull
+  default Route.Definition before(final String pattern, final Route.Before handler) {
+    return before("*", pattern, handler);
+  }
+
+  /**
+   * <h2>before</h2>
+   *
+   * Allows for customized handler execution chains. It will be invoked before the actual handler.
+   *
+   * <pre>{@code
+   * {
+   *   before("*", (req, rsp) -> {
+   *     // your code goes here
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are allowed to modify the request and response objects.
+   *
+   * Please note that the <code>before</code> handler is just syntax sugar for {@link Route.Filter}.
+   * For example, the <code>before</code> handler was implemented as:
+   *
+   * <pre>{@code
+   * {
+   *   use("*", (req, rsp, chain) -> {
+   *     before(req, rsp);
+   *     chain.next(req, rsp);
+   *   });
+   * }
+   * }</pre>
+   *
+   * A <code>before</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   before("/path", (req, rsp) -> {
+   *     // your code goes here
+   *   });
+   *
+   *   get("/path", req -> {
+   *     // your code goes here
+   *     return ...;
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * @param pattern Pattern to intercept.
+   * @param handler Before handler.
+   * @param next Next handler.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Collection before(String pattern, Route.Before handler, Route.Before... next) {
+    return before("*", pattern, handler, next);
   }
 
   /**
@@ -1734,11 +2468,76 @@ public interface Router {
    * @param method HTTP method to intercept.
    * @param pattern Pattern to intercept.
    * @param handler Before handler.
-   * @param chain Chain of before handler.
    * @return A new route definition.
    */
-  Route.Collection before(String method, String pattern, Route.Before handler,
-      Route.Before... chain);
+  @Nonnull
+  Route.Definition before(String method, String pattern, Route.Before handler);
+
+  /**
+   * <h2>before</h2>
+   *
+   * Allows for customized handler execution chains. It will be invoked before the actual handler.
+   *
+   * <pre>{@code
+   * {
+   *   before("GET", "*", (req, rsp) -> {
+   *     // your code goes here
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are allowed to modify the request and response objects.
+   *
+   * Please note that the <code>before</code> handler is just syntax sugar for {@link Route.Filter}.
+   * For example, the <code>before</code> handler was implemented as:
+   *
+   * <pre>{@code
+   * {
+   *   use("GET", "*", (req, rsp, chain) -> {
+   *     before(req, rsp);
+   *     chain.next(req, rsp);
+   *   });
+   * }
+   * }</pre>
+   *
+   * A <code>before</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   before("GET", "/path", (req, rsp) -> {
+   *     // your code goes here
+   *   });
+   *
+   *   get("/path", req -> {
+   *     // your code goes here
+   *     return ...;
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * @param method HTTP method to intercept.
+   * @param pattern Pattern to intercept.
+   * @param handler Before handler.
+   * @param next Next handler.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Collection before(String method, String pattern, Route.Before handler, Route.Before... next) {
+    List<Route.Definition> routes = new ArrayList<>();
+    routes.add(before(method, pattern, handler));
+    Arrays.asList(next).stream()
+        .map(h -> before(method, pattern, h))
+        .forEach(routes::add);
+    return new Route.Collection(routes.toArray(new Route.Definition[routes.size()]));
+  }
 
   /**
    * <h2>after</h2>
@@ -1759,24 +2558,7 @@ public interface Router {
    * You are allowed to modify the request, response and result objects. The handler returns a
    * {@link Result} which can be the same or an entirely new {@link Result}.
    *
-   * Please note that the <code>after</code> handler is just syntax sugar for
-   * {@link Route.Filter}.
-   * For example, the <code>after</code> handler was implemented as:
-   *
-   * <pre>{@code
-   * {
-   *   use("*", (req, rsp, chain) -> {
-   *     chain.next(req, new Response.Forwarding(rsp) {
-   *       public void send(Result result) {
-   *         rsp.send(after(req, rsp, result);
-   *       }
-   *     });
-   *   });
-   * }
-   * }</pre>
-   *
-   * Due <code>after</code> is implemented by wrapping the {@link Response} object. A
-   * <code>after</code> handler must to be registered before the actual handler you want to
+   * A <code>after</code> handler must to be registered before the actual handler you want to
    * intercept.
    *
    * <pre>{@code
@@ -1800,11 +2582,62 @@ public interface Router {
    * </p>
    *
    * @param handler After handler.
-   * @param chain After chain.
    * @return A new route definition.
    */
-  default Route.Collection after(final Route.After handler, final Route.After... chain) {
-    return after("*", handler, chain);
+  @Nonnull
+  default Route.Definition after(Route.After handler) {
+    return after("*", handler);
+  }
+
+  /**
+   * <h2>after</h2>
+   *
+   * Allows for customized response before sending it. It will be invoked at the time a response
+   * need
+   * to be send.
+   *
+   * <pre>{@code
+   * {
+   *   after((req, rsp, result) -> {
+   *     // your code goes here
+   *     return result;
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are allowed to modify the request, response and result objects. The handler returns a
+   * {@link Result} which can be the same or an entirely new {@link Result}.
+   *
+   * A <code>after</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   after((req, rsp, result) -> {
+   *     // your code goes here
+   *     return result;
+   *   });
+   *
+   *   get("/path", req -> {
+   *     return "hello";
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * @param handler After handler.
+   * @param next Next handler.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Collection after(Route.After handler, Route.After... next) {
+    return after("*", handler, next);
   }
 
   /**
@@ -1815,7 +2648,7 @@ public interface Router {
    *
    * <pre>{@code
    * {
-   *   before("*", (req, rsp, result) -> {
+   *   after("*", (req, rsp, result) -> {
    *     // your code goes here
    *     return result;
    *   });
@@ -1825,23 +2658,7 @@ public interface Router {
    * You are allowed to modify the request, response and result objects. The handler returns a
    * {@link Result} which can be the same or an entirely new {@link Result}.
    *
-   * Please note that the <code>after</code> handler is just syntax sugar for {@link Route.Filter}.
-   * For example, the <code>after</code> handler was implemented as:
-   *
-   * <pre>{@code
-   * {
-   *   use("*", (req, rsp, chain) -> {
-   *     chain.next(req, new Response.Forwarding(rsp) {
-   *       public void send(Result result) {
-   *         rsp.send(after(req, rsp, result);
-   *       }
-   *     });
-   *   });
-   * }
-   * }</pre>
-   *
-   * Due <code>after</code> is implemented by wrapping the {@link Response} object. A
-   * <code>after</code> handler must to be registered before the actual handler you want to
+   * A <code>after</code> handler must to be registered before the actual handler you want to
    * intercept.
    *
    * <pre>{@code
@@ -1866,12 +2683,62 @@ public interface Router {
    *
    * @param pattern Pattern to intercept.
    * @param handler After handler.
-   * @param chain After chain.
    * @return A new route definition.
    */
-  default Route.Collection after(final String pattern, final Route.After handler,
-      final Route.After... chain) {
-    return after("*", pattern, handler, chain);
+  @Nonnull
+  default Route.Definition after(final String pattern, final Route.After handler) {
+    return after("*", pattern, handler);
+  }
+
+  /**
+   * <h2>after</h2>
+   *
+   * Allows for customized response before sending it. It will be invoked at the time a response
+   * need to be send.
+   *
+   * <pre>{@code
+   * {
+   *   after("*", (req, rsp, result) -> {
+   *     // your code goes here
+   *     return result;
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are allowed to modify the request, response and result objects. The handler returns a
+   * {@link Result} which can be the same or an entirely new {@link Result}.
+   *
+   * A <code>after</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   after("/path", (req, rsp, result) -> {
+   *     // your code goes here
+   *     return result;
+   *   });
+   *
+   *   get("/path", req -> {
+   *     return "hello";
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * @param pattern Pattern to intercept.
+   * @param handler After handler.
+   * @param next Next handler.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Collection after(String pattern, Route.After handler, Route.After... next) {
+    return after("*", pattern, handler, next);
   }
 
   /**
@@ -1892,24 +2759,7 @@ public interface Router {
    * You are allowed to modify the request, response and result objects. The handler returns a
    * {@link Result} which can be the same or an entirely new {@link Result}.
    *
-   * Please note that the <code>after</code> handler is just syntax sugar for
-   * {@link Route.Filter}.
-   * For example, the <code>after</code> handler was implemented as:
-   *
-   * <pre>{@code
-   * {
-   *   use("GET", "*", (req, rsp, chain) -> {
-   *     chain.next(req, new Response.Forwarding(rsp) {
-   *       public void send(Result result) {
-   *         rsp.send(after(req, rsp, result);
-   *       }
-   *     });
-   *   });
-   * }
-   * }</pre>
-   *
-   * Due <code>after</code> is implemented by wrapping the {@link Response} object. A
-   * <code>after</code> handler must to be registered before the actual handler you want to
+   * A <code>after</code> handler must to be registered before the actual handler you want to
    * intercept.
    *
    * <pre>{@code
@@ -1935,10 +2785,67 @@ public interface Router {
    * @param method HTTP method to intercept.
    * @param pattern Pattern to intercept.
    * @param handler After handler.
-   * @param chain After chain.
    * @return A new route definition.
    */
-  Route.Collection after(String method, String pattern, Route.After handler, Route.After... chain);
+  @Nonnull
+  Route.Definition after(String method, String pattern, Route.After handler);
+
+  /**
+   * <h2>after</h2>
+   *
+   * Allows for customized response before sending it. It will be invoked at the time a response
+   * need to be send.
+   *
+   * <pre>{@code
+   * {
+   *   after("GET", "*", (req, rsp, result) -> {
+   *     // your code goes here
+   *     return result;
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are allowed to modify the request, response and result objects. The handler returns a
+   * {@link Result} which can be the same or an entirely new {@link Result}.
+   *
+   * A <code>after</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   after("GET", "/path", (req, rsp, result) -> {
+   *     // your code goes here
+   *     return result;
+   *   });
+   *
+   *   get("/path", req -> {
+   *     return "hello";
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * @param method HTTP method to intercept.
+   * @param pattern Pattern to intercept.
+   * @param handler After handler.
+   * @param next Next handler.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Collection after(String method, String pattern, Route.After handler, Route.After... next) {
+    List<Route.Definition> routes = new ArrayList<>();
+    routes.add(after(method, pattern, handler));
+    Arrays.asList(next).stream()
+        .map(h -> after(method, pattern, handler))
+        .forEach(routes::add);
+    return new Route.Collection(routes.toArray(new Route.Definition[routes.size()]));
+  }
 
   /**
    * <h2>complete</h2>
@@ -1959,26 +2866,7 @@ public interface Router {
    * The goal of the <code>after</code> handler is to probably cleanup request object and log
    * responses.
    *
-   * Please note that the <code>complete</code> handler is just syntax sugar for
-   * {@link Route.Filter}.
-   * For example, the <code>complete</code> handler was implemented as:
-   *
-   * <pre>{@code
-   * {
-   *   use("*", "*", (req, rsp, chain) -> {
-   *     Optional<Throwable> err = Optional.empty();
-   *     try {
-   *       chain.next(req, rsp);
-   *     } catch (Throwable cause) {
-   *       err = Optional.of(cause);
-   *     } finally {
-   *       complete(req, rsp, err);
-   *     }
-   *   });
-   * }
-   * }</pre>
-   *
-   * An <code>complete</code> handler must to be registered before the actual handler you want to
+   * A <code>complete</code> handler must to be registered before the actual handler you want to
    * intercept.
    *
    * <pre>{@code
@@ -2040,11 +2928,100 @@ public interface Router {
    * }</pre>
    *
    * @param handler Complete handler.
-   * @param chain Complete chain.
    * @return A new route definition.
    */
-  default Route.Collection complete(final Route.Complete handler, final Route.Complete... chain) {
-    return complete("*", handler, chain);
+  @Nonnull
+  default Route.Definition complete(final Route.Complete handler) {
+    return complete("*", handler);
+  }
+
+  /**
+   * <h2>complete</h2>
+   *
+   * Allows for log and cleanup a request. It will be invoked after we send a response.
+   *
+   * <pre>{@code
+   * {
+   *   complete((req, rsp, cause) -> {
+   *     // your code goes here
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are NOT allowed to modify the request and response objects. The <code>cause</code> is an
+   * {@link Optional} with a {@link Throwable} useful to identify problems.
+   *
+   * The goal of the <code>after</code> handler is to probably cleanup request object and log
+   * responses.
+   *
+   * A <code>complete</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   complete((req, rsp, cause) -> {
+   *     // your code goes here
+   *   });
+   *
+   *   get(req -> {
+   *     return "hello";
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * <h2>example</h2>
+   * <p>
+   * Suppose you have a transactional resource, like a database connection. The next example shows
+   * you how to implement a simple and effective <code>transaction-per-request</code> pattern:
+   * </p>
+   *
+   * <pre>{@code
+   * {
+   *   // start transaction
+   *   before((req, rsp) -> {
+   *     DataSource ds = req.require(DataSource.class);
+   *     Connection connection = ds.getConnection();
+   *     Transaction trx = connection.getTransaction();
+   *     trx.begin();
+   *     req.set("connection", connection);
+   *     return true;
+   *   });
+   *
+   *   // commit/rollback transaction
+   *   complete((req, rsp, cause) -> {
+   *     // unbind connection from request
+   *     try(Connection connection = req.unset("connection").get()) {
+   *       Transaction trx = connection.getTransaction();
+   *       if (cause.ifPresent()) {
+   *         trx.rollback();
+   *       } else {
+   *         trx.commit();
+   *       }
+   *     }
+   *   });
+   *
+   *   // your transactional routes goes here
+   *   get("/api/something", req -> {
+   *     Connection connection = req.get("connection");
+   *     // work with connection
+   *   });
+   * }
+   * }</pre>
+   *
+   * @param handler Complete handler.
+   * @param next Next handler.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Collection complete(final Route.Complete handler, Route.Complete... next) {
+    return complete("*", handler, next);
   }
 
   /**
@@ -2066,26 +3043,7 @@ public interface Router {
    * The goal of the <code>complete</code> handler is to probably cleanup request object and log
    * responses.
    *
-   * Please note that the <code>complete</code> handler is just syntax sugar for
-   * {@link Route.Filter}.
-   * For example, the <code>complete</code> handler was implemented as:
-   *
-   * <pre>{@code
-   * {
-   *   use("*", "*", (req, rsp, chain) -> {
-   *     Optional<Throwable> err = Optional.empty();
-   *     try {
-   *       chain.next(req, rsp);
-   *     } catch (Throwable cause) {
-   *       err = Optional.of(cause);
-   *     } finally {
-   *       complete(req, rsp, err);
-   *     }
-   *   });
-   * }
-   * }</pre>
-   *
-   * An <code>complete</code> handler must to be registered before the actual handler you want to
+   * A <code>complete</code> handler must to be registered before the actual handler you want to
    * intercept.
    *
    * <pre>{@code
@@ -2148,16 +3106,105 @@ public interface Router {
    *
    * @param pattern Pattern to intercept.
    * @param handler Complete handler.
-   * @param chain Complete chain.
    * @return A new route definition.
    */
-  default Route.Collection complete(final String pattern, final Route.Complete handler,
-      final Route.Complete... chain) {
-    return complete("*", pattern, handler, chain);
+  @Nonnull
+  default Route.Definition complete(final String pattern, final Route.Complete handler) {
+    return complete("*", pattern, handler);
   }
 
   /**
-   * <h2>after</h2>
+   * <h2>complete</h2>
+   *
+   * Allows for log and cleanup a request. It will be invoked after we send a response.
+   *
+   * <pre>{@code
+   * {
+   *   complete("*", (req, rsp, cause) -> {
+   *     // your code goes here
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are NOT allowed to modify the request and response objects. The <code>cause</code> is an
+   * {@link Optional} with a {@link Throwable} useful to identify problems.
+   *
+   * The goal of the <code>complete</code> handler is to probably cleanup request object and log
+   * responses.
+   *
+   * A <code>complete</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   complete("/path", (req, rsp, cause) -> {
+   *     // your code goes here
+   *   });
+   *
+   *   get("/path", req -> {
+   *     return "hello";
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * <h2>example</h2>
+   * <p>
+   * Suppose you have a transactional resource, like a database connection. The next example shows
+   * you how to implement a simple and effective <code>transaction-per-request</code> pattern:
+   * </p>
+   *
+   * <pre>{@code
+   * {
+   *   // start transaction
+   *   before("/api/*", (req, rsp) -> {
+   *     DataSource ds = req.require(DataSource.class);
+   *     Connection connection = ds.getConnection();
+   *     Transaction trx = connection.getTransaction();
+   *     trx.begin();
+   *     req.set("connection", connection);
+   *     return true;
+   *   });
+   *
+   *   // commit/rollback transaction
+   *   complete("/api/*", (req, rsp, cause) -> {
+   *     // unbind connection from request
+   *     try(Connection connection = req.unset("connection").get()) {
+   *       Transaction trx = connection.getTransaction();
+   *       if (cause.ifPresent()) {
+   *         trx.rollback();
+   *       } else {
+   *         trx.commit();
+   *       }
+   *     }
+   *   });
+   *
+   *   // your transactional routes goes here
+   *   get("/api/something", req -> {
+   *     Connection connection = req.get("connection");
+   *     // work with connection
+   *   });
+   * }
+   * }</pre>
+   *
+   * @param pattern Pattern to intercept.
+   * @param handler Complete handler.
+   * @param next Next handler.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Collection complete(String pattern, Route.Complete handler, Route.Complete... next) {
+    return complete("*", pattern, handler, next);
+  }
+
+  /**
+   * <h2>complete</h2>
    *
    * Allows for log and cleanup a request. It will be invoked after we send a response.
    *
@@ -2175,26 +3222,7 @@ public interface Router {
    * The goal of the <code>complete</code> handler is to probably cleanup request object and log
    * responses.
    *
-   * Please note that the <code>complete</code> handler is just syntax sugar for
-   * {@link Route.Filter}.
-   * For example, the <code>complete</code> handler was implemented as:
-   *
-   * <pre>{@code
-   * {
-   *   use("*", "*", (req, rsp, chain) -> {
-   *     Optional<Throwable> err = Optional.empty();
-   *     try {
-   *       chain.next(req, rsp);
-   *     } catch (Throwable cause) {
-   *       err = Optional.of(cause);
-   *     } finally {
-   *       complete(req, rsp, err);
-   *     }
-   *   });
-   * }
-   * }</pre>
-   *
-   * An <code>complete</code> handler must to be registered before the actual handler you want to
+   * A <code>complete</code> handler must to be registered before the actual handler you want to
    * intercept.
    *
    * <pre>{@code
@@ -2257,11 +3285,105 @@ public interface Router {
    * @param method HTTP method to intercept.
    * @param pattern Pattern to intercept.
    * @param handler Complete handler.
-   * @param chain Complete chain.
    * @return A new route definition.
    */
-  Route.Collection complete(String method, String pattern, Route.Complete handler,
-      Route.Complete... chain);
+  @Nonnull
+  Route.Definition complete(String method, String pattern, Route.Complete handler);
+
+  /**
+   * <h2>complete</h2>
+   *
+   * Allows for log and cleanup a request. It will be invoked after we send a response.
+   *
+   * <pre>{@code
+   * {
+   *   complete("*", "*", (req, rsp, cause) -> {
+   *     // your code goes here
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are NOT allowed to modify the request and response objects. The <code>cause</code> is an
+   * {@link Optional} with a {@link Throwable} useful to identify problems.
+   *
+   * The goal of the <code>complete</code> handler is to probably cleanup request object and log
+   * responses.
+   *
+   * A <code>complete</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   complete("*", "/path", (req, rsp, cause) -> {
+   *   });
+   *
+   *   get("/path", req -> {
+   *     return "hello";
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * <h2>example</h2>
+   * <p>
+   * Suppose you have a transactional resource, like a database connection. The next example shows
+   * you how to implement a simple and effective <code>transaction-per-request</code> pattern:
+   * </p>
+   *
+   * <pre>{@code
+   * {
+   *   // start transaction
+   *   before((req, rsp) -> {
+   *     DataSource ds = req.require(DataSource.class);
+   *     Connection connection = ds.getConnection();
+   *     Transaction trx = connection.getTransaction();
+   *     trx.begin();
+   *     req.set("connection", connection);
+   *     return true;
+   *   });
+   *
+   *   // commit/rollback transaction
+   *   complete((req, rsp, cause) -> {
+   *     // unbind connection from request
+   *     try(Connection connection = req.unset("connection")) {
+   *       Transaction trx = connection.getTransaction();
+   *       if (cause.ifPresent()) {
+   *         trx.rollback();
+   *       } else {
+   *         trx.commit();
+   *       }
+   *     }
+   *   });
+   *
+   *   // your transactional routes goes here
+   *   get("/my-trx-route", req -> {
+   *     Connection connection = req.get("connection");
+   *     // work with connection
+   *   });
+   * }
+   * }</pre>
+   *
+   * @param method HTTP method to intercept.
+   * @param pattern Pattern to intercept.
+   * @param handler Complete handler.
+   * @param next Next handler.
+   * @return A new route definition.
+   */
+  @Nonnull
+  default Route.Collection complete(String method, String pattern, Route.Complete handler, Route.Complete... next) {
+    List<Route.Definition> routes = new ArrayList<>();
+    routes.add(complete(method, pattern, handler));
+    Arrays.asList(next).stream()
+        .map(h -> complete(method, pattern, handler))
+        .forEach(routes::add);
+    return new Route.Collection(routes.toArray(new Route.Definition[routes.size()]));
+  }
 
   /**
    * Append a new WebSocket handler under the given path.
@@ -2280,6 +3402,7 @@ public interface Router {
    * @param handler A connect callback.
    * @return A new WebSocket definition.
    */
+  @Nonnull
   default WebSocket.Definition ws(final String path, final WebSocket.OnOpen1 handler) {
     return ws(path, (WebSocket.OnOpen) handler);
   }
@@ -2301,12 +3424,38 @@ public interface Router {
    * @param handler A connect callback.
    * @return A new WebSocket definition.
    */
+  @Nonnull
   WebSocket.Definition ws(String path, WebSocket.OnOpen handler);
 
+  /**
+   * Append a new WebSocket handler under the given path.
+   *
+   * <pre>
+   *   ws(MyHandler.class);
+   * </pre>
+   *
+   * @param handler A message callback.
+   * @param <T> Message type.
+   * @return A new WebSocket definition.
+   */
+  @Nonnull
   default <T> WebSocket.Definition ws(final Class<? extends WebSocket.OnMessage<T>> handler) {
     return ws("", handler);
   }
 
+  /**
+   * Append a new WebSocket handler under the given path.
+   *
+   * <pre>
+   *   ws("/ws", MyHandler.class);
+   * </pre>
+   *
+   * @param path A path pattern.
+   * @param handler A message callback.
+   * @param <T> Message type.
+   * @return A new WebSocket definition.
+   */
+  @Nonnull
   <T> WebSocket.Definition ws(String path, Class<? extends WebSocket.OnMessage<T>> handler);
 
   /**
@@ -2325,6 +3474,7 @@ public interface Router {
    * @param handler Callback. It might executed in a different thread (web server choice).
    * @return A route definition.
    */
+  @Nonnull
   Route.Definition sse(String path, Sse.Handler handler);
 
   /**
@@ -2343,6 +3493,7 @@ public interface Router {
    * @param handler Callback. It might executed in a different thread (web server choice).
    * @return A route definition.
    */
+  @Nonnull
   Route.Definition sse(String path, Sse.Handler1 handler);
 
   /**
@@ -2369,6 +3520,7 @@ public interface Router {
    * @param callback Route callback.
    * @return A route collection.
    */
+  @Nonnull
   Route.Collection with(Runnable callback);
 
   /**
@@ -2389,6 +3541,7 @@ public interface Router {
    * @param mapper Route mapper to append.
    * @return This instance.
    */
+  @Nonnull
   Router map(final Mapper<?> mapper);
 
   /**
@@ -2423,24 +3576,27 @@ public interface Router {
    * HTTP status code will be set too.
    *
    * @param err A route error handler.
-   * @return This jooby instance.
+   * @return This router.
    */
+  @Nonnull
   Router err(Err.Handler err);
 
   /**
    * Setup a custom error handler.The error handler will be executed if the current exception is an
    * instance of given type type.
    *
+   * All headers are reset while generating the error response.
+   *
    * @param type Exception type. The error handler will be executed if the current exception is an
    *        instance of this type.
    * @param handler A route error handler.
-   * @return This jooby instance.
+   * @return This router.
    */
+  @Nonnull
   default Router err(final Class<? extends Throwable> type, final Err.Handler handler) {
-    return err((req, rsp, err) -> {
-      Throwable cause = err.getCause();
-      if (type.isInstance(cause)) {
-        handler.handle(req, rsp, err);
+    return err((req, rsp, x) -> {
+      if (type.isInstance(x) || type.isInstance(x.getCause())) {
+        handler.handle(req, rsp, x);
       }
     });
   }
@@ -2448,15 +3604,18 @@ public interface Router {
   /**
    * Setup a route error handler. The error handler will be executed if current status code matches
    * the one provided.
+   *
+   * All headers are reset while generating the error response.
    *
    * @param statusCode The status code to match.
    * @param handler A route error handler.
-   * @return This jooby instance.
+   * @return This router.
    */
+  @Nonnull
   default Router err(final int statusCode, final Err.Handler handler) {
-    return err((req, rsp, err) -> {
-      if (statusCode == err.statusCode()) {
-        handler.handle(req, rsp, err);
+    return err((req, rsp, x) -> {
+      if (statusCode == x.statusCode()) {
+        handler.handle(req, rsp, x);
       }
     });
   }
@@ -2464,15 +3623,18 @@ public interface Router {
   /**
    * Setup a route error handler. The error handler will be executed if current status code matches
    * the one provided.
+   *
+   * All headers are reset while generating the error response.
    *
    * @param code The status code to match.
    * @param handler A route error handler.
-   * @return This jooby instance.
+   * @return This router.
    */
+  @Nonnull
   default Router err(final Status code, final Err.Handler handler) {
-    return err((req, rsp, err) -> {
-      if (code.value() == err.statusCode()) {
-        handler.handle(req, rsp, err);
+    return err((req, rsp, x) -> {
+      if (code.value() == x.statusCode()) {
+        handler.handle(req, rsp, x);
       }
     });
   }
@@ -2481,10 +3643,13 @@ public interface Router {
    * Setup a route error handler. The error handler will be executed if current status code matches
    * the one provided.
    *
+   * All headers are reset while generating the error response.
+   *
    * @param predicate Apply the error handler if the predicate evaluates to <code>true</code>.
    * @param handler A route error handler.
-   * @return This jooby instance.
+   * @return This router.
    */
+  @Nonnull
   default Router err(final Predicate<Status> predicate, final Err.Handler handler) {
     return err((req, rsp, err) -> {
       if (predicate.test(Status.valueOf(err.statusCode()))) {
@@ -2551,6 +3716,7 @@ public interface Router {
    * @return A new deferred handler.
    * @see Deferred
    */
+  @Nonnull
   Route.OneArgHandler promise(Deferred.Initializer initializer);
 
   /**
@@ -2584,6 +3750,7 @@ public interface Router {
    * @return A new deferred handler.
    * @see Deferred
    */
+  @Nonnull
   Route.OneArgHandler promise(String executor, Deferred.Initializer initializer);
 
   /**
@@ -2612,6 +3779,7 @@ public interface Router {
    * @return A new deferred handler.
    * @see Deferred
    */
+  @Nonnull
   Route.OneArgHandler promise(Deferred.Initializer0 initializer);
 
   /**
@@ -2635,6 +3803,7 @@ public interface Router {
    * @return A new deferred handler.
    * @see Deferred
    */
+  @Nonnull
   Route.OneArgHandler promise(String executor, Deferred.Initializer0 initializer);
 
   /**
@@ -2658,6 +3827,7 @@ public interface Router {
    * @param handler Application block.
    * @return A new deferred handler.
    */
+  @Nonnull
   default Route.ZeroArgHandler deferred(final String executor, final Route.OneArgHandler handler) {
     return () -> Deferred.deferred(executor, handler);
   }
@@ -2693,6 +3863,7 @@ public interface Router {
    * @param handler Application block.
    * @return A new deferred handler.
    */
+  @Nonnull
   default Route.ZeroArgHandler deferred(final Route.OneArgHandler handler) {
     return () -> Deferred.deferred(handler);
   }
@@ -2718,6 +3889,7 @@ public interface Router {
    * @param handler Application block.
    * @return A new deferred handler.
    */
+  @Nonnull
   default Route.ZeroArgHandler deferred(final String executor, final Route.ZeroArgHandler handler) {
     return () -> Deferred.deferred(executor, handler);
   }
@@ -2753,6 +3925,7 @@ public interface Router {
    * @param handler Application block.
    * @return A new deferred handler.
    */
+  @Nonnull
   default Route.ZeroArgHandler deferred(final Route.ZeroArgHandler handler) {
     return () -> Deferred.deferred(handler);
   }

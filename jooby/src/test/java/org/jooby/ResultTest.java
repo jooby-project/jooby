@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 public class ResultTest {
@@ -187,6 +188,26 @@ public class ResultTest {
     assertEquals(Optional.empty(), result.type());
     assertEquals(Status.TEMPORARY_REDIRECT, result.status().get());
     assertEquals("/location", result.headers().get("location"));
+  }
+
+  @Test
+  public void whenGet() {
+    Object value = new Object();
+    Object json = new Object();
+    Result result = Results
+        .when(MediaType.json, () -> json)
+        .when(MediaType.all, () -> value);
+    Result clone = result.clone();
+    assertEquals(json, result.get());
+    assertEquals(value, clone.get(ImmutableList.of(MediaType.html)));
+  }
+
+  @Test
+  public void whenIfGet() {
+    Object value = new Object();
+    Result result = Results
+        .when(MediaType.all, () -> value);
+    assertEquals(value, result.ifGet().get());
   }
 
 }

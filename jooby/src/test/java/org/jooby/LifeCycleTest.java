@@ -1,11 +1,10 @@
 package org.jooby;
 
-import java.io.IOException;
+import org.junit.Test;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-import org.junit.Test;
+import java.io.IOException;
 
 public class LifeCycleTest {
 
@@ -71,14 +70,14 @@ public class LifeCycleTest {
   @Test(expected = RuntimeException.class)
   public void shouldNotWrapRuntimeExceptin() throws Throwable {
     LifeCycle.lifeCycleAnnotation(ShouldNotWrapRuntimeException.class, PostConstruct.class)
-        .get().accept(new ShouldNotWrapRuntimeException());
+      .get().accept(new ShouldNotWrapRuntimeException());
     ;
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void shouldWrapException() throws Throwable {
+  @Test(expected = IOException.class)
+  public void shouldWrapNotWrapException() throws Throwable {
     LifeCycle.lifeCycleAnnotation(ShouldWrapNoRuntimeException.class, PostConstruct.class)
-        .get().accept(new ShouldWrapNoRuntimeException());
+      .get().accept(new ShouldWrapNoRuntimeException());
     ;
   }
 

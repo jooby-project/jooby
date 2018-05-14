@@ -116,9 +116,9 @@ public class ResponseTest {
       throw new UnsupportedOperationException();
     }
 
-     @Override
+    @Override
     public void complete(final Complete handler) {
-       throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException();
     }
   }
 
@@ -258,7 +258,8 @@ public class ResponseTest {
    * @return
    */
   private File file(final String location) {
-    for (String candidate : new String[]{location, "jooby/" + location, "../jooby/" + location }) {
+    for (String candidate : new String[]{location, "jooby/" + location,
+        "../../jooby/" + location }) {
       File file = new File(candidate);
       if (file.exists()) {
         return file;

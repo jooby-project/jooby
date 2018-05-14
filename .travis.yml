@@ -4,7 +4,7 @@ before_install:
   - export MAVEN_OPTS=-Xmx1024m
 
 script:
-  - ./travis.sh
+  - ./build/travis.sh
 
 jdk:
   - oraclejdk8
@@ -12,3 +12,6 @@ jdk:
 branches:
   only:
     - master
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

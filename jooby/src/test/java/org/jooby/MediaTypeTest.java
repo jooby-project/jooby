@@ -179,17 +179,17 @@ public class MediaTypeTest {
     assertNotEquals(MediaType.json, new Object());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = Err.BadMediaType.class)
   public void badMediaType() {
     MediaType.valueOf("");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = Err.BadMediaType.class)
   public void badMediaType2() {
     MediaType.valueOf("application/and/something");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = Err.BadMediaType.class)
   public void badMediaType3() {
     MediaType.valueOf("*/json");
   }

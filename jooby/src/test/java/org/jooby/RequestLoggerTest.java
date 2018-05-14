@@ -4,10 +4,12 @@ import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 
 import java.time.ZoneId;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -16,6 +18,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({RequestLogger.class, System.class })
 public class RequestLoggerTest {
+
+  @BeforeClass
+  public static void before() {
+    Locale.setDefault(Locale.US);
+  }
 
   private Block capture = unit -> {
     Response rsp = unit.get(Response.class);
@@ -66,6 +73,28 @@ public class RequestLoggerTest {
               .latency()
               .log(line -> assertEquals(
                   "127.0.0.1 - - [01/Jan/1970:00:00:00 +0000] \"GET / HTTP/1.1\" 200 345 3", line))
+              .handle(unit.get(Request.class), unit.get(Response.class));
+        }, onComplete);
+  }
+
+  @Test
+  public void queryString() throws Exception {
+    new MockUnit(Request.class, Response.class)
+        .expect(capture)
+        .expect(timestamp(7L))
+        .expect(ip("127.0.0.1"))
+        .expect(method("GET"))
+        .expect(path("/path"))
+        .expect(query("query=true"))
+        .expect(protocol("HTTP/1.1"))
+        .expect(status(Status.OK))
+        .expect(len(345L))
+        .run(unit -> {
+          new RequestLogger()
+              .dateFormatter(ZoneId.of("UTC"))
+              .queryString()
+              .log(line -> assertEquals(
+                  "127.0.0.1 - - [01/Jan/1970:00:00:00 +0000] \"GET /path?query=true HTTP/1.1\" 200 345", line))
               .handle(unit.get(Request.class), unit.get(Response.class));
         }, onComplete);
   }
@@ -144,6 +173,13 @@ public class RequestLoggerTest {
     return unit -> {
       Request req = unit.get(Request.class);
       expect(req.path()).andReturn(path);
+    };
+  }
+
+  private Block query(final String query) {
+    return unit -> {
+      Request req = unit.get(Request.class);
+      expect(req.queryString()).andReturn(Optional.of(query));
     };
   }
 
