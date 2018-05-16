@@ -203,45 +203,20 @@
  */
 package org.jooby.assets;
 
-import org.jooby.MediaType;
-
-import com.typesafe.config.Config;
 /**
- * <h1>csslint</h1>
- * <p>
- * <a href="http://csslint.net/">CSSLint</a> automated linting of Cascading Stylesheets.
- * </p>
- *
- * <h2>usage</h2>
- *
- * <pre>
- * assets {
- *   fileset {
- *     home: ...
- *   }
- *
- *   pipeline {
- *     dev: [csslint]
- *     ...
- *   }
- * }
- * </pre>
+ * Javascript engine.
  *
  * @author edgar
- * @since 0.11.0
  */
-public class Csslint extends AssetProcessor {
+public interface Engine {
 
-  @Override
-  public boolean matches(final MediaType type) {
-    return MediaType.css.matches(type);
-  }
-
-  @Override
-  public String process(final String filename, final String source, final Config conf)
-      throws Exception {
-    return engine(V8Engine.class)
-        .execute("csslint.js", source, options(), filename);
-  }
+  /**
+   * Execute a javascript file and return results.
+   *
+   * @param script Classpath file location.
+   * @param args Script arguments.
+   * @return Result.
+   */
+  Object execute(final String script, final Object... args) throws Exception;
 
 }

@@ -203,11 +203,14 @@
  */
 package org.jooby.internal.assets;
 
+import com.sun.nio.file.SensitivityWatchEventModifier;
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -224,12 +227,8 @@ import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.nio.file.SensitivityWatchEventModifier;
 
 class Watcher {
 
@@ -238,7 +237,7 @@ class Watcher {
   private final WatchService watcher;
   private volatile Map<WatchKey, Path> keys;
   private BiConsumer<Kind<?>, Path> listener;
-  private Thread scanner;
+  private ExecutorService executor;
 
   @SuppressWarnings("unchecked")
   static <T> WatchEvent<T> cast(final WatchEvent<?> event) {
@@ -246,7 +245,16 @@ class Watcher {
   }
 
   public void start() {
-    scanner.start();
+    executor.execute(() -> {
+      boolean process = true;
+      try {
+        while (process) {
+          process = processEvents();
+        }
+      } catch (ClosedWatchServiceException ex) {
+        log.trace("watch service closed", ex);
+      }
+    });
   }
 
   public void stop() throws IOException {
@@ -278,28 +286,16 @@ class Watcher {
     });
   }
 
-  public Watcher(final BiConsumer<Kind<?>, Path> listener, final Path... dirs)
+  public Watcher(final ExecutorService executor, final BiConsumer<Kind<?>, Path> listener, final Path... dirs)
       throws IOException {
     this.watcher = FileSystems.getDefault().newWatchService();
-    this.keys = new HashMap<WatchKey, Path>();
+    this.keys = new HashMap<>();
     this.listener = listener;
     for (Path dir : dirs) {
       registerAll(dir);
     }
 
-    this.scanner = new Thread(() -> {
-      boolean process = true;
-      listener.accept(ENTRY_MODIFY, dirs[0]);
-      try {
-      while (process) {
-        process = processEvents();
-      }
-      } catch (ClosedWatchServiceException ex) {
-        log.trace("watch service closed", ex);
-      }
-    }, "asset-compiler");
-
-    scanner.setDaemon(true);
+    this.executor = executor;
   }
 
   private boolean processEvents() {

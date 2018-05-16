@@ -258,9 +258,8 @@ public class NgAnnotate extends AssetProcessor {
   @Override
   public String process(final String filename, final String source, final Config conf)
       throws Exception {
-    return V8Context.run(v8 -> {
-      return v8.invoke("ng-annotate.js", source, options(), filename);
-    });
+    return engine(V8Engine.class)
+        .execute("ng-annotate.js", source, options(), filename);
   }
 
 }

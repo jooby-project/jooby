@@ -203,6 +203,15 @@
  */
 package org.jooby.assets;
 
+import com.eclipsesource.v8.V8;
+import com.eclipsesource.v8.V8Array;
+import com.eclipsesource.v8.V8Object;
+import com.eclipsesource.v8.utils.V8ObjectUtils;
+import com.typesafe.config.Config;
+import org.jooby.MediaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
@@ -213,16 +222,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import org.jooby.MediaType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.eclipsesource.v8.V8;
-import com.eclipsesource.v8.V8Array;
-import com.eclipsesource.v8.V8Object;
-import com.eclipsesource.v8.utils.V8ObjectUtils;
-import com.typesafe.config.Config;
 
 /**
  * <h1>rollup.js</h1>
@@ -343,41 +342,41 @@ public class Rollup extends AssetProcessor {
   @Override
   public String process(final String filename, final String source, final Config conf)
       throws Exception {
-    return V8Context.run("window", ctx -> {
-      V8 v8 = ctx.v8;
+    V8Engine engine = engine(V8Engine.class, "window");
+    V8 v8 = engine.v8;
 
-      V8Object j2v8 = ctx.hash();
-      j2v8.add("createFilter", ctx.function((receiver, args) -> {
-        List<PathMatcher> includes = filter(args, 0).stream()
-            .map(it -> FileSystems.getDefault().getPathMatcher("glob:" + it))
-            .collect(Collectors.toList());
-        if (includes.isEmpty()) {
-          includes.add(TRUE);
+    V8Object j2v8 = engine.hash();
+    j2v8.add("createFilter", engine.function((receiver, args) -> {
+      List<PathMatcher> includes = filter(args, 0).stream()
+          .map(it -> FileSystems.getDefault().getPathMatcher("glob:" + it))
+          .collect(Collectors.toList());
+      if (includes.isEmpty()) {
+        includes.add(TRUE);
+      }
+
+      List<PathMatcher> excludes = filter(args, 1).stream()
+          .map(it -> FileSystems.getDefault().getPathMatcher("glob:" + it))
+          .collect(Collectors.toList());
+      if (excludes.isEmpty()) {
+        excludes.add(FALSE);
+      }
+
+      return engine.function((self, arguments) -> {
+        Path path = Paths.get(arguments.get(0).toString());
+        if (includes.stream().filter(it -> it.matches(path)).findFirst().isPresent()) {
+          return !excludes.stream().filter(it -> it.matches(path)).findFirst().isPresent();
         }
+        return false;
+      });
+    }));
 
-        List<PathMatcher> excludes = filter(args, 1).stream()
-            .map(it -> FileSystems.getDefault().getPathMatcher("glob:" + it))
-            .collect(Collectors.toList());
-        if (excludes.isEmpty()) {
-          excludes.add(FALSE);
-        }
+    v8.add("j2v8", j2v8);
 
-        return ctx.function((self, arguments) -> {
-          Path path = Paths.get(arguments.get(0).toString());
-          if (includes.stream().filter(it -> it.matches(path)).findFirst().isPresent()) {
-            return !excludes.stream().filter(it -> it.matches(path)).findFirst().isPresent();
-          }
-          return false;
-        });
-      }));
+    Map<String, Object> options = options();
+    log.debug("{}", options);
 
-      v8.add("j2v8", j2v8);
+    return engine.execute("rollup.js", source, options, filename);
 
-      Map<String, Object> options = options();
-      log.debug("{}", options);
-
-      return ctx.invoke("rollup.js", source, options, filename);
-    });
   }
 
   @SuppressWarnings("unchecked")

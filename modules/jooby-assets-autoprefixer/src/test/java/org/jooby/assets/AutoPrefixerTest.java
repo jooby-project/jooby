@@ -1,17 +1,22 @@
 package org.jooby.assets;
 
+import com.typesafe.config.ConfigFactory;
+import org.jooby.MediaType;
+import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.util.Arrays;
 
-import org.jooby.MediaType;
-import org.junit.Test;
-
-import com.typesafe.config.ConfigFactory;
-
 public class AutoPrefixerTest {
+  private static V8EngineFactory engineFactory = new V8EngineFactory();
+
+  @AfterClass
+  public static void release() {
+    engineFactory.release();
+  }
 
   @Test
   public void css() throws Exception {
@@ -37,7 +42,9 @@ public class AutoPrefixerTest {
         "    display: -ms-flexbox;\n" +
         "    display: flex\n" +
         "}",
-        new AutoPrefixer().process("/styles.css", ":fullscreen a {\n" +
+        new AutoPrefixer()
+            .set(engineFactory)
+            .process("/styles.css", ":fullscreen a {\n" +
             "    display: flex\n" +
             "}",
             ConfigFactory.empty()));
@@ -60,6 +67,7 @@ public class AutoPrefixerTest {
         "    display: flex\n" +
         "}",
         new AutoPrefixer()
+            .set(engineFactory)
             .set("browsers", Arrays.asList("> 1%", "IE 7"))
             .process("/styles.css", ":fullscreen a {\n" +
                 "    display: flex\n" +

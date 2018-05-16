@@ -261,10 +261,10 @@ public class Jscs extends AssetProcessor {
   }
 
   @Override
-  public String process(final String filename, final String source, final Config conf) throws Exception {
-    return V8Context.run("global", runtime -> {
-      return runtime.invoke("jscs.js", source, options(), filename);
-    });
+  public String process(final String filename, final String source, final Config conf)
+      throws Exception {
+    return engine(V8Engine.class, "global")
+        .execute("jscs.js", source, options(), filename);
   }
 
 }

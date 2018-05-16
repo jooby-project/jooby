@@ -256,14 +256,10 @@
  */
 package org.jooby.run;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
+import com.google.common.io.Files;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import me.tongfei.progressbar.ProgressBar;
 import org.gradle.api.internal.ConventionTask;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.InputDirectory;
@@ -271,12 +267,15 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.jooby.assets.AssetCompiler;
-
-import com.google.common.base.Throwables;
-import com.google.common.io.Files;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.jooby.funzy.Try;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class AssetTask extends ConventionTask {
 
@@ -301,7 +300,6 @@ public class AssetTask extends ConventionTask {
 
   @TaskAction
   public void process() throws Throwable {
-    long start = System.currentTimeMillis();
     try {
       // Hack and bind jooby env.
       String env = getEnv();
@@ -312,8 +310,7 @@ public class AssetTask extends ConventionTask {
                 assetFile, getAssemblyOutput(), conf);
           }, env);
     } catch (CompilationDone ex) {
-      long end = System.currentTimeMillis();
-      getLogger().info("compilation took " + (end - start) + "ms");
+      // done
     }
   }
 
@@ -332,7 +329,17 @@ public class AssetTask extends ConventionTask {
 
       AssetCompiler compiler = new AssetCompiler(loader, assetConf);
 
+      AtomicReference<ProgressBar> pb = new AtomicReference<>();
+      compiler.setProgressBar((progress, total) -> {
+        if (pb.get() == null) {
+          pb.set(new ProgressBar("Compiling assets", total).start().stepTo(progress));
+        } else {
+          pb.get().step();
+        }
+      });
+      long start = System.currentTimeMillis();
       Map<String, List<File>> fileset = compiler.build(env, output);
+      pb.get().stop();
 
       StringBuilder dist = new StringBuilder();
       dist.append("assets.fileset {\n").append(fileset.entrySet().stream().map(e -> {
@@ -344,13 +351,16 @@ public class AssetTask extends ConventionTask {
       }).collect(Collectors.joining("\n")))
           .append("\n}\n");
       dist.append("assets.cache.maxAge = ").append(maxAge).append("\n");
+      dist.append("assets.watch = false\n");
       dist.append("assets.pipeline.dev = {}\n");
       dist.append("assets.pipeline.").append(env).append(" = {}\n");
-      dist.append("assets.watch = false\n");
       try (FileWriter writer = new FileWriter(distFile)) {
         writer.write(dist.toString());
       }
-      logger.info("done: " + distFile.getPath());
+      long end = System.currentTimeMillis();
+      CharSequence summary = compiler
+          .summary(fileset, output.toPath(), env, end - start, "        " + assemblyOutput, "Assets: " + distFile);
+      logger.info(summary.toString());
 
       // move output to fixed location required by zip/war dist
       List<File> files = fileset.values().stream()

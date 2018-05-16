@@ -203,13 +203,11 @@
  */
 package org.jooby;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.google.common.base.Throwables;
+import com.google.common.io.Files;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import me.tongfei.progressbar.ProgressBar;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -223,10 +221,13 @@ import org.apache.maven.project.MavenProject;
 import org.jooby.assets.AssetClassLoader;
 import org.jooby.assets.AssetCompiler;
 
-import com.google.common.base.Throwables;
-import com.google.common.io.Files;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import java.io.File;
+import java.io.FileWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Mojo(name = "assets", defaultPhase = LifecyclePhase.PREPARE_PACKAGE,
     requiresDependencyResolution = ResolutionScope.COMPILE)
@@ -253,7 +254,6 @@ public class AssetMojo extends AbstractMojo {
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    long start = System.currentTimeMillis();
     try {
       // Hack and bind jooby env.
       System.setProperty("application.env", env);
@@ -262,8 +262,6 @@ public class AssetMojo extends AbstractMojo {
           .run(mainClass, (app, conf) -> {
             compile(app.getClass().getClassLoader(), conf);
           });
-      long end = System.currentTimeMillis();
-      getLog().info("compilation took " + (end - start) + "ms");
     } catch (Throwable ex) {
       throw new MojoFailureException("Can't compile assets for " + mainClass, ex);
     }
@@ -282,8 +280,18 @@ public class AssetMojo extends AbstractMojo {
       ClassLoader assetLoader = AssetClassLoader.classLoader(loader, mavenProject.getBasedir());
       AssetCompiler compiler = new AssetCompiler(assetLoader, assetConf);
 
-      Map<String, List<File>> fileset = compiler.build(env, output);
+      AtomicReference<ProgressBar> pb = new AtomicReference<>();
+      compiler.setProgressBar((progress, total) -> {
+        if (pb.get() == null) {
+          pb.set(new ProgressBar("Compiling assets", total).start().stepTo(progress));
+        } else {
+          pb.get().step();
+        }
+      });
 
+      long start = System.currentTimeMillis();
+      Map<String, List<File>> fileset = compiler.build(env, output);
+      pb.get().stop();
       StringBuilder dist = new StringBuilder();
       dist.append("assets.fileset {\n").append(fileset.entrySet().stream().map(e -> {
         String files = e.getValue().stream()
@@ -294,14 +302,17 @@ public class AssetMojo extends AbstractMojo {
       }).collect(Collectors.joining("\n")))
           .append("\n}\n");
       dist.append("assets.cache.maxAge = ").append(maxAge).append("\n");
+      dist.append("assets.watch = false\n");
       dist.append("assets.pipeline.dev = {}\n");
       dist.append("assets.pipeline.").append(env).append(" = {}\n");
-      dist.append("assets.watch = false\n");
       File distFile = new File(output, "assets." + env + ".conf");
       try (FileWriter writer = new FileWriter(distFile)) {
         writer.write(dist.toString());
       }
-      getLog().info("done: " + distFile.getPath());
+      long end = System.currentTimeMillis();
+      CharSequence summary = compiler
+          .summary(fileset, output.toPath(), env, end - start, "        " + assemblyOutput, "Assets: " + distFile);
+      getLog().info(summary);
 
       // move output to fixed location required by zip/war dist
       List<File> files = fileset.values().stream()
@@ -315,6 +326,7 @@ public class AssetMojo extends AbstractMojo {
         getLog().debug("copying file to: " + to);
         Files.copy(from, to);
       }
+      compiler.stop();
     } catch (InvocationTargetException ex) {
       throw Throwables.propagate(ex.getCause());
     } catch (Exception ex) {

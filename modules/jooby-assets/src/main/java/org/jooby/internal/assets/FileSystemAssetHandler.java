@@ -201,47 +201,25 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.jooby.assets;
+package org.jooby.internal.assets;
 
-import org.jooby.MediaType;
+import org.jooby.handlers.AssetHandler;
 
-import com.typesafe.config.Config;
-/**
- * <h1>csslint</h1>
- * <p>
- * <a href="http://csslint.net/">CSSLint</a> automated linting of Cascading Stylesheets.
- * </p>
- *
- * <h2>usage</h2>
- *
- * <pre>
- * assets {
- *   fileset {
- *     home: ...
- *   }
- *
- *   pipeline {
- *     dev: [csslint]
- *     ...
- *   }
- * }
- * </pre>
- *
- * @author edgar
- * @since 0.11.0
- */
-public class Csslint extends AssetProcessor {
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-  @Override
-  public boolean matches(final MediaType type) {
-    return MediaType.css.matches(type);
+public class FileSystemAssetHandler extends AssetHandler {
+
+  private final Path workdir;
+
+  public FileSystemAssetHandler(final String pattern, final Path workdir) {
+    super(pattern);
+    this.workdir = workdir;
   }
 
-  @Override
-  public String process(final String filename, final String source, final Config conf)
-      throws Exception {
-    return engine(V8Engine.class)
-        .execute("csslint.js", source, options(), filename);
+  @Override protected URL resolve(String path) throws Exception {
+    Path file = workdir.resolve(path);
+    return Files.exists(file) ? file.toUri().toURL() : null;
   }
-
 }

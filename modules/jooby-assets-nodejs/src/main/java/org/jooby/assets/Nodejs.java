@@ -435,7 +435,7 @@ public class Nodejs {
   }
 
   /**
-   * Execute the given nodejs callback and automatically release v8 and nodejs resources.
+   * Execute the given nodejs callback and automatically releaseNow v8 and nodejs resources.
    *
    * @param callback Nodejs callback.
    */
@@ -444,7 +444,7 @@ public class Nodejs {
   }
 
   /**
-   * Execute the given nodejs callback and automatically release v8 and nodejs resources.
+   * Execute the given nodejs callback and automatically releaseNow v8 and nodejs resources.
    *
    * @param basedir Base dir where to deploy a library.
    * @param callback Nodejs callback.

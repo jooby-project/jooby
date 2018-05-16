@@ -2,13 +2,9 @@ package org.jooby.assets;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.io.ByteStreams;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-import org.jooby.Asset;
-import org.jooby.MediaType;
-import org.jooby.internal.URLAsset;
 import org.jooby.funzy.Try;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class AssetCompilerTest {
@@ -62,18 +59,6 @@ public class AssetCompilerTest {
   }
 
   @Test
-  public void fileSetContains() throws Exception {
-    assertEquals(true,
-        new AssetCompiler(conf("assets-aggregator.conf", "dev")).contains("/assets/index.js"));
-  }
-
-  @Test
-  public void fileSetContainsShouldReturnsFalseForAggregatorFileSet() throws Exception {
-    assertEquals(false,
-        new AssetCompiler(conf("assets-aggregator.conf", "dev")).contains("/assets/dyn.css"));
-  }
-
-  @Test
   public void basedir() throws Exception {
     assertEquals(
         Lists.newArrayList("/assets/base/base.js", "/assets/home.css", "/assets/js/home.js"),
@@ -88,6 +73,59 @@ public class AssetCompilerTest {
     assertEquals(Sets.newHashSet("/js/**", "/css/**"),
         new AssetCompiler(conf("assets-pattern-2.conf", "dev")).patterns());
 
+  }
+
+  @Test
+  public void summary() throws Exception {
+    AssetCompiler compiler = new AssetCompiler(conf("assets-compile-all.conf", "dev"));
+
+    File dir = Paths.get("target", "summary").toFile();
+    Map<String, List<File>> files = compiler.build("dev", dir);
+
+    assertEquals("Summary:\n"
+            + "Pipeline: []\n"
+            + "Time: 1s\n"
+            + "Output: target/summary\n"
+            + "Foo: bar\n"
+            + "Fileset          Output       Size\n"
+            + "  all                               \n"
+            + "          assets/home.css         8b\n"
+            + "           assets/base.js        19b\n"
+            + "           assets/home.js        19b\n",
+        compiler.summary(files, dir.toPath(), "dev", 1000, "Foo: bar"));
+  }
+
+  @Test
+  public void stop() throws Exception {
+    try {
+      TestEngineFactory.count.set(0);
+      System.setProperty("assets.engine", TestEngineFactory.class.getName());
+      AssetCompiler compiler = new AssetCompiler(conf("assets-compile-all.conf", "dev"));
+      compiler.stop();
+      assertEquals(1, TestEngineFactory.count.get());
+    } finally {
+      TestEngineFactory.count.set(0);
+      System.clearProperty("assets.engine");
+    }
+  }
+
+  @Test
+  public void progressbar() throws Exception {
+    File dir = Paths.get("target", "progressbar").toFile();
+
+    AssetCompiler compiler = new AssetCompiler(conf("assets-compile-all.conf", "dev"));
+    AtomicInteger counter = new AtomicInteger();
+    AtomicInteger total = new AtomicInteger();
+    AtomicInteger lastProgress = new AtomicInteger();
+    compiler.setProgressBar((c, t) -> {
+      counter.incrementAndGet();
+      lastProgress.set(c);
+      total.set(t);
+    });
+    compiler.build("dev", dir);
+    assertEquals(3, counter.get());
+    assertEquals(3, lastProgress.get());
+    assertEquals(3, total.get());
   }
 
   @Test
@@ -142,8 +180,8 @@ public class AssetCompilerTest {
   @Test
   public void bundle() throws Exception {
     File dir = Paths.get("target", "public").toFile();
-    Map<String, List<File>> files = new AssetCompiler(conf("assets-compile-all.conf", "dev"))
-        .build("dev", dir);
+    Map<String, List<File>> files = new AssetCompiler(conf("assets-compile-all.conf", "prod"))
+        .build("prod", dir);
     Set<File> expected = Sets.newHashSet(
         Paths.get("target", "public", "assets", "all.0a36d8bd.css").toFile(),
         Paths.get("target", "public", "assets", "all.9a92930a.js").toFile());
@@ -157,12 +195,14 @@ public class AssetCompilerTest {
   }
 
   @Test
-  public void bundlenojs() throws Exception {
-    File dir = Paths.get("target", "public", "nojs").toFile();
-    Map<String, List<File>> files = new AssetCompiler(conf("assets-nojs.conf", "dev"))
+  public void devBuild() throws Exception {
+    File dir = Paths.get("target", "public").toFile();
+    Map<String, List<File>> files = new AssetCompiler(conf("assets-compile-all.conf", "dev"))
         .build("dev", dir);
     Set<File> expected = Sets.newHashSet(
-        Paths.get("target", "public", "nojs", "css", "home.9a0e50cb.css").toFile());
+        Paths.get("target", "public", "assets", "home.css").toFile(),
+        Paths.get("target", "public", "assets", "home.js").toFile(),
+        Paths.get("target", "public", "assets", "base.js").toFile());
     files.values()
         .forEach(file -> file
             .forEach(it -> {
@@ -170,29 +210,47 @@ public class AssetCompilerTest {
               expected.remove(it);
             }));
     assertEquals(0, expected.size());
+  }
+
+  @Test
+  public void devBuildSkipDuplicates() throws Exception {
+    File dir = Paths.get("target", "public").toFile();
+    Map<String, List<File>> files = new AssetCompiler(conf("assets-dev.conf", "dev"))
+        .build("dev", dir);
+    Set<File> expected = Sets.newHashSet(
+        Paths.get("target", "public", "assets", "home.css").toFile(),
+        Paths.get("target", "public", "assets", "home.js").toFile(),
+        Paths.get("target", "public", "assets", "base.js").toFile());
+    files.values()
+        .forEach(file -> file
+            .forEach(it -> {
+              assertTrue(it.exists());
+              expected.remove(it);
+            }));
+    assertEquals(0, expected.size());
+  }
+
+  @Test
+  public void bundlenojs() throws Exception {
+    File dir = Paths.get("target", "public", "nojs").toFile();
+    Map<String, List<File>> files = new AssetCompiler(conf("assets-nojs.conf", "dev"))
+        .build("prod", dir);
+    assertEquals(0, files.get("home").size());
   }
 
   @Test
   public void bundlenocss() throws Exception {
     File dir = Paths.get("target", "public", "nojs").toFile();
-    Map<String, List<File>> files = new AssetCompiler(conf("assets-nocss.conf", "dev"))
-        .build("dev", dir);
-    Set<File> expected = Sets.newHashSet(
-        Paths.get("target", "public", "nojs", "js", "home.a6c392cb.js").toFile());
-    files.values()
-        .forEach(file -> file
-            .forEach(it -> {
-              assertTrue(it.exists());
-              expected.remove(it);
-            }));
-    assertEquals(0, expected.size());
+    Map<String, List<File>> files = new AssetCompiler(conf("assets-nocss.conf", "prod"))
+        .build("prod", dir);
+    assertEquals(0, files.get("home").size());
   }
 
   @Test
   public void bundleWithAggregator() throws Exception {
     File dir = Paths.get("target", "public").toFile();
-    Map<String, List<File>> files = new AssetCompiler(conf("assets-aggregator.conf", "dev"))
-        .build("dev", dir);
+    Map<String, List<File>> files = new AssetCompiler(conf("assets-aggregator.conf", "prod"))
+        .build("prod", dir);
     files.values()
         .forEach(file -> file
             .forEach(it -> {
@@ -217,14 +275,16 @@ public class AssetCompilerTest {
 
   @Test
   public void shouldNotProcessWithoutFileSet() throws Exception {
-    Asset asset = asset("/assets/index.js");
-    assertEquals(asset, new AssetCompiler(conf("missing.conf", "dev")).build(asset));
+    File dir = Paths.get("target", "public").toFile();
+    assertEquals(dir.toPath().resolve("assets").resolve("index.js").toFile(),
+        new AssetCompiler(conf("missing.conf", "dev")).buildOne("/assets/index.js", dir));
   }
 
   @Test
   public void shouldNotProcessUnknownTypes() throws Exception {
-    Asset asset = asset("/assets/index.none");
-    assertEquals(asset, new AssetCompiler(conf("assets-test.conf", "dev")).build(asset));
+    File dir = Paths.get("target", "public").toFile();
+    assertEquals(null,
+        new AssetCompiler(conf("assets-test.conf", "dev")).buildOne("/assets/index.none", dir));
   }
 
   @Test
@@ -281,13 +341,9 @@ public class AssetCompilerTest {
   }
 
   private String compile(final AssetCompiler compiler, final String path) throws Exception {
-    return new String(
-        ByteStreams.toByteArray(compiler.build(asset(path)).stream()), "UTF-8");
-  }
-
-  private Asset asset(final String path) throws Exception {
-    return new URLAsset(getClass().getResource(path), path,
-        MediaType.byPath(path).orElse(MediaType.octetstream));
+    File dir = Paths.get("target", "public").toFile();
+    return Files.readAllLines(compiler.buildOne(path, dir).toPath()).stream()
+        .collect(Collectors.joining("\n"));
   }
 
   private Config conf(final String path, final String env) {

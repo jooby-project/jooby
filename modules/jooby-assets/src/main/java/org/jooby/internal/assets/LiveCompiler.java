@@ -204,7 +204,6 @@
 package org.jooby.internal.assets;
 
 import com.google.common.collect.Lists;
-import com.typesafe.config.Config;
 import static java.util.Objects.requireNonNull;
 import org.jooby.MediaType;
 import org.jooby.Request;
@@ -214,7 +213,6 @@ import org.jooby.assets.AssetCompiler;
 import org.jooby.assets.AssetException;
 import org.jooby.assets.AssetProblem;
 import org.jooby.funzy.Try;
-import org.jooby.internal.URLAsset;
 
 import java.io.File;
 import java.io.IOException;
@@ -226,52 +224,50 @@ import java.nio.file.WatchEvent.Kind;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LiveCompiler implements Route.Handler {
 
-  private final Config conf;
-
   private final AssetCompiler compiler;
-
   private final Map<String, AssetException> errors = new ConcurrentHashMap<>();
-
   private final Watcher watcher;
+  private final Path workdir;
+  private final ExecutorService executor;
+  private final Path basedir;
+  private final AtomicBoolean compilationDone;
 
-  private final AtomicBoolean firstRun = new AtomicBoolean(true);
-
-  private Path basedir;
-
-  public LiveCompiler(final Config conf, final AssetCompiler compiler) throws IOException {
-    this.conf = requireNonNull(conf, "Config is required.");
+  public LiveCompiler(final AssetCompiler compiler, final Path workdir)
+      throws IOException {
+    this.workdir = workdir;
     this.compiler = requireNonNull(compiler, "Asset compiler is required.");
     this.basedir = Paths.get("public");
-    this.watcher = new Watcher(this::onChange, basedir);
 
+    this.executor = Executors.newSingleThreadExecutor(task -> {
+      Thread thread = new Thread(task, "asset-compiler");
+      thread.setDaemon(true);
+      return thread;
+    });
+    this.watcher = new Watcher(executor, this::onChange, basedir);
+    this.compilationDone = new AtomicBoolean(false);
   }
 
   private void onChange(final Kind<?> kind, final Path path) {
-    File outputdir = new File(conf.getString("application.tmpdir"), "__public_");
-    outputdir.mkdirs();
+    File outputdir = workdir.toFile();
     String filename = Route
         .normalize(Try.apply(() -> path.subpath(1, path.getNameCount()).toString())
             .orElse(path.toString()));
     try {
-      boolean firstRun = this.firstRun.compareAndSet(true, false);
-      if (!firstRun && !path.equals(basedir)) {
-        if (!compiler.contains(path.toString())) {
-          return;
-        }
-      }
       if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
         errors.remove(filename);
       } else {
         if (Files.isDirectory(path)) {
           errors.clear();
-          compiler.build(conf.getString("application.env"), outputdir);
+          compiler.build("dev", outputdir);
         } else {
-          MediaType type = MediaType.byPath(path).orElse(MediaType.octetstream);
-          compiler.build(new URLAsset(path.toUri().toURL(), filename, type));
+          compiler.buildOne(filename, outputdir);
           errors.remove(filename);
         }
       }
@@ -306,19 +302,40 @@ public class LiveCompiler implements Route.Handler {
 
   @Override
   public void handle(final Request req, final Response rsp) throws Throwable {
-    if (req.param("assets.sync").isSet()) {
-      onChange(StandardWatchEventKinds.ENTRY_MODIFY, basedir);
-    }
-    if (errors.size() > 0) {
-      throw errors.values().iterator().next();
+    if (compilationDone.get()) {
+      if (req.param("assets.sync").isSet()) {
+        onChange(StandardWatchEventKinds.ENTRY_MODIFY, basedir);
+      }
+      if (errors.size() > 0) {
+        throw errors.values().iterator().next();
+      }
+    } else {
+      rsp.type(MediaType.html)
+          .send("<!DOCTYPE html>\n"
+              + "<html>\n"
+              + "<head>\n"
+              + "<meta charset=\"UTF-8\">\n"
+              + "<meta http-equiv=\"refresh\" content=\"2\">\n"
+              + "<title>Compiling assets</title>\n"
+              + "</head>\n"
+              + "<body>\n"
+              + "Compiling assets, please wait...\n"
+              + "</body>\n"
+              + "</html>");
     }
   }
 
-  public void start() {
+  public Future<Map<String, List<File>>> sync() {
+    return executor.submit(() -> compiler.build("dev", workdir.toFile()));
+  }
+
+  public void watch() {
+    compilationDone.set(true);
     watcher.start();
   }
 
   public void stop() throws Exception {
+    executor.shutdown();
     watcher.stop();
   }
 

@@ -214,13 +214,12 @@ import java.util.List;
 public class AssetVars implements Route.Handler {
 
   private AssetCompiler compiler;
-
   private String cpath;
-
   private Throwing.Function<String, List<String>> styles;
   private Throwing.Function<String, List<String>> scripts;
 
-  public AssetVars(final AssetCompiler compiler, final String cpath, final boolean cache) {
+  public AssetVars(final AssetCompiler compiler,
+      final String cpath, final boolean cache) {
     this.compiler = compiler;
     this.cpath = cpath.equals("/") ? "" : cpath;
     styles = compiler::styles;

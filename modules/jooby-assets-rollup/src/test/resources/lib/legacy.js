@@ -1,6 +1,6 @@
 (function() {
   var exports = window || global || this;
-  exports.print = function (message) {
+  exports.summary = function (message) {
     console.log(message);
   };
 })();

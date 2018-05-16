@@ -203,12 +203,11 @@
  */
 package org.jooby.assets;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
+import com.typesafe.config.Config;
 import org.jooby.MediaType;
 
-import com.typesafe.config.Config;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * <h1>jshint</h1>
@@ -287,12 +286,12 @@ public class Jshint extends AssetProcessor {
   @Override
   public String process(final String filename, final String source, final Config conf)
       throws Exception {
-    return V8Context.run("global", v8 -> {
-      Map<String, Object> options = new LinkedHashMap<>(options());
-      Map<String, Object> predef = (Map<String, Object>) options.remove("predef");
-      options.remove("excludes");
-      return v8.invoke("jshint.js", source, options, predef, filename);
-    });
+    Map<String, Object> options = new LinkedHashMap<>(options());
+    Map<String, Object> predef = (Map<String, Object>) options.remove("predef");
+    options.remove("excludes");
+
+    return engine(V8Engine.class, "global")
+        .execute("jshint.js", source, options(), predef, filename);
   }
 
 }

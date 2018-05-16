@@ -1,18 +1,24 @@
 package org.jooby.assets;
 
+import com.typesafe.config.ConfigFactory;
+import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.typesafe.config.ConfigFactory;
-
 public class JsHintMultiThreadTest {
+
+  private static V8EngineFactory engineFactory = new V8EngineFactory();
+
+  @AfterClass
+  public static void release() {
+    engineFactory.release();
+  }
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -36,8 +42,11 @@ public class JsHintMultiThreadTest {
   private Runnable run(final CountDownLatch latch, final String statement) {
     return () -> {
       try {
-        assertEquals(statement, new Jshint().process("/x.js", statement, ConfigFactory.empty()));
+        assertEquals(statement, new Jshint()
+            .set(engineFactory)
+            .process("/x.js", statement, ConfigFactory.empty()));
       } catch (Exception ex) {
+        ex.printStackTrace();
         throw new IllegalStateException(ex);
       } finally {
         latch.countDown();

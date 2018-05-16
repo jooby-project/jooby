@@ -321,6 +321,8 @@ import com.typesafe.config.Config;
  */
 public abstract class AssetProcessor extends AssetOptions {
 
+  protected EngineFactory engineFactory;
+
   public String name() {
     return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, getClass().getSimpleName());
   }
@@ -362,6 +364,28 @@ public abstract class AssetProcessor extends AssetOptions {
    */
   public String process(String filename, String source, Config conf, ClassLoader loader) throws Exception {
     return process(filename, source, conf);
+  }
+
+  /**
+   * This method is executed by the {@link AssetCompiler} at processor creation time.
+   *
+   * @param factory Factory or <code>null</code>.
+   * @return Asset processor.
+   */
+  public AssetProcessor set(EngineFactory factory) {
+    this.engineFactory = factory;
+    return this;
+  }
+
+  protected <T extends Engine> T engine(Class<T> type) {
+    return engine(type, null);
+  }
+
+  protected <T extends Engine> T engine(Class<T> type, String scope) {
+    if (engineFactory == null) {
+      throw new IllegalStateException("No JavaScript engine available");
+    }
+    return type.cast(engineFactory.get(getClass().getSimpleName(), scope));
   }
 
   @Override

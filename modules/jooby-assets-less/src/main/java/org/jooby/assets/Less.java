@@ -266,9 +266,8 @@ public class Less extends AssetProcessor {
   @Override
   public String process(final String filename, final String source, final Config conf)
       throws Exception {
-    return V8Context.run(v8 -> {
-      return v8.invoke("less.js", source, options(), filename);
-    });
+    return engine(V8Engine.class)
+        .execute("less.js", source, options(), filename);
   }
 
 }

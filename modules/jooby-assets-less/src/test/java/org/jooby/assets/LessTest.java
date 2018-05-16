@@ -1,5 +1,6 @@
 package org.jooby.assets;
 
+import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -9,12 +10,21 @@ import com.typesafe.config.ConfigFactory;
 
 public class LessTest {
 
+  private static V8EngineFactory engineFactory = new V8EngineFactory();
+
+  @AfterClass
+  public static void release() {
+    engineFactory.release();
+  }
+
   @Test
   public void basic() throws Exception {
     assertEquals(".class {\n" +
         "  width: 2;\n" +
         "}\n",
-        new Less().process("/css/x.js", ".class { width: (1 + 1) }", ConfigFactory.empty()));
+        new Less()
+            .set(engineFactory)
+            .process("/css/x.js", ".class { width: (1 + 1) }", ConfigFactory.empty()));
   }
 
   @Test
@@ -23,7 +33,9 @@ public class LessTest {
         "  width: 2;\n" +
         "}\n" +
         "/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9jc3MveC5qcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtFQUFTLFFBQUEifQ== */",
-        new Less().set("sourceMap", ImmutableMap.of("sourceMapFileInline", true))
+        new Less()
+            .set(engineFactory)
+            .set("sourceMap", ImmutableMap.of("sourceMapFileInline", true))
             .process("/css/x.js", ".class { width: (1 + 1) }", ConfigFactory.empty()));
   }
 
@@ -36,7 +48,9 @@ public class LessTest {
         "  width: 2;\n" +
         "}\n" +
         "",
-        new Less().process("/css/x.js", "@import \"foo.less\";\n.class { width: (1 + 1) }",
+        new Less()
+            .set(engineFactory)
+            .process("/css/x.js", "@import \"foo.less\";\n.class { width: (1 + 1) }",
             ConfigFactory.empty()));
   }
 
@@ -49,13 +63,17 @@ public class LessTest {
         "  width: 2;\n" +
         "}\n" +
         "",
-        new Less().process("/css/x.js", "@import \"bar.less\";\n.class { width: (1 + 1) }",
+        new Less()
+            .set(engineFactory)
+            .process("/css/x.js", "@import \"bar.less\";\n.class { width: (1 + 1) }",
             ConfigFactory.empty()));
   }
 
   @Test(expected = AssetException.class)
   public void error() throws Exception {
     assertEquals("",
-        new Less().process("/css/x.js", ".class { width (1 + 1) }", ConfigFactory.empty()));
+        new Less()
+            .set(engineFactory)
+            .process("/css/x.js", ".class { width (1 + 1) }", ConfigFactory.empty()));
   }
 }

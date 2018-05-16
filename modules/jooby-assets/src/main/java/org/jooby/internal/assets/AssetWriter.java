@@ -201,30 +201,123 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.jooby.assets;
+/**
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ */
+package org.jooby.internal.assets;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import com.google.common.hash.Hashing;
+import com.google.common.io.BaseEncoding;
 
-import org.jooby.Asset;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
-public class InMemoryAsset extends Asset.Forwarding {
+public class AssetWriter {
 
-  private byte[] contents;
+  private final String separator;
+  private final Charset charset;
+  private final String ext;
+  private final Predicate<String> filter;
+  private final Map<String, List<String>> fileset;
+  private String fset;
+  private File outDir;
 
-  public InMemoryAsset(final Asset asset, final byte[] contents) {
-    super(asset);
-    this.contents = contents;
+  private StringBuilder bundle;
+
+  private List<File> result;
+
+  public AssetWriter(String dist, String fset, File outDir, String ext, String separator,
+      Charset charset, Map<String, List<String>> fileset, Predicate<String> filter) {
+    if (!dist.equals("dev")) {
+      bundle = new StringBuilder();
+      this.fset = fset;
+    }
+    this.outDir = outDir;
+    this.separator = separator;
+    this.result = new ArrayList<>();
+    this.charset = charset;
+    this.ext = ext;
+    this.fset = fset;
+    this.filter = filter;
+    this.fileset = fileset;
   }
 
-  @Override
-  public long length() {
-    return contents.length;
+  private Stream<String> patterns(final Predicate<String> filter) {
+    return fileset.values().stream()
+        .flatMap(List::stream)
+        .filter(filter)
+        .map(path -> path.split("/")[1]);
+
   }
 
-  @Override
-  public InputStream stream() throws Exception {
-    return new ByteArrayInputStream(contents);
+  public void write(String path, String chunk) throws IOException {
+    if (bundle == null) {
+      File output = new File(outDir, path);
+      writeFile(output, chunk);
+      result.add(output);
+    } else {
+      if (chunk.length() > 0) {
+        bundle.append(chunk).append(separator);
+      }
+    }
   }
 
+  public List<File> getResult() throws IOException {
+    try {
+      if (bundle != null && bundle.length() > 0) {
+        Path filename = Paths.get(fset + "." + sha1(bundle) + ext);
+        Path filepath = patterns(filter).findFirst()
+            .map(p -> Paths.get(p).resolve(filename))
+            .orElse(filename);
+        File output = outDir.toPath().resolve(filepath).toFile();
+        writeFile(output, bundle.toString());
+        result.add(output);
+      }
+      return result;
+    } finally {
+      bundle = null;
+    }
+  }
+
+  private String sha1(final CharSequence source) {
+    return BaseEncoding.base16()
+        .encode(Hashing
+            .sha1()
+            .hashString(source, charset)
+            .asBytes())
+        .substring(0, 8).toLowerCase();
+  }
+
+  private void writeFile(File output, String chunk) throws IOException {
+    output.getParentFile().mkdirs();
+    try (PrintWriter writer = new PrintWriter(output, "UTF-8")) {
+      writer.write(chunk);
+    }
+  }
+
+  public void add(String path) {
+    if (bundle == null) {
+      result.add(new File(outDir, path));
+    }
+  }
 }

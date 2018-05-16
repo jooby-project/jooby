@@ -410,7 +410,13 @@ public class LiveReload implements Module {
 
       if (paths.isEmpty()) {
         Path basedir = Paths.get(System.getProperty("user.dir"));
-        register(basedir.resolve("public"),
+        Path assetsDir;
+        if (conf.hasPath("assets.outputDir")) {
+          assetsDir = Paths.get(conf.getString("assets.outputDir"));
+        } else {
+          assetsDir = basedir.resolve("public");
+        }
+        register(assetsDir,
             "**/*.css",
             "**/*.scss",
             "**/*.sass",

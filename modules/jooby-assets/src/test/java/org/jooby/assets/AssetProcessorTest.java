@@ -1,12 +1,11 @@
 package org.jooby.assets;
 
+import com.google.common.collect.ImmutableMap;
 import static org.junit.Assert.assertEquals;
-
-import java.util.HashMap;
-
+import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
 
 public class AssetProcessorTest {
 
@@ -28,6 +27,20 @@ public class AssetProcessorTest {
             put("k", null);
           }
         }).options());
+  }
+
+  @Test
+  public void engineFactory() throws Exception {
+    TestEngineFactory engineFactory = new TestEngineFactory();
+    AssetProcessor processor = new CompressorTest()
+        .set(engineFactory);
+    assertNotNull(processor.engine(TestEngine.class));
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void noEngine() throws Exception {
+    AssetProcessor processor = new CompressorTest();
+    assertNotNull(processor.engine(TestEngine.class));
   }
 
   @Test

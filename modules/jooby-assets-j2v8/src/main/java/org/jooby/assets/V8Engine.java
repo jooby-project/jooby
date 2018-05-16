@@ -204,97 +204,99 @@
 package org.jooby.assets;
 
 import com.eclipsesource.v8.JavaCallback;
-import com.eclipsesource.v8.JavaVoidCallback;
-import com.eclipsesource.v8.Releasable;
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Array;
 import com.eclipsesource.v8.V8Function;
 import com.eclipsesource.v8.V8Object;
+import com.eclipsesource.v8.V8Value;
+import com.eclipsesource.v8.utils.MemoryManager;
 import com.eclipsesource.v8.utils.V8ObjectUtils;
-import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
 import org.jooby.funzy.Try;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class V8Context {
-
-  public interface Callback {
-
-    String call(V8Context ctx) throws Exception;
-
-  }
+public class V8Engine implements Engine {
 
   public final V8 v8;
 
   private String id;
 
-  private V8Context(final String global, final String id) {
-    this(V8.createV8Runtime(global), id);
+  private MemoryManager mem;
+
+  V8Engine(final V8 v8, final MemoryManager mem, final String id) {
+    this.v8 = v8;
+    this.mem = mem;
+    this.id = id;
   }
 
-  private V8Context(final V8 v8, final String id) {
-    this.v8 = v8;
-    this.id = id;
-
-    console(id);
-
-    assets(v8);
-
-    b64(v8);
+  public void release() {
+    Try.run(mem::release)
+        .onComplete(() -> releaseNow(v8));
   }
 
   public V8Object hash() {
-    return register(new V8Object(v8));
+    return hash(v8);
+  }
+
+  private static V8Object hash(V8 v8) {
+    return register(v8, new V8Object(v8));
   }
 
   public V8Function function(final JavaCallback callback) {
-    return register(new V8Function(v8, callback));
+    return register(v8, new V8Function(v8, callback));
   }
 
   public V8Object hash(final Map<String, Object> hash) {
-    return register(V8ObjectUtils.toV8Object(v8, hash));
+    return register(v8, V8ObjectUtils.toV8Object(v8, hash));
   }
 
   public V8Array array() {
-    return register(new V8Array(v8));
+    return register(v8, new V8Array(v8));
   }
 
   public V8Array array(final List<? extends Object> value) {
-    return register(V8ObjectUtils.toV8Array(v8, value));
+    return register(v8, V8ObjectUtils.toV8Array(v8, value));
   }
 
   public Object load(final String path) throws Exception {
-    return register(v8.executeScript(readFile(path), path, 0));
+    return load(getClass(), v8, path);
   }
 
-  public String invoke(final String path, final Object... args) throws Exception {
-    V8Function fn = register((V8Function) load(path));
-    Object value = register(fn.call(v8, array(Arrays.asList(args))));
-    if (value instanceof String) {
-      return value.toString();
-    }
+  private static Object load(Class<?> loader, V8 v8, final String path) throws Exception {
+    return register(v8, v8.executeScript(readFile(loader, path), path, 0));
+  }
 
-    List<AssetProblem> problems = problems(value);
-    if (problems.size() > 0) {
-      throw new AssetException(id, problems);
+  public String execute(final String path, final Object... args) throws Exception {
+    V8Function fn = register(v8, (V8Function) load(path));
+    V8Array arguments = array(Arrays.asList(args));
+    Object value = null;
+    try {
+      value = register(v8, fn.call(v8, arguments));
+      if (value instanceof String) {
+        return value.toString();
+      }
+
+      List<AssetProblem> problems = problems(value);
+      if (problems.size() > 0) {
+        throw new AssetException(id, problems);
+      }
+      return ((V8Object) value).getString("output");
+    } finally {
+      releaseNow(value);
+      releaseNow(arguments);
+      releaseNow(fn);
     }
-    return ((V8Object) value).getString("output");
   }
 
   private List<AssetProblem> problems(final Object value) {
@@ -304,7 +306,7 @@ public class V8Context {
 
     V8Object hash = (V8Object) value;
     if (hash.contains("errors")) {
-      return problems(register(hash.getArray("errors")));
+      return problems(register(v8, hash.getArray("errors")));
     }
     if (hash.contains("message")) {
       return ImmutableList.of(problem(hash));
@@ -315,13 +317,14 @@ public class V8Context {
   private List<AssetProblem> problems(final V8Array array) {
     ImmutableList.Builder<AssetProblem> result = ImmutableList.builder();
     for (int i = 0; i < array.length(); i++) {
-      result.add(problem(register(array.getObject(i))));
+      result.add(problem(register(v8, array.getObject(i))));
     }
     return result.build();
   }
 
   private <T> Optional<T> get(final String name, final Function<String, T> provider) {
-    return Try.apply(() -> Optional.of(register(provider.apply(name)))).orElse(Optional.empty());
+    return Try.apply(() -> Optional.of(register(v8, provider.apply(name))))
+        .orElse(Optional.empty());
   }
 
   private AssetProblem problem(final V8Object js) {
@@ -335,17 +338,17 @@ public class V8Context {
         message.orElse(""), evidence.orElse(null));
   }
 
-  private URL resolve(final String path) {
-    URL resource = getClass().getResource(path.startsWith("/") ? path : "/" + path);
+  static URL resolve(Class<?> loader, final String path) {
+    URL resource = loader.getResource(path.startsWith("/") ? path : "/" + path);
     return resource;
   }
 
-  private boolean exists(final String path) {
-    return resolve(path) != null;
+  static boolean exists(Class<?> loader, final String path) {
+    return resolve(loader, path) != null;
   }
 
-  private String readFile(final String path) throws IOException {
-    URL resource = resolve(path);
+  static String readFile(Class<?> loader, final String path) throws IOException {
+    URL resource = resolve(loader, path);
     if (resource == null) {
       throw new FileNotFoundException(path);
     }
@@ -354,88 +357,19 @@ public class V8Context {
     }
   }
 
-  public static String run(final Callback callback) throws Exception {
-    return run(null, callback);
-  }
-
-  public static String run(final String global, final Callback callback) throws Exception {
-    V8Context ctx = new V8Context(global, classname(callback));
-    try {
-      return callback.call(ctx);
-    } finally {
-      ctx.v8.release();
-    }
-  }
-
-  private static String classname(final Callback callback) {
-    String logname = callback.getClass().getSimpleName();
-    logname = logname.substring(0, logname.indexOf("$"));
-    return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, logname);
-  }
-
-  private <T> T register(final T value) {
-    if (value instanceof Releasable) {
-      v8.registerResource((Releasable) value);
-    }
+  private static <T> T register(final V8 v8, final T value) {
+    //    if (value instanceof Releasable) {
+    //      v8.registerResource((Releasable) value);
+    //    }
     return value;
   }
 
-  private JavaVoidCallback console(final Consumer<String> log) {
-    return (self, args) -> {
-      StringBuilder buff = new StringBuilder();
-      for (int i = 0; i < args.length(); i++) {
-        buff.append(register(args.get(i)));
+  private void releaseNow(Object value) {
+    if (value instanceof V8Value) {
+      V8Value ref = (V8Value) value;
+      if (!ref.isReleased()) {
+        ref.release();
       }
-      log.accept(buff.toString());
-    };
+    }
   }
-
-  private void console(final String logname) {
-    V8Object console = hash();
-    Logger log = LoggerFactory.getLogger(logname);
-    v8.add("console", console);
-    console.registerJavaMethod(console(log::info), "log");
-    console.registerJavaMethod(console(log::info), "info");
-    console.registerJavaMethod(console(log::error), "error");
-    console.registerJavaMethod(console(log::debug), "debug");
-    console.registerJavaMethod(console(log::warn), "warn");
-  }
-
-  private void b64(final V8 v8) {
-    v8.registerJavaMethod((JavaCallback) (receiver, args) -> {
-      byte[] bytes = args.get(0).toString().getBytes(StandardCharsets.UTF_8);
-      return BaseEncoding.base64().encode(bytes);
-    }, "btoa");
-    v8.registerJavaMethod((JavaCallback) (receiver, args) -> {
-      byte[] atob = BaseEncoding.base64().decode(args.get(0).toString());
-      return new String(atob, StandardCharsets.UTF_8);
-    }, "atob");
-  }
-
-  private void assets(final V8 v8) {
-    V8Object assets = hash();
-    v8.add("assets", assets);
-
-    assets.registerJavaMethod((JavaCallback) (receiver, args) -> {
-      try {
-        return readFile(args.get(0).toString());
-      } catch (IOException ex) {
-        // we can't fire exceptions from Java :S
-        return V8.getUndefined();
-      }
-    }, "readFile");
-
-    assets.registerJavaMethod((JavaCallback) (receiver, args) -> exists(args.get(0).toString()),
-        "exists");
-
-    assets.registerJavaMethod((JavaCallback) (receiver, args) -> {
-      try {
-        return load(args.get(0).toString());
-      } catch (Exception ex) {
-        // we can't fire exceptions from Java :S
-        return V8.getUndefined();
-      }
-    }, "load");
-  }
-
 }

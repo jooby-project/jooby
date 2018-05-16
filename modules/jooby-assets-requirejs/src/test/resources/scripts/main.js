@@ -1,3 +1,3 @@
-require(['text!partial'], function (text) {
+define(['text!partial.html'], function (text) {
   return text;
 });

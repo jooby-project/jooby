@@ -261,10 +261,9 @@ public class Rjs extends AssetProcessor {
   @Override
   public String process(final String filename, final String source, final Config conf)
       throws Exception {
-    return V8Context.run(v8 -> {
-      String path = filename.startsWith("/") ? filename.substring(1) : filename;
-      return v8.invoke("r.js", source, options(), path);
-    });
+    String path = filename.startsWith("/") ? filename.substring(1) : filename;
+    return engine(V8Engine.class)
+        .execute("r.js", source, options(), path);
   }
 
 }

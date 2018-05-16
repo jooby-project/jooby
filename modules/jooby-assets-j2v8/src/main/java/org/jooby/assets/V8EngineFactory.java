@@ -201,27 +201,115 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.jooby.internal.assets;
+package org.jooby.assets;
 
-import static java.util.Objects.requireNonNull;
+import com.eclipsesource.v8.JavaCallback;
+import com.eclipsesource.v8.JavaVoidCallback;
+import com.eclipsesource.v8.V8;
+import com.eclipsesource.v8.V8Object;
+import com.eclipsesource.v8.utils.MemoryManager;
+import com.google.common.io.BaseEncoding;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.jooby.Asset;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.assets.AssetCompiler;
-import org.jooby.handlers.AssetHandler;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Consumer;
 
-public class AssetHandlerWithCompiler extends AssetHandler {
+public class V8EngineFactory implements EngineFactory {
+  private final ConcurrentMap<String, V8Engine> cache = new ConcurrentHashMap<>();
 
-  private AssetCompiler compiler;
-
-  public AssetHandlerWithCompiler(final String pattern, final AssetCompiler compiler) {
-    super(pattern);
-    this.compiler = requireNonNull(compiler, "Asset compiler is required.");
+  public Engine get(String id, String scope) {
+    return v8(id, scope);
   }
 
-  @Override
-  protected void send(final Request req, final Response rsp, final Asset asset) throws Throwable {
-    super.send(req, rsp, compiler.build(asset));
+  @Override public void release() {
+    cache.values().forEach(V8Engine::release);
+    cache.clear();
+  }
+
+  private V8Engine v8(String id, String scope) {
+    return cache.computeIfAbsent(Thread.currentThread().getName() + ":" + id, name -> {
+      V8 v8 = V8.createV8Runtime(scope);
+      MemoryManager mem = new MemoryManager(v8);
+
+      console(v8, id);
+
+      assets(getClass(), v8);
+
+      b64(v8);
+      return new V8Engine(v8, mem, id);
+    });
+  }
+
+  private static JavaVoidCallback console(V8 v8, final Consumer<String> log) {
+    return (self, args) -> {
+      StringBuilder buff = new StringBuilder();
+      for (int i = 0; i < args.length(); i++) {
+        buff.append(args.get(i));
+      }
+      log.accept(buff.toString());
+    };
+  }
+
+  private static void console(V8 v8, final String logname) {
+    V8Object console = new V8Object(v8);
+    Logger log = LoggerFactory.getLogger(logname);
+    v8.add("console", console);
+    console.registerJavaMethod(console(v8, log::info), "log");
+    console.registerJavaMethod(console(v8, log::info), "info");
+    console.registerJavaMethod(console(v8, log::error), "error");
+    console.registerJavaMethod(console(v8, log::debug), "debug");
+    console.registerJavaMethod(console(v8, log::warn), "warn");
+  }
+
+  private static void b64(final V8 v8) {
+    v8.registerJavaMethod((JavaCallback) (receiver, args) -> {
+      byte[] bytes = args.get(0).toString().getBytes(StandardCharsets.UTF_8);
+      return BaseEncoding.base64().encode(bytes);
+    }, "btoa");
+    v8.registerJavaMethod((JavaCallback) (receiver, args) -> {
+      byte[] atob = BaseEncoding.base64().decode(args.get(0).toString());
+      return new String(atob, StandardCharsets.UTF_8);
+    }, "atob");
+  }
+
+  private static void assets(Class<?> loader, final V8 v8) {
+    V8Object assets = new V8Object(v8);
+    v8.add("assets", assets);
+
+    assets.registerJavaMethod((JavaCallback) (receiver, args) -> {
+      try {
+        return V8Engine.readFile(loader, args.get(0).toString());
+      } catch (IOException ex) {
+        // we can't fire exceptions from Java :S
+        return V8.getUndefined();
+      }
+    }, "readFile");
+
+    assets.registerJavaMethod(
+        (JavaCallback) (receiver, args) -> V8Engine.exists(loader, args.get(0).toString()),
+        "exists");
+
+    assets.registerJavaMethod((JavaCallback) (receiver, args) -> {
+      try {
+        return load(loader, v8, args.get(0).toString());
+      } catch (Exception ex) {
+        // we can't fire exceptions from Java :S
+        return V8.getUndefined();
+      }
+    }, "load");
+  }
+
+  private static URL resolve(Class<?> loader, final String path) {
+    URL resource = loader.getResource(path.startsWith("/") ? path : "/" + path);
+    return resource;
+  }
+
+  private static Object load(Class<?> loader, V8 v8, final String path) throws Exception {
+    return v8.executeScript(V8Engine.readFile(loader, path), path, 0);
   }
 }

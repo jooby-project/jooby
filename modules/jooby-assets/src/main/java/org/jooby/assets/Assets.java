@@ -203,20 +203,27 @@
  */
 package org.jooby.assets;
 
-import java.util.List;
-
-import org.jooby.Env;
-import org.jooby.Jooby;
-import org.jooby.Router;
-import org.jooby.handlers.AssetHandler;
-import org.jooby.internal.assets.AssetHandlerWithCompiler;
-import org.jooby.internal.assets.AssetVars;
-import org.jooby.internal.assets.LiveCompiler;
-
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.Router;
+import org.jooby.handlers.AssetHandler;
+import org.jooby.internal.assets.AssetVars;
+import org.jooby.internal.assets.FileSystemAssetHandler;
+import org.jooby.internal.assets.LiveCompiler;
+import org.jooby.internal.assets.LiveProgressBar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * <h1>assets</h1>
@@ -505,18 +512,44 @@ public class Assets implements Jooby.Module {
         .map(it -> conf.getString("assets." + it + ".prefix"))
         .orElse(cpath);
     routes.use("*", "*", new AssetVars(compiler, prefix, !dev)).name("/assets/vars");
-    // live compiler?
     boolean watch = conf.hasPath("assets.watch") ? conf.getBoolean("assets.watch") : dev;
+    // live compiler?
+    AssetHandler handler;
     if (watch) {
-      LiveCompiler liveCompiler = new LiveCompiler(conf, compiler);
-      env.onStart(liveCompiler::start);
-      env.onStop(liveCompiler::stop);
-      routes.use("*", "*", liveCompiler).name("/assets/compiler");
-    }
+      Path workdir = Paths.get(conf.getString("assets.outputDir"));
+      handler = new FileSystemAssetHandler("/", workdir);
+      LiveCompiler liveCompiler = new LiveCompiler(compiler, workdir);
 
-    AssetHandler handler = dev
-        ? new AssetHandlerWithCompiler("/", compiler)
-        : new AssetHandler("/");
+      routes.use("*", "*", liveCompiler)
+          .name("/assets/compiler");
+      // is there a jooby:run restart?
+      int counter = Integer.parseInt(System.getProperty("joobyRun.counter", "0"));
+      if (counter == 0) {
+        // nop, force full compilation:
+        long start = System.currentTimeMillis();
+        LiveProgressBar progressBar = new LiveProgressBar();
+        compiler.setProgressBar(progressBar);
+        Future<Map<String, List<File>>> future = liveCompiler.sync();
+        env.onStarted(() -> {
+          Logger log = LoggerFactory.getLogger(AssetCompiler.class);
+          if (!future.isDone()) {
+            progressBar.start();
+          }
+          Map<String, List<File>> result = future.get();
+          long end = System.currentTimeMillis();
+          log.info("{}", compiler
+              .summary(result, workdir, "dev", end - start));
+          /** Watch for changes: */
+          liveCompiler.watch();
+        });
+      } else {
+        // yes, then watch for changes on started:
+        env.onStarted(liveCompiler::watch);
+      }
+      env.onStop(liveCompiler::stop);
+    } else {
+      handler = new AssetHandler("/");
+    }
 
     handler.etag(conf.getBoolean("assets.etag"))
         .cdn(conf.getString("assets.cdn"))
@@ -524,7 +557,14 @@ public class Assets implements Jooby.Module {
 
     handler.maxAge(conf.getString("assets.cache.maxAge"));
 
+    // release engine (if any)
+    env.onStop(compiler::stop);
+
     compiler.patterns().forEach(pattern -> routes.get(pattern, handler));
+  }
+
+  @Override public Config config() {
+    return ConfigFactory.parseResources(getClass(), "assets.conf");
   }
 
   private Config conf(final boolean dev, final ClassLoader loader, final Config conf) {
@@ -534,7 +574,7 @@ public class Assets implements Jooby.Module {
           ConfigFactory.parseResources(loader,
               "assets." + conf.getString("application.env").toLowerCase() + ".conf"),
           ConfigFactory.parseResources(loader, "assets.dist.conf"),
-          ConfigFactory.parseResources(loader, "assets.conf") };
+          ConfigFactory.parseResources(loader, "assets.conf")};
       for (Config it : confs) {
         if (!it.isEmpty()) {
           return it.withFallback(conf).resolve();

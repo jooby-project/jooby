@@ -1,14 +1,20 @@
 package org.jooby.assets;
 
+import com.typesafe.config.ConfigFactory;
+import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.util.Arrays;
 
-import org.junit.Test;
-
-import com.typesafe.config.ConfigFactory;
-
 public class BabelTest {
+
+  private static V8EngineFactory engineFactory = new V8EngineFactory();
+
+  @AfterClass
+  public static void release() {
+    engineFactory.release();
+  }
 
   @Test
   public void name() throws Exception {
@@ -19,6 +25,7 @@ public class BabelTest {
   public void defaults() throws Exception {
     assertEquals("code();",
         new Babel()
+            .set(engineFactory)
             .process("/x.js",
                 "code();",
                 ConfigFactory.empty()));
@@ -37,6 +44,7 @@ public class BabelTest {
         "\n" +
         "alert(\"2 = \" + math.sum(math.pi, math.pi));",
         new Babel()
+            .set(engineFactory)
             .set("presets", Arrays.asList("es2015"))
             .process("/x.js",
                 "import * as math from \"math\";\n" +
@@ -50,6 +58,7 @@ public class BabelTest {
         "\n" +
         "code(;",
         new Babel()
+            .set(engineFactory)
             .process("/x.js",
                 "co de(;",
                 ConfigFactory.empty()));
@@ -59,6 +68,7 @@ public class BabelTest {
   public void react() throws Exception {
     assertEquals("var myDivElement = React.createElement(\"div\", { className: \"foo\" });",
         new Babel()
+            .set(engineFactory)
             .set("presets", Arrays.asList("react"))
             .process("/x.js",
                 "var myDivElement = <div className=\"foo\" />;",
@@ -70,6 +80,7 @@ public class BabelTest {
     assertEquals("var myDivElement = React.createElement(\"div\", { className: \"foo\" });\n" +
         "//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInguanMiXSwibmFtZXMiOlsibXlEaXZFbGVtZW50Il0sIm1hcHBpbmdzIjoiQUFBQSxJQUFJQSxlQUFlLDZCQUFLLFdBQVUsS0FBZixHQUFuQiIsImZpbGUiOiJ4LmpzIiwic291cmNlc0NvbnRlbnQiOlsidmFyIG15RGl2RWxlbWVudCA9IDxkaXYgY2xhc3NOYW1lPVwiZm9vXCIgLz47Il19",
         new Babel()
+            .set(engineFactory)
             .set("sourceMaps", "inline")
             .set("presets", Arrays.asList("react"))
             .process("/x.js",
@@ -126,6 +137,7 @@ public class BabelTest {
         "  }\n" +
         "}",
         new Babel()
+            .set(engineFactory)
             .set("presets", Arrays.asList("es2015"))
             .process("/x.js",
                 "let fibonacci = {\n" +
@@ -195,6 +207,7 @@ public class BabelTest {
         "  }\n" +
         "}",
         new Babel()
+            .set(engineFactory)
             .set("presets", Arrays.asList("es2015"))
             .set("plugins", Arrays.asList("external-helpers"))
             .process("/x.js",
@@ -227,6 +240,7 @@ public class BabelTest {
         "  return v + 1;\n" +
         "});",
         new Babel()
+            .set(engineFactory)
             .set("presets", Arrays.asList("es2015"))
             .process("/x.js",
                 "var odds = evens.map(v => v + 1);",
@@ -241,6 +255,7 @@ public class BabelTest {
         "    time = \"today\";\n" +
         "\"Hello \" + name + \", how are you \" + time + \"?\";",
         new Babel()
+            .set(engineFactory)
             .set("presets", Arrays.asList("es2015"))
             .process("/x.js",
                 "var name = \"Bob\", time = \"today\";\n" +
@@ -264,6 +279,7 @@ public class BabelTest {
         "  }\n" +
         "};",
         new Babel()
+            .set(engineFactory)
             .set("presets", Arrays.asList("es2015"))
             .process("/x.js",
                 "var bob = {\n" +
