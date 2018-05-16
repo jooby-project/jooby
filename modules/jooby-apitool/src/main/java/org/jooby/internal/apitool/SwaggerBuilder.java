@@ -413,7 +413,7 @@ public class SwaggerBuilder {
       Map<Integer, String> status = returns.status();
       Integer statusCode = returns.statusCode();
       Response response = new Response();
-      String doc = returns.description().orElse(status.get(statusCode));
+      String doc = returns.description().orElse(status.getOrDefault(statusCode, statusCode.toString()));
       response.description(doc);
       if (!"void".equals(returns.type().getTypeName())) {
         // make sure type definition gets in

@@ -258,7 +258,7 @@ class DocParser {
   private static class DocCollector extends FuzzyDocBaseListener {
     LinkedList<String> prefix = new LinkedList<>();
 
-    boolean insideRoute;
+    LinkedList<Boolean> insideRoute = new LinkedList<>();
 
     List<DocItem> doc;
 
@@ -309,14 +309,14 @@ class DocParser {
             doc(method, normalize(pattern), file, summary(), comment));
       } else {
         this.prefix.addLast(Route.normalize(str(ctx.pattern.getText())));
-        this.insideRoute = false;
+        popInsideRoute();
         this.summary.addLast(cleanJavadoc(file, ctx.doc.getText()));
       }
     }
 
     @Override public void enterPath(FuzzyDocParser.PathContext ctx) {
       this.prefix.addLast(Route.normalize(str(ctx.pattern.getText())));
-      this.insideRoute = true;
+      this.insideRoute.addLast(true);
       if (ctx.doc != null) {
         this.summary.addLast(cleanJavadoc(file, ctx.doc.getText()));
       }
@@ -325,7 +325,7 @@ class DocParser {
     @Override public void exitPath(FuzzyDocParser.PathContext ctx) {
       popPrefix();
       popSummary();
-      this.insideRoute = false;
+      popInsideRoute();
     }
 
     /**
@@ -336,18 +336,18 @@ class DocParser {
      */
     @Override public void enterRoute(final FuzzyDocParser.RouteContext ctx) {
       this.prefix.addLast(Route.normalize(str(ctx.pattern.getText())));
-      this.insideRoute = true;
+      this.insideRoute.addLast(true);
       this.summary.addLast(cleanJavadoc(file, ctx.doc.getText()));
     }
 
     @Override public void exitRoute(final FuzzyDocParser.RouteContext ctx) {
       popPrefix();
       popSummary();
-      this.insideRoute = false;
+      popInsideRoute();
     }
 
     @Override public void enterScript(final FuzzyDocParser.ScriptContext ctx) {
-      if (ctx.dot == null && !insideRoute) {
+      if (ctx.dot == null && !insideRoute()) {
         /**
          * reset prefix when '.' is missing:
          *
@@ -377,6 +377,16 @@ class DocParser {
     private void popSummary() {
       if (summary.size() > 0) {
         summary.removeLast();
+      }
+    }
+
+    private boolean insideRoute() {
+      return insideRoute.isEmpty() ? false : insideRoute.getLast();
+    }
+
+    private void popInsideRoute() {
+      if (insideRoute.size() > 0) {
+        insideRoute.removeLast();
       }
     }
 
@@ -422,7 +432,7 @@ class DocParser {
 
     private void popPrefix() {
       if (prefix.size() > 0) {
-        prefix.pop();
+        prefix.removeLast();
       }
     }
 
