@@ -959,6 +959,15 @@ public class BytecodeRouteParser {
             toType = loadType(loader, ((Type) cst).getClassName());
           }
         }
+        // JoobyKt.toOptional
+        AbstractInsnNode next = node.getNext();
+        if (next instanceof MethodInsnNode) {
+          String joobyKt = ((MethodInsnNode) next).owner;
+          String methodName = ((MethodInsnNode) next).name;
+          if ("toOptional".equals(methodName) && "org/jooby/JoobyKt".equals(joobyKt)) {
+            owner = Optional.class.getName();
+          }
+        }
 
         Set<String> skipOwners = ImmutableSet.of(
             Object.class.getName(),
