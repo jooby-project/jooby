@@ -950,7 +950,7 @@ public class BytecodeRouteParser {
         /** to(String.class); toOptional; toList(); */
         String owner = Type.getReturnType(node.desc).getClassName();
         AbstractInsnNode prev = node.getPrevious();
-        if (prev instanceof FieldInsnNode) {
+        if (prev instanceof FieldInsnNode && ((MethodInsnNode) n).name.equals("toEnum")) {
           /** toEnum(Letter.A); */
           return loadType(loader, ((FieldInsnNode) prev).owner);
         }
@@ -961,6 +961,8 @@ public class BytecodeRouteParser {
           if (cst instanceof Type) {
             toType = loadType(loader, ((Type) cst).getClassName());
           }
+        } else if (prev instanceof FieldInsnNode) {
+          toType = loadType(loader, ((FieldInsnNode) prev).owner);
         }
         // JoobyKt.toOptional
         AbstractInsnNode next = node.getNext();
@@ -1022,6 +1024,15 @@ public class BytecodeRouteParser {
         result = parameterType(loader, next);
       }
       return result;
+    } else if (n instanceof FieldInsnNode) {
+      AbstractInsnNode next = n.getNext();
+      if (next instanceof MethodInsnNode) {
+        if (((MethodInsnNode) next).name.equals("toOptional")) {
+          return Types.newParameterizedType(Optional.class, loadType(loader, ((FieldInsnNode) n).owner));
+        } else if (((MethodInsnNode) next).name.equals("getOrCreateKotlinClass")) {
+          return loadType(loader, ((FieldInsnNode) n).owner);
+        }
+      }
     }
     return Object.class;
   }
