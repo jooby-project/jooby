@@ -209,6 +209,7 @@ import static java.util.Objects.requireNonNull;
 import org.jooby.Route;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -454,7 +455,27 @@ public class RouteMethod {
    * @return This method.
    */
   public RouteMethod attributes(Map<String, Object> attributes) {
-    this.attributes = attributes;
+    if (attributes != null) {
+      if (this.attributes == null) {
+        this.attributes = new LinkedHashMap<>();
+      }
+      this.attributes.putAll(attributes);
+    }
+    return this;
+  }
+
+  /**
+   * Set route attribute.
+   *
+   * @param name Attribute name.
+   * @param value Attribute value.
+   * @return This method.
+   */
+  public RouteMethod attribute(String name, Object value) {
+    if (this.attributes == null) {
+      this.attributes = new LinkedHashMap<>();
+    }
+    this.attributes.put(name, value);
     return this;
   }
 

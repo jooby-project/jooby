@@ -229,10 +229,6 @@ class TypeJsonDeserializer extends JsonDeserializer<Type> {
     return null;
   }
 
-  static List<Type> parse(final ClassLoader loader, final String type) {
-    return parse(loader, type, 0);
-  }
-
   private static List<Type> parse(final ClassLoader loader, final String type, final int start) {
     List<Type> types = new ArrayList<>();
     StringBuilder singleType = new StringBuilder();

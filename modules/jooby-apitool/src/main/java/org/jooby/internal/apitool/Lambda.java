@@ -212,8 +212,6 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -232,6 +230,7 @@ class Lambda {
   public final String owner;
   public final String declaringClass;
   public final Optional<MethodNode> method;
+  public final String tag;
 
   private Lambda(String declaringClass, MethodInsnNode method, Handle h) {
     this(declaringClass, h.getOwner(), h.getDesc(), h.getName(), method.name, null, null);
@@ -239,6 +238,11 @@ class Lambda {
 
   private Lambda(String declaringClass, String owner, String desc, String implementationName,
       String name, String pattern, MethodNode method) {
+    this(declaringClass, owner, desc, implementationName, name, pattern, method, null);
+  }
+
+  private Lambda(String declaringClass, String owner, String desc, String implementationName,
+      String name, String pattern, MethodNode method, String tag) {
     this.declaringClass = declaringClass;
     this.owner = owner;
     this.desc = desc;
@@ -246,6 +250,7 @@ class Lambda {
     this.name = name.equals("use") || name.equals("all") ? "*" : name;
     this.pattern = pattern;
     this.method = Optional.ofNullable(method);
+    this.tag = tag;
   }
 
   @Override public String toString() {
@@ -260,7 +265,16 @@ class Lambda {
    */
   public Lambda prefix(String prefix) {
     return new Lambda(declaringClass, owner, desc, implementationName, name,
-        Route.normalize(prefix + "/" + pattern), method.orElse(null));
+        Route.normalize(prefix + "/" + pattern), method.orElse(null), tag);
+  }
+
+  public Lambda tag(String tag) {
+    if (this.tag != null || tag.startsWith("/:") || tag.startsWith("/{")) {
+      // NOOP, keep the most specific
+      return this;
+    }
+    return new Lambda(declaringClass, owner, desc, implementationName, name, pattern,
+        method.orElse(null), tag);
   }
 
   /**
@@ -270,7 +284,7 @@ class Lambda {
    * @return A new lambda.
    */
   public Lambda method(MethodNode method) {
-    return new Lambda(declaringClass, owner, desc, implementationName, name, pattern, method);
+    return new Lambda(declaringClass, owner, desc, implementationName, name, pattern, method, tag);
   }
 
   public static Stream<Lambda> create(String owner, Optional<String> prefix, MethodInsnNode method,
@@ -316,7 +330,7 @@ class Lambda {
                     .orElse(0));
                 int from = 0;
                 // use(verb, pattern)
-                if ("use" .equals(method.name) && count.get() == 2) {
+                if ("use".equals(method.name) && count.get() == 2) {
                   from += 1;
                 }
 

@@ -428,6 +428,9 @@ public class BytecodeRouteParser {
           }
           RouteMethod route = new RouteMethod(lambda.name, lambda.pattern,
               routeResponse).parameters(parameters);
+          if (lambda.tag != null) {
+            route.attribute("route.tag", lambda.tag);
+          }
           javadoc(route, javadoc.pop(lambda.declaringClass, lambda.name, lambda.pattern));
           methods.add(route);
         } else {
@@ -565,7 +568,7 @@ public class BytecodeRouteParser {
                                 .filter(Lambda.class::isInstance)
                                 .map(Lambda.class::cast)
                                 .forEach(lambda -> {
-                                  result.add(lambda.prefix(path));
+                                  result.add(lambda.prefix(path).tag(path));
                                 });
                           });
 
@@ -805,7 +808,7 @@ public class BytecodeRouteParser {
                                 .stream()
                                 .filter(Lambda.class::isInstance)
                                 .map(Lambda.class::cast)
-                                .map(lambda -> lambda.prefix(path))
+                                .map(lambda -> lambda.prefix(path).tag(path))
                                 .forEach(result::add);
                           });
                     });

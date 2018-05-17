@@ -207,9 +207,6 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import static com.google.common.base.CaseFormat.LOWER_CAMEL;
-import static com.google.common.base.CaseFormat.UPPER_CAMEL;
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.TypeLiteral;
@@ -247,24 +244,29 @@ import org.jooby.apitool.RouteResponse;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SwaggerBuilder {
-  private static final Pattern TAG = Pattern.compile("(api)|/");
-
   private static final Function<RouteMethod, String> TAG_PROVIDER = r -> {
-    Iterator<String> segments = Splitter.on(TAG)
-        .trimResults()
-        .omitEmptyStrings()
-        .split(r.pattern())
-        .iterator();
-    return segments.hasNext() ? segments.next() : r.pattern();
+    Map<String, Object> attributes = r.attributes();
+    if (attributes == null) {
+      return r.pattern();
+    }
+    return Stream
+        .of(attributes.get("tag"), attributes.get("swagger.tag"), attributes.get("route.tag"))
+        .filter(Objects::nonNull)
+        .findFirst()
+        .map(Objects::toString)
+        .map(path -> Stream.of(path.split("/")).reduce((head, tail) -> tail).orElse(r.pattern()))
+        .orElse(r.pattern());
   };
   private Function<RouteMethod, String> tagger = TAG_PROVIDER;
 
@@ -320,13 +322,7 @@ public class SwaggerBuilder {
     Function<String, Tag> tagFactory = value ->
         Optional.ofNullable(swagger.getTag(value))
             .orElseGet(() -> {
-              Tag tag = new Tag();
-              if (value.length() > 0) {
-                tag.name(Character.toUpperCase(value.charAt(0)) + value.substring(1));
-                swagger.addTag(tag);
-              } else {
-                tag.name(value);
-              }
+              Tag tag = new Tag().name(value);
               swagger.addTag(tag);
               return tag;
             });
@@ -352,6 +348,8 @@ public class SwaggerBuilder {
       return PropertyBuilder.toModel(PropertyBuilder.merge(property, args));
     };
 
+    Map<String, Integer> opIds = new HashMap<>();
+
     for (RouteMethod route : routes) {
       /** Find or create tag: */
       Tag tag = tagFactory.apply(this.tagger.apply(route));
@@ -364,13 +362,15 @@ public class SwaggerBuilder {
       /** Operation: */
       Operation op = new Operation();
       op.addTag(tag.getName());
-      op.operationId(route.name().orElseGet(
-          () -> route.method().toLowerCase() + tag.getName() + route.parameters().stream()
-              .filter(it -> route.method().equalsIgnoreCase("get")
-                  && it.kind() == RouteParameter.Kind.PATH)
-              .findFirst()
-              .map(it -> "By" + LOWER_CAMEL.to(UPPER_CAMEL, it.name()))
-              .orElse("")));
+      op.operationId(route.name().orElseGet(() -> {
+        String opId = route.method().toLowerCase() + ucase(tag.getName());
+        int c = opIds.getOrDefault(opId, 0);
+        opIds.put(opId, c + 1);
+        if (c == 0) {
+          return opId;
+        }
+        return opId + c;
+      }));
 
       /** Doc and summary: */
       route.description().ifPresent(description -> {
@@ -465,6 +465,10 @@ public class SwaggerBuilder {
       swagger.produces(produces);
     }
     return swagger;
+  }
+
+  private String ucase(String name) {
+    return Character.toUpperCase(name.charAt(0)) + name.substring(1);
   }
 
   /**

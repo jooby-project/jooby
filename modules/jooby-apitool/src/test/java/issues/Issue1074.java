@@ -27,7 +27,7 @@ public class Issue1074 {
           r.pattern("/");
           r.description(null);
           r.summary(null);
-          r.returns("String");
+          r.returns("java.lang.String");
           r.param(p -> {
             p.type("java.util.Optional<java.lang.Integer>");
             p.name("page");
@@ -67,7 +67,7 @@ public class Issue1074 {
         + "        format: \"int32\"\n"
         + "      responses:\n"
         + "        200:\n"
-        + "          description: \"String\"\n"
+        + "          description: \"java.lang.String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", Yaml
         .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder()

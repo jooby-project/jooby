@@ -39,7 +39,7 @@ public class Issue1073 {
         + "        format: \"date-time\"\n"
         + "      responses:\n"
         + "        200:\n"
-        + "          description: \"News\"\n"
+        + "          description: \"kt.News\"\n"
         + "          schema:\n"
         + "            $ref: \"#/definitions/News\"\n"
         + "definitions:\n"

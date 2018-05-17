@@ -1,10 +1,9 @@
 package issues;
 
 import io.swagger.util.Yaml;
-import kt.App1072;
+import kt.App1075;
 import org.jooby.apitool.ApiParser;
 import org.jooby.apitool.RouteMethod;
-import org.jooby.apitool.RouteMethodAssert;
 import org.jooby.internal.apitool.SwaggerBuilder;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -13,51 +12,48 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class Issue1072 {
+public class Issue1075 {
 
   @Test
-  public void shouldContainsSwaggerResponseDescription() throws Exception {
-    List<RouteMethod> routes = new ApiParser(dir()).parseFully(new App1072());
-    new RouteMethodAssert(routes)
-        .next(r -> {
-          r.returnType("kt.Person");
-          r.method("GET");
-          r.pattern("/");
-          r.description(null);
-          r.summary(null);
-          r.returns("kt.Person");
-        })
-        .done();
+  public void shouldGenerateUniqueOperationIds() throws Exception {
+    List<RouteMethod> routes = new ApiParser(dir()).parseFully(new App1075());
+
     assertEquals("---\n"
         + "swagger: \"2.0\"\n"
         + "tags:\n"
-        + "- name: \"/\"\n"
+        + "- name: \"orders\"\n"
+        + "- name: \"products\"\n"
         + "consumes:\n"
         + "- \"application/json\"\n"
         + "produces:\n"
         + "- \"application/json\"\n"
         + "paths:\n"
-        + "  /:\n"
+        + "  /v2/orders:\n"
         + "    get:\n"
         + "      tags:\n"
-        + "      - \"/\"\n"
-        + "      operationId: \"get/\"\n"
+        + "      - \"orders\"\n"
+        + "      operationId: \"getOrders\"\n"
         + "      parameters: []\n"
         + "      responses:\n"
         + "        200:\n"
-        + "          description: \"kt.Person\"\n"
+        + "          description: \"java.util.List<java.lang.String>\"\n"
         + "          schema:\n"
-        + "            $ref: \"#/definitions/Person\"\n"
-        + "definitions:\n"
-        + "  Person:\n"
-        + "    type: \"object\"\n"
-        + "    required:\n"
-        + "    - \"name\"\n"
-        + "    properties:\n"
-        + "      name:\n"
-        + "        type: \"string\"\n"
-        + "      firstname:\n"
-        + "        type: \"string\"\n", Yaml
+        + "            type: \"array\"\n"
+        + "            items:\n"
+        + "              type: \"string\"\n"
+        + "  /v2/products:\n"
+        + "    get:\n"
+        + "      tags:\n"
+        + "      - \"products\"\n"
+        + "      operationId: \"getProducts\"\n"
+        + "      parameters: []\n"
+        + "      responses:\n"
+        + "        200:\n"
+        + "          description: \"java.util.List<java.lang.String>\"\n"
+        + "          schema:\n"
+        + "            type: \"array\"\n"
+        + "            items:\n"
+        + "              type: \"string\"\n", Yaml
         .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder()
             .build(null, routes)));
   }
