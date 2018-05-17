@@ -435,7 +435,16 @@ public class BytecodeRouteParser {
         }
       }
     }
+    return typeAnalizer(methods);
+  }
+
+  private List<RouteMethod> typeAnalizer(List<RouteMethod> methods) {
+    methods.forEach(this::typeAnalizer);
     return methods;
+  }
+
+  private void typeAnalizer(RouteMethod route) {
+    route.parameters().forEach(p -> p.type());
   }
 
   private RouteMethod javadoc(final RouteMethod method, final Optional<DocItem> doc) {

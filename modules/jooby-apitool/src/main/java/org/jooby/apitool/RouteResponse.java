@@ -211,6 +211,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Represent a route response type.
@@ -262,7 +263,18 @@ public class RouteResponse {
    * @return Response description.
    */
   public Optional<String> description() {
-    return Optional.ofNullable(description);
+    if (description == null) {
+      String typename;
+      if (type instanceof Class) {
+        typename = ((Class) type).getCanonicalName();
+      } else {
+        typename = type.getTypeName();
+      }
+      return Stream.of(typename.split("\\."))
+          .filter(name -> name.length() > 0)
+          .reduce((it, next) -> next);
+    }
+    return Optional.of(description);
   }
 
   /**

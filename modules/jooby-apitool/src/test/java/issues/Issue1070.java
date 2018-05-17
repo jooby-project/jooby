@@ -128,7 +128,7 @@ public class Issue1070 {
             + "        \"parameters\" : [ ],\n"
             + "        \"responses\" : {\n"
             + "          \"200\" : {\n"
-            + "            \"description\" : \"200\",\n"
+            + "            \"description\" : \"String\",\n"
             + "            \"schema\" : {\n"
             + "              \"type\" : \"string\"\n"
             + "            }\n"

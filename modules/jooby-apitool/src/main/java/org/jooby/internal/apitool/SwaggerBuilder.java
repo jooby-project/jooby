@@ -203,6 +203,10 @@
  */
 package org.jooby.internal.apitool;
 
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import com.google.common.base.Splitter;
@@ -233,6 +237,7 @@ import io.swagger.models.properties.Property;
 import io.swagger.models.properties.PropertyBuilder;
 import io.swagger.models.properties.PropertyBuilder.PropertyId;
 import io.swagger.util.Json;
+import io.swagger.util.Yaml;
 import org.jooby.MediaType;
 import org.jooby.Upload;
 import org.jooby.apitool.RouteMethod;
@@ -259,7 +264,7 @@ public class SwaggerBuilder {
         .omitEmptyStrings()
         .split(r.pattern())
         .iterator();
-    return segments.hasNext() ? segments.next() : "";
+    return segments.hasNext() ? segments.next() : r.pattern();
   };
   private Function<RouteMethod, String> tagger = TAG_PROVIDER;
 
@@ -285,6 +290,19 @@ public class SwaggerBuilder {
         }
       }
     });
+    /** Kotlin module? */
+    try {
+      Module module = (Module) SwaggerBuilder.class.getClassLoader()
+          .loadClass("com.fasterxml.jackson.module.kotlin.KotlinModule").newInstance();
+      Json.mapper().registerModule(module);
+      Yaml.mapper().registerModule(module);
+    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException x) {
+      // Nop
+    }
+    /** Java8/Optional: */
+    Jdk8Module jdk8 = new Jdk8Module();
+    Json.mapper().registerModule(jdk8);
+    Yaml.mapper().registerModule(jdk8);
   }
 
   public SwaggerBuilder() {
@@ -305,6 +323,7 @@ public class SwaggerBuilder {
               Tag tag = new Tag();
               if (value.length() > 0) {
                 tag.name(Character.toUpperCase(value.charAt(0)) + value.substring(1));
+                swagger.addTag(tag);
               } else {
                 tag.name(value);
               }
@@ -324,12 +343,12 @@ public class SwaggerBuilder {
     ModelConverters converter = ModelConverters.getInstance();
     /** Model factory: */
     Function<Type, Model> modelFactory = type -> {
-      Property property = converter.readAsProperty(type);
-
-      Map<PropertyId, Object> args = new EnumMap<>(PropertyId.class);
       for (Map.Entry<String, Model> entry : converter.readAll(type).entrySet()) {
-        swagger.addDefinition(entry.getKey(), entry.getValue());
+        swagger.addDefinition(entry.getKey(), doModel(type, entry.getValue()));
       }
+      // reference:
+      Property property = converter.readAsProperty(type);
+      Map<PropertyId, Object> args = new EnumMap<>(PropertyId.class);
       return PropertyBuilder.toModel(PropertyBuilder.merge(property, args));
     };
 
@@ -413,7 +432,8 @@ public class SwaggerBuilder {
       Map<Integer, String> status = returns.status();
       Integer statusCode = returns.statusCode();
       Response response = new Response();
-      String doc = returns.description().orElse(status.getOrDefault(statusCode, statusCode.toString()));
+      String doc = returns.description()
+          .orElse(status.getOrDefault(statusCode, statusCode.toString()));
       response.description(doc);
       if (!"void".equals(returns.type().getTypeName())) {
         // make sure type definition gets in
@@ -445,6 +465,28 @@ public class SwaggerBuilder {
       swagger.produces(produces);
     }
     return swagger;
+  }
+
+  /**
+   * Mostly for kotlin null safe operator and immutable properties.
+   *
+   * @param type Target type.
+   * @param model Model.
+   * @return Input model.
+   */
+  private Model doModel(Type type, Model model) {
+    Map<String, Property> properties = model.getProperties();
+    if (properties != null) {
+      BeanDescription desc = Json.mapper().getSerializationConfig()
+          .introspect(Json.mapper().constructType(type));
+      for (BeanPropertyDefinition beanProperty : desc.findProperties()) {
+        Property property = properties.get(beanProperty.getName());
+        if (property != null) {
+          property.setRequired(beanProperty.isRequired());
+        }
+      }
+    }
+    return model;
   }
 
   private SerializableParameter complement(Property property, RouteParameter source,
