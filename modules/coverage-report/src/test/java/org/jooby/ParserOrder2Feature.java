@@ -1,15 +1,13 @@
 package org.jooby;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Set;
-
-import org.jooby.test.ServerFeature;
-import org.junit.Test;
-
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
+import org.jooby.test.ServerFeature;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+
+import java.util.Set;
 
 public class ParserOrder2Feature extends ServerFeature {
 
@@ -39,7 +37,7 @@ public class ParserOrder2Feature extends ServerFeature {
       @Override
       public Object parse(final TypeLiteral<?> type, final Context ctx) throws Throwable {
         assertEquals(
-            "[Basic, Collection, Optional, Enum, byte[], p2, p1, p3, Date, LocalDate, Locale, valueOf(String), fromString(String), forName(String), init(String), bean]",
+            "[Basic, Collection, Optional, Enum, byte[], p2, p1, p3, Date, LocalDate, ZonedDateTime, Locale, valueOf(String), fromString(String), forName(String), init(String), bean]",
             ctx.toString());
         return ctx.next();
       }
@@ -74,6 +72,6 @@ public class ParserOrder2Feature extends ServerFeature {
     request()
         .get("/parser/order")
         .expect(
-            "[Basic, Collection, Optional, Enum, byte[], p2, p1, p3, Date, LocalDate, Locale, valueOf(String), fromString(String), forName(String), init(String), bean]");
+            "[Basic, Collection, Optional, Enum, byte[], p2, p1, p3, Date, LocalDate, ZonedDateTime, Locale, valueOf(String), fromString(String), forName(String), init(String), bean]");
   }
 }

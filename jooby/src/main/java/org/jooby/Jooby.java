@@ -274,6 +274,7 @@ import org.jooby.internal.parser.LocaleParser;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.internal.parser.StaticMethodParser;
 import org.jooby.internal.parser.StringConstructorParser;
+import org.jooby.internal.parser.ZonedDateTimeParser;
 import org.jooby.internal.ssl.SslContextProvider;
 import org.jooby.mvc.Consumes;
 import org.jooby.mvc.Produces;
@@ -2772,6 +2773,8 @@ public class Jooby implements Router, LifeCycle, Registry {
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter
         .ofPattern(dateFormat, locales.get(0))
         .withZone(zoneId);
+    DateTimeFormatter zonedDateTimeFormat = DateTimeFormatter
+        .ofPattern(conf.getString("application.zonedDateTimeFormat"));
 
     DecimalFormat numberFormat = new DecimalFormat(conf.getString("application.numberFormat"));
 
@@ -2922,6 +2925,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
       parsers.addBinding().toInstance(new DateParser(dateFormat));
       parsers.addBinding().toInstance(new LocalDateParser(dateTimeFormatter));
+      parsers.addBinding().toInstance(new ZonedDateTimeParser(zonedDateTimeFormat));
       parsers.addBinding().toInstance(new LocaleParser());
       parsers.addBinding().toInstance(new StaticMethodParser("valueOf"));
       parsers.addBinding().toInstance(new StaticMethodParser("fromString"));

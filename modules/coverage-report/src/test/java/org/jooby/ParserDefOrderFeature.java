@@ -1,12 +1,11 @@
 package org.jooby;
 
-import java.util.Set;
-
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
+import java.util.Set;
 
 public class ParserDefOrderFeature extends ServerFeature {
 
@@ -23,6 +22,6 @@ public class ParserDefOrderFeature extends ServerFeature {
   public void order() throws Exception {
     request()
         .get("/parser/order")
-        .expect("[Basic, Collection, Optional, Enum, byte[], Date, LocalDate, Locale, valueOf(String), fromString(String), forName(String), init(String), bean]");
+        .expect("[Basic, Collection, Optional, Enum, byte[], Date, LocalDate, ZonedDateTime, Locale, valueOf(String), fromString(String), forName(String), init(String), bean]");
   }
 }

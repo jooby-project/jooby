@@ -49,6 +49,7 @@ import org.jooby.internal.parser.LocaleParser;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.internal.parser.StaticMethodParser;
 import org.jooby.internal.parser.StringConstructorParser;
+import org.jooby.internal.parser.ZonedDateTimeParser;
 import org.jooby.internal.ssl.SslContextProvider;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.POST;
@@ -472,6 +473,7 @@ public class JoobyTest {
     Class[] parserClasses = {
         DateParser.class,
         LocalDateParser.class,
+        ZonedDateTimeParser.class,
         LocaleParser.class,
         StaticMethodParser.class,
         StaticMethodParser.class,
@@ -2617,6 +2619,7 @@ public class JoobyTest {
           Class[] parserClasses = {
               DateParser.class,
               LocalDateParser.class,
+              ZonedDateTimeParser.class,
               LocaleParser.class,
               StaticMethodParser.class,
               StaticMethodParser.class,
