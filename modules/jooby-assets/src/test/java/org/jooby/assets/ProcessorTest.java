@@ -17,8 +17,8 @@ public class ProcessorTest extends AssetProcessor {
   }
 
   @Override
-  public String process(final String filename, final String source, final Config conf)
-      throws Exception {
+  public String process(final String filename, final String source, final Config conf,
+      final ClassLoader loader) throws Exception {
     return name() + ":" + source;
   }
 

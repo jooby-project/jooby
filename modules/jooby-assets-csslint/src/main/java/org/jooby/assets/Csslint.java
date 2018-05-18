@@ -206,6 +206,7 @@ package org.jooby.assets;
 import org.jooby.MediaType;
 
 import com.typesafe.config.Config;
+
 /**
  * <h1>csslint</h1>
  * <p>
@@ -238,8 +239,8 @@ public class Csslint extends AssetProcessor {
   }
 
   @Override
-  public String process(final String filename, final String source, final Config conf)
-      throws Exception {
+  public String process(final String filename, final String source, final Config conf,
+      final ClassLoader loader) throws Exception {
     return engine(V8Engine.class)
         .execute("csslint.js", source, options(), filename);
   }

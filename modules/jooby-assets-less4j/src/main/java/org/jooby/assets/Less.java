@@ -203,14 +203,6 @@
  */
 package org.jooby.assets;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.jooby.MediaType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.sommeri.less4j.Less4jException;
 import com.github.sommeri.less4j.LessCompiler;
 import com.github.sommeri.less4j.LessCompiler.CompilationResult;
@@ -219,6 +211,13 @@ import com.github.sommeri.less4j.LessCompiler.SourceMapConfiguration;
 import com.github.sommeri.less4j.LessSource;
 import com.github.sommeri.less4j.core.ThreadUnsafeLessCompiler;
 import com.typesafe.config.Config;
+import org.jooby.MediaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <h1>less4j</h1>
@@ -285,8 +284,8 @@ public class Less extends AssetProcessor {
   }
 
   @Override
-  public String process(final String filename, final String source, final Config conf)
-      throws Exception {
+  public String process(final String filename, final String source, final Config conf,
+      final ClassLoader loader) throws Exception {
     String path = filename;
     try {
       LessCompiler compiler = new ThreadUnsafeLessCompiler();

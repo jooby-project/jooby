@@ -257,8 +257,8 @@ public class CleanCss extends AssetProcessor {
   }
 
   @Override
-  public String process(final String filename, final String source, final Config conf)
-      throws Exception {
+  public String process(final String filename, final String source, final Config conf,
+      final ClassLoader loader) throws Exception {
     return engine(V8Engine.class)
         .execute("clean-css.js", source, options(), filename);
   }

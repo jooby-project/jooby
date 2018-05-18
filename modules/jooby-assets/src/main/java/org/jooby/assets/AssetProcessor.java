@@ -350,7 +350,9 @@ public abstract class AssetProcessor extends AssetOptions {
    * @return the processed file contents
    * @throws Exception if any error occurred
    */
-  public abstract String process(String filename, String source, Config conf) throws Exception;
+  public String process(String filename, String source, Config conf) throws Exception {
+    return process(filename, source, conf, getClass().getClassLoader());
+  }
   
   /**
    * Method that processes the provided source and returns the processed contents, with access to the ClassLoader.
@@ -362,9 +364,7 @@ public abstract class AssetProcessor extends AssetOptions {
    * @return the processed file contents
    * @throws Exception if any error occurred
    */
-  public String process(String filename, String source, Config conf, ClassLoader loader) throws Exception {
-    return process(filename, source, conf);
-  }
+  public abstract String process(String filename, String source, Config conf, ClassLoader loader) throws Exception;
 
   /**
    * This method is executed by the {@link AssetCompiler} at processor creation time.

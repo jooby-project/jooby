@@ -340,8 +340,8 @@ public class Rollup extends AssetProcessor {
   }
 
   @Override
-  public String process(final String filename, final String source, final Config conf)
-      throws Exception {
+  public String process(final String filename, final String source, final Config conf,
+      final ClassLoader loader) throws Exception {
     V8Engine engine = engine(V8Engine.class, "window");
     V8 v8 = engine.v8;
 

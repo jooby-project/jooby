@@ -280,8 +280,8 @@ public class ClosureCompiler extends AssetProcessor {
   }
 
   @Override
-  public String process(final String filename, final String source, final Config conf)
-      throws Exception {
+  public String process(final String filename, final String source, final Config conf,
+      final ClassLoader loader) throws Exception {
     final CompilerOptions copts = new CompilerOptions();
     copts.setCodingConvention(new ClosureCodingConvention());
     copts.setOutputCharset(StandardCharsets.UTF_8);

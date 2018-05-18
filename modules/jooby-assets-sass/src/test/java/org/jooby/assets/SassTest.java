@@ -12,7 +12,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class JSassTest {
+public class SassTest {
 
   @Test
   public void name() throws Exception {
@@ -154,7 +154,7 @@ public class JSassTest {
   public void importDirectiveFromDir() throws Exception {
     Sass sass = new Sass();
     // manually create a URLClassLoader that points to the resources directory, normally handled by the AssetClassLoader class
-    Path dirPath = Paths.get(JSassTest.class.getResource("/relative/nested/bar.scss").toURI()).getParent();
+    Path dirPath = Paths.get(SassTest.class.getResource("/relative/nested/bar.scss").toURI()).getParent();
     ClassLoader classLoader = new URLClassLoader(new URL[]{dirPath.toUri().toURL()});
     String result = sass.process("/styles.scss",
         "@import 'bar';\n\n" +

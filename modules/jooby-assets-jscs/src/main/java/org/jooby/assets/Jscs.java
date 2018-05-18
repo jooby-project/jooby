@@ -252,17 +252,14 @@ import com.typesafe.config.Config;
  */
 public class Jscs extends AssetProcessor {
 
-  public Jscs() {
-  }
-
   @Override
   public boolean matches(final MediaType type) {
     return MediaType.js.matches(type);
   }
 
   @Override
-  public String process(final String filename, final String source, final Config conf)
-      throws Exception {
+  public String process(final String filename, final String source, final Config conf,
+      final ClassLoader loader) throws Exception {
     return engine(V8Engine.class, "global")
         .execute("jscs.js", source, options(), filename);
   }

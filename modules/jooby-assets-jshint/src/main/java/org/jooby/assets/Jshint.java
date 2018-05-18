@@ -284,8 +284,8 @@ public class Jshint extends AssetProcessor {
 
   @SuppressWarnings("unchecked")
   @Override
-  public String process(final String filename, final String source, final Config conf)
-      throws Exception {
+  public String process(final String filename, final String source, final Config conf,
+      final ClassLoader loader) throws Exception {
     Map<String, Object> options = new LinkedHashMap<>(options());
     Map<String, Object> predef = (Map<String, Object>) options.remove("predef");
     options.remove("excludes");

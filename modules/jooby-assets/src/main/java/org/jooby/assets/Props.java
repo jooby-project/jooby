@@ -203,16 +203,15 @@
  */
 package org.jooby.assets;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.typesafe.config.Config;
 import org.jooby.Env;
 import org.jooby.Env.Resolver;
 import org.jooby.MediaType;
 
-import com.typesafe.config.Config;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <h1>props</h1>
@@ -274,8 +273,8 @@ public class Props extends AssetProcessor {
   }
 
   @Override
-  public String process(final String filename, final String source, final Config conf)
-      throws Exception {
+  public String process(final String filename, final String source, final Config conf,
+      final ClassLoader loader) throws Exception {
     try {
       Env env = Env.DEFAULT.build(conf);
       List<String> delims = get("delims");

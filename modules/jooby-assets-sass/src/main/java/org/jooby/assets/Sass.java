@@ -280,7 +280,7 @@ import java.util.stream.Collectors;
  * @since 0.11.0
  */
 public class Sass extends AssetProcessor {
-  
+
   static class SassImporter implements Importer {
 
     private String ext;
@@ -330,45 +330,24 @@ public class Sass extends AssetProcessor {
   }
 
   static final Pattern LOCATION = Pattern.compile("\"(.+?)\":\\s+(\\d+)");
-  
+
   private static final Function<String, URI> FS = it -> {
     File file = new File(it);
     return file.exists() ? file.toURI() : null;
   };
-  
+
   /**
    * Function that wraps a ClassLoader in a function that takes a filename and returns a URI.
    */
   private static final Function<ClassLoader, Function<String, URI>> CP = classLoader -> filename -> {
-    URL resource;
-    if(classLoader == null) {
-      resource = Sass.class.getResource(filename);
-    } else {
-      // strip the first backslash to support relative paths, similar to the behavior of Class.getResource(name)
-      if(filename.startsWith("/")) {
-        filename = filename.substring(1);
-      }
-      resource = classLoader.getResource(filename);
+    // strip the first backslash to support relative paths, similar to the behavior of Class.getResource(name)
+    if (filename.startsWith("/")) {
+      filename = filename.substring(1);
     }
+    URL resource = classLoader.getResource(filename);
     return resource == null ? null : Try.apply(resource::toURI).get();
   };
-  
-  private static Function<String, URI> createClasspathFunction(ClassLoader classLoader) {
-    return filename -> {
-      // strip the first backslash to support relative paths, similar to the behavior of Class.getResource(name)
-      if(filename.startsWith("/")) {
-        filename = filename.substring(1);
-      }
-      URL resource;
-      if(classLoader == null) {
-        resource = Sass.class.getResource(filename);
-      } else {
-        resource = classLoader.getResource(filename);
-      }
-      return resource == null ? null : Try.apply(resource::toURI).get();
-    };
-  }
-  
+
   public Sass() {
     set("syntax", "scss");
     set("style", "nested");
@@ -384,19 +363,14 @@ public class Sass extends AssetProcessor {
   public boolean matches(final MediaType type) {
     return MediaType.css.matches(type);
   }
-  
+
   @Override
-  public String process(String filename, String source, Config conf) throws Exception {
-    return process(filename, source, conf, null);
-  }
-  
-  @Override
-  public String process(final String filename, final String source, final Config conf, final ClassLoader loader)
-      throws Exception {
+  public String process(final String filename, final String source, final Config conf,
+      final ClassLoader loader) throws Exception {
     String syntax = get("syntax");
     String importer = get("importer").toString().toUpperCase();
     Function<String, URI> resolver;
-    if("FILE".equals(importer)) {
+    if ("FILE".equals(importer)) {
       resolver = FS;
     } else {
       resolver = CP.apply(loader);
