@@ -203,9 +203,9 @@
  */
 package org.jooby.json;
 
-import org.jooby.MediaType;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jooby.MediaType;
+import org.jooby.Renderer;
 
 class JacksonRawRenderer extends JacksonRenderer {
 
@@ -214,7 +214,7 @@ class JacksonRawRenderer extends JacksonRenderer {
   }
 
   @Override
-  protected void renderValue(final Object value, final Context ctx) throws Exception {
+  protected void renderValue(final Object value, final Renderer.Context ctx) throws Exception {
     if (value instanceof CharSequence) {
       ctx.send(value.toString());
     } else {

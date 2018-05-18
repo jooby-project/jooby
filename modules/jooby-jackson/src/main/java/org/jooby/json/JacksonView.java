@@ -203,13 +203,38 @@
  */
 package org.jooby.json;
 
-public class JacksonView {
+/**
+ * Dynamic jackson view support. Usage:
+ *
+ * <pre>{@code
+ *
+ * {
+ *   use(new Jackson());
+ *
+ *   get("/public", req -> {
+ *     Item item = ...;
+ *     return new JacksonView<Item>(Views.Public.class, item);
+ *   });
+ * }
+ *
+ * }</pre>
+ */
+public class JacksonView<T> {
 
-	public final Class view;
-	public final Object data;
+  /** View/projection class. */
+  public final Class view;
 
-	public JacksonView(final Class view, final Object data) {
-		this.view = view;
-		this.data = data;
-	}
+  /** Data/payload. */
+  public final T data;
+
+  /**
+   * Creates a new jackson view.
+   *
+   * @param view View/projection class.
+   * @param data Data/payload.
+   */
+  public JacksonView(final Class view, final T data) {
+    this.view = view;
+    this.data = data;
+  }
 }

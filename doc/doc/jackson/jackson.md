@@ -37,7 +37,27 @@ import org.jooby.json.Jackson;
 }
 ```
 
-### advanced configuration
+## views
+
+Dynamic views are supported via `org.jooby.json.JacksonView` object:
+
+```java
+{
+  use(new Jackson());
+  
+  get("/public", req -> {
+    Item item = ...
+    return new JacksonView<>(Views.Public.class, item);
+  });
+  
+  get("/internal", req -> {
+    Item item = ...
+    return new JacksonView<>(Views.Internal.class, item);
+  });
+}
+```
+
+## advanced configuration
 
 If you need a special setting or configuration for your [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2.2.0/com/fasterxml/jackson/databind/ObjectMapper.html):
 

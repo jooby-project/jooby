@@ -203,25 +203,6 @@
  */
 package org.jooby.json;
 
-import static java.util.Objects.requireNonNull;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.function.Consumer;
-
-import javax.inject.Inject;
-
-import org.jooby.Env;
-import org.jooby.Jooby;
-import org.jooby.MediaType;
-import org.jooby.Parser;
-import org.jooby.Renderer;
-
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -232,6 +213,22 @@ import com.google.inject.Key;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
+import static java.util.Objects.requireNonNull;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.MediaType;
+import org.jooby.Parser;
+import org.jooby.Renderer;
+
+import javax.inject.Inject;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.function.Consumer;
 
 /**
  * <h1>jackson</h1>
@@ -264,6 +261,25 @@ import com.typesafe.config.Config;
  *   });
  * }
  * </pre>
+ *
+ * <h2>views</h2>
+ * <p>Dynamic views are supported via {@link JacksonView}:</p>
+ *
+ * <pre>{@code
+ * {
+ *   use(new Jackson());
+ *
+ *   get("/public", req -> {
+ *     Item item = ...;
+ *     return new JacksonView<>(Views.Public.class, item);
+ *   });
+ *
+ *   get("/public", req -> {
+ *     Item item = ...;
+ *     return new JacksonView<>(Views.Internal.class, item);
+ *   });
+ * }
+ * }</pre>
  *
  * <h2>advanced configuration</h2>
  * <p>
@@ -462,7 +478,6 @@ public class Jackson implements Jooby.Module {
     // direct access?
     binder.bind(Key.get(Renderer.class, Names.named(renderer.toString()))).toInstance(renderer);
     binder.bind(Key.get(Parser.class, Names.named(parser.toString()))).toInstance(parser);
-
   }
 
 }
