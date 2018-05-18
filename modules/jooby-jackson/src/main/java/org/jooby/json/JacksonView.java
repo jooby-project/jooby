@@ -203,33 +203,13 @@
  */
 package org.jooby.json;
 
-import org.jooby.MediaType;
+public class JacksonView {
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+	public final Class view;
+	public final Object data;
 
-class JacksonRenderer extends JacksonBaseRenderer {
-
-  public JacksonRenderer(final ObjectMapper mapper, final MediaType type) {
-    super(mapper, type);
-  }
-
-  @Override
-  protected void renderValue(final Object value, final Context ctx) throws Exception {
-    // use UTF-8 and get byte version
-    final byte[] bytes;
-
-    if (value instanceof JacksonView) {
-      final JacksonView viewResponse = (JacksonView) value;
-
-      bytes = mapper
-              .writerWithView(viewResponse.view)
-              .writeValueAsBytes(viewResponse.data);
-    } else {
-      bytes = mapper.writeValueAsBytes(value);
-    }
-
-    ctx.length(bytes.length)
-        .send(bytes);
-  }
-
+	public JacksonView(final Class view, final Object data) {
+		this.view = view;
+		this.data = data;
+	}
 }
