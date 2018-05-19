@@ -203,18 +203,16 @@
  */
 package org.jooby.assets;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.List;
-import java.util.Map;
-
-import org.jooby.Route;
-import org.jooby.internal.RoutePattern;
-
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+import static java.util.Objects.requireNonNull;
+import org.jooby.Route;
+import org.jooby.internal.RoutePattern;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Base class for {@link AssetProcessor} and {@link AssetAggregator}.
@@ -224,7 +222,7 @@ import com.typesafe.config.ConfigValueFactory;
  */
 public class AssetOptions {
 
-  private Config options = ConfigFactory.empty();
+  protected Config options = ConfigFactory.empty();
 
   public AssetOptions set(final String name, final Object value) {
     requireNonNull(name, "Option's name is required.");
