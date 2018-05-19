@@ -20,9 +20,9 @@
   };
 
   /**
-   * Source: https://github.com/babel/babel-standalone
+   * Source: https://github.com/babel/babel/tree/master/packages/babel-standalone
    */
-  assets.load('lib/babel-6.24.0.min.js');
+  assets.load('lib/babel-6.26.0.min.js');
 
   try {
     var result = Babel.transform(source, options);
