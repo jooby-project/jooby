@@ -210,6 +210,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.TypeLiteral;
+import com.google.inject.internal.MoreTypes;
 import io.swagger.converter.ModelConverter;
 import io.swagger.converter.ModelConverterContext;
 import io.swagger.converter.ModelConverters;
@@ -233,6 +234,7 @@ import io.swagger.models.properties.FileProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.PropertyBuilder;
 import io.swagger.models.properties.PropertyBuilder.PropertyId;
+import io.swagger.models.properties.RefProperty;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
 import org.jooby.MediaType;
@@ -243,6 +245,7 @@ import org.jooby.apitool.RouteResponse;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -251,6 +254,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -389,7 +393,7 @@ public class SwaggerBuilder {
       route.produces().forEach(op::addProduces);
 
       /** Parameters: */
-      route.parameters().stream().map(it -> {
+      route.parameters().stream().flatMap(it -> {
         Type type = it.type();
         final Property property = converter.readAsProperty(type);
         Parameter parameter = it.accept(new RouteParameter.Visitor<Parameter>() {
@@ -419,12 +423,19 @@ public class SwaggerBuilder {
         });
         if (it.kind() == RouteParameter.Kind.FILE) {
           op.setConsumes(ImmutableList.of(MediaType.multipart.name()));
+        } else if (it.kind() == RouteParameter.Kind.FORM) {
+          op.setConsumes(ImmutableList.of(MediaType.form.name(), MediaType.multipart.name()));
         }
-        parameter.setName(it.name());
-        parameter.setRequired(!it.optional());
-        parameter.setDescription(property.getDescription());
-        it.description().ifPresent(parameter::setDescription);
-        return parameter;
+        if (property instanceof RefProperty) {
+          return expandParameter(converter, it, it.type(), it.optional())
+              .stream();
+        } else {
+          parameter.setName(it.name());
+          parameter.setRequired(!it.optional());
+          parameter.setDescription(property.getDescription());
+          it.description().ifPresent(parameter::setDescription);
+          return Stream.of(parameter);
+        }
       }).forEach(op::addParameter);
 
       /** Response: */
@@ -465,6 +476,45 @@ public class SwaggerBuilder {
       swagger.produces(produces);
     }
     return swagger;
+  }
+
+  private List<Parameter> expandParameter(ModelConverters converter, RouteParameter it,
+      Type type, boolean optional) {
+    Supplier<SerializableParameter> factory =
+        it.kind() == RouteParameter.Kind.FORM ? FormParameter::new : QueryParameter::new;
+    return expandParameter(converter.readAll(type), it, factory, simpleClassName(type), "",
+        optional);
+  }
+
+  private List<Parameter> expandParameter(Map<String, Model> models, RouteParameter it,
+      Supplier<SerializableParameter> factory, String typeName, String prefix, boolean optional) {
+    List<Parameter> parameters = new ArrayList<>();
+    Model model = models.get(typeName);
+    Map<String, Property> properties = model.getProperties();
+    properties.values().stream()
+        .flatMap(p -> {
+          SerializableParameter result = complement(p, it, factory.get());
+          String name = prefix + p.getName();
+          if (p instanceof RefProperty) {
+            return expandParameter(models, it, factory, ((RefProperty) p).getSimpleRef(),
+                name + ".", optional).stream();
+          } else {
+            result.setName(name);
+            if (optional) {
+              result.setRequired(false);
+            } else {
+              result.setRequired(p.getRequired());
+            }
+            result.setDescription(p.getDescription());
+            return Stream.of(result);
+          }
+        })
+        .forEach(parameters::add);
+    return parameters;
+  }
+
+  private String simpleClassName(Type type) {
+    return MoreTypes.getRawType(type).getSimpleName();
   }
 
   private String ucase(String name) {

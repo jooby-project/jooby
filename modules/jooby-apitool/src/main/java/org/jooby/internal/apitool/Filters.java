@@ -411,6 +411,7 @@ class Filters {
         case "header":
         case "file":
         case "files":
+        case "params":
         case "form":
           return args.test(m);
         case "body":

@@ -823,7 +823,7 @@ public class BytecodeRouteParser {
 
     new Insns(lambda)
         .on(param(loader), it -> {
-          String name = parameterName(loader, it.method, it.node)
+          String name = parameterName(it.node)
               .orElse("arg" + result.size());
 
           AbstractInsnNode next = it.node.getNext();
@@ -1037,9 +1037,8 @@ public class BytecodeRouteParser {
     return Object.class;
   }
 
-  private Optional<String> parameterName(final ClassLoader loader, final MethodNode method,
-      final MethodInsnNode node) {
-    if (node.name.equals("body") || node.name.equals("form")) {
+  private Optional<String> parameterName(final MethodInsnNode node) {
+    if (node.name.equals("body") || node.name.equals("form") || node.name.equals("params")) {
       return Optional.of(node.name);
     }
 

@@ -1,0 +1,321 @@
+package issues;
+
+import apps.App1096;
+import apps.App1096b;
+import apps.App1096c;
+import apps.App1096d;
+import apps.Form1096;
+import apps.Param1096;
+import io.swagger.util.Yaml;
+import org.jooby.apitool.ApiParser;
+import org.jooby.apitool.RouteMethod;
+import org.jooby.apitool.RouteMethodAssert;
+import org.jooby.apitool.RouteParameter;
+import org.jooby.internal.apitool.SwaggerBuilder;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
+public class Issue1096 {
+
+  @Test
+  public void shouldExpandQueryBean() throws Exception {
+    List<RouteMethod> routes = new ApiParser(dir()).parseFully(new App1096b());
+
+    new RouteMethodAssert(routes)
+        .next(r -> {
+          r.returnType(String.class);
+          r.method("GET");
+          r.pattern("/1096/search");
+          r.description(null);
+          r.summary(null);
+          r.returns("java.lang.String");
+          r.param(p -> {
+            p.type(Param1096.class);
+            p.name("params");
+            p.kind(RouteParameter.Kind.QUERY);
+          });
+        })
+        .done();
+
+    assertEquals("---\n"
+        + "swagger: \"2.0\"\n"
+        + "tags:\n"
+        + "- name: \"1096\"\n"
+        + "consumes:\n"
+        + "- \"application/json\"\n"
+        + "produces:\n"
+        + "- \"application/json\"\n"
+        + "paths:\n"
+        + "  /1096/search:\n"
+        + "    get:\n"
+        + "      tags:\n"
+        + "      - \"1096\"\n"
+        + "      operationId: \"get1096\"\n"
+        + "      parameters:\n"
+        + "      - name: \"param1\"\n"
+        + "        in: \"query\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"param2\"\n"
+        + "        in: \"query\"\n"
+        + "        required: false\n"
+        + "        type: \"integer\"\n"
+        + "        format: \"int32\"\n"
+        + "      - name: \"param3\"\n"
+        + "        in: \"query\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"param4\"\n"
+        + "        in: \"query\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"param5\"\n"
+        + "        in: \"query\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"nested.nested1\"\n"
+        + "        in: \"query\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      responses:\n"
+        + "        200:\n"
+        + "          description: \"java.lang.String\"\n"
+        + "          schema:\n"
+        + "            type: \"string\"\n", Yaml
+        .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder()
+            .build(null, routes)));
+  }
+
+  @Test
+  public void shouldExpandForm() throws Exception {
+    List<RouteMethod> routes = new ApiParser(dir()).parseFully(new App1096c());
+
+    new RouteMethodAssert(routes)
+        .next(r -> {
+          r.returnType(String.class);
+          r.method("POST");
+          r.pattern("/1096/form");
+          r.description(null);
+          r.summary(null);
+          r.returns("java.lang.String");
+          r.param(p -> {
+            p.type(Form1096.class);
+            p.name("form");
+            p.kind(RouteParameter.Kind.FORM);
+          });
+        })
+        .done();
+
+    assertEquals("---\n"
+        + "swagger: \"2.0\"\n"
+        + "tags:\n"
+        + "- name: \"1096\"\n"
+        + "consumes:\n"
+        + "- \"application/json\"\n"
+        + "produces:\n"
+        + "- \"application/json\"\n"
+        + "paths:\n"
+        + "  /1096/form:\n"
+        + "    post:\n"
+        + "      tags:\n"
+        + "      - \"1096\"\n"
+        + "      operationId: \"post1096\"\n"
+        + "      consumes:\n"
+        + "      - \"application/x-www-form-urlencoded\"\n"
+        + "      - \"multipart/form-data\"\n"
+        + "      parameters:\n"
+        + "      - name: \"param1\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"param2\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"integer\"\n"
+        + "        format: \"int32\"\n"
+        + "      - name: \"param3\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"param4\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"param5\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"nested.nested1\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"file\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"file\"\n"
+        + "      responses:\n"
+        + "        200:\n"
+        + "          description: \"java.lang.String\"\n"
+        + "          schema:\n"
+        + "            type: \"string\"\n", Yaml
+        .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder()
+            .build(null, routes)));
+  }
+
+  @Test
+  public void shouldExpandFormMvc() throws Exception {
+    List<RouteMethod> routes = new ApiParser(dir()).parseFully(new App1096d());
+
+    new RouteMethodAssert(routes)
+        .next(r -> {
+          r.returnType(String.class);
+          r.method("POST");
+          r.pattern("/1096/mvc/form");
+          r.description(null);
+          r.summary(null);
+          r.returns("java.lang.String");
+          r.param(p -> {
+            p.type(Form1096.class);
+            p.name("form");
+            p.kind(RouteParameter.Kind.FORM);
+          });
+        })
+        .done();
+
+    assertEquals("---\n"
+        + "swagger: \"2.0\"\n"
+        + "tags:\n"
+        + "- name: \"/1096/mvc/form\"\n"
+        + "consumes:\n"
+        + "- \"application/json\"\n"
+        + "produces:\n"
+        + "- \"application/json\"\n"
+        + "paths:\n"
+        + "  /1096/mvc/form:\n"
+        + "    post:\n"
+        + "      tags:\n"
+        + "      - \"/1096/mvc/form\"\n"
+        + "      operationId: \"/Route1096d.myApi\"\n"
+        + "      consumes:\n"
+        + "      - \"application/x-www-form-urlencoded\"\n"
+        + "      - \"multipart/form-data\"\n"
+        + "      parameters:\n"
+        + "      - name: \"param1\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"param2\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"integer\"\n"
+        + "        format: \"int32\"\n"
+        + "      - name: \"param3\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"param4\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"param5\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"nested.nested1\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"file\"\n"
+        + "        in: \"formData\"\n"
+        + "        required: false\n"
+        + "        type: \"file\"\n"
+        + "      responses:\n"
+        + "        200:\n"
+        + "          description: \"java.lang.String\"\n"
+        + "          schema:\n"
+        + "            type: \"string\"\n", Yaml
+        .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder()
+            .build(null, routes)));
+  }
+
+  @Test
+  public void shouldExpandQueryBeanFromMvc() throws Exception {
+    List<RouteMethod> routes = new ApiParser(dir()).parseFully(new App1096());
+
+    new RouteMethodAssert(routes)
+        .next(r -> {
+          r.returnType(String.class);
+          r.method("GET");
+          r.pattern("/");
+          r.description(null);
+          r.summary(null);
+          r.returns("java.lang.String");
+          r.param(p -> {
+            p.type(Param1096.class);
+            p.name("params");
+            p.kind(RouteParameter.Kind.QUERY);
+          });
+        })
+        .done();
+
+    assertEquals("---\n"
+        + "swagger: \"2.0\"\n"
+        + "tags:\n"
+        + "- name: \"/\"\n"
+        + "consumes:\n"
+        + "- \"application/json\"\n"
+        + "produces:\n"
+        + "- \"application/json\"\n"
+        + "paths:\n"
+        + "  /:\n"
+        + "    get:\n"
+        + "      tags:\n"
+        + "      - \"/\"\n"
+        + "      operationId: \"/Route1096.myApi\"\n"
+        + "      parameters:\n"
+        + "      - name: \"param1\"\n"
+        + "        in: \"query\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"param2\"\n"
+        + "        in: \"query\"\n"
+        + "        required: false\n"
+        + "        type: \"integer\"\n"
+        + "        format: \"int32\"\n"
+        + "      - name: \"param3\"\n"
+        + "        in: \"query\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"param4\"\n"
+        + "        in: \"query\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"param5\"\n"
+        + "        in: \"query\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"nested.nested1\"\n"
+        + "        in: \"query\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      responses:\n"
+        + "        200:\n"
+        + "          description: \"java.lang.String\"\n"
+        + "          schema:\n"
+        + "            type: \"string\"\n", Yaml
+        .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder()
+            .build(null, routes)));
+  }
+
+  private Path dir() {
+    Path userdir = Paths.get(System.getProperty("user.dir"));
+    if (!userdir.toString().endsWith("jooby-apitool")) {
+      userdir = userdir.resolve("modules").resolve("jooby-apitool");
+    }
+    return userdir;
+  }
+}
