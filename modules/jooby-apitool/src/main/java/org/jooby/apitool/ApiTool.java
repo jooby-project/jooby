@@ -909,10 +909,10 @@ public class ApiTool implements Jooby.Module {
         Config conf = req.require(Config.class);
         Map<String, Object> hash = conf.getConfig("raml").root().unwrapped();
         Raml base = Json.mapper().convertValue(hash, Raml.class);
-        if (configurer != null) {
-          configurer.accept(base);
-        }
         Raml raml = Raml.build(base, req.require(M));
+        if (configurer != null) {
+          configurer.accept(raml);
+        }
         return Results.ok(raml.toYaml()).type("text/yml");
       });
     } else {
@@ -955,11 +955,11 @@ public class ApiTool implements Jooby.Module {
         Config conf = req.require(Config.class);
         Map<String, Object> hash = conf.getConfig("swagger").root().unwrapped();
         Swagger base = Json.mapper().convertValue(hash, Swagger.class);
-        if (configurer != null) {
-          configurer.accept(base);
-        }
         boolean json = req.path().endsWith(".json");
         Swagger swagger = new SwaggerBuilder().build(base, req.require(M));
+        if (configurer != null) {
+          configurer.accept(swagger);
+        }
         if (json) {
           return Results.json(Json.mapper().writer().writeValueAsBytes(swagger));
         }
