@@ -35,6 +35,9 @@ ${model}
 
 Templates are loaded from root of classpath: ```/``` and must end with: ```.html``` file extension.
 
+> **NOTE**: since `1.4.0` Freemarker module uses `HTMLOutputFormat` which prevent HTML XSS injection. See for [more details](https://freemarker.apache.org/docs/pgui_config_outputformatsautoesc.html). 
+
+ 
 ## request locals
 
 A template engine has access to ```request locals``` (a.k.a attributes). Here is an example:

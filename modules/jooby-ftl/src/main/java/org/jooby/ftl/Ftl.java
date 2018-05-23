@@ -203,11 +203,18 @@
  */
 package org.jooby.ftl;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheBuilderSpec;
+import com.google.inject.Binder;
+import com.google.inject.multibindings.Multibinder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import freemarker.cache.ClassTemplateLoader;
+import freemarker.cache.NullCacheStorage;
+import freemarker.core.HTMLOutputFormat;
+import freemarker.template.Configuration;
+import freemarker.template.TemplateException;
 import static java.util.Objects.requireNonNull;
-
-import java.util.Properties;
-import java.util.function.BiConsumer;
-
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Renderer;
@@ -217,17 +224,9 @@ import org.jooby.internal.ftl.XssDirective;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheBuilderSpec;
-import com.google.inject.Binder;
-import com.google.inject.multibindings.Multibinder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-
-import freemarker.cache.ClassTemplateLoader;
-import freemarker.cache.NullCacheStorage;
-import freemarker.template.Configuration;
-import freemarker.template.TemplateException;
+import java.util.Properties;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Exposes a {@link Configuration} and a {@link Renderer}.
@@ -255,6 +254,12 @@ import freemarker.template.TemplateException;
  * <p>
  * Templates are loaded from root of classpath: <code>/</code> and must end with: <code>.html</code>
  * file extension.
+ * </p>
+ *
+ * <p>
+ * <strong>NOTE</strong>: since <code>1.4.0</code> Freemarker module uses {@link HTMLOutputFormat}
+ * which prevent HTML XSS injection. See for
+ * <a href="https://freemarker.apache.org/docs/pgui_config_outputformatsautoesc.html">more details</a>.
  * </p>
  *
  * <h1>configuration</h1>
@@ -353,6 +358,11 @@ public class Ftl implements Jooby.Module {
     return this;
   }
 
+  public Ftl doWith(final Consumer<Configuration> configurer) {
+    requireNonNull(configurer, "Configurer is required.");
+    return doWith((freemarker, conf) -> configurer.accept(freemarker));
+  }
+
   @Override
   public void configure(final Env env, final Config config, final Binder binder)
       throws TemplateException {
@@ -372,6 +382,8 @@ public class Ftl implements Jooby.Module {
                   .from(config.getString("freemarker.cache"))
                   .build()));
     }
+
+    freemarker.setOutputFormat(HTMLOutputFormat.INSTANCE);
 
     if (configurer != null) {
       configurer.accept(freemarker, config);

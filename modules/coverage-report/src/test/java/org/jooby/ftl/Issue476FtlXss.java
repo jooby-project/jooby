@@ -1,5 +1,6 @@
 package org.jooby.ftl;
 
+import freemarker.core.UndefinedOutputFormat;
 import org.jooby.Results;
 import org.jooby.csl.XSS;
 import org.jooby.test.ServerFeature;
@@ -10,7 +11,9 @@ public class Issue476FtlXss extends ServerFeature {
   {
     use(new XSS());
 
-    use(new Ftl());
+    use(new Ftl().doWith(freemarker -> {
+      freemarker.setOutputFormat(UndefinedOutputFormat.INSTANCE);
+    }));
 
     get("/", req -> Results.html("org/jooby/ftl/xss").put("input", "<script>alert('xss');</script>"));
   }
