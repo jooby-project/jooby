@@ -251,7 +251,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -259,20 +258,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SwaggerBuilder {
-  private static final Function<RouteMethod, String> TAG_PROVIDER = r -> {
-    Map<String, Object> attributes = r.attributes();
-    if (attributes == null) {
-      return r.pattern();
-    }
-    return Stream
-        .of(attributes.get("tag"), attributes.get("swagger.tag"), attributes.get("route.tag"))
-        .filter(Objects::nonNull)
-        .findFirst()
-        .map(Objects::toString)
-        .map(path -> Stream.of(path.split("/")).reduce((head, tail) -> tail).orElse(r.pattern()))
-        .orElse(r.pattern());
-  };
-  private Function<RouteMethod, String> tagger = TAG_PROVIDER;
 
   static {
     /** Convert Upload to Swagger FileProperty: */
@@ -311,12 +296,10 @@ public class SwaggerBuilder {
     Yaml.mapper().registerModule(jdk8);
   }
 
-  public SwaggerBuilder() {
-  }
+  private Function<RouteMethod, String> tagger;
 
-  public SwaggerBuilder groupBy(Function<RouteMethod, String> tag) {
-    this.tagger = tag;
-    return this;
+  public SwaggerBuilder(Function<RouteMethod, String> tagger) {
+    this.tagger = tagger;
   }
 
   public Swagger build(Swagger base, final List<RouteMethod> routes) throws Exception {

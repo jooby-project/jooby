@@ -429,7 +429,7 @@ public class BytecodeRouteParser {
           RouteMethod route = new RouteMethod(lambda.name, lambda.pattern,
               routeResponse).parameters(parameters);
           if (lambda.tag != null) {
-            route.attribute("route.tag", lambda.tag);
+            route.attribute("route.tag", scriptRouteTag(lambda.tag));
           }
           javadoc(route, javadoc.pop(lambda.declaringClass, lambda.name, lambda.pattern));
           methods.add(route);
@@ -439,6 +439,14 @@ public class BytecodeRouteParser {
       }
     }
     return typeAnalizer(methods);
+  }
+
+  private String scriptRouteTag(String tag) {
+    String value = Stream.of(tag.split("/"))
+        .filter(it -> it.length() > 0)
+        .map(it -> Character.toUpperCase(it.charAt(0)) + it.substring(1))
+        .collect(Collectors.joining());
+    return value;
   }
 
   private List<RouteMethod> typeAnalizer(List<RouteMethod> methods) {
@@ -608,8 +616,23 @@ public class BytecodeRouteParser {
           if (path.length() > 0) {
             method.pattern(Route.normalize(path) + method.pattern());
           }
+          // Set default tag
+          Annotation rootPath = type.getAnnotation(org.jooby.mvc.Path.class);
+          if (rootPath != null) {
+            method.attribute("route.tag", mvcRouteTag(type.getSimpleName()));
+          }
           callback.accept(method);
         });
+  }
+
+  private String mvcRouteTag(String name) {
+    /** Replace commons class suffix for Mvc classes: */
+    return name.replace("Controller", "")
+        .replace("Manager", "")
+        .replace("Api", "")
+        .replace("API", "")
+        .replace("Mvc", "")
+        .replace("MVC", "");
   }
 
   @SuppressWarnings("unchecked")
@@ -1028,7 +1051,8 @@ public class BytecodeRouteParser {
       AbstractInsnNode next = n.getNext();
       if (next instanceof MethodInsnNode) {
         if (((MethodInsnNode) next).name.equals("toOptional")) {
-          return Types.newParameterizedType(Optional.class, loadType(loader, ((FieldInsnNode) n).owner));
+          return Types
+              .newParameterizedType(Optional.class, loadType(loader, ((FieldInsnNode) n).owner));
         } else if (((MethodInsnNode) next).name.equals("getOrCreateKotlinClass")) {
           return loadType(loader, ((FieldInsnNode) n).owner);
         }

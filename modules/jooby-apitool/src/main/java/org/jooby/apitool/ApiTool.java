@@ -235,6 +235,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -556,6 +557,8 @@ public class ApiTool implements Jooby.Module {
 
     String file;
 
+    Function<RouteMethod, String> tagger = DEFAULT_TAGGER;
+
     private Options() {
     }
 
@@ -661,7 +664,33 @@ public class ApiTool implements Jooby.Module {
       this.file = Objects.requireNonNull(file, "File location required.").toString();
       return this;
     }
+
+    /**
+     * Set a custom tagger (a.k.a as groupBy operator). This function creates custom Swagger tags
+     * (has no effects on RAML).
+     *
+     * @param tagger Custom tagger.
+     * @return This options.
+     */
+    public Options tagger(Function<RouteMethod, String> tagger) {
+      this.tagger = Objects.requireNonNull(tagger, "Swagger tagger required.");
+      return this;
+    }
   }
+
+  static final Function<RouteMethod, String> DEFAULT_TAGGER = r -> {
+    Map<String, Object> attributes = r.attributes();
+    if (attributes == null) {
+      return r.pattern();
+    }
+
+    return Stream
+        .of(attributes.get("swagger.tag"), attributes.get("route.tag"))
+        .filter(Objects::nonNull)
+        .findFirst()
+        .map(Objects::toString)
+        .orElse(r.pattern());
+  };
 
   private static final TypeLiteral<List<RouteMethod>> M = new TypeLiteral<List<RouteMethod>>() {
   };
@@ -956,7 +985,7 @@ public class ApiTool implements Jooby.Module {
         Map<String, Object> hash = conf.getConfig("swagger").root().unwrapped();
         Swagger base = Json.mapper().convertValue(hash, Swagger.class);
         boolean json = req.path().endsWith(".json");
-        Swagger swagger = new SwaggerBuilder().build(base, req.require(M));
+        Swagger swagger = new SwaggerBuilder(options.tagger).build(base, req.require(M));
         if (configurer != null) {
           configurer.accept(swagger);
         }

@@ -6,22 +6,19 @@ import apps.App1096c;
 import apps.App1096d;
 import apps.Form1096;
 import apps.Param1096;
-import io.swagger.util.Yaml;
 import kt.App1096e;
 import kt.Query1096;
 import org.jooby.apitool.ApiParser;
+import org.jooby.apitool.ApiToolFeature;
 import org.jooby.apitool.RouteMethod;
 import org.jooby.apitool.RouteMethodAssert;
 import org.jooby.apitool.RouteParameter;
-import org.jooby.internal.apitool.SwaggerBuilder;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
-public class Issue1096 {
+public class Issue1096 extends ApiToolFeature {
 
   @Test
   public void shouldExpandQueryBean() throws Exception {
@@ -87,9 +84,7 @@ public class Issue1096 {
         + "        200:\n"
         + "          description: \"java.lang.String\"\n"
         + "          schema:\n"
-        + "            type: \"string\"\n", Yaml
-        .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder()
-            .build(null, routes)));
+        + "            type: \"string\"\n", yaml(swagger(routes)));
   }
 
   @Test
@@ -163,9 +158,7 @@ public class Issue1096 {
         + "        200:\n"
         + "          description: \"java.lang.String\"\n"
         + "          schema:\n"
-        + "            type: \"string\"\n", Yaml
-        .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder()
-            .build(null, routes)));
+        + "            type: \"string\"\n", yaml(swagger(routes)));
   }
 
   @Test
@@ -191,7 +184,7 @@ public class Issue1096 {
     assertEquals("---\n"
         + "swagger: \"2.0\"\n"
         + "tags:\n"
-        + "- name: \"/1096/mvc/form\"\n"
+        + "- name: \"Route1096d\"\n"
         + "consumes:\n"
         + "- \"application/json\"\n"
         + "produces:\n"
@@ -200,7 +193,7 @@ public class Issue1096 {
         + "  /1096/mvc/form:\n"
         + "    post:\n"
         + "      tags:\n"
-        + "      - \"/1096/mvc/form\"\n"
+        + "      - \"Route1096d\"\n"
         + "      operationId: \"/Route1096d.myApi\"\n"
         + "      consumes:\n"
         + "      - \"application/x-www-form-urlencoded\"\n"
@@ -239,9 +232,7 @@ public class Issue1096 {
         + "        200:\n"
         + "          description: \"java.lang.String\"\n"
         + "          schema:\n"
-        + "            type: \"string\"\n", Yaml
-        .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder()
-            .build(null, routes)));
+        + "            type: \"string\"\n", yaml(swagger(routes)));
   }
 
   @Test
@@ -267,7 +258,7 @@ public class Issue1096 {
     assertEquals("---\n"
         + "swagger: \"2.0\"\n"
         + "tags:\n"
-        + "- name: \"/\"\n"
+        + "- name: \"Route1096\"\n"
         + "consumes:\n"
         + "- \"application/json\"\n"
         + "produces:\n"
@@ -276,7 +267,7 @@ public class Issue1096 {
         + "  /:\n"
         + "    get:\n"
         + "      tags:\n"
-        + "      - \"/\"\n"
+        + "      - \"Route1096\"\n"
         + "      operationId: \"/Route1096.myApi\"\n"
         + "      parameters:\n"
         + "      - name: \"param1\"\n"
@@ -308,9 +299,7 @@ public class Issue1096 {
         + "        200:\n"
         + "          description: \"java.lang.String\"\n"
         + "          schema:\n"
-        + "            type: \"string\"\n", Yaml
-        .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder()
-            .build(null, routes)));
+        + "            type: \"string\"\n", yaml(swagger(routes)));
   }
 
   @Test
@@ -336,7 +325,7 @@ public class Issue1096 {
     assertEquals("---\n"
         + "swagger: \"2.0\"\n"
         + "tags:\n"
-        + "- name: \"kt\"\n"
+        + "- name: \"1096Kt\"\n"
         + "consumes:\n"
         + "- \"application/json\"\n"
         + "produces:\n"
@@ -345,8 +334,8 @@ public class Issue1096 {
         + "  /1096/kt:\n"
         + "    get:\n"
         + "      tags:\n"
-        + "      - \"kt\"\n"
-        + "      operationId: \"getKt\"\n"
+        + "      - \"1096Kt\"\n"
+        + "      operationId: \"get1096Kt\"\n"
         + "      parameters:\n"
         + "      - name: \"name\"\n"
         + "        in: \"query\"\n"
@@ -364,16 +353,6 @@ public class Issue1096 {
         + "        200:\n"
         + "          description: \"java.lang.String\"\n"
         + "          schema:\n"
-        + "            type: \"string\"\n", Yaml
-        .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder()
-            .build(null, routes)));
-  }
-
-  private Path dir() {
-    Path userdir = Paths.get(System.getProperty("user.dir"));
-    if (!userdir.toString().endsWith("jooby-apitool")) {
-      userdir = userdir.resolve("modules").resolve("jooby-apitool");
-    }
-    return userdir;
+        + "            type: \"string\"\n", yaml(swagger(routes)));
   }
 }

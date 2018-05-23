@@ -1,18 +1,15 @@
 package issues;
 
-import io.swagger.util.Yaml;
 import kt.App1073;
 import org.jooby.apitool.ApiParser;
+import org.jooby.apitool.ApiToolFeature;
 import org.jooby.apitool.RouteMethod;
-import org.jooby.internal.apitool.SwaggerBuilder;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
-public class Issue1073 {
+public class Issue1073 extends ApiToolFeature {
 
   @Test
   public void zonedDateMustUseDateTimeFormat() throws Exception {
@@ -53,16 +50,6 @@ public class Issue1073 {
         + "        type: \"string\"\n"
         + "      date:\n"
         + "        type: \"string\"\n"
-        + "        format: \"date-time\"\n", Yaml
-        .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder()
-            .build(null, routes)));
-  }
-
-  private Path dir() {
-    Path userdir = Paths.get(System.getProperty("user.dir"));
-    if (!userdir.toString().endsWith("jooby-apitool")) {
-      userdir = userdir.resolve("modules").resolve("jooby-apitool");
-    }
-    return userdir;
+        + "        format: \"date-time\"\n", yaml(swagger(routes)));
   }
 }
