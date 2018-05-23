@@ -7,6 +7,8 @@ import apps.App1096d;
 import apps.Form1096;
 import apps.Param1096;
 import io.swagger.util.Yaml;
+import kt.App1096e;
+import kt.Query1096;
 import org.jooby.apitool.ApiParser;
 import org.jooby.apitool.RouteMethod;
 import org.jooby.apitool.RouteMethodAssert;
@@ -301,6 +303,62 @@ public class Issue1096 {
         + "      - name: \"nested.nested1\"\n"
         + "        in: \"query\"\n"
         + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      responses:\n"
+        + "        200:\n"
+        + "          description: \"java.lang.String\"\n"
+        + "          schema:\n"
+        + "            type: \"string\"\n", Yaml
+        .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder()
+            .build(null, routes)));
+  }
+
+  @Test
+  public void shouldExpandQueryBeanFromKotlin() throws Exception {
+    List<RouteMethod> routes = new ApiParser(dir()).parseFully(new App1096e());
+
+    new RouteMethodAssert(routes)
+        .next(r -> {
+          r.returnType(String.class);
+          r.method("GET");
+          r.pattern("/1096/kt");
+          r.description(null);
+          r.summary(null);
+          r.returns("java.lang.String");
+          r.param(p -> {
+            p.type(Query1096.class);
+            p.name("params");
+            p.kind(RouteParameter.Kind.QUERY);
+          });
+        })
+        .done();
+
+    assertEquals("---\n"
+        + "swagger: \"2.0\"\n"
+        + "tags:\n"
+        + "- name: \"kt\"\n"
+        + "consumes:\n"
+        + "- \"application/json\"\n"
+        + "produces:\n"
+        + "- \"application/json\"\n"
+        + "paths:\n"
+        + "  /1096/kt:\n"
+        + "    get:\n"
+        + "      tags:\n"
+        + "      - \"kt\"\n"
+        + "      operationId: \"getKt\"\n"
+        + "      parameters:\n"
+        + "      - name: \"name\"\n"
+        + "        in: \"query\"\n"
+        + "        required: true\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"firstname\"\n"
+        + "        in: \"query\"\n"
+        + "        required: false\n"
+        + "        type: \"string\"\n"
+        + "      - name: \"picture.url\"\n"
+        + "        in: \"query\"\n"
+        + "        required: true\n"
         + "        type: \"string\"\n"
         + "      responses:\n"
         + "        200:\n"

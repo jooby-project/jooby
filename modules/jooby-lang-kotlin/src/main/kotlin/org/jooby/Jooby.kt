@@ -1,9 +1,8 @@
 package org.jooby
 
-import kotlin.reflect.KClass
 import org.jooby.spi.Server
-import java.util.SortedSet
-import com.sun.xml.internal.bind.v2.schemagen.episode.Klass
+import java.util.*
+import kotlin.reflect.KClass
 
 @DslMarker
 annotation class DslJooby
@@ -465,4 +464,8 @@ inline fun <reified T> Request.header(name: String): T {
 
 inline fun <reified T> Request.body(): T {
   return body().to(T::class.java)
+}
+
+inline fun <reified T> Request.params(): T {
+  return params(T::class.java)
 }
