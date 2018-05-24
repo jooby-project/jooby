@@ -220,7 +220,6 @@ public class Pac4jSecurityFilter implements Route.Filter {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
   private final Config conf;
-  private final String clientParameterName;
   private final Set<String> excludes;
   private String clients;
   private final String matchers;
@@ -228,13 +227,12 @@ public class Pac4jSecurityFilter implements Route.Filter {
   private String authorizers;
 
   public Pac4jSecurityFilter(Config conf, String clients, String authorizers, String matchers,
-      boolean multiProfile, String clientParameterName, Set<String> excludes) {
+      boolean multiProfile, Set<String> excludes) {
     this.conf = conf;
     this.clients = clients;
     this.authorizers = authorizers;
     this.matchers = matchers;
     this.multiProfile = multiProfile;
-    this.clientParameterName = clientParameterName;
     this.excludes = excludes;
   }
 
@@ -246,13 +244,6 @@ public class Pac4jSecurityFilter implements Route.Filter {
   @Override public void handle(Request req, Response rsp, Route.Chain chain) throws Throwable {
     try {
       WebContext context = req.require(WebContext.class);
-
-      /**
-       * Use default client_name when missing, it works great when each client has a filter
-       * (don't share the login url). Login urls don't have to set a client_name parameter.
-       */
-      String clientName = req.param(clientParameterName).value(clients);
-      req.set("pac4j." + clientParameterName, clientName);
 
       /** 1: don't save authentication urls: */
       String existingRequestedUrl = (String) context

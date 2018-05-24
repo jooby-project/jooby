@@ -746,7 +746,6 @@ public class Pac4j implements Jooby.Module {
       securityLogic = new DefaultSecurityLogic();
       pac4j.setSecurityLogic(securityLogic);
     }
-    String clientNameParameter = clients.getClientNameParameter();
     Map<String, Pac4jSecurityFilter> filters = new LinkedHashMap<>();
     patterns.add(callbackPath);
     securityRoutes.forEach(it -> {
@@ -756,7 +755,7 @@ public class Pac4j implements Jooby.Module {
       String clientName = it.client.getName();
       if (filter == null) {
         filter = new Pac4jSecurityFilter(pac4j, clientName, it.authorizer, null, multiProfile,
-            clientNameParameter, patterns);
+            patterns);
         filters.put(pattern, filter);
       } else {
         // multiple clients per pattern

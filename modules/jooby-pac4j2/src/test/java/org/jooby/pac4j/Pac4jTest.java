@@ -640,7 +640,7 @@ public class Pac4jTest {
 
       Clients clients = unit.get(Clients.class);
       clients.setClients(clientList);
-      expect(clients.getClientNameParameter()).andReturn(Clients.DEFAULT_CLIENT_NAME_PARAMETER);
+      // expect(clients.getClientNameParameter()).andReturn(Clients.DEFAULT_CLIENT_NAME_PARAMETER);
     };
   }
 
@@ -731,9 +731,9 @@ public class Pac4jTest {
 
       Pac4jSecurityFilter filter = unit.constructor(Pac4jSecurityFilter.class)
           .args(org.pac4j.core.config.Config.class, String.class, String.class, String.class,
-              boolean.class, String.class, Set.class)
+              boolean.class, Set.class)
           .build(unit.get(org.pac4j.core.config.Config.class), clients.get(0), authorizers,
-              matchers, multiProfile, clientName, excludes);
+              matchers, multiProfile, excludes);
       clients.stream().skip(1)
           .forEach(it -> {
             expect(filter.addClient(it)).andReturn(filter);

@@ -16,7 +16,6 @@ import org.jooby.Status;
 import org.jooby.test.MockUnit;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.context.WebContext;
@@ -51,7 +50,6 @@ public class Pac4jSecurityFilterTest {
     String clients = "FormClient";
     String authorizers = null;
     String matchers = null;
-    String clientParameterName = Clients.DEFAULT_CLIENT_NAME_PARAMETER;
     Set<String> excludes = Sets.newHashSet("/profile");
     boolean multiProfile = false;
     new MockUnit(Request.class, Response.class, Config.class, WebContext.class, SecurityLogic.class,
@@ -59,13 +57,12 @@ public class Pac4jSecurityFilterTest {
         .expect(webContext)
         .expect(getSecurityLogic)
         .expect(getActionAdapter)
-        .expect(clientParameterName(clientParameterName, clients, clients))
         .expect(getSessionAttribute(Pac4jConstants.REQUESTED_URL, null))
         .expect(requestMatches("/profile", false))
         .expect(executeCallback(clients, authorizers, matchers, multiProfile))
         .run(unit -> {
           Pac4jSecurityFilter action = new Pac4jSecurityFilter(unit.get(Config.class), clients,
-              authorizers, matchers, multiProfile, clientParameterName, excludes);
+              authorizers, matchers, multiProfile, excludes);
 
           assertEquals("FormClient", action.toString());
 
@@ -79,7 +76,6 @@ public class Pac4jSecurityFilterTest {
     String clients = "FormClient";
     String authorizers = null;
     String matchers = null;
-    String clientParameterName = Clients.DEFAULT_CLIENT_NAME_PARAMETER;
     Set<String> excludes = ImmutableSet.of("/**", "/facebook");
     boolean multiProfile = false;
     new MockUnit(Request.class, Response.class, Config.class, WebContext.class, SecurityLogic.class,
@@ -87,7 +83,6 @@ public class Pac4jSecurityFilterTest {
         .expect(webContext)
         .expect(getSecurityLogic)
         .expect(getActionAdapter)
-        .expect(clientParameterName(clientParameterName, clients, clients))
         .expect(getSessionAttribute(Pac4jConstants.REQUESTED_URL, "/previous"))
         .expect(requestMatches("/facebook", true))
         .expect(executeCallback(clients, authorizers, matchers, multiProfile))
@@ -95,7 +90,7 @@ public class Pac4jSecurityFilterTest {
         .expect(setSessionAttribute(Pac4jConstants.REQUESTED_URL, "/previous"))
         .run(unit -> {
           Pac4jSecurityFilter action = new Pac4jSecurityFilter(unit.get(Config.class), clients,
-              authorizers, matchers, multiProfile, clientParameterName, excludes);
+              authorizers, matchers, multiProfile, excludes);
 
           assertEquals("FormClient", action.toString());
 
@@ -109,7 +104,6 @@ public class Pac4jSecurityFilterTest {
     String clients = "FormClient";
     String authorizers = null;
     String matchers = null;
-    String clientParameterName = Clients.DEFAULT_CLIENT_NAME_PARAMETER;
     Set<String> excludes = ImmutableSet.of("/**", "/facebook");
     boolean multiProfile = false;
     new MockUnit(Request.class, Response.class, Config.class, WebContext.class, SecurityLogic.class,
@@ -117,14 +111,13 @@ public class Pac4jSecurityFilterTest {
         .expect(webContext)
         .expect(getSecurityLogic)
         .expect(getActionAdapter)
-        .expect(clientParameterName(clientParameterName, clients, clients))
         .expect(getSessionAttribute(Pac4jConstants.REQUESTED_URL, "/previous"))
         .expect(requestMatches("/facebook", true))
         .expect(executeCallback(clients, authorizers, matchers, multiProfile))
         .expect(ifSession(false))
         .run(unit -> {
           Pac4jSecurityFilter action = new Pac4jSecurityFilter(unit.get(Config.class), clients,
-              authorizers, matchers, multiProfile, clientParameterName, excludes);
+              authorizers, matchers, multiProfile, excludes);
 
           assertEquals("FormClient", action.toString());
 
@@ -139,20 +132,17 @@ public class Pac4jSecurityFilterTest {
     String authorizers = null;
     String matchers = null;
     boolean multiProfile = false;
-    String clientParameterName = Clients.DEFAULT_CLIENT_NAME_PARAMETER;
     Set<String> excludes = new HashSet<>();
     new MockUnit(Request.class, Response.class, Config.class, WebContext.class, SecurityLogic.class,
         HttpActionAdapter.class, Route.Chain.class)
         .expect(webContext)
         .expect(getSecurityLogic)
         .expect(getActionAdapter)
-        .expect(clientParameterName(clientParameterName, clients + ",FacebookClient",
-            clients + ",FacebookClient"))
         .expect(getSessionAttribute(Pac4jConstants.REQUESTED_URL, null))
         .expect(executeCallback(clients + ",FacebookClient", authorizers, matchers, multiProfile))
         .run(unit -> {
           Pac4jSecurityFilter action = new Pac4jSecurityFilter(unit.get(Config.class), clients,
-              authorizers, matchers, multiProfile, clientParameterName, excludes)
+              authorizers, matchers, multiProfile, excludes)
               .addClient("FacebookClient");
 
           assertEquals("FormClient,FacebookClient", action.toString());
@@ -168,7 +158,6 @@ public class Pac4jSecurityFilterTest {
     String authorizers = null;
     String matchers = null;
     boolean multiProfile = false;
-    String clientParameterName = Clients.DEFAULT_CLIENT_NAME_PARAMETER;
     Set<String> excludes = new HashSet<>();
     TechnicalException x = new TechnicalException("intentional err");
     new MockUnit(Request.class, Response.class, Config.class, WebContext.class, SecurityLogic.class,
@@ -176,12 +165,11 @@ public class Pac4jSecurityFilterTest {
         .expect(webContext)
         .expect(getSecurityLogic)
         .expect(getActionAdapter)
-        .expect(clientParameterName(clientParameterName, clients, clients))
         .expect(getSessionAttribute(Pac4jConstants.REQUESTED_URL, null))
         .expect(executeCallback(clients, authorizers, matchers, multiProfile, x))
         .run(unit -> {
           Pac4jSecurityFilter action = new Pac4jSecurityFilter(unit.get(Config.class), clients,
-              authorizers, matchers, multiProfile, clientParameterName, excludes);
+              authorizers, matchers, multiProfile, excludes);
 
           action.handle(unit.get(Request.class), unit.get(Response.class),
               unit.get(Route.Chain.class));
@@ -194,7 +182,6 @@ public class Pac4jSecurityFilterTest {
     String authorizers = null;
     String matchers = null;
     boolean multiProfile = false;
-    String clientParameterName = Clients.DEFAULT_CLIENT_NAME_PARAMETER;
     Set<String> excludes = new HashSet<>();
     TechnicalException x = new TechnicalException(new Err(Status.UNAUTHORIZED, "intentional err"));
     new MockUnit(Request.class, Response.class, Config.class, WebContext.class, SecurityLogic.class,
@@ -202,12 +189,11 @@ public class Pac4jSecurityFilterTest {
         .expect(webContext)
         .expect(getSecurityLogic)
         .expect(getActionAdapter)
-        .expect(clientParameterName(clientParameterName, clients, clients))
         .expect(getSessionAttribute(Pac4jConstants.REQUESTED_URL, null))
         .expect(executeCallback(clients, authorizers, matchers, multiProfile, x))
         .run(unit -> {
           Pac4jSecurityFilter action = new Pac4jSecurityFilter(unit.get(Config.class), clients,
-              authorizers, matchers, multiProfile, clientParameterName, excludes);
+              authorizers, matchers, multiProfile, excludes);
 
           action.handle(unit.get(Request.class), unit.get(Response.class),
               unit.get(Route.Chain.class));
