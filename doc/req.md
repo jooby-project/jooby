@@ -265,7 +265,7 @@ public class Address {
 
   private String country;
 
-  publuc Address(String line, String state, String country) {
+  public Address(String line, String state, String country) {
     this.line = line;
     this.state = state;
     this.country = country;
