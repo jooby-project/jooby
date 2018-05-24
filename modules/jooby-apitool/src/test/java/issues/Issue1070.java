@@ -129,7 +129,7 @@ public class Issue1070 extends ApiToolFeature {
         + "        \"parameters\" : [ ],\n"
         + "        \"responses\" : {\n"
         + "          \"200\" : {\n"
-        + "            \"description\" : \"java.lang.String\",\n"
+        + "            \"description\" : \"String\",\n"
         + "            \"schema\" : {\n"
         + "              \"type\" : \"string\"\n"
         + "            }\n"

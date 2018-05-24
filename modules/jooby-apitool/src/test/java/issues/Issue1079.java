@@ -24,7 +24,7 @@ public class Issue1079 {
           r.pattern("/");
           r.description(null);
           r.summary(null);
-          r.returns("java.lang.String");
+          r.returns(null);
           r.param(p -> {
             p.type("java.util.Optional<java.lang.Integer>");
             p.name("p1");

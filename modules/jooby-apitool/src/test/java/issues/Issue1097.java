@@ -37,7 +37,7 @@ public class Issue1097 {
         + "      parameters: []\n"
         + "      responses:\n"
         + "        200:\n"
-        + "          description: \"java.lang.String\"\n"
+        + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n"
         + "  /v5/api/album:\n"
@@ -48,7 +48,7 @@ public class Issue1097 {
         + "      parameters: []\n"
         + "      responses:\n"
         + "        200:\n"
-        + "          description: \"java.lang.String\"\n"
+        + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n"
         + "  /v5/api/artist:\n"
@@ -59,7 +59,7 @@ public class Issue1097 {
         + "      parameters: []\n"
         + "      responses:\n"
         + "        200:\n"
-        + "          description: \"java.lang.String\"\n"
+        + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", Yaml
         .mapper().writer().withDefaultPrettyPrinter().writeValueAsString(new SwaggerBuilder((r -> {

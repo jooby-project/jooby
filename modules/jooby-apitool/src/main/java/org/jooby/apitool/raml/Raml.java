@@ -222,6 +222,7 @@ import org.jooby.MediaType;
 import org.jooby.apitool.RouteMethod;
 import org.jooby.apitool.RouteParameter;
 import org.jooby.apitool.RouteResponse;
+import org.jooby.internal.apitool.FriendlyTypeName;
 
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
@@ -645,7 +646,8 @@ public class Raml {
       Map<Integer, String> status = returns.status();
       Integer statusCode = returns.statusCode();
       RamlResponse response = method.response(statusCode);
-      response.setDescription(yamlText(returns.description().orElse(status.get(statusCode))));
+      response.setDescription(yamlText(returns.description().orElseGet(() -> FriendlyTypeName
+          .name(returns.type()))));
       produces.forEach(type -> response.setMediaType(type, raml.define(returns.type())));
       status.entrySet().stream()
           .filter(it -> !statusCode.equals(it.getKey()))

@@ -207,7 +207,6 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.TypeLiteral;
 import com.google.inject.internal.MoreTypes;
@@ -350,7 +349,17 @@ public class SwaggerBuilder {
       Operation op = new Operation();
       op.addTag(tag.getName());
       op.operationId(route.name().orElseGet(() -> {
-        String opId = route.method().toLowerCase() + ucase(tag.getName());
+        String args = "";
+        if (route.method().equals("GET") && route.parameters().size() > 0) {
+          args = route.parameters().stream()
+              .filter(p -> p.kind() == RouteParameter.Kind.QUERY
+                  || p.kind() == RouteParameter.Kind.PATH)
+              .map(p -> p.name())
+              .map(this::ucase)
+              .reduce(new StringBuilder("By"), StringBuilder::append, StringBuilder::append)
+              .toString();
+        }
+        String opId = route.method().toLowerCase() + ucase(tag.getName().replace("/", "")) + args;
         int c = opIds.getOrDefault(opId, 0);
         opIds.put(opId, c + 1);
         if (c == 0) {
@@ -368,8 +377,6 @@ public class SwaggerBuilder {
         String summary = Optional.ofNullable(op.getSummary()).orElse("");
         op.description(description.replace(summary + ".", ""));
       });
-      route.response().description()
-          .ifPresent(returns -> (Strings.nullToEmpty(op.getDescription()) + " " + returns).trim());
 
       /** Consumes/Produces . */
       route.consumes().forEach(op::addConsumes);
@@ -427,7 +434,7 @@ public class SwaggerBuilder {
       Integer statusCode = returns.statusCode();
       Response response = new Response();
       String doc = returns.description()
-          .orElse(status.getOrDefault(statusCode, statusCode.toString()));
+          .orElseGet(() -> FriendlyTypeName.name(returns.type()));
       response.description(doc);
       if (!"void".equals(returns.type().getTypeName())) {
         // make sure type definition gets in
@@ -501,7 +508,10 @@ public class SwaggerBuilder {
   }
 
   private String ucase(String name) {
-    return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+    if (name.length() > 0) {
+      return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+    }
+    return name;
   }
 
   /**

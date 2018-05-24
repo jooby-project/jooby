@@ -22,7 +22,7 @@ public class Issue1072 extends ApiToolFeature {
           r.pattern("/");
           r.description(null);
           r.summary(null);
-          r.returns("kt.Person");
+          r.returns(null);
         })
         .done();
     assertEquals("---\n"
@@ -38,11 +38,11 @@ public class Issue1072 extends ApiToolFeature {
         + "    get:\n"
         + "      tags:\n"
         + "      - \"/\"\n"
-        + "      operationId: \"get/\"\n"
+        + "      operationId: \"get\"\n"
         + "      parameters: []\n"
         + "      responses:\n"
         + "        200:\n"
-        + "          description: \"kt.Person\"\n"
+        + "          description: \"Person\"\n"
         + "          schema:\n"
         + "            $ref: \"#/definitions/Person\"\n"
         + "definitions:\n"

@@ -31,7 +31,7 @@ public class Issue1096 extends ApiToolFeature {
           r.pattern("/1096/search");
           r.description(null);
           r.summary(null);
-          r.returns("java.lang.String");
+          r.returns(null);
           r.param(p -> {
             p.type(Param1096.class);
             p.name("params");
@@ -53,7 +53,7 @@ public class Issue1096 extends ApiToolFeature {
         + "    get:\n"
         + "      tags:\n"
         + "      - \"1096\"\n"
-        + "      operationId: \"get1096\"\n"
+        + "      operationId: \"get1096ByParams\"\n"
         + "      parameters:\n"
         + "      - name: \"param1\"\n"
         + "        in: \"query\"\n"
@@ -82,7 +82,7 @@ public class Issue1096 extends ApiToolFeature {
         + "        type: \"string\"\n"
         + "      responses:\n"
         + "        200:\n"
-        + "          description: \"java.lang.String\"\n"
+        + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes)));
   }
@@ -98,7 +98,7 @@ public class Issue1096 extends ApiToolFeature {
           r.pattern("/1096/form");
           r.description(null);
           r.summary(null);
-          r.returns("java.lang.String");
+          r.returns(null);
           r.param(p -> {
             p.type(Form1096.class);
             p.name("form");
@@ -156,7 +156,7 @@ public class Issue1096 extends ApiToolFeature {
         + "        type: \"file\"\n"
         + "      responses:\n"
         + "        200:\n"
-        + "          description: \"java.lang.String\"\n"
+        + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes)));
   }
@@ -172,7 +172,7 @@ public class Issue1096 extends ApiToolFeature {
           r.pattern("/1096/mvc/form");
           r.description(null);
           r.summary(null);
-          r.returns("java.lang.String");
+          r.returns(null);
           r.param(p -> {
             p.type(Form1096.class);
             p.name("form");
@@ -230,7 +230,7 @@ public class Issue1096 extends ApiToolFeature {
         + "        type: \"file\"\n"
         + "      responses:\n"
         + "        200:\n"
-        + "          description: \"java.lang.String\"\n"
+        + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes)));
   }
@@ -246,7 +246,7 @@ public class Issue1096 extends ApiToolFeature {
           r.pattern("/");
           r.description(null);
           r.summary(null);
-          r.returns("java.lang.String");
+          r.returns(null);
           r.param(p -> {
             p.type(Param1096.class);
             p.name("params");
@@ -297,7 +297,7 @@ public class Issue1096 extends ApiToolFeature {
         + "        type: \"string\"\n"
         + "      responses:\n"
         + "        200:\n"
-        + "          description: \"java.lang.String\"\n"
+        + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes)));
   }
@@ -313,7 +313,7 @@ public class Issue1096 extends ApiToolFeature {
           r.pattern("/1096/kt");
           r.description(null);
           r.summary(null);
-          r.returns("java.lang.String");
+          r.returns(null);
           r.param(p -> {
             p.type(Query1096.class);
             p.name("params");
@@ -335,7 +335,7 @@ public class Issue1096 extends ApiToolFeature {
         + "    get:\n"
         + "      tags:\n"
         + "      - \"1096Kt\"\n"
-        + "      operationId: \"get1096Kt\"\n"
+        + "      operationId: \"get1096KtByParams\"\n"
         + "      parameters:\n"
         + "      - name: \"name\"\n"
         + "        in: \"query\"\n"
@@ -351,7 +351,7 @@ public class Issue1096 extends ApiToolFeature {
         + "        type: \"string\"\n"
         + "      responses:\n"
         + "        200:\n"
-        + "          description: \"java.lang.String\"\n"
+        + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes)));
   }

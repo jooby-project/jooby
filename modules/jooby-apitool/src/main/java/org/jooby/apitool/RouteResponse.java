@@ -262,16 +262,7 @@ public class RouteResponse {
    * @return Response description.
    */
   public Optional<String> description() {
-    if (description == null) {
-      String typename;
-      if (type instanceof Class) {
-        typename = ((Class) type).getCanonicalName();
-      } else {
-        typename = type.getTypeName();
-      }
-      return Optional.of(typename);
-    }
-    return Optional.of(description);
+    return Optional.ofNullable(description);
   }
 
   /**

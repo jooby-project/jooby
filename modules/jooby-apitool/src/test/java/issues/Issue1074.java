@@ -24,7 +24,7 @@ public class Issue1074 extends ApiToolFeature {
           r.pattern("/");
           r.description(null);
           r.summary(null);
-          r.returns("java.lang.String");
+          r.returns(null);
           r.param(p -> {
             p.type("java.util.Optional<java.lang.Integer>");
             p.name("page");
@@ -50,7 +50,7 @@ public class Issue1074 extends ApiToolFeature {
         + "    get:\n"
         + "      tags:\n"
         + "      - \"/\"\n"
-        + "      operationId: \"get/\"\n"
+        + "      operationId: \"getByPagePage-size\"\n"
         + "      parameters:\n"
         + "      - name: \"page\"\n"
         + "        in: \"query\"\n"
@@ -64,7 +64,7 @@ public class Issue1074 extends ApiToolFeature {
         + "        format: \"int32\"\n"
         + "      responses:\n"
         + "        200:\n"
-        + "          description: \"java.lang.String\"\n"
+        + "          description: \"String\"\n"
         + "          schema:\n"
         + "            type: \"string\"\n", yaml(swagger(routes)));
   }

@@ -70,7 +70,7 @@ public class RamlTest {
         + "      get:\n"
         + "        responses:\n"
         + "          200:\n"
-        + "            description: org.jooby.apitool.RamlTest.Client\n"
+        + "            description: Client\n"
         + "            body:\n"
         + "              application/json:\n"
         + "                type: Client\n", yaml);
@@ -113,7 +113,7 @@ public class RamlTest {
         + "      get:\n"
         + "        responses:\n"
         + "          200:\n"
-        + "            description: org.jooby.apitool.RamlTest.Foo\n"
+        + "            description: Foo\n"
         + "            body:\n"
         + "              application/json:\n"
         + "                type: Foo\n", yaml);
@@ -169,7 +169,7 @@ public class RamlTest {
         + "    description: Home page.\n"
         + "    responses:\n"
         + "      200:\n"
-        + "        description: java.lang.String\n"
+        + "        description: String\n"
         + "        body:\n"
         + "          application/json:\n"
         + "            type: string\n"
