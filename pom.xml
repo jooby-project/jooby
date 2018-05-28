@@ -3022,8 +3022,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <ehcache.version>2.10.0</ehcache.version>
     <pac4j.version>1.9.9</pac4j.version>
     <pac4j2.version>2.2.1</pac4j2.version>
-    <swagger.version>1.5.16</swagger.version>
-    <swagger-ui.version>3.9.3</swagger-ui.version>
+    <swagger.version>1.5.20</swagger.version>
+    <swagger-ui.version>3.14.2</swagger-ui.version>
     <swagger-ui-themes.version>3.0.0</swagger-ui-themes.version>
     <api-console.version>3.0.17</api-console.version>
     <commons-lang3.version>3.4</commons-lang3.version>
