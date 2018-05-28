@@ -381,7 +381,7 @@ public class MvcRoutes {
       return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL,
           annotation.annotationType().getSimpleName());
     }
-    return name;
+    return annotation.annotationType().getSimpleName() + "." + name;
   }
 
   private static List<MediaType> produces(final Method method) {
