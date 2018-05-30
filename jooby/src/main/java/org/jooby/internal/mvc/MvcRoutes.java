@@ -209,6 +209,7 @@ import org.jooby.Env;
 import org.jooby.MediaType;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
+import org.jooby.funzy.Try;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.mvc.CONNECT;
 import org.jooby.mvc.Consumes;
@@ -222,10 +223,10 @@ import org.jooby.mvc.PUT;
 import org.jooby.mvc.Path;
 import org.jooby.mvc.Produces;
 import org.jooby.mvc.TRACE;
-import org.jooby.funzy.Try;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -311,7 +312,8 @@ public class MvcRoutes {
               String[] excludes = excludes(method, rootExcludes);
 
               Definition definition = new Route.Definition(
-                  verb.getSimpleName(), rpath + "/" + path, new MvcHandler(method, routeClass, paramProvider), caseSensitiveRouting)
+                  verb.getSimpleName(), rpath + "/" + path,
+                  new MvcHandler(method, routeClass, paramProvider), caseSensitiveRouting)
                   .produces(produces)
                   .consumes(consumes)
                   .excludes(excludes)
@@ -369,7 +371,18 @@ public class MvcRoutes {
       Method[] attrs = annotation.annotationType().getDeclaredMethods();
       for (Method attr : attrs) {
         Try.apply(() -> attr.invoke(annotation))
-            .onSuccess(value -> result.put(attrName(annotation, attr), value));
+            .onSuccess(value -> {
+              if (value.getClass().isArray() && Annotation.class
+                  .isAssignableFrom(value.getClass().getComponentType())) {
+                List<Map<String, Object>> array = new ArrayList<>();
+                for(int i = 0; i < Array.getLength(value); i ++) {
+                  array.add(attrs((Annotation) Array.get(value, i)));
+                }
+                result.put(attrName(annotation, attr), array.toArray());
+              } else {
+                result.put(attrName(annotation, attr), value);
+              }
+            });
       }
     }
     return result;

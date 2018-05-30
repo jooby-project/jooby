@@ -12,8 +12,16 @@ import java.util.List;
 public class ApiToolFeature {
 
   public String yaml(Swagger swagger) throws Exception {
-    return Yaml.mapper().writer().withDefaultPrettyPrinter()
+    return yaml(swagger, false);
+  }
+
+  public String yaml(Swagger swagger, boolean print) throws Exception {
+    String yaml = Yaml.mapper().writer().withDefaultPrettyPrinter()
         .writeValueAsString(swagger);
+    if (print) {
+      System.out.println(yaml);
+    }
+    return yaml;
   }
 
   public String json(Swagger swagger) throws Exception {

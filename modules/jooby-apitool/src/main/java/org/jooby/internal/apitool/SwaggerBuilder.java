@@ -207,7 +207,10 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import com.google.inject.TypeLiteral;
 import com.google.inject.internal.MoreTypes;
 import io.swagger.converter.ModelConverter;
@@ -243,15 +246,21 @@ import org.jooby.apitool.RouteParameter;
 import org.jooby.apitool.RouteResponse;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -293,6 +302,17 @@ public class SwaggerBuilder {
     Jdk8Module jdk8 = new Jdk8Module();
     Json.mapper().registerModule(jdk8);
     Yaml.mapper().registerModule(jdk8);
+  }
+
+  private static class ResponseWithStatusCode {
+    String statusCode;
+
+    Response response;
+
+    public ResponseWithStatusCode(String statusCode, Response response) {
+      this.statusCode = statusCode;
+      this.response = response;
+    }
   }
 
   private Function<RouteMethod, String> tagger;
@@ -338,49 +358,25 @@ public class SwaggerBuilder {
 
     for (RouteMethod route : routes) {
       /** Find or create tag: */
-      Tag tag = tagFactory.apply(this.tagger.apply(route));
-      // groupBy summary
-      route.summary().ifPresent(tag::description);
+      List<Tag> tags = tags(route, tagFactory);
 
       /** Find or create path: */
       Path path = pathFactory.apply(route.pattern());
 
       /** Operation: */
       Operation op = new Operation();
-      op.addTag(tag.getName());
-      op.operationId(route.name().orElseGet(() -> {
-        String args = "";
-        if (route.method().equals("GET") && route.parameters().size() > 0) {
-          args = route.parameters().stream()
-              .filter(p -> p.kind() == RouteParameter.Kind.QUERY
-                  || p.kind() == RouteParameter.Kind.PATH)
-              .map(p -> p.name())
-              .map(this::ucase)
-              .reduce(new StringBuilder("By"), StringBuilder::append, StringBuilder::append)
-              .toString();
-        }
-        String opId = route.method().toLowerCase() + ucase(tag.getName().replace("/", "")) + args;
-        int c = opIds.getOrDefault(opId, 0);
-        opIds.put(opId, c + 1);
-        if (c == 0) {
-          return opId;
-        }
-        return opId + c;
-      }));
+
+      tags.forEach(it -> op.addTag(it.getName()));
+
+      op.operationId(operationId(route, tags.get(0), opIds));
 
       /** Doc and summary: */
-      route.description().ifPresent(description -> {
-        int dot = description.indexOf('.');
-        if (dot > 0) {
-          op.summary(description.substring(0, dot));
-        }
-        String summary = Optional.ofNullable(op.getSummary()).orElse("");
-        op.description(description.replace(summary + ".", ""));
-      });
+      op.summary(summary(route));
+      op.description(description(route, op.getSummary()));
 
       /** Consumes/Produces . */
-      route.consumes().forEach(op::addConsumes);
-      route.produces().forEach(op::addProduces);
+      consumes(route, op::addConsumes);
+      produces(route, op::addProduces);
 
       /** Parameters: */
       route.parameters().stream().flatMap(it -> {
@@ -429,27 +425,12 @@ public class SwaggerBuilder {
       }).forEach(op::addParameter);
 
       /** Response: */
-      RouteResponse returns = route.response();
-      Map<Integer, String> status = returns.status();
-      Integer statusCode = returns.statusCode();
-      Response response = new Response();
-      String doc = returns.description()
-          .orElseGet(() -> FriendlyTypeName.name(returns.type()));
-      response.description(doc);
-      if (!"void".equals(returns.type().getTypeName())) {
-        // make sure type definition gets in
-        modelFactory.apply(returns.type());
-        response.schema(converter.readAsProperty(returns.type()));
-      }
-      op.addResponse(statusCode.toString(), response);
-      status.entrySet().stream()
-          .filter(it -> !statusCode.equals(it.getKey()))
-          .forEach(it -> op.addResponse(it.getKey().toString(), new Response()
-              .description(it.getValue())));
+      buildResponse(route, modelFactory, rsp -> op.addResponse(rsp.statusCode, rsp.response));
 
       /** Done: */
-      path.set(route.method().toLowerCase(), op);
+      path.set(method(route), op);
     }
+
     Function<Function<RouteMethod, List<String>>, List<String>> mediaTypes = types ->
         routes.stream().flatMap(it -> types.apply(it).stream()).collect(Collectors.toList());
     /** Default consumes/produces: */
@@ -466,6 +447,278 @@ public class SwaggerBuilder {
       swagger.produces(produces);
     }
     return swagger;
+  }
+
+  private void buildResponse(RouteMethod route, Function<Type, Model> modelFactory,
+      Consumer<ResponseWithStatusCode> consumer) {
+    Object[] apiResponses = (Object[]) route.attributes().get("apiResponses");
+    if (apiResponses != null) {
+      /** ApiResponses annotation: */
+      Set<Integer> codes = new HashSet<>();
+      Stream.of(apiResponses)
+          .map(it -> buildResponse(modelFactory, (Map) it, c -> !codes.add(c)))
+          .forEach(consumer);
+    } else {
+      Integer code = (Integer) route.attributes().get("ApiResponse.code");
+      if (code != null) {
+        /** Single ApiResponse annotation: */
+        consumer.accept(buildResponse(modelFactory, route.attributes(), c -> false));
+      } else {
+        /** Default response: */
+        RouteResponse returns = route.response();
+        Map<Integer, String> status = returns.status();
+        Integer statusCode = (Integer) route.attributes()
+            .getOrDefault("ApiOperation.code", returns.statusCode());
+
+        Response response = new Response();
+        String doc = returns.description()
+            .orElseGet(() -> FriendlyTypeName.name(returns.type()));
+        response.description(doc);
+
+        Type responseType = (Type) route.attributes()
+            .getOrDefault("ApiOperation.response", returns.type());
+        if (!isVoid(responseType)) {
+          response.responseSchema(modelFactory.apply(responseType));
+        }
+        buildResponseHeader(route.attributes(), "ApiOperation.responseHeaders", response::addHeader);
+
+        consumer.accept(new ResponseWithStatusCode(statusCode.toString(), response));
+        status.entrySet().stream()
+            .filter(it -> !statusCode.equals(it.getKey()))
+            .forEach(it -> consumer.accept(
+                new ResponseWithStatusCode(it.getKey().toString(),
+                    new Response().description(it.getValue())))
+            );
+      }
+    }
+  }
+
+  private boolean isVoid(Type type) {
+    return "void".equals(type.getTypeName()) || Void.class.getName().equals(type.getTypeName());
+  }
+
+  private ResponseWithStatusCode buildResponse(Function<Type, Model> modelFactory,
+      Map<String, Object> attributes, Predicate<Integer> statusCode) {
+    Response response = new Response();
+    String description = (String) attributes.get("ApiResponse.message");
+    Class type = (Class) attributes.get("ApiResponse.response");
+
+    if (!isVoid(type)) {
+      response.setResponseSchema(modelFactory.apply(type));
+    }
+    response.setDescription(description);
+
+    buildResponseHeader(attributes, "ApiResponse.responseHeaders", response::addHeader);
+
+    Integer code = (Integer) attributes.get("ApiResponse.code");
+    String key = code.toString();
+    if (statusCode.test(code)) {
+      key += "(" + type.getSimpleName() + ")";
+    }
+    return new ResponseWithStatusCode(key, response);
+  }
+
+  private void buildResponseHeader(Map<String, Object> attributes, String name,
+      BiConsumer<String, Property> consumer) {
+    Object[] headers = (Object[]) attributes.get(name);
+    if (headers != null) {
+      ModelConverters converter = ModelConverters.getInstance();
+      Stream.of(headers)
+          .map(Map.class::cast)
+          .filter(it -> ((String) it.get("ResponseHeader.name")).length() > 0)
+          .forEach(header -> {
+            String hname = header.get("ResponseHeader.name").toString();
+            Property htype = converter.readAsProperty((Type) header.get("ResponseHeader.response"));
+            consumer.accept(hname, htype);
+          });
+    }
+  }
+
+  private String method(RouteMethod route) {
+    String method = stringAttribute(route, "httpMethod");
+    if (method == null) {
+      method = route.method();
+    }
+    return method.toLowerCase();
+  }
+
+  private void consumes(RouteMethod route, Consumer<String> consumer) {
+    String consumes = stringAttribute(route, "consumes");
+    if (consumes == null) {
+      route.consumes().forEach(consumer::accept);
+    } else {
+      Stream.of(consumes.split(",")).forEach(consumer);
+    }
+  }
+
+  private void produces(RouteMethod route, Consumer<String> consumer) {
+    String produces = stringAttribute(route, "produces");
+    if (produces == null) {
+      route.produces().forEach(consumer::accept);
+    } else {
+      Stream.of(produces.split(",")).forEach(consumer);
+    }
+  }
+
+  private String description(RouteMethod route, String summary) {
+    String notes = stringAttribute(route, "notes");
+    if (notes == null) {
+      return route.description().map(description -> {
+        String prefix = Optional.ofNullable(summary).orElse("");
+        return description.replace(prefix + ".", "");
+      }).orElse(null);
+    }
+    return notes;
+  }
+
+  private String summary(RouteMethod route) {
+    String summary = stringAttribute(route, "apiOperation");
+    if (summary == null) {
+      return route.description().map(description -> {
+        int dot = description.indexOf('.');
+        if (dot > 0) {
+          return description.substring(0, dot);
+        }
+        return null;
+      }).orElse(null);
+    }
+    return summary;
+  }
+
+  private String operationId(RouteMethod route, Tag tag, Map<String, Integer> opIds) {
+    String operationId = stringAttribute(route, "nickname");
+    if (operationId == null) {
+      operationId = route.name().orElseGet(() -> {
+        String args = "";
+        if (route.method().equals("GET") && route.parameters().size() > 0) {
+          args = route.parameters().stream()
+              .filter(p -> p.kind() == RouteParameter.Kind.QUERY
+                  || p.kind() == RouteParameter.Kind.PATH)
+              .map(p -> p.name())
+              .map(this::ucase)
+              .reduce(new StringBuilder("By"), StringBuilder::append, StringBuilder::append)
+              .toString();
+        }
+        return route.method().toLowerCase() + ucase(tag.getName().replace("/", "")) + args;
+      });
+    }
+    int c = opIds.getOrDefault(operationId, 0);
+    opIds.put(operationId, c + 1);
+    if (c == 0) {
+      return operationId;
+    }
+    return operationId + c;
+  }
+
+  private List<Tag> tags(RouteMethod route, Function<String, Tag> tagFactory) {
+    String[] tags = arrayAttribute(route, "tags");
+    if (tags != null) {
+      List<Tag> result = Stream.of(tags)
+          .filter(it -> it.length() > 0)
+          .map(tagFactory)
+          .collect(Collectors.toList());
+      if (result.size() > 0) {
+        return result;
+      }
+    }
+    Tag tag = tagFactory.apply(tagger.apply(route));
+    route.summary().ifPresent(tag::description);
+    return ImmutableList.of(tag);
+  }
+
+  private String stringAttribute(RouteMethod route, String name) {
+    return (String) swaggerAttribute(route, name, it -> it.toString().length() > 0);
+  }
+
+  private <T> T[] arrayAttribute(RouteMethod routeMethod, String name) {
+    return (T[]) swaggerAttribute(routeMethod, "tags", v -> Array.getLength(v) > 0);
+  }
+
+  private Object swaggerAttribute(RouteMethod route, String name, Predicate<Object> filter) {
+    String[] prefix = {"ApiOperation", "swagger"};
+    for (String p : prefix) {
+      String key = p.equalsIgnoreCase(name) ? name : p + "." + name;
+      Object value = route.attributes().get(key);
+      if (value != null && filter.test(value)) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  private void apiOperation(Map<String, Object> attributes, Operation op,
+      Response response, Function<Type, Model> modelFactory,
+      Function<String, Tag> tagFactory) {
+    attributes.forEach((name, value) -> {
+      switch (name) {
+        case "ApiOperation":
+          String summary = Strings.emptyToNull((String) value);
+          if (summary != null) {
+            op.summary(summary);
+          }
+          break;
+        case "tags":
+          Stream.of((String[]) value)
+              .filter(it -> it != null && it.trim().length() > 0)
+              .map(tagFactory)
+              .forEach(tag -> op.addTag(tag.getName()));
+          break;
+        case "response":
+          Class responseType = (Class) value;
+          if (responseType != Void.class) {
+            response.responseSchema(modelFactory.apply(responseType));
+          }
+          break;
+        case "nickname":
+          String operationId = Strings.emptyToNull((String) value);
+          if (operationId != null) {
+            op.setOperationId(operationId);
+          }
+          break;
+        case "produces":
+          String produces = Strings.emptyToNull((String) value);
+          if (produces != null) {
+            op.produces(Splitter.on(",").trimResults().omitEmptyStrings().splitToList(produces));
+          }
+          break;
+        case "consumes":
+          String consumes = Strings.emptyToNull((String) value);
+          if (consumes != null) {
+            op.consumes(Splitter.on(",").trimResults().omitEmptyStrings().splitToList(consumes));
+          }
+          break;
+        case "code":
+          int code = (Integer) value;
+          if (code != 200) {
+            op.addResponse(value.toString(), response);
+          }
+          break;
+        case "responseHeaders":
+          break;
+      }
+    });
+  }
+
+  private Map<String, Object> swaggerAttributes(Class annotation, Map<String, Object> attributes) {
+    String name = annotation.getSimpleName();
+    return attributes.entrySet().stream()
+        .filter(it -> it.getKey().equalsIgnoreCase(name) || it.getKey().startsWith(name + "."))
+        .filter(it -> {
+          Object value = it.getValue();
+          if (value instanceof String) {
+            return !Strings.isNullOrEmpty(((String) value).trim());
+          }
+          return value != null;
+        })
+        .map(e -> {
+          String key = e.getKey();
+          Object value = attributes.get(key);
+          if (key.equalsIgnoreCase(name)) {
+            return Maps.immutableEntry(name, value);
+          }
+          return Maps.immutableEntry(key.replace("ApiOperation.", ""), value);
+        })
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   private List<Parameter> expandParameter(ModelConverters converter, RouteParameter it,

@@ -284,6 +284,9 @@ It is possible to customize Swagger/RAML objects:
 
 This option is required when you want to customize/complement Swagger/RAML objects.
 
+
+For <a href="https://swagger.io/">Swagger</a> you can annotated your controller methods with `ApiOperation` and/or `ApiResponse` annotations. These annotations modifies the <a href="https://swagger.io/">Swagger</a> output.
+
 # starter project
 
 We do provide an [apitool-starter](https://github.com/jooby-project/apitool-starter) project.

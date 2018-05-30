@@ -736,8 +736,7 @@ public interface Route {
    * @author edgar
    * @deprecated Replaced by {@link Router#path(String, Runnable)}.
    */
-  @Deprecated
-  class Group implements Props<Group> {
+  @Deprecated class Group implements Props<Group> {
 
     /** List of definitions. */
     private List<Route.Definition> routes = new ArrayList<>();
@@ -1576,6 +1575,10 @@ public interface Route {
       }
       if (value.getClass().isArray()) {
         return valid(Array.get(value, 0));
+      }
+      if (value instanceof Map && ((Map) value).size() > 0) {
+        Map.Entry e = (Map.Entry) ((Map) value).entrySet().iterator().next();
+        return valid(e.getKey()) && valid(e.getValue());
       }
       return false;
     }
