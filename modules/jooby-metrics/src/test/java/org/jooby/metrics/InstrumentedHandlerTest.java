@@ -22,6 +22,16 @@ import com.codahale.metrics.Timer.Context;
 
 public class InstrumentedHandlerTest {
 
+  private Block capture = unit -> {
+    Response rsp = unit.get(Response.class);
+    rsp.complete(unit.capture(Route.Complete.class));
+  };
+
+  private Block onComplete = unit -> {
+    unit.captured(Route.Complete.class).iterator().next()
+        .handle(unit.get(Request.class), unit.get(Response.class), Optional.empty());
+  };
+
   private Block registry = unit -> {
     Request request = unit.get(Request.class);
     expect(request.require(MetricRegistry.class))
@@ -80,12 +90,13 @@ public class InstrumentedHandlerTest {
         .expect(registry)
         .expect(counter)
         .expect(timer)
+        .expect(capture)
         .expect(meter)
         .expect(next)
         .run(unit -> {
           new InstrumentedHandler().handle(unit.get(Request.class), unit.get(Response.class),
               unit.get(Route.Chain.class));
-        });
+        }, onComplete);
   }
 
   @Test(expected = IOException.class)
@@ -94,12 +105,13 @@ public class InstrumentedHandlerTest {
         .expect(registry)
         .expect(counter)
         .expect(timer)
+        .expect(capture)
         .expect(meter)
         .expect(nextErr)
         .run(unit -> {
           new InstrumentedHandler().handle(unit.get(Request.class), unit.get(Response.class),
               unit.get(Route.Chain.class));
-        });
+        }, onComplete);
   }
 
 }

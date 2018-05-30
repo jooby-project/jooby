@@ -206,7 +206,6 @@ package org.jooby.metrics;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
-import org.jooby.Route.Chain;
 import org.jooby.Status;
 
 import com.codahale.metrics.Counter;
@@ -220,22 +219,22 @@ import com.codahale.metrics.Timer;
  * @author edgar
  * @since 0.13.0
  */
-public class InstrumentedHandler implements Route.Filter {
+public class InstrumentedHandler implements Route.Handler {
 
   @Override
-  public void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
+  public void handle(final Request req, final Response rsp) throws Throwable {
     MetricRegistry registry = req.require(MetricRegistry.class);
     Counter counter = registry.counter("request.actives");
     Timer.Context timer = registry.timer("request").time();
-    try {
-      counter.inc();
-      chain.next(req, rsp);
-    } finally {
+
+    counter.inc();
+
+    rsp.complete((ereq, ersp, x) -> {
       timer.stop();
       counter.dec();
       Meter meter = registry.meter("responses." + rsp.status().orElse(Status.OK).value());
       meter.mark();
-    }
+    });
   }
 
 }
