@@ -49,8 +49,6 @@
     <module>jooby-ehcache</module>
     <module>jooby-pac4j</module>
     <module>jooby-pac4j2</module>
-    <module>jooby-swagger</module>
-    <module>jooby-raml</module>
     <module>jooby-spymemcached</module>
     <module>jooby-aws</module>
     <module>jooby-commons-email</module>

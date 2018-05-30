@@ -954,18 +954,6 @@
 
     <dependency>
       <groupId>org.jooby</groupId>
-      <artifactId>jooby-swagger</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jooby</groupId>
-      <artifactId>jooby-raml</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jooby</groupId>
       <artifactId>jooby-aws</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -1155,6 +1143,12 @@
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-oauth</artifactId>
       <version>${pac4j2.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>swagger-ui</artifactId>
+      <version>3.14.2</version>
     </dependency>
 
     <!-- Test dependencies -->
