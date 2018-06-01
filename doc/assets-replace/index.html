@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>jooby: props module</title> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, props"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="canonical" href="#"> 
+  <link rel="publisher" href="#"> 
+  <meta name="robots" content="robots.txt"> 
+  <meta name="og:title" content="jooby: assets-replace module"> 
+  <meta name="og:description" content="Replace strings in files while bundling them"> 
+  <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    --> 
+  <meta name="og:type" content="website"> 
+  <meta name="og:url" content="http://jooby.org"> 
+  <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    --> 
+  <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
+  <meta name="og:site_name" content="jooby: assets-replace module"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:title" content="jooby: assets-replace module"> 
+  <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    --> 
+  <meta name="twitter:image" content="http://jooby.org/resources/images/apps/twitter.jpg"> 
+  <meta name="twitter:site" content="@joobyproject"> 
+  <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
+  <meta name="twitter:domain" content="http://jooby.org"> 
+  <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:description" content="Replace strings in files while bundling them"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180"> 
+  <link href="/resources/images/apps/favicon.ico" rel="shortcut icon"> 
+  <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png"> 
+  <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png"> 
+  <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png"> 
+  <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png"> 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700"> 
+  <link rel="stylesheet" href="/resources/styles/application.css"> 
+  <link rel="stylesheet" href="/resources/styles/github.css"> 
+  <link rel="stylesheet" href="/resources/styles/devices.css"> 
+  <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+ </head> 
+ <body class="page-section page-sidebar"> 
+  <header class="site-header"> 
+   <div class="row">
+    <a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a>
+    <a class="show-mobile open-menu"><span></span></a> 
+    <nav class="site-nav"> 
+     <ul> 
+      <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
+      <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
+      <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
+      <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.4.0" target="_blank" title="API docs">API DOCS</a></li> 
+     </ul> 
+    </nav> 
+   </div> 
+  </header> 
+  <main role="main" class="site-content"> 
+   <div class="section-title"> 
+    <div class="row"> 
+     <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
+     <h1>props</h1> 
+    </div> 
+   </div> 
+   <div class="row"> 
+    <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
+     <div class="show-mobile menu-open">
+      props
+     </div> 
+     <ul> 
+      <li class="active"> <a href="#props">props</a>
+       <ul> 
+        <li> <a href="#props-usage">usage</a></li>
+       </ul></li> 
+      <li class=""> <a href="#see-also">see also</a>
+       <ul> 
+        <li> <a href="#see-also-css-processors">css processors</a></li> 
+        <li> <a href="#see-also-js-processors">js processors</a></li>
+       </ul></li> 
+     </ul> 
+    </div> 
+    <div class="section-content"> 
+     <div class="datalist" id="props"> 
+      <div class="datalist-title active"> 
+       <h2>props</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>Replace strings in files while bundling them.</p> 
+       <p>Make sure you’ve already set up the <a href="/doc/assets">assets module</a> in your project!</p> 
+       <h3 id="props-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>assets {
+  fileset {
+    home: ...
+  }
+  
+  pipeline {
+    dist: [replace]
+  }
+  
+  replace {
+    process.env.NODE_ENV: "\"production\""
+    "\"development\"": "\"production\""
+  }
+}
+</code></pre> 
+       </div> 
+      </div> 
+     </div> 
+     <div class="datalist" id="see-also"> 
+      <div class="datalist-title "> 
+       <h2>see also</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <h3 id="see-also-css-processors">css processors</h3> 
+       <ul> 
+        <li> <p><a href="/doc/assets-autoprefixer">autoprefixer</a>: parse CSS and add vendor prefixes to CSS rules via <a href="https://github.com/postcss/autoprefixer" target="_blank">autoprefixer</a>.</p> </li> 
+        <li> <p><a href="/doc/assets-props">props</a>: replace application properties in CSS files.</p> </li> 
+        <li> <p><a href="/doc/assets-clean-css">clean-css</a>: minify css.</p> </li> 
+        <li> <p><a href="/doc/assets-csslint">csslint</a>: check and validate css rules.</p> </li> 
+        <li> <p><a href="/doc/assets-less4j">less4j</a>: Less support from <a href="https://github.com/SomMeri/less4j" target="_blank">less4j</a>.</p> </li> 
+        <li> <p><a href="/doc/assets-less">less</a>: Less support from <a href="http://lesscss.org" target="_blank">less.js</a>.</p> </li> 
+        <li> <p><a href="/doc/assets-sass">sass</a>: Sass support from <a href="https://github.com/bit3/jsass" target="_blank">Java Sass Compiler (libsass)</a>.</p> </li> 
+        <li> <p><a href="/doc/assets-svg-sprites">svg-sprites</a>: Generates SVG and CSS sprites with PNG fallbacks via <a href="https://github.com/drdk/dr-svg-sprites" target="_blank">dr-svg-sprites</a>.</p> </li> 
+        <li> <p><a href="/doc/assets-svg-symbol">svg-symbol</a>: Generates SVG and CSS sprites using svg <code class="highlighter-rouge codehilite">symbols</code>.</p> </li> 
+        <li> <p><a href="/doc/assets-yui-compressor">yui-css</a>: YUI CSS optimizer.</p> </li> 
+       </ul> 
+       <h3 id="see-also-js-processors">js processors</h3> 
+       <ul> 
+        <li> <p><a href="/doc/assets-props">props</a>: replace application properties in JavaScript files.</p> </li> 
+        <li> <p><a href="/doc/assets-jscs">jscs</a>: JavaScript code style checker.</p> </li> 
+        <li> <p><a href="/doc/assets-jshint">jshint</a>: JavaScript linter, helps to detect errors and potential problems in code..</p> </li> 
+        <li> <p><a href="/doc/assets-babel">babel</a>: Ecma6 now via <a href="http://babeljs.io/" target="_blank">Babel</a>.</p> </li> 
+        <li> <p><a href="/doc/assets-rollup">rollup</a>: <a href="http://rollupjs.org/" target="_blank">rollup.js</a> the next-generation ES6 module bundler.</p> </li> 
+        <li> <p><a href="/doc/assets-ng-annotate">ng-annotate</a>: Add, remove and rebuild AngularJS dependency injection annotations.</p> </li> 
+        <li> <p><a href="/doc/assets-closure-compiler">closure-compiler</a>: Google JavaScript optimizer and minifier.</p> </li> 
+        <li> <p><a href="/doc/assets-uglify">uglify</a>: uglify.js optimizer.</p> </li> 
+        <li> <p><a href="/doc/assets-replace">replace</a>: replace strings in files while bundling them.</p> </li> 
+        <li> <p><a href="/doc/assets-requirejs">requirejs</a>: r.js optimizer.</p> </li> 
+        <li> <p><a href="/doc/assets-yui-compressor#yui-js">yui-js</a>: YUI JS optimizer.</p> </li> 
+       </ul> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+  </main> 
+  <footer class="site-footer"> 
+   <div class="row"> 
+    <p class="pull-left">©2014-2018 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <div class="follow-us pull-right"> 
+     <p>Follow us</p>
+     <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
+     <a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a> 
+    </div> 
+   </div> 
+  </footer> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/libs/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script src="/resources/scripts/libs/swiper.min.js"></script> 
+  <script src="/resources/scripts/application.js"></script> 
+  <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-57151281-1', 'auto');
+      ga('send', 'pageview');
+    </script>  
+ </body>
+</html>

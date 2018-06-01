@@ -45,7 +45,6 @@ org.jooby.pac4j
 org.jooby.pebble
 org.jooby.quartz
 org.jooby.querydsl
-org.jooby.raml
 org.jooby.reactor
 org.jooby.requery
 org.jooby.rocker
@@ -57,7 +56,7 @@ org.jooby.servlet
 org.jooby.sitemap
 org.jooby.spec
 org.jooby.spi
-org.jooby.swagger
+org.jooby.test
 org.jooby.thymeleaf
 org.jooby.unbescape
 org.jooby.undertow

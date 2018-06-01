@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.3.0" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.4.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -121,7 +121,12 @@
         <li> <a href="#jetty-http-2">http/2</a></li> 
         <li> <a href="#jetty-server-conf">server.conf</a></li>
        </ul></li> 
-      <li class=""> <a href="#servlets">servlets</a></li> 
+      <li class=""> <a href="#servlets">servlets</a>
+       <ul> 
+        <li> <a href="#servlets-usage">usage</a></li> 
+        <li> <a href="#servlets-limitations">limitations</a></li> 
+        <li> <a href="#servlets-how-does-it-work-">how does it work?</a></li>
+       </ul></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
@@ -152,7 +157,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-netty<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.3.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.4.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -250,7 +255,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-undertow<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.3.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.4.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -378,7 +383,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jetty<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.3.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.4.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -504,7 +509,100 @@
        <h2>servlets</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>{{war.md}}</p> 
+       <p>This module exists for strict environments where the ONLY option is to deploy into a Servlet Container. It’s strongly recommended to avoid this and rather opt for using one of <a href="http://netty.io" target="_blank">Netty</a>, <a href="http://www.eclipse.org/jetty/" target="_blank">Jetty</a> or <a href="http://undertow.io" target="_blank">Undertow</a>.</p> 
+       <h3 id="servlets-usage">usage</h3> 
+       <p>In order to deploy into a Servlet Container, you need to generate a <code class="highlighter-rouge codehilite">*.war</code> file. Here’s how:</p> 
+       <ul> 
+        <li> <p>Create a <code class="highlighter-rouge codehilite">war.activator</code> file in the <code class="highlighter-rouge codehilite">src/etc</code> directory.</p> </li> 
+        <li> <p>Open a console and type: <code class="highlighter-rouge codehilite">mvn clean package</code></p> </li> 
+        <li> <p>Find the <code class="highlighter-rouge codehilite">*.war</code> file in the <code class="highlighter-rouge codehilite">target</code> directory.</p> </li> 
+       </ul> 
+       <h3 id="servlets-limitations">limitations</h3> 
+       <ul> 
+        <li>web-sockets are not supported</li> 
+        <li>some properties has no effect when deploying into a Servlet Container: 
+         <ul> 
+          <li>application.path / contextPath</li> 
+          <li>appplication.port</li> 
+          <li>max upload file sizes</li> 
+          <li>any other server specific property: server.<em>, jetty.</em>, netty.<em>, undertow.</em></li> 
+         </ul> </li> 
+       </ul> 
+       <h4 id="servlets-special-note-on-contextPath">special note on contextPath</h4> 
+       <p>To avoid potential headaches, make sure to use the <code class="highlighter-rouge codehilite">contextPath</code> variable while loading static/dynamic resources (.css, .js, etc..).</p> 
+       <p>For example:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+  <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">text=</span><span class="s">"text/css"</span> <span class="na">href=</span><span class="s">"{{contextPath}}/css/styles.css"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"{{contextPath}}/js/app.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre> 
+       </div> 
+       <p>The expression: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">{contextPath</span><span class="p">}</span><span class="err">}</span></code> corresponds to the template engine (handlebars in that case) or <code class="highlighter-rouge codehilite">${contextPath}</code> for Freemarker.</p> 
+       <h3 id="servlets-how-does-it-work-">how does it work?</h3> 
+       <p>The presence of the <code class="highlighter-rouge codehilite">src/etc/war.activator</code> file triggers a Maven profile. The contents of the file doesn’t matter, it just needs to be present.</p> 
+       <p>The Maven profile builds the <code class="highlighter-rouge codehilite">*.war</code> file using the <code class="highlighter-rouge codehilite">maven-assembly-plugin</code>. The assembly descriptor can be found <a href="https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml" target="_blank">here</a></p> 
+       <h4 id="servlets-web-xml">web.xml</h4> 
+       <p>A default <code class="highlighter-rouge codehilite">web.xml</code> file is generated by the assembly plugin. This file looks like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="nt">&lt;web-app</span> <span class="na">xmlns=</span><span class="s">"http://xmlns.jcp.org/xml/ns/javaee"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>
+  <span class="na">xsi:schemaLocation=</span><span class="s">"http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"</span>
+  <span class="na">version=</span><span class="s">"3.1"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;context-param&gt;</span>
+    <span class="nt">&lt;param-name&gt;</span>application.class<span class="nt">&lt;/param-name&gt;</span>
+    <span class="nt">&lt;param-value&gt;</span>${application.class}<span class="nt">&lt;/param-value&gt;</span>
+  <span class="nt">&lt;/context-param&gt;</span>
+
+  <span class="nt">&lt;listener&gt;</span>
+    <span class="nt">&lt;listener-class&gt;</span>org.jooby.servlet.ServerInitializer<span class="nt">&lt;/listener-class&gt;</span>
+  <span class="nt">&lt;/listener&gt;</span>
+
+  <span class="nt">&lt;servlet&gt;</span>
+    <span class="nt">&lt;servlet-name&gt;</span>jooby<span class="nt">&lt;/servlet-name&gt;</span>
+    <span class="nt">&lt;servlet-class&gt;</span>org.jooby.servlet.ServletHandler<span class="nt">&lt;/servlet-class&gt;</span>
+    <span class="nt">&lt;load-on-startup&gt;</span>0<span class="nt">&lt;/load-on-startup&gt;</span>
+    <span class="c">&lt;!-- MultiPart setup --&gt;</span>
+    <span class="nt">&lt;multipart-config&gt;</span>
+      <span class="nt">&lt;file-size-threshold&gt;</span>0<span class="nt">&lt;/file-size-threshold&gt;</span>
+      <span class="c">&lt;!-- Default 200k --&gt;</span>
+      <span class="nt">&lt;max-request-size&gt;</span>${war.maxRequestSize}<span class="nt">&lt;/max-request-size&gt;</span>
+    <span class="nt">&lt;/multipart-config&gt;</span>
+  <span class="nt">&lt;/servlet&gt;</span>
+
+  <span class="nt">&lt;servlet-mapping&gt;</span>
+    <span class="nt">&lt;servlet-name&gt;</span>jooby<span class="nt">&lt;/servlet-name&gt;</span>
+    <span class="nt">&lt;url-pattern&gt;</span>/*<span class="nt">&lt;/url-pattern&gt;</span>
+  <span class="nt">&lt;/servlet-mapping&gt;</span>
+<span class="nt">&lt;/web-app&gt;</span>
+</code></pre> 
+       </div> 
+       <h5>max upload size</h5> 
+       <p>The default max upload size is set to <code class="highlighter-rouge codehilite">204800b</code> (200kb). If you need to increase this, add the <code class="highlighter-rouge codehilite">war.maxRequestSize</code> property to <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;properties&gt;</span>
+  <span class="nt">&lt;war.maxRequestSize&gt;</span>1048576<span class="nt">&lt;/war.maxRequestSize&gt;</span> <span class="c">&lt;!-- 1mb --&gt;</span>
+<span class="nt">&lt;/properties&gt;</span>
+</code></pre> 
+       </div> 
+       <h5>custom web.xml</h5> 
+       <p>When the generated file isn’t enough, follow these steps:</p> 
+       <ol> 
+        <li>create a dir: <code class="highlighter-rouge codehilite">src/etc/war/WEB-INF</code></li> 
+        <li>save a <code class="highlighter-rouge codehilite">web.xml</code> file inside that dir</li> 
+        <li>run: <code class="highlighter-rouge codehilite">mvn clean package</code></li> 
+       </ol> 
       </div> 
      </div> 
     </div> 

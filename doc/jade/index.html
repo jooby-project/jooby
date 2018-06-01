@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.3.0" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.4.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -128,7 +128,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-jade<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.3.0<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.4.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -152,7 +152,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Templates are loaded from root of classpath: <code class="highlighter-rouge codehilite">/</code> and must ends with: <code class="highlighter-rouge codehilite">.html</code> file extension.</p> 
+       <p>Templates are loaded from root of classpath: <code class="highlighter-rouge codehilite">/</code> and must ends with: <code class="highlighter-rouge codehilite">.jade</code> file extension.</p> 
        <h3 id="jade-request-locals">request locals</h3> 
        <p>A template engine has access to <code class="highlighter-rouge codehilite">request locals</code> (a.k.a attributes). Here is an example:</p> 
        <div class="highlighter-rouge codehilite">
@@ -177,17 +177,17 @@
 </code></pre> 
        </div> 
        <h3 id="jade-template-loader">template loader</h3> 
-       <p>Templates are loaded from the root of classpath and must ends with <code class="highlighter-rouge codehilite">.html</code>. Using a custom file extension:</p> 
+       <p>Templates are loaded from the root of classpath and must ends with <code class="highlighter-rouge codehilite">.jade</code>. Using a custom file extension:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jade</span><span class="o">(</span><span class="s">".jade"</span><span class="o">));</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jade</span><span class="o">(</span><span class="s">".html"</span><span class="o">));</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Default file extension is: <code class="highlighter-rouge codehilite">.html</code>.</p> 
+       <p>Default file extension is: <code class="highlighter-rouge codehilite">.jade</code>.</p> 
        <h3 id="jade-template-cache">template cache</h3> 
        <p>Cache is OFF when <code class="highlighter-rouge codehilite">application.env = dev</code> (useful for template reloading), otherwise is ON and does not expire, unless you explicitly set <code class="highlighter-rouge codehilite">jade.caching</code>.</p> 
        <h3 id="jade-pretty-print">pretty print</h3> 

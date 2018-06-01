@@ -78,7 +78,7 @@
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.3.0" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.4.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -106,7 +106,8 @@
         <li> <a href="#conf-env-and-logging-environment">environment</a></li> 
         <li> <a href="#conf-env-and-logging-turning-features-on-or-off">turning features on or off</a></li> 
         <li> <a href="#conf-env-and-logging-special-properties">special properties</a></li> 
-        <li> <a href="#conf-env-and-logging-precedence">precedence</a></li>
+        <li> <a href="#conf-env-and-logging-precedence">precedence</a></li> 
+        <li> <a href="#conf-env-and-logging-logging">logging</a></li>
        </ul></li> 
       <li class=""> <a href="#modules">modules</a>
        <ul> 
@@ -666,7 +667,14 @@
        </div> 
        <p>First-listed are higher priority.</p> 
        <p>For more details, please refer to the <a href="https://github.com/typesafehub/config" target="_blank">config documentation</a>.</p> 
-       <p>{{logging.md}}</p> 
+       <h3 id="conf-env-and-logging-logging">logging</h3> 
+       <p>Logging is done via <a href="http://logback.qos.ch" target="_blank">logback</a>. Logback bootstrap and configuration is described in detail <a href="http://logback.qos.ch/manual/configuration.html" target="_blank">here</a>.</p> 
+       <p>You will usually find the <code class="highlighter-rouge codehilite">logback.xml</code> file inside the <code class="highlighter-rouge codehilite">conf</code> directory. Also, you can define a <code class="highlighter-rouge codehilite">logback.xml</code> file per <code class="highlighter-rouge codehilite">application.env</code> by appending the <code class="highlighter-rouge codehilite">env</code>. See some examples:</p> 
+       <ul> 
+        <li><code class="highlighter-rouge codehilite">logback.uat.xml</code> when <code class="highlighter-rouge codehilite">application.env = uat</code></li> 
+        <li><code class="highlighter-rouge codehilite">logback.prod.xml</code> when <code class="highlighter-rouge codehilite">application.env = prod</code></li> 
+       </ul> 
+       <p>If the <code class="highlighter-rouge codehilite">logback[.env].xml</code> file isn’t present, <code class="highlighter-rouge codehilite">logback.xml</code> will be used as a fallback.</p> 
       </div> 
      </div> 
      <div class="datalist" id="modules"> 
@@ -1028,6 +1036,19 @@ GET /assets/bootstrap/3.3.4/css/bootstrap.css
 </code></pre> 
        </div> 
        <p>A <code class="highlighter-rouge codehilite">GET</code> to <code class="highlighter-rouge codehilite">/assets/js/index.js</code> will be redirected to: <code class="highlighter-rouge codehilite">http://d7471vfo50fqt.cloudfront.net/assets/js/index.js</code></p> 
+       <p>All these assets features are controlled globally from <code class="highlighter-rouge codehilite">.conf</code> file or individually:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">assets</span><span class="o">(</span><span class="s">"/assets/**"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">etag</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">cdn</span><span class="o">(</span><span class="s">"http://d7471vfo50fqt.cloudfront.net"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">maxAge</span><span class="o">(</span><span class="s">"365d"</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
        <h4 id="routes-assets-module">assets module</h4> 
        <p>There is also a powerful and all-round awesome <a href="/doc/assets">assets</a> module. This module can validate, concatenate, minify or compress JavaScript and CSS assets.</p> 
        <h3 id="routes-precedence-and-order">precedence and order</h3> 
@@ -2127,7 +2148,7 @@ GET /assets/bootstrap/3.3.4/css/bootstrap.css
     <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="n">values</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">MyType</span><span class="o">(</span><span class="n">values</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">0</span><span class="o">)));</span>
   <span class="o">}</span>
   <span class="c1">// no luck! move to next converter</span>
-  <span class="k">return</span> <span class="n">next</span><span class="o">.</span><span class="na">next</span><span class="o">();</span>
+  <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="na">next</span><span class="o">();</span>
 <span class="o">});</span>
 
 <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -2267,7 +2288,7 @@ GET /assets/bootstrap/3.3.4/css/bootstrap.css
 
   <span class="kd">private</span> <span class="n">String</span> <span class="n">country</span><span class="o">;</span>
 
-  <span class="n">publuc</span> <span class="n">Address</span><span class="o">(</span><span class="n">String</span> <span class="n">line</span><span class="o">,</span> <span class="n">String</span> <span class="n">state</span><span class="o">,</span> <span class="n">String</span> <span class="n">country</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="n">Address</span><span class="o">(</span><span class="n">String</span> <span class="n">line</span><span class="o">,</span> <span class="n">String</span> <span class="n">state</span><span class="o">,</span> <span class="n">String</span> <span class="n">country</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">this</span><span class="o">.</span><span class="na">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">;</span>
     <span class="k">this</span><span class="o">.</span><span class="na">state</span> <span class="o">=</span> <span class="n">state</span><span class="o">;</span>
     <span class="k">this</span><span class="o">.</span><span class="na">country</span> <span class="o">=</span> <span class="n">country</span><span class="o">;</span>
@@ -2405,7 +2426,7 @@ GET /assets/bootstrap/3.3.4/css/bootstrap.css
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>In <code class="highlighter-rouge codehilite">mvc routes</code> request locals can be injected via the <code class="highlighter-rouge codehilite">@Local</code> annotation:</p> 
+       <p>In <code class="highlighter-rouge codehilite">mvc routes</code> request locals can be injected via the <code class="highlighter-rouge codehilite">@Local</code> annotation by defining a method parameter with the same name as a request local:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -2413,21 +2434,28 @@ GET /assets/bootstrap/3.3.4/css/bootstrap.css
         <pre class="highlight"><code>
   <span class="nd">@GET</span>
   <span class="kd">public</span> <span class="n">Result</span> <span class="n">localAttr</span><span class="o">(</span><span class="nd">@Local</span> <span class="n">String</span> <span class="n">var</span><span class="o">)</span> <span class="o">{</span>
-    <span class="o">...</span>
+    <span class="c1">// either var will be set to a previously configured value or an error is thrown when this method is requested</span>
   <span class="o">}</span>
 
   <span class="nd">@GET</span>
   <span class="kd">public</span> <span class="n">Result</span> <span class="n">ifLocalAttr</span><span class="o">(</span><span class="nd">@Local</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">var</span><span class="o">)</span> <span class="o">{</span>
-    <span class="o">...</span>
+    <span class="c1">// var will contain an optional that may be empty if no value was previously configured</span>
   <span class="o">}</span>
 
   <span class="nd">@GET</span>
   <span class="kd">public</span> <span class="n">Result</span> <span class="n">attributes</span><span class="o">(</span><span class="nd">@Local</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">attributes</span><span class="o">)</span> <span class="o">{</span>
-    <span class="o">...</span>
+    <span class="c1">// attributes contains the map of local attributes</span>
   <span class="o">}</span>
 
 </code></pre> 
        </div> 
+       <p>Locals that are available by default include:</p> 
+       <ul> 
+        <li><code class="highlighter-rouge codehilite">path</code>: the request path, i.e. <code class="highlighter-rouge codehilite">/myroute</code></li> 
+        <li><code class="highlighter-rouge codehilite">contextPath</code>: application path (a.k.a context path). It is the value defined by: <code class="highlighter-rouge codehilite">application.path</code>.</li> 
+        <li>When the <code class="highlighter-rouge codehilite">Assets</code> module is enabled: your asset filesets postfixed with <code class="highlighter-rouge codehilite">_css</code> and <code class="highlighter-rouge codehilite">_js</code></li> 
+        <li>When the <code class="highlighter-rouge codehilite">Flash</code> module is enabled: <code class="highlighter-rouge codehilite">flash</code>, the map of flash key/values</li> 
+       </ul> 
        <h3 id="request-flash-scope">flash scope</h3> 
        <p>The flash scope is designed to transport success and error messages between requests. It is similar to a <a href="#session">Session</a> but the lifecycle is shorter: <em>data is kept for only one request</em>.</p> 
        <p>The flash scope is implemented as a client side cookie, keeping the application stateless.</p> 
