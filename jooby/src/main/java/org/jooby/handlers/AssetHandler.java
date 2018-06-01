@@ -443,7 +443,7 @@ public class AssetHandler implements Route.Handler {
    * Indicates what to do when an asset is missing (not resolved). Default action is to resolve them
    * as <code>404 (NOT FOUND)</code> request.
    *
-   * If you specify a status code <= 0, missing assets are ignored and the next handler on pipeline
+   * If you specify a status code &lt;= 0, missing assets are ignored and the next handler on pipeline
    * will be executed.
    *
    * @param statusCode HTTP code or 0.

@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-jscs/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-jscs)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-jscs.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-jscs/1.3.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-jscs.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-jscs/1.4.0)
 [![jooby-assets-jscs website](https://img.shields.io/badge/jooby-assets-jscs-brightgreen.svg)](http://jooby.org/doc/assets-jscs)
 # jscs
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-jscs</artifactId>
-  <version>1.3.0</version>
+  <version>1.4.0</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -96,6 +96,8 @@ assets {
 * [closure-compiler](https://github.com/jooby-project/jooby/tree/master/jooby-assets-closure-compiler): Google JavaScript optimizer and minifier.
 
 * [uglify](https://github.com/jooby-project/jooby/tree/master/jooby-assets-uglify): uglify.js optimizer.
+
+* [replace](https://github.com/jooby-project/jooby/tree/master/jooby-assets-replace): replace strings in files while bundling them.
 
 * [requirejs](https://github.com/jooby-project/jooby/tree/master/jooby-assets-requirejs): r.js optimizer.
 

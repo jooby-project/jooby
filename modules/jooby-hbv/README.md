@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-hbv/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-hbv)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hbv.svg)](https://javadoc.io/doc/org.jooby/jooby-hbv/1.3.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hbv.svg)](https://javadoc.io/doc/org.jooby/jooby-hbv/1.4.0)
 [![jooby-hbv website](https://img.shields.io/badge/jooby-hbv-brightgreen.svg)](http://jooby.org/doc/hbv)
 # hibernate validator
 
@@ -17,7 +17,7 @@ Bean validation via [Hibernate Validator](hibernate.org/validator).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbv</artifactId>
-  <version>1.3.0</version>
+  <version>1.4.0</version>
 </dependency>
 ```
 

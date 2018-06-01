@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-pac4j2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-pac4j2)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-pac4j2.svg)](https://javadoc.io/doc/org.jooby/jooby-pac4j2/1.3.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-pac4j2.svg)](https://javadoc.io/doc/org.jooby/jooby-pac4j2/1.4.0)
 [![jooby-pac4j2 website](https://img.shields.io/badge/jooby-pac4j2-brightgreen.svg)](http://jooby.org/doc/pac4j2)
 # pac4j module
 
@@ -19,7 +19,7 @@ Authentication module via: <a href="https://github.com/pac4j/pac4j">Pac4j 2.x</a
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-pac4j2</artifactId>
- <version>1.3.0</version>
+ <version>1.4.0</version>
 </dependency>
 ```
 

@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jade/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jade)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jade.svg)](https://javadoc.io/doc/org.jooby/jooby-jade/1.3.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jade.svg)](https://javadoc.io/doc/org.jooby/jooby-jade/1.4.0)
 [![jooby-jade website](https://img.shields.io/badge/jooby-jade-brightgreen.svg)](http://jooby.org/doc/jade)
 # jade
 
@@ -16,7 +16,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-jade</artifactId>
- <version>1.3.0</version>
+ <version>1.4.0</version>
 </dependency>
 ```
 
@@ -38,7 +38,7 @@
 }
 ```
 
-Templates are loaded from root of classpath: ```/``` and must ends with: ```.html``` file extension.
+Templates are loaded from root of classpath: ```/``` and must ends with: ```.jade``` file extension.
 
 ## request locals
 
@@ -63,15 +63,15 @@ Then from template:
 
 ## template loader
 
-Templates are loaded from the root of classpath and must ends with ```.html```. Using a custom file extension:
+Templates are loaded from the root of classpath and must ends with ```.jade```. Using a custom file extension:
 
 ```java
 {
-  use(new Jade(".jade"));
+  use(new Jade(".html"));
 }
 ```
 
-Default file extension is: `.html`.
+Default file extension is: `.jade`.
 
 ## template cache
 

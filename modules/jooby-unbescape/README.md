@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-unbescape/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-unbescape)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-unbescape.svg)](https://javadoc.io/doc/org.jooby/jooby-unbescape/1.3.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-unbescape.svg)](https://javadoc.io/doc/org.jooby/jooby-unbescape/1.4.0)
 [![jooby-unbescape website](https://img.shields.io/badge/jooby-unbescape-brightgreen.svg)](http://jooby.org/doc/unbescape)
 # unbescape
 
@@ -11,7 +11,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-unbescape</artifactId>
- <version>1.3.0</version>
+ <version>1.4.0</version>
 </dependency>
 ```
 

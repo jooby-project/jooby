@@ -1,5 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby.svg)](https://javadoc.io/doc/org.jooby/jooby/1.3.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby.svg)](https://javadoc.io/doc/org.jooby/jooby/1.4.0)
+[![Become a Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://patreon.com/edgarespina)
 [![Build Status](https://travis-ci.org/jooby-project/jooby.svg?branch=master)](https://travis-ci.org/jooby-project/jooby)
 [![coveralls.io](https://img.shields.io/coveralls/jooby-project/jooby.svg)](https://coveralls.io/r/jooby-project/jooby?branch=master)
 [![codecov.io](https://codecov.io/gh/jooby-project/jooby/branch/master/graph/badge.svg)](https://codecov.io/gh/jooby-project/jooby)
@@ -10,28 +11,6 @@
 # &infin; do more, more easily
 
 [Jooby](http://jooby.org) a modular micro web framework for Java and [Kotlin](http://jooby.org/doc/lang-kotlin):
-
-* **Simple, effective and easy to learn**
-
-* **Fast development cycles**: run, debug and reload your application using [devtools](http://jooby.org/doc/devtools) available for Maven and Gradle
-
-* **Script routes**: annotation and reflection free programming model using lambdas. Similar to [express.js](http://expressjs.com), [Sinatra](http://www.sinatrarb.com), etc..
-
-* **MVC routes**: annotation and reflection programming model using controller classes. Similar to [Spring](http://spring.io), [Jersey](https://jersey.java.net), etc..
-
-* **Multi-server**: [Jetty](http://www.eclipse.org/jetty/), [Netty](http://netty.io) and [Undertow](http://undertow.io)
-
-* **Multi-protocol**: `HTTP`, `HTTPS`, `HTTP 2.0`, `Server-Sent Events` and `Web-Socket`
-
-* **Modular**. Make it **full-stack** via the extensive [module eco-system](http://jooby.org/modules)
-
-* **Ready for the modern web** with the [asset management](http://jooby.org/doc/asset-management) tools
-
-## found this project useful :heart:
-
-* Support by clicking the :star: button on the upper right of this page. :v:
-
-## hello world!
 
 Java:
 
@@ -68,6 +47,30 @@ fun main(args: Array<String>) {
 }
 
 ```
+
+## features
+
+* **Simple, effective and easy to learn**
+
+* **Fast development cycles**: run, debug and reload your application using [devtools](http://jooby.org/doc/devtools) available for Maven and Gradle
+
+* **Script routes**: annotation and reflection free programming model using lambdas. Similar to [express.js](http://expressjs.com), [Sinatra](http://www.sinatrarb.com), etc..
+
+* **MVC routes**: annotation and reflection programming model using controller classes. Similar to [Spring](http://spring.io), [Jersey](https://jersey.java.net), etc..
+
+* **Multi-server**: [Jetty](http://www.eclipse.org/jetty/), [Netty](http://netty.io) and [Undertow](http://undertow.io)
+
+* **Multi-protocol**: `HTTP`, `HTTPS`, `HTTP 2.0`, `Server-Sent Events` and `Web-Socket`
+
+* **Modular**. Make it **full-stack** via the extensive [module eco-system](http://jooby.org/modules)
+
+* **Ready for the modern web** with the [asset management](http://jooby.org/doc/asset-management) tools
+
+## found this project useful :heart:
+
+* Support by clicking the :star: button on the upper right of this page. :v:
+
+* Buy [Edgar](https://patreon.com/edgarespina) a beer!
 
 
 want to contribute?

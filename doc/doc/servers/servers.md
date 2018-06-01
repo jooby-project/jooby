@@ -10,4 +10,6 @@ Change one line and switch between {{netty}}, {{jetty}} or {{undertow}}!!
 
 {{doc/jetty/jetty.md}}
 
-{{doc/servlet/servlet.md}}
+# servlets
+
+{{war.md}}

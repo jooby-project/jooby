@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jackson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jackson)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jackson.svg)](https://javadoc.io/doc/org.jooby/jooby-jackson/1.3.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jackson.svg)](https://javadoc.io/doc/org.jooby/jooby-jackson/1.4.0)
 [![jooby-jackson website](https://img.shields.io/badge/jooby-jackson-brightgreen.svg)](http://jooby.org/doc/jackson)
 # jackson
 
@@ -17,7 +17,7 @@ JSON support from the excellent [Jackson](https://github.com/FasterXML/jackson) 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jackson</artifactId>
-  <version>1.3.0</version>
+  <version>1.4.0</version>
 </dependency>
 ```
 
@@ -40,7 +40,27 @@ import org.jooby.json.Jackson;
 }
 ```
 
-### advanced configuration
+## views
+
+Dynamic views are supported via `org.jooby.json.JacksonView` object:
+
+```java
+{
+  use(new Jackson());
+  
+  get("/public", req -> {
+    Item item = ...
+    return new JacksonView<>(Views.Public.class, item);
+  });
+  
+  get("/internal", req -> {
+    Item item = ...
+    return new JacksonView<>(Views.Internal.class, item);
+  });
+}
+```
+
+## advanced configuration
 
 If you need a special setting or configuration for your [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2.2.0/com/fasterxml/jackson/databind/ObjectMapper.html):
 

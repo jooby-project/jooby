@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-metrics/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-metrics)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-metrics.svg)](https://javadoc.io/doc/org.jooby/jooby-metrics/1.3.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-metrics.svg)](https://javadoc.io/doc/org.jooby/jooby-metrics/1.4.0)
 [![jooby-metrics website](https://img.shields.io/badge/jooby-metrics-brightgreen.svg)](http://jooby.org/doc/metrics)
 # metrics
 
@@ -11,7 +11,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-metrics</artifactId>
-  <version>1.3.0</version>
+  <version>1.4.0</version>
 </dependency>
 ```
 

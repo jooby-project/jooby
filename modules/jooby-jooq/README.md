@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jooq/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jooq)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jooq.svg)](https://javadoc.io/doc/org.jooby/jooby-jooq/1.3.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jooq.svg)](https://javadoc.io/doc/org.jooby/jooby-jooq/1.4.0)
 [![jooby-jooq website](https://img.shields.io/badge/jooby-jooq-brightgreen.svg)](http://jooby.org/doc/jooq)
 # jOOQ
 
@@ -17,7 +17,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-jooq</artifactId>
- <version>1.3.0</version>
+ <version>1.4.0</version>
 </dependency>
 ```
 

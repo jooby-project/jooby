@@ -1,6 +1,4 @@
-# &infin; do more, more easily
-
-[Jooby](http://jooby.org) a modular micro web framework for Java and [Kotlin](http://jooby.org/doc/lang-kotlin):
+## features
 
 * **Simple, effective and easy to learn**
 
@@ -21,3 +19,5 @@
 ## found this project useful :heart:
 
 * Support by clicking the :star: button on the upper right of this page. :v:
+
+* Buy [Edgar](https://patreon.com/edgarespina) a beer!

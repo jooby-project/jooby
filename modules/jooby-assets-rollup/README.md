@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-rollup/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-rollup)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-rollup.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-rollup/1.3.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-rollup.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-rollup/1.4.0)
 [![jooby-assets-rollup website](https://img.shields.io/badge/jooby-assets-rollup-brightgreen.svg)](http://jooby.org/doc/assets-rollup)
 # rollup.js
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-rollup.js</artifactId>
- <version>1.3.0</version>
+ <version>1.4.0</version>
  <scope>provided</scope>
 </dependency>
 ```
@@ -150,6 +150,8 @@ import React from 'react';
 * [closure-compiler](https://github.com/jooby-project/jooby/tree/master/jooby-assets-closure-compiler): Google JavaScript optimizer and minifier.
 
 * [uglify](https://github.com/jooby-project/jooby/tree/master/jooby-assets-uglify): uglify.js optimizer.
+
+* [replace](https://github.com/jooby-project/jooby/tree/master/jooby-assets-replace): replace strings in files while bundling them.
 
 * [requirejs](https://github.com/jooby-project/jooby/tree/master/jooby-assets-requirejs): r.js optimizer.
 

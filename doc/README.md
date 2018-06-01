@@ -1,3 +1,4 @@
+[![Become a Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://patreon.com/edgarespina)
 [![Build Status](https://travis-ci.org/jooby-project/jooby.svg?branch=master)](https://travis-ci.org/jooby-project/jooby)
 [![coveralls.io](https://img.shields.io/coveralls/jooby-project/jooby.svg)](https://coveralls.io/r/jooby-project/jooby?branch=master)
 [![codecov.io](https://codecov.io/gh/jooby-project/jooby/branch/master/graph/badge.svg)](https://codecov.io/gh/jooby-project/jooby)
@@ -5,9 +6,9 @@
 [![Join the chat at https://gitter.im/jooby-project/jooby](https://badges.gitter.im/jooby-project/jooby.svg)](https://gitter.im/jooby-project/jooby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Follow us on twitter](https://img.shields.io/badge/twitter-@joobyproject-blue.svg)](https://twitter.com/joobyproject)
 
-{{jooby-pre.md}}
-
 {{jooby-lang.md}}
+
+{{jooby-pre.md}}
 
 {{jooby-post.md}}
 want to contribute?
