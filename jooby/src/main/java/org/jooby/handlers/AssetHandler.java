@@ -208,6 +208,7 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 import static java.util.Objects.requireNonNull;
 import org.jooby.Asset;
+import org.jooby.Err;
 import org.jooby.Jooby;
 import org.jooby.MediaType;
 import org.jooby.Request;
@@ -283,6 +284,8 @@ public class AssetHandler implements Route.Handler {
   private long maxAge = -1;
 
   private boolean lastModified = true;
+
+  private int statusCode = 404;
 
   /**
    * <p>
@@ -436,6 +439,21 @@ public class AssetHandler implements Route.Handler {
     return this;
   }
 
+  /**
+   * Indicates what to do when an asset is missing (not resolved). Default action is to resolve them
+   * as <code>404 (NOT FOUND)</code> request.
+   *
+   * If you specify a status code <= 0, missing assets are ignored and the next handler on pipeline
+   * will be executed.
+   *
+   * @param statusCode HTTP code or 0.
+   * @return This handler.
+   */
+  public AssetHandler onMissing(final int statusCode) {
+    this.statusCode = statusCode;
+    return this;
+  }
+
   @Override
   public void handle(final Request req, final Response rsp) throws Throwable {
     String path = req.path();
@@ -461,6 +479,8 @@ public class AssetHandler implements Route.Handler {
           doHandle(req, rsp, asset);
         }
       }
+    } else if (statusCode > 0) {
+      throw new Err(statusCode);
     }
   }
 

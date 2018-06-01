@@ -6,7 +6,8 @@ import org.junit.Test;
 public class AssetResolveNextFeature extends ServerFeature {
 
   {
-    assets("/assets/**", "/");
+    assets("/assets/**", "/")
+        .onMissing(0);
 
     assets("/assets/js/*-*.js", "/META-INF/resources/webjars/{0}/{1}/{0}.js");
   }

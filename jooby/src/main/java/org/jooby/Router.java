@@ -203,6 +203,11 @@
  */
 package org.jooby;
 
+import org.jooby.Route.Mapper;
+import org.jooby.funzy.Try;
+import org.jooby.handlers.AssetHandler;
+
+import javax.annotation.Nonnull;
 import java.net.URLDecoder;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -210,16 +215,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
-
-import com.google.common.escape.Escaper;
-import com.google.common.net.PercentEscaper;
-import org.jooby.Route.Mapper;
-import org.jooby.funzy.Try;
-import org.jooby.handlers.AssetHandler;
-
-import javax.annotation.Nonnull;
 
 /**
  * Route DSL. Constructs and creates several flavors of jooby routes.
@@ -2009,7 +2005,7 @@ public interface Router {
    * @return A new route definition.
    */
   @Nonnull
-  default Route.Definition assets(final String path) {
+  default Route.AssetDefinition assets(final String path) {
     return assets(path, "/");
   }
 
@@ -2043,7 +2039,7 @@ public interface Router {
    * @return A new route definition.
    */
   @Nonnull
-  Route.Definition assets(final String path, Path basedir);
+  Route.AssetDefinition assets(final String path, Path basedir);
 
   /**
    * Static files handler. Like {@link #assets(String)} but let you specify a different classpath
@@ -2089,7 +2085,7 @@ public interface Router {
    * @return A new route definition.
    */
   @Nonnull
-  Route.Definition assets(String path, String location);
+  Route.AssetDefinition assets(String path, String location);
 
   /**
    * Send static files, like {@link #assets(String)} but let you specify a custom
@@ -2100,7 +2096,7 @@ public interface Router {
    * @return A new route definition.
    */
   @Nonnull
-  Route.Definition assets(String path, AssetHandler handler);
+  Route.AssetDefinition assets(String path, AssetHandler handler);
 
   /**
    * <p>

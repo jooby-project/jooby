@@ -241,6 +241,17 @@ assets.cdn = "http://d7471vfo50fqt.cloudfront.net"
 A ```GET``` to ```/assets/js/index.js``` will be redirected to: ```http://d7471vfo50fqt.cloudfront.net/assets/js/index.js```
 
 
+All these assets features are controlled globally from `.conf` file or individually:
+
+```java
+{
+  assets("/assets/**")
+    .etag(true)
+    .cdn("http://d7471vfo50fqt.cloudfront.net")
+    .maxAge("365d");
+}
+```
+
 ### assets module
 
 There is also a powerful and all-round awesome [assets](/doc/assets) module. This module can validate, concatenate, minify or compress JavaScript and CSS assets.

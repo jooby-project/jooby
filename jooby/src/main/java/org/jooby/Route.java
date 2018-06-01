@@ -213,17 +213,19 @@ import com.google.common.primitives.Primitives;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import static java.util.Objects.requireNonNull;
+import org.jooby.funzy.Throwing;
+import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.RouteSourceImpl;
 import org.jooby.internal.SourceProvider;
-import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -2050,7 +2052,136 @@ public interface Route {
      * @throws Throwable If something goes wrong.
      */
     void handle(Request req, Response rsp, Route.Chain chain) throws Throwable;
+  }
 
+  /**
+   * Allow to customize an asset handler.
+   *
+   * @author edgar
+   */
+  class AssetDefinition extends Definition {
+
+    private Boolean etag;
+
+    private String cdn;
+
+    private Object maxAge;
+
+    private Boolean lastModifiedSince;
+
+    private Integer statusCode;
+
+    /**
+     * Creates a new route definition.
+     *
+     * @param method A HTTP verb or <code>*</code>.
+     * @param pattern A path pattern.
+     * @param handler A callback to execute.
+     * @param caseSensitiveRouting Configure case for routing algorithm.
+     */
+    public AssetDefinition(final String method, final String pattern,
+        final Route.Filter handler, boolean caseSensitiveRouting) {
+      super(method, pattern, handler, caseSensitiveRouting);
+    }
+
+    @Nonnull
+    @Override
+    public AssetHandler filter() {
+      return (AssetHandler) super.filter();
+    }
+
+    /**
+     * Indicates what to do when an asset is missing (not resolved). Default action is to resolve them
+     * as <code>404 (NOT FOUND)</code> request.
+     *
+     * If you specify a status code <= 0, missing assets are ignored and the next handler on pipeline
+     * will be executed.
+     *
+     * @param statusCode HTTP code or 0.
+     * @return This route definition.
+     */
+    public AssetDefinition onMissing(final int statusCode) {
+      if (this.statusCode == null) {
+        filter().onMissing(statusCode);
+        this.statusCode = statusCode;
+      }
+      return this;
+    }
+
+    /**
+     * @param etag Turn on/off etag support.
+     * @return This route definition.
+     */
+    public AssetDefinition etag(final boolean etag) {
+      if (this.etag == null) {
+        filter().etag(etag);
+        this.etag = etag;
+      }
+      return this;
+    }
+
+    /**
+     * @param enabled Turn on/off last modified support.
+     * @return This route definition.
+     */
+    public AssetDefinition lastModified(final boolean enabled) {
+      if (this.lastModifiedSince == null) {
+        filter().lastModified(enabled);
+        this.lastModifiedSince = enabled;
+      }
+      return this;
+    }
+
+    /**
+     * @param cdn If set, every resolved asset will be serve from it.
+     * @return This route definition.
+     */
+    public AssetDefinition cdn(final String cdn) {
+      if (this.cdn == null) {
+        filter().cdn(cdn);
+        this.cdn = cdn;
+      }
+      return this;
+    }
+
+    /**
+     * @param maxAge Set the cache header max-age value.
+     * @return This route definition.
+     */
+    public AssetDefinition maxAge(final Duration maxAge) {
+      if (this.maxAge == null) {
+        filter().maxAge(maxAge);
+        this.maxAge = maxAge;
+      }
+      return this;
+    }
+
+    /**
+     * @param maxAge Set the cache header max-age value in seconds.
+     * @return This route definition.
+     */
+    public AssetDefinition maxAge(final long maxAge) {
+      if (this.maxAge == null) {
+        filter().maxAge(maxAge);
+        this.maxAge = maxAge;
+      }
+      return this;
+    }
+
+    /**
+     * Parse value as {@link Duration}. If the value is already a number then it uses as seconds.
+     * Otherwise, it parse expressions like: 8m, 1h, 365d, etc...
+     *
+     * @param maxAge Set the cache header max-age value in seconds.
+     * @return This route definition.
+     */
+    public AssetDefinition maxAge(final String maxAge) {
+      if (this.maxAge == null) {
+        filter().maxAge(maxAge);
+        this.maxAge = maxAge;
+      }
+      return this;
+    }
   }
 
   /**

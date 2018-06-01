@@ -1,29 +1,27 @@
 package org.jooby.issues;
 
+import org.jooby.test.ServerFeature;
+import org.junit.Assert;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import org.jooby.handlers.AssetHandler;
-import org.jooby.test.ServerFeature;
-import org.junit.Assert;
-import org.junit.Test;
-
 public class Issue356 extends ServerFeature {
   {
-    assets("/assets/file.css", new AssetHandler("/")
-      .etag(false).lastModified(false).maxAge(TimeUnit.HOURS.toSeconds(24)));
+    assets("/assets/file.css")
+      .etag(false).lastModified(false).maxAge(TimeUnit.HOURS.toSeconds(24));
 
-    assets("/assets/favicon.ico", new AssetHandler("/")
-      .etag(false).lastModified(true).maxAge(Duration.ofDays(14)));
+    assets("/assets/favicon.ico")
+      .etag(false).lastModified(true).maxAge(Duration.ofDays(14));
 
-    assets("/assets/file.js", new AssetHandler("/")
-      .etag(true).lastModified(false).maxAge(Duration.ofDays(2)));
+    assets("/assets/file.js")
+      .etag(true).lastModified(false).maxAge(Duration.ofDays(2));
 
-    assets("/assets/empty.css", new AssetHandler("/")
-      .etag(true).lastModified(true).maxAge("7d"));
+    assets("/assets/empty.css")
+      .etag(true).lastModified(true).maxAge("7d");
   }
 
   @Test

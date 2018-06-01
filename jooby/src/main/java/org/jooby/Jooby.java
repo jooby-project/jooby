@@ -1922,22 +1922,19 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   @Override
-  public Definition assets(final String path, final Path basedir) {
-    AssetHandler handler = new AssetHandler(basedir);
-    configureAssetHandler(handler);
-    return assets(path, handler);
+  public Route.AssetDefinition assets(final String path, final Path basedir) {
+    return assets(path, new AssetHandler(basedir));
   }
 
   @Override
-  public Route.Definition assets(final String path, final String location) {
-    AssetHandler handler = new AssetHandler(location);
-    configureAssetHandler(handler);
-    return assets(path, handler);
+  public Route.AssetDefinition assets(final String path, final String location) {
+    return assets(path, new AssetHandler(location));
   }
 
   @Override
-  public Route.Definition assets(final String path, final AssetHandler handler) {
-    return appendDefinition(GET, path, handler);
+  public Route.AssetDefinition assets(final String path, final AssetHandler handler) {
+    Route.AssetDefinition route = appendDefinition(GET, path, handler, Route.AssetDefinition::new);
+    return configureAssetHandler(route);
   }
 
   @Override
@@ -1963,9 +1960,22 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return The same route definition.
    */
   private Route.Definition appendDefinition(String method, String pattern, Route.Filter filter) {
+    return appendDefinition(method, pattern, filter, Route.Definition::new);
+  }
+
+  /**
+   * Keep track of routes in the order user define them.
+   *
+   * @param method Route method.
+   * @param pattern Route pattern.
+   * @param filter Route filter.
+   * @param creator Route creator.
+   * @return The same route definition.
+   */
+  private <T extends Route.Definition> T appendDefinition(String method, String pattern,
+      Route.Filter filter, Throwing.Function4<String, String, Route.Filter, Boolean, T> creator) {
     String pathPattern = prefixPath(pattern).orElse(pattern);
-    Route.Definition route = new Route.Definition(method, pathPattern, filter,
-        caseSensitiveRouting);
+    T route = creator.apply(method, pathPattern, filter, caseSensitiveRouting);
     if (prefix != null) {
       route.prefix = prefix;
       // reset name will update the name if prefix != null
@@ -3493,7 +3503,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     return LoggerFactory.getLogger(app.getClass());
   }
 
-  public void configureAssetHandler(final AssetHandler handler) {
+  private Route.AssetDefinition configureAssetHandler(final Route.AssetDefinition handler) {
     onStart(r -> {
       Config conf = r.require(Config.class);
       handler
@@ -3502,6 +3512,7 @@ public class Jooby implements Router, LifeCycle, Registry {
           .etag(conf.getBoolean("assets.etag"))
           .maxAge(conf.getString("assets.cache.maxAge"));
     });
+    return handler;
   }
 
   /**
