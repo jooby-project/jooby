@@ -203,7 +203,18 @@
  */
 package org.jooby.internal.undertow;
 
+import com.google.common.collect.ImmutableList;
+import io.undertow.Handlers;
+import io.undertow.io.IoCallback;
+import io.undertow.server.HttpServerExchange;
+import io.undertow.util.HeaderMap;
+import io.undertow.util.HeaderValues;
+import io.undertow.util.Headers;
+import io.undertow.util.HttpString;
 import static java.util.Objects.requireNonNull;
+import org.jooby.spi.NativeResponse;
+import org.jooby.spi.NativeWebSocket;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -212,19 +223,6 @@ import java.nio.channels.FileChannel;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import org.jooby.spi.NativeResponse;
-import org.jooby.spi.NativeWebSocket;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
-
-import io.undertow.Handlers;
-import io.undertow.io.IoCallback;
-import io.undertow.server.HttpServerExchange;
-import io.undertow.util.HeaderMap;
-import io.undertow.util.HeaderValues;
-import io.undertow.util.HttpString;
 
 public class UndertowResponse implements NativeResponse {
 
@@ -251,6 +249,9 @@ public class UndertowResponse implements NativeResponse {
 
   @Override
   public void header(final String name, final String value) {
+    if ("Content-Length".equalsIgnoreCase(name)) {
+      exchange.getResponseHeaders().remove(Headers.TRANSFER_ENCODING);
+    }
     exchange.getResponseHeaders().put(HttpString.tryFromString(name), value);
   }
 

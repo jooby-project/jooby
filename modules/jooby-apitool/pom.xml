@@ -49,7 +49,7 @@
       <plugin>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-maven-plugin</artifactId>
-        <version>4.7</version>
+        <version>4.7.1</version>
         <configuration>
           <libDirectory>src/main/antlr4</libDirectory>
           <outputDirectory>src/main/java</outputDirectory>

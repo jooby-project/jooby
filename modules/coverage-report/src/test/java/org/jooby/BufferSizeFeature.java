@@ -1,14 +1,15 @@
 package org.jooby;
 
-import java.io.ByteArrayInputStream;
-import java.util.Optional;
-
-import org.jooby.test.ServerFeature;
-import org.junit.Test;
-
 import com.google.common.base.Charsets;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+import org.jooby.test.OnServer;
+import org.jooby.test.ServerFeature;
+import org.jooby.undertow.Undertow;
+import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.util.Optional;
 
 public class BufferSizeFeature extends ServerFeature {
 

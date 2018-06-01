@@ -2978,10 +2978,10 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <!-- Dependencies -->
     <funzy.version>0.1.0</funzy.version>
     <jackson.version>2.9.5</jackson.version>
-    <undertow.version>1.4.23.Final</undertow.version>
+    <undertow.version>1.4.25.Final</undertow.version>
     <servlet.version>3.1.0</servlet.version>
-    <jetty.version>9.4.9.v20180320</jetty.version>
-    <netty.version>4.1.24.Final</netty.version>
+    <jetty.version>9.4.10.v20180503</jetty.version>
+    <netty.version>4.1.25.Final</netty.version>
     <boringssl.version>2.0.8.Final</boringssl.version>
     <javassist.version>3.22.0-GA</javassist.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
@@ -2991,11 +2991,11 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <guava.version>21.0</guava.version>
     <guice.version>4.1.0</guice.version>
     <config.version>1.3.2</config.version>
-    <handlebars.version>4.0.6</handlebars.version>
+    <handlebars.version>4.0.7</handlebars.version>
     <h2.version>1.4.196</h2.version>
     <mysql-connector-java.version>5.1.42</mysql-connector-java.version>
     <pgjdbc-ng.version>0.7.1</pgjdbc-ng.version>
-    <hikariCP.version>2.7.7</hikariCP.version>
+    <hikariCP.version>3.2.0</hikariCP.version>
     <hibernate.version>5.2.1.Final</hibernate.version>
     <jsr305.version>3.0.2</jsr305.version>
     <http-client.version>4.5.2</http-client.version>
@@ -3005,15 +3005,15 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <asm.version>6.1.1</asm.version>
     <quartz.version>2.2.2</quartz.version>
     <jdbi.version>2.78</jdbi.version>
-    <jdbi3.version>3.0.1</jdbi3.version>
-    <freemarker.version>2.3.26-incubating</freemarker.version>
+    <jdbi3.version>3.2.1</jdbi3.version>
+    <freemarker.version>2.3.28</freemarker.version>
     <camel.version>2.18.3</camel.version>
     <jedis.version>2.9.0</jedis.version>
     <mongo-driver-core.version>3.2.2</mongo-driver-core.version>
     <mongo-java-driver.version>3.2.2</mongo-java-driver.version>
     <mongodb-driver-async.version>${mongo-java-driver.version}</mongodb-driver-async.version>
     <morphia.version>1.1.1</morphia.version>
-    <jboss-modules.version>1.7.0.Beta3</jboss-modules.version>
+    <jboss-modules.version>1.8.5.Final</jboss-modules.version>
     <elasticsearch>5.5.3</elasticsearch>
     <hibernate-validator.version>5.1.3.Final</hibernate-validator.version>
     <javax.el-api.version>2.2.5</javax.el-api.version>
@@ -3036,10 +3036,10 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <flyway.version>5.0.7</flyway.version>
     <hazelcast.version>3.9.2</hazelcast.version>
     <less4j.version>1.13.0</less4j.version>
-    <ebean.version>10.1.7</ebean.version>
+    <ebean.version>11.16.1</ebean.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
-    <ebean-agent.version>10.1.7</ebean-agent.version>
-    <ebean-maven-plugin.version>10.1.7</ebean-maven-plugin.version>
+    <ebean-agent.version>11.11.1</ebean-agent.version>
+    <ebean-maven-plugin.version>11.11.2</ebean-maven-plugin.version>
     <akka.version>2.5.9</akka.version>
     <yuicompressor.version>2.4.8</yuicompressor.version>
     <closure-compiler.version>v20180204</closure-compiler.version>

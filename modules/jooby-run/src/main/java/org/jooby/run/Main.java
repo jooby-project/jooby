@@ -203,6 +203,12 @@
  */
 package org.jooby.run;
 
+import org.jboss.modules.Module;
+import org.jboss.modules.ModuleClassLoader;
+import org.jboss.modules.ModuleIdentifier;
+import org.jboss.modules.ModuleLoader;
+import org.jboss.modules.log.ModuleLogger;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -212,6 +218,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -232,12 +239,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.LongStream;
-
-import org.jboss.modules.Module;
-import org.jboss.modules.ModuleClassLoader;
-import org.jboss.modules.ModuleIdentifier;
-import org.jboss.modules.ModuleLoader;
-import org.jboss.modules.log.ModuleLogger;
 
 public class Main {
 
@@ -639,6 +640,12 @@ public class Main {
         @Override
         public void classDefineFailed(final Throwable throwable, final String className,
             final Module module) {
+        }
+
+        @Override public void jaxpClassLoaded(Class<?> aClass, Module module) {
+        }
+
+        @Override public void jaxpResourceLoaded(URL url, Module module) {
         }
       });
     }
