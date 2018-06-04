@@ -41,12 +41,6 @@
 
     <dependency>
       <groupId>org.jooby</groupId>
-      <artifactId>jooby-spec</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jooby</groupId>
       <artifactId>jooby-apitool</artifactId>
       <version>${project.version}</version>
     </dependency>

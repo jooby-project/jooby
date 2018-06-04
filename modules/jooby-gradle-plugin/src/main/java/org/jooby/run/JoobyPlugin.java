@@ -210,7 +210,6 @@ import org.gradle.api.internal.ConventionMapping;
 import org.gradle.api.invocation.Gradle;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -230,8 +229,6 @@ public class JoobyPlugin implements Plugin<Project> {
     configureJoobyRun(project);
 
     configureJoobyAssets(project);
-
-    configureJoobySpec(project);
 
     configureApiTool(project);
   }
@@ -289,25 +286,6 @@ public class JoobyPlugin implements Plugin<Project> {
     options.put(Task.TASK_DEPENDS_ON, "classes");
     options.put(Task.TASK_NAME, "joobyAssets");
     options.put(Task.TASK_DESCRIPTION, "Process, optimize and compress static files");
-    options.put(Task.TASK_GROUP, "jooby");
-    project.getTasks().create(options);
-  }
-
-  private void configureJoobySpec(final Project project) {
-    project.getTasks()
-        .withType(SpecTask.class, task -> {
-          ConventionMapping mapping = task.getConventionMapping();
-
-          mapping.map("mainClassName", () -> project.getProperties().get("mainClassName"));
-
-          mapping.map("source", () -> new JoobyProject(project).javaSrc());
-        });
-
-    Map<String, Object> options = new HashMap<>();
-    options.put(Task.TASK_TYPE, SpecTask.class);
-    options.put(Task.TASK_DEPENDS_ON, "classes");
-    options.put(Task.TASK_NAME, "joobySpec");
-    options.put(Task.TASK_DESCRIPTION, "Export your API/microservices outside a Jooby application");
     options.put(Task.TASK_GROUP, "jooby");
     project.getTasks().create(options);
   }

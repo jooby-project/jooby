@@ -14,7 +14,6 @@
 
   <modules>
     <module>jooby-apitool</module>
-    <module>jooby-spec</module>
     <module>jooby-executor</module>
     <module>jooby-jackson</module>
     <module>jooby-gson</module>
