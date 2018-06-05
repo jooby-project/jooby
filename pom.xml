@@ -3073,6 +3073,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <neo4j.version>3.3.2</neo4j.version>
     <jcypher.version>3.9.0</jcypher.version>
     <dse-driver.version>1.1.2</dse-driver.version>
+    <progressbar.version>0.6.0</progressbar.version>
 
     <!-- config -->
     <ebean.agent.packages>**</ebean.agent.packages>
@@ -3149,6 +3150,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <capsule-maven-plugin.version>1.0.4</capsule-maven-plugin.version>
     <docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
     <depencency-check-maven.version>2.1.1</depencency-check-maven.version>
+    <archetype-packaging.version>2.2</archetype-packaging.version>
+    <maven-archetype-plugin.version>2.2</maven-archetype-plugin.version>
 
     <jooby.version>${project.version}</jooby.version>
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
