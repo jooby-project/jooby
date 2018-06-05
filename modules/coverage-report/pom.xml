@@ -254,7 +254,7 @@
               <dependency>
                 <groupId>org.mortbay.jetty.alpn</groupId>
                 <artifactId>alpn-boot</artifactId>
-                <version>${alpn-boot.version}</version> <!-- TODO: update to 8.1.12.v20180117 -->
+                <version>s${alpn-boot.version}</version> <!-- TODO: update to 8.1.12.v20180117 -->
               </dependency>
             </dependencies>
           </plugin>
@@ -1103,12 +1103,6 @@
     </dependency>
 
     <!-- Test dependencies -->
-    <dependency>
-      <groupId>org.pac4j</groupId>
-      <artifactId>pac4j-oauth</artifactId>
-      <version>${pac4j2.version}</version>
-    </dependency>
-
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-cas</artifactId>
