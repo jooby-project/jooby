@@ -1142,7 +1142,7 @@
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>swagger-ui</artifactId>
-      <version>3.14.2</version>
+      <version>${swagger-ui.version}</version>
     </dependency>
 
     <!-- Test dependencies -->
@@ -1175,7 +1175,7 @@
     <dependency>
       <groupId>com.sun.jersey</groupId>
       <artifactId>jersey-client</artifactId>
-      <version>1.19.1</version>
+      <version>${jersey-client.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -1234,7 +1234,7 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.8.2</version>
+      <version>1.8.2</version> <!-- TODO: update to jsoup.version == 1.8.3 -->
       <scope>test</scope>
     </dependency>
 
@@ -1253,13 +1253,13 @@
     <dependency>
       <groupId>io.reactivex.rxjava2</groupId>
       <artifactId>rxjava</artifactId>
-      <version>2.0.7</version>
+      <version>${rxjava2.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.datastax.cassandra</groupId>
       <artifactId>dse-driver</artifactId>
-      <version>1.1.2</version>
+      <version>${dse-driver.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -1295,7 +1295,7 @@
     <dependency>
       <groupId>com.impossibl.pgjdbc-ng</groupId>
       <artifactId>pgjdbc-ng</artifactId>
-      <version>0.7.1</version>
+      <version>${pgjdbc-ng.version}</version>
       <optional>true</optional>
       <exclusions>
         <exclusion>
