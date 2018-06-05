@@ -3075,6 +3075,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jcypher.version>3.9.0</jcypher.version>
     <dse-driver.version>1.1.2</dse-driver.version>
     <progressbar.version>0.6.0</progressbar.version>
+    <xmlgraphics-commons.version>2.1</xmlgraphics-commons.version>
 
     <!-- config -->
     <ebean.agent.packages>**</ebean.agent.packages>
