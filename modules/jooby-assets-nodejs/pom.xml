@@ -81,7 +81,7 @@
     <dependency>
       <groupId>org.webjars.npm</groupId>
       <artifactId>jquery</artifactId>
-      <version>3.1.1</version>
+      <version>3.1.1</version><!-- TODO: inject jquery.version -->
       <scope>test</scope>
     </dependency>
 
