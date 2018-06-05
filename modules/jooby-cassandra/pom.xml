@@ -122,7 +122,7 @@
     <dependency>
       <groupId>com.datastax.cassandra</groupId>
       <artifactId>dse-driver</artifactId>
-      <version>1.1.2</version>
+      <version>${dse-driver.version}</version>
       <scope>test</scope>
     </dependency>
 
