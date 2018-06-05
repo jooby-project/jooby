@@ -3154,6 +3154,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <depencency-check-maven.version>2.1.1</depencency-check-maven.version>
     <archetype-packaging.version>2.2</archetype-packaging.version>
     <maven-archetype-plugin.version>2.2</maven-archetype-plugin.version>
+    <duplicate-finder-maven-plugin.version>1.2.1</duplicate-finder-maven-plugin.version>
 
     <jooby.version>${project.version}</jooby.version>
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
