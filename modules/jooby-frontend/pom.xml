@@ -42,7 +42,7 @@
     <dependency>
       <groupId>com.github.eirslett</groupId>
       <artifactId>frontend-plugin-core</artifactId>
-      <version>1.6</version>
+      <version>${frontend-plugin-core.version}</version>
     </dependency>
 
     <!-- Test dependencies -->

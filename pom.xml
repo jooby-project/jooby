@@ -3076,6 +3076,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <dse-driver.version>1.1.2</dse-driver.version>
     <progressbar.version>0.6.0</progressbar.version>
     <xmlgraphics-commons.version>2.1</xmlgraphics-commons.version>
+    <frontend-plugin-core.version>1.6</frontend-plugin-core.version>
+    <javax.inject.version>1</javax.inject.version>
 
     <!-- config -->
     <ebean.agent.packages>**</ebean.agent.packages>
@@ -3155,6 +3157,11 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <archetype-packaging.version>2.2</archetype-packaging.version>
     <maven-archetype-plugin.version>2.2</maven-archetype-plugin.version>
     <duplicate-finder-maven-plugin.version>1.2.1</duplicate-finder-maven-plugin.version>
+
+    <!-- Gradle plugins -->
+    <gradle-core.version>2.6</gradle-core.version>
+    <gradle-tooling-api.version>2.6</gradle-tooling-api.version>
+    <gradle-plugins.version>0.9-rc-1</gradle-plugins.version>
 
     <jooby.version>${project.version}</jooby.version>
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
