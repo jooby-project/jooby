@@ -3164,6 +3164,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <duplicate-finder-maven-plugin.version>1.2.1</duplicate-finder-maven-plugin.version>
     <dokka-maven-plugin.version>0.9.13</dokka-maven-plugin.version>
     <maven-plugin-plugin.version>3.5</maven-plugin-plugin.version>
+    <jarjar-maven-plugin.version>1.9</jarjar-maven-plugin.version>
 
     <!-- Gradle plugins -->
     <gradle-core.version>2.6</gradle-core.version>
