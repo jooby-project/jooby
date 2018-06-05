@@ -23,7 +23,7 @@
         <groupId>org.jetbrains.kotlin</groupId>
         <version>${kotlin.version}</version>
         <configuration>
-          <jvmTarget>1.8</jvmTarget>
+          <jvmTarget>${java.target.version}</jvmTarget>
           <args>
             <arg>-java-parameters</arg>
           </args>
@@ -67,7 +67,7 @@
       <plugin>
         <groupId>org.jetbrains.dokka</groupId>
         <artifactId>dokka-maven-plugin</artifactId>
-        <version>0.9.13</version>
+        <version>${dokka-maven-plugin.version}</version>
         <executions>
           <execution>
             <phase>verify</phase>

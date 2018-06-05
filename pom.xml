@@ -3116,6 +3116,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <!-- Maven properties -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.source.version>1.8</java.source.version>
+    <java.target.version>1.8</java.target.version>
+
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
     <timestamp>${maven.build.timestamp}</timestamp>
 
@@ -3159,6 +3161,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <archetype-packaging.version>2.2</archetype-packaging.version>
     <maven-archetype-plugin.version>2.2</maven-archetype-plugin.version>
     <duplicate-finder-maven-plugin.version>1.2.1</duplicate-finder-maven-plugin.version>
+    <dokka-maven-plugin.version>0.9.13</dokka-maven-plugin.version>
 
     <!-- Gradle plugins -->
     <gradle-core.version>2.6</gradle-core.version>
