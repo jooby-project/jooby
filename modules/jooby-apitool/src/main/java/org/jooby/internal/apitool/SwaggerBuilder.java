@@ -734,7 +734,7 @@ public class SwaggerBuilder {
     List<Parameter> parameters = new ArrayList<>();
     Model model = models.get(typeName);
     Map<String, Property> properties = model.getProperties();
-    Optional.ofNullable(properties).ifPresent(properties -> properties.values().stream()
+    Optional.ofNullable(properties).ifPresent(props -> props.values().stream()
         .flatMap(p -> {
           SerializableParameter result = complement(p, it, factory.get());
           String name = prefix + p.getName();
