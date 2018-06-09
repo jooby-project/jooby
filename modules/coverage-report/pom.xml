@@ -254,7 +254,7 @@
               <dependency>
                 <groupId>org.mortbay.jetty.alpn</groupId>
                 <artifactId>alpn-boot</artifactId>
-                <version>s${alpn-boot.version}</version> <!-- TODO: update to 8.1.12.v20180117 -->
+                <version>${alpn-boot.version}</version>
               </dependency>
             </dependencies>
           </plugin>
