@@ -42,7 +42,7 @@
     <dependency>
       <groupId>io.bit3</groupId>
       <artifactId>jsass</artifactId>
-      <version>5.2.0</version>
+      <version>${jsass.version}</version>
     </dependency>
 
     <!-- Test dependencies -->

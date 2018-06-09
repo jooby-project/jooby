@@ -55,13 +55,6 @@
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.pac4j</groupId>
-      <artifactId>pac4j-oauth</artifactId>
-      <version>${pac4j2.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.pac4j</groupId>
       <artifactId>pac4j-cas</artifactId>
       <version>${pac4j2.version}</version>
       <scope>test</scope>

@@ -19,7 +19,7 @@
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>jarjar-maven-plugin</artifactId>
-        <version>1.9</version>
+        <version>${jarjar-maven-plugin.version}</version>
         <executions>
           <execution>
             <goals>

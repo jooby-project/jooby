@@ -175,7 +175,7 @@
     <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr4-runtime</artifactId>
-      <version>4.7</version>
+      <version>${antlr4-runtime.version}</version>
       <optional>true</optional>
       <exclusions>
         <exclusion>
@@ -235,7 +235,7 @@
     <dependency>
       <groupId>io.swagger</groupId>
       <artifactId>swagger-parser</artifactId>
-      <version>1.0.34</version>
+      <version>${swagger-parser.version}</version>
     </dependency>
 
     <dependency>
