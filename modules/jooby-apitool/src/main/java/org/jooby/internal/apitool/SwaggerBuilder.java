@@ -734,7 +734,7 @@ public class SwaggerBuilder {
     List<Parameter> parameters = new ArrayList<>();
     Model model = models.get(typeName);
     Map<String, Property> properties = model.getProperties();
-    properties.values().stream()
+    Optional.ofNullable(properties).ifPresent(props -> props.values().stream()
         .flatMap(p -> {
           SerializableParameter result = complement(p, it, factory.get());
           String name = prefix + p.getName();
@@ -752,7 +752,8 @@ public class SwaggerBuilder {
             return Stream.of(result);
           }
         })
-        .forEach(parameters::add);
+        .forEach(parameters::add)
+    );
     return parameters;
   }
 
