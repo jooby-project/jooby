@@ -244,6 +244,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * <h1>couchbase</h1>
@@ -586,9 +587,9 @@ public class Couchbase implements Module {
 
   private Function<Config, CouchbaseEnvironment> env = c -> DefaultCouchbaseEnvironment.create();
 
-  private String db;
+  private final String db;
 
-  private Set<String> buckets = new LinkedHashSet<>();
+  private final Set<String> buckets = new LinkedHashSet<>();
 
   private Optional<String> sessionBucket = Optional.empty();
 
@@ -675,18 +676,14 @@ public class Couchbase implements Module {
 
     // dump couchbase.env.* as system properties
     if (conf.hasPath("couchbase.env")) {
-      conf.getConfig("couchbase.env").entrySet().forEach(e -> {
-        System.setProperty("com.couchbase." + e.getKey(), e.getValue().unwrapped().toString());
-      });
+      conf.getConfig("couchbase.env").entrySet().forEach(e -> System.setProperty("com.couchbase." + e.getKey(), e.getValue().unwrapped().toString()));
     }
 
     log.debug("Starting {}", cstr);
 
     ServiceKey serviceKey = env.serviceKey();
     Throwing.Function3<Class, String, Object, Void> bind = (type, name, value) -> {
-      serviceKey.generate(type, name, k -> {
-        binder.bind(k).toInstance(value);
-      });
+      serviceKey.generate(type, name, k -> binder.bind(k).toInstance(value));
       return null;
     };
 
@@ -710,15 +707,13 @@ public class Couchbase implements Module {
     Set<String> buckets = Sets.newHashSet(defbucket);
     buckets.addAll(this.buckets);
 
-    Function<String, String> password = name -> {
-      return Arrays.asList(
-          "couchbase.bucket." + name + ".password",
-          "couchbase.bucket.password").stream()
-          .filter(conf::hasPath)
-          .map(conf::getString)
-          .findFirst()
-          .orElse(null);
-    };
+    Function<String, String> password = name -> Stream.of(
+        "couchbase.bucket." + name + ".password",
+        "couchbase.bucket.password")
+        .filter(conf::hasPath)
+        .map(conf::getString)
+        .findFirst()
+        .orElse(null);
     buckets.forEach(name -> {
       Bucket bucket = cluster.openBucket(name, password.apply(name));
       log.debug("  bucket opened: {}", name);
@@ -750,11 +745,9 @@ public class Couchbase implements Module {
     bind.apply(Bucket.class, "session", cluster.openBucket(session, password.apply(session)));
 
     env.onStop(r -> {
-      buckets.forEach(n -> {
-        Try.apply(() -> r.require(n, Bucket.class).close())
-            .onFailure(x -> log.debug("bucket {} close operation resulted in exception", n, x))
-            .orElse(false);
-      });
+      buckets.forEach(n -> Try.apply(() -> r.require(n, Bucket.class).close())
+          .onFailure(x -> log.debug("bucket {} close operation resulted in exception", n, x))
+          .orElse(false));
       Try.run(cluster::disconnect)
           .onFailure(x -> log.debug("disconnect operation resulted in exception", x));
 
@@ -787,10 +780,8 @@ public class Couchbase implements Module {
   }
 
   private static Function<Object, Object> idGen(final Bucket bucket) {
-    return entity -> {
-      return IdGenerator.getOrGenId(entity,
-          () -> bucket.counter(entity.getClass().getName(), 1, 1).content());
-    };
+    return entity -> IdGenerator.getOrGenId(entity,
+        () -> bucket.counter(entity.getClass().getName(), 1, 1).content());
   }
 
 }
