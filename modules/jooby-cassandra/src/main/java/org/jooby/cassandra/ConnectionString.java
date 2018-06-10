@@ -215,11 +215,11 @@ class ConnectionString {
   public static final String SCHEMA = "cassandra://";
   private static final String SAMPLE = SCHEMA + "host[, host]*[:port]/keyspace";
 
-  private String[] address;
+  private final String[] address;
 
-  private int port;
+  private final int port;
 
-  private String keyspace;
+  private final String keyspace;
 
   private ConnectionString(final String[] address, final int port, final String keyspace) {
     this.address = address;
