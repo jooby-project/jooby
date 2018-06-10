@@ -226,7 +226,7 @@ public class AwsShutdownSupport implements Throwing.Runnable {
   }
 
   @Override
-  public void tryRun() throws Throwable {
+  public void tryRun() {
     if (dep == null) {
       return;
     }
