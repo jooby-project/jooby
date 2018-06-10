@@ -208,12 +208,15 @@ import java.util.concurrent.CompletableFuture;
 import org.jooby.Deferred;
 import org.jooby.Route;
 
+import javax.annotation.Nonnull;
+
 @SuppressWarnings("rawtypes")
 public class CompletableFutureMapper implements Route.Mapper<CompletableFuture> {
 
+  @Nonnull
   @SuppressWarnings("unchecked")
   @Override
-  public Object map(final CompletableFuture future) throws Throwable {
+  public Object map(@Nonnull final CompletableFuture future) {
     return new Deferred(deferred -> {
       future.whenComplete((value, x) -> {
         if (x != null) {

@@ -318,9 +318,9 @@ public class CassandraSessionStore implements Store {
 
   private final Throwing.Function<String, PreparedStatement> insertSQL;
 
-  private Throwing.Function<String, PreparedStatement> selectSQL;
+  private final Throwing.Function<String, PreparedStatement> selectSQL;
 
-  private Throwing.Function<String, PreparedStatement> deleteSQL;
+  private final Throwing.Function<String, PreparedStatement> deleteSQL;
 
   public CassandraSessionStore(final com.datastax.driver.core.Session session, final int timeout) {
     this.session = requireNonNull(session, "Session required.");
