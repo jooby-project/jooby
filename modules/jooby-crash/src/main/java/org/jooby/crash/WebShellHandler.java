@@ -235,71 +235,76 @@ class WebShellHandler implements WebSocket.OnOpen {
     ShellFactory factory = ctx.getPlugin(ShellFactory.class);
     Shell shell = factory.create(null);
 
-    AtomicReference<ShellProcess> process = new AtomicReference<ShellProcess>();
+    AtomicReference<ShellProcess> process = new AtomicReference<>();
 
     ws.onMessage(msg -> {
       Map event = msg.to(Map.class);
       String type = (String) event.get("type");
-      if (type.equals("welcome")) {
-        log.debug("sending welcome + prompt");
-        ws.send(event("print", shell.getWelcome()));
-        ws.send(event("prompt", shell.getPrompt()));
-      } else if (type.equals("execute")) {
-        String command = (String) event.get("command");
-        Integer width = (Integer) event.get("width");
-        Integer height = (Integer) event.get("height");
-        process.set(shell.createProcess(command));
-        SimpleProcessContext context = new SimpleProcessContext(r -> {
-          Try.run(() -> {
-            // reset process
-            process.set(null);
+      switch (type) {
+        case "welcome":
+          log.debug("sending welcome + prompt");
+          ws.send(event("print", shell.getWelcome()));
+          ws.send(event("prompt", shell.getPrompt()));
+          break;
+        case "execute":
+          String command = (String) event.get("command");
+          Integer width = (Integer) event.get("width");
+          Integer height = (Integer) event.get("height");
+          process.set(shell.createProcess(command));
+          SimpleProcessContext context = new SimpleProcessContext(r -> {
+            Try.run(() -> {
+              // reset process
+              process.set(null);
 
-            ws.send(event("print", r.get()));
-            ws.send(event("prompt", shell.getPrompt()));
-            ws.send(event("end"));
-          }).onFailure(x -> log.error("error found while sending output", x));
+              ws.send(event("print", r.get()));
+              ws.send(event("prompt", shell.getPrompt()));
+              ws.send(event("end"));
+            }).onFailure(x -> log.error("error found while sending output", x));
 
-          if ("bye".equals(command)) {
-            ws.close(WebSocket.NORMAL);
+            if ("bye".equals(command)) {
+              ws.close(WebSocket.NORMAL);
+            }
+          }, width, height);
+          log.debug("executing {}", command);
+          process.get().execute(context);
+          break;
+        case "cancel":
+          ShellProcess p = process.get();
+          if (p != null) {
+            log.info("cancelling {}", p);
+            p.cancel();
           }
-        }, width, height);
-        log.debug("executing {}", command);
-        process.get().execute(context);
-      } else if (type.equals("cancel")) {
-        ShellProcess p = process.get();
-        if (p != null) {
-          log.info("cancelling {}", p);
-          p.cancel();
-        }
-      } else if (type.equals("complete")) {
-        String prefix = (String) event.get("prefix");
-        CompletionMatch completion = shell.complete(prefix);
-        Completion completions = completion.getValue();
-        Delimiter delimiter = completion.getDelimiter();
-        StringBuilder sb = new StringBuilder();
-        List<String> values = new ArrayList<String>();
-        if (completions.getSize() == 1) {
-          String value = completions.getValues().iterator().next();
-          delimiter.escape(value, sb);
-          if (completions.get(value)) {
-            sb.append(delimiter.getValue());
-          }
-          values.add(sb.toString());
-        } else {
-          String commonCompletion = Utils.findLongestCommonPrefix(completions.getValues());
-          if (commonCompletion.length() > 0) {
-            delimiter.escape(commonCompletion, sb);
+          break;
+        case "complete":
+          String prefix = (String) event.get("prefix");
+          CompletionMatch completion = shell.complete(prefix);
+          Completion completions = completion.getValue();
+          Delimiter delimiter = completion.getDelimiter();
+          StringBuilder sb = new StringBuilder();
+          List<String> values = new ArrayList<>();
+          if (completions.getSize() == 1) {
+            String value = completions.getValues().iterator().next();
+            delimiter.escape(value, sb);
+            if (completions.get(value)) {
+              sb.append(delimiter.getValue());
+            }
             values.add(sb.toString());
           } else {
-            for (Map.Entry<String, Boolean> entry : completions) {
-              delimiter.escape(entry.getKey(), sb);
+            String commonCompletion = Utils.findLongestCommonPrefix(completions.getValues());
+            if (commonCompletion.length() > 0) {
+              delimiter.escape(commonCompletion, sb);
               values.add(sb.toString());
-              sb.setLength(0);
+            } else {
+              for (Map.Entry<String, Boolean> entry : completions) {
+                delimiter.escape(entry.getKey(), sb);
+                values.add(sb.toString());
+                sb.setLength(0);
+              }
             }
           }
-        }
-        log.debug("completing {} with {}", prefix, values);
-        ws.send(event("complete", values));
+          log.debug("completing {} with {}", prefix, values);
+          ws.send(event("complete", values));
+          break;
       }
     });
 
