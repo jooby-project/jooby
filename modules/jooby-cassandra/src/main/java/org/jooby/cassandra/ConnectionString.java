@@ -215,11 +215,11 @@ class ConnectionString {
   public static final String SCHEMA = "cassandra://";
   private static final String SAMPLE = SCHEMA + "host[, host]*[:port]/keyspace";
 
-  private String[] address;
+  private final String[] address;
 
-  private int port;
+  private final int port;
 
-  private String keyspace;
+  private final String keyspace;
 
   private ConnectionString(final String[] address, final int port, final String keyspace) {
     this.address = address;
@@ -269,10 +269,6 @@ class ConnectionString {
       })
       .collect(Collectors.toList());
 
-    List<String> hosts = values.stream()
-      .map(t -> t[0].toString())
-      .collect(Collectors.toList());
-
     List<Integer> port = values.stream()
       .map(t -> (Integer) t[1])
       .distinct()
@@ -282,7 +278,7 @@ class ConnectionString {
         "Found multiple ports: " + port + ", only one port must be present. See " + SAMPLE);
     }
     String keyspace = segments.get(1);
-    return new ConnectionString(hosts.toArray(new String[hosts.size()]), port.iterator().next(),
+    return new ConnectionString(values.stream().map(t -> t[0].toString()).toArray(String[]::new), port.iterator().next(),
       keyspace);
   }
 
