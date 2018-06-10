@@ -46,10 +46,8 @@ public class AkkaTest {
           expect(binder.bind(Key.get(ActorSystem.class, Names.named("default")))).andReturn(lbbSys);
           expect(binder.bind(Key.get(ActorSystem.class))).andReturn(lbbSys);
         })
-        .run(unit -> {
-          new Akka().configure(unit.get(Env.class), unit.get(Config.class),
-              unit.get(Binder.class));
-        });
+        .run(unit -> new Akka().configure(unit.get(Env.class), unit.get(Config.class),
+            unit.get(Binder.class)));
   }
 
   @Test
