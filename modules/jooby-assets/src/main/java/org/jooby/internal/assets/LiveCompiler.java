@@ -205,6 +205,7 @@ package org.jooby.internal.assets;
 
 import com.google.common.collect.Lists;
 import static java.util.Objects.requireNonNull;
+
 import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
