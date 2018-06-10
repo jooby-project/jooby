@@ -309,7 +309,12 @@ public class AssetWriter {
   }
 
   private void writeFile(File output, String chunk) throws IOException {
-    output.getParentFile().mkdirs();
+    if (!output.getParentFile().exists()) {
+      final boolean mkdirsResult = output.getParentFile().mkdirs();
+      if (!mkdirsResult) {
+        throw new IOException("Directory " + output.getCanonicalPath() + " could not be created!");
+      }
+    }
     try (PrintWriter writer = new PrintWriter(output, "UTF-8")) {
       writer.write(chunk);
     }

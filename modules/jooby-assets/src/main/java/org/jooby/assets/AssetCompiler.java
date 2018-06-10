@@ -353,9 +353,8 @@ public class AssetCompiler {
    * @return Path pattern of the entire fileset.
    */
   public Set<String> patterns() {
-    return patterns(file -> !aggregators.stream()
-        .filter(it -> it.fileset().contains(file))
-        .findFirst().isPresent())
+    return patterns(file -> aggregators.stream()
+        .noneMatch(it -> it.fileset().contains(file)))
         .map(v -> "/" + v + "/**")
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
@@ -477,18 +476,17 @@ public class AssetCompiler {
 
       log.debug("compiling {}:", fset);
 
-      List<File> result = new ArrayList<>();
       /** CSS: */
       AssetWriter css = new AssetWriter(dist, fset, dir, ".css", "", charset, this.fileset, styles);
       count += compile(pipeline, files.stream().filter(styles).iterator(), MediaType.css, css,
           shouldProcess, count, total);
-      css.getResult().forEach(result::add);
+      List<File> result = new ArrayList<>(css.getResult());
 
       /** JavaScript: */
       AssetWriter js = new AssetWriter(dist, fset, dir, ".js", ";", charset, this.fileset, scripts);
       count += compile(pipeline, files.stream().filter(scripts).iterator(), MediaType.js, js,
           shouldProcess, count, total);
-      js.getResult().forEach(result::add);
+      result.addAll(js.getResult());
 
       result.forEach(
           it -> log.debug("{} {} ({})", it.getName(), humanReadableByteCount(it.length()), it));
@@ -532,8 +530,7 @@ public class AssetCompiler {
     List<AssetProcessor> pipeline = pipeline(dist);
     compile(pipeline, ImmutableList.of(filename).iterator(), type, writer, path -> true, 0, 0);
 
-    File output = new File(dir, filename);
-    return output;
+    return new File(dir, filename);
   }
 
   /**
@@ -677,8 +674,7 @@ public class AssetCompiler {
 
   private static Predicate<String> predicate(final Config fileset, final String... extension) {
     String path = "assets" + extension[0];
-    Set<String> extensions = new HashSet<>();
-    extensions.addAll(Arrays.asList(extension));
+    Set<String> extensions = new HashSet<>(Arrays.asList(extension));
     if (fileset.hasPath(path)) {
       extensions.addAll(strlist(fileset.getAnyRef(path)));
     }
@@ -707,27 +703,21 @@ public class AssetCompiler {
           .splitToList(unquote(e.getKey()));
       List<String> candidates = strlist(e.getValue().unwrapped(), v -> basedir + spath(v));
       List<String> values = new ArrayList<>();
-      candidates.forEach(it -> {
-        Try.run(() -> {
-          processors(assetconf, loader, engineFactory, null, ImmutableList.of(it.substring(1)),
-              ImmutableSet.of())
-              .stream()
-              .filter(AssetAggregator.class::isInstance)
-              .forEach(p -> {
-                AssetAggregator a = (AssetAggregator) p;
-                aggregators.accept(a);
-                a.fileset().forEach(f -> values.add(spath(f)));
-              });
-        }).onFailure(x -> values.add(it));
-      });
+      candidates.forEach(it -> Try.run(() -> processors(assetconf, loader, engineFactory, null, ImmutableList.of(it.substring(1)),
+          ImmutableSet.of())
+          .stream()
+          .filter(AssetAggregator.class::isInstance)
+          .forEach(p -> {
+            AssetAggregator a = (AssetAggregator) p;
+            aggregators.accept(a);
+            a.fileset().forEach(f -> values.add(spath(f)));
+          })).onFailure(x -> values.add(it)));
       raw.put(key.get(0), values);
       graph.put(key.get(0), key);
     });
 
     Map<String, List<String>> resolved = new HashMap<>();
-    graph.forEach((fs, deps) -> {
-      resolve(fs, deps, raw, graph, resolved);
-    });
+    graph.forEach((fs, deps) -> resolve(fs, deps, raw, graph, resolved));
     return resolved;
   }
 
@@ -757,7 +747,7 @@ public class AssetCompiler {
     processors.put("dev", Collections.emptyList());
     if (conf.hasPath("pipeline")) {
       Set<String> filter = conf.getConfig("pipeline").entrySet().stream()
-          .map(e -> e.getKey())
+          .map(Entry::getKey)
           .collect(Collectors.toSet());
       filter.add("class");
       Set<Entry<String, ConfigValue>> entrySet = conf.getConfig("pipeline").entrySet();
