@@ -209,6 +209,8 @@ import java.util.concurrent.CompletableFuture;
 import org.jooby.internal.mapper.CallableMapper;
 import org.jooby.internal.mapper.CompletableFutureMapper;
 
+import javax.annotation.Nonnull;
+
 /**
  * <h1>async-mapper</h1>
  * <p>
@@ -255,8 +257,9 @@ import org.jooby.internal.mapper.CompletableFutureMapper;
 @SuppressWarnings("rawtypes")
 public class AsyncMapper implements Route.Mapper {
 
+  @Nonnull
   @Override
-  public Object map(final Object value) throws Throwable {
+  public Object map(@Nonnull final Object value) {
     if (value instanceof Callable) {
       return new CallableMapper().map((Callable) value);
     } else if (value instanceof CompletableFuture) {

@@ -211,7 +211,7 @@ import com.typesafe.config.Config;
 
 public class SimpleEmailProvider implements Provider<SimpleEmail> {
 
-  private EmailFactory factory;
+  private final EmailFactory factory;
 
   public SimpleEmailProvider(final Config mail) {
     factory = new EmailFactory(mail);

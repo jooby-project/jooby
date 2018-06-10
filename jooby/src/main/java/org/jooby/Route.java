@@ -546,8 +546,9 @@ public interface Route {
           return name;
         }
 
+        @Nonnull
         @Override
-        public Object map(final T value) throws Throwable {
+        public Object map(@Nonnull final T value) {
           return fn.apply(value);
         }
 
@@ -1172,8 +1173,6 @@ public interface Route {
     }
 
   }
-
-  ;
 
   /**
    * Collection of {@link Route.Props} useful for registering/setting route options at once.
@@ -2017,7 +2016,7 @@ public interface Route {
    * @author edgar
    * @since 0.1.0
    */
-  public interface Filter {
+  interface Filter {
 
     /**
      * The <code>handle</code> method of the Filter is called by the server each time a

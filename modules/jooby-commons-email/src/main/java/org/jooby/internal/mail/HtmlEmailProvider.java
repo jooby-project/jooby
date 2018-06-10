@@ -211,7 +211,7 @@ import com.typesafe.config.Config;
 
 public class HtmlEmailProvider implements Provider<HtmlEmail> {
 
-  private EmailFactory factory;
+  private final EmailFactory factory;
 
   public HtmlEmailProvider(final Config mail) {
     factory = new EmailFactory(mail);
