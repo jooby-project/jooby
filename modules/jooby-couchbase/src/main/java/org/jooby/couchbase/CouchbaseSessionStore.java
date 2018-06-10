@@ -307,9 +307,9 @@ public class CouchbaseSessionStore implements Session.Store {
 
   private static final String SESSION = "session";
 
-  private Bucket bucket;
+  private final Bucket bucket;
 
-  private int expiry;
+  private final int expiry;
 
   public CouchbaseSessionStore(final Bucket bucket, final int timeout) {
     this.bucket = requireNonNull(bucket, "Bucket is required.");

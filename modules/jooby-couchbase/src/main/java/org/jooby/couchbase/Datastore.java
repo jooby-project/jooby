@@ -287,10 +287,10 @@ public interface Datastore {
    */
   class ViewQueryResult<T> {
     /** Total number of rows in the view. */
-    private int totalRows;
+    private final int totalRows;
 
     /** List of rows from current execution. */
-    private List<T> rows;
+    private final List<T> rows;
 
     /**
      * Creates a new {@link ViewQueryResult}.
@@ -517,9 +517,7 @@ public interface Datastore {
    */
   @SuppressWarnings("rawtypes")
   static <T> Observable<T> notFound(final Class entityClass, final Object id) {
-    return Observable.create(s -> {
-      s.onError(new DocumentDoesNotExistException(N1Q.qualifyId(entityClass, id)));
-    });
+    return Observable.create(s -> s.onError(new DocumentDoesNotExistException(N1Q.qualifyId(entityClass, id))));
   }
 
   /**
@@ -541,7 +539,7 @@ public interface Datastore {
    */
   default <T> T get(final Class<T> entityClass, final Object id)
       throws DocumentDoesNotExistException {
-    return async().<T> get(entityClass, id)
+    return async().get(entityClass, id)
         .switchIfEmpty(notFound(entityClass, id))
         .toBlocking().single();
   }
@@ -561,7 +559,7 @@ public interface Datastore {
    */
   default <T> T getFromReplica(final Class<T> entityClass, final Object id,
       final ReplicaMode mode) throws DocumentDoesNotExistException {
-    return async().<T> getFromReplica(entityClass, id, mode)
+    return async().getFromReplica(entityClass, id, mode)
         .switchIfEmpty(notFound(entityClass, id))
         .toBlocking().single();
   }
@@ -589,7 +587,7 @@ public interface Datastore {
    */
   default <T> T getAndLock(final Class<T> entityClass, final Object id, final int lockTime)
       throws DocumentDoesNotExistException {
-    return async().<T> getAndLock(entityClass, id, lockTime)
+    return async().getAndLock(entityClass, id, lockTime)
         .switchIfEmpty(notFound(entityClass, id))
         .toBlocking().single();
   }
@@ -611,7 +609,7 @@ public interface Datastore {
    */
   default <T> T getAndTouch(final Class<T> entityClass, final Object id, final int expiry)
       throws DocumentDoesNotExistException {
-    return async().<T> getAndTouch(entityClass, id, expiry)
+    return async().getAndTouch(entityClass, id, expiry)
         .switchIfEmpty(notFound(entityClass, id))
         .toBlocking().single();
   }
