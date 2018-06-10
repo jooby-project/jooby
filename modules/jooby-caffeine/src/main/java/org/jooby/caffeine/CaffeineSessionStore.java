@@ -250,7 +250,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 @Singleton
 public class CaffeineSessionStore implements Session.Store {
 
-  private Cache<String, Session> cache;
+  private final Cache<String, Session> cache;
 
   @Inject
   public CaffeineSessionStore(@Named("session") final Cache<String, Session> cache) {
