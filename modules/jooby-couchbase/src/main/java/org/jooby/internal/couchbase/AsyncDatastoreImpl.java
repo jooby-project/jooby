@@ -239,7 +239,7 @@ public class AsyncDatastoreImpl implements AsyncDatastore {
 
     protected MutationToken mutationToken;
 
-    protected Function<Object, Object> idGen;
+    protected final Function<Object, Object> idGen;
 
     public BaseCommandImpl(final Function<Object, Object> idGen) {
       this.idGen = idGen;
@@ -304,13 +304,13 @@ public class AsyncDatastoreImpl implements AsyncDatastore {
 
   private static final Func1 CAS = e -> ((Document) e).cas();
 
-  private AsyncBucket bucket;
+  private final AsyncBucket bucket;
 
-  private AsyncRepository repo;
+  private final AsyncRepository repo;
 
-  private JacksonMapper converter;
+  private final JacksonMapper converter;
 
-  private Function<Object, Object> idGen;
+  private final Function<Object, Object> idGen;
 
   public AsyncDatastoreImpl(final AsyncBucket bucket, final AsyncRepository repo,
       final Function<Object, Object> idGen, final JacksonMapper converter) {
@@ -408,29 +408,27 @@ public class AsyncDatastoreImpl implements AsyncDatastore {
   @Override
   public <T> Observable<List<T>> query(final N1qlQuery query) {
     return bucket.query(query)
-        .flatMap(aqr -> {
-          return Observable.zip(aqr.rows().toList(),
-              aqr.errors().toList(),
-              aqr.finalSuccess().singleOrDefault(Boolean.FALSE),
-              (rows, errors, finalSuccess) -> {
-                if (!finalSuccess) {
+        .flatMap(aqr -> Observable.zip(aqr.rows().toList(),
+            aqr.errors().toList(),
+            aqr.finalSuccess().singleOrDefault(Boolean.FALSE),
+            (rows, errors, finalSuccess) -> {
+              if (!finalSuccess) {
+                throw new QueryExecutionException(
+                    "execution of query resulted in exception: ",
+                    Try.apply(() -> errors.get(0)).orElse(null));
+              }
+              List<T> value = new ArrayList<>();
+              for (AsyncN1qlQueryRow row : rows) {
+                try {
+                  T v = converter.fromBytes(row.byteValue());
+                  value.add(v);
+                } catch (IOException ex) {
                   throw new QueryExecutionException(
-                      "execution of query resulted in exception: ",
-                      Try.apply(() -> errors.get(0)).orElse((JsonObject) null));
+                      "execution of query resulted in exception", null, ex);
                 }
-                List<T> value = new ArrayList<>();
-                for (AsyncN1qlQueryRow row : rows) {
-                  try {
-                    T v = converter.fromBytes(row.byteValue());
-                    value.add(v);
-                  } catch (IOException ex) {
-                    throw new QueryExecutionException(
-                        "execution of query resulted in exception", null, ex);
-                  }
-                }
-                return value;
-              });
-        });
+              }
+              return value;
+            }));
   }
 
   @Override

@@ -208,7 +208,7 @@ import org.jooby.couchbase.Datastore;
 
 public class DatastoreImpl implements Datastore {
 
-  private AsyncDatastore ds;
+  private final AsyncDatastore ds;
 
   public DatastoreImpl(final AsyncDatastore ds) {
     this.ds = ds;
