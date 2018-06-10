@@ -211,7 +211,7 @@ import com.typesafe.config.Config;
 
 public class MultiPartEmailProvider implements Provider<MultiPartEmail> {
 
-  private EmailFactory factory;
+  private final EmailFactory factory;
 
   public MultiPartEmailProvider(final Config mail) {
     factory = new EmailFactory(mail);
