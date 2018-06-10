@@ -243,8 +243,7 @@ public class Replace extends AssetProcessor {
     return true;
   }
 
-  @Override public String process(String filename, String source, Config conf, ClassLoader loader)
-      throws Exception {
+  @Override public String process(String filename, String source, Config conf, ClassLoader loader) {
     Map<String, String> options = new LinkedHashMap<>();
     StringBuilder keys = new StringBuilder();
     this.options.withoutPath("excludes").entrySet().forEach(e -> {
