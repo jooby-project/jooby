@@ -284,10 +284,10 @@ public interface AsyncDatastore {
   class AsyncViewQueryResult<T> {
 
     /** Total number of rows in the view. */
-    private int totalRows;
+    private final int totalRows;
 
     /** List of rows from current execution. */
-    private Observable<List<T>> rows;
+    private final Observable<List<T>> rows;
 
     /**
      * Creates a new {@link AsyncViewQueryResult}.
