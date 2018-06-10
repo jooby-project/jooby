@@ -227,6 +227,7 @@ import java.util.stream.Collectors;
  * @since 1.2.0
  */
 public class RouteMethod {
+  // TODO: This regex is prone to ReDos: https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS
   private static final Pattern VAR = Pattern.compile("\\:((?:[^/]+)+?)");
 
   private RouteResponse response;
