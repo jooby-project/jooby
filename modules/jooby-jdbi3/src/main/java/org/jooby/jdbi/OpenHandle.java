@@ -215,7 +215,7 @@ import java.util.Optional;
 
 class OpenHandle implements Route.Filter {
 
-  private Logger logger = LoggerFactory.getLogger(TransactionalRequest.class);
+  private final Logger logger = LoggerFactory.getLogger(TransactionalRequest.class);
 
   private final Jdbi jdbi;
 
