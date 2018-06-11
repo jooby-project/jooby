@@ -208,7 +208,6 @@ import de.neuland.jade4j.template.JadeTemplate;
 import org.jooby.MediaType;
 import org.jooby.View;
 
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -225,7 +224,7 @@ class Engine implements View.Engine {
   }
 
   @Override
-  public void render(final View view, final Context ctx) throws FileNotFoundException, Exception {
+  public void render(final View view, final Context ctx) throws Exception {
     String name = view.name() + suffix;
 
     JadeTemplate template = jadeConfiguration.getTemplate(name);

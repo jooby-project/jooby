@@ -207,7 +207,7 @@ import org.jooby.Env;
 
 public class XssHelper {
 
-  private Env env;
+  private final Env env;
 
   public XssHelper(final Env env) {
     this.env = env;
