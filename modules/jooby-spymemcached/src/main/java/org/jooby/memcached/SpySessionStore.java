@@ -203,22 +203,19 @@
  */
 package org.jooby.memcached;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import net.spy.memcached.MemcachedClient;
-import net.spy.memcached.transcoders.Transcoder;
-
-import org.jooby.Session;
-import org.jooby.Session.Builder;
-
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+import net.spy.memcached.MemcachedClient;
+import net.spy.memcached.transcoders.Transcoder;
+import org.jooby.Session;
+import org.jooby.Session.Builder;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A {@link Session.Store} powered by <a
@@ -280,11 +277,11 @@ import com.typesafe.config.ConfigValueFactory;
  */
 public class SpySessionStore implements Session.Store {
 
-  private MemcachedClient memcached;
+  private final MemcachedClient memcached;
 
-  private String prefix;
+  private final String prefix;
 
-  private int timeout;
+  private final int timeout;
 
   public SpySessionStore(final MemcachedClient memcached,
       final String prefix, final int timeoutInSeconds) {

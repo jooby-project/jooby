@@ -206,22 +206,23 @@ package org.jooby.internal.memcached;
 import net.spy.memcached.ConnectionFactory;
 import net.spy.memcached.ConnectionFactoryBuilder;
 import net.spy.memcached.MemcachedClient;
-import static org.jooby.funzy.Throwing.throwingSupplier;
 
 import javax.inject.Provider;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.jooby.funzy.Throwing.throwingSupplier;
+
 public class MemcachedClientProvider implements Provider<MemcachedClient> {
 
   private ConnectionFactoryBuilder builder;
 
-  private List<InetSocketAddress> servers;
+  private final List<InetSocketAddress> servers;
 
   private MemcachedClient client;
 
-  private long shutdownTimeout;
+  private final long shutdownTimeout;
 
   public MemcachedClientProvider(final ConnectionFactoryBuilder builder,
       final List<InetSocketAddress> servers, final long shutdownTimeout) {
