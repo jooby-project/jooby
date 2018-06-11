@@ -219,9 +219,9 @@ import com.google.common.collect.ImmutableList;
 
 public class ServletUpload implements NativeUpload {
 
-  private Part upload;
+  private final Part upload;
 
-  private String tmpdir;
+  private final String tmpdir;
 
   private File file;
 
