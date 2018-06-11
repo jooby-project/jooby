@@ -203,10 +203,6 @@
  */
 package org.jooby.internal.pac4j;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Optional;
-
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
@@ -217,12 +213,16 @@ import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
+import static java.util.Objects.requireNonNull;
+
 public class AuthLogout implements Route.Handler {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private String redirectTo;
+  private final String redirectTo;
 
   public AuthLogout(final String redirectTo) {
     this.redirectTo = requireNonNull(redirectTo, "RedirectTo is required.");

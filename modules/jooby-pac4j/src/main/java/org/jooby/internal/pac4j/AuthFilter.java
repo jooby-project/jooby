@@ -203,15 +203,10 @@
  */
 package org.jooby.internal.pac4j;
 
-import static java.util.Objects.requireNonNull;
-import org.jooby.Err;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Status;
+import org.jooby.*;
+import org.jooby.funzy.Throwing;
 import org.jooby.pac4j.Auth;
 import org.jooby.pac4j.AuthStore;
-import org.jooby.funzy.Throwing;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.DirectClient;
@@ -229,6 +224,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static java.util.Objects.requireNonNull;
+
 public class AuthFilter implements Route.Handler {
 
   @SuppressWarnings("rawtypes")
@@ -241,7 +238,7 @@ public class AuthFilter implements Route.Handler {
 
   private String clientName;
 
-  private Class<? extends CommonProfile> profileType;
+  private final Class<? extends CommonProfile> profileType;
 
   public AuthFilter(final Class<? extends Client<?, ?>> clientType,
       final Class<? extends CommonProfile> profileType) {
@@ -260,7 +257,7 @@ public class AuthFilter implements Route.Handler {
 
   @SuppressWarnings({"unchecked"})
   @Override
-  public void handle(final Request req, final Response rsp) throws Throwable {
+  public void handle(final Request req, final Response rsp) {
     Clients clients = req.require(Clients.class);
     String clientName = req.param(clients.getClientNameParameter()).value(this.clientName);
 
@@ -331,7 +328,7 @@ public class AuthFilter implements Route.Handler {
   @SuppressWarnings("rawtypes")
   private <T> T find(final ClientFinder finder, final Clients clients, final WebContext ctx,
       final Class<? extends Client<?, ?>> clientType, final String clientName,
-      final Throwing.Function<Client, T> fn) throws Throwable {
+      final Throwing.Function<Client, T> fn) {
 
     List<Client> result = finder.find(clients, ctx, clientName);
     for (Client client : result) {
