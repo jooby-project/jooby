@@ -215,8 +215,8 @@ import org.jooby.funzy.Try;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class MappedHandler implements Filter {
 
-  private Throwing.Function3<Request, Response, Route.Chain, Object> supplier;
-  private Mapper mapper;
+  private final Throwing.Function3<Request, Response, Route.Chain, Object> supplier;
+  private final Mapper mapper;
 
   public MappedHandler(final Throwing.Function3<Request, Response, Route.Chain, Object> supplier,
       final Route.Mapper mapper) {

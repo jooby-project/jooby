@@ -207,19 +207,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.typesafe.config.Config;
-import static java.util.Objects.requireNonNull;
-import org.jooby.Cookie;
-import org.jooby.Env;
-import org.jooby.Err;
-import org.jooby.MediaType;
-import org.jooby.Mutant;
-import org.jooby.Parser;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Session;
-import org.jooby.Status;
-import org.jooby.Upload;
+import org.jooby.*;
 import org.jooby.funzy.Try;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeRequest;
@@ -228,19 +216,14 @@ import org.jooby.spi.NativeUpload;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.Locale.LanguageRange;
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 public class RequestImpl implements Request {
 
@@ -262,19 +245,19 @@ public class RequestImpl implements Request {
 
   private Optional<Session> reqSession;
 
-  private Charset charset;
+  private final Charset charset;
 
-  private List<File> files;
+  private final List<File> files;
 
-  private int port;
+  private final int port;
 
-  private String contextPath;
+  private final String contextPath;
 
-  private Optional<String> lang;
+  private final Optional<String> lang;
 
-  private List<Locale> locales;
+  private final List<Locale> locales;
 
-  private long timestamp;
+  private final long timestamp;
 
   public RequestImpl(final Injector injector, final NativeRequest req, final String contextPath,
       final int port, final Route route, final Charset charset, final List<Locale> locales,
@@ -428,7 +411,7 @@ public class RequestImpl implements Request {
     List<String> headers = req.headers(name);
     if (xss != null) {
       headers = headers.stream()
-          .map(xss::apply)
+          .map(xss)
           .collect(Collectors.toList());
     }
     return new MutantImpl(require(ParserExecutor.class),

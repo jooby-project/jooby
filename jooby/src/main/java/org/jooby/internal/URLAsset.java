@@ -203,7 +203,9 @@
  */
 package org.jooby.internal;
 
-import static java.util.Objects.requireNonNull;
+import com.google.common.io.Closeables;
+import org.jooby.Asset;
+import org.jooby.MediaType;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -213,11 +215,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.function.BiConsumer;
 
-import org.jooby.Asset;
-import org.jooby.MediaType;
-
-import com.google.common.io.Closeables;
-import org.jooby.funzy.Try;
+import static java.util.Objects.requireNonNull;
 
 public class URLAsset implements Asset {
 
@@ -225,9 +223,9 @@ public class URLAsset implements Asset {
     InputStream get() throws IOException;
   }
 
-  private URL url;
+  private final URL url;
 
-  private MediaType mediaType;
+  private final MediaType mediaType;
 
   private long lastModified = -1;
 
@@ -235,7 +233,7 @@ public class URLAsset implements Asset {
 
   private Supplier stream;
 
-  private String path;
+  private final String path;
 
   private boolean exists;
 
@@ -304,7 +302,7 @@ public class URLAsset implements Asset {
         // dir entries throw NPE :S
         return null;
       }
-      return () -> resource.openStream();
+      return resource::openStream;
     }
   }
 

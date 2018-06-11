@@ -365,19 +365,15 @@ public interface LifeCycle {
           throw new IllegalArgumentException(annotation.getSimpleName()
               + " method should not return anything: " + method);
         }
-        return Optional.of(owner -> {
-          Try.run(() -> {
-            method.setAccessible(true);
-            method.invoke(owner);
-          }).unwrap(InvocationTargetException.class)
-              .throwException();
-        });
+        return Optional.of(owner -> Try.run(() -> {
+          method.setAccessible(true);
+          method.invoke(owner);
+        }).unwrap(InvocationTargetException.class)
+            .throwException());
       }
     }
     return Optional.empty();
   }
-
-  ;
 
   /**
    * Add to lifecycle the given service. Any method annotated with {@link PostConstruct} or

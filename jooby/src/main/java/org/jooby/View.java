@@ -203,12 +203,12 @@
  */
 package org.jooby;
 
-import static java.util.Objects.requireNonNull;
-
 import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Special result that hold view name and model. It will be processed by a {@link View.Engine}.
@@ -301,7 +301,7 @@ public class View extends Result {
    */
   @Nonnull
   public View put(final Map<String, ?> values) {
-    values.forEach((k, v) -> model.put(k, v));
+    values.forEach(model::put);
     return this;
   }
 

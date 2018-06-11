@@ -215,7 +215,7 @@ import static java.util.Objects.requireNonNull;
 public class ServerExecutorProvider implements Provider<Executor>
 {
 
-  private Executor executor;
+  private final Executor executor;
 
   @Inject
   public ServerExecutorProvider(final ServerHolder serverHolder) {
@@ -233,7 +233,7 @@ public class ServerExecutorProvider implements Provider<Executor>
 
   static class ServerHolder {
 
-    @Inject(optional = true) Server server = null;
+    @Inject(optional = true) final Server server = null;
 
   }
 

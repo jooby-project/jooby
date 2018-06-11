@@ -209,29 +209,14 @@ import com.google.common.reflect.Reflection;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import org.jooby.Deferred;
-import org.jooby.Err;
-import org.jooby.Jooby;
-import org.jooby.MediaType;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Result;
-import org.jooby.Results;
-import org.jooby.Route;
+import org.jooby.*;
 import org.jooby.Route.After;
 import org.jooby.Route.Definition;
 import org.jooby.Route.Filter;
-import org.jooby.Status;
 import org.jooby.funzy.Try;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -443,14 +428,14 @@ public class MockRouter {
     }
 
     @Override
-    public void next(final String prefix, final Request req, final Response rsp) throws Throwable {
+    public void next(final String prefix, final Request req, final Response rsp) {
     }
   };
 
   private static class MockResponse extends Response.Forwarding {
 
-    List<Route.After> afterList = new ArrayList<>();
-    private AtomicReference<Object> ref;
+    final List<Route.After> afterList = new ArrayList<>();
+    private final AtomicReference<Object> ref;
 
     public MockResponse(final Response response, final AtomicReference<Object> ref) {
       super(response);
@@ -479,13 +464,13 @@ public class MockRouter {
   private static final int CLEAN_STACK = 4;
 
   @SuppressWarnings("rawtypes")
-  private Map<Key, Object> registry = new HashMap<>();
+  private final Map<Key, Object> registry = new HashMap<>();
 
-  private List<Definition> routes;
+  private final List<Definition> routes;
 
-  private Request req;
+  private final Request req;
 
-  private Response rsp;
+  private final Response rsp;
 
   public MockRouter(final Jooby app) {
     this(app, empty(Request.class), empty(Response.class));

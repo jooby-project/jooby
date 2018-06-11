@@ -203,16 +203,15 @@
  */
 package org.jooby;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-
+import com.google.common.base.Throwables;
 import com.typesafe.config.Config;
 import org.jooby.funzy.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Throwables;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * An exception that carry a {@link Status}. The status field will be set in the HTTP
@@ -328,7 +327,7 @@ public class Err extends RuntimeException {
   /**
    * The status code. Required.
    */
-  private int status;
+  private final int status;
 
   /**
    * Creates a new {@link Err}.

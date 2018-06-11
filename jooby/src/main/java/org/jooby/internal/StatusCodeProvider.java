@@ -203,19 +203,17 @@
  */
 package org.jooby.internal;
 
-import java.util.Optional;
-import java.util.function.Function;
-
-import javax.inject.Inject;
-
+import com.typesafe.config.Config;
 import org.jooby.Err;
 import org.jooby.Status;
 
-import com.typesafe.config.Config;
+import javax.inject.Inject;
+import java.util.Optional;
+import java.util.function.Function;
 
 public class StatusCodeProvider {
 
-  private Config conf;
+  private final Config conf;
 
   @Inject
   public StatusCodeProvider(final Config conf) {

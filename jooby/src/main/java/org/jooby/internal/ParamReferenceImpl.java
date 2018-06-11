@@ -203,19 +203,19 @@
  */
 package org.jooby.internal;
 
+import org.jooby.Parser;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.jooby.Parser;
-
 public class ParamReferenceImpl<T> implements Parser.ParamReference<T> {
 
-  private String type;
+  private final String type;
 
-  private String name;
+  private final String name;
 
-  private List<T> values;
+  private final List<T> values;
 
   public ParamReferenceImpl(final String type, final String name, final List<T> values) {
     this.type = type;
