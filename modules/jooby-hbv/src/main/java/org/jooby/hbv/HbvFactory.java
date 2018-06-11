@@ -203,7 +203,8 @@
  */
 package org.jooby.hbv;
 
-import static java.util.Objects.requireNonNull;
+import com.google.inject.Injector;
+import org.hibernate.validator.HibernateValidatorConfiguration;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -212,13 +213,11 @@ import javax.inject.Provider;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-import org.hibernate.validator.HibernateValidatorConfiguration;
-
-import com.google.inject.Injector;
+import static java.util.Objects.requireNonNull;
 
 class HbvFactory implements Provider<Validator> {
 
-  private HibernateValidatorConfiguration conf;
+  private final HibernateValidatorConfiguration conf;
 
   private Validator validator;
 
@@ -246,7 +245,7 @@ class HbvFactory implements Provider<Validator> {
   }
 
   @PreDestroy
-  public void stop() throws Exception {
+  public void stop() {
     if (factory != null) {
       factory.close();
       validator = null;
