@@ -203,24 +203,21 @@
  */
 package org.jooby.jedis;
 
-import static java.util.Objects.requireNonNull;
-
-import java.net.URI;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Provider;
-
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
 import org.jooby.Jooby;
-
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+
+import javax.inject.Provider;
+import java.net.URI;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Redis cache and key/value data store for Jooby. Exposes a {@link Jedis} service.
@@ -321,7 +318,7 @@ public class Redis implements Jooby.Module {
   /**
    * Database name.
    */
-  private String name;
+  private final String name;
 
   /**
    * <p>
@@ -370,7 +367,7 @@ public class Redis implements Jooby.Module {
     env.onStart(provider::start);
     env.onStop(provider::stop);
 
-    Provider<Jedis> jedis = (Provider<Jedis>) () -> pool.getResource();
+    Provider<Jedis> jedis = pool::getResource;
 
     ServiceKey serviceKey = env.serviceKey();
     serviceKey.generate(JedisPool.class, name, k -> binder.bind(k).toInstance(pool));
