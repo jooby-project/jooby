@@ -213,7 +213,7 @@ import java.util.concurrent.Executor;
 
 class ExecSchedulerHook extends RxJavaSchedulersHook {
 
-  private Throwing.Function<String, Scheduler> schedulers;
+  private final Throwing.Function<String, Scheduler> schedulers;
 
   public ExecSchedulerHook(final Map<String, Executor> executors) {
     // we don't want eager initialization of Schedulers
