@@ -203,18 +203,12 @@
  */
 package org.jooby.hbv;
 
-import static java.util.Objects.requireNonNull;
-import static javax.validation.Validation.byProvider;
-
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-
-import javax.validation.ConstraintValidatorFactory;
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
-import javax.validation.Validator;
-
+import com.google.inject.Binder;
+import com.google.inject.TypeLiteral;
+import com.google.inject.multibindings.Multibinder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorConfiguration;
 import org.jooby.Env;
@@ -222,12 +216,16 @@ import org.jooby.Jooby;
 import org.jooby.Parser;
 import org.jooby.Request;
 
-import com.google.inject.Binder;
-import com.google.inject.TypeLiteral;
-import com.google.inject.multibindings.Multibinder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
+import javax.validation.ConstraintValidatorFactory;
+import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
+import javax.validation.Validator;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
+import static java.util.Objects.requireNonNull;
+import static javax.validation.Validation.byProvider;
 
 /**
  * Bean validation via Hibernate Validator.
@@ -350,7 +348,7 @@ import com.typesafe.config.ConfigValueFactory;
  */
 public class Hbv implements Jooby.Module {
 
-  private Predicate<TypeLiteral<?>> predicate;
+  private final Predicate<TypeLiteral<?>> predicate;
 
   private BiConsumer<HibernateValidatorConfiguration, Config> configurer;
 
@@ -387,9 +385,7 @@ public class Hbv implements Jooby.Module {
    */
   public Hbv doWith(final Consumer<HibernateValidatorConfiguration> configurer) {
     requireNonNull(configurer, "Configurer callback is required.");
-    this.configurer = (hvc, conf) -> {
-      configurer.accept(hvc);
-    };
+    this.configurer = (hvc, conf) -> configurer.accept(hvc);
     return this;
   }
 
@@ -410,9 +406,7 @@ public class Hbv implements Jooby.Module {
         .configure();
 
     if (config.hasPath("hibernate.validator")) {
-      config.getConfig("hibernate.validator").root().forEach((k, v) -> {
-        configuration.addProperty("hibernate.validator." + k, v.unwrapped().toString());
-      });
+      config.getConfig("hibernate.validator").root().forEach((k, v) -> configuration.addProperty("hibernate.validator." + k, v.unwrapped().toString()));
     }
 
     if (configurer != null) {
