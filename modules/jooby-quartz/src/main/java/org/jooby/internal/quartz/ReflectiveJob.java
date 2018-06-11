@@ -203,25 +203,19 @@
  */
 package org.jooby.internal.quartz;
 
-import static java.util.Objects.requireNonNull;
+import com.google.inject.Injector;
+import org.quartz.*;
 
+import javax.inject.Inject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import javax.inject.Inject;
-
-import org.quartz.Job;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.JobKey;
-
-import com.google.inject.Injector;
+import static java.util.Objects.requireNonNull;
 
 public class ReflectiveJob implements Job {
 
-  private Injector injector;
+  private final Injector injector;
 
   @Inject
   public ReflectiveJob(final Injector injector) {
