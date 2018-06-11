@@ -208,9 +208,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.context.internal.ManagedSessionContext;
 import org.hibernate.engine.spi.SessionImplementor;
-import org.jooby.hbm.UnitOfWork;
 import org.jooby.funzy.Throwing;
 import org.jooby.funzy.Try;
+import org.jooby.hbm.UnitOfWork;
 
 import java.sql.Connection;
 
@@ -230,9 +230,7 @@ public class RootUnitOfWork extends AbstractUnitOfWork {
     if (rollbackOnly) {
       return this;
     }
-    active(session, trx -> {
-      log.debug("joining existing transaction: {}(trx@{})", oid(session), oid(trx));
-    }, trx -> {
+    active(session, trx -> log.debug("joining existing transaction: {}(trx@{})", oid(session), oid(trx)), trx -> {
       log.debug("begin transaction: {}(trx@{})", oid(session), oid(trx));
       trx.begin();
     });
@@ -253,9 +251,7 @@ public class RootUnitOfWork extends AbstractUnitOfWork {
     active(session, trx -> {
       log.debug("commiting transaction: {}(trx@{})", oid(session), oid(trx));
       trx.commit();
-    }, trx -> {
-      log.warn("unable to commit inactive transaction: {}(trx@{})", oid(session), oid(trx));
-    });
+    }, trx -> log.warn("unable to commit inactive transaction: {}(trx@{})", oid(session), oid(trx)));
     return this;
   }
 
@@ -281,14 +277,12 @@ public class RootUnitOfWork extends AbstractUnitOfWork {
     active(session, trx -> {
       log.debug("rollback transaction: {}(trx@{})", oid(session), oid(trx));
       trx.rollback();
-    }, trx -> {
-      log.warn("unable to rollback inactive transaction: {}(trx@{})", oid(session), oid(trx));
-    });
+    }, trx -> log.warn("unable to rollback inactive transaction: {}(trx@{})", oid(session), oid(trx)));
     return this;
   }
 
   @Override
-  public <T> T apply(final Throwing.Function<Session, T> callback) throws Throwable {
+  public <T> T apply(final Throwing.Function<Session, T> callback) {
     try {
       begin();
       T value = callback.apply(session);

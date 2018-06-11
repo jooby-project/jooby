@@ -262,9 +262,8 @@ public interface UnitOfWork {
    * Get access to a {@link Session}/{@link EntityManager} and do some work.
    *
    * @param callback Callback to run.
-   * @throws Throwable If something goes wrong.
    */
-  default void accept(final Throwing.Consumer<Session> callback) throws Throwable {
+  default void accept(final Throwing.Consumer<Session> callback) {
     apply(session -> {
       callback.accept(session);
       return null;
@@ -279,5 +278,5 @@ public interface UnitOfWork {
    * @return Returns value.
    * @throws Throwable If something goes wrong.
    */
-  <T> T apply(final Throwing.Function<Session, T> callback) throws Throwable;
+  <T> T apply(final Throwing.Function<Session, T> callback);
 }
