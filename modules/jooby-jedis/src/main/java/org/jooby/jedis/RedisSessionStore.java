@@ -203,25 +203,22 @@
  */
 package org.jooby.jedis;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
+import org.jooby.Session;
+import org.jooby.Session.Builder;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import org.jooby.Session;
-import org.jooby.Session.Builder;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
+import static java.util.Objects.requireNonNull;
 
 /**
  * A {@link Session.Store} powered by <a href="http://redis.io/">Redis</a>.
@@ -283,11 +280,11 @@ import com.typesafe.config.ConfigValueFactory;
 @Singleton
 public class RedisSessionStore implements Session.Store {
 
-  private JedisPool pool;
+  private final JedisPool pool;
 
-  private int timeout;
+  private final int timeout;
 
-  private String prefix;
+  private final String prefix;
 
   /**
    * Creates a new {@link RedisSessionStore}.
@@ -319,9 +316,7 @@ public class RedisSessionStore implements Session.Store {
 
   @Override
   public Session get(final Builder builder) {
-    Jedis jedis = null;
-    try {
-      jedis = pool.getResource();
+    try (Jedis jedis = pool.getResource()) {
       String key = key(builder.sessionId());
       Map<String, String> attrs = jedis.hgetAll(key);
       if (attrs == null || attrs.size() == 0) {
@@ -332,24 +327,13 @@ public class RedisSessionStore implements Session.Store {
         // touch session
         jedis.expire(key, timeout);
       }
-      return builder
-          .accessedAt(Long.parseLong(attrs.remove("_accessedAt")))
-          .createdAt(Long.parseLong(attrs.remove("_createdAt")))
-          .savedAt(Long.parseLong(attrs.remove("_savedAt")))
-          .set(attrs)
-          .build();
-    } finally {
-      if (jedis != null) {
-        jedis.close();
-      }
+      return builder.accessedAt(Long.parseLong(attrs.remove("_accessedAt"))).createdAt(Long.parseLong(attrs.remove("_createdAt"))).savedAt(Long.parseLong(attrs.remove("_savedAt"))).set(attrs).build();
     }
   }
 
   @Override
   public void save(final Session session) {
-    Jedis jedis = null;
-    try {
-      jedis = pool.getResource();
+    try (Jedis jedis = pool.getResource()) {
       String key = key(session);
       Map<String, String> attrs = new HashMap<>(session.attributes());
       attrs.put("_createdAt", Long.toString(session.createdAt()));
@@ -358,10 +342,6 @@ public class RedisSessionStore implements Session.Store {
       jedis.hmset(key, attrs);
       if (timeout > 0) {
         jedis.expire(key, timeout);
-      }
-    } finally {
-      if (jedis != null) {
-        jedis.close();
       }
     }
   }
@@ -373,14 +353,8 @@ public class RedisSessionStore implements Session.Store {
 
   @Override
   public void delete(final String id) {
-    Jedis jedis = null;
-    try {
-      jedis = pool.getResource();
+    try (Jedis jedis = pool.getResource()) {
       jedis.del(key(id));
-    } finally {
-      if (jedis != null) {
-        jedis.close();
-      }
     }
 
   }
