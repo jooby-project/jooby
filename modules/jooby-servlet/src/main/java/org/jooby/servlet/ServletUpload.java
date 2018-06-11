@@ -203,25 +203,23 @@
  */
 package org.jooby.servlet;
 
-import static java.util.Objects.requireNonNull;
+import com.google.common.collect.ImmutableList;
+import org.jooby.spi.NativeUpload;
 
+import javax.servlet.http.Part;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.http.Part;
-
-import org.jooby.spi.NativeUpload;
-
-import com.google.common.collect.ImmutableList;
+import static java.util.Objects.requireNonNull;
 
 public class ServletUpload implements NativeUpload {
 
-  private Part upload;
+  private final Part upload;
 
-  private String tmpdir;
+  private final String tmpdir;
 
   private File file;
 
