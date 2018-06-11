@@ -208,27 +208,11 @@ import com.github.eirslett.maven.plugins.frontend.lib.InstallationException;
 import com.github.eirslett.maven.plugins.frontend.lib.NodeInstaller;
 import com.github.eirslett.maven.plugins.frontend.lib.NpmRunner;
 import com.github.eirslett.maven.plugins.frontend.lib.ProxyConfig;
-import com.github.eirslett.maven.plugins.frontend.lib.YarnRunner;
-import com.google.common.hash.Hashing;
-import com.google.inject.Binder;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import static java.util.Objects.requireNonNull;
-import org.jooby.Env;
-import org.jooby.Jooby;
 import org.jooby.funzy.Throwing;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -346,7 +330,7 @@ import java.util.stream.Collectors;
  */
 public class Npm extends Frontend {
 
-  private String npmVersion;
+  private final String npmVersion;
 
   /**
    * Creates a new Npm module.
@@ -385,7 +369,7 @@ public class Npm extends Frontend {
         .install();
     NpmRunner npm = factory.getNpmRunner(proxy, conf.getString("npm.registryURL"));
     return (cmd, args) -> {
-      String cmdline = cmd + " " + Arrays.asList(args).stream().collect(Collectors.joining(" "));
+      String cmdline = cmd + " " + Arrays.stream(args).collect(Collectors.joining(" "));
       npm.execute(cmdline, env);
     };
   }
