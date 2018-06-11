@@ -222,7 +222,7 @@ import java.util.stream.Collectors;
 
 interface SourceLocator {
 
-  public class Source {
+  class Source {
     private static final int[] RANGE = {0, 0};
     private final Path path;
 
@@ -308,8 +308,6 @@ interface SourceLocator {
       return new Source(source.get(0), Files.readAllLines(source.get(0), StandardCharsets.UTF_8));
     }).orElse(new Source(Paths.get(filename), Collections.emptyList()));
   }
-
-  ;
 
   Source source(String filename);
 

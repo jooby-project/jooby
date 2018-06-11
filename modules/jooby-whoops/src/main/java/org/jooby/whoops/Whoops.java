@@ -330,9 +330,9 @@ public class Whoops implements Jooby.Module {
 
   private static final String HANDLER = "org.jooby.internal.HttpHandlerImpl";
 
-  private static int SAMPLE_SIZE = 10;
+  private static final int SAMPLE_SIZE = 10;
 
-  private static BiFunction<Path, Integer, String> openWith = (p, l) -> "";
+  private static final BiFunction<Path, Integer, String> openWith = (p, l) -> "";
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -368,9 +368,7 @@ public class Whoops implements Jooby.Module {
   }
 
   static Handler tryPage(final Handler handler, final Logger log) {
-    return (req, rsp, ex) -> Try.run(() -> handler.handle(req, rsp, ex)).onFailure(cause -> {
-      log.debug("execution of pretty err page resulted in exception", cause);
-    });
+    return (req, rsp, ex) -> Try.run(() -> handler.handle(req, rsp, ex)).onFailure(cause -> log.debug("execution of pretty err page resulted in exception", cause));
   }
 
   private static Handler prettyPage(final ClassLoader loader, final SourceLocator locator,
@@ -390,7 +388,7 @@ public class Whoops implements Jooby.Module {
 
     /** Lazy compile template and keep it */
     Throwing.Function<String, PebbleTemplate> template = Throwing.
-        <String, PebbleTemplate>throwingFunction(name -> engine.getTemplate(name))
+      throwingFunction(engine::getTemplate)
         .memoized();
 
     return (req, rsp, err) -> {
@@ -470,7 +468,7 @@ public class Whoops implements Jooby.Module {
   }
 
   private static <T> Map<String, String> dump(final Supplier<Map<String, T>> hash) {
-    return dump(hash, v -> v.toString());
+    return dump(hash, Object::toString);
   }
 
   private static <T> Map<String, String> dump(final Supplier<Map<String, T>> hash,
@@ -521,7 +519,7 @@ public class Whoops implements Jooby.Module {
             .orElse(new File(filename).getParent())).orElse(filename))
         .put("source", source.source(range[0], range[1]))
         .put("open", openWith.apply(filePath, line))
-        .put("type", clazz.map(c -> c.getSimpleName()).orElse(new File(filename).getName()))
+        .put("type", clazz.map(Class::getSimpleName).orElse(new File(filename).getName()))
         .put("comments", Arrays.asList(
             ImmutableMap.of(
                 "context", cause.getClass().getName(),
@@ -552,9 +550,7 @@ public class Whoops implements Jooby.Module {
 
   @SuppressWarnings("rawtypes")
   static Optional<Class> findClass(final ClassLoader loader, final String name) {
-    return Arrays
-        .asList(loader, Thread.currentThread().getContextClassLoader())
-        .stream()
+    return Stream.of(loader, Thread.currentThread().getContextClassLoader())
         // we don't care about exception
         .map(Throwing.<ClassLoader, Class>throwingFunction(cl -> cl.loadClass(name))
             .orElse((Class) null))
