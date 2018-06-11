@@ -209,12 +209,7 @@ import com.typesafe.config.ConfigException;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.DecoratedObjectFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -252,7 +247,7 @@ public class JettyServer implements org.jooby.spi.Server {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(org.jooby.spi.Server.class);
 
-  private Server server;
+  private final Server server;
 
   @Inject
   public JettyServer(final HttpHandler handler, final Config conf,
@@ -412,7 +407,7 @@ public class JettyServer implements org.jooby.spi.Server {
   private <T> T conf(final T source, final Config config, final String path) {
     Map<String, Method> methods = Arrays.stream(source.getClass().getMethods())
         .filter(m -> m.getName().startsWith("set") && m.getParameterCount() == 1)
-        .collect(Collectors.toMap(Method::getName, Function.<Method>identity()));
+        .collect(Collectors.toMap(Method::getName, Function.identity()));
 
     config.entrySet().forEach(entry -> {
       String key = "set" + entry.getKey();
