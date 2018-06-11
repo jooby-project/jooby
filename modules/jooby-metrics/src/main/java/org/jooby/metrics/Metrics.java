@@ -203,7 +203,20 @@
  */
 package org.jooby.metrics;
 
-import static java.util.Objects.requireNonNull;
+import com.codahale.metrics.Metric;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Reporter;
+import com.codahale.metrics.health.HealthCheck;
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.google.inject.Binder;
+import com.google.inject.multibindings.MapBinder;
+import com.google.inject.multibindings.Multibinder;
+import com.typesafe.config.Config;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.Router;
+import org.jooby.internal.metrics.HealthCheckRegistryInitializer;
+import org.jooby.internal.metrics.MetricRegistryInitializer;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -214,21 +227,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.jooby.Env;
-import org.jooby.Jooby;
-import org.jooby.Router;
-import org.jooby.internal.metrics.HealthCheckRegistryInitializer;
-import org.jooby.internal.metrics.MetricRegistryInitializer;
-
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Reporter;
-import com.codahale.metrics.health.HealthCheck;
-import com.codahale.metrics.health.HealthCheckRegistry;
-import com.google.inject.Binder;
-import com.google.inject.multibindings.MapBinder;
-import com.google.inject.multibindings.Multibinder;
-import com.typesafe.config.Config;
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>metrics</h1>
@@ -333,20 +332,20 @@ import com.typesafe.config.Config;
  */
 public class Metrics implements Jooby.Module {
 
-  static interface Bindings {
+  interface Bindings {
     void bind(Binder binder, Router routes, Config conf);
   }
 
-  private String pattern;
+  private final String pattern;
 
-  private List<Bindings> bindings = new ArrayList<>();
+  private final List<Bindings> bindings = new ArrayList<>();
 
-  private List<Consumer<Router>> routes = new ArrayList<>();
+  private final List<Consumer<Router>> routes = new ArrayList<>();
 
-  private Set<BiFunction<MetricRegistry, Config, Reporter>> reporters = new LinkedHashSet<>();
+  private final Set<BiFunction<MetricRegistry, Config, Reporter>> reporters = new LinkedHashSet<>();
 
-  private MetricRegistry metricRegistry;
-  private HealthCheckRegistry healthCheckRegistry;
+  private final MetricRegistry metricRegistry;
+  private final HealthCheckRegistry healthCheckRegistry;
 
   /**
    * Creates a new {@link Metric} module.
@@ -445,9 +444,7 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public Metrics ping() {
-    bindings.add((binder, routes, conf) -> {
-      routes.use("GET", this.pattern + "/ping", new PingHandler());
-    });
+    bindings.add((binder, routes, conf) -> routes.use("GET", this.pattern + "/ping", new PingHandler()));
     return this;
   }
 
@@ -457,9 +454,7 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public Metrics threadDump() {
-    bindings.add((binder, routes, conf) -> {
-      routes.use("GET", this.pattern + "/thread-dump", new ThreadDumpHandler());
-    });
+    bindings.add((binder, routes, conf) -> routes.use("GET", this.pattern + "/thread-dump", new ThreadDumpHandler()));
     return this;
   }
 
@@ -472,10 +467,8 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public Metrics metric(final String name, final Metric metric) {
-    bindings.add((binder, routes, conf) -> {
-      MapBinder.newMapBinder(binder, String.class, Metric.class).addBinding(name)
-          .toInstance(metric);
-    });
+    bindings.add((binder, routes, conf) -> MapBinder.newMapBinder(binder, String.class, Metric.class).addBinding(name)
+        .toInstance(metric));
     return this;
   }
 
@@ -489,10 +482,8 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public <M extends Metric> Metrics metric(final String name, final Class<M> metric) {
-    bindings.add((binder, routes, conf) -> {
-      MapBinder.newMapBinder(binder, String.class, Metric.class).addBinding(name)
-          .to(metric);
-    });
+    bindings.add((binder, routes, conf) -> MapBinder.newMapBinder(binder, String.class, Metric.class).addBinding(name)
+        .to(metric));
     return this;
   }
 
@@ -505,10 +496,8 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public Metrics healthCheck(final String name, final HealthCheck check) {
-    bindings.add((binder, routes, conf) -> {
-      MapBinder.newMapBinder(binder, String.class, HealthCheck.class).addBinding(name)
-          .toInstance(check);
-    });
+    bindings.add((binder, routes, conf) -> MapBinder.newMapBinder(binder, String.class, HealthCheck.class).addBinding(name)
+        .toInstance(check));
     return this;
   }
 
@@ -522,11 +511,9 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public <H extends HealthCheck> Metrics healthCheck(final String name, final Class<H> check) {
-    bindings.add((binder, routes, conf) -> {
-      MapBinder.newMapBinder(binder, String.class, HealthCheck.class)
-          .addBinding(name)
-          .to(check);
-    });
+    bindings.add((binder, routes, conf) -> MapBinder.newMapBinder(binder, String.class, HealthCheck.class)
+        .addBinding(name)
+        .to(check));
     return this;
   }
 
