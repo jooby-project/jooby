@@ -269,9 +269,9 @@ import com.typesafe.config.ConfigValueFactory;
  */
 public class HcastSessionStore implements Session.Store {
 
-  private IMap<String, Map<String, String>> sessions;
+  private final IMap<String, Map<String, String>> sessions;
 
-  private int timeout;
+  private final int timeout;
 
   /**
    * Creates a new {@link HcastSessionStore}.
