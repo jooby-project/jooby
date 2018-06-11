@@ -527,9 +527,7 @@ public class FileWatcher implements Module {
     this.watcher = FileSystems.getDefault().newWatchService();
     binder.bind(WatchService.class).toInstance(watcher);
     List<FileEventOptions> paths = new ArrayList<>();
-    paths(env.getClass().getClassLoader(), conf, "filewatcher.register", options -> {
-      paths.add(register(binder, options));
-    });
+    paths(env.getClass().getClassLoader(), conf, "filewatcher.register", options -> paths.add(register(binder, options)));
     for (Throwing.Function2<Config, Binder, FileEventOptions> binding : bindings) {
       paths.add(binding.apply(conf, binder));
     }
@@ -543,7 +541,7 @@ public class FileWatcher implements Module {
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   private void paths(final ClassLoader loader, final Config conf, final String name,
-      final Consumer<FileEventOptions> callback) throws Throwable {
+      final Consumer<FileEventOptions> callback) {
     list(conf, name, value -> {
       Config coptions = ConfigFactory.parseMap((Map) value);
       Class handler = loader.loadClass(coptions.getString("handler"));
@@ -558,8 +556,7 @@ public class FileWatcher implements Module {
   }
 
   @SuppressWarnings("rawtypes")
-  private void list(final Config conf, final String name, final Throwing.Consumer<Object> callback)
-      throws Throwable {
+  private void list(final Config conf, final String name, final Throwing.Consumer<Object> callback) {
     if (conf.hasPath(name)) {
       Object value = conf.getAnyRef(name);
       List values = value instanceof List ? (List) value : ImmutableList.of(value);
