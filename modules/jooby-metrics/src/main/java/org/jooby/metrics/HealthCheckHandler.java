@@ -203,16 +203,15 @@
  */
 package org.jooby.metrics;
 
-import java.util.SortedMap;
-
+import com.codahale.metrics.health.HealthCheck.Result;
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.google.common.collect.ImmutableSortedMap;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route.Handler;
 import org.jooby.Status;
 
-import com.codahale.metrics.health.HealthCheck.Result;
-import com.codahale.metrics.health.HealthCheckRegistry;
-import com.google.common.collect.ImmutableSortedMap;
+import java.util.SortedMap;
 
 /**
  * Produces a:
@@ -233,7 +232,7 @@ public class HealthCheckHandler implements Handler {
     SortedMap<String, Result> checks = req.param("name").toOptional().map(name -> {
       SortedMap<String, Result> set = ImmutableSortedMap.of(name, registry.runHealthCheck(name));
       return set;
-    }).orElseGet(() -> registry.runHealthChecks());
+    }).orElseGet(registry::runHealthChecks);
 
     final Status status;
     if (checks.isEmpty()) {

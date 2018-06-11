@@ -203,30 +203,15 @@
  */
 package org.jooby.metrics;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
-
+import com.codahale.metrics.*;
+import com.codahale.metrics.Timer;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route.Handler;
 import org.jooby.Status;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.Metered;
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricFilter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Sampling;
-import com.codahale.metrics.Snapshot;
-import com.codahale.metrics.Timer;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Produces a:
@@ -303,10 +288,8 @@ public class MetricHandler implements Handler {
       final String rateUnit, final double rateFactor, final String durationUnit,
       final double durationFactor, final boolean showSamples) {
     Map<String, Object> result = new TreeMap<>();
-    timers.forEach((name, timer) -> {
-      result.put(name,
-          timer(timer, rateUnit, rateFactor, durationUnit, durationFactor, showSamples));
-    });
+    timers.forEach((name, timer) -> result.put(name,
+        timer(timer, rateUnit, rateFactor, durationUnit, durationFactor, showSamples)));
     return result;
   }
 
@@ -361,18 +344,14 @@ public class MetricHandler implements Handler {
 
   private static Map<String, Object> counters(final SortedMap<String, Counter> counters) {
     Map<String, Object> result = new TreeMap<>();
-    counters.forEach((name, c) -> {
-      result.put(name, c.getCount());
-    });
+    counters.forEach((name, c) -> result.put(name, c.getCount()));
     return result;
   }
 
   private static Map<String, Object> histograms(final SortedMap<String, Histogram> histograms,
       final boolean showSamples) {
     Map<String, Object> result = new TreeMap<>();
-    histograms.forEach((name, timer) -> {
-      result.put(name, snapshot(timer, 1, showSamples));
-    });
+    histograms.forEach((name, timer) -> result.put(name, snapshot(timer, 1, showSamples)));
     return result;
   }
 
@@ -380,10 +359,8 @@ public class MetricHandler implements Handler {
       final String rateUnit, final double rateFactor, final String durationUnit,
       final double durationFactor) {
     Map<String, Object> result = new TreeMap<>();
-    timers.forEach((name, timer) -> {
-      result.put(name,
-          meter(timer, rateUnit, rateFactor, durationUnit, durationFactor));
-    });
+    timers.forEach((name, timer) -> result.put(name,
+        meter(timer, rateUnit, rateFactor, durationUnit, durationFactor)));
     return result;
   }
 

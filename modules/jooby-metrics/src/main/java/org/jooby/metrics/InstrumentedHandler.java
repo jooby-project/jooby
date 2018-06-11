@@ -203,15 +203,14 @@
  */
 package org.jooby.metrics;
 
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Status;
-
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Route;
+import org.jooby.Status;
 
 /**
  * Track request information like: active requests, request time and responses.
@@ -222,7 +221,7 @@ import com.codahale.metrics.Timer;
 public class InstrumentedHandler implements Route.Handler {
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Throwable {
+  public void handle(final Request req, final Response rsp) {
     MetricRegistry registry = req.require(MetricRegistry.class);
     Counter counter = registry.counter("request.actives");
     Timer.Context timer = registry.timer("request").time();
