@@ -208,38 +208,37 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import cz.jiripinkas.jsitemapgenerator.WebPage;
-import static java.util.Objects.requireNonNull;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Route;
-import org.jooby.sitemap.WebPageProvider;
 import org.jooby.funzy.Throwing;
+import org.jooby.sitemap.WebPageProvider;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import static java.util.Objects.requireNonNull;
+
 @SuppressWarnings("rawtypes")
 public abstract class JSitemap<T extends JSitemap> implements Jooby.Module {
 
   protected static final String SITEMAP = "/sitemap.xml";
 
-  static final Predicate<Route.Definition> NOT_ME = r -> {
-    return !r.pattern().equals(SITEMAP);
-  };
+  static final Predicate<Route.Definition> NOT_ME = r -> !r.pattern().equals(SITEMAP);
 
   static final Predicate<Route.Definition> GET = r -> r.method().equals("GET");
 
   private static final String SITEMAP_BASEURL = "sitemap.url";
 
-  private String path;
+  private final String path;
 
   private Consumer<Binder> wpp;
 
   private Predicate<Route.Definition> filter = GET;
 
-  private Optional<String> baseurl;
+  private final Optional<String> baseurl;
 
   public JSitemap(final String path, final Optional<String> baseurl, final WebPageProvider wpp) {
     this.path = path;
