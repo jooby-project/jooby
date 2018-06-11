@@ -203,48 +203,40 @@
  */
 package org.jooby.servlet;
 
-import static java.util.Objects.requireNonNull;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import org.jooby.Cookie;
 import org.jooby.MediaType;
 import org.jooby.Router;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 public class ServletServletRequest implements NativeRequest {
 
-  private HttpServletRequest req;
+  private final HttpServletRequest req;
 
-  private String tmpdir;
+  private final String tmpdir;
 
-  private boolean multipart;
+  private final boolean multipart;
 
-  private String path;
+  private final String path;
 
   private ServletUpgrade upgrade = noupgrade();
 
   public ServletServletRequest(final HttpServletRequest req, final String tmpdir,
-      final boolean multipart) throws IOException {
+      final boolean multipart) {
     this.req = requireNonNull(req, "HTTP req is required.");
     this.tmpdir = requireNonNull(tmpdir, "A tmpdir is required.");
     this.multipart = multipart;
@@ -259,8 +251,7 @@ public class ServletServletRequest implements NativeRequest {
     return req;
   }
 
-  public ServletServletRequest(final HttpServletRequest req, final String tmpdir)
-      throws IOException {
+  public ServletServletRequest(final HttpServletRequest req, final String tmpdir) {
     this(req, tmpdir, multipart(req));
   }
 
@@ -303,7 +294,7 @@ public class ServletServletRequest implements NativeRequest {
   }
 
   @Override
-  public List<String> params(final String name) throws Exception {
+  public List<String> params(final String name) {
     String[] values = req.getParameterValues(name);
     if (values == null) {
       return Collections.emptyList();
@@ -409,7 +400,7 @@ public class ServletServletRequest implements NativeRequest {
     return new ServletUpgrade() {
 
       @Override
-      public <T> T upgrade(final Class<T> type) throws Exception {
+      public <T> T upgrade(final Class<T> type) {
         throw new UnsupportedOperationException("");
       }
     };
