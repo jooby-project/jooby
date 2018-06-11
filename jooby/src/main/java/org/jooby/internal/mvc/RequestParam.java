@@ -242,7 +242,7 @@ public class RequestParam {
   private static final Map<Object, GetValue> injector;
 
   static {
-    Builder<Object, GetValue> builder = ImmutableMap.<Object, GetValue> builder();
+    Builder<Object, GetValue> builder = ImmutableMap.builder();
     /**
      * Body
      */
@@ -384,7 +384,7 @@ public class RequestParam {
     return Strings.emptyToNull(named.value());
   }
 
-  private static final GetValue param() {
+  private static GetValue param() {
     return (req, rsp, chain, param) -> {
       Mutant mutant = req.param(param.name);
       if (mutant.isSet() || param.optional) {
