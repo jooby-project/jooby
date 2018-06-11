@@ -211,7 +211,7 @@ import org.jooby.hbm.UnitOfWork;
 
 public class UnitOfWorkProvider implements Provider<UnitOfWork> {
 
-  private SessionFactory sf;
+  private final SessionFactory sf;
 
   public UnitOfWorkProvider(final SessionFactory sf) {
     this.sf = sf;

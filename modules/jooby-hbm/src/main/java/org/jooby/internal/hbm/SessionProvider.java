@@ -211,7 +211,7 @@ import org.hibernate.context.internal.ManagedSessionContext;
 
 public class SessionProvider implements Provider<Session> {
 
-  private SessionFactory sf;
+  private final SessionFactory sf;
 
   public SessionProvider(final SessionFactory sf) {
     this.sf = sf;

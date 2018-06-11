@@ -230,9 +230,7 @@ public class RootUnitOfWork extends AbstractUnitOfWork {
     if (rollbackOnly) {
       return this;
     }
-    active(session, trx -> {
-      log.debug("joining existing transaction: {}(trx@{})", oid(session), oid(trx));
-    }, trx -> {
+    active(session, trx -> log.debug("joining existing transaction: {}(trx@{})", oid(session), oid(trx)), trx -> {
       log.debug("begin transaction: {}(trx@{})", oid(session), oid(trx));
       trx.begin();
     });
@@ -253,9 +251,7 @@ public class RootUnitOfWork extends AbstractUnitOfWork {
     active(session, trx -> {
       log.debug("commiting transaction: {}(trx@{})", oid(session), oid(trx));
       trx.commit();
-    }, trx -> {
-      log.warn("unable to commit inactive transaction: {}(trx@{})", oid(session), oid(trx));
-    });
+    }, trx -> log.warn("unable to commit inactive transaction: {}(trx@{})", oid(session), oid(trx)));
     return this;
   }
 
@@ -281,9 +277,7 @@ public class RootUnitOfWork extends AbstractUnitOfWork {
     active(session, trx -> {
       log.debug("rollback transaction: {}(trx@{})", oid(session), oid(trx));
       trx.rollback();
-    }, trx -> {
-      log.warn("unable to rollback inactive transaction: {}(trx@{})", oid(session), oid(trx));
-    });
+    }, trx -> log.warn("unable to rollback inactive transaction: {}(trx@{})", oid(session), oid(trx)));
     return this;
   }
 
