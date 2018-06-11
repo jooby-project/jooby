@@ -249,7 +249,7 @@ class FileMonitor implements Runnable {
 
   @Inject
   public FileMonitor(final Injector injector, final Env env,
-      final WatchService watcher, final Set<FileEventOptions> optionList) throws IOException {
+      final WatchService watcher, final Set<FileEventOptions> optionList) {
     this.injector = injector;
     this.watcher = watcher;
     this.optionList = optionList;
