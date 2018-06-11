@@ -208,8 +208,8 @@ import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Results;
 import org.jooby.Route;
-import org.jooby.sitemap.WebPageProvider;
 import org.jooby.funzy.Throwing;
+import org.jooby.sitemap.WebPageProvider;
 
 import java.util.List;
 import java.util.Set;
@@ -218,11 +218,11 @@ import java.util.stream.Collectors;
 
 class SitemapHandler implements Route.OneArgHandler {
 
-  private String name;
+  private final String name;
 
-  private Predicate<Route.Definition> filter;
+  private final Predicate<Route.Definition> filter;
 
-  private Throwing.Function<List<WebPage>, String> gen;
+  private final Throwing.Function<List<WebPage>, String> gen;
 
   public SitemapHandler(final String name, final Predicate<Route.Definition> filter,
       final Throwing.Function<List<WebPage>, String> gen) {
@@ -232,19 +232,18 @@ class SitemapHandler implements Route.OneArgHandler {
   }
 
   @Override
-  public Object handle(final Request req) throws Throwable {
+  public Object handle(final Request req) {
     Set<Route.Definition> routes = req.require(Route.KEY);
     WebPageProvider provider = req.require(name, WebPageProvider.class);
     List<WebPage> pages = routes.stream()
         .filter(filter)
         .flatMap(r -> provider.apply(r).stream())
-        .map(page -> {
+        .peek(page -> {
           String name = page.getName();
           if (name.startsWith("/")) {
             name = name.substring(1);
           }
           page.setName(name);
-          return page;
         }).collect(Collectors.toList());
     return Results.ok(gen.apply(pages)).type(MediaType.xml);
   }
