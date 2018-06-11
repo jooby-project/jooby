@@ -213,7 +213,7 @@ import com.typesafe.config.Config;
 
 public class ConfigurationBuilder extends EhCacheBuilder {
 
-  private Configuration eh;
+  private final Configuration eh;
 
   public ConfigurationBuilder() {
     this.eh = new Configuration();
@@ -288,12 +288,10 @@ public class ConfigurationBuilder extends EhCacheBuilder {
           newFactory("ehcache.cacheManagerPeerProviderFactory", conf, FactoryConfiguration::new)
           );
     } else {
-      each(conf, (name, c) -> {
-        eh.addCacheManagerPeerProviderFactory(
-            newFactory("ehcache.cacheManagerPeerProviderFactory." + name, c,
-                FactoryConfiguration::new)
-            );
-      });
+      each(conf, (name, c) -> eh.addCacheManagerPeerProviderFactory(
+          newFactory("ehcache.cacheManagerPeerProviderFactory." + name, c,
+              FactoryConfiguration::new)
+          ));
     }
   }
 
