@@ -229,11 +229,7 @@ import org.jooby.Env.ServiceKey;
 import org.jooby.Jooby;
 import org.jooby.Registry;
 import org.jooby.Route;
-import org.jooby.internal.hbm.GuiceBeanManager;
-import org.jooby.internal.hbm.OpenSessionInView;
-import org.jooby.internal.hbm.ScanEnvImpl;
-import org.jooby.internal.hbm.SessionProvider;
-import org.jooby.internal.hbm.UnitOfWorkProvider;
+import org.jooby.internal.hbm.*;
 import org.jooby.jdbc.Jdbc;
 
 import javax.inject.Provider;
@@ -517,13 +513,13 @@ public class Hbm implements Jooby.Module {
   private static final BiConsumer NOOP = (r, c) -> {
   };
 
-  private List<BiConsumer<SessionFactoryImplementor, Registry>> listeners = new ArrayList<>();
+  private final List<BiConsumer<SessionFactoryImplementor, Registry>> listeners = new ArrayList<>();
 
-  private List<Consumer<Binder>> bindings = new ArrayList<>();
+  private final List<Consumer<Binder>> bindings = new ArrayList<>();
 
-  private List<BiConsumer<MetadataSources, Config>> sources = new ArrayList<>();
+  private final List<BiConsumer<MetadataSources, Config>> sources = new ArrayList<>();
 
-  private String name;
+  private final String name;
 
   private BiConsumer<BootstrapServiceRegistryBuilder, Config> bsrb = NOOP;
 
@@ -560,7 +556,7 @@ public class Hbm implements Jooby.Module {
    */
   @SuppressWarnings("rawtypes")
   public Hbm classes(final Class... classes) {
-    sources.add((m, c) -> Arrays.asList(classes).stream().forEach(m::addAnnotatedClass));
+    sources.add((m, c) -> Arrays.stream(classes).forEach(m::addAnnotatedClass));
     return this;
   }
 
@@ -571,7 +567,7 @@ public class Hbm implements Jooby.Module {
    * @return This module.
    */
   public Hbm scan(final String... packages) {
-    sources.add((m, c) -> Arrays.asList(packages).stream().forEach(m::addPackage));
+    sources.add((m, c) -> Arrays.stream(packages).forEach(m::addPackage));
     return this;
   }
 
@@ -626,9 +622,7 @@ public class Hbm implements Jooby.Module {
    */
   @SuppressWarnings("unchecked")
   public <T> Hbm onEvent(final EventType<T> type, final Class<? extends T> listenerType) {
-    bindings.add(b -> {
-      b.bind(listenerType).asEagerSingleton();
-    });
+    bindings.add(b -> b.bind(listenerType).asEagerSingleton());
 
     listeners.add((s, r) -> {
       ServiceRegistryImplementor serviceRegistry = s.getServiceRegistry();
