@@ -312,9 +312,7 @@ public class Hcast implements Module {
   private Properties toProperties(final Config config) {
     Properties properties = new Properties();
 
-    config.withoutPath("session").entrySet().forEach(prop -> {
-      properties.setProperty("hazelcast." + prop.getKey(), prop.getValue().unwrapped().toString());
-    });
+    config.withoutPath("session").entrySet().forEach(prop -> properties.setProperty("hazelcast." + prop.getKey(), prop.getValue().unwrapped().toString()));
 
     return properties;
   }
