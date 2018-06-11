@@ -228,7 +228,7 @@ public interface NodeTask {
      *
      * (will be better if we can start/stop all the process started by node)
      */
-    String cmdline = cmd + Arrays.asList(args).stream().collect(Collectors.joining(" "));
+    String cmdline = cmd + Arrays.stream(args).collect(Collectors.joining(" "));
     String runkey = "frontend." + cmdline.replace(" ", ".");
     boolean run = Boolean.parseBoolean(System.getProperty(runkey, "true"));
     if (run) {
