@@ -218,7 +218,6 @@
 package org.jooby.internal.undertow;
 
 import com.typesafe.config.Config;
-
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HeaderValues;
@@ -227,9 +226,9 @@ import io.undertow.util.Protocols;
 
 public class UndertowHandler implements HttpHandler {
 
-  private org.jooby.spi.HttpHandler handler;
+  private final org.jooby.spi.HttpHandler handler;
 
-  private Config config;
+  private final Config config;
 
   public UndertowHandler(final org.jooby.spi.HttpHandler handler, final Config config) {
     this.handler = handler;

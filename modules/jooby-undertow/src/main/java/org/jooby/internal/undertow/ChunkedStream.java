@@ -203,12 +203,6 @@
  */
 package org.jooby.internal.undertow;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
-
-import org.xnio.IoUtils;
-
 import io.undertow.connector.PooledByteBuffer;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
@@ -216,6 +210,11 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.ServerConnection;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.Headers;
+import org.xnio.IoUtils;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
 
 public class ChunkedStream implements IoCallback, Runnable {
 
@@ -233,7 +232,7 @@ public class ChunkedStream implements IoCallback, Runnable {
 
   private int chunk;
 
-  private long len;
+  private final long len;
 
   private long total;
 

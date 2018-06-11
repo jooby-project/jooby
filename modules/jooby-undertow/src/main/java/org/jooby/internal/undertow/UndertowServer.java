@@ -203,6 +203,22 @@
  */
 package org.jooby.internal.undertow;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
+import com.typesafe.config.ConfigValue;
+import io.undertow.Undertow;
+import io.undertow.Undertow.Builder;
+import io.undertow.UndertowOptions;
+import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.GracefulShutdownHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xnio.Option;
+import org.xnio.Options;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.net.ssl.SSLContext;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Optional;
@@ -210,25 +226,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.net.ssl.SSLContext;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xnio.Option;
-import org.xnio.Options;
-
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
-import com.typesafe.config.ConfigValue;
-
-import io.undertow.Undertow;
-import io.undertow.Undertow.Builder;
-import io.undertow.UndertowOptions;
-import io.undertow.server.HttpHandler;
-import io.undertow.server.handlers.GracefulShutdownHandler;
 
 public class UndertowServer implements org.jooby.spi.Server {
 
@@ -239,15 +236,15 @@ public class UndertowServer implements org.jooby.spi.Server {
   /** The logging system. */
   private static final Logger log = LoggerFactory.getLogger(org.jooby.spi.Server.class);
 
-  private Undertow server;
+  private final Undertow server;
 
   private final GracefulShutdownHandler shutdown;
 
-  private long awaitShutdown;
+  private final long awaitShutdown;
 
   @Inject
   public UndertowServer(final org.jooby.spi.HttpHandler dispatcher, final Config conf,
-      final Provider<SSLContext> sslContext) throws Exception {
+      final Provider<SSLContext> sslContext) {
 
     awaitShutdown = conf.getDuration("undertow.awaitShutdown", TimeUnit.MILLISECONDS);
     boolean http2 = conf.getBoolean("server.http2.enabled");
@@ -302,16 +299,13 @@ public class UndertowServer implements org.jooby.spi.Server {
     });
 
     $undertow.getConfig("server").root().entrySet()
-        .forEach(setOption($undertow, "server",
-            (option, value) -> builder.setServerOption(option, value)));
+        .forEach(setOption($undertow, "server", builder::setServerOption));
 
     $undertow.getConfig("worker").root().entrySet()
-        .forEach(setOption($undertow, "worker",
-            (option, value) -> builder.setWorkerOption(option, value)));
+        .forEach(setOption($undertow, "worker", builder::setWorkerOption));
 
     $undertow.getConfig("socket").root().entrySet()
-        .forEach(setOption($undertow, "socket",
-            (option, value) -> builder.setSocketOption(option, value)));
+        .forEach(setOption($undertow, "socket", builder::setSocketOption));
 
     return builder;
   }
@@ -372,12 +366,12 @@ public class UndertowServer implements org.jooby.spi.Server {
   }
 
   @Override
-  public void start() throws Exception {
+  public void start() {
     server.start();
   }
 
   @Override
-  public void join() throws InterruptedException {
+  public void join() {
     // NOOP
   }
 
