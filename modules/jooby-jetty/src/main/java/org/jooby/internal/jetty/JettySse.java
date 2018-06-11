@@ -204,11 +204,7 @@
 package org.jooby.internal.jetty;
 
 import org.eclipse.jetty.io.EofException;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.HttpChannel;
-import org.eclipse.jetty.server.HttpOutput;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.*;
 import org.jooby.Sse;
 import org.jooby.funzy.Try;
 
@@ -219,11 +215,11 @@ import java.util.concurrent.Executor;
 
 public class JettySse extends Sse {
 
-  private Request req;
+  private final Request req;
 
-  private Response rsp;
+  private final Response rsp;
 
-  private HttpOutput out;
+  private final HttpOutput out;
 
   public JettySse(final Request request, final Response rsp) {
     this.req = request;
@@ -233,7 +229,7 @@ public class JettySse extends Sse {
 
   @Override
   protected void closeInternal() {
-    Try.run(() -> rsp.closeOutput())
+    Try.run(rsp::closeOutput)
         .onFailure(cause -> log.debug("error while closing connection", cause));
   }
 
