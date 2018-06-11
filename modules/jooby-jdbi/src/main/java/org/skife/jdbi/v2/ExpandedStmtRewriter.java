@@ -203,19 +203,7 @@
  */
 package org.skife.jdbi.v2;
 
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.DOUBLE_QUOTED_TEXT;
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.ESCAPED_TEXT;
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.LITERAL;
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.NAMED_PARAM;
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.POSITIONAL_PARAM;
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.QUOTED_TEXT;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
+import com.google.common.base.Strings;
 import org.skife.jdbi.org.antlr.runtime.ANTLRStringStream;
 import org.skife.jdbi.org.antlr.runtime.Token;
 import org.skife.jdbi.rewriter.colon.ColonStatementLexer;
@@ -225,7 +213,13 @@ import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
-import com.google.common.base.Strings;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.*;
 
 /**
  * <p>
@@ -336,8 +330,7 @@ public class ExpandedStmtRewriter implements StatementRewriter
     }
 
     @Override
-    public void bind(final Binding params, final PreparedStatement statement) throws SQLException
-    {
+    public void bind(final Binding params, final PreparedStatement statement) {
       if (stmt.positionalOnly) {
         // no named params, is easy
         boolean finished = false;
@@ -408,7 +401,7 @@ public class ExpandedStmtRewriter implements StatementRewriter
   static class ParsedStatement
   {
     private boolean positionalOnly = true;
-    private List<String> params = new ArrayList<String>();
+    private final List<String> params = new ArrayList<>();
 
     public void addNamedParamAt(final String name)
     {
