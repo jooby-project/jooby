@@ -235,7 +235,7 @@ import org.jooby.Session.Builder;
  */
 public class EhSessionStore implements Session.Store {
 
-  private Ehcache cache;
+  private final Ehcache cache;
 
   @Inject
   public EhSessionStore(@Named("session") final Ehcache cache) {
