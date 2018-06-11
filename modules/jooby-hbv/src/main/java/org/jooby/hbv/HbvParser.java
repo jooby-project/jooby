@@ -218,7 +218,7 @@ import com.google.inject.TypeLiteral;
 
 class HbvParser implements Parser {
 
-  private Predicate<TypeLiteral<?>> predicate;
+  private final Predicate<TypeLiteral<?>> predicate;
 
   public HbvParser(final Predicate<TypeLiteral<?>> predicate) {
     this.predicate = requireNonNull(predicate, "Predicate is required.");

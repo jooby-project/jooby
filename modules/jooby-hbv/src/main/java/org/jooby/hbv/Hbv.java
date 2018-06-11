@@ -350,7 +350,7 @@ import com.typesafe.config.ConfigValueFactory;
  */
 public class Hbv implements Jooby.Module {
 
-  private Predicate<TypeLiteral<?>> predicate;
+  private final Predicate<TypeLiteral<?>> predicate;
 
   private BiConsumer<HibernateValidatorConfiguration, Config> configurer;
 
@@ -387,9 +387,7 @@ public class Hbv implements Jooby.Module {
    */
   public Hbv doWith(final Consumer<HibernateValidatorConfiguration> configurer) {
     requireNonNull(configurer, "Configurer callback is required.");
-    this.configurer = (hvc, conf) -> {
-      configurer.accept(hvc);
-    };
+    this.configurer = (hvc, conf) -> configurer.accept(hvc);
     return this;
   }
 
@@ -410,9 +408,7 @@ public class Hbv implements Jooby.Module {
         .configure();
 
     if (config.hasPath("hibernate.validator")) {
-      config.getConfig("hibernate.validator").root().forEach((k, v) -> {
-        configuration.addProperty("hibernate.validator." + k, v.unwrapped().toString());
-      });
+      config.getConfig("hibernate.validator").root().forEach((k, v) -> configuration.addProperty("hibernate.validator." + k, v.unwrapped().toString()));
     }
 
     if (configurer != null) {

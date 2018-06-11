@@ -218,7 +218,7 @@ import com.google.inject.Injector;
 
 class HbvFactory implements Provider<Validator> {
 
-  private HibernateValidatorConfiguration conf;
+  private final HibernateValidatorConfiguration conf;
 
   private Validator validator;
 
