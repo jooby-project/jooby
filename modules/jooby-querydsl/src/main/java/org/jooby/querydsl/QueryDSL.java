@@ -208,14 +208,9 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.querydsl.sql.*;
 import com.typesafe.config.Config;
-
-import static java.util.Objects.requireNonNull;
-import static org.jooby.funzy.When.when;
-
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
 import org.jooby.Jooby;
-import org.jooby.funzy.When;
 import org.jooby.jdbc.Jdbc;
 
 import javax.sql.DataSource;
@@ -223,6 +218,9 @@ import java.util.NoSuchElementException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import static java.util.Objects.requireNonNull;
+import static org.jooby.funzy.When.when;
 
 /**
  * <h1>queryDSL</h1>
@@ -320,7 +318,7 @@ public class QueryDSL implements Jooby.Module {
 
   private Function<String, SQLTemplates> templates = QueryDSL::toSQLTemplates;
 
-  private String name;
+  private final String name;
 
   private BiConsumer<Configuration, Config> callback;
 
