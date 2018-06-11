@@ -209,7 +209,6 @@ import com.typesafe.config.Config;
 import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.template.ClasspathTemplateLoader;
 import de.neuland.jade4j.template.TemplateLoader;
-import static java.util.Objects.requireNonNull;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Renderer;
@@ -221,6 +220,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>jade</h1>
@@ -309,7 +310,7 @@ public class Jade implements Jooby.Module {
 
   static class IOTemplateLoader implements TemplateLoader {
 
-    private TemplateLoader loader;
+    private final TemplateLoader loader;
 
     public IOTemplateLoader(final TemplateLoader loader) {
       this.loader = loader;
@@ -337,7 +338,7 @@ public class Jade implements Jooby.Module {
 
   private BiConsumer<JadeConfiguration, Config> callback;
 
-  private String suffix;
+  private final String suffix;
 
   /**
    * Creates a {@link Jade} instance with a custom suffix.
