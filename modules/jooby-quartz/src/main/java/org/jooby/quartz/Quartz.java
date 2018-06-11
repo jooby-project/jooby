@@ -203,7 +203,17 @@
  */
 package org.jooby.quartz;
 
-import static java.util.Objects.requireNonNull;
+import com.google.common.collect.Lists;
+import com.google.inject.Binder;
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.internal.quartz.JobExpander;
+import org.jooby.internal.quartz.QuartzProvider;
+import org.quartz.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -211,26 +221,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import org.jooby.Env;
-import org.jooby.Jooby;
-import org.jooby.internal.quartz.JobExpander;
-import org.jooby.internal.quartz.QuartzProvider;
-import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.quartz.TriggerKey;
-
-import com.google.common.collect.Lists;
-import com.google.inject.Binder;
-import com.google.inject.TypeLiteral;
-import com.google.inject.name.Names;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Build and create a {@link Scheduler Quartz Scheduler} and {@link Job jobs}.
@@ -485,9 +476,9 @@ import com.typesafe.config.ConfigFactory;
  */
 public class Quartz implements Jooby.Module {
 
-  private List<Class<?>> jobs;
+  private final List<Class<?>> jobs;
 
-  private Map<JobDetail, Trigger> jobMap = new HashMap<>();
+  private final Map<JobDetail, Trigger> jobMap = new HashMap<>();
 
   /**
    * Creates a new {@link Quartz} module. Optionally add some jobs.

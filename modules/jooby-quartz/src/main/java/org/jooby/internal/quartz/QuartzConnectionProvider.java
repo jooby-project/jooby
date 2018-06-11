@@ -203,19 +203,18 @@
  */
 package org.jooby.internal.quartz;
 
-import static java.util.Objects.requireNonNull;
-
-import java.sql.Connection;
-import java.sql.SQLException;
+import org.quartz.utils.ConnectionProvider;
 
 import javax.inject.Provider;
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
-import org.quartz.utils.ConnectionProvider;
+import static java.util.Objects.requireNonNull;
 
 public class QuartzConnectionProvider implements ConnectionProvider {
 
-  private Provider<DataSource> ds;
+  private final Provider<DataSource> ds;
 
   public QuartzConnectionProvider(final Provider<DataSource> ds) {
     this.ds = requireNonNull(ds, "Data source is required.");
@@ -227,12 +226,12 @@ public class QuartzConnectionProvider implements ConnectionProvider {
   }
 
   @Override
-  public void shutdown() throws SQLException {
+  public void shutdown() {
     // NOOP
   }
 
   @Override
-  public void initialize() throws SQLException {
+  public void initialize() {
     ds.get();
   }
 
