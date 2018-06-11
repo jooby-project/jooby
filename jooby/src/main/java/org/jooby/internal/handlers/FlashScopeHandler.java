@@ -203,16 +203,12 @@
  */
 package org.jooby.internal.handlers;
 
+import org.jooby.*;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-
-import org.jooby.Cookie;
-import org.jooby.FlashScope;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
 
 public class FlashScopeHandler implements Route.Filter {
 
@@ -229,13 +225,13 @@ public class FlashScopeHandler implements Route.Filter {
     }
   }
 
-  private Cookie.Definition template;
+  private final Cookie.Definition template;
 
-  private String cname;
+  private final String cname;
 
-  private Function<String, Map<String, String>> decoder;
+  private final Function<String, Map<String, String>> decoder;
 
-  private Function<Map<String, String>, String> encoder;
+  private final Function<Map<String, String>, String> encoder;
 
   public FlashScopeHandler(final Cookie.Definition cookie,
       final Function<String, Map<String, String>> decoder,
@@ -250,7 +246,7 @@ public class FlashScopeHandler implements Route.Filter {
   public void handle(final Request req, final Response rsp, final Route.Chain chain)
       throws Throwable {
     Optional<String> value = req.cookie(cname).toOptional();
-    Map<String, String> source = value.map(decoder::apply)
+    Map<String, String> source = value.map(decoder)
         .orElseGet(HashMap::new);
     FlashMap flashScope = new FlashMap(source);
 

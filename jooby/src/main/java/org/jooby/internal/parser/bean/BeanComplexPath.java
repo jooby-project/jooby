@@ -210,11 +210,11 @@ import java.util.List;
 @SuppressWarnings("rawtypes")
 class BeanComplexPath implements BeanPath {
 
-  private List<BeanPath> chain;
+  private final List<BeanPath> chain;
 
-  private BeanPath setter;
+  private final BeanPath setter;
 
-  private String path;
+  private final String path;
 
   public BeanComplexPath(final List<BeanPath> chain, final BeanPath setter,
       final String path) {

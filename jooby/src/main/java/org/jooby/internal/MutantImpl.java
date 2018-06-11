@@ -205,11 +205,7 @@ package org.jooby.internal;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.TypeLiteral;
-import org.jooby.Err;
-import org.jooby.MediaType;
-import org.jooby.Mutant;
-import org.jooby.Parser;
-import org.jooby.Status;
+import org.jooby.*;
 import org.jooby.internal.parser.ParserExecutor;
 
 import java.util.HashMap;
@@ -233,9 +229,9 @@ public class MutantImpl implements Mutant {
 
   private final ParserExecutor parser;
 
-  private Object data;
+  private final Object data;
 
-  private MediaType type;
+  private final MediaType type;
 
   public MutantImpl(final ParserExecutor parser, final MediaType type, final Object data) {
     this.parser = parser;

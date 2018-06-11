@@ -211,7 +211,7 @@ class SimpleRouteMatcher implements RouteMatcher {
 
   private final String path;
 
-  protected String pattern;
+  protected final String pattern;
 
   public SimpleRouteMatcher(final String pattern, final String path, final String fullpath) {
     this.pattern = requireNonNull(pattern, "A pattern is required.");

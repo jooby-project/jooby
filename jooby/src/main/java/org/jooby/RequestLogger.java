@@ -203,7 +203,8 @@
  */
 package org.jooby;
 
-import static java.util.Objects.requireNonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -211,8 +212,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>request logger</h1>
@@ -384,7 +384,7 @@ public class RequestLogger implements Route.Handler {
   private static final char Q = '\"';
   private static final char QUERY = '?';
 
-  private static Function<Request, String> ANNON = req -> DASH;
+  private static final Function<Request, String> ANNON = req -> DASH;
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -421,7 +421,7 @@ public class RequestLogger implements Route.Handler {
   }
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Throwable {
+  public void handle(final Request req, final Response rsp) {
     /** Push complete callback . */
     rsp.complete((ereq, ersp, x) -> {
       StringBuilder sb = new StringBuilder(256);

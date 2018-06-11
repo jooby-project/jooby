@@ -203,23 +203,18 @@
  */
 package org.jooby;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
-
-import java.io.File;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 /**
  * An immutable implementation of HTTP media types (a.k.a mime types).
@@ -240,7 +235,7 @@ public class MediaType implements Comparable<MediaType> {
     /**
      * The source of media types.
      */
-    private Iterable<MediaType> acceptable;
+    private final Iterable<MediaType> acceptable;
 
     /**
      * Creates a new {@link Matcher}.
@@ -438,19 +433,19 @@ public class MediaType implements Comparable<MediaType> {
   public static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
   /** Form multipart-data media type. */
-  public static MediaType multipart = new MediaType("multipart", "form-data");
+  public static final MediaType multipart = new MediaType("multipart", "form-data");
 
   /** Form url encoded. */
-  public static MediaType form = new MediaType("application", "x-www-form-urlencoded");
+  public static final MediaType form = new MediaType("application", "x-www-form-urlencoded");
 
   /** Xml media type. */
-  public static MediaType xml = new MediaType("application", "xml");
+  public static final MediaType xml = new MediaType("application", "xml");
 
   /** Server sent event type. */
-  public static MediaType sse = new MediaType("text", "event-stream");
+  public static final MediaType sse = new MediaType("text", "event-stream");
 
   /** Xml like media type. */
-  private static MediaType xmlLike = new MediaType("application", "*+xml");
+  private static final MediaType xmlLike = new MediaType("application", "*+xml");
 
   /**
    * Track the type of this media type.
@@ -585,11 +580,8 @@ public class MediaType implements Comparable<MediaType> {
     if (xmlLike.matches(this)) {
       return true;
     }
-    if (this.type.equals("application") && this.subtype.equals("hocon")) {
-      return true;
-    }
+    return this.type.equals("application") && this.subtype.equals("hocon");
 
-    return false;
   }
 
   @Override

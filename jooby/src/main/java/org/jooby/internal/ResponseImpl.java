@@ -204,24 +204,13 @@
 package org.jooby.internal;
 
 import com.google.common.collect.ImmutableList;
-import static java.util.Objects.requireNonNull;
-import org.jooby.Asset;
-import org.jooby.Cookie;
+import org.jooby.*;
 import org.jooby.Cookie.Definition;
-import org.jooby.Deferred;
-import org.jooby.MediaType;
-import org.jooby.Mutant;
-import org.jooby.Renderer;
-import org.jooby.Response;
-import org.jooby.Result;
-import org.jooby.Results;
-import org.jooby.Route;
 import org.jooby.Route.After;
 import org.jooby.Route.Complete;
-import org.jooby.Status;
+import org.jooby.funzy.Try;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeResponse;
-import org.jooby.funzy.Try;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
@@ -230,14 +219,12 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import static java.util.Objects.requireNonNull;
 
 public class ResponseImpl implements Response {
 
@@ -262,23 +249,23 @@ public class ResponseImpl implements Response {
 
   private long len = -1;
 
-  private Map<String, Cookie> cookies = new HashMap<>();
+  private final Map<String, Cookie> cookies = new HashMap<>();
 
-  private List<Renderer> renderers;
+  private final List<Renderer> renderers;
 
-  private ParserExecutor parserExecutor;
+  private final ParserExecutor parserExecutor;
 
-  private Map<String, Renderer> rendererMap;
+  private final Map<String, Renderer> rendererMap;
 
-  private List<Route.After> after = new ArrayList<>();
+  private final List<Route.After> after = new ArrayList<>();
 
-  private List<Route.Complete> complete = new ArrayList<>();
+  private final List<Route.Complete> complete = new ArrayList<>();
 
-  private RequestImpl req;
+  private final RequestImpl req;
 
   private boolean failure;
 
-  private Optional<String> byteRange;
+  private final Optional<String> byteRange;
 
   public ResponseImpl(final RequestImpl req, final ParserExecutor parserExecutor,
       final NativeResponse rsp, final Route route, final List<Renderer> renderers,
@@ -499,9 +486,7 @@ public class ResponseImpl implements Response {
     }
 
     Optional<MediaType> rtype = finalResult.type();
-    if (rtype.isPresent()) {
-      type(rtype.get());
-    }
+    rtype.ifPresent(this::type);
 
     if (finalResult.status().isPresent()) {
       status(finalResult.status().get());

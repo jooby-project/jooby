@@ -203,15 +203,15 @@
  */
 package org.jooby.internal.mvc;
 
+import org.jooby.internal.ParameterNameProvider;
+
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import java.util.stream.IntStream;
 
-import org.jooby.internal.ParameterNameProvider;
-
 public class RequestParamNameProviderImpl {
 
-  private ParameterNameProvider nameProvider;
+  private final ParameterNameProvider nameProvider;
 
   public RequestParamNameProviderImpl(final ParameterNameProvider nameProvider) {
     this.nameProvider = nameProvider;

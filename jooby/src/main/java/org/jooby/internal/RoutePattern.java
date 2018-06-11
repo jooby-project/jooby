@@ -203,17 +203,13 @@
  */
 package org.jooby.internal;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 public class RoutePattern {
 
@@ -244,13 +240,13 @@ public class RoutePattern {
 
   private final Function<String, RouteMatcher> matcher;
 
-  private String pattern;
+  private final String pattern;
 
-  private List<String> vars;
+  private final List<String> vars;
 
-  private List<String> reverse;
+  private final List<String> reverse;
 
-  private boolean glob;
+  private final boolean glob;
 
   public RoutePattern(final String verb, final String pattern) {
     this(verb, pattern, false);

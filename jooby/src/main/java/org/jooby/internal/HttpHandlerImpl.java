@@ -213,26 +213,15 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
-import static java.util.Objects.requireNonNull;
-import org.jooby.Deferred;
-import org.jooby.Err;
+import org.jooby.*;
 import org.jooby.Err.Handler;
-import org.jooby.MediaType;
-import org.jooby.Renderer;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Session;
-import org.jooby.Sse;
-import org.jooby.Status;
-import org.jooby.WebSocket;
 import org.jooby.WebSocket.Definition;
+import org.jooby.funzy.Try;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.HttpHandler;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeResponse;
 import org.jooby.spi.NativeWebSocket;
-import org.jooby.funzy.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -242,18 +231,12 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 @Singleton
 public class HttpHandlerImpl implements HttpHandler {
@@ -327,29 +310,29 @@ public class HttpHandlerImpl implements HttpHandler {
   /**
    * The logging system.
    */
-  private Injector injector;
+  private final Injector injector;
 
-  private Set<Err.Handler> err;
+  private final Set<Err.Handler> err;
 
-  private String applicationPath;
+  private final String applicationPath;
 
-  private RequestScope requestScope;
+  private final RequestScope requestScope;
 
-  private Set<Definition> socketDefs;
+  private final Set<Definition> socketDefs;
 
-  private Config config;
+  private final Config config;
 
-  private int port;
+  private final int port;
 
-  private String _method;
+  private final String _method;
 
-  private Charset charset;
+  private final Charset charset;
 
-  private List<Renderer> renderers;
+  private final List<Renderer> renderers;
 
-  private ParserExecutor parserExecutor;
+  private final ParserExecutor parserExecutor;
 
-  private List<Locale> locales;
+  private final List<Locale> locales;
 
   private final LoadingCache<RouteKey, Route[]> routeCache;
 
@@ -357,18 +340,18 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private Function<String, String> rpath = null;
 
-  private String contextPath;
+  private final String contextPath;
 
-  private boolean hasSockets;
+  private final boolean hasSockets;
 
   private final Map<String, Renderer> rendererMap;
 
-  private StatusCodeProvider sc;
+  private final StatusCodeProvider sc;
 
   /**
    * Global deferred executor.
    */
-  private Key<Executor> gexec;
+  private final Key<Executor> gexec;
 
   @Inject
   public HttpHandlerImpl(final Injector injector,
@@ -458,7 +441,7 @@ public class HttpHandlerImpl implements HttpHandler {
     scope.put(SSE, sse);
 
     // seed session
-    Provider<Session> session = () -> req.session();
+    Provider<Session> session = req::session;
     scope.put(SESS, session);
 
     boolean deferred = false;
@@ -641,9 +624,7 @@ public class HttpHandlerImpl implements HttpHandler {
     List<Route> routes = new ArrayList<>();
     for (Route.Definition routeDef : routeDefs) {
       Optional<Route> route = routeDef.matches(method, path, type, accept);
-      if (route.isPresent()) {
-        routes.add(route.get());
-      }
+      route.ifPresent(routes::add);
     }
     return routes;
   }
@@ -718,7 +699,7 @@ public class HttpHandlerImpl implements HttpHandler {
     return CacheBuilder.from(conf.getString("server.routes.Cache"))
         .build(new CacheLoader<RouteKey, Route[]>() {
           @Override
-          public Route[] load(final RouteKey key) throws Exception {
+          public Route[] load(final RouteKey key) {
             return routes(routes, key.method, key.path, key.consumes, key.produces);
           }
         });

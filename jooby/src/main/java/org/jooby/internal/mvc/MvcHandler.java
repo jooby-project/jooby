@@ -203,26 +203,25 @@
  */
 package org.jooby.internal.mvc;
 
-import static java.util.Objects.requireNonNull;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Route;
+import org.jooby.Status;
+import org.jooby.funzy.Try;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Status;
-
-import org.jooby.funzy.Try;
+import static java.util.Objects.requireNonNull;
 
 public class MvcHandler implements Route.MethodHandler {
 
-  private Method handler;
+  private final Method handler;
 
-  private Class<?> implementingClass;
+  private final Class<?> implementingClass;
 
-  private RequestParamProvider provider;
+  private final RequestParamProvider provider;
 
   /**
    * Constructor for MvcHandler.
@@ -261,7 +260,7 @@ public class MvcHandler implements Route.MethodHandler {
     chain.next(req, rsp);
   }
 
-  @Override public void handle(Request req, Response rsp) throws Throwable {
+  @Override public void handle(Request req, Response rsp) {
     // NOOP
   }
 
