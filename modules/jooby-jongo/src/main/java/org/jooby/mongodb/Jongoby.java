@@ -203,8 +203,8 @@
  */
 package org.jooby.mongodb;
 
-import static java.util.Objects.requireNonNull;
-
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
 import org.jongo.Jongo;
 import org.jongo.Mapper;
 import org.jongo.marshall.jackson.JacksonMapper;
@@ -212,8 +212,7 @@ import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.internal.mongodb.JongoFactoryImpl;
 
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>jongo module</h1>
@@ -266,7 +265,7 @@ import com.typesafe.config.Config;
  */
 public class Jongoby implements Jooby.Module {
 
-  private Mapper mapper;
+  private final Mapper mapper;
 
   /**
    * Creates a new {@link Jongoby} module and use the given {@link Mapper}.
