@@ -203,6 +203,11 @@
  */
 package org.jooby.internal;
 
+import org.jooby.Asset;
+import org.jooby.MediaType;
+import org.jooby.Renderer;
+import org.jooby.View;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -210,11 +215,6 @@ import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
-
-import org.jooby.Asset;
-import org.jooby.MediaType;
-import org.jooby.Renderer;
-import org.jooby.View;
 
 public enum BuiltinRenderer implements Renderer {
 
@@ -312,6 +312,6 @@ public enum BuiltinRenderer implements Renderer {
         ctx.send(object.toString());
       }
     }
-  };
+  }
 
 }

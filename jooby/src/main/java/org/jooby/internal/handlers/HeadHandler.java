@@ -203,11 +203,7 @@
  */
 package org.jooby.internal.handlers;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Optional;
-import java.util.Set;
-
+import com.google.inject.Inject;
 import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
@@ -215,11 +211,14 @@ import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.internal.RouteImpl;
 
-import com.google.inject.Inject;
+import java.util.Optional;
+import java.util.Set;
+
+import static java.util.Objects.requireNonNull;
 
 public class HeadHandler implements Route.Filter {
 
-  private Set<Definition> routes;
+  private final Set<Definition> routes;
 
   @Inject
   public HeadHandler(final Set<Route.Definition> routes) {

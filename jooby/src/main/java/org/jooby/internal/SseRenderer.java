@@ -213,11 +213,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 public class SseRenderer extends AbstractRendererContext {
@@ -271,7 +267,7 @@ public class SseRenderer extends AbstractRendererContext {
   }
 
   @Override
-  protected void _send(final byte[] bytes) throws Exception {
+  protected void _send(final byte[] bytes) {
     List<Integer[]> lines = split(bytes);
     if (lines.size() == 1) {
       data = ByteSource.concat(data, DATA, ByteSource.wrap(bytes), NL);
@@ -284,7 +280,7 @@ public class SseRenderer extends AbstractRendererContext {
   }
 
   @Override
-  protected void _send(final ByteBuffer buffer) throws Exception {
+  protected void _send(final ByteBuffer buffer) {
     byte[] bytes;
     if (buffer.hasArray()) {
       _send(buffer.array());
@@ -296,12 +292,12 @@ public class SseRenderer extends AbstractRendererContext {
   }
 
   @Override
-  protected void _send(final FileChannel file) throws Exception {
+  protected void _send(final FileChannel file) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  protected void _send(final InputStream stream) throws Exception {
+  protected void _send(final InputStream stream) {
     throw new UnsupportedOperationException();
   }
 

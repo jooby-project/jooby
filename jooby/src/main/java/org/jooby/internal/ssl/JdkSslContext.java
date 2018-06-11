@@ -203,23 +203,20 @@
  */
 package org.jooby.internal.ssl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.crypto.NoSuchPaddingException;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLSessionContext;
 import java.io.File;
 import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Security;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /*
  * Copyright 2014 The Netty Project
@@ -236,15 +233,6 @@ import java.util.Set;
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-
-import javax.crypto.NoSuchPaddingException;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLSessionContext;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An {@link SslContext} which uses JDK's SSL/TLS implementation.
@@ -276,11 +264,11 @@ public abstract class JdkSslContext extends SslContext {
 
     // Choose the sensible default list of protocols.
     final String[] supportedProtocols = engine.getSupportedProtocols();
-    Set<String> supportedProtocolsSet = new HashSet<String>(supportedProtocols.length);
+    Set<String> supportedProtocolsSet = new HashSet<>(supportedProtocols.length);
     for (i = 0; i < supportedProtocols.length; ++i) {
       supportedProtocolsSet.add(supportedProtocols[i]);
     }
-    List<String> protocols = new ArrayList<String>();
+    List<String> protocols = new ArrayList<>();
     addIfSupported(
         supportedProtocolsSet, protocols,
         "TLSv1.2", "TLSv1.1", "TLSv1");
@@ -293,11 +281,11 @@ public abstract class JdkSslContext extends SslContext {
 
     // Choose the sensible default list of cipher suites.
     final String[] supportedCiphers = engine.getSupportedCipherSuites();
-    SUPPORTED_CIPHERS = new HashSet<String>(supportedCiphers.length);
+    SUPPORTED_CIPHERS = new HashSet<>(supportedCiphers.length);
     for (i = 0; i < supportedCiphers.length; ++i) {
       SUPPORTED_CIPHERS.add(supportedCiphers[i]);
     }
-    List<String> ciphers = new ArrayList<String>();
+    List<String> ciphers = new ArrayList<>();
     addIfSupported(
         SUPPORTED_CIPHERS, ciphers,
         // XXX: Make sure to sync this list with OpenSslEngineFactory.

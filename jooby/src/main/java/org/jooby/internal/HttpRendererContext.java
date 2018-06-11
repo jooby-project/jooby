@@ -223,13 +223,13 @@ import java.util.function.Consumer;
 
 public class HttpRendererContext extends AbstractRendererContext {
 
-  private Consumer<Long> length;
+  private final Consumer<Long> length;
 
-  private Consumer<MediaType> type;
+  private final Consumer<MediaType> type;
 
-  private NativeResponse rsp;
+  private final NativeResponse rsp;
 
-  private Optional<String> byteRange;
+  private final Optional<String> byteRange;
 
   public HttpRendererContext(final List<Renderer> renderers,
     final NativeResponse rsp, final Consumer<Long> len, final Consumer<MediaType> type,

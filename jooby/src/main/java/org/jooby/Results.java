@@ -203,10 +203,10 @@
  */
 package org.jooby;
 
-import static java.util.Objects.requireNonNull;
-
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A {@link Result} builder with some utility static methods.
@@ -271,7 +271,6 @@ public class Results {
    */
   @Nonnull
   public static Result with(final int status) {
-    requireNonNull(status, "A HTTP status is required.");
     return new Result().status(status);
   }
 

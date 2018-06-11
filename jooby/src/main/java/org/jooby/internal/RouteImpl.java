@@ -203,12 +203,7 @@
  */
 package org.jooby.internal;
 
-import org.jooby.Err;
-import org.jooby.MediaType;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Status;
+import org.jooby.*;
 import org.jooby.internal.mvc.MvcHandler;
 
 import java.util.List;
@@ -216,19 +211,19 @@ import java.util.Map;
 
 public class RouteImpl implements RouteWithFilter {
 
-  private Definition route;
+  private final Definition route;
 
-  private String path;
+  private final String path;
 
-  private Map<Object, String> vars;
+  private final Map<Object, String> vars;
 
   private Filter filter;
 
-  private List<MediaType> produces;
+  private final List<MediaType> produces;
 
-  private String method;
+  private final String method;
 
-  private Source source;
+  private final Source source;
 
   public static RouteWithFilter notFound(final String method, final String path) {
     return new FallbackRoute("404", method, path, MediaType.ALL, (req, rsp, chain) -> {
@@ -258,8 +253,7 @@ public class RouteImpl implements RouteWithFilter {
         if (((MvcHandler) filter).method().getReturnType() == void.class) {
           this.filter = filter;
         } else {
-          this.filter = new MappedHandler((req, rsp, chain) -> ((MvcHandler) filter).invoke(req, rsp,
-              chain),
+          this.filter = new MappedHandler(((MvcHandler) filter)::invoke,
             mapper);
         }
       } else {

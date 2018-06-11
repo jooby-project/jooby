@@ -203,28 +203,28 @@
  */
 package org.jooby.internal;
 
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Route;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-
 public class RouteChain implements Route.Chain {
 
-  private Route[] routes;
+  private final Route[] routes;
 
   private String prefix;
 
   private int i = 0;
 
-  private RequestImpl rreq;
+  private final RequestImpl rreq;
 
-  private ResponseImpl rrsp;
+  private final ResponseImpl rrsp;
 
-  private boolean hasAttrs;
+  private final boolean hasAttrs;
 
   public RouteChain(final RequestImpl req, final ResponseImpl rsp, final Route[] routes) {
     this.routes = routes;
@@ -236,8 +236,8 @@ public class RouteChain implements Route.Chain {
   }
 
   private boolean hasAttributes(final Route[] routes) {
-    for (int i = 0; i < routes.length; i++) {
-      if (routes[i].attributes().size() > 0) {
+    for (final Route route : routes) {
+      if (route.attributes().size() > 0) {
         return true;
       }
     }

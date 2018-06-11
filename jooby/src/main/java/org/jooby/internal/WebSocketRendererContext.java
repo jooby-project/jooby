@@ -203,6 +203,13 @@
  */
 package org.jooby.internal;
 
+import com.google.common.collect.ImmutableList;
+import org.jooby.MediaType;
+import org.jooby.Renderer;
+import org.jooby.WebSocket.OnError;
+import org.jooby.WebSocket.SuccessCallback;
+import org.jooby.spi.NativeWebSocket;
+
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -211,23 +218,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import org.jooby.MediaType;
-import org.jooby.Renderer;
-import org.jooby.WebSocket.OnError;
-import org.jooby.WebSocket.SuccessCallback;
-import org.jooby.spi.NativeWebSocket;
-
-import com.google.common.collect.ImmutableList;
-
 public class WebSocketRendererContext extends AbstractRendererContext {
 
-  private NativeWebSocket ws;
+  private final NativeWebSocket ws;
 
-  private SuccessCallback success;
+  private final SuccessCallback success;
 
-  private OnError err;
+  private final OnError err;
 
-  private MediaType type;
+  private final MediaType type;
 
   public WebSocketRendererContext(final List<Renderer> renderers, final NativeWebSocket ws,
       final MediaType type, final Charset charset, Locale locale, final SuccessCallback success,
@@ -240,13 +239,13 @@ public class WebSocketRendererContext extends AbstractRendererContext {
   }
 
   @Override
-  public void send(final String text) throws Exception {
+  public void send(final String text) {
     ws.sendText(text, success, err);
     setCommitted();
   }
 
   @Override
-  protected void _send(final byte[] bytes) throws Exception {
+  protected void _send(final byte[] bytes) {
     if (type.isText()) {
       ws.sendText(bytes, success, err);
     } else {
@@ -255,7 +254,7 @@ public class WebSocketRendererContext extends AbstractRendererContext {
   }
 
   @Override
-  protected void _send(final ByteBuffer buffer) throws Exception {
+  protected void _send(final ByteBuffer buffer) {
     if (type.isText()) {
       ws.sendText(buffer, success, err);
     } else {
@@ -264,12 +263,12 @@ public class WebSocketRendererContext extends AbstractRendererContext {
   }
 
   @Override
-  protected void _send(final FileChannel file) throws Exception {
+  protected void _send(final FileChannel file) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  protected void _send(final InputStream stream) throws Exception {
+  protected void _send(final InputStream stream) {
     throw new UnsupportedOperationException();
   }
 

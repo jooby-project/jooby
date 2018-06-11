@@ -203,17 +203,16 @@
  */
 package org.jooby;
 
-import static java.util.Objects.requireNonNull;
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
+import org.jooby.internal.handlers.FlashScopeHandler;
+import org.jooby.mvc.Flash;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jooby.internal.handlers.FlashScopeHandler;
-import org.jooby.mvc.Flash;
-
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>flash scope</h1>
@@ -285,15 +284,15 @@ public class FlashScope implements Jooby.Module {
 
   public static final String NAME = "flash";
 
-  private Function<String, Map<String, String>> decoder = Cookie.URL_DECODER;
+  private final Function<String, Map<String, String>> decoder = Cookie.URL_DECODER;
 
-  private Function<Map<String, String>, String> encoder = Cookie.URL_ENCODER;
+  private final Function<Map<String, String>, String> encoder = Cookie.URL_ENCODER;
 
   private Optional<Cookie.Definition> cookie = Optional.empty();
 
-  private String method = "*";
+  private final String method = "*";
 
-  private String path = "*";
+  private final String path = "*";
 
   /**
    * Creates a new {@link FlashScope} and customize the flash cookie.

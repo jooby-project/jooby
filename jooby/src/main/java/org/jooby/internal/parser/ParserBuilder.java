@@ -203,8 +203,8 @@
  */
 package org.jooby.internal.parser;
 
-import java.util.Map;
-
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.TypeLiteral;
 import org.jooby.Mutant;
 import org.jooby.Parser;
 import org.jooby.Parser.Builder;
@@ -213,13 +213,12 @@ import org.jooby.internal.BodyReferenceImpl;
 import org.jooby.internal.EmptyBodyReference;
 import org.jooby.internal.StrParamReferenceImpl;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.TypeLiteral;
+import java.util.Map;
 
 @SuppressWarnings("rawtypes")
 public class ParserBuilder implements Parser.Builder {
 
-  private ImmutableMap.Builder<TypeLiteral<?>, Parser.Callback> strategies = ImmutableMap
+  private final ImmutableMap.Builder<TypeLiteral<?>, Parser.Callback> strategies = ImmutableMap
       .builder();
 
   public final TypeLiteral<?> toType;
@@ -228,7 +227,7 @@ public class ParserBuilder implements Parser.Builder {
 
   public final Object value;
 
-  private Parser.Context ctx;
+  private final Parser.Context ctx;
 
   public ParserBuilder(final Parser.Context ctx, final TypeLiteral<?> toType, final Object value) {
     this.ctx = ctx;

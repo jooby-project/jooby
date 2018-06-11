@@ -203,6 +203,9 @@
  */
 package org.jooby.internal.ssl;
 
+import com.google.common.io.BaseEncoding;
+import com.google.common.io.Files;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -214,9 +217,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.google.common.io.BaseEncoding;
-import com.google.common.io.Files;
 
 /**
  * Reads a PEM file and converts it into a list of DERs so that they are imported into a
@@ -242,7 +242,7 @@ final class PemReader {
     String content = Files.toString(file, StandardCharsets.US_ASCII);
 
     BaseEncoding base64 = base64();
-    List<ByteBuffer> certs = new ArrayList<ByteBuffer>();
+    List<ByteBuffer> certs = new ArrayList<>();
     Matcher m = CERT_PATTERN.matcher(content);
     int start = 0;
     while (m.find(start)) {

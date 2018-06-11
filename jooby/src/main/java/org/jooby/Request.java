@@ -208,19 +208,16 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.net.UrlEscapers;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
-import static java.util.Objects.requireNonNull;
 import org.jooby.scope.RequestScoped;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.Locale.LanguageRange;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.function.BiFunction;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Give you access at the current HTTP request in order to read parameters, headers and body.
@@ -308,7 +305,7 @@ public interface Request extends Registry {
   class Forwarding implements Request {
 
     /** Target request. */
-    private Request req;
+    private final Request req;
 
     /**
      * Creates a new {@link Forwarding} request.
@@ -397,7 +394,7 @@ public interface Request extends Registry {
     @Override
     public boolean isSet(final String name) {
       return req.isSet(name);
-    };
+    }
 
     @Override
     public Mutant params() {

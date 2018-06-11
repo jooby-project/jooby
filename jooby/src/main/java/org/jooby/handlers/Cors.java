@@ -203,8 +203,11 @@
  */
 package org.jooby.handlers;
 
-import static java.util.Objects.requireNonNull;
+import com.google.common.collect.ImmutableList;
+import com.typesafe.config.Config;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -213,11 +216,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import com.google.common.collect.ImmutableList;
-import com.typesafe.config.Config;
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>Cross-origin resource sharing</h1>
@@ -250,11 +249,11 @@ public class Cors {
 
   private static class Matcher<T> implements Predicate<T> {
 
-    private List<String> values;
+    private final List<String> values;
 
-    private Predicate<T> predicate;
+    private final Predicate<T> predicate;
 
-    private boolean wild;
+    private final boolean wild;
 
     public Matcher(final List<String> values, final Predicate<T> predicate) {
       this.values = ImmutableList.copyOf(values);
@@ -299,7 +298,7 @@ public class Cors {
   @Inject
   public Cors(@Named("cors") final Config config) {
     requireNonNull(config, "Config is required.");
-    this.enabled = config.hasPath("enabled") ? config.getBoolean("enabled") : true;
+    this.enabled = !config.hasPath("enabled") || config.getBoolean("enabled");
     withOrigin(list(config.getAnyRef("origin")));
     this.credentials = config.getBoolean("credentials");
     withMethods(list(config.getAnyRef("allowedMethods")));
@@ -578,7 +577,7 @@ public class Cors {
   private static Matcher<List<String>> allMatch(final List<String> values) {
     Predicate<String> predicate = firstMatch(values);
     Predicate<List<String>> allmatch = it -> it.stream().allMatch(predicate);
-    return new Matcher<List<String>>(values, allmatch);
+    return new Matcher<>(values, allmatch);
   }
 
   private static Matcher<String> firstMatch(final List<String> values) {
@@ -586,11 +585,9 @@ public class Cors {
         .map(Cors::rewrite)
         .collect(Collectors.toList());
     Predicate<String> predicate = it -> patterns.stream()
-        .filter(pattern -> pattern.matcher(it).matches())
-        .findFirst()
-        .isPresent();
+        .anyMatch(pattern -> pattern.matcher(it).matches());
 
-    return new Matcher<String>(values, predicate);
+    return new Matcher<>(values, predicate);
   }
 
   private static Pattern rewrite(final String origin) {
