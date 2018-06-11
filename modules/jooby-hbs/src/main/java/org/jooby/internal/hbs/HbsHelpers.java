@@ -214,6 +214,6 @@ public class HbsHelpers {
 
   @Inject
   public HbsHelpers(final Handlebars hbs, @Named("hbs.helpers") final Set<Object> helpers) {
-    helpers.forEach(h -> hbs.registerHelpers(h));
+    helpers.forEach(hbs::registerHelpers);
   }
 }

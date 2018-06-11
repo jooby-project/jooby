@@ -353,9 +353,9 @@ public class Hbs implements Jooby.Module {
 
   private BiConsumer<Handlebars, Config> callback;
 
-  private Set<Class<?>> helpers = new HashSet<>();
+  private final Set<Class<?>> helpers = new HashSet<>();
 
-  private Deque<ValueResolver> resolvers = new LinkedList<>();
+  private final Deque<ValueResolver> resolvers = new LinkedList<>();
 
   /**
    * Creates a new {@link Hbs} module.
@@ -440,9 +440,7 @@ public class Hbs implements Jooby.Module {
    * @return This module.
    */
   public Hbs with(final Class<?>... helper) {
-    for (Class<?> h : helper) {
-      helpers.add(h);
-    }
+    Collections.addAll(helpers, helper);
     return this;
   }
 
