@@ -220,8 +220,7 @@ class CommitTransaction implements Route.After {
     this.handle = handle;
   }
 
-  @Override public Result handle(final Request req, final Response rsp, final Result result)
-      throws Exception {
+  @Override public Result handle(final Request req, final Response rsp, final Result result) {
     if (handle.isInTransaction()) {
       logger.debug("commit transaction {}", handle);
       handle.commit();
