@@ -203,25 +203,24 @@
  */
 package org.jooby.internal.hbs;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Locale;
-import java.util.Map;
-
-import org.jooby.MediaType;
-import org.jooby.Renderer;
-import org.jooby.View;
-
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.ValueResolver;
 import com.github.jknack.handlebars.io.TemplateSource;
+import org.jooby.MediaType;
+import org.jooby.Renderer;
+import org.jooby.View;
+
+import java.util.Locale;
+import java.util.Map;
+
+import static java.util.Objects.requireNonNull;
 
 public class HbsEngine implements View.Engine {
 
-  private Handlebars handlebars;
+  private final Handlebars handlebars;
 
-  private ValueResolver[] resolvers;
+  private final ValueResolver[] resolvers;
 
   public HbsEngine(final Handlebars handlebars, final ValueResolver[] resolvers) {
     this.handlebars = requireNonNull(handlebars, "Handlebars is required.");
