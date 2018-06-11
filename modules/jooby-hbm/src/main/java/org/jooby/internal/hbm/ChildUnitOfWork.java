@@ -218,7 +218,7 @@ public class ChildUnitOfWork extends AbstractUnitOfWork {
   }
 
   @Override
-  public <T> T apply(final Throwing.Function<Session, T> callback) throws Throwable {
+  public <T> T apply(final Throwing.Function<Session, T> callback) {
     log.debug("using session: {}", oid(session));
     return callback.apply(session);
   }
