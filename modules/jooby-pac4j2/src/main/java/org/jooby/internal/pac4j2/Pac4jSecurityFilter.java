@@ -224,7 +224,7 @@ public class Pac4jSecurityFilter implements Route.Filter {
   private String clients;
   private final String matchers;
   private final boolean multiProfile;
-  private String authorizers;
+  private final String authorizers;
 
   public Pac4jSecurityFilter(Config conf, String clients, String authorizers, String matchers,
       boolean multiProfile, Set<String> excludes) {
@@ -249,9 +249,7 @@ public class Pac4jSecurityFilter implements Route.Filter {
       String existingRequestedUrl = (String) context
           .getSessionAttribute(Pac4jConstants.REQUESTED_URL);
       boolean resetRequestedUrl = excludes.stream()
-          .filter(it -> !it.endsWith("/**") && req.matches(it))
-          .findFirst()
-          .isPresent();
+          .anyMatch(it -> !it.endsWith("/**") && req.matches(it));
 
       conf.getSecurityLogic()
           .perform(context, conf, new Pac4jGrantAccessAdapter(req, rsp, chain),

@@ -214,11 +214,7 @@ import org.pac4j.core.context.session.SessionStore;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Pac4jContext implements WebContext {
@@ -228,7 +224,7 @@ public class Pac4jContext implements WebContext {
   private final Map<String, String[]> params;
   private final Request req;
   private final Response rsp;
-  private SessionStore sessionStore;
+  private final SessionStore sessionStore;
 
   @Inject
   public Pac4jContext(Request req, Response rsp, SessionStore<WebContext> sessionStore) {
@@ -366,7 +362,7 @@ public class Pac4jContext implements WebContext {
   }
 
   private static Map<String, String[]> params(final Request req) {
-    ImmutableMap.Builder<String, String[]> result = ImmutableMap.<String, String[]>builder();
+    ImmutableMap.Builder<String, String[]> result = ImmutableMap.builder();
 
     req.params().toMap().forEach((name, value) -> {
       try {
