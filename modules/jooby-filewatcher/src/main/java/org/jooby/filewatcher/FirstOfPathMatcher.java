@@ -218,9 +218,7 @@ class FirstOfPathMatcher implements PathMatcher {
   @Override
   public boolean matches(final Path path) {
     return matchers.stream()
-        .filter(it -> it.matches(path))
-        .findFirst()
-        .isPresent();
+        .anyMatch(it -> it.matches(path));
   }
 
   @Override

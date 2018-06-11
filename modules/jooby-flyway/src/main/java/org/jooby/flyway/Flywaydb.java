@@ -338,7 +338,7 @@ public class Flywaydb implements Module {
     public abstract void run(Flyway flyway);
   }
 
-  private String name;
+  private final String name;
 
   /**
    * Creates a new {@link Flywaydb}. The given name is use it to read flyway properties, keep in
