@@ -203,15 +203,7 @@
  */
 package org.jooby.internal.mongodb;
 
-import static java.util.Objects.requireNonNull;
-
-import java.lang.reflect.Constructor;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
-
+import com.mongodb.DBObject;
 import org.jooby.Registry;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.ObjectFactory;
@@ -219,13 +211,19 @@ import org.mongodb.morphia.mapping.MappedField;
 import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.mapping.MapperOptions;
 
-import com.mongodb.DBObject;
+import javax.inject.Inject;
+import java.lang.reflect.Constructor;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static java.util.Objects.requireNonNull;
 
 public class GuiceObjectFactory implements ObjectFactory {
 
-  private Registry injector;
+  private final Registry injector;
 
-  private ObjectFactory delegate;
+  private final ObjectFactory delegate;
 
   public GuiceObjectFactory(final Registry injector, final Morphia morphia) {
     this.injector = requireNonNull(injector, "Injector is required.");
