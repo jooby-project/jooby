@@ -213,9 +213,9 @@ import com.google.inject.TypeLiteral;
 
 class GsonParser implements Parser {
 
-  private MediaType type;
+  private final MediaType type;
 
-  private Gson gson;
+  private final Gson gson;
 
   public GsonParser(final MediaType type, final Gson gson) {
     this.type = requireNonNull(type, "Media type is required.");
