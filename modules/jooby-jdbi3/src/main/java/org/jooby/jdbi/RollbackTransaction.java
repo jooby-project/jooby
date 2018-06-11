@@ -206,7 +206,6 @@ package org.jooby.jdbi;
 import org.jdbi.v3.core.Handle;
 import org.jooby.Request;
 import org.jooby.Response;
-import org.jooby.Result;
 import org.jooby.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
