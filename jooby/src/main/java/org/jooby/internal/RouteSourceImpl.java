@@ -203,15 +203,15 @@
  */
 package org.jooby.internal;
 
-import java.util.Optional;
-
 import org.jooby.Route;
+
+import java.util.Optional;
 
 public class RouteSourceImpl implements Route.Source {
 
-  private Optional<String> declaringClass;
+  private final Optional<String> declaringClass;
 
-  private int line;
+  private final int line;
 
   public RouteSourceImpl(final String declaringClass, final int line) {
     this.declaringClass = Optional.ofNullable(declaringClass);

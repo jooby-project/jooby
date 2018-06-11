@@ -203,6 +203,10 @@
  */
 package org.jooby.internal;
 
+import com.google.common.collect.*;
+import com.google.inject.TypeLiteral;
+import org.jooby.Parser;
+
 import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -210,23 +214,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import org.jooby.Parser;
-
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedSet;
-import com.google.inject.TypeLiteral;
 
 @SuppressWarnings({"unchecked", "rawtypes" })
 public enum BuiltinParser implements Parser {
@@ -385,7 +375,7 @@ public enum BuiltinParser implements Parser {
     @Override
     public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Throwable {
       if (type.getRawType() == byte[].class) {
-        return ctx.body(body -> body.bytes());
+        return ctx.body(BodyReference::bytes);
       }
       return ctx.next();
     }

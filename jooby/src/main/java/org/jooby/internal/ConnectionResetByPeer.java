@@ -212,7 +212,7 @@ public class ConnectionResetByPeer {
   public static boolean test(final Throwable cause) {
     return Optional.ofNullable(cause)
         .filter(IOException.class::isInstance)
-        .map(x -> x.getMessage())
+        .map(Throwable::getMessage)
         .filter(Objects::nonNull)
         .map(message -> message.toLowerCase().contains("connection reset by peer"))
         .orElse(false);

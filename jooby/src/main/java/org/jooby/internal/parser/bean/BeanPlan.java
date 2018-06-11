@@ -207,11 +207,11 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.inject.TypeLiteral;
 import org.jooby.Request;
+import org.jooby.funzy.Throwing;
 import org.jooby.internal.ParameterNameProvider;
 import org.jooby.internal.mvc.RequestParam;
 import org.jooby.internal.mvc.RequestParamNameProviderImpl;
 import org.jooby.internal.mvc.RequestParamProviderImpl;
-import org.jooby.funzy.Throwing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -219,12 +219,7 @@ import javax.inject.Inject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("rawtypes")
@@ -239,7 +234,7 @@ public class BeanPlan {
 
   private TypeLiteral beanType;
 
-  private Map<Object, BeanPath> cache = new ConcurrentHashMap<>();
+  private final Map<Object, BeanPath> cache = new ConcurrentHashMap<>();
 
   @SuppressWarnings("unchecked")
   public BeanPlan(final ParameterNameProvider classInfo, final Class beanType) {
@@ -373,17 +368,16 @@ public class BeanPlan {
         .omitEmptyStrings()
         .splitToList(path);
     List<Object[]> result = new ArrayList<>(segments.size());
-    for (int i = 0; i < segments.size(); i++) {
-      String segment = segments.get(i);
+    for (String segment : segments) {
       try {
         int idx = Integer.parseInt(segment);
         if (result.size() > 0) {
-          result.set(result.size() - 1, new Object[]{result.get(result.size() - 1)[0], idx});
+          result.set(result.size() - 1, new Object[] {result.get(result.size() - 1)[0], idx});
         } else {
-          result.add(new Object[]{null, idx});
+          result.add(new Object[] {null, idx});
         }
       } catch (NumberFormatException x) {
-        result.add(new Object[]{segment, null});
+        result.add(new Object[] {segment, null});
       }
     }
 

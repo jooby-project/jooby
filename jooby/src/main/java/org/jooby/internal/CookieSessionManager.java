@@ -203,12 +203,8 @@
  */
 package org.jooby.internal;
 
-import org.jooby.Cookie;
+import org.jooby.*;
 import org.jooby.Cookie.Definition;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Session;
 import org.jooby.internal.parser.ParserExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,11 +228,11 @@ public class CookieSessionManager implements SessionManager {
 
   private final ParserExecutor resolver;
 
-  private Definition cookie;
+  private final Definition cookie;
 
-  private long timeout;
+  private final long timeout;
 
-  private String secret;
+  private final String secret;
 
   @Inject
   public CookieSessionManager(final ParserExecutor resolver, final Session.Definition cookie,

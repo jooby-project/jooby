@@ -203,12 +203,10 @@
  */
 package org.jooby.internal.parser;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
-
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Parser;
@@ -220,20 +218,20 @@ import org.jooby.Status;
 import org.jooby.internal.StatusCodeProvider;
 import org.jooby.internal.StrParamReferenceImpl;
 
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ParserExecutor {
 
   public static final Object NO_PARSER = new Object();
 
-  private List<Parser> parsers;
+  private final List<Parser> parsers;
 
-  private Injector injector;
+  private final Injector injector;
 
-  private StatusCodeProvider sc;
+  private final StatusCodeProvider sc;
 
   @Inject
   public ParserExecutor(final Injector injector, final Set<Parser> parsers,

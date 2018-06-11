@@ -203,14 +203,14 @@
  */
 package org.jooby.internal;
 
+import org.jooby.Cookie;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Consumer;
-
-import org.jooby.Cookie;
 
 public class CookieImpl implements Cookie {
 
@@ -220,21 +220,21 @@ public class CookieImpl implements Cookie {
 
   private static final String __COOKIE_DELIM = "\",;\\ \t";
 
-  private String name;
+  private final String name;
 
-  private Optional<String> value;
+  private final Optional<String> value;
 
-  private Optional<String> comment;
+  private final Optional<String> comment;
 
-  private Optional<String> domain;
+  private final Optional<String> domain;
 
-  private int maxAge;
+  private final int maxAge;
 
-  private Optional<String> path;
+  private final Optional<String> path;
 
-  private boolean secure;
+  private final boolean secure;
 
-  private boolean httpOnly;
+  private final boolean httpOnly;
 
   public CookieImpl(final Cookie.Definition cookie) {
     this.name = cookie.name().get();

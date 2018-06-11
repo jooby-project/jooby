@@ -208,9 +208,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 class BeanMethodPath implements BeanPath {
-  private String path;
+  private final String path;
 
-  private Method method;
+  private final Method method;
 
   BeanPath setter;
 

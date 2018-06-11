@@ -2529,7 +2529,7 @@ public interface Router {
   default Route.Collection before(String method, String pattern, Route.Before handler, Route.Before... next) {
     List<Route.Definition> routes = new ArrayList<>();
     routes.add(before(method, pattern, handler));
-    Arrays.asList(next).stream()
+    Arrays.stream(next)
         .map(h -> before(method, pattern, h))
         .forEach(routes::add);
     return new Route.Collection(routes.toArray(new Route.Definition[routes.size()]));
@@ -2837,7 +2837,7 @@ public interface Router {
   default Route.Collection after(String method, String pattern, Route.After handler, Route.After... next) {
     List<Route.Definition> routes = new ArrayList<>();
     routes.add(after(method, pattern, handler));
-    Arrays.asList(next).stream()
+    Arrays.stream(next)
         .map(h -> after(method, pattern, handler))
         .forEach(routes::add);
     return new Route.Collection(routes.toArray(new Route.Definition[routes.size()]));
@@ -3375,7 +3375,7 @@ public interface Router {
   default Route.Collection complete(String method, String pattern, Route.Complete handler, Route.Complete... next) {
     List<Route.Definition> routes = new ArrayList<>();
     routes.add(complete(method, pattern, handler));
-    Arrays.asList(next).stream()
+    Arrays.stream(next)
         .map(h -> complete(method, pattern, handler))
         .forEach(routes::add);
     return new Route.Collection(routes.toArray(new Route.Definition[routes.size()]));

@@ -203,18 +203,17 @@
  */
 package org.jooby.internal.parser;
 
-import static java.util.Objects.requireNonNull;
+import com.google.inject.TypeLiteral;
+import org.jooby.Parser;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.jooby.Parser;
-
-import com.google.inject.TypeLiteral;
+import static java.util.Objects.requireNonNull;
 
 public class DateParser implements Parser {
 
-  private String dateFormat;
+  private final String dateFormat;
 
   public DateParser(final String dateFormat) {
     this.dateFormat = requireNonNull(dateFormat, "A dateFormat is required.");

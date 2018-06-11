@@ -208,9 +208,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 class BeanFieldPath implements BeanPath {
-  private String path;
+  private final String path;
 
-  private Field field;
+  private final Field field;
 
   public BeanFieldPath(final String path, final Field field) {
     this.path = path;

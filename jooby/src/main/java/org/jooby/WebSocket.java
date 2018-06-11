@@ -206,7 +206,6 @@ package org.jooby;
 import com.google.common.base.Preconditions;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
-import static java.util.Objects.requireNonNull;
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.WebSocketImpl;
@@ -218,6 +217,8 @@ import java.io.Closeable;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>WebSockets</h1>
@@ -368,7 +369,7 @@ public interface WebSocket extends Closeable, Registry {
   interface OnOpen1 extends OnOpen {
 
     @Override
-    default void onOpen(final Request req, final WebSocket ws) throws Exception {
+    default void onOpen(final Request req, final WebSocket ws) {
       onOpen(ws);
     }
 
@@ -381,7 +382,7 @@ public interface WebSocket extends Closeable, Registry {
      * @param ws A web socket.
      * @throws Exception If something goes wrong while connecting.
      */
-    void onOpen(WebSocket ws) throws Exception;
+    void onOpen(WebSocket ws);
   }
 
   /**
@@ -498,7 +499,7 @@ public interface WebSocket extends Closeable, Registry {
      *
      * @throws Exception If something goes wrong.
      */
-    void invoke() throws Exception;
+    void invoke();
   }
 
   /**
@@ -527,7 +528,7 @@ public interface WebSocket extends Closeable, Registry {
     /**
      * A route compiled pattern.
      */
-    private RoutePattern routePattern;
+    private final RoutePattern routePattern;
 
     /**
      * Defines the media types that the methods of a resource class or can consumes. Default is:
@@ -542,10 +543,10 @@ public interface WebSocket extends Closeable, Registry {
     private MediaType produces = MediaType.plain;
 
     /** A path pattern. */
-    private String pattern;
+    private final String pattern;
 
     /** A ws handler. */
-    private OnOpen handler;
+    private final OnOpen handler;
 
     /**
      * Creates a new {@link Definition}.
@@ -684,9 +685,7 @@ public interface WebSocket extends Closeable, Registry {
   };
 
   /** Default err callback. */
-  OnError ERR = (ex) -> {
-    LoggerFactory.getLogger(WebSocket.class).error("error while sending data", ex);
-  };
+  OnError ERR = (ex) -> LoggerFactory.getLogger(WebSocket.class).error("error while sending data", ex);
 
   /**
    * "1000 indicates a normal closure, meaning that the purpose for which the connection

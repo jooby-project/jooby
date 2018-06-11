@@ -204,8 +204,6 @@
 package org.jooby;
 
 import com.google.common.base.Joiner;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -213,13 +211,7 @@ import com.google.common.escape.Escaper;
 import com.google.common.html.HtmlEscapers;
 import com.google.common.net.UrlEscapers;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.inject.Binder;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Provider;
-import com.google.inject.Stage;
-import com.google.inject.TypeLiteral;
+import com.google.inject.*;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
@@ -228,53 +220,18 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
-import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
-import static java.util.Objects.requireNonNull;
-import static org.jooby.Route.CONNECT;
-import static org.jooby.Route.DELETE;
-import org.jooby.Route.Definition;
-import static org.jooby.Route.GET;
-import static org.jooby.Route.HEAD;
-import org.jooby.Route.Mapper;
-import static org.jooby.Route.OPTIONS;
-import static org.jooby.Route.PATCH;
-import static org.jooby.Route.POST;
-import static org.jooby.Route.PUT;
-import static org.jooby.Route.TRACE;
+import org.jooby.Route.*;
 import org.jooby.Session.Store;
 import org.jooby.funzy.Throwing;
 import org.jooby.funzy.Try;
 import org.jooby.handlers.AssetHandler;
-import org.jooby.internal.AppPrinter;
-import org.jooby.internal.BuiltinParser;
-import org.jooby.internal.BuiltinRenderer;
-import org.jooby.internal.CookieSessionManager;
-import org.jooby.internal.DefaulErrRenderer;
-import org.jooby.internal.HttpHandlerImpl;
-import org.jooby.internal.JvmInfo;
-import org.jooby.internal.LocaleUtils;
-import org.jooby.internal.ParameterNameProvider;
-import org.jooby.internal.RequestScope;
-import org.jooby.internal.RouteMetadata;
-import org.jooby.internal.ServerExecutorProvider;
-import org.jooby.internal.ServerLookup;
-import org.jooby.internal.ServerSessionManager;
-import org.jooby.internal.SessionManager;
-import org.jooby.internal.SourceProvider;
-import org.jooby.internal.TypeConverters;
+import org.jooby.internal.*;
 import org.jooby.internal.handlers.HeadHandler;
 import org.jooby.internal.handlers.OptionsHandler;
 import org.jooby.internal.handlers.TraceHandler;
 import org.jooby.internal.mvc.MvcRoutes;
 import org.jooby.internal.mvc.MvcWebSocket;
-import org.jooby.internal.parser.BeanParser;
-import org.jooby.internal.parser.DateParser;
-import org.jooby.internal.parser.LocalDateParser;
-import org.jooby.internal.parser.LocaleParser;
-import org.jooby.internal.parser.ParserExecutor;
-import org.jooby.internal.parser.StaticMethodParser;
-import org.jooby.internal.parser.StringConstructorParser;
-import org.jooby.internal.parser.ZonedDateTimeParser;
+import org.jooby.internal.parser.*;
 import org.jooby.internal.ssl.SslContextProvider;
 import org.jooby.mvc.Consumes;
 import org.jooby.mvc.Produces;
@@ -297,33 +254,23 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
+import static java.util.Objects.requireNonNull;
+import static org.jooby.Route.*;
 
 /**
  * <h1>jooby</h1>
@@ -694,11 +641,11 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   static class MvcClass implements Route.Props<MvcClass> {
-    Class<?> routeClass;
+    final Class<?> routeClass;
 
-    String path;
+    final String path;
 
-    ImmutableMap.Builder<String, Object> attrs = ImmutableMap.builder();
+    final ImmutableMap.Builder<String, Object> attrs = ImmutableMap.builder();
 
     private List<MediaType> consumes;
 
@@ -710,7 +657,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
     private Mapper<?> mapper;
 
-    private String prefix;
+    private final String prefix;
 
     private String renderer;
 
@@ -795,9 +742,9 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   private static class EnvDep {
-    Predicate<String> predicate;
+    final Predicate<String> predicate;
 
-    Consumer<Config> callback;
+    final Consumer<Config> callback;
 
     public EnvDep(final Predicate<String> predicate, final Consumer<Config> callback) {
       this.predicate = predicate;
@@ -836,23 +783,23 @@ public class Jooby implements Router, LifeCycle, Registry {
   private transient String prefix;
 
   /** startup callback . */
-  private transient List<Throwing.Consumer<Registry>> onStart = new ArrayList<>();
-  private transient List<Throwing.Consumer<Registry>> onStarted = new ArrayList<>();
+  private final transient List<Throwing.Consumer<Registry>> onStart = new ArrayList<>();
+  private final transient List<Throwing.Consumer<Registry>> onStarted = new ArrayList<>();
 
   /** stop callback . */
-  private transient List<Throwing.Consumer<Registry>> onStop = new ArrayList<>();
+  private final transient List<Throwing.Consumer<Registry>> onStop = new ArrayList<>();
 
   /** Mappers . */
   @SuppressWarnings("rawtypes")
   private transient Mapper mapper;
 
   /** Don't add same mapper twice . */
-  private transient Set<String> mappers = new HashSet<>();
+  private final transient Set<String> mappers = new HashSet<>();
 
   /** Bean parser . */
   private transient Optional<Parser> beanParser = Optional.empty();
 
-  private transient ServerLookup server = new ServerLookup();
+  private final transient ServerLookup server = new ServerLookup();
 
   private transient String dateFormat;
 
@@ -883,7 +830,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   private transient List<Jooby> apprefs;
 
-  private transient LinkedList<String> path = new LinkedList<>();
+  private final transient LinkedList<String> path = new LinkedList<>();
 
   private transient String confname;
 
@@ -958,15 +905,13 @@ public class Jooby implements Router, LifeCycle, Registry {
   private Jooby use(final Optional<String> path, final Jooby app) {
     requireNonNull(app, "App is required.");
 
-    Function<Route.Definition, Route.Definition> rewrite = r -> {
-      return path.map(p -> {
-        Route.Definition result = new Route.Definition(r.method(), p + r.pattern(), r.filter());
-        result.consumes(r.consumes());
-        result.produces(r.produces());
-        result.excludes(r.excludes());
-        return result;
-      }).orElse(r);
-    };
+    Function<Route.Definition, Route.Definition> rewrite = r -> path.map(p -> {
+      Definition result = new Definition(r.method(), p + r.pattern(), r.filter());
+      result.consumes(r.consumes());
+      result.produces(r.produces());
+      result.excludes(r.excludes());
+      return result;
+    }).orElse(r);
 
     app.bag.forEach(it -> {
       if (it instanceof Route.Definition) {
@@ -983,9 +928,9 @@ public class Jooby implements Router, LifeCycle, Registry {
       }
     });
     // start/stop callback
-    app.onStart.forEach(this.onStart::add);
-    app.onStarted.forEach(this.onStarted::add);
-    app.onStop.forEach(this.onStop::add);
+    this.onStart.addAll(app.onStart);
+    this.onStarted.addAll(app.onStarted);
+    this.onStop.addAll(app.onStop);
     // mapper
     if (app.mapper != null) {
       this.map(app.mapper);
@@ -1207,9 +1152,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.OneArgHandler promise(final Deferred.Initializer initializer) {
-    return req -> {
-      return new Deferred(initializer);
-    };
+    return req -> new Deferred(initializer);
   }
 
   @Override
@@ -1220,9 +1163,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.OneArgHandler promise(final Deferred.Initializer0 initializer) {
-    return req -> {
-      return new Deferred(initializer);
-    };
+    return req -> new Deferred(initializer);
   }
 
   @Override
@@ -2084,12 +2025,15 @@ public class Jooby implements Router, LifeCycle, Registry {
     int size = this.bag.size();
     callback.run();
     // collect latest routes and apply route props
-    List<Route.Props> local = this.bag.stream()
+    return new Route.Collection(
+      this
+        .bag
+        .stream()
         .skip(size)
         .filter(Route.Props.class::isInstance)
         .map(Route.Props.class::cast)
-        .collect(Collectors.toList());
-    return new Route.Collection(local.toArray(new Route.Props[local.size()]));
+        .toArray(Route.Props[]::new)
+    );
   }
 
   /**
@@ -2112,7 +2056,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @param args Application arguments.
    */
   public static void run(final Class<? extends Jooby> app, final String... args) {
-    run(() -> Try.apply(() -> app.newInstance()).get(), args);
+    run(() -> Try.apply(app::newInstance).get(), args);
   }
 
   /**
@@ -2123,9 +2067,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    */
   public static Config exportConf(final Jooby app) {
     AtomicReference<Config> conf = new AtomicReference<>(ConfigFactory.empty());
-    app.on("*", c -> {
-      conf.set(c);
-    });
+    app.on("*", conf::set);
     exportRoutes(app);
     return conf.get();
   }
@@ -2195,7 +2137,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     this.injector = bootstrap(args(args), routes);
 
     // shutdown hook
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
+    Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
     Config conf = injector.getInstance(Config.class);
 
@@ -2245,7 +2187,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       onStarted.accept(this);
     }
 
-    boolean join = conf.hasPath("server.join") ? conf.getBoolean("server.join") : true;
+    boolean join = !conf.hasPath("server.join") || conf.getBoolean("server.join");
     if (join) {
       server.join();
     }
@@ -2291,9 +2233,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This instance.
    */
   public <T> Jooby bind(final Class<T> type, final Class<? extends T> implementation) {
-    use((env, conf, binder) -> {
-      binder.bind(type).to(implementation);
-    });
+    use((env, conf, binder) -> binder.bind(type).to(implementation));
     return this;
   }
 
@@ -2312,9 +2252,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This instance.
    */
   public <T> Jooby bind(final Class<T> type, final Supplier<T> implementation) {
-    use((env, conf, binder) -> {
-      binder.bind(type).toInstance(implementation.get());
-    });
+    use((env, conf, binder) -> binder.bind(type).toInstance(implementation.get()));
     return this;
   }
 
@@ -2332,9 +2270,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This instance.
    */
   public <T> Jooby bind(final Class<T> type) {
-    use((env, conf, binder) -> {
-      binder.bind(type);
-    });
+    use((env, conf, binder) -> binder.bind(type));
     return this;
   }
 
@@ -2637,9 +2573,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This jooby instance.
    */
   public Jooby executor(final String name, final Executor executor) {
-    this.executors.add(binder -> {
-      binder.bind(Key.get(Executor.class, Names.named(name))).toInstance(executor);
-    });
+    this.executors.add(binder -> binder.bind(Key.get(Executor.class, Names.named(name))).toInstance(executor));
     return this;
   }
 
@@ -2655,9 +2589,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    */
   public Jooby executor(final String name) {
     defaultExecSet = true;
-    this.executors.add(binder -> {
-      binder.bind(Key.get(String.class, Names.named("deferred"))).toInstance(name);
-    });
+    this.executors.add(binder -> binder.bind(Key.get(String.class, Names.named("deferred"))).toInstance(name));
     return this;
   }
 
@@ -2673,10 +2605,8 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This jooby instance.
    */
   private Jooby executor(final String name, final Class<? extends Provider<Executor>> provider) {
-    this.executors.add(binder -> {
-      binder.bind(Key.get(Executor.class, Names.named(name))).toProvider(provider)
-          .in(Singleton.class);
-    });
+    this.executors.add(binder -> binder.bind(Key.get(Executor.class, Names.named(name))).toProvider(provider)
+        .in(Singleton.class));
     return this;
   }
 
@@ -2731,7 +2661,7 @@ public class Jooby implements Router, LifeCycle, Registry {
         result.add(candidate);
       } else if (candidate instanceof Route.Group) {
         ((Route.Group) candidate).routes()
-            .forEach(r -> result.add(r));
+            .forEach(result::add);
       } else if (candidate instanceof MvcClass) {
         MvcClass mvcRoute = ((MvcClass) candidate);
         Class<?> mvcClass = mvcRoute.routeClass;
@@ -2765,7 +2695,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   private Injector bootstrap(final Config args,
-      final Consumer<List<Route.Definition>> rcallback) throws Throwable {
+      final Consumer<List<Route.Definition>> rcallback) {
     Config initconf = Optional.ofNullable(srcconf)
         .orElseGet(() -> ConfigFactory.parseResources("application.conf"));
     List<Config> modconf = modconf(this.bag);
@@ -2802,7 +2732,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       List<Route.Definition> routes = bag.stream()
           .filter(it -> it instanceof Route.Definition)
           .map(it -> (Route.Definition) it)
-          .collect(Collectors.<Route.Definition>toList());
+          .collect(Collectors.toList());
       rcallback.accept(routes);
     }
 
@@ -3211,13 +3141,13 @@ public class Jooby implements Router, LifeCycle, Registry {
       moduleStack = moduleStack.withFallback(module);
     }
 
-    String env = Arrays.asList(system, args, source).stream()
+    String env = Stream.of(system, args, source)
         .filter(it -> it.hasPath("application.env"))
         .findFirst()
         .map(c -> c.getString("application.env"))
         .orElse("dev");
 
-    String cpath = Arrays.asList(system, args, source).stream()
+    String cpath = Stream.of(system, args, source)
         .filter(it -> it.hasPath("application.path"))
         .findFirst()
         .map(c -> c.getString("application.path"))
@@ -3259,7 +3189,7 @@ public class Jooby implements Router, LifeCycle, Registry {
         name = "application.env";
         value = values[0];
       }
-      if (name.indexOf(".") == -1) {
+      if (!name.contains(".")) {
         conf.put("application." + name, value);
       }
       conf.put(name, value);
@@ -3395,11 +3325,11 @@ public class Jooby implements Router, LifeCycle, Registry {
       defs = defs.withValue("application.charset", fromAnyRef(charset.name()));
     }
     if (port != null) {
-      defs = defs.withValue("application.port", fromAnyRef(port.intValue()));
+      defs = defs.withValue("application.port", fromAnyRef(port));
     }
     if (securePort != null) {
       defs = defs.withValue("application.securePort",
-          fromAnyRef(securePort.intValue()));
+          fromAnyRef(securePort));
     }
     if (dateFormat != null) {
       defs = defs.withValue("application.dateFormat", fromAnyRef(dateFormat));
@@ -3487,14 +3417,12 @@ public class Jooby implements Router, LifeCycle, Registry {
       files.add(new File(confdir, "logback.xml"));
       logback = files.build()
           .stream()
-          .filter(f -> f.exists())
-          .map(f -> f.getAbsolutePath())
+          .filter(File::exists)
+          .map(File::getAbsolutePath)
           .findFirst()
-          .orElseGet(() -> {
-            return Optional.ofNullable(Jooby.class.getResource("/logback." + env + ".xml"))
-                .map(Objects::toString)
-                .orElse("logback.xml");
-          });
+          .orElseGet(() -> Optional.ofNullable(Jooby.class.getResource("/logback." + env + ".xml"))
+              .map(Objects::toString)
+              .orElse("logback.xml"));
     }
     return logback;
   }

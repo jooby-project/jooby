@@ -203,15 +203,14 @@
  */
 package org.jooby;
 
-import static java.util.Objects.requireNonNull;
-
-import java.io.InputStream;
-import java.net.URL;
-
 import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.Longs;
 
 import javax.annotation.Nonnull;
+import java.io.InputStream;
+import java.net.URL;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Usually a public file/resource like javascript, css, images files, etc...
@@ -228,9 +227,9 @@ public interface Asset {
    *
    * @author edgar
    */
-  public class Forwarding implements Asset {
+  class Forwarding implements Asset {
 
-    private Asset asset;
+    private final Asset asset;
 
     public Forwarding(final Asset asset) {
       this.asset = requireNonNull(asset, "Asset is required.");

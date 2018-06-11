@@ -204,7 +204,6 @@
 package org.jooby;
 
 import com.google.common.base.CaseFormat;
-import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -212,30 +211,22 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Primitives;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
-import static java.util.Objects.requireNonNull;
 import org.jooby.funzy.Throwing;
 import org.jooby.handlers.AssetHandler;
-import org.jooby.internal.RouteImpl;
-import org.jooby.internal.RouteMatcher;
-import org.jooby.internal.RoutePattern;
-import org.jooby.internal.RouteSourceImpl;
-import org.jooby.internal.SourceProvider;
+import org.jooby.internal.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Routes are a key concept in Jooby. Routes are executed in the same order they are defined.
@@ -742,11 +733,11 @@ public interface Route {
   @Deprecated class Group implements Props<Group> {
 
     /** List of definitions. */
-    private List<Route.Definition> routes = new ArrayList<>();
+    private final List<Route.Definition> routes = new ArrayList<>();
 
-    private String rootPattern;
+    private final String rootPattern;
 
-    private String prefix;
+    private final String prefix;
 
     private String renderer;
 
@@ -1323,12 +1314,12 @@ public interface Route {
     /**
      * A route pattern.
      */
-    private RoutePattern cpattern;
+    private final RoutePattern cpattern;
 
     /**
      * The target route.
      */
-    private Filter filter;
+    private final Filter filter;
 
     /**
      * Defines the media types that the methods of a resource class or can accept. Default is:
@@ -1345,12 +1336,12 @@ public interface Route {
     /**
      * A HTTP verb or <code>*</code>.
      */
-    private String method;
+    private final String method;
 
     /**
      * A path pattern.
      */
-    private String pattern;
+    private final String pattern;
 
     private List<RoutePattern> excludes = Collections.emptyList();
 
@@ -1766,7 +1757,7 @@ public interface Route {
      */
     @Nonnull
     public List<String> excludes() {
-      return excludes.stream().map(r -> r.pattern()).collect(Collectors.toList());
+      return excludes.stream().map(RoutePattern::pattern).collect(Collectors.toList());
     }
 
     private boolean excludes(final String path) {
@@ -2304,7 +2295,7 @@ public interface Route {
      * @return Message to send.
      * @throws Throwable If something goes wrong. The exception will processed by Jooby.
      */
-    Object handle() throws Throwable;
+    Object handle();
   }
 
   /**
@@ -2376,7 +2367,7 @@ public interface Route {
      * @param rsp Response
      * @throws Throwable If something goes wrong.
      */
-    void handle(Request req, Response rsp) throws Throwable;
+    void handle(Request req, Response rsp);
   }
 
   /**

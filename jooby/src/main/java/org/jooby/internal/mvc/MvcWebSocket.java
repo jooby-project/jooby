@@ -218,9 +218,9 @@ import java.util.function.Predicate;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class MvcWebSocket implements WebSocket.Handler<Mutant> {
 
-  private Object handler;
+  private final Object handler;
 
-  private TypeLiteral messageType;
+  private final TypeLiteral messageType;
 
   MvcWebSocket(final WebSocket ws, final Class handler) {
     Injector injector = ws.require(Injector.class)
@@ -234,12 +234,12 @@ public class MvcWebSocket implements WebSocket.Handler<Mutant> {
       MvcWebSocket socket = new MvcWebSocket(ws, handler);
       socket.onOpen(req, ws);
       if (socket.isClose()) {
-        ws.onClose(socket::onClose);
+        ws.onClose(socket);
       }
       if (socket.isError()) {
-        ws.onError(socket::onError);
+        ws.onError(socket);
       }
-      ws.onMessage(socket::onMessage);
+      ws.onMessage(socket);
     };
   }
 
@@ -278,8 +278,7 @@ public class MvcWebSocket implements WebSocket.Handler<Mutant> {
   }
 
   static Type messageType(final Class handler) {
-    return Arrays.asList(handler.getGenericInterfaces())
-        .stream()
+    return Arrays.stream(handler.getGenericInterfaces())
         .filter(rawTypeIs(WebSocket.Handler.class).or(rawTypeIs(WebSocket.OnMessage.class)))
         .findFirst()
         .filter(ParameterizedType.class::isInstance)

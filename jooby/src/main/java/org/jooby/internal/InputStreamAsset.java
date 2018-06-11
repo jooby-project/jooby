@@ -203,21 +203,21 @@
  */
 package org.jooby.internal;
 
-import static java.util.Objects.requireNonNull;
+import org.jooby.Asset;
+import org.jooby.MediaType;
 
 import java.io.InputStream;
 import java.net.URL;
 
-import org.jooby.Asset;
-import org.jooby.MediaType;
+import static java.util.Objects.requireNonNull;
 
 public class InputStreamAsset implements Asset {
 
-  private InputStream stream;
+  private final InputStream stream;
 
-  private String name;
+  private final String name;
 
-  private MediaType type;
+  private final MediaType type;
 
   public InputStreamAsset(final InputStream stream, final String name, final MediaType type) {
     this.stream = requireNonNull(stream, "InputStream is required.");
@@ -251,7 +251,7 @@ public class InputStreamAsset implements Asset {
   }
 
   @Override
-  public InputStream stream() throws Exception {
+  public InputStream stream() {
     return stream;
   }
 

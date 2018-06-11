@@ -203,25 +203,19 @@
  */
 package org.jooby.internal;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import com.google.common.io.ByteStreams;
+import org.jooby.Parser;
+import org.jooby.funzy.Try;
+
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 
-import org.jooby.Parser;
-
-import com.google.common.io.ByteStreams;
-import org.jooby.funzy.Try;
-
 public class BodyReferenceImpl implements Parser.BodyReference {
 
-  private Charset charset;
+  private final Charset charset;
 
-  private long length;
+  private final long length;
 
   private File file;
 
@@ -267,7 +261,7 @@ public class BodyReferenceImpl implements Parser.BodyReference {
 
   }
 
-  private static byte[] toByteArray(final InputStream in) throws IOException {
+  private static byte[] toByteArray(final InputStream in) {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     copy(in, out);
     return out.toByteArray();

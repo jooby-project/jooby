@@ -206,7 +206,6 @@ package org.jooby;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.io.BaseEncoding;
-import static java.util.Objects.requireNonNull;
 import org.jooby.funzy.Throwing;
 import org.jooby.internal.CookieImpl;
 
@@ -217,14 +216,12 @@ import javax.crypto.spec.SecretKeySpec;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Creates a cookie, a small amount of information sent by a server to
@@ -303,8 +300,7 @@ public interface Cookie {
             .append(encode.apply(e.getKey()))
             .append('=')
             .append(encode.apply(e.getValue())))
-        .collect(Collectors.joining("&"))
-        .toString();
+        .collect(Collectors.joining("&"));
   };
 
   /**
@@ -603,7 +599,7 @@ public interface Cookie {
    * @author edgar
    * @since 0.1.0
    */
-  public class Signature {
+  class Signature {
 
     /** Remove trailing '='. */
     private static final Pattern EQ = Pattern.compile("=+$");
