@@ -19,29 +19,10 @@
 
 package org.jooby.neo4j;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.function.LongSupplier;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import org.jooby.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-
 import iot.jcypher.database.IDBAccess;
 import iot.jcypher.graph.GrNode;
 import iot.jcypher.graph.GrProperty;
@@ -54,6 +35,18 @@ import iot.jcypher.query.factories.clause.DO;
 import iot.jcypher.query.factories.clause.MATCH;
 import iot.jcypher.query.factories.clause.RETURN;
 import iot.jcypher.query.values.JcNode;
+import org.jooby.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.function.LongSupplier;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A {@link Session.Store} powered by
@@ -207,9 +200,7 @@ public class Neo4jSessionStore implements Session.Store {
     attributes.put("_createdAt", session.createdAt());
     attributes.put("_savedAt", session.savedAt());
     attributes.put("_expire", expire.getAsLong());
-    attributes.forEach((k, v) -> {
-      clauses.add(DO.SET(node.property(k)).to(v));
-    });
+    attributes.forEach((k, v) -> clauses.add(DO.SET(node.property(k)).to(v)));
     clauses.add(RETURN.value(node));
 
     query.setClauses(clauses.toArray(new IClause[clauses.size()]));
