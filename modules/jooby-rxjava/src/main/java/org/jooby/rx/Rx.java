@@ -357,7 +357,7 @@ public class Rx extends Exec {
 
     private Deferred deferred;
 
-    private AtomicBoolean done = new AtomicBoolean(false);
+    private final AtomicBoolean done = new AtomicBoolean(false);
 
     public DeferredSubscriber(final Deferred deferred) {
       this.deferred = deferred;
@@ -366,7 +366,7 @@ public class Rx extends Exec {
     @Override
     public void onCompleted() {
       if (done.compareAndSet(false, true)) {
-        deferred.resolve((Object) null);
+        deferred.resolve(null);
       }
       deferred = null;
     }
