@@ -207,7 +207,6 @@ import com.sun.nio.file.SensitivityWatchEventModifier;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -234,7 +233,7 @@ import static java.util.Objects.*;
  */
 public class FileEventOptions {
 
-  private List<WatchEvent.Kind<Path>> kinds = new ArrayList<>();
+  private final List<WatchEvent.Kind<Path>> kinds = new ArrayList<>();
 
   static final PathMatcher TRUE = new PathMatcher() {
 
