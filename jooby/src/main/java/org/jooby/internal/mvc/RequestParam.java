@@ -222,6 +222,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.inject.Named;
+
+import org.jooby.*;
+import org.jooby.mvc.Body;
+import org.jooby.mvc.Flash;
+import org.jooby.mvc.Header;
+import org.jooby.mvc.Local;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
+import com.google.inject.TypeLiteral;
+import com.google.inject.util.Types;
+
 @SuppressWarnings({"rawtypes", "unchecked" })
 public class RequestParam {
 
