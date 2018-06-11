@@ -203,23 +203,6 @@
  */
 package org.jooby.internal.netty;
 
-import static io.netty.channel.ChannelFutureListener.CLOSE;
-import static java.util.Objects.requireNonNull;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
-import org.jooby.WebSocket;
-import org.jooby.WebSocket.OnError;
-import org.jooby.WebSocket.SuccessCallback;
-import org.jooby.spi.NativeWebSocket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelConfig;
@@ -232,6 +215,21 @@ import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import org.jooby.WebSocket;
+import org.jooby.WebSocket.OnError;
+import org.jooby.WebSocket.SuccessCallback;
+import org.jooby.spi.NativeWebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import static io.netty.channel.ChannelFutureListener.CLOSE;
+import static java.util.Objects.requireNonNull;
 
 public class NettyWebSocket implements NativeWebSocket {
 
@@ -241,13 +239,13 @@ public class NettyWebSocket implements NativeWebSocket {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private ChannelHandlerContext ctx;
+  private final ChannelHandlerContext ctx;
 
-  private Consumer<NettyWebSocket> handshake;
+  private final Consumer<NettyWebSocket> handshake;
 
   private Runnable onConnectCallback;
 
-  private WebSocketServerHandshaker handshaker;
+  private final WebSocketServerHandshaker handshaker;
 
   private Consumer<String> onTextCallback;
 
@@ -318,7 +316,7 @@ public class NettyWebSocket implements NativeWebSocket {
   }
 
   @Override
-  public void terminate() throws IOException {
+  public void terminate() {
     this.onCloseCallback.accept(1006, Optional.of("Harsh disconnect"));
     ctx.disconnect().addListener(CLOSE);
   }

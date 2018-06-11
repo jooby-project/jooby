@@ -203,33 +203,25 @@
  */
 package org.jooby.internal.netty;
 
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.HttpHeaders;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-
-import org.jooby.internal.ConnectionResetByPeer;
-import org.jooby.spi.HttpHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpServerUpgradeHandler;
-import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AsciiString;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
+import org.jooby.internal.ConnectionResetByPeer;
+import org.jooby.spi.HttpHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class NettyHandler extends SimpleChannelInboundHandler<Object> {
 
-  private static AsciiString STREAM_ID = HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text();
+  private static final AsciiString STREAM_ID = HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text();
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -237,13 +229,13 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
   public static final AttributeKey<String> PATH = AttributeKey
       .newInstance(NettyHandler.class.getName());
 
-  private HttpHandler handler;
+  private final HttpHandler handler;
 
-  private String tmpdir;
+  private final String tmpdir;
 
-  private int wsMaxMessageSize;
+  private final int wsMaxMessageSize;
 
-  private int bufferSize;
+  private final int bufferSize;
 
   public NettyHandler(final HttpHandler handler, final String tmpdir, final int bufferSize,
       final int wsBufferSize) {
@@ -285,7 +277,7 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
   }
 
   @Override
-  public void channelReadComplete(final ChannelHandlerContext ctx) throws Exception {
+  public void channelReadComplete(final ChannelHandlerContext ctx) {
     Attribute<Boolean> attr = ctx.channel().attr(NettyRequest.NEED_FLUSH);
     boolean needFlush = (attr == null || attr.get() == Boolean.TRUE);
     if (needFlush) {
