@@ -253,9 +253,9 @@ public class FormFilter extends AuthFilter {
       "</body>\n" +
       "</html>\n";
 
-  private String loginUrl;
+  private final String loginUrl;
 
-  private String callback;
+  private final String callback;
 
   public FormFilter(final String loginUrl, final String callback) {
     super(FormClient.class, CommonProfile.class);

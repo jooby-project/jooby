@@ -225,11 +225,11 @@ public class AuthContext implements WebContext {
    */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private Request req;
+  private final Request req;
 
-  private Response rsp;
+  private final Response rsp;
 
-  private Map<String, String[]> params;
+  private final Map<String, String[]> params;
 
   @Inject
   public AuthContext(final Request req, final Response rsp) {
@@ -317,7 +317,7 @@ public class AuthContext implements WebContext {
   }
 
   private Map<String, String[]> params(final Request req) {
-    ImmutableMap.Builder<String, String[]> result = ImmutableMap.<String, String[]>builder();
+    ImmutableMap.Builder<String, String[]> result = ImmutableMap.builder();
 
     req.params().toMap().forEach((name, value) -> {
       try {

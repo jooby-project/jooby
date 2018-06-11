@@ -203,12 +203,11 @@
  */
 package org.jooby.internal.pac4j;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-
 import org.jooby.funzy.Try;
 import org.pac4j.core.profile.CommonProfile;
+
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 public class ClientType {
 

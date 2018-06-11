@@ -203,16 +203,7 @@
  */
 package org.jooby.internal.pac4j;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Arrays;
-import java.util.Map;
-
-import org.jooby.Err;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Status;
+import org.jooby.*;
 import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.authorization.checker.AuthorizationChecker;
 import org.pac4j.core.config.Config;
@@ -221,12 +212,17 @@ import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.Map;
+
+import static java.util.Objects.requireNonNull;
+
 public class AuthorizerFilter implements Route.Handler {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private String authorizer;
+  private final String authorizer;
 
   public AuthorizerFilter(final String authorizer) {
     this.authorizer = requireNonNull(authorizer, "Authorizer's name is required.");
