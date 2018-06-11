@@ -207,13 +207,8 @@ import com.google.common.collect.Lists;
 import org.jooby.funzy.Try;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collections;
@@ -222,7 +217,7 @@ import java.util.stream.Collectors;
 
 interface SourceLocator {
 
-  public class Source {
+  class Source {
     private static final int[] RANGE = {0, 0};
     private final Path path;
 
@@ -281,8 +276,7 @@ interface SourceLocator {
       List<Path> source = Lists.newArrayList(Paths.get(filename));
       Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
         @Override
-        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
-            throws IOException {
+        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) {
           if (dir.toFile().isHidden()) {
             return FileVisitResult.SKIP_SUBTREE;
           }
@@ -293,8 +287,7 @@ interface SourceLocator {
         }
 
         @Override
-        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
-            throws IOException {
+        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) {
           return files.stream()
               .filter(f -> file.toString().endsWith(f))
               .findFirst()
@@ -308,8 +301,6 @@ interface SourceLocator {
       return new Source(source.get(0), Files.readAllLines(source.get(0), StandardCharsets.UTF_8));
     }).orElse(new Source(Paths.get(filename), Collections.emptyList()));
   }
-
-  ;
 
   Source source(String filename);
 
