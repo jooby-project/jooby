@@ -204,41 +204,30 @@
 package org.jooby.jdbc;
 
 import com.google.common.base.CharMatcher;
-import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValue;
-import com.typesafe.config.ConfigValueFactory;
-import com.typesafe.config.ConfigValueType;
+import com.typesafe.config.*;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import static java.util.Objects.requireNonNull;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.funzy.Throwing;
 import org.jooby.funzy.Try;
 
 import javax.sql.DataSource;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>jdbc</h1>
@@ -405,7 +394,7 @@ import java.util.stream.Stream;
  */
 public final class Jdbc implements Jooby.Module {
 
-  public static Function<String, String> DB_NAME = url -> {
+  public static final Function<String, String> DB_NAME = url -> {
     Throwing.Function3<String, String, String, Object[]> indexOf = (str, t1,
         t2) -> {
       int i = str.indexOf(t1);
@@ -594,8 +583,7 @@ public final class Jdbc implements Jooby.Module {
       props.setProperty(propertyName, propertyValue);
     };
 
-    Throwing.Function<String, Config> dbconf = Throwing.<String, Config>throwingFunction(
-        path -> conf.getConfig(path))
+    Throwing.Function<String, Config> dbconf = Throwing.throwingFunction(conf::getConfig)
         .orElse(ConfigFactory.empty());
 
     Config $hikari = dbconf.apply(key + ".hikari")
