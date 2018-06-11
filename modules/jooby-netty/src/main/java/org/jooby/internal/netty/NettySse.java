@@ -207,11 +207,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.*;
 import org.jooby.Sse;
 
 import java.util.Optional;
@@ -222,11 +218,11 @@ public class NettySse extends Sse {
 
   private static class DoneCallback implements ChannelFutureListener {
 
-    private CompletableFuture<Optional<Object>> promise;
+    private final CompletableFuture<Optional<Object>> promise;
 
-    private Consumer<Throwable> ifClose;
+    private final Consumer<Throwable> ifClose;
 
-    private Optional<Object> id;
+    private final Optional<Object> id;
 
     public DoneCallback(final CompletableFuture<Optional<Object>> promise,
         final Optional<Object> id,
@@ -237,7 +233,7 @@ public class NettySse extends Sse {
     }
 
     @Override
-    public void operationComplete(final ChannelFuture future) throws Exception {
+    public void operationComplete(final ChannelFuture future) {
       if (future.isSuccess()) {
         promise.complete(id);
       } else {
@@ -262,7 +258,7 @@ public class NettySse extends Sse {
   }
 
   @Override
-  protected void handshake(final Runnable handler) throws Exception {
+  protected void handshake(final Runnable handler) {
     headers.set(HttpHeaderNames.CONNECTION, "Close");
     headers.set(HttpHeaderNames.CONTENT_TYPE, "text/event-stream; charset=utf-8");
     ctx.writeAndFlush(

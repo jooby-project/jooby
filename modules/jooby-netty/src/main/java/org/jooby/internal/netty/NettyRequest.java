@@ -210,15 +210,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.Channel;
-import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
@@ -249,6 +242,8 @@ import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
+
 public class NettyRequest implements NativeRequest {
 
   public static final AttributeKey<String> PROTOCOL = AttributeKey
@@ -263,11 +258,11 @@ public class NettyRequest implements NativeRequest {
   public static final AttributeKey<Boolean> SECURE = AttributeKey
       .newInstance(NettyRequest.class.getName() + ".secure");
 
-  private HttpRequest req;
+  private final HttpRequest req;
 
   private final HttpHeaders responseHeaders;
 
-  private QueryStringDecoder query;
+  private final QueryStringDecoder query;
 
   private List<org.jooby.Cookie> cookies;
 
@@ -275,13 +270,13 @@ public class NettyRequest implements NativeRequest {
 
   private Multimap<String, NativeUpload> files;
 
-  private String tmpdir;
+  private final String tmpdir;
 
-  private String path;
+  private final String path;
 
-  private ChannelHandlerContext ctx;
+  private final ChannelHandlerContext ctx;
 
-  private int wsMaxMessageSize;
+  private final int wsMaxMessageSize;
 
   public NettyRequest(final ChannelHandlerContext ctx, final HttpRequest req,
       final HttpHeaders responseHeaders, final String tmpdir, final int wsMaxMessageSize) {
@@ -344,7 +339,7 @@ public class NettyRequest implements NativeRequest {
   @Override
   public List<String> headerNames() {
     ImmutableList.Builder<String> builder = ImmutableList.builder();
-    req.headers().names().forEach(it -> builder.add(it.toString()));
+    req.headers().names().forEach(builder::add);
     return builder.build();
   }
 
@@ -391,7 +386,7 @@ public class NettyRequest implements NativeRequest {
 
   @Override
   public boolean secure() {
-    return ifSecure(Boolean.TRUE, Boolean.FALSE).booleanValue();
+    return ifSecure(Boolean.TRUE, Boolean.FALSE);
   }
 
   @SuppressWarnings("unchecked")
@@ -404,12 +399,10 @@ public class NettyRequest implements NativeRequest {
       WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
           webSocketURL, null, true, wsMaxMessageSize);
       WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(req);
-      NettyWebSocket result = new NettyWebSocket(ctx, handshaker, (ws) -> {
-        handshaker.handshake(ctx.channel(), (FullHttpRequest) req)
-            .addListener(FIRE_EXCEPTION_ON_FAILURE)
-            .addListener(payload -> ws.connect())
-            .addListener(FIRE_EXCEPTION_ON_FAILURE);
-      });
+      NettyWebSocket result = new NettyWebSocket(ctx, handshaker, (ws) -> handshaker.handshake(ctx.channel(), (FullHttpRequest) req)
+          .addListener(FIRE_EXCEPTION_ON_FAILURE)
+          .addListener(payload -> ws.connect())
+          .addListener(FIRE_EXCEPTION_ON_FAILURE));
       ctx.channel().attr(NettyWebSocket.KEY).set(result);
       return (T) result;
     } else if (type == Sse.class) {

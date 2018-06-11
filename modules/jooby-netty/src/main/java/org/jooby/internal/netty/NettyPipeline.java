@@ -203,13 +203,7 @@
  */
 package org.jooby.internal.netty;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import org.jooby.spi.HttpHandler;
-
 import com.typesafe.config.Config;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -220,15 +214,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
-import io.netty.handler.codec.http2.DefaultHttp2Connection;
-import io.netty.handler.codec.http2.Http2CodecUtil;
-import io.netty.handler.codec.http2.Http2ConnectionHandler;
-import io.netty.handler.codec.http2.Http2FrameLogger;
-import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
-import io.netty.handler.codec.http2.HttpToHttp2ConnectionHandler;
-import io.netty.handler.codec.http2.HttpToHttp2ConnectionHandlerBuilder;
-import io.netty.handler.codec.http2.InboundHttp2ToHttpAdapter;
-import io.netty.handler.codec.http2.InboundHttp2ToHttpAdapterBuilder;
+import io.netty.handler.codec.http2.*;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
@@ -236,34 +222,38 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AsciiString;
 import io.netty.util.concurrent.EventExecutorGroup;
+import org.jooby.spi.HttpHandler;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
-  private EventExecutorGroup executor;
+  private final EventExecutorGroup executor;
 
-  private HttpHandler handler;
+  private final HttpHandler handler;
 
-  private Config config;
+  private final Config config;
 
-  private int maxInitialLineLength;
+  private final int maxInitialLineLength;
 
-  private int maxHeaderSize;
+  private final int maxHeaderSize;
 
-  private int maxChunkSize;
+  private final int maxChunkSize;
 
-  int maxContentLength;
+  final int maxContentLength;
 
-  private long idleTimeOut;
+  private final long idleTimeOut;
 
-  private SslContext sslCtx;
+  private final SslContext sslCtx;
 
-  private boolean supportH2;
+  private final boolean supportH2;
 
-  private String tmpdir;
+  private final String tmpdir;
 
-  private int bufferSize;
+  private final int bufferSize;
 
-  private int wsMaxMessageSize;
+  private final int wsMaxMessageSize;
 
   public NettyPipeline(final EventExecutorGroup executor, final HttpHandler handler,
       final Config conf, final SslContext sslCtx) {
@@ -287,7 +277,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   }
 
   @Override
-  protected void initChannel(final SocketChannel ch) throws Exception {
+  protected void initChannel(final SocketChannel ch) {
     final ChannelPipeline p = ch.pipeline();
     if (sslCtx != null) {
       p.addLast("ssl", sslCtx.newHandler(ch.alloc()));
@@ -367,8 +357,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     }
 
     @Override
-    public void configurePipeline(final ChannelHandlerContext ctx, final String protocol)
-        throws Exception {
+    public void configurePipeline(final ChannelHandlerContext ctx, final String protocol) {
       if (supportH2 && ApplicationProtocolNames.HTTP_2.equals(protocol)) {
         http2(ctx.pipeline());
       } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
@@ -393,8 +382,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     }
 
     @Override
-    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out)
-        throws Exception {
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) {
       if (in.readableBytes() < 4) {
         return;
       }
