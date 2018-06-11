@@ -203,25 +203,23 @@
  */
 package org.jooby.hbv;
 
-import static java.util.Objects.requireNonNull;
-
-import java.io.Closeable;
-import java.io.IOException;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorFactory;
-
+import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Injector;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorFactory;
+import java.io.Closeable;
+import java.io.IOException;
+
+import static java.util.Objects.requireNonNull;
 
 class HbvConstraintValidatorFactory implements ConstraintValidatorFactory {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private Injector injector;
+  private final Injector injector;
 
   public HbvConstraintValidatorFactory(final Injector injector) {
     this.injector = requireNonNull(injector, "Injector is required.");
