@@ -203,15 +203,15 @@
  */
 package org.jooby.internal.pac4j;
 
-import static java.util.Objects.requireNonNull;
+import org.pac4j.core.client.Client;
 
 import javax.inject.Provider;
 
-import org.pac4j.core.client.Client;
+import static java.util.Objects.requireNonNull;
 
 public class ClientProvider <C extends Client<?, ?>> implements Provider<C> {
 
-  private C client;
+  private final C client;
 
   public ClientProvider(final C client) {
     this.client = requireNonNull(client, "Client is required.");

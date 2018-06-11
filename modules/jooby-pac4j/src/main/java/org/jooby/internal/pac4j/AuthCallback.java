@@ -226,7 +226,7 @@ import javax.inject.Named;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Objects.*;
+import static java.util.Objects.requireNonNull;
 
 @SuppressWarnings("rawtypes")
 public class AuthCallback implements Route.Filter {
@@ -236,11 +236,11 @@ public class AuthCallback implements Route.Filter {
    */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private AuthStore store;
+  private final AuthStore store;
 
-  private Clients clients;
+  private final Clients clients;
 
-  private Optional<String> redirectTo;
+  private final Optional<String> redirectTo;
 
   @Inject
   public AuthCallback(final Clients clients, final AuthStore store,

@@ -213,23 +213,8 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.multibindings.OptionalBinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import static java.util.Objects.requireNonNull;
-import org.jooby.Env;
-import org.jooby.Jooby;
-import org.jooby.Route;
-import org.jooby.Router;
-import org.jooby.Session;
-import org.jooby.internal.pac4j.AuthCallback;
-import org.jooby.internal.pac4j.AuthContext;
-import org.jooby.internal.pac4j.AuthFilter;
-import org.jooby.internal.pac4j.AuthLogout;
-import org.jooby.internal.pac4j.AuthorizerFilter;
-import org.jooby.internal.pac4j.BasicAuth;
-import org.jooby.internal.pac4j.ClientType;
-import org.jooby.internal.pac4j.ClientsProvider;
-import org.jooby.internal.pac4j.ConfigProvider;
-import org.jooby.internal.pac4j.FormAuth;
-import org.jooby.internal.pac4j.FormFilter;
+import org.jooby.*;
+import org.jooby.internal.pac4j.*;
 import org.jooby.scope.Providers;
 import org.jooby.scope.RequestScoped;
 import org.pac4j.core.authorization.authorizer.Authorizer;
@@ -249,15 +234,12 @@ import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>pac4j module</h1>
@@ -475,7 +457,7 @@ public class Auth implements Jooby.Module {
 
   public static final String CNAME = Auth.class.getName() + ".client.id";
 
-  private Multimap<String, BiFunction<Binder, Config, AuthFilter>> bindings = ArrayListMultimap
+  private final Multimap<String, BiFunction<Binder, Config, AuthFilter>> bindings = ArrayListMultimap
       .create();
 
   @SuppressWarnings("rawtypes")
@@ -485,9 +467,9 @@ public class Auth implements Jooby.Module {
 
   private Optional<String> redirecTo = Optional.empty();
 
-  private Multimap<String, Map.Entry<String, Object>> authorizers = ArrayListMultimap.create();
+  private final Multimap<String, Map.Entry<String, Object>> authorizers = ArrayListMultimap.create();
 
-  private Set<Object> bindedProfiles = new HashSet<>();
+  private final Set<Object> bindedProfiles = new HashSet<>();
 
   /**
    * Protect one or more urls with an {@link Authorizer}. For example:
