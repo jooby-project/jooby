@@ -204,7 +204,6 @@
 package org.jooby.mongodb;
 
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
@@ -417,9 +416,7 @@ public class MongoSessionStore implements Session.Store {
   }
 
   private boolean existsIdx(final String name) {
-    MongoCursor<Document> iterator = sessions.listIndexes().iterator();
-    while (iterator.hasNext()) {
-      Document doc = iterator.next();
+    for (final Document doc : sessions.listIndexes()) {
       if (doc.getString("name").equals(name)) {
         return true;
       }
