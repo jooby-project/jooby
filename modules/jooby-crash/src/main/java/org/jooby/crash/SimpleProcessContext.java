@@ -211,7 +211,6 @@ import org.jooby.Result;
 import org.jooby.Results;
 import org.jooby.Status;
 
-import java.io.IOException;
 import java.util.function.Consumer;
 
 class SimpleProcessContext implements ShellProcessContext {
