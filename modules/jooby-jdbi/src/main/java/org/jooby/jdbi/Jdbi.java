@@ -203,34 +203,26 @@
  */
 package org.jooby.jdbi;
 
+import com.google.common.collect.Lists;
+import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import com.typesafe.config.Config;
+import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
+import org.jooby.Jooby;
+import org.jooby.jdbc.Jdbc;
+import org.skife.jdbi.v2.*;
+import org.skife.jdbi.v2.logging.SLF4JLog;
+import org.skife.jdbi.v2.tweak.ArgumentFactory;
+
+import javax.inject.Provider;
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
-import javax.inject.Provider;
-import javax.sql.DataSource;
-
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-import org.jooby.Env;
-import org.jooby.Env.ServiceKey;
-import org.jooby.Jooby;
-import org.jooby.jdbc.Jdbc;
-import org.skife.jdbi.v2.DBI;
-import org.skife.jdbi.v2.ExpandedStmtRewriter;
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.IterableArgumentFactory;
-import org.skife.jdbi.v2.OptionalArgumentFactory;
-import org.skife.jdbi.v2.OptionalContainerFactory;
-import org.skife.jdbi.v2.logging.SLF4JLog;
-import org.skife.jdbi.v2.tweak.ArgumentFactory;
-import org.skife.jdbi.v2.tweak.ConnectionFactory;
-
-import com.google.common.collect.Lists;
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
 
 /**
  * Exposes {@link DBI}, {@link Handle} and SQL Objects (a.k.a DAO).
@@ -328,7 +320,7 @@ public class Jdbi implements Jooby.Module {
 
   static class DBI2 extends DBI {
 
-    private List<ArgumentFactory<?>> factories = new ArrayList<ArgumentFactory<?>>();
+    private final List<ArgumentFactory<?>> factories = new ArrayList<>();
 
     public DBI2(final DataSource ds) {
       super(ds);
@@ -345,7 +337,7 @@ public class Jdbi implements Jooby.Module {
 
   private final String name;
 
-  private List<Class<?>> sqlObjects;
+  private final List<Class<?>> sqlObjects;
 
   private BiConsumer<DBI, Config> callback;
 
@@ -374,7 +366,7 @@ public class Jdbi implements Jooby.Module {
 
     ServiceKey serviceKey = env.serviceKey();
     serviceKey.generate(DBI.class, name, k -> binder.bind(k).toInstance(dbi));
-    serviceKey.generate(Handle.class, name, k -> binder.bind(k).toProvider(() -> dbi.open()));
+    serviceKey.generate(Handle.class, name, k -> binder.bind(k).toProvider(dbi::open));
 
     sqlObjects.forEach(sqlObject -> binder.bind(sqlObject)
         .toProvider((Provider) () -> dbi.open(sqlObject)));
