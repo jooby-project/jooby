@@ -203,15 +203,15 @@
  */
 package org.jooby.internal.hbm;
 
-import javax.inject.Provider;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.context.internal.ManagedSessionContext;
 
+import javax.inject.Provider;
+
 public class SessionProvider implements Provider<Session> {
 
-  private SessionFactory sf;
+  private final SessionFactory sf;
 
   public SessionProvider(final SessionFactory sf) {
     this.sf = sf;
