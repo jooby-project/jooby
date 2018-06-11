@@ -207,21 +207,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import static io.netty.channel.ChannelFutureListener.CLOSE;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.ChannelPromise;
-import io.netty.channel.DefaultFileRegion;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.HttpChunkedInput;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.channel.*;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedNioFile;
@@ -237,19 +224,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static io.netty.channel.ChannelFutureListener.CLOSE;
+
 public class NettyResponse implements NativeResponse {
 
   private ChannelHandlerContext ctx;
 
-  private boolean keepAlive;
+  private final boolean keepAlive;
 
   private HttpResponseStatus status;
 
-  private HttpHeaders headers;
+  private final HttpHeaders headers;
 
   private boolean committed;
 
-  private int bufferSize;
+  private final int bufferSize;
 
   public NettyResponse(final ChannelHandlerContext ctx, final HttpHeaders headers,
       final int bufferSize, final boolean keepAlive) {
@@ -291,12 +280,12 @@ public class NettyResponse implements NativeResponse {
   }
 
   @Override
-  public void send(final byte[] bytes) throws Exception {
+  public void send(final byte[] bytes) {
     send(Unpooled.wrappedBuffer(bytes));
   }
 
   @Override
-  public void send(final ByteBuffer buffer) throws Exception {
+  public void send(final ByteBuffer buffer) {
     send(Unpooled.wrappedBuffer(buffer));
   }
 
@@ -415,7 +404,7 @@ public class NettyResponse implements NativeResponse {
 
   }
 
-  private void send(final ByteBuf buffer) throws Exception {
+  private void send(final ByteBuf buffer) {
     DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, buffer);
 
     headers.remove(HttpHeaderNames.TRANSFER_ENCODING)
