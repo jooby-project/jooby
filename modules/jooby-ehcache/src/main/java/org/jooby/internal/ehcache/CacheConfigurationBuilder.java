@@ -222,7 +222,7 @@ import com.typesafe.config.Config;
 
 public class CacheConfigurationBuilder extends EhCacheBuilder {
 
-  private String path;
+  private final String path;
 
   private CacheConfiguration cache;
 
@@ -320,12 +320,10 @@ public class CacheConfigurationBuilder extends EhCacheBuilder {
       cache.addCacheLoaderFactory(newFactory(path + ".cacheLoaderFactory", conf,
           CacheLoaderFactoryConfiguration::new));
     } else {
-      each(conf, (name, c) -> {
-        cache.addCacheLoaderFactory(
-            newFactory(path + ".cacheLoaderFactory." + name, c,
-                CacheLoaderFactoryConfiguration::new)
-            );
-      });
+      each(conf, (name, c) -> cache.addCacheLoaderFactory(
+          newFactory(path + ".cacheLoaderFactory." + name, c,
+              CacheLoaderFactoryConfiguration::new)
+          ));
     }
   }
 
@@ -352,12 +350,10 @@ public class CacheConfigurationBuilder extends EhCacheBuilder {
               CacheDecoratorFactoryConfiguration::new)
           );
     } else {
-      each(conf, (name, decoconf) -> {
-        cache.addCacheDecoratorFactory(
-            newFactory(path + ".cacheDecoratorFactory." + name, decoconf,
-                CacheDecoratorFactoryConfiguration::new)
-            );
-      });
+      each(conf, (name, decoconf) -> cache.addCacheDecoratorFactory(
+          newFactory(path + ".cacheDecoratorFactory." + name, decoconf,
+              CacheDecoratorFactoryConfiguration::new)
+          ));
     }
   }
 
@@ -370,12 +366,10 @@ public class CacheConfigurationBuilder extends EhCacheBuilder {
       cache.addCacheExtensionFactory(newFactory(path + ".cacheExtensionFactory", conf,
           CacheExtensionFactoryConfiguration::new));
     } else {
-      each(conf, (name, decoconf) -> {
-        cache.addCacheExtensionFactory(
-            newFactory(path + ".cacheExtensionFactory." + name, decoconf,
-                CacheExtensionFactoryConfiguration::new)
-            );
-      });
+      each(conf, (name, decoconf) -> cache.addCacheExtensionFactory(
+          newFactory(path + ".cacheExtensionFactory." + name, decoconf,
+              CacheExtensionFactoryConfiguration::new)
+          ));
     }
   }
 
