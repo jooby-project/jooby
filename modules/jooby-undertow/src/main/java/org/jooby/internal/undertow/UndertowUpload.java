@@ -203,26 +203,24 @@
  */
 package org.jooby.internal.undertow;
 
+import io.undertow.server.handlers.form.FormData.FormValue;
+import io.undertow.util.HeaderValues;
+import org.jooby.spi.NativeUpload;
+
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import org.jooby.spi.NativeUpload;
-
-import io.undertow.server.handlers.form.FormData.FormValue;
-import io.undertow.util.HeaderValues;
-
 public class UndertowUpload implements NativeUpload {
 
-  private FormValue value;
+  private final FormValue value;
 
   public UndertowUpload(final FormValue value) {
     this.value = value;
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     // undertow will delete the file, we don't have to worry about.
     file().delete();
   }
@@ -239,7 +237,7 @@ public class UndertowUpload implements NativeUpload {
   }
 
   @Override
-  public File file() throws IOException {
+  public File file() {
     return value.getPath().toFile();
   }
 

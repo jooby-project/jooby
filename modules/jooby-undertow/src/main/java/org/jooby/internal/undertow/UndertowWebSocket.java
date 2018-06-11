@@ -217,23 +217,8 @@
  */
 package org.jooby.internal.undertow;
 
-import static java.util.Objects.requireNonNull;
-import io.undertow.websockets.core.AbstractReceiveListener;
-import io.undertow.websockets.core.BufferedBinaryMessage;
-import io.undertow.websockets.core.BufferedTextMessage;
-import io.undertow.websockets.core.CloseMessage;
-import io.undertow.websockets.core.WebSocketCallback;
-import io.undertow.websockets.core.WebSocketChannel;
-import io.undertow.websockets.core.WebSockets;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
+import com.typesafe.config.Config;
+import io.undertow.websockets.core.*;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.OnError;
 import org.jooby.WebSocket.SuccessCallback;
@@ -243,7 +228,14 @@ import org.slf4j.LoggerFactory;
 import org.xnio.IoUtils;
 import org.xnio.Pooled;
 
-import com.typesafe.config.Config;
+import java.nio.ByteBuffer;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNull;
 
 public class UndertowWebSocket extends AbstractReceiveListener implements NativeWebSocket {
 
@@ -260,13 +252,13 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
 
   private Consumer<Throwable> onErrorCallback;
 
-  private long maxBinaryBufferSize;
+  private final long maxBinaryBufferSize;
 
-  private long maxTextBufferSize;
+  private final long maxTextBufferSize;
 
   private Runnable onConnectCallback;
 
-  private long idleTimeout;
+  private final long idleTimeout;
 
   private final CountDownLatch ready = new CountDownLatch(1);
 
@@ -325,14 +317,14 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
 
   @Override
   protected void onFullTextMessage(final WebSocketChannel channel,
-      final BufferedTextMessage message) throws IOException {
+      final BufferedTextMessage message) {
     ready();
     onTextCallback.accept(message.getData());
   }
 
   @Override
   protected void onFullBinaryMessage(final WebSocketChannel channel,
-      final BufferedBinaryMessage message) throws IOException {
+      final BufferedBinaryMessage message) {
     ready();
     Pooled<ByteBuffer[]> data = message.getData();
     try {
@@ -383,7 +375,7 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
   }
 
   @Override
-  public void terminate() throws IOException {
+  public void terminate() {
     this.onCloseCallback.accept(1006, Optional.of("Harsh disconnect"));
     IoUtils.safeClose(channel);
   }

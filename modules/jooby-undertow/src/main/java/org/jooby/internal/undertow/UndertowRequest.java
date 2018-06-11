@@ -203,33 +203,11 @@
  */
 package org.jooby.internal.undertow;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.URLDecoder;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
-
-import org.jooby.Cookie;
-import org.jooby.MediaType;
-import org.jooby.Router;
-import org.jooby.Sse;
-import org.jooby.spi.NativePushPromise;
-import org.jooby.spi.NativeRequest;
-import org.jooby.spi.NativeUpload;
-import org.jooby.spi.NativeWebSocket;
-
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.typesafe.config.Config;
-
 import io.undertow.server.BlockingHttpExchange;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.FormData;
@@ -239,6 +217,25 @@ import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.util.AttachmentKey;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
+import org.jooby.Cookie;
+import org.jooby.MediaType;
+import org.jooby.Router;
+import org.jooby.Sse;
+import org.jooby.spi.NativePushPromise;
+import org.jooby.spi.NativeRequest;
+import org.jooby.spi.NativeUpload;
+import org.jooby.spi.NativeWebSocket;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 public class UndertowRequest implements NativeRequest {
 
@@ -247,17 +244,17 @@ public class UndertowRequest implements NativeRequest {
 
   private static final FormData NO_FORM = new FormData(0);
 
-  private HttpServerExchange exchange;
+  private final HttpServerExchange exchange;
 
-  private Config conf;
+  private final Config conf;
 
   private FormData form;
 
-  private String path;
+  private final String path;
 
-  private Supplier<BlockingHttpExchange> blocking;
+  private final Supplier<BlockingHttpExchange> blocking;
 
-  public UndertowRequest(final HttpServerExchange exchange, final Config conf) throws IOException {
+  public UndertowRequest(final HttpServerExchange exchange, final Config conf) {
     this.exchange = exchange;
     this.blocking = Suppliers.memoize(() -> this.exchange.startBlocking());
     this.conf = conf;
@@ -287,7 +284,7 @@ public class UndertowRequest implements NativeRequest {
 
   @Override
   public List<String> paramNames() {
-    ImmutableList.Builder<String> builder = ImmutableList.<String> builder();
+    ImmutableList.Builder<String> builder = ImmutableList.builder();
     builder.addAll(exchange.getQueryParameters().keySet());
     FormData formdata = parseForm();
     formdata.forEach(v -> {
@@ -305,16 +302,14 @@ public class UndertowRequest implements NativeRequest {
     // query params
     Deque<String> query = exchange.getQueryParameters().get(name);
     if (query != null) {
-      query.stream().forEach(builder::add);
+      query.forEach(builder::add);
     }
     // form params
-    Optional.ofNullable(parseForm().get(name)).ifPresent(values -> {
-      values.stream().forEach(value -> {
-        if (!value.isFile()) {
-          builder.add(value.getValue());
-        }
-      });
-    });
+    Optional.ofNullable(parseForm().get(name)).ifPresent(values -> values.forEach(value -> {
+      if (!value.isFile()) {
+        builder.add(value.getValue());
+      }
+    }));
     return builder.build();
   }
 
@@ -385,7 +380,7 @@ public class UndertowRequest implements NativeRequest {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T upgrade(final Class<T> type) throws Exception {
+  public <T> T upgrade(final Class<T> type) {
     if (type == NativeWebSocket.class) {
       UndertowWebSocket ws = new UndertowWebSocket(conf);
       exchange.putAttachment(SOCKET, ws);
