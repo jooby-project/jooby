@@ -212,9 +212,9 @@ import com.google.gson.Gson;
 
 class GsonRenderer implements Renderer {
 
-  private MediaType type;
+  private final MediaType type;
 
-  private Gson gson;
+  private final Gson gson;
 
   public GsonRenderer(final MediaType type, final Gson gson) {
     this.type = requireNonNull(type, "Media type is required.");
