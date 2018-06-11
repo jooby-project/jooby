@@ -233,7 +233,7 @@ public class ChunkedStream implements IoCallback, Runnable {
 
   private int chunk;
 
-  private long len;
+  private final long len;
 
   private long total;
 

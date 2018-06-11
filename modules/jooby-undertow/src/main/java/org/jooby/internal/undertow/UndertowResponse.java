@@ -226,7 +226,7 @@ import java.util.Optional;
 
 public class UndertowResponse implements NativeResponse {
 
-  private HttpServerExchange exchange;
+  private final HttpServerExchange exchange;
 
   private volatile boolean endExchange = true;
 
@@ -317,9 +317,7 @@ public class UndertowResponse implements NativeResponse {
     NativeWebSocket ws = exchange.getAttachment(UndertowRequest.SOCKET);
     if (ws != null) {
       try {
-        Handlers.websocket((wsExchange, channel) -> {
-          ((UndertowWebSocket) ws).connect(channel);
-        }).handleRequest(exchange);
+        Handlers.websocket((wsExchange, channel) -> ((UndertowWebSocket) ws).connect(channel)).handleRequest(exchange);
       } catch (Exception ex) {
         LoggerFactory.getLogger(NativeResponse.class).error("Upgrade result in exception", ex);
       } finally {

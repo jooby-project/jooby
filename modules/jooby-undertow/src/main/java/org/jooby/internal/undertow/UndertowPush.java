@@ -213,7 +213,7 @@ import io.undertow.util.HttpString;
 
 public class UndertowPush implements NativePushPromise {
 
-  private HttpServerExchange exchange;
+  private final HttpServerExchange exchange;
 
   public UndertowPush(final HttpServerExchange exchange) {
     this.exchange = exchange;

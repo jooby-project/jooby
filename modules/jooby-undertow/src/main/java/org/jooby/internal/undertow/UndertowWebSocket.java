@@ -260,13 +260,13 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
 
   private Consumer<Throwable> onErrorCallback;
 
-  private long maxBinaryBufferSize;
+  private final long maxBinaryBufferSize;
 
-  private long maxTextBufferSize;
+  private final long maxTextBufferSize;
 
   private Runnable onConnectCallback;
 
-  private long idleTimeout;
+  private final long idleTimeout;
 
   private final CountDownLatch ready = new CountDownLatch(1);
 

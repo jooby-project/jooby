@@ -218,7 +218,7 @@ public class LogIoCallback implements IoCallback {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(NativeResponse.class);
 
-  private IoCallback callback;
+  private final IoCallback callback;
 
   public LogIoCallback(final IoCallback callback) {
     this.callback = callback;
