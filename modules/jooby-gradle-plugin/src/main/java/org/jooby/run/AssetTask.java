@@ -305,10 +305,8 @@ public class AssetTask extends ConventionTask {
       String env = getEnv();
       this.assetFile = new File(getOutput(), "assets." + env + ".conf");
       new JoobyContainer(getProject())
-          .run(getMainClassName(), (app, conf) -> {
-            compile(getLogger(), app.getClass().getClassLoader(), env, getMaxAge(), getOutput(),
-                assetFile, getAssemblyOutput(), conf);
-          }, env);
+          .run(getMainClassName(), (app, conf) -> compile(getLogger(), app.getClass().getClassLoader(), env, getMaxAge(), getOutput(),
+              assetFile, getAssemblyOutput(), conf), env);
     } catch (CompilationDone ex) {
       // done
     }
@@ -364,7 +362,7 @@ public class AssetTask extends ConventionTask {
 
       // move output to fixed location required by zip/war dist
       List<File> files = fileset.values().stream()
-          .flatMap(it -> it.stream())
+          .flatMap(Collection::stream)
           .collect(Collectors.toList());
 
       for (File from : files) {
