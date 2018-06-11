@@ -203,25 +203,13 @@
  */
 package org.jooby.neo4j;
 
-import static iot.jcypher.database.DBProperties.DATABASE_DIR;
-import static iot.jcypher.database.DBProperties.SERVER_ROOT_URI;
-import static java.util.Objects.requireNonNull;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import com.google.inject.Binder;
+import com.typesafe.config.*;
+import iot.jcypher.database.DBProperties;
+import iot.jcypher.database.IDBAccess;
+import iot.jcypher.database.embedded.AbstractEmbeddedDBAccess;
+import iot.jcypher.database.embedded.EmbeddedDBAccess;
+import iot.jcypher.database.remote.BoltDBAccess;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
 import org.jooby.Jooby.Module;
@@ -237,19 +225,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValue;
-import com.typesafe.config.ConfigValueFactory;
-import com.typesafe.config.ConfigValueType;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
-import iot.jcypher.database.DBProperties;
-import iot.jcypher.database.IDBAccess;
-import iot.jcypher.database.embedded.AbstractEmbeddedDBAccess;
-import iot.jcypher.database.embedded.EmbeddedDBAccess;
-import iot.jcypher.database.remote.BoltDBAccess;
+import static iot.jcypher.database.DBProperties.DATABASE_DIR;
+import static iot.jcypher.database.DBProperties.SERVER_ROOT_URI;
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>neo4j</h1>
@@ -492,8 +481,7 @@ public class Neo4j implements Module {
     ServiceKey keys = env.serviceKey();
     IDBAccess dbaccess = dbaccess(conf, this.db, db, props, keys, binder);
 
-    Arrays.asList(props.getProperty(SERVER_ROOT_URI), props.getProperty(DATABASE_DIR))
-        .stream()
+    Stream.of(props.getProperty(SERVER_ROOT_URI), props.getProperty(DATABASE_DIR))
         .filter(Objects::nonNull)
         .findFirst()
         .ifPresent(it -> log.info("Starting neo4j: {}", it));
