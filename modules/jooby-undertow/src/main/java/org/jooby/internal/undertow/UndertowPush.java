@@ -203,17 +203,16 @@
  */
 package org.jooby.internal.undertow;
 
-import java.util.Map;
-
-import org.jooby.spi.NativePushPromise;
-
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HttpString;
+import org.jooby.spi.NativePushPromise;
+
+import java.util.Map;
 
 public class UndertowPush implements NativePushPromise {
 
-  private HttpServerExchange exchange;
+  private final HttpServerExchange exchange;
 
   public UndertowPush(final HttpServerExchange exchange) {
     this.exchange = exchange;
