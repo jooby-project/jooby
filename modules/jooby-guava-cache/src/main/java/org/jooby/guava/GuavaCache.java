@@ -458,8 +458,7 @@ public abstract class GuavaCache<K, V> implements Jooby.Module {
       Map<String, Object> m = (Map<String, Object>) spec;
       return m.entrySet().stream()
           .map(e -> e.getKey() + "=" + e.getValue())
-          .collect(Collectors.joining(","))
-          .toString();
+          .collect(Collectors.joining(","));
     }
     return spec.toString();
   }

@@ -249,7 +249,7 @@ import com.google.common.cache.Cache;
 @Singleton
 public class GuavaSessionStore implements Session.Store {
 
-  private Cache<String, Session> cache;
+  private final Cache<String, Session> cache;
 
   @Inject
   public GuavaSessionStore(@Named("session") final Cache<String, Session> cache) {
