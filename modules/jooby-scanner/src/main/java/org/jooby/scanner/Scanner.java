@@ -217,8 +217,6 @@ import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Router;
 import org.jooby.funzy.Throwing;
-import static org.jooby.funzy.Throwing.throwingConsumer;
-import static org.jooby.funzy.Throwing.throwingSupplier;
 import org.jooby.mvc.Path;
 
 import javax.annotation.PostConstruct;
@@ -227,15 +225,13 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.lang.reflect.Modifier;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static org.jooby.funzy.Throwing.throwingSupplier;
 
 /**
  * <h1>scanner</h1>
@@ -372,7 +368,7 @@ public class Scanner implements Jooby.Module {
   private List<String> packages;
 
   @SuppressWarnings("rawtypes")
-  private Set<Class> serviceTypes = new LinkedHashSet<>();
+  private final Set<Class> serviceTypes = new LinkedHashSet<>();
 
   /**
    * Creates a new {@link Scanner} and uses the provided scan spec or packages.
@@ -404,7 +400,7 @@ public class Scanner implements Jooby.Module {
     Router routes = env.router();
 
     ClassLoader loader = getClass().getClassLoader();
-    Throwing.Function<String, Class> loadClass = name -> loader.loadClass(name);
+    Throwing.Function<String, Class> loadClass = loader::loadClass;
 
     // bind once as singleton + post/pre callbacks
     Set<Object> bindings = new HashSet<>();
@@ -418,9 +414,7 @@ public class Scanner implements Jooby.Module {
     ScanResult result = scanner.scan(conf.getInt("runtime.processors") + 1);
 
     Predicate<String> inPackage = name -> packages.stream()
-        .filter(name::startsWith)
-        .findFirst()
-        .isPresent();
+        .anyMatch(name::startsWith);
 
     /** Controllers: */
     result.getNamesOfClassesWithAnnotation(Path.class)
@@ -443,41 +437,35 @@ public class Scanner implements Jooby.Module {
     /** Annotated with: */
     serviceTypes.stream()
         .filter(A)
-        .forEach(a -> {
-          result.getNamesOfClassesWithAnnotation(a)
-              .stream()
-              .filter(once)
-              .map(loadClass)
-              .filter(C)
-              .forEach(bind);
-        });
+        .forEach(a -> result.getNamesOfClassesWithAnnotation(a)
+            .stream()
+            .filter(once)
+            .map(loadClass)
+            .filter(C)
+            .forEach(bind));
 
     /** Implements: */
     serviceTypes.stream()
         .filter(I)
         .filter(type -> type != Jooby.Module.class && type != Module.class && type != Service.class)
-        .forEach(i -> {
-          result.getNamesOfClassesImplementing(i)
-              .stream()
-              .filter(inPackage)
-              .filter(once)
-              .map(loadClass)
-              .filter(C)
-              .forEach(bind);
-        });
+        .forEach(i -> result.getNamesOfClassesImplementing(i)
+            .stream()
+            .filter(inPackage)
+            .filter(once)
+            .map(loadClass)
+            .filter(C)
+            .forEach(bind));
 
     /** SubclassOf: */
     serviceTypes.stream()
         .filter(S)
-        .forEach(k -> {
-          result.getNamesOfSubclassesOf(k)
-              .stream()
-              .filter(inPackage)
-              .filter(once)
-              .map(loadClass)
-              .filter(C)
-              .forEach(bind);
-        });
+        .forEach(k -> result.getNamesOfSubclassesOf(k)
+            .stream()
+            .filter(inPackage)
+            .filter(once)
+            .map(loadClass)
+            .filter(C)
+            .forEach(bind));
 
     /** Guice modules: */
     if (serviceTypes.contains(Module.class)) {
@@ -528,7 +516,7 @@ public class Scanner implements Jooby.Module {
   }
 
   private static <T> T newObject(final Class<T> klass) {
-    return throwingSupplier(() -> klass.newInstance()).get();
+    return throwingSupplier(klass::newInstance).get();
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -542,7 +530,7 @@ public class Scanner implements Jooby.Module {
     serviceTypes.forEach(guavaService);
     // lazy service manager
     AtomicReference<ServiceManager> sm = new AtomicReference<>();
-    Provider<ServiceManager> smProvider = () -> sm.get();
+    Provider<ServiceManager> smProvider = sm::get;
     binder.bind(ServiceManager.class).toProvider(smProvider);
     // ask Guice for services, create ServiceManager and start services
     env.onStart(r -> {
@@ -553,9 +541,7 @@ public class Scanner implements Jooby.Module {
       sm.get().startAsync().awaitHealthy();
     });
     // stop services
-    env.onStop(() -> {
-      sm.get().stopAsync().awaitStopped();
-    });
+    env.onStop(() -> sm.get().stopAsync().awaitStopped());
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
