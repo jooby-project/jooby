@@ -1,12 +1,12 @@
 package org.jooby.issues;
 
-import java.util.Map;
-
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Local;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
+
+import java.util.Map;
 
 public class Issue278c extends ServerFeature {
 
@@ -14,8 +14,8 @@ public class Issue278c extends ServerFeature {
   public static class Resource {
 
     @GET
-    public Object local(@Local final Map<String, Object> local) {
-      return local;
+    public Object local(@Local final Map<String, Object> locals) {
+      return locals;
     }
   }
 
