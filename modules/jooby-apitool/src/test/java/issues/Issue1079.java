@@ -2,16 +2,15 @@ package issues;
 
 import kt.App1079;
 import org.jooby.apitool.ApiParser;
+import org.jooby.apitool.ApiToolFeature;
 import org.jooby.apitool.RouteMethod;
 import org.jooby.apitool.RouteMethodAssert;
 import org.jooby.apitool.RouteParameter;
 import org.junit.Test;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
-public class Issue1079 {
+public class Issue1079 extends ApiToolFeature {
 
   @Test
   public void shouldDetectKotlinNativeType() throws Exception {
@@ -40,13 +39,5 @@ public class Issue1079 {
           });
         })
         .done();
-  }
-
-  private Path dir() {
-    Path userdir = Paths.get(System.getProperty("user.dir"));
-    if (!userdir.toString().endsWith("jooby-apitool")) {
-      userdir = userdir.resolve("modules").resolve("jooby-apitool");
-    }
-    return userdir;
   }
 }
