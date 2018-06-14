@@ -210,7 +210,6 @@ import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import static com.typesafe.config.ConfigFactory.empty;
-import com.typesafe.config.ConfigValueType;
 import static java.util.Objects.requireNonNull;
 import org.flywaydb.core.Flyway;
 import org.jooby.Env;
@@ -361,7 +360,7 @@ public class Flywaydb implements Module {
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
     Config $base = flyway(conf.getConfig("flyway"));
-    Config $flyway = Try.apply(() -> conf.getConfig(name).withFallback($base))
+    Config $flyway = Try.apply(() -> flyway(conf.getConfig(name)).withFallback($base))
         .orElse($base);
 
     Flyway flyway = new Flyway();
@@ -377,15 +376,15 @@ public class Flywaydb implements Module {
     env.serviceKey()
         .generate(Flyway.class, name, key -> binder.bind(key).toInstance(flyway));
     // commands:
-    Iterable<Command> cmds = commands($flyway);
+    Iterable<Command> cmds = commands(conf);
 
     // eager initialization
     cmds.forEach(cmd -> cmd.run(flyway));
   }
 
-  private Config flyway(Config conf) {
+  static Config flyway(Config conf) {
     Config flyway = conf.root().entrySet().stream()
-        .filter(it -> it.getValue().valueType() != ConfigValueType.OBJECT)
+        .filter(it -> isFlywayProperty(it.getKey()))
         .reduce(empty(), (seed, entry) -> seed.withValue(entry.getKey(), entry.getValue()),
             Config::withFallback);
     return flyway;
@@ -404,10 +403,7 @@ public class Flywaydb implements Module {
       if (value instanceof List) {
         value = ((List) value).stream().collect(Collectors.joining(","));
       }
-      String propertyName = prop.getKey();
-      if (isFlywayProperty(propertyName)) {
-        props.setProperty("flyway." + prop.getKey(), value.toString());
-      }
+      props.setProperty("flyway." + prop.getKey(), value.toString());
     });
     return props;
   }
@@ -428,7 +424,7 @@ public class Flywaydb implements Module {
 
   @SuppressWarnings("unchecked")
   private static Iterable<Command> commands(final Config config) {
-    Object value = config.getAnyRef("run");
+    Object value = config.getAnyRef("flyway.run");
     List<String> commands = new ArrayList<>();
     if (value instanceof List) {
       commands.addAll((List<? extends String>) value);
