@@ -369,7 +369,7 @@ public interface WebSocket extends Closeable, Registry {
   interface OnOpen1 extends OnOpen {
 
     @Override
-    default void onOpen(final Request req, final WebSocket ws) {
+    default void onOpen(final Request req, final WebSocket ws) throws Exception {
       onOpen(ws);
     }
 
