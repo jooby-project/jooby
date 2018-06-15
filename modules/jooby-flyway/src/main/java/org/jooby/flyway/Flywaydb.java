@@ -209,8 +209,6 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import static com.typesafe.config.ConfigFactory.empty;
-import static java.util.Objects.requireNonNull;
 import org.flywaydb.core.Flyway;
 import org.jooby.Env;
 import org.jooby.Jooby.Module;
@@ -223,6 +221,9 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.typesafe.config.ConfigFactory.empty;
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>flyway module</h1>
