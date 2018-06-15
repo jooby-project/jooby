@@ -499,7 +499,7 @@ public interface WebSocket extends Closeable, Registry {
      *
      * @throws Exception If something goes wrong.
      */
-    void invoke();
+    void invoke() throws InterruptedException;
   }
 
   /**
