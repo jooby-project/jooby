@@ -1,11 +1,7 @@
 package issues;
 
 import kt.App1079;
-import org.jooby.apitool.ApiParser;
-import org.jooby.apitool.ApiToolFeature;
-import org.jooby.apitool.RouteMethod;
-import org.jooby.apitool.RouteMethodAssert;
-import org.jooby.apitool.RouteParameter;
+import org.jooby.apitool.*;
 import org.junit.Test;
 
 import java.util.List;
