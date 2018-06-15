@@ -382,7 +382,7 @@ public interface WebSocket extends Closeable, Registry {
      * @param ws A web socket.
      * @throws Exception If something goes wrong while connecting.
      */
-    void onOpen(WebSocket ws);
+    void onOpen(WebSocket ws) throws Exception;
   }
 
   /**
