@@ -23,7 +23,7 @@
         <groupId>org.jetbrains.kotlin</groupId>
         <version>${kotlin.version}</version>
         <configuration>
-          <jvmTarget>${java.target.version}</jvmTarget>
+          <jvmTarget>1.8</jvmTarget>
           <args>
             <arg>-java-parameters</arg>
           </args>

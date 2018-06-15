@@ -120,7 +120,7 @@ public class Issue1100 extends ApiToolFeature {
         + "        type: \"integer\"\n"
         + "        format: \"int64\"\n"
         + "      name:\n"
-        + "        type: \"string\"\n", yaml(swagger(routes), true));
+        + "        type: \"string\"\n", yaml(swagger(routes), false));
   }
 
 }

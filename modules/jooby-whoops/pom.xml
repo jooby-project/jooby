@@ -15,48 +15,37 @@
 
   <build>
     <plugins>
-      <!-- JarJar the ASM dependency. -->
       <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>jarjar-maven-plugin</artifactId>
-        <version>${jarjar-maven-plugin.version}</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
         <executions>
           <execution>
+            <id>fat-jar</id>
+            <phase>package</phase>
             <goals>
-              <goal>jarjar</goal>
+              <goal>shade</goal>
             </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>com.mitchellbosecke:pebble</include>
+                  <include>com.coverity.security:coverity-escapers</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>com.mitchellbosecke</pattern>
+                  <shadedPattern>org.jooby.internal.whoops</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.coverity</pattern>
+                  <shadedPattern>org.jooby.internal.whoops.coverity</shadedPattern>
+                </relocation>
+              </relocations>
+              <minimizeJar>true</minimizeJar>
+            </configuration>
           </execution>
         </executions>
-        <configuration>
-          <overwrite>true</overwrite>
-          <includes>
-            <include>com.mitchellbosecke:pebble</include>
-            <include>com.coverity.security:coverity-escapers</include>
-          </includes>
-          <rules>
-            <!-- pebble -->
-            <rule>
-              <pattern>com.mitchellbosecke.*</pattern>
-              <result>org.jooby.internal.pebble.$@1</result>
-            </rule>
-            <rule>
-              <pattern>com.mitchellbosecke.**.*</pattern>
-              <result>org.jooby.internal.pebble.@1.$@2</result>
-            </rule>
-            <!-- coverity -->
-            <rule>
-              <pattern>com.coverity.*</pattern>
-              <result>org.jooby.internal.coverity.$@1</result>
-            </rule>
-            <rule>
-              <pattern>com.coverity.**.*</pattern>
-              <result>org.jooby.internal.coverity.@1.$@2</result>
-            </rule>
-            <keep>
-              <pattern>org.jooby.**</pattern>
-            </keep>
-          </rules>
-        </configuration>
       </plugin>
 
       <!-- sure-fire -->

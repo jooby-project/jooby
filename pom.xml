@@ -1998,24 +1998,7 @@
               <compilerArgs>
                 <arg>-parameters</arg>
               </compilerArgs>
-              <!-- eclipse compiler <debuglevel>lines,vars,source</debuglevel> <compilerId>eclipse</compilerId> 
-                <compilerArguments> <org.eclipse.jdt.core.compiler.codegen.methodParameters>generate</org.eclipse.jdt.core.compiler.codegen.methodParameters> 
-                <org.eclipse.jdt.core.compiler.debug.lineNumber>generate</org.eclipse.jdt.core.compiler.debug.lineNumber> 
-                <org.eclipse.jdt.core.compiler.debug.localVariable>generate</org.eclipse.jdt.core.compiler.debug.localVariable> 
-                <org.eclipse.jdt.core.compiler.debug.sourceFile>generate</org.eclipse.jdt.core.compiler.debug.sourceFile> 
-                <org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>enabled</org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode> 
-                <org.eclipse.jdt.core.compiler.codegen.unusedLocal>preserve</org.eclipse.jdt.core.compiler.codegen.unusedLocal> 
-                <org.eclipse.jdt.core.compiler.compliance>1.8</org.eclipse.jdt.core.compiler.compliance> <org.eclipse.jdt.core.compiler.source>1.8</org.eclipse.jdt.core.compiler.source> 
-                <org.eclipse.jdt.core.compiler.codegen.targetPlatform>1.8</org.eclipse.jdt.core.compiler.codegen.targetPlatform> 
-                <encoding>UTF-8</encoding> </compilerArguments> -->
             </configuration>
-            <dependencies>
-              <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-compiler-eclipse</artifactId>
-                <version>2.7</version>
-              </dependency>
-            </dependencies>
           </plugin>
 
           <plugin>
@@ -2036,6 +2019,27 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <version>${maven-surefire-plugin.version}</version>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>jdk9</id>
+      <activation>
+        <jdk>[9,)</jdk>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>${maven-compiler-plugin.version}</version>
+            <configuration>
+              <source>${java.source.version}</source>
+              <target>${java.source.version}</target>
+              <release>${java.source.version}</release>
+              <encoding>${project.build.sourceEncoding}</encoding>
+            </configuration>
           </plugin>
         </plugins>
       </build>
@@ -2120,6 +2124,13 @@
                 </goals>
               </execution>
             </executions>
+            <dependencies>
+              <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.3.0</version>
+              </dependency>
+            </dependencies>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -2979,7 +2990,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <akka.version>2.5.9</akka.version>
     <antlr4-runtime.version>4.7</antlr4-runtime.version>
     <api-console.version>3.0.17</api-console.version>
-    <asm.version>6.1.1</asm.version>
+    <asm.version>6.2</asm.version>
     <async-http-client.version>1.9.36</async-http-client.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
     <aws-java-sdk.version>1.11.273</aws-java-sdk.version>
@@ -3009,7 +3020,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <groovy.version>2.4.7</groovy.version>
     <gson.version>2.8.2</gson.version>
     <guava.version>21.0</guava.version>
-    <guice.version>4.1.0</guice.version>
+    <guice.version>4.2.0</guice.version>
     <h2.version>1.4.196</h2.version>
     <handlebars.version>4.0.7</handlebars.version>
     <hazelcast.version>3.9.2</hazelcast.version>
@@ -3061,7 +3072,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <quartz.version>2.2.2</quartz.version>
     <reactor.version>2.5.0.M3</reactor.version>
     <requery.version>1.4.0</requery.version>
-    <rest-assured.version>3.0.1</rest-assured.version>
+    <rest-assured.version>3.1.0</rest-assured.version>
     <rocker.version>0.23.0</rocker.version>
     <rxjava-jdbc.version>0.7</rxjava-jdbc.version>
     <rxjava-math.version>1.0.0</rxjava-math.version>
@@ -3112,8 +3123,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <powermock.version>1.6.4</powermock.version>
 
     <!-- Maven properties -->
-    <java.source.version>1.8</java.source.version>
-    <java.target.version>1.8</java.target.version>
+    <java.source.version>8</java.source.version>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <timestamp>${maven.build.timestamp}</timestamp>
@@ -3131,13 +3141,12 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <duplicate-finder-maven-plugin.version>1.2.1</duplicate-finder-maven-plugin.version>
     <exec-maven-plugin.version>1.3.2</exec-maven-plugin.version>
     <jacoco-maven-plugin.version>${jacoco.version}</jacoco-maven-plugin.version>
-    <jarjar-maven-plugin.version>1.9</jarjar-maven-plugin.version>
     <license-maven-plugin.version>3.0</license-maven-plugin.version>
     <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
     <maven-archetype-plugin.version>2.2</maven-archetype-plugin.version>
-    <maven-assembly-plugin.version>2.5.3</maven-assembly-plugin.version>
+    <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
     <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
-    <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
     <maven-core.version>3.3.3</maven-core.version>
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
     <maven-eclipse-plugin.version>2.9</maven-eclipse-plugin.version>
@@ -3151,11 +3160,11 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <maven-plugin-plugin.version>3.5</maven-plugin-plugin.version>
     <maven-project.version>2.2.1</maven-project.version>
     <maven-release-plugin.version>2.5.1</maven-release-plugin.version>
-    <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
-    <maven-shade-plugin.version>3.1.0</maven-shade-plugin.version>
+    <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
+    <maven-shade-plugin.version>3.1.1</maven-shade-plugin.version>
     <maven-site-plugin.version>3.4</maven-site-plugin.version>
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
-    <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
+    <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
     <mojo-executor.version>2.2.0</mojo-executor.version>
     <nexus-staging-maven-plugin.version>1.6.5</nexus-staging-maven-plugin.version>
     <plexus-utils.version>3.0.20</plexus-utils.version>

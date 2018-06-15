@@ -416,12 +416,17 @@ public class LiveReload implements Module {
         } else {
           assetsDir = basedir.resolve("public");
         }
+        register(basedir.resolve("public"),
+            "**/*.html",
+            "**/*.ftl",
+            "**/*.hbs",
+            "**/*.jade"
+            );
         register(assetsDir,
             "**/*.css",
             "**/*.scss",
             "**/*.sass",
             "**/*.less",
-            "**/*.html",
             "**/*.js",
             "**/*.coffee",
             "**/*.ts");

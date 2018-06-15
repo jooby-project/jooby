@@ -516,8 +516,9 @@ public class Assets implements Jooby.Module {
     // live compiler?
     AssetHandler handler;
     if (watch) {
+      Path publicDir = Paths.get(conf.getString("user.dir"), "public");
       Path workdir = Paths.get(conf.getString("assets.outputDir"));
-      handler = new FileSystemAssetHandler("/", workdir);
+      handler = new FileSystemAssetHandler("/", workdir, publicDir);
       LiveCompiler liveCompiler = new LiveCompiler(compiler, workdir);
 
       routes.use("*", "*", liveCompiler)

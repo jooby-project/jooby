@@ -97,6 +97,7 @@ public class AssetsTest {
   @Test
   public void configure() throws Exception {
     Config conf = ConfigFactory.empty()
+        .withValue("user.dir", ConfigValueFactory.fromAnyRef(System.getProperty("user.dir")))
         .withValue("application.path", ConfigValueFactory.fromAnyRef("/path"))
         .withValue("assets.etag", ConfigValueFactory.fromAnyRef(true))
         .withValue("assets.outputDir",
@@ -123,6 +124,7 @@ public class AssetsTest {
   @Test
   public void configureRestart() throws Exception {
     Config conf = ConfigFactory.empty()
+        .withValue("user.dir", ConfigValueFactory.fromAnyRef(System.getProperty("user.dir")))
         .withValue("application.path", ConfigValueFactory.fromAnyRef("/path"))
         .withValue("assets.etag", ConfigValueFactory.fromAnyRef(true))
         .withValue("assets.outputDir",
@@ -151,6 +153,7 @@ public class AssetsTest {
   @Test
   public void configureProdDist() throws Exception {
     Config conf = ConfigFactory.empty()
+        .withValue("user.dir", ConfigValueFactory.fromAnyRef(System.getProperty("user.dir")))
         .withValue("application.env", ConfigValueFactory.fromAnyRef("prod"))
         .withValue("assets.etag", ConfigValueFactory.fromAnyRef(true))
         .withValue("application.path", ConfigValueFactory.fromAnyRef("/"))

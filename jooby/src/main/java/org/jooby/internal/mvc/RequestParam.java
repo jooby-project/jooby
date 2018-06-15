@@ -208,7 +208,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Types;
-import org.jooby.*;
+import org.jooby.Cookie;
+import org.jooby.Err;
+import org.jooby.Mutant;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Route;
+import org.jooby.Session;
+import org.jooby.Status;
+import org.jooby.Upload;
 import org.jooby.mvc.Body;
 import org.jooby.mvc.Flash;
 import org.jooby.mvc.Header;
@@ -300,18 +308,17 @@ public class RequestParam {
      * Local
      */
     builder.put(localType, (req, rsp, chain, param) -> {
-      if (param.type.getRawType() == Map.class) {
-        return req.attributes();
-      }
       Optional local = req.ifGet(param.name);
       if (param.optional) {
         return local;
       }
       if(local.isPresent()) {
         return local.get();
-      } else {
-        throw new Err(Status.SERVER_ERROR, "Could not find required local '" + param.name + "', which was required on " + req.path());
       }
+      if (param.type.getRawType() == Map.class) {
+        return req.attributes();
+      }
+      throw new Err(Status.SERVER_ERROR, "Could not find required local '" + param.name + "', which was required on " + req.path());
     });
 
     /**
