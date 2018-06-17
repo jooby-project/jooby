@@ -10,15 +10,24 @@ import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-import org.jooby.*;
+import static org.easymock.EasyMock.anyLong;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import org.jooby.Env;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.Route.Filter;
+import org.jooby.Router;
 import org.jooby.funzy.Throwing;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.assets.AssetVars;
 import org.jooby.internal.assets.FileSystemAssetHandler;
 import org.jooby.internal.assets.LiveCompiler;
 import org.jooby.test.MockUnit;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -32,8 +41,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Assets.class, AssetCompiler.class, Multibinder.class, LiveCompiler.class,
