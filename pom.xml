@@ -1678,6 +1678,12 @@
         <scope>test</scope>
       </dependency>
 
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>${xercesImpl.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
@@ -3089,6 +3095,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <swagger.version>1.5.20</swagger.version>
     <thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
     <undertow.version>1.4.25.Final</undertow.version>
+    <xercesImpl.version></xercesImpl.version>
     <xmlgraphics-commons.version>2.1</xmlgraphics-commons.version>
     <yuicompressor.version>2.4.8</yuicompressor.version>
 

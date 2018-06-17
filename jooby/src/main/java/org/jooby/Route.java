@@ -217,6 +217,7 @@ import org.jooby.internal.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.FileNotFoundException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.time.Duration;
@@ -2295,7 +2296,7 @@ public interface Route {
      * @return Message to send.
      * @throws Throwable If something goes wrong. The exception will processed by Jooby.
      */
-    Object handle();
+    Object handle() throws FileNotFoundException;
   }
 
   /**
