@@ -203,23 +203,30 @@
  */
 package org.jooby.internal.assets;
 
+import static org.jooby.funzy.Throwing.throwingFunction;
 import org.jooby.handlers.AssetHandler;
 
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 
 public class FileSystemAssetHandler extends AssetHandler {
 
-  private final Path workdir;
+  private final List<Path> sources;
 
-  public FileSystemAssetHandler(final String pattern, final Path workdir) {
+  public FileSystemAssetHandler(final String pattern, final Path... sources) {
     super(pattern);
-    this.workdir = workdir;
+    this.sources = Arrays.asList(sources);
   }
 
   @Override protected URL resolve(String path) throws Exception {
-    Path file = workdir.resolve(path);
-    return Files.exists(file) ? file.toUri().toURL() : null;
+    return sources.stream()
+        .map(source -> source.resolve(path))
+        .filter(Files::exists)
+        .findFirst()
+        .map(throwingFunction(it -> it.toUri().toURL()))
+        .orElse(null);
   }
 }
