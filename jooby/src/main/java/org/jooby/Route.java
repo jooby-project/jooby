@@ -2367,7 +2367,7 @@ public interface Route {
      * @param rsp Response
      * @throws Throwable If something goes wrong.
      */
-    void handle(Request req, Response rsp);
+    void handle(Request req, Response rsp) throws Throwable;
   }
 
   /**
