@@ -1678,12 +1678,6 @@
         <scope>test</scope>
       </dependency>
 
-      <dependency>
-        <groupId>xerces</groupId>
-        <artifactId>xercesImpl</artifactId>
-        <version>${xercesImpl.version}</version>
-      </dependency>
-
     </dependencies>
   </dependencyManagement>
 
@@ -3007,11 +3001,15 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <camel.version>2.18.3</camel.version>
     <cglib.version>3.2.0</cglib.version>
     <closure-compiler.version>v20180204</closure-compiler.version>
-    <commons-email.version>1.4</commons-email.version>
+    <!--<commons-compress.version>1.16</commons-compress.version>--> <!-- TODO: add version pinning for transitive dependency -->
+    <commons-email.version>1.4</commons-email.version> <!-- TODO: upgrade to =< 1.5 -->
+    <!--<lucene-queryparser.version>5.5.5</lucene-queryparser.version>--> <!-- TODO: add version pinning for transitive dependency -->
+    <!--<bcprov-jdk15on.version>1.56</bcprov-jdk15on.version>--> <!-- TODO: add version pinning for transitive dependency -->
+    <!--<slf4j-ext.version>1.56</slf4j-ext.version>--> <!-- TODO: add version pinning for transitive dependency -->
     <commons-lang.version>2.6</commons-lang.version>
     <commons-lang3.version>3.4</commons-lang3.version>
     <config.version>1.3.2</config.version>
-    <consul.version>1.0.1</consul.version>
+    <consul.version>1.0.1</consul.version><?xml version="1.0" encoding="UTF-8"?>
     <crash.version>1.3.1</crash.version>
     <dse-driver.version>1.1.2</dse-driver.version>
     <ebean-agent.version>11.11.1</ebean-agent.version>
@@ -3025,7 +3023,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <funzy.version>0.1.0</funzy.version>
     <groovy.version>2.4.7</groovy.version>
     <gson.version>2.8.2</gson.version>
-    <guava.version>21.0</guava.version>
+    <guava.version>21.0</guava.version> <!-- TODO: upgrade to =< 24.1.1 -->
     <guice.version>4.2.0</guice.version>
     <h2.version>1.4.196</h2.version>
     <handlebars.version>4.0.7</handlebars.version>
@@ -3095,7 +3093,6 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <swagger.version>1.5.20</swagger.version>
     <thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
     <undertow.version>1.4.25.Final</undertow.version>
-    <xercesImpl.version></xercesImpl.version>
     <xmlgraphics-commons.version>2.1</xmlgraphics-commons.version>
     <yuicompressor.version>2.4.8</yuicompressor.version>
 
@@ -3174,7 +3171,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
     <mojo-executor.version>2.2.0</mojo-executor.version>
     <nexus-staging-maven-plugin.version>1.6.5</nexus-staging-maven-plugin.version>
-    <plexus-utils.version>3.0.20</plexus-utils.version>
+    <plexus-utils.version>3.0.20</plexus-utils.version> <!-- TODO: update to =< 3.0.24 -->
     <stork-maven-plugin.version>2.7.0</stork-maven-plugin.version>
     <versions-maven-plugin.version>2.1</versions-maven-plugin.version>
 
