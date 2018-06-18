@@ -204,6 +204,7 @@
 package org.jooby;
 
 import com.google.common.base.CaseFormat;
+import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -211,23 +212,30 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Primitives;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+import static java.util.Objects.requireNonNull;
 import org.jooby.funzy.Throwing;
 import org.jooby.handlers.AssetHandler;
-import org.jooby.internal.*;
+import org.jooby.internal.RouteImpl;
+import org.jooby.internal.RouteMatcher;
+import org.jooby.internal.RoutePattern;
+import org.jooby.internal.RouteSourceImpl;
+import org.jooby.internal.SourceProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.FileNotFoundException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Routes are a key concept in Jooby. Routes are executed in the same order they are defined.
@@ -538,9 +546,8 @@ public interface Route {
           return name;
         }
 
-        @Nonnull
         @Override
-        public Object map(@Nonnull final T value) {
+        public Object map(final T value) throws Throwable {
           return fn.apply(value);
         }
 
@@ -1584,7 +1591,6 @@ public interface Route {
      * @return Attribute's value or <code>null</code>.
      */
     @SuppressWarnings("unchecked")
-    @Nonnull
     public <T> T attr(final String name) {
       return (T) attributes.get(name);
     }
@@ -2296,7 +2302,7 @@ public interface Route {
      * @return Message to send.
      * @throws Throwable If something goes wrong. The exception will processed by Jooby.
      */
-    Object handle() throws FileNotFoundException;
+    Object handle() throws Throwable;
   }
 
   /**
