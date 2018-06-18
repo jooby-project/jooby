@@ -4,11 +4,10 @@ import apps.App1100;
 import org.jooby.apitool.ApiParser;
 import org.jooby.apitool.ApiToolFeature;
 import org.jooby.apitool.RouteMethod;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class Issue1100 extends ApiToolFeature {
 

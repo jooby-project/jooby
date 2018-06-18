@@ -14,8 +14,8 @@ public class Issue278c extends ServerFeature {
   public static class Resource {
 
     @GET
-    public Object local(@Local final Map<String, Object> local) {
-      return local;
+    public Object local(@Local final Map<String, Object> locals) {
+      return locals;
     }
   }
 
