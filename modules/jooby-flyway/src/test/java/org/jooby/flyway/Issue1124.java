@@ -1,12 +1,11 @@
 package org.jooby.flyway;
 
+import static com.google.common.collect.ImmutableMap.of;
 import com.typesafe.config.ConfigFactory;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import java.util.Map;
-
-import static com.google.common.collect.ImmutableMap.of;
-import static org.junit.Assert.assertEquals;
 
 public class Issue1124 {
 
