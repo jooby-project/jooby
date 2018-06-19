@@ -212,16 +212,7 @@ import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Route;
 import org.jooby.Router;
-import org.jooby.internal.pac4j2.Pac4jActionAdapter;
-import org.jooby.internal.pac4j2.Pac4jAuthorizer;
-import org.jooby.internal.pac4j2.Pac4jCallback;
-import org.jooby.internal.pac4j2.Pac4jClientType;
-import org.jooby.internal.pac4j2.Pac4jContext;
-import org.jooby.internal.pac4j2.Pac4jLoginForm;
-import org.jooby.internal.pac4j2.Pac4jLogout;
-import org.jooby.internal.pac4j2.Pac4jProfileManager;
-import org.jooby.internal.pac4j2.Pac4jSecurityFilter;
-import org.jooby.internal.pac4j2.Pac4jSessionStore;
+import org.jooby.internal.pac4j2.*;
 import org.jooby.scope.Providers;
 import org.jooby.scope.RequestScoped;
 import org.pac4j.core.authorization.authorizer.Authorizer;
@@ -230,26 +221,14 @@ import org.pac4j.core.client.Clients;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
-import org.pac4j.core.engine.CallbackLogic;
-import org.pac4j.core.engine.DefaultCallbackLogic;
-import org.pac4j.core.engine.DefaultLogoutLogic;
-import org.pac4j.core.engine.DefaultSecurityLogic;
-import org.pac4j.core.engine.LogoutLogic;
-import org.pac4j.core.engine.SecurityLogic;
+import org.pac4j.core.engine.*;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -432,11 +411,11 @@ import java.util.stream.Collectors;
 public class Pac4j implements Jooby.Module {
 
   private static class ClientConfig {
-    private String pattern;
+    private final String pattern;
 
-    private String authorizer;
+    private final String authorizer;
 
-    private Client client;
+    private final Client client;
 
     public ClientConfig(String pattern, String authorizer, Client client) {
       this.pattern = pattern;
@@ -663,7 +642,7 @@ public class Pac4j implements Jooby.Module {
     }, null);
   }
 
-  @Override public void configure(Env env, Config conf, Binder binder) throws Throwable {
+  @Override public void configure(Env env, Config conf, Binder binder) {
     String contextPath = conf.getString("application.path");
     String callbackPath = conf.getString("pac4j.callback.path");
 

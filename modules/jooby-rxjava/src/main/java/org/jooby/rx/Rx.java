@@ -206,18 +206,13 @@ package org.jooby.rx;
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import static java.util.Objects.requireNonNull;
 import org.jooby.Deferred;
 import org.jooby.Env;
 import org.jooby.Route;
 import org.jooby.exec.Exec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Completable;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Single;
-import rx.Subscriber;
+import rx.*;
 import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
 import rx.schedulers.Schedulers;
@@ -227,6 +222,8 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>rxjava</h1>
@@ -357,7 +354,7 @@ public class Rx extends Exec {
 
     private Deferred deferred;
 
-    private AtomicBoolean done = new AtomicBoolean(false);
+    private final AtomicBoolean done = new AtomicBoolean(false);
 
     public DeferredSubscriber(final Deferred deferred) {
       this.deferred = deferred;
@@ -366,7 +363,7 @@ public class Rx extends Exec {
     @Override
     public void onCompleted() {
       if (done.compareAndSet(false, true)) {
-        deferred.resolve((Object) null);
+        deferred.resolve(null);
       }
       deferred = null;
     }

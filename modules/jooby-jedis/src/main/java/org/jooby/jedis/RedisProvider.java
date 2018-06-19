@@ -203,13 +203,12 @@
  */
 package org.jooby.jedis;
 
-import java.net.URI;
-
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import redis.clients.jedis.JedisPool;
+
+import java.net.URI;
 
 class RedisProvider {
 
@@ -218,9 +217,9 @@ class RedisProvider {
 
   private JedisPool pool;
 
-  private URI uri;
+  private final URI uri;
 
-  private GenericObjectPoolConfig config;
+  private final GenericObjectPoolConfig config;
 
   public RedisProvider(final JedisPool pool, final URI uri, final GenericObjectPoolConfig config) {
     this.pool = pool;

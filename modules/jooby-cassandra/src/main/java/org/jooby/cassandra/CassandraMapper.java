@@ -216,14 +216,14 @@ class CassandraMapper implements Mapper<Object> {
   @SuppressWarnings({"unchecked", "rawtypes"})
   private static class DeferredHandler implements Deferred.Initializer0 {
 
-    private ListenableFuture future;
+    private final ListenableFuture future;
 
     public DeferredHandler(final ListenableFuture future) {
       this.future = future;
     }
 
     @Override
-    public void run(final Deferred deferred) throws Exception {
+    public void run(final Deferred deferred) {
       Futures.addCallback(future, new FutureCallback() {
         @Override
         public void onSuccess(final Object result) {
@@ -244,7 +244,7 @@ class CassandraMapper implements Mapper<Object> {
   }
 
   @Override
-  public Object map(final Object value) throws Throwable {
+  public Object map(final Object value) {
     if (value instanceof ListenableFuture) {
       return new Deferred(new DeferredHandler((ListenableFuture) value));
     }

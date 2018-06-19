@@ -274,7 +274,7 @@ public class Props extends AssetProcessor {
 
   @Override
   public String process(final String filename, final String source, final Config conf,
-      final ClassLoader loader) throws Exception {
+      final ClassLoader loader) {
     try {
       Env env = Env.DEFAULT.build(conf);
       List<String> delims = get("delims");

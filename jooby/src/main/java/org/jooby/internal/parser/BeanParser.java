@@ -206,16 +206,11 @@ package org.jooby.internal.parser;
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.Reflection;
 import com.google.inject.TypeLiteral;
-import org.jooby.Err;
-import org.jooby.Mutant;
-import org.jooby.Parser;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
+import org.jooby.*;
+import org.jooby.funzy.Try;
 import org.jooby.internal.ParameterNameProvider;
 import org.jooby.internal.mvc.RequestParam;
 import org.jooby.internal.parser.bean.BeanPlan;
-import org.jooby.funzy.Try;
 
 import java.util.List;
 import java.util.Map;
@@ -224,13 +219,11 @@ import java.util.function.Function;
 
 public class BeanParser implements Parser {
 
-  private Function<? super Throwable, Try.Value<? extends Object>> MISSING = x -> {
-    return x instanceof Err.Missing ? Try.success(null) : Try.failure(x);
-  };
+  private final Function<? super Throwable, Try.Value<?>> MISSING = x -> x instanceof Err.Missing ? Try.success(null) : Try.failure(x);
 
-  private Function<? super Throwable, Try.Value<? extends Object>> RETHROW = Try::failure;
+  private final Function<? super Throwable, Try.Value<? extends Object>> RETHROW = Try::failure;
 
-  private Function<? super Throwable, Try.Value<? extends Object>> recoverMissing;
+  private final Function<? super Throwable, Try.Value<? extends Object>> recoverMissing;
 
   @SuppressWarnings("rawtypes")
   private final Map<TypeLiteral, BeanPlan> forms;
@@ -293,8 +286,7 @@ public class BeanParser implements Parser {
   }
 
   private Object value(final RequestParam param, final Request req, final Response rsp,
-      final Route.Chain chain)
-      throws Throwable {
+      final Route.Chain chain) {
     return Try.apply(() -> param.value(req, rsp, chain))
         .recover(x -> recoverMissing.apply(x).get())
         .get();

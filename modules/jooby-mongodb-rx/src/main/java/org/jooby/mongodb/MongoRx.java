@@ -211,28 +211,11 @@ import com.mongodb.ReadConcern;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 import com.mongodb.async.client.MongoClientSettings;
-import com.mongodb.connection.ClusterSettings;
-import com.mongodb.connection.ClusterType;
-import com.mongodb.connection.ConnectionPoolSettings;
-import com.mongodb.connection.ServerSettings;
-import com.mongodb.connection.SocketSettings;
-import com.mongodb.connection.SslSettings;
-import com.mongodb.rx.client.AggregateObservable;
-import com.mongodb.rx.client.DistinctObservable;
-import com.mongodb.rx.client.FindObservable;
-import com.mongodb.rx.client.ListCollectionsObservable;
-import com.mongodb.rx.client.ListDatabasesObservable;
-import com.mongodb.rx.client.MapReduceObservable;
-import com.mongodb.rx.client.MongoClient;
-import com.mongodb.rx.client.MongoClients;
-import com.mongodb.rx.client.MongoCollection;
-import com.mongodb.rx.client.MongoDatabase;
-import com.mongodb.rx.client.MongoObservable;
-import com.mongodb.rx.client.ObservableAdapter;
+import com.mongodb.connection.*;
+import com.mongodb.rx.client.*;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-import static java.util.Objects.requireNonNull;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.jooby.Env;
@@ -240,7 +223,6 @@ import org.jooby.Jooby.Module;
 import org.jooby.Route;
 import org.jooby.funzy.Throwing;
 import org.jooby.funzy.Try;
-import static org.jooby.funzy.When.when;
 import org.jooby.rx.Rx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -253,6 +235,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import static java.util.Objects.requireNonNull;
+import static org.jooby.funzy.When.when;
 
 /**
  * <h1>mongodb-rx</h1>
@@ -500,7 +485,7 @@ public class MongoRx implements Module {
 
   private Optional<CodecRegistry> codecRegistry = Optional.empty();
 
-  private String db;
+  private final String db;
 
   /**
    * Creates a new {@link MongoRx} module.
@@ -806,14 +791,7 @@ public class MongoRx implements Module {
 
   @SuppressWarnings("rawtypes")
   private static Optional<ObservableAdapter> toAdapter(final Function<Observable, Observable> fn) {
-    return Optional.of(new ObservableAdapter() {
-
-      @SuppressWarnings("unchecked")
-      @Override
-      public <T> Observable<T> adapt(final Observable<T> observable) {
-        return fn.apply(observable);
-      }
-    });
+    return Optional.of(fn::apply);
   }
 
 }

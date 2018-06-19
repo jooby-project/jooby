@@ -203,19 +203,18 @@
  */
 package org.jooby.json;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.TypeLiteral;
 import org.jooby.MediaType;
 import org.jooby.MediaType.Matcher;
 import org.jooby.Parser;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.TypeLiteral;
-
 class JacksonParser implements Parser {
 
-  private ObjectMapper mapper;
+  private final ObjectMapper mapper;
 
-  private Matcher matcher;
+  private final Matcher matcher;
 
   public JacksonParser(final ObjectMapper mapper, final MediaType type) {
     this.mapper = mapper;

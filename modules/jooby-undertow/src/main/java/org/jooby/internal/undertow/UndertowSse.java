@@ -219,11 +219,11 @@ public class UndertowSse extends Sse {
 
   private static class DoneCallback implements IoCallback {
 
-    private CompletableFuture<Optional<Object>> promise;
+    private final CompletableFuture<Optional<Object>> promise;
 
-    private Consumer<Throwable> ifClose;
+    private final Consumer<Throwable> ifClose;
 
-    private Optional<Object> id;
+    private final Optional<Object> id;
 
     public DoneCallback(final CompletableFuture<Optional<Object>> promise,
       final Optional<Object> id,
@@ -246,9 +246,9 @@ public class UndertowSse extends Sse {
     }
   }
 
-  private HttpServerExchange exchange;
+  private final HttpServerExchange exchange;
 
-  public UndertowSse(final HttpServerExchange exchange) throws Exception {
+  public UndertowSse(final HttpServerExchange exchange) {
     this.exchange = exchange;
   }
 
@@ -258,7 +258,7 @@ public class UndertowSse extends Sse {
   }
 
   @Override
-  protected void handshake(final Runnable handler) throws Exception {
+  protected void handshake(final Runnable handler) {
     exchange.getResponseHeaders()
       .put(Headers.CONNECTION, "Close")
       .put(Headers.CONTENT_TYPE, "text/event-stream; charset=utf-8");

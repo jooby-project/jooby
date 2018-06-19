@@ -218,7 +218,6 @@
 package org.jooby.internal;
 
 import com.google.common.collect.ImmutableList;
-import static java.util.Objects.requireNonNull;
 import org.jooby.Mutant;
 import org.jooby.Session;
 import org.jooby.internal.parser.ParserExecutor;
@@ -229,11 +228,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static java.util.Objects.requireNonNull;
+
 public class SessionImpl implements Session {
 
   static class Builder implements Session.Builder {
 
-    private SessionImpl session;
+    private final SessionImpl session;
 
     public Builder(final ParserExecutor resolver, final boolean isNew, final String sessionId,
         final long timeout) {
@@ -283,7 +284,7 @@ public class SessionImpl implements Session {
 
   }
 
-  private ConcurrentMap<String, String> attributes = new ConcurrentHashMap<>();
+  private final ConcurrentMap<String, String> attributes = new ConcurrentHashMap<>();
 
   private String sessionId;
 
@@ -291,7 +292,7 @@ public class SessionImpl implements Session {
 
   private volatile long accessedAt;
 
-  private volatile long timeout;
+  private final long timeout;
 
   private volatile boolean isNew;
 
@@ -301,7 +302,7 @@ public class SessionImpl implements Session {
 
   private volatile boolean destroyed;
 
-  private ParserExecutor resolver;
+  private final ParserExecutor resolver;
 
   public SessionImpl(final ParserExecutor resolver, final boolean isNew, final String sessionId,
       final long timeout) {

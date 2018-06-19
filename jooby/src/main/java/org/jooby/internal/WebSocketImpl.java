@@ -206,13 +206,7 @@ package org.jooby.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import static java.util.Objects.requireNonNull;
-import org.jooby.Err;
-import org.jooby.MediaType;
-import org.jooby.Mutant;
-import org.jooby.Renderer;
-import org.jooby.Request;
-import org.jooby.WebSocket;
+import org.jooby.*;
 import org.jooby.funzy.Throwing;
 import org.jooby.funzy.Try;
 import org.jooby.internal.parser.ParserExecutor;
@@ -224,16 +218,13 @@ import javax.annotation.Nullable;
 import java.io.EOFException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
+
+import static java.util.Objects.requireNonNull;
 
 @SuppressWarnings("unchecked")
 public class WebSocketImpl implements WebSocket {
@@ -259,15 +250,15 @@ public class WebSocketImpl implements WebSocket {
 
   private Locale locale;
 
-  private String path;
+  private final String path;
 
-  private String pattern;
+  private final String pattern;
 
-  private Map<Object, String> vars;
+  private final Map<Object, String> vars;
 
-  private MediaType consumes;
+  private final MediaType consumes;
 
-  private MediaType produces;
+  private final MediaType produces;
 
   private OnOpen handler;
 
@@ -275,9 +266,7 @@ public class WebSocketImpl implements WebSocket {
 
   private OnClose closeCallback = CLOSE_NOOP;
 
-  private OnError exceptionCallback = cause -> {
-    log.error("execution of WS" + path() + " resulted in exception", cause);
-  };
+  private OnError exceptionCallback = cause -> log.error("execution of WS" + path() + " resulted in exception", cause);
 
   private NativeWebSocket ws;
 
@@ -289,7 +278,7 @@ public class WebSocketImpl implements WebSocket {
 
   private volatile boolean open;
 
-  private ConcurrentMap<String, Object> attributes = new ConcurrentHashMap<>();
+  private final ConcurrentMap<String, Object> attributes = new ConcurrentHashMap<>();
 
   public WebSocketImpl(final OnOpen handler, final String path,
       final String pattern, final Map<Object, String> vars,
@@ -348,8 +337,7 @@ public class WebSocketImpl implements WebSocket {
   }
 
   @Override
-  public void broadcast(final Object data, final SuccessCallback success, final OnError err)
-      throws Exception {
+  public void broadcast(final Object data, final SuccessCallback success, final OnError err) {
     for (WebSocket ws : sessions.getOrDefault(this.pattern, Collections.emptyList())) {
       try {
         ws.send(data, success, err);
@@ -383,7 +371,7 @@ public class WebSocketImpl implements WebSocket {
   }
 
   @Override
-  public void onMessage(final OnMessage<Mutant> callback) throws Exception {
+  public void onMessage(final OnMessage<Mutant> callback) {
     this.messageCallback = requireNonNull(callback, "Message callback required.");
   }
 
@@ -478,7 +466,7 @@ public class WebSocketImpl implements WebSocket {
   }
 
   @Override
-  public void onClose(final WebSocket.OnClose callback) throws Exception {
+  public void onClose(final WebSocket.OnClose callback) {
     this.closeCallback = requireNonNull(callback, "A callback is required.");
   }
 

@@ -245,7 +245,7 @@ import akka.actor.ActorSystem;
  */
 public class Akka implements Module {
 
-  private String name;
+  private final String name;
 
   /**
    * Creates a new {@link Akka} module.
@@ -267,9 +267,7 @@ public class Akka implements Module {
   public void configure(final Env env, final Config conf, final Binder binder) {
     ActorSystem sys = ActorSystem.create(name, conf);
 
-    env.serviceKey().generate(ActorSystem.class, name, syskey -> {
-      binder.bind(syskey).toInstance(sys);
-    });
+    env.serviceKey().generate(ActorSystem.class, name, syskey -> binder.bind(syskey).toInstance(sys));
   }
 
   @Override

@@ -741,11 +741,11 @@ public interface Route {
   @Deprecated class Group implements Props<Group> {
 
     /** List of definitions. */
-    private List<Route.Definition> routes = new ArrayList<>();
+    private final List<Route.Definition> routes = new ArrayList<>();
 
-    private String rootPattern;
+    private final String rootPattern;
 
-    private String prefix;
+    private final String prefix;
 
     private String renderer;
 
@@ -1173,8 +1173,6 @@ public interface Route {
 
   }
 
-  ;
-
   /**
    * Collection of {@link Route.Props} useful for registering/setting route options at once.
    *
@@ -1324,12 +1322,12 @@ public interface Route {
     /**
      * A route pattern.
      */
-    private RoutePattern cpattern;
+    private final RoutePattern cpattern;
 
     /**
      * The target route.
      */
-    private Filter filter;
+    private final Filter filter;
 
     /**
      * Defines the media types that the methods of a resource class or can accept. Default is:
@@ -1346,12 +1344,12 @@ public interface Route {
     /**
      * A HTTP verb or <code>*</code>.
      */
-    private String method;
+    private final String method;
 
     /**
      * A path pattern.
      */
-    private String pattern;
+    private final String pattern;
 
     private List<RoutePattern> excludes = Collections.emptyList();
 
@@ -1593,7 +1591,6 @@ public interface Route {
      * @return Attribute's value or <code>null</code>.
      */
     @SuppressWarnings("unchecked")
-    @Nonnull
     public <T> T attr(final String name) {
       return (T) attributes.get(name);
     }
@@ -1767,7 +1764,7 @@ public interface Route {
      */
     @Nonnull
     public List<String> excludes() {
-      return excludes.stream().map(r -> r.pattern()).collect(Collectors.toList());
+      return excludes.stream().map(RoutePattern::pattern).collect(Collectors.toList());
     }
 
     private boolean excludes(final String path) {
@@ -2017,7 +2014,7 @@ public interface Route {
    * @author edgar
    * @since 0.1.0
    */
-  public interface Filter {
+  interface Filter {
 
     /**
      * The <code>handle</code> method of the Filter is called by the server each time a

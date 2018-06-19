@@ -224,7 +224,7 @@ public interface AuthStore<U extends CommonProfile> {
    * @return An {@link CommonProfile}.
    * @throws Exception If restore fails.
    */
-  Optional<U> get(String id) throws Exception;
+  Optional<U> get(String id);
 
   /**
    * Call it after a successful authentication in order to store an {@link CommonProfile}. The user
@@ -233,7 +233,7 @@ public interface AuthStore<U extends CommonProfile> {
    * @param profile Profile to store.
    * @throws Exception If store fails.
    */
-  void set(U profile) throws Exception;
+  void set(U profile);
 
   /**
    * Call it on logout in order to remove an {@link CommonProfile} from the store.
@@ -241,6 +241,6 @@ public interface AuthStore<U extends CommonProfile> {
    * @param id ID of the profile to remove.
    * @throws Exception If store fails.
    */
-  Optional<U> unset(String id) throws Exception;
+  Optional<U> unset(String id);
 
 }

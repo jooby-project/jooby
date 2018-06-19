@@ -203,10 +203,10 @@
  */
 package org.jooby.test;
 
-import static java.util.Objects.requireNonNull;
-
 import org.jooby.Jooby;
 import org.junit.rules.ExternalResource;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * <p>
@@ -284,7 +284,7 @@ import org.junit.rules.ExternalResource;
  */
 public class JoobyRule extends ExternalResource {
 
-  private Jooby app;
+  private final Jooby app;
 
   /**
    * Creates a new {@link JoobyRule} to run integration tests.
@@ -296,7 +296,7 @@ public class JoobyRule extends ExternalResource {
   }
 
   @Override
-  protected void before() throws Throwable {
+  protected void before() {
     app.start("server.join=false");
   }
 

@@ -215,11 +215,8 @@ import java.util.stream.Collectors;
 
 import org.gradle.api.Project;
 import org.gradle.api.internal.ConventionTask;
-import org.gradle.api.invocation.Gradle;
-import org.gradle.api.tasks.GradleBuild;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecSpec;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 import org.jooby.funzy.Try;
@@ -268,10 +265,8 @@ public class JoobyTask extends ConventionTask {
 
     String mId = project.getName();
 
-    List<File> cp = new ArrayList<>();
-
     // conf & public
-    getClasspath().forEach(cp::add);
+    List<File> cp = new ArrayList<>(getClasspath());
 
     Main app = new Main(mId, getMainClassName(), toFiles(watchDirs),
         cp.toArray(new File[cp.size()]));
@@ -286,11 +281,7 @@ public class JoobyTask extends ConventionTask {
     String compiler = getCompiler();
     getLogger().info("compiler is {}", compiler);
     if ("on".equalsIgnoreCase(compiler)) {
-      Path[] watchDirs = getSrc().stream()
-          .filter(File::exists)
-          .map(File::toPath)
-          .collect(Collectors.toList())
-          .toArray(new Path[0]);
+      Path[] watchDirs = getSrc().stream().filter(File::exists).map(File::toPath).toArray(Path[]::new);
       getLogger().info("watching directories {}", Arrays.asList(watchDirs));
 
       connection = GradleConnector.newConnector()
@@ -304,16 +295,14 @@ public class JoobyTask extends ConventionTask {
           runTask(connection, path, "classes");
         }
       }, watchDirs);
-      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-        Try.run(() -> watcher.stop())
-          .onComplete(() -> connection.close())
-          .throwException();
-      }));
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> Try.run(watcher::stop)
+        .onComplete(() -> connection.close())
+        .throwException()));
       watcher.start();
     }
 
     String[] args = project.getGradle().getStartParameter().getProjectProperties()
-        .entrySet().stream().map(e -> e.toString()).collect(Collectors.toList())
+        .entrySet().stream().map(Object::toString).collect(Collectors.toList())
         .toArray(new String[0]);
     app.run(isBlock(), args);
   }

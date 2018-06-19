@@ -231,7 +231,7 @@ public class AssetVars implements Route.Handler {
   }
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
+  public void handle(final Request req, final Response rsp) {
     compiler.fileset().forEach(asset -> {
       /** Styles */
       List<String> css = this.styles.apply(asset);

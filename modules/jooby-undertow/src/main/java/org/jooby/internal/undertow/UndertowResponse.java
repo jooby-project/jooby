@@ -211,7 +211,6 @@ import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
-import static java.util.Objects.requireNonNull;
 import org.jooby.spi.NativeResponse;
 import org.jooby.spi.NativeWebSocket;
 import org.slf4j.LoggerFactory;
@@ -224,9 +223,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Objects.requireNonNull;
+
 public class UndertowResponse implements NativeResponse {
 
-  private HttpServerExchange exchange;
+  private final HttpServerExchange exchange;
 
   private volatile boolean endExchange = true;
 
@@ -262,24 +263,24 @@ public class UndertowResponse implements NativeResponse {
   }
 
   @Override
-  public void send(final byte[] bytes) throws Exception {
+  public void send(final byte[] bytes) {
     send(ByteBuffer.wrap(bytes));
   }
 
   @Override
-  public void send(final ByteBuffer buffer) throws Exception {
+  public void send(final ByteBuffer buffer) {
     exchange.getResponseSender().send(buffer);
   }
 
   @Override
-  public void send(final InputStream stream) throws Exception {
+  public void send(final InputStream stream) {
     endExchange = false;
     new ChunkedStream().send(Channels.newChannel(stream), exchange,
         new LogIoCallback(IoCallback.END_EXCHANGE));
   }
 
   @Override
-  public void send(final FileChannel channel) throws Exception {
+  public void send(final FileChannel channel) {
     endExchange = false;
     new ChunkedStream().send(channel, exchange, new LogIoCallback(IoCallback.END_EXCHANGE));
   }
@@ -317,9 +318,7 @@ public class UndertowResponse implements NativeResponse {
     NativeWebSocket ws = exchange.getAttachment(UndertowRequest.SOCKET);
     if (ws != null) {
       try {
-        Handlers.websocket((wsExchange, channel) -> {
-          ((UndertowWebSocket) ws).connect(channel);
-        }).handleRequest(exchange);
+        Handlers.websocket((wsExchange, channel) -> ((UndertowWebSocket) ws).connect(channel)).handleRequest(exchange);
       } catch (Exception ex) {
         LoggerFactory.getLogger(NativeResponse.class).error("Upgrade result in exception", ex);
       } finally {

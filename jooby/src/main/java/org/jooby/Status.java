@@ -606,7 +606,7 @@ public class Status {
   private final String reason;
 
   private Status(final int value, final String reason) {
-    statusMap.put(Integer.valueOf(value), this);
+    statusMap.put(value, this);
     this.value = value;
     this.reason = reason;
   }
@@ -648,7 +648,7 @@ public class Status {
    * @throws IllegalArgumentException if this enum has no constant for the specified numeric value
    */
   public static Status valueOf(final int statusCode) {
-    Integer key = Integer.valueOf(statusCode);
+    Integer key = statusCode;
     Status status = statusMap.get(key);
     return status == null? new Status(key, key.toString()) : status;
   }

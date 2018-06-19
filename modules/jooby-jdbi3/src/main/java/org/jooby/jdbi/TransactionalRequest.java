@@ -205,13 +205,13 @@ package org.jooby.jdbi;
 
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import static java.util.Objects.requireNonNull;
 import org.jdbi.v3.core.Handle;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Configure a transaction per request filter by setting the method and pattern to intercept and
@@ -226,7 +226,7 @@ public class TransactionalRequest {
 
   private Key<Handle> handleKey = Key.get(Handle.class);
 
-  private List<Class> sqlObjects = new ArrayList<>();
+  private final List<Class> sqlObjects = new ArrayList<>();
 
   Consumer<Handle> configurer;
 

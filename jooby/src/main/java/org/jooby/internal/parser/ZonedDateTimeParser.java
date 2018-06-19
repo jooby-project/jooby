@@ -204,16 +204,17 @@
 package org.jooby.internal.parser;
 
 import com.google.inject.TypeLiteral;
-import static java.util.Objects.requireNonNull;
 import org.jooby.Parser;
 
 import javax.inject.Inject;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static java.util.Objects.requireNonNull;
+
 public class ZonedDateTimeParser implements Parser {
 
-  private DateTimeFormatter formatter;
+  private final DateTimeFormatter formatter;
 
   @Inject
   public ZonedDateTimeParser(final DateTimeFormatter formatter) {

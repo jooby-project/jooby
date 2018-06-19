@@ -265,7 +265,7 @@ import com.typesafe.config.ConfigFactory;
  */
 public class CommonsEmail implements Jooby.Module {
 
-  private String name;
+  private final String name;
 
   /**
    * Creates a {@link CommonsEmail}.
@@ -288,18 +288,10 @@ public class CommonsEmail implements Jooby.Module {
     Config mail = config.getConfig(name).withFallback(config.getConfig("mail"));
 
     ServiceKey serviceKey = env.serviceKey();
-    serviceKey.generate(SimpleEmail.class, name, k -> {
-      binder.bind(k).toProvider(new SimpleEmailProvider(mail));
-    });
-    serviceKey.generate(HtmlEmail.class, name, k -> {
-      binder.bind(k).toProvider(new HtmlEmailProvider(mail));
-    });
-    serviceKey.generate(MultiPartEmail.class, name, k -> {
-      binder.bind(k).toProvider(new MultiPartEmailProvider(mail));
-    });
-    serviceKey.generate(ImageHtmlEmail.class, name, k -> {
-      binder.bind(k).toProvider(new ImageHtmlEmailProvider(mail));
-    });
+    serviceKey.generate(SimpleEmail.class, name, k -> binder.bind(k).toProvider(new SimpleEmailProvider(mail)));
+    serviceKey.generate(HtmlEmail.class, name, k -> binder.bind(k).toProvider(new HtmlEmailProvider(mail)));
+    serviceKey.generate(MultiPartEmail.class, name, k -> binder.bind(k).toProvider(new MultiPartEmailProvider(mail)));
+    serviceKey.generate(ImageHtmlEmail.class, name, k -> binder.bind(k).toProvider(new ImageHtmlEmailProvider(mail)));
   }
 
   @Override

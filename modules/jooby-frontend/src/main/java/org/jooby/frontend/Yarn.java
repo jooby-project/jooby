@@ -330,7 +330,7 @@ import java.util.stream.Collectors;
  */
 public class Yarn extends Frontend {
 
-  private String yarnVersion;
+  private final String yarnVersion;
 
   /**
    * Creates a new Yarn module.
@@ -355,7 +355,7 @@ public class Yarn extends Frontend {
             .install();
     YarnRunner yarn = factory.getYarnRunner(proxy, conf.getString("npm.registryURL"));
     return (cmd, args) -> {
-      String cmdline = cmd + " " + Arrays.asList(args).stream().collect(Collectors.joining(" "));
+      String cmdline = cmd + " " + Arrays.stream(args).collect(Collectors.joining(" "));
       yarn.execute(cmdline, env);
     };
   }

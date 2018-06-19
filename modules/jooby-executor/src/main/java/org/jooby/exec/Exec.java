@@ -364,7 +364,7 @@ public class Exec implements Module {
 
   private int priority = Thread.NORM_PRIORITY;
 
-  private Map<String, Throwing.Function4<String, Integer, Supplier<ThreadFactory>, Map<String, Object>, ExecutorService>> f =
+  private final Map<String, Throwing.Function4<String, Integer, Supplier<ThreadFactory>, Map<String, Object>, ExecutorService>> f =
       /** executor factory. */
       ImmutableMap
           .of(
@@ -377,7 +377,7 @@ public class Exec implements Module {
                 return new ForkJoinPool(n, fjwtf(name), null, asyncMode);
               });
 
-  private String namespace;
+  private final String namespace;
 
   protected Exec(final String namespace) {
     this.namespace = namespace;
@@ -459,14 +459,10 @@ public class Exec implements Module {
     services.stream()
         .filter(it -> it.getKey().equals("default"))
         .findFirst()
-        .ifPresent(e -> {
-          bind(binder, null, e.getValue());
-        });
+        .ifPresent(e -> bind(binder, null, e.getValue()));
 
     env.onStop(() -> {
-      services.forEach(exec -> Try.run(() -> exec.getValue().shutdown()).onFailure(cause -> {
-        log.error("shutdown of {} resulted in error", exec.getKey(), cause);
-      }));
+      services.forEach(exec -> Try.run(() -> exec.getValue().shutdown()).onFailure(cause -> log.error("shutdown of {} resulted in error", exec.getKey(), cause)));
       services.clear();
     });
   }
@@ -528,8 +524,7 @@ public class Exec implements Module {
     for (Entry<String, ConfigValue> executor : conf.entrySet()) {
       String name = executor.getKey();
       Object value = executor.getValue().unwrapped();
-      Map<String, Object> options = new HashMap<>();
-      options.putAll(executor(name, daemon, priority, n, value));
+      Map<String, Object> options = new HashMap<>(executor(name, daemon, priority, n, value));
       result.add(options);
     }
     return result;
@@ -556,8 +551,7 @@ public class Exec implements Module {
           Integer.parseInt(config.get("size").toString()) : n);
       options.put("daemon", config.containsKey("daemon") ?
           Boolean.parseBoolean(config.get("daemon").toString()) : daemon);
-      options.put("asyncMode", config.containsKey("asyncMode") ?
-          Boolean.parseBoolean(config.get("asyncMode").toString()) : false);
+      options.put("asyncMode", config.containsKey("asyncMode") && Boolean.parseBoolean(config.get("asyncMode").toString()));
       options.put("priority", config.containsKey("priority") ?
           Integer.parseInt(config.get("priority").toString()) : priority);
     } else {
@@ -567,15 +561,20 @@ public class Exec implements Module {
         String[] opt = option.split("=");
         String optname = opt[0].trim();
         Object optvalue;
-        if (optname.equals("daemon")) {
-          optvalue = opt.length > 1 ? Boolean.parseBoolean(opt[1].trim()) : daemon;
-        } else if (optname.equals("asyncMode")) {
-          optvalue = opt.length > 1 ? Boolean.parseBoolean(opt[1].trim()) : false;
-        } else if (optname.equals("priority")) {
-          optvalue = opt.length > 1 ? Integer.parseInt(opt[1].trim()) : priority;
-        } else {
-          optvalue = opt.length > 1 ? Integer.parseInt(opt[1].trim()) : n;
-          options.put("type", optname);
+        switch (optname) {
+          case "daemon":
+            optvalue = opt.length > 1 ? Boolean.parseBoolean(opt[1].trim()) : daemon;
+            break;
+          case "asyncMode":
+            optvalue = opt.length > 1 && Boolean.parseBoolean(opt[1].trim());
+            break;
+          case "priority":
+            optvalue = opt.length > 1 ? Integer.parseInt(opt[1].trim()) : priority;
+            break;
+          default:
+            optvalue = opt.length > 1 ? Integer.parseInt(opt[1].trim()) : n;
+            options.put("type", optname);
+            break;
         }
         options.put(optname, optvalue);
       }

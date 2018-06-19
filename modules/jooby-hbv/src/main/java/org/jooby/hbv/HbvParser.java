@@ -203,22 +203,20 @@
  */
 package org.jooby.hbv;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Set;
-import java.util.function.Predicate;
+import com.google.inject.TypeLiteral;
+import org.jooby.Parser;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
+import java.util.Set;
+import java.util.function.Predicate;
 
-import org.jooby.Parser;
-
-import com.google.inject.TypeLiteral;
+import static java.util.Objects.requireNonNull;
 
 class HbvParser implements Parser {
 
-  private Predicate<TypeLiteral<?>> predicate;
+  private final Predicate<TypeLiteral<?>> predicate;
 
   public HbvParser(final Predicate<TypeLiteral<?>> predicate) {
     this.predicate = requireNonNull(predicate, "Predicate is required.");

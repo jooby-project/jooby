@@ -213,9 +213,9 @@ import java.util.Optional;
 
 class MavenCacheResolver implements CacheResolver {
 
-  private Path repository = Paths.get(System.getProperty("user.home"), ".m2", "repository");
+  private final Path repository = Paths.get(System.getProperty("user.home"), ".m2", "repository");
 
-  private Path groupId = Paths.get("com", "github", "eirslett");
+  private final Path groupId = Paths.get("com", "github", "eirslett");
 
   @Override public File resolve(final CacheDescriptor item) {
     String version = item.getVersion()

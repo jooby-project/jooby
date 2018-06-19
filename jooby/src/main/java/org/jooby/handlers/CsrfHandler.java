@@ -203,21 +203,15 @@
  */
 package org.jooby.handlers;
 
-import static java.util.Objects.requireNonNull;
+import com.google.common.collect.ImmutableSet;
+import org.jooby.*;
 
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import org.jooby.Err;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Session;
-import org.jooby.Status;
-
-import com.google.common.collect.ImmutableSet;
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>Cross Site Request Forgery handler</h1>
@@ -272,7 +266,7 @@ public class CsrfHandler implements Route.Filter {
 
   private final Set<String> REQUIRE_ON = ImmutableSet.of("POST", "PUT", "DELETE", "PATCH");
 
-  private String name;
+  private final String name;
 
   private Function<Request, String> generator;
 

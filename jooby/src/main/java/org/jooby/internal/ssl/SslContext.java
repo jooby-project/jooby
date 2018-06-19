@@ -203,18 +203,15 @@
  */
 package org.jooby.internal.ssl;
 
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import javax.net.ssl.*;
+import javax.security.auth.x500.X500Principal;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.KeyException;
-import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -223,19 +220,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.crypto.Cipher;
-import javax.crypto.EncryptedPrivateKeyInfo;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSessionContext;
-import javax.net.ssl.TrustManagerFactory;
-import javax.security.auth.x500.X500Principal;
 
 /**
  * A secure socket protocol implementation which acts as a factory for {@link SSLEngine} and
@@ -371,7 +355,7 @@ public abstract class SslContext {
 
     CertificateFactory cf = CertificateFactory.getInstance("X.509");
     List<ByteBuffer> certs = PemReader.readCertificates(certChainFile);
-    List<Certificate> certChain = new ArrayList<Certificate>(certs.size());
+    List<Certificate> certChain = new ArrayList<>(certs.size());
 
     for (ByteBuffer buf : certs) {
       certChain.add(cf.generateCertificate(new ByteArrayInputStream(buf.array())));

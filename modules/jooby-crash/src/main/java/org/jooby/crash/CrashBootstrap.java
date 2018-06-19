@@ -232,7 +232,7 @@ class CrashBootstrap extends PluginLifeCycle {
 
   private static final Predicate<Path> ACCEPT = endsWith(".class").negate();
 
-  private List<CrashFSDriver> drivers = new ArrayList<>();
+  private final List<CrashFSDriver> drivers = new ArrayList<>();
 
   public PluginContext start(final ClassLoader loader, final Properties props,
       final Map<String, Object> attributes, final Set<CRaSHPlugin<?>> plugins) throws IOException {
@@ -280,7 +280,7 @@ class CrashBootstrap extends PluginLifeCycle {
 
   private static ExecutorService executor(final String name) {
     AtomicInteger next = new AtomicInteger(0);
-    return new ThreadPoolExecutor(0, 10, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
+    return new ThreadPoolExecutor(0, 10, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
         r -> {
           Thread thread = Executors.defaultThreadFactory().newThread(r);
           thread.setName(name + "-" + next.incrementAndGet());

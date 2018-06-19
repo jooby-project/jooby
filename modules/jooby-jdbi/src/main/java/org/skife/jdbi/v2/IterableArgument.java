@@ -203,23 +203,22 @@
  */
 package org.skife.jdbi.v2;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import org.jooby.jdbi.Jdbi;
+import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.ArgumentFactory;
+
 import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.jooby.jdbi.Jdbi;
-import org.skife.jdbi.v2.tweak.Argument;
-import org.skife.jdbi.v2.tweak.ArgumentFactory;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-
 public class IterableArgument implements Argument {
 
-  private Iterable<?> values;
+  private final Iterable<?> values;
 
-  private Foreman foreman;
+  private final Foreman foreman;
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   public IterableArgument(final Object value, final StatementContext ctx) {

@@ -203,22 +203,21 @@
  */
 package org.jooby.internal;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 import org.jooby.Err;
 import org.jooby.Parser;
 import org.jooby.Status;
 
+import java.io.OutputStream;
+
 public class EmptyBodyReference implements Parser.BodyReference {
 
   @Override
-  public byte[] bytes() throws IOException {
+  public byte[] bytes() {
     throw new Err(Status.BAD_REQUEST);
   }
 
   @Override
-  public String text() throws IOException {
+  public String text() {
     throw new Err(Status.BAD_REQUEST);
   }
 
@@ -228,7 +227,7 @@ public class EmptyBodyReference implements Parser.BodyReference {
   }
 
   @Override
-  public void writeTo(final OutputStream output) throws Exception {
+  public void writeTo(final OutputStream output) {
     throw new Err(Status.BAD_REQUEST);
   }
 

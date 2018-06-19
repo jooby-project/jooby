@@ -211,7 +211,7 @@ import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
 
 public class AuthResponse {
 
-  private Response rsp;
+  private final Response rsp;
 
   public AuthResponse(final Response rsp) {
     this.rsp = rsp;

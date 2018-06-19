@@ -203,22 +203,19 @@
  */
 package org.jooby.pebble;
 
+import com.mitchellbosecke.pebble.PebbleEngine;
+import com.mitchellbosecke.pebble.error.LoaderException;
+import com.mitchellbosecke.pebble.template.PebbleTemplate;
+import org.jooby.MediaType;
+import org.jooby.Renderer;
+import org.jooby.View;
+
 import java.io.FileNotFoundException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
-
-import org.jooby.MediaType;
-import org.jooby.Renderer;
-import org.jooby.Route;
-import org.jooby.View;
-
-import com.mitchellbosecke.pebble.PebbleEngine;
-import com.mitchellbosecke.pebble.error.LoaderException;
-import com.mitchellbosecke.pebble.template.PebbleTemplate;;
 
 class PebbleRenderer implements View.Engine {
 

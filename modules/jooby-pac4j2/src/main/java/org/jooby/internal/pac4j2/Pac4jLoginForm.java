@@ -250,7 +250,7 @@ public class Pac4jLoginForm implements Route.Handler {
       "</body>\n" +
       "</html>\n";
 
-  private String callback;
+  private final String callback;
 
   public Pac4jLoginForm(String callback) {
     this.callback = callback;
