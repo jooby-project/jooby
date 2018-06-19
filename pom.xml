@@ -1684,6 +1684,12 @@
         <version>${commons.compress.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-queryparser</artifactId>
+        <version>${lucene-queryparser.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
@@ -3009,7 +3015,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <closure-compiler.version>v20180204</closure-compiler.version>
     <commons-compress.version>1.17</commons-compress.version>
     <commons-email.version>1.4</commons-email.version> <!-- TODO: upgrade to =< 1.5 -->
-    <!--<lucene-queryparser.version>5.5.5</lucene-queryparser.version>--> <!-- TODO: add version pinning for transitive dependency -->
+    <lucene-queryparser.version>5.5.5</lucene-queryparser.version>
     <!--<bcprov-jdk15on.version>1.56</bcprov-jdk15on.version>--> <!-- TODO: add version pinning for transitive dependency -->
     <!--<slf4j-ext.version>1.56</slf4j-ext.version>--> <!-- TODO: add version pinning for transitive dependency -->
     <commons-lang.version>2.6</commons-lang.version>
