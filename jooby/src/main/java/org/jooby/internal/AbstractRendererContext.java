@@ -203,6 +203,10 @@
  */
 package org.jooby.internal;
 
+import com.google.common.base.Joiner;
+import org.jooby.*;
+import org.jooby.MediaType.Matcher;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -211,39 +215,28 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.jooby.Err;
-import org.jooby.MediaType;
-import org.jooby.MediaType.Matcher;
-import org.jooby.Renderer;
-import org.jooby.Status;
-import org.jooby.View;
-
-import com.google.common.base.Joiner;
-
 public abstract class AbstractRendererContext implements Renderer.Context {
 
-  private Locale locale;
+  private final Locale locale;
 
-  private List<Renderer> renderers;
+  private final List<Renderer> renderers;
 
   private Matcher matcher;
 
   protected final Charset charset;
 
-  private Map<String, Object> locals;
+  private final Map<String, Object> locals;
 
-  private List<MediaType> produces;
+  private final List<MediaType> produces;
 
   private boolean committed;
 
-  private int rsize;
+  private final int rsize;
 
   public AbstractRendererContext(final List<Renderer> renderers,
       final List<MediaType> produces, final Charset charset, final Locale locale,

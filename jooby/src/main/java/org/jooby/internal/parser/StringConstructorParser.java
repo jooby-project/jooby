@@ -203,12 +203,11 @@
  */
 package org.jooby.internal.parser;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
-
+import com.google.inject.TypeLiteral;
 import org.jooby.Parser;
 
-import com.google.inject.TypeLiteral;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 
 public class StringConstructorParser implements Parser {
 
@@ -217,7 +216,7 @@ public class StringConstructorParser implements Parser {
   }
 
   @Override
-  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) {
     return ctx.param(params -> {
       Constructor<?> constructor = constructor(type.getRawType());
       if (constructor == null) {

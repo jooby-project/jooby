@@ -7,12 +7,15 @@ import org.jooby.Route;
 import org.jooby.Route.Mapper;
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
+
 public class Issue384 {
 
   static class M implements Route.Mapper<Integer> {
 
+    @Nonnull
     @Override
-    public Object map(final Integer value) throws Throwable {
+    public Object map(@Nonnull final Integer value) {
       return value;
     }
 
@@ -27,9 +30,9 @@ public class Issue384 {
 
     assertTrue(new Route.Mapper<String>() {
       @Override
-      public Object map(final String value) throws Throwable {
+      public Object map(@Nonnull final String value) {
         return value;
-      };
+      }
     }.name().startsWith("issue384"));
   }
 

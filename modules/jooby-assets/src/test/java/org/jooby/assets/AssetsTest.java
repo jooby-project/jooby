@@ -23,8 +23,8 @@ import org.jooby.Route.Filter;
 import org.jooby.Router;
 import org.jooby.funzy.Throwing;
 import org.jooby.handlers.AssetHandler;
-import org.jooby.internal.assets.FileSystemAssetHandler;
 import org.jooby.internal.assets.AssetVars;
+import org.jooby.internal.assets.FileSystemAssetHandler;
 import org.jooby.internal.assets.LiveCompiler;
 import org.jooby.test.MockUnit;
 import static org.junit.Assert.assertTrue;
@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
+
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Assets.class, AssetCompiler.class, Multibinder.class, LiveCompiler.class,

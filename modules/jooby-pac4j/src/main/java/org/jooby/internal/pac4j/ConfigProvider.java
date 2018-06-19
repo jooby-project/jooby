@@ -203,19 +203,18 @@
  */
 package org.jooby.internal.pac4j;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-
 import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import java.util.Map;
+import java.util.Map.Entry;
+
 public class ConfigProvider implements Provider<Config> {
 
-  private Config config;
+  private final Config config;
 
   @SuppressWarnings("rawtypes")
   @Inject

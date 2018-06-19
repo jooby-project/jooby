@@ -374,11 +374,11 @@ import java.util.function.Consumer;
  * @since 1.2.0
  */
 public class Jdbi3 implements Jooby.Module {
-  private String name;
+  private final String name;
 
   private BiConsumer<Jdbi, Config> callback;
 
-  private List<TransactionalRequest> trx = new ArrayList<>();
+  private final List<TransactionalRequest> trx = new ArrayList<>();
 
   /**
    * Creates a new Jdbi module and connect to the given database.
@@ -437,7 +437,7 @@ public class Jdbi3 implements Jooby.Module {
     return this;
   }
 
-  @Override public void configure(Env env, Config conf, Binder binder) throws Throwable {
+  @Override public void configure(Env env, Config conf, Binder binder) {
     Key<DataSource> dskey = Key.get(DataSource.class, Names.named(name));
     DataSource dataSource = env.get(dskey)
         .orElseThrow(() -> new NoSuchElementException("DataSource missing: " + dskey));
@@ -456,12 +456,10 @@ public class Jdbi3 implements Jooby.Module {
       AtomicReference<Registry> registry = new AtomicReference<>();
       env.onStart(registry::set);
       /** Bind SQL Objects: */
-      it.sqlObjects().forEach(sqlObject -> {
-        binder.bind(sqlObject).toProvider(() -> {
-          Handle handle = registry.get().require(key);
-          return handle.attach(sqlObject);
-        });
-      });
+      it.sqlObjects().forEach(sqlObject -> binder.bind(sqlObject).toProvider(() -> {
+        Handle handle = registry.get().require(key);
+        return handle.attach(sqlObject);
+      }));
       /** Install transactional filter: */
       env.router()
           .use(it.method(), it.pattern(), new OpenHandle(jdbi, it))

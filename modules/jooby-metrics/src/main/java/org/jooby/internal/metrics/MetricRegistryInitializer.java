@@ -218,7 +218,7 @@ import java.util.Set;
 
 public class MetricRegistryInitializer {
 
-  private Set<Closeable> reporters = new HashSet<>();
+  private final Set<Closeable> reporters = new HashSet<>();
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(MetricRegistry.class);
@@ -234,7 +234,7 @@ public class MetricRegistryInitializer {
     });
   }
 
-  public void close() throws Exception {
+  public void close() {
     reporters.forEach(r -> Try.run(r::close)
         .onFailure(cause -> log.error("close of {} resulted in error", r, cause)));
   }

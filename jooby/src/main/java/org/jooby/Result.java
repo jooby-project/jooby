@@ -203,20 +203,19 @@
  */
 package org.jooby;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Utility class for HTTP responses. Usually you start with a result {@link Results builder} and
@@ -296,7 +295,7 @@ public class Result {
       Supplier<Object> provider = MediaType
           .matcher(types)
           .first(ImmutableList.copyOf(data.keySet()))
-          .map(it -> data.remove(it))
+          .map(data::remove)
           .orElseThrow(
               () -> new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(types)));
       return (T) provider.get();
@@ -319,7 +318,7 @@ public class Result {
 
   }
 
-  private static Map<String, Object> NO_HEADERS = ImmutableMap.of();
+  private static final Map<String, Object> NO_HEADERS = ImmutableMap.of();
 
   /** Response headers. */
   protected Map<String, Object> headers = NO_HEADERS;

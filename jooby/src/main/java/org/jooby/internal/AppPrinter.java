@@ -214,15 +214,15 @@ import java.util.function.Function;
 
 public class AppPrinter {
 
-  private Set<Route.Definition> routes;
+  private final Set<Route.Definition> routes;
 
-  private Set<WebSocket.Definition> sockets;
+  private final Set<WebSocket.Definition> sockets;
 
-  private String[] urls;
+  private final String[] urls;
 
-  private boolean http2;
+  private final boolean http2;
 
-  private boolean h2cleartext;
+  private final boolean h2cleartext;
 
   public AppPrinter(final Set<Route.Definition> routes,
     final Set<WebSocket.Definition> sockets,

@@ -203,36 +203,26 @@
  */
 package org.jooby.internal.netty;
 
-import java.util.Map;
-
-import org.jooby.spi.NativePushPromise;
-
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultFullHttpRequest;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.EmptyHttpHeaders;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http2.DefaultHttp2Headers;
-import io.netty.handler.codec.http2.Http2Connection;
-import io.netty.handler.codec.http2.Http2ConnectionEncoder;
-import io.netty.handler.codec.http2.Http2Headers;
-import io.netty.handler.codec.http2.HttpConversionUtil;
-import io.netty.handler.codec.http2.HttpToHttp2ConnectionHandler;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http2.*;
 import io.netty.util.AsciiString;
+import org.jooby.spi.NativePushPromise;
+
+import java.util.Map;
 
 public class NettyPush implements NativePushPromise {
 
-  private ChannelHandlerContext ctx;
+  private final ChannelHandlerContext ctx;
 
-  private Http2ConnectionEncoder encoder;
+  private final Http2ConnectionEncoder encoder;
 
-  private int streamId;
+  private final int streamId;
 
-  private String authority;
+  private final String authority;
 
-  private String scheme;
+  private final String scheme;
 
   public NettyPush(final ChannelHandlerContext ctx, final int streamId, final String authority,
       final String scheme) {

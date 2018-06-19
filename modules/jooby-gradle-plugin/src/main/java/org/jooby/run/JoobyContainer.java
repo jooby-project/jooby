@@ -219,7 +219,6 @@ package org.jooby.run;
 
 import java.net.URLClassLoader;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import com.typesafe.config.Config;
 import org.gradle.api.Project;
@@ -232,7 +231,7 @@ import org.jooby.Jooby;
  */
 public class JoobyContainer {
 
-  private JoobyProject project;
+  private final JoobyProject project;
 
   public JoobyContainer(final Project project) {
     this.project = new JoobyProject(project);

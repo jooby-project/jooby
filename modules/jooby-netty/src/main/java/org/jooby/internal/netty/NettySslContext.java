@@ -203,6 +203,14 @@
  */
 package org.jooby.internal.netty;
 
+import com.google.common.io.Closeables;
+import com.typesafe.config.Config;
+import io.netty.handler.codec.http2.Http2SecurityUtil;
+import io.netty.handler.ssl.*;
+import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
+import io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
+import io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -210,28 +218,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.security.cert.CertificateException;
 import java.util.Arrays;
-
-import com.google.common.io.Closeables;
-import com.typesafe.config.Config;
-
-import io.netty.handler.codec.http2.Http2SecurityUtil;
-import io.netty.handler.ssl.ApplicationProtocolConfig;
-import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
-import io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
-import io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
-import io.netty.handler.ssl.ApplicationProtocolNames;
-import io.netty.handler.ssl.ClientAuth;
-import io.netty.handler.ssl.OpenSsl;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
-import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 
 public class NettySslContext {
 
-  static SslContext build(final Config conf) throws IOException, CertificateException {
+  static SslContext build(final Config conf) throws IOException {
     String tmpdir = conf.getString("application.tmpdir");
     boolean http2 = conf.getBoolean("server.http2.enabled");
     File keyStoreCert = toFile(conf.getString("ssl.keystore.cert"), tmpdir);

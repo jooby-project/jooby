@@ -208,25 +208,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
-import static java.util.Objects.requireNonNull;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.function.*;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Allows to optimize, customize or apply defaults values for application services.
@@ -277,7 +266,7 @@ public interface Env extends LifeCycle {
    */
   class ConfigSource implements PropertySource {
 
-    private Config source;
+    private final Config source;
 
     public ConfigSource(final Config source) {
       this.source = source;
@@ -301,7 +290,7 @@ public interface Env extends LifeCycle {
    */
   class MapSource implements PropertySource {
 
-    private Map<String, Object> source;
+    private final Map<String, Object> source;
 
     public MapSource(final Map<String, Object> source) {
       this.source = source;
@@ -421,7 +410,7 @@ public interface Env extends LifeCycle {
               "found '" + startDelim + "' expecting '" + endDelim + "' at " + line + ":"
                   + column));
         }
-        buffer.append(text.substring(offset, start));
+        buffer.append(text, offset, start);
         String key = text.substring(start + startDelim.length(), end);
         Object value;
         try {
@@ -454,7 +443,7 @@ public interface Env extends LifeCycle {
    * @author edgar
    */
   class ServiceKey {
-    private Map<Object, Integer> instances = new HashMap<>();
+    private final Map<Object, Integer> instances = new HashMap<>();
 
     /**
      * Generate at least one named key for the provided type. If this is the first call for the
@@ -518,17 +507,17 @@ public interface Env extends LifeCycle {
     String name = config.hasPath("application.env") ? config.getString("application.env") : "dev";
     return new Env() {
 
-      private ImmutableList.Builder<Throwing.Consumer<Registry>> start = ImmutableList.builder();
+      private final ImmutableList.Builder<Throwing.Consumer<Registry>> start = ImmutableList.builder();
 
-      private ImmutableList.Builder<Throwing.Consumer<Registry>> started = ImmutableList.builder();
+      private final ImmutableList.Builder<Throwing.Consumer<Registry>> started = ImmutableList.builder();
 
-      private ImmutableList.Builder<Throwing.Consumer<Registry>> shutdown = ImmutableList.builder();
+      private final ImmutableList.Builder<Throwing.Consumer<Registry>> shutdown = ImmutableList.builder();
 
-      private Map<String, Function<String, String>> xss = new HashMap<>();
+      private final Map<String, Function<String, String>> xss = new HashMap<>();
 
-      private Map<Object, Object> globals = new HashMap<>();
+      private final Map<Object, Object> globals = new HashMap<>();
 
-      private ServiceKey key = new ServiceKey();
+      private final ServiceKey key = new ServiceKey();
 
       public <T> Env set(Key<T> key, T value) {
         globals.put(key, value);
@@ -716,8 +705,7 @@ public interface Env extends LifeCycle {
   default Function<String, String> xss(final String... xss) {
     Map<String, Function<String, String>> fn = xss();
     BinaryOperator<Function<String, String>> reduce = Function::andThen;
-    return Arrays.asList(xss)
-        .stream()
+    return Arrays.stream(xss)
         .map(fn::get)
         .filter(Objects::nonNull)
         .reduce(Function.identity(), reduce);

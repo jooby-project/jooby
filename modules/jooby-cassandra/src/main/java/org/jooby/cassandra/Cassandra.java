@@ -473,11 +473,11 @@ public class Cassandra implements Module {
 
   private BiConsumer<Cluster, Config> cc;
 
-  private String db;
+  private final String db;
 
   @SuppressWarnings("rawtypes")
 
-  private List<Class> accesors = new ArrayList<>();
+  private final List<Class> accesors = new ArrayList<>();
 
   private Supplier<Cluster.Builder> builder = Cluster::builder;
 
@@ -613,9 +613,7 @@ public class Cassandra implements Module {
     ServiceKey serviceKey = env.serviceKey();
 
     Throwing.Function3<Class, String, Object, Void> bind = (type, name, value) -> {
-      serviceKey.generate(type, name, k -> {
-        binder.bind(k).toInstance(value);
-      });
+      serviceKey.generate(type, name, k -> binder.bind(k).toInstance(value));
       return null;
     };
 

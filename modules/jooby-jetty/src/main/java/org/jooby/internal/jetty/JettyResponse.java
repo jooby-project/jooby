@@ -203,14 +203,6 @@
  */
 package org.jooby.internal.jetty;
 
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
@@ -218,6 +210,13 @@ import org.jooby.servlet.ServletServletRequest;
 import org.jooby.servlet.ServletServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 
 public class JettyResponse extends ServletServletResponse implements Callback {
 
@@ -245,7 +244,7 @@ public class JettyResponse extends ServletServletResponse implements Callback {
   }
 
   @Override
-  public void send(final InputStream stream) throws Exception {
+  public void send(final InputStream stream) {
     endRequest = false;
     startAsyncIfNeedIt();
     sender().sendContent(Channels.newChannel(stream), this);

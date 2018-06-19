@@ -214,22 +214,14 @@ import com.google.inject.Key;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
-import static java.util.Objects.requireNonNull;
-import org.jooby.Env;
-import org.jooby.Jooby;
-import org.jooby.MediaType;
-import org.jooby.Parser;
-import org.jooby.Renderer;
+import org.jooby.*;
 
 import javax.inject.Inject;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>jackson</h1>
@@ -337,7 +329,7 @@ public class Jackson implements Jooby.Module {
 
   private Consumer<ObjectMapper> configurer;
 
-  private List<Consumer<Multibinder<Module>>> modules = new ArrayList<>();
+  private final List<Consumer<Multibinder<Module>>> modules = new ArrayList<>();
 
   private boolean raw;
 

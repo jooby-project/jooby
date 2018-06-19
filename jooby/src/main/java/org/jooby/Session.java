@@ -204,7 +204,6 @@
 package org.jooby;
 
 import com.google.common.io.BaseEncoding;
-import static java.util.Objects.requireNonNull;
 
 import javax.annotation.Nonnull;
 import java.security.SecureRandom;
@@ -212,6 +211,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * <p>
@@ -318,7 +319,7 @@ public interface Session {
     private Object store;
 
     /** Session cookie. */
-    private Cookie.Definition cookie;
+    private final Cookie.Definition cookie;
 
     /** Save interval. */
     private Long saveInterval;
@@ -439,7 +440,7 @@ public interface Session {
    */
   class Mem implements Store {
 
-    private ConcurrentMap<String, Session> sessions = new ConcurrentHashMap<String, Session>();
+    private final ConcurrentMap<String, Session> sessions = new ConcurrentHashMap<>();
 
     @Override
     public void create(final Session session) {

@@ -203,35 +203,21 @@
  */
 package org.jooby.internal.quartz;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.function.BiFunction;
-
-import org.jooby.quartz.Scheduled;
-import org.quartz.CronScheduleBuilder;
-import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobKey;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.quartz.TriggerKey;
-import org.quartz.impl.JobDetailImpl;
-
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+import org.jooby.quartz.Scheduled;
+import org.quartz.*;
+import org.quartz.impl.JobDetailImpl;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class JobExpander {
 
@@ -296,10 +282,10 @@ public class JobExpander {
 
   private static JobKey jobKey(final Method method) {
     Class<?> klass = method.getDeclaringClass();
-    String classname = klass.getSimpleName();
+    StringBuilder classname = new StringBuilder(klass.getSimpleName());
     klass = klass.getDeclaringClass();
     while (klass != null) {
-      classname = klass.getSimpleName() + "$" + classname;
+      classname.insert(0, klass.getSimpleName() + "$");
       klass = klass.getDeclaringClass();
     }
     return JobKey.jobKey(classname + "." + method.getName(),

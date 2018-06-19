@@ -208,11 +208,10 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
-import static java.util.Objects.requireNonNull;
 import org.jooby.Route.Chain;
-import org.jooby.internal.SseRenderer;
 import org.jooby.funzy.Throwing;
 import org.jooby.funzy.Try;
+import org.jooby.internal.SseRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -220,16 +219,14 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h1>Server Sent Events</h1>
@@ -612,15 +609,13 @@ public abstract class Sse implements AutoCloseable {
       String path = req.path();
       rsp.send(new Deferred(deferred -> {
         try {
-          sse.handshake(req, () -> {
-            Try.run(() -> handle(req, sse))
-                .onSuccess(() -> deferred.resolve(null))
-                .onFailure(ex -> {
-                  deferred.reject(ex);
-                  Logger log = LoggerFactory.getLogger(Sse.class);
-                  log.error("execution of {} resulted in error", path, ex);
-                });
-          });
+          sse.handshake(req, () -> Try.run(() -> handle(req, sse))
+              .onSuccess(() -> deferred.resolve(null))
+              .onFailure(ex -> {
+                deferred.reject(ex);
+                Logger log = LoggerFactory.getLogger(Sse.class);
+                log.error("execution of {} resulted in error", path, ex);
+              }));
         } catch (Exception ex) {
           deferred.reject(ex);
         }
@@ -634,7 +629,7 @@ public abstract class Sse implements AutoCloseable {
      * @param sse Sse object.
      * @throws Exception If something goes wrong.
      */
-    void handle(Request req, Sse sse) throws Exception;
+    void handle(Request req, Sse sse);
   }
 
   /**
@@ -645,11 +640,11 @@ public abstract class Sse implements AutoCloseable {
    */
   public interface Handler1 extends Handler {
     @Override
-    default void handle(final Request req, final Sse sse) throws Exception {
+    default void handle(final Request req, final Sse sse) {
       handle(sse);
     }
 
-    void handle(Sse sse) throws Exception;
+    void handle(Sse sse);
   }
 
   /* package */static class KeepAlive implements Runnable {
@@ -657,9 +652,9 @@ public abstract class Sse implements AutoCloseable {
     /** The logging system. */
     private final Logger log = LoggerFactory.getLogger(Sse.class);
 
-    private Sse sse;
+    private final Sse sse;
 
-    private long retry;
+    private final long retry;
 
     public KeepAlive(final Sse sse, final long retry) {
       this.sse = sse;
@@ -709,7 +704,7 @@ public abstract class Sse implements AutoCloseable {
 
   private Map<String, Object> locals;
 
-  private AtomicReference<Throwing.Runnable> onclose = new AtomicReference<>(null);
+  private final AtomicReference<Throwing.Runnable> onclose = new AtomicReference<>(null);
 
   private Mutant lastEventId;
 
@@ -1014,7 +1009,7 @@ public abstract class Sse implements AutoCloseable {
    * Close the connection and fire an {@link #onClose(Throwing.Runnable)} event.
    */
   @Override
-  public final void close() throws Exception {
+  public final void close() {
     closeAll();
   }
 

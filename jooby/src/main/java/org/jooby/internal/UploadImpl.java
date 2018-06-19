@@ -203,24 +203,23 @@
  */
 package org.jooby.internal;
 
-import static java.util.Objects.requireNonNull;
-
-import java.io.File;
-import java.io.IOException;
-
+import com.google.inject.Injector;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Upload;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeUpload;
 
-import com.google.inject.Injector;
+import java.io.File;
+import java.io.IOException;
+
+import static java.util.Objects.requireNonNull;
 
 public class UploadImpl implements Upload {
 
-  private Injector injector;
+  private final Injector injector;
 
-  private NativeUpload upload;
+  private final NativeUpload upload;
 
   public UploadImpl(final Injector injector, final NativeUpload upload) {
     this.injector = requireNonNull(injector, "An injector is required.");

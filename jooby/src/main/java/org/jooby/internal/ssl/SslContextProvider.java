@@ -203,8 +203,12 @@
  */
 package org.jooby.internal.ssl;
 
-import static java.util.Objects.requireNonNull;
+import com.google.common.base.Throwables;
+import com.typesafe.config.Config;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -213,16 +217,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.net.ssl.SSLContext;
-
-import com.google.common.base.Throwables;
-import com.typesafe.config.Config;
+import static java.util.Objects.requireNonNull;
 
 public class SslContextProvider implements Provider<SSLContext> {
 
-  private Config conf;
+  private final Config conf;
 
   @Inject
   public SslContextProvider(final Config conf) {

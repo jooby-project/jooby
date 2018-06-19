@@ -226,7 +226,6 @@ public class PingHandler implements Handler {
         .type(MediaType.plain)
         .header("Cache-Control", "must-revalidate,no-cache,no-store")
         .send("pong");
-    ;
   }
 
 }

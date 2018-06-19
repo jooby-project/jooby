@@ -211,32 +211,14 @@ import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.funzy.Try;
 import org.jooby.internal.RouteMetadata;
-import org.jooby.mvc.CONNECT;
-import org.jooby.mvc.Consumes;
-import org.jooby.mvc.DELETE;
-import org.jooby.mvc.GET;
-import org.jooby.mvc.HEAD;
-import org.jooby.mvc.OPTIONS;
-import org.jooby.mvc.PATCH;
-import org.jooby.mvc.POST;
-import org.jooby.mvc.PUT;
-import org.jooby.mvc.Path;
-import org.jooby.mvc.Produces;
-import org.jooby.mvc.TRACE;
+import org.jooby.mvc.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -261,13 +243,11 @@ public class MvcRoutes {
       final String rpath, boolean caseSensitiveRouting, final Class<?> routeClass) {
 
     // check and fail fast
-    methods(routeClass, methods -> {
-      routes(methods, (m, a) -> {
-        if (!Modifier.isPublic(m.getModifiers())) {
-          throw new IllegalArgumentException("Not a public method: " + m);
-        }
-      });
-    });
+    methods(routeClass, methods -> routes(methods, (m, a) -> {
+      if (!Modifier.isPublic(m.getModifiers())) {
+        throw new IllegalArgumentException("Not a public method: " + m);
+      }
+    }));
 
     RequestParamProvider provider = new RequestParamProviderImpl(
         new RequestParamNameProviderImpl(classInfo));
@@ -321,7 +301,7 @@ public class MvcRoutes {
                   .line(classInfo.startAt(method) - 1)
                   .name(name);
 
-              localAttrs.forEach((n, v) -> definition.attr(n, v));
+              localAttrs.forEach(definition::attr);
               definitions.add(definition);
             }
           }

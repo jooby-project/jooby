@@ -203,14 +203,13 @@
  */
 package org.jooby.internal.parser;
 
-import static java.util.Objects.requireNonNull;
+import com.google.inject.TypeLiteral;
+import org.jooby.Parser;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import org.jooby.Parser;
-
-import com.google.inject.TypeLiteral;
+import static java.util.Objects.requireNonNull;
 
 public class StaticMethodParser implements Parser {
 
@@ -225,7 +224,7 @@ public class StaticMethodParser implements Parser {
   }
 
   @Override
-  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) {
     return ctx.param(params -> {
       Method method = method(type.getRawType());
       if (method == null) {

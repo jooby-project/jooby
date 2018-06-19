@@ -203,15 +203,15 @@
  */
 package org.jooby.internal.hbm;
 
+import org.hibernate.boot.archive.scan.spi.ScanEnvironment;
+
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
-import org.hibernate.boot.archive.scan.spi.ScanEnvironment;
-
 public class ScanEnvImpl implements ScanEnvironment {
 
-  private List<URL> packages;
+  private final List<URL> packages;
 
   public ScanEnvImpl(final List<URL> packages)  {
     this.packages = packages;

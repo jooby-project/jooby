@@ -219,8 +219,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
-import io.netty.util.ResourceLeakDetector;
-import io.netty.util.ResourceLeakDetector.Level;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
@@ -251,9 +249,9 @@ public class NettyServer implements Server {
 
   private Channel ch;
 
-  private Config conf;
+  private final Config conf;
 
-  private HttpHandler dispatcher;
+  private final HttpHandler dispatcher;
 
   private DefaultEventExecutorGroup executor;
 
@@ -296,11 +294,9 @@ public class NettyServer implements Server {
       .handler(new LoggingHandler(Server.class, LogLevel.DEBUG))
       .childHandler(new NettyPipeline(executor, dispatcher, conf, sslCtx));
 
-    configure(conf.getConfig("netty.options"), "netty.options",
-      (option, value) -> bootstrap.option(option, value));
+    configure(conf.getConfig("netty.options"), "netty.options", bootstrap::option);
 
-    configure(conf.getConfig("netty.worker.options"), "netty.worker.options",
-      (option, value) -> bootstrap.childOption(option, value));
+    configure(conf.getConfig("netty.worker.options"), "netty.worker.options", bootstrap::childOption);
 
     return bootstrap
       .bind(host(conf.getString("application.host")), port)
@@ -313,7 +309,7 @@ public class NettyServer implements Server {
   }
 
   @Override
-  public void stop() throws Exception {
+  public void stop() {
     shutdownGracefully(ImmutableList.of(bossLoop, workerLoop, executor).iterator());
   }
 

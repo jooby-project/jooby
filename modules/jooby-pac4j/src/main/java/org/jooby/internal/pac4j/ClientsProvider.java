@@ -203,21 +203,19 @@
  */
 package org.jooby.internal.pac4j;
 
-import java.util.Set;
+import com.google.common.collect.ImmutableList;
+import org.pac4j.core.client.Client;
+import org.pac4j.core.client.Clients;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
-
-import org.pac4j.core.client.Client;
-import org.pac4j.core.client.Clients;
-
-import com.google.common.collect.ImmutableList;
+import java.util.Set;
 
 @SuppressWarnings("rawtypes")
 public class ClientsProvider implements Provider<Clients> {
 
-  private Clients clients;
+  private final Clients clients;
 
   @Inject
   public ClientsProvider(@Named("auth.callback") final String callback,

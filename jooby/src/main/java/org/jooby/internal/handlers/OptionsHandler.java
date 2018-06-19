@@ -203,20 +203,15 @@
  */
 package org.jooby.internal.handlers;
 
-import static java.util.Objects.requireNonNull;
+import com.google.common.base.Joiner;
+import com.google.inject.Inject;
+import org.jooby.*;
+import org.jooby.Route.Definition;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.jooby.MediaType;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Route.Definition;
-import org.jooby.Status;
-
-import com.google.common.base.Joiner;
-import com.google.inject.Inject;
+import static java.util.Objects.requireNonNull;
 
 public class OptionsHandler implements Route.Handler {
 
@@ -224,7 +219,7 @@ public class OptionsHandler implements Route.Handler {
 
   private static final String ALLOW = "Allow";
 
-  private Set<Definition> routes;
+  private final Set<Definition> routes;
 
   @Inject
   public OptionsHandler(final Set<Route.Definition> routes) {
@@ -232,7 +227,7 @@ public class OptionsHandler implements Route.Handler {
   }
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
+  public void handle(final Request req, final Response rsp) {
     if (!rsp.header(ALLOW).isSet()) {
       Set<String> allow = new LinkedHashSet<>();
       Set<String> methods = new LinkedHashSet<>(Route.METHODS);

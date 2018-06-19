@@ -349,9 +349,7 @@ class Watcher {
       keys.remove(key);
 
       // all directories are inaccessible
-      if (keys.isEmpty()) {
-        return false;
-      }
+      return !keys.isEmpty();
     }
     return true;
   }

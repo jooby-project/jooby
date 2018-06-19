@@ -208,11 +208,14 @@ import java.util.concurrent.Callable;
 import org.jooby.Deferred;
 import org.jooby.Route;
 
+import javax.annotation.Nonnull;
+
 @SuppressWarnings("rawtypes")
 public class CallableMapper implements Route.Mapper<Callable> {
 
+  @Nonnull
   @Override
-  public Object map(final Callable callable) throws Throwable {
+  public Object map(@Nonnull final Callable callable) {
     return new Deferred(deferred -> {
       try {
         deferred.resolve(callable.call());

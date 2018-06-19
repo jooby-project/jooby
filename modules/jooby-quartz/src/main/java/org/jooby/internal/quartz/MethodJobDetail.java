@@ -203,16 +203,16 @@
  */
 package org.jooby.internal.quartz;
 
-import java.lang.reflect.Method;
-
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.PersistJobDataAfterExecution;
 import org.quartz.impl.JobDetailImpl;
 
+import java.lang.reflect.Method;
+
 @SuppressWarnings("serial")
 public class MethodJobDetail extends JobDetailImpl {
 
-  private Class<?> owner;
+  private final Class<?> owner;
 
   public MethodJobDetail(final Method method) {
     this.owner = method.getDeclaringClass();
