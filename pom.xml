@@ -3171,7 +3171,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
     <mojo-executor.version>2.2.0</mojo-executor.version>
     <nexus-staging-maven-plugin.version>1.6.5</nexus-staging-maven-plugin.version>
-    <plexus-utils.version>3.0.20</plexus-utils.version> <!-- TODO: update to =< 3.0.24 -->
+    <plexus-utils.version>3.1.0</plexus-utils.version>
     <stork-maven-plugin.version>2.7.0</stork-maven-plugin.version>
     <versions-maven-plugin.version>2.1</versions-maven-plugin.version>
 
