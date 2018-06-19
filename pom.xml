@@ -1690,6 +1690,12 @@
         <version>${lucene-queryparser.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-ext</artifactId>
+        <version>${slf4j-ext.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
@@ -3097,6 +3103,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <rxjava2.version>2.0.7</rxjava2.version>
     <servlet.version>3.1.0</servlet.version>
     <slf4j-api.version>1.7.25</slf4j-api.version>
+    <slf4j-ext.version>1.7.25</slf4j-ext.version>
     <snakeyaml.version>1.19</snakeyaml.version>
     <spymemcached.version>2.12.0</spymemcached.version>
     <swagger-parser.version>1.0.36</swagger-parser.version>
