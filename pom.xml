@@ -3087,7 +3087,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <slf4j-api.version>1.7.25</slf4j-api.version>
     <snakeyaml.version>1.19</snakeyaml.version>
     <spymemcached.version>2.12.0</spymemcached.version>
-    <swagger-parser.version>1.0.34</swagger-parser.version><!-- TODO: update to 1.3.36 -->
+    <swagger-parser.version>1.0.36</swagger-parser.version>
     <swagger-ui-themes.version>3.0.0</swagger-ui-themes.version>
     <swagger-ui.version>3.14.2</swagger-ui.version>
     <swagger.version>1.5.20</swagger.version>
