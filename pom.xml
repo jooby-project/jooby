@@ -1678,6 +1678,12 @@
         <scope>test</scope>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons.compress</artifactId>
+        <version>${commons.compress.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
@@ -3001,7 +3007,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <camel.version>2.18.3</camel.version>
     <cglib.version>3.2.0</cglib.version>
     <closure-compiler.version>v20180204</closure-compiler.version>
-    <!--<commons-compress.version>1.16</commons-compress.version>--> <!-- TODO: add version pinning for transitive dependency -->
+    <commons-compress.version>1.17</commons-compress.version>
     <commons-email.version>1.4</commons-email.version> <!-- TODO: upgrade to =< 1.5 -->
     <!--<lucene-queryparser.version>5.5.5</lucene-queryparser.version>--> <!-- TODO: add version pinning for transitive dependency -->
     <!--<bcprov-jdk15on.version>1.56</bcprov-jdk15on.version>--> <!-- TODO: add version pinning for transitive dependency -->
