@@ -1,21 +1,24 @@
 package org.jooby.aws;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-
-import org.jooby.Env;
-import org.jooby.internal.aws.AwsShutdownSupport;
-import org.jooby.test.MockUnit;
-import org.junit.Test;
-
 import com.amazonaws.AmazonWebServiceClient;
-import com.amazonaws.ClientConfiguration;
+import com.amazonaws.auth.AWSCredentialsProvider;
 import com.google.inject.Binder;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.typesafe.config.Config;
-
 import net.sf.cglib.proxy.Factory;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import org.jooby.Env;
+import org.jooby.internal.aws.AwsShutdownSupport;
+import org.jooby.internal.aws.CredentialsFactory;
+import org.jooby.test.MockUnit;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Aws.class, CredentialsFactory.class})
 public class AwsTest {
 
   @Test
@@ -31,15 +34,7 @@ public class AwsTest {
   @Test
   public void withServiceWithInterface() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, AmazonWebServiceClient.class)
-        .expect(unit -> {
-          Config config = unit.get(Config.class);
-          expect(config.hasPath("aws.s3.accessKey")).andReturn(false);
-          expect(config.hasPath("aws.s3.secretKey")).andReturn(false);
-          expect(config.hasPath("aws.s3.sessionToken")).andReturn(false);
-          expect(config.hasPath("aws.sessionToken")).andReturn(false);
-          expect(config.getString("aws.accessKey")).andReturn("accessKey");
-          expect(config.getString("aws.secretKey")).andReturn("secretKey");
-        })
+        .expect(credentialsFactory("s3"))
         .expect(unit -> {
           AmazonWebServiceClient aws = unit.get(AmazonWebServiceClient.class);
           expect(aws.getServiceName()).andReturn("s3");
@@ -70,29 +65,19 @@ public class AwsTest {
   @SuppressWarnings({"rawtypes", "unchecked" })
   @Test
   public void withServiceWithoutInterface() throws Exception {
-    AmazonWebServiceClient aws = new AmazonWebServiceClient(new ClientConfiguration()) {
-      @Override
-      public String getServiceName() {
-        return "s3";
-      }
-    };
+    class AmazonFooServiceClient {}
+
+    AmazonFooServiceClient fooService = new AmazonFooServiceClient();
+
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(unit -> {
-          Config config = unit.get(Config.class);
-          expect(config.hasPath("aws.s3.accessKey")).andReturn(false);
-          expect(config.hasPath("aws.s3.secretKey")).andReturn(false);
-          expect(config.hasPath("aws.s3.sessionToken")).andReturn(false);
-          expect(config.hasPath("aws.sessionToken")).andReturn(false);
-          expect(config.getString("aws.accessKey")).andReturn("accessKey");
-          expect(config.getString("aws.secretKey")).andReturn("secretKey");
-        })
+        .expect(credentialsFactory("foo"))
         .expect(unit -> {
           AnnotatedBindingBuilder abbAWSC = unit.mock(AnnotatedBindingBuilder.class);
-          abbAWSC.toInstance(aws);
+          abbAWSC.toInstance(fooService);
 
           Binder binder = unit.get(Binder.class);
 
-          expect(binder.bind(aws.getClass())).andReturn(abbAWSC);
+          expect(binder.bind(fooService.getClass())).andReturn(abbAWSC);
         })
         .expect(unit -> {
           Env env = unit.get(Env.class);
@@ -100,9 +85,18 @@ public class AwsTest {
         })
         .run(unit -> {
           new Aws()
-              .with(creds -> aws)
+              .with(creds -> fooService)
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         });
   }
 
+  private MockUnit.Block credentialsFactory(String serviceName) {
+    return unit -> {
+      unit.mockStatic(CredentialsFactory.class);
+
+      AWSCredentialsProvider provider = unit.mock(AWSCredentialsProvider.class);
+      unit.registerMock(AWSCredentialsProvider.class, provider);
+      expect(CredentialsFactory.create(unit.get(Config.class), serviceName)).andReturn(provider);
+    };
+  }
 }

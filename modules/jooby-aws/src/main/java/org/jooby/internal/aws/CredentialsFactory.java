@@ -203,16 +203,24 @@
  */
 package org.jooby.internal.aws;
 
-import static java.util.Objects.requireNonNull;
-
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSCredentialsProviderChain;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.BasicSessionCredentials;
-import com.google.common.base.Joiner;
+import com.amazonaws.auth.EC2ContainerCredentialsProviderWrapper;
+import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
+import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 
-public class ConfigCredentialsProvider implements AWSCredentialsProvider {
+import java.util.LinkedList;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+public class CredentialsFactory {
 
   private static final String ACCESS_KEY = "accessKey";
 
@@ -220,61 +228,43 @@ public class ConfigCredentialsProvider implements AWSCredentialsProvider {
 
   private static final String SESSION_TOKEN = "sessionToken";
 
-  private Config config;
+  public static AWSCredentialsProvider create(final Config conf, final String serviceName) {
+    LinkedList<AWSCredentialsProvider> chain = chain();
 
-  private String accessKey;
+    applicationCredentials(conf, serviceName, chain::addFirst);
 
-  private String secretKey;
-
-  private String sessionToken;
-
-  public ConfigCredentialsProvider(final Config config) {
-    this.config = requireNonNull(config, "Config is required.");
+    return new AWSCredentialsProviderChain(chain);
   }
 
-  public ConfigCredentialsProvider service(final String serviceName) {
-    // global vs service specific key
-    String accessKey = key("aws", ACCESS_KEY);
-    String secretKey = key("aws", SECRET_KEY);
-    String sessionToken = key("aws", SESSION_TOKEN);
-
-    String serviceAccessKey = key("aws", serviceName, ACCESS_KEY);
-    String serviceSecretKey = key("aws", serviceName, SECRET_KEY);
-    String serviceSessionToken = key("aws", serviceName, SESSION_TOKEN);
-
-    if (this.config.hasPath(serviceAccessKey)) {
-      accessKey = serviceAccessKey;
+  private static void applicationCredentials(Config conf, String serviceName,
+      Consumer<AWSCredentialsProvider> consumer) {
+    String accessKey = find(conf, "aws." + serviceName + "." + ACCESS_KEY, "aws." + ACCESS_KEY);
+    if (accessKey != null) {
+      String secretKey = find(conf, "aws." + serviceName + "." + SECRET_KEY, "aws." + SECRET_KEY);
+      String sessionToken = find(conf, "aws." + serviceName + "." + SESSION_TOKEN,
+          "aws." + SESSION_TOKEN);
+      AWSCredentials credentials = sessionToken == null
+          ? new BasicAWSCredentials(accessKey, secretKey)
+          : new BasicSessionCredentials(accessKey, secretKey, sessionToken);
+      consumer.accept(new AWSStaticCredentialsProvider(credentials));
     }
-    if (this.config.hasPath(serviceSecretKey)) {
-      secretKey = serviceSecretKey;
-    }
-    // override
-    this.accessKey = this.config.getString(accessKey);
-    this.secretKey = this.config.getString(secretKey);
-    // session token
-    if (this.config.hasPath(serviceSessionToken)) {
-      this.sessionToken = this.config.getString(serviceSessionToken);
-    } else if (this.config.hasPath(sessionToken)) {
-      this.sessionToken = this.config.getString(sessionToken);
-    }
-    return this;
   }
 
-  @Override
-  public AWSCredentials getCredentials() {
-    if (sessionToken != null) {
-      return new BasicSessionCredentials(accessKey, secretKey, sessionToken);
-    }
-    return new BasicAWSCredentials(accessKey, secretKey);
+  private static LinkedList<AWSCredentialsProvider> chain() {
+    LinkedList<AWSCredentialsProvider> chain = new LinkedList<>();
+    chain.add(new EnvironmentVariableCredentialsProvider());
+    chain.add(new SystemPropertiesCredentialsProvider());
+    chain.add(new ProfileCredentialsProvider());
+    chain.add(new EC2ContainerCredentialsProviderWrapper());
+    return chain;
   }
 
-  @Override
-  public void refresh() {
-    // noop
+  private static String find(Config conf, String... keys) {
+    return Stream.of(keys)
+        .filter(conf::hasPath)
+        .findFirst()
+        .map(conf::getString)
+        .map(Strings::emptyToNull)
+        .orElse(null);
   }
-
-  private String key(final String... parts) {
-    return Joiner.on(".").join(parts);
-  }
-
 }

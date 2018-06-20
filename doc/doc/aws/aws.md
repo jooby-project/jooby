@@ -2,11 +2,9 @@
 
 Small utility module that exports ```AmazonWebServiceClient``` services.
 
-It also give you access to aws credentials (access and secret keys).
-
 ## exports
 
-* One ore more ```AmazonWebServiceClient```, like ```AmazonS3Client```, ```AmazonSimpleEmailServiceClient```, etc...
+* One ore more ```amazon services```, like ```AmazonS3Client```, ```AmazonSimpleEmailServiceClient```, etc...
 
 ## dependency
 
@@ -30,8 +28,8 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 ```java
 {
   use(new Aws()
-    .with(creds -> new AmazonS3Client(creds))
-    .with(creds -> new AmazonSimpleEmailServiceClient(creds))
+    .with(creds -> AmazonS3Client.builder().withCredentials(creds).build())
+    .with(creds -> AmazonSimpleEmailServiceClient.builder.withCredentials(creds).build())
   );
 
   get("/", req -> {
@@ -49,8 +47,8 @@ This module is small and simple. All it does is bind ```AmazonWebServiceClient``
 ```java
 {
   use(new Aws()
-    .with(creds -> new AmazonS3Client(creds))
-    .doWith((AmazonS3Client s3) -> new TransferManager(s3))
+    .with(creds -> AmazonS3Client.builder().withCredentials(creds).build())
+    .doWith((AmazonS3Client s3) -> TransferManagerBuilder.standard().withS3Client(s3).build())
   );
 
   post("/", req -> {
@@ -74,10 +72,17 @@ Keys are defined in ```.conf``` file. It is possible to use global or per servic
 ```
 {
   use(new Aws()
-    .with(creds -> new AmazonS3Client(creds)) // use aws.s3 keys
-    .with(creds -> new AmazonSimpleEmailServiceClient(creds)) // use global keys
+    // use aws.s3 keys
+    .with(creds -> AmazonS3Client.builder().withCredentials(creds).build())
+    // use global keys
+    .with(creds -> AmazonSimpleEmailServiceClient.builder.withCredentials(creds).build())
   );
 ```
 
-It uses the ```AmazonWebServiceClient#getServiceName()``` method in order to find per service
-keys.
+The module also install the defaults aws credentials provider. Provider precedence is as follows:
+
+- application *.conf file (application.conf, application.prod.conf, etc...)
+- environment (EnvironmentVariableCredentialsProvider)
+- jvm system properties (SystemPropertiesCredentialsProvider)
+- aws configuration profile (ProfileCredentialsProvider)
+- ec2 (EC2ContainerCredentialsProviderWrapper)
