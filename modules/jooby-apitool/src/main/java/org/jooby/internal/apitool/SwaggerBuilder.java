@@ -412,7 +412,7 @@ public class SwaggerBuilder {
         } else if (it.kind() == RouteParameter.Kind.FORM) {
           op.setConsumes(ImmutableList.of(MediaType.form.name(), MediaType.multipart.name()));
         }
-        if (property instanceof RefProperty && it.kind() == RouteParameter.Kind.QUERY || it.kind() == RouteParameter.Kind.FORM) {
+        if (property instanceof RefProperty && (it.kind() == RouteParameter.Kind.QUERY || it.kind() == RouteParameter.Kind.FORM)) {
           return expandParameter(converter, it, it.type(), it.optional())
               .stream();
         } else {
