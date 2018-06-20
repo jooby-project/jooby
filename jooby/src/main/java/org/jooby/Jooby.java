@@ -220,6 +220,7 @@ import com.google.inject.Key;
 import com.google.inject.Provider;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
+import com.google.inject.internal.ProviderMethodsModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
@@ -3419,6 +3420,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   private static void install(final Jooby.Module module, final Env env, final Config config,
       final Binder binder) throws Throwable {
     module.configure(env, config, binder);
+    binder.install(ProviderMethodsModule.forObject(module));
   }
 
   /**

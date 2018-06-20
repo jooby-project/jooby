@@ -15,6 +15,7 @@ import com.google.inject.binder.AnnotatedConstantBindingBuilder;
 import com.google.inject.binder.ConstantBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
+import com.google.inject.internal.ProviderMethodsModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.multibindings.OptionalBinder;
 import com.google.inject.name.Named;
@@ -23,10 +24,7 @@ import com.google.inject.util.Types;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.isA;
+import org.easymock.EasyMock;
 import org.jooby.Session.Definition;
 import org.jooby.Session.Store;
 import org.jooby.internal.AppPrinter;
@@ -60,6 +58,8 @@ import org.jooby.spi.Server;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.jooby.funzy.Throwing;
+
+import static org.easymock.EasyMock.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -519,6 +519,8 @@ public class JoobyTest {
     expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
 
     Binder binder = unit.get(Binder.class);
+    binder.install(anyObject(ProviderMethodsModule.class));
+    EasyMock.expectLastCall().atLeastOnce();
     expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
     // ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
@@ -574,6 +576,7 @@ public class JoobyTest {
               expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
 
               Binder binder = unit.get(Binder.class);
+              binder.install(anyObject(ProviderMethodsModule.class));
               expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
               // ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
@@ -1059,6 +1062,7 @@ public class JoobyTest {
               expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
 
               Binder binder = unit.get(Binder.class);
+              binder.install(anyObject(ProviderMethodsModule.class));
               expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
               // ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
