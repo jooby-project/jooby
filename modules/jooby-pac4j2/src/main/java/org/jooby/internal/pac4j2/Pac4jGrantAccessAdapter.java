@@ -208,7 +208,6 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.engine.SecurityGrantedAccessAdapter;
-import org.pac4j.core.profile.ProfileManager;
 
 public class Pac4jGrantAccessAdapter implements SecurityGrantedAccessAdapter {
   private final Request req;
@@ -222,11 +221,6 @@ public class Pac4jGrantAccessAdapter implements SecurityGrantedAccessAdapter {
   }
 
   @Override public Object adapt(WebContext context, Object... parameters) throws Throwable {
-    ProfileManager pm = req.require(ProfileManager.class);
-    pm.getAll(req.ifSession().isPresent()).forEach(profile ->
-        // make profile accessible via require call
-        Pac4jClientType.profileTypes(profile.getClass(), type -> req.set(type, profile))
-    );
     chain.next(req, rsp);
     return null;
   }

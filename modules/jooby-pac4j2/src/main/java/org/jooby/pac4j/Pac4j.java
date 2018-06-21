@@ -208,10 +208,16 @@ import com.google.inject.Binder;
 import com.google.inject.TypeLiteral;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import static java.util.Objects.requireNonNull;
 import org.jooby.Env;
+import org.jooby.Err;
 import org.jooby.Jooby;
+import org.jooby.Registry;
+import org.jooby.Request;
 import org.jooby.Route;
 import org.jooby.Router;
+import org.jooby.Status;
+import org.jooby.funzy.Throwing;
 import org.jooby.internal.pac4j2.Pac4jActionAdapter;
 import org.jooby.internal.pac4j2.Pac4jAuthorizer;
 import org.jooby.internal.pac4j2.Pac4jCallback;
@@ -222,8 +228,6 @@ import org.jooby.internal.pac4j2.Pac4jLogout;
 import org.jooby.internal.pac4j2.Pac4jProfileManager;
 import org.jooby.internal.pac4j2.Pac4jSecurityFilter;
 import org.jooby.internal.pac4j2.Pac4jSessionStore;
-import org.jooby.scope.Providers;
-import org.jooby.scope.RequestScoped;
 import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
@@ -238,9 +242,11 @@ import org.pac4j.core.engine.LogoutLogic;
 import org.pac4j.core.engine.SecurityLogic;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.ProfileManager;
+import org.pac4j.core.profile.UserProfile;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 
+import javax.inject.Provider;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -250,10 +256,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -452,13 +459,21 @@ public class Pac4j implements Jooby.Module {
 
   private final org.pac4j.core.config.Config pac4j = new org.pac4j.core.config.Config();
 
-  private List<BiFunction<Config, Binder, ClientConfig>> clients = new ArrayList<>();
+  private List<Throwing.Function3<Config, Binder, AtomicReference<Registry>, ClientConfig>> clients = new ArrayList<>();
+
+  private Function<Request, UserProfile> unauthenticated;
 
   private Set<Object> profileTypes = new HashSet<>();
 
   private boolean showDevLogin;
 
   private Boolean multiProfile;
+
+  /**
+   * Creates a new Pac4j module.
+   */
+  public Pac4j() {
+  }
 
   /**
    * Configurer pa4j options, only necessary it you want to provide your own pac4j components.
@@ -608,9 +623,71 @@ public class Pac4j implements Jooby.Module {
     return clientInternal(pattern, client, authorizer);
   }
 
+  /**
+   * Set a default action which is execute when no user is logged in.
+   *
+   * <pre>{@code
+   * {
+   *   use(new Pac4j()
+   *     .unauthenticated(req -> {
+   *       UserProfile anonymous = ...
+   *       return anonymous;
+   *     })
+   *   );
+   *
+   *   get("/", () -> {
+   *     // might or might not be anonymous
+   *     UserProfile profile = require(UserProfile.class);
+   *     return ...;
+   *   }
+   * }
+   * }</pre>
+   *
+   * The default action throws a <code>403</code> error.
+   *
+   *
+   * @param provider Unauthenticated user provider.
+   * @return This module.
+   */
+  public Pac4j unauthenticated(Function<Request, UserProfile> provider) {
+    this.unauthenticated = requireNonNull(provider, "Unauthenticated provider required.");
+    return this;
+  }
+
+  /**
+   * Set a default action which is execute when no user is logged in.
+   *
+   * <pre>{@code
+   * {
+   *   use(new Pac4j()
+   *     .unauthenticated(() -> {
+   *       UserProfile anonymous = ...
+   *       return anonymous;
+   *     })
+   *   );
+   *
+   *   get("/", () -> {
+   *     // might or might not be anonymous
+   *     UserProfile profile = require(UserProfile.class);
+   *     return ...;
+   *   }
+   * }
+   * }</pre>
+   *
+   * The default action throws a <code>403</code> error.
+   *
+   *
+   * @param provider Unauthenticated user provider.
+   * @return This module.
+   */
+  public Pac4j unauthenticated(Supplier<UserProfile> provider) {
+    requireNonNull(provider, "Unauthenticated provider required.");
+    return unauthenticated(req -> provider.get());
+  }
+
   private <C extends Credentials, U extends CommonProfile> Pac4j clientInternal(String pattern,
       Function<Config, Client<C, U>> provider, Authorizer<U> authorizer) {
-    clients.add((conf, binder) -> {
+    clients.add((conf, binder, registry) -> {
       Client<C, U> client = provider.apply(conf);
       String authorizerName = null;
       if (authorizer != null) {
@@ -621,8 +698,7 @@ public class Pac4j implements Jooby.Module {
         if (profileTypes.add(profile)) {
           binder
               .bind(profile)
-              .toProvider(Providers.outOfScope(profile))
-              .in(RequestScoped.class);
+              .toProvider(profileProvider(registry, profile, unauthenticated));
         }
       });
       return new ClientConfig(pattern, authorizerName, client);
@@ -683,8 +759,9 @@ public class Pac4j implements Jooby.Module {
       // default form
       form();
     }
+    AtomicReference<Registry> registryRef = new AtomicReference<>();
     List<ClientConfig> securityRoutes = this.clients.stream()
-        .map(fn -> fn.apply(conf, binder))
+        .map(fn -> fn.apply(conf, binder, registryRef))
         .collect(Collectors.toList());
     securityRoutes.forEach(it -> clientList.add(it.client));
     clients.setClients(clientList);
@@ -769,7 +846,6 @@ public class Pac4j implements Jooby.Module {
       excludes.addAll(patterns);
       excludes.remove(pattern);
       excludes.remove("/**");
-      System.out.println(pattern + ": " + excludes);
       router.use(conf.getString("pac4j.securityFilter.method"), pattern, filter)
           .excludes(excludes)
           .name("pac4j(" + filter + ")");
@@ -791,12 +867,13 @@ public class Pac4j implements Jooby.Module {
         .name("pac4j(Logout)");
 
     /** Initialize Guice authorizers: */
-    env.onStart(registry ->
-        pac4j.getAuthorizers().values().stream()
-            .filter(Pac4jAuthorizer.class::isInstance)
-            .map(Pac4jAuthorizer.class::cast)
-            .forEach(fwd -> fwd.setRegistry(registry))
-    );
+    env.onStart(registry -> {
+      registryRef.set(registry);
+      pac4j.getAuthorizers().values().stream()
+          .filter(Pac4jAuthorizer.class::isInstance)
+          .map(Pac4jAuthorizer.class::cast)
+          .forEach(fwd -> fwd.setRegistry(registry));
+    });
 
     this.profileTypes.clear();
     this.profileTypes = null;
@@ -814,5 +891,24 @@ public class Pac4j implements Jooby.Module {
       return ((Pac4jAuthorizer) authorizer).authorizer.getSimpleName();
     }
     return authorizer.getClass().getSimpleName();
+  }
+
+  static Provider profileProvider(AtomicReference<Registry> registry, Class profile,
+      Function<Request, UserProfile> unauthenticated) {
+    return () -> {
+      Request req = registry.get().require(Request.class);
+      ProfileManager pm = req.require(ProfileManager.class);
+      Object result = pm.getAll(req.ifSession().isPresent()).stream()
+          .filter(profile::isInstance)
+          .findFirst()
+          .orElse(null);
+      if (result == null) {
+        if (unauthenticated == null) {
+          throw new Err(Status.FORBIDDEN, "Not found: " + profile.getSimpleName());
+        }
+        result = unauthenticated.apply(req);
+      }
+      return result;
+    };
   }
 }

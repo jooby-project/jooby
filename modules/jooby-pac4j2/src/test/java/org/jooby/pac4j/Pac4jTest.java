@@ -1,6 +1,7 @@
 package org.jooby.pac4j;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.inject.Binder;
 import com.google.inject.TypeLiteral;
 import com.google.inject.binder.AnnotatedBindingBuilder;
@@ -11,9 +12,12 @@ import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 import org.jooby.Env;
+import org.jooby.Err;
 import org.jooby.Registry;
+import org.jooby.Request;
 import org.jooby.Route;
 import org.jooby.Router;
+import org.jooby.Status;
 import org.jooby.funzy.Throwing;
 import org.jooby.internal.pac4j2.Pac4jActionAdapter;
 import org.jooby.internal.pac4j2.Pac4jAuthorizer;
@@ -24,7 +28,6 @@ import org.jooby.internal.pac4j2.Pac4jLogout;
 import org.jooby.internal.pac4j2.Pac4jProfileManager;
 import org.jooby.internal.pac4j2.Pac4jSecurityFilter;
 import org.jooby.internal.pac4j2.Pac4jSessionStore;
-import org.jooby.scope.RequestScoped;
 import org.jooby.test.MockUnit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -56,10 +59,13 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -109,6 +115,13 @@ public class Pac4jTest {
     expect(binder.bind(org.pac4j.core.config.Config.class)).andReturn(abb);
   };
 
+  private MockUnit.Block request = unit -> {
+    Request req = unit.registerMock(Request.class);
+
+    Registry registry = unit.get(Registry.class);
+    expect(registry.require(Request.class)).andReturn(req);
+  };
+
   @Test
   public void installPac4jModule() throws Exception {
     Config config = config("/");
@@ -133,6 +146,37 @@ public class Pac4jTest {
         .expect(setupGuiceAuthorizers())
         .run(unit -> {
           new Pac4j()
+              .configure(unit.get(Env.class), config, unit.get(Binder.class));
+        }, setupGuiceAuthorizers());
+  }
+
+  @Test
+  public void withUnauthenticatedUser() throws Exception {
+    Config config = config("/");
+    new MockUnit(Env.class, Binder.class, Router.class, WebContext.class, Registry.class)
+        .expect(newLoginFormClient())
+        .expect(newClients("http://localhost:8080/callback"))
+        .expect(pac4jConfig)
+        .expect(sessionStore(null))
+        .expect(profile(CommonProfile.class))
+        .expect(profile(UserProfile.class))
+        .expect(router)
+        .expect(setClients(FormClient.class))
+        .expect(webContext)
+        .expect(profileManager)
+        .expect(profileManagerFactory(null))
+        .expect(loginForm("/callback"))
+        .expect(callback(null, "/", "/callback", false, false))
+        .expect(securityLogic(null, "/**", null, null, false, Clients.DEFAULT_CLIENT_NAME_PARAMETER,
+            ImmutableSet.of("/callback", "/**"), FormClient.class))
+        .expect(logoutLogic(null, "/", "/.*", true, true, false))
+        .expect(guiceAuthorizers())
+        .expect(setupGuiceAuthorizers())
+        .run(unit -> {
+          new Pac4j()
+              .unauthenticated(() -> {
+                throw new Err(Status.FORBIDDEN);
+              })
               .configure(unit.get(Env.class), config, unit.get(Binder.class));
         }, setupGuiceAuthorizers());
   }
@@ -536,6 +580,73 @@ public class Pac4jTest {
   }
 
   @Test
+  public void profileProvider() throws Exception {
+    UserProfile profile = new CommonProfile();
+    new MockUnit(Registry.class)
+        .expect(request)
+        .expect(profileManager(Lists.newArrayList(profile)))
+        .run(unit -> {
+          Provider provider = Pac4j
+              .profileProvider(new AtomicReference<>(unit.get(Registry.class)), UserProfile.class,
+                  null);
+          assertEquals(profile, provider.get());
+        });
+  }
+
+  @Test(expected = Err.class)
+  public void profileProviderNotFound() throws Exception {
+    new MockUnit(Registry.class)
+        .expect(request)
+        .expect(profileManager(Collections.emptyList()))
+        .run(unit -> {
+          Provider provider = Pac4j
+              .profileProvider(new AtomicReference<>(unit.get(Registry.class)), UserProfile.class,
+                  null);
+          provider.get();
+        });
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void profileProviderNotFoundCustomException() throws Exception {
+    new MockUnit(Registry.class)
+        .expect(request)
+        .expect(profileManager(Collections.emptyList()))
+        .run(unit -> {
+          Provider provider = Pac4j
+              .profileProvider(new AtomicReference<>(unit.get(Registry.class)), UserProfile.class,
+                  req -> {
+                    throw new IllegalArgumentException();
+                  });
+          provider.get();
+        });
+  }
+
+  @Test
+  public void profileProviderDefaultProfile() throws Exception {
+    UserProfile profile = new CommonProfile();
+    new MockUnit(Registry.class)
+        .expect(request)
+        .expect(profileManager(Collections.emptyList()))
+        .run(unit -> {
+          Provider provider = Pac4j
+              .profileProvider(new AtomicReference<>(unit.get(Registry.class)), UserProfile.class,
+                  req -> profile);
+          assertEquals(profile, provider.get());
+        });
+  }
+
+  private MockUnit.Block profileManager(List<UserProfile> profiles) {
+    return unit -> {
+      ProfileManager pm = unit.registerMock(ProfileManager.class);
+      expect(pm.getAll(false)).andReturn(profiles);
+
+      Request req = unit.get(Request.class);
+      expect(req.ifSession()).andReturn(Optional.empty());
+      expect(req.require(ProfileManager.class)).andReturn(pm);
+    };
+  }
+
+  @Test
   public void shouldLoadConfig() {
     assertEquals(ConfigFactory.parseResources(Pac4j.class, "pac4j.conf"), new Pac4j().config());
   }
@@ -763,7 +874,6 @@ public class Pac4jTest {
     return unit -> {
       AnnotatedBindingBuilder abb = unit.mock(AnnotatedBindingBuilder.class);
       expect(abb.toProvider(isA(Provider.class))).andReturn(abb);
-      abb.in(RequestScoped.class);
 
       Binder binder = unit.get(Binder.class);
       expect(binder.bind(profileClass)).andReturn(abb);

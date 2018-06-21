@@ -218,6 +218,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Provider;
+import com.google.inject.ProvisionException;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
 import com.google.inject.internal.ProviderMethodsModule;
@@ -1203,7 +1204,15 @@ public class Jooby implements Router, LifeCycle, Registry {
   public <T> T require(final Key<T> type) {
     checkState(injector != null,
         "Registry is not ready. Require calls are available at application startup time, see http://jooby.org/doc/#application-life-cycle");
-    return injector.getInstance(type);
+    try {
+      return injector.getInstance(type);
+    } catch (ProvisionException x) {
+      Throwable cause = x.getCause();
+      if (cause instanceof Err) {
+        throw (Err) cause;
+      }
+      throw x;
+    }
   }
 
   @Override

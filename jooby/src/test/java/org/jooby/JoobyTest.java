@@ -8,6 +8,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.ProvisionException;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
 import com.google.inject.binder.AnnotatedBindingBuilder;
@@ -63,6 +64,7 @@ import static org.easymock.EasyMock.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -632,7 +634,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -672,7 +674,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -682,6 +684,101 @@ public class JoobyTest {
           jooby.start();
 
           assertEquals(true, jooby.isStarted());
+
+        }, boot);
+  }
+
+  @Test
+  public void requireShouldHideProvisionExceptionWhenCauseIsErr() throws Exception {
+
+    new MockUnit(Binder.class)
+        .expect(guice)
+        .expect(internalOnStart(false))
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(routes)
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(err)
+        .expect(unit -> {
+          Injector injector = unit.get(Injector.class);
+          ProvisionException x = new ProvisionException("intentional error", new Err(Status.BAD_REQUEST));
+          expect(injector.getInstance(Key.get(Object.class))).andThrow(x);
+        })
+        .run(unit -> {
+
+          Jooby jooby = new Jooby();
+
+          jooby.start();
+
+          try {
+            jooby.require(Object.class);
+            fail("Should throw Err");
+          } catch (Err x) {
+            assertEquals(400, x.statusCode());
+          }
+
+        }, boot);
+  }
+
+  @Test
+  public void requireShouldNotHideProvisionExceptionWhenCauseIsNotErr() throws Exception {
+
+    new MockUnit(Binder.class)
+        .expect(guice)
+        .expect(internalOnStart(false))
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(routes)
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(err)
+        .expect(unit -> {
+          Injector injector = unit.get(Injector.class);
+          ProvisionException x = new ProvisionException("intentional error");
+          expect(injector.getInstance(Key.get(Object.class))).andThrow(x);
+        })
+        .run(unit -> {
+
+          Jooby jooby = new Jooby();
+
+          jooby.start();
+
+          try {
+            jooby.require(Object.class);
+            fail("Should throw Err");
+          } catch (ProvisionException x) {
+          }
 
         }, boot);
   }
@@ -712,7 +809,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -777,8 +874,8 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
+        .expect(err)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -830,7 +927,6 @@ public class JoobyTest {
         .expect(tmpdir)
         .expect(err)
         .expect(internalOnStart(false))
-        .expect(executor("deferred"))
         .expect(unit -> {
           unit.get(Throwing.Runnable.class).run();
           unit.get(Throwing.Runnable.class).run();
@@ -878,7 +974,6 @@ public class JoobyTest {
         .expect(tmpdir)
         .expect(err)
         .expect(internalOnStart(false))
-        .expect(executor("deferred"))
         .expect(unit -> {
           unit.get(Throwing.Runnable.class).run();
           unit.get(Throwing.Runnable.class).run();
@@ -960,7 +1055,6 @@ public class JoobyTest {
         .expect(tmpdir)
         .expect(err)
         .expect(internalOnStart(false))
-        .expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -1028,7 +1122,6 @@ public class JoobyTest {
         .expect(tmpdir)
         .expect(internalOnStart(false))
         .expect(err)
-        .expect(executor("deferred"))
         .run(
             unit -> {
 
@@ -1117,7 +1210,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(internalOnStart(false))
         .expect(tmpdir)
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -1169,7 +1262,6 @@ public class JoobyTest {
         .expect(tmpdir)
         .expect(internalOnStart(false))
         .expect(err)
-        .expect(executor("deferred"))
         .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1245,7 +1337,6 @@ public class JoobyTest {
         .expect(tmpdir)
         .expect(err)
         .expect(internalOnStart(false))
-        .expect(executor("deferred"))
         .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1324,7 +1415,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1423,7 +1514,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1523,7 +1614,6 @@ public class JoobyTest {
         .expect(tmpdir)
         .expect(internalOnStart(false))
         .expect(err)
-        .expect(executor("deferred"))
         .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1624,7 +1714,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1723,7 +1813,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1822,7 +1912,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1922,7 +2012,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -2023,7 +2113,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -2167,7 +2257,6 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(err)
-        .expect(executor("deferred"))
         .expect(unit -> {
           Mutant ifModifiedSince = unit.mock(Mutant.class);
           expect(ifModifiedSince.toOptional(Long.class)).andReturn(Optional.empty());
@@ -2276,7 +2365,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -2404,7 +2493,6 @@ public class JoobyTest {
         .expect(tmpdir)
         .expect(err)
         .expect(internalOnStart(false))
-        .expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2474,7 +2562,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2568,7 +2656,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2647,7 +2735,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2685,7 +2773,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .expect(unit -> {
           Binder binder = unit.get(Binder.class);
           Jooby.Module module = unit.get(Jooby.Module.class);
@@ -2745,7 +2833,6 @@ public class JoobyTest {
         .expect(tmpdir)
         .expect(internalOnStart(false))
         .expect(err)
-        .expect(executor("deferred"))
         .expect(unit -> {
           AnnotatedBindingBuilder<List<Integer>> listAnnotatedBinding = unit
               .mock(AnnotatedBindingBuilder.class);
@@ -2794,7 +2881,6 @@ public class JoobyTest {
         .expect(tmpdir)
         .expect(internalOnStart(false))
         .expect(err)
-        .expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2833,7 +2919,6 @@ public class JoobyTest {
         .expect(tmpdir)
         .expect(internalOnStart(false))
         .expect(err)
-        .expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2871,7 +2956,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(internalOnStart(false))
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2924,7 +3009,6 @@ public class JoobyTest {
           expect(multibinder.addBinding()).andReturn(ehlbb);
           expect(multibinder.addBinding()).andReturn(dehlbb);
         })
-        .expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2934,23 +3018,6 @@ public class JoobyTest {
           jooby.start();
 
         }, boot);
-  }
-
-  private Block executor(final String name) {
-    return unit -> {
-      // Binder binder = unit.get(Binder.class);
-      //
-      // unit.mockStatic(OptionalBinder.class);
-      //
-      // LinkedBindingBuilder lbb = unit.mock(LinkedBindingBuilder.class);
-      // lbb.toInstance(unit.capture(ExecutorService.class));
-      //
-      // LinkedBindingBuilder lbbn = unit.mock(LinkedBindingBuilder.class);
-      // lbbn.toInstance(name);
-      //
-      // expect(binder.bind(Key.get(String.class, Names.named("deferred")))).andReturn(lbbn);
-      // expect(binder.bind(Key.get(Executor.class, Names.named(name)))).andReturn(lbb);
-    };
   }
 
 }
