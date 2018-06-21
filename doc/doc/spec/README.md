@@ -1,3 +1,0 @@
-# route spec
-
-{{spec.md}}

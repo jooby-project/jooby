@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-frontend/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-frontend)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-frontend.svg)](https://javadoc.io/doc/org.jooby/jooby-frontend/1.4.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-frontend.svg)](https://javadoc.io/doc/org.jooby/jooby-frontend/1.4.1)
 [![jooby-frontend website](https://img.shields.io/badge/jooby-frontend-brightgreen.svg)](http://jooby.org/doc/frontend)
 # frontend
 
@@ -12,7 +12,7 @@ runs <a href="https://www.npmjs.com">npm</a>, <a href="https://webpack.js.org">w
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-frontend</artifactId>
- <version>1.4.0</version>
+ <version>1.4.1</version>
 </dependency>
 ```
 

@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-scanner/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-scanner)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-scanner.svg)](https://javadoc.io/doc/org.jooby/jooby-scanner/1.4.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-scanner.svg)](https://javadoc.io/doc/org.jooby/jooby-scanner/1.4.1)
 [![jooby-scanner website](https://img.shields.io/badge/jooby-scanner-brightgreen.svg)](http://jooby.org/doc/scanner)
 # scanner
 
@@ -13,7 +13,7 @@ This module provides `class-path` scanning services for `MVC routes`, `services`
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-scanner</artifactId>
- <version>1.4.0</version>
+ <version>1.4.1</version>
 </dependency>
 ```
 

@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-less4j/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-less4j)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-less4j.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-less4j/1.4.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-less4j.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-less4j/1.4.1)
 [![jooby-assets-less4j website](https://img.shields.io/badge/jooby-assets-less4j-brightgreen.svg)](http://jooby.org/doc/assets-less4j)
 # less4j
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-less4j</artifactId>
-  <version>1.4.0</version>
+  <version>1.4.1</version>
   <scope>provided</scope>
 </dependency>
 ```

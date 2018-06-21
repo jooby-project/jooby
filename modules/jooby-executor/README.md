@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-executor/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-executor)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-executor.svg)](https://javadoc.io/doc/org.jooby/jooby-executor/1.4.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-executor.svg)](https://javadoc.io/doc/org.jooby/jooby-executor/1.4.1)
 [![jooby-executor website](https://img.shields.io/badge/jooby-executor-brightgreen.svg)](http://jooby.org/doc/executor)
 # executor
 
@@ -15,7 +15,7 @@ Manage the life cycle of {@link ExecutorService} and build async apps, schedule 
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-executor</artifactId>
- <version>1.4.0</version>
+ <version>1.4.1</version>
 </dependency>
 ```
 

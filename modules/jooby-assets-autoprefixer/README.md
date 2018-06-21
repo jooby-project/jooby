@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-autoprefixer/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-autoprefixer)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-autoprefixer.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-autoprefixer/1.4.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-autoprefixer.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-autoprefixer/1.4.1)
 [![jooby-assets-autoprefixer website](https://img.shields.io/badge/jooby-assets-autoprefixer-brightgreen.svg)](http://jooby.org/doc/assets-autoprefixer)
 # auto-prefixer
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-assets-auto-prefixer</artifactId>
- <version>1.4.0</version>
+ <version>1.4.1</version>
  <scope>provided</scope>
 </dependency>
 ```
