@@ -54,7 +54,6 @@ org.jooby.scanner
 org.jooby.scope
 org.jooby.servlet
 org.jooby.sitemap
-org.jooby.spec
 org.jooby.spi
 org.jooby.test
 org.jooby.thymeleaf

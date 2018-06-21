@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.4.0" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.4.1" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -112,10 +112,9 @@
       </div> 
       <div class="datalist-content"> 
        <p>Small utility module that exports <code class="highlighter-rouge codehilite">AmazonWebServiceClient</code> services.</p> 
-       <p>It also give you access to aws credentials (access and secret keys).</p> 
        <h3 id="aws-exports">exports</h3> 
        <ul> 
-        <li>One ore more <code class="highlighter-rouge codehilite">AmazonWebServiceClient</code>, like <code class="highlighter-rouge codehilite">AmazonS3Client</code>, <code class="highlighter-rouge codehilite">AmazonSimpleEmailServiceClient</code>, etc…</li> 
+        <li>One ore more <code class="highlighter-rouge codehilite">amazon services</code>, like <code class="highlighter-rouge codehilite">AmazonS3Client</code>, <code class="highlighter-rouge codehilite">AmazonSimpleEmailServiceClient</code>, etc…</li> 
        </ul> 
        <h3 id="aws-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
@@ -125,7 +124,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-aws<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.4.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.4.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -145,8 +144,8 @@
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Aws</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="n">creds</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">AmazonS3Client</span><span class="o">(</span><span class="n">creds</span><span class="o">))</span>
-    <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="n">creds</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">AmazonSimpleEmailServiceClient</span><span class="o">(</span><span class="n">creds</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="n">creds</span> <span class="o">-&gt;</span> <span class="n">AmazonS3Client</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">withCredentials</span><span class="o">(</span><span class="n">creds</span><span class="o">).</span><span class="na">build</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="n">creds</span> <span class="o">-&gt;</span> <span class="n">AmazonSimpleEmailServiceClient</span><span class="o">.</span><span class="na">builder</span><span class="o">.</span><span class="na">withCredentials</span><span class="o">(</span><span class="n">creds</span><span class="o">).</span><span class="na">build</span><span class="o">())</span>
   <span class="o">);</span>
 
   <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -164,8 +163,8 @@
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Aws</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="n">creds</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">AmazonS3Client</span><span class="o">(</span><span class="n">creds</span><span class="o">))</span>
-    <span class="o">.</span><span class="na">doWith</span><span class="o">((</span><span class="n">AmazonS3Client</span> <span class="n">s3</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">TransferManager</span><span class="o">(</span><span class="n">s3</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="n">creds</span> <span class="o">-&gt;</span> <span class="n">AmazonS3Client</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">withCredentials</span><span class="o">(</span><span class="n">creds</span><span class="o">).</span><span class="na">build</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">doWith</span><span class="o">((</span><span class="n">AmazonS3Client</span> <span class="n">s3</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">TransferManagerBuilder</span><span class="o">.</span><span class="na">standard</span><span class="o">().</span><span class="na">withS3Client</span><span class="o">(</span><span class="n">s3</span><span class="o">).</span><span class="na">build</span><span class="o">())</span>
   <span class="o">);</span>
 
   <span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -191,9 +190,16 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="err">use(new</span><span class="w"> </span><span class="err">Aws()</span><span class="w"> </span><span class="err">.with(creds</span><span class="w"> </span><span class="err">-&gt;</span><span class="w"> </span><span class="err">new</span><span class="w"> </span><span class="err">AmazonS3Client(creds))</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">use</span><span class="w"> </span><span class="err">aws.s3</span><span class="w"> </span><span class="err">keys</span><span class="w"> </span><span class="err">.with(creds</span><span class="w"> </span><span class="err">-&gt;</span><span class="w"> </span><span class="err">new</span><span class="w"> </span><span class="err">AmazonSimpleEmailServiceClient(creds))</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">use</span><span class="w"> </span><span class="err">global</span><span class="w"> </span><span class="err">keys</span><span class="w"> </span><span class="err">);</span><span class="w"> </span></code></pre> 
+        <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="err">use(new</span><span class="w"> </span><span class="err">Aws()</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">use</span><span class="w"> </span><span class="err">aws.s3</span><span class="w"> </span><span class="err">keys</span><span class="w"> </span><span class="err">.with(creds</span><span class="w"> </span><span class="err">-&gt;</span><span class="w"> </span><span class="err">AmazonS3Client.builder().withCredentials(creds).build())</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">use</span><span class="w"> </span><span class="err">global</span><span class="w"> </span><span class="err">keys</span><span class="w"> </span><span class="err">.with(creds</span><span class="w"> </span><span class="err">-&gt;</span><span class="w"> </span><span class="err">AmazonSimpleEmailServiceClient.builder.withCredentials(creds).build())</span><span class="w"> </span><span class="err">);</span><span class="w"> </span></code></pre> 
        </div> 
-       <p>It uses the <code class="highlighter-rouge codehilite">AmazonWebServiceClient#getServiceName()</code> method in order to find per service keys.</p> 
+       <p>The module also install the defaults aws credentials provider. Provider precedence is as follows:</p> 
+       <ul> 
+        <li>application *.conf file (application.conf, application.prod.conf, etc…)</li> 
+        <li>environment (EnvironmentVariableCredentialsProvider)</li> 
+        <li>jvm system properties (SystemPropertiesCredentialsProvider)</li> 
+        <li>aws configuration profile (ProfileCredentialsProvider)</li> 
+        <li>ec2 (EC2ContainerCredentialsProviderWrapper)</li> 
+       </ul> 
       </div> 
      </div> 
     </div> 
