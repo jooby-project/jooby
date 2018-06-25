@@ -274,7 +274,7 @@ import com.typesafe.config.Config;
  */
 public class Gzon implements Jooby.Module {
 
-  private MediaType type;
+  private final MediaType type;
 
   private BiConsumer<GsonBuilder, Config> configurer;
 
