@@ -205,7 +205,6 @@ package org.jooby.akka;
 
 import static java.util.Objects.requireNonNull;
 
-import com.sun.istack.internal.NotNull;
 import org.jooby.Env;
 import org.jooby.Jooby.Module;
 
@@ -273,7 +272,7 @@ public class Akka implements Module {
     env.serviceKey().generate(ActorSystem.class, name, syskey -> binder.bind(syskey).toInstance(sys));
   }
 
-  @NotNull
+  @Nonnull
   @Override
   public Config config() {
     return ConfigFactory.parseResources(getClass(), "akka.conf");
