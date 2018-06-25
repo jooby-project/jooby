@@ -228,7 +228,7 @@ import com.google.common.util.concurrent.ListenableFuture;
  */
 @SuppressWarnings({"rawtypes", "unchecked" })
 public class Datastore {
-  private MappingManager manager;
+  private final MappingManager manager;
 
   Datastore(final MappingManager manager) {
     this.manager = manager;

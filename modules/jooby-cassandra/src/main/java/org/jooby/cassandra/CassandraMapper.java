@@ -216,7 +216,7 @@ class CassandraMapper implements Mapper<Object> {
   @SuppressWarnings({"unchecked", "rawtypes"})
   private static class DeferredHandler implements Deferred.Initializer0 {
 
-    private ListenableFuture future;
+    private final ListenableFuture future;
 
     public DeferredHandler(final ListenableFuture future) {
       this.future = future;
