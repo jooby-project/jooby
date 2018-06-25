@@ -219,11 +219,11 @@ import com.typesafe.config.Config;
 
 public class EmailFactory {
 
-  private static interface EmailSetter {
+  private interface EmailSetter {
     void apply(String p) throws Exception;
   }
 
-  private Config mail;
+  private final Config mail;
 
   public EmailFactory(final Config mail) {
     this.mail = requireNonNull(mail, "Mail config is required.");
@@ -231,9 +231,7 @@ public class EmailFactory {
 
   public <T extends Email> T newEmail(final T email) {
     try {
-      ifset("username", p -> {
-        email.setAuthentication(mail.getString(p), mail.getString("password"));
-      });
+      ifset("username", p -> email.setAuthentication(mail.getString(p), mail.getString("password")));
 
       ifset("bcc", p -> email.setBcc(address(strList(p))));
       ifset("bounceAddress", p -> email.setBounceAddress(mail.getString(p)));
