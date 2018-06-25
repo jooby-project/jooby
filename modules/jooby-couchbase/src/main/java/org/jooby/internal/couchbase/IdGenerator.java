@@ -217,10 +217,10 @@ import java.util.function.Supplier;
 @SuppressWarnings("rawtypes")
 public final class IdGenerator {
 
-  private static LoadingCache<Class, Field> CACHE = CacheBuilder.newBuilder()
+  private static final LoadingCache<Class, Field> CACHE = CacheBuilder.newBuilder()
       .build(new CacheLoader<Class, Field>() {
         @Override
-        public Field load(final Class key) throws Exception {
+        public Field load(final Class key) {
           if (key == Object.class) {
             throw new IllegalArgumentException("Entity class: " + key.getName()
                 + " must have an 'id' field or a field annotated with @" + Id.class.getName());
@@ -267,10 +267,9 @@ public final class IdGenerator {
   }
 
   private static Field field(final Object bean) {
-    Field id = Try.apply(() -> CACHE.getUnchecked(bean.getClass()))
+    return Try.apply(() -> CACHE.getUnchecked(bean.getClass()))
         .unwrap(UncheckedExecutionException.class)
         .get();
-    return id;
   }
 
   private static Object getId(final Object bean, final Field id) {
