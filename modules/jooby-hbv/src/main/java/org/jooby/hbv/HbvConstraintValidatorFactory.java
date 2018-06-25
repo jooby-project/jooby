@@ -221,7 +221,7 @@ class HbvConstraintValidatorFactory implements ConstraintValidatorFactory {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private Injector injector;
+  private final Injector injector;
 
   public HbvConstraintValidatorFactory(final Injector injector) {
     this.injector = requireNonNull(injector, "Injector is required.");
