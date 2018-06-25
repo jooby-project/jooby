@@ -500,7 +500,7 @@ public class MongoRx implements Module {
 
   private Optional<CodecRegistry> codecRegistry = Optional.empty();
 
-  private String db;
+  private final String db;
 
   /**
    * Creates a new {@link MongoRx} module.
@@ -806,14 +806,7 @@ public class MongoRx implements Module {
 
   @SuppressWarnings("rawtypes")
   private static Optional<ObservableAdapter> toAdapter(final Function<Observable, Observable> fn) {
-    return Optional.of(new ObservableAdapter() {
-
-      @SuppressWarnings("unchecked")
-      @Override
-      public <T> Observable<T> adapt(final Observable<T> observable) {
-        return fn.apply(observable);
-      }
-    });
+    return Optional.of(fn::apply);
   }
 
 }
