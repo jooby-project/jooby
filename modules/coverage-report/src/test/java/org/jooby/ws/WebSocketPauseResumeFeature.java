@@ -1,6 +1,16 @@
 package org.jooby.ws;
 
+import com.google.common.collect.Sets;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.ws.WebSocket;
+import com.ning.http.client.ws.WebSocketTextListener;
+import com.ning.http.client.ws.WebSocketUpgradeHandler;
+import org.jooby.test.ServerFeature;
+import org.junit.After;
 import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,40 +19,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.jooby.test.ServerFeature;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.common.collect.Sets;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.ws.WebSocket;
-import com.ning.http.client.ws.WebSocketTextListener;
-import com.ning.http.client.ws.WebSocketUpgradeHandler;
-
 public class WebSocketPauseResumeFeature extends ServerFeature {
 
   static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
   {
     ws("/ws", ws -> {
-      CountDownLatch latch = new CountDownLatch(1);
-
       ws.pause();
       // 2nd ignored
       ws.pause();
 
-      executor.schedule(() -> {
-        ws.resume();
-        // 2nd call ignored
-        ws.resume();
-        latch.countDown();
-      }, 1, TimeUnit.SECONDS);
+      ws.resume();
+      // 2nd call ignored
+      ws.resume();
 
       ws.onMessage(message -> {
 
         ws.send("=" + message.value(), () -> {
-          latch.await();
           ws.close();
         });
 
