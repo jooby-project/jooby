@@ -209,6 +209,7 @@ import org.jooby.spi.NativeUpload;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -227,8 +228,8 @@ public class NettyUpload implements NativeUpload {
   }
 
   @Override
-  public void close() {
-    file().delete();
+  public void close() throws IOException {
+    Files.deleteIfExists(file.toPath());
     data.delete();
   }
 

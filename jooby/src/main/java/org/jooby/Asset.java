@@ -323,6 +323,7 @@ public interface Asset {
     b.append("W/\"");
 
     BaseEncoding b64 = BaseEncoding.base64();
+    // TODO: are we affected here? Think so: http://michaelscharf.blogspot.com/2006/11/javaneturlequals-and-hashcode-make.html
     int lhash = resource().hashCode();
 
     b.append(b64.encode(Longs.toByteArray(lastModified() ^ lhash)));

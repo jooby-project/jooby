@@ -242,7 +242,7 @@ public class BodyReferenceImpl implements Parser.BodyReference {
     if (bytes == null) {
       return Files.readAllBytes(file.toPath());
     } else {
-      return bytes;
+      return bytes.clone();
     }
   }
 

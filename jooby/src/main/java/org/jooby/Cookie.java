@@ -601,6 +601,8 @@ public interface Cookie {
    */
   class Signature {
 
+    private Signature() {}
+
     /** Remove trailing '='. */
     private static final Pattern EQ = Pattern.compile("=+$");
 
