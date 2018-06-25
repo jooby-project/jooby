@@ -395,7 +395,7 @@ public abstract class CaffeineCache<K, V> implements Jooby.Module {
    *
    * @return A new {@link CaffeineCache}.
    */
-  public static final CaffeineCache<String, Object> newCache() {
+  public static CaffeineCache<String, Object> newCache() {
     return new CaffeineCache<String, Object>() {
     };
   }
@@ -484,8 +484,7 @@ public abstract class CaffeineCache<K, V> implements Jooby.Module {
       Map<String, Object> m = (Map<String, Object>) spec;
       return m.entrySet().stream()
           .map(e -> e.getKey() + "=" + e.getValue())
-          .collect(Collectors.joining(","))
-          .toString();
+          .collect(Collectors.joining(","));
     }
     return spec.toString();
   }
