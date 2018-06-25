@@ -211,18 +211,17 @@ import org.jooby.Result;
 import org.jooby.Results;
 import org.jooby.Status;
 
-import java.io.IOException;
 import java.util.function.Consumer;
 
 class SimpleProcessContext implements ShellProcessContext {
 
-  private StringBuilder buff = new StringBuilder();
+  private final StringBuilder buff = new StringBuilder();
 
-  private Consumer<Result> deferred;
+  private final Consumer<Result> deferred;
 
-  private int width;
+  private final int width;
 
-  private int height;
+  private final int height;
 
   public SimpleProcessContext(final Consumer<Result> deferred) {
     this(deferred, 204, 48);
@@ -236,12 +235,12 @@ class SimpleProcessContext implements ShellProcessContext {
   }
 
   @Override
-  public boolean takeAlternateBuffer() throws IOException {
+  public boolean takeAlternateBuffer() {
     return false;
   }
 
   @Override
-  public boolean releaseAlternateBuffer() throws IOException {
+  public boolean releaseAlternateBuffer() {
     return false;
   }
 
@@ -252,7 +251,7 @@ class SimpleProcessContext implements ShellProcessContext {
 
   @Override
   public String readLine(final String msg, final boolean echo)
-    throws IOException, InterruptedException, IllegalStateException {
+    throws IllegalStateException {
     return null;
   }
 
@@ -267,34 +266,33 @@ class SimpleProcessContext implements ShellProcessContext {
   }
 
   @Override
-  public void flush() throws IOException {
+  public void flush() {
   }
 
   @Override
-  public Screenable append(final Style style) throws IOException {
+  public Screenable append(final Style style) {
     return this;
   }
 
   @Override
-  public Screenable cls() throws IOException {
+  public Screenable cls() {
     return this;
   }
 
   @Override
-  public Appendable append(final CharSequence csq) throws IOException {
+  public Appendable append(final CharSequence csq) {
     buff.append(csq);
     return this;
   }
 
   @Override
-  public Appendable append(final CharSequence csq, final int start, final int end)
-    throws IOException {
+  public Appendable append(final CharSequence csq, final int start, final int end) {
     buff.append(csq, start, end);
     return this;
   }
 
   @Override
-  public Appendable append(final char c) throws IOException {
+  public Appendable append(final char c) {
     buff.append(c);
     return this;
   }

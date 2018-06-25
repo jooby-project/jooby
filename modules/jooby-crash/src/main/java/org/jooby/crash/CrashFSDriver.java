@@ -231,20 +231,20 @@ class CrashFSDriver extends AbstractFSDriver<Path> implements AutoCloseable {
 
   private static final String LOGIN = "login.groovy";
 
-  private static Predicate<Path> FLOGIN = fname(LOGIN);
+  private static final Predicate<Path> FLOGIN = fname(LOGIN);
 
   private static final String JAR = ".jar!";
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private Path root;
+  private final Path root;
 
   private FileSystem fs;
 
   private Predicate<Path> filter;
 
-  private URI src;
+  private final URI src;
 
   private CrashFSDriver(final URI src, final FileSystem fs, final Predicate<Path> filter) {
     this.src = src;
@@ -263,28 +263,27 @@ class CrashFSDriver extends AbstractFSDriver<Path> implements AutoCloseable {
   }
 
   @Override
-  public Path root() throws IOException {
+  public Path root() {
     return root;
   }
 
   @Override
-  public String name(final Path handle) throws IOException {
+  public String name(final Path handle) {
     return Optional.ofNullable(handle.getFileName()).orElse(handle).toString().replaceAll("/", "");
   }
 
   @Override
-  public boolean isDir(final Path handle) throws IOException {
+  public boolean isDir(final Path handle) {
     return Files.isDirectory(handle);
   }
 
   @Override
   public Iterable<Path> children(final Path handle) throws IOException {
     try (Stream<Path> walk = Files.walk(handle)) {
-      List<Path> children = walk
+      return walk
           .skip(1)
           .filter(filter)
           .collect(Collectors.toList());
-      return children;
     }
   }
 
@@ -292,14 +291,12 @@ class CrashFSDriver extends AbstractFSDriver<Path> implements AutoCloseable {
     try (Stream<Path> walk = Try.apply(() -> Files.walk(root)).orElse(Stream.empty())) {
       return walk
           .skip(1)
-          .filter(filter)
-          .findFirst()
-          .isPresent();
+          .anyMatch(filter);
     }
   }
 
   @Override
-  public long getLastModified(final Path handle) throws IOException {
+  public long getLastModified(final Path handle) {
     return Try.apply(() -> Files.getLastModifiedTime(handle).toMillis()).orElse(-1L);
   }
 
@@ -354,12 +351,10 @@ class CrashFSDriver extends AbstractFSDriver<Path> implements AutoCloseable {
     if (file.exists()) {
       result.add(file.toURI());
     }
-    Try.run(() -> {
-      Collections.list(loader.getResources(pattern))
-          .stream()
-          .map(it -> Try.apply(() -> it.toURI()).get())
-          .forEach(result::add);
-    });
+    Try.run(() -> Collections.list(loader.getResources(pattern))
+        .stream()
+        .map(it -> Try.apply(it::toURI).get())
+        .forEach(result::add));
     return result;
   }
 
