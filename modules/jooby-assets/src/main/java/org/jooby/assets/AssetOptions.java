@@ -235,7 +235,7 @@ public class AssetOptions {
     return this;
   }
 
-  public Map<String, Object> options() throws Exception {
+  public Map<String, Object> options() {
     return options.withoutPath("excludes").root().unwrapped();
   }
 
@@ -254,9 +254,7 @@ public class AssetOptions {
     String spath = Route.normalize(path);
     return excludes.stream()
         .map(it -> new RoutePattern("GET", it))
-        .filter(pattern -> pattern.matcher("GET" + spath).matches())
-        .findFirst()
-        .isPresent();
+        .anyMatch(pattern -> pattern.matcher("GET" + spath).matches());
   }
 
   @SuppressWarnings("unchecked")
