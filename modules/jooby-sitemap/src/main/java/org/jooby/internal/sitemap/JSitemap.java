@@ -225,21 +225,19 @@ public abstract class JSitemap<T extends JSitemap> implements Jooby.Module {
 
   protected static final String SITEMAP = "/sitemap.xml";
 
-  static final Predicate<Route.Definition> NOT_ME = r -> {
-    return !r.pattern().equals(SITEMAP);
-  };
+  static final Predicate<Route.Definition> NOT_ME = r -> !r.pattern().equals(SITEMAP);
 
   static final Predicate<Route.Definition> GET = r -> r.method().equals("GET");
 
   private static final String SITEMAP_BASEURL = "sitemap.url";
 
-  private String path;
+  private final String path;
 
   private Consumer<Binder> wpp;
 
   private Predicate<Route.Definition> filter = GET;
 
-  private Optional<String> baseurl;
+  private final Optional<String> baseurl;
 
   public JSitemap(final String path, final Optional<String> baseurl, final WebPageProvider wpp) {
     this.path = path;
