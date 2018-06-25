@@ -205,12 +205,10 @@ package org.jooby.hbs;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.Collections;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
@@ -353,9 +351,9 @@ public class Hbs implements Jooby.Module {
 
   private BiConsumer<Handlebars, Config> callback;
 
-  private Set<Class<?>> helpers = new HashSet<>();
+  private final Set<Class<?>> helpers = new HashSet<>();
 
-  private Deque<ValueResolver> resolvers = new LinkedList<>();
+  private final Deque<ValueResolver> resolvers = new LinkedList<>();
 
   /**
    * Creates a new {@link Hbs} module.
@@ -440,9 +438,7 @@ public class Hbs implements Jooby.Module {
    * @return This module.
    */
   public Hbs with(final Class<?>... helper) {
-    for (Class<?> h : helper) {
-      helpers.add(h);
-    }
+    Collections.addAll(helpers, helper);
     return this;
   }
 

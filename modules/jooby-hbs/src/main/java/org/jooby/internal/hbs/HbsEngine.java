@@ -219,9 +219,9 @@ import com.github.jknack.handlebars.io.TemplateSource;
 
 public class HbsEngine implements View.Engine {
 
-  private Handlebars handlebars;
+  private final Handlebars handlebars;
 
-  private ValueResolver[] resolvers;
+  private final ValueResolver[] resolvers;
 
   public HbsEngine(final Handlebars handlebars, final ValueResolver[] resolvers) {
     this.handlebars = requireNonNull(handlebars, "Handlebars is required.");
