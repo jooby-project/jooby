@@ -417,9 +417,7 @@ public class MongoSessionStore implements Session.Store {
   }
 
   private boolean existsIdx(final String name) {
-    MongoCursor<Document> iterator = sessions.listIndexes().iterator();
-    while (iterator.hasNext()) {
-      Document doc = iterator.next();
+    for (final Document doc : sessions.listIndexes()) {
       if (doc.getString("name").equals(name)) {
         return true;
       }
