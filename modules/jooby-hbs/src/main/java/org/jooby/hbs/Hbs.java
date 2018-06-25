@@ -205,12 +205,10 @@ package org.jooby.hbs;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.Collections;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
