@@ -234,7 +234,7 @@ import java.util.stream.Collectors;
 
 public class JoobyProject {
 
-  private Project project;
+  private final Project project;
 
   public JoobyProject(final Project project) {
     this.project = project;
@@ -254,17 +254,16 @@ public class JoobyProject {
   public Set<File> classpath() {
     SourceSet sourceSet = sourceSet(project);
 
-    Set<File> cp = new LinkedHashSet<>();
     // conf & public
-    sourceSet.getResources().getSrcDirs().forEach(cp::add);
+    Set<File> cp = new LinkedHashSet<>(sourceSet.getResources().getSrcDirs());
 
     // classes/main, resources/main + jars
-    sourceSet.getRuntimeClasspath().getFiles().forEach(cp::add);
+    cp.addAll(sourceSet.getRuntimeClasspath().getFiles());
 
     // provided?
     Configuration provided = project.getConfigurations().findByName("provided");
     if (provided != null) {
-      provided.getFiles().forEach(cp::add);
+      cp.addAll(provided.getFiles());
     }
 
     return cp;
@@ -273,9 +272,8 @@ public class JoobyProject {
   public Set<File> sources() {
     SourceSet sourceSet = sourceSet(project);
 
-    Set<File> src = new LinkedHashSet<>();
     // conf & public
-    sourceSet.getResources().getSrcDirs().forEach(src::add);
+    Set<File> src = new LinkedHashSet<>(sourceSet.getResources().getSrcDirs());
 
     // source java: always add parent file: should be src/main
     sourceSet.getJava().getSrcDirs().forEach(f -> src.add(f.getParentFile()));
@@ -291,16 +289,15 @@ public class JoobyProject {
   }
 
   private SourceSet sourceSet(final Project project) {
-    SourceSet sourceSet = getJavaConvention(project).getSourceSets()
+    return getJavaConvention(project).getSourceSets()
         .getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-    return sourceSet;
   }
 
   public JavaPluginConvention getJavaConvention(final Project project) {
     return project.getConvention().getPlugin(JavaPluginConvention.class);
   }
 
-  public URLClassLoader newClassLoader() throws MalformedURLException {
+  public URLClassLoader newClassLoader() {
     return toClassLoader(
         classpath().stream()
             .map(throwingFunction(f -> f.toURI().toURL()))
