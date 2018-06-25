@@ -485,9 +485,9 @@ import com.typesafe.config.ConfigFactory;
  */
 public class Quartz implements Jooby.Module {
 
-  private List<Class<?>> jobs;
+  private final List<Class<?>> jobs;
 
-  private Map<JobDetail, Trigger> jobMap = new HashMap<>();
+  private final Map<JobDetail, Trigger> jobMap = new HashMap<>();
 
   /**
    * Creates a new {@link Quartz} module. Optionally add some jobs.

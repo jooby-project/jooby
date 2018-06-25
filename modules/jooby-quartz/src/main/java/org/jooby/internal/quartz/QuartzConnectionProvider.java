@@ -215,7 +215,7 @@ import org.quartz.utils.ConnectionProvider;
 
 public class QuartzConnectionProvider implements ConnectionProvider {
 
-  private Provider<DataSource> ds;
+  private final Provider<DataSource> ds;
 
   public QuartzConnectionProvider(final Provider<DataSource> ds) {
     this.ds = requireNonNull(ds, "Data source is required.");

@@ -296,10 +296,10 @@ public class JobExpander {
 
   private static JobKey jobKey(final Method method) {
     Class<?> klass = method.getDeclaringClass();
-    String classname = klass.getSimpleName();
+    StringBuilder classname = new StringBuilder(klass.getSimpleName());
     klass = klass.getDeclaringClass();
     while (klass != null) {
-      classname = klass.getSimpleName() + "$" + classname;
+      classname.insert(0, klass.getSimpleName() + "$");
       klass = klass.getDeclaringClass();
     }
     return JobKey.jobKey(classname + "." + method.getName(),

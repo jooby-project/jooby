@@ -212,7 +212,7 @@ import org.quartz.impl.JobDetailImpl;
 @SuppressWarnings("serial")
 public class MethodJobDetail extends JobDetailImpl {
 
-  private Class<?> owner;
+  private final Class<?> owner;
 
   public MethodJobDetail(final Method method) {
     this.owner = method.getDeclaringClass();

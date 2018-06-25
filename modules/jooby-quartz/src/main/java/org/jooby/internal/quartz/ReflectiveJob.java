@@ -221,7 +221,7 @@ import com.google.inject.Injector;
 
 public class ReflectiveJob implements Job {
 
-  private Injector injector;
+  private final Injector injector;
 
   @Inject
   public ReflectiveJob(final Injector injector) {
