@@ -215,7 +215,7 @@ import io.undertow.util.HeaderValues;
 
 public class UndertowUpload implements NativeUpload {
 
-  private FormValue value;
+  private final FormValue value;
 
   public UndertowUpload(final FormValue value) {
     this.value = value;

@@ -239,11 +239,11 @@ public class UndertowServer implements org.jooby.spi.Server {
   /** The logging system. */
   private static final Logger log = LoggerFactory.getLogger(org.jooby.spi.Server.class);
 
-  private Undertow server;
+  private final Undertow server;
 
   private final GracefulShutdownHandler shutdown;
 
-  private long awaitShutdown;
+  private final long awaitShutdown;
 
   @Inject
   public UndertowServer(final org.jooby.spi.HttpHandler dispatcher, final Config conf,
@@ -302,16 +302,13 @@ public class UndertowServer implements org.jooby.spi.Server {
     });
 
     $undertow.getConfig("server").root().entrySet()
-        .forEach(setOption($undertow, "server",
-            (option, value) -> builder.setServerOption(option, value)));
+        .forEach(setOption($undertow, "server", builder::setServerOption));
 
     $undertow.getConfig("worker").root().entrySet()
-        .forEach(setOption($undertow, "worker",
-            (option, value) -> builder.setWorkerOption(option, value)));
+        .forEach(setOption($undertow, "worker", builder::setWorkerOption));
 
     $undertow.getConfig("socket").root().entrySet()
-        .forEach(setOption($undertow, "socket",
-            (option, value) -> builder.setSocketOption(option, value)));
+        .forEach(setOption($undertow, "socket", builder::setSocketOption));
 
     return builder;
   }

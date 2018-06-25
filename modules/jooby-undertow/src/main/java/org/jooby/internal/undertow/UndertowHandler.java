@@ -227,9 +227,9 @@ import io.undertow.util.Protocols;
 
 public class UndertowHandler implements HttpHandler {
 
-  private org.jooby.spi.HttpHandler handler;
+  private final org.jooby.spi.HttpHandler handler;
 
-  private Config config;
+  private final Config config;
 
   public UndertowHandler(final org.jooby.spi.HttpHandler handler, final Config config) {
     this.handler = handler;

@@ -247,15 +247,15 @@ public class UndertowRequest implements NativeRequest {
 
   private static final FormData NO_FORM = new FormData(0);
 
-  private HttpServerExchange exchange;
+  private final HttpServerExchange exchange;
 
-  private Config conf;
+  private final Config conf;
 
   private FormData form;
 
-  private String path;
+  private final String path;
 
-  private Supplier<BlockingHttpExchange> blocking;
+  private final Supplier<BlockingHttpExchange> blocking;
 
   public UndertowRequest(final HttpServerExchange exchange, final Config conf) throws IOException {
     this.exchange = exchange;
@@ -287,7 +287,7 @@ public class UndertowRequest implements NativeRequest {
 
   @Override
   public List<String> paramNames() {
-    ImmutableList.Builder<String> builder = ImmutableList.<String> builder();
+    ImmutableList.Builder<String> builder = ImmutableList.builder();
     builder.addAll(exchange.getQueryParameters().keySet());
     FormData formdata = parseForm();
     formdata.forEach(v -> {
@@ -305,16 +305,14 @@ public class UndertowRequest implements NativeRequest {
     // query params
     Deque<String> query = exchange.getQueryParameters().get(name);
     if (query != null) {
-      query.stream().forEach(builder::add);
+      query.forEach(builder::add);
     }
     // form params
-    Optional.ofNullable(parseForm().get(name)).ifPresent(values -> {
-      values.stream().forEach(value -> {
-        if (!value.isFile()) {
-          builder.add(value.getValue());
-        }
-      });
-    });
+    Optional.ofNullable(parseForm().get(name)).ifPresent(values -> values.forEach(value -> {
+      if (!value.isFile()) {
+        builder.add(value.getValue());
+      }
+    }));
     return builder.build();
   }
 
