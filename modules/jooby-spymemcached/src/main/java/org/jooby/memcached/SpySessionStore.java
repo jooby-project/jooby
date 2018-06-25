@@ -280,11 +280,11 @@ import com.typesafe.config.ConfigValueFactory;
  */
 public class SpySessionStore implements Session.Store {
 
-  private MemcachedClient memcached;
+  private final MemcachedClient memcached;
 
-  private String prefix;
+  private final String prefix;
 
-  private int timeout;
+  private final int timeout;
 
   public SpySessionStore(final MemcachedClient memcached,
       final String prefix, final int timeoutInSeconds) {

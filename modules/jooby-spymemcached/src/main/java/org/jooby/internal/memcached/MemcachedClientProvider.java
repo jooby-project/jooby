@@ -217,11 +217,11 @@ public class MemcachedClientProvider implements Provider<MemcachedClient> {
 
   private ConnectionFactoryBuilder builder;
 
-  private List<InetSocketAddress> servers;
+  private final List<InetSocketAddress> servers;
 
   private MemcachedClient client;
 
-  private long shutdownTimeout;
+  private final long shutdownTimeout;
 
   public MemcachedClientProvider(final ConnectionFactoryBuilder builder,
       final List<InetSocketAddress> servers, final long shutdownTimeout) {
