@@ -233,13 +233,13 @@ import com.google.common.collect.ImmutableList.Builder;
 
 public class ServletServletRequest implements NativeRequest {
 
-  private HttpServletRequest req;
+  private final HttpServletRequest req;
 
-  private String tmpdir;
+  private final String tmpdir;
 
-  private boolean multipart;
+  private final boolean multipart;
 
-  private String path;
+  private final String path;
 
   private ServletUpgrade upgrade = noupgrade();
 
