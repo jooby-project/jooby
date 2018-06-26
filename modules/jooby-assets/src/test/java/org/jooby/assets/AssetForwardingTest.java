@@ -1,15 +1,15 @@
 package org.jooby.assets;
 
 import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertEquals;
-
-import java.io.InputStream;
-import java.net.URL;
-
 import org.jooby.Asset;
 import org.jooby.MediaType;
 import org.jooby.test.MockUnit;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 
 public class AssetForwardingTest {
 
@@ -75,13 +75,14 @@ public class AssetForwardingTest {
 
   @Test
   public void url() throws Exception {
-    new MockUnit(Asset.class, URL.class)
+    URL url = new File("pom.xml").toURI().toURL();
+    new MockUnit(Asset.class)
         .expect(unit -> {
           Asset asset = unit.get(Asset.class);
-          expect(asset.resource()).andReturn(unit.get(URL.class));
+          expect(asset.resource()).andReturn(url);
         })
         .run(unit -> {
-          assertEquals(unit.get(URL.class), new Asset.Forwarding(unit.get(Asset.class)).resource());
+          assertEquals(url, new Asset.Forwarding(unit.get(Asset.class)).resource());
         });
   }
 
