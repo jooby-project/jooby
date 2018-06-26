@@ -408,7 +408,7 @@ public class ExpandedStmtRewriter implements StatementRewriter
   static class ParsedStatement
   {
     private boolean positionalOnly = true;
-    private List<String> params = new ArrayList<String>();
+    private List<String> params = new ArrayList<>();
 
     public void addNamedParamAt(final String name)
     {
