@@ -225,12 +225,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import com.sun.nio.file.SensitivityWatchEventModifier;
-
 /**
  * Example to watch a directory (or tree) for changes to files.
  */
 public class Watcher {
+
+  private static final WatchEvent.Modifier HIGH = () -> "HIGH";
 
   private final WatchService watcher;
   private volatile Map<WatchKey, Path> keys;
@@ -274,8 +274,7 @@ public class Watcher {
    * Register the given directory with the WatchService
    */
   private void register(final Path dir) throws IOException {
-    WatchKey key = dir.register(watcher, new Kind[]{ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY },
-        SensitivityWatchEventModifier.HIGH);
+    WatchKey key = dir.register(watcher, new Kind[]{ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY }, HIGH);
     keys.put(key, dir);
   }
 
