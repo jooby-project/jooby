@@ -275,6 +275,7 @@ public class Pac4jSessionStore implements SessionStore<WebContext> {
     }
     return Try.apply(() -> {
       byte[] bytes = base64().decode(value.substring(PREFIX.length()));
+      // TODO: sanitization of arguments
       return new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject();
     }).get();
   }

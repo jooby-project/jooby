@@ -258,10 +258,12 @@ public class NettySslContext {
   }
 
   static File toFile(final String path, final String tmpdir) throws IOException {
+    // TODO: sanitization of arguments
     File file = new File(path);
     if (file.exists()) {
       return file;
     }
+    // TODO: sanitization of arguments
     file = new File(tmpdir, Paths.get(path).getFileName().toString());
     // classpath resource?
     InputStream in = NettyServer.class.getClassLoader().getResourceAsStream(path);

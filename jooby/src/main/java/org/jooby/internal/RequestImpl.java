@@ -464,7 +464,7 @@ public class RequestImpl implements Request {
     if (length > 0) {
       MediaType type = type();
       Config conf = require(Config.class);
-
+      // TODO: sanitization of arguments
       File fbody = new File(conf.getString("application.tmpdir"),
           Integer.toHexString(System.identityHashCode(this)));
       files.add(fbody);
