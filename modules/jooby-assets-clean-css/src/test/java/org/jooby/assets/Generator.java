@@ -10,11 +10,11 @@ import java.util.regex.Pattern;
 public class Generator {
 
   private static final String NODE = "/usr/local/bin/node";
-
+  // TODO: sanitization of arguments
   private static final String NPM = new File(System.getProperty("user.home")).toPath()
       .resolve(".node").resolve("lib").resolve("node_modules").resolve("npm").resolve("bin")
       .resolve("npm-cli.js").toString();
-
+  // TODO: sanitization of arguments
   private static final File workDir = new File(System.getProperty("user.dir"), "target");
 
   static File log = new File(workDir, "log.log");
@@ -91,11 +91,13 @@ public class Generator {
   }
 
   public static Path localFile(final String name) {
+    // TODO: sanitization of arguments
     return new File(System.getProperty("user.dir")).toPath().resolve("src").resolve("test")
         .resolve("resources").resolve(name);
   }
 
   public static Path module(final String name) {
+    // TODO: sanitization of arguments
     return new File(System.getProperty("user.home")).toPath().resolve("node_modules").resolve(name);
   }
 }

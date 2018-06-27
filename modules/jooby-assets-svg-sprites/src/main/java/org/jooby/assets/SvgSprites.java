@@ -321,7 +321,7 @@ public class SvgSprites extends AssetAggregator {
     if (!spriteElementPath.exists()) {
       throw new FileNotFoundException(spriteElementPath.toString());
     }
-
+    // TODO: sanitization of arguments
     File workdir = new File(Try.apply(() -> conf.getString("application.tmpdir"))
         .orElse(System.getProperty("java.io.tmpdir")));
 
