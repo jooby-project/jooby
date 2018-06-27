@@ -225,7 +225,7 @@ class Engine implements View.Engine {
   }
 
   @Override
-  public void render(final View view, final Context ctx) throws FileNotFoundException, Exception {
+  public void render(final View view, final Context ctx) throws Exception {
     String name = view.name() + suffix;
 
     JadeTemplate template = jadeConfiguration.getTemplate(name);

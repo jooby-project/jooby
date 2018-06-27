@@ -328,7 +328,7 @@ public class Jdbi implements Jooby.Module {
 
   static class DBI2 extends DBI {
 
-    private List<ArgumentFactory<?>> factories = new ArrayList<ArgumentFactory<?>>();
+    private List<ArgumentFactory<?>> factories = new ArrayList<>();
 
     public DBI2(final DataSource ds) {
       super(ds);

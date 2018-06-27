@@ -241,7 +241,7 @@ public class Watcher {
   public Watcher(final BiConsumer<Kind<?>, Path> listener, final Path... dirs)
           throws IOException {
     this.watcher = FileSystems.getDefault().newWatchService();
-    this.keys = new HashMap<WatchKey, Path>();
+    this.keys = new HashMap<>();
     this.listener = listener;
     for (Path dir : dirs) {
       registerAll(dir);
