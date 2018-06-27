@@ -214,6 +214,8 @@ import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
 
+import javax.annotation.Nonnull;
+
 /**
  * <h1>akka</h1>
  * <p>
@@ -245,7 +247,7 @@ import akka.actor.ActorSystem;
  */
 public class Akka implements Module {
 
-  private String name;
+  private final String name;
 
   /**
    * Creates a new {@link Akka} module.
@@ -264,14 +266,13 @@ public class Akka implements Module {
   }
 
   @Override
-  public void configure(final Env env, final Config conf, final Binder binder) {
+  public void configure(@Nonnull final Env env, @Nonnull final Config conf, @Nonnull final Binder binder) {
     ActorSystem sys = ActorSystem.create(name, conf);
 
-    env.serviceKey().generate(ActorSystem.class, name, syskey -> {
-      binder.bind(syskey).toInstance(sys);
-    });
+    env.serviceKey().generate(ActorSystem.class, name, syskey -> binder.bind(syskey).toInstance(sys));
   }
 
+  @Nonnull
   @Override
   public Config config() {
     return ConfigFactory.parseResources(getClass(), "akka.conf");
