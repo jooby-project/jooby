@@ -206,7 +206,6 @@ package org.jooby.assets;
 import com.eclipsesource.v8.NodeJS;
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.utils.MemoryManager;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import static java.util.Objects.requireNonNull;
 import org.jooby.Route;
@@ -451,12 +450,8 @@ public class Nodejs {
    */
   public static void run(final File basedir, final Throwing.Consumer<Nodejs> callback) {
     Nodejs node = new Nodejs(basedir);
-    try {
-      callback.accept(node);
-    } catch (Throwable x) {
-      throw Throwables.propagate(x);
-    } finally {
-      node.release();
-    }
+    Try.run(() -> callback.accept(node))
+        .onComplete(node::release)
+        .throwException();
   }
 }

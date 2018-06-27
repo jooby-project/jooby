@@ -203,8 +203,13 @@
  */
 package org.jooby.internal.ssl;
 
+import com.typesafe.config.Config;
 import static java.util.Objects.requireNonNull;
+import org.jooby.funzy.Try;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -212,13 +217,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.net.ssl.SSLContext;
-
-import com.google.common.base.Throwables;
-import com.typesafe.config.Config;
 
 public class SslContextProvider implements Provider<SSLContext> {
 
@@ -231,7 +229,7 @@ public class SslContextProvider implements Provider<SSLContext> {
 
   @Override
   public SSLContext get() {
-    try {
+    return Try.apply(() -> {
       String tmpdir = conf.getString("application.tmpdir");
       File keyStoreCert = toFile(conf.getString("ssl.keystore.cert"), tmpdir);
       File keyStoreKey = toFile(conf.getString("ssl.keystore.key"), tmpdir);
@@ -245,9 +243,7 @@ public class SslContextProvider implements Provider<SSLContext> {
           .newServerContextInternal(trustCert, keyStoreCert, keyStoreKey, keyStorePass,
               conf.getLong("ssl.session.cacheSize"), conf.getLong("ssl.session.timeout"))
           .context();
-    } catch (IOException ex) {
-      throw Throwables.propagate(ex);
-    }
+    }).get();
   }
 
   private File toFile(final String path, final String tmpdir) throws IOException {

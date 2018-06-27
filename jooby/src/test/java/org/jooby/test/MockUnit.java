@@ -1,8 +1,15 @@
 package org.jooby.test;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.primitives.Primitives;
 import static java.util.Objects.requireNonNull;
+import org.easymock.Capture;
+import org.easymock.EasyMock;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createStrictMock;
+import org.jooby.funzy.Try;
+import org.powermock.api.easymock.PowerMock;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -13,15 +20,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.easymock.Capture;
-import org.easymock.EasyMock;
-import org.powermock.api.easymock.PowerMock;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.primitives.Primitives;
 
 /**
  * Utility test class for mocks. Internal use only.
@@ -213,13 +211,8 @@ public class MockUnit {
   public MockUnit run(final Block... blocks) throws Exception {
 
     for (Block block : this.blocks) {
-      try {
-        block.run(this);
-      } catch (Exception | AssertionError ex) {
-        throw ex;
-      } catch (Throwable ex) {
-        Throwables.propagate(ex);
-      }
+      Try.run(() -> block.run(this))
+          .throwException();
     }
 
     mockClasses.forEach(PowerMock::replay);
@@ -227,13 +220,7 @@ public class MockUnit {
     mocks.forEach(EasyMock::replay);
 
     for (Block main : blocks) {
-      try {
-        main.run(this);
-      } catch (Exception | AssertionError ex) {
-        throw ex;
-      } catch (Throwable ex) {
-        Throwables.propagate(ex);
-      }
+      Try.run(() -> main.run(this)).throwException();
     }
 
     mocks.forEach(EasyMock::verify);

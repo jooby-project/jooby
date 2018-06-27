@@ -1,6 +1,5 @@
 package org.jooby.test;
 
-import com.google.common.base.Throwables;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
@@ -22,6 +21,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
+import org.jooby.funzy.Try;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -383,15 +383,13 @@ public class Client extends ExternalResource {
   private Executor executor() {
     if (executor == null) {
       if (this.host.startsWith("https://")) {
-        try {
+        Try.run(() -> {
           SSLContext sslContext = SSLContexts.custom()
               .loadTrustMaterial(null, (chain, authType) -> true)
               .build();
           builder.setSSLContext(sslContext);
           builder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
-        } catch (Exception ex) {
-          Throwables.propagate(ex);
-        }
+        }).throwException();
       }
       client = builder.build();
       executor = Executor.newInstance(client);
