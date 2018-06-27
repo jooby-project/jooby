@@ -3023,14 +3023,14 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <asm.version>6.2</asm.version>
     <async-http-client.version>1.9.36</async-http-client.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
-    <aws-java-sdk.version>1.11.273</aws-java-sdk.version>
+    <aws-java-sdk.version>1.11.355</aws-java-sdk.version>
     <bootstrap.version>3.3.4</bootstrap.version>
     <boringssl.version>2.0.8.Final</boringssl.version>
     <bson4jackson.version>2.9.0</bson4jackson.version>
-    <caffeine.version>2.6.1</caffeine.version>
+    <caffeine.version>2.6.2</caffeine.version>
     <camel.version>2.18.3</camel.version>
-    <cglib.version>3.2.0</cglib.version>
-    <closure-compiler.version>v20180204</closure-compiler.version>
+    <cglib.version>3.2.6</cglib.version>
+    <closure-compiler.version>v20180610</closure-compiler.version>
     <commons-compress.version>1.17</commons-compress.version>
     <commons-email.version>1.5</commons-email.version>
     <lucene-queryparser.version>5.5.5</lucene-queryparser.version>
@@ -3051,18 +3051,18 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <frontend-plugin-core.version>1.6</frontend-plugin-core.version>
     <funzy.version>0.1.0</funzy.version>
     <groovy.version>2.4.7</groovy.version>
-    <gson.version>2.8.2</gson.version>
+    <gson.version>2.8.5</gson.version>
     <guava.version>21.0</guava.version> <!-- TODO: upgrade to =< 24.1.1 -->
     <guice.version>4.2.0</guice.version>
-    <h2.version>1.4.196</h2.version>
-    <handlebars.version>4.0.7</handlebars.version>
+    <h2.version>1.4.197</h2.version>
+    <handlebars.version>4.1.0</handlebars.version>
     <hazelcast.version>3.9.2</hazelcast.version>
     <hibernate-validator.version>5.1.3.Final</hibernate-validator.version>
     <hibernate.version>5.2.1.Final</hibernate.version>
     <hikariCP.version>3.2.0</hikariCP.version>
     <http-client.version>4.5.2</http-client.version>
     <j2v8.version>4.6.0</j2v8.version>
-    <jackson.version>2.9.5</jackson.version>
+    <jackson.version>2.9.6</jackson.version>
     <jade4j.version>1.2.7</jade4j.version>
     <javassist.version>3.22.0-GA</javassist.version>
     <javax.el-api.version>2.2.5</javax.el-api.version>
@@ -3084,7 +3084,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jsoup.version>1.8.3</jsoup.version>
     <jsr305.version>3.0.2</jsr305.version>
     <kotlin.version>1.2.41</kotlin.version>
-    <less4j.version>1.13.0</less4j.version>
+    <less4j.version>1.17.2</less4j.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <logback-classic.version>1.2.3</logback-classic.version>
     <metrics.version>3.1.2</metrics.version>
@@ -3093,8 +3093,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <mongodb-driver-async.version>${mongo-java-driver.version}</mongodb-driver-async.version>
     <morphia.version>1.1.1</morphia.version>
     <mysql-connector-java.version>5.1.42</mysql-connector-java.version>
-    <neo4j.expire.version>3.3.2.52.4</neo4j.expire.version>
-    <neo4j.runtime.version>3.3.2.52</neo4j.runtime.version>
+    <neo4j.expire.version>3.4.0.52.4</neo4j.expire.version>
+    <neo4j.runtime.version>3.4.0.52</neo4j.runtime.version>
     <neo4j.version>3.3.2</neo4j.version>
     <netty.version>4.1.25.Final</netty.version>
     <pac4j.version>1.9.9</pac4j.version>
@@ -3106,8 +3106,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <reactor.version>2.5.0.M3</reactor.version>
     <requery.version>1.4.0</requery.version>
     <rest-assured.version>3.1.0</rest-assured.version>
-    <rocker.version>0.23.0</rocker.version>
-    <rxjava-jdbc.version>0.7</rxjava-jdbc.version>
+    <rocker.version>0.24.0</rocker.version>
+    <rxjava-jdbc.version>0.7.16</rxjava-jdbc.version>
     <rxjava-math.version>1.0.0</rxjava-math.version>
     <rxjava-string.version>1.1.0</rxjava-string.version>
     <rxjava.version>1.1.5</rxjava.version>
@@ -3140,11 +3140,11 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <javaslang.version>2.0.4</javaslang.version>
 
     <batik.version>1.10</batik.version>
-    <cassandra.version>3.4.0</cassandra.version>
-    <couchbase-client.version>2.3.1</couchbase-client.version>
+    <cassandra.version>3.5.0</cassandra.version>
+    <couchbase-client.version>2.5.9</couchbase-client.version>
     <coverity-escapers.version>1.1.1</coverity-escapers.version>
     <fast-classpath-scanner.version>2.8.1</fast-classpath-scanner.version>
-    <jfiglet.version>0.0.7</jfiglet.version>
+    <jfiglet.version>0.0.8</jfiglet.version>
     <jsitemapgenerator.version>2.1</jsitemapgenerator.version>
     <mongo-driver-driver-rx.version>1.2.0</mongo-driver-driver-rx.version>
     <unbescape.version>1.1.3.RELEASE</unbescape.version>
