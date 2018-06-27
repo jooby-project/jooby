@@ -121,6 +121,12 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
+        <artifactId>jooby-gson</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
         <artifactId>jooby-maven-plugin</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -3133,7 +3139,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <!-- javaslang -->
     <javaslang.version>2.0.4</javaslang.version>
 
-    <batik.version>1.9.1</batik.version>
+    <batik.version>1.10</batik.version>
     <cassandra.version>3.4.0</cassandra.version>
     <couchbase-client.version>2.3.1</couchbase-client.version>
     <coverity-escapers.version>1.1.1</coverity-escapers.version>
