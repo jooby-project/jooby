@@ -3017,16 +3017,16 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
 
   <properties>
     <!-- Dependencies -->
-    <akka.version>2.5.9</akka.version>
+    <akka.version>2.5.13</akka.version>
     <antlr4-runtime.version>4.7</antlr4-runtime.version>
     <api-console.version>3.0.17</api-console.version>
     <asm.version>6.2</asm.version>
-    <async-http-client.version>1.9.36</async-http-client.version>
+    <async-http-client.version>1.9.40</async-http-client.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
     <aws-java-sdk.version>1.11.355</aws-java-sdk.version>
     <bootstrap.version>3.3.4</bootstrap.version>
     <boringssl.version>2.0.8.Final</boringssl.version>
-    <bson4jackson.version>2.9.0</bson4jackson.version>
+    <bson4jackson.version>2.9.2</bson4jackson.version>
     <caffeine.version>2.6.2</caffeine.version>
     <camel.version>2.18.3</camel.version>
     <cglib.version>3.2.6</cglib.version>
@@ -3037,13 +3037,13 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <bcprov-jdk15on.version>1.59</bcprov-jdk15on.version>
     <commons-lang.version>2.6</commons-lang.version>
     <commons-lang3.version>3.4</commons-lang3.version>
-    <config.version>1.3.2</config.version>
-    <consul.version>1.0.1</consul.version>
+    <config.version>1.3.3</config.version>
+    <consul.version>1.2.1</consul.version>
     <crash.version>1.3.1</crash.version>
     <dse-driver.version>1.1.2</dse-driver.version>
     <ebean-agent.version>11.11.1</ebean-agent.version>
     <ebean-maven-plugin.version>11.11.2</ebean-maven-plugin.version>
-    <ebean.version>11.16.1</ebean.version>
+    <ebean.version>11.18.1</ebean.version>
     <ehcache.version>2.10.0</ehcache.version>
     <elasticsearch>5.5.3</elasticsearch>
     <flyway.version>5.0.7</flyway.version>
@@ -3104,13 +3104,13 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <progressbar.version>0.6.0</progressbar.version>
     <quartz.version>2.2.2</quartz.version>
     <reactor.version>2.5.0.M3</reactor.version>
-    <requery.version>1.4.0</requery.version>
+    <requery.version>1.5.1</requery.version>
     <rest-assured.version>3.1.0</rest-assured.version>
     <rocker.version>0.24.0</rocker.version>
     <rxjava-jdbc.version>0.7.16</rxjava-jdbc.version>
     <rxjava-math.version>1.0.0</rxjava-math.version>
-    <rxjava-string.version>1.1.0</rxjava-string.version>
-    <rxjava.version>1.1.5</rxjava.version>
+    <rxjava-string.version>1.1.1</rxjava-string.version>
+    <rxjava.version>1.1.5</rxjava.version> <!-- TODO: update to 1.3.8 -->
     <rxjava2.version>2.0.7</rxjava2.version>
     <servlet.version>3.1.0</servlet.version>
     <slf4j-api.version>1.7.25</slf4j-api.version>
@@ -3143,9 +3143,9 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <cassandra.version>3.5.0</cassandra.version>
     <couchbase-client.version>2.5.9</couchbase-client.version>
     <coverity-escapers.version>1.1.1</coverity-escapers.version>
-    <fast-classpath-scanner.version>2.8.1</fast-classpath-scanner.version>
+    <fast-classpath-scanner.version>3.1.5</fast-classpath-scanner.version>
     <jfiglet.version>0.0.8</jfiglet.version>
-    <jsitemapgenerator.version>2.1</jsitemapgenerator.version>
+    <jsitemapgenerator.version>2.2</jsitemapgenerator.version>
     <mongo-driver-driver-rx.version>1.2.0</mongo-driver-driver-rx.version>
     <unbescape.version>1.1.3.RELEASE</unbescape.version>
     <zt-zip.version>1.9</zt-zip.version>
