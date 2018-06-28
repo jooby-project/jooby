@@ -1,20 +1,5 @@
 package org.jooby.internal.undertow;
 
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
-
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import io.undertow.connector.ByteBufferPool;
 import io.undertow.connector.PooledByteBuffer;
 import io.undertow.io.IoCallback;
@@ -23,6 +8,19 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.ServerConnection;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.Headers;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ChunkedStream.class, HttpServerExchange.class, HeaderMap.class })
@@ -112,6 +110,11 @@ public class ChunkedStreamTest {
   private Block pooled = unit -> {
     PooledByteBuffer pooled = unit.get(PooledByteBuffer.class);
     expect(pooled.getBuffer()).andReturn(buffer);
+  };
+
+  private Block close = unit-> {
+    ReadableByteChannel channel = unit.get(ReadableByteChannel.class);
+    channel.close();
   };
 
   @Test
@@ -229,6 +232,7 @@ public class ChunkedStreamTest {
           err.onException(eq(unit.get(HttpServerExchange.class)), eq(unit.get(Sender.class)),
               isA(IOException.class));
         })
+        .expect(close)
         .run(unit -> {
           new ChunkedStream().send(unit.get(ReadableByteChannel.class),
               unit.get(HttpServerExchange.class), unit.get(IoCallback.class));
@@ -249,6 +253,7 @@ public class ChunkedStreamTest {
           IoCallback success = unit.get(IoCallback.class);
           success.onComplete(eq(unit.get(HttpServerExchange.class)), eq(unit.get(Sender.class)));
         })
+        .expect(close)
         .run(unit -> {
           new ChunkedStream().send(unit.get(ReadableByteChannel.class),
               unit.get(HttpServerExchange.class), unit.get(IoCallback.class));

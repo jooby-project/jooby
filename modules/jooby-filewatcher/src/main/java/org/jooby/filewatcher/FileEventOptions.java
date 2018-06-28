@@ -203,19 +203,23 @@
  */
 package org.jooby.filewatcher;
 
-import com.sun.nio.file.SensitivityWatchEventModifier;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
-import static java.nio.file.StandardWatchEventKinds.*;
-import static java.util.Objects.*;
 
 /**
  * Allow to customize a file watch handler. You can listen for particular event kinds, apply a glob
@@ -252,7 +256,7 @@ public class FileEventOptions {
 
   private final List<PathMatcher> matchers = new ArrayList<>();
 
-  private Modifier modifier = SensitivityWatchEventModifier.HIGH;
+  private Modifier modifier = new WatchEventModifier("HIGH");
 
   private boolean recursive = true;
 

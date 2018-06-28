@@ -121,6 +121,12 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
+        <artifactId>jooby-gson</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
         <artifactId>jooby-maven-plugin</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -3133,7 +3139,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <!-- javaslang -->
     <javaslang.version>2.0.4</javaslang.version>
 
-    <batik.version>1.9.1</batik.version>
+    <batik.version>1.10</batik.version>
     <cassandra.version>3.4.0</cassandra.version>
     <couchbase-client.version>2.3.1</couchbase-client.version>
     <coverity-escapers.version>1.1.1</coverity-escapers.version>
@@ -3145,10 +3151,10 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <zt-zip.version>1.9</zt-zip.version>
 
     <!-- Test dependencies -->
-    <easymock.version>3.2</easymock.version>
-    <jacoco.version>0.7.8</jacoco.version>
+    <easymock.version>3.6</easymock.version>
+    <jacoco.version>0.8.1</jacoco.version>
     <junit.version>4.12</junit.version>
-    <powermock.version>1.6.4</powermock.version>
+    <powermock.version>1.7.4</powermock.version>
 
     <!-- Maven properties -->
     <java.source.version>8</java.source.version>

@@ -5,7 +5,6 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.google.inject.Binder;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.typesafe.config.Config;
-import net.sf.cglib.proxy.Factory;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 import org.jooby.Env;
@@ -47,9 +46,9 @@ public class AwsTest {
           abbAWSC.toInstance(aws);
 
           Binder binder = unit.get(Binder.class);
-          expect(binder.bind(Factory.class)).andReturn(abbAWSC);
 
           expect(binder.bind(aws.getClass())).andReturn(abbAWSC);
+          expect(binder.bind(aws.getClass().getInterfaces()[0])).andReturn(abbAWSC);
         })
         .expect(unit -> {
           Env env = unit.get(Env.class);

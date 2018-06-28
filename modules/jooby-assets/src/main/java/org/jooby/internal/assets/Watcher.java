@@ -203,7 +203,6 @@
  */
 package org.jooby.internal.assets;
 
-import com.sun.nio.file.SensitivityWatchEventModifier;
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
@@ -232,6 +231,7 @@ import java.util.function.BiConsumer;
 
 class Watcher {
 
+  private static final WatchEvent.Modifier HIGH = () -> "HIGH";
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
   private final WatchService watcher;
@@ -265,8 +265,7 @@ class Watcher {
    * Register the given directory with the WatchService
    */
   private void register(final Path dir) throws IOException {
-    WatchKey key = dir.register(watcher, new Kind[]{ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY },
-        SensitivityWatchEventModifier.HIGH);
+    WatchKey key = dir.register(watcher, new Kind[]{ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY }, HIGH);
     keys.put(key, dir);
   }
 
