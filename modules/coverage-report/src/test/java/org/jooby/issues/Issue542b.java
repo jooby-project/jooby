@@ -51,7 +51,7 @@ public class Issue542b extends ServerFeature {
         .expect(206)
         .expect(bytes(0, 257551))
         .header("Accept-Ranges", "bytes")
-        .header("Content-Range", "bytes 0-247386/257551")
+        .header("Content-Range", "bytes 0-257550/257551")
         .header("Content-Length", "257551");
   }
 
@@ -63,7 +63,7 @@ public class Issue542b extends ServerFeature {
         .expect(206)
         .expect(bytes(257551 - 100, 257551))
         .header("Accept-Ranges", "bytes")
-        .header("Content-Range", "bytes 247287-247386/257551")
+        .header("Content-Range", "bytes 257451-257550/257551")
         .header("Content-Length", "100");
   }
 
