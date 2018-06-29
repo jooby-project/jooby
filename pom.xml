@@ -3099,8 +3099,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <log4jdbc.version>1.2</log4jdbc.version>
     <logback-classic.version>1.2.3</logback-classic.version>
     <metrics.version>4.0.2</metrics.version>
-    <mongo-driver-core.version>3.8.0</mongo-driver-core.version>
-    <mongo-java-driver.version>3.8.0</mongo-java-driver.version>
+    <mongo-driver-core.version>3.2.2</mongo-driver-core.version> <!-- TODO: upgrade to 3.8.0 -->
+    <mongo-java-driver.version>3.2.2</mongo-java-driver.version> <!-- TODO: upgrade to 3.8.0 -->
     <mongodb-driver-async.version>${mongo-java-driver.version}</mongodb-driver-async.version>
     <morphia.version>1.3.2</morphia.version>
     <mysql-connector-java.version>5.1.42</mysql-connector-java.version> <!-- TODO: upgrade to 8.0.11 -->
