@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import java.util.concurrent.ForkJoinPool;
 
-//import com.couchbase.client.deps.io.netty.util.internal.chmv8.ForkJoinPool;
 
 public class Issue498 extends ServerFeature {
 
