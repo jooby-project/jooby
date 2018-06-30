@@ -3023,7 +3023,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <asm.version>6.2</asm.version>
     <async-http-client.version>1.9.36</async-http-client.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
-    <aws-java-sdk.version>1.11.273</aws-java-sdk.version>
+    <aws-java-sdk.version>1.11.358</aws-java-sdk.version>
     <bootstrap.version>3.3.4</bootstrap.version>
     <boringssl.version>2.0.8.Final</boringssl.version>
     <bson4jackson.version>2.9.0</bson4jackson.version>
