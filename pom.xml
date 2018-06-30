@@ -3122,7 +3122,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <swagger-ui.version>3.14.2</swagger-ui.version>
     <swagger.version>1.5.20</swagger.version>
     <thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
-    <undertow.version>1.4.25.Final</undertow.version>
+    <undertow.version>2.0.9.Final</undertow.version>
     <xmlgraphics-commons.version>2.1</xmlgraphics-commons.version>
     <yuicompressor.version>2.4.8</yuicompressor.version>
 
