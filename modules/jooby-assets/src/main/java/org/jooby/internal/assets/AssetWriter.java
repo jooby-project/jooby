@@ -272,6 +272,7 @@ public class AssetWriter {
 
   public void write(String path, String chunk) throws IOException {
     if (bundle == null) {
+      // TODO: sanitization of arguments
       File output = new File(outDir, path);
       writeFile(output, chunk);
       result.add(output);
@@ -285,6 +286,7 @@ public class AssetWriter {
   public List<File> getResult() throws IOException {
     try {
       if (bundle != null && bundle.length() > 0) {
+        // TODO: sanitization of arguments
         Path filename = Paths.get(fset + "." + sha1(bundle) + ext);
         Path filepath = patterns(filter).findFirst()
             .map(p -> Paths.get(p).resolve(filename))
@@ -322,6 +324,7 @@ public class AssetWriter {
 
   public void add(String path) {
     if (bundle == null) {
+      // TODO: sanitization of arguments
       result.add(new File(outDir, path));
     }
   }
