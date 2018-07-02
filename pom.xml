@@ -3081,7 +3081,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jquery.version>2.1.3</jquery.version> <!-- TODO: update to 3.1.1 -->
     <jruby.version>9.0.1.0</jruby.version>
     <jsass.version>5.2.0</jsass.version>
-    <jsoup.version>1.11.3</jsoup.version>
+    <jsoup.version>1.8.3</jsoup.version>
     <jsr305.version>3.0.2</jsr305.version>
     <kotlin.version>1.2.41</kotlin.version>
     <less4j.version>1.13.0</less4j.version>
