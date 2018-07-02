@@ -222,6 +222,7 @@ public final class AuthSerializer {
     }
     return Try.apply(() -> {
       byte[] bytes = BaseEncoding.base64().decode(value.substring(PREFIX.length()));
+      // TODO: sanitization of arguments
       return new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject();
     })
         .wrap(x -> new IllegalArgumentException("Can't de-serialize value " + value, x))

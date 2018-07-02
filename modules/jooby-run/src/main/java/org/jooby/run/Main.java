@@ -327,15 +327,18 @@ public class Main {
           excludes = option[1];
           break;
         case "props":
+          // TODO: sanitization of arguments
           setSystemProperties(new File(option[1]));
           break;
         case "deps":
+          // TODO: sanitization of arguments
           String[] deps = option[1].split(File.pathSeparator);
           for (String dep : deps) {
             cp.add(new File(dep));
           }
           break;
         case "watchdirs":
+          // TODO: sanitization of arguments
           String[] dirs = option[1].split(File.pathSeparator);
           for (String dir : dirs) {
             watch.add(new File(dir));
@@ -349,6 +352,7 @@ public class Main {
     logLevel();
 
     if (cp.isEmpty()) {
+      // TODO: sanitization of arguments
       cp.add(new File(System.getProperty("user.dir")));
     }
 
