@@ -1005,6 +1005,7 @@ public class NettyResponseTest {
           expect(ctx.voidPromise()).andReturn(promise);
           expect(ctx.write(unit.get(HttpResponse.class), promise))
               .andReturn(unit.get(ChannelFuture.class));
+          expect(ctx.flush()).andReturn(ctx);
         })
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), unit.get(HttpHeaders.class), bufferSize, true)
@@ -1041,6 +1042,7 @@ public class NettyResponseTest {
         .expect(unit -> {
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.write(unit.get(HttpResponse.class))).andReturn(unit.get(ChannelFuture.class));
+          expect(ctx.flush()).andReturn(ctx);
         })
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), unit.get(HttpHeaders.class), bufferSize, false)
@@ -1083,6 +1085,7 @@ public class NettyResponseTest {
           expect(ctx.voidPromise()).andReturn(promise);
           expect(ctx.write(unit.get(HttpResponse.class), promise))
               .andReturn(unit.get(ChannelFuture.class));
+          expect(ctx.flush()).andReturn(ctx);
         })
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), unit.get(HttpHeaders.class),

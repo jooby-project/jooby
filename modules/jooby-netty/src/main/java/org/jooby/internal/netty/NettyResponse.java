@@ -483,6 +483,7 @@ public class NettyResponse implements NativeResponse {
         } else {
           ctx.write(rsp).addListener(CLOSE);
         }
+        ctx.flush();
         committed = true;
       }
       ctx = null;
