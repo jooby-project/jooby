@@ -1,13 +1,49 @@
 language: java
 
-before_install:
-  - export MAVEN_OPTS=-Xmx1024m
-
-script:
-  - ./build/travis.sh
-
 jdk:
   - oraclejdk8
+  - oraclejdk9
+  - oraclejdk10
+  - openjdk7
+  - openjdk8
+  - openjdk9
+  - openjdk10
+  - openjdk11
+
+stages:
+  - package
+  - test
+  - coverage
+
+cache:
+  directories:
+  - $HOME/.m2
+
+#before_install:
+#  - export MAVEN_OPTS=-Xmx1024m
+
+jobs:
+  include:
+    - stage: package
+      env:
+        - MAVEN_OPTS=-Xmx1024m -DskipTests=true -Dlogback.configurationFile=logback-travis.xml
+      script:
+        - "mvn clean install"
+#    - stage: test
+#      env:
+#        - MAVEN_OPTS=-Xmx1024m -Dlogback.configurationFile=logback-travis.xml
+#      script:
+#        - "mvn test"
+#    - stage: coverage
+#      env:
+#        - MAVEN_OPTS=-Xmx1024m -Dlogback.configurationFile=logback-travis.xml -Dcoverage.port=random -Dcoverage.securePort=random
+#      script:
+#        - mvn -q coveralls:report -P coverage
+#    - stage: static analyis
+#          env:
+#            - MAVEN_OPTS=-Dsonar.organization=jooby-project -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=
+#          script:
+#            - "mvn sonar:sonar"
 
 branches:
   only:
