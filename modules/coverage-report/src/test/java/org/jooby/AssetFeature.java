@@ -71,7 +71,7 @@ public class AssetFeature extends ServerFeature {
         .get("/assets/jquery-2.1.4.js")
         .expect(200)
         .header("Content-Type", "application/javascript;charset=UTF-8")
-        .header("Content-Length", 247597)
+        .header("Content-Length", 257551)
         .header("Last-Modified", lastModified -> {
           request()
               .get("/assets/file.js")

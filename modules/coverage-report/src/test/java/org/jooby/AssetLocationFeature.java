@@ -32,25 +32,25 @@ public class AssetLocationFeature extends ServerFeature {
   @Test
   public void webjars() throws Exception {
     request()
-        .get("/js/jquery/2.1.3/jquery.js")
+        .get("/js/jquery/2.2.4/jquery.js")
         .expect(200)
         .header("Content-Type", "application/javascript;charset=UTF-8")
-        .header("Content-Length", "247387");
+        .header("Content-Length", "257551");
 
     request()
-        .get("/js/jquery/2.1.3/jquery.min.js")
+        .get("/js/jquery/2.2.4/jquery.min.js")
         .expect(200)
         .header("Content-Type", "application/javascript;charset=UTF-8")
-        .header("Content-Length", "84355");
+        .header("Content-Length", "85613");
   }
 
   @Test
   public void webjarsMapping() throws Exception {
     request()
-        .get("/js/lib/jquery-2.1.3.js")
+        .get("/js/lib/jquery-2.1.4.js")
         .expect(200)
         .header("Content-Type", "application/javascript;charset=UTF-8")
-        .header("Content-Length", "247387");
+        .header("Content-Length", "257551");
 
   }
 

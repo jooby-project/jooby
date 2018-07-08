@@ -22,7 +22,7 @@ public class AssetResolveNextFeature extends ServerFeature {
   @Test
   public void secondLocation() throws Exception {
     request()
-        .get("/assets/js/jquery-2.1.3.js")
+        .get("/assets/js/jquery-2.1.4.js")
         .expect(200);
   }
 

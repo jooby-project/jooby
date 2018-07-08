@@ -13,22 +13,22 @@ public class WebJarFeature extends ServerFeature {
   @Test
   public void jquery() throws Exception {
     request()
-        .get("/webjars/jquery/2.1.3/jquery.js")
+        .get("/webjars/jquery/2.2.4/jquery.js")
         .expect(200)
         .header("Content-Type", "application/javascript;charset=UTF-8")
-        .header("Content-Length", 247387);
+        .header("Content-Length", 257551);
 
     request()
-        .get("/webjars/jquery/2.1.3/jquery.min.js")
+        .get("/webjars/jquery/2.2.4/jquery.min.js")
         .expect(200)
         .header("Content-Type", "application/javascript;charset=UTF-8")
-        .header("Content-Length", 84355);
+        .header("Content-Length", 85613);
 
     request()
-        .get("/webjars/jquery/2.1.3/jquery.min.map")
+        .get("/webjars/jquery/2.2.4/jquery.min.map")
         .expect(200)
         .header("Content-Type", "text/plain;charset=UTF-8")
-        .header("Content-Length", 127542);
+        .header("Content-Length", 129572);
   }
 
   @Test
