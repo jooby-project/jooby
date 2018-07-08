@@ -6,7 +6,8 @@ import static org.junit.Assert.assertTrue;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-import com.couchbase.client.deps.io.netty.util.internal.chmv8.ForkJoinPool;
+import java.util.concurrent.ForkJoinPool;
+
 
 public class Issue498 extends ServerFeature {
 

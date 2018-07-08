@@ -258,11 +258,11 @@ public class TimedSupport {
     String timed = (String) attributes.get("Timed");
     if (timed != null) {
       String[] extraTags = (String[]) attributes.get("Timed.extraTags");
-      Boolean histogram = (Boolean) attributes.get("Timed.histogram");
+      boolean histogram = attributes.get("Timed.histogram") == Boolean.TRUE;
       double[] percentiles = (double[]) attributes.get("Timed.percentiles");
-      Boolean longTask = (Boolean) attributes.get("Timed.longTask");
+      boolean longTask = attributes.get("Timed.longTask") == Boolean.TRUE;
       String description = Strings.emptyToNull((String) attributes.get("Timed.description"));
-      return new TimedSupport(timed, longTask.booleanValue(), description, extraTags, histogram,
+      return new TimedSupport(timed, longTask, description, extraTags, histogram,
           percentiles);
     }
     return null;

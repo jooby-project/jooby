@@ -203,7 +203,6 @@
  */
 package org.jooby.couchbase;
 
-import com.couchbase.client.deps.io.netty.util.internal.MessagePassingQueue.Supplier;
 import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.ConnectionString;
@@ -641,7 +640,7 @@ public class Couchbase implements Module {
    * @param env Environment provider.
    * @return This module.
    */
-  public Couchbase environment(final Supplier<CouchbaseEnvironment> env) {
+  public Couchbase environment(final java.util.function.Supplier<CouchbaseEnvironment> env) {
     return environment(c -> env.get());
   }
 

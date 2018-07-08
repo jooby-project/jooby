@@ -12,6 +12,7 @@
 
 * [crash](/doc/crash): [CRaSH](http://www.crashub.org/) remote shell integration.
 * [metrics](/doc/metrics): application metrics from the excellent [metrics](http://metrics.dropwizard.io) library.
+* [micrometer](/doc/micrometer): [Micrometer](https://micrometer.io) vendor-neutral application metrics facade.
 
 # utils
 
