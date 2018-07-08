@@ -58,6 +58,7 @@
     <module>jooby-ebean</module>
     <module>jooby-akka</module>
     <module>jooby-metrics</module>
+    <module>jooby-micrometer</module>
     <module>jooby-querydsl</module>
     <module>jooby-sitemap</module>
     <module>jooby-rxjava</module>

@@ -91,6 +91,7 @@
                     <source>${project.parent.basedir}/jooby-rocker/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-neo4j/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-jdbi3/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-micrometer/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -157,6 +158,7 @@
                     <source>${project.parent.basedir}/jooby-rocker/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-neo4j/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-jdbi3/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-micrometer/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -966,6 +968,12 @@
 
     <dependency>
       <groupId>org.jooby</groupId>
+      <artifactId>jooby-micrometer</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
       <artifactId>jooby-requery</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -1103,6 +1111,72 @@
     </dependency>
 
     <!-- Test dependencies -->
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-atlas</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-datadog</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-ganglia</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-graphite</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-influx</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-jmx</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-new-relic</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-signalfx</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-statsd</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-wavefront</artifactId>
+      <optional>true</optional>
+    </dependency>
+
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-cas</artifactId>

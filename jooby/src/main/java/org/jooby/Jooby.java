@@ -2927,6 +2927,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       Set<Object> routeClasses = new HashSet<>();
       for (Object it : bag) {
         Try.run(() -> bindService(
+            logger(this),
             this.bag,
             finalConfig,
             finalEnv,
@@ -3074,7 +3075,8 @@ public class Jooby implements Router, LifeCycle, Registry {
     };
   }
 
-  private static Throwing.Consumer<? super Object> bindService(final Set<Object> src,
+  private static Throwing.Consumer<? super Object> bindService(Logger log,
+      final Set<Object> src,
       final Config conf,
       final Env env,
       final RouteMetadata rm,
@@ -3089,14 +3091,14 @@ public class Jooby implements Router, LifeCycle, Registry {
     return it -> {
       if (it instanceof Jooby.Module) {
         int from = src.size();
-        install((Jooby.Module) it, env, conf, binder);
+        install(log, (Jooby.Module) it, env, conf, binder);
         int to = src.size();
         // collect any route a module might add
         if (to > from) {
           List<Object> elements = normalize(new ArrayList<>(src).subList(from, to), env, rm,
               caseSensitiveRouting);
           for (Object e : elements) {
-            bindService(src,
+            bindService(log, src,
                 conf,
                 env,
                 rm,
@@ -3420,16 +3422,23 @@ public class Jooby implements Router, LifeCycle, Registry {
   /**
    * Install a {@link Jooby.Module}.
    *
+   * @param log Logger.
    * @param module The module to install.
    * @param env Application env.
    * @param config The configuration object.
    * @param binder A Guice binder.
    * @throws Throwable If module bootstrap fails.
    */
-  private static void install(final Jooby.Module module, final Env env, final Config config,
+  private static void install(final Logger log, final Jooby.Module module, final Env env, final Config config,
       final Binder binder) throws Throwable {
     module.configure(env, config, binder);
-    binder.install(ProviderMethodsModule.forObject(module));
+    try {
+      binder.install(ProviderMethodsModule.forObject(module));
+    } catch (NoClassDefFoundError x) {
+      // Allow dynamic linking of optional dependencies (required by micrometer module), we ignore
+      // missing classes here, if there is a missing class Jooby is going to fails early (not here)
+      log.debug("ignoring class not found from guice provider method", x);
+    }
   }
 
   /**
