@@ -68,7 +68,7 @@ public class Issue346 extends ServerFeature {
     });
 
     use("/3", (req, rsp) -> {
-      assertEquals(ImmutableMap.of("SitemapUrl.priority", 0.5, "SitemapUrl.changefreq", "always", "role", "admin"),
+      assertEquals(ImmutableMap.of("SitemapUrl.priority", 0.5, "SitemapUrl.changefreq", "always", "Role", "admin"),
           req.route().attributes());
     });
     use(Resource.class);
@@ -91,7 +91,7 @@ public class Issue346 extends ServerFeature {
     request().get("/3")
         .expect(value -> {
           Map<String, Object> hash = toMap(value.substring(1, value.length() - 1));
-          assertEquals(ImmutableMap.of("SitemapUrl.priority", "0.5", "SitemapUrl.changefreq", "always", "role", "admin"),
+          assertEquals(ImmutableMap.of("SitemapUrl.priority", "0.5", "SitemapUrl.changefreq", "always", "Role", "admin"),
               hash);
         });
   }

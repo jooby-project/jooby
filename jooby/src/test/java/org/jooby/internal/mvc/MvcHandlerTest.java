@@ -1,12 +1,6 @@
 package org.jooby.internal.mvc;
 
 import static org.easymock.EasyMock.expect;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
-
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
@@ -16,6 +10,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({MvcHandler.class })
@@ -120,7 +119,7 @@ public class MvcHandlerTest {
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })
-  @Test(expected = RuntimeException.class)
+  @Test(expected = Throwable.class)
   public void throwableException() throws Exception {
     Class handlerClass = MvcHandlerTest.class;
     MvcHandlerTest handler = new MvcHandlerTest();

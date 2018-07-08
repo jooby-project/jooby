@@ -451,7 +451,7 @@ public class SwaggerBuilder {
 
   private void buildResponse(RouteMethod route, Function<Type, Model> modelFactory,
       Consumer<ResponseWithStatusCode> consumer) {
-    Object[] apiResponses = (Object[]) route.attributes().get("apiResponses");
+    Object[] apiResponses = (Object[]) route.attributes().get("ApiResponses");
     if (apiResponses != null) {
       /** ApiResponses annotation: */
       Set<Integer> codes = new HashSet<>();
@@ -572,7 +572,7 @@ public class SwaggerBuilder {
   }
 
   private String summary(RouteMethod route) {
-    String summary = stringAttribute(route, "apiOperation");
+    String summary = stringAttribute(route, "ApiOperation");
     if (summary == null) {
       return route.description().map(description -> {
         int dot = description.indexOf('.');

@@ -203,7 +203,6 @@
  */
 package org.jooby.internal.mvc;
 
-import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
 import org.jooby.Env;
 import org.jooby.MediaType;
@@ -391,8 +390,7 @@ public class MvcRoutes {
   private static String attrName(final Annotation annotation, final Method attr) {
     String name = attr.getName();
     if (name.equals("value")) {
-      return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL,
-          annotation.annotationType().getSimpleName());
+      return annotation.annotationType().getSimpleName();
     }
     return annotation.annotationType().getSimpleName() + "." + name;
   }

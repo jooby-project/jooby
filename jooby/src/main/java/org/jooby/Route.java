@@ -1575,7 +1575,7 @@ public interface Route {
       if (value instanceof String || value instanceof Enum || value instanceof Class) {
         return true;
       }
-      if (value.getClass().isArray()) {
+      if (value.getClass().isArray() && Array.getLength(value) > 0) {
         return valid(Array.get(value, 0));
       }
       if (value instanceof Map && ((Map) value).size() > 0) {
