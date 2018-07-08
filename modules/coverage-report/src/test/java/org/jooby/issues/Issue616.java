@@ -9,8 +9,8 @@ public class Issue616 extends ServerFeature {
   public static class Person {
 
     // mandatory fields
-    private final String name;
-    private final String surname;
+    private String name = null;
+    private String surname = null;
 
     // optional fields
     private String nickname;
@@ -18,6 +18,9 @@ public class Issue616 extends ServerFeature {
     public Person(final String name, final String surname) {
       this.name = name;
       this.surname = surname;
+    }
+
+    public Person() {
     }
 
     public String getName() {
