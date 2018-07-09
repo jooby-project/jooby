@@ -47,7 +47,7 @@ public class MediaTypeTest {
     assertEquals(false, MediaType.valueOf("application/*+json").isAny());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void nullFilter() {
     MediaType.matcher(MediaType.js).filter(null);
   }

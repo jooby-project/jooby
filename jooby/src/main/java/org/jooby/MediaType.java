@@ -204,6 +204,7 @@
 package org.jooby;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
@@ -286,7 +287,7 @@ public class MediaType implements Comparable<MediaType> {
      * @return True if the matcher matches the given media type.
      */
     public boolean matches(final List<MediaType> candidates) {
-      return filter(candidates).size() > 0;
+      return !filter(candidates).isEmpty();
     }
 
     /**
@@ -347,7 +348,8 @@ public class MediaType implements Comparable<MediaType> {
      *         specific.
      */
     public List<MediaType> filter(final List<MediaType> types) {
-      checkArgument(types != null && types.size() > 0, "Media types are required");
+      requireNonNull(types, "Media types are required");
+      checkArgument(!types.isEmpty(), "Media types are required");
       ImmutableList.Builder<MediaType> result = ImmutableList.builder();
       final List<MediaType> sortedTypes;
       if (types.size() == 1) {
@@ -383,7 +385,7 @@ public class MediaType implements Comparable<MediaType> {
      */
     private Optional<MediaType> doFirst(final List<MediaType> candidates) {
       List<MediaType> result = filter(candidates);
-      return result.size() == 0 ? Optional.empty() : Optional.of(result.get(0));
+      return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
   }
 
@@ -438,19 +440,19 @@ public class MediaType implements Comparable<MediaType> {
   public static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
   /** Form multipart-data media type. */
-  public static MediaType multipart = new MediaType("multipart", "form-data");
+  public static final MediaType multipart = new MediaType("multipart", "form-data");
 
   /** Form url encoded. */
-  public static MediaType form = new MediaType("application", "x-www-form-urlencoded");
+  public static final MediaType form = new MediaType("application", "x-www-form-urlencoded");
 
   /** Xml media type. */
-  public static MediaType xml = new MediaType("application", "xml");
+  public static final MediaType xml = new MediaType("application", "xml");
 
   /** Server sent event type. */
-  public static MediaType sse = new MediaType("text", "event-stream");
+  public static final MediaType sse = new MediaType("text", "event-stream");
 
   /** Xml like media type. */
-  private static MediaType xmlLike = new MediaType("application", "*+xml");
+  private static final MediaType xmlLike = new MediaType("application", "*+xml");
 
   /**
    * Track the type of this media type.
@@ -585,11 +587,7 @@ public class MediaType implements Comparable<MediaType> {
     if (xmlLike.matches(this)) {
       return true;
     }
-    if (this.type.equals("application") && this.subtype.equals("hocon")) {
-      return true;
-    }
-
-    return false;
+    return this.type.equals("application") && this.subtype.equals("hocon");
   }
 
   @Override
@@ -625,7 +623,7 @@ public class MediaType implements Comparable<MediaType> {
     // param size
     int paramsSize1 = this.params.size();
     int paramsSize2 = that.params.size();
-    return (paramsSize2 < paramsSize1 ? -1 : (paramsSize2 == paramsSize1 ? 0 : 1));
+    return (Integer.compare(paramsSize2, paramsSize1));
   }
 
   /**
@@ -830,5 +828,4 @@ public class MediaType implements Comparable<MediaType> {
     }
     return Optional.empty();
   }
-
 }
