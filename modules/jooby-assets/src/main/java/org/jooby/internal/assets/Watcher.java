@@ -203,6 +203,7 @@
  */
 package org.jooby.internal.assets;
 
+import com.sun.nio.file.SensitivityWatchEventModifier;
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
@@ -231,7 +232,7 @@ import java.util.function.BiConsumer;
 
 class Watcher {
 
-  private static final WatchEvent.Modifier HIGH = () -> "HIGH";
+  private static final WatchEvent.Modifier HIGH = SensitivityWatchEventModifier.HIGH;
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
   private final WatchService watcher;
