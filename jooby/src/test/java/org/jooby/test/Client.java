@@ -22,6 +22,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
+
+import static com.google.common.base.Throwables.throwIfUnchecked;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -390,7 +392,8 @@ public class Client extends ExternalResource {
           builder.setSSLContext(sslContext);
           builder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
         } catch (Exception ex) {
-          Throwables.propagate(ex);
+          throwIfUnchecked(ex);
+          throw new RuntimeException(ex);
         }
       }
       client = builder.build();

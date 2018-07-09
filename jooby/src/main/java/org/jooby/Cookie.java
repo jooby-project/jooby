@@ -303,8 +303,7 @@ public interface Cookie {
             .append(encode.apply(e.getKey()))
             .append('=')
             .append(encode.apply(e.getValue())))
-        .collect(Collectors.joining("&"))
-        .toString();
+        .collect(Collectors.joining("&"));
   };
 
   /**
@@ -603,7 +602,7 @@ public interface Cookie {
    * @author edgar
    * @since 0.1.0
    */
-  public class Signature {
+  class Signature {
 
     /** Remove trailing '='. */
     private static final Pattern EQ = Pattern.compile("=+$");

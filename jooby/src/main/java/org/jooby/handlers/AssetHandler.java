@@ -206,6 +206,8 @@ package org.jooby.handlers;
 import com.google.common.base.Strings;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+
+import static com.google.common.base.Throwables.throwIfUnchecked;
 import static java.util.Objects.requireNonNull;
 import org.jooby.Asset;
 import org.jooby.Err;
@@ -220,6 +222,8 @@ import org.jooby.funzy.Try;
 import org.jooby.internal.URLAsset;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -228,6 +232,7 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Serve static resources, via {@link Jooby#assets(String)} or variants.

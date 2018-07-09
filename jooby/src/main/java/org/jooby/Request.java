@@ -397,7 +397,7 @@ public interface Request extends Registry {
     @Override
     public boolean isSet(final String name) {
       return req.isSet(name);
-    };
+    }
 
     @Override
     public Mutant params() {
@@ -1053,7 +1053,7 @@ public interface Request extends Registry {
   @Nonnull
   default Upload file(final String name) throws IOException {
     List<Upload> files = files(name);
-    if (files.size() == 0) {
+    if (files.isEmpty()) {
       throw new Err.Missing(name);
     }
     return files.get(0);
@@ -1070,7 +1070,7 @@ public interface Request extends Registry {
   @Nonnull
   default Optional<Upload> ifFile(final String name) throws IOException {
     List<Upload> files = files(name);
-    return files.size() == 0 ? Optional.empty() : Optional.of(files.get(0));
+    return files.isEmpty() ? Optional.empty() : Optional.of(files.get(0));
   }
 
   /**

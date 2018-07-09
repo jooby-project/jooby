@@ -238,8 +238,7 @@ public class Classpath {
 
   @SuppressWarnings("unchecked")
   public List<URL> build() throws MalformedURLException {
-    List<URL> cp = new ArrayList<>();
-    cp.addAll(resources(project.getResources()));
+    List<URL> cp = new ArrayList<>(resources(project.getResources()));
     cp.add(new File(project.getBuild().getOutputDirectory()).toURI().toURL());
     cp.addAll(jars(project.getArtifacts()));
     return cp;
@@ -259,7 +258,7 @@ public class Classpath {
   }
 
   private List<URL> jars(final Iterable<Artifact> artifacts) throws MalformedURLException {
-    List<URL> result = new ArrayList<URL>();
+    List<URL> result = new ArrayList<>();
     for (Artifact artifact : artifacts) {
       if (!"pom".equals(artifact.getType())) {
         result.add(artifact.getFile().toURI().toURL());
@@ -269,7 +268,7 @@ public class Classpath {
   }
 
   private List<URL> resources(final Iterable<Resource> resources) throws MalformedURLException {
-    List<URL> result = new ArrayList<URL>();
+    List<URL> result = new ArrayList<>();
     for (Resource resource : resources) {
       File dir = new File(resource.getDirectory());
       if (dir.exists()) {
@@ -278,5 +277,4 @@ public class Classpath {
     }
     return result;
   }
-
 }

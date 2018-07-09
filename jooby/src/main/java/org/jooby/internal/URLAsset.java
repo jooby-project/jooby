@@ -304,7 +304,7 @@ public class URLAsset implements Asset {
         // dir entries throw NPE :S
         return null;
       }
-      return () -> resource.openStream();
+      return resource::openStream;
     }
   }
 

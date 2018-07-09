@@ -203,9 +203,11 @@
  */
 package org.jooby;
 
+import static com.google.common.base.Throwables.throwIfUnchecked;
 import static java.util.Objects.requireNonNull;
 
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import com.google.common.io.BaseEncoding;
@@ -324,7 +326,13 @@ public interface Asset {
     b.append("W/\"");
 
     BaseEncoding b64 = BaseEncoding.base64();
-    int lhash = resource().hashCode();
+    int lhash = 0;
+    try {
+      lhash = resource().toURI().hashCode();
+    } catch (URISyntaxException e) {
+      throwIfUnchecked(e);
+      throw new RuntimeException(e);
+    }
 
     b.append(b64.encode(Longs.toByteArray(lastModified() ^ lhash)));
     b.append(b64.encode(Longs.toByteArray(length() ^ lhash)));

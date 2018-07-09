@@ -926,7 +926,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   private Optional<String> prefixPath(String tail) {
-    return path.size() == 0
+    return path.isEmpty()
         ? tail == null ? Optional.empty() : Optional.of(Route.normalize(tail))
         : Optional.of(path.stream()
         .collect(Collectors.joining("", "", tail == null
@@ -960,15 +960,13 @@ public class Jooby implements Router, LifeCycle, Registry {
   private Jooby use(final Optional<String> path, final Jooby app) {
     requireNonNull(app, "App is required.");
 
-    Function<Route.Definition, Route.Definition> rewrite = r -> {
-      return path.map(p -> {
-        Route.Definition result = new Route.Definition(r.method(), p + r.pattern(), r.filter());
-        result.consumes(r.consumes());
-        result.produces(r.produces());
-        result.excludes(r.excludes());
-        return result;
-      }).orElse(r);
-    };
+    Function<Route.Definition, Route.Definition> rewrite = r -> path.map(p -> {
+      Definition result = new Definition(r.method(), p + r.pattern(), r.filter());
+      result.consumes(r.consumes());
+      result.produces(r.produces());
+      result.excludes(r.excludes());
+      return result;
+    }).orElse(r);
 
     app.bag.forEach(it -> {
       if (it instanceof Route.Definition) {
@@ -1217,9 +1215,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.OneArgHandler promise(final Deferred.Initializer initializer) {
-    return req -> {
-      return new Deferred(initializer);
-    };
+    return req -> new Deferred(initializer);
   }
 
   @Override
@@ -1230,9 +1226,7 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   @Override
   public Route.OneArgHandler promise(final Deferred.Initializer0 initializer) {
-    return req -> {
-      return new Deferred(initializer);
-    };
+    return req -> new Deferred(initializer);
   }
 
   @Override
@@ -2133,9 +2127,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    */
   public static Config exportConf(final Jooby app) {
     AtomicReference<Config> conf = new AtomicReference<>(ConfigFactory.empty());
-    app.on("*", c -> {
-      conf.set(c);
-    });
+    app.on("*", c -> conf.set(c));
     exportRoutes(app);
     return conf.get();
   }
@@ -2205,7 +2197,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     this.injector = bootstrap(args(args), routes);
 
     // shutdown hook
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
+    Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
     Config conf = injector.getInstance(Config.class);
 
@@ -2223,8 +2215,8 @@ public class Jooby implements Router, LifeCycle, Registry {
     }
 
     // start services
-    for (Throwing.Consumer<Registry> onStart : this.onStart) {
-      onStart.accept(this);
+    for (Throwing.Consumer<Registry> additionalOnStart : this.onStart) {
+      additionalOnStart.accept(this);
     }
 
     // route mapper
@@ -2238,10 +2230,10 @@ public class Jooby implements Router, LifeCycle, Registry {
     printer.printConf(log, conf);
 
     // Start server
-    Server server = injector.getInstance(Server.class);
-    String serverName = server.getClass().getSimpleName().replace("Server", "").toLowerCase();
+    Server injectorInstance = injector.getInstance(Server.class);
+    String serverName = injectorInstance.getClass().getSimpleName().replace("Server", "").toLowerCase();
 
-    server.start();
+    injectorInstance.start();
     long end = System.currentTimeMillis();
 
     log.info("[{}@{}]: Server started in {}ms\n\n{}\n",
@@ -2251,13 +2243,13 @@ public class Jooby implements Router, LifeCycle, Registry {
         printer);
 
     // started services
-    for (Throwing.Consumer<Registry> onStarted : this.onStarted) {
-      onStarted.accept(this);
+    for (Throwing.Consumer<Registry> additionalStarted : this.onStarted) {
+      additionalStarted.accept(this);
     }
 
     boolean join = conf.hasPath("server.join") ? conf.getBoolean("server.join") : true;
     if (join) {
-      server.join();
+      injectorInstance.join();
     }
   }
 
@@ -2301,9 +2293,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This instance.
    */
   public <T> Jooby bind(final Class<T> type, final Class<? extends T> implementation) {
-    use((env, conf, binder) -> {
-      binder.bind(type).to(implementation);
-    });
+    use((env, conf, binder) -> binder.bind(type).to(implementation));
     return this;
   }
 
@@ -2322,9 +2312,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This instance.
    */
   public <T> Jooby bind(final Class<T> type, final Supplier<T> implementation) {
-    use((env, conf, binder) -> {
-      binder.bind(type).toInstance(implementation.get());
-    });
+    use((env, conf, binder) -> binder.bind(type).toInstance(implementation.get()));
     return this;
   }
 
@@ -2342,9 +2330,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This instance.
    */
   public <T> Jooby bind(final Class<T> type) {
-    use((env, conf, binder) -> {
-      binder.bind(type);
-    });
+    use((env, conf, binder) -> binder.bind(type));
     return this;
   }
 
@@ -3269,7 +3255,7 @@ public class Jooby implements Router, LifeCycle, Registry {
         name = "application.env";
         value = values[0];
       }
-      if (name.indexOf(".") == -1) {
+      if (!name.contains(".")) {
         conf.put("application." + name, value);
       }
       conf.put(name, value);
@@ -3405,11 +3391,11 @@ public class Jooby implements Router, LifeCycle, Registry {
       defs = defs.withValue("application.charset", fromAnyRef(charset.name()));
     }
     if (port != null) {
-      defs = defs.withValue("application.port", fromAnyRef(port.intValue()));
+      defs = defs.withValue("application.port", fromAnyRef(port));
     }
     if (securePort != null) {
       defs = defs.withValue("application.securePort",
-          fromAnyRef(securePort.intValue()));
+          fromAnyRef(securePort));
     }
     if (dateFormat != null) {
       defs = defs.withValue("application.dateFormat", fromAnyRef(dateFormat));
@@ -3451,7 +3437,7 @@ public class Jooby implements Router, LifeCycle, Registry {
       Object value = entry.getValue().unwrapped();
       if (value instanceof List) {
         List<Object> values = (List<Object>) value;
-        Type listType = values.size() == 0
+        Type listType = values.isEmpty()
             ? String.class
             : Types.listOf(values.iterator().next().getClass());
         Key<Object> key = (Key<Object>) Key.get(listType, Names.named(name));
@@ -3498,14 +3484,12 @@ public class Jooby implements Router, LifeCycle, Registry {
       files.add(new File(confdir, "logback.xml"));
       logback = files.build()
           .stream()
-          .filter(f -> f.exists())
-          .map(f -> f.getAbsolutePath())
+          .filter(File::exists)
+          .map(File::getAbsolutePath)
           .findFirst()
-          .orElseGet(() -> {
-            return Optional.ofNullable(Jooby.class.getResource("/logback." + env + ".xml"))
-                .map(Objects::toString)
-                .orElse("logback.xml");
-          });
+          .orElseGet(() -> Optional.ofNullable(Jooby.class.getResource("/logback." + env + ".xml"))
+              .map(Objects::toString)
+              .orElse("logback.xml"));
     }
     return logback;
   }

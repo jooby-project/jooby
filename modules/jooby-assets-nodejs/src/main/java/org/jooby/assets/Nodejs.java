@@ -208,6 +208,8 @@ import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.utils.MemoryManager;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
+
+import static com.google.common.base.Throwables.throwIfUnchecked;
 import static java.util.Objects.requireNonNull;
 import org.jooby.Route;
 import org.jooby.funzy.Throwing;
@@ -364,7 +366,7 @@ public class Nodejs {
         "index.js");
 
     Path main = candidates.stream()
-        .map(it -> basedir.resolve(it))
+        .map(basedir::resolve)
         .filter(it -> it.toFile().exists())
         .findFirst()
         .orElseThrow(() -> new FileNotFoundException(candidates.toString()));
@@ -449,12 +451,13 @@ public class Nodejs {
    * @param basedir Base dir where to deploy a library.
    * @param callback Nodejs callback.
    */
-  public static void run(final File basedir, final Throwing.Consumer<Nodejs> callback) {
+  public static void run(final File basedir, final Throwing.Consumer<Nodejs> callback) throws RuntimeException {
     Nodejs node = new Nodejs(basedir);
     try {
       callback.accept(node);
     } catch (Throwable x) {
-      throw Throwables.propagate(x);
+      throwIfUnchecked(x);
+      throw new RuntimeException(x);
     } finally {
       node.release();
     }

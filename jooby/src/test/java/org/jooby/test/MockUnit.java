@@ -1,9 +1,11 @@
 package org.jooby.test;
 
+import static com.google.common.base.Throwables.throwIfUnchecked;
 import static java.util.Objects.requireNonNull;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createStrictMock;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +20,6 @@ import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.powermock.api.easymock.PowerMock;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.primitives.Primitives;
@@ -44,8 +45,7 @@ public class MockUnit {
     public T build(final Object... args) throws Exception {
       mockClasses.add(type);
       if (types == null) {
-        types = Arrays.asList(type.getDeclaredConstructors())
-            .stream()
+        types = Arrays.stream(type.getDeclaredConstructors())
             .filter(c -> {
               Class<?>[] types = c.getParameterTypes();
               if (types.length == args.length) {
@@ -58,7 +58,7 @@ public class MockUnit {
                 return true;
               }
               return false;
-            }).map(c -> c.getParameterTypes())
+            }).map(Constructor::getParameterTypes)
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("Unable to find parameter types"));
       }
@@ -97,18 +97,12 @@ public class MockUnit {
   }
 
   public MockUnit(final boolean strict, final Class... types) {
-    Arrays.stream(types).forEach(type -> {
-      registerMock(type);
-    });
+    Arrays.stream(types).forEach(this::registerMock);
   }
 
   public <T> T capture(final Class<T> type) {
     Capture<Object> capture = new Capture<>();
-    List<Capture<Object>> captures = this.captures.get(type);
-    if (captures == null) {
-      captures = new ArrayList<>();
-      this.captures.put(type, captures);
-    }
+    List<Capture<Object>> captures = this.captures.computeIfAbsent(type, k -> new ArrayList<>());
     captures.add(capture);
     return (T) EasyMock.capture(capture);
   }
@@ -189,7 +183,7 @@ public class MockUnit {
     return mock;
   }
 
-  public <T> T get(final Class<T> type) {
+  public <T> T get(final Class<T> type) throws IllegalStateException {
     try {
       List<Object> collection = (List<Object>) requireNonNull(globalMock.get(type));
       T m = (T) collection.get(collection.size() - 1);
@@ -218,7 +212,8 @@ public class MockUnit {
       } catch (Exception | AssertionError ex) {
         throw ex;
       } catch (Throwable ex) {
-        Throwables.propagate(ex);
+        throwIfUnchecked(ex);
+        throw new RuntimeException(ex);
       }
     }
 
@@ -232,7 +227,8 @@ public class MockUnit {
       } catch (Exception | AssertionError ex) {
         throw ex;
       } catch (Throwable ex) {
-        Throwables.propagate(ex);
+        throwIfUnchecked(ex);
+        throw new RuntimeException(ex);
       }
     }
 

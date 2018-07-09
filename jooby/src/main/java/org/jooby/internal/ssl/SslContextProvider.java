@@ -203,6 +203,7 @@
  */
 package org.jooby.internal.ssl;
 
+import static com.google.common.base.Throwables.throwIfUnchecked;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
@@ -217,7 +218,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.net.ssl.SSLContext;
 
-import com.google.common.base.Throwables;
 import com.typesafe.config.Config;
 
 public class SslContextProvider implements Provider<SSLContext> {
@@ -246,7 +246,8 @@ public class SslContextProvider implements Provider<SSLContext> {
               conf.getLong("ssl.session.cacheSize"), conf.getLong("ssl.session.timeout"))
           .context();
     } catch (IOException ex) {
-      throw Throwables.propagate(ex);
+      throwIfUnchecked(ex);
+      throw new RuntimeException(ex);
     }
   }
 

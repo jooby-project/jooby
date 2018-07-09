@@ -462,17 +462,17 @@ public class Err extends RuntimeException {
    * @return A lightweight view of the err.
    */
   public Map<String, Object> toMap(boolean stacktrace) {
-    Status status = Status.valueOf(this.status);
+    Status statusOutput = Status.valueOf(this.status);
     Throwable cause = Optional.ofNullable(getCause()).orElse(this);
-    String message = Optional.ofNullable(cause.getMessage()).orElse(status.reason());
+    String message = Optional.ofNullable(cause.getMessage()).orElse(statusOutput.reason());
 
     Map<String, Object> err = new LinkedHashMap<>();
     err.put("message", message);
     if (stacktrace) {
       err.put("stacktrace", Throwables.getStackTraceAsString(cause).replace("\r", "").split("\\n"));
     }
-    err.put("status", status.value());
-    err.put("reason", status.reason());
+    err.put("status", statusOutput.value());
+    err.put("reason", statusOutput.reason());
 
     return err;
   }

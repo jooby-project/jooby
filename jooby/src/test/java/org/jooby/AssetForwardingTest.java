@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 
 public class AssetForwardingTest {
