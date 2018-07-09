@@ -1722,6 +1722,13 @@
         </exclusions>
       </dependency>
 
+      <!-- eventbus -->
+      <dependency>
+        <groupId>org.greenrobot</groupId>
+        <artifactId>eventbus</artifactId>
+        <version>${eventbus.version}</version>
+      </dependency>
+
       <!-- Test dependencies -->
       <dependency>
         <groupId>junit</groupId>
@@ -3230,6 +3237,9 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
 
     <!-- javaslang -->
     <javaslang.version>2.0.4</javaslang.version>
+
+    <!-- eventbus -->
+    <eventbus.version>3.1.1</eventbus.version>
 
     <batik.version>1.10</batik.version>
     <cassandra.version>3.5.0</cassandra.version>

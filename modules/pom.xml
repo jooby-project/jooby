@@ -79,6 +79,7 @@
     <module>jooby-requery</module>
     <module>jooby-rocker</module>
     <module>jooby-livereload</module>
+    <module>jooby-eventbus</module>
     <!-- Assets -->
     <module>jooby-frontend</module>
     <module>jooby-assets</module>

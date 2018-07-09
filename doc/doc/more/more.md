@@ -37,7 +37,9 @@
 
 * [quartz](/doc/quartz): advanced job scheduling via {{quartz}}.
 
-# enterprise integration patterns
+# event bus
+
+* [eventbus](/doc/eventbus): lightweight event bus.
 
 * [camel](/doc/camel): enterprise service bus for {{jooby}}.
 
