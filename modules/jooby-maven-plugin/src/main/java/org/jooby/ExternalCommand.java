@@ -227,7 +227,7 @@ public class ExternalCommand implements Command {
   public ExternalCommand(final String alias, final String name, final List<String> args) {
     this.alias = alias;
     this.name = name;
-    this.args = new ArrayList<String>(args);
+    this.args = new ArrayList<>(args);
   }
 
   public ExternalCommand() {
@@ -282,7 +282,7 @@ public class ExternalCommand implements Command {
 
   @Override
   public void execute() throws IOException, InterruptedException {
-    List<String> cmd = new ArrayList<String>();
+    List<String> cmd = new ArrayList<>();
     cmd.add(name);
     cmd.addAll(args);
     process = new ProcessBuilder(cmd)
@@ -294,7 +294,6 @@ public class ExternalCommand implements Command {
     if (wait) {
       process.waitFor();
     }
-
   }
 
   @Override
@@ -314,11 +313,11 @@ public class ExternalCommand implements Command {
   public void set(final String cmd) {
     String[] cmdline = cmd.split("\\s+");
     setName(cmdline[0].trim());
-    List<String> args = new ArrayList<String>();
+    List<String> newArgs = new ArrayList<>();
     for (int i = 1; i < cmdline.length; i++) {
-      args.add(cmdline[i].trim());
+      newArgs.add(cmdline[i].trim());
     }
-    setArgs(args);
+    setArgs(newArgs);
   }
 
   @Override
@@ -333,7 +332,5 @@ public class ExternalCommand implements Command {
 
   public void setAlias(final String alias) {
     this.alias = alias;
-
   }
-
 }

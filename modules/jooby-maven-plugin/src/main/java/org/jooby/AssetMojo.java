@@ -224,10 +224,13 @@ import org.jooby.assets.AssetCompiler;
 import java.io.File;
 import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
+import static com.google.common.base.Throwables.throwIfUnchecked;
 
 @Mojo(name = "assets", defaultPhase = LifecyclePhase.PREPARE_PACKAGE,
     requiresDependencyResolution = ResolutionScope.COMPILE)
@@ -259,15 +262,13 @@ public class AssetMojo extends AbstractMojo {
       System.setProperty("application.env", env);
 
       new JoobyRunner(mavenProject)
-          .run(mainClass, (app, conf) -> {
-            compile(app.getClass().getClassLoader(), conf);
-          });
+          .run(mainClass, (app, conf) -> compile(app.getClass().getClassLoader(), conf));
     } catch (Throwable ex) {
       throw new MojoFailureException("Can't compile assets for " + mainClass, ex);
     }
   }
 
-  private void compile(final ClassLoader loader, final Config conf) {
+  private void compile(final ClassLoader loader, final Config conf) throws RuntimeException {
     try {
       output.mkdirs();
 
@@ -316,7 +317,7 @@ public class AssetMojo extends AbstractMojo {
 
       // move output to fixed location required by zip/war dist
       List<File> files = fileset.values().stream()
-          .flatMap(it -> it.stream())
+          .flatMap(Collection::stream)
           .collect(Collectors.toList());
 
       for (File from : files) {
@@ -327,10 +328,9 @@ public class AssetMojo extends AbstractMojo {
         Files.copy(from, to);
       }
       compiler.stop();
-    } catch (InvocationTargetException ex) {
-      throw Throwables.propagate(ex.getCause());
     } catch (Exception ex) {
-      throw Throwables.propagate(ex);
+      throwIfUnchecked(ex);
+      throw new RuntimeException(ex.getCause());
     }
   }
 
