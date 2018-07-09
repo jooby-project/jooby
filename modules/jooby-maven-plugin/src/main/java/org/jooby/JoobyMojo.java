@@ -366,11 +366,11 @@ public class JoobyMojo extends AbstractMojo {
 
     // includes/excludes pattern
     String includes = null;
-    if (this.includes != null && this.includes.size() > 0) {
+    if (this.includes != null && !this.includes.isEmpty()) {
       includes = this.includes.stream().collect(Collectors.joining(File.pathSeparator));
     }
     String excludes = null;
-    if (this.excludes != null && this.excludes.size() > 0) {
+    if (this.excludes != null && !this.excludes.isEmpty()) {
       excludes = this.excludes.stream().collect(Collectors.joining(File.pathSeparator));
     }
     String watchDirStr = watchDirs.stream().filter(File::exists)
