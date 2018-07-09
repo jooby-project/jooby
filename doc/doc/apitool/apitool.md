@@ -1,8 +1,8 @@
 # API tool
 
-Automatically export your HTTP API to open standards like <a href="https://swagger.io/">Swagger</a> and <a href="https://raml.org/">RAML</a>.
+API reference generator for <a href="https://swagger.io/">Swagger</a> and <a href="https://raml.org/">RAML</a>.
 
-This module generates live documentation from your HTTP API.
+This module generates live documentation from your HTTP API (source code).
 
 ## screenshots
 
@@ -35,7 +35,7 @@ This module generates live documentation from your HTTP API.
 }
 ```
 
-Those lines export your API to <a href="https://swagger.io/">Swagger</a> and <a href="https://raml.org/">RAML</a>.
+Those lines export your API to <a href="https://swagger.io/">Swagger</a>, <a href="https://raml.org/">RAML</a> or <a href="http://rebilly.github.io/ReDoc/">ReDoc</a>.
 
 ## example
 
@@ -126,6 +126,30 @@ Suppose you have a ```Pet API``` like:
 The [ApiTool]({{apidocs}}/org/jooby/apitool/ApiTool.html) module automatically exports your application to <a href="https://swagger.io/">Swagger</a> and <a href="https://raml.org/">RAML</a>.
 
 Works for ```MVC routes``` and <a href="http://jooby.org/doc/lang-kotlin">Kotlin</a>.
+
+## redoc
+
+[ReDoc](http://rebilly.github.io/ReDoc/) example:
+
+```java
+{
+  use(new ApiTool()
+    .redoc()
+  )
+}
+```
+
+Or if you want to keep Swagger UI and ReDoc:
+
+```java
+{
+  use(new ApiTool()
+    .swagger(new Options("/swagger")
+      .redoc()
+    )
+  )
+}
+```
 
 ## keep documentation
 

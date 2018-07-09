@@ -559,6 +559,8 @@ public class ApiTool implements Jooby.Module {
 
     Function<RouteMethod, String> tagger = DEFAULT_TAGGER;
 
+    String redoc;
+
     private Options() {
     }
 
@@ -676,6 +678,28 @@ public class ApiTool implements Jooby.Module {
       this.tagger = Objects.requireNonNull(tagger, "Swagger tagger required.");
       return this;
     }
+
+    /**
+     * Add <a href="https://github.com/Rebilly/ReDoc">ReDoc</a> UI to swagger
+     * (has no effects on RAML).
+     *
+     * @param path Redoc base path.
+     * @return This options.
+     */
+    public Options redoc(String path) {
+      this.redoc = Route.normalize(path);
+      return this;
+    }
+
+    /**
+     * Add <a href="https://github.com/Rebilly/ReDoc">ReDoc</a> UI to swagger
+     * (has no effects on RAML).
+     *
+     * @return This options.
+     */
+    public Options redoc() {
+      return redoc("/redoc");
+    }
   }
 
   static final Function<RouteMethod, String> DEFAULT_TAGGER = r -> {
@@ -695,9 +719,30 @@ public class ApiTool implements Jooby.Module {
   private static final TypeLiteral<List<RouteMethod>> M = new TypeLiteral<List<RouteMethod>>() {
   };
 
+  private static final String REDOC = "<!DOCTYPE html>\n"
+      + "<html>\n"
+      + "  <head>\n"
+      + "    <title>%s</title>\n"
+      + "    <!-- needed for adaptive design -->\n"
+      + "    <meta charset=\"utf-8\"/>\n"
+      + "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
+      + "    <link href=\"https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700\" rel=\"stylesheet\">\n"
+      + "    <style>\n"
+      + "      body {\n"
+      + "        margin: 0;\n"
+      + "        padding: 0;\n"
+      + "      }\n"
+      + "    </style>\n"
+      + "  </head>\n"
+      + "  <body>\n"
+      + "    <redoc spec-url=\"%s\"></redoc>\n"
+      + "    <script src=\"%s\"> </script>\n"
+      + "  </body>\n"
+      + "</html>";
+
   private static final String RAML_STATIC = "/META-INF/resources/webjars/api-console/3.0.17/dist/";
 
-  private static final String SWAGGER_STATIC = "/META-INF/resources/webjars/swagger-ui/3.14.2/";
+  private static final String SWAGGER_STATIC = "/META-INF/resources/webjars/swagger-ui/3.17.1/";
 
   private static final String SWAGGER_THEME = "/META-INF/resources/webjars/swagger-ui-themes/3.0.0/themes/3.x/";
 
@@ -757,7 +802,7 @@ public class ApiTool implements Jooby.Module {
 
     String contextPath = conf.getString("application.path");
     if (swaggerOptions != null) {
-      swagger(contextPath, env.router(), swaggerOptions, swagger);
+      swagger(contextPath, env.router(), swaggerOptions, conf, swagger);
     }
     if (ramlOptions != null) {
       raml(contextPath, env.router(), ramlOptions, raml);
@@ -806,6 +851,24 @@ public class ApiTool implements Jooby.Module {
    */
   public ApiTool swagger() {
     return swagger("/swagger");
+  }
+
+  /**
+   * Mount ReDoc at <code>/redoc</code>
+   *
+   * @return This option.
+   */
+  public ApiTool redoc() {
+    return redoc("/redoc");
+  }
+
+  /**
+   * Mount ReDoc at <code>/redoc</code>
+   *
+   * @return This option.
+   */
+  public ApiTool redoc(String path) {
+    return swagger(new Options("/swagger").disableUI().redoc(path));
   }
 
   /**
@@ -975,17 +1038,16 @@ public class ApiTool implements Jooby.Module {
     }
   }
 
-  private static void swagger(String contextPath, Router router, Options options,
+  private static void swagger(String contextPath, Router router, Options options, Config conf,
       Consumer<Swagger> configurer)
       throws IOException {
     /** /swagger.json or /swagger.yml: */
     if (options.file == null) {
       router.get(options.path + "/swagger.json", options.path + "/swagger.yml", req -> {
-        Config conf = req.require(Config.class);
         Map<String, Object> hash = conf.getConfig("swagger").root().unwrapped();
         Swagger base = Json.mapper().convertValue(hash, Swagger.class);
-        boolean json = req.path().endsWith(".json");
         Swagger swagger = new SwaggerBuilder(options.tagger).build(base, req.require(M));
+        boolean json = req.path().endsWith(".json");
         if (configurer != null) {
           configurer.accept(swagger);
         }
@@ -1008,16 +1070,17 @@ public class ApiTool implements Jooby.Module {
       });
     }
 
+    String swaggerJsonPath = Route.normalize(contextPath + options.path) + "/swagger.json";
+
     if (options.showUI) {
       String staticPath = options.path + "/static/";
       router.assets(staticPath + "**", SWAGGER_STATIC + "{0}");
       router.assets(staticPath + "**", SWAGGER_THEME + "{0}");
 
       String fullStaticPath = Route.normalize(contextPath + staticPath) + "/";
-      String swaggerJsonPath = Route.normalize(contextPath + options.path) + "/swagger.json";
       String index = fileString(SWAGGER_STATIC + "index.html")
           .replace("./", fullStaticPath)
-          .replace("http://petstore.swagger.io/v2/swagger.json\",",
+          .replace("https://petstore.swagger.io/v2/swagger.json\",",
               swaggerJsonPath + "\", validatorUrl: null,")
           .replace("</head>",
               options.tryIt ? "</head>" : "<style> .try-out {display: none;}</style></head>");
@@ -1030,6 +1093,16 @@ public class ApiTool implements Jooby.Module {
             .orElse(index);
         return Results.ok(page).type(MediaType.html);
       });
+    }
+
+    if (options.redoc != null) {
+      String redocjs = "/redoc-2.0.0-alpha.28.js";
+      String redocjsfull = Route.normalize(contextPath +  options.redoc + redocjs);
+      String redoc = String
+          .format(REDOC, conf.getString("swagger.info.title"), swaggerJsonPath, redocjsfull);
+
+      router.assets(options.redoc + redocjs, "/redoc/" + redocjs);
+      router.get(options.redoc, () -> Results.ok(redoc).type(MediaType.html));
     }
   }
 
