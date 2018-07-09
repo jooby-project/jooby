@@ -3120,7 +3120,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <asm.version>6.2</asm.version>
     <async-http-client.version>1.9.40</async-http-client.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
-    <aws-java-sdk.version>1.11.356</aws-java-sdk.version>
+    <aws-java-sdk.version>1.11.358</aws-java-sdk.version>
     <bootstrap.version>3.3.4</bootstrap.version>
     <boringssl.version>2.0.8.Final</boringssl.version>
     <bson4jackson.version>2.9.2</bson4jackson.version>
@@ -3147,7 +3147,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <freemarker.version>2.3.28</freemarker.version>
     <frontend-plugin-core.version>1.6</frontend-plugin-core.version>
     <funzy.version>0.1.0</funzy.version>
-    <groovy.version>2.4.7</groovy.version>
+    <groovy.version>2.5.0</groovy.version>
     <guava.version>25.1-jre</guava.version>
     <gson.version>2.8.5</gson.version>
     <guice.version>4.2.0</guice.version>
@@ -3171,7 +3171,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jdbi.version>2.78</jdbi.version>
     <jdbi3.version>3.3.0</jdbi3.version>
     <jedis.version>2.9.0</jedis.version>
-    <jersey-client.version>1.19.1</jersey-client.version>
+    <jersey-client.version>1.19.4</jersey-client.version>
     <jetty.version>9.4.10.v20180503</jetty.version>
     <jongo.version>1.4.0</jongo.version>
     <jquery-ui.version>1.11.3</jquery-ui.version>
@@ -3221,7 +3221,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <swagger-ui.version>3.17.1</swagger-ui.version>
     <swagger.version>1.5.20</swagger.version>
     <thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
-    <undertow.version>1.4.25.Final</undertow.version>
+    <undertow.version>2.0.9.Final</undertow.version>
     <xmlgraphics-commons.version>2.1</xmlgraphics-commons.version>
     <yuicompressor.version>2.4.8</yuicompressor.version>
 
