@@ -247,9 +247,6 @@
               <systemPropertyVariables>
                 <!-- JaCoCo runtime must know where to dump coverage: -->
                 <jacoco-agent.destfile>target${file.separator}jacoco.exec</jacoco-agent.destfile>
-                <logback.configurationFile>
-                  src${file.separator}test${file.separator}resources${file.separator}logback-travis.xml
-                </logback.configurationFile>
               </systemPropertyVariables>
             </configuration>
             <dependencies>

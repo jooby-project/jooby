@@ -2,18 +2,11 @@ language: java
 
 cache:
   directories:
-    - '$HOME/.m2/repository'
+    - '$HOME/.m2'
     - '$HOME/.sonar/cache'
-
-addons:
-  sonarcloud:
-    organization: "jooby"
 
 before_install:
   - export MAVEN_OPTS=-Xmx1024m
-
-script:
-  - ./build/travis.sh
 
 jdk:
   - oraclejdk8
@@ -22,6 +15,12 @@ branches:
   only:
     - master
 
+script:
+  - ./build/travis.sh
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - mvn sonar:sonar
+
+addons:
+  sonarcloud:
+    organization: "jooby"
+    token: $SONAR_TOKEN
