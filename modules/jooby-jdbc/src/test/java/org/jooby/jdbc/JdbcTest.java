@@ -7,24 +7,21 @@ import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import static org.easymock.EasyMock.expect;
-
 import org.jooby.Env;
+import org.jooby.funzy.Throwing;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
-import org.jooby.funzy.Throwing;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.sql.DataSource;
+import java.util.Optional;
 import java.util.Properties;
 
 @RunWith(PowerMockRunner.class)
@@ -70,6 +67,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "123"))
+        .expect(existingDB(false, "db"))
         .expect(currentTimeMillis(123))
         .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:mem:123;DB_CLOSE_DELAY=-1", "h2.123",
             "sa", "", false))
@@ -87,6 +86,25 @@ public class JdbcTest {
         .expect(serviceKey("db", "h2", "jdbc:h2:mem:123;DB_CLOSE_DELAY=-1"))
         .expect(serviceKey("123"))
         .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
+        });
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void duplicates() throws Exception {
+    Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
+    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("mem"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("runtime.processors-x2", fromAnyRef(POOL_SIZE))
+        .resolve();
+
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(currentTimeMillis(123))
+        .expect(existingDB(true, "db"))
+        .expect(existingDB(true, "123"))
         .run(unit -> {
           new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
@@ -114,6 +132,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "123"))
+        .expect(existingDB(false, "db"))
         .expect(currentTimeMillis(123))
         .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:mem:123;DB_CLOSE_DELAY=-1", "h2.123",
             "sa", "", false, false))
@@ -151,6 +171,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "jdbctest"))
+        .expect(existingDB(false, "db"))
         .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
             "sa", "", false))
         .expect(hikariConfig(null))
@@ -180,6 +202,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "jdbctest"))
+        .expect(existingDB(false, "db"))
         .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
             "sa", "", false))
         .expect(hikariConfig(null))
@@ -215,6 +239,7 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "db"))
         .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:mysql://localhost/db",
             "mysql.db", "foo", "bar", false))
         .expect(mysql)
@@ -239,6 +264,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "testdb"))
+        .expect(existingDB(false, "db"))
         .expect(props("org.apache.derby.jdbc.ClientDataSource", "jdbc:derby:testdb", "derby.testdb",
             null, "", false))
         .expect(hikariConfig(null))
@@ -262,6 +289,7 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "testdb"))
         .expect(props("org.apache.derby.jdbc.ClientDataSource", null, "derby.testdb",
             null, "", false))
         .expect(hikariConfig(null))
@@ -294,6 +322,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "SAMPLE"))
+        .expect(existingDB(false, "db"))
         .expect(props("com.ibm.db2.jcc.DB2SimpleDataSource", "jdbc:db2://127.0.0.1:50000/SAMPLE",
             "db2.SAMPLE", null, "", false))
         .expect(hikariConfig(null))
@@ -319,6 +349,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "file"))
+        .expect(existingDB(false, "db"))
         .expect(props("org.hsqldb.jdbc.JDBCDataSource", "jdbc:hsqldb:file",
             "hsqldb.file", null, "", false))
         .expect(hikariConfig(null))
@@ -344,6 +376,7 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "db"))
         .expect(props("org.mariadb.jdbc.MySQLDataSource", "jdbc:mariadb://localhost/db",
             "mariadb.db", null, "", false))
         .expect(hikariConfig(null))
@@ -369,6 +402,7 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "db"))
         .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:mysql://localhost/db",
             "mysql.db", null, "", false))
         .expect(mysql)
@@ -394,6 +428,7 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "db"))
         .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource",
             "jdbc:log4jdbc:mysql://localhost/db",
             "mysql.db", null, "", false))
@@ -428,6 +463,7 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "db"))
         .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource",
             "jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8",
             "mysql.db", null, "", false))
@@ -467,6 +503,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "jdbctest"))
+        .expect(existingDB(false, "db"))
         .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
             "sa", "", false, false))
         .expect(unit -> {
@@ -500,6 +538,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "jdbctest"))
+        .expect(existingDB(false, "db"))
         .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
             "sa", "", true))
         .expect(unit -> {
@@ -533,6 +573,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "audit"))
+        .expect(existingDB(false, "db.audit"))
         .expect(
             props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:mem:audit;DB_CLOSE_DELAY=-1", "h2.audit",
                 "sa", "", true))
@@ -560,6 +602,23 @@ public class JdbcTest {
         });
   }
 
+  private Block existingDB(boolean exists, String name) {
+    return unit -> {
+      Env env = unit.get(Env.class);
+      Optional optional;
+      if (exists) {
+        optional = Optional.of("XXX");
+      } else {
+        optional = Optional.empty();
+      }
+      if (name == null) {
+        expect(env.get(Key.get(DataSource.class))).andReturn(optional);
+      } else {
+        expect(env.get(Key.get(DataSource.class, Names.named(name)))).andReturn(optional);
+      }
+    };
+  }
+
   @Test
   public void sqlserver() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
@@ -573,6 +632,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "AdventureWorks"))
+        .expect(existingDB(false, "db"))
         .expect(
             props("com.microsoft.sqlserver.jdbc.SQLServerDataSource",
                 "jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;integratedSecurity=true;",
@@ -603,6 +664,8 @@ public class JdbcTest {
     ;
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "orcl"))
+        .expect(existingDB(false, "db"))
         .expect(props("oracle.jdbc.pool.OracleDataSource", "jdbc:oracle:thin:@myhost:1521:orcl",
             "oracle.orcl", null, "", false))
         .expect(hikariConfig(null))
@@ -628,6 +691,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "database"))
+        .expect(existingDB(false, "db"))
         .expect(
             props("com.impossibl.postgres.jdbc.PGDataSourceWithUrl", "jdbc:pgsql://server/database",
                 "pgsql.database", null, "", false))
@@ -654,6 +719,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "database"))
+        .expect(existingDB(false, "db"))
         .expect(props("org.postgresql.ds.PGSimpleDataSource", "jdbc:postgresql://server/database",
             "postgresql.database", null, "", false))
         .expect(hikariConfig(null))
@@ -679,6 +746,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "database"))
+        .expect(existingDB(false, "db"))
         .expect(props("com.sybase.jdbcx.SybDataSource", "jdbc:jtds:sybase://server/database",
             "sybase.database", null, "", false))
         .expect(hikariConfig(null))
@@ -704,6 +773,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "mydb"))
+        .expect(existingDB(false, "db"))
         .expect(props("org.firebirdsql.pool.FBSimpleDataSource", "jdbc:firebirdsql:host:mydb",
             "firebirdsql.mydb", null, "", false))
         .expect(hikariConfig(null))
@@ -729,6 +800,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "testdb"))
+        .expect(existingDB(false, "db"))
         .expect(props("org.sqlite.SQLiteDataSource", "jdbc:sqlite:testdb",
             "sqlite.testdb", null, "", false))
         .expect(hikariConfig(null))
@@ -756,6 +829,8 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(existingDB(false, "testdb"))
+        .expect(existingDB(false, "db"))
         .expect(props("custom.DS", "jdbc:custom:testdb",
             "custom.testdb", null, "", false))
         .expect(hikariConfig(null))

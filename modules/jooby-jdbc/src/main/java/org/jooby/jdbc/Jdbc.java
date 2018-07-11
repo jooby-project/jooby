@@ -206,7 +206,6 @@ package org.jooby.jdbc;
 import com.google.common.base.CharMatcher;
 import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Sets;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
@@ -238,6 +237,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -518,6 +518,14 @@ public final class Jdbc implements Jooby.Module {
       dbkey = dbref;
     }
 
+    Set<String> names = Stream.of(dbkey, dbname)
+        .distinct()
+        .filter(it -> !env.get(Key.get(DataSource.class, Names.named(it))).isPresent())
+        .collect(Collectors.toSet());
+    if (names.size() == 0) {
+      throw new IllegalArgumentException("DataSource(s) already registered.");
+    }
+
     HikariConfig hikariConf = hikariConfig(url, dbkey, dbname, dbconf);
 
     if (seturl) {
@@ -530,10 +538,9 @@ public final class Jdbc implements Jooby.Module {
     }
     HikariDataSource ds = new HikariDataSource(hikariConf);
 
-    // bind datasource using dbkey and dbname
+    // bind DataSource using dbkey and dbname
     Set<Key<DataSource>> dskeys = new HashSet<>();
-    Sets.newHashSet(dbkey, dbname).forEach(it ->
-        env.serviceKey().generate(DataSource.class, it, k -> {
+    names.forEach(it -> env.serviceKey().generate(DataSource.class, it, k -> {
           binder.bind(k).toInstance(ds);
           env.set(k, ds);
           dskeys.add(k);
