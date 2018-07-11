@@ -207,6 +207,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
@@ -215,6 +216,7 @@ import com.google.inject.internal.MoreTypes;
 import com.google.inject.util.Types;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+import io.swagger.annotations.ApiParam;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Request;
@@ -296,6 +298,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -1226,6 +1229,7 @@ public class BytecodeRouteParser {
         .parameters(Arrays.asList(handler.getParameters()).stream()
             .filter(SKIP)
             .map(it -> BytecodeRouteParser.toRouteParameter(route.pattern(), it))
+            .filter(Objects::nonNull)
             .collect(Collectors.toList()));
   }
 
@@ -1273,7 +1277,20 @@ public class BytecodeRouteParser {
       }
       return RouteParameter.Kind.QUERY;
     };
-    return new RouteParameter(pname, kind.get(), p.getParameterizedType(), null);
+    /** Try ApiParam from Swagger: */
+    ApiParam apiParam = p.getAnnotation(ApiParam.class);
+    String descrition = null;
+    String value = null;
+    if (apiParam != null) {
+      if (apiParam.hidden()) {
+        return null;
+      }
+      descrition = Strings.emptyToNull(apiParam.value());
+      value = Strings.emptyToNull(apiParam.defaultValue());
+    }
+
+    return new RouteParameter(pname, kind.get(), p.getParameterizedType(), value)
+        .description(descrition);
   }
 
   private static class TypeWithStatus implements java.lang.reflect.Type {

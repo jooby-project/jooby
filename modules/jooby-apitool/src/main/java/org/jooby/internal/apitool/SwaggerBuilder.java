@@ -412,7 +412,8 @@ public class SwaggerBuilder {
         } else if (it.kind() == RouteParameter.Kind.FORM) {
           op.setConsumes(ImmutableList.of(MediaType.form.name(), MediaType.multipart.name()));
         }
-        if (property instanceof RefProperty && (it.kind() == RouteParameter.Kind.QUERY || it.kind() == RouteParameter.Kind.FORM)) {
+        if (property instanceof RefProperty && (it.kind() == RouteParameter.Kind.QUERY
+            || it.kind() == RouteParameter.Kind.FORM)) {
           return expandParameter(converter, it, it.type(), it.optional())
               .stream();
         } else {
@@ -480,7 +481,8 @@ public class SwaggerBuilder {
         if (!isVoid(responseType)) {
           response.responseSchema(modelFactory.apply(responseType));
         }
-        buildResponseHeader(route.attributes(), "ApiOperation.responseHeaders", response::addHeader);
+        buildResponseHeader(route.attributes(), "ApiOperation.responseHeaders",
+            response::addHeader);
 
         consumer.accept(new ResponseWithStatusCode(statusCode.toString(), response));
         status.entrySet().stream()
@@ -743,12 +745,15 @@ public class SwaggerBuilder {
                 name + ".", optional).stream();
           } else {
             result.setName(name);
+            boolean required;
             if (optional) {
-              result.setRequired(false);
+              required = false;
             } else {
-              result.setRequired(p.getRequired());
+              required = p.getRequired();
             }
-            result.setDescription(p.getDescription());
+            String desc = Strings.emptyToNull(p.getDescription());
+            result.setRequired(required);
+            result.setDescription(desc);
             return Stream.of(result);
           }
         })
