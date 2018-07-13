@@ -255,13 +255,13 @@ public class TimedSupport {
 
   public static TimedSupport create(Route route) {
     Map<String, Object> attributes = route.attributes();
-    String timed = (String) attributes.get("Timed");
+    String timed = (String) attributes.get("timed");
     if (timed != null) {
-      String[] extraTags = (String[]) attributes.get("Timed.extraTags");
-      boolean histogram = attributes.get("Timed.histogram") == Boolean.TRUE;
-      double[] percentiles = (double[]) attributes.get("Timed.percentiles");
-      boolean longTask = attributes.get("Timed.longTask") == Boolean.TRUE;
-      String description = Strings.emptyToNull((String) attributes.get("Timed.description"));
+      String[] extraTags = (String[]) attributes.get("timed.extraTags");
+      boolean histogram = attributes.get("timed.histogram") == Boolean.TRUE;
+      double[] percentiles = (double[]) attributes.get("timed.percentiles");
+      boolean longTask = attributes.get("timed.longTask") == Boolean.TRUE;
+      String description = Strings.emptyToNull((String) attributes.get("timed.description"));
       return new TimedSupport(timed, longTask, description, extraTags, histogram,
           percentiles);
     }

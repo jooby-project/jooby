@@ -452,7 +452,7 @@ public class SwaggerBuilder {
 
   private void buildResponse(RouteMethod route, Function<Type, Model> modelFactory,
       Consumer<ResponseWithStatusCode> consumer) {
-    Object[] apiResponses = (Object[]) route.attributes().get("ApiResponses");
+    Object[] apiResponses = (Object[]) route.attributes().get("apiResponses");
     if (apiResponses != null) {
       /** ApiResponses annotation: */
       Set<Integer> codes = new HashSet<>();
@@ -460,7 +460,7 @@ public class SwaggerBuilder {
           .map(it -> buildResponse(modelFactory, (Map) it, c -> !codes.add(c)))
           .forEach(consumer);
     } else {
-      Integer code = (Integer) route.attributes().get("ApiResponse.code");
+      Integer code = (Integer) route.attributes().get("apiResponse.code");
       if (code != null) {
         /** Single ApiResponse annotation: */
         consumer.accept(buildResponse(modelFactory, route.attributes(), c -> false));
@@ -469,7 +469,7 @@ public class SwaggerBuilder {
         RouteResponse returns = route.response();
         Map<Integer, String> status = returns.status();
         Integer statusCode = (Integer) route.attributes()
-            .getOrDefault("ApiOperation.code", returns.statusCode());
+            .getOrDefault("apiOperation.code", returns.statusCode());
 
         Response response = new Response();
         String doc = returns.description()
@@ -477,11 +477,11 @@ public class SwaggerBuilder {
         response.description(doc);
 
         Type responseType = (Type) route.attributes()
-            .getOrDefault("ApiOperation.response", returns.type());
+            .getOrDefault("apiOperation.response", returns.type());
         if (!isVoid(responseType)) {
           response.responseSchema(modelFactory.apply(responseType));
         }
-        buildResponseHeader(route.attributes(), "ApiOperation.responseHeaders",
+        buildResponseHeader(route.attributes(), "apiOperation.responseHeaders",
             response::addHeader);
 
         consumer.accept(new ResponseWithStatusCode(statusCode.toString(), response));
@@ -502,17 +502,17 @@ public class SwaggerBuilder {
   private ResponseWithStatusCode buildResponse(Function<Type, Model> modelFactory,
       Map<String, Object> attributes, Predicate<Integer> statusCode) {
     Response response = new Response();
-    String description = (String) attributes.get("ApiResponse.message");
-    Class type = (Class) attributes.get("ApiResponse.response");
+    String description = (String) attributes.get("apiResponse.message");
+    Class type = (Class) attributes.get("apiResponse.response");
 
     if (!isVoid(type)) {
       response.setResponseSchema(modelFactory.apply(type));
     }
     response.setDescription(description);
 
-    buildResponseHeader(attributes, "ApiResponse.responseHeaders", response::addHeader);
+    buildResponseHeader(attributes, "apiResponse.responseHeaders", response::addHeader);
 
-    Integer code = (Integer) attributes.get("ApiResponse.code");
+    Integer code = (Integer) attributes.get("apiResponse.code");
     String key = code.toString();
     if (statusCode.test(code)) {
       key += "(" + type.getSimpleName() + ")";
@@ -527,10 +527,10 @@ public class SwaggerBuilder {
       ModelConverters converter = ModelConverters.getInstance();
       Stream.of(headers)
           .map(Map.class::cast)
-          .filter(it -> ((String) it.get("ResponseHeader.name")).length() > 0)
+          .filter(it -> ((String) it.get("responseHeader.name")).length() > 0)
           .forEach(header -> {
-            String hname = header.get("ResponseHeader.name").toString();
-            Property htype = converter.readAsProperty((Type) header.get("ResponseHeader.response"));
+            String hname = header.get("responseHeader.name").toString();
+            Property htype = converter.readAsProperty((Type) header.get("responseHeader.response"));
             consumer.accept(hname, htype);
           });
     }
@@ -574,7 +574,7 @@ public class SwaggerBuilder {
   }
 
   private String summary(RouteMethod route) {
-    String summary = stringAttribute(route, "ApiOperation");
+    String summary = stringAttribute(route, "apiOperation");
     if (summary == null) {
       return route.description().map(description -> {
         int dot = description.indexOf('.');
@@ -637,7 +637,7 @@ public class SwaggerBuilder {
   }
 
   private Object swaggerAttribute(RouteMethod route, String name, Predicate<Object> filter) {
-    String[] prefix = {"ApiOperation", "swagger"};
+    String[] prefix = {"apiOperation", "swagger"};
     for (String p : prefix) {
       String key = p.equalsIgnoreCase(name) ? name : p + "." + name;
       Object value = route.attributes().get(key);
@@ -653,7 +653,7 @@ public class SwaggerBuilder {
       Function<String, Tag> tagFactory) {
     attributes.forEach((name, value) -> {
       switch (name) {
-        case "ApiOperation":
+        case "apiOperation":
           String summary = Strings.emptyToNull((String) value);
           if (summary != null) {
             op.summary(summary);
@@ -718,7 +718,8 @@ public class SwaggerBuilder {
           if (key.equalsIgnoreCase(name)) {
             return Maps.immutableEntry(name, value);
           }
-          return Maps.immutableEntry(key.replace("ApiOperation.", ""), value);
+
+          return Maps.immutableEntry(key.replace("apiOperation.", ""), value);
         })
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }

@@ -58,17 +58,17 @@ public class Issue346 extends ServerFeature {
 
   {
     use("/1", (req, rsp) -> {
-      assertEquals(ImmutableMap.of("SitemapUrl.priority", 1.0, "SitemapUrl.changefreq", "always"),
+      assertEquals(ImmutableMap.of("sitemapUrl.priority", 1.0, "sitemapUrl.changefreq", "always"),
           req.route().attributes());
     });
 
     use("/2", (req, rsp) -> {
-      assertEquals(ImmutableMap.of("SitemapUrl.priority", 0.5, "SitemapUrl.changefreq", "always"),
+      assertEquals(ImmutableMap.of("sitemapUrl.priority", 0.5, "sitemapUrl.changefreq", "always"),
           req.route().attributes());
     });
 
     use("/3", (req, rsp) -> {
-      assertEquals(ImmutableMap.of("SitemapUrl.priority", 0.5, "SitemapUrl.changefreq", "always", "Role", "admin"),
+      assertEquals(ImmutableMap.of("sitemapUrl.priority", 0.5, "sitemapUrl.changefreq", "always", "role", "admin"),
           req.route().attributes());
     });
     use(Resource.class);
@@ -79,19 +79,19 @@ public class Issue346 extends ServerFeature {
     request().get("/1")
         .expect(value -> {
           Map<String, Object> hash = toMap(value.substring(1, value.length() - 1));
-          assertEquals(ImmutableMap.of("SitemapUrl.priority", "1.0", "SitemapUrl.changefreq", "always"), hash);
+          assertEquals(ImmutableMap.of("sitemapUrl.priority", "1.0", "sitemapUrl.changefreq", "always"), hash);
         });
 
     request().get("/2")
         .expect(value -> {
           Map<String, Object> hash = toMap(value.substring(1, value.length() - 1));
-          assertEquals(ImmutableMap.of("SitemapUrl.priority", "0.5", "SitemapUrl.changefreq", "always"), hash);
+          assertEquals(ImmutableMap.of("sitemapUrl.priority", "0.5", "sitemapUrl.changefreq", "always"), hash);
         });
 
     request().get("/3")
         .expect(value -> {
           Map<String, Object> hash = toMap(value.substring(1, value.length() - 1));
-          assertEquals(ImmutableMap.of("SitemapUrl.priority", "0.5", "SitemapUrl.changefreq", "always", "Role", "admin"),
+          assertEquals(ImmutableMap.of("sitemapUrl.priority", "0.5", "sitemapUrl.changefreq", "always", "role", "admin"),
               hash);
         });
   }

@@ -26,13 +26,13 @@ public class Issue1208 extends ServerFeature {
     @GET
     @Role("first")
     public String first(Route route) {
-      return Arrays.toString((String[]) route.attr("Role"));
+      return Arrays.toString((String[]) route.attr("role"));
     }
 
     @GET
     @Role("second")
     public String second(Route route) {
-      return Arrays.toString((String[]) route.attr("Role"));
+      return Arrays.toString((String[]) route.attr("role"));
     }
   }
 

@@ -33,7 +33,7 @@ public class Issue1206 extends ServerFeature {
 
   {
     use("*", (req, rsp) -> {
-      req.set("bar", req.route().attr("Role")); // <- null
+      req.set("bar", req.route().attr("role")); // <- null
     });
 
     use(Controller1206.class);

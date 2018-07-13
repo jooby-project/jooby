@@ -35,12 +35,12 @@ public class TimedSupportTest {
   public void timer() throws Exception {
     new MockUnit(Route.class, MeterRegistry.class)
         .expect(attributes(
-            attributes("Timed", "people.all",
-                "Timed.longTask", false,
-                "Timed.description", "desc",
-                "Timed.extraTags", new String[]{"foo", "bar"},
-                "Timed.histogram", true,
-                "Timed.percentiles", new double[]{.5})))
+            attributes("timed", "people.all",
+                "timed.longTask", false,
+                "timed.description", "desc",
+                "timed.extraTags", new String[]{"foo", "bar"},
+                "timed.histogram", true,
+                "timed.percentiles", new double[]{.5})))
         .expect(unit -> {
           Timer.Sample sample = unit.mock(Timer.Sample.class);
 
@@ -71,10 +71,10 @@ public class TimedSupportTest {
   public void longTimer() throws Exception {
     new MockUnit(Route.class, MeterRegistry.class)
         .expect(attributes(
-            attributes("Timed", "people.all",
-                "Timed.longTask", true,
-                "Timed.description", "desc",
-                "Timed.extraTags", new String[]{"foo", "bar"})))
+            attributes("timed", "people.all",
+                "timed.longTask", true,
+                "timed.description", "desc",
+                "timed.extraTags", new String[]{"foo", "bar"})))
         .expect(unit -> {
           LongTaskTimer.Sample sample = unit.mock(LongTaskTimer.Sample.class);
 
