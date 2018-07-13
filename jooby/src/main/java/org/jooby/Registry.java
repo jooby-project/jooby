@@ -268,4 +268,17 @@ public interface Registry {
   @Nonnull
   <T> T require(Key<T> key);
 
+  /**
+   * Request a service of a given type by a given name.
+   *
+   * @param name A service name
+   * @param type A service type.
+   * @param <T> Service type.
+   * @return A ready to use object
+   */
+  @Nonnull
+  default <T> T require(final String name, final TypeLiteral<T> type) {
+    return require(Key.get(type, Names.named(name)));
+  }
+
 }
