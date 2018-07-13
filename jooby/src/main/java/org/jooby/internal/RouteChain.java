@@ -285,9 +285,13 @@ public class RouteChain implements Route.Chain {
   private static Route attrs(final Route route, final Route[] routes, final int i) {
     Map<String, Object> attrs = new HashMap<>(16);
     for (int t = i; t < routes.length; t++) {
-      attrs.putAll(routes[t].attributes());
+      routes[t].attributes().forEach((name, value) -> attrs.putIfAbsent(name, value));
     }
     return new Route.Forwarding(route) {
+      @Override public <T> T attr(String name) {
+        return (T) attrs.get(name);
+      }
+
       @Override
       public Map<String, Object> attributes() {
         return attrs;
