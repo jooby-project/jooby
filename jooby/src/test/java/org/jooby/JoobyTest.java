@@ -823,6 +823,50 @@ public class JoobyTest {
         }, boot);
   }
 
+  @Test
+  public void requireByNameAndTypeLiteralShouldWork() throws Exception {
+
+    Object someVerySpecificObject = new Object();
+
+    new MockUnit(Binder.class)
+            .expect(guice)
+            .expect(internalOnStart(false))
+            .expect(shutdown)
+            .expect(config)
+            .expect(env)
+            .expect(classInfo)
+            .expect(ssl)
+            .expect(charset)
+            .expect(locale)
+            .expect(zoneId)
+            .expect(timeZone)
+            .expect(dateTimeFormatter)
+            .expect(numberFormat)
+            .expect(decimalFormat)
+            .expect(renderers)
+            .expect(session)
+            .expect(routes)
+            .expect(routeHandler)
+            .expect(params)
+            .expect(requestScope)
+            .expect(webSockets)
+            .expect(tmpdir)
+            .expect(err)
+            .expect(unit -> {
+              Injector injector = unit.get(Injector.class);
+              expect(injector.getInstance(Key.get(Object.class, Names.named("foo")))).andReturn(someVerySpecificObject);
+            })
+            .run(unit -> {
+
+              Jooby jooby = new Jooby();
+
+              jooby.start();
+              Object actual = jooby.require("foo", TypeLiteral.get(Object.class));
+              assertEquals(actual, someVerySpecificObject);
+
+            }, boot);
+  }
+
   private Block internalOnStart(final boolean b) {
     return unit -> {
       Config conf = unit.get(Config.class);
