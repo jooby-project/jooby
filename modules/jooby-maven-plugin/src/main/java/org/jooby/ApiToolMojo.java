@@ -244,14 +244,8 @@ public class ApiToolMojo extends AbstractMojo {
           .with(loader)
           .export(bindir, mainClass);
       getLog().info("API file: " + output);
-    } catch (Throwable x) {
+    } catch (Exception x) {
       throw new MojoFailureException("ApiTool resulted in exception: ", x);
     }
   }
-
-  @SuppressWarnings("unchecked")
-  private static <E extends Throwable> void sneakyThrow(final Throwable x) throws E {
-    throw (E) x;
-  }
-
 }

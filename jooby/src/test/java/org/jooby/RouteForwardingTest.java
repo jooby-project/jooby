@@ -112,11 +112,6 @@ public class RouteForwardingTest {
         });
   }
 
-  @Test(expected = NullPointerException.class)
-  public void nullRoute() throws Exception {
-    new Route.Forwarding(null);
-  }
-
   @Test
   public void toStr() throws Exception {
     new MockUnit(Route.class)

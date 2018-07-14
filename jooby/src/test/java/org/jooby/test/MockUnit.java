@@ -11,6 +11,7 @@ import static org.easymock.EasyMock.createStrictMock;
 import org.jooby.funzy.Try;
 import org.powermock.api.easymock.PowerMock;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +57,7 @@ public class MockUnit {
                 return true;
               }
               return false;
-            }).map(c -> c.getParameterTypes())
+            }).map(Constructor::getParameterTypes)
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("Unable to find parameter types"));
       }

@@ -1430,9 +1430,6 @@ public interface Route {
      * @param route A target route.
      */
     public Forwarding(final Route route) {
-      if (route == null) {
-        throw new NullPointerException("Route required");
-      }
       this.route = route;
     }
 

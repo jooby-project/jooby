@@ -216,6 +216,8 @@ import static java.util.Objects.requireNonNull;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.funzy.Throwing;
+import org.jooby.funzy.Try;
+
 import static org.jooby.funzy.Throwing.throwingConsumer;
 
 import java.io.IOException;
@@ -449,13 +451,14 @@ public abstract class Frontend implements Jooby.Module {
       throws IOException {
     Path tmp = Paths.get(conf.getString("application.tmpdir"), "package.json");
     Files.createDirectories(tmp);
-    String sha1 = Hashing.sha1()
+    String sha1 = Hashing.sha256()
         .hashBytes(Files.readAllBytes(workDirectory.resolve("package.json")))
         .toString();
     Path lastSha1 = tmp.resolve(sha1);
     if (!Files.exists(lastSha1) || !Files.exists(workDirectory.resolve("node_modules"))) {
       action.accept("install");
-      Files.walk(tmp).filter(f -> !f.equals(tmp)).forEach(throwingConsumer(Files::deleteIfExists));
+      Try.of(Files.walk(tmp))
+          .run(files -> files.filter(f -> !f.equals(tmp)).forEach(throwingConsumer(Files::deleteIfExists)));
       Files.write(tmp.resolve(lastSha1), Arrays.asList(""));
     }
   }

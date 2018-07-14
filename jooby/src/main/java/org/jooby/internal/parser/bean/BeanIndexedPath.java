@@ -211,6 +211,8 @@ import java.util.List;
 
 import com.google.inject.TypeLiteral;
 
+import javax.annotation.Nullable;
+
 @SuppressWarnings("rawtypes")
 class BeanIndexedPath implements BeanPath {
   private int index;
@@ -219,7 +221,7 @@ class BeanIndexedPath implements BeanPath {
 
   private Type type;
 
-  public BeanIndexedPath(final BeanPath path, final int index, final TypeLiteral ittype) {
+  public BeanIndexedPath(@Nullable final BeanPath path, final int index, final TypeLiteral ittype) {
     this(path, index, path == null ? ittype.getType() : path.type());
   }
 

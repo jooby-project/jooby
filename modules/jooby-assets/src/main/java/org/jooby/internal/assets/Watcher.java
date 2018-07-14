@@ -304,6 +304,7 @@ class Watcher {
     try {
       key = watcher.take();
     } catch (InterruptedException x) {
+      Thread.currentThread().interrupt();
       return false;
     }
 

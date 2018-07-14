@@ -493,6 +493,7 @@ public interface Env extends LifeCycle {
      * @param config A config instance.
      * @return A new environment.
      */
+    @Nonnull
     default Env build(final Config config) {
       return build(config, null, Locale.getDefault());
     }
@@ -507,7 +508,8 @@ public interface Env extends LifeCycle {
      * @param locale App locale.
      * @return A new environment.
      */
-    Env build(Config config, Router router, Locale locale);
+    @Nonnull
+    Env build(Config config, @Nullable Router router, Locale locale);
   }
 
   /**

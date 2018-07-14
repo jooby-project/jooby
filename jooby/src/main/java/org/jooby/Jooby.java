@@ -288,6 +288,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import javax.net.ssl.SSLContext;
 import java.io.File;
@@ -925,7 +926,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     return use(prefixPath(null), app);
   }
 
-  private Optional<String> prefixPath(String tail) {
+  private Optional<String> prefixPath(@Nullable String tail) {
     return path.size() == 0
         ? tail == null ? Optional.empty() : Optional.of(Route.normalize(tail))
         : Optional.of(path.stream()
@@ -2196,7 +2197,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     this.injector = bootstrap(args(args), routes);
 
     // shutdown hook
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
+    Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
     Config conf = injector.getInstance(Config.class);
 
@@ -3395,11 +3396,10 @@ public class Jooby implements Router, LifeCycle, Registry {
       defs = defs.withValue("application.charset", fromAnyRef(charset.name()));
     }
     if (port != null) {
-      defs = defs.withValue("application.port", fromAnyRef(port.intValue()));
+      defs = defs.withValue("application.port", fromAnyRef(port));
     }
     if (securePort != null) {
-      defs = defs.withValue("application.securePort",
-          fromAnyRef(securePort.intValue()));
+      defs = defs.withValue("application.securePort", fromAnyRef(securePort));
     }
     if (dateFormat != null) {
       defs = defs.withValue("application.dateFormat", fromAnyRef(dateFormat));
@@ -3495,8 +3495,8 @@ public class Jooby implements Router, LifeCycle, Registry {
       files.add(new File(confdir, "logback.xml"));
       logback = files.build()
           .stream()
-          .filter(f -> f.exists())
-          .map(f -> f.getAbsolutePath())
+          .filter(File::exists)
+          .map(File::getAbsolutePath)
           .findFirst()
           .orElseGet(() -> {
             return Optional.ofNullable(Jooby.class.getResource("/logback." + env + ".xml"))

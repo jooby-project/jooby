@@ -216,6 +216,7 @@ import org.jooby.Cookie.Definition;
 import com.google.common.collect.ImmutableList;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Give you access to the actual HTTP response. You can read/write headers and write HTTP body.
@@ -635,7 +636,7 @@ public interface Response {
    * @param result The HTTP body.
    * @throws Exception If the response write fails.
    */
-  default void send(final Object result) throws Throwable {
+  default void send(final @Nullable Object result) throws Throwable {
     if (result instanceof Result) {
       send((Result) result);
     } else if (result != null) {

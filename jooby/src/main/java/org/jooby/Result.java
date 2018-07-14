@@ -497,8 +497,7 @@ public class Result {
   public Result header(final String name, final Object value) {
     requireNonNull(name, "Header's name is required.");
     requireNonNull(value, "Header's value is required.");
-
-    put(name, value);
+    setHeader(name, value);
     return this;
   }
 
@@ -530,8 +529,7 @@ public class Result {
   public Result header(final String name, final Iterable<Object> values) {
     requireNonNull(name, "Header's name is required.");
     requireNonNull(values, "Header's values are required.");
-
-    put(name, values);
+    setHeader(name, values);
     return this;
   }
 
@@ -545,7 +543,7 @@ public class Result {
     return result;
   }
 
-  private void put(final String name, final Object val) {
+  private void setHeader(final String name, final Object val) {
     headers = ImmutableMap.<String, Object> builder()
         .putAll(headers)
         .put(name, val)

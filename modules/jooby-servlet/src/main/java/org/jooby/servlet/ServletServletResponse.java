@@ -206,6 +206,8 @@ package org.jooby.servlet;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import static java.util.Objects.requireNonNull;
+
+import org.jooby.funzy.Try;
 import org.jooby.spi.NativeResponse;
 
 import javax.servlet.AsyncContext;
@@ -273,10 +275,9 @@ public class ServletServletResponse implements NativeResponse {
 
   @Override
   public void send(final ByteBuffer buffer) throws Exception {
-    WritableByteChannel channel = Channels.newChannel(rsp.getOutputStream());
-    channel.write(buffer);
-    channel.close();
-    committed = true;
+    Try.of(Channels.newChannel(rsp.getOutputStream()))
+        .run(channel -> channel.write(buffer))
+        .onSuccess(() -> committed = true);
   }
 
   @Override

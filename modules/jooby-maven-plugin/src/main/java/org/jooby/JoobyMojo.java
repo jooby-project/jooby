@@ -223,6 +223,7 @@ import org.jooby.run.Watcher;
 import org.jooby.funzy.Try;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
@@ -345,8 +346,8 @@ public class JoobyMojo extends AbstractMojo {
 
     Set<File> classpath = new LinkedHashSet<>();
 
-    File hotreload = extra(pluginArtifacts, "jooby-run").get();
-    File jbossModules = extra(pluginArtifacts, "jboss-modules").get();
+    File hotreload = extra(pluginArtifacts, "jooby-run");
+    File jbossModules = extra(pluginArtifacts, "jboss-modules");
     classpath.add(hotreload);
     classpath.add(jbossModules);
 
@@ -540,15 +541,17 @@ public class JoobyMojo extends AbstractMojo {
     return result;
   }
 
-  private Optional<File> extra(final List<Artifact> artifacts, final String name) {
-    for (Artifact artifact : artifacts) {
-      for (String tail : artifact.getDependencyTrail()) {
-        if (tail.contains(name)) {
-          return Optional.of(artifact.getFile());
+  private File extra(final List<Artifact> artifacts, final String name) {
+    return Try.apply(() -> {
+      for (Artifact artifact : artifacts) {
+        for (String tail : artifact.getDependencyTrail()) {
+          if (tail.contains(name)) {
+            return artifact.getFile();
+          }
         }
       }
-    }
-    return Optional.empty();
+      throw new FileNotFoundException(name);
+    }).get();
   }
 
 }

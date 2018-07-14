@@ -304,7 +304,7 @@ public class ResponseImpl implements Response {
     // handle type
     type(type().orElseGet(() -> MediaType.byPath(filename).orElse(MediaType.octetstream)));
 
-    Asset asset = new InputStreamAsset(stream, filename, type().get());
+    Asset asset = new InputStreamAsset(stream, filename, type);
     contentDisposition(filename);
     send(Results.with(asset.stream()));
   }
@@ -319,7 +319,7 @@ public class ResponseImpl implements Response {
     type(type().orElseGet(() -> MediaType.byPath(filename).orElse(MediaType.byPath(location)
         .orElse(MediaType.octetstream))));
 
-    URLAsset asset = new URLAsset(url, location, type().get());
+    URLAsset asset = new URLAsset(url, location, type);
     length(asset.length());
 
     contentDisposition(filename);
@@ -503,8 +503,9 @@ public class ResponseImpl implements Response {
       type(rtype.get());
     }
 
-    if (finalResult.status().isPresent()) {
-      status(finalResult.status().get());
+    Optional<Status> finalStatus = finalResult.status();
+    if (finalStatus.isPresent()) {
+      status(finalStatus.get());
     } else if (this.status == null) {
       status(Status.OK);
     }

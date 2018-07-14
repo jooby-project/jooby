@@ -206,10 +206,12 @@ package org.jooby;
 import static java.util.Objects.requireNonNull;
 
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.Longs;
+import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
 
@@ -320,16 +322,20 @@ public interface Asset {
    */
   @Nonnull
   default String etag() {
-    StringBuilder b = new StringBuilder(32);
-    b.append("W/\"");
+    try {
+      StringBuilder b = new StringBuilder(32);
+      b.append("W/\"");
 
-    BaseEncoding b64 = BaseEncoding.base64();
-    int lhash = resource().hashCode();
+      BaseEncoding b64 = BaseEncoding.base64();
+      int lhash = resource().toURI().hashCode();
 
-    b.append(b64.encode(Longs.toByteArray(lastModified() ^ lhash)));
-    b.append(b64.encode(Longs.toByteArray(length() ^ lhash)));
-    b.append('"');
-    return b.toString();
+      b.append(b64.encode(Longs.toByteArray(lastModified() ^ lhash)));
+      b.append(b64.encode(Longs.toByteArray(length() ^ lhash)));
+      b.append('"');
+      return b.toString();
+    } catch (URISyntaxException x) {
+      throw Throwing.sneakyThrow(x);
+    }
   }
 
   /**

@@ -212,6 +212,7 @@ import static java.util.Objects.requireNonNull;
 import org.jooby.scope.RequestScoped;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -397,7 +398,7 @@ public interface Request extends Registry {
     @Override
     public boolean isSet(final String name) {
       return req.isSet(name);
-    };
+    }
 
     @Override
     public Mutant params() {
@@ -1338,7 +1339,7 @@ public interface Request extends Registry {
    * @return This request.
    */
   @Nonnull
-  default Request flash(final String name, final Object value) {
+  default Request flash(final String name, @Nullable final Object value) {
     requireNonNull(name, "Attribute's name is required.");
     Map<String, String> flash = flash();
     if (value == null) {

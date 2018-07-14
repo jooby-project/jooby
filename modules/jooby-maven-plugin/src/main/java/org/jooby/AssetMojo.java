@@ -220,10 +220,12 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.jooby.assets.AssetClassLoader;
 import org.jooby.assets.AssetCompiler;
+import org.jooby.funzy.Throwing;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -316,7 +318,7 @@ public class AssetMojo extends AbstractMojo {
 
       // move output to fixed location required by zip/war dist
       List<File> files = fileset.values().stream()
-          .flatMap(it -> it.stream())
+          .flatMap(Collection::stream)
           .collect(Collectors.toList());
 
       for (File from : files) {
@@ -328,9 +330,9 @@ public class AssetMojo extends AbstractMojo {
       }
       compiler.stop();
     } catch (InvocationTargetException ex) {
-      throw Throwables.propagate(ex.getCause());
+      throw Throwing.sneakyThrow(ex.getCause());
     } catch (Exception ex) {
-      throw Throwables.propagate(ex);
+      throw Throwing.sneakyThrow(ex);
     }
   }
 

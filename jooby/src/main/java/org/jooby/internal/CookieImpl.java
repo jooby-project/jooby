@@ -237,7 +237,7 @@ public class CookieImpl implements Cookie {
   private boolean httpOnly;
 
   public CookieImpl(final Cookie.Definition cookie) {
-    this.name = cookie.name().get();
+    this.name = cookie.name().orElseThrow(() -> new IllegalArgumentException("Cookie name missing"));
     this.value = cookie.value();
     this.comment = cookie.comment();
     this.domain = cookie.domain();

@@ -214,6 +214,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Throwables;
 
+import javax.annotation.Nullable;
+
 /**
  * An exception that carry a {@link Status}. The status field will be set in the HTTP
  * response.
@@ -484,7 +486,7 @@ public class Err extends RuntimeException {
    * @param tail A message to append.
    * @return An error message.
    */
-  private static String message(final Status status, final String tail) {
+  private static String message(final Status status, @Nullable final String tail) {
     return message(status.reason(), status.value(), tail);
   }
 
@@ -496,7 +498,7 @@ public class Err extends RuntimeException {
    * @param tail A message to append.
    * @return An error message.
    */
-  private static String message(final String reason, final int status, final String tail) {
+  private static String message(final String reason, final int status, @Nullable  final String tail) {
     return reason + "(" + status + ")" + (tail == null ? "" : ": " + tail);
   }
 

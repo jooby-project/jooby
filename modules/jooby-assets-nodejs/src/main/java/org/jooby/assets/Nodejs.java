@@ -363,8 +363,8 @@ public class Nodejs {
         "index.js");
 
     Path main = candidates.stream()
-        .map(it -> basedir.resolve(it))
-        .filter(it -> it.toFile().exists())
+        .map(basedir::resolve)
+        .filter(Files::exists)
         .findFirst()
         .orElseThrow(() -> new FileNotFoundException(candidates.toString()));
 

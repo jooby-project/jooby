@@ -206,6 +206,7 @@ package org.jooby;
 import static java.util.Objects.requireNonNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -368,7 +369,7 @@ public class Deferred extends Result {
    * @since 0.10.0
    */
   public interface Handler {
-    void handle(Result result, Throwable exception);
+    void handle(@Nullable Result result, Throwable exception);
   }
 
   /** Deferred initializer. Optional. */
@@ -415,7 +416,7 @@ public class Deferred extends Result {
    * @param executor Executor to use.
    * @param initializer An initializer.
    */
-  public Deferred(final String executor, final Initializer initializer) {
+  public Deferred(@Nullable final String executor, final Initializer initializer) {
     this.executor = executor;
     this.initializer = requireNonNull(initializer, "Initializer is required.");
     this.callerThread = Thread.currentThread().getName();
@@ -470,8 +471,7 @@ public class Deferred extends Result {
    *
    * @param value A value for this deferred.
    */
-  @Nonnull
-  public void resolve(final Object value) {
+  public void resolve(@Nullable final Object value) {
     if (value == null) {
       handler.handle(null, null);
     } else {
