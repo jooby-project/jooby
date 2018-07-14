@@ -718,40 +718,6 @@ public class BytecodeRouteParser {
         })
         // use(Mvc class)
         .on(use(loader, "org.jooby.Kooby"), it -> mvc(it, result::add))
-        // route ("...") {...}
-        .on(call(loader, "org.jooby.Kooby", "route", String.class,
-            "kotlin.jvm.functions.Function1"), it -> {
-          Optional<String> prefix = Insn.ldcFor(it.node).stream()
-              .map(e -> e.cst.toString())
-              .findFirst();
-          it.prev()
-              .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
-              .findFirst()
-              .map(FieldInsnNode.class::cast)
-              .ifPresent(field -> {
-                ClassNode lambda = loadClass(field.owner);
-                lambda.methods.stream()
-                    .filter(method("invoke", "org.jooby.KRouteGroup"))
-                    .forEach(m -> {
-                      new Insns((MethodNode) m)
-                          .on(scriptRoute, n -> {
-                            n.prev()
-                                .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
-                                .findFirst()
-                                .map(FieldInsnNode.class::cast)
-                                .ifPresent(f -> {
-                                  ClassNode route = loadClass(f.owner);
-                                  route.methods.stream()
-                                      .filter(kotlinRouteHandler())
-                                      .forEach(e -> Lambda
-                                          .create(f.owner, prefix, n.node, (MethodNode) e)
-                                          .forEach(result::add)
-                                      );
-                                });
-                          }).forEach();
-                    });
-              });
-        })
         // use(Jooby())
         .on(mount(loader, Jooby.class.getName()), it -> {
           it.prev()

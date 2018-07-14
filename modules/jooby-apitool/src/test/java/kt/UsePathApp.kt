@@ -8,7 +8,7 @@ class UsePathApp : Kooby({
   /**
    * Summary API.
    */
-  route("/api/path") {
+  path("/api/path") {
     /** List all. */
     get({->
       val foos = listOf<Foo>()

@@ -29,7 +29,7 @@ fun main(args: Array<String>) {
       User("Pedro", 42)
     }
 
-    route("/api/pets") {
+    path("/api/pets") {
       get { ->
         path()
       }

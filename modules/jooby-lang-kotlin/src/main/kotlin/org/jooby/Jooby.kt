@@ -228,20 +228,6 @@ open class Kooby constructor(): Jooby() {
     return server(klass.java)
   }
 
-  /**
-   * Extension function that replace the Jooby#use(java.lang.String) function with a more appropiated
-   * name.
-   *
-   * @param pattern Route group pattern.
-   * @param init Group Initializer.
-   */
-  @Deprecated("Replaced by path() operation")
-  fun route(pattern: String, init: KRouteGroup.() -> Unit): KRouteGroup {
-    val group = KRouteGroup(this.use(pattern))
-    group.init()
-    return group
-  }
-
   fun get(pattern: String = "/", init: Request.() -> Any): Route.Definition {
     return get(pattern, {req-> req.init()})
   }

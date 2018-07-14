@@ -27,7 +27,7 @@ class KApp: Kooby({
     println("Stopped")
   }
 
-  route("/") {
+  path("/") {
     get {->
       val value = param("x").value
       "x $value"
