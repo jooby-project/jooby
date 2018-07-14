@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-maven-plugin)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-maven-plugin.svg)](https://javadoc.io/doc/org.jooby/jooby-maven-plugin/1.4.1)
-[![jooby-maven-plugin website](https://img.shields.io/badge/jooby-maven-plugin-brightgreen.svg)](http://jooby.org/doc/maven-plugin)
+[![jooby-maven-plugin website](https://img.shields.io/badge/jooby-maven--plugin-brightgreen.svg)](http://jooby.org/doc/maven-plugin)
 # maven
 
 [Maven 3+](http://maven.apache.org/) plugin for running, debugging and reloading your application.

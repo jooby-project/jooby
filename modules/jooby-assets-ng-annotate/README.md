@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-ng-annotate/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-ng-annotate)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-ng-annotate.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-ng-annotate/1.4.1)
-[![jooby-assets-ng-annotate website](https://img.shields.io/badge/jooby-assets-ng-annotate-brightgreen.svg)](http://jooby.org/doc/assets-ng-annotate)
+[![jooby-assets-ng-annotate website](https://img.shields.io/badge/jooby-assets--ng--annotate-brightgreen.svg)](http://jooby.org/doc/assets-ng-annotate)
 # ng-annotate
 
 <a href="https://github.com/olov/ng-annotate">ng-annotate</a> add, remove and rebuild AngularJS dependency injection annotations.

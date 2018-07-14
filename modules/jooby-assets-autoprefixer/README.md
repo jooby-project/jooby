@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-autoprefixer/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-autoprefixer)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-autoprefixer.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-autoprefixer/1.4.1)
-[![jooby-assets-autoprefixer website](https://img.shields.io/badge/jooby-assets-autoprefixer-brightgreen.svg)](http://jooby.org/doc/assets-autoprefixer)
+[![jooby-assets-autoprefixer website](https://img.shields.io/badge/jooby-assets--autoprefixer-brightgreen.svg)](http://jooby.org/doc/assets-autoprefixer)
 # auto-prefixer
 
 <a href="https://github.com/postcss/postcss">PostCSS</a> plugin to parse CSS and add vendor prefixes to CSS rules using values from <a href="http://caniuse.com">Can I Use</a>. It is recommended by Google and used in Twitter, and Taobao.

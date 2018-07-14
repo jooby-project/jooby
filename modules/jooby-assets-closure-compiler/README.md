@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-closure-compiler/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-closure-compiler)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-closure-compiler.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-closure-compiler/1.4.1)
-[![jooby-assets-closure-compiler website](https://img.shields.io/badge/jooby-assets-closure-compiler-brightgreen.svg)](http://jooby.org/doc/assets-closure-compiler)
+[![jooby-assets-closure-compiler website](https://img.shields.io/badge/jooby-assets--closure--compiler-brightgreen.svg)](http://jooby.org/doc/assets-closure-compiler)
 # closure-compiler
 
 <a href="https://developers.google.com/closure/compiler">Closure Compiler</a> is a tool for making JavaScript download and run faster.

@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-jshint/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-jshint)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-jshint.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-jshint/1.4.1)
-[![jooby-assets-jshint website](https://img.shields.io/badge/jooby-assets-jshint-brightgreen.svg)](http://jooby.org/doc/assets-jshint)
+[![jooby-assets-jshint website](https://img.shields.io/badge/jooby-assets--jshint-brightgreen.svg)](http://jooby.org/doc/assets-jshint)
 # jshint
 
 <a href="http://jshint.com/">JSHint</a>, helps to detect errors and potential problems in code.

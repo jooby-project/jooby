@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-mongodb-rx/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-mongodb-rx)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-mongodb-rx.svg)](https://javadoc.io/doc/org.jooby/jooby-mongodb-rx/1.4.1)
-[![jooby-mongodb-rx website](https://img.shields.io/badge/jooby-mongodb-rx-brightgreen.svg)](http://jooby.org/doc/mongodb-rx)
+[![jooby-mongodb-rx website](https://img.shields.io/badge/jooby-mongodb--rx-brightgreen.svg)](http://jooby.org/doc/mongodb-rx)
 # mongodb-rx
 
 <a href="http://mongodb.github.io/mongo-java-driver-rx/">MongoDB RxJava Driver: </a> provides composable asynchronous and event-based observable sequences for MongoDB.

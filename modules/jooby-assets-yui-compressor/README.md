@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-yui-compressor/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-yui-compressor)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-yui-compressor.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-yui-compressor/1.4.1)
-[![jooby-assets-yui-compressor website](https://img.shields.io/badge/jooby-assets-yui-compressor-brightgreen.svg)](http://jooby.org/doc/assets-yui-compressor)
+[![jooby-assets-yui-compressor website](https://img.shields.io/badge/jooby-assets--yui--compressor-brightgreen.svg)](http://jooby.org/doc/assets-yui-compressor)
 # yui-css
 
 <a href="http://yui.github.io/yuicompressor">Yui compressor</a>.

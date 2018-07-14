@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-gradle-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-gradle-plugin)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-gradle-plugin.svg)](https://javadoc.io/doc/org.jooby/jooby-gradle-plugin/1.4.1)
-[![jooby-gradle-plugin website](https://img.shields.io/badge/jooby-gradle-plugin-brightgreen.svg)](http://jooby.org/doc/gradle-plugin)
+[![jooby-gradle-plugin website](https://img.shields.io/badge/jooby-gradle--plugin-brightgreen.svg)](http://jooby.org/doc/gradle-plugin)
 # gradle plugin
 
 Collection of [Gradle](http://gradle.org) plugins for [Jooby](http://jooby.org) applications.

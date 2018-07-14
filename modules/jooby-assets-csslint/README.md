@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-csslint/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-csslint)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-csslint.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-csslint/1.4.1)
-[![jooby-assets-csslint website](https://img.shields.io/badge/jooby-assets-csslint-brightgreen.svg)](http://jooby.org/doc/assets-csslint)
+[![jooby-assets-csslint website](https://img.shields.io/badge/jooby-assets--csslint-brightgreen.svg)](http://jooby.org/doc/assets-csslint)
 # csslint
 
 <a href="http://csslint.net/">CSSLint</a> automated linting of Cascading Stylesheets.

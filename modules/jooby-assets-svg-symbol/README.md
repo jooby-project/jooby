@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-svg-symbol/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-svg-symbol)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-svg-symbol.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-svg-symbol/1.4.1)
-[![jooby-assets-svg-symbol website](https://img.shields.io/badge/jooby-assets-svg-symbol-brightgreen.svg)](http://jooby.org/doc/assets-svg-symbol)
+[![jooby-assets-svg-symbol website](https://img.shields.io/badge/jooby-assets--svg--symbol-brightgreen.svg)](http://jooby.org/doc/assets-svg-symbol)
 # svg-symbol
 
 SVG ```symbol``` for icons: merge svg files from a folder and generates a ```sprite.svg``` and ```sprite.css``` files.
