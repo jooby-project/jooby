@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-rollup/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-rollup)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-rollup.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-rollup/1.4.1)
-[![jooby-assets-rollup website](https://img.shields.io/badge/jooby-assets-rollup-brightgreen.svg)](http://jooby.org/doc/assets-rollup)
+[![jooby-assets-rollup website](https://img.shields.io/badge/jooby-assets--rollup-brightgreen.svg)](http://jooby.org/doc/assets-rollup)
 # rollup.js
 
 <a href="http://rollupjs.org/">rollup.js</a> the next-generation ES6 module bundler.

@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-babel/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-babel)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-babel.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-babel/1.4.1)
-[![jooby-assets-babel website](https://img.shields.io/badge/jooby-assets-babel-brightgreen.svg)](http://jooby.org/doc/assets-babel)
+[![jooby-assets-babel website](https://img.shields.io/badge/jooby-assets--babel-brightgreen.svg)](http://jooby.org/doc/assets-babel)
 # babel
 
 <a href="http://babeljs.io/">Babel</a> is a JavaScript compiler with a set of ES2015 syntax transformers that allow you to use new syntax, right now without waiting for browser support.

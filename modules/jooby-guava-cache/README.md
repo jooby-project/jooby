@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-guava-cache/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-guava-cache)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-guava-cache.svg)](https://javadoc.io/doc/org.jooby/jooby-guava-cache/1.4.1)
-[![jooby-guava-cache website](https://img.shields.io/badge/jooby-guava-cache-brightgreen.svg)](http://jooby.org/doc/guava-cache)
+[![jooby-guava-cache website](https://img.shields.io/badge/jooby-guava--cache-brightgreen.svg)](http://jooby.org/doc/guava-cache)
 # guava-cache
 
 Provides cache solution and session storage via: <a href="https://github.com/google/guava">Guava</a>.

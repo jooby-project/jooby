@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-jscs/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-jscs)
 [![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-jscs.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-jscs/1.4.1)
-[![jooby-assets-jscs website](https://img.shields.io/badge/jooby-assets-jscs-brightgreen.svg)](http://jooby.org/doc/assets-jscs)
+[![jooby-assets-jscs website](https://img.shields.io/badge/jooby-assets--jscs-brightgreen.svg)](http://jooby.org/doc/assets-jscs)
 # jscs
 
 <a href="http://jscs.info/">JavaScript Code Style checker</a>.
