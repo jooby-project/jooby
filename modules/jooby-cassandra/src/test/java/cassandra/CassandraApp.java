@@ -42,26 +42,27 @@ public class CassandraApp extends Jooby {
     });
 
     /** CRUD */
-    use("/api/beer")
-        .post(req -> {
-          Datastore ds = req.require(Datastore.class);
-          Beer beer = req.body().to(Beer.class);
-          ds.saveAsync(beer);
-          return beer;
-        })
-        .get("/:id", req -> {
-          Datastore ds = req.require(Datastore.class);
-          return ds.getAsync(Beer.class, req.param("id").value());
-        })
-        .get(req -> {
-          Datastore ds = req.require(Datastore.class);
-          return ds.queryAsync(Beer.class, "select * from beer");
-        })
-        .delete("/:id", req -> {
-          Datastore ds = req.require(Datastore.class);
-          ds.deleteAsync(Beer.class, req.param("id").value());
-          return Results.noContent();
-        });
+    path("/api/beer", () -> {
+      post(req -> {
+        Datastore ds = req.require(Datastore.class);
+        Beer beer = req.body().to(Beer.class);
+        ds.saveAsync(beer);
+        return beer;
+      });
+      get("/:id", req -> {
+        Datastore ds = req.require(Datastore.class);
+        return ds.getAsync(Beer.class, req.param("id").value());
+      });
+      get(req -> {
+        Datastore ds = req.require(Datastore.class);
+        return ds.queryAsync(Beer.class, "select * from beer");
+      });
+      delete("/:id", req -> {
+        Datastore ds = req.require(Datastore.class);
+        ds.deleteAsync(Beer.class, req.param("id").value());
+        return Results.noContent();
+      });
+    });
   }
 
   public static void main(final String[] args) throws Throwable {

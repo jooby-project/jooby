@@ -35,9 +35,9 @@ public class Issue349 extends ServerFeature {
 
     get("/d", () -> "d");
 
-    use("/g")
-        .get("/a", () -> "a")
-        .map(v -> "//" + v);
+    path("/g", () -> {
+      get("/a", () -> "a");
+    }).map(v -> "//" + v);
 
     with(() -> {
 

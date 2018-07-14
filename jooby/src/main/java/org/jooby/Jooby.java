@@ -973,8 +973,6 @@ public class Jooby implements Router, LifeCycle, Registry {
     app.bag.forEach(it -> {
       if (it instanceof Route.Definition) {
         this.bag.add(rewrite.apply((Definition) it));
-      } else if (it instanceof Route.Group) {
-        ((Route.Group) it).routes().forEach(r -> this.bag.add(rewrite.apply(r)));
       } else if (it instanceof MvcClass) {
         Object routes = path.<Object>map(p -> new MvcClass(((MvcClass) it).routeClass, p, prefix))
             .orElse(it);
@@ -997,13 +995,6 @@ public class Jooby implements Router, LifeCycle, Registry {
     }
     apprefs.add(app);
     return this;
-  }
-
-  @Override
-  public Route.Group use(final String pattern) {
-    Route.Group group = new Route.Group(pattern, prefix);
-    this.bag.add(group);
-    return group;
   }
 
   /**
@@ -2739,9 +2730,6 @@ public class Jooby implements Router, LifeCycle, Registry {
     snapshot.forEach(candidate -> {
       if (candidate instanceof Route.Definition) {
         result.add(candidate);
-      } else if (candidate instanceof Route.Group) {
-        ((Route.Group) candidate).routes()
-            .forEach(r -> result.add(r));
       } else if (candidate instanceof MvcClass) {
         MvcClass mvcRoute = ((MvcClass) candidate);
         Class<?> mvcClass = mvcRoute.routeClass;

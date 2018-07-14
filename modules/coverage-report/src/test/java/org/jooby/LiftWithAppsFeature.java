@@ -11,9 +11,10 @@ public class LiftWithAppsFeature extends ServerFeature {
     }
 
     {
-      use("/")
-          .get("/", () -> "admin")
-          .get("/:id", req -> "a" + req.param("id").value());
+      path("/", () -> {
+          get("/", () -> "admin");
+          get("/:id", req -> "a" + req.param("id").value());
+      });
     }
   }
 

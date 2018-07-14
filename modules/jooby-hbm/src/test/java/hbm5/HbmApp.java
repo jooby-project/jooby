@@ -40,24 +40,25 @@ public class HbmApp extends Jooby {
 
     executor(Executors.newSingleThreadExecutor());
 
-    use("/api/beer")
-        .post(req -> require(UnitOfWork.class)
-            .apply(em -> em.merge(req.body(Beer.class))))
-        .post("/async", deferred(req -> {
-          Beer beer = req.body(Beer.class);
-          return require(UnitOfWork.class)
-              .apply(em -> em.merge(beer));
-        }))
-        .get("/q",
-            () -> require(Session.class).createQuery("from Beer", Beer.class).getResultList())
-        .get("/:id",
-            req -> require(Session.class).getReference(Beer.class,
-                req.param("id").longValue()).name)
-        .get("/async", deferred(() -> {
-          return require(Session.class).createQuery("from Beer", Beer.class).getResultList();
-        }))
-        .get(() -> require(UnitOfWork.class)
-            .apply(em -> em.createQuery("from Beer", Beer.class).getResultList()));
+    path("/api/beer", () -> {
+      post(req -> require(UnitOfWork.class)
+          .apply(em -> em.merge(req.body(Beer.class))));
+      post("/async", deferred(req -> {
+        Beer beer = req.body(Beer.class);
+        return require(UnitOfWork.class)
+            .apply(em -> em.merge(beer));
+      }));
+      get("/q",
+          () -> require(Session.class).createQuery("from Beer", Beer.class).getResultList());
+      get("/:id",
+          req -> require(Session.class).getReference(Beer.class,
+              req.param("id").longValue()).name);
+      get("/async", deferred(() -> {
+        return require(Session.class).createQuery("from Beer", Beer.class).getResultList();
+      }));
+      get(() -> require(UnitOfWork.class)
+          .apply(em -> em.createQuery("from Beer", Beer.class).getResultList()));
+    });
   }
 
   public static void main(final String[] args) throws Throwable {

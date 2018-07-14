@@ -10,19 +10,20 @@ public class Issue279 extends ServerFeature {
       req.set("local", 678);
     });
 
-    use("/issue279")
-        .get("/get", req -> {
-          int value = req.get("local");
-          return value;
-        })
-        .get("/getdef", req -> {
-          String value = req.get("def", "def");
-          return value;
-        })
-        .get("/geterr", req -> {
-          String value = req.get("def");
-          return value;
-        });
+    path("/issue279", () -> {
+      get("/get", req -> {
+        int value = req.get("local");
+        return value;
+      });
+      get("/getdef", req -> {
+        String value = req.get("def", "def");
+        return value;
+      });
+      get("/geterr", req -> {
+        String value = req.get("def");
+        return value;
+      });
+    });
   }
 
   @Test

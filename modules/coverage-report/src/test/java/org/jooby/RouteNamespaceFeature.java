@@ -12,12 +12,13 @@ public class RouteNamespaceFeature extends ServerFeature {
 
     Map<String, String> db = new HashMap<>();
 
-    use("/pets")
-        .get("/:id", req -> db.get(req.param("id").value()))
-        .get(() -> db.values())
-        .post("/:id", req -> "" + db.put(req.param("id").value(), req.body().value()))
-        .put("/:id", req -> db.put(req.param("id").value(), req.body().value()))
-        .delete("/:id", req -> db.remove(req.param("id").value()));
+    path("/pets", () -> {
+      get("/:id", req -> db.get(req.param("id").value()));
+      get(() -> db.values());
+      post("/:id", req -> "" + db.put(req.param("id").value(), req.body().value()));
+      put("/:id", req -> db.put(req.param("id").value(), req.body().value()));
+      delete("/:id", req -> db.remove(req.param("id").value()));
+    });
   }
 
   @Test

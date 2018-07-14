@@ -249,14 +249,6 @@ class Filters {
     return it -> it.getOpcode() == opcode;
   }
 
-  @SuppressWarnings("rawtypes")
-  public static Predicate<MethodInsnNode> routeGroupOwner() {
-    return method -> {
-      String desc = Type.getInternalName(Route.Group.class);
-      return method.owner.equals(desc);
-    };
-  }
-
   public static Predicate<MethodInsnNode> call(final Class owner, final String name,
       final Object... args) {
     return call(owner.getClassLoader(), Type.getInternalName(owner), name, args);
@@ -481,7 +473,6 @@ class Filters {
     };
 
     List<Signature> signatures = signatures(Router.class, route);
-    signatures.addAll(signatures(Route.Group.class, route));
     loadClass.apply("org.jooby.Kooby").ifPresent(c -> {
       signatures.addAll(signatures(c, kotlinScriptRoute));
     });

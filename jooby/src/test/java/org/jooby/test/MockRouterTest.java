@@ -131,10 +131,6 @@ public class MockRouterTest {
       });
 
       get("/before", req -> req.charset());
-
-      use("/api/items")
-          .get(() -> "All")
-          .get("/:id", () -> "One");
     }
   }
 
@@ -481,27 +477,6 @@ public class MockRouterTest {
               unit.get(Request.class),
               unit.get(Response.class))
                   .get("/deferred-err");
-        });
-  }
-
-  @Test
-  public void routeGroup() throws Exception {
-    new MockUnit(Request.class, Response.class)
-        .run(unit -> {
-          Object result = new MockRouter(new HelloWorld(),
-              unit.get(Request.class),
-              unit.get(Response.class))
-                  .get("/api/items");
-          assertEquals("All", result);
-        });
-
-    new MockUnit(Request.class, Response.class)
-        .run(unit -> {
-          Object result = new MockRouter(new HelloWorld(),
-              unit.get(Request.class),
-              unit.get(Response.class))
-                  .get("/api/items/1");
-          assertEquals("One", result);
         });
   }
 

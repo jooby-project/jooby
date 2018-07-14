@@ -21,11 +21,11 @@ public class Issue398 extends ServerFeature {
       return req.route().source();
     });
 
-    use("/g")
-        .get("/src", req -> {
-          return req.route().source();
-        });
-
+    path("/g", () -> {
+      get("/src", req -> {
+        return req.route().source();
+      });
+    });
     get("/src1", "src2", req -> {
       return req.route().source();
     });

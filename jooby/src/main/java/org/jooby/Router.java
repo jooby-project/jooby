@@ -274,25 +274,6 @@ public interface Router {
   Router use(final String path, final Jooby app);
 
   /**
-   * Define one or more routes under the same namespace:
-   *
-   * <pre>
-   * {
-   *   use("/pets")
-   *     .get("/:id", req {@literal ->} db.get(req.param("id").value()))
-   *     .get(() {@literal ->} db.values());
-   * }
-   * </pre>
-   *
-   * @param pattern Global pattern to use.
-   * @return A route namespace.
-   * @deprecated Replaced by {@link #path(String, Runnable)}.
-   */
-  @Nonnull
-  @Deprecated
-  Route.Group use(String pattern);
-
-  /**
    * Append a new filter that matches any method under the given path.
    *
    * @param path A path pattern.

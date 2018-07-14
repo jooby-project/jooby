@@ -18,28 +18,28 @@ public class RxApp extends Jooby {
 
     use(new Couchbase("couchbase://localhost/beers"));
 
-    use("/api/beer")
-        .get(req -> {
-          return require(AsyncDatastore.class)
-              .query(N1Q.from(Beer.class));
-        })
-        .get("/view", req -> {
-          return require(AsyncDatastore.class)
-              .query(ViewQuery.from("dev_beers", "beers").limit(2));
-        })
-        .post(req -> {
-          AsyncDatastore ds = req.require(AsyncDatastore.class);
-          Beer beer = req.body().to(Beer.class);
-          return ds.upsert(beer);
-        })
-        .get("/:id", req -> {
-          return req.require(AsyncDatastore.class).get(Beer.class, req.param("id").longValue());
-        })
-        .delete("/:id", req -> {
-          AsyncDatastore ds = req.require(AsyncDatastore.class);
-          return ds.remove(Beer.class, req.param("id").value());
-        });
-
+    path("/api/beer", () -> {
+      get(req -> {
+        return require(AsyncDatastore.class)
+            .query(N1Q.from(Beer.class));
+      });
+      get("/view", req -> {
+        return require(AsyncDatastore.class)
+            .query(ViewQuery.from("dev_beers", "beers").limit(2));
+      });
+      post(req -> {
+        AsyncDatastore ds = req.require(AsyncDatastore.class);
+        Beer beer = req.body().to(Beer.class);
+        return ds.upsert(beer);
+      });
+      get("/:id", req -> {
+        return req.require(AsyncDatastore.class).get(Beer.class, req.param("id").longValue());
+      });
+      delete("/:id", req -> {
+        AsyncDatastore ds = req.require(AsyncDatastore.class);
+        return ds.remove(Beer.class, req.param("id").value());
+      });
+    });
   }
 
   public static void main(final String[] args) throws Throwable {

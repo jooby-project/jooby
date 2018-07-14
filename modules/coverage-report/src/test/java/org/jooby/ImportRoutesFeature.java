@@ -45,9 +45,10 @@ public class ImportRoutesFeature extends ServerFeature {
 
   public static class D extends Jooby {
     {
-      use("/routes")
-          .get("/1", req -> req.path())
-          .get("/2", req -> req.path());
+      path("/routes", () -> {
+        get("/1", req -> req.path());
+        get("/2", req -> req.path());
+      });
     }
   }
 

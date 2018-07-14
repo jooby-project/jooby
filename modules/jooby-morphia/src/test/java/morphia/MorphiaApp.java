@@ -22,21 +22,21 @@ public class MorphiaApp extends Jooby {
 
     use(new Monphia("db1"));
 
-    use("/api/beer")
-        .get(req -> {
-          Datastore ds = req.require(Datastore.class);
-          return ds.createQuery(Beer.class).asList();
-        })
-        .post(req -> {
-          Beer beer = req.body().to(Beer.class);
-          Datastore ds = req.require(Datastore.class);
-          ds.save(beer);
-          return beer;
-        });
+    path("/api/beer", () -> {
+      get(req -> {
+        Datastore ds = req.require(Datastore.class);
+        return ds.createQuery(Beer.class).asList();
+      });
+      post(req -> {
+        Beer beer = req.body().to(Beer.class);
+        Datastore ds = req.require(Datastore.class);
+        ds.save(beer);
+        return beer;
+      });
+    });
   }
 
   public static void main(final String[] args) throws Throwable {
     run(MorphiaApp::new, "server.join=false");
-    System.exit(0);
   }
 }

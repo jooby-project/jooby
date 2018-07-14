@@ -13,17 +13,18 @@ public class App537 extends Jooby {
      *
      * Next line
      */
-    use("/api/cat/")
+    path("/api/cat/", () -> {
         /**
          * @param name Cat's name
          *
          * @return Returns a cat {@link Cat}
          */
-        .get("/:name", req -> {
+        get("/:name", req -> {
           Cat cat = new Cat();
           cat.setName(req.param("name").value());
           return cat;
         })
         .produces(MediaType.json);
+    });
   }
 }

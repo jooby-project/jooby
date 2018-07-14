@@ -42,35 +42,35 @@ public class App extends Jooby {
       return session.get(req.param("name").value()).value();
     });
 
-    use("/api/beer")
-        .get(req -> {
-          return require(Datastore.class)
-              .query(N1Q.from(Beer.class));
-        })
-        .get("/view", req -> {
-          return require(Datastore.class)
-              .query(ViewQuery.from("dev_beers", "beers").limit(2));
-        })
-        .post(req -> {
-          Datastore ds = req.require(Datastore.class);
-          Beer beer = req.body().to(Beer.class);
-          Beer b = ds.upsert()
-              .execute(beer);
-          return b;
-        })
-        .get("/:id", req -> {
-          Beer beer = req.require(Datastore.class).get(Beer.class, req.param("id").longValue());
-          return beer;
-        })
-        .get("/:id/exists", req -> {
-          return req.require(Datastore.class).exists(Beer.class, req.param("id").longValue());
-        })
-        .delete("/:id", req -> {
-          Datastore ds = req.require(Datastore.class);
-          Beer beer = ds.get(Beer.class, req.param("id").value());
-          return ds.remove(beer);
-        });
-
+    path("/api/beer", () -> {
+      get(req -> {
+        return require(Datastore.class)
+            .query(N1Q.from(Beer.class));
+      });
+      get("/view", req -> {
+        return require(Datastore.class)
+            .query(ViewQuery.from("dev_beers", "beers").limit(2));
+      });
+      post(req -> {
+        Datastore ds = req.require(Datastore.class);
+        Beer beer = req.body().to(Beer.class);
+        Beer b = ds.upsert()
+            .execute(beer);
+        return b;
+      });
+      get("/:id", req -> {
+        Beer beer = req.require(Datastore.class).get(Beer.class, req.param("id").longValue());
+        return beer;
+      });
+      get("/:id/exists", req -> {
+        return req.require(Datastore.class).exists(Beer.class, req.param("id").longValue());
+      });
+      delete("/:id", req -> {
+        Datastore ds = req.require(Datastore.class);
+        Beer beer = ds.get(Beer.class, req.param("id").value());
+        return ds.remove(beer);
+      });
+    });
   }
 
   public static void main(final String[] args) throws Throwable {

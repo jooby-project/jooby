@@ -19,7 +19,7 @@ public class RouteAttrAppTest {
           r.summary(null);
           r.consumes("application/json");
           r.produces("application/json", "text/html");
-          r.attributes(ImmutableMap.of("foo", "bar"));
+          r.attributes(ImmutableMap.of("foo", "bar", "route.tag", "ApiAttr"));
         }).done();
   }
 

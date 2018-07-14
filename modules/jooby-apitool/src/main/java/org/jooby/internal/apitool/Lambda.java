@@ -204,7 +204,6 @@
 package org.jooby.internal.apitool;
 
 import org.jooby.Route;
-import static org.jooby.internal.apitool.Filters.routeGroupOwner;
 import static org.jooby.internal.apitool.Insn.ldcFor;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
@@ -338,8 +337,7 @@ class Lambda {
 
                 // Instance method reference but not Static method reference:
                 if ((!method.owner.equals(lambda.owner)
-                    && handle.getTag() != Opcodes.H_INVOKESTATIC)
-                    && !routeGroupOwner().test(method)) {
+                    && handle.getTag() != Opcodes.H_INVOKESTATIC)) {
                   // get("pattern", instance::methodReference)
                   start = new Insn<>(null, method.getPrevious())
                       .prev()
@@ -353,27 +351,6 @@ class Lambda {
                     .map(it -> Route.normalize(it.cst.toString()))
                     .collect(Collectors.toList());
 
-                if (routeGroupOwner().test(method)) {
-                  // use("/pattern")
-                  //  .get(pattern?, () -> {});
-                  new Insn<>(null, method)
-                      .prev()
-                      .filter(Filters.is(MethodInsnNode.class))
-                      .map(MethodInsnNode.class::cast)
-                      .filter(Filters.call(loader, lambda.owner, "use", String.class))
-                      .findFirst()
-                      .ifPresent(use -> {
-                        List<String> prefix = ldcFor(use).stream()
-                            .map(it -> Route.normalize(it.cst.toString()))
-                            .collect(Collectors.toList());
-                        if (ldc.size() == 0) {
-                          count.incrementAndGet();
-                          ldc.add("");
-                        }
-                        IntStream.range(0, ldc.size())
-                            .forEach(i -> ldc.set(i, prefix.get(0) + ldc.get(i)));
-                      });
-                }
                 if (ldc.size() == 0) {
                   // default path:
                   ldc.add("/");
