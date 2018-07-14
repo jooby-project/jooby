@@ -2,8 +2,6 @@
 
 * [Kotlin](/doc/lang-kotlin) support.
 
-* [Javascript](/doc/lang-js) support.
-
 # file watcher
 
 * [filewatcher](/doc/filewatcher): Listen for filesystem changes.
