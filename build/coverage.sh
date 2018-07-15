@@ -1,2 +1,2 @@
 #!/bin/bash
-mvn -DdryRun=true clean package coveralls:report -P coverage
+mvn -DdryRun=true -Dlogback.configurationFile=../../build/logback-build.xml  clean package coveralls:report -P coverage
