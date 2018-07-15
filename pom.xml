@@ -11,7 +11,7 @@
 
   <name>jooby-project</name>
 
-  <description>Scalable, fast and modular micro web framework</description>
+  <description>A modular micro web framework for Java and Kotlin</description>
 
   <url>https://github.com/jooby-project/jooby</url>
 
@@ -3195,7 +3195,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <neo4j.expire.version>3.4.0.52.4</neo4j.expire.version>
     <neo4j.runtime.version>3.4.0.52</neo4j.runtime.version>
     <neo4j.version>3.3.2</neo4j.version>
-    <netty.version>4.1.25.Final</netty.version>
+    <netty.version>4.1.27.Final</netty.version>
     <pac4j.version>1.9.9</pac4j.version>
     <pac4j2.version>2.2.1</pac4j2.version>
     <pebble.version>2.4.0</pebble.version>
