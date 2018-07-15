@@ -1,2 +1,3 @@
 src/main/java/org/jooby/internal/apitool/javadoc/*.java
 *.tokens
+*.interp
