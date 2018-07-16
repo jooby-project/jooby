@@ -215,27 +215,27 @@ import org.jooby.internal.micrometer.TimedSupport;
  *
  * MVC example:
  *
- * <pre>{@code
- *
  * App.java:
  *
+ * <pre>
  * {
  *
  *   use("*", new TimedHandler());
  * }
+ * </pre>
  *
  * PeopleManager.java:
  *
- * @Path("/api/people")
+ * <pre>
+ * &#064;Path("/api/people")
  * class PeopleManager {
  *
- *   @Timed("people.all")
- *   public List<Person> list() {
+ *   &#064;Timed("people.all")
+ *   public List&lt;Person&gt; list() {
  *     ...
  *   }
  * }
- *
- * }</pre>
+ * </pre>
  *
  * Script example:
  *

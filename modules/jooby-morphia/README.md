@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-morphia/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-morphia)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-morphia.svg)](https://javadoc.io/doc/org.jooby/jooby-morphia/1.4.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-morphia.svg)](https://javadoc.io/doc/org.jooby/jooby-morphia/1.5.0)
 [![jooby-morphia website](https://img.shields.io/badge/jooby-morphia-brightgreen.svg)](http://jooby.org/doc/morphia)
 # morphia
 
@@ -16,7 +16,7 @@ Extends the [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-m
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-morphia</artifactId>
-  <version>1.4.1</version>
+  <version>1.5.0</version>
 </dependency>
 ```
 

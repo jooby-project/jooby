@@ -1,11 +1,11 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-apitool/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-apitool)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-apitool.svg)](https://javadoc.io/doc/org.jooby/jooby-apitool/1.4.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-apitool.svg)](https://javadoc.io/doc/org.jooby/jooby-apitool/1.5.0)
 [![jooby-apitool website](https://img.shields.io/badge/jooby-apitool-brightgreen.svg)](http://jooby.org/doc/apitool)
 # API tool
 
-Automatically export your HTTP API to open standards like <a href="https://swagger.io/">Swagger</a> and <a href="https://raml.org/">RAML</a>.
+API reference generator for <a href="https://swagger.io/">Swagger</a> and <a href="https://raml.org/">RAML</a>.
 
-This module generates live documentation from your HTTP API.
+This module generates live documentation from your HTTP API (source code).
 
 ## screenshots
 
@@ -23,7 +23,7 @@ This module generates live documentation from your HTTP API.
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-apitool</artifactId>
- <version>1.4.1</version>
+ <version>1.5.0</version>
 </dependency>
 ```
 
@@ -38,7 +38,7 @@ This module generates live documentation from your HTTP API.
 }
 ```
 
-Those lines export your API to <a href="https://swagger.io/">Swagger</a> and <a href="https://raml.org/">RAML</a>.
+Those lines export your API to <a href="https://swagger.io/">Swagger</a>, <a href="https://raml.org/">RAML</a> or <a href="http://rebilly.github.io/ReDoc/">ReDoc</a>.
 
 ## example
 
@@ -130,6 +130,30 @@ The [ApiTool](/apidocs/org/jooby/apitool/ApiTool.html) module automatically expo
 
 Works for ```MVC routes``` and <a href="http://jooby.org/doc/lang-kotlin">Kotlin</a>.
 
+## redoc
+
+[ReDoc](http://rebilly.github.io/ReDoc/) example:
+
+```java
+{
+  use(new ApiTool()
+    .redoc()
+  )
+}
+```
+
+Or if you want to keep Swagger UI and ReDoc:
+
+```java
+{
+  use(new ApiTool()
+    .swagger(new Options("/swagger")
+      .redoc()
+    )
+  )
+}
+```
+
 ## keep documentation
 
 The [ApiTool](/apidocs/org/jooby/apitool/ApiTool.html) module parses documentation from source code. It works well as long as the source code is present, but it won't work after you deploy your application.
@@ -163,7 +187,7 @@ Go to ```build.gradle``` and add these lines:
 ```gradke
 buildscript {
     dependencies {
-        classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.4.1'
+        classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.5.0'
     }
 }
 apply plugin: 'jooby'

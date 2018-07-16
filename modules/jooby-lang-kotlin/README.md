@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-lang-kotlin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-lang-kotlin)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-lang-kotlin.svg)](https://javadoc.io/doc/org.jooby/jooby-lang-kotlin/1.4.1)
-[![jooby-lang-kotlin website](https://img.shields.io/badge/jooby-lang--kotlin-brightgreen.svg)](http://jooby.org/doc/lang-kotlin)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-lang-kotlin.svg)](https://javadoc.io/doc/org.jooby/jooby-lang-kotlin/1.5.0)
+[![jooby-lang-kotlin website](https://img.shields.io/badge/jooby-lang-kotlin-brightgreen.svg)](http://jooby.org/doc/lang-kotlin)
 # kotlin
 
 A tiny module that makes a Jooby application more Kotlin idiomatic.
@@ -11,7 +11,7 @@ A tiny module that makes a Jooby application more Kotlin idiomatic.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-lang-kotlin</artifactId>
-  <version>1.4.1</version>
+  <version>1.5.0</version>
 </dependency>
 ```
 

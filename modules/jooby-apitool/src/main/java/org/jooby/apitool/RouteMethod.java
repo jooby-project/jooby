@@ -339,8 +339,7 @@ public class RouteMethod {
   }
 
   /**
-   * API summary. This is usually the javadoc of {@link org.jooby.Router#use(String)} method or the
-   * javadoc of a class for MVC routes.
+   * API summary.
    *
    * @return Summary or empty.
    */

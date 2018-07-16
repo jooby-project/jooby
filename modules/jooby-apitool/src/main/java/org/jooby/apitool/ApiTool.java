@@ -865,6 +865,7 @@ public class ApiTool implements Jooby.Module {
   /**
    * Mount ReDoc at <code>/redoc</code>
    *
+   * @param path Redoc path.
    * @return This option.
    */
   public ApiTool redoc(String path) {
@@ -916,6 +917,7 @@ public class ApiTool implements Jooby.Module {
    * Mount Swagger using the given options.
    *
    * @param options Swagger options.
+   * @param swagger Customizer.
    * @return This tool.
    */
   public ApiTool swagger(Options options, Consumer<Swagger> swagger) {

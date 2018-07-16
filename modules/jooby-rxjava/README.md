@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-rxjava/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-rxjava)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-rxjava.svg)](https://javadoc.io/doc/org.jooby/jooby-rxjava/1.4.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-rxjava.svg)](https://javadoc.io/doc/org.jooby/jooby-rxjava/1.5.0)
 [![jooby-rxjava website](https://img.shields.io/badge/jooby-rxjava-brightgreen.svg)](http://jooby.org/doc/rxjava)
 # rxjava
 
@@ -13,7 +13,7 @@ RxJava is a Java VM implementation of <a href="http://reactivex.io">Reactive Ext
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-rxjava</artifactId>
- <version>1.4.1</version>
+ <version>1.5.0</version>
 </dependency>
 ```
 

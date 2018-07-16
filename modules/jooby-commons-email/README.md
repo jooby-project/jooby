@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-commons-email/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-commons-email)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-commons-email.svg)](https://javadoc.io/doc/org.jooby/jooby-commons-email/1.4.1)
-[![jooby-commons-email website](https://img.shields.io/badge/jooby-commons--email-brightgreen.svg)](http://jooby.org/doc/commons-email)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-commons-email.svg)](https://javadoc.io/doc/org.jooby/jooby-commons-email/1.5.0)
+[![jooby-commons-email website](https://img.shields.io/badge/jooby-commons-email-brightgreen.svg)](http://jooby.org/doc/commons-email)
 # commons-email
 
 Email supports via [Apache Commons Email](https://commons.apache.org/proper/commons-email).
@@ -19,7 +19,7 @@ Small but helpful module that provides access to ```Email``` instances.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-commons-email</artifactId>
-  <version>1.4.1</version>
+  <version>1.5.0</version>
 </dependency>
 ```
 

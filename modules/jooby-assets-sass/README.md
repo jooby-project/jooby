@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-sass/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-sass)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-sass.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-sass/1.4.1)
-[![jooby-assets-sass website](https://img.shields.io/badge/jooby-assets--sass-brightgreen.svg)](http://jooby.org/doc/assets-sass)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-sass.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-sass/1.5.0)
+[![jooby-assets-sass website](https://img.shields.io/badge/jooby-assets-sass-brightgreen.svg)](http://jooby.org/doc/assets-sass)
 # sass
 
 <a href="http://sass-lang.com/">sass-lang</a> implementation from <a href="https://github.com/bit3/jsass">Java sass compiler</a>. Sass is the most mature, stable, and powerful professional grade CSS extension language in the world.
@@ -13,7 +13,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-assets-sass</artifactId>
- <version>1.4.1</version>
+ <version>1.5.0</version>
  <scope>provided</scope>
 </dependency>
 ```

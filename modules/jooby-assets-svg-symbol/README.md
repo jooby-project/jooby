@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-svg-symbol/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-assets-svg-symbol)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-svg-symbol.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-svg-symbol/1.4.1)
-[![jooby-assets-svg-symbol website](https://img.shields.io/badge/jooby-assets--svg--symbol-brightgreen.svg)](http://jooby.org/doc/assets-svg-symbol)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-svg-symbol.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-svg-symbol/1.5.0)
+[![jooby-assets-svg-symbol website](https://img.shields.io/badge/jooby-assets-svg-symbol-brightgreen.svg)](http://jooby.org/doc/assets-svg-symbol)
 # svg-symbol
 
 SVG ```symbol``` for icons: merge svg files from a folder and generates a ```sprite.svg``` and ```sprite.css``` files.
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-assets-svg-symbol</artifactId>
- <version>1.4.1</version>
+ <version>1.5.0</version>
  <scope>provided</scope>
 </dependency>
 ```

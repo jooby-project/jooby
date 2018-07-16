@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-akka/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-akka)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-akka.svg)](https://javadoc.io/doc/org.jooby/jooby-akka/1.4.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-akka.svg)](https://javadoc.io/doc/org.jooby/jooby-akka/1.5.0)
 [![jooby-akka website](https://img.shields.io/badge/jooby-akka-brightgreen.svg)](http://jooby.org/doc/akka)
 # akka
 
@@ -15,7 +15,7 @@ Small module to build concurrent & distributed applications via [Akka](http://ak
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-akka</artifactId>
-  <version>1.4.1</version>
+  <version>1.5.0</version>
 </dependency>
 ```
 

@@ -258,7 +258,8 @@ import java.util.function.Function;
  * </ul>
  * <h2>usage</h2>
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  * {
  *   use(new Micrometer());
  *
@@ -269,14 +270,16 @@ import java.util.function.Function;
  *     timer.record(() -> chain.next(req, rsp));
  *   });
  * }
- * }</pre>
+ * }
+ * </pre>
  *
  * <h2>monitoring systems</h2>
  * <p>
  *   It is possible to attach one or more monitoring system. Here are some examples:
  * </p>
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  * {
  *   use(new Micrometer()
  *     .atlas(conf -> {
@@ -286,7 +289,8 @@ import java.util.function.Function;
  *     // etc...
  *   );
  * }
- * }</pre>
+ * }
+ * </pre>
  *
  * <p>
  *   Jooby creates a <code>MeterRegistryConfig</code> for every available monitoring system. You
@@ -295,6 +299,7 @@ import java.util.function.Function;
  *
  * application.conf
  * <pre>
+ * {@code
  *   micrometer {
  *     atlas {
  *       uri: "http://localhost:7101/api/v1/publish"
@@ -303,6 +308,7 @@ import java.util.function.Function;
  *       step: "PT1M"
  *     }
  *   }
+ * }
  * </pre>
  *
  * <p>
@@ -310,7 +316,8 @@ import java.util.function.Function;
  *   instances for metrics. Jooby provides a ready to use prometheus handler:
  * </p>
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  *
  * import org.jooby.micrometer.PrometheusHandler;
  *
@@ -321,29 +328,29 @@ import java.util.function.Function;
  *
  *   get("/metrics", new PrometheusHandler());
  * }
- * }</pre>
+ * }
+ * </pre>
  *
  * <h2>timed annotation</h2>
  * <p>
  *   Jooby supports the <code>io.micrometer.core.annotation.Timed</code> annotation for MVC routes:
  * </p>
  *
- * <pre>{@code
- *
- * @Path("/controller")
+ * <pre>
+ * &#064;Path("/controller")
  * class Controller {
  *
- *   @Timed("people.all")
+ *   &#064;Timed("people.all")
  *   public People list() {
  *     ...
  *   }
  * }
- *
- * }</pre>
+ * </pre>
  *
  * App:
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  *
  * import org.jooby.micrometer.TimedHandler;
  *
@@ -352,7 +359,8 @@ import java.util.function.Function;
  *
  *   use("*", new TimedHandler());
  * }
- * }</pre>
+ * }
+ * </pre>
  *
  * <p>
  *   The <code>TimedHandler</code> record all the controller methods with
@@ -364,7 +372,8 @@ import java.util.function.Function;
  *   Advanced options are available via <code>doWith</code> method:
  * </p>
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  * {
  *   use(new Micrometer()
  *     .doWith(registry -> {
@@ -372,7 +381,8 @@ import java.util.function.Function;
  *     })
  *   );
  * }
- * }</pre>
+ * }
+ * </pre>
  *
  * <p>
  *   That's all! Happy coding!!

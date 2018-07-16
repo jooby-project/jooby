@@ -1,5 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ftl/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ftl)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-ftl.svg)](https://javadoc.io/doc/org.jooby/jooby-ftl/1.4.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-ftl.svg)](https://javadoc.io/doc/org.jooby/jooby-ftl/1.5.0)
 [![jooby-ftl website](https://img.shields.io/badge/jooby-ftl-brightgreen.svg)](http://jooby.org/doc/ftl)
 # freemarker
 
@@ -16,7 +16,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>1.4.1</version>
+  <version>1.5.0</version>
 </dependency>
 ```
 

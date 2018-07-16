@@ -4,56 +4,59 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
-  <version>1.4.1</version>
+  <version>1.5.0</version>
   <packaging>pom</packaging>
   <name>jooby-bom</name>
   <description>Jooby (Bill of Materials)</description>
   <url>https://github.com/jooby-project/jooby</url>
   <properties>
-  <jooby.version>1.4.1</jooby.version>
-  <akka.version>2.5.9</akka.version>
+  <jooby.version>1.5.0</jooby.version>
+  <akka.version>2.5.13</akka.version>
   <antlr4-runtime.version>4.7</antlr4-runtime.version>
   <api-console.version>3.0.17</api-console.version>
   <asm.version>6.2</asm.version>
-  <async-http-client.version>1.9.36</async-http-client.version>
+  <async-http-client.version>1.9.40</async-http-client.version>
   <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
-  <aws-java-sdk.version>1.11.273</aws-java-sdk.version>
+  <aws-java-sdk.version>1.11.358</aws-java-sdk.version>
   <bootstrap.version>3.3.4</bootstrap.version>
   <boringssl.version>2.0.8.Final</boringssl.version>
-  <bson4jackson.version>2.9.0</bson4jackson.version>
-  <caffeine.version>2.6.1</caffeine.version>
+  <bson4jackson.version>2.9.2</bson4jackson.version>
+  <caffeine.version>2.6.2</caffeine.version>
   <camel.version>2.18.3</camel.version>
-  <cglib.version>3.2.0</cglib.version>
-  <closure-compiler.version>v20180204</closure-compiler.version>
-  <commons-email.version>1.4</commons-email.version>
+  <cglib.version>3.2.6</cglib.version>
+  <closure-compiler.version>v20180610</closure-compiler.version>
+  <commons-compress.version>1.17</commons-compress.version>
+  <commons-email.version>1.5</commons-email.version>
+  <lucene-queryparser.version>5.5.5</lucene-queryparser.version>
+  <bcprov-jdk15on.version>1.59</bcprov-jdk15on.version>
   <commons-lang.version>2.6</commons-lang.version>
-  <commons-lang3.version>3.4</commons-lang3.version>
-  <config.version>1.3.2</config.version>
-  <consul.version>1.0.1</consul.version>
-  <crash.version>1.3.1</crash.version>
+  <commons-lang3.version>3.7</commons-lang3.version>
+  <config.version>1.3.3</config.version>
+  <consul.version>1.2.1</consul.version>
+  <crash.version>1.3.2</crash.version>
   <dse-driver.version>1.1.2</dse-driver.version>
   <ebean-agent.version>11.11.1</ebean-agent.version>
   <ebean-maven-plugin.version>11.11.2</ebean-maven-plugin.version>
-  <ebean.version>11.16.1</ebean.version>
-  <ehcache.version>2.10.0</ehcache.version>
+  <ebean.version>11.18.2</ebean.version>
+  <ehcache.version>2.10.5</ehcache.version>
   <elasticsearch>5.5.3</elasticsearch>
-  <flyway.version>5.0.7</flyway.version>
+  <flyway.version>5.1.3</flyway.version>
   <freemarker.version>2.3.28</freemarker.version>
   <frontend-plugin-core.version>1.6</frontend-plugin-core.version>
   <funzy.version>0.1.0</funzy.version>
-  <groovy.version>2.4.7</groovy.version>
-  <gson.version>2.8.2</gson.version>
-  <guava.version>21.0</guava.version>
+  <groovy.version>2.5.0</groovy.version>
+  <guava.version>25.1-jre</guava.version>
+  <gson.version>2.8.5</gson.version>
   <guice.version>4.2.0</guice.version>
-  <h2.version>1.4.196</h2.version>
-  <handlebars.version>4.0.7</handlebars.version>
-  <hazelcast.version>3.9.2</hazelcast.version>
+  <h2.version>1.4.197</h2.version>
+  <handlebars.version>4.1.0</handlebars.version>
+  <hazelcast.version>3.10.2</hazelcast.version>
   <hibernate-validator.version>5.1.3.Final</hibernate-validator.version>
   <hibernate.version>5.2.1.Final</hibernate.version>
   <hikariCP.version>3.2.0</hikariCP.version>
-  <http-client.version>4.5.2</http-client.version>
+  <http-client.version>4.5.5</http-client.version>
   <j2v8.version>4.6.0</j2v8.version>
-  <jackson.version>2.9.5</jackson.version>
+  <jackson.version>2.9.6</jackson.version>
   <jade4j.version>1.2.7</jade4j.version>
   <javassist.version>3.22.0-GA</javassist.version>
   <javax.el-api.version>2.2.5</javax.el-api.version>
@@ -63,77 +66,81 @@
   <jboss-modules.version>1.8.5.Final</jboss-modules.version>
   <jcypher.version>3.9.0</jcypher.version>
   <jdbi.version>2.78</jdbi.version>
-  <jdbi3.version>3.2.1</jdbi3.version>
+  <jdbi3.version>3.3.0</jdbi3.version>
   <jedis.version>2.9.0</jedis.version>
-  <jersey-client.version>1.19.1</jersey-client.version>
+  <jersey-client.version>1.19.4</jersey-client.version>
   <jetty.version>9.4.10.v20180503</jetty.version>
   <jongo.version>1.4.0</jongo.version>
   <jquery-ui.version>1.11.3</jquery-ui.version>
   <jquery.version>2.1.3</jquery.version>
-  <jruby.version>9.0.1.0</jruby.version>
+  <jruby.version>9.2.0.0</jruby.version>
   <jsass.version>5.2.0</jsass.version>
-  <jsoup.version>1.8.3</jsoup.version>
+  <jsoup.version>1.11.3</jsoup.version>
   <jsr305.version>3.0.2</jsr305.version>
-  <kotlin.version>1.2.41</kotlin.version>
-  <less4j.version>1.13.0</less4j.version>
+  <kotlin.version>1.2.51</kotlin.version>
+  <less4j.version>1.17.2</less4j.version>
   <log4jdbc.version>1.2</log4jdbc.version>
   <logback-classic.version>1.2.3</logback-classic.version>
-  <metrics.version>3.1.2</metrics.version>
-  <mongo-driver-core.version>3.2.2</mongo-driver-core.version>
-  <mongo-java-driver.version>3.2.2</mongo-java-driver.version>
+  <metrics.version>4.0.2</metrics.version>
+  <micrometer.version>1.0.5</micrometer.version>
+  <micrometer-metrics.version>3.2.6</micrometer-metrics.version>
+  <mongo-driver-core.version>3.8.0</mongo-driver-core.version>
+  <mongo-java-driver.version>3.8.0</mongo-java-driver.version>
   <mongodb-driver-async.version>${mongo-java-driver.version}</mongodb-driver-async.version>
-  <morphia.version>1.1.1</morphia.version>
+  <morphia.version>1.3.2</morphia.version>
   <mysql-connector-java.version>5.1.42</mysql-connector-java.version>
-  <neo4j.expire.version>3.3.2.52.4</neo4j.expire.version>
-  <neo4j.runtime.version>3.3.2.52</neo4j.runtime.version>
+  <neo4j.expire.version>3.4.0.52.4</neo4j.expire.version>
+  <neo4j.runtime.version>3.4.0.52</neo4j.runtime.version>
   <neo4j.version>3.3.2</neo4j.version>
-  <netty.version>4.1.25.Final</netty.version>
+  <netty.version>4.1.27.Final</netty.version>
   <pac4j.version>1.9.9</pac4j.version>
-  <pac4j2.version>2.2.1</pac4j2.version>
+  <pac4j2.version>2.3.1</pac4j2.version>
   <pebble.version>2.4.0</pebble.version>
   <pgjdbc-ng.version>0.7.1</pgjdbc-ng.version>
   <progressbar.version>0.6.0</progressbar.version>
-  <quartz.version>2.2.2</quartz.version>
+  <quartz.version>2.3.0</quartz.version>
   <reactor.version>2.5.0.M3</reactor.version>
-  <requery.version>1.4.0</requery.version>
+  <requery.version>1.5.1</requery.version>
   <rest-assured.version>3.1.0</rest-assured.version>
-  <rocker.version>0.23.0</rocker.version>
-  <rxjava-jdbc.version>0.7</rxjava-jdbc.version>
+  <rocker.version>0.24.0</rocker.version>
+  <rxjava-jdbc.version>0.7.16</rxjava-jdbc.version>
   <rxjava-math.version>1.0.0</rxjava-math.version>
-  <rxjava-string.version>1.1.0</rxjava-string.version>
+  <rxjava-string.version>1.1.1</rxjava-string.version>
   <rxjava.version>1.1.5</rxjava.version>
   <rxjava2.version>2.0.7</rxjava2.version>
   <servlet.version>3.1.0</servlet.version>
   <slf4j-api.version>1.7.25</slf4j-api.version>
+  <slf4j-ext.version>1.7.25</slf4j-ext.version>
   <snakeyaml.version>1.19</snakeyaml.version>
-  <spymemcached.version>2.12.0</spymemcached.version>
-  <swagger-parser.version>1.0.34</swagger-parser.version>
+  <spymemcached.version>2.12.3</spymemcached.version>
+  <swagger-parser.version>1.0.36</swagger-parser.version>
   <swagger-ui-themes.version>3.0.0</swagger-ui-themes.version>
-  <swagger-ui.version>3.14.2</swagger-ui.version>
+  <swagger-ui.version>3.17.1</swagger-ui.version>
   <swagger.version>1.5.20</swagger.version>
   <thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
-  <undertow.version>1.4.25.Final</undertow.version>
+  <undertow.version>2.0.9.Final</undertow.version>
   <xmlgraphics-commons.version>2.1</xmlgraphics-commons.version>
   <yuicompressor.version>2.4.8</yuicompressor.version>
   <ebean.agent.packages>**</ebean.agent.packages>
   <ebean.agent.args>debug=0</ebean.agent.args>
-  <jooq.version>3.7.3</jooq.version>
+  <jooq.version>3.11.2</jooq.version>
   <querydsl.version>4.1.4</querydsl.version>
   <javaslang.version>2.0.4</javaslang.version>
-  <batik.version>1.9.1</batik.version>
-  <cassandra.version>3.4.0</cassandra.version>
-  <couchbase-client.version>2.3.1</couchbase-client.version>
+  <eventbus.version>3.1.1</eventbus.version>
+  <batik.version>1.10</batik.version>
+  <cassandra.version>3.5.0</cassandra.version>
+  <couchbase-client.version>2.5.9</couchbase-client.version>
   <coverity-escapers.version>1.1.1</coverity-escapers.version>
-  <fast-classpath-scanner.version>2.8.1</fast-classpath-scanner.version>
-  <jfiglet.version>0.0.7</jfiglet.version>
-  <jsitemapgenerator.version>2.1</jsitemapgenerator.version>
+  <fast-classpath-scanner.version>3.1.6</fast-classpath-scanner.version>
+  <jfiglet.version>0.0.8</jfiglet.version>
+  <jsitemapgenerator.version>2.2</jsitemapgenerator.version>
   <mongo-driver-driver-rx.version>1.2.0</mongo-driver-driver-rx.version>
-  <unbescape.version>1.1.3.RELEASE</unbescape.version>
-  <zt-zip.version>1.9</zt-zip.version>
-  <easymock.version>3.2</easymock.version>
-  <jacoco.version>0.7.8</jacoco.version>
+  <unbescape.version>1.1.6.RELEASE</unbescape.version>
+  <zt-zip.version>1.13</zt-zip.version>
+  <easymock.version>3.6</easymock.version>
+  <jacoco.version>0.8.1</jacoco.version>
   <junit.version>4.12</junit.version>
-  <powermock.version>1.6.4</powermock.version>
+  <powermock.version>1.7.4</powermock.version>
   <java.source.version>8</java.source.version>
   <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -148,7 +155,7 @@
   <docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
   <dokka-maven-plugin.version>0.9.13</dokka-maven-plugin.version>
   <duplicate-finder-maven-plugin.version>1.2.1</duplicate-finder-maven-plugin.version>
-  <exec-maven-plugin.version>1.3.2</exec-maven-plugin.version>
+  <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
   <jacoco-maven-plugin.version>${jacoco.version}</jacoco-maven-plugin.version>
   <license-maven-plugin.version>3.0</license-maven-plugin.version>
   <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
@@ -156,7 +163,7 @@
   <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
   <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
   <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
-  <maven-core.version>3.3.3</maven-core.version>
+  <maven-core.version>3.5.4</maven-core.version>
   <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
   <maven-eclipse-plugin.version>2.9</maven-eclipse-plugin.version>
   <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
@@ -164,8 +171,8 @@
   <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
   <maven-java-formatter-plugin.version>0.4</maven-java-formatter-plugin.version>
   <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
-  <maven-plugin-annotations.version>3.4</maven-plugin-annotations.version>
-  <maven-plugin-api.version>3.3.3</maven-plugin-api.version>
+  <maven-plugin-annotations.version>3.5.2</maven-plugin-annotations.version>
+  <maven-plugin-api.version>3.5.4</maven-plugin-api.version>
   <maven-plugin-plugin.version>3.5</maven-plugin-plugin.version>
   <maven-project.version>2.2.1</maven-project.version>
   <maven-release-plugin.version>2.5.1</maven-release-plugin.version>
@@ -174,9 +181,9 @@
   <maven-site-plugin.version>3.4</maven-site-plugin.version>
   <maven-source-plugin.version>2.4</maven-source-plugin.version>
   <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
-  <mojo-executor.version>2.2.0</mojo-executor.version>
+  <mojo-executor.version>2.3.0</mojo-executor.version>
   <nexus-staging-maven-plugin.version>1.6.5</nexus-staging-maven-plugin.version>
-  <plexus-utils.version>3.0.20</plexus-utils.version>
+  <plexus-utils.version>3.1.0</plexus-utils.version>
   <stork-maven-plugin.version>2.7.0</stork-maven-plugin.version>
   <versions-maven-plugin.version>2.1</versions-maven-plugin.version>
   <gradle-core.version>2.6</gradle-core.version>
@@ -440,6 +447,11 @@
   </dependency>
   <dependency>
     <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-micrometer</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
     <artifactId>jooby-querydsl</artifactId>
     <version>${jooby.version}</version>
   </dependency>
@@ -536,6 +548,11 @@
   <dependency>
     <groupId>${project.groupId}</groupId>
     <artifactId>jooby-livereload</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-eventbus</artifactId>
     <version>${jooby.version}</version>
   </dependency>
   <dependency>

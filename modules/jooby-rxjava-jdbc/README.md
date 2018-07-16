@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-rxjava-jdbc/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-rxjava-jdbc)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-rxjava-jdbc.svg)](https://javadoc.io/doc/org.jooby/jooby-rxjava-jdbc/1.4.1)
-[![jooby-rxjava-jdbc website](https://img.shields.io/badge/jooby-rxjava--jdbc-brightgreen.svg)](http://jooby.org/doc/rxjava-jdbc)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-rxjava-jdbc.svg)](https://javadoc.io/doc/org.jooby/jooby-rxjava-jdbc/1.5.0)
+[![jooby-rxjava-jdbc website](https://img.shields.io/badge/jooby-rxjava-jdbc-brightgreen.svg)](http://jooby.org/doc/rxjava-jdbc)
 # rxjdbc
 
 <a href="https://github.com/davidmoten/rxjava-jdbc">rxjava-jdbc</a> efficient execution, concise code, and functional composition of database calls using JDBC and RxJava Observable.
@@ -13,7 +13,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-rxjava-jdbc</artifactId>
- <version>1.4.1</version>
+ <version>1.5.0</version>
 </dependency>
 ```
 
