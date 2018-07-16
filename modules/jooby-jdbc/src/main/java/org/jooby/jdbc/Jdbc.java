@@ -405,7 +405,7 @@ import java.util.stream.Stream;
  */
 public final class Jdbc implements Jooby.Module {
 
-  public static Function<String, String> DB_NAME = url -> {
+  public final static Function<String, String> DB_NAME = url -> {
     Throwing.Function3<String, String, String, Object[]> indexOf = (str, t1,
         t2) -> {
       int i = str.indexOf(t1);
