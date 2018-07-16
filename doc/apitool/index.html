@@ -11,7 +11,7 @@
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: apitool module"> 
-  <meta name="og:description" content="Automatically export your HTTP API to open standards like Swagger and RAML"> 
+  <meta name="og:description" content="API reference generator for Swagger and RAML"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="Automatically export your HTTP API to open standards like Swagger and RAML"> 
+  <meta name="twitter:description" content="API reference generator for Swagger and RAML"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.4.1" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.5.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -102,6 +102,7 @@
         <li> <a href="#API-tool-dependency">dependency</a></li> 
         <li> <a href="#API-tool-usage">usage</a></li> 
         <li> <a href="#API-tool-example">example</a></li> 
+        <li> <a href="#API-tool-redoc">redoc</a></li> 
         <li> <a href="#API-tool-keep-documentation">keep documentation</a></li> 
         <li> <a href="#API-tool-options">options</a></li> 
         <li> <a href="#API-tool-advanced-usage">advanced usage</a></li>
@@ -115,8 +116,8 @@
        <h2>API tool</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Automatically export your HTTP API to open standards like <a href="https://swagger.io/" target="_blank">Swagger</a> and <a href="https://raml.org/" target="_blank">RAML</a>.</p> 
-       <p>This module generates live documentation from your HTTP API.</p> 
+       <p>API reference generator for <a href="https://swagger.io/" target="_blank">Swagger</a> and <a href="https://raml.org/" target="_blank">RAML</a>.</p> 
+       <p>This module generates live documentation from your HTTP API (source code).</p> 
        <h3 id="API-tool-screenshots">screenshots</h3> 
        <h4 id="API-tool-swagger">swagger</h4> 
        <p><img alt="Swagger ApiTool!" style="width: 800px" src="http://jooby.org/resources/images/apitool-swagger.png"></p> 
@@ -130,7 +131,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-apitool<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.4.1<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.5.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -147,7 +148,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Those lines export your API to <a href="https://swagger.io/" target="_blank">Swagger</a> and <a href="https://raml.org/" target="_blank">RAML</a>.</p> 
+       <p>Those lines export your API to <a href="https://swagger.io/" target="_blank">Swagger</a>, <a href="https://raml.org/" target="_blank">RAML</a> or <a href="http://rebilly.github.io/ReDoc/" target="_blank">ReDoc</a>.</p> 
        <h3 id="API-tool-example">example</h3> 
        <p>Suppose you have a <code class="highlighter-rouge codehilite">Pet API</code> like:</p> 
        <div class="highlighter-rouge codehilite">
@@ -244,6 +245,33 @@
        </div> 
        <p>The <a href="/apidocs/org/jooby/apitool/ApiTool.html" target="_blank">ApiTool</a> module automatically exports your application to <a href="https://swagger.io/" target="_blank">Swagger</a> and <a href="https://raml.org/" target="_blank">RAML</a>.</p> 
        <p>Works for <code class="highlighter-rouge codehilite">MVC routes</code> and <a href="http://jooby.org/doc/lang-kotlin">Kotlin</a>.</p> 
+       <h3 id="API-tool-redoc">redoc</h3> 
+       <p><a href="http://rebilly.github.io/ReDoc/" target="_blank">ReDoc</a> example:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ApiTool</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">redoc</span><span class="o">()</span>
+  <span class="o">)</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Or if you want to keep Swagger UI and ReDoc:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ApiTool</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">swagger</span><span class="o">(</span><span class="k">new</span> <span class="n">Options</span><span class="o">(</span><span class="s">"/swagger"</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">redoc</span><span class="o">()</span>
+    <span class="o">)</span>
+  <span class="o">)</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
        <h3 id="API-tool-keep-documentation">keep documentation</h3> 
        <p>The <a href="/apidocs/org/jooby/apitool/ApiTool.html" target="_blank">ApiTool</a> module parses documentation from source code. It works well as long as the source code is present, but it won’t work after you deploy your application.</p> 
        <p>To fix this we provide a <a href="https://maven.apache.org" target="_blank">Maven</a> and <a href="https://gradle.org" target="_blank">Gradle</a> tasks that process your API at build time and keep the documentation available for later usage.</p> 
@@ -271,7 +299,7 @@
        <p>Go to <code class="highlighter-rouge codehilite">build.gradle</code> and add these lines:</p> 
        <pre><code class="language-gradke">buildscript {
     dependencies {
-        classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.4.1'
+        classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.5.0'
     }
 }
 apply plugin: 'jooby'
@@ -426,7 +454,7 @@ apply plugin: 'jooby'
     </div> 
    </div> 
   </footer> 
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
   <script>window.jQuery || document.write('<script src="/resources/scripts/libs/jquery-2.1.4.min.js"><\/script>')</script> 
   <script src="/resources/scripts/libs/swiper.min.js"></script> 
   <script src="/resources/scripts/application.js"></script> 

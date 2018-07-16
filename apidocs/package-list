@@ -15,6 +15,7 @@ org.jooby.csl
 org.jooby.ebean
 org.jooby.ehcache
 org.jooby.elasticsearch
+org.jooby.eventbus
 org.jooby.exec
 org.jooby.filewatcher
 org.jooby.flyway
@@ -37,6 +38,7 @@ org.jooby.livereload
 org.jooby.mail
 org.jooby.memcached
 org.jooby.metrics
+org.jooby.micrometer
 org.jooby.mongodb
 org.jooby.mvc
 org.jooby.neo4j

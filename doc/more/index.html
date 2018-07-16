@@ -11,7 +11,7 @@
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: more module"> 
-  <meta name="og:description" content="Kotlin support"> 
+  <meta name="og:description" content="banner: prints out ascii char art at startup"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="Kotlin support"> 
+  <meta name="twitter:description" content="banner: prints out ascii char art at startup"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.4.1" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.5.0" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -103,7 +103,7 @@
       <li class=""> <a href="#web-services">web services</a></li> 
       <li class=""> <a href="#sitemap">sitemap</a></li> 
       <li class=""> <a href="#job-scheduling">job scheduling</a></li> 
-      <li class=""> <a href="#enterprise-integration-patterns">enterprise integration patterns</a></li> 
+      <li class=""> <a href="#event-bus">event bus</a></li> 
       <li class=""> <a href="#full-text-search">full text search</a></li> 
      </ul> 
     </div> 
@@ -114,8 +114,7 @@
       </div> 
       <div class="datalist-content"> 
        <ul> 
-        <li> <p><a href="/doc/lang-kotlin">Kotlin</a> support.</p> </li> 
-        <li> <p><a href="/doc/lang-js">Javascript</a> support.</p> </li> 
+        <li><a href="/doc/lang-kotlin">Kotlin</a> support.</li> 
        </ul> 
       </div> 
      </div> 
@@ -137,6 +136,7 @@
        <ul> 
         <li><a href="/doc/crash">crash</a>: <a href="http://www.crashub.org/" target="_blank">CRaSH</a> remote shell integration.</li> 
         <li><a href="/doc/metrics">metrics</a>: application metrics from the excellent <a href="http://metrics.dropwizard.io" target="_blank">metrics</a> library.</li> 
+        <li><a href="/doc/micrometer">micrometer</a>: <a href="https://micrometer.io" target="_blank">Micrometer</a> vendor-neutral application metrics facade.</li> 
        </ul> 
       </div> 
      </div> 
@@ -184,13 +184,14 @@
        </ul> 
       </div> 
      </div> 
-     <div class="datalist" id="enterprise-integration-patterns"> 
+     <div class="datalist" id="event-bus"> 
       <div class="datalist-title "> 
-       <h2>enterprise integration patterns</h2> 
+       <h2>event bus</h2> 
       </div> 
       <div class="datalist-content"> 
        <ul> 
-        <li><a href="/doc/camel">camel</a>: enterprise service bus for <a href="http://jooby.org">Jooby</a>.</li> 
+        <li> <p><a href="/doc/eventbus">eventbus</a>: lightweight event bus.</p> </li> 
+        <li> <p><a href="/doc/camel">camel</a>: enterprise service bus for <a href="http://jooby.org">Jooby</a>.</p> </li> 
        </ul> 
       </div> 
      </div> 
@@ -217,7 +218,7 @@
     </div> 
    </div> 
   </footer> 
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
   <script>window.jQuery || document.write('<script src="/resources/scripts/libs/jquery-2.1.4.min.js"><\/script>')</script> 
   <script src="/resources/scripts/libs/swiper.min.js"></script> 
   <script src="/resources/scripts/application.js"></script> 
