@@ -3197,7 +3197,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <neo4j.version>3.3.2</neo4j.version>
     <netty.version>4.1.27.Final</netty.version>
     <pac4j.version>1.9.9</pac4j.version>
-    <pac4j2.version>2.2.1</pac4j2.version>
+    <pac4j2.version>2.3.1</pac4j2.version>
     <pebble.version>2.4.0</pebble.version>
     <pgjdbc-ng.version>0.7.1</pgjdbc-ng.version>
     <progressbar.version>0.6.0</progressbar.version>

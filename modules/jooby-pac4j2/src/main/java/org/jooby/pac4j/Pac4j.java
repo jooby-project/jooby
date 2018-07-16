@@ -470,12 +470,6 @@ public class Pac4j implements Jooby.Module {
   private Boolean multiProfile;
 
   /**
-   * Creates a new Pac4j module.
-   */
-  public Pac4j() {
-  }
-
-  /**
    * Configurer pa4j options, only necessary it you want to provide your own pac4j components.
    *
    * <pre>{@code
