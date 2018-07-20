@@ -3311,11 +3311,14 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return A config for the file name.
    */
   static Config fileConfig(final String fname) {
+    // TODO: sanitization of arguments
     File dir = new File(System.getProperty("user.dir"));
+    // TODO: sanitization of arguments
     File froot = new File(dir, fname);
     if (froot.exists()) {
       return ConfigFactory.parseFile(froot);
     } else {
+      // TODO: sanitization of arguments
       File fconfig = new File(new File(dir, "conf"), fname);
       if (fconfig.exists()) {
         return ConfigFactory.parseFile(fconfig);
@@ -3485,6 +3488,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     } else {
       String env = conf.hasPath("application.env") ? conf.getString("application.env") : null;
       ImmutableList.Builder<File> files = ImmutableList.builder();
+      // TODO: sanitization of arguments
       File userdir = new File(System.getProperty("user.dir"));
       File confdir = new File(userdir, "conf");
       if (env != null) {
