@@ -272,6 +272,9 @@ public class SwaggerBuilder {
     ModelConverters.getInstance().addConverter(new AbstractModelConverter(Json.mapper()) {
       @Override public Property resolveProperty(Type type, ModelConverterContext context,
           Annotation[] annotations, Iterator<ModelConverter> chain) {
+        if (type == null) {
+          return null;
+        }
         try {
           TypeLiteral<?> typeLiteral = TypeLiteral.get(type);
           String typeName = typeLiteral.getType().getTypeName();

@@ -25,6 +25,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <minimizeJar>true</minimizeJar>
               <artifactSet>
                 <includes>
                   <include>org.ow2.asm:*</include>
@@ -70,7 +71,7 @@
       <plugin>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-maven-plugin</artifactId>
-        <version>4.7.1</version>
+        <version>${antlr4-runtime.version}</version>
         <configuration>
           <libDirectory>src/main/antlr4</libDirectory>
           <outputDirectory>src/main/java</outputDirectory>
