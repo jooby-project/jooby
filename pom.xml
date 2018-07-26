@@ -3115,7 +3115,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
   <properties>
     <!-- Dependencies -->
     <akka.version>2.5.13</akka.version>
-    <antlr4-runtime.version>4.7</antlr4-runtime.version>
+    <antlr4-runtime.version>4.7.1</antlr4-runtime.version>
     <api-console.version>3.0.17</api-console.version>
     <asm.version>6.2</asm.version>
     <async-http-client.version>1.9.40</async-http-client.version>
