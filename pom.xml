@@ -17,6 +17,7 @@
 
   <modules>
     <module>jooby</module>
+    <module>future</module>
     <module>modules</module>
   </modules>
 
