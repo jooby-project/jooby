@@ -15,6 +15,8 @@ public class App implements Router {
 
   private Mode mode = Mode.WORKER;
 
+  private int port = 8080;
+
   @Nonnull public App use(Server server) {
     this.server = server;
     return this;
@@ -57,7 +59,8 @@ public class App implements Router {
   }
 
   @Nonnull @Override
-  public Route route(@Nonnull String method, @Nonnull String pattern, @Nonnull Route.Handler handler) {
+  public Route route(@Nonnull String method, @Nonnull String pattern,
+      @Nonnull Route.Handler handler) {
     return router.route(method, pattern, handler);
   }
 
@@ -100,13 +103,13 @@ public class App implements Router {
     router.start();
     server
         .mode(mode)
+        .port(port)
         .start(router);
 
     Logger log = LoggerFactory.getLogger(getClass());
 
     log.info("[@{}@{}] {}\n{}\n\nhttp://localhost:{}\n", mode.name().toLowerCase(),
-        server.getClass().getSimpleName().toLowerCase(), getClass().getSimpleName(), router,
-        server.port());
+        server.getClass().getSimpleName().toLowerCase(), getClass().getSimpleName(), router, port);
 
     if (join) {
       try {

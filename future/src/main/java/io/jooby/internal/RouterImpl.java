@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -50,6 +51,7 @@ public class RouterImpl implements Router {
   private static final Integer mOPTIONS = Integer.valueOf(7);
   private static final Integer mCONNECT = Integer.valueOf(8);
   private static final Integer mTRACE = Integer.valueOf(9);
+  private static final Predicate<Route.Filter> AFTER = Route.After.class::isInstance;
 
   private Route.ErrorHandler err;
 
@@ -122,11 +124,11 @@ public class RouterImpl implements Router {
         .collect(Collectors.toList());
     /** Before: */
     List<Route.Filter> before = filters.stream()
-        .filter(Route.Before.class::isInstance)
+        .filter(AFTER.negate())
         .collect(Collectors.toList());
     /** Renderer & After: */
     List<Route.Filter> after = filters.stream()
-        .filter(Route.After.class::isInstance)
+        .filter(AFTER)
         .collect(Collectors.toList());
     /** Default Renderer: */
     if (!after.stream().anyMatch(Renderer.class::isInstance)) {

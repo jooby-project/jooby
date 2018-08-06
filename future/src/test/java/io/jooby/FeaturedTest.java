@@ -6,8 +6,6 @@ import io.jooby.test.JoobyRunner;
 import io.jooby.utow.Utow;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FeaturedTest {
@@ -268,32 +266,38 @@ public class FeaturedTest {
 
       app.mode(Mode.IO);
 
-      app.before( ctx -> {
-        System.out.println("before 1");
+      app.before(ctx -> {
+        StringBuilder buff = new StringBuilder();
+        buff.append("before1:" + ctx.isInIoThread()).append(";");
+        ctx.set("buff", buff);
       });
 
       app.after((ctx, value) -> {
-        System.out.println("after 1");
-        return value;
+        StringBuilder buff = (StringBuilder) value;
+        buff.append("after1:" + ctx.isInIoThread()).append(";");
+        return buff;
       });
 
       app.dispatch(() -> {
-        app.before( ctx -> {
-          System.out.println("before 2");
+        app.before(ctx -> {
+          StringBuilder buff = ctx.get("buff");
+          buff.append("before2:" + ctx.isInIoThread()).append(";");
         });
 
         app.after((ctx, value) -> {
-          System.out.println("after 2");
-          return value;
+          StringBuilder buff = ctx.get("buff");
+          buff.append(value).append(";");
+          buff.append("after2:" + ctx.isInIoThread()).append(";");
+          return buff;
         });
 
-        app.get("/", ctx -> "ss");
+        app.get("/", ctx -> "result:" + ctx.isInIoThread());
       });
 
     }).ready(client -> {
       client.get("/", rsp -> {
-        assertEquals("ss", rsp.body().string());
+        assertEquals("before1:true;before2:false;result:false;after2:false;after1:false;", rsp.body().string());
       });
-    }, new Netty());
+    }, new Netty(), new Utow()/* No Jetty bc always use a worker thread */);
   }
 }

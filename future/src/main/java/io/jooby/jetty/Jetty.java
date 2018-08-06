@@ -21,10 +21,6 @@ public class Jetty implements io.jooby.Server {
 
   private Server server;
 
-  @Override public int port() {
-    return port;
-  }
-
   @Override public io.jooby.Server port(int port) {
     this.port = port;
     return this;

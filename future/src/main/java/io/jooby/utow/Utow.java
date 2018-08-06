@@ -21,10 +21,6 @@ public class Utow implements Server {
 
   private Mode mode = Mode.WORKER;
 
-  @Override public int port() {
-    return port;
-  }
-
   @Override public Server port(int port) {
     this.port = port;
     return this;

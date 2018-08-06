@@ -1,6 +1,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -49,6 +50,17 @@ public interface Context {
   @Nonnull Context dispatch(@Nonnull Executor executor, @Nonnull Runnable action);
 
   @Nonnull Executor worker();
+
+  @Nullable default <T> T get(String name) {
+    return  (T) locals().get(name);
+  }
+
+  @Nonnull default Context set(@Nonnull String name, @Nonnull Object value) {
+    locals().put(name, value);
+    return  this;
+  }
+
+  @Nonnull Map<String, Object> locals();
 
   /**
    * **********************************************************************************************

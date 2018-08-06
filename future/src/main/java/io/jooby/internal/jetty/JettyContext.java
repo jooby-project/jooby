@@ -13,12 +13,15 @@ import javax.annotation.Nonnull;
 import javax.servlet.AsyncContext;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 public class JettyContext implements Context {
   private final Request request;
   private final ThreadPool executor;
   private final Route route;
+  private final Map<String, Object> locals = new HashMap<>();
 
   public JettyContext(Request request, ThreadPool threadPool, Route route) {
     this.request = request;
@@ -50,6 +53,10 @@ public class JettyContext implements Context {
       ctx.complete();
     });
     return this;
+  }
+
+  @Nonnull @Override public Map<String, Object> locals() {
+    return locals;
   }
 
   @Nonnull @Override public Context statusCode(int statusCode) {

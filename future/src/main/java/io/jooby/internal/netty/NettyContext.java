@@ -20,6 +20,7 @@ import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -42,6 +43,7 @@ public class NettyContext implements Context {
   private HttpResponseStatus status = HttpResponseStatus.OK;
   private boolean keepAlive;
   private boolean responseStarted;
+  private final Map<String, Object> locals = new HashMap<>();
 
   public NettyContext(ChannelHandlerContext ctx, DefaultEventExecutorGroup executor,
       HttpRequest req, boolean keepAlive, String path, Route route) {
@@ -72,6 +74,10 @@ public class NettyContext implements Context {
   @Override public Context dispatch(Executor executor, Runnable action) {
     executor.execute(action);
     return this;
+  }
+
+  @Nonnull @Override public Map<String, Object> locals() {
+    return locals;
   }
 
   @Nonnull @Override public Context statusCode(int statusCode) {

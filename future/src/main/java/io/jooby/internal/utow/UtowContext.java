@@ -8,6 +8,8 @@ import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 public class UtowContext implements Context {
@@ -15,6 +17,7 @@ public class UtowContext implements Context {
   private final Route route;
   private final HttpServerExchange exchange;
   private final Executor executor;
+  private final Map<String, Object> locals = new HashMap<>();
 
   public UtowContext(HttpServerExchange exchange, Executor executor, Route route) {
     this.exchange = exchange;
@@ -42,6 +45,10 @@ public class UtowContext implements Context {
       @Nonnull Runnable action) {
     exchange.dispatch(executor, action);
     return this;
+  }
+
+  @Nonnull @Override public Map<String, Object> locals() {
+    return locals;
   }
 
   @Nonnull @Override public Context statusCode(int statusCode) {
