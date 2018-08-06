@@ -1,6 +1,5 @@
 package io.jooby.internal;
 
-import io.jooby.Handler;
 import io.jooby.Route;
 
 import java.util.ArrayList;
@@ -668,9 +667,9 @@ public class $Chi {
       }
     }
     if (ctx.methodNotAllowed) {
-      return new RouteImpl(methodName, path, Handler.METHOD_NOT_ALLOWED);
+      return new RouteImpl(methodName, path, Route.Handler.METHOD_NOT_ALLOWED, Route.Handler.METHOD_NOT_ALLOWED);
     }
-    Handler h = path.equals("/favicon.ico") ? Handler.FAVICON : Handler.NOT_FOUND;
-    return new RouteImpl(methodName, path, h);
+    Route.Handler h = path.equals("/favicon.ico") ? Route.Handler.FAVICON : Route.Handler.NOT_FOUND;
+    return new RouteImpl(methodName, path, h, h);
   }
 }

@@ -1,7 +1,6 @@
 package io.jooby.internal.jetty;
 
 import io.jooby.Context;
-import io.jooby.Handler;
 import io.jooby.Route;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
@@ -14,7 +13,6 @@ import javax.annotation.Nonnull;
 import javax.servlet.AsyncContext;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 public class JettyContext implements Context {

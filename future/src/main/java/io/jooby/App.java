@@ -20,19 +20,19 @@ public class App implements Router {
     return this;
   }
 
-  @Nonnull @Override public Router error(@Nonnull ErrorHandler handler) {
+  @Nonnull @Override public Router error(@Nonnull Route.ErrorHandler handler) {
     return router.error(handler);
   }
 
-  @Nonnull @Override public Router filter(@Nonnull Filter filter) {
+  @Nonnull @Override public Router filter(@Nonnull Route.Filter filter) {
     return router.filter(filter);
   }
 
-  @Nonnull @Override public Router before(@Nonnull Before before) {
+  @Nonnull @Override public Router before(@Nonnull Route.Before before) {
     return router.before(before);
   }
 
-  @Nonnull @Override public Router after(@Nonnull After after) {
+  @Nonnull @Override public Router after(@Nonnull Route.After after) {
     return router.filter(after);
   }
 
@@ -57,7 +57,7 @@ public class App implements Router {
   }
 
   @Nonnull @Override
-  public Route route(@Nonnull String method, @Nonnull String pattern, @Nonnull Handler handler) {
+  public Route route(@Nonnull String method, @Nonnull String pattern, @Nonnull Route.Handler handler) {
     return router.route(method, pattern, handler);
   }
 
@@ -65,7 +65,7 @@ public class App implements Router {
     return router.match(method, path);
   }
 
-  @Nonnull @Override public RootHandler asRootHandler(@Nonnull Handler handler) {
+  @Nonnull @Override public Route.RootHandler asRootHandler(@Nonnull Route.Handler handler) {
     return router.asRootHandler(handler);
   }
 

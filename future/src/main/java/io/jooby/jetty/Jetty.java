@@ -1,7 +1,6 @@
 package io.jooby.jetty;
 
 import io.jooby.Mode;
-import io.jooby.RootHandler;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.internal.jetty.JettyContext;
@@ -53,7 +52,7 @@ public class Jetty implements io.jooby.Server {
           HttpServletResponse httpServletResponse) {
         String path = request.getRequestURI();
         Route route = router.match(request.getMethod().toUpperCase(), path);
-        RootHandler handler = router.asRootHandler(route.handler());
+        Route.RootHandler handler = router.asRootHandler(route.pipeline());
         handler.apply(new JettyContext(request, server.getThreadPool(), route));
       }
     });

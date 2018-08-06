@@ -1,14 +1,8 @@
 package io.jooby.internal;
 
-import io.jooby.After;
-import io.jooby.Before;
 import io.jooby.Context;
 import io.jooby.Err;
-import io.jooby.ErrorHandler;
-import io.jooby.Filter;
-import io.jooby.Handler;
 import io.jooby.Renderer;
-import io.jooby.RootHandler;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.StatusCode;
@@ -16,15 +10,12 @@ import io.jooby.StatusCode;
 import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -34,17 +25,17 @@ public class RouterImpl implements Router {
   private static class Stack {
     private String pattern;
 
-    private List<Filter> filters = new ArrayList<>();
+    private List<Route.Filter> filters = new ArrayList<>();
 
     public Stack(String pattern) {
       this.pattern = pattern;
     }
 
-    public void then(Filter filter) {
+    public void then(Route.Filter filter) {
       filters.add(filter);
     }
 
-    public Stream<Filter> toFilter() {
+    public Stream<Route.Filter> toFilter() {
       return filters.stream();
     }
   }
@@ -60,7 +51,7 @@ public class RouterImpl implements Router {
   private static final Integer mCONNECT = Integer.valueOf(8);
   private static final Integer mTRACE = Integer.valueOf(9);
 
-  private ErrorHandler err;
+  private Route.ErrorHandler err;
 
   private Map<String, StatusCode> errorCodes;
 
@@ -79,20 +70,20 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Override @Nonnull public Router filter(@Nonnull Filter filter) {
+  @Override @Nonnull public Router filter(@Nonnull Route.Filter filter) {
     stack.peekLast().then(filter);
     return this;
   }
 
-  @Override @Nonnull public Router after(@Nonnull After after) {
+  @Override @Nonnull public Router after(@Nonnull Route.After after) {
     return filter(after);
   }
 
-  @Nonnull @Override public Router before(@Nonnull Before before) {
+  @Nonnull @Override public Router before(@Nonnull Route.Before before) {
     return filter(before);
   }
 
-  @Nonnull @Override public Router error(@Nonnull ErrorHandler handler) {
+  @Nonnull @Override public Router error(@Nonnull Route.ErrorHandler handler) {
     err = err == null ? handler : err.then(handler);
     return this;
   }
@@ -120,38 +111,38 @@ public class RouterImpl implements Router {
   }
 
   @Override
-  public Route route(@Nonnull String method, @Nonnull String pattern, @Nonnull Handler handler) {
+  public Route route(@Nonnull String method, @Nonnull String pattern, @Nonnull Route.Handler handler) {
     /** Pattern: */
     StringBuilder pat = new StringBuilder();
     stack.forEach(it -> pat.append(it.pattern));
     pat.append(pattern);
     /** Filters: */
-    List<Filter> filters = stack.stream()
+    List<Route.Filter> filters = stack.stream()
         .flatMap(Stack::toFilter)
         .collect(Collectors.toList());
     /** Before: */
-    List<Filter> before = filters.stream()
-        .filter(Before.class::isInstance)
+    List<Route.Filter> before = filters.stream()
+        .filter(Route.Before.class::isInstance)
         .collect(Collectors.toList());
     /** Renderer & After: */
-    List<Filter> after = filters.stream()
-        .filter(After.class::isInstance)
+    List<Route.Filter> after = filters.stream()
+        .filter(Route.After.class::isInstance)
         .collect(Collectors.toList());
     /** Default Renderer: */
     if (!after.stream().anyMatch(Renderer.class::isInstance)) {
       after.add(0, Renderer.TO_STRING);
     }
     /** Handler: */
-    Handler h = after.stream().skip(1)
-        .reduce(after.get(0), Filter::then)
+    Route.Handler h = after.stream().skip(1)
+        .reduce(after.get(0), Route.Filter::then)
         .then(handler);
     if (before.size() > 0) {
       h = before.stream().skip(1)
-          .reduce(before.get(0), Filter::then)
+          .reduce(before.get(0), Route.Filter::then)
           .then(h);
     }
     /** Route: */
-    RouteImpl route = new RouteImpl(method, pat.toString(), h);
+    RouteImpl route = new RouteImpl(method, pat.toString(), handler, h);
     if (method.equals("*")) {
       METHODS.forEach(m -> chi.insertRoute(methodCode(m), route.pattern(), route));
     } else {
@@ -161,13 +152,13 @@ public class RouterImpl implements Router {
     return route;
   }
 
-  @Nonnull @Override public RootHandler asRootHandler(@Nonnull Handler handler) {
+  @Nonnull @Override public Route.RootHandler asRootHandler(@Nonnull Route.Handler handler) {
     return new RootHandlerImpl(handler, err, log(), this::errorCode);
   }
 
   @Nonnull public Router start() {
     if (err == null) {
-      err = ErrorHandler.DEFAULT;
+      err = Route.ErrorHandler.DEFAULT;
     }
     this.stack.removeLast().filters.clear();
     this.stack = null;
@@ -233,7 +224,7 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  private Runnable asRunnable(Context ctx, Handler next) {
+  private Runnable asRunnable(Context ctx, Route.Handler next) {
     return () -> asRootHandler(next).apply(ctx);
   }
 

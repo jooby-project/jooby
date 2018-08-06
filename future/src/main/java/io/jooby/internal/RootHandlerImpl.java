@@ -1,22 +1,20 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.ErrorHandler;
-import io.jooby.Handler;
-import io.jooby.RootHandler;
+import io.jooby.Route;
 import io.jooby.StatusCode;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.util.function.Function;
 
-public class RootHandlerImpl implements RootHandler {
-  private final Handler next;
-  private final ErrorHandler err;
+public class RootHandlerImpl implements Route.RootHandler {
+  private final Route.Handler next;
+  private final Route.ErrorHandler err;
   private final Function<Throwable, StatusCode> statusCode;
   private final Logger log;
 
-  public RootHandlerImpl(Handler next, ErrorHandler err, Logger log, Function<Throwable, StatusCode> statusCode) {
+  public RootHandlerImpl(Route.Handler next, Route.ErrorHandler err, Logger log, Function<Throwable, StatusCode> statusCode) {
     this.next = next;
     this.log = log;
     this.err = err;

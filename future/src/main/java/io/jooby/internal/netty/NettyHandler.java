@@ -1,14 +1,11 @@
 package io.jooby.internal.netty;
 
-import io.jooby.Handler;
-import io.jooby.RootHandler;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
@@ -34,7 +31,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       }
       String method = req.method().asciiName().toUpperCase().toString();
       Route route = router.match(method, path);
-      RootHandler handler = router.asRootHandler(route.handler());
+      Route.RootHandler handler = router.asRootHandler(route.pipeline());
       handler.apply(new NettyContext(ctx, executor, req, isKeepAlive(req), path, route));
     }
   }

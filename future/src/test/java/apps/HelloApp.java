@@ -26,7 +26,7 @@ public class HelloApp extends App {
   public static void main(String[] args) {
     HelloApp app = new HelloApp();
     app.mode(Mode.IO);
-    app.use(new Utow());
+    app.use(new Netty());
     app.start();
   }
 }

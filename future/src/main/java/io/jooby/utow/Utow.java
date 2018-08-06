@@ -1,7 +1,6 @@
 package io.jooby.utow;
 
 import io.jooby.Mode;
-import io.jooby.RootHandler;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.Server;
@@ -43,7 +42,7 @@ public class Utow implements Server {
     HttpHandler uhandler = exchange -> {
       HttpString method = exchange.getRequestMethod();
       Route route = router.match(method.toString().toUpperCase(), exchange.getRequestPath());
-      RootHandler handler = router.asRootHandler(route.handler());
+      Route.RootHandler handler = router.asRootHandler(route.pipeline());
       handler.apply(new UtowContext(exchange, ref.get(), route));
     };
     if (mode == Mode.WORKER) {
