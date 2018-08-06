@@ -28,6 +28,14 @@ public class App implements Router {
     return router.filter(filter);
   }
 
+  @Nonnull @Override public Router before(@Nonnull Before before) {
+    return router.before(before);
+  }
+
+  @Nonnull @Override public Router after(@Nonnull After after) {
+    return router.filter(after);
+  }
+
   @Nonnull @Override public Router renderer(@Nonnull Renderer renderer) {
     return router.renderer(renderer);
   }
@@ -53,7 +61,7 @@ public class App implements Router {
     return router.route(method, pattern, handler);
   }
 
-  @Nonnull @Override public Handler match(@Nonnull String method, @Nonnull String path) {
+  @Nonnull @Override public Route match(@Nonnull String method, @Nonnull String path) {
     return router.match(method, path);
   }
 
@@ -63,7 +71,8 @@ public class App implements Router {
 
   /** Error handler: */
   @Nonnull @Override
-  public Router errorCode(@Nonnull Class<? extends Throwable> type, @Nonnull StatusCode statusCode) {
+  public Router errorCode(@Nonnull Class<? extends Throwable> type,
+      @Nonnull StatusCode statusCode) {
     return router.errorCode(type, statusCode);
   }
 
@@ -75,6 +84,7 @@ public class App implements Router {
     this.mode = mode;
     return this;
   }
+
   /** Log: */
   @Nonnull @Override public Logger log() {
     return LoggerFactory.getLogger(getClass());
@@ -92,9 +102,11 @@ public class App implements Router {
         .mode(mode)
         .start(router);
 
-    LoggerFactory.getLogger(getClass())
-        .info("[@{}@{}] {}\n{}", mode.name().toLowerCase(),
-            server.getClass().getSimpleName().toLowerCase(), getClass().getSimpleName(), router);
+    Logger log = LoggerFactory.getLogger(getClass());
+
+    log.info("[@{}@{}] {}\n{}\n\nhttp://localhost:{}\n", mode.name().toLowerCase(),
+        server.getClass().getSimpleName().toLowerCase(), getClass().getSimpleName(), router,
+        server.port());
 
     if (join) {
       try {

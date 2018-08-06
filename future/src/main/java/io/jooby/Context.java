@@ -4,7 +4,12 @@ import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 
 public interface Context {
 
@@ -13,9 +18,27 @@ public interface Context {
    * **** Request methods *************************************************************************
    * **********************************************************************************************
    */
-  @Nonnull String method();
+  @Nonnull default String method() {
+    return route().method();
+  }
 
+  @Nonnull Route route();
+
+  /**
+   * Request path without decoding (a.k.a raw Path). QueryString (if any) is not included.
+   *
+   * @return Request path without decoding (a.k.a raw Path). QueryString (if any) is not included.
+   */
   @Nonnull String path();
+
+  @Nonnull default Mutant param(@Nonnull String name) {
+    String value = params().get(name);
+    return () -> Collections.singletonList(value);
+  }
+
+  @Nonnull default Map<String, String> params() {
+    return route().params();
+  }
 
   boolean isInIoThread();
 

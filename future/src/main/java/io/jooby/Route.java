@@ -1,26 +1,14 @@
 package io.jooby;
 
-public class Route {
+import java.util.Map;
 
-  private final String method;
-  private final String pattern;
-  private final Handler handler;
+public interface Route {
 
-  public Route(String method, String pattern, Handler handler) {
-    this.method = method;
-    this.pattern = pattern;
-    this.handler = handler;
-  }
+  Map<String, String> params();
 
-  public String method() {
-    return method;
-  }
+  String pattern();
 
-  public String pattern() {
-    return pattern;
-  }
+  String method();
 
-  @Override public String toString() {
-    return method + " " + pattern;
-  }
+  Handler handler();
 }

@@ -1,5 +1,7 @@
 package io.jooby.internal;
 
+import io.jooby.After;
+import io.jooby.Before;
 import io.jooby.Context;
 import io.jooby.Err;
 import io.jooby.ErrorHandler;
@@ -14,6 +16,7 @@ import io.jooby.StatusCode;
 import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,15 +45,26 @@ public class RouterImpl implements Router {
     }
 
     public Stream<Filter> toFilter() {
-      return filters.stream().filter(Objects::nonNull);
+      return filters.stream();
     }
   }
+
+  private static final Integer mGET = Integer.valueOf(1);
+  private static final Integer mPOST = Integer.valueOf(2);
+  private static final Integer mPUT = Integer.valueOf(3);
+  private static final Integer mDELETE = Integer.valueOf(4);
+  private static final Integer mPATCH = Integer.valueOf(5);
+
+  private static final Integer mHEAD = Integer.valueOf(6);
+  private static final Integer mOPTIONS = Integer.valueOf(7);
+  private static final Integer mCONNECT = Integer.valueOf(8);
+  private static final Integer mTRACE = Integer.valueOf(9);
 
   private ErrorHandler err;
 
   private Map<String, StatusCode> errorCodes;
 
-  private final Chi chi = new Chi();
+  private final $Chi chi = new $Chi();
 
   private LinkedList<Stack> stack = new LinkedList<>();
 
@@ -65,10 +79,17 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Override @Nonnull
-  public Router filter(@Nonnull Filter filter) {
+  @Override @Nonnull public Router filter(@Nonnull Filter filter) {
     stack.peekLast().then(filter);
     return this;
+  }
+
+  @Override @Nonnull public Router after(@Nonnull After after) {
+    return filter(after);
+  }
+
+  @Nonnull @Override public Router before(@Nonnull Before before) {
+    return filter(before);
   }
 
   @Nonnull @Override public Router error(@Nonnull ErrorHandler handler) {
@@ -108,18 +129,34 @@ public class RouterImpl implements Router {
     List<Filter> filters = stack.stream()
         .flatMap(Stack::toFilter)
         .collect(Collectors.toList());
-    /** Renderer: */
-    Filter renderer = findLast(filters, Renderer.class::isInstance, Renderer.TO_STRING);
+    /** Before: */
+    List<Filter> before = filters.stream()
+        .filter(Before.class::isInstance)
+        .collect(Collectors.toList());
+    /** Renderer & After: */
+    List<Filter> after = filters.stream()
+        .filter(After.class::isInstance)
+        .collect(Collectors.toList());
+    /** Default Renderer: */
+    if (!after.stream().anyMatch(Renderer.class::isInstance)) {
+      after.add(0, Renderer.TO_STRING);
+    }
     /** Handler: */
-    Handler h =  renderer.then(handler);
-    if (filters.size() > 0) {
-      h = filters.stream().skip(1)
-          .reduce(filters.get(0), Filter::then)
+    Handler h = after.stream().skip(1)
+        .reduce(after.get(0), Filter::then)
+        .then(handler);
+    if (before.size() > 0) {
+      h = before.stream().skip(1)
+          .reduce(before.get(0), Filter::then)
           .then(h);
     }
     /** Route: */
-    Route route = new Route(method, pat.toString(), h);
-    chi.insertRoute(route.method(), route.pattern(), h);
+    RouteImpl route = new RouteImpl(method, pat.toString(), h);
+    if (method.equals("*")) {
+      METHODS.forEach(m -> chi.insertRoute(methodCode(m), route.pattern(), route));
+    } else {
+      chi.insertRoute(methodCode(route.method()), route.pattern(), route);
+    }
     routes.add(route);
     return route;
   }
@@ -137,12 +174,13 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Override public Handler match(String method, String path) {
-    return chi.findRoute(method, path).handler;
+  @Override public Route match(String method, String path) {
+    return chi.findRoute(methodCode(method), method, path);
   }
 
   @Nonnull @Override
-  public Router errorCode(@Nonnull Class<? extends Throwable> type, @Nonnull StatusCode statusCode) {
+  public Router errorCode(@Nonnull Class<? extends Throwable> type,
+      @Nonnull StatusCode statusCode) {
     if (errorCodes == null) {
       errorCodes = new HashMap<>();
     }
@@ -199,13 +237,37 @@ public class RouterImpl implements Router {
     return () -> asRootHandler(next).apply(ctx);
   }
 
-  private Filter findLast(List<Filter> filters, Predicate<Filter> predicate, Filter fallback) {
-    for (int i = filters.size() - 1; i >= 0; i--) {
-      Filter it = filters.get(i);
-      if (predicate.test(it)) {
-        return it;
-      }
+  private Integer methodCode(String method) {
+    if (GET.equals(method)) {
+      return mGET;
     }
-    return fallback;
+    if (POST.equals(method)) {
+      return mPOST;
+    }
+    if (PUT.equals(method)) {
+      return mPUT;
+    }
+    if (DELETE.equals(method)) {
+      return mDELETE;
+    }
+    if (PATCH.equals(method)) {
+      return mPATCH;
+    }
+    if (PATCH.equals(method)) {
+      return mPATCH;
+    }
+    if (HEAD.equals(method)) {
+      return mHEAD;
+    }
+    if (OPTIONS.equals(method)) {
+      return mOPTIONS;
+    }
+    if (CONNECT.equals(method)) {
+      return mCONNECT;
+    }
+    if (TRACE.equals(method)) {
+      return mTRACE;
+    }
+    throw new IllegalArgumentException("Unknown method: " + method);
   }
 }

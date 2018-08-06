@@ -2,6 +2,7 @@ package io.jooby.internal.utow;
 
 import io.jooby.Context;
 import io.jooby.Handler;
+import io.jooby.Route;
 import io.undertow.server.HttpServerExchange;
 
 import javax.annotation.Nonnull;
@@ -9,20 +10,23 @@ import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 public class UtowContext implements Context {
 
-  private HttpServerExchange exchange;
+  private final Route route;
+  private final HttpServerExchange exchange;
   private final Executor executor;
 
-  public UtowContext(HttpServerExchange exchange, Executor executor) {
+  public UtowContext(HttpServerExchange exchange, Executor executor, Route route) {
     this.exchange = exchange;
     this.executor = executor;
+    this.route = route;
   }
 
-  @Nonnull @Override public String method() {
-    return exchange.getRequestMethod().toString();
+  @Nonnull @Override public Route route() {
+    return route;
   }
 
   @Nonnull @Override public String path() {

@@ -1,6 +1,7 @@
 package io.jooby.internal.netty;
 
 import io.jooby.Context;
+import io.jooby.Route;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.EmptyByteBuf;
 import io.netty.buffer.Unpooled;
@@ -19,6 +20,7 @@ import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import static io.netty.buffer.Unpooled.EMPTY_BUFFER;
@@ -36,25 +38,27 @@ public class NettyContext implements Context {
   private final HttpRequest req;
   private final String path;
   private final DefaultEventExecutorGroup executor;
+  private final Route route;
   private HttpResponseStatus status = HttpResponseStatus.OK;
   private boolean keepAlive;
   private boolean responseStarted;
 
   public NettyContext(ChannelHandlerContext ctx, DefaultEventExecutorGroup executor,
-      HttpRequest req, boolean keepAlive, String path) {
+      HttpRequest req, boolean keepAlive, String path, Route route) {
     this.path = path;
     this.ctx = ctx;
     this.req = req;
     this.executor = executor;
     this.keepAlive = keepAlive;
+    this.route = route;
   }
 
   @Nonnull @Override public final String path() {
     return path;
   }
 
-  @Nonnull @Override public String method() {
-    return req.method().name();
+  @Nonnull @Override public Route route() {
+    return route;
   }
 
   @Override public final boolean isInIoThread() {

@@ -1,11 +1,18 @@
 package io.jooby;
 
-public interface Renderer extends Filter {
+import javax.annotation.Nonnull;
 
-  Renderer TO_STRING = next -> ctx -> {
-    Object value = next.apply(ctx);
-    if (!ctx.isResponseStarted())
-      ctx.send(value.toString());
+public interface Renderer extends After {
+
+  @Nonnull @Override default Object apply(@Nonnull Context ctx, @Nonnull Object value)
+      throws Exception {
+    if (!ctx.isResponseStarted()) {
+      render(ctx, value);
+    }
     return value;
-  };
+  }
+
+  void render(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
+
+  Renderer TO_STRING = (ctx, value) -> ctx.send(value.toString());
 }

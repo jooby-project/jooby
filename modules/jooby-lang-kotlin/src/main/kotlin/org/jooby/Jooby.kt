@@ -176,10 +176,12 @@ val Mutant.value: String
   get() = value()
 
 inline fun <reified T> Mutant.to(): T {
+  // FIXME: https://stackoverflow.com/questions/36253310/how-to-get-actual-type-arguments-of-a-reified-generic-parameter-in-kotlin
   return this.to(T::class.java)
 }
 
 fun <T:Any> Mutant.to(type: KClass<T>): T {
+  // FIXME: https://stackoverflow.com/questions/36253310/how-to-get-actual-type-arguments-of-a-reified-generic-parameter-in-kotlin
   return this.to(type.java)
 }
 

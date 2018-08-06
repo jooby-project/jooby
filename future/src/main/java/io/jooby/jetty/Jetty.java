@@ -1,8 +1,8 @@
 package io.jooby.jetty;
 
-import io.jooby.Handler;
 import io.jooby.Mode;
 import io.jooby.RootHandler;
+import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.internal.jetty.JettyContext;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -13,16 +13,18 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.jooby.funzy.Throwing;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 public class Jetty implements io.jooby.Server {
 
   private int port = 8080;
 
   private Server server;
+
+  @Override public int port() {
+    return port;
+  }
 
   @Override public io.jooby.Server port(int port) {
     this.port = port;
@@ -49,9 +51,10 @@ public class Jetty implements io.jooby.Server {
       @Override
       public void handle(String target, Request request, HttpServletRequest httpServletRequest,
           HttpServletResponse httpServletResponse) {
-        String path = request.getPathInfo();
-        RootHandler handler = router.matchRoot(request.getMethod(), path);
-        handler.apply(new JettyContext(request, server.getThreadPool()));
+        String path = request.getRequestURI();
+        Route route = router.match(request.getMethod().toUpperCase(), path);
+        RootHandler handler = router.asRootHandler(route.handler());
+        handler.apply(new JettyContext(request, server.getThreadPool(), route));
       }
     });
 

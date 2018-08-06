@@ -1,100 +1,46 @@
 package io.jooby.internal;
 
 import io.jooby.Handler;
-import io.jooby.RootHandler;
+import io.jooby.Route;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class Chi {
+public class $Chi {
 
-  public static final int mSTUB = 1;
-  public static final int mCONNECT = 2;
-  public static final int mDELETE = 3;
-  public static final int mGET = 4;
-  public static final int mHEAD = 5;
-  public static final int mOPTIONS = 6;
-  public static final int mPATCH = 7;
-  public static final int mPOST = 8;
-  public static final int mPUT = 9;
-  public static final int mTRACE = 10;
+  private static final int ntStatic = 0;// /home
+  private static final int ntRegexp = 1;                // /{id:[0-9]+}
+  private static final int ntParam = 2;                // /{user}
+  private static final int ntCatchAll = 3;               // /api/v1/*
 
-  static final int ntStatic = 0;// /home
-  static final int ntRegexp = 1;                // /{id:[0-9]+}
-  static final int ntParam = 2;                // /{user}
-  static final int ntCatchAll = 3;               // /api/v1/*
+  private static class Context {
+    boolean methodNotAllowed;
+    Map vars = Collections.EMPTY_MAP;
 
-  int mALL = mCONNECT | mDELETE | mGET | mHEAD | mOPTIONS | mPATCH | mPOST | mPUT | mTRACE;
-
-  Map<String, Integer> methodMap = new HashMap<>();
-
-  {
-    methodMap.put("CONNECT", mCONNECT);
-    methodMap.put("DELETE", mDELETE);
-    methodMap.put("GET", mGET);
-    methodMap.put("HEAD", mHEAD);
-    methodMap.put("OPTIONS", mOPTIONS);
-    methodMap.put("PATCH", mPATCH);
-    methodMap.put("POST", mPOST);
-    methodMap.put("PUT", mPUT);
-    methodMap.put("TRACE", mTRACE);
-  }
-
-  void registerMethod(String method) {
-    if (method == null || method.length() == 0) {
-      return;
-    }
-    String key = method.toUpperCase();
-    if (methodMap.get(key) != null) {
-      return;
-    }
-    int mt = methodMap.size();
-    methodMap.put(key, mt);
-    mALL |= mt;
-  }
-
-  static class Context {
-    public boolean methodNotAllowed;
-    String[] keys;
-    String[] values;
-
-    Map<String, String> toMap() {
-      if (keys == null || keys.length == 0) {
-        return Collections.emptyMap();
-      }
-      Map<String, String> hash = new HashMap<>(keys.length);
-      for (int i = 0; i < keys.length; i++) {
-        hash.put(keys[i], values[i]);
-      }
-      return hash;
-    }
-
-    void key(String key) {
-      this.keys = append(this.keys, key);
-    }
-
-    void key(String[] keys) {
-      if (keys != null) {
-        if (this.keys == null) {
-          this.keys = keys;
-        } else {
-          String[] src = keys;
-          this.keys = new String[src.length + keys.length];
-          System.arraycopy(src, 0, this.keys, 0, src.length);
-          System.arraycopy(keys, 0, this.keys, src.length, keys.length);
-        }
+    void key(List<String> keys) {
+      for (int i = 0; i < keys.size(); i++) {
+        vars.put(keys.get(i), vars.remove(i));
       }
     }
 
     void value(String value) {
-      this.values = append(this.values, value);
+      if (vars == Collections.EMPTY_MAP) {
+        vars = new HashMap();
+      }
+      vars.put(vars.size(), value);
+    }
+
+    public void pop() {
+      vars.remove(vars.size() - 1);
     }
   }
 
-  class Node implements Comparable<Node> {
+  private static class Node implements Comparable<Node> {
     // node type: static, regexp, param, catchAll
     int typ;
 
@@ -111,7 +57,7 @@ public class Chi {
     Pattern rex;
 
     // HTTP handler endpoints on the leaf node
-    Map<Integer, Endpoint> endpoints;
+    Map<Integer, RouteImpl> endpoints;
 
     // subroutes on the leaf node
     //Routes subroutes;
@@ -144,7 +90,7 @@ public class Chi {
       return this;
     }
 
-    Node insertRoute(int method, String pattern, Handler handler) {
+    Node insertRoute(Integer method, String pattern, RouteImpl route) {
       Node n = this;
       Node parent;
       String search = pattern;
@@ -153,7 +99,7 @@ public class Chi {
         // Handle key exhaustion
         if (search.length() == 0) {
           // Insert or update the node's leaf handler
-          n.setEndpoint(method, handler, pattern);
+          n.setEndpoint(method, pattern, route);
           return n;
         }
 
@@ -186,11 +132,11 @@ public class Chi {
         if (n == null) {
           Node child = new Node().label(label).tail(seg.tail).prefix(search);
           Node hn = parent.addChild(child, search);
-          hn.setEndpoint(method, handler, pattern);
+          hn.setEndpoint(method, pattern, route);
           return hn;
         }
 
-        // Found an edge to match the pattern
+        // Found an edge to newRuntimeRoute the pattern
 
         if (n.typ > ntStatic) {
           // We found a param node, trim the param from the search path and continue.
@@ -201,7 +147,7 @@ public class Chi {
         }
 
         // Static nodes fall below here.
-        // Determine longest prefix of the search key on match.
+        // Determine longest prefix of the search key on newRuntimeRoute.
         int commonPrefix = longestPrefix(search, n.prefix);
         if (commonPrefix == n.prefix.length()) {
           // the common prefix is as long as the current node's prefix we're attempting to insert.
@@ -222,14 +168,14 @@ public class Chi {
         // If the new key is a subset, set the method/handler on this node and finish.
         search = search.substring(commonPrefix);
         if (search.length() == 0) {
-          child.setEndpoint(method, handler, pattern);
+          child.setEndpoint(method, pattern, route);
           return child;
         }
 
         // Create a new edge for the node
         Node subchild = new Node().typ(ntStatic).label(search.charAt(0)).prefix(search);
         Node hn = child.addChild(subchild, search);
-        hn.setEndpoint(method, handler, pattern);
+        hn.setEndpoint(method, pattern, route);
         return hn;
       }
     }
@@ -344,40 +290,40 @@ public class Chi {
       return null;
     }
 
-    void setEndpoint(int method, Handler handler, String pattern) {
+    void setEndpoint(Integer method, String pattern, RouteImpl route) {
       Node n = this;
       // Set the handler for the method type on the node
       if (n.endpoints == null) {
         n.endpoints = new HashMap<>();
       }
 
-      String[] paramKeys = patParamKeys(pattern);
-
-      if ((method & mSTUB) == mSTUB) {
-        n.endpoints.put(mSTUB, new Endpoint(handler));
-      }
-      if ((method & mALL) == mALL) {
-        Endpoint h = n.endpoints.get(mALL);
-        h.handler = handler;
-        h.pattern = pattern;
-        h.paramKeys = paramKeys;
-        for (Integer m : methodMap.values()) {
-          h = n.endpoints.computeIfAbsent(m, k -> new Endpoint(handler));
-          h.handler = handler;
-          h.pattern = pattern;
-          h.paramKeys = paramKeys;
-        }
-      } else {
-        Endpoint h = n.endpoints.computeIfAbsent(method, k -> new Endpoint(handler));
-        h.handler = handler;
-        h.pattern = pattern;
-        h.paramKeys = paramKeys;
-      }
+      //      if ((method & mSTUB) == mSTUB) {
+      //        n.endpoints.put(mSTUB, new Endpoint(handler));
+      //      }
+      //      if ((method & mALL) == mALL) {
+      //        Endpoint h = n.endpoints.get(mALL);
+      //        h.handler = handler;
+      //        h.pattern = pattern;
+      //        h.paramKeys = paramKeys;
+      //        for (Integer m : methodMap.values()) {
+      //          h = n.endpoints.computeIfAbsent(m, k -> new Endpoint(handler));
+      //          h.handler = handler;
+      //          h.pattern = pattern;
+      //          h.paramKeys = paramKeys;
+      //        }
+      //      } else {
+      route.paramKeys = patParamKeys(pattern);
+      n.endpoints.put(method, route);
+      //        Endpoint h = n.endpoints.computeIfAbsent(method, k -> new Endpoint(handler));
+      //        h.handler = handler;
+      //        h.pattern = pattern;
+      //        h.paramKeys = paramKeys;
+      //}
     }
 
     // Recursive edge traversal by checking all nodeTyp groups along the way.
     // It's like searching through a multi-dimensional radix trie.
-    Node findRoute(Context rctx, int method, String path) {
+    Node findRoute(Context rctx, Integer method, String path) {
       Node n = this;
       Node nn = n;
       String search = path;
@@ -432,11 +378,11 @@ public class Chi {
                   continue;
                 }
               } else if (xsearch.substring(0, p).indexOf('/') != -1) {
-                // avoid a match across path segments
+                // avoid a newRuntimeRoute across path segments
                 continue;
               }
 
-              // TODO: rctx.routeParams.Values = append(rctx.routeParams.Values, xsearch[:p])
+              // rctx.routeParams.Values = append(rctx.routeParams.Values, xsearch[:p])
               rctx.value(xsearch.substring(0, p));
               xsearch = xsearch.substring(p);
               break;
@@ -445,7 +391,7 @@ public class Chi {
 
           default:
             // catch-all nodes
-            //TODO: rctx.routeParams.Values = append(rctx.routeParams.Values, search)
+            // rctx.routeParams.Values = append(rctx.routeParams.Values, search)
             rctx.value(search);
             xn = nds[0];
             xsearch = "";
@@ -458,9 +404,9 @@ public class Chi {
         // did we find it yet?
         if (xsearch.length() == 0) {
           if (xn.isLeaf()) {
-            Endpoint h = xn.endpoints.get(method);
-            if (h != null && h.handler != null) {
-              // TODO: rctx.routeParams.Keys = append(rctx.routeParams.Keys, h.paramKeys...)
+            RouteImpl h = xn.endpoints.get(method);
+            if (h != null) {
+              // rctx.routeParams.Keys = append(rctx.routeParams.Keys, h.paramKeys...)
               rctx.key(h.paramKeys);
               return xn;
             }
@@ -479,10 +425,10 @@ public class Chi {
 
         // Did not find final handler, let's remove the param here if it was set
         if (xn.typ > ntStatic) {
-          // TODO:
           //          if len(rctx.routeParams.Values) > 0 {
           //            rctx.routeParams.Values = rctx.routeParams.Values[:len(rctx.routeParams.Values) - 1]
           //          }
+          rctx.pop();
         }
 
       }
@@ -570,23 +516,28 @@ public class Chi {
       }
     }
 
-    String[] patParamKeys(String pattern) {
+    List<String> patParamKeys(String pattern) {
       String pat = pattern;
-      String[] paramKeys = null;
+      List<String> paramKeys = new ArrayList<>();
       while (true) {
         //        ptyp, paramKey, _, _, _, e :=patNextSegment(pat)
         Segment s = patNextSegment(pat);
         if (s.nodeType == ntStatic) {
-          return paramKeys;
-        }
-        for (int i = 0; paramKeys != null && i < paramKeys.length; i++) {
-          if (paramKeys[i] == s.key) {
-            throw new IllegalArgumentException(String
-                .format("chi: routing pattern '%s' contains duplicate param key, '%s'", pattern,
-                    s.key));
+          switch (paramKeys.size()) {
+            case 0:
+              return Collections.emptyList();
+            case 1:
+              return Collections.singletonList(paramKeys.get(0));
+            default:
+              return Collections.unmodifiableList(paramKeys);
           }
         }
-        paramKeys = Chi.append(paramKeys, s.key);
+        if (paramKeys.stream().anyMatch(k -> k.equals(s.key))) {
+          throw new IllegalArgumentException(String
+              .format("chi: routing pattern '%s' contains duplicate param key, '%s'", pattern,
+                  s.key));
+        }
+        paramKeys.add(s.key);
         pat = pat.substring(s.endIndex);
       }
     }
@@ -694,68 +645,32 @@ public class Chi {
       }
 
       // Wildcard pattern as finale
-      // TODO: should we panic if there is stuff after the * ???
-      return new Segment(ntCatchAll, "*", "", (char) 0, ws, pattern.length());
+      // EDIT: should we panic if there is stuff after the * ???
+      // We allow naming a wildcard: *path
+      String key = ws == pattern.length() - 1 ? "*" : pattern.substring(ws + 1);
+      return new Segment(ntCatchAll, key, "", (char) 0, ws, pattern.length());
     }
-  }
-
-  // endpoints is a mapping of http method constants to handlers
-  // for a given route.
-  Map<Integer, Endpoint> endpoints;
-
-  class Endpoint {
-    // endpoint handler
-    Handler handler;
-
-    public Endpoint(Handler handler) {
-      this.handler = handler;
-    }
-
-    // pattern is the routing pattern for handler nodes
-    String pattern;
-
-    // parameter keys recorded on handler nodes
-    String[] paramKeys;
   }
 
   Node root = new Node();
 
-  public void insertRoute(String method, String pattern, Handler handler) {
-    // TODO: check int vs Integer in methodMap
-    root.insertRoute(methodMap.get(method), pattern, handler);
+  public void insertRoute(Integer method, String pattern, RouteImpl route) {
+    root.insertRoute(method, pattern, route);
   }
 
-  public Match findRoute(String method, String path) {
+  public Route findRoute(Integer method, String methodName, String path) {
     Context ctx = new Context();
-    Integer m = methodMap.get(method);
-    Node node = root.findRoute(ctx, m, path);
+    Node node = root.findRoute(ctx, method, path);
     if (node != null) {
-      Endpoint endpoint = node.endpoints.get(m);
-      if (endpoint != null) {
-        return new Match(endpoint.handler, ctx.toMap());
+      RouteImpl route = node.endpoints.get(method);
+      if (route != null) {
+        return route.newRuntimeRoute(methodName, ctx.vars);
       }
     }
+    if (ctx.methodNotAllowed) {
+      return new RouteImpl(methodName, path, Handler.METHOD_NOT_ALLOWED);
+    }
     Handler h = path.equals("/favicon.ico") ? Handler.FAVICON : Handler.NOT_FOUND;
-    return new Match(h, ctx.toMap());
-  }
-
-  public static class Match {
-    public final Handler handler;
-    public final Map<String, String> params;
-
-    public Match(Handler handler, Map<String, String> params) {
-      this.handler = handler;
-      this.params = params;
-    }
-  }
-
-  private static String[] append(String[] src, String child) {
-    if (src == null) {
-      return new String[]{child};
-    }
-    String[] result = new String[src.length + 1];
-    System.arraycopy(src, 0, result, 0, src.length);
-    result[result.length - 1] = child;
-    return result;
+    return new RouteImpl(methodName, path, h);
   }
 }

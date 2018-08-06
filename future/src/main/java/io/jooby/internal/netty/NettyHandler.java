@@ -2,6 +2,7 @@ package io.jooby.internal.netty;
 
 import io.jooby.Handler;
 import io.jooby.RootHandler;
+import io.jooby.Route;
 import io.jooby.Router;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -27,8 +28,14 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     if (msg instanceof HttpRequest) {
       HttpRequest req = (HttpRequest) msg;
       String path = req.uri();
-      RootHandler handler = router.matchRoot(req.method().name(), path);
-      handler.apply(new NettyContext(ctx, executor, req, isKeepAlive(req), path));
+      int q = path.indexOf('?');
+      if (q > 0) {
+        path = path.substring(0, q);
+      }
+      String method = req.method().asciiName().toUpperCase().toString();
+      Route route = router.match(method, path);
+      RootHandler handler = router.asRootHandler(route.handler());
+      handler.apply(new NettyContext(ctx, executor, req, isKeepAlive(req), path, route));
     }
   }
 

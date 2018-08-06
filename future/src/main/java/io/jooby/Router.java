@@ -4,10 +4,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.synchronizedList;
+
 public interface Router {
+
+  class Match {
+    public final Handler handler;
+
+    public final Map<String, String> params;
+
+    public Match(Handler handler, Map<String, String> params) {
+      this.handler = handler;
+      this.params = params;
+    }
+  }
+
   /** HTTP Methods: */
   String GET = "GET";
   String POST = "POST";
@@ -19,9 +38,17 @@ public interface Router {
   String OPTIONS = "OPTIONS";
   String TRACE = "TRACE";
 
+  /** HTTP Methods: */
+  List<String> METHODS = synchronizedList(
+      asList(GET, POST, PUT, DELETE, PATCH, HEAD, CONNECT, OPTIONS, TRACE));
+
   @Nonnull Router renderer(@Nonnull Renderer renderer);
 
   @Nonnull Router filter(@Nonnull Filter filter);
+
+  @Nonnull Router before(@Nonnull Before before);
+
+  @Nonnull Router after(@Nonnull After after);
 
   @Nonnull Router dispatch(@Nonnull Runnable action);
 
@@ -69,16 +96,24 @@ public interface Router {
 
   @Nonnull Route route(@Nonnull String method, @Nonnull String pattern, @Nonnull Handler handler);
 
-  @Nonnull default RootHandler matchRoot(@Nonnull String method, @Nonnull String path) {
-    return asRootHandler(match(method, path));
-  }
-
-  @Nonnull Handler match(@Nonnull String method, @Nonnull String path);
+  /**
+   * Find a matching route using the method name and path. Please note that method name must be in
+   * uppercase (GET, POST, etc.).
+   *
+   * If no match exists this method returns a route with a <code>404</code> handler.
+   * See {@link Handler#NOT_FOUND}.
+   *
+   * @param method Method in upper case.
+   * @param path Path to match.
+   * @return A route.
+   */
+  @Nonnull Route match(@Nonnull String method, @Nonnull String path);
 
   @Nonnull RootHandler asRootHandler(@Nonnull Handler handler);
 
   /** Error handler: */
-  @Nonnull Router errorCode(@Nonnull Class<? extends Throwable> type, @Nonnull StatusCode statusCode);
+  @Nonnull Router errorCode(@Nonnull Class<? extends Throwable> type,
+      @Nonnull StatusCode statusCode);
 
   @Nonnull StatusCode errorCode(@Nonnull Throwable x);
 
