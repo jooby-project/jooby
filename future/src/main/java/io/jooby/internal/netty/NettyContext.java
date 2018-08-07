@@ -111,10 +111,11 @@ public class NettyContext implements Context {
   }
 
   @Nonnull @Override public Context sendStatusCode(int statusCode) {
-    setHeaders.set(CONTENT_LENGTH, 0);
-    return sendComplete(
-        new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(statusCode),
-            EMPTY_BUFFER));
+    DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HTTP_1_1,
+        HttpResponseStatus.valueOf(statusCode));
+    rsp.headers().set(CONTENT_LENGTH, 0);
+    ctx.writeAndFlush(rsp).addListener(CLOSE);
+    return this;
   }
 
   private Context sendByteBuf(ByteBuf buff) {
