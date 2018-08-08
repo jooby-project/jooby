@@ -22,6 +22,10 @@ public class App implements Router {
     return this;
   }
 
+  @Nonnull @Override public Router gzip(@Nonnull Runnable action) {
+    return router.gzip(action);
+  }
+
   @Nonnull @Override public Router error(@Nonnull Route.ErrorHandler handler) {
     return router.error(handler);
   }

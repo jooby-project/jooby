@@ -32,6 +32,8 @@ public interface Router {
 
   @Nonnull Router filter(@Nonnull Route.Filter filter);
 
+  @Nonnull Router gzip(@Nonnull Runnable action);
+
   @Nonnull Router before(@Nonnull Route.Before before);
 
   @Nonnull Router after(@Nonnull Route.After after);

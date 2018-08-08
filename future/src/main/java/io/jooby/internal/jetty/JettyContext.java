@@ -2,28 +2,35 @@ package io.jooby.internal.jetty;
 
 import io.jooby.Context;
 import io.jooby.Route;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.Callback;
-import org.eclipse.jetty.util.thread.ThreadPool;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.servlet.AsyncContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class JettyContext implements Context {
   private final Request request;
-  private final ThreadPool executor;
+  private final Executor executor;
   private final Route route;
   private final Map<String, Object> locals = new HashMap<>();
+  private final String target;
 
-  public JettyContext(Request request, ThreadPool threadPool, Route route) {
+  public JettyContext(String target, Request request, Executor threadPool, Route route) {
+    this.target = target;
     this.request = request;
     this.executor = threadPool;
     this.route = route;
@@ -59,6 +66,28 @@ public class JettyContext implements Context {
     return locals;
   }
 
+  @Nonnull @Override public Route.Filter gzip() {
+    return next -> ctx -> {
+      if (request.getHeader("Accept-Encoding") != null) {
+        AtomicReference<Object> holder = new AtomicReference<>();
+
+        /** Gzip: */
+        GzipHandler handler = new GzipHandler();
+        handler.setHandler(gzipCall(ctx, next, holder));
+        handler.handle(target, request, request, request.getResponse());
+
+        /** Check value and rethrow if need it: */
+        Object value = holder.get();
+        if (value instanceof Exception) {
+          throw (Exception) value;
+        }
+        return value;
+      } else {
+        return next.apply(ctx);
+      }
+    };
+  }
+
   @Nonnull @Override public Context statusCode(int statusCode) {
     request.getResponse().setStatus(statusCode);
     return this;
@@ -90,5 +119,18 @@ public class JettyContext implements Context {
 
   @Override public boolean isResponseStarted() {
     return request.getResponse().isCommitted();
+  }
+
+  private static Handler gzipCall(Context ctx, Route.Handler next, AtomicReference<Object> result) {
+    return new AbstractHandler() {
+      @Override public void handle(String target, Request baseRequest, HttpServletRequest request,
+          HttpServletResponse response) {
+        try {
+          result.set(next.apply(ctx));
+        } catch (Throwable x) {
+          result.set(x);
+        }
+      }
+    };
   }
 }

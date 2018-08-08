@@ -38,7 +38,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    // cause.printStackTrace();
+    cause.printStackTrace();
     //    if (!ConnectionLost.test(cause)) {
     //      String path = ctx.channel().attr(PATH).get();
     //      ctx.close();

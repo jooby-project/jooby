@@ -6,11 +6,13 @@ import io.jooby.Server;
 import io.jooby.internal.netty.NettyNative;
 import io.jooby.internal.netty.NettyHandler;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 import io.netty.handler.logging.LogLevel;
@@ -23,6 +25,7 @@ import org.jooby.funzy.Throwing;
 
 import javax.net.ssl.SSLException;
 import java.security.cert.CertificateException;
+import java.util.function.Supplier;
 
 public class Netty implements Server {
 
@@ -44,9 +47,8 @@ public class Netty implements Server {
       if (sslCtx != null) {
         p.addLast(sslCtx.newHandler(ch.alloc()));
       }
-      p.addLast(new HttpServerCodec());
-      p.addLast(new HttpServerExpectContinueHandler());
-      p.addLast(worker, handler);
+      p.addLast("codec", new HttpServerCodec());
+      p.addLast(worker, "handler", handler);
     }
   }
 

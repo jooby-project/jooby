@@ -4,9 +4,18 @@ import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
 import io.jooby.test.JoobyRunner;
 import io.jooby.utow.Utow;
+import okhttp3.Response;
+import org.jooby.funzy.Throwing;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Scanner;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FeaturedTest {
 
@@ -197,6 +206,63 @@ public class FeaturedTest {
   }
 
   @Test
+  public void gzip() throws IOException {
+    String text = "Praesent blandit, justo a luctus elementum, ante sapien pellentesque tortor, "
+        + "vitae maximus nulla augue sed nulla. Phasellus quis turpis ac mi tristique aliquam. "
+        + "Suspendisse tellus sem, sollicitudin ac elit id, laoreet viverra erat. Proin libero "
+        + "nulla, efficitur at facilisis a, placerat in ligula. Quisque sem dolor, efficitur ac "
+        + "nisl ut, porttitor iaculis leo. Nullam auctor neque augue, quis malesuada nisl rhoncus "
+        + "id. Quisque ut odio erat. Mauris pellentesque suscipit libero et laoreet. Nulla ipsum "
+        + "enim, sodales in risus egestas, tempus pulvinar erat. Sed elementum, leo eget vulputate "
+        + "commodo, ligula eros ullamcorper risus, at feugiat neque ipsum quis lectus. Nulla sit "
+        + "amet lectus lacinia, congue sapien ac, vehicula lacus. Vestibulum vitae vestibulum enim. "
+        + "Proin vulputate, quam ut commodo pellentesque, enim tortor ornare neque, a aliquam massa "
+        + "felis a ligula. Pellentesque lorem erat, fringilla at ipsum a, scelerisque hendrerit "
+        + "lorem. Sed interdum nibh at ante consequat, vitae fermentum augue luctus.";
+    new JoobyRunner(app -> {
+
+      app.get("/top", ctx -> text);
+
+      app.gzip(() -> {
+        app.get("/gzip", ctx -> text);
+      });
+
+      app.get("/bottom", ctx -> text);
+    }).ready(client -> {
+
+      Throwing.Consumer<Response> raw = rsp -> {
+        assertEquals(1013, rsp.body().contentLength());
+        assertEquals(null, rsp.header("content-encoding"));
+        assertEquals(text, rsp.body().string());
+      };
+
+      client.get("/top", raw);
+
+      client.get("/gzip").prepare(req -> {
+        req.addHeader("Accept-Encoding", "gzip");
+      }).execute(rsp -> {
+        int min = 525;
+        int max = 532;
+        assertTrue(rsp.body().contentLength() == min || rsp.body().contentLength() == max);
+        assertEquals("gzip", rsp.header("content-encoding"));
+        assertEquals(text, ungzip(rsp.body().bytes()));
+      });
+
+      client.get("/bottom", raw);
+    }, new Utow(), new Jetty());
+  }
+
+  private String ungzip(byte[] buff) throws IOException {
+    GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(buff));
+    Scanner scanner = new Scanner(gzip);
+    StringBuilder str = new StringBuilder();
+    while (scanner.hasNext()) {
+      str.append(scanner.nextLine());
+    }
+    return str.toString();
+  }
+
+  @Test
   public void pathVarible() {
     new JoobyRunner(app -> {
       app.get("/articles/{id}", ctx -> ctx.param("id").intValue());
@@ -296,7 +362,8 @@ public class FeaturedTest {
 
     }).ready(client -> {
       client.get("/", rsp -> {
-        assertEquals("before1:true;before2:false;result:false;after2:false;after1:false;", rsp.body().string());
+        assertEquals("before1:true;before2:false;result:false;after2:false;after1:false;",
+            rsp.body().string());
       });
     }, new Netty(), new Utow()/* No Jetty bc always use a worker thread */);
   }

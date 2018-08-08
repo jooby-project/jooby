@@ -25,6 +25,10 @@ public class HelloApp extends App {
     get("/{foo}", ctx -> "Hello World!");
 
     dispatch(() -> {
+      filter(next -> ctx -> {
+        System.out.println(Thread.currentThread());
+        return next.apply(ctx);
+      });
       get("/worker", ctx -> "Hello Worker");
     });
 

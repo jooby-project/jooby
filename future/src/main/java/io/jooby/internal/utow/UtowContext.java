@@ -3,6 +3,9 @@ package io.jooby.internal.utow;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.server.handlers.encoding.EncodingHandler;
+import io.undertow.util.Headers;
+import io.undertow.util.HttpString;
 
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
@@ -11,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class UtowContext implements Context {
 
@@ -49,6 +53,31 @@ public class UtowContext implements Context {
 
   @Nonnull @Override public Map<String, Object> locals() {
     return locals;
+  }
+
+  @Nonnull @Override public Route.Filter gzip() {
+    return next -> ctx -> {
+      if (exchange.getRequestHeaders().contains(Headers.ACCEPT_ENCODING)) {
+        AtomicReference<Object> holder = new AtomicReference<>();
+        new EncodingHandler.Builder().build(null)
+            .wrap(ex -> {
+              try {
+                holder.set(next.apply(ctx));
+              } catch (Throwable x) {
+                holder.set(x);
+              }
+            })
+            .handleRequest(exchange);
+        Object value = holder.get();
+        if (value instanceof Exception) {
+          throw (Exception) value;
+        }
+        return value;
+      } else {
+        // Ignore gzip, move to next:
+        return next.apply(ctx);
+      }
+    };
   }
 
   @Nonnull @Override public Context statusCode(int statusCode) {

@@ -32,22 +32,18 @@ public class Utow implements Server {
   }
 
   @Override public Server start(Router router) {
-    AtomicReference<XnioWorker> ref = new AtomicReference<>();
-    Undertow.Builder builder = Undertow.builder()
-        .addHttpListener(port, "0.0.0.0");
     HttpHandler uhandler = exchange -> {
       HttpString method = exchange.getRequestMethod();
       Route route = router.match(method.toString().toUpperCase(), exchange.getRequestPath());
       Route.RootHandler handler = router.asRootHandler(route.pipeline());
-      handler.apply(new UtowContext(exchange, ref.get(), route));
+      handler.apply(new UtowContext(exchange, exchange.getConnection().getWorker(), route));
     };
     if (mode == Mode.WORKER) {
       uhandler = new BlockingHandler(uhandler);
     }
-    builder.setHandler(uhandler).build();
-
-    server = builder.build();
-    ref.set(server.getWorker());
+    server = Undertow.builder()
+        .addHttpListener(port, "0.0.0.0")
+        .setHandler(uhandler).build();
 
     server.start();
 

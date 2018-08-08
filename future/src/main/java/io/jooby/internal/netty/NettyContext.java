@@ -3,17 +3,18 @@ package io.jooby.internal.netty;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.EmptyByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpContentCompressor;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import javax.annotation.Nonnull;
@@ -21,10 +22,10 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import static io.netty.buffer.Unpooled.EMPTY_BUFFER;
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.channel.ChannelFutureListener.CLOSE;
@@ -35,7 +36,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class NettyContext implements Context {
   private final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
-  private final ChannelHandlerContext ctx;
+  private ChannelHandlerContext ctx;
   private final HttpRequest req;
   private final String path;
   private final DefaultEventExecutorGroup executor;
@@ -78,6 +79,15 @@ public class NettyContext implements Context {
 
   @Nonnull @Override public Map<String, Object> locals() {
     return locals;
+  }
+
+  @Nonnull @Override public Route.Filter gzip() {
+    return next -> ctx -> {
+      if (req.headers().contains(HttpHeaderNames.ACCEPT_ENCODING)) {
+        this.ctx.pipeline().addBefore("handler", "gzip", gzip(this.ctx, req));
+      }
+      return next.apply(ctx);
+    };
   }
 
   @Nonnull @Override public Context statusCode(int statusCode) {
@@ -134,5 +144,23 @@ public class NettyContext implements Context {
     }
     ctx.executor().execute(ctx::flush);
     return this;
+  }
+
+  private static HttpContentCompressor gzip(ChannelHandlerContext ctx, HttpRequest req)
+      throws Exception {
+    HttpContentCompressor compressor = new HttpContentCompressor() {
+      @Override protected void encode(ChannelHandlerContext ctx, HttpObject msg, List<Object> out)
+          throws Exception {
+        super.encode(ctx, msg, out);
+        // TODO: is there a better way?
+        if (msg instanceof LastHttpContent) {
+          ctx.pipeline().remove(this);
+        }
+      }
+    };
+    // TODO: is there a better way?
+    // Initialize
+    compressor.channelRead(ctx, req);
+    return compressor;
   }
 }

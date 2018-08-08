@@ -9,6 +9,7 @@ import org.jooby.funzy.Throwing;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.concurrent.TimeUnit;
 
 public class WebClient {
 
@@ -39,10 +40,15 @@ public class WebClient {
   }
   private static RequestBody EMPTY_BODY = RequestBody.create(null, new byte[0]);
   private final int port;
-  private OkHttpClient client = new OkHttpClient();
+  private OkHttpClient client;
 
   public WebClient(int port) {
     this.port = port;
+    client = new OkHttpClient.Builder()
+        .connectTimeout(5, TimeUnit.MINUTES)
+        .writeTimeout(5, TimeUnit.MINUTES)
+        .readTimeout(5, TimeUnit.MINUTES)
+        .build();
   }
 
   public Request execute(String method, String path, RequestBody body) {

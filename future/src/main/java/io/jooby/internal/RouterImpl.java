@@ -67,6 +67,15 @@ public class RouterImpl implements Router {
     stack.addLast(new Stack(""));
   }
 
+  @Nonnull @Override public Router gzip(@Nonnull Runnable action) {
+    Route.Filter filter = next -> ctx -> {
+      Route.Filter gzip = ctx.gzip();
+      Route.Handler handler = gzip.apply(next);
+      return handler.apply(ctx);
+    };
+    return newGroup("", action, filter);
+  }
+
   @Nonnull @Override public Router renderer(@Nonnull Renderer renderer) {
     stack.peekLast().then(renderer);
     return this;
@@ -90,30 +99,27 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Override @Nonnull
-  public Router dispatch(@Nonnull Runnable action) {
-    filter(next -> ctx -> ctx.dispatch(asRunnable(ctx, next)));
+  @Override @Nonnull public Router dispatch(@Nonnull Runnable action) {
+    Route.Filter filter = next -> ctx -> ctx.dispatch(asRunnable(ctx, next));
+    return newGroup("", action, filter);
+  }
+
+  @Override @Nonnull public Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
+    Route.Filter filter = next -> ctx -> ctx.dispatch(executor, asRunnable(ctx, next));
+    return newGroup("", action, filter);
+  }
+
+  @Override @Nonnull public Router group(@Nonnull Runnable action) {
     return newGroup("", action);
   }
 
-  @Override @Nonnull
-  public Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
-    filter(next -> ctx -> ctx.dispatch(executor, asRunnable(ctx, next)));
-    return newGroup("", action);
-  }
-
-  @Override @Nonnull
-  public Router group(@Nonnull Runnable action) {
-    return newGroup("", action);
-  }
-
-  @Override @Nonnull
-  public Router path(@Nonnull String pattern, @Nonnull Runnable action) {
+  @Override @Nonnull public Router path(@Nonnull String pattern, @Nonnull Runnable action) {
     return newGroup(pattern, action);
   }
 
   @Override
-  public Route route(@Nonnull String method, @Nonnull String pattern, @Nonnull Route.Handler handler) {
+  public Route route(@Nonnull String method, @Nonnull String pattern,
+      @Nonnull Route.Handler handler) {
     /** Pattern: */
     StringBuilder pat = new StringBuilder();
     stack.forEach(it -> pat.append(it.pattern));
@@ -219,10 +225,12 @@ public class RouterImpl implements Router {
     return buff.substring(1);
   }
 
-  private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action) {
-    stack.addLast(new Stack(pattern));
+  private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action, Route.Filter... filter) {
+    Stack stack = new Stack(pattern);
+    Stream.of(filter).forEach(stack::then);
+    this.stack.addLast(stack);
     action.run();
-    stack.removeLast().filters.clear();
+    this.stack.removeLast().filters.clear();
     return this;
   }
 

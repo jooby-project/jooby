@@ -4,6 +4,7 @@ import io.jooby.Mode;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.internal.jetty.JettyContext;
+import io.jooby.internal.jetty.JettyHandler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Request;
@@ -42,16 +43,7 @@ public class Jetty implements io.jooby.Server {
 
     server.addConnector(connector);
 
-    server.setHandler(new AbstractHandler() {
-      @Override
-      public void handle(String target, Request request, HttpServletRequest httpServletRequest,
-          HttpServletResponse httpServletResponse) {
-        String path = request.getRequestURI();
-        Route route = router.match(request.getMethod().toUpperCase(), path);
-        Route.RootHandler handler = router.asRootHandler(route.pipeline());
-        handler.apply(new JettyContext(request, server.getThreadPool(), route));
-      }
-    });
+    server.setHandler(new JettyHandler(router, server.getThreadPool()));
 
     try {
       server.start();
