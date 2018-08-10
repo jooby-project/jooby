@@ -1,11 +1,13 @@
 package io.jooby.utow;
 
+import com.sun.tools.internal.ws.wscompile.Options;
 import io.jooby.Mode;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.Server;
 import io.jooby.internal.utow.UtowContext;
 import io.undertow.Undertow;
+import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.BlockingHandler;
 import io.undertow.util.HttpString;
@@ -42,6 +44,7 @@ public class Utow implements Server {
       uhandler = new BlockingHandler(uhandler);
     }
     server = Undertow.builder()
+        .setServerOption(UndertowOptions.DECODE_URL, false)
         .addHttpListener(port, "0.0.0.0")
         .setHandler(uhandler).build();
 

@@ -1,7 +1,10 @@
 package io.jooby.internal.netty;
 
 import io.jooby.Context;
+import io.jooby.QueryString;
 import io.jooby.Route;
+import io.jooby.UrlParser;
+import io.jooby.Value;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -45,6 +48,7 @@ public class NettyContext implements Context {
   private boolean keepAlive;
   private boolean responseStarted;
   private final Map<String, Object> locals = new HashMap<>();
+  private QueryString query;
 
   public NettyContext(ChannelHandlerContext ctx, DefaultEventExecutorGroup executor,
       HttpRequest req, boolean keepAlive, String path, Route route) {
@@ -55,6 +59,11 @@ public class NettyContext implements Context {
     this.keepAlive = keepAlive;
     this.route = route;
   }
+
+  /* **********************************************************************************************
+   * Request methods:
+   * **********************************************************************************************
+   */
 
   @Nonnull @Override public final String path() {
     return path;
@@ -77,6 +86,13 @@ public class NettyContext implements Context {
     return this;
   }
 
+  @Nonnull @Override public QueryString query() {
+    if (query == null) {
+      query = Value.queryString(req.uri());
+    }
+    return query;
+  }
+
   @Nonnull @Override public Map<String, Object> locals() {
     return locals;
   }
@@ -89,6 +105,11 @@ public class NettyContext implements Context {
       return next.apply(ctx);
     };
   }
+
+  /* **********************************************************************************************
+   * Response methods:
+   * **********************************************************************************************
+   */
 
   @Nonnull @Override public Context statusCode(int statusCode) {
     this.status = HttpResponseStatus.valueOf(statusCode);

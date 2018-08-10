@@ -61,6 +61,7 @@ public interface Route {
   interface ErrorHandler {
 
     ErrorHandler DEFAULT = (ctx, cause, statusCode) -> {
+      // TODO: use a log
       String message = cause.getMessage();
       StringBuilder html = new StringBuilder("<!doctype html>\n")
           .append("<html>\n")

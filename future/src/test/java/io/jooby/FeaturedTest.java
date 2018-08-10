@@ -12,7 +12,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -322,6 +321,43 @@ public class FeaturedTest {
 
       client.get("/profile/edgar", rsp -> {
         assertEquals("edgar", rsp.body().string());
+      });
+    }, new Netty(), new Utow(), new Jetty());
+  }
+
+  @Test
+  public void pathEncoding() {
+    new JoobyRunner(app -> {
+      app.get("/{value}", ctx -> ctx.path() + "@" + ctx.param("value").value());
+    }).ready(client -> {
+      client.get("/a+b", rsp -> {
+        assertEquals("/a+b@a+b", rsp.body().string());
+      });
+      client.get("/a b", rsp -> {
+        assertEquals("/a%20b@a b", rsp.body().string());
+      });
+      client.get("/%2F%2B", rsp -> {
+        assertEquals("/%2F%2B@/+", rsp.body().string());
+      });
+    }, new Netty(), new Utow(), new Jetty());
+  }
+
+  @Test
+  public void queryString() {
+    new JoobyRunner(app -> {
+      app.get("/", ctx -> ctx.queryString() + "@" + ctx.query("q").value(""));
+
+      app.get("/value", ctx -> ctx.query("user"));
+    }).ready(client -> {
+      client.get("/?q=a+b", rsp -> {
+        assertEquals("?q=a+b@a b", rsp.body().string());
+      });
+      client.get("/", rsp -> {
+        assertEquals("@", rsp.body().string());
+      });
+
+      client.get("/value?user.name=user&user.pass=pwd", rsp -> {
+        assertEquals("{name=user, pass=pwd}", rsp.body().string());
       });
     }, new Netty(), new Utow(), new Jetty());
   }

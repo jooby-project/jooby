@@ -5,12 +5,8 @@ import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
-import java.util.function.Function;
 
 public interface Context {
   /**
@@ -38,15 +34,38 @@ public interface Context {
    */
   @Nonnull String path();
 
-  @Nonnull default Mutant param(@Nonnull String name) {
+  @Nonnull default Value param(@Nonnull String name) {
     String value = params().get(name);
-    return () -> Collections.singletonList(value);
+    return value == null ? new Value.Missing(name) : new Value.Simple(name, UrlParser.decodePath(value));
   }
 
   @Nonnull default Map<String, String> params() {
     return route().params();
   }
 
+  /* **********************************************************************************************
+   * Query String methods
+   * **********************************************************************************************
+   */
+  @Nonnull default Value query(@Nonnull String name) {
+    return query().get(name);
+  }
+
+  /**
+   * Query string with the leading <code>?</code> or empty string.
+   *
+   * @return Query string with the leading <code>?</code> or empty string.
+   */
+  @Nonnull default String queryString() {
+    return query().queryString();
+  }
+
+  @Nonnull QueryString query();
+
+  /* **********************************************************************************************
+   * Dispatch methods
+   * **********************************************************************************************
+   */
   boolean isInIoThread();
 
   default @Nonnull Context dispatch(@Nonnull Runnable action) {
@@ -58,12 +77,12 @@ public interface Context {
   @Nonnull Executor worker();
 
   @Nullable default <T> T get(String name) {
-    return  (T) locals().get(name);
+    return (T) locals().get(name);
   }
 
   @Nonnull default Context set(@Nonnull String name, @Nonnull Object value) {
     locals().put(name, value);
-    return  this;
+    return this;
   }
 
   @Nonnull Map<String, Object> locals();

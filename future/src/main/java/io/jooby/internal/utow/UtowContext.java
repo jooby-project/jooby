@@ -1,7 +1,10 @@
 package io.jooby.internal.utow;
 
 import io.jooby.Context;
+import io.jooby.QueryString;
 import io.jooby.Route;
+import io.jooby.UrlParser;
+import io.jooby.Value;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.encoding.EncodingHandler;
 import io.undertow.util.Headers;
@@ -22,6 +25,7 @@ public class UtowContext implements Context {
   private final HttpServerExchange exchange;
   private final Executor executor;
   private final Map<String, Object> locals = new HashMap<>();
+  private QueryString query;
 
   public UtowContext(HttpServerExchange exchange, Executor executor, Route route) {
     this.exchange = exchange;
@@ -39,6 +43,17 @@ public class UtowContext implements Context {
 
   @Override public boolean isInIoThread() {
     return exchange.isInIoThread();
+  }
+
+  @Nonnull @Override public QueryString query() {
+    if (query == null) {
+      String queryString = exchange.getQueryString();
+      if (queryString.length() == 0) {
+        return QueryString.EMPTY;
+      }
+      query = Value.queryString('?' + queryString);
+    }
+    return query;
   }
 
   @Nonnull @Override public Executor worker() {

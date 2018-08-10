@@ -1,7 +1,10 @@
 package io.jooby.internal.jetty;
 
 import io.jooby.Context;
+import io.jooby.QueryString;
 import io.jooby.Route;
+import io.jooby.UrlParser;
+import io.jooby.Value;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
@@ -9,6 +12,7 @@ import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.UrlEncoded;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
@@ -28,6 +32,7 @@ public class JettyContext implements Context {
   private final Route route;
   private final Map<String, Object> locals = new HashMap<>();
   private final String target;
+  private QueryString query;
 
   public JettyContext(String target, Request request, Executor threadPool, Route route) {
     this.target = target;
@@ -42,6 +47,18 @@ public class JettyContext implements Context {
 
   @Nonnull @Override public String path() {
     return request.getRequestURI();
+  }
+
+  @Nonnull @Override public QueryString query() {
+    if (query == null) {
+      String queryString = request.getQueryString();
+      if (queryString == null) {
+        query = QueryString.EMPTY;
+      } else {
+        query = Value.queryString('?' + queryString);
+      }
+    }
+    return query;
   }
 
   @Override public boolean isInIoThread() {
