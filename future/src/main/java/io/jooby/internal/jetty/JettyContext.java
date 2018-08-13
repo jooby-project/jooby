@@ -1,6 +1,7 @@
 package io.jooby.internal.jetty;
 
 import io.jooby.Context;
+import io.jooby.Form;
 import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.UrlParser;
@@ -12,6 +13,7 @@ import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
 import org.jooby.funzy.Throwing;
 
@@ -21,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -33,6 +36,7 @@ public class JettyContext implements Context {
   private final Map<String, Object> locals = new HashMap<>();
   private final String target;
   private QueryString query;
+  private Form form;
 
   public JettyContext(String target, Request request, Executor threadPool, Route route) {
     this.target = target;
@@ -59,6 +63,21 @@ public class JettyContext implements Context {
       }
     }
     return query;
+  }
+
+  @Nonnull @Override public Form form() {
+    if (form == null) {
+      form = new Form();
+      Enumeration<String> names = request.getParameterNames();
+      MultiMap<String> query = request.getQueryParameters();
+      while(names.hasMoreElements()) {
+        String name = names.nextElement();
+        if (query == null || !query.containsKey(name)) {
+          form.put(name, request.getParameter(name));
+        }
+      }
+    }
+    return form;
   }
 
   @Override public boolean isInIoThread() {

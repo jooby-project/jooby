@@ -1,9 +1,9 @@
 package io.jooby.internal.netty;
 
 import io.jooby.Context;
+import io.jooby.Form;
 import io.jooby.QueryString;
 import io.jooby.Route;
-import io.jooby.UrlParser;
 import io.jooby.Value;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,9 +18,17 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.multipart.HttpData;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
+import io.netty.handler.codec.http.multipart.InterfaceHttpData;
+import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -28,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
@@ -38,6 +47,7 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class NettyContext implements Context {
+
   private final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
   private ChannelHandlerContext ctx;
   private final HttpRequest req;
@@ -49,6 +59,7 @@ public class NettyContext implements Context {
   private boolean responseStarted;
   private final Map<String, Object> locals = new HashMap<>();
   private QueryString query;
+  private Form form;
 
   public NettyContext(ChannelHandlerContext ctx, DefaultEventExecutorGroup executor,
       HttpRequest req, boolean keepAlive, String path, Route route) {
@@ -91,6 +102,29 @@ public class NettyContext implements Context {
       query = Value.queryString(req.uri());
     }
     return query;
+  }
+
+  @Nonnull @Override public Form form() {
+    if (form == null) {
+      form = new Form();
+      decodeForm(new HttpPostStandardRequestDecoder(req), form);
+    }
+    return form;
+  }
+
+  private void decodeForm(InterfaceHttpPostRequestDecoder decoder, Value.Object form) {
+    try {
+      while (decoder.hasNext()) {
+        HttpData next = (HttpData) decoder.next();
+        form.put(next.getName(), next.getString(StandardCharsets.UTF_8));
+      }
+    } catch (HttpPostRequestDecoder.EndOfDataDecoderException x) {
+      // ignore, silly netty
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    } finally {
+      decoder.destroy();
+    }
   }
 
   @Nonnull @Override public Map<String, Object> locals() {

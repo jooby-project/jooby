@@ -4,6 +4,8 @@ import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
 import io.jooby.test.JoobyRunner;
 import io.jooby.utow.Utow;
+import okhttp3.FormBody;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.jooby.funzy.Throwing;
 import org.junit.jupiter.api.Test;
@@ -363,10 +365,22 @@ public class FeaturedTest {
   }
 
   @Test
+  public void form() {
+    new JoobyRunner(app -> {
+      app.dispatch(() -> app.post("/", ctx -> ctx.form()));
+    }).mode(Mode.IO, Mode.WORKER).ready(client -> {
+      client.post("/", new FormBody.Builder()
+          .add("q", "a b")
+          .add("user.name", "user")
+          .build(), rsp -> {
+        assertEquals("{q=a b, user={name=user}}", rsp.body().string());
+      });
+    }, new Netty(), new Utow(), new Jetty());
+  }
+
+  @Test
   public void filter() {
     new JoobyRunner(app -> {
-
-      app.mode(Mode.IO);
 
       app.before(ctx -> {
         StringBuilder buff = new StringBuilder();
@@ -396,7 +410,7 @@ public class FeaturedTest {
         app.get("/", ctx -> "result:" + ctx.isInIoThread());
       });
 
-    }).ready(client -> {
+    }).mode(Mode.IO).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("before1:true;before2:false;result:false;after2:false;after1:false;",
             rsp.body().string());

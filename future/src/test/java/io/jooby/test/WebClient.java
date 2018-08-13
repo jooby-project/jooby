@@ -67,11 +67,19 @@ public class WebClient {
   }
 
   public Request post(String path) {
-    return execute("post", path, EMPTY_BODY);
+    return post(path, EMPTY_BODY);
   }
 
   public void post(String path, Throwing.Consumer<Response> callback) {
     post(path).execute(callback);
+  }
+
+  public Request post(String path, RequestBody form) {
+    return execute("POST", path, form);
+  }
+
+  public void post(String path, RequestBody form, Throwing.Consumer<Response> callback) {
+    post(path, form).execute(callback);
   }
 
   public Request put(String path) {

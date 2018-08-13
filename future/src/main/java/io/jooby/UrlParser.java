@@ -55,46 +55,9 @@ public final class UrlParser {
       ByteBuffer decoderInput, CharBuffer decoderOutput, CharsetDecoder decoder) {
     if (nameStart < valueEnd) {
       // find target
-      Value.Object target = root;
-      for (int i = nameStart; i < nameEnd; i++) {
-        char ch = source.charAt(i);
-        if (ch == '.') {
-          String name = decode(source, nameStart, i, decodedBuffer, decoderInput, decoderOutput,
-              decoder);
-          nameStart = i + 1;
-          target = target.getOrCreateScope(name);
-        } else if (ch == '[') {
-          if (nameStart < i) {
-            String name = decode(source, nameStart, i, decodedBuffer, decoderInput, decoderOutput,
-                decoder);
-            target = target.getOrCreateScope(name);
-          }
-          nameStart = i + 1;
-        } else if (ch == ']') {
-          if (i + 1 < nameEnd) {
-            String name = decode(source, nameStart, i, decodedBuffer, decoderInput, decoderOutput,
-                decoder);
-            nameStart = i + 1;
-            target = target.getOrCreateScope(name);
-          } else {
-            nameEnd = i;
-          }
-        }
-      }
-      String name = decode(source, nameStart, nameEnd, decodedBuffer, decoderInput, decoderOutput,
-          decoder);
-      for (int i = valueStart; i < valueEnd; i++) {
-        char ch = source.charAt(i);
-        if (ch == ',') {
-          String value = decode(source, valueStart, i, decodedBuffer, decoderInput, decoderOutput,
-              decoder);
-          target.put(name, value);
-          valueStart = i + 1;
-        }
-      }
-      String value = decode(source, valueStart, valueEnd, decodedBuffer, decoderInput,
-          decoderOutput, decoder);
-      target.put(name, value);
+      String name = decode(source, nameStart, nameEnd, decodedBuffer, decoderInput, decoderOutput, decoder);
+      String value = decode(source, valueStart, valueEnd, decodedBuffer, decoderInput, decoderOutput, decoder);
+      root.put(name, value);
     }
   }
 

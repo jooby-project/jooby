@@ -154,14 +154,14 @@ public class UrlParserTest {
               queryString.toString());
         });
 
-    queryString("?list=1,2,3", queryString -> {
-      assertEquals("?list=1,2,3", queryString.queryString());
-      assertEquals(1, queryString.size());
-      assertEquals(1, queryString.get("list").get(0).intValue());
-      assertEquals(2, queryString.get("list").get(1).intValue());
-      assertEquals(3, queryString.get("list").get(2).intValue());
-      assertEquals("{list=[1, 2, 3]}", queryString.toString());
-    });
+//    queryString("?list=1,2,3", queryString -> {
+//      assertEquals("?list=1,2,3", queryString.queryString());
+//      assertEquals(1, queryString.size());
+//      assertEquals(1, queryString.get("list").get(0).intValue());
+//      assertEquals(2, queryString.get("list").get(1).intValue());
+//      assertEquals(3, queryString.get("list").get(2).intValue());
+//      assertEquals("{list=[1, 2, 3]}", queryString.toString());
+//    });
   }
 
   @Test

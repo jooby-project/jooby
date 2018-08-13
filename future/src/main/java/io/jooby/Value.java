@@ -2,6 +2,7 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -76,22 +77,56 @@ public interface Value {
     protected Object() {
       this.name = null;
     }
+    public Object put(String path, String value) {
+      return put(path, Collections.singletonList(value));
+    }
 
-    public Object put(String name, String value) {
-      Map<String, Value> hash = hash();
-      Value existing = hash.get(name);
-      if (existing == null) {
-        hash.put(name, new Simple(name, value));
-      } else {
-        Array list;
-        if (existing instanceof Array) {
-          list = (Array) existing;
-        } else {
-          list = new Array(name).add(existing);
-          hash.put(name, list);
+    public Object put(String path, Collection<String> values) {
+      // Locate node:
+      int nameStart = 0;
+      int nameEnd = path.length();
+      Object target = this;
+      for (int i = nameStart; i < nameEnd; i++) {
+        char ch = path.charAt(i);
+        if (ch == '.') {
+          String name = path.substring(nameStart, i);
+          nameStart = i + 1;
+          target = target.getOrCreateScope(name);
+        } else if (ch == '[') {
+          if (nameStart < i) {
+            String name = path.substring(nameStart, i);
+            target = target.getOrCreateScope(name);
+          }
+          nameStart = i + 1;
+        } else if (ch == ']') {
+          if (i + 1 < nameEnd) {
+            String name = path.substring(nameStart, i);
+            nameStart = i + 1;
+            target = target.getOrCreateScope(name);
+          } else {
+            nameEnd = i;
+          }
         }
-        list.add(value);
       }
+      // Final node
+      String name = path.substring(nameStart, nameEnd);
+      for (String value : values) {
+        Map<String, Value> hash = target.hash();
+        Value existing = hash.get(name);
+        if (existing == null) {
+          hash.put(name, new Simple(name, value));
+        } else {
+          Array list;
+          if (existing instanceof Array) {
+            list = (Array) existing;
+          } else {
+            list = new Array(name).add(existing);
+            hash.put(name, list);
+          }
+          list.add(value);
+        }
+      }
+
       return this;
     }
 
@@ -102,7 +137,7 @@ public interface Value {
       return hash;
     }
 
-    public Object getOrCreateScope(String name) {
+    /*package*/ Object getOrCreateScope(String name) {
       return (Object) hash().computeIfAbsent(name, Object::new);
     }
 
