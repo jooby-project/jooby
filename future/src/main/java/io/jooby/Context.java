@@ -5,10 +5,16 @@ import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
 public interface Context {
+
+  /** 16KB constant. */
+  int _16KB = 0x4000;
+
   /**
    * **********************************************************************************************
    * **** Native methods *************************************************************************
@@ -36,7 +42,9 @@ public interface Context {
 
   @Nonnull default Value param(@Nonnull String name) {
     String value = params().get(name);
-    return value == null ? new Value.Missing(name) : new Value.Simple(name, UrlParser.decodePath(value));
+    return value == null ?
+        new Value.Missing(name) :
+        new Value.Simple(name, UrlParser.decodePath(value));
   }
 
   @Nonnull default Map<String, String> params() {
@@ -63,16 +71,43 @@ public interface Context {
   @Nonnull QueryString query();
 
   /* **********************************************************************************************
-   * Form methods
+   * Form/Multipart methods
    * **********************************************************************************************
    */
   @Nonnull default Value form(@Nonnull String name) {
     return form().get(name);
   }
 
-  @Nonnull default Form form() {
-    return null;
+  @Nonnull Form form();
+
+  @Nonnull default Value multipart(@Nonnull String name) {
+    return multipart().get(name);
   }
+
+  @Nonnull default List<Value.Upload> files(@Nonnull String name) {
+    Value value = multipart(name);
+    int len = value.size();
+    List<Value.Upload> result = new ArrayList<>(len);
+    for (int i = 0; i < len; i++) {
+      result.add(value.get(i).upload());
+    }
+    return result;
+  }
+
+  @Nonnull default Value.Upload file(@Nonnull String name) {
+    return multipart(name).upload();
+  }
+
+  /**
+   * Parse a multipart/form-data request and returns the result.
+   *
+   *
+   * <strong>NOTE:</strong> this method throws   an {@link IllegalStateException} when call it from
+   * <code>IO thread</code>;
+   *
+   * @return Multipart node.
+   */
+  @Nonnull Multipart multipart();
 
   /* **********************************************************************************************
    * Dispatch methods
@@ -134,4 +169,6 @@ public interface Context {
   @Nonnull Context sendStatusCode(int statusCode);
 
   boolean isResponseStarted();
+
+  void destroy();
 }

@@ -5,6 +5,8 @@ import io.jooby.netty.Netty;
 import io.jooby.test.JoobyRunner;
 import io.jooby.utow.Utow;
 import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.jooby.funzy.Throwing;
@@ -12,7 +14,12 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,19 +41,19 @@ public class FeaturedTest {
       client.get("/", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
-        assertEquals("12", rsp.header("content-length"));
+        assertEquals(12, rsp.body().contentLength());
       });
 
       client.get("/worker", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
-        assertEquals("12", rsp.header("content-length"));
+        assertEquals(12, rsp.body().contentLength());
       });
 
       client.get("/favicon.ico", rsp -> {
         assertEquals("", rsp.body().string());
         assertEquals(404, rsp.code());
-        assertEquals("0", rsp.header("content-length"));
+        assertEquals(0, rsp.body().contentLength());
       });
 
       client.get("/notFound", rsp -> {
@@ -73,7 +80,7 @@ public class FeaturedTest {
             + "</body>\n"
             + "</html>", rsp.body().string());
         assertEquals(404, rsp.code());
-        assertEquals("609", rsp.header("content-length"));
+        assertEquals(609, rsp.body().contentLength());
       });
     }, new Netty(), new Utow(), new Jetty());
 
@@ -93,19 +100,19 @@ public class FeaturedTest {
       client.get("/?foo=bar", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
-        assertEquals("12", rsp.header("content-length"));
+        assertEquals(12, rsp.body().contentLength());
       });
 
       client.get("/worker", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
-        assertEquals("12", rsp.header("content-length"));
+        assertEquals(12, rsp.body().contentLength());
       });
 
       client.get("/favicon.ico", rsp -> {
         assertEquals("", rsp.body().string());
         assertEquals(404, rsp.code());
-        assertEquals("0", rsp.header("content-length"));
+        assertEquals(0, rsp.body().contentLength());
       });
 
       client.get("/notFound", rsp -> {
@@ -132,7 +139,7 @@ public class FeaturedTest {
             + "</body>\n"
             + "</html>", rsp.body().string());
         assertEquals(404, rsp.code());
-        assertEquals("609", rsp.header("content-length"));
+        assertEquals(609, rsp.body().contentLength());
       });
     }, new Netty(), new Utow(), new Jetty());
   }
@@ -147,19 +154,19 @@ public class FeaturedTest {
       client.get("/foo", rsp -> {
         assertEquals("/foo", rsp.body().string());
         assertEquals(200, rsp.code());
-        assertEquals("4", rsp.header("content-length"));
+        assertEquals(4, rsp.body().contentLength());
       });
 
       client.get("/a+b", rsp -> {
         assertEquals("/a+b", rsp.body().string());
         assertEquals(200, rsp.code());
-        assertEquals("4", rsp.header("content-length"));
+        assertEquals(4, rsp.body().contentLength());
       });
 
       client.get("/%2F", rsp -> {
         assertEquals("/%2F", rsp.body().string());
         assertEquals(200, rsp.code());
-        assertEquals("4", rsp.header("content-length"));
+        assertEquals(4, rsp.body().contentLength());
       });
     }, new Netty(), new Utow(), new Jetty());
   }
@@ -367,7 +374,7 @@ public class FeaturedTest {
   @Test
   public void form() {
     new JoobyRunner(app -> {
-      app.dispatch(() -> app.post("/", ctx -> ctx.form()));
+      app.post("/", ctx -> ctx.form());
     }).mode(Mode.IO, Mode.WORKER).ready(client -> {
       client.post("/", new FormBody.Builder()
           .add("q", "a b")
@@ -376,6 +383,74 @@ public class FeaturedTest {
         assertEquals("{q=a b, user={name=user}}", rsp.body().string());
       });
     }, new Netty(), new Utow(), new Jetty());
+  }
+
+  @Test
+  public void multipartFromWorker() {
+    new JoobyRunner(app -> {
+      app.post("/f", ctx -> {
+        Value.Upload f = ctx.file("f");
+        return f.filename() + "(type=" + f.contentType() + ";exists=" + Files.exists(f.path())
+            + ")";
+      });
+
+      app.post("/files", ctx -> {
+        List<Value.Upload> files = ctx.files("f");
+        return files.stream().map(f -> f.filename() + "=" + f.filesize())
+            .collect(Collectors.toList());
+      });
+    }).ready(client -> {
+      client.post("/f", new MultipartBody.Builder()
+          .setType(MultipartBody.FORM)
+          .addFormDataPart("user.name", "user")
+          .addFormDataPart("f", "fileupload.js",
+              RequestBody.create(MediaType.parse("application/javascript"),
+                  userdir("src", "test", "resources", "files", "fileupload.js").toFile()))
+          .build(), rsp -> {
+        assertEquals("fileupload.js(type=application/javascript;exists=true)", rsp.body().string());
+      });
+
+      client.post("/files", new MultipartBody.Builder()
+          .setType(MultipartBody.FORM)
+          .addFormDataPart("user.name", "user")
+          .addFormDataPart("f", "f1.txt",
+              RequestBody.create(MediaType.parse("text/plain"), "text1"))
+          .addFormDataPart("f", "f2.txt",
+              RequestBody.create(MediaType.parse("text/plain"), "text2"))
+          .build(), rsp -> {
+        assertEquals("[f1.txt=5, f2.txt=5]", rsp.body().string());
+      });
+    }, new Netty(), new Utow(), new Jetty());
+  }
+
+  @Test
+  public void multipartFromIO() {
+    new JoobyRunner(app -> {
+      app.post("/f", ctx -> ctx.multipart());
+
+      app.dispatch(() ->
+          app.post("/w", ctx -> ctx.multipart()));
+
+      app.error(IllegalStateException.class, (ctx, x, statusCode) -> {
+        ctx.send(x.getMessage());
+      });
+    }).mode(Mode.IO).ready(client -> {
+      client.post("/f", new MultipartBody.Builder()
+          .setType(MultipartBody.FORM)
+          .addFormDataPart("foo", "bar")
+          .build(), rsp -> {
+        assertEquals(
+            "Attempted to do blocking IO from the IO thread. This is prohibited as it may result in deadlocks",
+            rsp.body().string());
+      });
+
+      client.post("/w", new MultipartBody.Builder()
+          .setType(MultipartBody.FORM)
+          .addFormDataPart("foo", "bar")
+          .build(), rsp -> {
+        assertEquals("{foo=bar}", rsp.body().string());
+      });
+    }, new Netty(), new Utow());
   }
 
   @Test
@@ -416,5 +491,13 @@ public class FeaturedTest {
             rsp.body().string());
       });
     }, new Netty(), new Utow()/* No Jetty bc always use a worker thread */);
+  }
+
+  private Path userdir(String... segments) {
+    Path path = Paths.get(System.getProperty("user.dir"));
+    for (String segment : segments) {
+      path = path.resolve(segment);
+    }
+    return path;
   }
 }

@@ -229,7 +229,9 @@ public class RouterImpl implements Router {
     Stack stack = new Stack(pattern);
     Stream.of(filter).forEach(stack::then);
     this.stack.addLast(stack);
-    action.run();
+    if (action != null) {
+      action.run();
+    }
     this.stack.removeLast().filters.clear();
     return this;
   }

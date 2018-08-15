@@ -1,42 +1,22 @@
 package io.jooby.internal.netty;
 
-import io.jooby.Context;
-import io.jooby.Form;
-import io.jooby.QueryString;
-import io.jooby.Route;
-import io.jooby.Value;
+import io.jooby.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.HttpContentCompressor;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpObject;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.codec.http.multipart.HttpData;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
-import io.netty.handler.codec.http.multipart.InterfaceHttpData;
-import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
-import io.netty.util.AttributeKey;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.multipart.*;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
@@ -45,6 +25,8 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.jooby.funzy.Throwing.throwingConsumer;
 
 public class NettyContext implements Context {
 
@@ -60,6 +42,8 @@ public class NettyContext implements Context {
   private final Map<String, Object> locals = new HashMap<>();
   private QueryString query;
   private Form form;
+  private Multipart multipart;
+  private List<Value.Upload> files;
 
   public NettyContext(ChannelHandlerContext ctx, DefaultEventExecutorGroup executor,
       HttpRequest req, boolean keepAlive, String path, Route route) {
@@ -85,7 +69,7 @@ public class NettyContext implements Context {
   }
 
   @Override public final boolean isInIoThread() {
-    return ctx.executor().inEventLoop();
+    return ctx.channel().eventLoop().inEventLoop();
   }
 
   @Nonnull @Override public Executor worker() {
@@ -112,19 +96,19 @@ public class NettyContext implements Context {
     return form;
   }
 
-  private void decodeForm(InterfaceHttpPostRequestDecoder decoder, Value.Object form) {
-    try {
-      while (decoder.hasNext()) {
-        HttpData next = (HttpData) decoder.next();
-        form.put(next.getName(), next.getString(StandardCharsets.UTF_8));
-      }
-    } catch (HttpPostRequestDecoder.EndOfDataDecoderException x) {
-      // ignore, silly netty
-    } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
-    } finally {
-      decoder.destroy();
+  @Nonnull @Override public Multipart multipart() {
+    if (isInIoThread()) {
+      throw new IllegalStateException(
+          "Attempted to do blocking IO from the IO thread. This is prohibited as it may result in deadlocks");
     }
+    if (multipart == null) {
+      multipart = new Multipart();
+      form = multipart;
+      HttpDataFactory factory = new DefaultHttpDataFactory(_16KB);
+      decodeForm(new HttpPostMultipartRequestDecoder(factory, req, StandardCharsets.UTF_8),
+          multipart);
+    }
+    return multipart;
   }
 
   @Nonnull @Override public Map<String, Object> locals() {
@@ -156,7 +140,7 @@ public class NettyContext implements Context {
   }
 
   @Nonnull @Override public Context send(@Nonnull String data) {
-    return sendByteBuf(copiedBuffer(data, StandardCharsets.UTF_8));
+    return sendByteBuf(copiedBuffer(data, UTF_8));
   }
 
   @Override public final Context send(String data, Charset charset) {
@@ -198,7 +182,24 @@ public class NettyContext implements Context {
       ctx.write(rsp).addListener(CLOSE);
     }
     ctx.executor().execute(ctx::flush);
+    // clean up
+    destroy();
     return this;
+  }
+
+  public void destroy() {
+    if (files != null) {
+      // TODO: use a log
+      files.forEach(throwingConsumer(Value.Upload::destroy).onFailure(x -> x.printStackTrace()));
+    }
+  }
+
+  private Value.Upload register(Value.Upload upload) {
+    if (this.files == null) {
+      this.files = new ArrayList<>();
+    }
+    this.files.add(upload);
+    return upload;
   }
 
   private static HttpContentCompressor gzip(ChannelHandlerContext ctx, HttpRequest req)
@@ -217,5 +218,23 @@ public class NettyContext implements Context {
     // Initialize
     compressor.channelRead(ctx, req);
     return compressor;
+  }
+
+  private void decodeForm(InterfaceHttpPostRequestDecoder decoder, Value.Object form) {
+    try {
+      while (decoder.hasNext()) {
+        HttpData next = (HttpData) decoder.next();
+        if (next.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
+          form.put(next.getName(), register(new NettyUpload(next.getName(), (FileUpload) next)));
+        } else {
+          form.put(next.getName(), next.getString(UTF_8));
+          next.release();
+        }
+      }
+    } catch (HttpPostRequestDecoder.EndOfDataDecoderException x) {
+      // ignore, silly netty
+    } catch (Exception x) {
+      throw Throwing.sneakyThrow(x);
+    }
   }
 }

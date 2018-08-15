@@ -1,6 +1,13 @@
 package io.jooby;
 
+import org.jooby.funzy.Throwing;
+
 import javax.annotation.Nonnull;
+import java.io.Closeable;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,6 +15,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
@@ -77,11 +86,52 @@ public interface Value {
     protected Object() {
       this.name = null;
     }
+
     public Object put(String path, String value) {
       return put(path, Collections.singletonList(value));
     }
 
+    public Object put(String path, Value.Upload upload) {
+      put(path, (name, scope) -> {
+        Value existing = scope.get(name);
+        if (existing == null) {
+          scope.put(name, upload);
+        } else {
+          Array list;
+          if (existing instanceof Array) {
+            list = (Array) existing;
+          } else {
+            list = new Array(name).add(existing);
+            scope.put(name, list);
+          }
+          list.add(upload);
+        }
+      });
+      return this;
+    }
+
     public Object put(String path, Collection<String> values) {
+      put(path, (name, scope) -> {
+        for (String value : values) {
+          Value existing = scope.get(name);
+          if (existing == null) {
+            scope.put(name, new Simple(name, value));
+          } else {
+            Array list;
+            if (existing instanceof Array) {
+              list = (Array) existing;
+            } else {
+              list = new Array(name).add(existing);
+              scope.put(name, list);
+            }
+            list.add(value);
+          }
+        }
+      });
+      return this;
+    }
+
+    private void put(String path, BiConsumer<String, Map<String, Value>> consumer) {
       // Locate node:
       int nameStart = 0;
       int nameEnd = path.length();
@@ -109,25 +159,7 @@ public interface Value {
         }
       }
       // Final node
-      String name = path.substring(nameStart, nameEnd);
-      for (String value : values) {
-        Map<String, Value> hash = target.hash();
-        Value existing = hash.get(name);
-        if (existing == null) {
-          hash.put(name, new Simple(name, value));
-        } else {
-          Array list;
-          if (existing instanceof Array) {
-            list = (Array) existing;
-          } else {
-            list = new Array(name).add(existing);
-            hash.put(name, list);
-          }
-          list.add(value);
-        }
-      }
-
-      return this;
+      consumer.accept(path.substring(nameStart, nameEnd), target.hash());
     }
 
     private Map<String, Value> hash() {
@@ -215,11 +247,15 @@ public interface Value {
     }
 
     @Override public Value get(@Nonnull int index) {
-      return get(Integer.toString(index));
+      return index == 0 ? this : get(Integer.toString(index));
     }
 
     @Override public Value get(@Nonnull String name) {
-      return new Missing(name);
+      return name.equals(this.name) ? this : new Missing(name);
+    }
+
+    @Override public int size() {
+      return 1;
     }
 
     @Override public String value() {
@@ -233,6 +269,24 @@ public interface Value {
     @Override public Map<String, List<String>> toMap() {
       return singletonMap(name, singletonList(value));
     }
+  }
+
+  interface Upload extends Value {
+    default String filename() {
+      return value();
+    }
+
+    String contentType();
+
+    Path path();
+
+    long filesize();
+
+    @Override default Upload upload() {
+      return this;
+    }
+
+    void destroy();
   }
 
   default long longValue() {
@@ -323,7 +377,15 @@ public interface Value {
     return this instanceof Object;
   }
 
+  default boolean isUpload() {
+    return this instanceof Upload;
+  }
+
   @Nonnull String value();
+
+  default Upload upload() {
+    throw new Err.TypeMismatch("cannot convert to file upload");
+  }
 
   /* ***********************************************************************************************
    * Node methods

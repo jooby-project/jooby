@@ -1,6 +1,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.nio.file.Path;
 
 public interface Server {
 
@@ -11,4 +12,6 @@ public interface Server {
   @Nonnull Server start(@Nonnull Router router);
 
   @Nonnull Server stop();
+
+  @Nonnull Server tmpdir(@Nonnull Path tmpdir);
 }

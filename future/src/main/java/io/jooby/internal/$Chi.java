@@ -490,7 +490,7 @@ public class $Chi {
       return endpoints != null;
     }
 
-    // longestPrefix finds the length of the shared prefix of two strings
+    // longestPrefix finds the filesize of the shared prefix of two strings
     int longestPrefix(String k1, String k2) {
       int len = Math.min(k1.length(), k2.length());
       for (int i = 0; i < len; i++) {

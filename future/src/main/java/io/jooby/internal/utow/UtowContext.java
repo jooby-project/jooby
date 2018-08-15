@@ -2,14 +2,14 @@ package io.jooby.internal.utow;
 
 import io.jooby.Context;
 import io.jooby.Form;
+import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.Value;
+import io.netty.handler.codec.http.multipart.FileUpload;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.encoding.EncodingHandler;
-import io.undertow.server.handlers.form.FormData;
-import io.undertow.server.handlers.form.FormDataParser;
-import io.undertow.server.handlers.form.FormEncodedDataDefinition;
+import io.undertow.server.handlers.form.*;
 import io.undertow.util.Headers;
 import org.jooby.funzy.Throwing;
 
@@ -18,13 +18,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
+import static org.jooby.funzy.Throwing.throwingConsumer;
 
 public class UtowContext implements Context {
 
@@ -32,13 +32,17 @@ public class UtowContext implements Context {
   private final HttpServerExchange exchange;
   private final Executor executor;
   private final Map<String, Object> locals = new HashMap<>();
+  private final Path tmpdir;
   private QueryString query;
   private Form form;
+  private Multipart multipart;
+  private List<Value.Upload> files;
 
-  public UtowContext(HttpServerExchange exchange, Executor executor, Route route) {
+  public UtowContext(HttpServerExchange exchange, Executor executor, Route route, Path tmpdir) {
     this.exchange = exchange;
     this.executor = executor;
     this.route = route;
+    this.tmpdir = tmpdir;
   }
 
   @Nonnull @Override public Route route() {
@@ -76,6 +80,29 @@ public class UtowContext implements Context {
       }
     }
     return form;
+  }
+
+  @Nonnull @Override public Multipart multipart() {
+    if (isInIoThread()) {
+      throw new IllegalStateException(
+          "Attempted to do blocking IO from the IO thread. This is prohibited as it may result in deadlocks");
+    }
+    if (multipart == null) {
+      multipart = new Multipart();
+      form = multipart;
+      if (!exchange.isBlocking()) {
+        exchange.startBlocking();
+      }
+      try (FormDataParser parser = new MultiPartParserDefinition()
+          .setDefaultEncoding(StandardCharsets.UTF_8.name())
+          .setTempFileLocation(tmpdir)
+          .create(exchange)) {
+        formData(multipart, parser.parseBlocking());
+      } catch (Exception x) {
+        throw Throwing.sneakyThrow(x);
+      }
+    }
+    return multipart;
   }
 
   @Nonnull @Override public Executor worker() {
@@ -150,17 +177,32 @@ public class UtowContext implements Context {
     return exchange.isResponseStarted();
   }
 
+  @Override public void destroy() {
+    if (files != null) {
+      // TODO: use a log
+      files.forEach(throwingConsumer(Value.Upload::destroy).onFailure(x -> x.printStackTrace()));
+    }
+  }
+
+  private Value.Upload register(Value.Upload upload) {
+    if (files == null) {
+      files = new ArrayList<>();
+    }
+    files.add(upload);
+    return upload;
+  }
+
   private void formData(Form form, FormData data) {
     Iterator<String> it = data.iterator();
     while (it.hasNext()) {
       String path = it.next();
       Deque<FormData.FormValue> values = data.get(path);
-      if (values.size() == 1) {
-        form.put(path, values.getFirst().getValue());
-      } else {
-        form.put(path, values.stream()
-            .map(FormData.FormValue::getValue)
-            .collect(Collectors.toList()));
+      for (FormData.FormValue value : values) {
+        if (value.isFile()) {
+          form.put(path, register(new UtowUpload(path, value)));
+        } else {
+          form.put(path, value.getValue());
+        }
       }
     }
   }

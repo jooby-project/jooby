@@ -30,6 +30,10 @@ public class RootHandlerImpl implements Route.RootHandler {
       } else {
         log.error("execution of {} {} resulted in exception", ctx.method(), ctx.path(), x);
       }
+    } finally {
+      if (ctx.isResponseStarted()) {
+        ctx.destroy();
+      }
     }
   }
 }

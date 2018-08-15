@@ -2,10 +2,12 @@ package io.jooby.internal.jetty;
 
 import io.jooby.Context;
 import io.jooby.Form;
+import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.UrlParser;
 import io.jooby.Value;
+import org.eclipse.jetty.http.MultiPartFormInputStream;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
@@ -19,15 +21,20 @@ import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.servlet.AsyncContext;
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static org.jooby.funzy.Throwing.throwingConsumer;
 
 public class JettyContext implements Context {
   private final Request request;
@@ -37,12 +44,17 @@ public class JettyContext implements Context {
   private final String target;
   private QueryString query;
   private Form form;
+  private Multipart multipart;
+  private Consumer<Request> multipartInit;
+  private List<Value.Upload> files;
 
-  public JettyContext(String target, Request request, Executor threadPool, Route route) {
+  public JettyContext(String target, Request request, Executor threadPool, Route route,
+      Consumer<Request> multipartInit) {
     this.target = target;
     this.request = request;
     this.executor = threadPool;
     this.route = route;
+    this.multipartInit = multipartInit;
   }
 
   @Nonnull @Override public Route route() {
@@ -68,16 +80,30 @@ public class JettyContext implements Context {
   @Nonnull @Override public Form form() {
     if (form == null) {
       form = new Form();
-      Enumeration<String> names = request.getParameterNames();
-      MultiMap<String> query = request.getQueryParameters();
-      while(names.hasMoreElements()) {
-        String name = names.nextElement();
-        if (query == null || !query.containsKey(name)) {
-          form.put(name, request.getParameter(name));
-        }
-      }
+      formParam(request, form);
     }
     return form;
+  }
+
+  @Nonnull @Override public Multipart multipart() {
+    if (multipart == null) {
+      multipart = new Multipart();
+      form = multipart;
+      multipartInit.accept(request);
+      formParam(request, form);
+      // Files:
+      try {
+        Collection<Part> parts = request.getParts();
+        for (Part part : parts) {
+          String name = part.getName();
+          multipart.put(name,
+              register(new JettyUpload(name, (MultiPartFormInputStream.MultiPart) part)));
+        }
+      } catch (IOException | ServletException x) {
+        throw Throwing.sneakyThrow(x);
+      }
+    }
+    return multipart;
   }
 
   @Override public boolean isInIoThread() {
@@ -157,6 +183,13 @@ public class JettyContext implements Context {
     return request.getResponse().isCommitted();
   }
 
+  @Override public void destroy() {
+    if (files != null) {
+      // TODO: use a log
+      files.forEach(throwingConsumer(Value.Upload::destroy).onFailure(x -> x.printStackTrace()));
+    }
+  }
+
   private static Handler gzipCall(Context ctx, Route.Handler next, AtomicReference<Object> result) {
     return new AbstractHandler() {
       @Override public void handle(String target, Request baseRequest, HttpServletRequest request,
@@ -168,5 +201,24 @@ public class JettyContext implements Context {
         }
       }
     };
+  }
+
+  private Value.Upload register(Value.Upload upload) {
+    if (files == null) {
+      files = new ArrayList<>();
+    }
+    files.add(upload);
+    return upload;
+  }
+
+  private static void formParam(Request request, Form form) {
+    Enumeration<String> names = request.getParameterNames();
+    MultiMap<String> query = request.getQueryParameters();
+    while (names.hasMoreElements()) {
+      String name = names.nextElement();
+      if (query == null || !query.containsKey(name)) {
+        form.put(name, request.getParameter(name));
+      }
+    }
   }
 }

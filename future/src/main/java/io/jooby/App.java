@@ -1,10 +1,15 @@
 package io.jooby;
 
 import io.jooby.internal.RouterImpl;
+import org.jooby.funzy.Throwing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.Executor;
 
 public class App implements Router {
@@ -16,6 +21,12 @@ public class App implements Router {
   private Mode mode = Mode.WORKER;
 
   private int port = 8080;
+
+  private Path tmpdir;
+
+  public App() {
+    tmpdir = Paths.get(System.getProperty("java.io.tmpdir"), appname(getClass())).toAbsolutePath();
+  }
 
   @Nonnull public App use(Server server) {
     this.server = server;
@@ -92,6 +103,17 @@ public class App implements Router {
     return this;
   }
 
+  /**
+   * Application work/temporary directory. Used internally for tasks like file upload, etc...
+   *
+   * @param tmpdir Work/temporary directory.
+   * @return This application.
+   */
+  public App tmpdir(@Nonnull Path tmpdir) {
+    this.tmpdir = tmpdir;
+    return this;
+  }
+
   /** Log: */
   @Nonnull @Override public Logger log() {
     return LoggerFactory.getLogger(getClass());
@@ -104,10 +126,16 @@ public class App implements Router {
   }
 
   public void start(boolean join) {
+    ensureTmpdir(tmpdir);
+
+    /** Start router: */
     router.start();
+
+    /** Start server: */
     server
         .mode(mode)
         .port(port)
+        .tmpdir(tmpdir)
         .start(router);
 
     Logger log = LoggerFactory.getLogger(getClass());
@@ -126,5 +154,20 @@ public class App implements Router {
 
   public void stop() {
     server.stop();
+  }
+
+  private static void ensureTmpdir(Path tmpdir) {
+    try {
+      if (!Files.exists(tmpdir)) {
+        Files.createDirectories(tmpdir);
+      }
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  private static String appname(Class<?> clazz) {
+    String[] segments = clazz.getName().split("\\.");
+    return segments.length == 1 ? segments[0] : segments[segments.length - 2];
   }
 }

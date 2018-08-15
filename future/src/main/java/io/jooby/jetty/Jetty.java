@@ -7,20 +7,26 @@ import io.jooby.internal.jetty.JettyContext;
 import io.jooby.internal.jetty.JettyHandler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.MultiPartFormDataCompliance;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.jooby.funzy.Throwing;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Jetty implements io.jooby.Server {
 
   private int port = 8080;
 
   private Server server;
+
+  private Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir"));
 
   @Override public io.jooby.Server port(int port) {
     this.port = port;
@@ -32,18 +38,24 @@ public class Jetty implements io.jooby.Server {
     return this;
   }
 
+  @Nonnull @Override public io.jooby.Server tmpdir(@Nonnull Path tmpdir) {
+    this.tmpdir = tmpdir;
+    return this;
+  }
+
   public io.jooby.Server start(Router router) {
     this.server = new Server();
     server.setStopAtShutdown(false);
 
-    ServerConnector connector = new ServerConnector(server,
-        new HttpConnectionFactory(new HttpConfiguration()));
+    HttpConfiguration httpConf = new HttpConfiguration();
+    httpConf.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
+    ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConf));
     connector.setPort(port);
     connector.setHost("0.0.0.0");
 
     server.addConnector(connector);
 
-    server.setHandler(new JettyHandler(router, server.getThreadPool()));
+    server.setHandler(new JettyHandler(router, server.getThreadPool(), tmpdir));
 
     try {
       server.start();

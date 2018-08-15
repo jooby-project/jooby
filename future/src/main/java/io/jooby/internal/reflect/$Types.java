@@ -523,8 +523,8 @@ public final class $Types {
     private final Type lowerBound;
 
     public WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
-      // checkArgument(lowerBounds.length <= 1);
-      // checkArgument(upperBounds.length == 1);
+      // checkArgument(lowerBounds.filesize <= 1);
+      // checkArgument(upperBounds.filesize == 1);
 
       if (lowerBounds.length == 1) {
         // checkNotNull(lowerBounds[0]);

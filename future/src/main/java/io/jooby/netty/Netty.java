@@ -13,6 +13,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.multipart.DiskAttribute;
+import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
@@ -21,7 +23,10 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import org.jooby.funzy.Throwing;
 
+import javax.annotation.Nonnull;
 import javax.net.ssl.SSLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.cert.CertificateException;
 
 public class Netty implements Server {
@@ -46,7 +51,7 @@ public class Netty implements Server {
       }
       // FIXME: check configuration parameters
       p.addLast("codec", new HttpServerCodec());
-      p.addLast("aggregator", new HttpObjectAggregator(1024));
+      p.addLast("aggregator", new HttpObjectAggregator(Integer.MAX_VALUE));
       p.addLast(worker, "handler", handler);
     }
   }
@@ -61,6 +66,8 @@ public class Netty implements Server {
 
   private Mode mode = Mode.WORKER;
 
+  private Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir"));
+
   @Override public Server port(int port) {
     this.port = port;
     return this;
@@ -71,8 +78,15 @@ public class Netty implements Server {
     return this;
   }
 
+  @Nonnull @Override public Server tmpdir(@Nonnull Path tmpdir) {
+    this.tmpdir = tmpdir;
+    return this;
+  }
+
   public Server start(Router router) {
     try {
+      settmpdir(tmpdir);
+
       NettyNative provider = NettyNative.get();
       /** Acceptor: */
       this.acceptor = provider.group(1);
@@ -115,5 +129,14 @@ public class Netty implements Server {
     ioLoop.shutdownGracefully();
     acceptor.shutdownGracefully();
     return this;
+  }
+
+  private static void settmpdir(Path tmpdir) {
+    // should delete file on exit (in normal exit)
+    DiskFileUpload.deleteOnExitTemporaryFile = true;
+    DiskFileUpload.baseDirectory = tmpdir.toString();
+    // should delete file on exit (in normal exit)
+    DiskAttribute.deleteOnExitTemporaryFile = true;
+    DiskAttribute.baseDirectory = tmpdir.toString();
   }
 }
