@@ -3,6 +3,7 @@ package io.jooby;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -417,8 +418,26 @@ public interface Value {
     return new Array(name);
   }
 
+  static Value create(@Nonnull String name, @Nullable List<String> values) {
+    if (values == null || values.size() == 0) {
+      return missing(name);
+    }
+    if (values.size() == 1) {
+      return value(name, values.get(0));
+    }
+    Array array = array(name);
+    for (String value : values) {
+      array.add(value);
+    }
+    return array;
+  }
+
   static Object object(@Nonnull String name) {
     return new Object(name);
+  }
+
+  static Value.Object headers() {
+    return new Object(null);
   }
 
   static QueryString queryString(@Nonnull String queryString) {

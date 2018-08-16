@@ -76,11 +76,6 @@ public class RouterImpl implements Router {
     return newGroup("", action, filter);
   }
 
-  @Nonnull @Override public Router renderer(@Nonnull Renderer renderer) {
-    stack.peekLast().then(renderer);
-    return this;
-  }
-
   @Override @Nonnull public Router filter(@Nonnull Route.Filter filter) {
     stack.peekLast().then(filter);
     return this;
@@ -138,7 +133,7 @@ public class RouterImpl implements Router {
         .collect(Collectors.toList());
     /** Default Renderer: */
     if (!after.stream().anyMatch(Renderer.class::isInstance)) {
-      after.add(0, Renderer.TO_STRING);
+      after.add(0, Renderer.TO_STRING.toFilter());
     }
     /** Handler: */
     Route.Handler h = after.stream().skip(1)

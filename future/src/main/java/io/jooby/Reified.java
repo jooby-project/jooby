@@ -42,6 +42,8 @@ import java.util.Set;
  * @author Jesse Wilson
  */
 public class Reified<T> {
+  public static final Reified<Integer> INT = new Reified<>(Integer.class);
+
   final Class<? super T> rawType;
   final Type type;
   final int hashCode;
@@ -69,6 +71,12 @@ public class Reified<T> {
     this.type = $Types.canonicalize(type);
     this.rawType = (Class<? super T>) $Types.getRawType(this.type);
     this.hashCode = this.type.hashCode();
+  }
+
+  private Reified(Class type) {
+    this.type = type;
+    this.rawType = type;
+    this.hashCode = type.hashCode();
   }
 
   /**
@@ -122,7 +130,10 @@ public class Reified<T> {
    * Gets type literal for the given {@code Class} instance.
    */
   public static <T> Reified<T> get(Class<T> type) {
-    return new Reified<T>(type);
+    if (type == int.class || type == Integer.class) {
+      return (Reified<T>) INT;
+    }
+    return new Reified<>(type);
   }
 
   public static <T> Reified<List<T>> list(Class<T> type) {
@@ -138,13 +149,13 @@ public class Reified<T> {
    * {@code rawType}.
    */
   public static Reified<?> getParameterized(Type rawType, Type... typeArguments) {
-    return new Reified<Object>($Types.newParameterizedTypeWithOwner(null, rawType, typeArguments));
+    return new Reified<>($Types.newParameterizedTypeWithOwner(null, rawType, typeArguments));
   }
 
   /**
    * Gets type literal for the array type whose elements are all instances of {@code componentType}.
    */
   public static Reified<?> getArray(Type componentType) {
-    return new Reified<Object>($Types.arrayOf(componentType));
+    return new Reified<>($Types.arrayOf(componentType));
   }
 }

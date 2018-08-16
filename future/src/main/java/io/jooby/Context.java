@@ -1,5 +1,7 @@
 package io.jooby;
 
+import org.jooby.funzy.Throwing;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
@@ -71,9 +73,21 @@ public interface Context {
   @Nonnull QueryString query();
 
   /* **********************************************************************************************
+   * Request Headers
+   * **********************************************************************************************
+   */
+
+  @Nonnull default Value header(@Nonnull String name) {
+    return headers().get(name);
+  }
+
+  @Nonnull Value headers();
+
+  /* **********************************************************************************************
    * Form/Multipart methods
    * **********************************************************************************************
    */
+
   @Nonnull default Value form(@Nonnull String name) {
     return form().get(name);
   }
@@ -108,6 +122,46 @@ public interface Context {
    * @return Multipart node.
    */
   @Nonnull Multipart multipart();
+
+  /* **********************************************************************************************
+   * Request Body
+   * **********************************************************************************************
+   */
+
+  default @Nonnull <T> T body(@Nonnull Class<T> type) {
+    return body(Reified.get(type));
+  }
+
+  default @Nonnull <T> T body(@Nonnull Class<T> type, @Nonnull String contentType) {
+    return body(Reified.get(type), contentType);
+  }
+
+  default @Nonnull <T> T body(@Nonnull Reified<T> type) {
+    String contentType = header("Content-Type").value("text/plain");
+    int i = contentType.indexOf(';');
+    if (i > 0) {
+      return body(type, contentType.substring(0, i));
+    }
+    return body(type, contentType);
+  }
+
+  default @Nonnull <T> T body(@Nonnull Reified<T> type, @Nonnull String contentType) {
+    try {
+      return parser(contentType).parse(this, type);
+    } catch (Exception x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  @Nonnull Body body();
+
+  /* **********************************************************************************************
+   * Body Parser
+   * **********************************************************************************************
+   */
+  @Nonnull Parser parser(@Nonnull String contentType);
+
+  @Nonnull Context parser(@Nonnull String contentType, @Nonnull Parser parser);
 
   /* **********************************************************************************************
    * Dispatch methods

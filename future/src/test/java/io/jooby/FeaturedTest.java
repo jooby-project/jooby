@@ -1,5 +1,6 @@
 package io.jooby;
 
+import io.jooby.jackson.Jackson;
 import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
 import io.jooby.test.JoobyRunner;
@@ -14,18 +15,27 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FeaturedTest {
+
+  private static String _19kb = readText(userdir("src", "test", "resources", "files", "19kb.txt"));
+
+  private static MediaType json = MediaType.parse("application/json");
+
+  private static MediaType textplain = MediaType.parse("text/plain");
 
   @Test
   public void sayHiFromIO() {
@@ -404,7 +414,7 @@ public class FeaturedTest {
           .setType(MultipartBody.FORM)
           .addFormDataPart("user.name", "user")
           .addFormDataPart("f", "fileupload.js",
-              RequestBody.create(MediaType.parse("application/javascript"),
+              create(MediaType.parse("application/javascript"),
                   userdir("src", "test", "resources", "files", "fileupload.js").toFile()))
           .build(), rsp -> {
         assertEquals("fileupload.js(type=application/javascript;exists=true)", rsp.body().string());
@@ -414,9 +424,9 @@ public class FeaturedTest {
           .setType(MultipartBody.FORM)
           .addFormDataPart("user.name", "user")
           .addFormDataPart("f", "f1.txt",
-              RequestBody.create(MediaType.parse("text/plain"), "text1"))
+              create(MediaType.parse("text/plain"), "text1"))
           .addFormDataPart("f", "f2.txt",
-              RequestBody.create(MediaType.parse("text/plain"), "text2"))
+              create(MediaType.parse("text/plain"), "text2"))
           .build(), rsp -> {
         assertEquals("[f1.txt=5, f2.txt=5]", rsp.body().string());
       });
@@ -493,7 +503,45 @@ public class FeaturedTest {
     }, new Netty(), new Utow()/* No Jetty bc always use a worker thread */);
   }
 
-  private Path userdir(String... segments) {
+  @Test
+  public void parser() throws IOException {
+    new JoobyRunner(app -> {
+      app.converter(new Jackson());
+
+      app.post("/map", ctx -> ctx.body(Map.class));
+
+      app.post("/ints", ctx -> {
+        List<Integer> ints = ctx.body(Reified.list(Integer.class));
+        return ints;
+      });
+
+      app.post("/str", ctx -> ctx.body().string());
+    }).ready(client -> {
+      client.header("Content-Type", "application/json");
+      client.post("/map", create(json, "{\"foo\": \"bar\"}"), rsp -> {
+        assertEquals("{\"foo\":\"bar\"}", rsp.body().string());
+      });
+
+      client.header("Content-Type", "application/json");
+      client.post("/ints", create(json, "[3, 4, 1]"), rsp -> {
+        assertEquals("[3,4,1]", rsp.body().string());
+      });
+
+      client.post("/str", create(textplain, _19kb), rsp -> {
+        assertEquals(_19kb, rsp.body().string());
+      });
+    }, new Netty(), new Utow(), new Jetty());
+  }
+
+  private static String readText(Path file) {
+    try {
+      return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  private static Path userdir(String... segments) {
     Path path = Paths.get(System.getProperty("user.dir"));
     for (String segment : segments) {
       path = path.resolve(segment);

@@ -2,6 +2,7 @@ package io.jooby.internal.netty;
 
 import io.jooby.*;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
@@ -12,10 +13,7 @@ import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executor;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
@@ -44,6 +42,8 @@ public class NettyContext implements Context {
   private Form form;
   private Multipart multipart;
   private List<Value.Upload> files;
+  private Value.Object headers;
+  private Map<String, Parser> parsers = new HashMap<>();
 
   public NettyContext(ChannelHandlerContext ctx, DefaultEventExecutorGroup executor,
       HttpRequest req, boolean keepAlive, String path, Route route) {
@@ -59,6 +59,15 @@ public class NettyContext implements Context {
    * Request methods:
    * **********************************************************************************************
    */
+
+  @Nonnull @Override public Parser parser(@Nonnull String contentType) {
+    return parsers.getOrDefault(contentType, Parser.NOT_ACCEPTABLE);
+  }
+
+  @Nonnull @Override public Context parser(@Nonnull String contentType, @Nonnull Parser parser) {
+    parsers.put(contentType, parser);
+    return this;
+  }
 
   @Nonnull @Override public final String path() {
     return path;
@@ -111,6 +120,22 @@ public class NettyContext implements Context {
     return multipart;
   }
 
+  @Nonnull @Override public Value header(@Nonnull String name) {
+    return Value.create(name, req.headers().getAll(name));
+  }
+
+  @Nonnull @Override public Value headers() {
+    if (headers == null) {
+      headers = Value.headers();
+      HttpHeaders headers = req.headers();
+      Set<String> names = headers.names();
+      for (String name : names) {
+        this.headers.put(name, headers.getAll(name));
+      }
+    }
+    return headers;
+  }
+
   @Nonnull @Override public Map<String, Object> locals() {
     return locals;
   }
@@ -122,6 +147,15 @@ public class NettyContext implements Context {
       }
       return next.apply(ctx);
     };
+  }
+
+  @Nonnull @Override public Body body() {
+    if (isInIoThread()) {
+      throw new IllegalStateException(
+          "Attempted to do blocking IO from the IO thread. This is prohibited as it may result in deadlocks");
+    }
+    return Body.of(new ByteBufInputStream(((HttpContent) req).content()),
+        req.headers().getInt(HttpHeaderNames.CONTENT_LENGTH, -1));
   }
 
   /* **********************************************************************************************

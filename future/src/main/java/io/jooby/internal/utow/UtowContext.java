@@ -1,25 +1,25 @@
 package io.jooby.internal.utow;
 
-import io.jooby.Context;
-import io.jooby.Form;
-import io.jooby.Multipart;
-import io.jooby.QueryString;
-import io.jooby.Route;
-import io.jooby.Value;
+import io.jooby.*;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.encoding.EncodingHandler;
 import io.undertow.server.handlers.form.*;
+import io.undertow.util.HeaderMap;
+import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
+import io.undertow.util.HttpString;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
+import java.awt.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -37,12 +37,34 @@ public class UtowContext implements Context {
   private Form form;
   private Multipart multipart;
   private List<Value.Upload> files;
+  private Value.Object headers;
+  private Map<String, Parser> parsers = new HashMap<>();
 
   public UtowContext(HttpServerExchange exchange, Executor executor, Route route, Path tmpdir) {
     this.exchange = exchange;
     this.executor = executor;
     this.route = route;
     this.tmpdir = tmpdir;
+  }
+
+  @Nonnull @Override public Parser parser(@Nonnull String contentType) {
+    return parsers.getOrDefault(contentType, Parser.NOT_ACCEPTABLE);
+  }
+
+  @Nonnull @Override public Context parser(@Nonnull String contentType, @Nonnull Parser parser) {
+    parsers.put(contentType, parser);
+    return this;
+  }
+
+  @Nonnull @Override public Body body() {
+    if (isInIoThread()) {
+      throw new IllegalStateException(
+          "Attempted to do blocking IO from the IO thread. This is prohibited as it may result in deadlocks");
+    }
+    if (!exchange.isBlocking()) {
+      exchange.startBlocking();
+    }
+    return Body.of(exchange.getInputStream(), exchange.getResponseContentLength());
   }
 
   @Nonnull @Override public Route route() {
@@ -55,6 +77,23 @@ public class UtowContext implements Context {
 
   @Override public boolean isInIoThread() {
     return exchange.isInIoThread();
+  }
+
+  @Nonnull @Override public Value header(@Nonnull String name) {
+    return Value.create(name, exchange.getRequestHeaders().get(name));
+  }
+
+  @Nonnull @Override public Value headers() {
+    HeaderMap map = exchange.getRequestHeaders();
+    if (headers == null) {
+      headers = Value.headers();
+      Collection<HttpString> names = map.getHeaderNames();
+      for (HttpString name : names) {
+        HeaderValues values = map.get(name);
+        headers.put(name.toString(), values);
+      }
+    }
+    return headers;
   }
 
   @Nonnull @Override public QueryString query() {

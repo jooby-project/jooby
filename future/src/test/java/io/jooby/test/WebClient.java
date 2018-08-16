@@ -1,14 +1,12 @@
 package io.jooby.test;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
+import okhttp3.*;
 import org.jooby.funzy.Throwing;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class WebClient {
@@ -38,9 +36,11 @@ public class WebClient {
       }
     }
   }
+
   private static RequestBody EMPTY_BODY = RequestBody.create(null, new byte[0]);
   private final int port;
   private OkHttpClient client;
+  private Map<String, String> headers;
 
   public WebClient(int port) {
     this.port = port;
@@ -51,9 +51,21 @@ public class WebClient {
         .build();
   }
 
+  public WebClient header(String name, String value) {
+    if (headers == null) {
+      headers = new HashMap<>();
+    }
+    headers.put(name, value);
+    return this;
+  }
+
   public Request execute(String method, String path, RequestBody body) {
     okhttp3.Request.Builder req = new okhttp3.Request.Builder();
     req.method(method, body);
+    if (headers != null) {
+      req.headers(Headers.of(headers));
+      headers = null;
+    }
     req.url("http://localhost:" + port + path);
     return new Request(req);
   }

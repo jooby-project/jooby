@@ -1,12 +1,6 @@
 package io.jooby.internal.jetty;
 
-import io.jooby.Context;
-import io.jooby.Form;
-import io.jooby.Multipart;
-import io.jooby.QueryString;
-import io.jooby.Route;
-import io.jooby.UrlParser;
-import io.jooby.Value;
+import io.jooby.*;
 import org.eclipse.jetty.http.MultiPartFormInputStream;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpOutput;
@@ -33,6 +27,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static org.jooby.funzy.Throwing.throwingConsumer;
 
@@ -47,6 +42,8 @@ public class JettyContext implements Context {
   private Multipart multipart;
   private Consumer<Request> multipartInit;
   private List<Value.Upload> files;
+  private Value.Object headers;
+  private Map<String, Parser> parsers = new HashMap<>();
 
   public JettyContext(String target, Request request, Executor threadPool, Route route,
       Consumer<Request> multipartInit) {
@@ -55,6 +52,23 @@ public class JettyContext implements Context {
     this.executor = threadPool;
     this.route = route;
     this.multipartInit = multipartInit;
+  }
+
+  @Nonnull @Override public Body body() {
+    try {
+      return Body.of(request.getInputStream(), request.getContentLengthLong());
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  @Nonnull @Override public Parser parser(@Nonnull String contentType) {
+    return parsers.getOrDefault(contentType, Parser.NOT_ACCEPTABLE);
+  }
+
+  @Nonnull @Override public Context parser(@Nonnull String contentType, @Nonnull Parser parser) {
+    parsers.put(contentType, parser);
+    return this;
   }
 
   @Nonnull @Override public Route route() {
@@ -104,6 +118,21 @@ public class JettyContext implements Context {
       }
     }
     return multipart;
+  }
+
+  @Nonnull @Override public Value headers() {
+    if (headers == null) {
+      headers = Value.headers();
+      Enumeration<String> names = request.getHeaderNames();
+      while (names.hasMoreElements()) {
+        String name = names.nextElement();
+        Enumeration<String> values = request.getHeaders(name);
+        while (values.hasMoreElements()) {
+          headers.put(name, values.nextElement());
+        }
+      }
+    }
+    return headers;
   }
 
   @Override public boolean isInIoThread() {
