@@ -341,7 +341,7 @@ public class FeaturedTest {
       client.get("/profile/edgar", rsp -> {
         assertEquals("edgar", rsp.body().string());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    }, new Utow());
   }
 
   @Test

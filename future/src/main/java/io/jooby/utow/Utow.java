@@ -44,7 +44,7 @@ public class Utow implements Server {
     HttpHandler uhandler = exchange -> {
       HttpString method = exchange.getRequestMethod();
       Route route = router.match(method.toString().toUpperCase(), exchange.getRequestPath());
-      Route.RootHandler handler = router.asRootHandler(route.pipeline());
+      Route.RootHandler handler = route.pipeline();
       handler.apply(
           new UtowContext(exchange, exchange.getConnection().getWorker(), router.errorHandler(),
               route, tmpdir));

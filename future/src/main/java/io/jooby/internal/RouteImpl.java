@@ -11,11 +11,11 @@ public class RouteImpl implements Route {
   private final String method;
   private final String pattern;
   private final Handler handler;
-  private final Handler pipeline;
+  private final Route.RootHandler pipeline;
   private final Map<String, String> params;
   List<String> paramKeys;
 
-  public RouteImpl(String method, String pattern, Handler handler, Handler pipeline) {
+  public RouteImpl(String method, String pattern, Handler handler, Route.RootHandler pipeline) {
     this.method = method.toUpperCase();
     this.pattern = pattern;
     this.params = Collections.EMPTY_MAP;
@@ -23,7 +23,7 @@ public class RouteImpl implements Route {
     this.pipeline = pipeline;
   }
 
-  private RouteImpl(String method, String pattern, Map<String, String> params, Handler handler, Handler pipeline) {
+  private RouteImpl(String method, String pattern, Map<String, String> params, Handler handler, Route.RootHandler pipeline) {
     this.method = method;
     this.pattern = pattern;
     this.params = params;
@@ -47,7 +47,7 @@ public class RouteImpl implements Route {
     return handler;
   }
 
-  @Override public Handler pipeline() {
+  @Override public Route.RootHandler pipeline() {
     return pipeline;
   }
 

@@ -667,9 +667,9 @@ public class $Chi {
       }
     }
     if (ctx.methodNotAllowed) {
-      return new RouteImpl(methodName, path, Route.Handler.METHOD_NOT_ALLOWED, Route.Handler.METHOD_NOT_ALLOWED);
+      return new RouteImpl(methodName, path, Route.METHOD_NOT_ALLOWED, Route.METHOD_NOT_ALLOWED);
     }
-    Route.Handler h = path.equals("/favicon.ico") ? Route.Handler.FAVICON : Route.Handler.NOT_FOUND;
+    Route.RootHandler h = path.equals("/favicon.ico") ? Route.FAVICON : Route.NOT_FOUND;
     return new RouteImpl(methodName, path, h, h);
   }
 }

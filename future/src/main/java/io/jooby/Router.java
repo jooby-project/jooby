@@ -113,8 +113,6 @@ public interface Router {
    */
   @Nonnull Route match(@Nonnull String method, @Nonnull String path);
 
-  @Nonnull Route.RootHandler asRootHandler(@Nonnull Route.Handler handler);
-
   /** Error handler: */
   @Nonnull Router errorCode(@Nonnull Class<? extends Throwable> type,
       @Nonnull StatusCode statusCode);

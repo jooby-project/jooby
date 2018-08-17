@@ -38,24 +38,30 @@ public interface Route {
 
   interface Handler {
 
-    Handler NOT_FOUND = ctx -> {
-      throw new Err(StatusCode.NOT_FOUND);
-    };
-
-    Handler METHOD_NOT_ALLOWED = ctx -> {
-      throw new Err(StatusCode.METHOD_NOT_ALLOWED);
-    };
-
-    Handler FAVICON = ctx -> {
-      ctx.sendStatusCode(StatusCode.NOT_FOUND);
-      return ctx;
-    };
-
     @Nonnull Object apply(@Nonnull Context ctx) throws Exception;
+
+    default RootHandler root() {
+      return ctx -> {
+        try {
+          return apply(ctx);
+        } catch (Throwable x) {
+          ctx.sendError(x);
+          return x;
+        } finally {
+          if (ctx.isResponseStarted()) {
+            ctx.destroy();
+          }
+        }
+      };
+    }
   }
 
-  interface RootHandler {
-    void apply(@Nonnull Context ctx);
+  interface RootHandler extends Handler {
+    @Nonnull Object apply(@Nonnull Context ctx);
+
+    @Override default RootHandler root() {
+      return this;
+    }
   }
 
   interface ErrorHandler {
@@ -112,6 +118,12 @@ public interface Route {
     void apply(@Nonnull Context ctx, @Nonnull Throwable cause);
   }
 
+  RootHandler NOT_FOUND = ctx -> ctx.sendError(new Err(StatusCode.NOT_FOUND));
+
+  RootHandler METHOD_NOT_ALLOWED = ctx -> ctx.sendError(new Err(StatusCode.METHOD_NOT_ALLOWED));
+
+  RootHandler FAVICON = ctx -> ctx.sendStatusCode(StatusCode.NOT_FOUND);
+
   Map<String, String> params();
 
   String pattern();
@@ -120,7 +132,7 @@ public interface Route {
 
   Handler handler();
 
-  Handler pipeline();
+  RootHandler pipeline();
 }
 
 

@@ -29,7 +29,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       }
       String method = req.method().asciiName().toUpperCase().toString();
       Route route = router.match(method, path);
-      Route.RootHandler handler = router.asRootHandler(route.pipeline());
+      Route.RootHandler handler = route.pipeline();
       handler.apply(new NettyContext(ctx, executor, req, router.errorHandler(), path, route));
     }
   }

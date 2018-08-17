@@ -140,16 +140,16 @@ public class RouterImpl implements Router {
       after.add(0, Renderer.TO_STRING.toFilter());
     }
     /** Handler: */
-    Route.Handler h = after.stream().skip(1)
+    Route.Handler pipeline = after.stream().skip(1)
         .reduce(after.get(0), Route.Filter::then)
         .then(handler);
     if (before.size() > 0) {
-      h = before.stream().skip(1)
+      pipeline = before.stream().skip(1)
           .reduce(before.get(0), Route.Filter::then)
-          .then(h);
+          .then(pipeline);
     }
     /** Route: */
-    RouteImpl route = new RouteImpl(method, pat.toString(), handler, h);
+    RouteImpl route = new RouteImpl(method, pat.toString(), handler, pipeline.root());
     if (method.equals("*")) {
       METHODS.forEach(m -> chi.insertRoute(methodCode(m), route.pattern(), route));
     } else {
@@ -157,10 +157,6 @@ public class RouterImpl implements Router {
     }
     routes.add(route);
     return route;
-  }
-
-  @Nonnull @Override public Route.RootHandler asRootHandler(@Nonnull Route.Handler handler) {
-    return new RootHandlerImpl(handler);
   }
 
   @Nonnull public Router start(@Nonnull Logger log) {
@@ -240,8 +236,8 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  private Runnable asRunnable(Context ctx, Route.Handler next) {
-    return () -> asRootHandler(next).apply(ctx);
+  private static Runnable asRunnable(Context ctx, Route.Handler next) {
+    return () -> next.root().apply(ctx);
   }
 
   private Integer methodCode(String method) {

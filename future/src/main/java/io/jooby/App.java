@@ -84,19 +84,11 @@ public class App implements Router {
     return router.match(method, path);
   }
 
-  @Nonnull @Override public Route.RootHandler asRootHandler(@Nonnull Route.Handler handler) {
-    return router.asRootHandler(handler);
-  }
-
   /** Error handler: */
   @Nonnull @Override
   public Router errorCode(@Nonnull Class<? extends Throwable> type,
       @Nonnull StatusCode statusCode) {
     return router.errorCode(type, statusCode);
-  }
-
-  @Nonnull @Override public StatusCode errorCode(@Nonnull Throwable x) {
-    return router.errorCode(x);
   }
 
   @Nonnull public App mode(@Nonnull Mode mode) {
