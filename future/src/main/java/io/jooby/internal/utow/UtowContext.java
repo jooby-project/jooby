@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static org.jooby.funzy.Throwing.throwingConsumer;
@@ -33,6 +34,7 @@ public class UtowContext implements Context {
   private final Executor executor;
   private final Map<String, Object> locals = new HashMap<>();
   private final Path tmpdir;
+  private final Route.RootErrorHandler errorHandler;
   private QueryString query;
   private Form form;
   private Multipart multipart;
@@ -40,11 +42,13 @@ public class UtowContext implements Context {
   private Value.Object headers;
   private Map<String, Parser> parsers = new HashMap<>();
 
-  public UtowContext(HttpServerExchange exchange, Executor executor, Route route, Path tmpdir) {
+  public UtowContext(HttpServerExchange exchange, Executor executor,
+      Route.RootErrorHandler errorHandler, Route route, Path tmpdir) {
     this.exchange = exchange;
     this.executor = executor;
     this.route = route;
     this.tmpdir = tmpdir;
+    this.errorHandler = errorHandler;
   }
 
   @Nonnull @Override public Parser parser(@Nonnull String contentType) {
@@ -209,6 +213,11 @@ public class UtowContext implements Context {
 
   @Nonnull @Override public Context sendStatusCode(int statusCode) {
     exchange.setStatusCode(statusCode).endExchange();
+    return this;
+  }
+
+  @Nonnull @Override public Context sendError(Throwable cause) {
+    errorHandler.apply(this, cause);
     return this;
   }
 

@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -37,6 +38,7 @@ public class JettyContext implements Context {
   private final Route route;
   private final Map<String, Object> locals = new HashMap<>();
   private final String target;
+  private final Route.RootErrorHandler errorHandler;
   private QueryString query;
   private Form form;
   private Multipart multipart;
@@ -45,13 +47,14 @@ public class JettyContext implements Context {
   private Value.Object headers;
   private Map<String, Parser> parsers = new HashMap<>();
 
-  public JettyContext(String target, Request request, Executor threadPool, Route route,
-      Consumer<Request> multipartInit) {
+  public JettyContext(String target, Request request, Executor threadPool,
+      Consumer<Request> multipartInit, Route.RootErrorHandler errorHandler, Route route) {
     this.target = target;
     this.request = request;
     this.executor = threadPool;
     this.route = route;
     this.multipartInit = multipartInit;
+    this.errorHandler = errorHandler;
   }
 
   @Nonnull @Override public Body body() {
@@ -205,6 +208,11 @@ public class JettyContext implements Context {
   @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
     HttpOutput sender = request.getResponse().getHttpOutput();
     sender.sendContent(data, Callback.NOOP);
+    return this;
+  }
+
+  @Nonnull @Override public Context sendError(Throwable cause) {
+    errorHandler.apply(this, cause);
     return this;
   }
 

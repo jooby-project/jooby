@@ -35,6 +35,6 @@ public class JettyHandler extends AbstractHandler {
     String path = request.getRequestURI();
     Route route = router.match(request.getMethod().toUpperCase(), path);
     Route.RootHandler handler = router.asRootHandler(route.pipeline());
-    handler.apply(new JettyContext(target, request, executor, route, multipart));
+    handler.apply(new JettyContext(target, request, executor, multipart, router.errorHandler(), route));
   }
 }

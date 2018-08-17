@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
 
 public class App implements Router {
 
@@ -115,8 +116,12 @@ public class App implements Router {
   }
 
   /** Log: */
-  @Nonnull @Override public Logger log() {
+  public Logger log() {
     return LoggerFactory.getLogger(getClass());
+  }
+
+  @Nonnull @Override public Route.RootErrorHandler errorHandler() {
+    return router.errorHandler();
   }
 
   /** Boot: */
@@ -129,7 +134,7 @@ public class App implements Router {
     ensureTmpdir(tmpdir);
 
     /** Start router: */
-    router.start();
+    router.start(log());
 
     /** Start server: */
     server

@@ -119,8 +119,6 @@ public interface Router {
   @Nonnull Router errorCode(@Nonnull Class<? extends Throwable> type,
       @Nonnull StatusCode statusCode);
 
-  @Nonnull StatusCode errorCode(@Nonnull Throwable x);
-
   @Nonnull default Router error(@Nonnull StatusCode statusCode, @Nonnull Route.ErrorHandler handler) {
     return error(statusCode::equals, handler);
   }
@@ -145,8 +143,5 @@ public interface Router {
 
   @Nonnull Router error(@Nonnull Route.ErrorHandler handler);
 
-  /** Log: */
-  @Nonnull default Logger log() {
-    return LoggerFactory.getLogger(Router.class);
-  }
+  @Nonnull Route.RootErrorHandler errorHandler();
 }

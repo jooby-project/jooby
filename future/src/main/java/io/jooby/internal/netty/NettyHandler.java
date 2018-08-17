@@ -8,8 +8,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
-import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
-
 @ChannelHandler.Sharable
 public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final DefaultEventExecutorGroup executor;
@@ -32,7 +30,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       String method = req.method().asciiName().toUpperCase().toString();
       Route route = router.match(method, path);
       Route.RootHandler handler = router.asRootHandler(route.pipeline());
-      handler.apply(new NettyContext(ctx, executor, req, isKeepAlive(req), path, route));
+      handler.apply(new NettyContext(ctx, executor, req, router.errorHandler(), path, route));
     }
   }
 

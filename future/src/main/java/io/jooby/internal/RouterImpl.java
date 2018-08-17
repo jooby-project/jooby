@@ -6,6 +6,7 @@ import io.jooby.Renderer;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.StatusCode;
+import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -54,6 +56,8 @@ public class RouterImpl implements Router {
   private static final Predicate<Route.Filter> AFTER = Route.After.class::isInstance;
 
   private Route.ErrorHandler err;
+
+  private Route.RootErrorHandler rootErr;
 
   private Map<String, StatusCode> errorCodes;
 
@@ -156,24 +160,28 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Route.RootHandler asRootHandler(@Nonnull Route.Handler handler) {
-    return new RootHandlerImpl(handler, err, log(), this::errorCode);
+    return new RootHandlerImpl(handler);
   }
 
-  @Nonnull public Router start() {
+  @Nonnull public Router start(@Nonnull Logger log) {
     if (err == null) {
       err = Route.ErrorHandler.DEFAULT;
     }
+    this.rootErr = new RootErrorHandlerImpl(err, log, this::errorCode);
     this.stack.removeLast().filters.clear();
     this.stack = null;
     return this;
   }
 
-  @Override public Route match(String method, String path) {
+  @Nonnull @Override public Route.RootErrorHandler errorHandler() {
+    return rootErr;
+  }
+
+  @Nonnull @Override public Route match(String method, String path) {
     return chi.findRoute(methodCode(method), method, path);
   }
 
-  @Nonnull @Override
-  public Router errorCode(@Nonnull Class<? extends Throwable> type,
+  @Nonnull @Override public Router errorCode(@Nonnull Class<? extends Throwable> type,
       @Nonnull StatusCode statusCode) {
     if (errorCodes == null) {
       errorCodes = new HashMap<>();
@@ -182,7 +190,7 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Nonnull @Override public StatusCode errorCode(@Nonnull Throwable x) {
+  private StatusCode errorCode(@Nonnull Throwable x) {
     if (x instanceof Err) {
       return ((Err) x).statusCode;
     }
@@ -220,7 +228,8 @@ public class RouterImpl implements Router {
     return buff.substring(1);
   }
 
-  private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action, Route.Filter... filter) {
+  private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action,
+      Route.Filter... filter) {
     Stack stack = new Stack(pattern);
     Stream.of(filter).forEach(stack::then);
     this.stack.addLast(stack);

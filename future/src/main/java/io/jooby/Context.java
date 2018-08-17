@@ -222,6 +222,8 @@ public interface Context {
 
   @Nonnull Context sendStatusCode(int statusCode);
 
+  @Nonnull Context sendError(@Nonnull Throwable cause);
+
   boolean isResponseStarted();
 
   void destroy();

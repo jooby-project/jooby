@@ -15,6 +15,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
@@ -22,6 +23,7 @@ import static io.netty.channel.ChannelFutureListener.CLOSE;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jooby.funzy.Throwing.throwingConsumer;
@@ -29,7 +31,8 @@ import static org.jooby.funzy.Throwing.throwingConsumer;
 public class NettyContext implements Context {
 
   private final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
-  private ChannelHandlerContext ctx;
+  private final Route.RootErrorHandler errorHandler;
+  private final ChannelHandlerContext ctx;
   private final HttpRequest req;
   private final String path;
   private final DefaultEventExecutorGroup executor;
@@ -46,13 +49,14 @@ public class NettyContext implements Context {
   private Map<String, Parser> parsers = new HashMap<>();
 
   public NettyContext(ChannelHandlerContext ctx, DefaultEventExecutorGroup executor,
-      HttpRequest req, boolean keepAlive, String path, Route route) {
+      HttpRequest req, Route.RootErrorHandler errorHandler, String path, Route route) {
     this.path = path;
     this.ctx = ctx;
     this.req = req;
     this.executor = executor;
-    this.keepAlive = keepAlive;
+    this.keepAlive = isKeepAlive(req);
     this.route = route;
+    this.errorHandler = errorHandler;
   }
 
   /* **********************************************************************************************
@@ -198,6 +202,11 @@ public class NettyContext implements Context {
         HttpResponseStatus.valueOf(statusCode));
     rsp.headers().set(CONTENT_LENGTH, 0);
     ctx.writeAndFlush(rsp).addListener(CLOSE);
+    return this;
+  }
+
+  @Nonnull @Override public Context sendError(Throwable cause) {
+    errorHandler.apply(this, cause);
     return this;
   }
 

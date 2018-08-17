@@ -108,6 +108,10 @@ public interface Route {
     }
   }
 
+  interface RootErrorHandler {
+    void apply(@Nonnull Context ctx, @Nonnull Throwable cause);
+  }
+
   Map<String, String> params();
 
   String pattern();

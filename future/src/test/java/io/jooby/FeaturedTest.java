@@ -504,7 +504,7 @@ public class FeaturedTest {
   }
 
   @Test
-  public void parser() throws IOException {
+  public void parser() {
     new JoobyRunner(app -> {
       app.converter(new Jackson());
 
