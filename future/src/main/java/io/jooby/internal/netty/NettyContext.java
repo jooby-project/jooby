@@ -15,7 +15,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executor;
-import java.util.function.BiConsumer;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
@@ -28,7 +27,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jooby.funzy.Throwing.throwingConsumer;
 
-public class NettyContext implements Context {
+public class NettyContext extends BaseContext {
 
   private final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
   private final Route.RootErrorHandler errorHandler;
@@ -36,26 +35,23 @@ public class NettyContext implements Context {
   private final HttpRequest req;
   private final String path;
   private final DefaultEventExecutorGroup executor;
-  private final Route route;
   private HttpResponseStatus status = HttpResponseStatus.OK;
   private boolean keepAlive;
   private boolean responseStarted;
-  private final Map<String, Object> locals = new HashMap<>();
   private QueryString query;
   private Form form;
   private Multipart multipart;
   private List<Value.Upload> files;
   private Value.Object headers;
-  private Map<String, Parser> parsers = new HashMap<>();
 
   public NettyContext(ChannelHandlerContext ctx, DefaultEventExecutorGroup executor,
       HttpRequest req, Route.RootErrorHandler errorHandler, String path, Route route) {
+    super(route);
     this.path = path;
     this.ctx = ctx;
     this.req = req;
     this.executor = executor;
     this.keepAlive = isKeepAlive(req);
-    this.route = route;
     this.errorHandler = errorHandler;
   }
 
@@ -64,21 +60,8 @@ public class NettyContext implements Context {
    * **********************************************************************************************
    */
 
-  @Nonnull @Override public Parser parser(@Nonnull String contentType) {
-    return parsers.getOrDefault(contentType, Parser.NOT_ACCEPTABLE);
-  }
-
-  @Nonnull @Override public Context parser(@Nonnull String contentType, @Nonnull Parser parser) {
-    parsers.put(contentType, parser);
-    return this;
-  }
-
   @Nonnull @Override public final String path() {
     return path;
-  }
-
-  @Nonnull @Override public Route route() {
-    return route;
   }
 
   @Override public final boolean isInIoThread() {
@@ -110,10 +93,7 @@ public class NettyContext implements Context {
   }
 
   @Nonnull @Override public Multipart multipart() {
-    if (isInIoThread()) {
-      throw new IllegalStateException(
-          "Attempted to do blocking IO from the IO thread. This is prohibited as it may result in deadlocks");
-    }
+    requireBlocking();
     if (multipart == null) {
       multipart = new Multipart();
       form = multipart;
@@ -140,10 +120,6 @@ public class NettyContext implements Context {
     return headers;
   }
 
-  @Nonnull @Override public Map<String, Object> locals() {
-    return locals;
-  }
-
   @Nonnull @Override public Route.Filter gzip() {
     return next -> ctx -> {
       if (req.headers().contains(HttpHeaderNames.ACCEPT_ENCODING)) {
@@ -154,10 +130,7 @@ public class NettyContext implements Context {
   }
 
   @Nonnull @Override public Body body() {
-    if (isInIoThread()) {
-      throw new IllegalStateException(
-          "Attempted to do blocking IO from the IO thread. This is prohibited as it may result in deadlocks");
-    }
+    requireBlocking();
     return Body.of(new ByteBufInputStream(((HttpContent) req).content()),
         req.headers().getInt(HttpHeaderNames.CONTENT_LENGTH, -1));
   }

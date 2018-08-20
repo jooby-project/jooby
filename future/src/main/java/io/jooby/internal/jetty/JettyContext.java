@@ -25,18 +25,13 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static org.jooby.funzy.Throwing.throwingConsumer;
 
-public class JettyContext implements Context {
+public class JettyContext extends BaseContext {
   private final Request request;
   private final Executor executor;
-  private final Route route;
-  private final Map<String, Object> locals = new HashMap<>();
   private final String target;
   private final Route.RootErrorHandler errorHandler;
   private QueryString query;
@@ -45,14 +40,13 @@ public class JettyContext implements Context {
   private Consumer<Request> multipartInit;
   private List<Value.Upload> files;
   private Value.Object headers;
-  private Map<String, Parser> parsers = new HashMap<>();
 
   public JettyContext(String target, Request request, Executor threadPool,
       Consumer<Request> multipartInit, Route.RootErrorHandler errorHandler, Route route) {
+    super(route);
     this.target = target;
     this.request = request;
     this.executor = threadPool;
-    this.route = route;
     this.multipartInit = multipartInit;
     this.errorHandler = errorHandler;
   }
@@ -63,19 +57,6 @@ public class JettyContext implements Context {
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
-  }
-
-  @Nonnull @Override public Parser parser(@Nonnull String contentType) {
-    return parsers.getOrDefault(contentType, Parser.NOT_ACCEPTABLE);
-  }
-
-  @Nonnull @Override public Context parser(@Nonnull String contentType, @Nonnull Parser parser) {
-    parsers.put(contentType, parser);
-    return this;
-  }
-
-  @Nonnull @Override public Route route() {
-    return route;
   }
 
   @Nonnull @Override public String path() {

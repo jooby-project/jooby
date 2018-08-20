@@ -27,12 +27,10 @@ import java.util.stream.Collectors;
 
 import static org.jooby.funzy.Throwing.throwingConsumer;
 
-public class UtowContext implements Context {
+public class UtowContext extends BaseContext {
 
-  private final Route route;
   private final HttpServerExchange exchange;
   private final Executor executor;
-  private final Map<String, Object> locals = new HashMap<>();
   private final Path tmpdir;
   private final Route.RootErrorHandler errorHandler;
   private QueryString query;
@@ -40,39 +38,22 @@ public class UtowContext implements Context {
   private Multipart multipart;
   private List<Value.Upload> files;
   private Value.Object headers;
-  private Map<String, Parser> parsers = new HashMap<>();
 
   public UtowContext(HttpServerExchange exchange, Executor executor,
       Route.RootErrorHandler errorHandler, Route route, Path tmpdir) {
+    super(route);
     this.exchange = exchange;
     this.executor = executor;
-    this.route = route;
     this.tmpdir = tmpdir;
     this.errorHandler = errorHandler;
   }
 
-  @Nonnull @Override public Parser parser(@Nonnull String contentType) {
-    return parsers.getOrDefault(contentType, Parser.NOT_ACCEPTABLE);
-  }
-
-  @Nonnull @Override public Context parser(@Nonnull String contentType, @Nonnull Parser parser) {
-    parsers.put(contentType, parser);
-    return this;
-  }
-
   @Nonnull @Override public Body body() {
-    if (isInIoThread()) {
-      throw new IllegalStateException(
-          "Attempted to do blocking IO from the IO thread. This is prohibited as it may result in deadlocks");
-    }
+    requireBlocking();
     if (!exchange.isBlocking()) {
       exchange.startBlocking();
     }
     return Body.of(exchange.getInputStream(), exchange.getResponseContentLength());
-  }
-
-  @Nonnull @Override public Route route() {
-    return route;
   }
 
   @Nonnull @Override public String path() {
@@ -126,10 +107,7 @@ public class UtowContext implements Context {
   }
 
   @Nonnull @Override public Multipart multipart() {
-    if (isInIoThread()) {
-      throw new IllegalStateException(
-          "Attempted to do blocking IO from the IO thread. This is prohibited as it may result in deadlocks");
-    }
+    requireBlocking();
     if (multipart == null) {
       multipart = new Multipart();
       form = multipart;
@@ -156,10 +134,6 @@ public class UtowContext implements Context {
       @Nonnull Runnable action) {
     exchange.dispatch(executor, action);
     return this;
-  }
-
-  @Nonnull @Override public Map<String, Object> locals() {
-    return locals;
   }
 
   @Nonnull @Override public Route.Filter gzip() {
