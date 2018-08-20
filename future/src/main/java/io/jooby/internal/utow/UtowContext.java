@@ -5,10 +5,7 @@ import io.netty.handler.codec.http.multipart.FileUpload;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.encoding.EncodingHandler;
 import io.undertow.server.handlers.form.*;
-import io.undertow.util.HeaderMap;
-import io.undertow.util.HeaderValues;
-import io.undertow.util.Headers;
-import io.undertow.util.HttpString;
+import io.undertow.util.*;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
@@ -133,6 +130,11 @@ public class UtowContext extends BaseContext {
   @Nonnull @Override public Context dispatch(@Nonnull Executor executor,
       @Nonnull Runnable action) {
     exchange.dispatch(executor, action);
+    return this;
+  }
+
+  @Nonnull @Override public Context detach(@Nonnull Runnable action) {
+    exchange.dispatch(SameThreadExecutor.INSTANCE, action);
     return this;
   }
 

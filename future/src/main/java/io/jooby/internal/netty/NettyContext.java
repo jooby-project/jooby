@@ -77,6 +77,11 @@ public class NettyContext extends BaseContext {
     return this;
   }
 
+  @Nonnull @Override public Context detach(@Nonnull Runnable action) {
+    action.run();
+    return this;
+  }
+
   @Nonnull @Override public QueryString query() {
     if (query == null) {
       query = Value.queryString(req.uri());

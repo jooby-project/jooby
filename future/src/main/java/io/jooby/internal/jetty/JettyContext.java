@@ -137,6 +137,12 @@ public class JettyContext extends BaseContext {
     return this;
   }
 
+  @Nonnull @Override public Context detach(@Nonnull Runnable action) {
+    request.startAsync();
+    action.run();
+    return this;
+  }
+
   @Nonnull @Override public Map<String, Object> locals() {
     return locals;
   }

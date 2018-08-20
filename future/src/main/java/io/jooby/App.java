@@ -58,6 +58,10 @@ public class App implements Router {
     return router.renderer(renderer);
   }
 
+  @Nonnull @Override public Router detach(@Nonnull Runnable action) {
+    return router.detach(action);
+  }
+
   @Nonnull @Override public Router dispatch(@Nonnull Runnable action) {
     return router.dispatch(action);
   }

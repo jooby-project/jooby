@@ -14,6 +14,116 @@ import java.util.concurrent.Executor;
 
 public interface Context {
 
+  class Forwarding implements Context {
+
+    protected final Context ctx;
+
+    public Forwarding(@Nonnull Context ctx) {
+      this.ctx = ctx;
+    }
+
+    @Nonnull @Override public Route.Filter gzip() {
+      return ctx.gzip();
+    }
+
+    @Nonnull @Override public Route route() {
+      return ctx.route();
+    }
+
+    @Nonnull @Override public String path() {
+      return ctx.path();
+    }
+
+    @Nonnull @Override public QueryString query() {
+      return ctx.query();
+    }
+
+    @Nonnull @Override public Value headers() {
+      return ctx.headers();
+    }
+
+    @Nonnull @Override public Form form() {
+      return ctx.form();
+    }
+
+    @Nonnull @Override public Multipart multipart() {
+      return ctx.multipart();
+    }
+
+    @Nonnull @Override public Body body() {
+      return ctx.body();
+    }
+
+    @Nonnull @Override public Parser parser(@Nonnull String contentType) {
+      return ctx.parser(contentType);
+    }
+
+    @Nonnull @Override public Context parser(@Nonnull String contentType, @Nonnull Parser parser) {
+      ctx.parser(contentType, parser);
+      return this;
+    }
+
+    @Override public boolean isInIoThread() {
+      return ctx.isInIoThread();
+    }
+
+    @Nonnull @Override public Context dispatch(@Nonnull Runnable action) {
+      ctx.dispatch(action);
+      return this;
+    }
+
+    @Nonnull @Override
+    public Context dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
+      ctx.dispatch(executor, action);
+      return this;
+    }
+
+    @Nonnull @Override public Context detach(@Nonnull Runnable action) {
+      ctx.detach(action);
+      return this;
+    }
+
+    @Nonnull @Override public Executor worker() {
+      return ctx.worker();
+    }
+
+    @Nonnull @Override public Map<String, Object> locals() {
+      return ctx.locals();
+    }
+
+    @Nonnull @Override public Context type(@Nonnull String contentType) {
+      return ctx.type(contentType);
+    }
+
+    @Nonnull @Override public Context statusCode(int statusCode) {
+      ctx.statusCode(statusCode);
+      return this;
+    }
+
+    @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
+      ctx.send(data);
+      return this;
+    }
+
+    @Nonnull @Override public Context sendStatusCode(int statusCode) {
+      ctx.sendStatusCode(statusCode);
+      return this;
+    }
+
+    @Nonnull @Override public Context sendError(@Nonnull Throwable cause) {
+      ctx.sendError(cause);
+      return this;
+    }
+
+    @Override public boolean isResponseStarted() {
+      return ctx.isResponseStarted();
+    }
+
+    @Override public void destroy() {
+      ctx.destroy();
+    }
+  }
+
   /** 16KB constant. */
   int _16KB = 0x4000;
 
@@ -174,6 +284,8 @@ public interface Context {
   }
 
   @Nonnull Context dispatch(@Nonnull Executor executor, @Nonnull Runnable action);
+
+  @Nonnull Context detach(@Nonnull Runnable action);
 
   @Nonnull Executor worker();
 

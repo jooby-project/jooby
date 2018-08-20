@@ -26,12 +26,14 @@ import java.util.stream.Stream;
 public class RouterImpl implements Router {
 
   private static class Stack {
+    private final boolean detach;
     private String pattern;
 
     private List<Route.Filter> filters = new ArrayList<>();
 
-    public Stack(String pattern) {
+    public Stack(String pattern, boolean detach) {
       this.pattern = pattern;
+      this.detach = detach;
     }
 
     public void then(Route.Filter filter) {
@@ -68,7 +70,7 @@ public class RouterImpl implements Router {
   private List<Route> routes = new ArrayList<>();
 
   public RouterImpl() {
-    stack.addLast(new Stack(""));
+    stack.addLast(new Stack("", false));
   }
 
   @Nonnull @Override public Router gzip(@Nonnull Runnable action) {
@@ -108,6 +110,11 @@ public class RouterImpl implements Router {
     return newGroup("", action, filter);
   }
 
+  @Nonnull @Override public Router detach(@Nonnull Runnable action) {
+    Route.Filter filter = next -> ctx -> ctx.detach(asRunnable(ctx, next));
+    return newGroup("", action, true, filter);
+  }
+
   @Override @Nonnull public Router group(@Nonnull Runnable action) {
     return newGroup("", action);
   }
@@ -140,9 +147,17 @@ public class RouterImpl implements Router {
       after.add(0, Renderer.TO_STRING.toFilter());
     }
     /** Handler: */
-    Route.Handler pipeline = after.stream().skip(1)
-        .reduce(after.get(0), Route.Filter::then)
-        .then(handler);
+    Route.Handler pipeline;
+    if (stack.getLast().detach) {
+      Route.After callback = (Route.After) after.stream().skip(1)
+          .reduce(after.get(0),
+              (it, next) -> ((Route.After) it).then((Route.After) next));
+      pipeline = detach(handler, callback);
+    } else {
+      pipeline = after.stream().skip(1)
+          .reduce(after.get(0), Route.Filter::then)
+          .then(handler);
+    }
     if (before.size() > 0) {
       pipeline = before.stream().skip(1)
           .reduce(before.get(0), Route.Filter::then)
@@ -157,6 +172,13 @@ public class RouterImpl implements Router {
     }
     routes.add(route);
     return route;
+  }
+
+  private Route.Handler detach(Route.Handler handler, Route.After after) {
+    return ctx -> {
+      handler.apply(new DetachedContext(ctx, after));
+      return ctx;
+    };
   }
 
   @Nonnull public Router start(@Nonnull Logger log) {
@@ -226,7 +248,12 @@ public class RouterImpl implements Router {
 
   private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action,
       Route.Filter... filter) {
-    Stack stack = new Stack(pattern);
+    return newGroup(pattern, action, false, filter);
+  }
+
+  private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action, boolean detach,
+      Route.Filter... filter) {
+    Stack stack = new Stack(pattern, detach);
     Stream.of(filter).forEach(stack::then);
     this.stack.addLast(stack);
     if (action != null) {

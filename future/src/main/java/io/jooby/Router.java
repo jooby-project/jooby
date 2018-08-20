@@ -53,6 +53,8 @@ public interface Router {
 
   @Nonnull Router after(@Nonnull Route.After after);
 
+  @Nonnull Router detach(@Nonnull Runnable action);
+
   @Nonnull Router dispatch(@Nonnull Runnable action);
 
   @Nonnull Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action);

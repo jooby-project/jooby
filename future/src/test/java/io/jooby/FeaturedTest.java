@@ -5,6 +5,8 @@ import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
 import io.jooby.test.JoobyRunner;
 import io.jooby.utow.Utow;
+import io.reactivex.Flowable;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -267,7 +269,7 @@ public class FeaturedTest {
       });
 
       client.get("/bottom", raw);
-    }, new Utow(), new Jetty());
+    }, new Netty(), new Utow(), new Jetty());
   }
 
   private String ungzip(byte[] buff) throws IOException {
@@ -341,7 +343,7 @@ public class FeaturedTest {
       client.get("/profile/edgar", rsp -> {
         assertEquals("edgar", rsp.body().string());
       });
-    }, new Utow());
+    }, new Netty(), new Utow(), new Jetty());
   }
 
   @Test
@@ -531,6 +533,70 @@ public class FeaturedTest {
         assertEquals(_19kb, rsp.body().string());
       });
     }, new Netty(), new Utow(), new Jetty());
+  }
+
+  @Test
+  public void reactive() {
+    new JoobyRunner(app -> {
+
+      app.detach(() -> {
+
+        app.get("/reactive", ctx ->
+            Flowable.fromCallable(() -> "Hello Rx2!")
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.newThread())
+                .subscribe(ctx::send, ctx::sendError));
+
+      });
+
+    }).mode(Mode.IO).ready(client -> {
+      client.get("/reactive", rsp -> {
+        assertEquals("Hello Rx2!", rsp.body().string());
+      });
+    }, new Netty(), new Utow(), new Jetty());
+  }
+
+  @Test
+  public void reactiveFilter() {
+    new JoobyRunner(app -> {
+
+      app.before(ctx -> {
+        StringBuilder buff = new StringBuilder();
+        buff.append("rxbrefore1;");
+        ctx.set("buff", buff);
+      });
+
+      app.after((ctx, value) -> {
+        StringBuilder buff = (StringBuilder) value;
+        buff.append("rxafter1;");
+        return buff;
+      });
+
+      app.detach(() -> {
+        app.before(ctx -> {
+          StringBuilder buff = ctx.get("buff");
+          buff.append("rxbefore2;");
+        });
+
+        app.after((ctx, value) -> {
+          StringBuilder buff = ctx.get("buff");
+          buff.append(value).append(";");
+          buff.append("rxafter2;");
+          return buff;
+        });
+
+        app.get("/", ctx -> Flowable.fromCallable(() -> "result:" + ctx.isInIoThread())
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
+            .subscribe(ctx::send, ctx::sendError));
+      });
+
+    }).mode(Mode.IO).ready(client -> {
+      client.get("/", rsp -> {
+        assertEquals("rxbrefore1;rxbefore2;result:false;rxafter2;rxafter1;",
+            rsp.body().string());
+      });
+    }, new Netty(), new Utow()/* No Jetty bc always use a worker thread */);
   }
 
   private static String readText(Path file) {

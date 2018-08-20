@@ -33,7 +33,11 @@ public interface Route {
       return ctx -> apply(ctx, next.apply(ctx));
     }
 
-    @Nonnull Object apply(@Nonnull Context ctx, Object value) throws Exception;
+    @Nonnull default After then(@Nonnull After next) {
+      return (ctx, result) -> apply(ctx, next.apply(ctx, result));
+    }
+
+    @Nonnull Object apply(@Nonnull Context ctx, Object result) throws Exception;
   }
 
   interface Handler {
