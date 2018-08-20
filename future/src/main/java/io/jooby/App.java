@@ -62,6 +62,10 @@ public class App implements Router {
     return router.detach(action);
   }
 
+  @Nonnull @Override public Route.Handler detach(@Nonnull Route.Handler handler) {
+    return router.detach(handler);
+  }
+
   @Nonnull @Override public Router dispatch(@Nonnull Runnable action) {
     return router.dispatch(action);
   }

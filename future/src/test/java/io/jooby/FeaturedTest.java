@@ -24,9 +24,13 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import static io.reactivex.Flowable.fromCallable;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -535,23 +539,65 @@ public class FeaturedTest {
     }, new Netty(), new Utow(), new Jetty());
   }
 
+  private Route.Handler subscribe(Function<Context, Flowable<String>> flowable) {
+    return ctx -> flowable.apply(ctx).subscribe(ctx::send, ctx::sendError);
+  }
+
   @Test
   public void reactive() {
-    new JoobyRunner(app -> {
 
-      app.detach(() -> {
+    class Rx2 extends App {
+      public Route.Handler rx2(Function<Context, Flowable<String>> flowable) {
+        return detach(ctx -> flowable.apply(ctx).subscribe(ctx::send, ctx::sendError));
+      }
+    }
 
-        app.get("/reactive", ctx ->
-            Flowable.fromCallable(() -> "Hello Rx2!")
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.newThread())
-                .subscribe(ctx::send, ctx::sendError));
+    new JoobyRunner(() -> {
 
+      Rx2 app = new Rx2();
+
+      app.get("/single", app.rx2(ctx ->
+              fromCallable(() -> "Hello Rx2!")
+                  .subscribeOn(Schedulers.io())
+                  .observeOn(Schedulers.computation())
+          )
+      );
+
+      app.get("/group", app.detach(subscribe(ctx ->
+          fromCallable(() -> "Hello Rx2!")
+              .subscribeOn(Schedulers.io())
+              .observeOn(Schedulers.computation())))
+      );
+
+      return app;
+    }).mode(Mode.IO).ready(client -> {
+      client.get("/single", rsp -> {
+        assertEquals("Hello Rx2!", rsp.body().string());
       });
 
-    }).mode(Mode.IO).ready(client -> {
-      client.get("/reactive", rsp -> {
+      client.get("/group", rsp -> {
         assertEquals("Hello Rx2!", rsp.body().string());
+      });
+    }, new Netty(), new Utow(), new Jetty());
+  }
+
+  private Route.Handler future(Function<Context, CompletableFuture<String>> flowable) {
+    return ctx -> flowable.apply(ctx).handle((v, x) -> v != null ? ctx.send(v) : ctx.sendError(x));
+  }
+
+  @Test
+  public void completableFuture() {
+    new JoobyRunner(app -> {
+
+      app.get("/completable", future(ctx ->
+              supplyAsync(() -> "Completable Future!")
+                  .thenApply(v -> "Hello " + v)
+          )
+      );
+
+    }).mode(Mode.IO).ready(client -> {
+      client.get("/completable", rsp -> {
+        assertEquals("Hello Completable Future!", rsp.body().string());
       });
     }, new Netty(), new Utow(), new Jetty());
   }
@@ -585,7 +631,7 @@ public class FeaturedTest {
           return buff;
         });
 
-        app.get("/", ctx -> Flowable.fromCallable(() -> "result:" + ctx.isInIoThread())
+        app.get("/", ctx -> fromCallable(() -> "result:" + ctx.isInIoThread())
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.computation())
             .subscribe(ctx::send, ctx::sendError));

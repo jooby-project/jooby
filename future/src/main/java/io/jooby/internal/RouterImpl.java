@@ -24,6 +24,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class RouterImpl implements Router {
+  private interface DetachedHandler extends Route.Handler {}
 
   private static class Stack {
     private final boolean detach;
@@ -55,7 +56,6 @@ public class RouterImpl implements Router {
   private static final Integer mOPTIONS = Integer.valueOf(7);
   private static final Integer mCONNECT = Integer.valueOf(8);
   private static final Integer mTRACE = Integer.valueOf(9);
-  private static final Predicate<Route.Filter> AFTER = Route.After.class::isInstance;
 
   private Route.ErrorHandler err;
 
@@ -115,6 +115,10 @@ public class RouterImpl implements Router {
     return newGroup("", action, true, filter);
   }
 
+  @Nonnull @Override public DetachedHandler detach(@Nonnull Route.Handler handler) {
+    return ctx -> ctx.detach(asRunnable(ctx, handler));
+  }
+
   @Override @Nonnull public Router group(@Nonnull Runnable action) {
     return newGroup("", action);
   }
@@ -130,32 +134,36 @@ public class RouterImpl implements Router {
     StringBuilder pat = new StringBuilder();
     stack.forEach(it -> pat.append(it.pattern));
     pat.append(pattern);
+
     /** Filters: */
     List<Route.Filter> filters = stack.stream()
         .flatMap(Stack::toFilter)
         .collect(Collectors.toList());
-    /** Before: */
-    List<Route.Filter> before = filters.stream()
-        .filter(AFTER.negate())
-        .collect(Collectors.toList());
-    /** Renderer & After: */
-    List<Route.Filter> after = filters.stream()
-        .filter(AFTER)
-        .collect(Collectors.toList());
-    /** Default Renderer: */
+
+    /** Before, After/Renderer: */
+    List<Route.Filter> before = new ArrayList<>();
+    List<Route.After> after = new ArrayList<>();
+    for (Route.Filter filter : filters) {
+      if (filter instanceof Route.After) {
+        after.add((Route.After) filter);
+      } else {
+        before.add(filter);
+      }
+    }
+    // Default Renderer:
     if (!after.stream().anyMatch(Renderer.class::isInstance)) {
       after.add(0, Renderer.TO_STRING.toFilter());
     }
+
     /** Handler: */
     Route.Handler pipeline;
-    if (stack.getLast().detach) {
-      Route.After callback = (Route.After) after.stream().skip(1)
-          .reduce(after.get(0),
-              (it, next) -> ((Route.After) it).then((Route.After) next));
+    if (stack.getLast().detach || handler instanceof DetachedHandler) {
+      Route.After callback = after.stream().skip(1)
+          .reduce(after.get(0), Route.After::then);
       pipeline = detach(handler, callback);
     } else {
       pipeline = after.stream().skip(1)
-          .reduce(after.get(0), Route.Filter::then)
+          .reduce(after.get(0), Route.After::then)
           .then(handler);
     }
     if (before.size() > 0) {

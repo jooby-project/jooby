@@ -1,8 +1,5 @@
 package io.jooby;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -54,6 +51,32 @@ public interface Router {
   @Nonnull Router after(@Nonnull Route.After after);
 
   @Nonnull Router detach(@Nonnull Runnable action);
+
+  /**
+   * Handler who delegates processing of current request to a custom thread. This idiom works as
+   * bridge between Jooby and (normally) a reactive library who follows the publish/subscribe
+   * programming model.
+   *
+   * Rx2 example:
+   *
+   * <pre>{@code
+   *
+   * class MyApp extends App {
+   *   {
+   *     get("/rx2", detach(ctx ->
+   *       fromCallable(() -> "Hello Rx2!")
+   *                   .subscribeOn(Schedulers.io())
+   *                   .observeOn(Schedulers.computation())
+   *                   .subscribe(ctx::render, ctx:sendError)
+   *     ));
+   *   }
+   * }
+   * }</pre>
+   *
+   * @param handler
+   * @return
+   */
+  @Nonnull Route.Handler detach(@Nonnull Route.Handler handler);
 
   @Nonnull Router dispatch(@Nonnull Runnable action);
 

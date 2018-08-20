@@ -194,7 +194,20 @@ public class JettyContext extends BaseContext {
 
   @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
     HttpOutput sender = request.getResponse().getHttpOutput();
-    sender.sendContent(data, Callback.NOOP);
+    if (request.isAsyncStarted()) {
+      AsyncContext asyncContext = request.getAsyncContext();
+      sender.sendContent(data, new Callback() {
+        @Override public void succeeded() {
+          asyncContext.complete();
+        }
+
+        @Override public void failed(Throwable x) {
+          asyncContext.complete();
+        }
+      });
+    } else {
+      sender.sendContent(data, new JettyCallback(request));
+    }
     return this;
   }
 
