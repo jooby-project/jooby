@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
-  <version>1.5.0</version>
+  <version>1.5.1</version>
   <packaging>pom</packaging>
   <name>jooby-bom</name>
   <description>Jooby (Bill of Materials)</description>
   <url>https://github.com/jooby-project/jooby</url>
   <properties>
-  <jooby.version>1.5.0</jooby.version>
+  <jooby.version>1.5.1</jooby.version>
   <akka.version>2.5.13</akka.version>
   <antlr4-runtime.version>4.7</antlr4-runtime.version>
   <api-console.version>3.0.17</api-console.version>

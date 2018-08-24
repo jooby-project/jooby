@@ -1,5 +1,5 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-hbm/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-hbm)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hbm.svg)](https://javadoc.io/doc/org.jooby/jooby-hbm/1.5.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-hbm/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-hbm/1.5.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hbm.svg)](https://javadoc.io/doc/org.jooby/jooby-hbm/1.5.1)
 [![jooby-hbm website](https://img.shields.io/badge/jooby-hbm-brightgreen.svg)](http://jooby.org/doc/hbm)
 # hibernate
 
@@ -21,7 +21,7 @@ This module setup and configure <a href="http://hibernate.org/orm">Hibernate ORM
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-hbm</artifactId>
- <version>1.5.0</version>
+ <version>1.5.1</version>
 </dependency>
 ```
 

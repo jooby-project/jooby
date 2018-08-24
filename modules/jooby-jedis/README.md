@@ -1,5 +1,5 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jedis/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-jedis)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jedis.svg)](https://javadoc.io/doc/org.jooby/jooby-jedis/1.5.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-jedis/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-jedis/1.5.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jedis.svg)](https://javadoc.io/doc/org.jooby/jooby-jedis/1.5.1)
 [![jooby-jedis website](https://img.shields.io/badge/jooby-jedis-brightgreen.svg)](http://jooby.org/doc/jedis)
 # jedis
 
@@ -11,7 +11,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>1.5.0</version>
+  <version>1.5.1</version>
 </dependency>
 ```
 
@@ -99,7 +99,7 @@ For more information about [Jedis](https://github.com/xetorthio/jedis) checkout 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>1.5.0</version>
+  <version>1.5.1</version>
 </dependency>
 ```
 

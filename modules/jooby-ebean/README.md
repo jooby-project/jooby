@@ -1,5 +1,5 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ebean/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-ebean)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-ebean.svg)](https://javadoc.io/doc/org.jooby/jooby-ebean/1.5.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-ebean/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-ebean/1.5.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-ebean.svg)](https://javadoc.io/doc/org.jooby/jooby-ebean/1.5.1)
 [![jooby-ebean website](https://img.shields.io/badge/jooby-ebean-brightgreen.svg)](http://jooby.org/doc/ebean)
 # ebean
 
@@ -17,7 +17,7 @@ Object-Relational-Mapping via [Ebean ORM](http://ebean-orm.github.io). It config
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ebean</artifactId>
-  <version>1.5.0</version>
+  <version>1.5.1</version>
 </dependency>
 ```
 

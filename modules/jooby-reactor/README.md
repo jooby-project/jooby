@@ -1,5 +1,5 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-reactor/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-reactor)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-reactor.svg)](https://javadoc.io/doc/org.jooby/jooby-reactor/1.5.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-reactor/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-reactor/1.5.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-reactor.svg)](https://javadoc.io/doc/org.jooby/jooby-reactor/1.5.1)
 [![jooby-reactor website](https://img.shields.io/badge/jooby-reactor-brightgreen.svg)](http://jooby.org/doc/reactor)
 # reactor
 
@@ -11,7 +11,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-reactor</artifactId>
- <version>1.5.0</version>
+ <version>1.5.1</version>
 </dependency>
 ```
 

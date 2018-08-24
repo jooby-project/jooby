@@ -1,5 +1,5 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-gradle-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby-gradle-plugin)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-gradle-plugin.svg)](https://javadoc.io/doc/org.jooby/jooby-gradle-plugin/1.5.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-gradle-plugin/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-gradle-plugin/1.5.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-gradle-plugin.svg)](https://javadoc.io/doc/org.jooby/jooby-gradle-plugin/1.5.1)
 [![jooby-gradle-plugin website](https://img.shields.io/badge/jooby-gradle-plugin-brightgreen.svg)](http://jooby.org/doc/gradle-plugin)
 # gradle plugin
 
@@ -21,7 +21,7 @@ buildscript {
 
   dependencies {
     /** joobyRun */
-    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.5.0'
+    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.5.1'
   }
 }
 
