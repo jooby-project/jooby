@@ -78,6 +78,15 @@ import org.jooby.micrometer.PrometheusHandler;
 }
 ```
 
+> NOTE: for each additional registry, you must add the corresponding `micrometer` depedency. For <a href="https://prometheus.io/">Prometheus</a>:
+
+```xml
+<dependency>
+  <groupId>io.micrometer</groupId>
+  <artifactId>micrometer-registry-prometheus</artifactId>
+</dependency>
+```
+
 ## timed annotation
 
 Jooby supports the ```io.micrometer.core.annotation.Timed``` annotation for MVC routes:
