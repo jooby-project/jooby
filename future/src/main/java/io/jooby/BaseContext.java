@@ -1,5 +1,7 @@
 package io.jooby;
 
+import org.jooby.funzy.Throwing;
+
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +33,15 @@ public abstract class BaseContext implements Context {
   @Nonnull @Override public Context parser(@Nonnull String contentType, @Nonnull Parser parser) {
     parsers.put(contentType, parser);
     return this;
+  }
+
+  @Nonnull @Override public Context render(@Nonnull Object result) {
+    try {
+      route.renderer().render(this, result);
+      return this;
+    } catch (Exception x) {
+      throw Throwing.sneakyThrow(x);
+    }
   }
 
   protected void requireBlocking() {

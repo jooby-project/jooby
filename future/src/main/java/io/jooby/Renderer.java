@@ -6,14 +6,15 @@ public interface Renderer {
 
   Renderer TO_STRING = (ctx, value) -> ctx.send(value.toString());
 
-  void render(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
+  void render(@Nonnull Context ctx, @Nonnull Object result) throws Exception;
 
-  default Route.After toFilter() {
-    return (ctx, value) -> {
+  @Nonnull default Renderer then(@Nonnull Renderer next) {
+    return (ctx, result) -> {
+      render(ctx, result);
       if (!ctx.isResponseStarted()) {
-        render(ctx, value);
+        next.render(ctx, result);
       }
-      return value;
     };
   }
+
 }

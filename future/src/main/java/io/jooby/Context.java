@@ -100,6 +100,11 @@ public interface Context {
       return this;
     }
 
+    @Nonnull @Override public Context render(@Nonnull Object result) {
+      ctx.render(result);
+      return this;
+    }
+
     @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
       ctx.send(data);
       return this;
@@ -313,6 +318,8 @@ public interface Context {
   }
 
   @Nonnull Context statusCode(int statusCode);
+
+  @Nonnull Context render(@Nonnull Object result);
 
   default @Nonnull Context send(@Nonnull String data) {
     return send(data, StandardCharsets.UTF_8);

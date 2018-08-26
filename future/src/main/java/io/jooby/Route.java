@@ -47,7 +47,11 @@ public interface Route {
     default RootHandler root() {
       return ctx -> {
         try {
-          return apply(ctx);
+          Object result = apply(ctx);
+          if (!ctx.isResponseStarted() && ctx != result) {
+            ctx.render(result);
+          }
+          return result;
         } catch (Throwable x) {
           ctx.sendError(x);
           return x;
@@ -137,6 +141,8 @@ public interface Route {
   Handler handler();
 
   RootHandler pipeline();
+
+  Renderer renderer();
 }
 
 

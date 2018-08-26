@@ -1,10 +1,7 @@
 package io.jooby;
 
-import io.netty.handler.codec.http.QueryStringDecoder;
 import org.junit.jupiter.api.Test;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

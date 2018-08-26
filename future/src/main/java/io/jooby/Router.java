@@ -25,9 +25,7 @@ public interface Router {
   List<String> METHODS = synchronizedList(
       asList(GET, POST, PUT, DELETE, PATCH, HEAD, CONNECT, OPTIONS, TRACE));
 
-  @Nonnull default Router renderer(@Nonnull Renderer renderer) {
-    return after(renderer.toFilter());
-  }
+  @Nonnull Router renderer(@Nonnull Renderer renderer);
 
   @Nonnull default Router parser(@Nonnull Parser parser) {
     return filter(next -> ctx -> {

@@ -31,10 +31,15 @@ public class RouterImpl implements Router {
     private String pattern;
 
     private List<Route.Filter> filters = new ArrayList<>();
+    private List<Renderer> renderers = new ArrayList<>();
 
     public Stack(String pattern, boolean detach) {
       this.pattern = pattern;
       this.detach = detach;
+    }
+
+    public void then(Renderer renderer) {
+      renderers.add(renderer);
     }
 
     public void then(Route.Filter filter) {
@@ -43,6 +48,15 @@ public class RouterImpl implements Router {
 
     public Stream<Route.Filter> toFilter() {
       return filters.stream();
+    }
+
+    public Stream<Renderer> toRenderer() {
+      return renderers.stream();
+    }
+
+    public void clear() {
+      this.filters.clear();
+      this.renderers.clear();
     }
   }
 
@@ -69,8 +83,16 @@ public class RouterImpl implements Router {
 
   private List<Route> routes = new ArrayList<>();
 
+  private Renderer renderer = Renderer.TO_STRING;
+
   public RouterImpl() {
     stack.addLast(new Stack("", false));
+  }
+
+  @Nonnull @Override public Router renderer(@Nonnull Renderer renderer) {
+    this.renderer = renderer.then(this.renderer);
+    stack.peekLast().then(renderer);
+    return this;
   }
 
   @Nonnull @Override public Router gzip(@Nonnull Runnable action) {
@@ -150,29 +172,34 @@ public class RouterImpl implements Router {
         before.add(filter);
       }
     }
-    // Default Renderer:
-    if (!after.stream().anyMatch(Renderer.class::isInstance)) {
-      after.add(0, Renderer.TO_STRING.toFilter());
-    }
 
     /** Handler: */
     Route.Handler pipeline;
-    if (stack.getLast().detach || handler instanceof DetachedHandler) {
-      Route.After callback = after.stream().skip(1)
-          .reduce(after.get(0), Route.After::then);
-      pipeline = detach(handler, callback);
+    if (after.size() > 0) {
+      if (stack.getLast().detach || handler instanceof DetachedHandler) {
+        Route.After callback = after.stream().skip(1)
+            .reduce(after.get(0), Route.After::then);
+        pipeline = detach(handler, callback);
+      } else {
+        pipeline = after.stream().skip(1)
+            .reduce(after.get(0), Route.After::then)
+            .then(handler);
+      }
     } else {
-      pipeline = after.stream().skip(1)
-          .reduce(after.get(0), Route.After::then)
-          .then(handler);
+      pipeline = handler;
     }
     if (before.size() > 0) {
       pipeline = before.stream().skip(1)
           .reduce(before.get(0), Route.Filter::then)
           .then(pipeline);
     }
+    /** Renderer: */
+    Renderer renderer = stack.stream()
+        .flatMap(Stack::toRenderer)
+        .reduce(Renderer.TO_STRING, (it, next) -> next.then(it));
+
     /** Route: */
-    RouteImpl route = new RouteImpl(method, pat.toString(), handler, pipeline.root());
+    RouteImpl route = new RouteImpl(method, pat.toString(), handler, pipeline.root(), renderer);
     if (method.equals("*")) {
       METHODS.forEach(m -> chi.insertRoute(methodCode(m), route.pattern(), route));
     } else {
@@ -194,7 +221,7 @@ public class RouterImpl implements Router {
       err = Route.ErrorHandler.DEFAULT;
     }
     this.rootErr = new RootErrorHandlerImpl(err, log, this::errorCode);
-    this.stack.removeLast().filters.clear();
+    this.stack.forEach(Stack::clear);
     this.stack = null;
     return this;
   }
@@ -204,7 +231,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Route match(String method, String path) {
-    return chi.findRoute(methodCode(method), method, path);
+    return chi.findRoute(methodCode(method), method, path, renderer);
   }
 
   @Nonnull @Override public Router errorCode(@Nonnull Class<? extends Throwable> type,
@@ -267,7 +294,7 @@ public class RouterImpl implements Router {
     if (action != null) {
       action.run();
     }
-    this.stack.removeLast().filters.clear();
+    this.stack.removeLast().clear();
     return this;
   }
 

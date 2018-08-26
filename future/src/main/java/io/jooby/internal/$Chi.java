@@ -1,5 +1,6 @@
 package io.jooby.internal;
 
+import io.jooby.Renderer;
 import io.jooby.Route;
 
 import java.util.ArrayList;
@@ -657,7 +658,7 @@ public class $Chi {
     root.insertRoute(method, pattern, route);
   }
 
-  public Route findRoute(Integer method, String methodName, String path) {
+  public Route findRoute(Integer method, String methodName, String path, Renderer renderer) {
     Context ctx = new Context();
     Node node = root.findRoute(ctx, method, path);
     if (node != null) {
@@ -667,9 +668,9 @@ public class $Chi {
       }
     }
     if (ctx.methodNotAllowed) {
-      return new RouteImpl(methodName, path, Route.METHOD_NOT_ALLOWED, Route.METHOD_NOT_ALLOWED);
+      return new RouteImpl(methodName, path, Route.METHOD_NOT_ALLOWED, Route.METHOD_NOT_ALLOWED, renderer);
     }
     Route.RootHandler h = path.equals("/favicon.ico") ? Route.FAVICON : Route.NOT_FOUND;
-    return new RouteImpl(methodName, path, h, h);
+    return new RouteImpl(methodName, path, h, h, renderer);
   }
 }
