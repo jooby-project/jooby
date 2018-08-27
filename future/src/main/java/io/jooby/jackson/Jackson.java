@@ -26,7 +26,7 @@ public class Jackson extends Converter {
       // Ignore string/charsequence responses, those are going to be processed by the default renderer and let route to return raw JSON
       return;
     }
-    ctx.send(mapper.writeValueAsBytes(value));
+    ctx.sendBytes(mapper.writeValueAsBytes(value));
   }
 
   @Override public <T> T parse(Context ctx, Reified<T> type) throws Exception {

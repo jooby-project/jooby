@@ -100,23 +100,23 @@ public interface Context {
       return this;
     }
 
-    @Nonnull @Override public Context render(@Nonnull Object result) {
-      ctx.render(result);
+    @Nonnull @Override public Context send(@Nonnull Object result) {
+      ctx.send(result);
       return this;
     }
 
-    @Nonnull @Override public Context send(@Nonnull String data, @Nonnull Charset charset) {
-      send(data, charset);
+    @Nonnull @Override public Context sendText(@Nonnull String data, @Nonnull Charset charset) {
+      sendText(data, charset);
       return this;
     }
 
-    @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
-      ctx.send(data);
+    @Nonnull @Override public Context sendBytes(@Nonnull ByteBuffer data) {
+      ctx.sendBytes(data);
       return this;
     }
 
-    @Nonnull @Override public Context send(@Nonnull byte[] data) {
-      ctx.send(data);
+    @Nonnull @Override public Context sendBytes(@Nonnull byte[] data) {
+      ctx.sendBytes(data);
       return this;
     }
 
@@ -329,17 +329,17 @@ public interface Context {
 
   @Nonnull Context statusCode(int statusCode);
 
-  @Nonnull Context render(@Nonnull Object result);
+  @Nonnull Context send(@Nonnull Object result);
 
-  default @Nonnull Context send(@Nonnull String data) {
-    return send(data, StandardCharsets.UTF_8);
+  default @Nonnull Context sendText(@Nonnull String data) {
+    return sendText(data, StandardCharsets.UTF_8);
   }
 
-  @Nonnull Context send(@Nonnull String data, @Nonnull Charset charset);
+  @Nonnull Context sendText(@Nonnull String data, @Nonnull Charset charset);
 
-  @Nonnull Context send(@Nonnull byte[] data);
+  @Nonnull Context sendBytes(@Nonnull byte[] data);
 
-  @Nonnull Context send(@Nonnull ByteBuffer data);
+  @Nonnull Context sendBytes(@Nonnull ByteBuffer data);
 
   @Nonnull default Context sendStatusCode(StatusCode statusCode) {
     return sendStatusCode(statusCode.value());

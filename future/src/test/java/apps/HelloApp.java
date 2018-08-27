@@ -3,11 +3,7 @@ package apps;
 import io.jooby.App;
 import io.jooby.Mode;
 import io.jooby.jackson.Jackson;
-import io.jooby.jetty.Jetty;
-import io.jooby.netty.Netty;
 import io.jooby.utow.Utow;
-
-import java.util.Collections;
 
 public class HelloApp extends App {
 
@@ -37,7 +33,7 @@ public class HelloApp extends App {
 
     error((ctx, cause, statusCode) -> {
       ctx.statusCode(statusCode)
-          .send(statusCode.reason());
+          .sendText(statusCode.reason());
     });
   }
 

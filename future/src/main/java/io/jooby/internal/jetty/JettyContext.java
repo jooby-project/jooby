@@ -10,12 +10,10 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.MultiMap;
-import org.eclipse.jetty.util.UrlEncoded;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.servlet.AsyncContext;
-import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -193,17 +191,17 @@ public class JettyContext extends BaseContext {
     }
   }
 
-  @Nonnull @Override public Context send(@Nonnull byte[] data) {
+  @Nonnull @Override public Context sendBytes(@Nonnull byte[] data) {
     byte[] result = (byte[]) fireAfter(data);
-    return send(ByteBuffer.wrap(result));
+    return sendBytes(ByteBuffer.wrap(result));
   }
 
-  @Nonnull @Override public Context send(@Nonnull String data, @Nonnull Charset charset) {
+  @Nonnull @Override public Context sendText(@Nonnull String data, @Nonnull Charset charset) {
     String result = (String) fireAfter(data);
-    return send(ByteBuffer.wrap(result.getBytes(charset)));
+    return sendBytes(ByteBuffer.wrap(result.getBytes(charset)));
   }
 
-  @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
+  @Nonnull @Override public Context sendBytes(@Nonnull ByteBuffer data) {
     ByteBuffer result = (ByteBuffer) fireAfter(data);
     HttpOutput sender = request.getResponse().getHttpOutput();
     if (request.isAsyncStarted()) {

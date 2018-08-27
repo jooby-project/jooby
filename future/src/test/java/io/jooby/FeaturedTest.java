@@ -10,7 +10,6 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.jooby.funzy.Throwing;
 import org.junit.jupiter.api.Test;
@@ -456,7 +455,7 @@ public class FeaturedTest {
           app.post("/w", ctx -> ctx.multipart()));
 
       app.error(IllegalStateException.class, (ctx, x, statusCode) -> {
-        ctx.send(x.getMessage());
+        ctx.sendText(x.getMessage());
       });
     }).mode(Mode.IO).ready(client -> {
       client.post("/f", new MultipartBody.Builder()
@@ -552,7 +551,7 @@ public class FeaturedTest {
 
     class Rx2 extends App {
       public Route.Handler rx2(Function<Context, Flowable<String>> flowable) {
-        return detach(ctx -> flowable.apply(ctx).subscribe(ctx::send, ctx::sendError));
+        return detach(ctx -> flowable.apply(ctx).subscribe(ctx::sendText, ctx::sendError));
       }
     }
 
@@ -564,7 +563,7 @@ public class FeaturedTest {
           fromCallable(() -> "Hello Rx2!")
               .subscribeOn(Schedulers.io())
               .observeOn(Schedulers.computation())
-              .subscribe(ctx::send, ctx::sendError))
+              .subscribe(ctx::sendText, ctx::sendError))
       );
 
       app.get("/fnutil", app.rx2(ctx ->
@@ -592,7 +591,7 @@ public class FeaturedTest {
       app.get("/completable", app.detach(ctx ->
           supplyAsync(() -> "Completable Future!")
               .thenApply(v -> "Hello " + v)
-              .handle((v, x) -> v != null ? ctx.send(v) : ctx.sendError(x)
+              .handle((v, x) -> v != null ? ctx.sendText(v) : ctx.sendError(x)
               )
       ));
 
@@ -659,7 +658,7 @@ public class FeaturedTest {
       app.get("/", app.detach(ctx -> fromCallable(() -> "result:" + ctx.isInIoThread())
           .subscribeOn(Schedulers.io())
           .observeOn(Schedulers.computation())
-          .subscribe(ctx::render, ctx::sendError)));
+          .subscribe(ctx::send, ctx::sendError)));
     }).mode(Mode.IO).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("rxbrefore1;rxbefore2;result:false;rxafter2;rxafter1;",

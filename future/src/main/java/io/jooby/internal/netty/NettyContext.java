@@ -155,22 +155,22 @@ public class NettyContext extends BaseContext {
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull String data) {
+  @Nonnull @Override public Context sendText(@Nonnull String data) {
     String result = (String) fireAfter(data);
     return sendByteBuf(copiedBuffer(result, UTF_8));
   }
 
-  @Override public final Context send(String data, Charset charset) {
+  @Override public final Context sendText(String data, Charset charset) {
     String result = (String) fireAfter(data);
     return sendByteBuf(copiedBuffer(result, charset));
   }
 
-  @Override public final Context send(byte[] data) {
+  @Override public final Context sendBytes(byte[] data) {
     byte[] result = (byte[]) fireAfter(data);
     return sendByteBuf(wrappedBuffer(result));
   }
 
-  @Override public final Context send(ByteBuffer data) {
+  @Override public final Context sendBytes(ByteBuffer data) {
     ByteBuffer result = (ByteBuffer) fireAfter(data);
     return sendByteBuf(wrappedBuffer(result));
   }

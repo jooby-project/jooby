@@ -65,7 +65,7 @@ public interface Router {
    *       fromCallable(() -> "Hello Rx2!")
    *                   .subscribeOn(Schedulers.io())
    *                   .observeOn(Schedulers.computation())
-   *                   .subscribe(ctx::render, ctx:sendError)
+   *                   .subscribe(ctx::send, ctx:sendError)
    *     ));
    *   }
    * }

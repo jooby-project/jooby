@@ -1,7 +1,6 @@
 package io.jooby.internal.utow;
 
 import io.jooby.*;
-import io.netty.handler.codec.http.multipart.FileUpload;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.encoding.EncodingHandler;
 import io.undertow.server.handlers.form.*;
@@ -9,8 +8,6 @@ import io.undertow.util.*;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
-import java.awt.*;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -19,8 +16,6 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import static org.jooby.funzy.Throwing.throwingConsumer;
 
@@ -172,18 +167,18 @@ public class UtowContext extends BaseContext {
     return null;
   }
 
-  @Nonnull @Override public Context send(@Nonnull byte[] data) {
+  @Nonnull @Override public Context sendBytes(@Nonnull byte[] data) {
     byte[] result = (byte[]) fireAfter(data);
-    return send(ByteBuffer.wrap(result));
+    return sendBytes(ByteBuffer.wrap(result));
   }
 
-  @Nonnull @Override public Context send(@Nonnull String data, @Nonnull Charset charset) {
+  @Nonnull @Override public Context sendText(@Nonnull String data, @Nonnull Charset charset) {
     String result = (String) fireAfter(data);
     exchange.getResponseSender().send(result, charset);
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
+  @Nonnull @Override public Context sendBytes(@Nonnull ByteBuffer data) {
     ByteBuffer result = (ByteBuffer) fireAfter(data);
     exchange.getResponseSender().send(result);
     return this;

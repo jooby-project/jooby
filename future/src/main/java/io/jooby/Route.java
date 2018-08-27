@@ -45,7 +45,7 @@ public interface Route {
         try {
           Object result = apply(ctx);
           if (!ctx.isResponseStarted() && ctx != result) {
-            ctx.render(result);
+            ctx.send(result);
           }
           return result;
         } catch (Throwable x) {
@@ -111,7 +111,7 @@ public interface Route {
           .append("</html>");
 
       ctx.statusCode(statusCode)
-          .send(html.toString());
+          .sendText(html.toString());
     };
 
     @Nonnull void apply(@Nonnull Context ctx, @Nonnull Throwable cause,
