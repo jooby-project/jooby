@@ -28,11 +28,7 @@ public interface Route {
     void before(@Nonnull Context ctx) throws Exception;
   }
 
-  interface After extends Filter {
-    @Nonnull @Override default Handler apply(@Nonnull Handler next) {
-      return ctx -> apply(ctx, next.apply(ctx));
-    }
-
+  interface After {
     @Nonnull default After then(@Nonnull After next) {
       return (ctx, result) -> apply(ctx, next.apply(ctx, result));
     }
@@ -62,6 +58,15 @@ public interface Route {
         }
       };
     }
+  }
+
+  interface DetachHandler extends Handler {
+    @Nonnull @Override default Object apply(@Nonnull Context ctx) throws Exception {
+      handle(ctx);
+      return ctx;
+    }
+
+    void handle(@Nonnull Context ctx) throws Exception;
   }
 
   interface RootHandler extends Handler {
@@ -143,6 +148,8 @@ public interface Route {
   RootHandler pipeline();
 
   Renderer renderer();
+
+  Route.After after();
 }
 
 

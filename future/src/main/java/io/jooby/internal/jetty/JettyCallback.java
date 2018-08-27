@@ -1,27 +1,21 @@
 package io.jooby.internal.jetty;
 
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.util.Callback;
 
-public class JettyCallback implements Callback {
-  private final Request request;
+import javax.servlet.AsyncContext;
 
-  public JettyCallback(Request request) {
-    this.request = request;
+public class JettyCallback implements Callback {
+  private final AsyncContext ctx;
+
+  public JettyCallback(AsyncContext ctx) {
+    this.ctx = ctx;
   }
 
   @Override public void succeeded() {
-    closeIfAsync();
+    ctx.complete();
   }
 
   @Override public void failed(Throwable x) {
-    // TODO: print exception
-   closeIfAsync();
-  }
-
-  private void closeIfAsync() {
-    if (request.isAsyncStarted()) {
-      request.getAsyncContext().complete();
-    }
+    ctx.complete();
   }
 }

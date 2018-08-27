@@ -51,18 +51,14 @@ public class App implements Router {
   }
 
   @Nonnull @Override public Router after(@Nonnull Route.After after) {
-    return router.filter(after);
+    return router.after(after);
   }
 
   @Nonnull @Override public Router renderer(@Nonnull Renderer renderer) {
     return router.renderer(renderer);
   }
 
-  @Nonnull @Override public Router detach(@Nonnull Runnable action) {
-    return router.detach(action);
-  }
-
-  @Nonnull @Override public Route.Handler detach(@Nonnull Route.Handler handler) {
+  @Nonnull @Override public Route.Handler detach(@Nonnull Route.DetachHandler handler) {
     return router.detach(handler);
   }
 

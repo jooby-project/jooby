@@ -14,8 +14,11 @@ public abstract class BaseContext implements Context {
 
   protected final Map<String, Object> locals = new HashMap<>();
 
+  private Route.After after;
+
   public BaseContext(@Nonnull Route route) {
     this.route = route;
+    this.after = route.after();
   }
 
   @Nonnull @Override public Route route() {
@@ -37,11 +40,24 @@ public abstract class BaseContext implements Context {
 
   @Nonnull @Override public Context render(@Nonnull Object result) {
     try {
-      route.renderer().render(this, result);
+      route.renderer().render(this, fireAfter(result));
       return this;
     } catch (Exception x) {
       throw Throwing.sneakyThrow(x);
     }
+  }
+
+  protected Object fireAfter(Object result) {
+    if (this.after != null) {
+      Route.After chain = this.after;
+      this.after = null;
+      try {
+        return chain.apply(this, result);
+      } catch (Exception x) {
+        throw Throwing.sneakyThrow(x);
+      }
+    }
+    return result;
   }
 
   protected void requireBlocking() {

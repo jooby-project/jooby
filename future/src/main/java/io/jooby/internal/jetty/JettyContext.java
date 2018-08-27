@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -192,21 +193,24 @@ public class JettyContext extends BaseContext {
     }
   }
 
+  @Nonnull @Override public Context send(@Nonnull byte[] data) {
+    byte[] result = (byte[]) fireAfter(data);
+    return send(ByteBuffer.wrap(result));
+  }
+
+  @Nonnull @Override public Context send(@Nonnull String data, @Nonnull Charset charset) {
+    String result = (String) fireAfter(data);
+    return send(ByteBuffer.wrap(result.getBytes(charset)));
+  }
+
   @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
+    ByteBuffer result = (ByteBuffer) fireAfter(data);
     HttpOutput sender = request.getResponse().getHttpOutput();
     if (request.isAsyncStarted()) {
       AsyncContext asyncContext = request.getAsyncContext();
-      sender.sendContent(data, new Callback() {
-        @Override public void succeeded() {
-          asyncContext.complete();
-        }
-
-        @Override public void failed(Throwable x) {
-          asyncContext.complete();
-        }
-      });
+      sender.sendContent(result, new JettyCallback(asyncContext));
     } else {
-      sender.sendContent(data, new JettyCallback(request));
+      sender.sendContent(result, Callback.NOOP);
     }
     return this;
   }

@@ -24,7 +24,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
@@ -238,7 +237,7 @@ public class FeaturedTest {
     }, new Netty(), new Utow(), new Jetty());
   }
 
-//  @Test
+  //  @Test
   public void gzip() throws IOException {
     String text = "Praesent blandit, justo a luctus elementum, ante sapien pellentesque tortor, "
         + "vitae maximus nulla augue sed nulla. Phasellus quis turpis ac mi tristique aliquam. "
@@ -548,11 +547,7 @@ public class FeaturedTest {
     }, new Netty(), new Utow(), new Jetty());
   }
 
-  private Route.Handler subscribe(Function<Context, Flowable<String>> flowable) {
-    return ctx -> flowable.apply(ctx).subscribe(ctx::send, ctx::sendError);
-  }
-
-//  @Test
+  @Test
   public void reactive() {
 
     class Rx2 extends App {
@@ -565,44 +560,41 @@ public class FeaturedTest {
 
       Rx2 app = new Rx2();
 
-      app.get("/single", app.rx2(ctx ->
-              fromCallable(() -> "Hello Rx2!")
-                  .subscribeOn(Schedulers.io())
-                  .observeOn(Schedulers.computation())
-          )
-      );
-
-      app.get("/group", app.detach(subscribe(ctx ->
+      app.get("/detach", app.detach(ctx ->
           fromCallable(() -> "Hello Rx2!")
               .subscribeOn(Schedulers.io())
-              .observeOn(Schedulers.computation())))
+              .observeOn(Schedulers.computation())
+              .subscribe(ctx::send, ctx::sendError))
+      );
+
+      app.get("/fnutil", app.rx2(ctx ->
+          fromCallable(() -> "Hello Rx2!")
+              .subscribeOn(Schedulers.io())
+              .observeOn(Schedulers.computation()))
       );
 
       return app;
     }).mode(Mode.IO).ready(client -> {
-      client.get("/single", rsp -> {
+      client.get("/detach", rsp -> {
         assertEquals("Hello Rx2!", rsp.body().string());
       });
 
-      client.get("/group", rsp -> {
+      client.get("/fnutil", rsp -> {
         assertEquals("Hello Rx2!", rsp.body().string());
       });
     }, new Netty(), new Utow(), new Jetty());
-  }
-
-  private Route.Handler future(Function<Context, CompletableFuture<String>> flowable) {
-    return ctx -> flowable.apply(ctx).handle((v, x) -> v != null ? ctx.send(v) : ctx.sendError(x));
   }
 
   @Test
   public void completableFuture() {
     new JoobyRunner(app -> {
 
-      app.get("/completable", future(ctx ->
-              supplyAsync(() -> "Completable Future!")
-                  .thenApply(v -> "Hello " + v)
-          )
-      );
+      app.get("/completable", app.detach(ctx ->
+          supplyAsync(() -> "Completable Future!")
+              .thenApply(v -> "Hello " + v)
+              .handle((v, x) -> v != null ? ctx.send(v) : ctx.sendError(x)
+              )
+      ));
 
     }).mode(Mode.IO).ready(client -> {
       client.get("/completable", rsp -> {
@@ -611,7 +603,7 @@ public class FeaturedTest {
     }, new Netty(), new Utow(), new Jetty());
   }
 
-//  @Test
+  @Test
   public void reactiveFilter() {
     new JoobyRunner(app -> {
 
@@ -627,25 +619,22 @@ public class FeaturedTest {
         return buff;
       });
 
-      app.detach(() -> {
-        app.before(ctx -> {
-          StringBuilder buff = ctx.get("buff");
-          buff.append("rxbefore2;");
-        });
-
-        app.after((ctx, value) -> {
-          StringBuilder buff = ctx.get("buff");
-          buff.append(value).append(";");
-          buff.append("rxafter2;");
-          return buff;
-        });
-
-        app.get("/", ctx -> fromCallable(() -> "result:" + ctx.isInIoThread())
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.computation())
-            .subscribe(ctx::send, ctx::sendError));
+      app.before(ctx -> {
+        StringBuilder buff = ctx.get("buff");
+        buff.append("rxbefore2;");
       });
 
+      app.after((ctx, value) -> {
+        StringBuilder buff = ctx.get("buff");
+        buff.append(value).append(";");
+        buff.append("rxafter2;");
+        return buff;
+      });
+
+      app.get("/", app.detach(ctx -> fromCallable(() -> "result:" + ctx.isInIoThread())
+          .subscribeOn(Schedulers.io())
+          .observeOn(Schedulers.computation())
+          .subscribe(ctx::render, ctx::sendError)));
     }).mode(Mode.IO).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("rxbrefore1;rxbefore2;result:false;rxafter2;rxafter1;",

@@ -105,7 +105,17 @@ public interface Context {
       return this;
     }
 
+    @Nonnull @Override public Context send(@Nonnull String data, @Nonnull Charset charset) {
+      send(data, charset);
+      return this;
+    }
+
     @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
+      ctx.send(data);
+      return this;
+    }
+
+    @Nonnull @Override public Context send(@Nonnull byte[] data) {
       ctx.send(data);
       return this;
     }
@@ -325,13 +335,9 @@ public interface Context {
     return send(data, StandardCharsets.UTF_8);
   }
 
-  @Nonnull default Context send(@Nonnull String data, @Nonnull Charset charset) {
-    return send(data.getBytes(charset));
-  }
+  @Nonnull Context send(@Nonnull String data, @Nonnull Charset charset);
 
-  @Nonnull default Context send(@Nonnull byte[] data) {
-    return send(ByteBuffer.wrap(data));
-  }
+  @Nonnull Context send(@Nonnull byte[] data);
 
   @Nonnull Context send(@Nonnull ByteBuffer data);
 

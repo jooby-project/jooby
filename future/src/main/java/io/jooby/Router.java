@@ -48,8 +48,6 @@ public interface Router {
 
   @Nonnull Router after(@Nonnull Route.After after);
 
-  @Nonnull Router detach(@Nonnull Runnable action);
-
   /**
    * Handler who delegates processing of current request to a custom thread. This idiom works as
    * bridge between Jooby and (normally) a reactive library who follows the publish/subscribe
@@ -74,7 +72,7 @@ public interface Router {
    * @param handler
    * @return
    */
-  @Nonnull Route.Handler detach(@Nonnull Route.Handler handler);
+  @Nonnull Route.Handler detach(@Nonnull Route.DetachHandler handler);
 
   @Nonnull Router dispatch(@Nonnull Runnable action);
 

@@ -15,23 +15,26 @@ public class RouteImpl implements Route {
   private final Route.RootHandler pipeline;
   private final Map<String, String> params;
   private final Renderer renderer;
+  private final After after;
   List<String> paramKeys;
 
-  public RouteImpl(String method, String pattern, Handler handler, Route.RootHandler pipeline, Renderer renderer) {
+  public RouteImpl(String method, String pattern, Handler handler, Route.RootHandler pipeline, Route.After after, Renderer renderer) {
     this.method = method.toUpperCase();
     this.pattern = pattern;
     this.params = Collections.EMPTY_MAP;
     this.handler = handler;
     this.pipeline = pipeline;
+    this.after = after;
     this.renderer = renderer;
   }
 
-  private RouteImpl(String method, String pattern, Map<String, String> params, Handler handler, Route.RootHandler pipeline, Renderer renderer) {
+  private RouteImpl(String method, String pattern, Map<String, String> params, Handler handler, Route.RootHandler pipeline, Route.After after, Renderer renderer) {
     this.method = method;
     this.pattern = pattern;
     this.params = params;
     this.handler = handler;
     this.pipeline = pipeline;
+    this.after = after;
     this.renderer = renderer;
   }
 
@@ -59,8 +62,12 @@ public class RouteImpl implements Route {
     return renderer;
   }
 
+  @Override public Route.After after() {
+    return after;
+  }
+
   Route newRuntimeRoute(String method, Map<String, String> params) {
-    return new RouteImpl(method, pattern, params, handler, pipeline, renderer);
+    return new RouteImpl(method, pattern, params, handler, pipeline, after, renderer);
   }
 
   @Override public String toString() {

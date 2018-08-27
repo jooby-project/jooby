@@ -172,18 +172,20 @@ public class UtowContext extends BaseContext {
     return null;
   }
 
-  @Nonnull @Override public Context send(@Nonnull String data) {
-    exchange.getResponseSender().send(data, StandardCharsets.UTF_8);
-    return this;
+  @Nonnull @Override public Context send(@Nonnull byte[] data) {
+    byte[] result = (byte[]) fireAfter(data);
+    return send(ByteBuffer.wrap(result));
   }
 
   @Nonnull @Override public Context send(@Nonnull String data, @Nonnull Charset charset) {
-    exchange.getResponseSender().send(data, charset);
+    String result = (String) fireAfter(data);
+    exchange.getResponseSender().send(result, charset);
     return this;
   }
 
   @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
-    exchange.getResponseSender().send(data);
+    ByteBuffer result = (ByteBuffer) fireAfter(data);
+    exchange.getResponseSender().send(result);
     return this;
   }
 
