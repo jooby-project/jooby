@@ -29,6 +29,11 @@ public class App implements Router {
     tmpdir = Paths.get(System.getProperty("java.io.tmpdir"), appname(getClass())).toAbsolutePath();
   }
 
+  @Nonnull @Override public Router basePath(String basePath) {
+    router.basePath(basePath);
+    return this;
+  }
+
   @Nonnull public App use(Server server) {
     this.server = server;
     return this;

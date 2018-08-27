@@ -91,8 +91,18 @@ public class RouterImpl implements Router {
 
   private Renderer renderer = Renderer.TO_STRING;
 
+  private String basePath;
+
   public RouterImpl() {
     stack.addLast(new Stack(""));
+  }
+
+  @Nonnull @Override public Router basePath(@Nonnull String basePath) {
+    if (routes.size() > 0) {
+      throw new IllegalStateException("Base path must be set before adding any routes.");
+    }
+    this.basePath = basePath;
+    return this;
   }
 
   @Nonnull @Override public Router renderer(@Nonnull Renderer renderer) {
@@ -185,10 +195,11 @@ public class RouterImpl implements Router {
 
     /** Route: */
     RouteImpl route = new RouteImpl(method, pat.toString(), handler, pipeline.root(), after, renderer);
+    String chipattern = basePath == null ? route.pattern() : basePath + route.pattern();
     if (method.equals("*")) {
-      METHODS.forEach(m -> chi.insertRoute(methodCode(m), route.pattern(), route));
+      METHODS.forEach(m -> chi.insertRoute(methodCode(m), chipattern, route));
     } else {
-      chi.insertRoute(methodCode(route.method()), route.pattern(), route);
+      chi.insertRoute(methodCode(route.method()), chipattern, route);
     }
     routes.add(route);
     return route;

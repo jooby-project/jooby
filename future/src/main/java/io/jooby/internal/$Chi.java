@@ -670,7 +670,7 @@ public class $Chi {
     if (ctx.methodNotAllowed) {
       return new RouteImpl(methodName, path, Route.METHOD_NOT_ALLOWED, Route.METHOD_NOT_ALLOWED, null, renderer);
     }
-    Route.RootHandler h = path.equals("/favicon.ico") ? Route.FAVICON : Route.NOT_FOUND;
+    Route.RootHandler h = path.endsWith("/favicon.ico") ? Route.FAVICON : Route.NOT_FOUND;
     return new RouteImpl(methodName, path, h, h, null, renderer);
   }
 }

@@ -604,6 +604,31 @@ public class FeaturedTest {
   }
 
   @Test
+  public void basePath() {
+    new JoobyRunner(app -> {
+      app.basePath("/foo");
+      app.get("/bar", ctx -> ctx.path());
+
+    }).ready(client -> {
+      client.get("/foo/bar", rsp -> {
+        assertEquals("/foo/bar", rsp.body().string());
+      });
+
+      client.get("/foo/barx", rsp -> {
+        assertEquals(404, rsp.code());
+      });
+
+      client.get("/favicon.ico", rsp -> {
+        assertEquals(404, rsp.code());
+      });
+
+      client.get("/foo/favicon.ico", rsp -> {
+        assertEquals(404, rsp.code());
+      });
+    }, new Netty(), new Utow(), new Jetty());
+  }
+
+  @Test
   public void reactiveFilter() {
     new JoobyRunner(app -> {
 
