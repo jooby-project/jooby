@@ -59,7 +59,11 @@ public class WebClient {
     return this;
   }
 
-  public Request execute(String method, String path, RequestBody body) {
+  public Request invoke(String method, String path) {
+    return invoke(method, path, EMPTY_BODY);
+  }
+
+  public Request invoke(String method, String path, RequestBody body) {
     okhttp3.Request.Builder req = new okhttp3.Request.Builder();
     req.method(method, body);
     if (headers != null) {
@@ -71,7 +75,7 @@ public class WebClient {
   }
 
   public Request get(String path) {
-    return execute("GET", path, null);
+    return invoke("GET", path, null);
   }
 
   public void get(String path, Throwing.Consumer<Response> callback) {
@@ -87,7 +91,7 @@ public class WebClient {
   }
 
   public Request post(String path, RequestBody form) {
-    return execute("POST", path, form);
+    return invoke("POST", path, form);
   }
 
   public void post(String path, RequestBody form, Throwing.Consumer<Response> callback) {
@@ -95,7 +99,7 @@ public class WebClient {
   }
 
   public Request put(String path) {
-    return execute("put", path, EMPTY_BODY);
+    return invoke("put", path, EMPTY_BODY);
   }
 
   public void put(String path, Throwing.Consumer<Response> callback) {
@@ -103,7 +107,7 @@ public class WebClient {
   }
 
   public Request delete(String path) {
-    return execute("delete", path, EMPTY_BODY);
+    return invoke("delete", path, EMPTY_BODY);
   }
 
   public void delete(String path, Throwing.Consumer<Response> callback) {
@@ -111,7 +115,7 @@ public class WebClient {
   }
 
   public Request patch(String path) {
-    return execute("patch", path, EMPTY_BODY);
+    return invoke("patch", path, EMPTY_BODY);
   }
 
   public void patch(String path, Throwing.Consumer<Response> callback) {

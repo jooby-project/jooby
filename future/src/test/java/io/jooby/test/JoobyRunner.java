@@ -3,7 +3,9 @@ package io.jooby.test;
 import io.jooby.App;
 import io.jooby.Mode;
 import io.jooby.Server;
+import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
+import io.jooby.utow.Utow;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,8 +40,16 @@ public class JoobyRunner {
     if (modes.size() == 0) {
       modes.add(Mode.WORKER);
     }
+    List<Server> serverList = new ArrayList<>();
+    if (servers.length == 0) {
+      serverList.add(new Netty());
+      serverList.add(new Utow());
+      serverList.add(new Jetty());
+    } else {
+      serverList.addAll(Arrays.asList(servers));
+    }
     for (Mode mode : modes) {
-      for (Server server : servers) {
+      for (Server server : serverList) {
         App app = null;
         try {
           app = this.provider.get();
@@ -55,9 +65,4 @@ public class JoobyRunner {
       }
     }
   }
-
-  public void ready(Consumer<WebClient> onReady) {
-    ready(onReady, new Netty());
-  }
-
 }

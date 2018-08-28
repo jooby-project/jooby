@@ -51,7 +51,7 @@ public class FeaturedTest {
         assertEquals(200, rsp.code());
         assertEquals(12, rsp.body().contentLength());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
 
   }
 
@@ -108,7 +108,7 @@ public class FeaturedTest {
         assertEquals(404, rsp.code());
         assertEquals(609, rsp.body().contentLength());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -164,7 +164,7 @@ public class FeaturedTest {
         assertEquals(404, rsp.code());
         assertEquals(609, rsp.body().contentLength());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -191,7 +191,7 @@ public class FeaturedTest {
         assertEquals(200, rsp.code());
         assertEquals(4, rsp.body().contentLength());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -233,7 +233,7 @@ public class FeaturedTest {
         assertEquals("PATCH", rsp.body().string());
       });
 
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   //  @Test
@@ -354,7 +354,7 @@ public class FeaturedTest {
       client.get("/profile/edgar", rsp -> {
         assertEquals("edgar", rsp.body().string());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -371,7 +371,7 @@ public class FeaturedTest {
       client.get("/%2F%2B", rsp -> {
         assertEquals("/%2F%2B@/+", rsp.body().string());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -391,7 +391,7 @@ public class FeaturedTest {
       client.get("/value?user.name=user&user.pass=pwd", rsp -> {
         assertEquals("{name=user, pass=pwd}", rsp.body().string());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -405,7 +405,7 @@ public class FeaturedTest {
           .build(), rsp -> {
         assertEquals("{q=a b, user={name=user}}", rsp.body().string());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -443,7 +443,7 @@ public class FeaturedTest {
           .build(), rsp -> {
         assertEquals("[f1.txt=5, f2.txt=5]", rsp.body().string());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -543,7 +543,7 @@ public class FeaturedTest {
       client.post("/str", create(textplain, _19kb), rsp -> {
         assertEquals(_19kb, rsp.body().string());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -581,7 +581,7 @@ public class FeaturedTest {
       client.get("/fnutil", rsp -> {
         assertEquals("Hello Rx2!", rsp.body().string());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -599,7 +599,7 @@ public class FeaturedTest {
       client.get("/completable", rsp -> {
         assertEquals("Hello Completable Future!", rsp.body().string());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -624,7 +624,7 @@ public class FeaturedTest {
       client.get("/foo/favicon.ico", rsp -> {
         assertEquals(404, rsp.code());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -686,7 +686,7 @@ public class FeaturedTest {
       client.get("/foo", rsp -> {
         assertEquals("/foo", rsp.body().string());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -712,7 +712,7 @@ public class FeaturedTest {
       client.get("/api", rsp -> {
         assertEquals("v1", rsp.body().string());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
@@ -728,7 +728,30 @@ public class FeaturedTest {
       client.get("/prefix/bar", rsp -> {
         assertEquals("/prefix/bar", rsp.body().string());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
+  }
+
+  @Test
+  public void compose() {
+    new JoobyRunner(app -> {
+
+      App bar = new App();
+      bar.get("/bar", Context::path);
+
+      app.path("/api", () -> {
+        app.use(bar);
+
+        app.use("/bar", bar);
+      });
+
+    }).ready(client -> {
+      client.get("/api/bar", rsp -> {
+        assertEquals("/api/bar", rsp.body().string());
+      });
+      client.get("/api/bar/bar", rsp -> {
+        assertEquals("/api/bar/bar", rsp.body().string());
+      });
+    });
   }
 
   @Test
@@ -739,20 +762,30 @@ public class FeaturedTest {
       client.get("/method", rsp -> {
         assertEquals(StatusCode.METHOD_NOT_ALLOWED.value(), rsp.code());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
   }
 
   @Test
   public void silentFavicon() {
-    new JoobyRunner(app -> {
-    }).ready(client -> {
+    new JoobyRunner(App::new).ready(client -> {
       client.get("/favicon.ico", rsp -> {
         assertEquals(StatusCode.NOT_FOUND.value(), rsp.code());
       });
       client.get("/foo/favicon.ico", rsp -> {
         assertEquals(StatusCode.NOT_FOUND.value(), rsp.code());
       });
-    }, new Netty(), new Utow(), new Jetty());
+    });
+  }
+
+  @Test
+  public void customHttpMethod() {
+    new JoobyRunner(app -> {
+      app.route("foo", "/bar", Context::method);
+    }).ready(client -> {
+      client.invoke("foo","/bar").execute(rsp -> {
+        assertEquals("FOO", rsp.body().string());
+      });
+    });
   }
 
   private static String readText(Path file) {
