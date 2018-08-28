@@ -38,6 +38,8 @@ public interface Router {
 
   @Nonnull Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router);
 
+  @Nonnull Router use(@Nonnull String path, @Nonnull Router router);
+
   @Nonnull Router use(@Nonnull Router router);
 
   @Nonnull List<Route> routes();

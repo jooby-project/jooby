@@ -113,12 +113,16 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Nonnull @Override
-  public Router use(@Nonnull Router router) {
+  @Nonnull @Override public Router use(@Nonnull String path, @Nonnull Router router) {
     for (Route route : router.routes()) {
-      route(route.method(), route.pattern(), route.handler(), chi);
+      route(route.method(), path + route.pattern(), route.handler());
     }
     return this;
+  }
+
+  @Nonnull @Override
+  public Router use(@Nonnull Router router) {
+    return use("", router);
   }
 
   @Nonnull @Override public Router renderer(@Nonnull Renderer renderer) {

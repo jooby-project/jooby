@@ -716,6 +716,22 @@ public class FeaturedTest {
   }
 
   @Test
+  public void prefixPathOnExistingRouter() {
+    new JoobyRunner(app -> {
+
+      App bar = new App();
+      bar.get("/bar", Context::path);
+
+      app.use("/prefix", bar);
+
+    }).ready(client -> {
+      client.get("/prefix/bar", rsp -> {
+        assertEquals("/prefix/bar", rsp.body().string());
+      });
+    }, new Netty(), new Utow(), new Jetty());
+  }
+
+  @Test
   public void methodNotAllowed() {
     new JoobyRunner(app -> {
       app.post("/method", Context::path);

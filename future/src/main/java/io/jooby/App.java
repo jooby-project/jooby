@@ -47,6 +47,11 @@ public class App implements Router {
     return this;
   }
 
+  @Nonnull @Override public Router use(@Nonnull String path, @Nonnull Router router) {
+    this.router.use(path, router);
+    return this;
+  }
+
   @Nonnull @Override public List<Route> routes() {
     return router.routes();
   }
