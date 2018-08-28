@@ -38,7 +38,7 @@ public class $Chi {
     Pattern rex;
 
     // HTTP handler endpoints on the leaf node
-    Map<Integer, RouteImpl> endpoints;
+    Map<String, RouteImpl> endpoints;
 
     // subroutes on the leaf node
     //Routes subroutes;
@@ -71,7 +71,7 @@ public class $Chi {
       return this;
     }
 
-    Node insertRoute(Integer method, String pattern, RouteImpl route) {
+    Node insertRoute(String method, String pattern, RouteImpl route) {
       Node n = this;
       Node parent;
       String search = pattern;
@@ -271,7 +271,7 @@ public class $Chi {
       return null;
     }
 
-    void setEndpoint(Integer method, String pattern, RouteImpl route) {
+    void setEndpoint(String method, String pattern, RouteImpl route) {
       Node n = this;
       // Set the handler for the method type on the node
       if (n.endpoints == null) {
@@ -304,14 +304,14 @@ public class $Chi {
 
     // Recursive edge traversal by checking all nodeTyp groups along the way.
     // It's like searching through a multi-dimensional radix trie.
-    Node findRoute(RouterMatch rctx, Integer method, String path) {
+    Node findRoute(RouterMatch rctx, String method, String path) {
       Node n = this;
       Node nn = n;
       String search = path;
 
       for (int ntyp = 0; ntyp < nn.children.length; ntyp++) {
         Node[] nds = nn.children[ntyp];
-        if (nds == null || nds.length == 0) {
+        if (nds == null) {
           continue;
         }
 
@@ -394,7 +394,7 @@ public class $Chi {
 
             // flag that the routing context found a route, but not a corresponding
             // supported method
-            // rctx.methodNotAllowed = true;
+            rctx.methodNotAllowed();
           }
         }
 
@@ -635,25 +635,22 @@ public class $Chi {
 
   Node root = new Node();
 
-  public void insertRoute(Integer method, String pattern, RouteImpl route) {
+  public void insertRoute(String method, String pattern, RouteImpl route) {
     root.insertRoute(method, pattern, route);
   }
 
-  public Router.Match findRoute(Context context, Predicate<Context> predicate, Integer method,
-      String methodName, String path, Renderer renderer, List<Router> routers) {
-    RouterMatch ctx = new RouterMatch();
+  public Router.Match findRoute(Context context, Predicate<Context> predicate, Renderer renderer,
+      List<Router> routers) {
+    String method = context.method();
+    String path = context.path();
+    RouterMatch result = new RouterMatch();
     if (predicate != null && !predicate.test(context)) {
-      return ctx.result(missing(methodName, path, renderer, Route.NOT_FOUND), false);
+      return result.missing(method, path, renderer);
     }
-    boolean methodNotAllowed = false;
-    Node node = root.findRoute(ctx, method, path);
+    Node node = root.findRoute(result, method, path);
     if (node != null) {
       RouteImpl route = node.endpoints.get(method);
-      if (route != null) {
-        return ctx.result(route, true);
-      } else {
-        methodNotAllowed = true;
-      }
+      return result.found(route);
     }
     if (routers != null) {
       // expand search to routers
@@ -664,14 +661,12 @@ public class $Chi {
         }
       }
     }
-    Route.RootHandler h = methodNotAllowed ? Route.METHOD_NOT_ALLOWED
-        : path.endsWith("/favicon.ico") ? Route.FAVICON : Route.NOT_FOUND;
-    return ctx.result(missing(methodName, path, renderer, h), false);
+    return result.missing(method, path, renderer);
   }
 
-  private RouteImpl missing(String methodName, String path, Renderer renderer,
+  private RouteImpl missing(String method, String path, Renderer renderer,
       Route.RootHandler h) {
-    return new RouteImpl(methodName, path, h, h, null, renderer);
+    return new RouteImpl(method, path, h, h, null, renderer);
   }
 
 }

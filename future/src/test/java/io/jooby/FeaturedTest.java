@@ -690,7 +690,7 @@ public class FeaturedTest {
   }
 
   @Test
-  public void conditionalRouter() {
+  public void dynamicRoutingComposition() {
     new JoobyRunner(app -> {
 
       App v1 = new App();
@@ -711,6 +711,30 @@ public class FeaturedTest {
       client.header("version", "v1");
       client.get("/api", rsp -> {
         assertEquals("v1", rsp.body().string());
+      });
+    }, new Netty(), new Utow(), new Jetty());
+  }
+
+  @Test
+  public void methodNotAllowed() {
+    new JoobyRunner(app -> {
+      app.post("/method", Context::path);
+    }).ready(client -> {
+      client.get("/method", rsp -> {
+        assertEquals(StatusCode.METHOD_NOT_ALLOWED.value(), rsp.code());
+      });
+    }, new Netty(), new Utow(), new Jetty());
+  }
+
+  @Test
+  public void silentFavicon() {
+    new JoobyRunner(app -> {
+    }).ready(client -> {
+      client.get("/favicon.ico", rsp -> {
+        assertEquals(StatusCode.NOT_FOUND.value(), rsp.code());
+      });
+      client.get("/foo/favicon.ico", rsp -> {
+        assertEquals(StatusCode.NOT_FOUND.value(), rsp.code());
       });
     }, new Netty(), new Utow(), new Jetty());
   }

@@ -66,17 +66,6 @@ public class RouterImpl implements Router {
     }
   }
 
-  private static final Integer mGET = Integer.valueOf(1);
-  private static final Integer mPOST = Integer.valueOf(2);
-  private static final Integer mPUT = Integer.valueOf(3);
-  private static final Integer mDELETE = Integer.valueOf(4);
-  private static final Integer mPATCH = Integer.valueOf(5);
-
-  private static final Integer mHEAD = Integer.valueOf(6);
-  private static final Integer mOPTIONS = Integer.valueOf(7);
-  private static final Integer mCONNECT = Integer.valueOf(8);
-  private static final Integer mTRACE = Integer.valueOf(9);
-
   private Route.ErrorHandler err;
 
   private Route.RootErrorHandler rootErr;
@@ -221,9 +210,9 @@ public class RouterImpl implements Router {
         renderer);
     String chipattern = basePath == null ? route.pattern() : basePath + route.pattern();
     if (method.equals("*")) {
-      METHODS.forEach(m -> chi.insertRoute(methodCode(m), chipattern, route));
+      METHODS.forEach(m -> chi.insertRoute(m, chipattern, route));
     } else {
-      chi.insertRoute(methodCode(route.method()), chipattern, route);
+      chi.insertRoute(route.method(), chipattern, route);
     }
     routes.add(route);
     return route;
@@ -244,10 +233,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
-    String method = ctx.method();
-    String path = ctx.path();
-    Match match = chi
-        .findRoute(ctx, predicate, methodCode(method), method, path, renderer, routers);
+    Match match = chi.findRoute(ctx, predicate, renderer, routers);
     // Set result and violate encapsulation :S
     ((BaseContext) ctx).prepare(match);
     return match;
@@ -314,39 +300,5 @@ public class RouterImpl implements Router {
 
   private static Runnable asRunnable(Context ctx, Route.Handler next) {
     return () -> next.root().apply(ctx);
-  }
-
-  private Integer methodCode(String method) {
-    if (GET.equals(method)) {
-      return mGET;
-    }
-    if (POST.equals(method)) {
-      return mPOST;
-    }
-    if (PUT.equals(method)) {
-      return mPUT;
-    }
-    if (DELETE.equals(method)) {
-      return mDELETE;
-    }
-    if (PATCH.equals(method)) {
-      return mPATCH;
-    }
-    if (PATCH.equals(method)) {
-      return mPATCH;
-    }
-    if (HEAD.equals(method)) {
-      return mHEAD;
-    }
-    if (OPTIONS.equals(method)) {
-      return mOPTIONS;
-    }
-    if (CONNECT.equals(method)) {
-      return mCONNECT;
-    }
-    if (TRACE.equals(method)) {
-      return mTRACE;
-    }
-    throw new IllegalArgumentException("Unknown method: " + method);
   }
 }

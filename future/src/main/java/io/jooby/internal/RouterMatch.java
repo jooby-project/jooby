@@ -1,5 +1,6 @@
 package io.jooby.internal;
 
+import io.jooby.Renderer;
 import io.jooby.Route;
 import io.jooby.Router;
 
@@ -9,11 +10,14 @@ import java.util.List;
 import java.util.Map;
 
 public class RouterMatch implements Router.Match {
+
   private boolean matches;
 
   private Route route;
 
   private Map vars = Collections.EMPTY_MAP;
+
+  private Route.RootHandler handler;
 
   public void key(List<String> keys) {
     for (int i = 0; i < keys.size(); i++) {
@@ -32,6 +36,10 @@ public class RouterMatch implements Router.Match {
     vars.remove(vars.size() - 1);
   }
 
+  public void methodNotAllowed() {
+    handler = Route.METHOD_NOT_ALLOWED;
+  }
+
   @Override public boolean matches() {
     return matches;
   }
@@ -44,10 +52,22 @@ public class RouterMatch implements Router.Match {
     return vars;
   }
 
-  public RouterMatch result(RouteImpl route, boolean matches) {
+  public RouterMatch found(RouteImpl route) {
     this.route = route;
-    this.matches = matches;
+    this.matches = true;
     return this;
   }
 
+
+  public RouterMatch missing(String method, String path, Renderer renderer) {
+    Route.RootHandler h;
+    if (this.handler == null) {
+      h = path.endsWith("/favicon.ico") ? Route.FAVICON : Route.NOT_FOUND;
+    } else {
+      h = this.handler;
+    }
+    this.route = new RouteImpl(method, path, h, h, null, renderer);
+    this.matches = false;
+    return this;
+  }
 }
