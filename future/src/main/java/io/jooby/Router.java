@@ -36,7 +36,7 @@ public interface Router {
 
   @Nonnull Router basePath(@Nonnull String basePath);
 
-  @Nonnull Router when(@Nonnull Predicate<Context> predicate);
+  @Nonnull Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router);
 
   @Nonnull Router use(@Nonnull Router router);
 

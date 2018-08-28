@@ -41,17 +41,18 @@ public class App implements Router {
     return this;
   }
 
+  @Nonnull @Override
+  public Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
+    this.router.use(predicate, router);
+    return this;
+  }
+
   @Nonnull @Override public List<Route> routes() {
     return router.routes();
   }
 
   @Nonnull public App use(Server server) {
     this.server = server;
-    return this;
-  }
-
-  @Nonnull @Override public Router when(@Nonnull Predicate<Context> predicate) {
-    router.when(predicate);
     return this;
   }
 

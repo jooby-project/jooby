@@ -699,8 +699,8 @@ public class FeaturedTest {
       App v2 = new App();
       v2.get("/api", ctx -> "v2");
 
-      app.use(v1.when(ctx -> ctx.header("version").value().equals("v1")));
-      app.use(v2.when(ctx -> ctx.header("version").value().equals("v2")));
+      app.use(ctx -> ctx.header("version").value().equals("v1"), v1);
+      app.use(ctx -> ctx.header("version").value().equals("v2"), v2);
 
     }).ready(client -> {
       client.header("version", "v2");

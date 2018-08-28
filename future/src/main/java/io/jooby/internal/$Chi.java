@@ -21,6 +21,28 @@ public class $Chi {
   private static final int ntParam = 2;                // /{user}
   private static final int ntCatchAll = 3;               // /api/v1/*
 
+  static class Segment {
+    int nodeType;
+    String key = "";
+    String rexPat = "";
+    char tail;
+    int startIndex;
+    int endIndex;
+
+    public Segment() {
+    }
+
+    public Segment(int nodeType, String key, String regex, char tail, int startIndex,
+        int endIndex) {
+      this.nodeType = nodeType;
+      this.key = key;
+      this.rexPat = regex;
+      this.tail = tail;
+      this.startIndex = startIndex;
+      this.endIndex = endIndex;
+    }
+  }
+
   private static class Node implements Comparable<Node> {
     // node type: static, regexp, param, catchAll
     int typ;
@@ -533,28 +555,6 @@ public class $Chi {
       return result;
     }
 
-    class Segment {
-      int nodeType;
-      String key = "";
-      String rexPat = "";
-      char tail;
-      int startIndex;
-      int endIndex;
-
-      public Segment() {
-      }
-
-      public Segment(int nodeType, String key, String regex, char tail, int startIndex,
-          int endIndex) {
-        this.nodeType = nodeType;
-        this.key = key;
-        this.rexPat = regex;
-        this.tail = tail;
-        this.startIndex = startIndex;
-        this.endIndex = endIndex;
-      }
-    }
-
     // patNextSegment returns the next segment details from a pattern:
     // node type, param key, regexp string, param tail byte, param starting index, param ending index
     Segment patNextSegment(String pattern) {
@@ -631,16 +631,45 @@ public class $Chi {
       String key = ws == pattern.length() - 1 ? "*" : pattern.substring(ws + 1);
       return new Segment(ntCatchAll, key, "", (char) 0, ws, pattern.length());
     }
+
+    void clear() {
+      if (endpoints != null) {
+        endpoints.clear();
+      }
+      endpoints = null;
+      for (int i = 0; i < children.length; i++) {
+        Node[] nodes = children[i];
+        if (nodes != null) {
+          for (int j = 0; j < nodes.length; j++) {
+            nodes[j].clear();
+            nodes[j] = null;
+          }
+          children[i] = null;
+        }
+      }
+      children = null;
+      rex = null;
+    }
   }
 
-  Node root = new Node();
+  private Node root = new Node();
+
+  private Predicate<Context> predicate;
+
+  public $Chi(Predicate<Context> predicate) {
+    this.predicate = predicate;
+  }
+
+  public $Chi() {
+    this(null);
+  }
 
   public void insertRoute(String method, String pattern, RouteImpl route) {
     root.insertRoute(method, pattern, route);
   }
 
-  public Router.Match findRoute(Context context, Predicate<Context> predicate, Renderer renderer,
-      List<Router> routers) {
+  public RouterMatch findRoute(Context context, Renderer renderer,
+      List<$Chi> more) {
     String method = context.method();
     String path = context.path();
     RouterMatch result = new RouterMatch();
@@ -652,11 +681,11 @@ public class $Chi {
       RouteImpl route = node.endpoints.get(method);
       return result.found(route);
     }
-    if (routers != null) {
-      // expand search to routers
-      for (Router router : routers) {
-        Router.Match match = router.match(context);
-        if (match.matches()) {
+    if (more != null) {
+      // expand search
+      for ($Chi tree : more) {
+        RouterMatch match = tree.findRoute(context, renderer,null);
+        if (match.matches) {
           return match;
         }
       }
@@ -664,9 +693,8 @@ public class $Chi {
     return result.missing(method, path, renderer);
   }
 
-  private RouteImpl missing(String method, String path, Renderer renderer,
-      Route.RootHandler h) {
-    return new RouteImpl(method, path, h, h, null, renderer);
+  public void clear() {
+    root.clear();
+    root = null;
   }
-
 }

@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class RouterMatch implements Router.Match {
 
-  private boolean matches;
+  boolean matches;
 
   private Route route;
 

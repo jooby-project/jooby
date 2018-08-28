@@ -82,9 +82,7 @@ public class RouterImpl implements Router {
 
   private String basePath;
 
-  private Predicate<Context> predicate;
-
-  private List<Router> routers;
+  private List<$Chi> trees;
 
   public RouterImpl() {
     stack.addLast(new Stack(""));
@@ -102,18 +100,24 @@ public class RouterImpl implements Router {
     return routes;
   }
 
-  @Nonnull @Override public Router when(@Nonnull Predicate<Context> predicate) {
-    this.predicate = predicate;
+  @Nonnull @Override
+  public Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
+    $Chi tree = new $Chi(predicate);
+    if (trees == null) {
+      trees = new ArrayList<>();
+    }
+    trees.add(tree);
+    for (Route route : router.routes()) {
+      route(route.method(), route.pattern(), route.handler(), tree);
+    }
     return this;
   }
 
   @Nonnull @Override
   public Router use(@Nonnull Router router) {
-    if (routers == null) {
-      routers = new ArrayList<>();
+    for (Route route : router.routes()) {
+      route(route.method(), route.pattern(), route.handler(), chi);
     }
-    routers.add(router);
-    routes.addAll(router.routes());
     return this;
   }
 
@@ -176,6 +180,11 @@ public class RouterImpl implements Router {
   @Override
   public Route route(@Nonnull String method, @Nonnull String pattern,
       @Nonnull Route.Handler handler) {
+    return route(method, pattern, handler, chi);
+  }
+
+  private Route route(@Nonnull String method, @Nonnull String pattern,
+      @Nonnull Route.Handler handler, $Chi tree) {
     /** Pattern: */
     StringBuilder pat = new StringBuilder();
     stack.forEach(it -> pat.append(it.pattern));
@@ -210,9 +219,9 @@ public class RouterImpl implements Router {
         renderer);
     String chipattern = basePath == null ? route.pattern() : basePath + route.pattern();
     if (method.equals("*")) {
-      METHODS.forEach(m -> chi.insertRoute(m, chipattern, route));
+      METHODS.forEach(m -> tree.insertRoute(m, chipattern, route));
     } else {
-      chi.insertRoute(route.method(), chipattern, route);
+      tree.insertRoute(route.method(), chipattern, route);
     }
     routes.add(route);
     return route;
@@ -233,7 +242,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
-    Match match = chi.findRoute(ctx, predicate, renderer, routers);
+    Match match = chi.findRoute(ctx, renderer, trees);
     // Set result and violate encapsulation :S
     ((BaseContext) ctx).prepare(match);
     return match;
