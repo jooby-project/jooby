@@ -32,9 +32,10 @@ public class JettyHandler extends AbstractHandler {
 
   @Override public void handle(String target, Request request, HttpServletRequest servletRequest,
       HttpServletResponse response) {
-    String path = request.getRequestURI();
-    Route route = router.match(request.getMethod().toUpperCase(), path);
-    Route.RootHandler handler = route.pipeline();
-    handler.apply(new JettyContext(target, request, executor, multipart, router.errorHandler(), route));
+    JettyContext context = new JettyContext(target, request, executor, multipart,
+        router.errorHandler());
+    Router.Match match = router.match(context);
+    Route.RootHandler handler = match.route().pipeline();
+    handler.apply(context);
   }
 }

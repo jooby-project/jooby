@@ -1,7 +1,6 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 
 public interface Route {
 
@@ -136,8 +135,6 @@ public interface Route {
   RootHandler METHOD_NOT_ALLOWED = ctx -> ctx.sendError(new Err(StatusCode.METHOD_NOT_ALLOWED));
 
   RootHandler FAVICON = ctx -> ctx.sendStatusCode(StatusCode.NOT_FOUND);
-
-  Map<String, String> params();
 
   String pattern();
 

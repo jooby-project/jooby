@@ -2,6 +2,7 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 
@@ -9,6 +10,14 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.synchronizedList;
 
 public interface Router {
+
+  interface Match {
+    boolean matches();
+
+    Route route();
+
+    Map<String, String> params();
+  }
 
   /** HTTP Methods: */
   String GET = "GET";
@@ -26,6 +35,12 @@ public interface Router {
       asList(GET, POST, PUT, DELETE, PATCH, HEAD, CONNECT, OPTIONS, TRACE));
 
   @Nonnull Router basePath(@Nonnull String basePath);
+
+  @Nonnull Router when(@Nonnull Predicate<Context> predicate);
+
+  @Nonnull Router use(@Nonnull Router router);
+
+  @Nonnull List<Route> routes();
 
   @Nonnull Router renderer(@Nonnull Renderer renderer);
 
@@ -130,11 +145,10 @@ public interface Router {
    * If no match exists this method returns a route with a <code>404</code> handler.
    * See {@link Route.Handler#NOT_FOUND}.
    *
-   * @param method Method in upper case.
-   * @param path Path to match.
+   * @param ctx Web Context.
    * @return A route.
    */
-  @Nonnull Route match(@Nonnull String method, @Nonnull String path);
+  @Nonnull Match match(@Nonnull Context ctx);
 
   /** Error handler: */
   @Nonnull Router errorCode(@Nonnull Class<? extends Throwable> type,

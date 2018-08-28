@@ -32,8 +32,7 @@ public class UtowContext extends BaseContext {
   private Value.Object headers;
 
   public UtowContext(HttpServerExchange exchange, Executor executor,
-      Route.RootErrorHandler errorHandler, Route route, Path tmpdir) {
-    super(route);
+      Route.RootErrorHandler errorHandler, Path tmpdir) {
     this.exchange = exchange;
     this.executor = executor;
     this.tmpdir = tmpdir;
@@ -46,6 +45,10 @@ public class UtowContext extends BaseContext {
       exchange.startBlocking();
     }
     return Body.of(exchange.getInputStream(), exchange.getResponseContentLength());
+  }
+
+  @Nonnull @Override public String method() {
+    return exchange.getRequestMethod().toString().toUpperCase();
   }
 
   @Nonnull @Override public String path() {

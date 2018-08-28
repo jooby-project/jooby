@@ -41,8 +41,7 @@ public class JettyContext extends BaseContext {
   private Value.Object headers;
 
   public JettyContext(String target, Request request, Executor threadPool,
-      Consumer<Request> multipartInit, Route.RootErrorHandler errorHandler, Route route) {
-    super(route);
+      Consumer<Request> multipartInit, Route.RootErrorHandler errorHandler) {
     this.target = target;
     this.request = request;
     this.executor = threadPool;
@@ -56,6 +55,10 @@ public class JettyContext extends BaseContext {
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
+  }
+
+  @Nonnull @Override public String method() {
+    return request.getMethod().toUpperCase();
   }
 
   @Nonnull @Override public String path() {

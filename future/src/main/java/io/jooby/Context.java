@@ -30,6 +30,14 @@ public interface Context {
       return ctx.route();
     }
 
+    @Nonnull @Override public String method() {
+      return ctx.method();
+    }
+
+    @Nonnull @Override public Map<String, String> params() {
+      return ctx.params();
+    }
+
     @Nonnull @Override public String path() {
       return ctx.path();
     }
@@ -154,9 +162,7 @@ public interface Context {
    * **** Request methods *************************************************************************
    * **********************************************************************************************
    */
-  @Nonnull default String method() {
-    return route().method();
-  }
+  @Nonnull String method();
 
   @Nonnull Route route();
 
@@ -174,9 +180,7 @@ public interface Context {
         new Value.Simple(name, UrlParser.decodePath(value));
   }
 
-  @Nonnull default Map<String, String> params() {
-    return route().params();
-  }
+  @Nonnull Map<String, String> params();
 
   /* **********************************************************************************************
    * Query String methods

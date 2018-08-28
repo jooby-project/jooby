@@ -667,6 +667,54 @@ public class FeaturedTest {
     }, new Netty(), new Utow()/* No Jetty bc always use a worker thread */);
   }
 
+  @Test
+  public void simpleRouterComposition() {
+    new JoobyRunner(app -> {
+
+      App bar = new App();
+      bar.get("/bar", Context::path);
+
+      app.get("/foo", Context::path);
+
+      app.use(bar);
+
+    }).ready(client -> {
+      client.get("/bar", rsp -> {
+        assertEquals("/bar", rsp.body().string());
+      });
+
+      client.get("/foo", rsp -> {
+        assertEquals("/foo", rsp.body().string());
+      });
+    }, new Netty(), new Utow(), new Jetty());
+  }
+
+  @Test
+  public void conditionalRouter() {
+    new JoobyRunner(app -> {
+
+      App v1 = new App();
+      v1.get("/api", ctx -> "v1");
+
+      App v2 = new App();
+      v2.get("/api", ctx -> "v2");
+
+      app.use(v1.when(ctx -> ctx.header("version").value().equals("v1")));
+      app.use(v2.when(ctx -> ctx.header("version").value().equals("v2")));
+
+    }).ready(client -> {
+      client.header("version", "v2");
+      client.get("/api", rsp -> {
+        assertEquals("v2", rsp.body().string());
+      });
+
+      client.header("version", "v1");
+      client.get("/api", rsp -> {
+        assertEquals("v1", rsp.body().string());
+      });
+    }, new Netty(), new Utow(), new Jetty());
+  }
+
   private static String readText(Path file) {
     try {
       return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);

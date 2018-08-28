@@ -10,19 +10,29 @@ public abstract class BaseContext implements Context {
 
   protected final Map<String, Parser> parsers = new HashMap<>();
 
-  protected final Route route;
+  protected Route route;
 
   protected final Map<String, Object> locals = new HashMap<>();
 
   private Route.After after;
 
-  public BaseContext(@Nonnull Route route) {
-    this.route = route;
-    this.after = route.after();
+  private Map<String, String> params;
+
+  public BaseContext() {
   }
 
   @Nonnull @Override public Route route() {
     return route;
+  }
+
+  public void prepare(Router.Match match) {
+    this.route = match.route();
+    this.after = route.after();
+    this.params = match.params();
+  }
+
+  @Nonnull @Override public Map<String, String> params() {
+    return params;
   }
 
   @Nonnull @Override public Map<String, Object> locals() {

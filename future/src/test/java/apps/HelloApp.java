@@ -1,9 +1,13 @@
 package apps;
 
 import io.jooby.App;
+import io.jooby.Context;
 import io.jooby.Mode;
+import io.jooby.Router;
 import io.jooby.jackson.Jackson;
 import io.jooby.utow.Utow;
+
+import java.util.function.Predicate;
 
 public class HelloApp extends App {
 

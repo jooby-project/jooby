@@ -42,12 +42,11 @@ public class Utow implements Server {
 
   @Override public Server start(Router router) {
     HttpHandler uhandler = exchange -> {
-      HttpString method = exchange.getRequestMethod();
-      Route route = router.match(method.toString().toUpperCase(), exchange.getRequestPath());
-      Route.RootHandler handler = route.pipeline();
-      handler.apply(
-          new UtowContext(exchange, exchange.getConnection().getWorker(), router.errorHandler(),
-              route, tmpdir));
+      UtowContext context = new UtowContext(exchange, exchange.getConnection().getWorker(),
+          router.errorHandler(), tmpdir);
+      Router.Match match = router.match(context);
+      Route.RootHandler handler = match.route().pipeline();
+      handler.apply(context);
     };
     if (mode == Mode.WORKER) {
       uhandler = new BlockingHandler(uhandler);

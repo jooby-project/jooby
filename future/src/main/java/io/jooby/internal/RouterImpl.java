@@ -1,5 +1,6 @@
 package io.jooby.internal;
 
+import io.jooby.BaseContext;
 import io.jooby.Context;
 import io.jooby.Err;
 import io.jooby.Renderer;
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -93,6 +93,10 @@ public class RouterImpl implements Router {
 
   private String basePath;
 
+  private Predicate<Context> predicate;
+
+  private List<Router> routers;
+
   public RouterImpl() {
     stack.addLast(new Stack(""));
   }
@@ -102,6 +106,25 @@ public class RouterImpl implements Router {
       throw new IllegalStateException("Base path must be set before adding any routes.");
     }
     this.basePath = basePath;
+    return this;
+  }
+
+  @Nonnull @Override public List<Route> routes() {
+    return routes;
+  }
+
+  @Nonnull @Override public Router when(@Nonnull Predicate<Context> predicate) {
+    this.predicate = predicate;
+    return this;
+  }
+
+  @Nonnull @Override
+  public Router use(@Nonnull Router router) {
+    if (routers == null) {
+      routers = new ArrayList<>();
+    }
+    routers.add(router);
+    routes.addAll(router.routes());
     return this;
   }
 
@@ -194,7 +217,8 @@ public class RouterImpl implements Router {
         .reduce(Renderer.TO_STRING, (it, next) -> next.then(it));
 
     /** Route: */
-    RouteImpl route = new RouteImpl(method, pat.toString(), handler, pipeline.root(), after, renderer);
+    RouteImpl route = new RouteImpl(method, pat.toString(), handler, pipeline.root(), after,
+        renderer);
     String chipattern = basePath == null ? route.pattern() : basePath + route.pattern();
     if (method.equals("*")) {
       METHODS.forEach(m -> chi.insertRoute(methodCode(m), chipattern, route));
@@ -219,8 +243,14 @@ public class RouterImpl implements Router {
     return rootErr;
   }
 
-  @Nonnull @Override public Route match(String method, String path) {
-    return chi.findRoute(methodCode(method), method, path, renderer);
+  @Nonnull @Override public Match match(@Nonnull Context ctx) {
+    String method = ctx.method();
+    String path = ctx.path();
+    Match match = chi
+        .findRoute(ctx, predicate, methodCode(method), method, path, renderer, routers);
+    // Set result and violate encapsulation :S
+    ((BaseContext) ctx).prepare(match);
+    return match;
   }
 
   @Nonnull @Override public Router errorCode(@Nonnull Class<? extends Throwable> type,

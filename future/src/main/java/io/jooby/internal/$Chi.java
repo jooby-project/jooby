@@ -1,7 +1,9 @@
 package io.jooby.internal;
 
+import io.jooby.Context;
 import io.jooby.Renderer;
 import io.jooby.Route;
+import io.jooby.Router;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class $Chi {
@@ -17,28 +20,6 @@ public class $Chi {
   private static final int ntRegexp = 1;                // /{id:[0-9]+}
   private static final int ntParam = 2;                // /{user}
   private static final int ntCatchAll = 3;               // /api/v1/*
-
-  private static class Context {
-    boolean methodNotAllowed;
-    Map vars = Collections.EMPTY_MAP;
-
-    void key(List<String> keys) {
-      for (int i = 0; i < keys.size(); i++) {
-        vars.put(keys.get(i), vars.remove(i));
-      }
-    }
-
-    void value(String value) {
-      if (vars == Collections.EMPTY_MAP) {
-        vars = new HashMap();
-      }
-      vars.put(vars.size(), value);
-    }
-
-    public void pop() {
-      vars.remove(vars.size() - 1);
-    }
-  }
 
   private static class Node implements Comparable<Node> {
     // node type: static, regexp, param, catchAll
@@ -323,7 +304,7 @@ public class $Chi {
 
     // Recursive edge traversal by checking all nodeTyp groups along the way.
     // It's like searching through a multi-dimensional radix trie.
-    Node findRoute(Context rctx, Integer method, String path) {
+    Node findRoute(RouterMatch rctx, Integer method, String path) {
       Node n = this;
       Node nn = n;
       String search = path;
@@ -413,7 +394,7 @@ public class $Chi {
 
             // flag that the routing context found a route, but not a corresponding
             // supported method
-            rctx.methodNotAllowed = true;
+            // rctx.methodNotAllowed = true;
           }
         }
 
@@ -658,19 +639,39 @@ public class $Chi {
     root.insertRoute(method, pattern, route);
   }
 
-  public Route findRoute(Integer method, String methodName, String path, Renderer renderer) {
-    Context ctx = new Context();
+  public Router.Match findRoute(Context context, Predicate<Context> predicate, Integer method,
+      String methodName, String path, Renderer renderer, List<Router> routers) {
+    RouterMatch ctx = new RouterMatch();
+    if (predicate != null && !predicate.test(context)) {
+      return ctx.result(missing(methodName, path, renderer, Route.NOT_FOUND), false);
+    }
+    boolean methodNotAllowed = false;
     Node node = root.findRoute(ctx, method, path);
     if (node != null) {
       RouteImpl route = node.endpoints.get(method);
       if (route != null) {
-        return route.newRuntimeRoute(methodName, ctx.vars);
+        return ctx.result(route, true);
+      } else {
+        methodNotAllowed = true;
       }
     }
-    if (ctx.methodNotAllowed) {
-      return new RouteImpl(methodName, path, Route.METHOD_NOT_ALLOWED, Route.METHOD_NOT_ALLOWED, null, renderer);
+    if (routers != null) {
+      // expand search to routers
+      for (Router router : routers) {
+        Router.Match match = router.match(context);
+        if (match.matches()) {
+          return match;
+        }
+      }
     }
-    Route.RootHandler h = path.endsWith("/favicon.ico") ? Route.FAVICON : Route.NOT_FOUND;
+    Route.RootHandler h = methodNotAllowed ? Route.METHOD_NOT_ALLOWED
+        : path.endsWith("/favicon.ico") ? Route.FAVICON : Route.NOT_FOUND;
+    return ctx.result(missing(methodName, path, renderer, h), false);
+  }
+
+  private RouteImpl missing(String methodName, String path, Renderer renderer,
+      Route.RootHandler h) {
     return new RouteImpl(methodName, path, h, h, null, renderer);
   }
+
 }

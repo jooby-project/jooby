@@ -28,20 +28,6 @@ public class RouteImpl implements Route {
     this.renderer = renderer;
   }
 
-  private RouteImpl(String method, String pattern, Map<String, String> params, Handler handler, Route.RootHandler pipeline, Route.After after, Renderer renderer) {
-    this.method = method;
-    this.pattern = pattern;
-    this.params = params;
-    this.handler = handler;
-    this.pipeline = pipeline;
-    this.after = after;
-    this.renderer = renderer;
-  }
-
-  @Override public Map<String, String> params() {
-    return params;
-  }
-
   @Override public String pattern() {
     return pattern;
   }
@@ -64,10 +50,6 @@ public class RouteImpl implements Route {
 
   @Override public Route.After after() {
     return after;
-  }
-
-  Route newRuntimeRoute(String method, Map<String, String> params) {
-    return new RouteImpl(method, pattern, params, handler, pipeline, after, renderer);
   }
 
   @Override public String toString() {

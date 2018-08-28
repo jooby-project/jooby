@@ -45,8 +45,7 @@ public class NettyContext extends BaseContext {
   private Value.Object headers;
 
   public NettyContext(ChannelHandlerContext ctx, DefaultEventExecutorGroup executor,
-      HttpRequest req, Route.RootErrorHandler errorHandler, String path, Route route) {
-    super(route);
+      HttpRequest req, Route.RootErrorHandler errorHandler, String path) {
     this.path = path;
     this.ctx = ctx;
     this.req = req;
@@ -59,6 +58,10 @@ public class NettyContext extends BaseContext {
    * Request methods:
    * **********************************************************************************************
    */
+
+  @Nonnull @Override public String method() {
+    return req.method().asciiName().toUpperCase().toString();
+  }
 
   @Nonnull @Override public final String path() {
     return path;

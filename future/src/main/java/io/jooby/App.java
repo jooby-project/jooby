@@ -10,8 +10,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
 public class App implements Router {
 
@@ -34,8 +35,23 @@ public class App implements Router {
     return this;
   }
 
+  @Nonnull @Override
+  public Router use(@Nonnull Router router) {
+    this.router.use(router);
+    return this;
+  }
+
+  @Nonnull @Override public List<Route> routes() {
+    return router.routes();
+  }
+
   @Nonnull public App use(Server server) {
     this.server = server;
+    return this;
+  }
+
+  @Nonnull @Override public Router when(@Nonnull Predicate<Context> predicate) {
+    router.when(predicate);
     return this;
   }
 
@@ -89,8 +105,8 @@ public class App implements Router {
     return router.route(method, pattern, handler);
   }
 
-  @Nonnull @Override public Route match(@Nonnull String method, @Nonnull String path) {
-    return router.match(method, path);
+  @Nonnull @Override public Match match(@Nonnull Context ctx) {
+    return router.match(ctx);
   }
 
   /** Error handler: */
