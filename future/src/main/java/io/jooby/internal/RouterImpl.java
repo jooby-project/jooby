@@ -72,7 +72,7 @@ public class RouterImpl implements Router {
 
   private Map<String, StatusCode> errorCodes;
 
-  private final $Chi chi = new $Chi();
+  private final RadixTree chi = new $Chi();
 
   private LinkedList<Stack> stack = new LinkedList<>();
 
@@ -82,7 +82,7 @@ public class RouterImpl implements Router {
 
   private String basePath;
 
-  private List<$Chi> trees;
+  private List<RadixTree> trees;
 
   public RouterImpl() {
     stack.addLast(new Stack(""));
@@ -102,7 +102,7 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override
   public Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
-    $Chi tree = new $Chi(predicate);
+    RadixTree tree = new $Chi().with(predicate);
     if (trees == null) {
       trees = new ArrayList<>();
     }
@@ -188,7 +188,7 @@ public class RouterImpl implements Router {
   }
 
   private Route route(@Nonnull String method, @Nonnull String pattern,
-      @Nonnull Route.Handler handler, $Chi tree) {
+      @Nonnull Route.Handler handler, RadixTree tree) {
     /** Pattern: */
     StringBuilder pat = new StringBuilder();
     stack.forEach(it -> pat.append(it.pattern));
@@ -221,11 +221,11 @@ public class RouterImpl implements Router {
     /** Route: */
     RouteImpl route = new RouteImpl(method, pat.toString(), handler, pipeline.root(), after,
         renderer);
-    String chipattern = basePath == null ? route.pattern() : basePath + route.pattern();
+    String finalpattern = basePath == null ? route.pattern() : basePath + route.pattern();
     if (method.equals("*")) {
-      METHODS.forEach(m -> tree.insertRoute(m, chipattern, route));
+      METHODS.forEach(m -> tree.insert(m, finalpattern, route));
     } else {
-      tree.insertRoute(route.method(), chipattern, route);
+      tree.insert(route.method(), finalpattern, route);
     }
     routes.add(route);
     return route;
@@ -246,7 +246,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
-    Match match = chi.findRoute(ctx, renderer, trees);
+    Match match = chi.find(ctx, renderer, trees);
     // Set result and violate encapsulation :S
     ((BaseContext) ctx).prepare(match);
     return match;

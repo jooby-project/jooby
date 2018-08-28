@@ -2,8 +2,6 @@ package io.jooby.internal;
 
 import io.jooby.Context;
 import io.jooby.Renderer;
-import io.jooby.Route;
-import io.jooby.Router;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,8 +12,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-public class $Chi {
-
+class $Chi implements RadixTree {
   private static final int ntStatic = 0;// /home
   private static final int ntRegexp = 1;                // /{id:[0-9]+}
   private static final int ntParam = 2;                // /{user}
@@ -631,51 +628,18 @@ public class $Chi {
       String key = ws == pattern.length() - 1 ? "*" : pattern.substring(ws + 1);
       return new Segment(ntCatchAll, key, "", (char) 0, ws, pattern.length());
     }
-
-    void clear() {
-      if (endpoints != null) {
-        endpoints.clear();
-      }
-      endpoints = null;
-      for (int i = 0; i < children.length; i++) {
-        Node[] nodes = children[i];
-        if (nodes != null) {
-          for (int j = 0; j < nodes.length; j++) {
-            nodes[j].clear();
-            nodes[j] = null;
-          }
-          children[i] = null;
-        }
-      }
-      children = null;
-      rex = null;
-    }
   }
 
   private Node root = new Node();
 
-  private Predicate<Context> predicate;
-
-  public $Chi(Predicate<Context> predicate) {
-    this.predicate = predicate;
-  }
-
-  public $Chi() {
-    this(null);
-  }
-
-  public void insertRoute(String method, String pattern, RouteImpl route) {
+  public void insert(String method, String pattern, RouteImpl route) {
     root.insertRoute(method, pattern, route);
   }
 
-  public RouterMatch findRoute(Context context, Renderer renderer,
-      List<$Chi> more) {
+  public RouterMatch find(Context context, Renderer renderer, List<RadixTree> more) {
     String method = context.method();
     String path = context.path();
     RouterMatch result = new RouterMatch();
-    if (predicate != null && !predicate.test(context)) {
-      return result.missing(method, path, renderer);
-    }
     Node node = root.findRoute(result, method, path);
     if (node != null) {
       RouteImpl route = node.endpoints.get(method);
@@ -683,18 +647,13 @@ public class $Chi {
     }
     if (more != null) {
       // expand search
-      for ($Chi tree : more) {
-        RouterMatch match = tree.findRoute(context, renderer,null);
+      for (RadixTree tree : more) {
+        RouterMatch match = tree.find(context, renderer,null);
         if (match.matches) {
           return match;
         }
       }
     }
     return result.missing(method, path, renderer);
-  }
-
-  public void clear() {
-    root.clear();
-    root = null;
   }
 }
