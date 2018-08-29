@@ -167,7 +167,8 @@ public class UtowContext extends BaseContext {
   }
 
   @Nonnull @Override public Context type(@Nonnull String contentType) {
-    return null;
+    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType);
+    return this;
   }
 
   @Nonnull @Override public Context sendBytes(@Nonnull byte[] data) {

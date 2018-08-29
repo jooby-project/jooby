@@ -5,7 +5,9 @@ import io.jooby.Context;
 import io.jooby.Mode;
 import io.jooby.Router;
 import io.jooby.jackson.Jackson;
+import io.jooby.netty.Netty;
 import io.jooby.utow.Utow;
+import io.netty.util.ResourceLeakDetector;
 
 import java.util.function.Predicate;
 
@@ -20,7 +22,7 @@ public class HelloApp extends App {
   }
 
   {
-    get("/", ctx -> "Hello World!");
+    get("/", ctx -> ctx.type("text/plain").sendText("Hello World!"));
 
     get("/{foo}", ctx -> "Hello World!");
 
@@ -44,7 +46,7 @@ public class HelloApp extends App {
   public static void main(String[] args) {
     HelloApp app = new HelloApp();
     app.mode(Mode.IO);
-    app.use(new Utow());
+    app.use(new Netty());
     app.start();
   }
 }

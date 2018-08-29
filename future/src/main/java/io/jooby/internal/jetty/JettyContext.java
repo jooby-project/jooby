@@ -177,7 +177,8 @@ public class JettyContext extends BaseContext {
   }
 
   @Nonnull @Override public Context type(@Nonnull String contentType) {
-    return null;
+    request.getResponse().setContentType(contentType);
+    return this;
   }
 
   @Nonnull @Override public Context sendStatusCode(int statusCode) {

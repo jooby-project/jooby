@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
+import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import org.jooby.funzy.Throwing;
 
@@ -32,7 +33,7 @@ public class NettyContext extends BaseContext {
   private final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
   private final Route.RootErrorHandler errorHandler;
   private final ChannelHandlerContext ctx;
-  private final HttpRequest req;
+  private HttpRequest req;
   private final String path;
   private final DefaultEventExecutorGroup executor;
   private HttpResponseStatus status = HttpResponseStatus.OK;
@@ -219,6 +220,11 @@ public class NettyContext extends BaseContext {
     if (files != null) {
       // TODO: use a log
       files.forEach(throwingConsumer(Value.Upload::destroy).onFailure(x -> x.printStackTrace()));
+    }
+    if (this.req != null) {
+      HttpRequest ref = this.req;
+      this.req = null;
+      ReferenceCountUtil.release(ref);
     }
   }
 

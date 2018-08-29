@@ -5,6 +5,7 @@ import io.jooby.Router;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
@@ -31,12 +32,15 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       Router.Match match = router.match(context);
       Route.RootHandler handler = match.route().pipeline();
       handler.apply(context);
+    } else {
+      ctx.fireChannelRead(msg);
     }
   }
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    cause.printStackTrace();
+//    cause.printStackTrace();
+    ctx.close();
     //    if (!ConnectionLost.test(cause)) {
     //      String path = ctx.channel().attr(PATH).get();
     //      ctx.close();

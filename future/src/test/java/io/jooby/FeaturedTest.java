@@ -782,8 +782,20 @@ public class FeaturedTest {
     new JoobyRunner(app -> {
       app.route("foo", "/bar", Context::method);
     }).ready(client -> {
-      client.invoke("foo","/bar").execute(rsp -> {
+      client.invoke("foo", "/bar").execute(rsp -> {
         assertEquals("FOO", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
+  public void setContentType() {
+    new JoobyRunner(app -> {
+      app.get("/plain", ctx -> ctx.type("text/plain").sendText("Text"));
+    }).ready(client -> {
+      client.get("/plain", rsp -> {
+        assertEquals("text/plain", rsp.body().contentType().toString());
+        assertEquals("Text", rsp.body().string());
       });
     });
   }

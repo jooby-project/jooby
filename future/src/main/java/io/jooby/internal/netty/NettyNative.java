@@ -4,6 +4,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.kqueue.KQueue;
+import io.netty.channel.kqueue.KQueueEventLoopGroup;
+import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -27,18 +30,17 @@ public interface NettyNative {
         }
       };
     }
-    // Found slower than IO:
-    //    if (KQueue.isAvailable()) {
-    //      return new NettyNative() {
-    //        @Override public EventLoopGroup group(int threads) {
-    //          return new KQueueEventLoopGroup(threads);
-    //        }
-    //
-    //        @Override public Class<? extends ServerSocketChannel> channel() {
-    //          return KQueueServerSocketChannel.class;
-    //        }
-    //      };
-    //    }
+//    if (KQueue.isAvailable()) {
+//      return new NettyNative() {
+//        @Override public EventLoopGroup group(int threads) {
+//          return new KQueueEventLoopGroup(threads);
+//        }
+//
+//        @Override public Class<? extends ServerSocketChannel> channel() {
+//          return KQueueServerSocketChannel.class;
+//        }
+//      };
+//    }
     return new NettyNative() {
       @Override public EventLoopGroup group(int threads) {
         return new NioEventLoopGroup(threads);

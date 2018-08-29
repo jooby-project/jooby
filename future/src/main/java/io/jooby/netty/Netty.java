@@ -1,5 +1,6 @@
 package io.jooby.netty;
 
+import io.jooby.Context;
 import io.jooby.Mode;
 import io.jooby.Router;
 import io.jooby.Server;
@@ -51,7 +52,7 @@ public class Netty implements Server {
       }
       // FIXME: check configuration parameters
       p.addLast("codec", new HttpServerCodec());
-      p.addLast("aggregator", new HttpObjectAggregator(Integer.MAX_VALUE));
+      p.addLast("aggregator", new HttpObjectAggregator(Context._16KB * 2));
       p.addLast(worker, "handler", handler);
     }
   }
@@ -67,6 +68,8 @@ public class Netty implements Server {
   private Mode mode = Mode.WORKER;
 
   private Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir"));
+
+  private DefaultEventExecutorGroup worker;
 
   @Override public Server port(int port) {
     this.port = port;
@@ -102,7 +105,7 @@ public class Netty implements Server {
       }
 
       /** Worker: */
-      DefaultEventExecutorGroup worker = new DefaultEventExecutorGroup(32);
+      worker = new DefaultEventExecutorGroup(32);
 
       /** Handler: */
       NettyHandler handler = new NettyHandler(worker, router);
@@ -128,6 +131,7 @@ public class Netty implements Server {
   public Server stop() {
     ioLoop.shutdownGracefully();
     acceptor.shutdownGracefully();
+    worker.shutdownGracefully();
     return this;
   }
 
