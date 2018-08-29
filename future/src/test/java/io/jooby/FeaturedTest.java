@@ -794,7 +794,7 @@ public class FeaturedTest {
       app.get("/plain", ctx -> ctx.type("text/plain").sendText("Text"));
     }).ready(client -> {
       client.get("/plain", rsp -> {
-        assertEquals("text/plain", rsp.body().contentType().toString());
+        assertEquals("text/plain;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
         assertEquals("Text", rsp.body().string());
       });
     });

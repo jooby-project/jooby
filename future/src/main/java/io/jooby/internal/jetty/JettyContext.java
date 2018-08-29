@@ -176,8 +176,8 @@ public class JettyContext extends BaseContext {
     return this;
   }
 
-  @Nonnull @Override public Context type(@Nonnull String contentType) {
-    request.getResponse().setContentType(contentType);
+  @Nonnull @Override public Context type(@Nonnull String contentType, @Nonnull String charset) {
+    request.getResponse().setContentType(contentType + ";charset=" + charset);
     return this;
   }
 

@@ -154,8 +154,8 @@ public class NettyContext extends BaseContext {
     return this;
   }
 
-  @Override public final Context type(String contentType) {
-    setHeaders.set(CONTENT_TYPE, contentType);
+  @Override public final Context type(String contentType, String charset) {
+    setHeaders.set(CONTENT_TYPE, contentType + ";charset=" + charset);
     return this;
   }
 
