@@ -147,6 +147,8 @@ public interface Route {
   Renderer renderer();
 
   Route.After after();
+
+  boolean gzip();
 }
 
 

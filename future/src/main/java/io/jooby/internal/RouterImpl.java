@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 public class RouterImpl implements Router {
   private static class Stack {
     private String pattern;
-
+    private boolean gzip;
     private List<Route.Filter> filters = new ArrayList<>();
     private List<Renderer> renderers = new ArrayList<>();
     private List<Route.After> afters = new ArrayList<>();
@@ -57,6 +57,10 @@ public class RouterImpl implements Router {
 
     public Stream<Renderer> toRenderer() {
       return renderers.stream();
+    }
+
+    public void gzip(boolean gzip) {
+      this.gzip = gzip;
     }
 
     public void clear() {
@@ -132,12 +136,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router gzip(@Nonnull Runnable action) {
-    Route.Filter filter = next -> ctx -> {
-      Route.Filter gzip = ctx.gzip();
-      Route.Handler handler = gzip.apply(next);
-      return handler.apply(ctx);
-    };
-    return newGroup("", action, filter);
+    return newGroup("", action, true);
   }
 
   @Override @Nonnull public Router filter(@Nonnull Route.Filter filter) {
@@ -221,6 +220,7 @@ public class RouterImpl implements Router {
     /** Route: */
     RouteImpl route = new RouteImpl(method, pat.toString(), handler, pipeline.root(), after,
         renderer);
+    route.gzip(stack.peekLast().gzip);
     String finalpattern = basePath == null ? route.pattern() : basePath + route.pattern();
     if (method.equals("*")) {
       METHODS.forEach(m -> tree.insert(m, finalpattern, route));
@@ -301,7 +301,13 @@ public class RouterImpl implements Router {
 
   private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action,
       Route.Filter... filter) {
+    return newGroup(pattern, action, false, filter);
+  }
+
+  private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action, boolean gzip,
+      Route.Filter... filter) {
     Stack stack = new Stack(pattern);
+    stack.gzip(gzip);
     Stream.of(filter).forEach(stack::then);
     this.stack.addLast(stack);
     if (action != null) {

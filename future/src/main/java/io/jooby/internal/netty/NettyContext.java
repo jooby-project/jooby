@@ -7,6 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
 import io.netty.util.ReferenceCountUtil;
+import io.netty.util.ReferenceCounted;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import org.jooby.funzy.Throwing;
 
@@ -96,7 +97,7 @@ public class NettyContext extends BaseContext {
   @Nonnull @Override public Form form() {
     if (form == null) {
       form = new Form();
-      decodeForm(new HttpPostStandardRequestDecoder(req), form);
+      decodeForm(req, new HttpPostStandardRequestDecoder(req), form);
     }
     return form;
   }
@@ -107,7 +108,7 @@ public class NettyContext extends BaseContext {
       multipart = new Multipart();
       form = multipart;
       HttpDataFactory factory = new DefaultHttpDataFactory(_16KB);
-      decodeForm(new HttpPostMultipartRequestDecoder(factory, req, StandardCharsets.UTF_8),
+      decodeForm(req, new HttpPostMultipartRequestDecoder(factory, req, StandardCharsets.UTF_8),
           multipart);
     }
     return multipart;
@@ -127,15 +128,6 @@ public class NettyContext extends BaseContext {
       }
     }
     return headers;
-  }
-
-  @Nonnull @Override public Route.Filter gzip() {
-    return next -> ctx -> {
-      if (req.headers().contains(HttpHeaderNames.ACCEPT_ENCODING)) {
-        this.ctx.pipeline().addBefore("handler", "gzip", gzip(this.ctx, req));
-      }
-      return next.apply(ctx);
-    };
   }
 
   @Nonnull @Override public Body body() {
@@ -221,11 +213,7 @@ public class NettyContext extends BaseContext {
       // TODO: use a log
       files.forEach(throwingConsumer(Value.Upload::destroy).onFailure(x -> x.printStackTrace()));
     }
-    if (this.req != null) {
-      HttpRequest ref = this.req;
-      this.req = null;
-      ReferenceCountUtil.release(ref);
-    }
+    release(req);
   }
 
   private Value.Upload register(Value.Upload upload) {
@@ -236,25 +224,9 @@ public class NettyContext extends BaseContext {
     return upload;
   }
 
-  private static HttpContentCompressor gzip(ChannelHandlerContext ctx, HttpRequest req)
-      throws Exception {
-    HttpContentCompressor compressor = new HttpContentCompressor() {
-      @Override protected void encode(ChannelHandlerContext ctx, HttpObject msg, List<Object> out)
-          throws Exception {
-        super.encode(ctx, msg, out);
-        // TODO: is there a better way?
-        if (msg instanceof LastHttpContent) {
-          ctx.pipeline().remove(this);
-        }
-      }
-    };
-    // TODO: is there a better way?
-    // Initialize
-    compressor.channelRead(ctx, req);
-    return compressor;
-  }
 
-  private void decodeForm(InterfaceHttpPostRequestDecoder decoder, Value.Object form) {
+
+  private void decodeForm(HttpRequest req, InterfaceHttpPostRequestDecoder decoder, Value.Object form) {
     try {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();
@@ -269,6 +241,17 @@ public class NettyContext extends BaseContext {
       // ignore, silly netty
     } catch (Exception x) {
       throw Throwing.sneakyThrow(x);
+    } finally {
+      release(req);
+    }
+  }
+
+  private static void release(HttpRequest req) {
+    if (req instanceof ReferenceCounted) {
+      ReferenceCounted ref = (ReferenceCounted) req;
+      if (ref.refCnt() > 0) {
+        ref.release();
+      }
     }
   }
 }

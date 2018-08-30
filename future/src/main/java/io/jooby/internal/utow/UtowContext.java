@@ -2,7 +2,6 @@ package io.jooby.internal.utow;
 
 import io.jooby.*;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.encoding.EncodingHandler;
 import io.undertow.server.handlers.form.*;
 import io.undertow.util.*;
 import org.jooby.funzy.Throwing;
@@ -15,7 +14,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.jooby.funzy.Throwing.throwingConsumer;
 
@@ -134,31 +132,6 @@ public class UtowContext extends BaseContext {
   @Nonnull @Override public Context detach(@Nonnull Runnable action) {
     exchange.dispatch(SameThreadExecutor.INSTANCE, action);
     return this;
-  }
-
-  @Nonnull @Override public Route.Filter gzip() {
-    return next -> ctx -> {
-      if (exchange.getRequestHeaders().contains(Headers.ACCEPT_ENCODING)) {
-        AtomicReference<Object> holder = new AtomicReference<>();
-        new EncodingHandler.Builder().build(null)
-            .wrap(ex -> {
-              try {
-                holder.set(next.apply(ctx));
-              } catch (Throwable x) {
-                holder.set(x);
-              }
-            })
-            .handleRequest(exchange);
-        Object value = holder.get();
-        if (value instanceof Exception) {
-          throw (Exception) value;
-        }
-        return value;
-      } else {
-        // Ignore gzip, move to next:
-        return next.apply(ctx);
-      }
-    };
   }
 
   @Nonnull @Override public Context statusCode(int statusCode) {

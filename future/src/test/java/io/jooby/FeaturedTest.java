@@ -236,7 +236,7 @@ public class FeaturedTest {
     });
   }
 
-  //  @Test
+  @Test
   public void gzip() throws IOException {
     String text = "Praesent blandit, justo a luctus elementum, ante sapien pellentesque tortor, "
         + "vitae maximus nulla augue sed nulla. Phasellus quis turpis ac mi tristique aliquam. "
@@ -280,7 +280,7 @@ public class FeaturedTest {
       });
 
       client.get("/bottom", raw);
-    }, new Jetty());
+    });
   }
 
   private String ungzip(byte[] buff) throws IOException {

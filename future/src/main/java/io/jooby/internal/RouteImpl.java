@@ -16,9 +16,11 @@ public class RouteImpl implements Route {
   private final Map<String, String> params;
   private final Renderer renderer;
   private final After after;
+  private boolean gzip;
   List<String> paramKeys;
 
-  public RouteImpl(String method, String pattern, Handler handler, Route.RootHandler pipeline, Route.After after, Renderer renderer) {
+  public RouteImpl(String method, String pattern, Handler handler, Route.RootHandler pipeline,
+      Route.After after, Renderer renderer) {
     this.method = method.toUpperCase();
     this.pattern = pattern;
     this.params = Collections.EMPTY_MAP;
@@ -34,6 +36,14 @@ public class RouteImpl implements Route {
 
   @Override public String method() {
     return method;
+  }
+
+  @Override public boolean gzip() {
+    return gzip;
+  }
+
+  public void gzip(boolean gzip) {
+    this.gzip = gzip;
   }
 
   @Override public Handler handler() {

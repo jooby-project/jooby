@@ -7,7 +7,6 @@ import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.MultiMap;
 import org.jooby.funzy.Throwing;
@@ -147,28 +146,6 @@ public class JettyContext extends BaseContext {
 
   @Nonnull @Override public Map<String, Object> locals() {
     return locals;
-  }
-
-  @Nonnull @Override public Route.Filter gzip() {
-    return next -> ctx -> {
-      if (request.getHeader("Accept-Encoding") != null) {
-        AtomicReference<Object> holder = new AtomicReference<>();
-
-        /** Gzip: */
-        GzipHandler handler = new GzipHandler();
-        handler.setHandler(gzipCall(ctx, next, holder));
-        handler.handle(target, request, request, request.getResponse());
-
-        /** Check value and rethrow if need it: */
-        Object value = holder.get();
-        if (value instanceof Exception) {
-          throw (Exception) value;
-        }
-        return value;
-      } else {
-        return next.apply(ctx);
-      }
-    };
   }
 
   @Nonnull @Override public Context statusCode(int statusCode) {

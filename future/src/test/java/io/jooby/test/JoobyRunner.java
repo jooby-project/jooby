@@ -54,9 +54,10 @@ public class JoobyRunner {
         try {
           app = this.provider.get();
           app.mode(mode);
+          app.port(9999);
           app.use(server);
           app.start(false);
-          onReady.accept(new WebClient(8080));
+          onReady.accept(new WebClient(9999));
         } finally {
           if (app != null) {
             app.stop();

@@ -127,6 +127,11 @@ public class App implements Router {
     return this;
   }
 
+  public App port(int port) {
+    this.port = port;
+    return this;
+  }
+
   /**
    * Application work/temporary directory. Used internally for tasks like file upload, etc...
    *
