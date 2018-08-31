@@ -32,6 +32,7 @@ import static io.reactivex.Flowable.fromCallable;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FeaturedTest {
@@ -870,6 +871,19 @@ public class FeaturedTest {
         assertEquals("text/plain;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
         assertEquals("...", rsp.body().string());
         assertEquals(3L, rsp.body().contentLength());
+      });
+    });
+  }
+
+  @Test
+  public void defaultHeaders() {
+    new JoobyRunner(app -> {
+      app.filter(new DefaultHeaders());
+      app.get("/", Context::path);
+    }).ready(client -> {
+      client.get("/", rsp -> {
+        assertNotNull(rsp.header("Date"));
+        assertEquals("Jooby", rsp.header("Server"));
       });
     });
   }

@@ -163,6 +163,11 @@ public class JettyContext extends BaseContext {
     return this;
   }
 
+  @Nonnull @Override public Context header(@Nonnull String name, @Nonnull String value) {
+    response.setHeader(name, value);
+    return this;
+  }
+
   @Nonnull @Override public Context length(long length) {
     response.setContentLengthLong(length);
     return this;

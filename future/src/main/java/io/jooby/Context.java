@@ -7,12 +7,21 @@ import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
 public interface Context {
+
+  DateTimeFormatter formatter = DateTimeFormatter
+      .ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH)
+      .withZone(ZoneId.of("UTC"));
 
   /** 16KB constant. */
   int _16KB = 0x4000;
@@ -185,6 +194,26 @@ public interface Context {
    * **** Response methods *************************************************************************
    * **********************************************************************************************
    */
+
+  @Nonnull default Context header(@Nonnull String name, @Nonnull Date value) {
+    return header(name, formatter.format(Instant.ofEpochMilli(value.getTime())));
+  }
+
+  @Nonnull default Context header(@Nonnull String name, @Nonnull Instant value) {
+    return header(name, formatter.format(value));
+  }
+
+  @Nonnull default Context header(@Nonnull String name, @Nonnull Object value) {
+    if (value instanceof Date) {
+      return header(name, (Date) value);
+    }
+    if (value instanceof Instant) {
+      return header(name, (Instant) value);
+    }
+    return header(name, value.toString());
+  }
+
+  @Nonnull Context header(@Nonnull String name, @Nonnull String value);
 
   @Nonnull Context length(long length);
 
