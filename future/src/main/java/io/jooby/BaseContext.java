@@ -3,16 +3,18 @@ package io.jooby;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class BaseContext implements Context {
 
-  protected final Map<String, Parser> parsers = new HashMap<>();
+  protected Map<String, Parser> parsers = Collections.EMPTY_MAP;
 
   protected Route route;
 
-  protected final Map<String, Object> locals = new HashMap<>();
+  protected Map<String, Object> locals = Collections.EMPTY_MAP;
 
   private Route.After after;
 
@@ -39,11 +41,26 @@ public abstract class BaseContext implements Context {
     return locals;
   }
 
+  @Nullable @Override public <T> T get(String name) {
+    return (T) locals.get(name);
+  }
+
+  @Nonnull @Override public Context set(@Nonnull String name, @Nonnull Object value) {
+    if (locals == Collections.EMPTY_MAP) {
+      locals = new HashMap<>();
+    }
+    locals.put(name, value);
+    return this;
+  }
+
   @Nonnull @Override public Parser parser(@Nonnull String contentType) {
     return parsers.getOrDefault(contentType, Parser.NOT_ACCEPTABLE);
   }
 
   @Nonnull @Override public Context parser(@Nonnull String contentType, @Nonnull Parser parser) {
+    if (parsers == Collections.EMPTY_MAP) {
+      parsers = new HashMap<>();
+    }
     parsers.put(contentType, parser);
     return this;
   }

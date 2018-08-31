@@ -1,5 +1,6 @@
 package io.jooby.utow;
 
+import io.jooby.Context;
 import io.jooby.Mode;
 import io.jooby.Router;
 import io.jooby.Server;
@@ -8,6 +9,7 @@ import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.BlockingHandler;
+import org.xnio.Options;
 
 import javax.annotation.Nonnull;
 import java.nio.file.Path;
@@ -44,9 +46,15 @@ public class Utow implements Server {
       uhandler = new BlockingHandler(uhandler);
     }
     server = Undertow.builder()
-        .setServerOption(UndertowOptions.DECODE_URL, false)
         .addHttpListener(port, "0.0.0.0")
-        .setHandler(uhandler).build();
+        .setBufferSize(Context._16KB)
+        // HTTP/1.1 is keep-alive by default
+        .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
+        .setServerOption(UndertowOptions.ALWAYS_SET_DATE, false)
+        .setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, false)
+        .setServerOption(UndertowOptions.DECODE_URL, false)
+        .setHandler(uhandler)
+        .build();
 
     server.start();
 

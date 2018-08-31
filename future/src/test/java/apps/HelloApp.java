@@ -1,15 +1,9 @@
 package apps;
 
 import io.jooby.App;
-import io.jooby.Context;
 import io.jooby.Mode;
-import io.jooby.Router;
 import io.jooby.jackson.Jackson;
-import io.jooby.netty.Netty;
 import io.jooby.utow.Utow;
-import io.netty.util.ResourceLeakDetector;
-
-import java.util.function.Predicate;
 
 public class HelloApp extends App {
 
@@ -24,18 +18,18 @@ public class HelloApp extends App {
   {
     get("/", ctx -> ctx.type("text/plain").sendText("Hello World!"));
 
-    get("/{foo}", ctx -> "Hello World!");
+    get("/{foo}", ctx -> ctx.type("text/plain").sendText("Hello World!"));
 
     dispatch(() -> {
       filter(next -> ctx -> {
         System.out.println(Thread.currentThread());
         return next.apply(ctx);
       });
-      get("/worker", ctx -> "Hello Worker");
+      get("/worker", ctx -> ctx.type("text/plain").sendText("Hello World!"));
     });
 
     renderer(new Jackson());
-    get("/json", ctx -> new Message("Hello World!"));
+    get("/json", ctx -> ctx.type("application/json").send(new Message("Hello World!")));
 
     error((ctx, cause, statusCode) -> {
       ctx.statusCode(statusCode)
@@ -46,7 +40,7 @@ public class HelloApp extends App {
   public static void main(String[] args) {
     HelloApp app = new HelloApp();
     app.mode(Mode.IO);
-    app.use(new Netty());
+    app.use(new Utow());
     app.start();
   }
 }

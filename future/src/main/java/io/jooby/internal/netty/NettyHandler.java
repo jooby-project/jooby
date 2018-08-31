@@ -37,7 +37,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       NettyContext context = new NettyContext(ctx, executor, req, router.errorHandler(), path);
       Router.Match match = router.match(context);
       Route route = match.route();
-      if (route.gzip() && req.headers().contains(HttpHeaderNames.ACCEPT_ENCODING, HttpHeaderValues.GZIP, true)) {
+      if (route.gzip() && acceptGzip(req.headers().get(HttpHeaderNames.ACCEPT_ENCODING))) {
         installGzip(ctx, req);
       }
       Route.RootHandler handler = route.pipeline();
@@ -45,6 +45,10 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     } else {
       ctx.fireChannelRead(msg);
     }
+  }
+
+  private static boolean acceptGzip(String value) {
+    return value != null && value.contains("gzip");
   }
 
   private static void installGzip(ChannelHandlerContext ctx, HttpRequest req) throws Exception {

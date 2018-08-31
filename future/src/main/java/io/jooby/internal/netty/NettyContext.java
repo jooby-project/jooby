@@ -197,7 +197,7 @@ public class NettyContext extends BaseContext {
     responseStarted = true;
     rsp.headers().set(setHeaders);
     if (keepAlive) {
-      rsp.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+      // rsp.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
       ctx.write(rsp, ctx.voidPromise());
     } else {
       ctx.write(rsp).addListener(CLOSE);

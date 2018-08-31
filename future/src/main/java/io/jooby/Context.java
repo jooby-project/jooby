@@ -174,14 +174,9 @@ public interface Context {
 
   @Nonnull Executor worker();
 
-  @Nullable default <T> T get(String name) {
-    return (T) locals().get(name);
-  }
+  @Nullable <T> T get(String name);
 
-  @Nonnull default Context set(@Nonnull String name, @Nonnull Object value) {
-    locals().put(name, value);
-    return this;
-  }
+  @Nonnull Context set(@Nonnull String name, @Nonnull Object value);
 
   @Nonnull Map<String, Object> locals();
 
@@ -196,7 +191,7 @@ public interface Context {
   }
 
   @Nonnull default Context type(@Nonnull String contentType) {
-    return type(contentType, StandardCharsets.UTF_8.name());
+    return type(contentType, "UTF-8");
   }
 
   @Nonnull Context type(@Nonnull String contentType, String charset);

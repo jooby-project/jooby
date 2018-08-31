@@ -20,8 +20,10 @@ public class RouterMatch implements Router.Match {
   private Route.RootHandler handler;
 
   public void key(List<String> keys) {
-    for (int i = 0; i < keys.size(); i++) {
-      vars.put(keys.get(i), vars.remove(i));
+    if (keys != Collections.EMPTY_LIST) {
+      for (int i = 0; i < keys.size(); i++) {
+        vars.put(keys.get(i), vars.remove(i));
+      }
     }
   }
 
