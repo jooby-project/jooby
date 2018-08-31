@@ -6,7 +6,6 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
-import io.netty.util.ReferenceCountUtil;
 import io.netty.util.ReferenceCounted;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import org.jooby.funzy.Throwing;
@@ -21,7 +20,6 @@ import java.util.concurrent.Executor;
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.channel.ChannelFutureListener.CLOSE;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
@@ -30,7 +28,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jooby.funzy.Throwing.throwingConsumer;
 
 public class NettyContext extends BaseContext {
-
   private final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
   private final Route.RootErrorHandler errorHandler;
   private final ChannelHandlerContext ctx;
@@ -147,7 +144,11 @@ public class NettyContext extends BaseContext {
   }
 
   @Override public final Context type(String contentType, String charset) {
-    setHeaders.set(CONTENT_TYPE, contentType + ";charset=" + charset);
+    if (charset == null) {
+      setHeaders.set(CONTENT_TYPE, contentType);
+    } else {
+      setHeaders.set(CONTENT_TYPE, contentType + ";charset=" + charset);
+    }
     return this;
   }
 
@@ -229,9 +230,8 @@ public class NettyContext extends BaseContext {
     return upload;
   }
 
-
-
-  private void decodeForm(HttpRequest req, InterfaceHttpPostRequestDecoder decoder, Value.Object form) {
+  private void decodeForm(HttpRequest req, InterfaceHttpPostRequestDecoder decoder,
+      Value.Object form) {
     try {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();

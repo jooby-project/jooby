@@ -186,26 +186,14 @@ public interface Context {
    * **********************************************************************************************
    */
 
-  @Nonnull Context length(final long length);
-
-  @Nonnull default Context type(@Nonnull String contentType, @Nonnull Charset charset) {
-    return type(contentType, charset.name());
-  }
+  @Nonnull Context length(long length);
 
   @Nonnull default Context type(@Nonnull MediaType contentType) {
-    return type(contentType.value(), contentType.charset(StandardCharsets.UTF_8));
-  }
-
-  @Nonnull default Context type(@Nonnull MediaType contentType, String charset) {
-    return type(contentType.value(), charset);
-  }
-
-  @Nonnull default Context type(@Nonnull MediaType contentType, Charset charset) {
-    return type(contentType.value(), charset);
+    return type(contentType.value(), contentType.charset());
   }
 
   @Nonnull default Context type(@Nonnull String contentType) {
-    return type(contentType, "UTF-8");
+    return type(MediaType.valueOf(contentType));
   }
 
   @Nonnull Context type(@Nonnull String contentType, String charset);

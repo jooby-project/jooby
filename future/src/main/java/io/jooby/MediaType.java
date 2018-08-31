@@ -2,8 +2,6 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,31 +26,33 @@ public class MediaType {
 
   public static final String ALL = "*/*";
 
-  public static final MediaType json = new MediaType(JSON);
+  public static final MediaType json = new MediaType(JSON, "UTF-8");
 
-  public static final MediaType text = new MediaType(TEXT);
+  public static final MediaType text = new MediaType(TEXT, "UTF-8");
 
-  public static final MediaType html = new MediaType(HTML);
+  public static final MediaType html = new MediaType(HTML, "UTF-8");
 
-  public static final MediaType js = new MediaType(JS);
+  public static final MediaType js = new MediaType(JS, "UTF-8");
 
-  public static final MediaType css = new MediaType(CSS);
+  public static final MediaType css = new MediaType(CSS, "UTF-8");
 
-  public static final MediaType octetStream = new MediaType(OCTET_STREAM);
+  public static final MediaType octetStream = new MediaType(OCTET_STREAM, null);
 
-  public static final MediaType formUrlencoded = new MediaType(FORM_URLENCODED);
+  public static final MediaType formUrlencoded = new MediaType(FORM_URLENCODED, "UTF-8");
 
-  public static final MediaType multipartFormdata = new MediaType(MULTIPART_FORMDATA);
+  public static final MediaType multipartFormdata = new MediaType(MULTIPART_FORMDATA, null);
 
-  public static final MediaType all = new MediaType(ALL);
+  public static final MediaType all = new MediaType(ALL, null);
 
   private final String value;
+
+  private final String charset;
 
   private final int subtypeStart;
 
   private final int subtypeEnd;
 
-  private MediaType(@Nonnull String value) {
+  private MediaType(@Nonnull String value, String charset) {
     // Old browsers send `*` which means `*/*`
     if (value.equals("*")) {
       this.value = "*/*";
@@ -67,6 +67,7 @@ public class MediaType {
       int subtypeEnd = value.indexOf(';');
       this.subtypeEnd = subtypeEnd < 0 ? value.length() : subtypeEnd;
     }
+    this.charset = charset;
   }
 
   @Override public boolean equals(Object obj) {
@@ -110,13 +111,29 @@ public class MediaType {
     return q == null ? 1f : Float.parseFloat(q);
   }
 
-  @Nonnull public Charset charset() {
-    return charset(StandardCharsets.UTF_8);
+  public boolean isTextual() {
+    String type = type();
+    if (type.equals("text")) {
+      return true;
+    }
+    if (type.equals("application")) {
+      String subtype = subtype();
+      return subtype.equals("json") || subtype.equals("javascript");
+    }
+    return false;
   }
 
-  @Nonnull public Charset charset(Charset charset) {
+  @Nullable public String charset() {
+    String charset = _charset(this.charset);
+    if (charset == null && isTextual()) {
+      return "UTF-8";
+    }
+    return charset;
+  }
+
+  private String _charset(String charset) {
     String charsetName = param("charset");
-    return charsetName == null ? charset : Charset.forName(charsetName);
+    return charsetName == null ? charset : charsetName;
   }
 
   @Nonnull public String type() {
@@ -131,7 +148,7 @@ public class MediaType {
     if (value == null || value.length() == 0) {
       return all;
     }
-    return new MediaType(value);
+    return new MediaType(value, null);
   }
 
   @Nonnull public static List<MediaType> parse(@Nullable String value) {
@@ -141,7 +158,7 @@ public class MediaType {
     List<MediaType> result = new ArrayList<>(3);
     int typeStart = 0;
     int len = value.length();
-    for(int i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
       char ch = value.charAt(i);
       if (ch == ',') {
         result.add(valueOf(value.substring(typeStart, i).trim()));

@@ -10,9 +10,9 @@ public interface Parser {
     }
   };
 
-  default String contentType() {
-   return "text/plain";
+  @Nonnull default String contentType() {
+   return MediaType.TEXT;
   }
 
-  <T> T parse(Context ctx, Reified<T> type) throws Exception;
+  @Nonnull <T> T parse(@Nonnull Context ctx, @Nonnull Reified<T> type) throws Exception;
 }

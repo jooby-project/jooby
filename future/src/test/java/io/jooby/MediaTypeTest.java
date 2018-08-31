@@ -11,13 +11,13 @@ public class MediaTypeTest {
 
   @Test
   public void json() {
-    MediaType json = MediaType.json;
-    assertEquals("application/json", json.toString());
-    assertEquals("application/json", json.value());
-    assertEquals("application", json.type());
-    assertEquals("json", json.subtype());
-    assertEquals(1f, json.quality());
-    assertEquals(StandardCharsets.UTF_8, json.charset());
+    MediaType type = MediaType.json;
+    assertEquals("application/json", type.toString());
+    assertEquals("application/json", type.value());
+    assertEquals("application", type.type());
+    assertEquals("json", type.subtype());
+    assertEquals(1f, type.quality());
+    assertEquals("UTF-8", type.charset());
   }
 
   @Test
@@ -28,7 +28,7 @@ public class MediaTypeTest {
     assertEquals("text", type.type());
     assertEquals("plain", type.subtype());
     assertEquals(1f, type.quality());
-    assertEquals(StandardCharsets.UTF_8, type.charset());
+    assertEquals("UTF-8", type.charset());
   }
 
   @Test
@@ -39,18 +39,18 @@ public class MediaTypeTest {
     assertEquals("text", type.type());
     assertEquals("html", type.subtype());
     assertEquals(1f, type.quality());
-    assertEquals(StandardCharsets.UTF_8, type.charset());
+    assertEquals("UTF-8", type.charset());
   }
 
   @Test
   public void valueOf() {
-    MediaType json = MediaType.valueOf("application / json; q=0.5; charset=us-ascii");
-    assertEquals("application / json; q=0.5; charset=us-ascii", json.toString());
-    assertEquals("application / json", json.value());
-    assertEquals("application", json.type());
-    assertEquals("json", json.subtype());
-    assertEquals(.5f, json.quality());
-    assertEquals(StandardCharsets.US_ASCII, json.charset());
+    MediaType type = MediaType.valueOf("application / json; q=0.5; charset=us-ascii");
+    assertEquals("application / json; q=0.5; charset=us-ascii", type.toString());
+    assertEquals("application / json", type.value());
+    assertEquals("application", type.type());
+    assertEquals("json", type.subtype());
+    assertEquals(.5f, type.quality());
+    assertEquals("us-ascii", type.charset());
 
     MediaType any = MediaType.valueOf("*");
     assertEquals("*/*", any.value());

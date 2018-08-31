@@ -7,6 +7,7 @@ import io.undertow.util.*;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +16,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static org.jooby.funzy.Throwing.throwingConsumer;
 
 public class UtowContext extends BaseContext {
@@ -139,8 +141,12 @@ public class UtowContext extends BaseContext {
     return this;
   }
 
-  @Nonnull @Override public Context type(@Nonnull String contentType, @Nonnull String charset) {
-    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType + ";charset=" + charset);
+  @Nonnull @Override public Context type(@Nonnull String contentType, @Nullable String charset) {
+    if (charset == null) {
+      exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType);
+    } else {
+      exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType + ";charset=" + charset);
+    }
     return this;
   }
 

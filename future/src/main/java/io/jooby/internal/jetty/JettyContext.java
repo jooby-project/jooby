@@ -12,6 +12,7 @@ import org.eclipse.jetty.util.MultiMap;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -155,9 +156,10 @@ public class JettyContext extends BaseContext {
     return this;
   }
 
-  @Nonnull @Override public Context type(@Nonnull String contentType, @Nonnull String charset) {
+  @Nonnull @Override public Context type(@Nonnull String contentType, @Nullable String charset) {
     response.setContentType(contentType);
-    response.setCharacterEncoding(charset);
+    if (charset != null)
+      response.setCharacterEncoding(charset);
     return this;
   }
 
@@ -168,7 +170,6 @@ public class JettyContext extends BaseContext {
 
   @Nonnull @Override public Context sendStatusCode(int statusCode) {
     try {
-      Response response = request.getResponse();
       response.setLongContentLength(0);
       response.setStatus(statusCode);
       if (!request.isAsyncStarted()) {
@@ -192,7 +193,7 @@ public class JettyContext extends BaseContext {
 
   @Nonnull @Override public Context sendBytes(@Nonnull ByteBuffer data) {
     ByteBuffer result = (ByteBuffer) fireAfter(data);
-    HttpOutput sender = request.getResponse().getHttpOutput();
+    HttpOutput sender = response.getHttpOutput();
     if (request.isAsyncStarted()) {
       AsyncContext asyncContext = request.getAsyncContext();
       sender.sendContent(result, new JettyCallback(asyncContext));
