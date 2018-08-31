@@ -144,6 +144,11 @@ public class UtowContext extends BaseContext {
     return this;
   }
 
+  @Nonnull @Override public Context length(long length) {
+    exchange.setResponseContentLength(length);
+    return this;
+  }
+
   @Nonnull @Override public Context sendBytes(@Nonnull byte[] data) {
     byte[] result = (byte[]) fireAfter(data);
     return sendBytes(ByteBuffer.wrap(result));

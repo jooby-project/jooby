@@ -46,7 +46,7 @@ public class MediaTypeTest {
   public void valueOf() {
     MediaType json = MediaType.valueOf("application / json; q=0.5; charset=us-ascii");
     assertEquals("application / json; q=0.5; charset=us-ascii", json.toString());
-    assertEquals("application / json; q=0.5; charset=us-ascii", json.value());
+    assertEquals("application / json", json.value());
     assertEquals("application", json.type());
     assertEquals("json", json.subtype());
     assertEquals(.5f, json.quality());

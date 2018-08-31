@@ -151,6 +151,11 @@ public class NettyContext extends BaseContext {
     return this;
   }
 
+  @Nonnull @Override public Context length(long length) {
+    setHeaders.set(CONTENT_LENGTH, length);
+    return this;
+  }
+
   @Nonnull @Override public Context sendText(@Nonnull String data) {
     String result = (String) fireAfter(data);
     return sendByteBuf(copiedBuffer(result, UTF_8));

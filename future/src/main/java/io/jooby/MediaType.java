@@ -102,7 +102,7 @@ public class MediaType {
   }
 
   @Nonnull public String value() {
-    return value;
+    return value.substring(0, subtypeEnd);
   }
 
   @Nonnull public float quality() {
@@ -111,8 +111,12 @@ public class MediaType {
   }
 
   @Nonnull public Charset charset() {
-    String charset = param("charset");
-    return charset == null ? StandardCharsets.UTF_8 : Charset.forName(charset);
+    return charset(StandardCharsets.UTF_8);
+  }
+
+  @Nonnull public Charset charset(Charset charset) {
+    String charsetName = param("charset");
+    return charsetName == null ? charset : Charset.forName(charsetName);
   }
 
   @Nonnull public String type() {

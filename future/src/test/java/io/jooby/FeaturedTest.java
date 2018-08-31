@@ -27,6 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import static io.jooby.MediaType.text;
 import static io.reactivex.Flowable.fromCallable;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static okhttp3.RequestBody.create;
@@ -855,6 +856,20 @@ public class FeaturedTest {
       client.get("/plain", rsp -> {
         assertEquals("text/plain;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
         assertEquals("Text", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
+  public void setContentLen() {
+    String value = "...";
+    new JoobyRunner(app -> {
+      app.get("/len", ctx -> ctx.type(text).length(value.length()).sendText(value));
+    }).ready(client -> {
+      client.get("/len", rsp -> {
+        assertEquals("text/plain;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
+        assertEquals("...", rsp.body().string());
+        assertEquals(3L, rsp.body().contentLength());
       });
     });
   }

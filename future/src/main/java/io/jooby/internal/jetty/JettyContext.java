@@ -29,6 +29,7 @@ import static org.jooby.funzy.Throwing.throwingConsumer;
 
 public class JettyContext extends BaseContext {
   private final Request request;
+  private final Response response;
   private final Executor executor;
   private final String target;
   private final Route.RootErrorHandler errorHandler;
@@ -43,6 +44,7 @@ public class JettyContext extends BaseContext {
       Consumer<Request> multipartInit, Route.RootErrorHandler errorHandler) {
     this.target = target;
     this.request = request;
+    this.response = request.getResponse();
     this.executor = threadPool;
     this.multipartInit = multipartInit;
     this.errorHandler = errorHandler;
@@ -149,12 +151,18 @@ public class JettyContext extends BaseContext {
   }
 
   @Nonnull @Override public Context statusCode(int statusCode) {
-    request.getResponse().setStatus(statusCode);
+    response.setStatus(statusCode);
     return this;
   }
 
   @Nonnull @Override public Context type(@Nonnull String contentType, @Nonnull String charset) {
-    request.getResponse().setContentType(contentType + ";charset=" + charset);
+    response.setContentType(contentType);
+    response.setCharacterEncoding(charset);
+    return this;
+  }
+
+  @Nonnull @Override public Context length(long length) {
+    response.setContentLengthLong(length);
     return this;
   }
 
