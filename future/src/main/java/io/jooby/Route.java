@@ -1,6 +1,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public interface Route {
 
@@ -136,17 +137,19 @@ public interface Route {
 
   RootHandler FAVICON = ctx -> ctx.sendStatusCode(StatusCode.NOT_FOUND);
 
-  String pattern();
+  @Nonnull String pattern();
 
-  String method();
+  @Nonnull String method();
 
-  Handler handler();
+  @Nonnull List<String> paramKeys();
 
-  RootHandler pipeline();
+  @Nonnull Handler handler();
 
-  Renderer renderer();
+  @Nonnull RootHandler pipeline();
 
-  Route.After after();
+  @Nonnull Renderer renderer();
+
+  @Nonnull Route.After after();
 
   boolean gzip();
 }

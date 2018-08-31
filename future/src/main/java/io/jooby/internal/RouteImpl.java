@@ -13,7 +13,6 @@ public class RouteImpl implements Route {
   private final String pattern;
   private final Handler handler;
   private final Route.RootHandler pipeline;
-  private final Map<String, String> params;
   private final Renderer renderer;
   private final After after;
   private boolean gzip;
@@ -23,7 +22,6 @@ public class RouteImpl implements Route {
       Route.After after, Renderer renderer) {
     this.method = method.toUpperCase();
     this.pattern = pattern;
-    this.params = Collections.EMPTY_MAP;
     this.handler = handler;
     this.pipeline = pipeline;
     this.after = after;
@@ -32,6 +30,10 @@ public class RouteImpl implements Route {
 
   @Override public String pattern() {
     return pattern;
+  }
+
+  public List<String> paramKeys() {
+    return paramKeys == null ? Collections.EMPTY_LIST : paramKeys;
   }
 
   @Override public String method() {

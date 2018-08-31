@@ -20,7 +20,7 @@ public class RouterMatch implements Router.Match {
   private Route.RootHandler handler;
 
   public void key(List<String> keys) {
-    if (keys != Collections.EMPTY_LIST) {
+    if (keys != null) {
       for (int i = 0; i < keys.size(); i++) {
         vars.put(keys.get(i), vars.remove(i));
       }

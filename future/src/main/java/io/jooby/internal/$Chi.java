@@ -525,7 +525,7 @@ class $Chi implements RadixTree {
         if (s.nodeType == ntStatic) {
           switch (paramKeys.size()) {
             case 0:
-              return Collections.emptyList();
+              return null;
             case 1:
               return Collections.singletonList(paramKeys.get(0));
             default:
