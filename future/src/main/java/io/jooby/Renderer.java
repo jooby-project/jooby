@@ -4,7 +4,8 @@ import javax.annotation.Nonnull;
 
 public interface Renderer {
 
-  Renderer TO_STRING = (ctx, value) -> ctx.sendText(value.toString());
+  Renderer TO_STRING = (ctx, value) -> ctx.type(MediaType.TEXT)
+      .sendText(value.toString());
 
   void render(@Nonnull Context ctx, @Nonnull Object result) throws Exception;
 

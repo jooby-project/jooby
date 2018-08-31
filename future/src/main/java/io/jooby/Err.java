@@ -32,5 +32,4 @@ public class Err extends RuntimeException {
   private static String tail(String message) {
     return message == null ? "" : ": " + message;
   }
-
 }

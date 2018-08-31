@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jooby.Context;
 import io.jooby.Converter;
+import io.jooby.MediaType;
 import io.jooby.Reified;
 
 import javax.annotation.Nonnull;
@@ -13,7 +14,7 @@ public class Jackson extends Converter {
   private final ObjectMapper mapper;
 
   public Jackson(ObjectMapper mapper) {
-    super("application/json");
+    super(MediaType.JSON);
     this.mapper = mapper;
   }
 
@@ -26,7 +27,7 @@ public class Jackson extends Converter {
       // Ignore string/charsequence responses, those are going to be processed by the default renderer and let route to return raw JSON
       return;
     }
-    ctx.sendBytes(mapper.writeValueAsBytes(value));
+    ctx.type(MediaType.JSON).sendBytes(mapper.writeValueAsBytes(value));
   }
 
   @Override public <T> T parse(Context ctx, Reified<T> type) throws Exception {
