@@ -12,6 +12,7 @@ Small but helpful module that provides access to ```Email``` instances.
 * ```SimpleEmail```
 * ```MultiPartEmail```
 * ```HtmlEmail```
+* ```ImageHtmlEmail```
 
 ## dependency
 
