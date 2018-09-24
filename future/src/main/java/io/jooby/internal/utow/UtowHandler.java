@@ -2,15 +2,18 @@ package io.jooby.internal.utow;
 
 import io.jooby.Route;
 import io.jooby.Router;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.encoding.EncodingHandler;
 import io.undertow.util.Headers;
+import io.undertow.util.HttpString;
 
 import java.nio.file.Path;
 
 public class UtowHandler implements HttpHandler {
 
+  private static final String UTOW = "Utow";
   private final Router router;
   private final Path tmpdir;
 
@@ -26,6 +29,7 @@ public class UtowHandler implements HttpHandler {
     Route route = match.route();
     Route.RootHandler handler = route.pipeline();
 
+    exchange.getResponseHeaders().put(Headers.SERVER, UTOW);
     if (route.gzip() && acceptGzip(exchange.getRequestHeaders().getFirst(Headers.ACCEPT_ENCODING))) {
       new EncodingHandler.Builder().build(null)
           .wrap(gzipExchange -> handler.apply(context))

@@ -19,9 +19,13 @@ import java.util.concurrent.Executor;
 
 public interface Context {
 
-  DateTimeFormatter formatter = DateTimeFormatter
-      .ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH)
-      .withZone(ZoneId.of("UTC"));
+  ZoneId GMT = ZoneId.of("GMT");
+
+  String RFC1123_PATTERN = "EEE, dd MMM yyyy HH:mm:ss z";
+
+  DateTimeFormatter RFC1123 = DateTimeFormatter
+      .ofPattern(RFC1123_PATTERN, Locale.US)
+      .withZone(GMT);
 
   /** 16KB constant. */
   int _16KB = 0x4000;
@@ -196,11 +200,11 @@ public interface Context {
    */
 
   @Nonnull default Context header(@Nonnull String name, @Nonnull Date value) {
-    return header(name, formatter.format(Instant.ofEpochMilli(value.getTime())));
+    return header(name, RFC1123.format(Instant.ofEpochMilli(value.getTime())));
   }
 
   @Nonnull default Context header(@Nonnull String name, @Nonnull Instant value) {
-    return header(name, formatter.format(value));
+    return header(name, RFC1123.format(value));
   }
 
   @Nonnull default Context header(@Nonnull String name, @Nonnull Object value) {
@@ -256,4 +260,11 @@ public interface Context {
   boolean isResponseStarted();
 
   void destroy();
+
+  /**
+   * Name of the underlying HTTP server: netty, utow, jetty, etc..
+   *
+   * @return Name of the underlying HTTP server: netty, utow, jetty, etc..
+   */
+  String name();
 }

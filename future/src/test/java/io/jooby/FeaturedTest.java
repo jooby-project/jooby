@@ -20,6 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -877,13 +879,15 @@ public class FeaturedTest {
 
   @Test
   public void defaultHeaders() {
+    LinkedList<String> servers = new LinkedList<>(Arrays.asList("netty", "utow", "jetty"));
     new JoobyRunner(app -> {
       app.filter(new DefaultHeaders());
       app.get("/", Context::path);
     }).ready(client -> {
       client.get("/", rsp -> {
         assertNotNull(rsp.header("Date"));
-        assertEquals("Jooby", rsp.header("Server"));
+        assertEquals(servers.getFirst(), rsp.header("Server"));
+        servers.removeFirst();
       });
     });
   }

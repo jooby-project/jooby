@@ -51,6 +51,10 @@ public class JettyContext extends BaseContext {
     this.errorHandler = errorHandler;
   }
 
+  @Override public String name() {
+    return "jetty";
+  }
+
   @Nonnull @Override public Body body() {
     try {
       return Body.of(request.getInputStream(), request.getContentLengthLong());

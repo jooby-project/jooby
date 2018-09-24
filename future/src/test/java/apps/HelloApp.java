@@ -1,11 +1,15 @@
 package apps;
 
 import io.jooby.App;
+import io.jooby.DefaultHeaders;
+import io.jooby.MediaType;
 import io.jooby.Mode;
 import io.jooby.jackson.Jackson;
 import io.jooby.utow.Utow;
 
 public class HelloApp extends App {
+
+  private static final String MESSAGE = "Hello World!";
 
   static class Message {
     public final String message;
@@ -16,7 +20,9 @@ public class HelloApp extends App {
   }
 
   {
-    get("/", ctx -> ctx.type("text/plain").sendText("Hello World!"));
+    filter(new DefaultHeaders());
+
+    get("/", ctx -> ctx.sendText(MESSAGE));
 
     get("/{foo}", ctx -> ctx.type("text/plain").sendText("Hello World!"));
 

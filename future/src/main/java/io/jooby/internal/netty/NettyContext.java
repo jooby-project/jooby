@@ -53,6 +53,10 @@ public class NettyContext extends BaseContext {
     this.errorHandler = errorHandler;
   }
 
+  @Override public String name() {
+    return "netty";
+  }
+
   /* **********************************************************************************************
    * Request methods:
    * **********************************************************************************************

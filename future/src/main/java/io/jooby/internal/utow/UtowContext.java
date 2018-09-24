@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static org.jooby.funzy.Throwing.throwingConsumer;
@@ -37,6 +38,11 @@ public class UtowContext extends BaseContext {
     this.executor = executor;
     this.tmpdir = tmpdir;
     this.errorHandler = errorHandler;
+    this.exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
+  }
+
+  @Override public String name() {
+    return "utow";
   }
 
   @Nonnull @Override public Body body() {
