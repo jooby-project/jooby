@@ -892,6 +892,35 @@ public class FeaturedTest {
     });
   }
 
+  @Test
+  public void defaultContentType() {
+    new JoobyRunner(app -> {
+      app.get("/type", Context::path);
+    }).ready(client -> {
+      client.get("/type", rsp -> {
+        assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type"));
+      });
+    });
+
+    new JoobyRunner(app -> {
+      app.defaultContentType("text/plain");
+      app.get("/type-no-charset", Context::path);
+    }).ready(client -> {
+      client.get("/type-no-charset", rsp -> {
+        assertEquals("text/plain", rsp.header("Content-Type"));
+      });
+    });
+
+    new JoobyRunner(app -> {
+      app.defaultContentType("text/plain");
+      app.get("/type-override", ctx -> ctx.type("text/html").sendText("OK"));
+    }).ready(client -> {
+      client.get("/type-override", rsp -> {
+        assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+      });
+    });
+  }
+
   private static String readText(Path file) {
     try {
       return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);

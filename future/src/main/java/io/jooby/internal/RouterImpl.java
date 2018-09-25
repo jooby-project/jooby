@@ -24,6 +24,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class RouterImpl implements Router {
+
   private static class Stack {
     private String pattern;
     private boolean gzip;
@@ -69,6 +70,10 @@ public class RouterImpl implements Router {
       this.afters.clear();
     }
   }
+
+  private static String TEXT = "text/plain;charset=utf-8";
+
+  private String contentType = TEXT;
 
   private Route.ErrorHandler err;
 
@@ -258,6 +263,15 @@ public class RouterImpl implements Router {
       errorCodes = new HashMap<>();
     }
     this.errorCodes.put(type.getCanonicalName(), statusCode);
+    return this;
+  }
+
+  @Nonnull @Override public String defaultContentType() {
+    return contentType;
+  }
+
+  @Nonnull @Override public Router defaultContentType(@Nonnull String contentType) {
+    this.contentType = contentType;
     return this;
   }
 

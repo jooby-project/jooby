@@ -39,6 +39,8 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       Route route = match.route();
       if (route.gzip() && acceptGzip(req.headers().get(HttpHeaderNames.ACCEPT_ENCODING))) {
         installGzip(ctx, req);
+      } else {
+        context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, router.defaultContentType());
       }
       Route.RootHandler handler = route.pipeline();
       handler.apply(context);

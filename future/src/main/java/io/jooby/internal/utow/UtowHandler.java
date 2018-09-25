@@ -28,12 +28,12 @@ public class UtowHandler implements HttpHandler {
     Route route = match.route();
     Route.RootHandler handler = route.pipeline();
 
-    exchange.getResponseHeaders().put(Headers.SERVER, UTOW);
     if (route.gzip() && acceptGzip(exchange.getRequestHeaders().getFirst(Headers.ACCEPT_ENCODING))) {
       new EncodingHandler.Builder().build(null)
           .wrap(gzipExchange -> handler.apply(context))
           .handleRequest(exchange);
     } else {
+      exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, router.defaultContentType());
       handler.apply(context);
     }
   }

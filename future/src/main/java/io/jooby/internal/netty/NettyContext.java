@@ -29,7 +29,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jooby.funzy.Throwing.throwingConsumer;
 
 public class NettyContext extends BaseContext {
-  private final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
+  final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
   private final Route.RootErrorHandler errorHandler;
   private final ChannelHandlerContext ctx;
   private HttpRequest req;

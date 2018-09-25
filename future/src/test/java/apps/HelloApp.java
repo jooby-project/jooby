@@ -22,18 +22,20 @@ public class HelloApp extends App {
   }
 
   {
+    defaultContentType("text/plain");
+
     filter(new DefaultHeaders());
 
     get("/", ctx -> ctx.sendText(MESSAGE));
 
-    get("/{foo}", ctx -> ctx.type("text/plain").sendText("Hello World!"));
+    get("/{foo}", ctx -> ctx.sendText("Hello World!"));
 
     dispatch(() -> {
       filter(next -> ctx -> {
         System.out.println(Thread.currentThread());
         return next.apply(ctx);
       });
-      get("/worker", ctx -> ctx.type("text/plain").sendText("Hello World!"));
+      get("/worker", ctx -> ctx.sendText("Hello World!"));
     });
 
     renderer(new Jackson());

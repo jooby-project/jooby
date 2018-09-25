@@ -35,7 +35,6 @@ public class UtowContext extends BaseContext {
     this.exchange = exchange;
     this.tmpdir = tmpdir;
     this.errorHandler = errorHandler;
-    this.exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
   }
 
   @Override public String name() {
