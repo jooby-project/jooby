@@ -310,7 +310,7 @@ public class RouterImpl implements Router {
 
     routes.forEach(
         r -> buff.append(String.format("\n  %-" + size + "s", r.method())).append(r.pattern()));
-    return buff.substring(1);
+    return buff.length() > 0 ? buff.substring(1) : "";
   }
 
   private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action,

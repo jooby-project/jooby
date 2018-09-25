@@ -189,7 +189,7 @@ public class UrlParserTest {
   public void verifyIllegalAccess() {
     /** Object: */
     queryString("?foo=bar", queryString -> {
-      assertThrows(Err.TypeMismatch.class, () -> queryString.value());
+      assertThrows(Err.TypeMismatch.class, () -> queryString.value(), "");
       assertThrows(Err.TypeMismatch.class, () -> queryString.value(""));
       assertThrows(Err.Missing.class, () -> queryString.get("a").get("a").get("a").value());
       assertThrows(Err.Missing.class, () -> queryString.get("missing").value());
@@ -211,7 +211,7 @@ public class UrlParserTest {
     /** Single Property: */
     queryString("?foo=bar", queryString -> {
       assertThrows(Err.Missing.class, () -> queryString.get("foo").get("missing").value());
-      assertThrows(Err.Missing.class, () -> queryString.get("foo").get(0).value());
+      assertEquals("bar", queryString.get("foo").get(0).value());
     });
 
     /** Missing Property: */

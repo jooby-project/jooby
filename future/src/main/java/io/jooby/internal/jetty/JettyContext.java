@@ -140,11 +140,8 @@ public class JettyContext extends BaseContext {
 
   @Nonnull @Override
   public Context dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
-    AsyncContext ctx = request.startAsync();
-    executor.execute(() -> {
-      action.run();
-      ctx.complete();
-    });
+    request.startAsync();
+    executor.execute(action);
     return this;
   }
 

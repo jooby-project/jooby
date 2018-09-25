@@ -168,7 +168,7 @@ public class FeaturedTest {
         assertEquals(404, rsp.code());
         assertEquals(609, rsp.body().contentLength());
       });
-    });
+    }, new Jetty());
   }
 
   @Test
@@ -298,7 +298,7 @@ public class FeaturedTest {
   }
 
   @Test
-  public void pathVarible() {
+  public void pathVariable() {
     new JoobyRunner(app -> {
       app.get("/articles/{id}", ctx -> ctx.param("id").intValue());
 
