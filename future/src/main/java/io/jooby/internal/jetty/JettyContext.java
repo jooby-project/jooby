@@ -2,6 +2,7 @@ package io.jooby.internal.jetty;
 
 import io.jooby.*;
 import org.eclipse.jetty.http.MultiPartFormInputStream;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
@@ -9,6 +10,7 @@ import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.MultiMap;
+import org.eclipse.jetty.util.thread.Scheduler;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
@@ -23,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -31,8 +34,6 @@ import static org.jooby.funzy.Throwing.throwingConsumer;
 public class JettyContext extends BaseContext {
   private final Request request;
   private final Response response;
-  private final Executor executor;
-  private final String target;
   private final Route.RootErrorHandler errorHandler;
   private QueryString query;
   private Form form;
@@ -41,12 +42,9 @@ public class JettyContext extends BaseContext {
   private List<Value.Upload> files;
   private Value.Object headers;
 
-  public JettyContext(String target, Request request, Executor threadPool,
-      Consumer<Request> multipartInit, Route.RootErrorHandler errorHandler) {
-    this.target = target;
+  public JettyContext(Request request, Consumer<Request> multipartInit, Route.RootErrorHandler errorHandler) {
     this.request = request;
     this.response = request.getResponse();
-    this.executor = threadPool;
     this.multipartInit = multipartInit;
     this.errorHandler = errorHandler;
   }
@@ -131,8 +129,13 @@ public class JettyContext extends BaseContext {
     return false;
   }
 
-  @Nonnull @Override public Executor worker() {
-    return executor;
+  @Nonnull @Override public Server.Executor worker() {
+    Connector connector = request.getHttpChannel().getConnector();
+    return newExecutor(connector.getExecutor(), connector.getScheduler());
+  }
+
+  @Nonnull @Override public Server.Executor io() {
+    return worker();
   }
 
   @Nonnull @Override
@@ -258,5 +261,18 @@ public class JettyContext extends BaseContext {
         form.put(name, request.getParameter(name));
       }
     }
+  }
+
+  private static Server.Executor newExecutor(Executor executor, Scheduler scheduler) {
+    return new Server.Executor() {
+
+      @Override public void execute(Runnable task) {
+        executor.execute(task);
+      }
+
+      @Override public void executeAfter(Runnable task, long delay, TimeUnit unit) {
+        scheduler.schedule(task, delay, unit);
+      }
+    };
   }
 }

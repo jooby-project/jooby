@@ -112,12 +112,14 @@ public class Netty implements Server {
 
       /** Bootstrap: */
       ServerBootstrap bootstrap = new ServerBootstrap();
-      bootstrap.option(ChannelOption.SO_BACKLOG, 1024);
+      bootstrap.option(ChannelOption.SO_BACKLOG, 8192);
+      bootstrap.option(ChannelOption.SO_REUSEADDR, true);
 
       bootstrap.group(acceptor, ioLoop)
           .channel(provider.channel())
           .handler(new LoggingHandler(LogLevel.DEBUG))
-          .childHandler(new Pipeline(sslCtx, mode == Mode.WORKER ? worker : null, handler));
+          .childHandler(new Pipeline(sslCtx, mode == Mode.WORKER ? worker : null, handler))
+          .childOption(ChannelOption.SO_REUSEADDR, true);
 
       bootstrap.bind(port).sync();
     } catch (CertificateException | SSLException x) {

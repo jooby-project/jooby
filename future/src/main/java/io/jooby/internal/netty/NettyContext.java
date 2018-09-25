@@ -4,6 +4,7 @@ import io.jooby.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.EventLoop;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
 import io.netty.util.ReferenceCounted;
@@ -74,8 +75,12 @@ public class NettyContext extends BaseContext {
     return ctx.channel().eventLoop().inEventLoop();
   }
 
-  @Nonnull @Override public Executor worker() {
-    return executor;
+  @Nonnull @Override public Server.Executor worker() {
+    return workerExecutor(executor);
+  }
+
+  @Nonnull @Override public Server.Executor io() {
+    return ioExecutor(ctx.channel().eventLoop());
   }
 
   @Override public Context dispatch(Executor executor, Runnable action) {
@@ -267,5 +272,13 @@ public class NettyContext extends BaseContext {
         ref.release();
       }
     }
+  }
+
+  private static Server.Executor workerExecutor(DefaultEventExecutorGroup executor) {
+    return (task, delay, unit) -> executor.schedule(task, delay, unit);
+  }
+
+  private static Server.Executor ioExecutor(EventLoop executor) {
+    return (task, delay, unit) -> executor.schedule(task, delay, unit);
   }
 }

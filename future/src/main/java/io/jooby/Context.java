@@ -185,7 +185,9 @@ public interface Context {
 
   @Nonnull Context detach(@Nonnull Runnable action);
 
-  @Nonnull Executor worker();
+  @Nonnull Server.Executor worker();
+
+  @Nonnull Server.Executor io();
 
   @Nullable <T> T get(String name);
 

@@ -22,13 +22,10 @@ import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 
 public class JettyHandler extends AbstractHandler {
   private final Router router;
-
-  private final Executor executor;
   private final Consumer<Request> multipart;
 
-  public JettyHandler(Router router, Executor executor, Path tmpdir) {
+  public JettyHandler(Router router, Path tmpdir) {
     this.router = router;
-    this.executor = executor;
     this.multipart = req ->
         req.setAttribute(__MULTIPART_CONFIG_ELEMENT,
             new MultipartConfigElement(tmpdir.toString(), -1L, -1L, Context._16KB))
@@ -37,8 +34,7 @@ public class JettyHandler extends AbstractHandler {
 
   @Override public void handle(String target, Request request, HttpServletRequest servletRequest,
       HttpServletResponse response) throws IOException, ServletException {
-    JettyContext context = new JettyContext(target, request, executor, multipart,
-        router.errorHandler());
+    JettyContext context = new JettyContext(request, multipart, router.errorHandler());
     Router.Match match = router.match(context);
     Route route = match.route();
     Route.RootHandler handler = route.pipeline();

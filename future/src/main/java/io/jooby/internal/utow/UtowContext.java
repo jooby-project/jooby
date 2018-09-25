@@ -5,6 +5,8 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.*;
 import io.undertow.util.*;
 import org.jooby.funzy.Throwing;
+import org.xnio.XnioIoThread;
+import org.xnio.XnioWorker;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -15,15 +17,12 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static org.jooby.funzy.Throwing.throwingConsumer;
 
 public class UtowContext extends BaseContext {
 
   private final HttpServerExchange exchange;
-  private final Executor executor;
   private final Path tmpdir;
   private final Route.RootErrorHandler errorHandler;
   private QueryString query;
@@ -32,10 +31,8 @@ public class UtowContext extends BaseContext {
   private List<Value.Upload> files;
   private Value.Object headers;
 
-  public UtowContext(HttpServerExchange exchange, Executor executor,
-      Route.RootErrorHandler errorHandler, Path tmpdir) {
+  public UtowContext(HttpServerExchange exchange, Route.RootErrorHandler errorHandler, Path tmpdir) {
     this.exchange = exchange;
-    this.executor = executor;
     this.tmpdir = tmpdir;
     this.errorHandler = errorHandler;
     this.exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
@@ -127,8 +124,12 @@ public class UtowContext extends BaseContext {
     return multipart;
   }
 
-  @Nonnull @Override public Executor worker() {
-    return executor;
+  @Nonnull @Override public Server.Executor worker() {
+    return newServerExecutor(exchange.getIoThread(), exchange.getConnection().getWorker());
+  }
+
+  @Nonnull @Override public Server.Executor io() {
+    return newServerExecutor(exchange.getIoThread());
   }
 
   @Nonnull @Override public Context dispatch(@Nonnull Executor executor,
@@ -225,5 +226,27 @@ public class UtowContext extends BaseContext {
         }
       }
     }
+  }
+
+  /**
+   * Can't find a better way of implementing executeAfter, so we run the delay in the IO thread and
+   * then submit the task to the worker thread :S
+   *
+   * @param thread IO thread.
+   * @param worker Worker thread.
+   * @return
+   */
+  private static Server.Executor newServerExecutor(XnioIoThread thread, XnioWorker worker) {
+    return (task, delay, unit) -> {
+      if (delay > 0) {
+        WorkerUtils.executeAfter(thread, () -> worker.execute(task), delay, unit);
+      } else {
+        worker.execute(task);
+      }
+    };
+  }
+
+  private static Server.Executor newServerExecutor(XnioIoThread thread) {
+    return (task, delay, unit) -> WorkerUtils.executeAfter(thread, task, delay, unit);
   }
 }

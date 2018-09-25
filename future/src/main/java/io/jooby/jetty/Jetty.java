@@ -2,23 +2,19 @@ package io.jooby.jetty;
 
 import io.jooby.Context;
 import io.jooby.Mode;
-import io.jooby.Route;
 import io.jooby.Router;
-import io.jooby.internal.jetty.JettyContext;
 import io.jooby.internal.jetty.JettyHandler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.MultiPartFormDataCompliance;
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
+import org.eclipse.jetty.util.thread.Scheduler;
 import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -46,9 +42,10 @@ public class Jetty implements io.jooby.Server {
   }
 
   public io.jooby.Server start(Router router) {
-    QueuedThreadPool pool = new QueuedThreadPool(64);
+    QueuedThreadPool executor = new QueuedThreadPool(64);
+    executor.setName("jetty");
 
-    this.server = new Server(pool);
+    this.server = new Server(executor);
     server.setStopAtShutdown(false);
 
     HttpConfiguration httpConf = new HttpConfiguration();
@@ -59,14 +56,15 @@ public class Jetty implements io.jooby.Server {
     httpConf.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
     int acceptors = 1;
     int selectors = Runtime.getRuntime().availableProcessors();
-    ServerConnector connector = new ServerConnector(server, acceptors, selectors,
-        new HttpConnectionFactory(httpConf));
+    Scheduler scheduler = new ScheduledExecutorScheduler("jetty-scheduler", false);
+    ServerConnector connector = new ServerConnector(server, executor, scheduler, null,
+        acceptors, selectors, new HttpConnectionFactory(httpConf));
     connector.setPort(port);
     connector.setHost("0.0.0.0");
 
     server.addConnector(connector);
 
-    server.setHandler(new JettyHandler(router, server.getThreadPool(), tmpdir));
+    server.setHandler(new JettyHandler(router, tmpdir));
 
     try {
       server.start();
