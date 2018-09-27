@@ -90,6 +90,7 @@ public class FeaturedTest {
         assertEquals("<!doctype html>\n"
             + "<html>\n"
             + "<head>\n"
+            + "<meta charset=\"utf-8\">\n"
             + "<style>\n"
             + "body {font-family: \"open sans\",sans-serif; margin-left: 20px;}\n"
             + "h1 {font-weight: 300; line-height: 44px; margin: 25px 0 0 0;}\n"
@@ -100,17 +101,14 @@ public class FeaturedTest {
             + "p {padding-left: 20px;}\n"
             + "p.tab {padding-left: 40px;}\n"
             + "</style>\n"
-            + "<title>\n"
-            + "Not Found (404) Not Found\n"
-            + "</title>\n"
+            + "<title>Not Found (404)</title>\n"
             + "<body>\n"
             + "<h1>Not Found</h1>\n"
-            + "<hr><h2>message: Not Found (404)</h2>\n"
-            + "<h2>status: Not Found (404)</h2>\n"
+            + "<hr><h2>status code: 404</h2>\n"
             + "</body>\n"
             + "</html>", rsp.body().string());
         assertEquals(404, rsp.code());
-        assertEquals(609, rsp.body().contentLength());
+        assertEquals(579, rsp.body().contentLength());
       });
     });
   }
@@ -146,6 +144,7 @@ public class FeaturedTest {
         assertEquals("<!doctype html>\n"
             + "<html>\n"
             + "<head>\n"
+            + "<meta charset=\"utf-8\">\n"
             + "<style>\n"
             + "body {font-family: \"open sans\",sans-serif; margin-left: 20px;}\n"
             + "h1 {font-weight: 300; line-height: 44px; margin: 25px 0 0 0;}\n"
@@ -156,19 +155,18 @@ public class FeaturedTest {
             + "p {padding-left: 20px;}\n"
             + "p.tab {padding-left: 40px;}\n"
             + "</style>\n"
-            + "<title>\n"
-            + "Not Found (404) Not Found\n"
+            + "<title>"
+            + "Not Found (404)"
             + "</title>\n"
             + "<body>\n"
             + "<h1>Not Found</h1>\n"
-            + "<hr><h2>message: Not Found (404)</h2>\n"
-            + "<h2>status: Not Found (404)</h2>\n"
+            + "<hr><h2>status code: 404</h2>\n"
             + "</body>\n"
             + "</html>", rsp.body().string());
         assertEquals(404, rsp.code());
-        assertEquals(609, rsp.body().contentLength());
+        assertEquals(579, rsp.body().contentLength());
       });
-    }, new Jetty());
+    });
   }
 
   @Test

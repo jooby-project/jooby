@@ -4,13 +4,17 @@ public class Err extends RuntimeException {
 
   public static class Missing extends Err {
     public Missing(String name) {
-      super(StatusCode.BAD_REQUEST, name);
+      super(StatusCode.BAD_REQUEST, "Required value is not present: '" + name + "'");
     }
   }
 
-  public static class TypeMismatch extends Err {
-    public TypeMismatch(String message) {
+  public static class BadRequest extends Err {
+    public BadRequest(String message) {
       super(StatusCode.BAD_REQUEST, message);
+    }
+
+    public BadRequest(String message, Throwable cause) {
+      super(StatusCode.BAD_REQUEST, message, cause);
     }
   }
 
@@ -25,11 +29,8 @@ public class Err extends RuntimeException {
   }
 
   public Err(StatusCode status, String message, Throwable cause) {
-    super(status + tail(message), cause);
+    super(message, cause);
     this.statusCode = status;
   }
 
-  private static String tail(String message) {
-    return message == null ? "" : ": " + message;
-  }
 }

@@ -1,6 +1,7 @@
 package io.jooby;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.util.function.Consumer;
 
@@ -151,14 +152,25 @@ public class UrlParserTest {
               queryString.toString());
         });
 
-//    queryString("?list=1,2,3", queryString -> {
-//      assertEquals("?list=1,2,3", queryString.queryString());
-//      assertEquals(1, queryString.size());
-//      assertEquals(1, queryString.get("list").get(0).intValue());
-//      assertEquals(2, queryString.get("list").get(1).intValue());
-//      assertEquals(3, queryString.get("list").get(2).intValue());
-//      assertEquals("{list=[1, 2, 3]}", queryString.toString());
-//    });
+    //    queryString("?list=1,2,3", queryString -> {
+    //      assertEquals("?list=1,2,3", queryString.queryString());
+    //      assertEquals(1, queryString.size());
+    //      assertEquals(1, queryString.get("list").get(0).intValue());
+    //      assertEquals(2, queryString.get("list").get(1).intValue());
+    //      assertEquals(3, queryString.get("list").get(2).intValue());
+    //      assertEquals("{list=[1, 2, 3]}", queryString.toString());
+    //    });
+  }
+
+  @Test
+  public void arrayArity() {
+    assertEquals("1", Value.value("a", "1").value());
+    assertEquals("1", Value.value("a", "1").get(0).value());
+    assertEquals(1, Value.value("a", "1").size());
+    queryString("?a=1&a=2", queryString -> {
+      assertEquals("1", queryString.get("a").get(0).value());
+      assertEquals("2", queryString.get("a").get(1).value());
+    });
   }
 
   @Test
@@ -189,8 +201,8 @@ public class UrlParserTest {
   public void verifyIllegalAccess() {
     /** Object: */
     queryString("?foo=bar", queryString -> {
-      assertThrows(Err.TypeMismatch.class, () -> queryString.value(), "");
-      assertThrows(Err.TypeMismatch.class, () -> queryString.value(""));
+      assertThrows(Err.BadRequest.class, () -> queryString.value());
+      assertThrows(Err.BadRequest.class, () -> queryString.value(""));
       assertThrows(Err.Missing.class, () -> queryString.get("a").get("a").get("a").value());
       assertThrows(Err.Missing.class, () -> queryString.get("missing").value());
       assertThrows(Err.Missing.class, () -> queryString.get(0).value());
@@ -200,7 +212,7 @@ public class UrlParserTest {
 
     /** Array: */
     queryString("?a=1;a=2", queryString -> {
-      assertThrows(Err.TypeMismatch.class, () -> queryString.get("a").value());
+      assertThrows(Err.BadRequest.class, () -> queryString.get("a").value());
       assertEquals("1", queryString.get("a").get(0).value());
       assertEquals("2", queryString.get("a").get(1).value());
       assertThrows(Err.Missing.class, () -> queryString.get("a").get("b").value());
@@ -242,6 +254,43 @@ public class UrlParserTest {
       assertEquals("a +", queryString.get("tail").value());
     });
 
+  }
+
+  @Test
+  public void verifyExceptionMessage() {
+    /** Object: */
+    queryString("?foo=bar", queryString -> {
+      assertMessage(Err.BadRequest.class, () -> queryString.value(), "Type mismatch: cannot convert object to string");
+      assertMessage(Err.BadRequest.class, () -> queryString.get("foo").intValue(), "Type mismatch: cannot convert to int");
+      assertMessage(Err.BadRequest.class, () -> queryString.get("foo").intValue(0), "Type mismatch: cannot convert to int");
+      assertMessage(Err.Missing.class, () -> queryString.get("foo").get("bar").value(), "Required value is not present: 'foo.bar'");
+      assertMessage(Err.Missing.class, () -> queryString.get("foo").get(1).value(), "Required value is not present: 'foo.1'");
+      assertMessage(Err.Missing.class, () -> queryString.get("r").intValue(), "Required value is not present: 'r'");
+      assertEquals(1, queryString.get("a").intValue(1));
+    });
+
+    /** Array: */
+    queryString("?a=b;a=c", queryString -> {
+      assertMessage(Err.BadRequest.class, () -> queryString.get("a").value(), "Type mismatch: cannot convert array to string");
+      assertMessage(Err.BadRequest.class, () -> queryString.get("a").get(0).longValue(), "Type mismatch: cannot convert to long");
+      assertMessage(Err.Missing.class, () -> queryString.get("a").get(3).longValue(), "Required value is not present: 'a[3]'");
+      assertMessage(Err.Missing.class, () -> queryString.get("a").get("b").value(), "Required value is not present: 'a.b'");
+      assertMessage(Err.Missing.class, () -> queryString.get("a").get("b").get(3).longValue(), "Required value is not present: 'a.b[3]'");
+    });
+
+    /** Single: */
+    assertMessage(Err.BadRequest.class, () -> Value.value("foo", "bar").intValue(), "Type mismatch: cannot convert to int");
+
+    assertMessage(Err.Missing.class, () -> Value.value("foo", "bar").get("foo").value(), "Required value is not present: 'foo.foo'");
+
+    assertMessage(Err.Missing.class, () -> Value.value("foo", "bar").get(1).value(), "Required value is not present: 'foo.1'");
+
+  }
+
+  public static <T extends Throwable> void assertMessage(Class<T> expectedType,
+      Executable executable, String message) {
+    T x = assertThrows(expectedType, executable);
+    assertEquals(message, x.getMessage());
   }
 
   private void queryString(String queryString, Consumer<QueryString> consumer) {

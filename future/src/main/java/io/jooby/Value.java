@@ -39,12 +39,12 @@ public interface Value {
       try {
         return value.get(index);
       } catch (IndexOutOfBoundsException x) {
-        return new Missing(Integer.toString(index));
+        return new Missing(name + "[" + index + "]");
       }
     }
 
     @Override public Value get(@Nonnull String name) {
-      return new Missing(name);
+      return new Missing(this.name + "." + name);
     }
 
     @Override public int size() {
@@ -52,7 +52,7 @@ public interface Value {
     }
 
     @Override public String value() {
-      throw new Err.TypeMismatch("cannot convert array to string");
+      throw new Err.BadRequest("Type mismatch: cannot convert array to string");
     }
 
     @Override public String toString() {
@@ -170,9 +170,13 @@ public interface Value {
     public Value get(@Nonnull String name) {
       Value value = hash.get(name);
       if (value == null) {
-        return new Missing(name);
+        return new Missing(scope(name));
       }
       return value;
+    }
+
+    private String scope(String name) {
+      return this.name == null ? name : this.name + "." + name;
     }
 
     @Override public Value get(@Nonnull int index) {
@@ -184,7 +188,7 @@ public interface Value {
     }
 
     @Override public String value() {
-      throw new Err.TypeMismatch("cannot convert object to string");
+      throw new Err.BadRequest("Type mismatch: cannot convert object to string");
     }
 
     @Override public Map<String, List<String>> toMap() {
@@ -213,15 +217,15 @@ public interface Value {
     }
 
     @Override public Value get(@Nonnull String name) {
-      return this.name.equals(name) ? this : new Missing(name);
+      return this.name.equals(name) ? this : new Missing(this.name + "." + name);
     }
 
     @Override public Value get(@Nonnull int index) {
-      return get(Integer.toString(index));
+      return new Missing(this.name + "[" + index + "]");
     }
 
     @Override public String value() {
-      throw new Err.Missing("[" + name + "]");
+      throw new Err.Missing(name);
     }
 
     @Override public Map<String, List<String>> toMap() {
@@ -245,7 +249,7 @@ public interface Value {
     }
 
     @Override public Value get(@Nonnull String name) {
-      return name.equals(this.name) ? this : new Missing(name);
+      return new Missing(this.name + "." + name);
     }
 
     @Override public int size() {
@@ -284,7 +288,11 @@ public interface Value {
   }
 
   default long longValue() {
-    return Long.parseLong(value());
+    try {
+      return Long.parseLong(value());
+    } catch (NumberFormatException x) {
+      throw new Err.BadRequest("Type mismatch: cannot convert to long", x);
+    }
   }
 
   default long longValue(long defaultValue) {
@@ -296,7 +304,11 @@ public interface Value {
   }
 
   default int intValue() {
-    return Integer.parseInt(value());
+    try {
+      return Integer.parseInt(value());
+    } catch (NumberFormatException x) {
+      throw new Err.BadRequest("Type mismatch: cannot convert to int", x);
+    }
   }
 
   default int intValue(int defaultValue) {
@@ -378,7 +390,7 @@ public interface Value {
   @Nonnull String value();
 
   default Upload upload() {
-    throw new Err.TypeMismatch("cannot convert to file upload");
+    throw new Err.BadRequest("cannot convert to file upload");
   }
 
   /* ***********************************************************************************************
