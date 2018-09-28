@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singleton;
@@ -455,7 +456,11 @@ public interface Value {
   }
 
   default <T extends Enum<T>> T toEnum(Throwing.Function<String, T> fn) {
-    return fn.apply(value().toUpperCase());
+    return toEnum(fn, String::toUpperCase);
+  }
+
+  default <T extends Enum<T>> T toEnum(Throwing.Function<String, T> fn, Function<String, String> caseFormatter) {
+    return fn.apply(caseFormatter.apply(value()));
   }
 
   default Optional<String> toOptional() {
