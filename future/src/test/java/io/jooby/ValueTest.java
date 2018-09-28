@@ -1,8 +1,10 @@
 package io.jooby;
 
+import org.jooby.funzy.Throwing;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
+import java.math.BigDecimal;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -257,33 +259,59 @@ public class UrlParserTest {
   }
 
   @Test
+  public void customMapper() {
+    assertEquals(new BigDecimal("3.14"), Value.value("n", "3.14").value(BigDecimal::new));
+    Throwing.Function<String, BigDecimal> toBigDecimal = BigDecimal::new;
+    assertEquals(BigDecimal.ONE, Value.value("n", "x").value(toBigDecimal.orElse(BigDecimal.ONE)));
+
+    assertMessage(Err.BadRequest.class,
+        () -> Value.value("n", "x").value(toBigDecimal.onFailure(NumberFormatException.class, x -> {
+          throw new Err.BadRequest("Type mismatch: cannot convert to decimal", x);
+        })), "Type mismatch: cannot convert to decimal");
+  }
+
+  @Test
   public void verifyExceptionMessage() {
     /** Object: */
     queryString("?foo=bar", queryString -> {
-      assertMessage(Err.BadRequest.class, () -> queryString.value(), "Type mismatch: cannot convert object to string");
-      assertMessage(Err.BadRequest.class, () -> queryString.get("foo").intValue(), "Type mismatch: cannot convert to int");
-      assertMessage(Err.BadRequest.class, () -> queryString.get("foo").intValue(0), "Type mismatch: cannot convert to int");
-      assertMessage(Err.Missing.class, () -> queryString.get("foo").get("bar").value(), "Required value is not present: 'foo.bar'");
-      assertMessage(Err.Missing.class, () -> queryString.get("foo").get(1).value(), "Required value is not present: 'foo.1'");
-      assertMessage(Err.Missing.class, () -> queryString.get("r").intValue(), "Required value is not present: 'r'");
+      assertMessage(Err.BadRequest.class, () -> queryString.value(),
+          "Type mismatch: cannot convert object to string");
+      assertMessage(Err.BadRequest.class, () -> queryString.get("foo").intValue(),
+          "Type mismatch: cannot convert to number");
+      assertMessage(Err.BadRequest.class, () -> queryString.get("foo").intValue(0),
+          "Type mismatch: cannot convert to number");
+      assertMessage(Err.Missing.class, () -> queryString.get("foo").get("bar").value(),
+          "Required value is not present: 'foo.bar'");
+      assertMessage(Err.Missing.class, () -> queryString.get("foo").get(1).value(),
+          "Required value is not present: 'foo.1'");
+      assertMessage(Err.Missing.class, () -> queryString.get("r").longValue(),
+          "Required value is not present: 'r'");
       assertEquals(1, queryString.get("a").intValue(1));
     });
 
     /** Array: */
     queryString("?a=b;a=c", queryString -> {
-      assertMessage(Err.BadRequest.class, () -> queryString.get("a").value(), "Type mismatch: cannot convert array to string");
-      assertMessage(Err.BadRequest.class, () -> queryString.get("a").get(0).longValue(), "Type mismatch: cannot convert to long");
-      assertMessage(Err.Missing.class, () -> queryString.get("a").get(3).longValue(), "Required value is not present: 'a[3]'");
-      assertMessage(Err.Missing.class, () -> queryString.get("a").get("b").value(), "Required value is not present: 'a.b'");
-      assertMessage(Err.Missing.class, () -> queryString.get("a").get("b").get(3).longValue(), "Required value is not present: 'a.b[3]'");
+      assertMessage(Err.BadRequest.class, () -> queryString.get("a").value(),
+          "Type mismatch: cannot convert array to string");
+      assertMessage(Err.BadRequest.class, () -> queryString.get("a").get(0).longValue(),
+          "Type mismatch: cannot convert to number");
+      assertMessage(Err.Missing.class, () -> queryString.get("a").get(3).longValue(),
+          "Required value is not present: 'a[3]'");
+      assertMessage(Err.Missing.class, () -> queryString.get("a").get("b").value(),
+          "Required value is not present: 'a.b'");
+      assertMessage(Err.Missing.class, () -> queryString.get("a").get("b").get(3).longValue(),
+          "Required value is not present: 'a.b[3]'");
     });
 
     /** Single: */
-    assertMessage(Err.BadRequest.class, () -> Value.value("foo", "bar").intValue(), "Type mismatch: cannot convert to int");
+    assertMessage(Err.BadRequest.class, () -> Value.value("foo", "bar").intValue(),
+        "Type mismatch: cannot convert to number");
 
-    assertMessage(Err.Missing.class, () -> Value.value("foo", "bar").get("foo").value(), "Required value is not present: 'foo.foo'");
+    assertMessage(Err.Missing.class, () -> Value.value("foo", "bar").get("foo").value(),
+        "Required value is not present: 'foo.foo'");
 
-    assertMessage(Err.Missing.class, () -> Value.value("foo", "bar").get(1).value(), "Required value is not present: 'foo.1'");
+    assertMessage(Err.Missing.class, () -> Value.value("foo", "bar").get(1).value(),
+        "Required value is not present: 'foo.1'");
 
   }
 

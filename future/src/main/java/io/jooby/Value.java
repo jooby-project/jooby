@@ -1,5 +1,7 @@
 package io.jooby;
 
+import org.jooby.funzy.Throwing;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.file.Path;
@@ -14,6 +16,7 @@ import java.util.function.BiConsumer;
 
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static java.util.Collections.sort;
 
 public interface Value {
 
@@ -291,15 +294,15 @@ public interface Value {
     try {
       return Long.parseLong(value());
     } catch (NumberFormatException x) {
-      throw new Err.BadRequest("Type mismatch: cannot convert to long", x);
+      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
     }
   }
 
   default long longValue(long defaultValue) {
     try {
       return longValue();
-    } catch (Err.Missing x) {
-      return defaultValue;
+    } catch (NumberFormatException x) {
+      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
     }
   }
 
@@ -307,13 +310,29 @@ public interface Value {
     try {
       return Integer.parseInt(value());
     } catch (NumberFormatException x) {
-      throw new Err.BadRequest("Type mismatch: cannot convert to int", x);
+      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
     }
   }
 
   default int intValue(int defaultValue) {
     try {
       return intValue();
+    } catch (Err.Missing x) {
+      return defaultValue;
+    }
+  }
+
+  default byte byteValue() {
+    try {
+      return Byte.parseByte(value());
+    } catch (NumberFormatException x) {
+      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
+    }
+  }
+
+  default byte byteValue(byte defaultValue) {
+    try {
+      return byteValue();
     } catch (Err.Missing x) {
       return defaultValue;
     }
@@ -326,8 +345,8 @@ public interface Value {
   default float floatValue(float defaultValue) {
     try {
       return floatValue();
-    } catch (Err.Missing x) {
-      return defaultValue;
+    } catch (NumberFormatException x) {
+      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
     }
   }
 
@@ -338,8 +357,8 @@ public interface Value {
   default double doubleValue(double defaultValue) {
     try {
       return doubleValue();
-    } catch (Err.Missing x) {
-      return defaultValue;
+    } catch (NumberFormatException x) {
+      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
     }
   }
 
@@ -387,10 +406,14 @@ public interface Value {
     return this instanceof Upload;
   }
 
+  default <T> T value(Throwing.Function<String, T> fn) {
+    return fn.apply(value());
+  }
+
   @Nonnull String value();
 
   default Upload upload() {
-    throw new Err.BadRequest("cannot convert to file upload");
+    throw new Err.BadRequest("Type mismatch: cannot convert to file upload");
   }
 
   /* ***********************************************************************************************
