@@ -16,6 +16,8 @@ public interface Server {
     void executeAfter(Runnable task, long delay, TimeUnit unit);
   }
 
+  /** 16KB constant. */
+  int _16KB = 0x4000;
 
   @Nonnull Server mode(@Nonnull Mode mode);
 

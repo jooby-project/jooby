@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
-import static java.util.Collections.sort;
 
 public interface Value {
 

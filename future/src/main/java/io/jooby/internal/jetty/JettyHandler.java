@@ -3,6 +3,7 @@ package io.jooby.internal.jetty;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.Router;
+import io.jooby.Server;
 import io.undertow.util.Headers;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
@@ -28,7 +29,7 @@ public class JettyHandler extends AbstractHandler {
     this.router = router;
     this.multipart = req ->
         req.setAttribute(__MULTIPART_CONFIG_ELEMENT,
-            new MultipartConfigElement(tmpdir.toString(), -1L, -1L, Context._16KB))
+            new MultipartConfigElement(tmpdir.toString(), -1L, -1L, Server._16KB))
     ;
   }
 

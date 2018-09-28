@@ -49,7 +49,7 @@ public class Jetty implements io.jooby.Server {
     server.setStopAtShutdown(false);
 
     HttpConfiguration httpConf = new HttpConfiguration();
-    httpConf.setOutputBufferSize(Context._16KB);
+    httpConf.setOutputBufferSize(_16KB);
     httpConf.setSendXPoweredBy(false);
     httpConf.setSendDateHeader(false);
     httpConf.setSendServerVersion(false);

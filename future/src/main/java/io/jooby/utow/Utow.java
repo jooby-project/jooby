@@ -47,7 +47,7 @@ public class Utow implements Server {
     }
     server = Undertow.builder()
         .addHttpListener(port, "0.0.0.0")
-        .setBufferSize(Context._16KB)
+        .setBufferSize(_16KB)
         // HTTP/1.1 is keep-alive by default
         .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
         .setServerOption(UndertowOptions.ALWAYS_SET_DATE, false)

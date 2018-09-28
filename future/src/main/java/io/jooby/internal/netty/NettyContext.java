@@ -113,7 +113,7 @@ public class NettyContext extends BaseContext {
     if (multipart == null) {
       multipart = new Multipart();
       form = multipart;
-      HttpDataFactory factory = new DefaultHttpDataFactory(_16KB);
+      HttpDataFactory factory = new DefaultHttpDataFactory(Server._16KB);
       decodeForm(req, new HttpPostMultipartRequestDecoder(factory, req, StandardCharsets.UTF_8),
           multipart);
     }

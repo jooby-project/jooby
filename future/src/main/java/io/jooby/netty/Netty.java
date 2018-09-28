@@ -1,6 +1,5 @@
 package io.jooby.netty;
 
-import io.jooby.Context;
 import io.jooby.Mode;
 import io.jooby.Router;
 import io.jooby.Server;
@@ -52,7 +51,7 @@ public class Netty implements Server {
       }
       // FIXME: check configuration parameters
       p.addLast("codec", new HttpServerCodec());
-      p.addLast("aggregator", new HttpObjectAggregator(Context._16KB * 2));
+      p.addLast("aggregator", new HttpObjectAggregator(_16KB * 2));
       p.addLast(worker, "handler", handler);
     }
   }

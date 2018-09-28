@@ -20,7 +20,7 @@ public interface Body {
   default byte[] bytes() {
     // TODO: Improve reading for small bodies
     try (InputStream stream = stream()) {
-      int bufferSize = Context._16KB;
+      int bufferSize = Server._16KB;
       ByteArrayOutputStream out = new ByteArrayOutputStream(bufferSize);
       int len;
       byte[] buffer = new byte[bufferSize];
