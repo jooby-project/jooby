@@ -6,6 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -269,6 +274,57 @@ public class ValueTest {
         () -> Value.value("n", "x").value(toBigDecimal.onFailure(NumberFormatException.class, x -> {
           throw new Err.BadRequest("Type mismatch: cannot convert to decimal", x);
         })), "Type mismatch: cannot convert to decimal");
+  }
+
+  @Test
+  public void toCollection() {
+    /** Array: */
+    queryString("?a=1;a=2;a=1", queryString -> {
+      assertEquals(Arrays.asList("1", "2", "1"), queryString.get("a").toList());
+
+      assertEquals(Arrays.asList(1, 2, 1), queryString.get("a").toList(Integer::parseInt));
+
+      assertEquals(new LinkedHashSet<>(Arrays.asList(1, 2)), queryString.get("a").toSet(Integer::parseInt));
+    });
+    queryString("?a=1", queryString -> {
+      assertEquals(Arrays.asList("1"), queryString.get("a").toList());
+    });
+    queryString("?a.b=1;a.b=2", queryString -> {
+      assertEquals(Arrays.asList("1", "2"), queryString.get("a").get("b").toList());
+    });
+    /** Single: */
+    assertEquals(Arrays.asList("1"), Value.value("a", "1").toList());
+    /** Missing: */
+    assertEquals(Collections.emptyList(), Value.missing("a").toList());
+  }
+
+  @Test
+  public void toOptional() {
+    /** Array: */
+    queryString("?a=1;a=2", queryString -> {
+      assertMessage(Err.BadRequest.class, () -> queryString.toOptional(),
+          "Type mismatch: cannot convert object to string");
+      assertMessage(Err.BadRequest.class, () -> queryString.get("a").toOptional(),
+          "Type mismatch: cannot convert array to string");
+      assertEquals(Optional.of("1"), queryString.get("a").get(0).toOptional());
+      assertEquals(Optional.of(1), queryString.get("a").get(0).toOptional(Integer::parseInt));
+      assertEquals(Optional.empty(), queryString.get("a").get(2).toOptional());
+    });
+  }
+
+  enum Letter {
+    A, B;
+  }
+
+  @Test
+  public void toEnum() {
+    /** Array: */
+    queryString("?e=a&;e=B", queryString -> {
+      assertEquals(Letter.A, queryString.get("e").get(0).toEnum(Letter::valueOf));
+      assertEquals(Letter.B, queryString.get("e").get(1).toEnum(Letter::valueOf));
+      assertMessage(Err.Missing.class, () -> queryString.get("e").get(2).toEnum(Letter::valueOf),
+          "Required value is not present: 'e[2]'");
+    });
   }
 
   @Test

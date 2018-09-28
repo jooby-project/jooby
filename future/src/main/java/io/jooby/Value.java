@@ -10,11 +10,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.Collections.sort;
@@ -67,6 +71,19 @@ public interface Value {
       List<String> values = new ArrayList<>();
       value.stream().forEach(it -> it.toMap().values().forEach(values::addAll));
       return Collections.singletonMap(name, values);
+    }
+
+    @Override public List<String> toList() {
+      return fill(new ArrayList<>());
+    }
+
+    @Override public Set<String> toSet() {
+      return fill(new LinkedHashSet<>());
+    }
+
+    private <C extends Collection<String>> C fill(C values) {
+      value.forEach(v -> values.addAll(v.toList()));
+      return values;
     }
   }
 
@@ -271,6 +288,14 @@ public interface Value {
     @Override public Map<String, List<String>> toMap() {
       return singletonMap(name, singletonList(value));
     }
+
+    @Override public List<String> toList() {
+      return singletonList(value);
+    }
+
+    @Override public Set<String> toSet() {
+      return singleton(value);
+    }
   }
 
   interface Upload extends Value {
@@ -302,8 +327,8 @@ public interface Value {
   default long longValue(long defaultValue) {
     try {
       return longValue();
-    } catch (NumberFormatException x) {
-      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
+    } catch (Err.Missing x) {
+      return defaultValue;
     }
   }
 
@@ -346,8 +371,8 @@ public interface Value {
   default float floatValue(float defaultValue) {
     try {
       return floatValue();
-    } catch (NumberFormatException x) {
-      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
+    } catch (Err.Missing x) {
+      return defaultValue;
     }
   }
 
@@ -358,8 +383,8 @@ public interface Value {
   default double doubleValue(double defaultValue) {
     try {
       return doubleValue();
-    } catch (NumberFormatException x) {
-      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
+    } catch (Err.Missing x) {
+      return defaultValue;
     }
   }
 
@@ -413,8 +438,40 @@ public interface Value {
 
   @Nonnull String value();
 
+  default List<String> toList() {
+    return Collections.emptyList();
+  }
+
+  default Set<String> toSet() {
+    return Collections.emptySet();
+  }
+
+  default <T> List<T> toList(Throwing.Function<String, T> fn) {
+    return toList().stream().map(fn).collect(Collectors.toList());
+  }
+
+  default <T> Set<T> toSet(Throwing.Function<String, T> fn) {
+    return toSet().stream().map(fn).collect(Collectors.toSet());
+  }
+
+  default <T extends Enum<T>> T toEnum(Throwing.Function<String, T> fn) {
+    return fn.apply(value().toUpperCase());
+  }
+
+  default Optional<String> toOptional() {
+    try {
+      return Optional.of(value());
+    } catch (Err.Missing x) {
+      return Optional.empty();
+    }
+  }
+
+  default <T> Optional<T> toOptional(Throwing.Function<String, T> fn) {
+    return toOptional().flatMap(v -> Optional.ofNullable(fn.apply(v)));
+  }
+
   default Upload upload() {
-    throw new Err.BadRequest("Type mismatch: cannot convert to file upload");
+    throw new Err.BadRequest("Type mismatch: not a file upload");
   }
 
   /* ***********************************************************************************************
