@@ -1,5 +1,6 @@
 package io.jooby;
 
+import io.jooby.internal.UrlParser;
 import org.jooby.funzy.Throwing;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -10,7 +11,7 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UrlParserTest {
+public class ValueTest {
 
   @Test
   public void simpleQueryString() {
