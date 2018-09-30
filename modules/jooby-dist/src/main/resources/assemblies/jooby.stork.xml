@@ -19,6 +19,18 @@
       <includes>
         <include>**/*</include>
       </includes>
+	  <excludes>
+        <exclude>**/*.exe</exclude>
+      </excludes>
+    </fileSet>
+	<fileSet>
+      <directory>${project.basedir}${file.separator}src${file.separator}etc${file.separator}bin</directory>
+      <filtered>true</filtered>
+      <outputDirectory>bin</outputDirectory>
+      <fileMode>544</fileMode>
+      <includes>
+        <include>**/*.exe</include>
+      </includes>
     </fileSet>
 
     <fileSet>
@@ -47,6 +59,16 @@
       <filtered>true</filtered>
       <includes>
         <include>**/*</include>
+      </includes>
+	  <excludes>
+        <exclude>**/*.exe</exclude>
+      </excludes>
+    </fileSet>
+	<fileSet>
+      <directory>${project.build.directory}${file.separator}stork${file.separator}bin</directory>
+      <outputDirectory>bin</outputDirectory>
+      <includes>
+        <include>**/*.exe</include>
       </includes>
     </fileSet>
 
