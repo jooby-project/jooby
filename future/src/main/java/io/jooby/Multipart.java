@@ -1,4 +1,4 @@
 package io.jooby;
 
-public class Multipart extends Form {
+public class Multipart extends Formdata {
 }

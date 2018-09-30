@@ -1,5 +1,6 @@
 package io.jooby.internal.utow;
 
+import io.jooby.Upload;
 import io.jooby.Value;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.Headers;
@@ -9,7 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class UtowUpload extends Value.Simple implements Value.Upload {
+public class UtowUpload extends Value.Simple implements Upload {
 
   private final FormData.FormValue upload;
 

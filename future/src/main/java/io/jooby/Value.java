@@ -5,7 +5,6 @@ import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -106,7 +105,7 @@ public interface Value {
       return put(path, Collections.singletonList(value));
     }
 
-    public Object put(String path, Value.Upload upload) {
+    public Object put(String path, Upload upload) {
       put(path, (name, scope) -> {
         Value existing = scope.get(name);
         if (existing == null) {
@@ -296,24 +295,6 @@ public interface Value {
     @Override public Set<String> toSet() {
       return singleton(value);
     }
-  }
-
-  interface Upload extends Value {
-    default String filename() {
-      return value();
-    }
-
-    String contentType();
-
-    Path path();
-
-    long filesize();
-
-    @Override default Upload upload() {
-      return this;
-    }
-
-    void destroy();
   }
 
   default long longValue() {

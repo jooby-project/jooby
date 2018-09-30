@@ -90,7 +90,7 @@ public interface Context {
   @Nonnull Value headers();
 
   /* **********************************************************************************************
-   * Form/Multipart methods
+   * Formdata/Multipart methods
    * **********************************************************************************************
    */
 
@@ -98,23 +98,23 @@ public interface Context {
     return form().get(name);
   }
 
-  @Nonnull Form form();
+  @Nonnull Formdata form();
 
   @Nonnull default Value multipart(@Nonnull String name) {
     return multipart().get(name);
   }
 
-  @Nonnull default List<Value.Upload> files(@Nonnull String name) {
+  @Nonnull default List<Upload> files(@Nonnull String name) {
     Value value = multipart(name);
     int len = value.size();
-    List<Value.Upload> result = new ArrayList<>(len);
+    List<Upload> result = new ArrayList<>(len);
     for (int i = 0; i < len; i++) {
       result.add(value.get(i).upload());
     }
     return result;
   }
 
-  @Nonnull default Value.Upload file(@Nonnull String name) {
+  @Nonnull default Upload file(@Nonnull String name) {
     return multipart(name).upload();
   }
 

@@ -1,5 +1,6 @@
 package io.jooby.internal.netty;
 
+import io.jooby.Upload;
 import io.jooby.Value;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.codec.http.multipart.FileUpload;
@@ -9,7 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class NettyUpload extends Value.Simple implements Value.Upload {
+public class NettyUpload extends Value.Simple implements Upload {
 
   private final FileUpload upload;
   private Path path;

@@ -26,9 +26,9 @@ public class UtowContext extends BaseContext {
   private final Path tmpdir;
   private final Route.RootErrorHandler errorHandler;
   private QueryString query;
-  private Form form;
+  private Formdata form;
   private Multipart multipart;
-  private List<Value.Upload> files;
+  private List<Upload> files;
   private Value.Object headers;
 
   public UtowContext(HttpServerExchange exchange, Route.RootErrorHandler errorHandler, Path tmpdir) {
@@ -89,9 +89,9 @@ public class UtowContext extends BaseContext {
     return query;
   }
 
-  @Nonnull @Override public Form form() {
+  @Nonnull @Override public Formdata form() {
     if (form == null) {
-      form = new Form();
+      form = new Formdata();
       try (FormDataParser parser = new FormEncodedDataDefinition()
           .setDefaultEncoding(StandardCharsets.UTF_8.name())
           .create(exchange)) {
@@ -200,11 +200,11 @@ public class UtowContext extends BaseContext {
   @Override public void destroy() {
     if (files != null) {
       // TODO: use a log
-      files.forEach(throwingConsumer(Value.Upload::destroy).onFailure(x -> x.printStackTrace()));
+      files.forEach(throwingConsumer(Upload::destroy).onFailure(x -> x.printStackTrace()));
     }
   }
 
-  private Value.Upload register(Value.Upload upload) {
+  private Upload register(Upload upload) {
     if (files == null) {
       files = new ArrayList<>();
     }
@@ -212,7 +212,7 @@ public class UtowContext extends BaseContext {
     return upload;
   }
 
-  private void formData(Form form, FormData data) {
+  private void formData(Formdata form, FormData data) {
     Iterator<String> it = data.iterator();
     while (it.hasNext()) {
       String path = it.next();

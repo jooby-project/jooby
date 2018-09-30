@@ -36,10 +36,10 @@ public class JettyContext extends BaseContext {
   private final Response response;
   private final Route.RootErrorHandler errorHandler;
   private QueryString query;
-  private Form form;
+  private Formdata form;
   private Multipart multipart;
   private Consumer<Request> multipartInit;
-  private List<Value.Upload> files;
+  private List<Upload> files;
   private Value.Object headers;
 
   public JettyContext(Request request, Consumer<Request> multipartInit, Route.RootErrorHandler errorHandler) {
@@ -81,9 +81,9 @@ public class JettyContext extends BaseContext {
     return query;
   }
 
-  @Nonnull @Override public Form form() {
+  @Nonnull @Override public Formdata form() {
     if (form == null) {
-      form = new Form();
+      form = new Formdata();
       formParam(request, form);
     }
     return form;
@@ -224,7 +224,7 @@ public class JettyContext extends BaseContext {
   @Override public void destroy() {
     if (files != null) {
       // TODO: use a log
-      files.forEach(throwingConsumer(Value.Upload::destroy).onFailure(x -> x.printStackTrace()));
+      files.forEach(throwingConsumer(Upload::destroy).onFailure(x -> x.printStackTrace()));
     }
   }
 
@@ -241,7 +241,7 @@ public class JettyContext extends BaseContext {
     };
   }
 
-  private Value.Upload register(Value.Upload upload) {
+  private Upload register(Upload upload) {
     if (files == null) {
       files = new ArrayList<>();
     }
@@ -249,7 +249,7 @@ public class JettyContext extends BaseContext {
     return upload;
   }
 
-  private static void formParam(Request request, Form form) {
+  private static void formParam(Request request, Formdata form) {
     Enumeration<String> names = request.getParameterNames();
     MultiMap<String> query = request.getQueryParameters();
     while (names.hasMoreElements()) {

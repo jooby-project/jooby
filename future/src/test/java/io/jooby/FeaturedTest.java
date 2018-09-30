@@ -1,7 +1,6 @@
 package io.jooby;
 
 import io.jooby.jackson.Jackson;
-import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
 import io.jooby.test.JoobyRunner;
 import io.jooby.utow.Utow;
@@ -473,13 +472,13 @@ public class FeaturedTest {
   public void multipartFromWorker() {
     new JoobyRunner(app -> {
       app.post("/f", ctx -> {
-        Value.Upload f = ctx.file("f");
+        Upload f = ctx.file("f");
         return f.filename() + "(type=" + f.contentType() + ";exists=" + Files.exists(f.path())
             + ")";
       });
 
       app.post("/files", ctx -> {
-        List<Value.Upload> files = ctx.files("f");
+        List<Upload> files = ctx.files("f");
         return files.stream().map(f -> f.filename() + "=" + f.filesize())
             .collect(Collectors.toList());
       });

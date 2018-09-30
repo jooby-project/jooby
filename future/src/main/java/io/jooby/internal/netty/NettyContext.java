@@ -39,9 +39,9 @@ public class NettyContext extends BaseContext {
   private boolean keepAlive;
   private boolean responseStarted;
   private QueryString query;
-  private Form form;
+  private Formdata form;
   private Multipart multipart;
-  private List<Value.Upload> files;
+  private List<Upload> files;
   private Value.Object headers;
 
   public NettyContext(ChannelHandlerContext ctx, DefaultEventExecutorGroup executor,
@@ -100,9 +100,9 @@ public class NettyContext extends BaseContext {
     return query;
   }
 
-  @Nonnull @Override public Form form() {
+  @Nonnull @Override public Formdata form() {
     if (form == null) {
-      form = new Form();
+      form = new Formdata();
       decodeForm(req, new HttpPostStandardRequestDecoder(req), form);
     }
     return form;
@@ -231,12 +231,12 @@ public class NettyContext extends BaseContext {
   public void destroy() {
     if (files != null) {
       // TODO: use a log
-      files.forEach(throwingConsumer(Value.Upload::destroy).onFailure(x -> x.printStackTrace()));
+      files.forEach(throwingConsumer(Upload::destroy).onFailure(x -> x.printStackTrace()));
     }
     release(req);
   }
 
-  private Value.Upload register(Value.Upload upload) {
+  private Upload register(Upload upload) {
     if (this.files == null) {
       this.files = new ArrayList<>();
     }
