@@ -1,5 +1,6 @@
 package io.jooby;
 
+import io.jooby.internal.ValueInjector;
 import io.jooby.internal.UrlParser;
 import org.jooby.funzy.Throwing;
 
@@ -8,12 +9,14 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -22,7 +25,7 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 
-public interface Value {
+public interface Value extends Iterable<Value> {
 
   class Array implements Value {
     private final String name;
@@ -31,6 +34,10 @@ public interface Value {
 
     public Array(String name) {
       this.name = name;
+    }
+
+    @Override public String name() {
+      return name;
     }
 
     public Array add(Value value) {
@@ -66,6 +73,10 @@ public interface Value {
       return value.toString();
     }
 
+    @Override public Iterator<Value> iterator() {
+      return value.iterator();
+    }
+
     @Override public Map<String, List<String>> toMap() {
       List<String> values = new ArrayList<>();
       value.stream().forEach(it -> it.toMap().values().forEach(values::addAll));
@@ -99,6 +110,10 @@ public interface Value {
 
     protected Object() {
       this.name = null;
+    }
+
+    @Override public String name() {
+      return name;
     }
 
     public Object put(String path, String value) {
@@ -165,6 +180,9 @@ public interface Value {
         } else if (ch == ']') {
           if (i + 1 < nameEnd) {
             String name = path.substring(nameStart, i);
+            if (isNumber(name)) {
+              target.useIndexes();
+            }
             nameStart = i + 1;
             target = target.getOrCreateScope(name);
           } else {
@@ -172,8 +190,28 @@ public interface Value {
           }
         }
       }
+      String key = path.substring(nameStart, nameEnd);
+      if (isNumber(key)) {
+        target.useIndexes();
+      }
       // Final node
-      consumer.accept(path.substring(nameStart, nameEnd), target.hash());
+      consumer.accept(key, target.hash());
+    }
+
+    private void useIndexes() {
+      TreeMap<String, Value> ordered = new TreeMap<>();
+      ordered.putAll(hash);
+      hash.clear();
+      this.hash = ordered;
+    }
+
+    private boolean isNumber(String value) {
+      for (int i = 0; i < value.length(); i++) {
+        if (!Character.isDigit(value.charAt(i))) {
+          return false;
+        }
+      }
+      return true;
     }
 
     private Map<String, Value> hash() {
@@ -211,6 +249,10 @@ public interface Value {
       throw new Err.BadRequest("Type mismatch: cannot convert object to string");
     }
 
+    @Override public Iterator<Value> iterator() {
+      return hash.values().iterator();
+    }
+
     @Override public Map<String, List<String>> toMap() {
       Map<String, List<String>> result = new LinkedHashMap<>(hash.size());
       Set<Map.Entry<String, Value>> entries = hash.entrySet();
@@ -234,6 +276,10 @@ public interface Value {
 
     public Missing(String name) {
       this.name = name;
+    }
+
+    @Override public String name() {
+      return name;
     }
 
     @Override public Value get(@Nonnull String name) {
@@ -264,6 +310,10 @@ public interface Value {
       this.value = value;
     }
 
+    @Override public String name() {
+      return name;
+    }
+
     @Override public Value get(@Nonnull int index) {
       return index == 0 ? this : get(Integer.toString(index));
     }
@@ -282,6 +332,10 @@ public interface Value {
 
     @Override public String toString() {
       return value;
+    }
+
+    @Override public Iterator<Value> iterator() {
+      return Collections.<Value>singletonList(this).iterator();
     }
 
     @Override public Map<String, List<String>> toMap() {
@@ -369,18 +423,6 @@ public interface Value {
     }
   }
 
-  default char charValue() {
-    return value().charAt(0);
-  }
-
-  default char charValue(char defaultValue) {
-    try {
-      return charValue();
-    } catch (Err.Missing x) {
-      return defaultValue;
-    }
-  }
-
   default boolean booleanValue() {
     return Boolean.parseBoolean(value());
   }
@@ -405,12 +447,20 @@ public interface Value {
     return this instanceof Array;
   }
 
+  default boolean isSimple() {
+    return this instanceof Simple;
+  }
+
   default boolean isObject() {
     return this instanceof Object;
   }
 
   default boolean isUpload() {
     return this instanceof Upload;
+  }
+
+  default boolean isMissing() {
+    return this instanceof Missing;
   }
 
   default <T> T value(Throwing.Function<String, T> fn) {
@@ -431,6 +481,10 @@ public interface Value {
     return toList().stream().map(fn).collect(Collectors.toList());
   }
 
+  default <T> List<T> toList(Class<T> type) {
+    return to(Reified.list(type));
+  }
+
   default <T> Set<T> toSet(Throwing.Function<String, T> fn) {
     return toSet().stream().map(fn).collect(Collectors.toSet());
   }
@@ -439,7 +493,8 @@ public interface Value {
     return toEnum(fn, String::toUpperCase);
   }
 
-  default <T extends Enum<T>> T toEnum(Throwing.Function<String, T> fn, Function<String, String> caseFormatter) {
+  default <T extends Enum<T>> T toEnum(Throwing.Function<String, T> fn,
+      Function<String, String> caseFormatter) {
     return fn.apply(caseFormatter.apply(value()));
   }
 
@@ -453,6 +508,10 @@ public interface Value {
 
   default <T> Optional<T> toOptional(Throwing.Function<String, T> fn) {
     return toOptional().flatMap(v -> Optional.ofNullable(fn.apply(v)));
+  }
+
+  default <T> Optional<T> toOptional(Class<T> type) {
+    return to(Reified.optional(type));
   }
 
   default Upload upload() {
@@ -470,6 +529,21 @@ public interface Value {
   default int size() {
     return 0;
   }
+
+  default <T> T to(Class<T> type) {
+    return to(Reified.get(type));
+  }
+
+  default <T> T to(Reified<T> type) {
+    ValueInjector injector = new ValueInjector();
+    return injector.inject(type, this);
+  }
+
+  default @Override Iterator<Value> iterator() {
+    return Collections.emptyIterator();
+  }
+
+  String name();
 
   Map<String, List<String>> toMap();
 

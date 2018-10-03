@@ -78,6 +78,14 @@ public interface Context {
 
   @Nonnull QueryString query();
 
+  @Nonnull default <T> T query(Reified<T> type) {
+    return query().to(type);
+  }
+
+  @Nonnull default <T> T query(Class<T> type) {
+    return query().to(type);
+  }
+
   /* **********************************************************************************************
    * Request Headers
    * **********************************************************************************************
@@ -100,16 +108,31 @@ public interface Context {
 
   @Nonnull Formdata form();
 
+  @Nonnull default <T> T form(Reified<T> type) {
+    return form().to(type);
+  }
+
+  @Nonnull default <T> T form(Class<T> type) {
+    return form().to(type);
+  }
+
   @Nonnull default Value multipart(@Nonnull String name) {
     return multipart().get(name);
   }
 
+  @Nonnull default <T> T multipart(Reified<T> type) {
+    return multipart().to(type);
+  }
+
+  @Nonnull default <T> T multipart(Class<T> type) {
+    return multipart().to(type);
+  }
+
   @Nonnull default List<Upload> files(@Nonnull String name) {
-    Value value = multipart(name);
-    int len = value.size();
-    List<Upload> result = new ArrayList<>(len);
-    for (int i = 0; i < len; i++) {
-      result.add(value.get(i).upload());
+    Value multipart = multipart(name);
+    List<Upload> result = new ArrayList<>();
+    for (Value value : multipart) {
+      result.add(value.upload());
     }
     return result;
   }

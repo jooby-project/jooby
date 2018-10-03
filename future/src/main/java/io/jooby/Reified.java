@@ -20,6 +20,7 @@ import io.jooby.internal.reflect.$Types;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -142,6 +143,10 @@ public class Reified<T> {
 
   public static <T> Reified<Set<T>> set(Class<T> type) {
     return (Reified<Set<T>>) getParameterized(Set.class, type);
+  }
+
+  public static <T> Reified<Optional<T>> optional(Class<T> type) {
+    return (Reified<Optional<T>>) getParameterized(Optional.class, type);
   }
 
   /**
