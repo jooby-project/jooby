@@ -127,6 +127,12 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
+        <artifactId>jooby-yasson</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
         <artifactId>jooby-maven-plugin</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -897,6 +903,19 @@
         <groupId>com.google.code.gson</groupId>
         <artifactId>gson</artifactId>
         <version>${gson.version}</version>
+      </dependency>
+
+     <!-- yasson - Json-B -->
+      <dependency>
+        <groupId>org.eclipse</groupId>
+        <artifactId>yasson</artifactId>
+        <version>${yasson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish</groupId>
+        <artifactId>javax.json</artifactId>
+        <version>${javax.json.version}</version>
       </dependency>
 
       <!-- JDBI -->
@@ -3150,6 +3169,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <groovy.version>2.5.0</groovy.version>
     <guava.version>25.1-jre</guava.version>
     <gson.version>2.8.5</gson.version>
+    <yasson.version>1.0.1</yasson.version>
+    <javax.json.version>1.1</javax.json.version>
     <guice.version>4.2.0</guice.version>
     <h2.version>1.4.197</h2.version>
     <handlebars.version>4.1.0</handlebars.version>

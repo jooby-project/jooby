@@ -80,6 +80,7 @@
     <module>jooby-rocker</module>
     <module>jooby-livereload</module>
     <module>jooby-eventbus</module>
+    <module>jooby-yasson</module>
     <!-- Assets -->
     <module>jooby-frontend</module>
     <module>jooby-assets</module>
