@@ -9,7 +9,7 @@
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-assets-auto-prefixer</artifactId>
+ <artifactId>jooby-assets-autoprefixer</artifactId>
  <version>{{version}}</version>
  <scope>provided</scope>
 </dependency>
