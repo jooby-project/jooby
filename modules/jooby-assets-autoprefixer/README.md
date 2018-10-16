@@ -12,7 +12,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-assets-auto-prefixer</artifactId>
+ <artifactId>jooby-assets-autoprefixer</artifactId>
  <version>1.5.1</version>
  <scope>provided</scope>
 </dependency>
