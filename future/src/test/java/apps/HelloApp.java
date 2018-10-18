@@ -2,12 +2,10 @@ package apps;
 
 import io.jooby.App;
 import io.jooby.DefaultHeaders;
-import io.jooby.MediaType;
 import io.jooby.Mode;
 import io.jooby.jackson.Jackson;
 import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
-import io.jooby.utow.Utow;
 
 public class HelloApp extends App {
 
@@ -24,6 +22,11 @@ public class HelloApp extends App {
   {
     defaultContentType("text/plain");
 
+    filter(next -> ctx -> {
+      System.out.println(Thread.currentThread());
+      return next.apply(ctx);
+    });
+
     filter(new DefaultHeaders());
 
     get("/", ctx -> ctx.sendText(MESSAGE));
@@ -35,7 +38,7 @@ public class HelloApp extends App {
         System.out.println(Thread.currentThread());
         return next.apply(ctx);
       });
-      get("/worker", ctx -> ctx.sendText("Hello World!"));
+      get("/worker", ctx -> ctx.sendText("Hello Worker!"));
     });
 
     renderer(new Jackson());
@@ -48,9 +51,9 @@ public class HelloApp extends App {
   }
 
   public static void main(String[] args) {
-    HelloApp app = new HelloApp();
-    app.mode(Mode.IO);
-    app.use(new Utow());
-    app.start();
+    new Netty()
+        .deploy(new HelloApp().mode(Mode.WORKER))
+        .start()
+        .join();
   }
 }

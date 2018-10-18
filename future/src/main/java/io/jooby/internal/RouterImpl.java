@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -89,7 +91,7 @@ public class RouterImpl implements Router {
 
   private Renderer renderer = Renderer.TO_STRING;
 
-  private String basePath;
+  private String basePath = "";
 
   private List<RadixTree> trees;
 
@@ -103,6 +105,14 @@ public class RouterImpl implements Router {
     }
     this.basePath = basePath;
     return this;
+  }
+
+  @Nonnull @Override public Path tmpdir() {
+    return Paths.get(System.getProperty("java.io.tmpdir"));
+  }
+
+  @Nonnull @Override public String basePath() {
+    return basePath;
   }
 
   @Nonnull @Override public List<Route> routes() {
@@ -236,13 +246,22 @@ public class RouterImpl implements Router {
     return route;
   }
 
+  @Override public Router start() {
+    this.stack.forEach(Stack::clear);
+    this.stack = null;
+    return this;
+  }
+
+  @Override public Router stop() {
+    return this;
+  }
+
   @Nonnull public Router start(@Nonnull Logger log) {
+    start();
     if (err == null) {
       err = Route.ErrorHandler.DEFAULT;
     }
     this.rootErr = new RootErrorHandlerImpl(err, log, this::errorCode);
-    this.stack.forEach(Stack::clear);
-    this.stack = null;
     return this;
   }
 

@@ -1,6 +1,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -36,6 +37,8 @@ public interface Router {
 
   @Nonnull Router basePath(@Nonnull String basePath);
 
+  @Nonnull String basePath();
+
   @Nonnull Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router);
 
   @Nonnull Router use(@Nonnull String path, @Nonnull Router router);
@@ -45,6 +48,8 @@ public interface Router {
   @Nonnull List<Route> routes();
 
   @Nonnull Router renderer(@Nonnull Renderer renderer);
+
+  @Nonnull Path tmpdir();
 
   @Nonnull default Router parser(@Nonnull Parser parser) {
     return filter(next -> ctx -> {
@@ -196,4 +201,8 @@ public interface Router {
    * @return This router.
    */
   @Nonnull Router defaultContentType(@Nonnull String contentType);
+
+  Router start();
+
+  Router stop();
 }

@@ -16,6 +16,7 @@ import org.jooby.funzy.Throwing;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.AsyncContext;
+import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,30 +24,32 @@ import javax.servlet.http.Part;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 import static org.jooby.funzy.Throwing.throwingConsumer;
 
 public class JettyContext extends BaseContext {
   private final Request request;
   private final Response response;
   private final Route.RootErrorHandler errorHandler;
+  private final Path tmpdir;
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
-  private Consumer<Request> multipartInit;
   private List<Upload> files;
   private Value.Object headers;
 
-  public JettyContext(Request request, Consumer<Request> multipartInit, Route.RootErrorHandler errorHandler) {
+  public JettyContext(Request request, Route.RootErrorHandler errorHandler, Path tmpdir) {
     this.request = request;
     this.response = request.getResponse();
-    this.multipartInit = multipartInit;
     this.errorHandler = errorHandler;
+    this.tmpdir = tmpdir;
   }
 
   @Override public String name() {
@@ -93,7 +96,10 @@ public class JettyContext extends BaseContext {
     if (multipart == null) {
       multipart = new Multipart();
       form = multipart;
-      multipartInit.accept(request);
+
+      request.setAttribute(__MULTIPART_CONFIG_ELEMENT,
+          new MultipartConfigElement(tmpdir.toString(), -1L, -1L, Server._16KB));
+
       formParam(request, form);
       // Files:
       try {

@@ -50,18 +50,15 @@ public class JoobyRunner {
     }
     for (Mode mode : modes) {
       for (Server server : serverList) {
-        App app = null;
         try {
-          app = this.provider.get();
-          app.mode(mode);
-          app.port(9999);
-          app.use(server);
-          app.start(false);
+          App app = this.provider.get().mode(mode);
+          server.port(9999)
+              .deploy(app)
+              .start();
+
           onReady.accept(new WebClient(9999));
         } finally {
-          if (app != null) {
-            app.stop();
-          }
+          server.stop();
         }
       }
     }

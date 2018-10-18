@@ -230,7 +230,7 @@ class $Chi implements RadixTree {
             child.tail = seg.tail; // for params, we set the tail
 
             if (segStartIdx != search.length()) {
-              // add static edge for the remaining part, split the end.
+              // deploy static edge for the remaining part, split the end.
               // its not possible to have adjacent param nodes, so its certainly
               // going to be a static node next.
 
@@ -248,7 +248,7 @@ class $Chi implements RadixTree {
             child.prefix = search.substring(0, segStartIdx);
             child.rex = null;
 
-            // add the param edge node
+            // deploy the param edge node
             search = search.substring(segStartIdx);
 
             Node nn = new Node().typ(segTyp).label(search.charAt(0)).tail(seg.tail);

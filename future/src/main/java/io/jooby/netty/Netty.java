@@ -1,11 +1,14 @@
 package io.jooby.netty;
 
+import io.jooby.App;
 import io.jooby.Mode;
 import io.jooby.Router;
 import io.jooby.Server;
+import io.jooby.internal.netty.NettyMultiHandler;
 import io.jooby.internal.netty.NettyNative;
 import io.jooby.internal.netty.NettyHandler;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
@@ -13,8 +16,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.multipart.DiskAttribute;
-import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
@@ -22,24 +23,26 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import org.jooby.funzy.Throwing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.net.ssl.SSLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Netty implements Server {
 
   private static class Pipeline extends ChannelInitializer<SocketChannel> {
 
     private final SslContext sslCtx;
-    private final NettyHandler handler;
-    private final DefaultEventExecutorGroup worker;
+    private final ChannelInboundHandler handler;
 
-    public Pipeline(SslContext sslCtx, DefaultEventExecutorGroup worker, NettyHandler handler) {
+    public Pipeline(SslContext sslCtx, ChannelInboundHandler handler) {
       this.sslCtx = sslCtx;
-      this.worker = worker;
       this.handler = handler;
     }
 
@@ -52,9 +55,11 @@ public class Netty implements Server {
       // FIXME: check configuration parameters
       p.addLast("codec", new HttpServerCodec());
       p.addLast("aggregator", new HttpObjectAggregator(_16KB * 2));
-      p.addLast(worker, "handler", handler);
+      p.addLast("handler", handler);
     }
   }
+
+  private List<App> applications = new ArrayList<>();
 
   private boolean SSL = false;
 
@@ -64,10 +69,6 @@ public class Netty implements Server {
 
   private int port = 8080;
 
-  private Mode mode = Mode.WORKER;
-
-  private Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir"));
-
   private DefaultEventExecutorGroup worker;
 
   @Override public Server port(int port) {
@@ -75,20 +76,13 @@ public class Netty implements Server {
     return this;
   }
 
-  @Override public Server mode(Mode mode) {
-    this.mode = mode;
+  @Nonnull @Override public Server deploy(App application) {
+    applications.add(application);
     return this;
   }
 
-  @Nonnull @Override public Server tmpdir(@Nonnull Path tmpdir) {
-    this.tmpdir = tmpdir;
-    return this;
-  }
-
-  public Server start(Router router) {
+  @Nonnull @Override public Server start() {
     try {
-      settmpdir(tmpdir);
-
       NettyNative provider = NettyNative.get();
       /** Acceptor: */
       this.acceptor = provider.group(1);
@@ -107,7 +101,14 @@ public class Netty implements Server {
       worker = new DefaultEventExecutorGroup(32);
 
       /** Handler: */
-      NettyHandler handler = new NettyHandler(worker, router);
+      ChannelInboundHandler handler;
+      if (applications.size() == 1) {
+        handler = newHandler(applications.get(0), worker);
+      } else {
+        Map<App, NettyHandler> handlers = new LinkedHashMap<>(applications.size());
+        applications.forEach(app -> handlers.put(app, newHandler(app, worker)));
+        handler = new NettyMultiHandler(handlers, worker);
+      }
 
       /** Bootstrap: */
       ServerBootstrap bootstrap = new ServerBootstrap();
@@ -117,7 +118,7 @@ public class Netty implements Server {
       bootstrap.group(acceptor, ioLoop)
           .channel(provider.channel())
           .handler(new LoggingHandler(LogLevel.DEBUG))
-          .childHandler(new Pipeline(sslCtx, mode == Mode.WORKER ? worker : null, handler))
+          .childHandler(new Pipeline(sslCtx, handler))
           .childOption(ChannelOption.SO_REUSEADDR, true);
 
       bootstrap.bind(port).sync();
@@ -126,22 +127,30 @@ public class Netty implements Server {
     } catch (InterruptedException x) {
       Thread.currentThread().interrupt();
     }
+
+    for (App application : applications) {
+      application.start();
+      Logger log = LoggerFactory.getLogger(application.getClass());
+      log.info("{}\n\n{}\n\nhttp://localhost:{}{}\n", application.getClass().getSimpleName(),
+          application,
+          port, application.basePath());
+    }
+
     return this;
   }
 
+  private NettyHandler newHandler(App app, DefaultEventExecutorGroup worker) {
+    return app.mode() == Mode.WORKER ?
+        new NettyHandler(worker, worker, app) :
+        new NettyHandler(null, worker, app);
+  }
+
   public Server stop() {
+    applications.clear();
     ioLoop.shutdownGracefully();
     acceptor.shutdownGracefully();
     worker.shutdownGracefully();
     return this;
   }
 
-  private static void settmpdir(Path tmpdir) {
-    // should delete file on exit (in normal exit)
-    DiskFileUpload.deleteOnExitTemporaryFile = true;
-    DiskFileUpload.baseDirectory = tmpdir.toString();
-    // should delete file on exit (in normal exit)
-    DiskAttribute.deleteOnExitTemporaryFile = true;
-    DiskAttribute.baseDirectory = tmpdir.toString();
-  }
 }

@@ -13,10 +13,12 @@ import java.nio.file.Path;
 public class NettyUpload extends Value.Simple implements Upload {
 
   private final FileUpload upload;
+  private final Path basedir;
   private Path path;
 
-  public NettyUpload(String name, FileUpload upload) {
+  public NettyUpload(Path basedir, String name, FileUpload upload) {
     super(name, upload.getFilename());
+    this.basedir = basedir;
     this.upload = upload;
   }
 
@@ -35,16 +37,14 @@ public class NettyUpload extends Value.Simple implements Upload {
   @Override public Path path() {
     try {
       if (path == null) {
-        java.io.File f;
         if (upload.isInMemory()) {
-          f = new java.io.File(DiskFileUpload.baseDirectory,
-              DiskFileUpload.prefix + System.currentTimeMillis() + DiskFileUpload.postfix);
-          upload.renameTo(f);
+          path = basedir
+              .resolve(DiskFileUpload.prefix + System.currentTimeMillis() + DiskFileUpload.postfix);
+          upload.renameTo(path.toFile());
           upload.release();
         } else {
-          f = upload.getFile();
+          path = upload.getFile().toPath();
         }
-        path = f.toPath();
       }
       return path;
     } catch (IOException x) {

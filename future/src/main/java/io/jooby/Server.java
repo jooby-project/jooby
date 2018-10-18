@@ -1,8 +1,6 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
-import java.nio.file.Path;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 public interface Server {
@@ -19,13 +17,19 @@ public interface Server {
   /** 16KB constant. */
   int _16KB = 0x4000;
 
-  @Nonnull Server mode(@Nonnull Mode mode);
-
   @Nonnull Server port(int port);
 
-  @Nonnull Server start(@Nonnull Router router);
+  @Nonnull Server deploy(App application);
+
+  @Nonnull Server start();
+
+  @Nonnull default void join() {
+    try {
+      Thread.currentThread().join();
+    } catch (InterruptedException x) {
+      Thread.currentThread().interrupt();
+    }
+  }
 
   @Nonnull Server stop();
-
-  @Nonnull Server tmpdir(@Nonnull Path tmpdir);
 }

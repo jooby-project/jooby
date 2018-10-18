@@ -1,43 +1,33 @@
 package io.jooby.internal.jetty;
 
-import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.Router;
-import io.jooby.Server;
-import io.undertow.util.Headers;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 
-import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.concurrent.Executor;
-import java.util.function.Consumer;
-
-import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 
 public class JettyHandler extends AbstractHandler {
   private final Router router;
-  private final Consumer<Request> multipart;
 
-  public JettyHandler(Router router, Path tmpdir) {
+  public JettyHandler(Router router) {
     this.router = router;
-    this.multipart = req ->
-        req.setAttribute(__MULTIPART_CONFIG_ELEMENT,
-            new MultipartConfigElement(tmpdir.toString(), -1L, -1L, Server._16KB))
-    ;
   }
 
   @Override public void handle(String target, Request request, HttpServletRequest servletRequest,
       HttpServletResponse response) throws IOException, ServletException {
-    JettyContext context = new JettyContext(request, multipart, router.errorHandler());
+    JettyContext context = new JettyContext(request, router.errorHandler(), router.tmpdir());
     Router.Match match = router.match(context);
-    Route route = match.route();
+    handleMatch(target, request, response, context, router, match.route());
+  }
+
+  protected void handleMatch(String target, Request request, HttpServletResponse response,
+      JettyContext context, Router router, Route route) throws IOException, ServletException {
     Route.RootHandler handler = route.pipeline();
     if (route.gzip() && acceptGzip(request.getHeader("Accept-Encoding"))) {
       /** Gzip: */

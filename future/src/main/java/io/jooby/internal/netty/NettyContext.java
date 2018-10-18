@@ -15,8 +15,11 @@ import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
@@ -32,9 +35,10 @@ public class NettyContext extends BaseContext {
   final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
   private final Route.RootErrorHandler errorHandler;
   private final ChannelHandlerContext ctx;
+  private final Path tmpdir;
   private HttpRequest req;
   private final String path;
-  private final DefaultEventExecutorGroup executor;
+  private final ExecutorService executor;
   private HttpResponseStatus status = HttpResponseStatus.OK;
   private boolean keepAlive;
   private boolean responseStarted;
@@ -44,13 +48,14 @@ public class NettyContext extends BaseContext {
   private List<Upload> files;
   private Value.Object headers;
 
-  public NettyContext(ChannelHandlerContext ctx, DefaultEventExecutorGroup executor,
-      HttpRequest req, Route.RootErrorHandler errorHandler, String path) {
+  public NettyContext(ChannelHandlerContext ctx, ExecutorService executor,
+      HttpRequest req, Route.RootErrorHandler errorHandler, Path tmpdir, String path) {
     this.path = path;
     this.ctx = ctx;
     this.req = req;
     this.executor = executor;
     this.keepAlive = isKeepAlive(req);
+    this.tmpdir = tmpdir;
     this.errorHandler = errorHandler;
   }
 
@@ -76,7 +81,7 @@ public class NettyContext extends BaseContext {
   }
 
   @Nonnull @Override public Server.Executor worker() {
-    return workerExecutor(executor);
+    return workerExecutor((ScheduledExecutorService) executor);
   }
 
   @Nonnull @Override public Server.Executor io() {
@@ -250,7 +255,7 @@ public class NettyContext extends BaseContext {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();
         if (next.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
-          form.put(next.getName(), register(new NettyUpload(next.getName(), (FileUpload) next)));
+          form.put(next.getName(), register(new NettyUpload(tmpdir, next.getName(), (FileUpload) next)));
         } else {
           form.put(next.getName(), next.getString(UTF_8));
           next.release();
@@ -274,7 +279,7 @@ public class NettyContext extends BaseContext {
     }
   }
 
-  private static Server.Executor workerExecutor(DefaultEventExecutorGroup executor) {
+  private static Server.Executor workerExecutor(ScheduledExecutorService executor) {
     return (task, delay, unit) -> executor.schedule(task, delay, unit);
   }
 

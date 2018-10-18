@@ -1,9 +1,10 @@
 package io.jooby.jetty;
 
-import io.jooby.Context;
+import io.jooby.App;
 import io.jooby.Mode;
 import io.jooby.Router;
 import io.jooby.internal.jetty.JettyHandler;
+import io.jooby.internal.jetty.JettyMultiHandler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.MultiPartFormDataCompliance;
@@ -13,10 +14,12 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
 import org.eclipse.jetty.util.thread.Scheduler;
 import org.jooby.funzy.Throwing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Jetty implements io.jooby.Server {
 
@@ -24,24 +27,19 @@ public class Jetty implements io.jooby.Server {
 
   private Server server;
 
-  private Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir"));
+  private List<App> applications = new ArrayList<>();
 
   @Override public io.jooby.Server port(int port) {
     this.port = port;
     return this;
   }
 
-  @Override public io.jooby.Server mode(Mode mode) {
-    // NOOP: Jetty always run in a worker thread.
+  @Nonnull @Override public io.jooby.Server deploy(App application) {
+    applications.add(application);
     return this;
   }
 
-  @Nonnull @Override public io.jooby.Server tmpdir(@Nonnull Path tmpdir) {
-    this.tmpdir = tmpdir;
-    return this;
-  }
-
-  public io.jooby.Server start(Router router) {
+  @Nonnull @Override public io.jooby.Server start() {
     QueuedThreadPool executor = new QueuedThreadPool(64);
     executor.setName("jetty");
 
@@ -64,18 +62,30 @@ public class Jetty implements io.jooby.Server {
 
     server.addConnector(connector);
 
-    server.setHandler(new JettyHandler(router, tmpdir));
+    JettyHandler handler = applications.size() == 1 ?
+        new JettyHandler(applications.get(0)) :
+        new JettyMultiHandler(null, applications);
+
+    server.setHandler(handler);
 
     try {
       server.start();
-      return this;
     } catch (Exception x) {
       throw Throwing.sneakyThrow(x);
     }
+
+    for (App router : applications) {
+      router.start();
+      Logger log = LoggerFactory.getLogger(router.getClass());
+      log.info("{}\n\n{}\n\nhttp://localhost:{}{}\n", router.getClass().getSimpleName(), router, port, router.basePath());
+    }
+
+    return this;
   }
 
   @Override public io.jooby.Server stop() {
     try {
+      applications.clear();
       server.stop();
       return this;
     } catch (Exception x) {

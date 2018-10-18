@@ -18,47 +18,38 @@ public class App implements Router {
 
   private final RouterImpl router = new RouterImpl();
 
-  private Server server;
+  private Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir"), appname(getClass())).toAbsolutePath();
 
   private Mode mode = Mode.WORKER;
 
-  private int port = 8080;
-
-  private Path tmpdir;
-
-  public App() {
-    tmpdir = Paths.get(System.getProperty("java.io.tmpdir"), appname(getClass())).toAbsolutePath();
-  }
-
-  @Nonnull @Override public Router basePath(String basePath) {
+  @Nonnull @Override public App basePath(String basePath) {
     router.basePath(basePath);
     return this;
   }
 
+  @Nonnull @Override public String basePath() {
+    return router.basePath();
+  }
+
   @Nonnull @Override
-  public Router use(@Nonnull Router router) {
+  public App use(@Nonnull Router router) {
     this.router.use(router);
     return this;
   }
 
   @Nonnull @Override
-  public Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
+  public App use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
     this.router.use(predicate, router);
     return this;
   }
 
-  @Nonnull @Override public Router use(@Nonnull String path, @Nonnull Router router) {
+  @Nonnull @Override public App use(@Nonnull String path, @Nonnull Router router) {
     this.router.use(path, router);
     return this;
   }
 
   @Nonnull @Override public List<Route> routes() {
     return router.routes();
-  }
-
-  @Nonnull public App use(Server server) {
-    this.server = server;
-    return this;
   }
 
   @Nonnull @Override public Router gzip(@Nonnull Runnable action) {
@@ -122,27 +113,6 @@ public class App implements Router {
     return router.errorCode(type, statusCode);
   }
 
-  @Nonnull public App mode(@Nonnull Mode mode) {
-    this.mode = mode;
-    return this;
-  }
-
-  public App port(int port) {
-    this.port = port;
-    return this;
-  }
-
-  /**
-   * Application work/temporary directory. Used internally for tasks like file upload, etc...
-   *
-   * @param tmpdir Work/temporary directory.
-   * @return This application.
-   */
-  public App tmpdir(@Nonnull Path tmpdir) {
-    this.tmpdir = tmpdir;
-    return this;
-  }
-
   /** Log: */
   public Logger log() {
     return LoggerFactory.getLogger(getClass());
@@ -161,48 +131,46 @@ public class App implements Router {
     return this;
   }
 
-  /** Boot: */
-
-  public void start() {
-    start(true);
+  public Path tmpdir() {
+    return ensureTmpdir(tmpdir);
   }
 
-  public void start(boolean join) {
-    ensureTmpdir(tmpdir);
+  public App tmpdir(@Nonnull Path tmpdir) {
+    this.tmpdir = tmpdir;
+    return this;
+  }
 
+  public Mode mode() {
+    return mode;
+  }
+
+  public App mode(Mode mode) {
+    this.mode = mode;
+    return this;
+  }
+
+  /** Boot: */
+  public App start() {
     /** Start router: */
     router.start(log());
 
-    /** Start server: */
-    server
-        .mode(mode)
-        .port(port)
-        .tmpdir(tmpdir)
-        .start(router);
-
-    Logger log = LoggerFactory.getLogger(getClass());
-
-    log.info("[@{}@{}] {}\n{}\n\nhttp://localhost:{}\n", mode.name().toLowerCase(),
-        server.getClass().getSimpleName().toLowerCase(), getClass().getSimpleName(), router, port);
-
-    if (join) {
-      try {
-        Thread.currentThread().join();
-      } catch (InterruptedException x) {
-        Thread.currentThread().interrupt();
-      }
-    }
+    return this;
   }
 
-  public void stop() {
-    server.stop();
+  public App stop() {
+    return this;
   }
 
-  private static void ensureTmpdir(Path tmpdir) {
+  @Override public String toString() {
+    return router.toString();
+  }
+
+  private static Path ensureTmpdir(Path tmpdir) {
     try {
       if (!Files.exists(tmpdir)) {
         Files.createDirectories(tmpdir);
       }
+      return tmpdir;
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }

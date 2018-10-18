@@ -7,21 +7,23 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 @ChannelHandler.Sharable
 public class NettyHandler extends ChannelInboundHandlerAdapter {
-  private final DefaultEventExecutorGroup executor;
+  protected final ExecutorService executor;
   private final Router router;
+  private final ExecutorService worker;
 
-  public NettyHandler(DefaultEventExecutorGroup executor, Router router) {
+  public NettyHandler(ExecutorService executor, ExecutorService worker, Router router) {
     this.executor = executor;
+    this.worker = worker;
     this.router = router;
   }
 
@@ -29,23 +31,28 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     if (msg instanceof HttpRequest) {
       HttpRequest req = (HttpRequest) msg;
-      String path = req.uri();
-      int q = path.indexOf('?');
-      if (q > 0) {
-        path = path.substring(0, q);
-      }
-      NettyContext context = new NettyContext(ctx, executor, req, router.errorHandler(), path);
-      Router.Match match = router.match(context);
-      Route route = match.route();
-      if (route.gzip() && acceptGzip(req.headers().get(HttpHeaderNames.ACCEPT_ENCODING))) {
-        installGzip(ctx, req);
-      } else {
-        context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, router.defaultContentType());
-      }
-      Route.RootHandler handler = route.pipeline();
-      handler.apply(context);
+      handleHttpRequest(ctx, req, NettyUtils.pathOnly(req.uri()));
     } else {
       ctx.fireChannelRead(msg);
+    }
+  }
+
+  public void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req, String path)
+      throws Exception {
+    NettyContext context = new NettyContext(ctx, worker, req, router.errorHandler(),
+        router.tmpdir(), path);
+    Router.Match match = router.match(context);
+    Route route = match.route();
+    if (route.gzip() && acceptGzip(req.headers().get(HttpHeaderNames.ACCEPT_ENCODING))) {
+      installGzip(ctx, req);
+    } else {
+      context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, router.defaultContentType());
+    }
+    Route.RootHandler handler = route.pipeline();
+    if (this.executor == null) {
+      handler.apply(context);
+    } else {
+      executor.execute(() -> handler.apply(context));
     }
   }
 
@@ -71,7 +78,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    //    cause.printStackTrace();
+    //        cause.printStackTrace();
     ctx.close();
     //    if (!ConnectionLost.test(cause)) {
     //      String path = ctx.channel().attr(PATH).get();
