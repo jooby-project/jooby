@@ -39,7 +39,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "com.github.jengelman.gradle.plugins:shadow:1.2.4"
+    classpath "com.github.jengelman.gradle.plugins:shadow:4.0.1"
   }
 }
 
