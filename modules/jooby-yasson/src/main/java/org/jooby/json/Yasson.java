@@ -249,7 +249,7 @@ import com.typesafe.config.Config;
  *     return obj;
  *   });
  *
- *   // direct access to Gson
+ *   // direct access to Jsonb
  *   get("/access", req {@literal ->} {
  *     Jsonb jsonb = req.require(Jsonb.class);
  *     // ...
