@@ -14,7 +14,7 @@ JSON support via [yasson](https://github.com/eclipse-ee4j/yasson) library.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-yasson</artifactId>
-  <version>1.6.0</version>
+  <version>{{version}}</version>
 </dependency>
 ```
 
