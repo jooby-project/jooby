@@ -1,6 +1,7 @@
 package io.jooby.utow;
 
 import io.jooby.App;
+import io.jooby.Functions;
 import io.jooby.Mode;
 import io.jooby.Route;
 import io.jooby.Router;
@@ -76,8 +77,10 @@ public class Utow implements Server {
   }
 
   @Override public Server stop() {
-    applications.clear();
-    server.stop();
+    try (Functions.Closer closer = Functions.closer()) {
+      applications.forEach(app -> closer.register(app::stop));
+      closer.register(server::stop);
+    }
     return this;
   }
 

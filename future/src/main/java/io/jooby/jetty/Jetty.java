@@ -1,6 +1,7 @@
 package io.jooby.jetty;
 
 import io.jooby.App;
+import io.jooby.Functions;
 import io.jooby.Mode;
 import io.jooby.Router;
 import io.jooby.internal.jetty.JettyHandler;
@@ -84,12 +85,10 @@ public class Jetty implements io.jooby.Server {
   }
 
   @Override public io.jooby.Server stop() {
-    try {
-      applications.clear();
-      server.stop();
-      return this;
-    } catch (Exception x) {
-      throw Throwing.sneakyThrow(x);
+    try (Functions.Closer closer = Functions.closer()) {
+      applications.forEach(app -> closer.register(app::stop));
+      closer.register(server::stop);
     }
+    return this;
   }
 }

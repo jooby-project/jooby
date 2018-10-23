@@ -2,8 +2,8 @@ package io.jooby.netty;
 
 import io.jooby.App;
 import io.jooby.Mode;
-import io.jooby.Router;
 import io.jooby.Server;
+import io.jooby.Functions;
 import io.jooby.internal.netty.NettyMultiHandler;
 import io.jooby.internal.netty.NettyNative;
 import io.jooby.internal.netty.NettyHandler;
@@ -23,8 +23,6 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import org.jooby.funzy.Throwing;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.net.ssl.SSLException;
@@ -144,11 +142,12 @@ public class Netty implements Server {
   }
 
   public Server stop() {
-    List<Throwable> errors = new ArrayList<>();
-    applications.forEach(Throwing.throwingConsumer(App::stop).onFailure(errors::add));
-    ioLoop.shutdownGracefully();
-    acceptor.shutdownGracefully();
-    worker.shutdownGracefully();
+    try (Functions.Closer closer = Functions.closer()) {
+      applications.forEach(app -> closer.register(app::stop));
+      closer.register(ioLoop::shutdownGracefully);
+      closer.register(acceptor::shutdownGracefully);
+      closer.register(worker::shutdownGracefully);
+    }
     return this;
   }
 
