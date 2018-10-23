@@ -628,12 +628,34 @@ class $Chi implements RadixTree {
       String key = ws == pattern.length() - 1 ? "*" : pattern.substring(ws + 1);
       return new Segment(ntCatchAll, key, "", (char) 0, ws, pattern.length());
     }
+
+    public void destroy() {
+      for (int ntyp = 0; ntyp < children.length; ntyp++) {
+        Node[] nds = children[ntyp];
+        if (nds != null) {
+          for (int i = 0; i < nds.length; i++) {
+            nds[i].destroy();
+            nds[i] = null;
+          }
+          children[ntyp] = null;
+        }
+      }
+      children = null;
+      if (this.endpoints != null) {
+        this.endpoints.clear();
+        this.endpoints = null;
+      }
+    }
   }
 
   private Node root = new Node();
 
   public void insert(String method, String pattern, RouteImpl route) {
     root.insertRoute(method, pattern, route);
+  }
+
+  @Override public void destroy() {
+    root.destroy();
   }
 
   public RouterMatch find(Context context, Renderer renderer, List<RadixTree> more) {

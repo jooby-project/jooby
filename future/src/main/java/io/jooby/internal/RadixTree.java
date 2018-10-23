@@ -23,6 +23,12 @@ interface RadixTree {
         }
         return RadixTree.this.find(context, renderer, more);
       }
+
+      @Override public void destroy() {
+        RadixTree.this.destroy();
+      }
     };
   }
+
+  void destroy();
 }

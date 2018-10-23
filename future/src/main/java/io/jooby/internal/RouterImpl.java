@@ -83,7 +83,7 @@ public class RouterImpl implements Router {
 
   private Map<String, StatusCode> errorCodes;
 
-  private final RadixTree chi = new $Chi();
+  private RadixTree chi = new $Chi();
 
   private LinkedList<Stack> stack = new LinkedList<>();
 
@@ -257,6 +257,20 @@ public class RouterImpl implements Router {
   }
 
   public void destroy() {
+    routes.clear();
+    routes = null;
+    chi.destroy();
+    chi = null;
+    if (errorCodes != null) {
+      errorCodes.clear();
+      errorCodes = null;
+    }
+    if (this.trees != null) {
+      this.trees.forEach(RadixTree::destroy);
+      this.trees.clear();
+      this.trees = null;
+    }
+    this.rootErr = null;
     // NOOP
   }
 

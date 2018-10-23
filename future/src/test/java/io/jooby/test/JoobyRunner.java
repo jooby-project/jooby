@@ -36,20 +36,21 @@ public class JoobyRunner {
     return this;
   }
 
-  public void ready(Consumer<WebClient> onReady, Server... servers) {
+  public void ready(Consumer<WebClient> onReady, Supplier<Server>... servers) {
     if (modes.size() == 0) {
       modes.add(Mode.WORKER);
     }
-    List<Server> serverList = new ArrayList<>();
+    List<Supplier<Server>> serverList = new ArrayList<>();
     if (servers.length == 0) {
-      serverList.add(new Netty());
-      serverList.add(new Utow());
-      serverList.add(new Jetty());
+      serverList.add(Netty::new);
+      serverList.add(Utow::new);
+      serverList.add(Jetty::new);
     } else {
       serverList.addAll(Arrays.asList(servers));
     }
     for (Mode mode : modes) {
-      for (Server server : serverList) {
+      for (Supplier<Server> serverFactory : serverList) {
+        Server server = serverFactory.get();
         try {
           App app = this.provider.get().mode(mode);
           server.port(9999)

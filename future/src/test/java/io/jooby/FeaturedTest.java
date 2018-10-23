@@ -533,7 +533,7 @@ public class FeaturedTest {
           .build(), rsp -> {
         assertEquals("{foo=bar}", rsp.body().string());
       });
-    }, new Netty(), new Utow());
+    }, Netty::new, Utow::new);
   }
 
   @Test
@@ -573,7 +573,7 @@ public class FeaturedTest {
         assertEquals("before1:true;before2:false;result:false;after2:false;after1:false;",
             rsp.body().string());
       });
-    }, new Netty(), new Utow()/* No Jetty bc always use a worker thread */);
+    }, Netty::new, Utow::new/* No Jetty bc always use a worker thread */);
   }
 
   @Test
@@ -724,7 +724,7 @@ public class FeaturedTest {
         assertEquals("rxbrefore1;rxbefore2;result:false;rxafter2;rxafter1;",
             rsp.body().string());
       });
-    }, new Netty(), new Utow()/* No Jetty bc always use a worker thread */);
+    }, Netty::new, Utow::new/* No Jetty bc always use a worker thread */);
   }
 
   @Test

@@ -165,7 +165,9 @@ public class App implements Router {
     ensureTmpdir(tmpdir);
     Logger log = log();
     router.start(log);
-    log.info("{}\n\n{}\n\nhttp://localhost:{}{}\n", getClass().getSimpleName(), router,
+    log.info("{} [{}@{}]\n\n{}\n\nlistening on:\n  http://localhost:{}{}\n",
+        getClass().getSimpleName(),
+        server.getClass().getSimpleName().toLowerCase(), mode.name().toLowerCase(), router,
         server.port(), router.basePath());
     return this;
   }
