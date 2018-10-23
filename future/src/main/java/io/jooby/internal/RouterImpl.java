@@ -246,23 +246,18 @@ public class RouterImpl implements Router {
     return route;
   }
 
-  @Override public Router start() {
+  @Nonnull public Router start(@Nonnull Logger log) {
+    if (err == null) {
+      err = Route.ErrorHandler.DEFAULT;
+    }
+    this.rootErr = new RootErrorHandlerImpl(err, log, this::errorCode);
     this.stack.forEach(Stack::clear);
     this.stack = null;
     return this;
   }
 
-  @Override public Router stop() {
-    return this;
-  }
-
-  @Nonnull public Router start(@Nonnull Logger log) {
-    start();
-    if (err == null) {
-      err = Route.ErrorHandler.DEFAULT;
-    }
-    this.rootErr = new RootErrorHandlerImpl(err, log, this::errorCode);
-    return this;
+  public void destroy() {
+    // NOOP
   }
 
   @Nonnull @Override public Route.RootErrorHandler errorHandler() {

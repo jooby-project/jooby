@@ -76,6 +76,10 @@ public class Netty implements Server {
     return this;
   }
 
+  @Override public int port() {
+    return port;
+  }
+
   @Nonnull @Override public Server deploy(App application) {
     applications.add(application);
     return this;
@@ -128,13 +132,7 @@ public class Netty implements Server {
       Thread.currentThread().interrupt();
     }
 
-    for (App application : applications) {
-      application.start();
-      Logger log = LoggerFactory.getLogger(application.getClass());
-      log.info("{}\n\n{}\n\nhttp://localhost:{}{}\n", application.getClass().getSimpleName(),
-          application,
-          port, application.basePath());
-    }
+    applications.forEach(app -> app.start(this));
 
     return this;
   }
@@ -146,7 +144,8 @@ public class Netty implements Server {
   }
 
   public Server stop() {
-    applications.clear();
+    List<Throwable> errors = new ArrayList<>();
+    applications.forEach(Throwing.throwingConsumer(App::stop).onFailure(errors::add));
     ioLoop.shutdownGracefully();
     acceptor.shutdownGracefully();
     worker.shutdownGracefully();

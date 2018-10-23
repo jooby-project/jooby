@@ -34,6 +34,10 @@ public class Jetty implements io.jooby.Server {
     return this;
   }
 
+  @Override public int port() {
+    return port;
+  }
+
   @Nonnull @Override public io.jooby.Server deploy(App application) {
     applications.add(application);
     return this;
@@ -74,11 +78,7 @@ public class Jetty implements io.jooby.Server {
       throw Throwing.sneakyThrow(x);
     }
 
-    for (App router : applications) {
-      router.start();
-      Logger log = LoggerFactory.getLogger(router.getClass());
-      log.info("{}\n\n{}\n\nhttp://localhost:{}{}\n", router.getClass().getSimpleName(), router, port, router.basePath());
-    }
+    applications.forEach(app -> app.start(this));
 
     return this;
   }

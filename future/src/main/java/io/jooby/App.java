@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 
@@ -18,7 +19,8 @@ public class App implements Router {
 
   private final RouterImpl router = new RouterImpl();
 
-  private Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir"), appname(getClass())).toAbsolutePath();
+  private Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir"), appname(getClass()))
+      .toAbsolutePath();
 
   private Mode mode = Mode.WORKER;
 
@@ -132,7 +134,7 @@ public class App implements Router {
   }
 
   public Path tmpdir() {
-    return ensureTmpdir(tmpdir);
+    return tmpdir;
   }
 
   public App tmpdir(@Nonnull Path tmpdir) {
@@ -150,14 +152,26 @@ public class App implements Router {
   }
 
   /** Boot: */
-  public App start() {
-    /** Start router: */
-    router.start(log());
+  public Server start() {
+    Server server = ServiceLoader.load(Server.class)
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("No server found."));
+    server.deploy(this);
+    return server.start();
+  }
 
+  public App start(Server server) {
+    /** Start router: */
+    ensureTmpdir(tmpdir);
+    Logger log = log();
+    router.start(log);
+    log.info("{}\n\n{}\n\nhttp://localhost:{}{}\n", getClass().getSimpleName(), router,
+        server.port(), router.basePath());
     return this;
   }
 
   public App stop() {
+    router.destroy();
     return this;
   }
 
@@ -165,12 +179,11 @@ public class App implements Router {
     return router.toString();
   }
 
-  private static Path ensureTmpdir(Path tmpdir) {
+  private static void ensureTmpdir(Path tmpdir) {
     try {
       if (!Files.exists(tmpdir)) {
         Files.createDirectories(tmpdir);
       }
-      return tmpdir;
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }

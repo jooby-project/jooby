@@ -17,6 +17,8 @@ public interface Server {
   /** 16KB constant. */
   int _16KB = 0x4000;
 
+  int port();
+
   @Nonnull Server port(int port);
 
   @Nonnull Server deploy(App application);
@@ -32,4 +34,5 @@ public interface Server {
   }
 
   @Nonnull Server stop();
+
 }

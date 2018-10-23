@@ -31,16 +31,16 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     if (msg instanceof HttpRequest) {
       HttpRequest req = (HttpRequest) msg;
-      handleHttpRequest(ctx, req, NettyUtils.pathOnly(req.uri()));
+      NettyContext context = new NettyContext(ctx, worker, req, router.errorHandler(),
+          router.tmpdir(), pathOnly(req.uri()));
+      handleHttpRequest(ctx, req, context);
     } else {
       ctx.fireChannelRead(msg);
     }
   }
 
-  public void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req, String path)
+  void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req, NettyContext context)
       throws Exception {
-    NettyContext context = new NettyContext(ctx, worker, req, router.errorHandler(),
-        router.tmpdir(), path);
     Router.Match match = router.match(context);
     Route route = match.route();
     if (route.gzip() && acceptGzip(req.headers().get(HttpHeaderNames.ACCEPT_ENCODING))) {
@@ -76,9 +76,20 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     ctx.pipeline().addBefore("handler", "gzip", compressor);
   }
 
+  static String pathOnly(String uri) {
+    int len = uri.length();
+    for (int i = 0; i < len; i++) {
+      char c = uri.charAt(i);
+      if (c == '?') {
+        return uri.substring(0, i);
+      }
+    }
+    return uri;
+  }
+
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    //        cause.printStackTrace();
+    cause.printStackTrace();
     ctx.close();
     //    if (!ConnectionLost.test(cause)) {
     //      String path = ctx.channel().attr(PATH).get();

@@ -202,7 +202,4 @@ public interface Router {
    */
   @Nonnull Router defaultContentType(@Nonnull String contentType);
 
-  Router start();
-
-  Router stop();
 }

@@ -21,17 +21,17 @@ public class NettyMultiHandler extends ChannelInboundHandlerAdapter {
   }
 
   @Override public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-    if (ctx instanceof HttpRequest) {
-      HttpRequest request = (HttpRequest) ctx;
+    if (msg instanceof HttpRequest) {
+      HttpRequest request = (HttpRequest) msg;
       String uri = request.uri();
-      String path = NettyUtils.pathOnly(uri);
+      String path = NettyHandler.pathOnly(uri);
       for (Map.Entry<App, NettyHandler> e : handlers.entrySet()) {
         App router = e.getKey();
         NettyContext context = new NettyContext(ctx, executor, request, router.errorHandler(),
             router.tmpdir(), path);
         Router.Match match = router.match(context);
         if (match.matches()) {
-          e.getValue().handleHttpRequest(ctx, request, path);
+          e.getValue().handleHttpRequest(ctx, request, context);
         }
       }
     } else {

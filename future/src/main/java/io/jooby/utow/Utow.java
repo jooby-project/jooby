@@ -34,19 +34,23 @@ public class Utow implements Server {
     return this;
   }
 
+  @Override public int port() {
+    return port;
+  }
+
   @Nonnull @Override public Server deploy(App application) {
     applications.add(application);
     return this;
   }
 
   @Override public Server start() {
-    HttpHandler uhandler;
+    HttpHandler handler;
     if (applications.size() == 1) {
-      uhandler = newHandler(applications.get(0));
+      handler = newHandler(applications.get(0));
     } else {
       Map<App, UtowHandler> handlers = new LinkedHashMap<>(applications.size());
       applications.forEach(app -> handlers.put(app, newHandler(app)));
-      uhandler = new UtowMultiHandler(handlers);
+      handler = new UtowMultiHandler(handlers);
     }
 
     server = Undertow.builder()
@@ -57,17 +61,12 @@ public class Utow implements Server {
         .setServerOption(UndertowOptions.ALWAYS_SET_DATE, false)
         .setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, false)
         .setServerOption(UndertowOptions.DECODE_URL, false)
-        .setHandler(uhandler)
+        .setHandler(handler)
         .build();
 
     server.start();
 
-    for (Router router : applications) {
-      router.start();
-      Logger log = LoggerFactory.getLogger(router.getClass());
-      log.info("{}\n\n{}\n\nhttp://localhost:{}{}\n", router.getClass().getSimpleName(), router,
-          port, router.basePath());
-    }
+    applications.forEach(app -> app.start(this));
 
     return this;
   }
