@@ -878,12 +878,13 @@ public class FeaturedTest {
   public void defaultHeaders() {
     LinkedList<String> servers = new LinkedList<>(Arrays.asList("netty", "utow", "jetty"));
     new JoobyRunner(app -> {
-      app.filter(new DefaultHeaders());
+      app.filter(Filters.defaultHeaders());
       app.get("/", Context::path);
     }).ready(client -> {
       client.get("/", rsp -> {
         assertNotNull(rsp.header("Date"));
         assertEquals(servers.getFirst(), rsp.header("Server"));
+        assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
         servers.removeFirst();
       });
     });
@@ -892,24 +893,25 @@ public class FeaturedTest {
   @Test
   public void defaultContentType() {
     new JoobyRunner(app -> {
+      app.filter(Filters.contentType(text));
       app.get("/type", Context::path);
     }).ready(client -> {
       client.get("/type", rsp -> {
-        assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type"));
+        assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
       });
     });
 
     new JoobyRunner(app -> {
-      app.defaultContentType("text/plain");
-      app.get("/type-no-charset", Context::path);
+      app.filter(Filters.contentType("text/plain"));
+      app.get("/type-text", Context::path);
     }).ready(client -> {
-      client.get("/type-no-charset", rsp -> {
-        assertEquals("text/plain", rsp.header("Content-Type"));
+      client.get("/type-text", rsp -> {
+        assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
       });
     });
 
     new JoobyRunner(app -> {
-      app.defaultContentType("text/plain");
+      app.filter(Filters.contentType("text/plain"));
       app.get("/type-override", ctx -> ctx.type("text/html").sendText("OK"));
     }).ready(client -> {
       client.get("/type-override", rsp -> {

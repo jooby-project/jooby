@@ -124,15 +124,6 @@ public class App implements Router {
     return router.errorHandler();
   }
 
-  @Nonnull @Override public String defaultContentType() {
-    return router.defaultContentType();
-  }
-
-  @Nonnull @Override public App defaultContentType(@Nonnull String contentType) {
-    router.defaultContentType(contentType);
-    return this;
-  }
-
   public Path tmpdir() {
     return tmpdir;
   }

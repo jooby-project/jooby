@@ -294,15 +294,6 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Nonnull @Override public String defaultContentType() {
-    return contentType;
-  }
-
-  @Nonnull @Override public Router defaultContentType(@Nonnull String contentType) {
-    this.contentType = contentType;
-    return this;
-  }
-
   private StatusCode errorCode(@Nonnull Throwable x) {
     if (x instanceof Err) {
       return ((Err) x).statusCode;

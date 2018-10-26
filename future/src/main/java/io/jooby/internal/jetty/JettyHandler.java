@@ -35,7 +35,6 @@ public class JettyHandler extends AbstractHandler {
       jettyGzip.setHandler(gzipCall(handler, context));
       jettyGzip.handle(target, request, request, request.getResponse());
     } else {
-      response.setHeader("Content-Type", router.defaultContentType());
       handler.apply(context);
     }
   }

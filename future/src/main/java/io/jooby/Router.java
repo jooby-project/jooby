@@ -187,19 +187,4 @@ public interface Router {
 
   @Nonnull Route.RootErrorHandler errorHandler();
 
-  /**
-   * Get the default content type (text/plain).
-   *
-   * @return The default content type (text/plain).
-   */
-  @Nonnull String defaultContentType();
-
-  /**
-   * Set default content type.
-   *
-   * @param contentType Content type.
-   * @return This router.
-   */
-  @Nonnull Router defaultContentType(@Nonnull String contentType);
-
 }

@@ -1,10 +1,9 @@
 package apps;
 
 import io.jooby.App;
-import io.jooby.DefaultHeaders;
+import io.jooby.Filters;
 import io.jooby.Mode;
 import io.jooby.jackson.Jackson;
-import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
 
 public class HelloApp extends App {
@@ -20,14 +19,12 @@ public class HelloApp extends App {
   }
 
   {
-    defaultContentType("text/plain");
-
     filter(next -> ctx -> {
       System.out.println(Thread.currentThread());
       return next.apply(ctx);
     });
 
-    filter(new DefaultHeaders());
+    filter(Filters.server().then(Filters.date()));
 
     get("/", ctx -> ctx.sendText(MESSAGE));
 

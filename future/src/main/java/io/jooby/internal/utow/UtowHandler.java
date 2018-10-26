@@ -34,7 +34,6 @@ public class UtowHandler implements HttpHandler {
           .wrap(gzipExchange -> handler.apply(context))
           .handleRequest(exchange);
     } else {
-      exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, router.defaultContentType());
       handler.apply(context);
     }
   }
