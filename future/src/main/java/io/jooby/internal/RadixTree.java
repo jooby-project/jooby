@@ -4,6 +4,7 @@ import io.jooby.Context;
 import io.jooby.Renderer;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 
 interface RadixTree {
@@ -19,7 +20,8 @@ interface RadixTree {
 
       @Override public RouterMatch find(Context context, Renderer renderer, List<RadixTree> more) {
         if (predicate != null && !predicate.test(context)) {
-          return new RouterMatch().missing(context.method(), context.path(), renderer);
+          return new RouterMatch()
+              .missing(context.executor(), context.method(), context.path(), renderer);
         }
         return RadixTree.this.find(context, renderer, more);
       }

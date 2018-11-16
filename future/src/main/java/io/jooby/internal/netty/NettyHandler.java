@@ -13,15 +13,16 @@ import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 @ChannelHandler.Sharable
 public class NettyHandler extends ChannelInboundHandlerAdapter {
-  protected final ExecutorService executor;
+  protected final Executor executor;
   private final Router router;
   private final ExecutorService worker;
 
-  public NettyHandler(ExecutorService executor, ExecutorService worker, Router router) {
+  public NettyHandler(Executor executor, ExecutorService worker, Router router) {
     this.executor = executor;
     this.worker = worker;
     this.router = router;
@@ -47,7 +48,8 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       installGzip(ctx, req);
     }
     Route.RootHandler handler = route.pipeline();
-    if (this.executor == null) {
+    Executor executor = route.executor();
+    if (this.executor == executor) {
       handler.apply(context);
     } else {
       executor.execute(() -> handler.apply(context));

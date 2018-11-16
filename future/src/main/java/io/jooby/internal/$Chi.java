@@ -676,6 +676,6 @@ class $Chi implements RadixTree {
         }
       }
     }
-    return result.missing(method, path, renderer);
+    return result.missing(context.executor(), method, path, renderer);
   }
 }

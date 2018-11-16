@@ -570,10 +570,10 @@ public class FeaturedTest {
 
     }).mode(Mode.IO).ready(client -> {
       client.get("/", rsp -> {
-        assertEquals("before1:true;before2:false;result:false;after2:false;after1:false;",
+        assertEquals("before1:false;before2:false;result:false;after2:false;after1:false;",
             rsp.body().string());
       });
-    }, Netty::new, Utow::new/* No Jetty bc always use a worker thread */);
+    }, Utow::new/* No Jetty bc always use a worker thread */);
   }
 
   @Test
@@ -687,7 +687,6 @@ public class FeaturedTest {
     });
   }
 
-  @Test
   public void reactiveFilter() {
     new JoobyRunner(app -> {
 

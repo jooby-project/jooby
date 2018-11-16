@@ -1,5 +1,6 @@
 package io.jooby.internal;
 
+import io.jooby.App;
 import io.jooby.BaseContext;
 import io.jooby.Context;
 import io.jooby.Err;
@@ -30,6 +31,7 @@ public class RouterImpl implements Router {
   private static class Stack {
     private String pattern;
     private boolean gzip;
+    private String executor;
     private List<Route.Filter> filters = new ArrayList<>();
     private List<Renderer> renderers = new ArrayList<>();
     private List<Route.After> afters = new ArrayList<>();
@@ -62,8 +64,18 @@ public class RouterImpl implements Router {
       return renderers.stream();
     }
 
-    public void gzip(boolean gzip) {
+    public Stack gzip(boolean gzip) {
       this.gzip = gzip;
+      return this;
+    }
+
+    public Stack executor(String executor) {
+      this.executor = executor;
+      return this;
+    }
+
+    public String executor() {
+      return executor;
     }
 
     public void clear() {
@@ -72,10 +84,6 @@ public class RouterImpl implements Router {
       this.afters.clear();
     }
   }
-
-  private static String TEXT = "text/plain;charset=utf-8";
-
-  private String contentType = TEXT;
 
   private Route.ErrorHandler err;
 
@@ -90,6 +98,8 @@ public class RouterImpl implements Router {
   private List<Route> routes = new ArrayList<>();
 
   private Renderer renderer = Renderer.TO_STRING;
+
+  private Map<String, Executor> executors = new HashMap<>();
 
   private String basePath = "";
 
@@ -150,8 +160,21 @@ public class RouterImpl implements Router {
     return this;
   }
 
+  @Nonnull @Override public Router executor(@Nonnull String name, @Nonnull Executor executor) {
+    executors.put(name, executor);
+    return this;
+  }
+
+  @Nonnull @Override public Executor executor(String executor) {
+    Executor result = executors.get(executor);
+    if (result == null) {
+      throw new NoSuchElementException("Executor not found: " + executor);
+    }
+    return result;
+  }
+
   @Nonnull @Override public Router gzip(@Nonnull Runnable action) {
-    return newGroup("", action, true);
+    return newGroup(newStack("").gzip(true), action);
   }
 
   @Override @Nonnull public Router filter(@Nonnull Route.Filter filter) {
@@ -174,13 +197,11 @@ public class RouterImpl implements Router {
   }
 
   @Override @Nonnull public Router dispatch(@Nonnull Runnable action) {
-    Route.Filter filter = next -> ctx -> ctx.dispatch(asRunnable(ctx, next));
-    return newGroup("", action, filter);
+    return dispatch("worker", action);
   }
 
-  @Override @Nonnull public Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
-    Route.Filter filter = next -> ctx -> ctx.dispatch(executor, asRunnable(ctx, next));
-    return newGroup("", action, filter);
+  @Override @Nonnull public Router dispatch(@Nonnull String executor, @Nonnull Runnable action) {
+    return newGroup(newStack("").executor(executor), action);
   }
 
   @Nonnull @Override public Route.Handler detach(@Nonnull Route.DetachHandler handler) {
@@ -226,15 +247,20 @@ public class RouterImpl implements Router {
     Route.After after = stack.stream()
         .flatMap(Stack::toAfter)
         .reduce(null, (it, next) -> it == null ? next : it.then(next));
+    if (after != null) {
+      pipeline = pipeline.then(after);
+    }
 
     /** Renderer: */
     Renderer renderer = stack.stream()
         .flatMap(Stack::toRenderer)
         .reduce(Renderer.TO_STRING, (it, next) -> next.then(it));
 
+    /** Executor: */
+    String executor = stack.getLast().executor;
+
     /** Route: */
-    RouteImpl route = new RouteImpl(method, pat.toString(), handler, pipeline.root(), after,
-        renderer);
+    RouteImpl route = new RouteImpl(executor, method, pat.toString(), handler, pipeline.root(), renderer);
     route.gzip(stack.peekLast().gzip);
     String finalpattern = basePath == null ? route.pattern() : basePath + route.pattern();
     if (method.equals("*")) {
@@ -246,11 +272,20 @@ public class RouterImpl implements Router {
     return route;
   }
 
-  @Nonnull public Router start(@Nonnull Logger log) {
+  @Nonnull public Router start(@Nonnull App owner) {
     if (err == null) {
       err = Route.ErrorHandler.DEFAULT;
     }
-    this.rootErr = new RootErrorHandlerImpl(err, log, this::errorCode);
+    for (Route route : routes) {
+      RouteImpl routeImpl = (RouteImpl) route;
+      String key = routeImpl.executorRef(owner.mode().name().toLowerCase());
+      Executor executor = executors.get(key);
+      if (executor == null) {
+        throw new NoSuchElementException("Executor not found: " + key);
+      }
+      routeImpl.executor(executor);
+    }
+    this.rootErr = new RootErrorHandlerImpl(err, owner.log(), this::errorCode);
     this.stack.forEach(Stack::clear);
     this.stack = null;
     return this;
@@ -334,13 +369,20 @@ public class RouterImpl implements Router {
 
   private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action,
       Route.Filter... filter) {
-    return newGroup(pattern, action, false, filter);
+    return newGroup(newStack(pattern), action, filter );
   }
 
-  private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action, boolean gzip,
-      Route.Filter... filter) {
+  private Stack newStack(String pattern) {
     Stack stack = new Stack(pattern);
-    stack.gzip(gzip);
+    if (this.stack.size() > 0) {
+      Stack parent = this.stack.getLast();
+      stack.executor(parent.executor);
+      stack.gzip(parent.gzip);
+    }
+    return stack;
+  }
+
+  private Router newGroup(@Nonnull Stack stack, @Nonnull Runnable action, Route.Filter... filter) {
     Stream.of(filter).forEach(stack::then);
     this.stack.addLast(stack);
     if (action != null) {

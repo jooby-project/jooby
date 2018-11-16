@@ -3,6 +3,7 @@ package io.jooby;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
 public interface Route {
@@ -31,6 +32,7 @@ public interface Route {
   }
 
   interface After {
+
     @Nonnull default After then(@Nonnull After next) {
       return (ctx, result) -> apply(ctx, next.apply(ctx, result));
     }
@@ -41,6 +43,10 @@ public interface Route {
   interface Handler {
 
     @Nonnull Object apply(@Nonnull Context ctx) throws Exception;
+
+    @Nonnull default Handler then(After next) {
+      return ctx -> next.apply(ctx, apply(ctx));
+    }
 
     default RootHandler root() {
       return ctx -> {
@@ -153,7 +159,7 @@ public interface Route {
 
   @Nonnull Renderer renderer();
 
-  @Nonnull Route.After after();
+  Executor executor();
 
   boolean gzip();
 }

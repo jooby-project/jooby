@@ -197,23 +197,20 @@ public class JettyContext extends BaseContext {
   }
 
   @Nonnull @Override public Context sendBytes(@Nonnull byte[] data) {
-    byte[] result = (byte[]) fireAfter(data);
-    return sendBytes(ByteBuffer.wrap(result));
+    return sendBytes(ByteBuffer.wrap(data));
   }
 
   @Nonnull @Override public Context sendText(@Nonnull String data, @Nonnull Charset charset) {
-    String result = (String) fireAfter(data);
-    return sendBytes(ByteBuffer.wrap(result.getBytes(charset)));
+    return sendBytes(ByteBuffer.wrap(data.getBytes(charset)));
   }
 
   @Nonnull @Override public Context sendBytes(@Nonnull ByteBuffer data) {
-    ByteBuffer result = (ByteBuffer) fireAfter(data);
     HttpOutput sender = response.getHttpOutput();
     if (request.isAsyncStarted()) {
       AsyncContext asyncContext = request.getAsyncContext();
-      sender.sendContent(result, new JettyCallback(asyncContext));
+      sender.sendContent(data, new JettyCallback(asyncContext));
     } else {
-      sender.sendContent(result, Callback.NOOP);
+      sender.sendContent(data, Callback.NOOP);
     }
     return this;
   }

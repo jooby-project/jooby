@@ -11,7 +11,7 @@ public class UtowBlockingHandler extends UtowHandler {
   @Override public void handleRequest(HttpServerExchange exchange) throws Exception {
     exchange.startBlocking();
     if (exchange.isInIoThread()) {
-      exchange.dispatch(this);
+      exchange.dispatch(router.executor("worker"), this);
     } else {
       super.handleRequest(exchange);
     }

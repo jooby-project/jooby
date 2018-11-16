@@ -209,6 +209,10 @@ public interface Context {
 
   @Nonnull Server.Executor io();
 
+  @Nonnull default Executor executor() {
+    return isInIoThread() ? io() : worker();
+  }
+
   @Nullable <T> T get(String name);
 
   @Nonnull Context set(@Nonnull String name, @Nonnull Object value);

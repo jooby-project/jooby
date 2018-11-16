@@ -16,8 +16,6 @@ public abstract class BaseContext implements Context {
 
   protected Map<String, Object> locals = Collections.EMPTY_MAP;
 
-  private Route.After after;
-
   private Map<String, String> params;
 
   public BaseContext() {
@@ -29,7 +27,6 @@ public abstract class BaseContext implements Context {
 
   public void prepare(Router.Match match) {
     this.route = match.route();
-    this.after = route.after();
     this.params = match.params();
   }
 
@@ -67,24 +64,11 @@ public abstract class BaseContext implements Context {
 
   @Nonnull @Override public Context send(@Nonnull Object result) {
     try {
-      route.renderer().render(this, fireAfter(result));
+      route.renderer().render(this, result);
       return this;
     } catch (Exception x) {
       throw Throwing.sneakyThrow(x);
     }
-  }
-
-  protected Object fireAfter(Object result) {
-    if (this.after != null) {
-      Route.After chain = this.after;
-      this.after = null;
-      try {
-        return chain.apply(this, result);
-      } catch (Exception x) {
-        throw Throwing.sneakyThrow(x);
-      }
-    }
-    return result;
   }
 
   protected void requireBlocking() {

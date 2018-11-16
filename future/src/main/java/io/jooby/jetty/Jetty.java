@@ -67,6 +67,11 @@ public class Jetty implements io.jooby.Server {
 
     server.addConnector(connector);
 
+    applications.forEach(app -> {
+      app.executor("io", executor);
+      app.executor("worker", executor);
+    });
+
     JettyHandler handler = applications.size() == 1 ?
         new JettyHandler(applications.get(0)) :
         new JettyMultiHandler(null, applications);

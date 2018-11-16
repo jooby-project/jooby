@@ -7,9 +7,13 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.encoding.EncodingHandler;
 import io.undertow.util.Headers;
 
+import java.util.concurrent.Executor;
+
 public class UtowHandler implements HttpHandler {
 
-  private final Router router;
+  protected final Router router;
+
+  private Executor executor;
 
   public UtowHandler(Router router) {
     this.router = router;
@@ -34,8 +38,17 @@ public class UtowHandler implements HttpHandler {
           .wrap(gzipExchange -> handler.apply(context))
           .handleRequest(exchange);
     } else {
-      handler.apply(context);
+      Executor executor = route.executor();
+      if (this.executor == executor) {
+        handler.apply(context);
+      } else {
+        exchange.dispatch(executor,() -> handler.apply(context));
+      }
     }
+  }
+
+  public void executor(Executor executor) {
+    this.executor = executor;
   }
 
   private boolean acceptGzip(String value) {

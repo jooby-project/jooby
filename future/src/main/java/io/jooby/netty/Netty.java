@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.concurrent.Executor;
 
 public class Netty implements Server {
 
@@ -105,16 +107,16 @@ public class Netty implements Server {
       /** Handler: */
       ChannelInboundHandler handler;
       if (applications.size() == 1) {
-        handler = newHandler(applications.get(0), worker);
+        handler = newHandler(applications.get(0), ioLoop, worker);
       } else {
         Map<App, NettyHandler> handlers = new LinkedHashMap<>(applications.size());
-        applications.forEach(app -> handlers.put(app, newHandler(app, worker)));
+        applications.forEach(app -> handlers.put(app, newHandler(app, ioLoop, worker)));
         handler = new NettyMultiHandler(handlers, worker);
       }
 
       /** Bootstrap: */
       ServerBootstrap bootstrap = new ServerBootstrap();
-      bootstrap.option(ChannelOption.SO_BACKLOG, 8192);
+      bootstrap.option(ChannelOption.SO_BACKLOG, 10000);
       bootstrap.option(ChannelOption.SO_REUSEADDR, true);
 
       bootstrap.group(acceptor, ioLoop)
@@ -135,10 +137,15 @@ public class Netty implements Server {
     return this;
   }
 
-  private NettyHandler newHandler(App app, DefaultEventExecutorGroup worker) {
-    return app.mode() == Mode.WORKER ?
-        new NettyHandler(worker, worker, app) :
-        new NettyHandler(null, worker, app);
+  private NettyHandler newHandler(App app, java.util.concurrent.Executor io,
+      DefaultEventExecutorGroup worker) {
+    app.executor("io", io);
+    try {
+      app.executor("worker");
+    } catch (NoSuchElementException x) {
+      app.executor("worker", worker);
+    }
+    return new NettyHandler(io, worker, app);
   }
 
   public Server stop() {

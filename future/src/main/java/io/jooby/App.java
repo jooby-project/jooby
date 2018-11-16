@@ -78,6 +78,15 @@ public class App implements Router {
     return router.renderer(renderer);
   }
 
+  @Nonnull @Override public Executor executor(@Nonnull String executor) {
+    return router.executor(executor);
+  }
+
+  @Nonnull @Override public App executor(@Nonnull String name, @Nonnull Executor executor) {
+    router.executor(name, executor);
+    return this;
+  }
+
   @Nonnull @Override public Route.Handler detach(@Nonnull Route.DetachHandler handler) {
     return router.detach(handler);
   }
@@ -86,7 +95,7 @@ public class App implements Router {
     return router.dispatch(action);
   }
 
-  @Nonnull @Override public Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
+  @Nonnull @Override public Router dispatch(@Nonnull String executor, @Nonnull Runnable action) {
     return router.dispatch(executor, action);
   }
 
@@ -155,7 +164,7 @@ public class App implements Router {
     /** Start router: */
     ensureTmpdir(tmpdir);
     Logger log = log();
-    router.start(log);
+    router.start(this);
     log.info("{} [{}@{}]\n\n{}\n\nlistening on:\n  http://localhost:{}{}\n",
         getClass().getSimpleName(),
         server.getClass().getSimpleName().toLowerCase(), mode.name().toLowerCase(), router,

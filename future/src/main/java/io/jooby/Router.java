@@ -72,6 +72,10 @@ public interface Router {
 
   @Nonnull Router after(@Nonnull Route.After after);
 
+  @Nonnull Executor executor(@Nonnull String executor);
+
+  @Nonnull Router executor(@Nonnull String name, @Nonnull Executor executor);
+
   /**
    * Handler who delegates processing of current request to a custom thread. This idiom works as
    * bridge between Jooby and (normally) a reactive library who follows the publish/subscribe
@@ -100,7 +104,7 @@ public interface Router {
 
   @Nonnull Router dispatch(@Nonnull Runnable action);
 
-  @Nonnull Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action);
+  @Nonnull Router dispatch(@Nonnull String executor, @Nonnull Runnable action);
 
   @Nonnull Router group(@Nonnull Runnable action);
 

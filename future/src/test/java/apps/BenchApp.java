@@ -3,6 +3,7 @@ package apps;
 import io.jooby.App;
 import io.jooby.Filters;
 import io.jooby.Mode;
+import io.jooby.netty.Netty;
 import io.jooby.utow.Utow;
 
 public class BenchApp extends App {
@@ -21,10 +22,14 @@ public class BenchApp extends App {
     filter(Filters.defaultHeaders());
 
     get("/", ctx -> ctx.sendText(MESSAGE));
+
+    get("/json", ctx -> Thread.currentThread().getName());
+
+    get("/fortune", ctx -> Thread.currentThread().getName());
   }
 
   public static void main(String[] args) {
-    new Utow()
+    new Netty()
         .deploy(new BenchApp().mode(Mode.IO))
         .start()
         .join();

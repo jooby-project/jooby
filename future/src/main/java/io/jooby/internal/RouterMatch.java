@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 public class RouterMatch implements Router.Match {
 
@@ -61,14 +62,15 @@ public class RouterMatch implements Router.Match {
   }
 
 
-  public RouterMatch missing(String method, String path, Renderer renderer) {
+  public RouterMatch missing(Executor executor, String method, String path, Renderer renderer) {
     Route.RootHandler h;
     if (this.handler == null) {
       h = path.endsWith("/favicon.ico") ? Route.FAVICON : Route.NOT_FOUND;
     } else {
       h = this.handler;
     }
-    this.route = new RouteImpl(method, path, h, h, null, renderer);
+    this.route = new RouteImpl(null, method, path, h, h, renderer);
+    ((RouteImpl) this.route).executor(executor);
     this.matches = false;
     return this;
   }
