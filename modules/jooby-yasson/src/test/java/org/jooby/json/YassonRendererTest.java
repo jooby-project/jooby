@@ -29,8 +29,8 @@ public class YassonRendererTest {
           ctx.send("{}");
         })
         .expect(unit -> {
-            Jsonb gson = unit.get(Jsonb.class);
-          expect(gson.toJson(value)).andReturn("{}");
+            Jsonb jsonB = unit.get(Jsonb.class);
+          expect(jsonB.toJson(value)).andReturn("{}");
         })
         .run(unit -> {
           new YassonRenderer(MediaType.json, unit.get(Jsonb.class))

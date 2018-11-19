@@ -209,6 +209,7 @@ import org.jooby.MediaType;
 import org.jooby.Renderer;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
 class GsonRenderer implements Renderer {
 
@@ -223,10 +224,16 @@ class GsonRenderer implements Renderer {
   }
 
   @Override
-  public void render(final Object object, final Context ctx) throws Exception {
+  public void render(final Object value, final Context ctx) throws Exception {
     if (ctx.accepts(this.type)) {
-      ctx.type(this.type)
-          .send(gson.toJson(object));
+        JsonElement jsonElement = gson.toJsonTree(value, value.getClass());
+        if (jsonElement.isJsonPrimitive()) {
+            ctx.type(this.type)
+               .send(jsonElement.getAsString().getBytes("UTF-8"));
+        } else {
+            ctx.type(this.type)
+            .send(gson.toJson(jsonElement));
+        }
     }
   }
 

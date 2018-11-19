@@ -217,7 +217,9 @@ import org.jooby.Renderer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Binder;
+import com.google.inject.Key;
 import com.google.inject.multibindings.Multibinder;
+import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 
 /**
@@ -269,6 +271,15 @@ import com.typesafe.config.Config;
  * }
  * </pre>
  *
+ *Add support raw string json responses:
+ * <pre>{@code
+ * {
+ *   get("/raw", () -> {
+ *     return "{\"raw\": \"json\"}";
+ *   });
+ * }
+ * }</pre>
+ *
  * @author edgar
  * @since 0.6.0
  */
@@ -277,6 +288,8 @@ public class Gzon implements Jooby.Module {
   private final MediaType type;
 
   private BiConsumer<GsonBuilder, Config> configurer;
+  
+  private boolean raw;
 
   /**
    * Creates a new {@link Gson}.
