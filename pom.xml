@@ -3260,7 +3260,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <powermock.version>1.7.4</powermock.version>
 
     <!-- Maven properties -->
-    <java.source.version>8</java.source.version>
+    <java.source.version>1.8</java.source.version>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <timestamp>${maven.build.timestamp}</timestamp>

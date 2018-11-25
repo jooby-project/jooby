@@ -1,5 +1,6 @@
 package io.jooby;
 
+import io.jooby.internal.RouteAnalyzer;
 import io.jooby.internal.RouterImpl;
 import org.jooby.funzy.Throwing;
 import org.slf4j.Logger;

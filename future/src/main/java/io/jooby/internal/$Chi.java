@@ -401,7 +401,7 @@ class $Chi implements RadixTree {
           continue;
         }
 
-        // did we find it yet?
+        // did we returnType it yet?
         if (xsearch.length() == 0) {
           if (xn.isLeaf()) {
             RouteImpl h = xn.endpoints.get(method);
@@ -417,13 +417,13 @@ class $Chi implements RadixTree {
           }
         }
 
-        // recursively find the next node..
+        // recursively returnType the next node..
         Node fin = xn.findRoute(rctx, method, xsearch);
         if (fin != null) {
           return fin;
         }
 
-        // Did not find final handler, let's remove the param here if it was set
+        // Did not returnType final handler, let's remove the param here if it was set
         if (xn.typ > ntStatic) {
           //          if len(rctx.routeParams.Values) > 0 {
           //            rctx.routeParams.Values = rctx.routeParams.Values[:len(rctx.routeParams.Values) - 1]

@@ -1,6 +1,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -40,7 +41,7 @@ public interface Route {
     @Nonnull Object apply(@Nonnull Context ctx, Object result) throws Exception;
   }
 
-  interface Handler {
+  interface Handler extends Serializable {
 
     @Nonnull Object apply(@Nonnull Context ctx) throws Exception;
 

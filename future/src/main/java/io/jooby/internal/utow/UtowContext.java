@@ -225,7 +225,7 @@ public class UtowContext extends BaseContext {
   }
 
   /**
-   * Can't find a better way of implementing executeAfter, so we run the delay in the IO thread and
+   * Can't returnType a better way of implementing executeAfter, so we run the delay in the IO thread and
    * then submit the task to the worker thread :S
    *
    * @param thread IO thread.

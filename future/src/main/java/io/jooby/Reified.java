@@ -20,8 +20,10 @@ import io.jooby.internal.reflect.$Types;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a generic type {@code T}. Java doesn't yet provide a way to
@@ -127,6 +129,13 @@ public class Reified<T> {
     return new Reified<>(type);
   }
 
+  public static Class<?> rawType(Type type) {
+    if (type instanceof Class) {
+      return (Class<?>) type;
+    }
+    return new Reified<>(type).rawType;
+  }
+
   /**
    * Gets type literal for the given {@code Class} instance.
    */
@@ -137,16 +146,24 @@ public class Reified<T> {
     return new Reified<>(type);
   }
 
-  public static <T> Reified<List<T>> list(Class<T> type) {
+  public static <T> Reified<List<T>> list(Type type) {
     return (Reified<List<T>>) getParameterized(List.class, type);
   }
 
-  public static <T> Reified<Set<T>> set(Class<T> type) {
+  public static <T> Reified<Set<T>> set(Type type) {
     return (Reified<Set<T>>) getParameterized(Set.class, type);
   }
 
-  public static <T> Reified<Optional<T>> optional(Class<T> type) {
+  public static <T> Reified<Optional<T>> optional(Type type) {
     return (Reified<Optional<T>>) getParameterized(Optional.class, type);
+  }
+
+  public static <K, V> Reified<Map<K, V>> map(Type key, Type value) {
+    return (Reified<Map<K, V>>) getParameterized(Map.class, key, value);
+  }
+
+  public static <T> Reified<CompletableFuture<T>> completableFuture(Type type) {
+    return (Reified<CompletableFuture<T>>) getParameterized(CompletableFuture.class, type);
   }
 
   /**
