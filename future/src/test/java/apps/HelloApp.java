@@ -30,14 +30,6 @@ public class HelloApp extends App {
 
     get("/{foo}", ctx -> ctx.sendText("Hello World!"));
 
-    dispatch(() -> {
-      filter(next -> ctx -> {
-        System.out.println(Thread.currentThread());
-        return next.apply(ctx);
-      });
-      get("/worker", ctx -> ctx.sendText("Hello Worker!"));
-    });
-
     renderer(new Jackson());
     get("/json", ctx -> ctx.type("application/json").send(new Message("Hello World!")));
 
@@ -49,7 +41,7 @@ public class HelloApp extends App {
 
   public static void main(String[] args) {
     new Netty()
-        .deploy(new HelloApp().mode(Mode.WORKER))
+        .deploy(new HelloApp().mode(Mode.IO))
         .start()
         .join();
   }

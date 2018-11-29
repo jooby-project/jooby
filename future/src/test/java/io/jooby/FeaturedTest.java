@@ -1,6 +1,7 @@
 package io.jooby;
 
 import io.jooby.jackson.Jackson;
+import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
 import io.jooby.test.JoobyRunner;
 import io.jooby.utow.Utow;
@@ -24,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.Flow;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
@@ -59,15 +59,15 @@ public class FeaturedTest {
 
   }
 
-  @Test
+  //@Test
   public void sayHiFromIO() {
     new JoobyRunner(app -> {
       app.get("/", ctx -> "Hello World!");
 
-      app.dispatch(() -> {
-        app.get("/worker", ctx -> "Hello World!");
-      });
-    }).mode(Mode.IO).ready(client -> {
+      //      app.dispatch(() -> {
+      //        app.get("/worker", ctx -> "Hello World!");
+      //      });
+    }).mode(Mode.NIO).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
@@ -113,15 +113,15 @@ public class FeaturedTest {
     });
   }
 
-  @Test
+  //@Test
   public void sayHiFromWorker() {
     new JoobyRunner(app -> {
       app.get("/", ctx -> "Hello World!");
 
-      app.dispatch(() -> {
-        app.get("/worker", ctx -> "Hello World!");
-      });
-    }).mode(Mode.WORKER).ready(client -> {
+      //      app.dispatch(() -> {
+      //        app.get("/worker", ctx -> "Hello World!");
+      //      });
+    }).mode(Mode.IO).ready(client -> {
       client.get("/?foo=bar", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
@@ -459,7 +459,7 @@ public class FeaturedTest {
   public void form() {
     new JoobyRunner(app -> {
       app.post("/", ctx -> ctx.form());
-    }).mode(Mode.IO, Mode.WORKER).ready(client -> {
+    }).mode(Mode.NIO, Mode.IO).ready(client -> {
       client.post("/", new FormBody.Builder()
           .add("q", "a b")
           .add("user.name", "user")
@@ -507,24 +507,24 @@ public class FeaturedTest {
     });
   }
 
-  @Test
+  //  @Test
   public void multipartFromIO() {
     new JoobyRunner(app -> {
       app.post("/f", ctx -> ctx.multipart());
 
-      app.dispatch(() ->
-          app.post("/w", ctx -> ctx.multipart()));
+      //      app.dispatch(() ->
+      //          app.post("/w", ctx -> ctx.multipart()));
 
       app.error(IllegalStateException.class, (ctx, x, statusCode) -> {
         ctx.sendText(x.getMessage());
       });
-    }).mode(Mode.IO).ready(client -> {
+    }).mode(Mode.NIO).ready(client -> {
       client.post("/f", new MultipartBody.Builder()
           .setType(MultipartBody.FORM)
           .addFormDataPart("foo", "bar")
           .build(), rsp -> {
         assertEquals(
-            "Attempted to do blocking IO from the IO thread. This is prohibited as it may result in deadlocks",
+            "Attempted to do blocking NIO from the NIO thread. This is prohibited as it may result in deadlocks",
             rsp.body().string());
       });
 
@@ -537,7 +537,7 @@ public class FeaturedTest {
     }, Netty::new, Utow::new);
   }
 
-  @Test
+  //  @Test
   public void filter() {
     new JoobyRunner(app -> {
 
@@ -553,23 +553,23 @@ public class FeaturedTest {
         return buff;
       });
 
-      app.dispatch(() -> {
-        app.before(ctx -> {
-          StringBuilder buff = ctx.get("buff");
-          buff.append("before2:" + ctx.isInIoThread()).append(";");
-        });
+      //      app.dispatch(() -> {
+      //        app.before(ctx -> {
+      //          StringBuilder buff = ctx.get("buff");
+      //          buff.append("before2:" + ctx.isInIoThread()).append(";");
+      //        });
+      //
+      //        app.after((ctx, value) -> {
+      //          StringBuilder buff = ctx.get("buff");
+      //          buff.append(value).append(";");
+      //          buff.append("after2:" + ctx.isInIoThread()).append(";");
+      //          return buff;
+      //        });
+      //
+      //        app.get("/", ctx -> "result:" + ctx.isInIoThread());
+      //      });
 
-        app.after((ctx, value) -> {
-          StringBuilder buff = ctx.get("buff");
-          buff.append(value).append(";");
-          buff.append("after2:" + ctx.isInIoThread()).append(";");
-          return buff;
-        });
-
-        app.get("/", ctx -> "result:" + ctx.isInIoThread());
-      });
-
-    }).mode(Mode.IO).ready(client -> {
+    }).mode(Mode.NIO).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("before1:false;before2:false;result:false;after2:false;after1:false;",
             rsp.body().string());
@@ -609,38 +609,16 @@ public class FeaturedTest {
 
   @Test
   public void reactive() {
-
-    class Rx2 extends App {
-      public Route.Handler rx2(Function<Context, Flowable<String>> flowable) {
-        return detach(ctx -> flowable.apply(ctx).subscribe(ctx::sendText, ctx::sendError));
-      }
-    }
-
-    new JoobyRunner(() -> {
-
-      Rx2 app = new Rx2();
-
-      app.get("/detach", app.detach(ctx ->
-          fromCallable(() -> "Hello Rx2!")
+    new JoobyRunner(app -> {
+      app.get("/rx2", ctx ->
+          fromCallable(() -> "rx2")
+              .map(s -> "Hello " + s)
               .subscribeOn(Schedulers.io())
               .observeOn(Schedulers.computation())
-              .subscribe(ctx::sendText, ctx::sendError))
       );
-
-      app.get("/fnutil", app.rx2(ctx ->
-          fromCallable(() -> "Hello Rx2!")
-              .subscribeOn(Schedulers.io())
-              .observeOn(Schedulers.computation()))
-      );
-
-      return app;
-    }).mode(Mode.IO).ready(client -> {
-      client.get("/detach", rsp -> {
-        assertEquals("Hello Rx2!", rsp.body().string());
-      });
-
-      client.get("/fnutil", rsp -> {
-        assertEquals("Hello Rx2!", rsp.body().string());
+    }).mode(Mode.NIO).ready(client -> {
+      client.get("/rx2", rsp -> {
+        assertEquals("Hello rx2", rsp.body().string());
       });
     });
   }
@@ -649,14 +627,12 @@ public class FeaturedTest {
   public void completableFuture() {
     new JoobyRunner(app -> {
 
-      app.get("/completable", app.detach(ctx ->
+      app.get("/completable", ctx ->
           supplyAsync(() -> "Completable Future!")
               .thenApply(v -> "Hello " + v)
-              .handle((v, x) -> v != null ? ctx.sendText(v) : ctx.sendError(x)
-              )
-      ));
+      );
 
-    }).mode(Mode.IO).ready(client -> {
+    }).mode(Mode.NIO).ready(client -> {
       client.get("/completable", rsp -> {
         assertEquals("Hello Completable Future!", rsp.body().string());
       });
@@ -686,45 +662,6 @@ public class FeaturedTest {
         assertEquals(404, rsp.code());
       });
     });
-  }
-
-  public void reactiveFilter() {
-    new JoobyRunner(app -> {
-
-      app.before(ctx -> {
-        StringBuilder buff = new StringBuilder();
-        buff.append("rxbrefore1;");
-        ctx.set("buff", buff);
-      });
-
-      app.after((ctx, value) -> {
-        StringBuilder buff = (StringBuilder) value;
-        buff.append("rxafter1;");
-        return buff;
-      });
-
-      app.before(ctx -> {
-        StringBuilder buff = ctx.get("buff");
-        buff.append("rxbefore2;");
-      });
-
-      app.after((ctx, value) -> {
-        StringBuilder buff = ctx.get("buff");
-        buff.append(value).append(";");
-        buff.append("rxafter2;");
-        return buff;
-      });
-
-      app.get("/", app.detach(ctx -> fromCallable(() -> "result:" + ctx.isInIoThread())
-          .subscribeOn(Schedulers.io())
-          .observeOn(Schedulers.computation())
-          .subscribe(ctx::send, ctx::sendError)));
-    }).mode(Mode.IO).ready(client -> {
-      client.get("/", rsp -> {
-        assertEquals("rxbrefore1;rxbefore2;result:false;rxafter2;rxafter1;",
-            rsp.body().string());
-      });
-    }, Netty::new, Utow::new/* No Jetty bc always use a worker thread */);
   }
 
   @Test

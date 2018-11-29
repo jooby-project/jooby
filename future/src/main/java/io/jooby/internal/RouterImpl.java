@@ -4,14 +4,16 @@ import io.jooby.App;
 import io.jooby.BaseContext;
 import io.jooby.Context;
 import io.jooby.Err;
+import io.jooby.Mode;
 import io.jooby.Renderer;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.StatusCode;
-import org.slf4j.Logger;
+import io.jooby.internal.handler.Pipeline;
 
 import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -26,12 +28,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static io.jooby.Reified.rawType;
+
 public class RouterImpl implements Router {
 
   private static class Stack {
     private String pattern;
     private boolean gzip;
-    private String executor;
     private List<Route.Filter> filters = new ArrayList<>();
     private List<Renderer> renderers = new ArrayList<>();
     private List<Route.After> afters = new ArrayList<>();
@@ -69,15 +72,6 @@ public class RouterImpl implements Router {
       return this;
     }
 
-    public Stack executor(String executor) {
-      this.executor = executor;
-      return this;
-    }
-
-    public String executor() {
-      return executor;
-    }
-
     public void clear() {
       this.filters.clear();
       this.renderers.clear();
@@ -105,7 +99,10 @@ public class RouterImpl implements Router {
 
   private List<RadixTree> trees;
 
-  public RouterImpl() {
+  private RouteAnalyzer analyzer;
+
+  public RouterImpl(RouteAnalyzer analyzer) {
+    this.analyzer = analyzer;
     stack.addLast(new Stack(""));
   }
 
@@ -196,18 +193,6 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Override @Nonnull public Router dispatch(@Nonnull Runnable action) {
-    return dispatch("worker", action);
-  }
-
-  @Override @Nonnull public Router dispatch(@Nonnull String executor, @Nonnull Runnable action) {
-    return newGroup(newStack("").executor(executor), action);
-  }
-
-  @Nonnull @Override public Route.Handler detach(@Nonnull Route.DetachHandler handler) {
-    return ctx -> ctx.detach(asRunnable(ctx, handler));
-  }
-
   @Override @Nonnull public Router group(@Nonnull Runnable action) {
     return newGroup("", action);
   }
@@ -247,20 +232,18 @@ public class RouterImpl implements Router {
     Route.After after = stack.stream()
         .flatMap(Stack::toAfter)
         .reduce(null, (it, next) -> it == null ? next : it.then(next));
+
     if (after != null) {
       pipeline = pipeline.then(after);
     }
-
     /** Renderer: */
     Renderer renderer = stack.stream()
         .flatMap(Stack::toRenderer)
         .reduce(Renderer.TO_STRING, (it, next) -> next.then(it));
 
-    /** Executor: */
-    String executor = stack.getLast().executor;
-
     /** Route: */
-    RouteImpl route = new RouteImpl(executor, method, pat.toString(), handler, pipeline.root(), renderer);
+    RouteImpl route = new RouteImpl(method, pat.toString(), handler, pipeline,
+        renderer);
     route.gzip(stack.peekLast().gzip);
     String finalpattern = basePath == null ? route.pattern() : basePath + route.pattern();
     if (method.equals("*")) {
@@ -276,14 +259,13 @@ public class RouterImpl implements Router {
     if (err == null) {
       err = Route.ErrorHandler.DEFAULT;
     }
+    Mode mode = owner.mode();
     for (Route route : routes) {
       RouteImpl routeImpl = (RouteImpl) route;
-      String key = routeImpl.executorRef(owner.mode().name().toLowerCase());
-      Executor executor = executors.get(key);
-      if (executor == null) {
-        throw new NoSuchElementException("Executor not found: " + key);
-      }
-      routeImpl.executor(executor);
+      Route.Handler handler = routeImpl.handler();
+      Type returnType = analyzer.returnType(handler);
+      Route.Handler pipeline = Pipeline.compute(rawType(returnType), mode, routeImpl);
+      routeImpl.pipeline(pipeline);
     }
     this.rootErr = new RootErrorHandlerImpl(err, owner.log(), this::errorCode);
     this.stack.forEach(Stack::clear);
@@ -369,14 +351,13 @@ public class RouterImpl implements Router {
 
   private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action,
       Route.Filter... filter) {
-    return newGroup(newStack(pattern), action, filter );
+    return newGroup(newStack(pattern), action, filter);
   }
 
   private Stack newStack(String pattern) {
     Stack stack = new Stack(pattern);
     if (this.stack.size() > 0) {
       Stack parent = this.stack.getLast();
-      stack.executor(parent.executor);
       stack.gzip(parent.gzip);
     }
     return stack;
@@ -390,9 +371,5 @@ public class RouterImpl implements Router {
     }
     this.stack.removeLast().clear();
     return this;
-  }
-
-  private static Runnable asRunnable(Context ctx, Route.Handler next) {
-    return () -> next.root().apply(ctx);
   }
 }

@@ -2,23 +2,19 @@ package io.jooby.utow;
 
 import io.jooby.App;
 import io.jooby.Functions;
-import io.jooby.Mode;
 import io.jooby.Server;
-import io.jooby.internal.utow.UtowBlockingHandler;
 import io.jooby.internal.utow.UtowHandler;
 import io.jooby.internal.utow.UtowMultiHandler;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
 import org.xnio.Options;
-import org.xnio.XnioWorker;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 public class Utow implements Server {
 
@@ -44,7 +40,7 @@ public class Utow implements Server {
 
   @Override public Server start() {
     Map<App, UtowHandler> handlers = new LinkedHashMap<>(applications.size());
-    applications.forEach(app -> handlers.put(app, newHandler(app)));
+    applications.forEach(app -> handlers.put(app, new UtowHandler(app)));
 
     HttpHandler handler = handlers.size() == 1
         ? handlers.values().iterator().next()
@@ -66,24 +62,10 @@ public class Utow implements Server {
     server.start();
 
     applications.forEach(app -> {
-      XnioWorker worker = server.getWorker();
-      app.executor("io", worker.getIoThread());
-      try {
-        app.executor("worker");
-      } catch (NoSuchElementException x) {
-        app.executor("worker", worker);
-      }
-      java.util.concurrent.Executor executor = app.executor(Mode.IO.name().toLowerCase());
-      handlers.get(app).executor(executor);
-
       app.start(this);
     });
 
     return this;
-  }
-
-  private UtowHandler newHandler(App app) {
-    return app.mode() == Mode.WORKER ? new UtowBlockingHandler(app) : new UtowHandler(app);
   }
 
   @Override public Server stop() {

@@ -107,10 +107,10 @@ public class Netty implements Server {
       /** Handler: */
       ChannelInboundHandler handler;
       if (applications.size() == 1) {
-        handler = newHandler(applications.get(0), ioLoop, worker);
+        handler = new NettyHandler(worker, applications.get(0));
       } else {
         Map<App, NettyHandler> handlers = new LinkedHashMap<>(applications.size());
-        applications.forEach(app -> handlers.put(app, newHandler(app, ioLoop, worker)));
+        applications.forEach(app -> handlers.put(app, new NettyHandler(worker, app)));
         handler = new NettyMultiHandler(handlers, worker);
       }
 
@@ -135,17 +135,6 @@ public class Netty implements Server {
     applications.forEach(app -> app.start(this));
 
     return this;
-  }
-
-  private NettyHandler newHandler(App app, java.util.concurrent.Executor io,
-      DefaultEventExecutorGroup worker) {
-    app.executor("io", io);
-    try {
-      app.executor("worker");
-    } catch (NoSuchElementException x) {
-      app.executor("worker", worker);
-    }
-    return new NettyHandler(io, worker, app);
   }
 
   public Server stop() {

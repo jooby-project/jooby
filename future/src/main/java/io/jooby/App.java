@@ -18,12 +18,16 @@ import java.util.function.Predicate;
 
 public class App implements Router {
 
-  private final RouterImpl router = new RouterImpl();
+  private final RouterImpl router;
 
   private Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir"), appname(getClass()))
       .toAbsolutePath();
 
-  private Mode mode = Mode.WORKER;
+  private Mode mode = Mode.IO;
+
+  public App() {
+    router = new RouterImpl(new RouteAnalyzer(getClass().getClassLoader(), false));
+  }
 
   @Nonnull @Override public App basePath(String basePath) {
     router.basePath(basePath);
@@ -86,18 +90,6 @@ public class App implements Router {
   @Nonnull @Override public App executor(@Nonnull String name, @Nonnull Executor executor) {
     router.executor(name, executor);
     return this;
-  }
-
-  @Nonnull @Override public Route.Handler detach(@Nonnull Route.DetachHandler handler) {
-    return router.detach(handler);
-  }
-
-  @Nonnull @Override public Router dispatch(@Nonnull Runnable action) {
-    return router.dispatch(action);
-  }
-
-  @Nonnull @Override public Router dispatch(@Nonnull String executor, @Nonnull Runnable action) {
-    return router.dispatch(executor, action);
   }
 
   @Nonnull @Override public Router group(@Nonnull Runnable action) {

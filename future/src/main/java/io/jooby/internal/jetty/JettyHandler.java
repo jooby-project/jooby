@@ -28,14 +28,14 @@ public class JettyHandler extends AbstractHandler {
 
   protected void handleMatch(String target, Request request, HttpServletResponse response,
       JettyContext context, Router router, Route route) throws IOException, ServletException {
-    Route.RootHandler handler = route.pipeline();
+    Route.Handler handler = route.pipeline();
     if (route.gzip() && acceptGzip(request.getHeader("Accept-Encoding"))) {
       /** Gzip: */
       GzipHandler jettyGzip = new GzipHandler();
       jettyGzip.setHandler(gzipCall(handler, context));
       jettyGzip.handle(target, request, request, request.getResponse());
     } else {
-      handler.apply(context);
+      handler.execute(context);
     }
   }
 
@@ -43,11 +43,11 @@ public class JettyHandler extends AbstractHandler {
     return value != null && value.contains("gzip");
   }
 
-  private static Handler gzipCall(Route.RootHandler handler, JettyContext ctx) {
+  private static Handler gzipCall(Route.Handler handler, JettyContext ctx) {
     return new AbstractHandler() {
       @Override public void handle(String target, Request baseRequest, HttpServletRequest request,
           HttpServletResponse response) {
-        handler.apply(ctx);
+        handler.execute(ctx);
       }
     };
   }

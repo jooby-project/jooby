@@ -1,11 +1,9 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.Executor;
-import java.util.stream.Stream;
 
 public interface Route {
 
@@ -45,44 +43,17 @@ public interface Route {
 
     @Nonnull Object apply(@Nonnull Context ctx) throws Exception;
 
+    @Nonnull default Object execute(@Nonnull Context ctx) {
+      try {
+        return apply(ctx);
+      } catch (Throwable x) {
+        ctx.sendError(x);
+        return x;
+      }
+    }
+
     @Nonnull default Handler then(After next) {
       return ctx -> next.apply(ctx, apply(ctx));
-    }
-
-    default RootHandler root() {
-      return ctx -> {
-        try {
-          Object result = apply(ctx);
-          if (!ctx.isResponseStarted() && ctx != result) {
-            ctx.send(result);
-          }
-          return result;
-        } catch (Throwable x) {
-          ctx.sendError(x);
-          return x;
-        } finally {
-          if (ctx.isResponseStarted()) {
-            ctx.destroy();
-          }
-        }
-      };
-    }
-  }
-
-  interface DetachHandler extends Handler {
-    @Nonnull @Override default Object apply(@Nonnull Context ctx) throws Exception {
-      handle(ctx);
-      return ctx;
-    }
-
-    void handle(@Nonnull Context ctx) throws Exception;
-  }
-
-  interface RootHandler extends Handler {
-    @Nonnull Object apply(@Nonnull Context ctx);
-
-    @Override default RootHandler root() {
-      return this;
     }
   }
 
@@ -142,11 +113,11 @@ public interface Route {
     void apply(@Nonnull Context ctx, @Nonnull Throwable cause);
   }
 
-  RootHandler NOT_FOUND = ctx -> ctx.sendError(new Err(StatusCode.NOT_FOUND));
+  Handler NOT_FOUND = ctx -> ctx.sendError(new Err(StatusCode.NOT_FOUND));
 
-  RootHandler METHOD_NOT_ALLOWED = ctx -> ctx.sendError(new Err(StatusCode.METHOD_NOT_ALLOWED));
+  Handler METHOD_NOT_ALLOWED = ctx -> ctx.sendError(new Err(StatusCode.METHOD_NOT_ALLOWED));
 
-  RootHandler FAVICON = ctx -> ctx.sendStatusCode(StatusCode.NOT_FOUND);
+  Handler FAVICON = ctx -> ctx.sendStatusCode(StatusCode.NOT_FOUND);
 
   @Nonnull String pattern();
 
@@ -156,11 +127,9 @@ public interface Route {
 
   @Nonnull Handler handler();
 
-  @Nonnull RootHandler pipeline();
+  @Nonnull Handler pipeline();
 
   @Nonnull Renderer renderer();
-
-  Executor executor();
 
   boolean gzip();
 }

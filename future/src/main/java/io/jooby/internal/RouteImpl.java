@@ -3,6 +3,7 @@ package io.jooby.internal;
 import io.jooby.Renderer;
 import io.jooby.Route;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -12,21 +13,18 @@ public class RouteImpl implements Route {
   private final String method;
   private final String pattern;
   private final Handler handler;
-  private final Route.RootHandler pipeline;
+  private Route.Handler pipeline;
   private final Renderer renderer;
-  private final String executorRef;
-  private Executor executor;
   private boolean gzip;
   List<String> paramKeys;
 
-  public RouteImpl(String executorRef, String method, String pattern, Handler handler,
-      Route.RootHandler pipeline, Renderer renderer) {
+  public RouteImpl(String method, String pattern, Handler handler,
+      Route.Handler pipeline, Renderer renderer) {
     this.method = method.toUpperCase();
     this.pattern = pattern;
     this.handler = handler;
     this.pipeline = pipeline;
     this.renderer = renderer;
-    this.executorRef = executorRef;
   }
 
   @Override public String pattern() {
@@ -45,18 +43,6 @@ public class RouteImpl implements Route {
     return gzip;
   }
 
-  public String executorRef(String fallback) {
-    return executorRef == null ? fallback : executorRef;
-  }
-
-  @Override public Executor executor() {
-    return executor;
-  }
-
-  public void executor(Executor executor) {
-    this.executor = executor;
-  }
-
   public void gzip(boolean gzip) {
     this.gzip = gzip;
   }
@@ -65,7 +51,7 @@ public class RouteImpl implements Route {
     return handler;
   }
 
-  @Override public Route.RootHandler pipeline() {
+  @Override public Route.Handler pipeline() {
     return pipeline;
   }
 
@@ -75,5 +61,9 @@ public class RouteImpl implements Route {
 
   @Override public String toString() {
     return method + " " + pattern;
+  }
+
+  public void pipeline(Route.Handler pipeline) {
+    this.pipeline = pipeline;
   }
 }

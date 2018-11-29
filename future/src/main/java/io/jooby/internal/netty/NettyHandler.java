@@ -18,12 +18,10 @@ import java.util.concurrent.ExecutorService;
 
 @ChannelHandler.Sharable
 public class NettyHandler extends ChannelInboundHandlerAdapter {
-  protected final Executor executor;
   private final Router router;
   private final ExecutorService worker;
 
-  public NettyHandler(Executor executor, ExecutorService worker, Router router) {
-    this.executor = executor;
+  public NettyHandler(ExecutorService worker, Router router) {
     this.worker = worker;
     this.router = router;
   }
@@ -47,13 +45,8 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     if (route.gzip() && acceptGzip(req.headers().get(HttpHeaderNames.ACCEPT_ENCODING))) {
       installGzip(ctx, req);
     }
-    Route.RootHandler handler = route.pipeline();
-    Executor executor = route.executor();
-    if (this.executor == executor) {
-      handler.apply(context);
-    } else {
-      executor.execute(() -> handler.apply(context));
-    }
+    Route.Handler handler = route.pipeline();
+    handler.execute(context);
   }
 
   private static boolean acceptGzip(String value) {

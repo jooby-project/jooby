@@ -18,7 +18,7 @@ public class RouterMatch implements Router.Match {
 
   private Map vars = Collections.EMPTY_MAP;
 
-  private Route.RootHandler handler;
+  private Route.Handler handler;
 
   public void key(List<String> keys) {
     if (keys != null) {
@@ -63,14 +63,13 @@ public class RouterMatch implements Router.Match {
 
 
   public RouterMatch missing(Executor executor, String method, String path, Renderer renderer) {
-    Route.RootHandler h;
+    Route.Handler h;
     if (this.handler == null) {
       h = path.endsWith("/favicon.ico") ? Route.FAVICON : Route.NOT_FOUND;
     } else {
       h = this.handler;
     }
-    this.route = new RouteImpl(null, method, path, h, h, renderer);
-    ((RouteImpl) this.route).executor(executor);
+    this.route = new RouteImpl(method, path, h, h, renderer);
     this.matches = false;
     return this;
   }

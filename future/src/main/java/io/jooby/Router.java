@@ -76,36 +76,6 @@ public interface Router {
 
   @Nonnull Router executor(@Nonnull String name, @Nonnull Executor executor);
 
-  /**
-   * Handler who delegates processing of current request to a custom thread. This idiom works as
-   * bridge between Jooby and (normally) a reactive library who follows the publish/subscribe
-   * programming model.
-   *
-   * Rx2 example:
-   *
-   * <pre>{@code
-   *
-   * class MyApp extends App {
-   *   {
-   *     get("/rx2", detach(ctx ->
-   *       fromCallable(() -> "Hello Rx2!")
-   *                   .subscribeOn(Schedulers.io())
-   *                   .observeOn(Schedulers.computation())
-   *                   .subscribe(ctx::send, ctx:sendError)
-   *     ));
-   *   }
-   * }
-   * }</pre>
-   *
-   * @param handler
-   * @return
-   */
-  @Nonnull Route.Handler detach(@Nonnull Route.DetachHandler handler);
-
-  @Nonnull Router dispatch(@Nonnull Runnable action);
-
-  @Nonnull Router dispatch(@Nonnull String executor, @Nonnull Runnable action);
-
   @Nonnull Router group(@Nonnull Runnable action);
 
   @Nonnull Router path(@Nonnull String pattern, @Nonnull Runnable action);

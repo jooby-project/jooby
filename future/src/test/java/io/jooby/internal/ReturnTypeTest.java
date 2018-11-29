@@ -17,6 +17,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ReturnTypeTest {
@@ -43,7 +44,7 @@ public class ReturnTypeTest {
   class SuperUser implements User {
   }
 
-  private RouteAnalyzer analyzer = new RouteAnalyzer(getClass().getClassLoader());
+  private RouteAnalyzer analyzer = new RouteAnalyzer(getClass().getClassLoader(), true);
 
   @Test
   public void literals() {
@@ -86,6 +87,12 @@ public class ReturnTypeTest {
 
   @Test
   public void completableFuture() {
+    assertType(CompletableFuture.class, ctx -> supplyAsync(() -> ctx.query("n").intValue(1))
+        .thenApply(x -> x * 2)
+        .whenComplete((v, x) -> {
+          ctx.send(v);
+        }));
+
     assertType(CompletableFuture.class, ctx -> CompletableFuture
         .supplyAsync(() -> "foo"));
 
@@ -130,7 +137,8 @@ public class ReturnTypeTest {
 
     assertType(Reified.getParameterized(Flow.Publisher.class, Number.class), ctx -> newPublisher());
 
-    assertType(Reified.getParameterized(Flow.Publisher.class, String.class), ctx -> newPublisher(ctx.query("q").value()));
+    assertType(Reified.getParameterized(Flow.Publisher.class, String.class),
+        ctx -> newPublisher(ctx.query("q").value()));
   }
 
   private Flow.Publisher<Number> newPublisher() {

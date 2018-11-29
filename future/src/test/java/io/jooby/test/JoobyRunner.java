@@ -38,7 +38,7 @@ public class JoobyRunner {
 
   public void ready(Consumer<WebClient> onReady, Supplier<Server>... servers) {
     if (modes.size() == 0) {
-      modes.add(Mode.WORKER);
+      modes.add(Mode.IO);
     }
     List<Supplier<Server>> serverList = new ArrayList<>();
     if (servers.length == 0) {

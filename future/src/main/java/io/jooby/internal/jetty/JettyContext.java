@@ -39,6 +39,7 @@ public class JettyContext extends BaseContext {
   private final Response response;
   private final Route.RootErrorHandler errorHandler;
   private final Path tmpdir;
+  private final Server.Executor worker;
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
@@ -50,6 +51,10 @@ public class JettyContext extends BaseContext {
     this.response = request.getResponse();
     this.errorHandler = errorHandler;
     this.tmpdir = tmpdir;
+
+    // Worker:
+    Connector connector = request.getHttpChannel().getConnector();
+    this.worker = newExecutor(connector.getExecutor(), connector.getScheduler());
   }
 
   @Override public String name() {
@@ -136,8 +141,7 @@ public class JettyContext extends BaseContext {
   }
 
   @Nonnull @Override public Server.Executor worker() {
-    Connector connector = request.getHttpChannel().getConnector();
-    return newExecutor(connector.getExecutor(), connector.getScheduler());
+    return worker;
   }
 
   @Nonnull @Override public Server.Executor io() {
@@ -146,13 +150,21 @@ public class JettyContext extends BaseContext {
 
   @Nonnull @Override
   public Context dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
-    request.startAsync();
-    executor.execute(action);
+    if (worker == executor) {
+      action.run();
+    } else {
+      if (!request.isAsyncStarted()) {
+        request.startAsync();
+      }
+      executor.execute(action);
+    }
     return this;
   }
 
   @Nonnull @Override public Context detach(@Nonnull Runnable action) {
-    request.startAsync();
+    if (!request.isAsyncStarted()) {
+      request.startAsync();
+    }
     action.run();
     return this;
   }

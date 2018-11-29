@@ -4,7 +4,6 @@ import io.jooby.App;
 import io.jooby.Filters;
 import io.jooby.Mode;
 import io.jooby.netty.Netty;
-import io.jooby.utow.Utow;
 
 public class BenchApp extends App {
 
@@ -30,7 +29,7 @@ public class BenchApp extends App {
 
   public static void main(String[] args) {
     new Netty()
-        .deploy(new BenchApp().mode(Mode.IO))
+        .deploy(new BenchApp().mode(Mode.NIO))
         .start()
         .join();
   }

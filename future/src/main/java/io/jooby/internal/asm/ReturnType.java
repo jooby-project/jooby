@@ -104,7 +104,10 @@ public class ReturnType extends MethodVisitor {
                 .filter(Handle.class::isInstance)
                 .map(Handle.class::cast)
                 .findFirst()
-                .map(Handle::getDesc)
+                .map(h -> {
+                  String desc = Type.getReturnType(h.getDesc()).getDescriptor();
+                  return "V".equals(desc) ? "java/lang/Object" : desc;
+                })
                 .orElse(null);
             String descriptor = Type
                 .getReturnType(Optional.ofNullable(sourcedesc).orElse(invokeDynamic.desc))
@@ -113,7 +116,7 @@ public class ReturnType extends MethodVisitor {
               if (descriptor.endsWith(";")) {
                 descriptor = descriptor.substring(0, descriptor.length() - 1);
               }
-              descriptor += "<" + Type.getReturnType(handleDescriptor).getDescriptor() + ">";
+              descriptor += "<" + handleDescriptor + ">";
             }
             return typeParser.parseTypeDescriptor(descriptor);
           }

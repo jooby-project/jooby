@@ -3,7 +3,6 @@ package io.jooby.internal.asm;
 import io.jooby.Reified;
 import org.jooby.funzy.Throwing;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -11,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 public class TypeParser {
 
@@ -81,8 +82,15 @@ public class TypeParser {
           return double.class;
         case "java.lang.String":
           return String.class;
+        case "java.lang.Object":
+          return Object.class;
         default:
-          Class<?> result = loader.loadClass(classname);
+          Class<?> result;
+          if (name.startsWith("[")) {
+            result = Class.forName(name, false, loader);
+          } else {
+            result = loader.loadClass(classname);
+          }
           if (List.class.isAssignableFrom(result)) {
             return List.class;
           }
@@ -107,11 +115,11 @@ public class TypeParser {
     StringBuilder name = new StringBuilder();
     LinkedList<LinkedList<Type>> stack = new LinkedList<>();
     stack.addLast(new LinkedList<>());
-    boolean array = false;
+    int array = 0;
     for (int i = 0; i < descriptor.length(); ) {
       char ch = descriptor.charAt(i);
       if (ch == '[') {
-        array = true;
+        array += 1;
       } else if (ch == 'L') {
         if (name.length() > 0) {
           name.append(ch);
@@ -119,11 +127,11 @@ public class TypeParser {
       } else if (ch == '<') {
         newType(stack, name, array);
         stack.add(new LinkedList<>());
-        array = false;
+        array = 0;
       } else if (ch == ';') {
         if (name.length() > 0) {
           newType(stack, name, array);
-          array = false;
+          array = 0;
         }
       } else if (ch == '/') {
         name.append('.');
@@ -143,10 +151,14 @@ public class TypeParser {
     return stack.getFirst().getFirst();
   }
 
-  private void newType(LinkedList<LinkedList<Type>> stack, StringBuilder name, boolean array) {
-    Type it = resolve(name.toString());
-    if (array) {
-      it = Array.newInstance(Reified.rawType(it), 0).getClass();
+  private void newType(LinkedList<LinkedList<Type>> stack, StringBuilder name, int array) {
+    Type it;
+    if (array == 0) {
+      it = resolve(name.toString());
+    } else {
+      StringBuilder dimension = new StringBuilder();
+      IntStream.range(0, array).forEach(x -> dimension.append('['));
+      it = resolve(dimension + "L" + name + ";");
     }
     stack.getLast().add(it);
     name.setLength(0);
@@ -173,7 +185,7 @@ public class TypeParser {
       case 'D':
         return array ? double[].class : double.class;
       case '[':
-        return simpleType(descriptor, 1, true);
+        return simpleType(descriptor, at + 1, true);
     }
     if (descriptor.equals("Ljava/lang/String;")) {
       return String.class;

@@ -48,6 +48,7 @@ public class TypeParserTest {
     assertEquals(String[].class, parse(String[].class));
     assertEquals(long[].class, parse(long[].class));
     assertEquals(Double[].class, parse(Double[].class));
+    assertEquals(TypeParserTest[][][].class, parse(TypeParserTest[][][].class));
   }
 
   @Test
