@@ -2,8 +2,6 @@ package apps;
 
 import io.jooby.App;
 import io.jooby.Mode;
-import io.jooby.jetty.Jetty;
-import io.jooby.netty.Netty;
 import io.jooby.utow.Utow;
 
 import java.util.concurrent.Executors;
@@ -32,7 +30,7 @@ public class DispatchApp extends App {
 
   public static void main(String[] args) {
     new Utow()
-        .deploy(new DispatchApp().mode(Mode.NIO))
+        .deploy(new DispatchApp().mode(Mode.IO))
         .start()
         .join();
   }

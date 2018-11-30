@@ -63,7 +63,7 @@ public class Pipeline {
 
   private static Handler next(Mode mode, Executor executor, Handler handler) {
     if (executor == null) {
-      return mode == Mode.IO ? new IOHandler(handler) : handler;
+      return mode == Mode.WORKER ? new IOHandler(handler) : handler;
     }
     return new ExecutorHandler(handler, executor);
   }

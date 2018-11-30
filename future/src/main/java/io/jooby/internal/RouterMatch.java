@@ -62,7 +62,7 @@ public class RouterMatch implements Router.Match {
   }
 
 
-  public RouterMatch missing(Executor executor, String method, String path, Renderer renderer) {
+  public RouterMatch missing(String method, String path, Renderer renderer) {
     Route.Handler h;
     if (this.handler == null) {
       h = path.endsWith("/favicon.ico") ? Route.FAVICON : Route.NOT_FOUND;

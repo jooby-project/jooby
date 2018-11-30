@@ -23,7 +23,7 @@ public class App implements Router {
   private Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir"), appname(getClass()))
       .toAbsolutePath();
 
-  private Mode mode = Mode.IO;
+  private Mode mode = Mode.WORKER;
 
   public App() {
     router = new RouterImpl(new RouteAnalyzer(getClass().getClassLoader(), false));

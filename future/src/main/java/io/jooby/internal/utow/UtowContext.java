@@ -126,12 +126,8 @@ public class UtowContext extends BaseContext {
     return multipart;
   }
 
-  @Nonnull @Override public Server.Executor worker() {
-    return newServerExecutor(exchange.getIoThread(), worker);
-  }
-
-  @Nonnull @Override public Server.Executor io() {
-    return newServerExecutor(exchange.getIoThread());
+  @Nonnull @Override public Context dispatch(@Nonnull Runnable action) {
+    return dispatch(worker, action);
   }
 
   @Nonnull @Override public Context dispatch(@Nonnull Executor executor,
@@ -225,27 +221,5 @@ public class UtowContext extends BaseContext {
         }
       }
     }
-  }
-
-  /**
-   * Can't returnType a better way of implementing executeAfter, so we run the delay in the NIO thread and
-   * then submit the task to the worker thread :S
-   *
-   * @param thread NIO thread.
-   * @param worker Worker thread.
-   * @return
-   */
-  private static Server.Executor newServerExecutor(XnioIoThread thread, Executor worker) {
-    return (task, delay, unit) -> {
-      if (delay > 0) {
-        WorkerUtils.executeAfter(thread, () -> worker.execute(task), delay, unit);
-      } else {
-        worker.execute(task);
-      }
-    };
-  }
-
-  private static Server.Executor newServerExecutor(XnioIoThread thread) {
-    return (task, delay, unit) -> WorkerUtils.executeAfter(thread, task, delay, unit);
   }
 }

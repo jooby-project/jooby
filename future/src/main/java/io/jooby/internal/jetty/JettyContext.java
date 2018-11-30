@@ -39,14 +39,15 @@ public class JettyContext extends BaseContext {
   private final Response response;
   private final Route.RootErrorHandler errorHandler;
   private final Path tmpdir;
-  private final Server.Executor worker;
+  private final Executor worker;
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
   private List<Upload> files;
   private Value.Object headers;
 
-  public JettyContext(Request request, Executor worker, Route.RootErrorHandler errorHandler, Path tmpdir) {
+  public JettyContext(Request request, Executor worker, Route.RootErrorHandler errorHandler,
+      Path tmpdir) {
     this.request = request;
     this.response = request.getResponse();
     this.errorHandler = errorHandler;
@@ -54,7 +55,7 @@ public class JettyContext extends BaseContext {
 
     // Worker:
     Connector connector = request.getHttpChannel().getConnector();
-    this.worker = newExecutor(worker, connector.getScheduler());
+    this.worker = worker;
   }
 
   @Override public String name() {
@@ -140,12 +141,8 @@ public class JettyContext extends BaseContext {
     return false;
   }
 
-  @Nonnull @Override public Server.Executor worker() {
-    return worker;
-  }
-
-  @Nonnull @Override public Server.Executor io() {
-    return worker();
+  @Nonnull @Override public Context dispatch(@Nonnull Runnable action) {
+    return dispatch(worker, action);
   }
 
   @Nonnull @Override
@@ -275,16 +272,4 @@ public class JettyContext extends BaseContext {
     }
   }
 
-  private static Server.Executor newExecutor(Executor executor, Scheduler scheduler) {
-    return new Server.Executor() {
-
-      @Override public void execute(Runnable task) {
-        executor.execute(task);
-      }
-
-      @Override public void executeAfter(Runnable task, long delay, TimeUnit unit) {
-        scheduler.schedule(task, delay, unit);
-      }
-    };
-  }
 }

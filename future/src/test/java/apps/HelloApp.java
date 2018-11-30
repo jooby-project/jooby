@@ -41,7 +41,7 @@ public class HelloApp extends App {
 
   public static void main(String[] args) {
     new Netty()
-        .deploy(new HelloApp().mode(Mode.IO))
+        .deploy(new HelloApp().mode(Mode.WORKER))
         .start()
         .join();
   }

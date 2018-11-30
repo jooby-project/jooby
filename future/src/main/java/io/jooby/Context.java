@@ -145,7 +145,7 @@ public interface Context {
    * Parse a multipart/form-data request and returns the result.
    *
    * <strong>NOTE:</strong> this method throws an {@link IllegalStateException} when call it from
-   * <code>NIO thread</code>;
+   * <code>IO thread</code>;
    *
    * @return Multipart node.
    */
@@ -197,21 +197,11 @@ public interface Context {
    */
   boolean isInIoThread();
 
-  default @Nonnull Context dispatch(@Nonnull Runnable action) {
-    return dispatch(worker(), action);
-  }
+  @Nonnull Context dispatch(@Nonnull Runnable action);
 
   @Nonnull Context dispatch(@Nonnull Executor executor, @Nonnull Runnable action);
 
   @Nonnull Context detach(@Nonnull Runnable action);
-
-  @Nonnull Server.Executor worker();
-
-  @Nonnull Server.Executor io();
-
-  @Nonnull default Executor executor() {
-    return isInIoThread() ? io() : worker();
-  }
 
   @Nullable <T> T get(String name);
 

@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 import java.util.LinkedList;
 
 /**
- * Collection of utility functions around NIO, exceptions, etc..
+ * Collection of utility functions around IO, exceptions, etc..
  *
  * @author edgar
  */

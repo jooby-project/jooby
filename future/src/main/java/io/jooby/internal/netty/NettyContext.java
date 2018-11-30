@@ -80,12 +80,8 @@ public class NettyContext extends BaseContext {
     return ctx.channel().eventLoop().inEventLoop();
   }
 
-  @Nonnull @Override public Server.Executor worker() {
-    return workerExecutor((ScheduledExecutorService) executor);
-  }
-
-  @Nonnull @Override public Server.Executor io() {
-    return ioExecutor(ctx.channel().eventLoop());
+  @Nonnull @Override public Context dispatch(@Nonnull Runnable action) {
+    return dispatch(executor, action);
   }
 
   @Override public Context dispatch(Executor executor, Runnable action) {
@@ -275,11 +271,4 @@ public class NettyContext extends BaseContext {
     }
   }
 
-  private static Server.Executor workerExecutor(ScheduledExecutorService executor) {
-    return (task, delay, unit) -> executor.schedule(task, delay, unit);
-  }
-
-  private static Server.Executor ioExecutor(EventLoop executor) {
-    return (task, delay, unit) -> executor.schedule(task, delay, unit);
-  }
 }
