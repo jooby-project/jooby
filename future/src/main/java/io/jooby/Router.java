@@ -64,6 +64,10 @@ public interface Router {
     return this;
   }
 
+  @Nonnull Executor worker();
+
+  @Nonnull Router worker(Executor worker);
+
   @Nonnull Router filter(@Nonnull Route.Filter filter);
 
   @Nonnull Router gzip(@Nonnull Runnable action);
@@ -72,11 +76,17 @@ public interface Router {
 
   @Nonnull Router after(@Nonnull Route.After after);
 
-  @Nonnull Executor executor(@Nonnull String executor);
+  @Nonnull Router stack(@Nonnull Runnable action);
 
-  @Nonnull Router executor(@Nonnull String name, @Nonnull Executor executor);
+  @Nonnull Router stack(@Nonnull Executor executor, @Nonnull Runnable action);
 
-  @Nonnull Router group(@Nonnull Runnable action);
+  @Nonnull default Router dispatch(@Nonnull Runnable action) {
+    return stack(worker(), action);
+  }
+
+  @Nonnull default Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
+    return stack(executor, action);
+  }
 
   @Nonnull Router path(@Nonnull String pattern, @Nonnull Runnable action);
 

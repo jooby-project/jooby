@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 
 public class Netty implements Server {
@@ -101,16 +102,13 @@ public class Netty implements Server {
         sslCtx = null;
       }
 
-      /** Worker: */
-      worker = new DefaultEventExecutorGroup(32);
-
       /** Handler: */
       ChannelInboundHandler handler;
       if (applications.size() == 1) {
-        handler = new NettyHandler(worker, applications.get(0));
+        handler = new NettyHandler(applications.get(0));
       } else {
         Map<App, NettyHandler> handlers = new LinkedHashMap<>(applications.size());
-        applications.forEach(app -> handlers.put(app, new NettyHandler(worker, app)));
+        applications.forEach(app -> handlers.put(app, new NettyHandler(app)));
         handler = new NettyMultiHandler(handlers, worker);
       }
 
@@ -132,7 +130,15 @@ public class Netty implements Server {
       Thread.currentThread().interrupt();
     }
 
-    applications.forEach(app -> app.start(this));
+    applications.forEach(app -> {
+      app.worker(Optional.ofNullable(app.worker()).orElseGet(() -> {
+        if (worker == null) {
+          worker = new DefaultEventExecutorGroup(32);
+        }
+        return worker;
+      }));
+      app.start(this);
+    });
 
     return this;
   }
@@ -142,7 +148,9 @@ public class Netty implements Server {
       applications.forEach(app -> closer.register(app::stop));
       closer.register(ioLoop::shutdownGracefully);
       closer.register(acceptor::shutdownGracefully);
-      closer.register(worker::shutdownGracefully);
+      if (worker != null) {
+        closer.register(worker::shutdownGracefully);
+      }
     }
     return this;
   }

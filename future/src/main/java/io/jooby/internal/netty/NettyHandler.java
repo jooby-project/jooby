@@ -19,10 +19,8 @@ import java.util.concurrent.ExecutorService;
 @ChannelHandler.Sharable
 public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final Router router;
-  private final ExecutorService worker;
 
-  public NettyHandler(ExecutorService worker, Router router) {
-    this.worker = worker;
+  public NettyHandler(Router router) {
     this.router = router;
   }
 
@@ -30,7 +28,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     if (msg instanceof HttpRequest) {
       HttpRequest req = (HttpRequest) msg;
-      NettyContext context = new NettyContext(ctx, worker, req, router.errorHandler(),
+      NettyContext context = new NettyContext(ctx, router.worker(), req, router.errorHandler(),
           router.tmpdir(), pathOnly(req.uri()));
       handleHttpRequest(ctx, req, context);
     } else {

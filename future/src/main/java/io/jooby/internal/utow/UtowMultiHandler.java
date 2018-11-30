@@ -17,7 +17,7 @@ public class UtowMultiHandler implements HttpHandler {
   @Override public void handleRequest(HttpServerExchange exchange) throws Exception {
     for (Map.Entry<App, UtowHandler> e : router.entrySet()) {
       App router = e.getKey();
-      UtowContext context = new UtowContext(exchange, router.errorHandler(), router.tmpdir());
+      UtowContext context = new UtowContext(exchange, router.worker(), router.errorHandler(), router.tmpdir());
       Router.Match match = router.match(context);
       if (match.matches()) {
         e.getValue().handle(exchange, context, router, match.route());

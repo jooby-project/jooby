@@ -9,6 +9,7 @@ import io.jooby.Renderer;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.StatusCode;
+import io.jooby.Usage;
 import io.jooby.internal.handler.Pipeline;
 
 import javax.annotation.Nonnull;
@@ -35,6 +36,7 @@ public class RouterImpl implements Router {
   private static class Stack {
     private String pattern;
     private boolean gzip;
+    private Executor executor;
     private List<Route.Filter> filters = new ArrayList<>();
     private List<Renderer> renderers = new ArrayList<>();
     private List<Route.After> afters = new ArrayList<>();
@@ -76,8 +78,18 @@ public class RouterImpl implements Router {
       this.filters.clear();
       this.renderers.clear();
       this.afters.clear();
+      executor = null;
+    }
+
+    public Stack executor(Executor executor) {
+      this.executor = executor;
+      return this;
     }
   }
+
+  private static final Executor LAZY_WORKER = task -> {
+    throw new Usage("Worker executor is not ready.");
+  };
 
   private Route.ErrorHandler err;
 
@@ -100,6 +112,8 @@ public class RouterImpl implements Router {
   private List<RadixTree> trees;
 
   private RouteAnalyzer analyzer;
+
+  private Executor worker;
 
   public RouterImpl(RouteAnalyzer analyzer) {
     this.analyzer = analyzer;
@@ -157,21 +171,17 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Nonnull @Override public Router executor(@Nonnull String name, @Nonnull Executor executor) {
-    executors.put(name, executor);
+  @Nonnull @Override public Executor worker() {
+    return worker;
+  }
+
+  @Nonnull @Override public Router worker(Executor worker) {
+    this.worker = worker;
     return this;
   }
 
-  @Nonnull @Override public Executor executor(String executor) {
-    Executor result = executors.get(executor);
-    if (result == null) {
-      throw new NoSuchElementException("Executor not found: " + executor);
-    }
-    return result;
-  }
-
   @Nonnull @Override public Router gzip(@Nonnull Runnable action) {
-    return newGroup(newStack("").gzip(true), action);
+    return newGroup(push("").gzip(true), action);
   }
 
   @Override @Nonnull public Router filter(@Nonnull Route.Filter filter) {
@@ -193,8 +203,12 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Override @Nonnull public Router group(@Nonnull Runnable action) {
+  @Override @Nonnull public Router stack(@Nonnull Runnable action) {
     return newGroup("", action);
+  }
+
+  @Nonnull @Override public Router stack(@Nonnull Executor executor, @Nonnull Runnable action) {
+    return newGroup(push("").executor(executor == null ? LAZY_WORKER : executor), action);
   }
 
   @Override @Nonnull public Router path(@Nonnull String pattern, @Nonnull Runnable action) {
@@ -244,7 +258,9 @@ public class RouterImpl implements Router {
     /** Route: */
     RouteImpl route = new RouteImpl(method, pat.toString(), handler, pipeline,
         renderer);
-    route.gzip(stack.peekLast().gzip);
+    Stack stack = this.stack.peekLast();
+    route.gzip(stack.gzip);
+    route.executor(stack.executor);
     String finalpattern = basePath == null ? route.pattern() : basePath + route.pattern();
     if (method.equals("*")) {
       METHODS.forEach(m -> tree.insert(m, finalpattern, route));
@@ -262,6 +278,10 @@ public class RouterImpl implements Router {
     Mode mode = owner.mode();
     for (Route route : routes) {
       RouteImpl routeImpl = (RouteImpl) route;
+      Executor executor = routeImpl.executor();
+      if (executor == LAZY_WORKER) {
+        routeImpl.executor(owner.worker());
+      }
       Route.Handler handler = routeImpl.handler();
       Type returnType = analyzer.returnType(handler);
       Route.Handler pipeline = Pipeline.compute(rawType(returnType), mode, routeImpl);
@@ -351,14 +371,15 @@ public class RouterImpl implements Router {
 
   private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action,
       Route.Filter... filter) {
-    return newGroup(newStack(pattern), action, filter);
+    return newGroup(push(pattern), action, filter);
   }
 
-  private Stack newStack(String pattern) {
+  private Stack push(String pattern) {
     Stack stack = new Stack(pattern);
     if (this.stack.size() > 0) {
       Stack parent = this.stack.getLast();
       stack.gzip(parent.gzip);
+      stack.executor = parent.executor;
     }
     return stack;
   }

@@ -1,11 +1,9 @@
 package io.jooby;
 
 import io.jooby.jackson.Jackson;
-import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
 import io.jooby.test.JoobyRunner;
 import io.jooby.utow.Utow;
-import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
@@ -25,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -59,14 +56,13 @@ public class FeaturedTest {
 
   }
 
-  //@Test
+  @Test
   public void sayHiFromIO() {
     new JoobyRunner(app -> {
       app.get("/", ctx -> "Hello World!");
-
-      //      app.dispatch(() -> {
-      //        app.get("/worker", ctx -> "Hello World!");
-      //      });
+      app.dispatch(() -> {
+        app.get("/worker", ctx -> "Hello World!");
+      });
     }).mode(Mode.NIO).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
@@ -113,14 +109,13 @@ public class FeaturedTest {
     });
   }
 
-  //@Test
+  @Test
   public void sayHiFromWorker() {
     new JoobyRunner(app -> {
       app.get("/", ctx -> "Hello World!");
-
-      //      app.dispatch(() -> {
-      //        app.get("/worker", ctx -> "Hello World!");
-      //      });
+      app.dispatch(() -> {
+        app.get("/worker", ctx -> "Hello World!");
+      });
     }).mode(Mode.IO).ready(client -> {
       client.get("/?foo=bar", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
@@ -507,13 +502,13 @@ public class FeaturedTest {
     });
   }
 
-  //  @Test
+  @Test
   public void multipartFromIO() {
     new JoobyRunner(app -> {
       app.post("/f", ctx -> ctx.multipart());
 
-      //      app.dispatch(() ->
-      //          app.post("/w", ctx -> ctx.multipart()));
+      app.dispatch(() ->
+          app.post("/w", ctx -> ctx.multipart()));
 
       app.error(IllegalStateException.class, (ctx, x, statusCode) -> {
         ctx.sendText(x.getMessage());
@@ -537,7 +532,7 @@ public class FeaturedTest {
     }, Netty::new, Utow::new);
   }
 
-  //  @Test
+  @Test
   public void filter() {
     new JoobyRunner(app -> {
 
@@ -553,28 +548,28 @@ public class FeaturedTest {
         return buff;
       });
 
-      //      app.dispatch(() -> {
-      //        app.before(ctx -> {
-      //          StringBuilder buff = ctx.get("buff");
-      //          buff.append("before2:" + ctx.isInIoThread()).append(";");
-      //        });
-      //
-      //        app.after((ctx, value) -> {
-      //          StringBuilder buff = ctx.get("buff");
-      //          buff.append(value).append(";");
-      //          buff.append("after2:" + ctx.isInIoThread()).append(";");
-      //          return buff;
-      //        });
-      //
-      //        app.get("/", ctx -> "result:" + ctx.isInIoThread());
-      //      });
+      app.dispatch(() -> {
+        app.before(ctx -> {
+          StringBuilder buff = ctx.get("buff");
+          buff.append("before2:" + ctx.isInIoThread()).append(";");
+        });
+
+        app.after((ctx, value) -> {
+          StringBuilder buff = ctx.get("buff");
+          buff.append(value).append(";");
+          buff.append("after2:" + ctx.isInIoThread()).append(";");
+          return buff;
+        });
+
+        app.get("/", ctx -> "result:" + ctx.isInIoThread());
+      });
 
     }).mode(Mode.NIO).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("before1:false;before2:false;result:false;after2:false;after1:false;",
             rsp.body().string());
       });
-    }, Utow::new/* No Jetty bc always use a worker thread */);
+    }, Netty::new, Utow::new/* No Jetty bc always use a worker thread */);
   }
 
   @Test

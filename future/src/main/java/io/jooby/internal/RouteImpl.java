@@ -15,6 +15,7 @@ public class RouteImpl implements Route {
   private final Handler handler;
   private Route.Handler pipeline;
   private final Renderer renderer;
+  private Executor executor;
   private boolean gzip;
   List<String> paramKeys;
 
@@ -47,6 +48,14 @@ public class RouteImpl implements Route {
     this.gzip = gzip;
   }
 
+  public Executor executor() {
+    return executor;
+  }
+
+  public void executor(Executor executor) {
+    this.executor = executor;
+  }
+
   @Override public Handler handler() {
     return handler;
   }
@@ -65,5 +74,6 @@ public class RouteImpl implements Route {
 
   public void pipeline(Route.Handler pipeline) {
     this.pipeline = pipeline;
+    this.executor = null;
   }
 }

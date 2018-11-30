@@ -21,7 +21,7 @@ public class JettyMultiHandler extends JettyHandler {
   @Override public void handle(String target, Request request, HttpServletRequest servletRequest,
       HttpServletResponse response) throws IOException, ServletException {
     for (Router router : routers) {
-      JettyContext ctx = new JettyContext(request, router.errorHandler(), router.tmpdir());
+      JettyContext ctx = new JettyContext(request, router.worker(), router.errorHandler(), router.tmpdir());
       Router.Match match = router.match(ctx);
       if (match.matches()) {
         handleMatch(target, request, response, ctx, router, match.route());

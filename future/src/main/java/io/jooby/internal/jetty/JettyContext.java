@@ -46,7 +46,7 @@ public class JettyContext extends BaseContext {
   private List<Upload> files;
   private Value.Object headers;
 
-  public JettyContext(Request request, Route.RootErrorHandler errorHandler, Path tmpdir) {
+  public JettyContext(Request request, Executor worker, Route.RootErrorHandler errorHandler, Path tmpdir) {
     this.request = request;
     this.response = request.getResponse();
     this.errorHandler = errorHandler;
@@ -54,7 +54,7 @@ public class JettyContext extends BaseContext {
 
     // Worker:
     Connector connector = request.getHttpChannel().getConnector();
-    this.worker = newExecutor(connector.getExecutor(), connector.getScheduler());
+    this.worker = newExecutor(worker, connector.getScheduler());
   }
 
   @Override public String name() {

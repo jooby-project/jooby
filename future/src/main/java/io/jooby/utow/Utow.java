@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class Utow implements Server {
 
@@ -62,6 +63,7 @@ public class Utow implements Server {
     server.start();
 
     applications.forEach(app -> {
+      app.worker(Optional.ofNullable(app.worker()).orElse(server.getWorker()));
       app.start(this);
     });
 

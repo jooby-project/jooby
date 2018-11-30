@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Jetty implements io.jooby.Server {
 
@@ -79,7 +80,10 @@ public class Jetty implements io.jooby.Server {
       throw Throwing.sneakyThrow(x);
     }
 
-    applications.forEach(app -> app.start(this));
+    applications.forEach(app -> {
+      app.worker(Optional.ofNullable(app.worker()).orElse(executor));
+      app.start(this);
+    });
 
     return this;
   }

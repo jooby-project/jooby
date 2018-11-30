@@ -25,14 +25,17 @@ public class UtowContext extends BaseContext {
   private final HttpServerExchange exchange;
   private final Path tmpdir;
   private final Route.RootErrorHandler errorHandler;
+  private final Executor worker;
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
   private List<Upload> files;
   private Value.Object headers;
 
-  public UtowContext(HttpServerExchange exchange, Route.RootErrorHandler errorHandler, Path tmpdir) {
+  public UtowContext(HttpServerExchange exchange, Executor worker,
+      Route.RootErrorHandler errorHandler, Path tmpdir) {
     this.exchange = exchange;
+    this.worker = worker;
     this.tmpdir = tmpdir;
     this.errorHandler = errorHandler;
   }
@@ -124,7 +127,7 @@ public class UtowContext extends BaseContext {
   }
 
   @Nonnull @Override public Server.Executor worker() {
-    return newServerExecutor(exchange.getIoThread(), exchange.getConnection().getWorker());
+    return newServerExecutor(exchange.getIoThread(), worker);
   }
 
   @Nonnull @Override public Server.Executor io() {
@@ -232,7 +235,7 @@ public class UtowContext extends BaseContext {
    * @param worker Worker thread.
    * @return
    */
-  private static Server.Executor newServerExecutor(XnioIoThread thread, XnioWorker worker) {
+  private static Server.Executor newServerExecutor(XnioIoThread thread, Executor worker) {
     return (task, delay, unit) -> {
       if (delay > 0) {
         WorkerUtils.executeAfter(thread, () -> worker.execute(task), delay, unit);

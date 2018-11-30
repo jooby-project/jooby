@@ -1,18 +1,19 @@
 package io.jooby.internal.handler;
 
 import io.jooby.Mode;
-import io.jooby.Route;
 import io.jooby.Route.Handler;
+import io.jooby.internal.RouteImpl;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class Pipeline {
 
-  private static final Map<Class, BiFunction<Mode, Route, Handler>> providers = new LinkedHashMap<>();
+  private static final Map<Class, BiFunction<Mode, RouteImpl, Handler>> providers = new LinkedHashMap<>();
 
   static {
     // TODO CLEAR STATE after startup
@@ -34,36 +35,37 @@ public class Pipeline {
     }
   }
 
-  public static Handler compute(Class returnType, Mode mode, Route route) {
+  public static Handler compute(Class returnType, Mode mode, RouteImpl route) {
     return provider(returnType).apply(mode, route);
   }
 
-  private static BiFunction<Mode, Route, Handler> provider(Class type) {
-    for (Map.Entry<Class, BiFunction<Mode, Route, Handler>> entry : providers.entrySet()) {
+  private static BiFunction<Mode, RouteImpl, Handler> provider(Class type) {
+    for (Map.Entry<Class, BiFunction<Mode, RouteImpl, Handler>> entry : providers.entrySet()) {
       if (entry.getKey().isAssignableFrom(type)) {
         return entry.getValue();
       }
     }
-    return (mode, route) -> next(mode, new DefaultHandler(route.pipeline()));
+    return (mode, route) -> next(mode, route.executor(), new DefaultHandler(route.pipeline()));
   }
 
-  private static Handler completableFuture(Mode mode, Route next) {
-    return next(mode, new DetachHandler(new CompletableFutureHandler(next.pipeline())));
+  private static Handler completableFuture(Mode mode, RouteImpl next) {
+    return next(mode, next.executor(),
+        new DetachHandler(new CompletableFutureHandler(next.pipeline())));
   }
 
-  private static Handler publisher(Mode mode, Route next) {
-    return next(mode, new DetachHandler(new PublisherHandler(next.pipeline())));
+  private static Handler publisher(Mode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new PublisherHandler(next.pipeline())));
   }
 
-  private static Handler single(Mode mode, Route next) {
-    return next(mode, new DetachHandler(new SingleHandler(next.pipeline())));
+  private static Handler single(Mode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new SingleHandler(next.pipeline())));
   }
 
-  private static Handler next(Mode mode, Handler handler) {
-    if (mode == Mode.IO) {
-      return new IOHandler(handler);
+  private static Handler next(Mode mode, Executor executor, Handler handler) {
+    if (executor == null) {
+      return mode == Mode.IO ? new IOHandler(handler) : handler;
     }
-    return handler;
+    return new ExecutorHandler(handler, executor);
   }
 
 }

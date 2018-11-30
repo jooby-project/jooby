@@ -38,7 +38,7 @@ public class NettyContext extends BaseContext {
   private final Path tmpdir;
   private HttpRequest req;
   private final String path;
-  private final ExecutorService executor;
+  private final Executor executor;
   private HttpResponseStatus status = HttpResponseStatus.OK;
   private boolean keepAlive;
   private boolean responseStarted;
@@ -48,7 +48,7 @@ public class NettyContext extends BaseContext {
   private List<Upload> files;
   private Value.Object headers;
 
-  public NettyContext(ChannelHandlerContext ctx, ExecutorService executor,
+  public NettyContext(ChannelHandlerContext ctx, Executor executor,
       HttpRequest req, Route.RootErrorHandler errorHandler, Path tmpdir, String path) {
     this.path = path;
     this.ctx = ctx;

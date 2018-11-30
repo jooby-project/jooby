@@ -21,7 +21,7 @@ public class JettyHandler extends AbstractHandler {
 
   @Override public void handle(String target, Request request, HttpServletRequest servletRequest,
       HttpServletResponse response) throws IOException, ServletException {
-    JettyContext context = new JettyContext(request, router.errorHandler(), router.tmpdir());
+    JettyContext context = new JettyContext(request, router.worker(), router.errorHandler(), router.tmpdir());
     Router.Match match = router.match(context);
     handleMatch(target, request, response, context, router, match.route());
   }

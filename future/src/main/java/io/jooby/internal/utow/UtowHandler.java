@@ -25,7 +25,7 @@ public class UtowHandler implements HttpHandler {
   }
 
   protected UtowContext newContext(HttpServerExchange exchange, Router router) {
-    return new UtowContext(exchange, router.errorHandler(), router.tmpdir());
+    return new UtowContext(exchange, router.worker(), router.errorHandler(), router.tmpdir());
   }
 
   public void handle(HttpServerExchange exchange, UtowContext context, Router router, Route route)

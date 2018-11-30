@@ -59,45 +59,49 @@ public class App implements Router {
     return router.routes();
   }
 
-  @Nonnull @Override public Router gzip(@Nonnull Runnable action) {
-    return router.gzip(action);
-  }
-
-  @Nonnull @Override public Router error(@Nonnull Route.ErrorHandler handler) {
-    return router.error(handler);
-  }
-
-  @Nonnull @Override public Router filter(@Nonnull Route.Filter filter) {
-    return router.filter(filter);
-  }
-
-  @Nonnull @Override public Router before(@Nonnull Route.Before before) {
-    return router.before(before);
-  }
-
-  @Nonnull @Override public Router after(@Nonnull Route.After after) {
-    return router.after(after);
-  }
-
-  @Nonnull @Override public Router renderer(@Nonnull Renderer renderer) {
-    return router.renderer(renderer);
-  }
-
-  @Nonnull @Override public Executor executor(@Nonnull String executor) {
-    return router.executor(executor);
-  }
-
-  @Nonnull @Override public App executor(@Nonnull String name, @Nonnull Executor executor) {
-    router.executor(name, executor);
+  @Nonnull @Override public App gzip(@Nonnull Runnable action) {
+    router.gzip(action);
     return this;
   }
 
-  @Nonnull @Override public Router group(@Nonnull Runnable action) {
-    return router.group(action);
+  @Nonnull @Override public App error(@Nonnull Route.ErrorHandler handler) {
+    router.error(handler);
+    return this;
   }
 
-  @Nonnull @Override public Router path(@Nonnull String pattern, @Nonnull Runnable action) {
-    return router.path(pattern, action);
+  @Nonnull @Override public App filter(@Nonnull Route.Filter filter) {
+    router.filter(filter);
+    return this;
+  }
+
+  @Nonnull @Override public App before(@Nonnull Route.Before before) {
+    router.before(before);
+    return this;
+  }
+
+  @Nonnull @Override public App after(@Nonnull Route.After after) {
+    router.after(after);
+    return this;
+  }
+
+  @Nonnull @Override public App renderer(@Nonnull Renderer renderer) {
+    router.renderer(renderer);
+    return this;
+  }
+
+  @Nonnull @Override public App stack(@Nonnull Runnable action) {
+    router.stack(action);
+    return this;
+  }
+
+  @Nonnull @Override public Router stack(@Nonnull Executor executor, @Nonnull Runnable action) {
+    router.stack(executor, action);
+    return this;
+  }
+
+  @Nonnull @Override public App path(@Nonnull String pattern, @Nonnull Runnable action) {
+    router.path(pattern, action);
+    return this;
   }
 
   @Nonnull @Override
@@ -112,9 +116,19 @@ public class App implements Router {
 
   /** Error handler: */
   @Nonnull @Override
-  public Router errorCode(@Nonnull Class<? extends Throwable> type,
+  public App errorCode(@Nonnull Class<? extends Throwable> type,
       @Nonnull StatusCode statusCode) {
-    return router.errorCode(type, statusCode);
+    router.errorCode(type, statusCode);
+    return this;
+  }
+
+  @Nonnull @Override public Executor worker() {
+    return router.worker();
+  }
+
+  @Nonnull @Override public App worker(Executor worker) {
+    this.router.worker(worker);
+    return this;
   }
 
   /** Log: */
