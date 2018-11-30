@@ -63,7 +63,7 @@ public class FeaturedTest {
       app.dispatch(() -> {
         app.get("/worker", ctx -> "Hello World!");
       });
-    }).mode(Mode.IO).ready(client -> {
+    }).mode(Mode.LOOP).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
@@ -454,7 +454,7 @@ public class FeaturedTest {
   public void form() {
     new JoobyRunner(app -> {
       app.post("/", ctx -> ctx.form());
-    }).mode(Mode.IO, Mode.WORKER).ready(client -> {
+    }).mode(Mode.LOOP, Mode.WORKER).ready(client -> {
       client.post("/", new FormBody.Builder()
           .add("q", "a b")
           .add("user.name", "user")
@@ -513,13 +513,13 @@ public class FeaturedTest {
       app.error(IllegalStateException.class, (ctx, x, statusCode) -> {
         ctx.sendText(x.getMessage());
       });
-    }).mode(Mode.IO).ready(client -> {
+    }).mode(Mode.LOOP).ready(client -> {
       client.post("/f", new MultipartBody.Builder()
           .setType(MultipartBody.FORM)
           .addFormDataPart("foo", "bar")
           .build(), rsp -> {
         assertEquals(
-            "Attempted to do blocking IO from the IO thread. This is prohibited as it may result in deadlocks",
+            "Attempted to do blocking LOOP from the LOOP thread. This is prohibited as it may result in deadlocks",
             rsp.body().string());
       });
 
@@ -564,7 +564,7 @@ public class FeaturedTest {
         app.get("/", ctx -> "result:" + ctx.isInIoThread());
       });
 
-    }).mode(Mode.IO).ready(client -> {
+    }).mode(Mode.LOOP).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("before1:false;before2:false;result:false;after2:false;after1:false;",
             rsp.body().string());
@@ -611,7 +611,7 @@ public class FeaturedTest {
               .subscribeOn(Schedulers.io())
               .observeOn(Schedulers.computation())
       );
-    }).mode(Mode.IO).ready(client -> {
+    }).ready(client -> {
       client.get("/rx2", rsp -> {
         assertEquals("Hello rx2", rsp.body().string());
       });
@@ -627,7 +627,7 @@ public class FeaturedTest {
               .thenApply(v -> "Hello " + v)
       );
 
-    }).mode(Mode.IO).ready(client -> {
+    }).ready(client -> {
       client.get("/completable", rsp -> {
         assertEquals("Hello Completable Future!", rsp.body().string());
       });
@@ -816,7 +816,7 @@ public class FeaturedTest {
       client.get("/", rsp -> {
         assertNotNull(rsp.header("Date"));
         assertEquals(servers.getFirst(), rsp.header("Server"));
-        assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+        assertEquals("text/plain", rsp.header("Content-Type").toLowerCase());
         servers.removeFirst();
       });
     });

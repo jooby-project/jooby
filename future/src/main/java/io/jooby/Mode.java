@@ -1,9 +1,13 @@
 package io.jooby;
 
 public enum Mode {
-  /** Event loop */
-  IO,
+  /**
+   * Always execute handler in the event loop thread (non-blocking).
+   */
+  LOOP,
 
-  /** Worker/task */
+  /**
+   * Always execute handler in a worker thread (blocking). This is the default execution mode.
+   */
   WORKER
 }

@@ -74,7 +74,7 @@ public abstract class BaseContext implements Context {
   protected void requireBlocking() {
     if (isInIoThread()) {
       throw new IllegalStateException(
-          "Attempted to do blocking IO from the IO thread. This is prohibited as it may result in deadlocks");
+          "Attempted to do blocking LOOP from the LOOP thread. This is prohibited as it may result in deadlocks");
     }
   }
 }

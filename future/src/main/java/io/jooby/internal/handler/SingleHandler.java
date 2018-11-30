@@ -6,7 +6,7 @@ import io.reactivex.Single;
 
 import javax.annotation.Nonnull;
 
-public class SingleHandler implements Route.Handler {
+public class SingleHandler implements ChainedHandler {
 
   private final Route.Handler next;
 
@@ -23,5 +23,9 @@ public class SingleHandler implements Route.Handler {
       ctx.sendError(x);
       return Single.error(x);
     }
+  }
+
+  @Override public Route.Handler next() {
+    return next;
   }
 }

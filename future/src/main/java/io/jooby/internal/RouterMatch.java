@@ -69,7 +69,7 @@ public class RouterMatch implements Router.Match {
     } else {
       h = this.handler;
     }
-    this.route = new RouteImpl(method, path, h, h, renderer);
+    this.route = new RouteImpl(method, path, String.class, h, h, renderer);
     this.matches = false;
     return this;
   }

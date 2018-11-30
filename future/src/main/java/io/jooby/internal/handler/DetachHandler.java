@@ -5,7 +5,7 @@ import io.jooby.Route;
 
 import javax.annotation.Nonnull;
 
-public class DetachHandler implements Route.Handler {
+public class DetachHandler implements ChainedHandler {
   private final Route.Handler next;
 
   public DetachHandler(Route.Handler next) {
@@ -14,5 +14,9 @@ public class DetachHandler implements Route.Handler {
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     return ctx.detach(() -> next.execute(ctx));
+  }
+
+  @Override public Route.Handler next() {
+    return next;
   }
 }

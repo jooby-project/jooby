@@ -16,7 +16,7 @@ public class BlockingApp extends App {
 
   public static void main(String[] args) {
     new Utow()
-        .deploy(new BlockingApp().mode(Mode.IO))
+        .deploy(new BlockingApp().mode(Mode.LOOP))
         .start()
         .join();
   }

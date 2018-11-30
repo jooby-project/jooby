@@ -49,6 +49,8 @@ public class Jetty implements io.jooby.Server {
     QueuedThreadPool executor = new QueuedThreadPool(64);
     executor.setName("jetty");
 
+    System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
+
     this.server = new Server(executor);
     server.setStopAtShutdown(false);
 

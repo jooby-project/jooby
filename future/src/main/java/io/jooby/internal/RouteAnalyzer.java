@@ -52,4 +52,8 @@ public class RouteAnalyzer {
       throw Throwing.sneakyThrow(x);
     }
   }
+
+  public ClassLoader getClassLoader() {
+    return typeParser.getClassLoader();
+  }
 }

@@ -6,7 +6,7 @@ import io.jooby.Route;
 import javax.annotation.Nonnull;
 import java.util.concurrent.Executor;
 
-public class ExecutorHandler implements Route.Handler {
+public class ExecutorHandler implements ChainedHandler {
   private final Route.Handler next;
   private final Executor executor;
 
@@ -17,5 +17,9 @@ public class ExecutorHandler implements Route.Handler {
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     return ctx.dispatch(executor, () -> next.execute(ctx));
+  }
+
+  @Override public Route.Handler next() {
+    return next;
   }
 }

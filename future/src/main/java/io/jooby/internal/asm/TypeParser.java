@@ -21,6 +21,10 @@ public class TypeParser {
     this.loader = loader;
   }
 
+  public ClassLoader getClassLoader() {
+    return loader;
+  }
+
   public Type commonAncestor(Set<Type> types) {
     if (types.size() == 1) {
       return types.iterator().next();

@@ -6,7 +6,7 @@ import io.jooby.Route;
 import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
 
-public class CompletableFutureHandler implements Route.Handler {
+public class CompletableFutureHandler implements ChainedHandler {
 
   private final Route.Handler next;
 
@@ -32,5 +32,9 @@ public class CompletableFutureHandler implements Route.Handler {
       ctx.sendError(x);
       return CompletableFuture.failedFuture(x);
     }
+  }
+
+  @Override public Route.Handler next() {
+    return next;
   }
 }

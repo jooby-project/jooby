@@ -1,22 +1,27 @@
 package io.jooby;
 
-import io.undertow.util.DateUtils;
-import io.undertow.util.Headers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Collection of utility filters.
  */
 public final class Filters {
+  private static class DateHeader {
+    private volatile long nextUpdateTime = -1;
+    private volatile String cachedDate;
+
+    public String compute() {
+      long time = System.currentTimeMillis();
+      if (time > nextUpdateTime) {
+        cachedDate = formatter.format(Instant.ofEpochMilli(time));
+        nextUpdateTime = time + 1000;
+      }
+      return cachedDate;
+    }
+  }
+
   public static final String H_DATE = "Date";
   public static final String H_SERVER = "Server";
 
@@ -57,22 +62,8 @@ public final class Filters {
    * @return A filter that set the `date` header.
    */
   public static final Route.Filter date() {
-    return new Route.Filter() {
-      volatile long nextUpdateTime = -1;
-      volatile String cachedDate;
-
-      @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
-        return ctx -> {
-          long time = System.currentTimeMillis();
-          if (time > nextUpdateTime) {
-            cachedDate = formatter.format(Instant.ofEpochMilli(time));
-            nextUpdateTime = time + 1000;
-          }
-          ctx.header(H_DATE, cachedDate);
-          return next.apply(ctx);
-        };
-      }
-    };
+    DateHeader date = new DateHeader();
+    return next -> ctx -> next.apply(ctx.header(H_DATE, date.compute()));
   }
 
   /**
@@ -86,12 +77,7 @@ public final class Filters {
    * @return Default headers filter.
    */
   public static final Route.Filter defaultHeaders(@Nonnull MediaType contentType) {
-    Route.Filter date = date();
-    return next -> ctx -> {
-      ctx.header(H_SERVER, ctx.name());
-      ctx.type(contentType);
-      return date.apply(next).apply(ctx);
-    };
+    return defaultHeaders(contentType.toString(), contentType.charset());
   }
 
   /**
@@ -104,6 +90,16 @@ public final class Filters {
    * @return Default headers filter.
    */
   public static final Route.Filter defaultHeaders() {
-    return defaultHeaders(MediaType.text);
+    return defaultHeaders("text/plain", null);
+  }
+
+  private static final Route.Filter defaultHeaders(String contentType, String charset) {
+    DateHeader date = new DateHeader();
+    return next -> ctx -> {
+      ctx.header(H_SERVER, ctx.name());
+      ctx.type(contentType, charset);
+      ctx.header(H_DATE, date.compute());
+      return next.apply(ctx);
+    };
   }
 }

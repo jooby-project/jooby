@@ -5,7 +5,7 @@ import io.jooby.Route;
 
 import javax.annotation.Nonnull;
 
-public class DefaultHandler implements Route.Handler {
+public class DefaultHandler implements ChainedHandler {
 
   private Route.Handler next;
 
@@ -13,7 +13,7 @@ public class DefaultHandler implements Route.Handler {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
       Object result = next.apply(ctx);
       if (!ctx.isResponseStarted()) {
@@ -24,5 +24,9 @@ public class DefaultHandler implements Route.Handler {
       ctx.sendError(x);
       return x;
     }
+  }
+
+  @Override public Route.Handler next() {
+    return next;
   }
 }

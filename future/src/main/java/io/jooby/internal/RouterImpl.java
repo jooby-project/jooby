@@ -10,7 +10,6 @@ import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.StatusCode;
 import io.jooby.Usage;
-import io.jooby.internal.handler.Pipeline;
 
 import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
@@ -255,8 +254,11 @@ public class RouterImpl implements Router {
         .flatMap(Stack::toRenderer)
         .reduce(Renderer.TO_STRING, (it, next) -> next.then(it));
 
+    /** Return type: */
+    Type returnType = analyzer.returnType(handler);
+
     /** Route: */
-    RouteImpl route = new RouteImpl(method, pat.toString(), handler, pipeline,
+    RouteImpl route = new RouteImpl(method, pat.toString(), returnType, handler, pipeline,
         renderer);
     Stack stack = this.stack.peekLast();
     route.gzip(stack.gzip);
@@ -282,9 +284,7 @@ public class RouterImpl implements Router {
       if (executor == LAZY_WORKER) {
         routeImpl.executor(owner.worker());
       }
-      Route.Handler handler = routeImpl.handler();
-      Type returnType = analyzer.returnType(handler);
-      Route.Handler pipeline = Pipeline.compute(rawType(returnType), mode, routeImpl);
+      Route.Handler pipeline = Pipeline.compute(analyzer.getClassLoader(), routeImpl, mode);
       routeImpl.pipeline(pipeline);
     }
     this.rootErr = new RootErrorHandlerImpl(err, owner.log(), this::errorCode);

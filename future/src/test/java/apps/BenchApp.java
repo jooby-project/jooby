@@ -29,7 +29,7 @@ public class BenchApp extends App {
 
   public static void main(String[] args) {
     new Utow()
-        .deploy(new BenchApp().mode(Mode.IO))
+        .deploy(new BenchApp().mode(Mode.LOOP))
         .start()
         .join();
   }

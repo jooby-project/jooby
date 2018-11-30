@@ -145,7 +145,7 @@ public interface Context {
    * Parse a multipart/form-data request and returns the result.
    *
    * <strong>NOTE:</strong> this method throws an {@link IllegalStateException} when call it from
-   * <code>IO thread</code>;
+   * <code>LOOP thread</code>;
    *
    * @return Multipart node.
    */
@@ -245,7 +245,7 @@ public interface Context {
     return type(MediaType.valueOf(contentType));
   }
 
-  @Nonnull Context type(@Nonnull String contentType, String charset);
+  @Nonnull Context type(@Nonnull String contentType, @Nullable String charset);
 
   @Nonnull default Context statusCode(StatusCode statusCode) {
     return statusCode(statusCode.value());
