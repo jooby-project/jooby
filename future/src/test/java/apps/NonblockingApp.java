@@ -7,6 +7,8 @@ import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 
+import java.util.concurrent.SubmissionPublisher;
+
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 public class NonblockingApp extends App {
@@ -37,6 +39,14 @@ public class NonblockingApp extends App {
           })
           .observeOn(Schedulers.computation())
           .subscribeOn(Schedulers.io());
+    });
+
+    get("/publisher", ctx -> {
+      System.out.println("Scheduled: " + Thread.currentThread().getName());
+      SubmissionPublisher<String> publisher = new SubmissionPublisher<>();
+      publisher.submit("hey");
+      publisher.close();
+      return publisher;
     });
 
     get("/single", ctx -> {

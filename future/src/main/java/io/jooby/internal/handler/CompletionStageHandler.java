@@ -5,18 +5,19 @@ import io.jooby.Route;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
-public class CompletableFutureHandler implements ChainedHandler {
+public class CompletionStageHandler implements ChainedHandler {
 
   private final Route.Handler next;
 
-  public CompletableFutureHandler(Route.Handler next) {
+  public CompletionStageHandler(Route.Handler next) {
     this.next = next;
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      CompletableFuture result = (CompletableFuture) next.apply(ctx);
+      CompletionStage result = (CompletionStage) next.apply(ctx);
       return result.whenComplete((value, x) -> {
         try {
           if (x != null) {

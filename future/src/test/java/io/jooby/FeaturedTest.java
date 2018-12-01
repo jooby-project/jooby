@@ -619,6 +619,22 @@ public class FeaturedTest {
   }
 
   @Test
+  public void flowPublisher() {
+    new JoobyRunner(app -> {
+      app.get("/rx2", ctx ->
+          fromCallable(() -> "rx2")
+              .map(s -> "Hello " + s)
+              .subscribeOn(Schedulers.io())
+              .observeOn(Schedulers.computation())
+      );
+    }).ready(client -> {
+      client.get("/rx2", rsp -> {
+        assertEquals("Hello rx2", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
   public void completableFuture() {
     new JoobyRunner(app -> {
 

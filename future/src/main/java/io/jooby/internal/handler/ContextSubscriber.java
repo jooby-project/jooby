@@ -4,7 +4,9 @@ import io.jooby.Context;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-public class ContextSubscriber implements Subscriber<Object> {
+import java.util.concurrent.Flow;
+
+public class ContextSubscriber implements Subscriber<Object>, Flow.Subscriber<Object> {
 
   private final Context ctx;
 
@@ -13,6 +15,10 @@ public class ContextSubscriber implements Subscriber<Object> {
   }
 
   @Override public void onSubscribe(Subscription s) {
+    s.request(Long.MAX_VALUE);
+  }
+
+  @Override public void onSubscribe(Flow.Subscription s) {
     s.request(Long.MAX_VALUE);
   }
 

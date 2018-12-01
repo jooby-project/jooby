@@ -3,7 +3,7 @@ package io.jooby.internal;
 import io.jooby.Mode;
 import io.jooby.Renderer;
 import io.jooby.Route;
-import io.jooby.internal.handler.CompletableFutureHandler;
+import io.jooby.internal.handler.CompletionStageHandler;
 import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
 import io.jooby.internal.handler.ChainedHandler;
@@ -49,8 +49,8 @@ public class PipelineTest {
     ChainedHandler pipeline = pipeline(route(CompletableFuture.class, h), Mode.LOOP);
     assertTrue(pipeline instanceof DetachHandler);
     Route.Handler next = pipeline.next();
-    assertTrue(next instanceof CompletableFutureHandler);
-    CompletableFutureHandler reactive = (CompletableFutureHandler) next;
+    assertTrue(next instanceof CompletionStageHandler);
+    CompletionStageHandler reactive = (CompletionStageHandler) next;
     assertTrue(reactive.next() == h, "found: " + reactive.next() + ", expected: " + h.getClass());
   }
 
@@ -63,8 +63,8 @@ public class PipelineTest {
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next);
     next = ((DetachHandler) next).next();
-    assertTrue(next instanceof CompletableFutureHandler, "found: " + next);
-    next = ((CompletableFutureHandler) next).next();
+    assertTrue(next instanceof CompletionStageHandler, "found: " + next);
+    next = ((CompletionStageHandler) next).next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
@@ -109,8 +109,8 @@ public class PipelineTest {
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next.getClass());
     next = ((DetachHandler) next).next();
-    assertTrue(next instanceof CompletableFutureHandler, "found: " + next.getClass());
-    next = ((CompletableFutureHandler) next).next();
+    assertTrue(next instanceof CompletionStageHandler, "found: " + next.getClass());
+    next = ((CompletionStageHandler) next).next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
@@ -161,8 +161,8 @@ public class PipelineTest {
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next);
     next = ((DetachHandler) next).next();
-    assertTrue(next instanceof CompletableFutureHandler, "found: " + next);
-    next = ((CompletableFutureHandler) next).next();
+    assertTrue(next instanceof CompletionStageHandler, "found: " + next);
+    next = ((CompletionStageHandler) next).next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
