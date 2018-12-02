@@ -14,16 +14,6 @@
 
   <name>jooby</name>
 
-  <properties>
-    <junit.version>5.3.1</junit.version>
-    <junit-platform.version>1.3.1</junit-platform.version>
-    <netty.version>4.1.29.Final</netty.version>
-    <undertow.version>2.0.13.Final</undertow.version>
-    <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
-    <java.source.version>9</java.source.version>
-  </properties>
-
-
   <build>
     <plugins>
       <plugin>
@@ -120,12 +110,6 @@
       <artifactId>logback-classic</artifactId>
     </dependency>
 
-    <!-- Config -->
-    <dependency>
-      <groupId>com.typesafe</groupId>
-      <artifactId>config</artifactId>
-    </dependency>
-
     <!-- ASM -->
     <dependency>
       <groupId>org.ow2.asm</groupId>
@@ -144,22 +128,16 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-handler</artifactId>
-      <version>${netty.version}</version>
     </dependency>
+
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-codec-http</artifactId>
-      <version>${netty.version}</version>
     </dependency>
+
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-transport-native-epoll</artifactId>
-      <version>${netty.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-transport-native-kqueue</artifactId>
-      <version>${netty.version}</version>
     </dependency>
 
     <!-- Undertow -->
@@ -180,11 +158,10 @@
       <artifactId>jackson-databind</artifactId>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/io.reactivex.rxjava2/rxjava -->
+    <!-- rxjava -->
     <dependency>
       <groupId>io.reactivex.rxjava2</groupId>
       <artifactId>rxjava</artifactId>
-      <version>2.2.0</version>
       <optional>true</optional>
     </dependency>
 
@@ -192,7 +169,6 @@
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
-      <version>3.2.3.RELEASE</version>
       <optional>true</optional>
     </dependency>
 
@@ -201,19 +177,16 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.platform</groupId>
       <artifactId>junit-platform-launcher</artifactId>
-      <version>${junit-platform.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -227,28 +200,9 @@
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp</artifactId>
-      <version>3.11.0</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- Fluent HC -->
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>fluent-hc</artifactId>
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpmime</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Async Http Client -->
-    <dependency>
-      <groupId>com.ning</groupId>
-      <artifactId>async-http-client</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm-util</artifactId>
