@@ -4,7 +4,6 @@ import io.jooby.App;
 import io.jooby.Filters;
 import io.jooby.ExecutionMode;
 import io.jooby.jackson.Jackson;
-import io.jooby.netty.Netty;
 
 public class HelloApp extends App {
 
@@ -40,9 +39,9 @@ public class HelloApp extends App {
   }
 
   public static void main(String[] args) {
-    new Netty()
-        .deploy(new HelloApp().mode(ExecutionMode.WORKER))
-        .start()
-        .join();
+//    new Netty()
+//        .deploy(new HelloApp().mode(ExecutionMode.WORKER))
+//        .start()
+//        .join();
   }
 }

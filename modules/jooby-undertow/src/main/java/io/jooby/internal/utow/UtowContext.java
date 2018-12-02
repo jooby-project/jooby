@@ -20,8 +20,6 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.*;
 import io.undertow.util.*;
 import org.jooby.funzy.Throwing;
-import org.xnio.XnioIoThread;
-import org.xnio.XnioWorker;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

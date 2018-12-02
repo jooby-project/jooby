@@ -22,8 +22,6 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.encoding.EncodingHandler;
 import io.undertow.util.Headers;
 
-import java.util.concurrent.Executor;
-
 public class UtowHandler implements HttpHandler {
 
   protected final Router router;

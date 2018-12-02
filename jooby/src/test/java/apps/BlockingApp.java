@@ -1,10 +1,6 @@
 package apps;
 
 import io.jooby.App;
-import io.jooby.ExecutionMode;
-import io.jooby.utow.Utow;
-
-import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 public class BlockingApp extends App {
   {
@@ -15,9 +11,9 @@ public class BlockingApp extends App {
   }
 
   public static void main(String[] args) {
-    new Utow()
-        .deploy(new BlockingApp().mode(ExecutionMode.EVENT_LOOP))
-        .start()
-        .join();
+//    new Netty()
+//        .deploy(new BlockingApp().mode(ExecutionMode.EVENT_LOOP))
+//        .start()
+//        .join();
   }
 }

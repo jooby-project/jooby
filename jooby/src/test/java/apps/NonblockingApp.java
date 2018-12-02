@@ -1,8 +1,6 @@
 package apps;
 
 import io.jooby.App;
-import io.jooby.ExecutionMode;
-import io.jooby.netty.Netty;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -66,9 +64,9 @@ public class NonblockingApp extends App {
   }
 
   public static void main(String[] args) {
-    new Netty()
-        .deploy(new NonblockingApp().mode(ExecutionMode.EVENT_LOOP))
-        .start()
-        .join();
+//    new Netty()
+//        .deploy(new NonblockingApp().mode(ExecutionMode.EVENT_LOOP))
+//        .start()
+//        .join();
   }
 }

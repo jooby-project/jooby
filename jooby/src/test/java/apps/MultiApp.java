@@ -2,8 +2,6 @@ package apps;
 
 import io.jooby.App;
 import io.jooby.Context;
-import io.jooby.Server;
-import io.jooby.netty.Netty;
 
 public class MultiApp {
 
@@ -21,11 +19,11 @@ public class MultiApp {
   }
 
   public static void main(String[] args) {
-    Server server = new Netty();
-
-    server.deploy(new Foo());
-    server.deploy(new Bar());
-
-    server.start();
+//    Server server = new Netty();
+//
+//    server.deploy(new Foo());
+//    server.deploy(new Bar());
+//
+//    server.start();
   }
 }
