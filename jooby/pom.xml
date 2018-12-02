@@ -130,12 +130,6 @@
       <version>1</version>
     </dependency>
 
-    <!-- Jackson -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-    </dependency>
-
     <!-- rxjava -->
     <dependency>
       <groupId>io.reactivex.rxjava2</groupId>

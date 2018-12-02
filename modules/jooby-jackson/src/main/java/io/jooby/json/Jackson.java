@@ -13,7 +13,7 @@
  *
  *    Copyright 2014 Edgar Espina
  */
-package io.jooby.jackson;
+package io.jooby.json;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;

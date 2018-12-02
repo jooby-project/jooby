@@ -2,8 +2,6 @@ package apps;
 
 import io.jooby.App;
 import io.jooby.Filters;
-import io.jooby.ExecutionMode;
-import io.jooby.jackson.Jackson;
 
 public class HelloApp extends App {
 
@@ -29,7 +27,7 @@ public class HelloApp extends App {
 
     get("/{foo}", ctx -> ctx.sendText("Hello World!"));
 
-    renderer(new Jackson());
+    //renderer(new Jackson());
     get("/json", ctx -> ctx.type("application/json").send(new Message("Hello World!")));
 
     error((ctx, cause, statusCode) -> {
