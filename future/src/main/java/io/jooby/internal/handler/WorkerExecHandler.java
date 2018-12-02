@@ -6,11 +6,11 @@ import io.jooby.Route;
 import javax.annotation.Nonnull;
 import java.util.concurrent.Executor;
 
-public class ExecutorHandler implements ChainedHandler {
+public class WorkerExecHandler implements ChainedHandler {
   private final Route.Handler next;
   private final Executor executor;
 
-  public ExecutorHandler(Route.Handler next, Executor executor) {
+  public WorkerExecHandler(Route.Handler next, Executor executor) {
     this.next = next;
     this.executor = executor;
   }

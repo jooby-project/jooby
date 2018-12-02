@@ -4,7 +4,7 @@ import io.jooby.App;
 import io.jooby.BaseContext;
 import io.jooby.Context;
 import io.jooby.Err;
-import io.jooby.Mode;
+import io.jooby.ExecutionMode;
 import io.jooby.Renderer;
 import io.jooby.Route;
 import io.jooby.Router;
@@ -275,7 +275,7 @@ public class RouterImpl implements Router {
     if (err == null) {
       err = Route.ErrorHandler.DEFAULT;
     }
-    Mode mode = owner.mode();
+    ExecutionMode mode = owner.mode();
     for (Route route : routes) {
       RouteImpl routeImpl = (RouteImpl) route;
       Executor executor = routeImpl.executor();

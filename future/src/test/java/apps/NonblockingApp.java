@@ -1,7 +1,7 @@
 package apps;
 
 import io.jooby.App;
-import io.jooby.Mode;
+import io.jooby.ExecutionMode;
 import io.jooby.netty.Netty;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -67,7 +67,7 @@ public class NonblockingApp extends App {
 
   public static void main(String[] args) {
     new Netty()
-        .deploy(new NonblockingApp().mode(Mode.EVENT_LOOP))
+        .deploy(new NonblockingApp().mode(ExecutionMode.EVENT_LOOP))
         .start()
         .join();
   }

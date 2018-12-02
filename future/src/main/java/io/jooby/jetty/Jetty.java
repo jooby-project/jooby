@@ -2,8 +2,6 @@ package io.jooby.jetty;
 
 import io.jooby.App;
 import io.jooby.Functions;
-import io.jooby.Mode;
-import io.jooby.Router;
 import io.jooby.internal.jetty.JettyHandler;
 import io.jooby.internal.jetty.JettyMultiHandler;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -15,8 +13,6 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
 import org.eclipse.jetty.util.thread.Scheduler;
 import org.jooby.funzy.Throwing;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;

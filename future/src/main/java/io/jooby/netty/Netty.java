@@ -1,7 +1,6 @@
 package io.jooby.netty;
 
 import io.jooby.App;
-import io.jooby.Mode;
 import io.jooby.Server;
 import io.jooby.Functions;
 import io.jooby.internal.netty.NettyMultiHandler;
@@ -31,9 +30,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.Executor;
 
 public class Netty implements Server {
 

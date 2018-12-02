@@ -69,7 +69,7 @@ public class FeaturedTest {
       app.dispatch(() -> {
         app.get("/worker", ctx -> "Hello World!");
       });
-    }).mode(Mode.EVENT_LOOP).ready(client -> {
+    }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
@@ -122,7 +122,7 @@ public class FeaturedTest {
       app.dispatch(() -> {
         app.get("/worker", ctx -> "Hello World!");
       });
-    }).mode(Mode.WORKER).ready(client -> {
+    }).mode(ExecutionMode.WORKER).ready(client -> {
       client.get("/?foo=bar", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
@@ -460,7 +460,7 @@ public class FeaturedTest {
   public void form() {
     new JoobyRunner(app -> {
       app.post("/", ctx -> ctx.form());
-    }).mode(Mode.EVENT_LOOP, Mode.WORKER).ready(client -> {
+    }).mode(ExecutionMode.EVENT_LOOP, ExecutionMode.WORKER).ready(client -> {
       client.post("/", new FormBody.Builder()
           .add("q", "a b")
           .add("user.name", "user")
@@ -519,7 +519,7 @@ public class FeaturedTest {
       app.error(IllegalStateException.class, (ctx, x, statusCode) -> {
         ctx.sendText(x.getMessage());
       });
-    }).mode(Mode.EVENT_LOOP).ready(client -> {
+    }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
       client.post("/f", new MultipartBody.Builder()
           .setType(MultipartBody.FORM)
           .addFormDataPart("foo", "bar")
@@ -570,7 +570,7 @@ public class FeaturedTest {
         app.get("/", ctx -> "result:" + ctx.isInIoThread());
       });
 
-    }).mode(Mode.EVENT_LOOP).ready(client -> {
+    }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("before1:false;before2:false;result:false;after2:false;after1:false;",
             rsp.body().string());
@@ -861,6 +861,23 @@ public class FeaturedTest {
         assertEquals(3L, rsp.body().contentLength());
       });
     });
+  }
+
+  @Test
+  public void mixedMode() {
+    new JoobyRunner(app -> {
+      app.get("/blocking", ctx -> !ctx.isInIoThread());
+      app.get("/reactive", ctx ->
+          Single.fromCallable(() -> ctx.isInIoThread())
+      );
+    }).mode(ExecutionMode.DEFAULT).ready(client -> {
+      client.get("/blocking", rsp -> {
+        assertEquals("true", rsp.body().string());
+      });
+      client.get("/reactive", rsp -> {
+        assertEquals("true", rsp.body().string());
+      });
+    }, Netty::new, Utow::new);
   }
 
   @Test

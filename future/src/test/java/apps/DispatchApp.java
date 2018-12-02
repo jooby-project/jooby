@@ -1,7 +1,7 @@
 package apps;
 
 import io.jooby.App;
-import io.jooby.Mode;
+import io.jooby.ExecutionMode;
 import io.jooby.utow.Utow;
 
 import java.util.concurrent.Executors;
@@ -30,7 +30,7 @@ public class DispatchApp extends App {
 
   public static void main(String[] args) {
     new Utow()
-        .deploy(new DispatchApp().mode(Mode.EVENT_LOOP))
+        .deploy(new DispatchApp().mode(ExecutionMode.EVENT_LOOP))
         .start()
         .join();
   }

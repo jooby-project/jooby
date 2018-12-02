@@ -1,7 +1,7 @@
 package io.jooby.test;
 
 import io.jooby.App;
-import io.jooby.Mode;
+import io.jooby.ExecutionMode;
 import io.jooby.Server;
 import io.jooby.jetty.Jetty;
 import io.jooby.netty.Netty;
@@ -17,7 +17,7 @@ public class JoobyRunner {
 
   private final Supplier<App> provider;
 
-  private final List<Mode> modes = new ArrayList<>();
+  private final List<ExecutionMode> modes = new ArrayList<>();
 
   public JoobyRunner(Consumer<App> configurer) {
     this(() -> {
@@ -31,14 +31,14 @@ public class JoobyRunner {
     this.provider = provider;
   }
 
-  public JoobyRunner mode(Mode... mode) {
+  public JoobyRunner mode(ExecutionMode... mode) {
     modes.addAll(Arrays.asList(mode));
     return this;
   }
 
   public void ready(Consumer<WebClient> onReady, Supplier<Server>... servers) {
     if (modes.size() == 0) {
-      modes.add(Mode.WORKER);
+      modes.add(ExecutionMode.WORKER);
     }
     List<Supplier<Server>> serverList = new ArrayList<>();
     if (servers.length == 0) {
@@ -48,7 +48,7 @@ public class JoobyRunner {
     } else {
       serverList.addAll(Arrays.asList(servers));
     }
-    for (Mode mode : modes) {
+    for (ExecutionMode mode : modes) {
       for (Supplier<Server> serverFactory : serverList) {
         Server server = serverFactory.get();
         try {

@@ -23,7 +23,7 @@ public class App implements Router {
   private Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir"), appname(getClass()))
       .toAbsolutePath();
 
-  private Mode mode = Mode.WORKER;
+  private ExecutionMode mode = ExecutionMode.DEFAULT;
 
   public App() {
     router = new RouterImpl(new RouteAnalyzer(getClass().getClassLoader(), false));
@@ -149,11 +149,11 @@ public class App implements Router {
     return this;
   }
 
-  public Mode mode() {
+  public ExecutionMode mode() {
     return mode;
   }
 
-  public App mode(Mode mode) {
+  public App mode(ExecutionMode mode) {
     this.mode = mode;
     return this;
   }

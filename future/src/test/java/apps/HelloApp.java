@@ -2,7 +2,7 @@ package apps;
 
 import io.jooby.App;
 import io.jooby.Filters;
-import io.jooby.Mode;
+import io.jooby.ExecutionMode;
 import io.jooby.jackson.Jackson;
 import io.jooby.netty.Netty;
 
@@ -24,7 +24,7 @@ public class HelloApp extends App {
       return next.apply(ctx);
     });
 
-    filter(Filters.server().then(Filters.date()));
+    filter(Filters.defaultHeaders());
 
     get("/", ctx -> ctx.sendText(MESSAGE));
 
@@ -41,7 +41,7 @@ public class HelloApp extends App {
 
   public static void main(String[] args) {
     new Netty()
-        .deploy(new HelloApp().mode(Mode.WORKER))
+        .deploy(new HelloApp().mode(ExecutionMode.WORKER))
         .start()
         .join();
   }

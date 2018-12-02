@@ -1,12 +1,12 @@
 package io.jooby.internal;
 
-import io.jooby.Mode;
+import io.jooby.ExecutionMode;
 import io.jooby.Reified;
 import io.jooby.Route.Handler;
 import io.jooby.internal.handler.CompletionStageHandler;
 import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
-import io.jooby.internal.handler.ExecutorHandler;
+import io.jooby.internal.handler.WorkerExecHandler;
 import io.jooby.internal.handler.FlowPublisherHandler;
 import io.jooby.internal.handler.FluxHandler;
 import io.jooby.internal.handler.MaybeHandler;
@@ -24,11 +24,11 @@ import java.util.function.BiFunction;
 
 public class Pipeline {
 
-  public static Handler compute(ClassLoader loader, RouteImpl route, Mode mode) {
+  public static Handler compute(ClassLoader loader, RouteImpl route, ExecutionMode mode) {
     return provider(loader, Reified.rawType(route.returnType())).apply(mode, route);
   }
 
-  private static BiFunction<Mode, RouteImpl, Handler> provider(ClassLoader loader, Class type) {
+  private static BiFunction<ExecutionMode, RouteImpl, Handler> provider(ClassLoader loader, Class type) {
     if (CompletionStage.class.isAssignableFrom(type)) {
       return Pipeline::completableFuture;
     }
@@ -86,48 +86,58 @@ public class Pipeline {
     if (Flow.Publisher.class.isAssignableFrom(type)) {
       return Pipeline::flowPublisher;
     }
-    return (mode, route) -> next(mode, route.executor(), new DefaultHandler(route.pipeline()));
+    return (mode, route) -> next(mode, route.executor(), new DefaultHandler(route.pipeline()),
+        true);
   }
 
-  private static Handler completableFuture(Mode mode, RouteImpl next) {
+  private static Handler completableFuture(ExecutionMode mode, RouteImpl next) {
     return next(mode, next.executor(),
-        new DetachHandler(new CompletionStageHandler(next.pipeline())));
+        new DetachHandler(new CompletionStageHandler(next.pipeline())), false);
   }
 
-  private static Handler publisher(Mode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new PublisherHandler(next.pipeline())));
+  private static Handler publisher(ExecutionMode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new PublisherHandler(next.pipeline())),
+        false);
   }
 
-  private static Handler observable(Mode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new ObservableHandler(next.pipeline())));
+  private static Handler observable(ExecutionMode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new ObservableHandler(next.pipeline())),
+        false);
   }
 
-  private static Handler flux(Mode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new FluxHandler(next.pipeline())));
+  private static Handler flux(ExecutionMode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new FluxHandler(next.pipeline())), false);
   }
 
-  private static Handler mono(Mode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new MonoHandler(next.pipeline())));
+  private static Handler mono(ExecutionMode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new MonoHandler(next.pipeline())), false);
   }
 
-  private static Handler flowPublisher(Mode mode, RouteImpl next) {
+  private static Handler flowPublisher(ExecutionMode mode, RouteImpl next) {
     return next(mode, next.executor(),
-        new DetachHandler(new FlowPublisherHandler(next.pipeline())));
+        new DetachHandler(new FlowPublisherHandler(next.pipeline())), false);
   }
 
-  private static Handler single(Mode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new SingleHandler(next.pipeline())));
+  private static Handler single(ExecutionMode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new SingleHandler(next.pipeline())),
+        false);
   }
 
-  private static Handler maybe(Mode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new MaybeHandler(next.pipeline())));
+  private static Handler maybe(ExecutionMode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new MaybeHandler(next.pipeline())), false);
   }
 
-  private static Handler next(Mode mode, Executor executor, Handler handler) {
+  private static Handler next(ExecutionMode mode, Executor executor, Handler handler, boolean blocking) {
     if (executor == null) {
-      return mode == Mode.WORKER ? new WorkerHandler(handler) : handler;
+      if (mode == ExecutionMode.WORKER) {
+        return new WorkerHandler(handler);
+      }
+      if (mode == ExecutionMode.DEFAULT && blocking) {
+        return new WorkerHandler(handler);
+      }
+      return handler;
     }
-    return new ExecutorHandler(handler, executor);
+    return new WorkerExecHandler(handler, executor);
   }
 
   private static Optional<Class> loadClass(ClassLoader loader, String name) {

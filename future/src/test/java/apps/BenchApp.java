@@ -2,7 +2,7 @@ package apps;
 
 import io.jooby.App;
 import io.jooby.Filters;
-import io.jooby.Mode;
+import io.jooby.ExecutionMode;
 import io.jooby.utow.Utow;
 
 public class BenchApp extends App {
@@ -29,7 +29,7 @@ public class BenchApp extends App {
 
   public static void main(String[] args) {
     new Utow()
-        .deploy(new BenchApp().mode(Mode.EVENT_LOOP))
+        .deploy(new BenchApp().mode(ExecutionMode.EVENT_LOOP))
         .start()
         .join();
   }

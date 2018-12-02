@@ -193,6 +193,7 @@ public class NettyContext extends BaseContext {
   }
 
   @Nonnull @Override public Context sendStatusCode(int statusCode) {
+    responseStarted = true;
     DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HTTP_1_1,
         HttpResponseStatus.valueOf(statusCode));
     rsp.headers().set(CONTENT_LENGTH, 0);
