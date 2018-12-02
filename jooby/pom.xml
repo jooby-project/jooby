@@ -117,33 +117,17 @@
       <optional>true</optional>
     </dependency>
 
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm-util</artifactId>
+      <optional>true</optional>
+    </dependency>
+
     <!-- javax.inject -->
     <dependency>
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
       <version>1</version>
-    </dependency>
-
-    <!-- Netty -->
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-handler</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-codec-http</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-transport-native-epoll</artifactId>
-    </dependency>
-
-    <!-- Undertow -->
-    <dependency>
-      <groupId>io.undertow</groupId>
-      <artifactId>undertow-core</artifactId>
     </dependency>
 
     <!-- Jetty -->
@@ -165,7 +149,7 @@
       <optional>true</optional>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-core -->
+    <!-- reactor -->
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
@@ -202,55 +186,5 @@
       <artifactId>okhttp</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm-util</artifactId>
-    </dependency>
-
   </dependencies>
-
-  <profiles>
-    <!-- Netty: -->
-    <profile>
-      <id>linux</id>
-      <activation>
-        <os>
-          <family>linux</family>
-        </os>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>io.netty</groupId>
-          <artifactId>netty-transport-native-epoll</artifactId>
-          <version>${netty.version}</version>
-          <classifier>linux-x86_64</classifier>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>windows_x86</id>
-      <activation>
-        <os>
-          <family>windows</family>
-        </os>
-      </activation>
-    </profile>
-    <profile>
-      <id>mac_x86_64</id>
-      <activation>
-        <os>
-          <family>mac</family>
-        </os>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>io.netty</groupId>
-          <artifactId>netty-transport-native-kqueue</artifactId>
-          <version>${netty.version}</version>
-          <classifier>osx-x86_64</classifier>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
 </project>
