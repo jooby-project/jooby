@@ -67,7 +67,7 @@ public class NonblockingApp extends App {
 
   public static void main(String[] args) {
     new Netty()
-        .deploy(new NonblockingApp().mode(Mode.LOOP))
+        .deploy(new NonblockingApp().mode(Mode.EVENT_LOOP))
         .start()
         .join();
   }

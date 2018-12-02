@@ -32,8 +32,7 @@ public interface Router {
   String TRACE = "TRACE";
 
   /** HTTP Methods: */
-  List<String> METHODS = synchronizedList(
-      asList(GET, POST, PUT, DELETE, PATCH, HEAD, CONNECT, OPTIONS, TRACE));
+  List<String> METHODS = List.of(GET, POST, PUT, DELETE, PATCH, HEAD, CONNECT, OPTIONS, TRACE);
 
   @Nonnull Router basePath(@Nonnull String basePath);
 
@@ -81,7 +80,7 @@ public interface Router {
   @Nonnull Router stack(@Nonnull Executor executor, @Nonnull Runnable action);
 
   @Nonnull default Router dispatch(@Nonnull Runnable action) {
-    return stack(worker(), action);
+    return dispatch(worker(), action);
   }
 
   @Nonnull default Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {

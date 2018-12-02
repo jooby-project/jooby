@@ -8,9 +8,12 @@ import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
 import io.jooby.internal.handler.ChainedHandler;
 import io.jooby.internal.handler.ExecutorHandler;
-import io.jooby.internal.handler.FlowableHandler;
+import io.jooby.internal.handler.MaybeHandler;
+import io.jooby.internal.handler.PublisherHandler;
 import io.jooby.internal.handler.SingleHandler;
 import io.jooby.internal.handler.WorkerHandler;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
@@ -26,7 +29,7 @@ public class PipelineTest {
   @Test
   public void eventLoopDoesNothingOnSimpleTypes() {
     Route.Handler h = ctx -> "OK";
-    ChainedHandler pipeline = pipeline(route(String.class, h), Mode.LOOP);
+    ChainedHandler pipeline = pipeline(route(String.class, h), Mode.EVENT_LOOP);
     assertTrue(pipeline instanceof DefaultHandler);
     assertTrue(pipeline.next() == h, "found: " + pipeline.next() + ", expected: " + h.getClass());
   }
@@ -35,7 +38,7 @@ public class PipelineTest {
   public void eventLoopAlwaysDispatchToExecutorOnSimpleTypes() {
     Executor executor = task -> {};
     Route.Handler h = ctx -> "OK";
-    ChainedHandler pipeline = pipeline(route(String.class, h, executor), Mode.LOOP);
+    ChainedHandler pipeline = pipeline(route(String.class, h, executor), Mode.EVENT_LOOP);
     assertTrue(pipeline instanceof ExecutorHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DefaultHandler);
@@ -46,7 +49,7 @@ public class PipelineTest {
   @Test
   public void eventLoopDetachOnCompletableFutures() {
     Route.Handler h = ctx -> "OK";
-    ChainedHandler pipeline = pipeline(route(CompletableFuture.class, h), Mode.LOOP);
+    ChainedHandler pipeline = pipeline(route(CompletableFuture.class, h), Mode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof CompletionStageHandler);
@@ -58,7 +61,7 @@ public class PipelineTest {
   public void eventLoopAlwaysDispatchToExecutorOnReactiveTypes() {
     Executor executor = task -> {};
     Route.Handler h = ctx -> "OK";
-    ChainedHandler pipeline = pipeline(route(CompletableFuture.class, h, executor), Mode.LOOP);
+    ChainedHandler pipeline = pipeline(route(CompletableFuture.class, h, executor), Mode.EVENT_LOOP);
     assertTrue(pipeline instanceof ExecutorHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next);
@@ -71,7 +74,7 @@ public class PipelineTest {
   @Test
   public void eventLoopDetachOnRx2Single() {
     Route.Handler h = ctx -> "OK";
-    ChainedHandler pipeline = pipeline(route(Single.class, h), Mode.LOOP);
+    ChainedHandler pipeline = pipeline(route(Single.class, h), Mode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof SingleHandler);
@@ -80,13 +83,24 @@ public class PipelineTest {
   }
 
   @Test
-  public void eventLoopDetachOnPublished() {
+  public void eventLoopDetachOnPublisher() {
     Route.Handler h = ctx -> "OK";
-    ChainedHandler pipeline = pipeline(route(Publisher.class, h), Mode.LOOP);
-    assertTrue(pipeline instanceof DetachHandler);
+    ChainedHandler pipeline = pipeline(route(Publisher.class, h), Mode.EVENT_LOOP);
+    assertTrue(pipeline instanceof DetachHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
-    assertTrue(next instanceof FlowableHandler);
-    FlowableHandler reactive = (FlowableHandler) next;
+    assertTrue(next instanceof PublisherHandler);
+    PublisherHandler reactive = (PublisherHandler) next;
+    assertTrue(reactive.next() == h, "found: " + reactive.next() + ", expected: " + h.getClass());
+  }
+
+  @Test
+  public void eventLoopDetachOnFlowable() {
+    Route.Handler h = ctx -> "OK";
+    ChainedHandler pipeline = pipeline(route(Flowable.class, h), Mode.EVENT_LOOP);
+    assertTrue(pipeline instanceof DetachHandler, "found: " + pipeline);
+    Route.Handler next = pipeline.next();
+    assertTrue(next instanceof PublisherHandler);
+    PublisherHandler reactive = (PublisherHandler) next;
     assertTrue(reactive.next() == h, "found: " + reactive.next() + ", expected: " + h.getClass());
   }
 
@@ -128,6 +142,19 @@ public class PipelineTest {
   }
 
   @Test
+  public void workerDetachOnCompletableRxMaybe() {
+    Route.Handler h = ctx -> "OK";
+    ChainedHandler pipeline = pipeline(route(Maybe.class, h), Mode.WORKER);
+    assertTrue(pipeline instanceof WorkerHandler, "found: " + pipeline);
+    Route.Handler next = pipeline.next();
+    assertTrue(next instanceof DetachHandler, "found: " + next.getClass());
+    next = ((DetachHandler) next).next();
+    assertTrue(next instanceof MaybeHandler, "found: " + next.getClass());
+    next = ((MaybeHandler) next).next();
+    assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
+  }
+
+  @Test
   public void workerDetachOnCompletableRxPublisher() {
     Route.Handler h = ctx -> "OK";
     ChainedHandler pipeline = pipeline(route(Publisher.class, h), Mode.WORKER);
@@ -135,8 +162,8 @@ public class PipelineTest {
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next.getClass());
     next = ((DetachHandler) next).next();
-    assertTrue(next instanceof FlowableHandler, "found: " + next.getClass());
-    next = ((FlowableHandler) next).next();
+    assertTrue(next instanceof PublisherHandler, "found: " + next.getClass());
+    next = ((PublisherHandler) next).next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 

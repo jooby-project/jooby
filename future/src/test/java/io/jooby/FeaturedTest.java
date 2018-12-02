@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import static io.jooby.MediaType.text;
-import static io.reactivex.Flowable.fromCallable;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,7 +69,7 @@ public class FeaturedTest {
       app.dispatch(() -> {
         app.get("/worker", ctx -> "Hello World!");
       });
-    }).mode(Mode.LOOP).ready(client -> {
+    }).mode(Mode.EVENT_LOOP).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
@@ -461,7 +460,7 @@ public class FeaturedTest {
   public void form() {
     new JoobyRunner(app -> {
       app.post("/", ctx -> ctx.form());
-    }).mode(Mode.LOOP, Mode.WORKER).ready(client -> {
+    }).mode(Mode.EVENT_LOOP, Mode.WORKER).ready(client -> {
       client.post("/", new FormBody.Builder()
           .add("q", "a b")
           .add("user.name", "user")
@@ -520,13 +519,13 @@ public class FeaturedTest {
       app.error(IllegalStateException.class, (ctx, x, statusCode) -> {
         ctx.sendText(x.getMessage());
       });
-    }).mode(Mode.LOOP).ready(client -> {
+    }).mode(Mode.EVENT_LOOP).ready(client -> {
       client.post("/f", new MultipartBody.Builder()
           .setType(MultipartBody.FORM)
           .addFormDataPart("foo", "bar")
           .build(), rsp -> {
         assertEquals(
-            "Attempted to do blocking LOOP from the LOOP thread. This is prohibited as it may result in deadlocks",
+            "Attempted to do blocking EVENT_LOOP from the EVENT_LOOP thread. This is prohibited as it may result in deadlocks",
             rsp.body().string());
       });
 
@@ -571,7 +570,7 @@ public class FeaturedTest {
         app.get("/", ctx -> "result:" + ctx.isInIoThread());
       });
 
-    }).mode(Mode.LOOP).ready(client -> {
+    }).mode(Mode.EVENT_LOOP).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("before1:false;before2:false;result:false;after2:false;after1:false;",
             rsp.body().string());

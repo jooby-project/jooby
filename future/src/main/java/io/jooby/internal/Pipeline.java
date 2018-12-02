@@ -13,7 +13,7 @@ import io.jooby.internal.handler.MaybeHandler;
 import io.jooby.internal.handler.MonoHandler;
 import io.jooby.internal.handler.ObservableHandler;
 import io.jooby.internal.handler.WorkerHandler;
-import io.jooby.internal.handler.FlowableHandler;
+import io.jooby.internal.handler.PublisherHandler;
 import io.jooby.internal.handler.SingleHandler;
 
 import java.util.Optional;
@@ -48,10 +48,10 @@ public class Pipeline {
       }
     }
     // Flowable:
-    Optional<Class> publisher = loadClass(loader, "io.reactivex.Flowable");
-    if (publisher.isPresent()) {
-      if (publisher.get().isAssignableFrom(type)) {
-        return Pipeline::flowable;
+    Optional<Class> flowable = loadClass(loader, "io.reactivex.Flowable");
+    if (flowable.isPresent()) {
+      if (flowable.get().isAssignableFrom(type)) {
+        return Pipeline::publisher;
       }
     }
     // Observable:
@@ -76,7 +76,13 @@ public class Pipeline {
         return Pipeline::mono;
       }
     }
-    /** Flow API: */
+    /** Flow API + ReactiveStream: */
+    Optional<Class> publisher = loadClass(loader, "org.reactivestreams.Publisher");
+    if (publisher.isPresent()) {
+      if (publisher.get().isAssignableFrom(type)) {
+        return Pipeline::publisher;
+      }
+    }
     if (Flow.Publisher.class.isAssignableFrom(type)) {
       return Pipeline::flowPublisher;
     }
@@ -88,8 +94,8 @@ public class Pipeline {
         new DetachHandler(new CompletionStageHandler(next.pipeline())));
   }
 
-  private static Handler flowable(Mode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new FlowableHandler(next.pipeline())));
+  private static Handler publisher(Mode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new PublisherHandler(next.pipeline())));
   }
 
   private static Handler observable(Mode mode, RouteImpl next) {

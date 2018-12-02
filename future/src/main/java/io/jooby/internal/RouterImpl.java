@@ -28,8 +28,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static io.jooby.Reified.rawType;
-
 public class RouterImpl implements Router {
 
   private static class Stack {
@@ -180,7 +178,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router gzip(@Nonnull Runnable action) {
-    return newGroup(push("").gzip(true), action);
+    return newStack(push().gzip(true), action);
   }
 
   @Override @Nonnull public Router filter(@Nonnull Route.Filter filter) {
@@ -203,15 +201,15 @@ public class RouterImpl implements Router {
   }
 
   @Override @Nonnull public Router stack(@Nonnull Runnable action) {
-    return newGroup("", action);
+    return newStack("", action);
   }
 
   @Nonnull @Override public Router stack(@Nonnull Executor executor, @Nonnull Runnable action) {
-    return newGroup(push("").executor(executor == null ? LAZY_WORKER : executor), action);
+    return newStack(push().executor(executor == null ? LAZY_WORKER : executor), action);
   }
 
   @Override @Nonnull public Router path(@Nonnull String pattern, @Nonnull Runnable action) {
-    return newGroup(pattern, action);
+    return newStack(pattern, action);
   }
 
   @Override
@@ -224,7 +222,7 @@ public class RouterImpl implements Router {
       @Nonnull Route.Handler handler, RadixTree tree) {
     /** Pattern: */
     StringBuilder pat = new StringBuilder();
-    stack.forEach(it -> pat.append(it.pattern));
+    stack.stream().filter(it -> it.pattern != null).forEach(it -> pat.append(it.pattern));
     pat.append(pattern);
 
     /** Filters: */
@@ -369,9 +367,13 @@ public class RouterImpl implements Router {
     return buff.length() > 0 ? buff.substring(1) : "";
   }
 
-  private Router newGroup(@Nonnull String pattern, @Nonnull Runnable action,
+  private Router newStack(@Nonnull String pattern, @Nonnull Runnable action,
       Route.Filter... filter) {
-    return newGroup(push(pattern), action, filter);
+    return newStack(push(pattern), action, filter);
+  }
+
+  private Stack push() {
+    return new Stack(null);
   }
 
   private Stack push(String pattern) {
@@ -384,7 +386,7 @@ public class RouterImpl implements Router {
     return stack;
   }
 
-  private Router newGroup(@Nonnull Stack stack, @Nonnull Runnable action, Route.Filter... filter) {
+  private Router newStack(@Nonnull Stack stack, @Nonnull Runnable action, Route.Filter... filter) {
     Stream.of(filter).forEach(stack::then);
     this.stack.addLast(stack);
     if (action != null) {

@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 import java.util.LinkedList;
 
 /**
- * Collection of utility functions around LOOP, exceptions, etc..
+ * Collection of utility functions around EVENT_LOOP, exceptions, etc..
  *
  * @author edgar
  */

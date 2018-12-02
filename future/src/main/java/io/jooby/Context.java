@@ -145,7 +145,7 @@ public interface Context {
    * Parse a multipart/form-data request and returns the result.
    *
    * <strong>NOTE:</strong> this method throws an {@link IllegalStateException} when call it from
-   * <code>LOOP thread</code>;
+   * <code>EVENT_LOOP thread</code>;
    *
    * @return Multipart node.
    */

@@ -7,11 +7,11 @@ import org.reactivestreams.Publisher;
 
 import javax.annotation.Nonnull;
 
-public class FlowableHandler implements ChainedHandler {
+public class PublisherHandler implements ChainedHandler {
 
   private final Route.Handler next;
 
-  public FlowableHandler(Route.Handler next) {
+  public PublisherHandler(Route.Handler next) {
     this.next = next;
   }
 

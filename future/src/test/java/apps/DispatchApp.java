@@ -30,7 +30,7 @@ public class DispatchApp extends App {
 
   public static void main(String[] args) {
     new Utow()
-        .deploy(new DispatchApp().mode(Mode.LOOP))
+        .deploy(new DispatchApp().mode(Mode.EVENT_LOOP))
         .start()
         .join();
   }
