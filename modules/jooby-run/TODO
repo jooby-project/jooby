@@ -1,6 +1,0 @@
-how do I detect a hotswap? and only then bounce the app?
--- JavaHotCodeReplaceManager at eclipse.jdt.debug
-
-ideal implementation?
-+ bounce when hotswap fail
-+ find a way that a module could say bounce the app when this annotation, param, method, etc... changes on this type of class.

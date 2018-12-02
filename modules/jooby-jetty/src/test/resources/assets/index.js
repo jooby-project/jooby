@@ -1,5 +1,0 @@
-(function () {
-
-  console.log('loaded');
-
-})();

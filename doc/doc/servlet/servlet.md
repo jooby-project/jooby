@@ -1,3 +1,0 @@
-# servlets
-
-{{war.md}}

@@ -14,6 +14,16 @@
 
   <name>jooby</name>
 
+  <properties>
+    <junit.version>5.3.1</junit.version>
+    <junit-platform.version>1.3.1</junit-platform.version>
+    <netty.version>4.1.29.Final</netty.version>
+    <undertow.version>2.0.13.Final</undertow.version>
+    <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
+    <java.source.version>9</java.source.version>
+  </properties>
+
+
   <build>
     <plugins>
       <plugin>
@@ -67,6 +77,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
         <configuration>
           <includes>
             <include>**/*Test.java</include>
@@ -74,12 +85,24 @@
             <include>**/Issue*.java</include>
           </includes>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
 
     </plugins>
   </build>
 
   <dependencies>
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>funzy</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
@@ -110,46 +133,87 @@
       <optional>true</optional>
     </dependency>
 
-    <!-- funzy -->
+    <!-- javax.inject -->
     <dependency>
-      <groupId>org.jooby</groupId>
-      <artifactId>funzy</artifactId>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
     </dependency>
 
-    <!-- Guava -->
+    <!-- Netty -->
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-handler</artifactId>
+      <version>${netty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-codec-http</artifactId>
+      <version>${netty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-epoll</artifactId>
+      <version>${netty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-kqueue</artifactId>
+      <version>${netty.version}</version>
     </dependency>
 
-    <!-- Guice -->
+    <!-- Undertow -->
     <dependency>
-      <groupId>com.google.inject.extensions</groupId>
-      <artifactId>guice-multibindings</artifactId>
+      <groupId>io.undertow</groupId>
+      <artifactId>undertow-core</artifactId>
     </dependency>
 
-    <!-- Test dependencies -->
+    <!-- Jetty -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+    </dependency>
+
+    <!-- Jackson -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/io.reactivex.rxjava2/rxjava -->
+    <dependency>
+      <groupId>io.reactivex.rxjava2</groupId>
+      <artifactId>rxjava</artifactId>
+      <version>2.2.0</version>
       <optional>true</optional>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-core -->
     <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-      <scope>test</scope>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-core</artifactId>
+      <version>3.2.3.RELEASE</version>
+      <optional>true</optional>
     </dependency>
 
+
+    <!-- Test dependencies -->
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-easymock</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-launcher</artifactId>
+      <version>${junit-platform.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -160,6 +224,12 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>3.11.0</version>
+      <scope>test</scope>
+    </dependency>
     <!-- Fluent HC -->
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
@@ -179,7 +249,54 @@
       <artifactId>async-http-client</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm-util</artifactId>
+    </dependency>
 
   </dependencies>
 
+  <profiles>
+    <!-- Netty: -->
+    <profile>
+      <id>linux</id>
+      <activation>
+        <os>
+          <family>linux</family>
+        </os>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-transport-native-epoll</artifactId>
+          <version>${netty.version}</version>
+          <classifier>linux-x86_64</classifier>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>windows_x86</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+    </profile>
+    <profile>
+      <id>mac_x86_64</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-transport-native-kqueue</artifactId>
+          <version>${netty.version}</version>
+          <classifier>osx-x86_64</classifier>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>
