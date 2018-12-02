@@ -4,6 +4,10 @@ import io.jooby.jackson.Jackson;
 import io.jooby.netty.Netty;
 import io.jooby.test.JoobyRunner;
 import io.jooby.utow.Utow;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
@@ -11,6 +15,8 @@ import okhttp3.MultipartBody;
 import okhttp3.Response;
 import org.jooby.funzy.Throwing;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -33,6 +39,7 @@ import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static reactor.core.scheduler.Schedulers.elastic;
 
 public class FeaturedTest {
 
@@ -603,33 +610,68 @@ public class FeaturedTest {
   }
 
   @Test
-  public void reactive() {
+  public void rx2() {
     new JoobyRunner(app -> {
-      app.get("/rx2", ctx ->
-          fromCallable(() -> "rx2")
+      app.get("/rx/flowable", ctx ->
+          Flowable.fromCallable(() -> "Flowable")
+              .map(s -> "Hello " + s)
+              .subscribeOn(Schedulers.io())
+              .observeOn(Schedulers.computation())
+      );
+      app.get("/rx/observable", ctx ->
+          Observable.fromCallable(() -> "Observable")
+              .map(s -> "Hello " + s)
+              .subscribeOn(Schedulers.io())
+              .observeOn(Schedulers.computation())
+      );
+      app.get("/rx/single", ctx ->
+          Single.fromCallable(() -> "Single")
+              .map(s -> "Hello " + s)
+              .subscribeOn(Schedulers.io())
+              .observeOn(Schedulers.computation())
+      );
+      app.get("/rx/maybe", ctx ->
+          Maybe.fromCallable(() -> "Maybe")
               .map(s -> "Hello " + s)
               .subscribeOn(Schedulers.io())
               .observeOn(Schedulers.computation())
       );
     }).ready(client -> {
-      client.get("/rx2", rsp -> {
-        assertEquals("Hello rx2", rsp.body().string());
+      client.get("/rx/flowable", rsp -> {
+        assertEquals("Hello Flowable", rsp.body().string());
+      });
+      client.get("/rx/observable", rsp -> {
+        assertEquals("Hello Observable", rsp.body().string());
+      });
+      client.get("/rx/single", rsp -> {
+        assertEquals("Hello Single", rsp.body().string());
+      });
+      client.get("/rx/maybe", rsp -> {
+        assertEquals("Hello Maybe", rsp.body().string());
       });
     });
   }
 
   @Test
-  public void flowPublisher() {
+  public void reactor() {
     new JoobyRunner(app -> {
-      app.get("/rx2", ctx ->
-          fromCallable(() -> "rx2")
+      app.get("/reactor/mono", ctx ->
+          Mono.fromCallable(() -> "Mono")
               .map(s -> "Hello " + s)
-              .subscribeOn(Schedulers.io())
-              .observeOn(Schedulers.computation())
+              .subscribeOn(elastic())
+      );
+
+      app.get("/reactor/flux", ctx ->
+          Flux.just("Flux")
+              .map(s -> "Hello " + s)
+              .subscribeOn(elastic())
       );
     }).ready(client -> {
-      client.get("/rx2", rsp -> {
-        assertEquals("Hello rx2", rsp.body().string());
+      client.get("/reactor/mono", rsp -> {
+        assertEquals("Hello Mono", rsp.body().string());
+      });
+      client.get("/reactor/flux", rsp -> {
+        assertEquals("Hello Flux", rsp.body().string());
       });
     });
   }

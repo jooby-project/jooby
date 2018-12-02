@@ -185,7 +185,17 @@
       <groupId>io.reactivex.rxjava2</groupId>
       <artifactId>rxjava</artifactId>
       <version>2.2.0</version>
+      <optional>true</optional>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-core -->
+    <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-core</artifactId>
+      <version>3.2.3.RELEASE</version>
+      <optional>true</optional>s
+    </dependency>
+
 
     <!-- Test dependencies -->
     <dependency>

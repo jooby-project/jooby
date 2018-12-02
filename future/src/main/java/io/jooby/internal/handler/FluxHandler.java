@@ -3,21 +3,21 @@ package io.jooby.internal.handler;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.reactivex.Flowable;
-import org.reactivestreams.Publisher;
+import reactor.core.publisher.Flux;
 
 import javax.annotation.Nonnull;
 
-public class PublisherHandler implements ChainedHandler {
+public class FluxHandler implements ChainedHandler {
 
   private final Route.Handler next;
 
-  public PublisherHandler(Route.Handler next) {
+  public FluxHandler(Route.Handler next) {
     this.next = next;
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      Publisher result = (Publisher) next.apply(ctx);
+      Flux result = (Flux) next.apply(ctx);
       result.subscribe(new ContextSubscriber(ctx));
       return result;
     } catch (Throwable x) {

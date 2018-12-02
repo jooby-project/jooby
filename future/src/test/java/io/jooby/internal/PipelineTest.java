@@ -8,7 +8,7 @@ import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
 import io.jooby.internal.handler.ChainedHandler;
 import io.jooby.internal.handler.ExecutorHandler;
-import io.jooby.internal.handler.PublisherHandler;
+import io.jooby.internal.handler.FlowableHandler;
 import io.jooby.internal.handler.SingleHandler;
 import io.jooby.internal.handler.WorkerHandler;
 import io.reactivex.Single;
@@ -85,8 +85,8 @@ public class PipelineTest {
     ChainedHandler pipeline = pipeline(route(Publisher.class, h), Mode.LOOP);
     assertTrue(pipeline instanceof DetachHandler);
     Route.Handler next = pipeline.next();
-    assertTrue(next instanceof PublisherHandler);
-    PublisherHandler reactive = (PublisherHandler) next;
+    assertTrue(next instanceof FlowableHandler);
+    FlowableHandler reactive = (FlowableHandler) next;
     assertTrue(reactive.next() == h, "found: " + reactive.next() + ", expected: " + h.getClass());
   }
 
@@ -135,8 +135,8 @@ public class PipelineTest {
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next.getClass());
     next = ((DetachHandler) next).next();
-    assertTrue(next instanceof PublisherHandler, "found: " + next.getClass());
-    next = ((PublisherHandler) next).next();
+    assertTrue(next instanceof FlowableHandler, "found: " + next.getClass());
+    next = ((FlowableHandler) next).next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
