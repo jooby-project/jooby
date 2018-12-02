@@ -16,6 +16,7 @@
     <!-- Server -->
     <module>jooby-utow</module>
     <module>jooby-netty</module>
+    <module>jooby-jetty</module>
   </modules>
   
 </project>

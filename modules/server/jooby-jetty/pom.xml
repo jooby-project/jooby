@@ -10,8 +10,8 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-netty</artifactId>
-  <name>server netty</name>
+  <artifactId>jooby-jetty</artifactId>
+  <name>server jetty</name>
 
   <dependencies>
     <dependency>
@@ -26,20 +26,10 @@
       <version>${jooby.version}</version>
     </dependency>
 
-    <!-- Netty -->
+    <!-- jetty -->
     <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-handler</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-codec-http</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-transport-native-epoll</artifactId>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
     </dependency>
 
     <!-- Test dependencies -->
@@ -73,49 +63,6 @@
       <artifactId>okhttp</artifactId>
       <scope>test</scope>
     </dependency>
-  </dependencies>
 
-  <profiles>
-    <!-- Netty: -->
-    <profile>
-      <id>netty-linux</id>
-      <activation>
-        <os>
-          <family>linux</family>
-        </os>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>io.netty</groupId>
-          <artifactId>netty-transport-native-epoll</artifactId>
-          <version>${netty.version}</version>
-          <classifier>linux-x86_64</classifier>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>netty-windows_x86</id>
-      <activation>
-        <os>
-          <family>windows</family>
-        </os>
-      </activation>
-    </profile>
-    <profile>
-      <id>netty-mac_x86_64</id>
-      <activation>
-        <os>
-          <family>mac</family>
-        </os>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>io.netty</groupId>
-          <artifactId>netty-transport-native-kqueue</artifactId>
-          <version>${netty.version}</version>
-          <classifier>osx-x86_64</classifier>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
+  </dependencies>
 </project>
