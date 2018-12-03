@@ -33,7 +33,8 @@ interface RadixTree {
         RadixTree.this.insert(method, pattern, route);
       }
 
-      @Override public RouterMatch find(Context context, Renderer renderer, List<RadixTree> more) {
+      @Override
+      public RouterMatch find(Context context, Renderer renderer, List<RadixTree> more) {
         if (predicate != null && !predicate.test(context)) {
           return new RouterMatch()
               .missing(context.method(), context.path(), renderer);

@@ -76,7 +76,6 @@ public class RouterMatch implements Router.Match {
     return this;
   }
 
-
   public RouterMatch missing(String method, String path, Renderer renderer) {
     Route.Handler h;
     if (this.handler == null) {

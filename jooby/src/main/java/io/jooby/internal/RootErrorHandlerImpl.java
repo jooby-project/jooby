@@ -28,7 +28,8 @@ public class RootErrorHandlerImpl implements Route.RootErrorHandler {
   private final Function<Throwable, StatusCode> statusCode;
   private final Logger log;
 
-  public RootErrorHandlerImpl(Route.ErrorHandler next, Logger log, Function<Throwable, StatusCode> statusCode) {
+  public RootErrorHandlerImpl(Route.ErrorHandler next, Logger log,
+      Function<Throwable, StatusCode> statusCode) {
     this.next = next;
     this.log = log;
     this.statusCode = statusCode;
@@ -36,7 +37,7 @@ public class RootErrorHandlerImpl implements Route.RootErrorHandler {
 
   @Override public void apply(@Nonnull Context ctx, @Nonnull Throwable cause) {
     if (ctx.isResponseStarted()) {
-     log.error("execution resulted in exception and response was already sent", cause);
+      log.error("execution resulted in exception and response was already sent", cause);
     } else {
       next.apply(ctx, cause, statusCode.apply(cause));
     }

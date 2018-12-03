@@ -45,7 +45,7 @@ public class MethodFinder extends ClassVisitor {
     MethodVisitor up = super.visitMethod(access, name, descriptor, signature, exceptions);
     if (this.name.equals(name) && this.descriptor.equals(descriptor)) {
       this.node = new MethodNode(access, name, descriptor, signature, exceptions);
-      if (debug ) {
+      if (debug) {
         printer = new ASMifier();
         return new TraceMethodVisitor(this.node, printer);
       }

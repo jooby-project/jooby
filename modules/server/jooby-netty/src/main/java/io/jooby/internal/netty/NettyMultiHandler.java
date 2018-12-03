@@ -42,7 +42,8 @@ public class NettyMultiHandler extends ChannelInboundHandlerAdapter {
       String path = NettyHandler.pathOnly(uri);
       for (Map.Entry<App, NettyHandler> e : handlers.entrySet()) {
         App router = e.getKey();
-        NettyContext context = new NettyContext(ctx, executor, request, router.errorHandler(),
+        NettyContext context = new NettyContext(ctx, executor, request,
+            router.errorHandler(),
             router.tmpdir(), path);
         Router.Match match = router.match(context);
         if (match.matches()) {

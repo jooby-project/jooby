@@ -788,13 +788,15 @@
       <id>stork</id>
       <activation>
         <file>
-          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}stork.yml
+          <exists>
+            ${basedir}${file.separator}src${file.separator}etc${file.separator}stork.yml
           </exists>
         </file>
       </activation>
       <properties>
         <stork-src>${basedir}${file.separator}src${file.separator}etc</stork-src>
-        <inputFiles>${basedir}${file.separator}target${file.separator}stork-launchers</inputFiles>
+        <inputFiles>${basedir}${file.separator}target${file.separator}stork-launchers
+        </inputFiles>
       </properties>
       <build>
         <plugins>
@@ -856,7 +858,8 @@
                 </goals>
                 <configuration>
                   <appendAssemblyId>false</appendAssemblyId>
-                  <finalName>${project.artifactId}-${project.version}.stork</finalName>
+                  <finalName>${project.artifactId}-${project.version}.stork
+                  </finalName>
                   <descriptorRefs>
                     <descriptorRef>jooby.stork</descriptorRef>
                   </descriptorRefs>
@@ -1224,6 +1227,7 @@
 
     <jooby.version>${project.version}</jooby.version>
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
-    <javadoc.excludes>org.jooby.internal:com.impossibl.postgres.jdbc:org.skife.jdbi.v2</javadoc.excludes>
+    <javadoc.excludes>org.jooby.internal:com.impossibl.postgres.jdbc:org.skife.jdbi.v2
+    </javadoc.excludes>
   </properties>
 </project>

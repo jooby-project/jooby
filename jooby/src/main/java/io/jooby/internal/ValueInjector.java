@@ -71,11 +71,13 @@ public class ValueInjector {
       NoSuchMethodException {
     Constructor[] constructors = type.getConstructors();
     if (constructors.length == 0) {
-      return setters(type.getDeclaredConstructor().newInstance(), scope, Collections.emptySet());
+      return setters(type.getDeclaredConstructor().newInstance(), scope,
+          Collections.emptySet());
     }
     Constructor constructor = selectConstructor(constructors);
     if (constructor.getParameterCount() == 0) {
-      return setters(type.getDeclaredConstructor().newInstance(), scope, Collections.emptySet());
+      return setters(type.getDeclaredConstructor().newInstance(), scope,
+          Collections.emptySet());
     }
     Set<Value> state = new HashSet<>();
     Object[] args = inject(scope, constructor, state::add);
@@ -119,7 +121,8 @@ public class ValueInjector {
         }
         if (method != null) {
           Parameter parameter = method.getParameters()[0];
-          Object arg = value(value, parameter.getType(), parameter.getParameterizedType());
+          Object arg = value(value, parameter.getType(),
+              parameter.getParameterizedType());
           method.invoke(newInstance, arg);
         }
       }

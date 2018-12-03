@@ -88,7 +88,8 @@ public class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.2.4">HTTP/1.1</a>
    */
-  public static final StatusCode NON_AUTHORITATIVE_INFORMATION = new StatusCode(203, "Non-Authoritative Information");
+  public static final StatusCode NON_AUTHORITATIVE_INFORMATION = new StatusCode(203,
+      "Non-Authoritative Information");
   /**
    * {@code 204 No Content}.
    *
@@ -228,7 +229,8 @@ public class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.8">HTTP/1.1</a>
    */
-  public static final StatusCode PROXY_AUTHENTICATION_REQUIRED = new StatusCode(407, "Proxy Authentication Required");
+  public static final StatusCode PROXY_AUTHENTICATION_REQUIRED = new StatusCode(407,
+      "Proxy Authentication Required");
   /**
    * {@code 408 Request Timeout}.
    *
@@ -264,25 +266,29 @@ public class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.14">HTTP/1.1</a>
    */
-  public static final StatusCode REQUEST_ENTITY_TOO_LARGE = new StatusCode(413, "Request Entity Too Large");
+  public static final StatusCode REQUEST_ENTITY_TOO_LARGE = new StatusCode(413,
+      "Request Entity Too Large");
   /**
    * {@code 414 Request-URI Too Long}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.15">HTTP/1.1</a>
    */
-  public static final StatusCode REQUEST_URI_TOO_LONG = new StatusCode(414, "Request-URI Too Long");
+  public static final StatusCode REQUEST_URI_TOO_LONG = new StatusCode(414,
+      "Request-URI Too Long");
   /**
    * {@code 415 Unsupported Media Type}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.16">HTTP/1.1</a>
    */
-  public static final StatusCode UNSUPPORTED_MEDIA_TYPE = new StatusCode(415, "Unsupported Media Type");
+  public static final StatusCode UNSUPPORTED_MEDIA_TYPE = new StatusCode(415,
+      "Unsupported Media Type");
   /**
    * {@code 416 Requested Range Not Satisfiable}.
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.17">HTTP/1.1</a>
    */
-  public static final StatusCode REQUESTED_RANGE_NOT_SATISFIABLE = new StatusCode(416, "Requested range not satisfiable");
+  public static final StatusCode REQUESTED_RANGE_NOT_SATISFIABLE = new StatusCode(416,
+      "Requested range not satisfiable");
   /**
    * {@code 417 Expectation Failed}.
    *
@@ -300,7 +306,8 @@ public class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc4918#section-11.2">WebDAV</a>
    */
-  public static final StatusCode UNPROCESSABLE_ENTITY = new StatusCode(422, "Unprocessable Entity");
+  public static final StatusCode UNPROCESSABLE_ENTITY = new StatusCode(422,
+      "Unprocessable Entity");
   /**
    * {@code 423 Locked}.
    *
@@ -325,7 +332,8 @@ public class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc6585#section-3">Additional HTTP StatusCode Codes</a>
    */
-  public static final StatusCode PRECONDITION_REQUIRED = new StatusCode(428, "Precondition Required");
+  public static final StatusCode PRECONDITION_REQUIRED = new StatusCode(428,
+      "Precondition Required");
   /**
    * {@code 429 Too Many Requests}.
    *
@@ -337,7 +345,8 @@ public class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc6585#section-5">Additional HTTP StatusCode Codes</a>
    */
-  public static final StatusCode REQUEST_HEADER_FIELDS_TOO_LARGE = new StatusCode(431, "Request Header Fields Too Large");
+  public static final StatusCode REQUEST_HEADER_FIELDS_TOO_LARGE = new StatusCode(431,
+      "Request Header Fields Too Large");
 
   // --- 5xx Server Error ---
 
@@ -376,20 +385,23 @@ public class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.5.6">HTTP/1.1</a>
    */
-  public static final StatusCode HTTP_VERSION_NOT_SUPPORTED = new StatusCode(505, "HTTP Version not supported");
+  public static final StatusCode HTTP_VERSION_NOT_SUPPORTED = new StatusCode(505,
+      "HTTP Version not supported");
   /**
    * {@code 506 Variant Also Negotiates}
    *
    * @see <a href="http://tools.ietf.org/html/rfc2295#section-8.1">Transparent Content
    *      Negotiation</a>
    */
-  public static final StatusCode VARIANT_ALSO_NEGOTIATES = new StatusCode(506, "Variant Also Negotiates");
+  public static final StatusCode VARIANT_ALSO_NEGOTIATES = new StatusCode(506,
+      "Variant Also Negotiates");
   /**
    * {@code 507 Insufficient Storage}
    *
    * @see <a href="http://tools.ietf.org/html/rfc4918#section-11.5">WebDAV</a>
    */
-  public static final StatusCode INSUFFICIENT_STORAGE = new StatusCode(507, "Insufficient Storage");
+  public static final StatusCode INSUFFICIENT_STORAGE = new StatusCode(507,
+      "Insufficient Storage");
   /**
    * {@code 508 Loop Detected}
    *
@@ -399,7 +411,8 @@ public class StatusCode {
   /**
    * {@code 509 Bandwidth Limit Exceeded}
    */
-  public static final StatusCode BANDWIDTH_LIMIT_EXCEEDED = new StatusCode(509, "Bandwidth Limit Exceeded");
+  public static final StatusCode BANDWIDTH_LIMIT_EXCEEDED = new StatusCode(509,
+      "Bandwidth Limit Exceeded");
   /**
    * {@code 510 Not Extended}
    *
@@ -411,7 +424,8 @@ public class StatusCode {
    *
    * @see <a href="http://tools.ietf.org/html/rfc6585#section-6">Additional HTTP StatusCode Codes</a>
    */
-  public static final StatusCode NETWORK_AUTHENTICATION_REQUIRED = new StatusCode(511, "Network Authentication Required");
+  public static final StatusCode NETWORK_AUTHENTICATION_REQUIRED = new StatusCode(511,
+      "Network Authentication Required");
 
   private final int value;
 
@@ -455,6 +469,6 @@ public class StatusCode {
   public static StatusCode valueOf(final int statusCode) {
     Integer key = Integer.valueOf(statusCode);
     StatusCode status = statusMap.get(key);
-    return status == null? new StatusCode(key, key.toString()) : status;
+    return status == null ? new StatusCode(key, key.toString()) : status;
   }
 }

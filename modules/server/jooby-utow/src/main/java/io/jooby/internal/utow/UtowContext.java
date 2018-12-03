@@ -168,7 +168,8 @@ public class UtowContext extends BaseContext {
     if (charset == null) {
       exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType);
     } else {
-      exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType + ";charset=" + charset);
+      exchange.getResponseHeaders()
+          .put(Headers.CONTENT_TYPE, contentType + ";charset=" + charset);
     }
     return this;
   }

@@ -45,17 +45,17 @@ public interface NettyNative {
         }
       };
     }
-//    if (KQueue.isAvailable()) {
-//      return new NettyNative() {
-//        @Override public EventLoopGroup group(int threads) {
-//          return new KQueueEventLoopGroup(threads);
-//        }
-//
-//        @Override public Class<? extends ServerSocketChannel> channel() {
-//          return KQueueServerSocketChannel.class;
-//        }
-//      };
-//    }
+    //    if (KQueue.isAvailable()) {
+    //      return new NettyNative() {
+    //        @Override public EventLoopGroup group(int threads) {
+    //          return new KQueueEventLoopGroup(threads);
+    //        }
+    //
+    //        @Override public Class<? extends ServerSocketChannel> channel() {
+    //          return KQueueServerSocketChannel.class;
+    //        }
+    //      };
+    //    }
     return new NettyNative() {
       @Override public EventLoopGroup group(int threads) {
         return new NioEventLoopGroup(threads);

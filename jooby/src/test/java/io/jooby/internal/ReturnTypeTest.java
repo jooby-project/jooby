@@ -135,7 +135,8 @@ public class ReturnTypeTest {
       return publisher;
     });
 
-    assertType(Reified.getParameterized(Flow.Publisher.class, Number.class), ctx -> newPublisher());
+    assertType(Reified.getParameterized(Flow.Publisher.class, Number.class),
+        ctx -> newPublisher());
 
     assertType(Reified.getParameterized(Flow.Publisher.class, String.class),
         ctx -> newPublisher(ctx.query("q").value()));

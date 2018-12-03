@@ -14,17 +14,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TypeParserTest {
 
-  class X {}
+  class X {
+  }
 
-  class Y {}
+  class Y {
+  }
 
-  class User {}
+  class User {
+  }
 
-  class BaseUser extends User {}
+  class BaseUser extends User {
+  }
 
-  class BasicUser extends User {}
+  class BasicUser extends User {
+  }
 
-  class SuperUser extends BasicUser {}
+  class SuperUser extends BasicUser {
+  }
 
   @Test
   public void primitives() {
@@ -84,9 +90,11 @@ public class TypeParserTest {
 
   @Test
   public void parameterized() {
-    assertEquals(Reified.list(String.class).getType(), parse("Ljava/util/List<Ljava/lang/String;>;"));
+    assertEquals(Reified.list(String.class).getType(),
+        parse("Ljava/util/List<Ljava/lang/String;>;"));
 
-    assertEquals(Reified.getParameterized(List.class, Reified.list(String.class).getType()).getType(),
+    assertEquals(
+        Reified.getParameterized(List.class, Reified.list(String.class).getType()).getType(),
         parse("Ljava/util/List<Ljava/util/List<Ljava/lang/String;>;>;"));
 
     assertEquals(Reified.map(String.class, Reified.list(String.class).getType()).getType(),

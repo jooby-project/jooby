@@ -36,7 +36,8 @@ public class Insns {
     private AbstractInsnNode node;
     private Function<AbstractInsnNode, AbstractInsnNode> next;
 
-    public InsnIterator(AbstractInsnNode node, Function<AbstractInsnNode, AbstractInsnNode> next) {
+    public InsnIterator(AbstractInsnNode node,
+        Function<AbstractInsnNode, AbstractInsnNode> next) {
       this.node = node;
       this.next = next;
     }
@@ -66,7 +67,8 @@ public class Insns {
 
   private static Stream<AbstractInsnNode> stream(AbstractInsnNode node,
       Function<AbstractInsnNode, AbstractInsnNode> next) {
-    Spliterator<AbstractInsnNode> iterator = spliteratorUnknownSize(new InsnIterator(node, next),
+    Spliterator<AbstractInsnNode> iterator = spliteratorUnknownSize(
+        new InsnIterator(node, next),
         ORDERED);
     return StreamSupport.stream(iterator, false);
   }

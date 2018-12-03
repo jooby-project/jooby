@@ -401,7 +401,8 @@ public class RouterImpl implements Router {
     return stack;
   }
 
-  private Router newStack(@Nonnull Stack stack, @Nonnull Runnable action, Route.Filter... filter) {
+  private Router newStack(@Nonnull Stack stack, @Nonnull Runnable action,
+      Route.Filter... filter) {
     Stream.of(filter).forEach(stack::then);
     this.stack.addLast(stack);
     if (action != null) {

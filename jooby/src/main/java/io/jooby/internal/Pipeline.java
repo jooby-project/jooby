@@ -43,7 +43,8 @@ public class Pipeline {
     return provider(loader, Reified.rawType(route.returnType())).apply(mode, route);
   }
 
-  private static BiFunction<ExecutionMode, RouteImpl, Handler> provider(ClassLoader loader, Class type) {
+  private static BiFunction<ExecutionMode, RouteImpl, Handler> provider(ClassLoader loader,
+      Class type) {
     if (CompletionStage.class.isAssignableFrom(type)) {
       return Pipeline::completableFuture;
     }
@@ -116,16 +117,19 @@ public class Pipeline {
   }
 
   private static Handler observable(ExecutionMode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new ObservableHandler(next.pipeline())),
+    return next(mode, next.executor(),
+        new DetachHandler(new ObservableHandler(next.pipeline())),
         false);
   }
 
   private static Handler flux(ExecutionMode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new FluxHandler(next.pipeline())), false);
+    return next(mode, next.executor(), new DetachHandler(new FluxHandler(next.pipeline())),
+        false);
   }
 
   private static Handler mono(ExecutionMode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new MonoHandler(next.pipeline())), false);
+    return next(mode, next.executor(), new DetachHandler(new MonoHandler(next.pipeline())),
+        false);
   }
 
   private static Handler flowPublisher(ExecutionMode mode, RouteImpl next) {
@@ -139,10 +143,12 @@ public class Pipeline {
   }
 
   private static Handler maybe(ExecutionMode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new MaybeHandler(next.pipeline())), false);
+    return next(mode, next.executor(), new DetachHandler(new MaybeHandler(next.pipeline())),
+        false);
   }
 
-  private static Handler next(ExecutionMode mode, Executor executor, Handler handler, boolean blocking) {
+  private static Handler next(ExecutionMode mode, Executor executor, Handler handler,
+      boolean blocking) {
     if (executor == null) {
       if (mode == ExecutionMode.WORKER) {
         return new WorkerHandler(handler);

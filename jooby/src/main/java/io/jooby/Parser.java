@@ -26,7 +26,7 @@ public interface Parser {
   };
 
   @Nonnull default String contentType() {
-   return MediaType.TEXT;
+    return MediaType.TEXT;
   }
 
   @Nonnull <T> T parse(@Nonnull Context ctx, @Nonnull Reified<T> type) throws Exception;

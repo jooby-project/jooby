@@ -282,7 +282,8 @@ public class ValueToBeanTest {
           "Required value is not present: 'password'");
 
       ValueInjector injector = new ValueInjector().missingToNull();
-      assertEquals("user:null", injector.inject(Reified.get(User.class), queryString).toString());
+      assertEquals("user:null",
+          injector.inject(Reified.get(User.class), queryString).toString());
     });
 
     queryString("?name=Sherlock Holmes&age=42&address.street=Baker&address.number=221B",
@@ -345,15 +346,18 @@ public class ValueToBeanTest {
       assertEquals("[1, 2]", queryString.to(ListOfTwo.class).toString());
     });
 
-    queryString("?list[0]name=user1&list[0]password=pass1&list[1]name=user2&list[1]password=pass2",
+    queryString(
+        "?list[0]name=user1&list[0]password=pass1&list[1]name=user2&list[1]password=pass2",
         queryString -> {
           assertEquals("[user1:pass1, user2:pass2]",
               queryString.to(ListOfUser.class).toString());
         });
 
-    queryString("?[0]name=user1&[0]password=pass1&[1]name=user2&[1]password=pass2", queryString -> {
-      assertEquals("[user1:pass1, user2:pass2]", queryString.toList(User.class).toString());
-    });
+    queryString("?[0]name=user1&[0]password=pass1&[1]name=user2&[1]password=pass2",
+        queryString -> {
+          assertEquals("[user1:pass1, user2:pass2]",
+              queryString.toList(User.class).toString());
+        });
 
     queryString("?[0]=a&[1]=b", queryString -> {
       assertEquals("[a, b]", queryString.toList(String.class).toString());
@@ -379,7 +383,8 @@ public class ValueToBeanTest {
   @Test
   public void optional() {
     queryString("?foo=bar", queryString -> {
-      assertEquals("Optional[bar]", queryString.get("foo").toOptional(String.class).toString());
+      assertEquals("Optional[bar]",
+          queryString.get("foo").toOptional(String.class).toString());
     });
 
     queryString("?", queryString -> {
@@ -391,7 +396,8 @@ public class ValueToBeanTest {
     });
 
     queryString("?letter=A", queryString -> {
-      assertEquals("Optional[A]", queryString.get("letter").toOptional(Letter.class).toString());
+      assertEquals("Optional[A]",
+          queryString.get("letter").toOptional(Letter.class).toString());
     });
   }
 

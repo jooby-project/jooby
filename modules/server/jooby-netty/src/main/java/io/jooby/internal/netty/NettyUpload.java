@@ -54,7 +54,8 @@ public class NettyUpload extends Value.Simple implements Upload {
       if (path == null) {
         if (upload.isInMemory()) {
           path = basedir
-              .resolve(DiskFileUpload.prefix + System.currentTimeMillis() + DiskFileUpload.postfix);
+              .resolve(DiskFileUpload.prefix + System.currentTimeMillis()
+                  + DiskFileUpload.postfix);
           upload.renameTo(path.toFile());
           upload.release();
         } else {

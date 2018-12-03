@@ -58,7 +58,8 @@ public final class UrlParser {
         // Parameter name ready
         nameEnd = i;
       } else if (ch == '&' || ch == ';') {
-        newParam(root, source, nameStart, nameEnd, nameEnd + 1, i, decodedBuffer, decoderInput,
+        newParam(root, source, nameStart, nameEnd, nameEnd + 1, i, decodedBuffer,
+            decoderInput,
             decoderOutput, decoder);
         nameStart = i + 1;
       }
@@ -72,8 +73,11 @@ public final class UrlParser {
       ByteBuffer decoderInput, CharBuffer decoderOutput, CharsetDecoder decoder) {
     if (nameStart < valueEnd) {
       // returnType target
-      String name = decode(source, nameStart, nameEnd, decodedBuffer, decoderInput, decoderOutput, decoder);
-      String value = decode(source, valueStart, valueEnd, decodedBuffer, decoderInput, decoderOutput, decoder);
+      String name = decode(source, nameStart, nameEnd, decodedBuffer, decoderInput,
+          decoderOutput,
+          decoder);
+      String value = decode(source, valueStart, valueEnd, decodedBuffer, decoderInput,
+          decoderOutput, decoder);
       root.put(name, value);
     }
   }
@@ -91,7 +95,8 @@ public final class UrlParser {
 
   private static String decode(String source, int start, int len, StringBuilder decodedBuffer,
       ByteBuffer decoderInput, CharBuffer decoderOutput, CharsetDecoder decoder) {
-    return decode(source, start, len, decodedBuffer, decoderInput, decoderOutput, decoder, true);
+    return decode(source, start, len, decodedBuffer, decoderInput, decoderOutput, decoder,
+        true);
   }
 
   private static String decode(String source, int start, int len, StringBuilder decodedBuffer,

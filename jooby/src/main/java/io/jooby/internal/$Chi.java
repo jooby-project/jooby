@@ -251,7 +251,8 @@ class $Chi implements RadixTree {
 
               search = search.substring(segStartIdx); // advance search position
 
-              Node nn = new Node().typ(ntStatic).label(search.charAt(0)).prefix(search);
+              Node nn = new Node().typ(ntStatic).label(search.charAt(0))
+                  .prefix(search);
               hn = child.addChild(nn, search);
             }
 
@@ -549,7 +550,8 @@ class $Chi implements RadixTree {
         }
         if (paramKeys.stream().anyMatch(k -> k.equals(s.key))) {
           throw new IllegalArgumentException(String
-              .format("chi: routing pattern '%s' contains duplicate param key, '%s'", pattern,
+              .format("chi: routing pattern '%s' contains duplicate param key, '%s'",
+                  pattern,
                   s.key));
         }
         paramKeys.add(s.key);
@@ -607,7 +609,8 @@ class $Chi implements RadixTree {
           }
         }
         if (pe == ps) {
-          throw new IllegalArgumentException("chi: route param closing delimiter '}' is missing");
+          throw new IllegalArgumentException(
+              "chi: route param closing delimiter '}' is missing");
         }
 
         String key = pattern.substring(ps + 1, pe);
@@ -685,7 +688,7 @@ class $Chi implements RadixTree {
     if (more != null) {
       // expand search
       for (RadixTree tree : more) {
-        RouterMatch match = tree.find(context, renderer,null);
+        RouterMatch match = tree.find(context, renderer, null);
         if (match.matches) {
           return match;
         }

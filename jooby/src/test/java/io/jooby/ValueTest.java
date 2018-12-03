@@ -119,7 +119,8 @@ public class ValueTest {
       assertEquals("pass", queryString.get(0).get("pwd").value());
     });
 
-    queryString("?user.name=edgar&user.address.street=Street&user.address.number=55&user.type=dev",
+    queryString(
+        "?user.name=edgar&user.address.street=Street&user.address.number=55&user.type=dev",
         queryString -> {
           assertEquals(
               "?user.name=edgar&user.address.street=Street&user.address.number=55&user.type=dev",
@@ -129,7 +130,8 @@ public class ValueTest {
           assertEquals("edgar", queryString.get("user").get("name").value());
           assertEquals("dev", queryString.get("user").get("type").value());
           assertEquals(2, queryString.get("user").get("address").size());
-          assertEquals("Street", queryString.get("user").get("address").get("street").value());
+          assertEquals("Street",
+              queryString.get("user").get("address").get("street").value());
           assertEquals("55", queryString.get("user").get("address").get("number").value());
         });
   }
@@ -267,7 +269,8 @@ public class ValueTest {
     assertEquals(new BigDecimal("3.14"), Value.value("n", "3.14").value(BigDecimal::new));
     Throwing.Function<String, BigDecimal> toBigDecimal = BigDecimal::new;
     assertMessage(NumberFormatException.class,
-        () -> Value.value("n", "x").value(toBigDecimal), "Character x is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.");
+        () -> Value.value("n", "x").value(toBigDecimal),
+        "Character x is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.");
   }
 
   @Test
@@ -278,7 +281,8 @@ public class ValueTest {
 
       assertEquals(Arrays.asList(1, 2, 1), queryString.get("a").toList(Integer::parseInt));
 
-      assertEquals(new LinkedHashSet<>(Arrays.asList(1, 2)), queryString.get("a").toSet(Integer::parseInt));
+      assertEquals(new LinkedHashSet<>(Arrays.asList(1, 2)),
+          queryString.get("a").toSet(Integer::parseInt));
     });
     queryString("?a=1", queryString -> {
       assertEquals(Arrays.asList("1"), queryString.get("a").toList());
@@ -316,7 +320,8 @@ public class ValueTest {
     queryString("?e=a&;e=B", queryString -> {
       assertEquals(Letter.A, queryString.get("e").get(0).toEnum(Letter::valueOf));
       assertEquals(Letter.B, queryString.get("e").get(1).toEnum(Letter::valueOf));
-      assertMessage(Err.Missing.class, () -> queryString.get("e").get(2).toEnum(Letter::valueOf),
+      assertMessage(Err.Missing.class,
+          () -> queryString.get("e").get(2).toEnum(Letter::valueOf),
           "Required value is not present: 'e[2]'");
     });
   }

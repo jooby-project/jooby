@@ -126,7 +126,8 @@ public class NettyContext extends BaseContext {
       multipart = new Multipart();
       form = multipart;
       HttpDataFactory factory = new DefaultHttpDataFactory(Server._16KB);
-      decodeForm(req, new HttpPostMultipartRequestDecoder(factory, req, StandardCharsets.UTF_8),
+      decodeForm(req,
+          new HttpPostMultipartRequestDecoder(factory, req, StandardCharsets.UTF_8),
           multipart);
     }
     return multipart;
@@ -259,7 +260,8 @@ public class NettyContext extends BaseContext {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();
         if (next.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
-          form.put(next.getName(), register(new NettyUpload(tmpdir, next.getName(), (FileUpload) next)));
+          form.put(next.getName(),
+              register(new NettyUpload(tmpdir, next.getName(), (FileUpload) next)));
         } else {
           form.put(next.getName(), next.getString(UTF_8));
           next.release();

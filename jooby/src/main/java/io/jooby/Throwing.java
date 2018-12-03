@@ -778,7 +778,8 @@ public class Throwing {
     return predicate;
   }
 
-  public final static <V1, V2> Predicate2<V1, V2> throwingPredicate(Predicate2<V1, V2> predicate) {
+  public final static <V1, V2> Predicate2<V1, V2> throwingPredicate(
+      Predicate2<V1, V2> predicate) {
     return predicate;
   }
 

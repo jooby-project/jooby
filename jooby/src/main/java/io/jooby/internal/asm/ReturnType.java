@@ -80,7 +80,8 @@ public class ReturnType extends MethodVisitor {
                 previous = invokeDynamic;
               } else {
                 return typeParser
-                    .parseTypeDescriptor(Type.getReturnType(minnsn.desc).getDescriptor());
+                    .parseTypeDescriptor(
+                        Type.getReturnType(minnsn.desc).getDescriptor());
               }
             } else if (previous.getOpcode() == Opcodes.INVOKESPECIAL) {
               try {
@@ -181,7 +182,8 @@ public class ReturnType extends MethodVisitor {
             case Opcodes.DASTORE:
               return double[].class;
             case Opcodes.AASTORE:
-              return Insns.previous(previous).filter(e -> e.getOpcode() == Opcodes.ANEWARRAY)
+              return Insns.previous(previous)
+                  .filter(e -> e.getOpcode() == Opcodes.ANEWARRAY)
                   .findFirst()
                   .map(e -> {
                     TypeInsnNode typeInsn = (TypeInsnNode) e;

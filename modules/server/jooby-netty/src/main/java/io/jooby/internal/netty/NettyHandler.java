@@ -43,7 +43,8 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     if (msg instanceof HttpRequest) {
       HttpRequest req = (HttpRequest) msg;
-      NettyContext context = new NettyContext(ctx, router.worker(), req, router.errorHandler(),
+      NettyContext context = new NettyContext(ctx, router.worker(), req,
+          router.errorHandler(),
           router.tmpdir(), pathOnly(req.uri()));
       handleHttpRequest(ctx, req, context);
     } else {
@@ -68,7 +69,8 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
 
   private static void installGzip(ChannelHandlerContext ctx, HttpRequest req) throws Exception {
     HttpContentCompressor compressor = new HttpContentCompressor() {
-      @Override protected void encode(ChannelHandlerContext ctx, HttpObject msg, List<Object> out)
+      @Override
+      protected void encode(ChannelHandlerContext ctx, HttpObject msg, List<Object> out)
           throws Exception {
         super.encode(ctx, msg, out);
         // TODO: is there a better way?

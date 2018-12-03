@@ -159,12 +159,14 @@ public interface Router {
   @Nonnull Router errorCode(@Nonnull Class<? extends Throwable> type,
       @Nonnull StatusCode statusCode);
 
-  @Nonnull default Router error(@Nonnull StatusCode statusCode, @Nonnull Route.ErrorHandler handler) {
+  @Nonnull
+  default Router error(@Nonnull StatusCode statusCode, @Nonnull Route.ErrorHandler handler) {
     return error(statusCode::equals, handler);
   }
 
   @Nonnull
-  default Router error(@Nonnull Class<? extends Throwable> type, @Nonnull Route.ErrorHandler handler) {
+  default Router error(@Nonnull Class<? extends Throwable> type,
+      @Nonnull Route.ErrorHandler handler) {
     return error((ctx, x, statusCode) -> {
       if (type.isInstance(x) || type.isInstance(x.getCause())) {
         handler.apply(ctx, x, statusCode);
@@ -173,7 +175,8 @@ public interface Router {
   }
 
   @Nonnull
-  default Router error(@Nonnull Predicate<StatusCode> predicate, @Nonnull Route.ErrorHandler handler) {
+  default Router error(@Nonnull Predicate<StatusCode> predicate,
+      @Nonnull Route.ErrorHandler handler) {
     return error((ctx, x, statusCode) -> {
       if (predicate.test(statusCode)) {
         handler.apply(ctx, x, statusCode);

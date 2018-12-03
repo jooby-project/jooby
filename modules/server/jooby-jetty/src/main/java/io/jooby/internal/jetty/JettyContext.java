@@ -252,9 +252,11 @@ public class JettyContext extends BaseContext {
     }
   }
 
-  private static Handler gzipCall(Context ctx, Route.Handler next, AtomicReference<Object> result) {
+  private static Handler gzipCall(Context ctx, Route.Handler next,
+      AtomicReference<Object> result) {
     return new AbstractHandler() {
-      @Override public void handle(String target, Request baseRequest, HttpServletRequest request,
+      @Override
+      public void handle(String target, Request baseRequest, HttpServletRequest request,
           HttpServletResponse response) {
         try {
           result.set(next.apply(ctx));

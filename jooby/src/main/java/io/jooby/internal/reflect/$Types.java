@@ -244,7 +244,8 @@ public final class $Types {
         if (interfaces[i] == toResolve) {
           return rawType.getGenericInterfaces()[i];
         } else if (toResolve.isAssignableFrom(interfaces[i])) {
-          return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i], toResolve);
+          return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i],
+              toResolve);
         }
       }
     }
@@ -256,7 +257,8 @@ public final class $Types {
         if (rawSupertype == toResolve) {
           return rawType.getGenericSuperclass();
         } else if (toResolve.isAssignableFrom(rawSupertype)) {
-          return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype, toResolve);
+          return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype,
+              toResolve);
         }
         rawType = rawSupertype;
       }
@@ -328,7 +330,8 @@ public final class $Types {
       } else if (toResolve instanceof ParameterizedType) {
         ParameterizedType original = (ParameterizedType) toResolve;
         Type ownerType = original.getOwnerType();
-        Type newOwnerType = resolve(context, contextRawType, ownerType, visitedTypeVariables);
+        Type newOwnerType = resolve(context, contextRawType, ownerType,
+            visitedTypeVariables);
         boolean changed = newOwnerType != ownerType;
 
         Type[] args = original.getActualTypeArguments();
@@ -374,7 +377,8 @@ public final class $Types {
     }
   }
 
-  static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable<?> unknown) {
+  static Type resolveTypeVariable(Type context, Class<?> contextRawType,
+      TypeVariable<?> unknown) {
     Class<?> declaredByRaw = declaringClassOf(unknown);
 
     // we can't reduce this further
@@ -429,7 +433,8 @@ public final class $Types {
         boolean isStaticOrTopLevelClass = Modifier.isStatic(rawTypeAsClass.getModifiers())
             || rawTypeAsClass.getEnclosingClass() == null;
         if (!(ownerType != null || isStaticOrTopLevelClass)) {
-          throw new IllegalArgumentException("RawType requires an owner type: " + rawType);
+          throw new IllegalArgumentException(
+              "RawType requires an owner type: " + rawType);
         }
       }
 
@@ -438,7 +443,8 @@ public final class $Types {
       this.typeArguments = typeArguments.clone();
       for (int t = 0, length = this.typeArguments.length; t < length; t++) {
         if (this.typeArguments[t] == null) {
-          throw new NullPointerException("typeArguments[" + t + "]: " + Arrays.toString(this.typeArguments));
+          throw new NullPointerException(
+              "typeArguments[" + t + "]: " + Arrays.toString(this.typeArguments));
         }
         checkNotPrimitive(this.typeArguments[t]);
         this.typeArguments[t] = canonicalize(this.typeArguments[t]);

@@ -16,5 +16,5 @@
     <module>server</module>
     <module>jooby-jackson</module>
   </modules>
-  
+
 </project>

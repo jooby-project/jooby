@@ -40,7 +40,8 @@ import static reactor.core.scheduler.Schedulers.elastic;
 
 public class FeaturedTest {
 
-  private static String _19kb = readText(userdir("src", "test", "resources", "files", "19kb.txt"));
+  private static String _19kb = readText(
+      userdir("src", "test", "resources", "files", "19kb.txt"));
 
   private static MediaType json = MediaType.parse("application/json");
 
@@ -239,18 +240,19 @@ public class FeaturedTest {
 
   @Test
   public void gzip() throws IOException {
-    String text = "Praesent blandit, justo a luctus elementum, ante sapien pellentesque tortor, "
-        + "vitae maximus nulla augue sed nulla. Phasellus quis turpis ac mi tristique aliquam. "
-        + "Suspendisse tellus sem, sollicitudin ac elit id, laoreet viverra erat. Proin libero "
-        + "nulla, efficitur at facilisis a, placerat in ligula. Quisque sem dolor, efficitur ac "
-        + "nisl ut, porttitor iaculis leo. Nullam auctor neque augue, quis malesuada nisl rhoncus "
-        + "id. Quisque ut odio erat. Mauris pellentesque suscipit libero et laoreet. Nulla ipsum "
-        + "enim, sodales in risus egestas, tempus pulvinar erat. Sed elementum, leo eget vulputate "
-        + "commodo, ligula eros ullamcorper risus, at feugiat neque ipsum quis lectus. Nulla sit "
-        + "amet lectus lacinia, congue sapien ac, vehicula lacus. Vestibulum vitae vestibulum enim. "
-        + "Proin vulputate, quam ut commodo pellentesque, enim tortor ornare neque, a aliquam massa "
-        + "felis a ligula. Pellentesque lorem erat, fringilla at ipsum a, scelerisque hendrerit "
-        + "lorem. Sed interdum nibh at ante consequat, vitae fermentum augue luctus.";
+    String text =
+        "Praesent blandit, justo a luctus elementum, ante sapien pellentesque tortor, "
+            + "vitae maximus nulla augue sed nulla. Phasellus quis turpis ac mi tristique aliquam. "
+            + "Suspendisse tellus sem, sollicitudin ac elit id, laoreet viverra erat. Proin libero "
+            + "nulla, efficitur at facilisis a, placerat in ligula. Quisque sem dolor, efficitur ac "
+            + "nisl ut, porttitor iaculis leo. Nullam auctor neque augue, quis malesuada nisl rhoncus "
+            + "id. Quisque ut odio erat. Mauris pellentesque suscipit libero et laoreet. Nulla ipsum "
+            + "enim, sodales in risus egestas, tempus pulvinar erat. Sed elementum, leo eget vulputate "
+            + "commodo, ligula eros ullamcorper risus, at feugiat neque ipsum quis lectus. Nulla sit "
+            + "amet lectus lacinia, congue sapien ac, vehicula lacus. Vestibulum vitae vestibulum enim. "
+            + "Proin vulputate, quam ut commodo pellentesque, enim tortor ornare neque, a aliquam massa "
+            + "felis a ligula. Pellentesque lorem erat, fringilla at ipsum a, scelerisque hendrerit "
+            + "lorem. Sed interdum nibh at ante consequat, vitae fermentum augue luctus.";
     new JoobyRunner(app -> {
 
       app.get("/top", ctx -> text);
@@ -473,7 +475,8 @@ public class FeaturedTest {
     new JoobyRunner(app -> {
       app.post("/f", ctx -> {
         Upload f = ctx.file("f");
-        return f.filename() + "(type=" + f.contentType() + ";exists=" + Files.exists(f.path())
+        return f.filename() + "(type=" + f.contentType() + ";exists=" + Files
+            .exists(f.path())
             + ")";
       });
 
@@ -490,7 +493,8 @@ public class FeaturedTest {
               create(MediaType.parse("application/javascript"),
                   userdir("src", "test", "resources", "files", "fileupload.js").toFile()))
           .build(), rsp -> {
-        assertEquals("fileupload.js(type=application/javascript;exists=true)", rsp.body().string());
+        assertEquals("fileupload.js(type=application/javascript;exists=true)",
+            rsp.body().string());
       });
 
       client.post("/files", new MultipartBody.Builder()
@@ -841,7 +845,8 @@ public class FeaturedTest {
       app.get("/plain", ctx -> ctx.type("text/plain").sendText("Text"));
     }).ready(client -> {
       client.get("/plain", rsp -> {
-        assertEquals("text/plain;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
+        assertEquals("text/plain;charset=utf-8",
+            rsp.body().contentType().toString().toLowerCase());
         assertEquals("Text", rsp.body().string());
       });
     });
@@ -854,7 +859,8 @@ public class FeaturedTest {
       app.get("/len", ctx -> ctx.type(text).length(value.length()).sendText(value));
     }).ready(client -> {
       client.get("/len", rsp -> {
-        assertEquals("text/plain;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
+        assertEquals("text/plain;charset=utf-8",
+            rsp.body().contentType().toString().toLowerCase());
         assertEquals("...", rsp.body().string());
         assertEquals(3L, rsp.body().contentLength());
       });

@@ -24,7 +24,8 @@ import java.lang.reflect.Method;
 public class Lambdas {
 
   // getting the SerializedLambda
-  private static SerializedLambda getSerializedLambda(Object function) throws NoSuchMethodException {
+  private static SerializedLambda getSerializedLambda(Object function)
+      throws NoSuchMethodException {
     for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
       try {
         Method replaceMethod = clazz.getDeclaredMethod("writeReplace");
