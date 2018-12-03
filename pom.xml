@@ -68,7 +68,7 @@
       <!-- server -->
       <dependency>
         <groupId>io.jooby</groupId>
-        <artifactId>jooby-undertow</artifactId>
+        <artifactId>jooby-utow</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
