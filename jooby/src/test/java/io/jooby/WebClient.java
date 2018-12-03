@@ -1,7 +1,7 @@
-package io.jooby.test;
+package io.jooby;
 
 import okhttp3.*;
-import org.jooby.funzy.Throwing;
+import io.jooby.Throwing;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;

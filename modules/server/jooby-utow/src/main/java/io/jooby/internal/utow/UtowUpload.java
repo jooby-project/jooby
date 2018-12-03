@@ -19,7 +19,7 @@ import io.jooby.Upload;
 import io.jooby.Value;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.Headers;
-import org.jooby.funzy.Throwing;
+import io.jooby.Throwing;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -15,7 +15,7 @@
  */
 package io.jooby.internal.asm;
 
-import org.jooby.funzy.Throwing;
+import io.jooby.Throwing;
 
 import java.io.Serializable;
 import java.lang.invoke.SerializedLambda;

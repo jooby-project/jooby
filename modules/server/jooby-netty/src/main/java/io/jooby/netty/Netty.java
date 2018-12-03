@@ -36,7 +36,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import org.jooby.funzy.Throwing;
+import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.net.ssl.SSLException;

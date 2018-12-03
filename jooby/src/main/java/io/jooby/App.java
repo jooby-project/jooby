@@ -17,7 +17,6 @@ package io.jooby;
 
 import io.jooby.internal.RouteAnalyzer;
 import io.jooby.internal.RouterImpl;
-import org.jooby.funzy.Throwing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class App implements Router {
 
@@ -175,11 +175,21 @@ public class App implements Router {
 
   /** Boot: */
   public Server start() {
-    Server server = ServiceLoader.load(Server.class)
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("No server found."));
-    server.deploy(this);
-    return server.start();
+    List<Server> servers = ServiceLoader.load(Server.class).stream()
+        .map(ServiceLoader.Provider::get)
+        .collect(Collectors.toList());
+    if (servers.size() == 0) {
+      throw new IllegalStateException("Server not found.");
+    }
+    if (servers.size() > 1) {
+      List<String> names = servers.stream()
+          .map(it -> it.getClass().getSimpleName().toLowerCase())
+          .collect(Collectors.toList());
+      log().warn("Multiple servers found {}. Using: {}", names, names.get(0));
+    }
+    return servers.get(0)
+        .deploy(this)
+        .start();
   }
 
   public App start(Server server) {

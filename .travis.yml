@@ -9,18 +9,11 @@ before_install:
   - export MAVEN_OPTS=-Xmx1024m
 
 jdk:
-  - oraclejdk8
+  - oraclejdk9
 
 branches:
   only:
     - master
 
 script:
-  - ./build/travis.sh
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
-
-addons:
-  sonarcloud:
-    organization: "jooby"
-    token: $SONAR_TOKEN
+  - mvn clean package

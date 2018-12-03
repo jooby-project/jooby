@@ -18,7 +18,7 @@ package io.jooby.internal.jetty;
 import io.jooby.Upload;
 import io.jooby.Value;
 import org.eclipse.jetty.http.MultiPartFormInputStream;
-import org.jooby.funzy.Throwing;
+import io.jooby.Throwing;
 
 import java.io.IOException;
 import java.nio.file.Path;

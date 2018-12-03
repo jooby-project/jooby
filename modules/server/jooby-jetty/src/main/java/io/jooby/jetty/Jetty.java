@@ -27,7 +27,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
 import org.eclipse.jetty.util.thread.Scheduler;
-import org.jooby.funzy.Throwing;
+import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;

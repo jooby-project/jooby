@@ -17,7 +17,7 @@ package io.jooby.internal;
 
 import io.jooby.QueryString;
 import io.jooby.Value;
-import org.jooby.funzy.Throwing;
+import io.jooby.Throwing;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;

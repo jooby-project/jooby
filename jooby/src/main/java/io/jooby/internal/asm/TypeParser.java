@@ -16,7 +16,7 @@
 package io.jooby.internal.asm;
 
 import io.jooby.Reified;
-import org.jooby.funzy.Throwing;
+import io.jooby.Throwing;
 
 import java.lang.reflect.Type;
 import java.util.Iterator;
@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
 
 public class TypeParser {
 

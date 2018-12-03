@@ -18,6 +18,8 @@
   <modules>
     <module>jooby</module>
     <module>modules</module>
+    <module>examples</module>
+    <module>tests</module>
   </modules>
 
   <licenses>
@@ -67,6 +69,24 @@
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby-undertow</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-netty</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-jetty</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-jackson</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 

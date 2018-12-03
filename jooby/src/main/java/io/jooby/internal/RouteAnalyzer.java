@@ -21,7 +21,7 @@ import io.jooby.internal.asm.Lambdas;
 import io.jooby.internal.asm.MethodFinder;
 import io.jooby.internal.asm.ReturnType;
 import io.jooby.internal.asm.TypeParser;
-import org.jooby.funzy.Throwing;
+import io.jooby.Throwing;
 import org.objectweb.asm.ClassReader;
 
 import java.io.PrintWriter;

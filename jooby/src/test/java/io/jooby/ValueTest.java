@@ -1,12 +1,10 @@
 package io.jooby;
 
 import io.jooby.internal.UrlParser;
-import org.jooby.funzy.Throwing;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -268,12 +266,8 @@ public class ValueTest {
   public void customMapper() {
     assertEquals(new BigDecimal("3.14"), Value.value("n", "3.14").value(BigDecimal::new));
     Throwing.Function<String, BigDecimal> toBigDecimal = BigDecimal::new;
-    assertEquals(BigDecimal.ONE, Value.value("n", "x").value(toBigDecimal.orElse(BigDecimal.ONE)));
-
-    assertMessage(Err.BadRequest.class,
-        () -> Value.value("n", "x").value(toBigDecimal.onFailure(NumberFormatException.class, x -> {
-          throw new Err.BadRequest("Type mismatch: cannot convert to decimal", x);
-        })), "Type mismatch: cannot convert to decimal");
+    assertMessage(NumberFormatException.class,
+        () -> Value.value("n", "x").value(toBigDecimal), "Character x is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.");
   }
 
   @Test

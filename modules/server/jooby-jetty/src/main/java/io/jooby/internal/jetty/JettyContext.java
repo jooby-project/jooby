@@ -25,8 +25,7 @@ import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.MultiMap;
-import org.eclipse.jetty.util.thread.Scheduler;
-import org.jooby.funzy.Throwing;
+import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,12 +41,10 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
+import static io.jooby.Throwing.throwingConsumer;
 import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
-import static org.jooby.funzy.Throwing.throwingConsumer;
 
 public class JettyContext extends BaseContext {
   private final Request request;
@@ -251,7 +248,7 @@ public class JettyContext extends BaseContext {
   @Override public void destroy() {
     if (files != null) {
       // TODO: use a log
-      files.forEach(throwingConsumer(Upload::destroy).onFailure(x -> x.printStackTrace()));
+      files.forEach(throwingConsumer(Upload::destroy));
     }
   }
 

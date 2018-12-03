@@ -17,9 +17,7 @@ package io.jooby.internal;
 
 import io.jooby.Err;
 import io.jooby.Reified;
-import io.jooby.StatusCode;
 import io.jooby.Value;
-import org.jooby.funzy.Throwing;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -37,12 +35,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+
+import static io.jooby.Throwing.sneakyThrow;
 
 public class ValueInjector {
 
@@ -60,22 +59,23 @@ public class ValueInjector {
     try {
       Object result = value(scope, type.getRawType(), type.getType());
       return (T) result;
-    } catch (InstantiationException | IllegalAccessException x) {
-      throw Throwing.sneakyThrow(x);
+    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException x) {
+      throw sneakyThrow(x);
     } catch (InvocationTargetException x) {
-      throw Throwing.sneakyThrow(x.getCause());
+      throw sneakyThrow(x.getCause());
     }
   }
 
   private <T> T newInstance(Class<T> type, Value scope)
-      throws IllegalAccessException, InstantiationException, InvocationTargetException {
+      throws IllegalAccessException, InstantiationException, InvocationTargetException,
+      NoSuchMethodException {
     Constructor[] constructors = type.getConstructors();
     if (constructors.length == 0) {
-      return setters(type.newInstance(), scope, Collections.emptySet());
+      return setters(type.getDeclaredConstructor().newInstance(), scope, Collections.emptySet());
     }
     Constructor constructor = selectConstructor(constructors);
     if (constructor.getParameterCount() == 0) {
-      return setters(type.newInstance(), scope, Collections.emptySet());
+      return setters(type.getDeclaredConstructor().newInstance(), scope, Collections.emptySet());
     }
     Set<Value> state = new HashSet<>();
     Object[] args = inject(scope, constructor, state::add);
@@ -106,7 +106,8 @@ public class ValueInjector {
   }
 
   private <T> T setters(T newInstance, Value object, Set<Value> skip)
-      throws IllegalAccessException, InstantiationException, InvocationTargetException {
+      throws IllegalAccessException, InstantiationException, InvocationTargetException,
+      NoSuchMethodException {
     Method[] methods = newInstance.getClass().getMethods();
     for (Value value : object) {
       if (!skip.contains(value)) {
@@ -136,7 +137,8 @@ public class ValueInjector {
   }
 
   private Object resolve(Value scope, Type type)
-      throws IllegalAccessException, InvocationTargetException, InstantiationException {
+      throws IllegalAccessException, InvocationTargetException, InstantiationException,
+      NoSuchMethodException {
     if (scope.isObject() || scope.isSimple()) {
       return newInstance(Reified.get(type).getRawType(), scope);
     } else if (scope.isMissing()) {
@@ -149,7 +151,8 @@ public class ValueInjector {
   }
 
   public Object[] inject(Value scope, Executable method, Consumer<Value> state)
-      throws IllegalAccessException, InstantiationException, InvocationTargetException {
+      throws IllegalAccessException, InstantiationException, InvocationTargetException,
+      NoSuchMethodException {
     Parameter[] parameters = method.getParameters();
     if (parameters.length == 0) {
       return new Object[0];
@@ -175,7 +178,8 @@ public class ValueInjector {
   }
 
   private Object value(Value value, Class rawType, Type type)
-      throws InvocationTargetException, IllegalAccessException, InstantiationException {
+      throws InvocationTargetException, IllegalAccessException, InstantiationException,
+      NoSuchMethodException {
     if (value.isMissing()) {
       return resolve(value, type);
     }
@@ -233,7 +237,8 @@ public class ValueInjector {
   }
 
   private Collection collection(Value scope, ParameterizedType type, Collection result)
-      throws InvocationTargetException, IllegalAccessException, InstantiationException {
+      throws InvocationTargetException, IllegalAccessException, InstantiationException,
+      NoSuchMethodException {
     Class itemType = parameterizedType0(type);
     if (scope.isArray()) {
       for (Value value : scope) {

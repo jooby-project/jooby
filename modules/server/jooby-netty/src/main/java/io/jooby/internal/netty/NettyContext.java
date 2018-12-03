@@ -19,12 +19,10 @@ import io.jooby.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.EventLoop;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
 import io.netty.util.ReferenceCounted;
-import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import org.jooby.funzy.Throwing;
+import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
@@ -33,9 +31,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
+import static io.jooby.Throwing.throwingConsumer;
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.channel.ChannelFutureListener.CLOSE;
@@ -44,7 +41,6 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.jooby.funzy.Throwing.throwingConsumer;
 
 public class NettyContext extends BaseContext {
   final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
@@ -244,7 +240,7 @@ public class NettyContext extends BaseContext {
   public void destroy() {
     if (files != null) {
       // TODO: use a log
-      files.forEach(throwingConsumer(Upload::destroy).onFailure(x -> x.printStackTrace()));
+      files.forEach(throwingConsumer(Upload::destroy));
     }
     release(req);
   }

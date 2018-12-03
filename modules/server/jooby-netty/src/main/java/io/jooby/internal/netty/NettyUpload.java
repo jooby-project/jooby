@@ -19,7 +19,7 @@ import io.jooby.Upload;
 import io.jooby.Value;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.codec.http.multipart.FileUpload;
-import org.jooby.funzy.Throwing;
+import io.jooby.Throwing;
 
 import java.io.IOException;
 import java.nio.file.Files;

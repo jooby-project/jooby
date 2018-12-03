@@ -15,8 +15,6 @@
  */
 package io.jooby;
 
-import org.jooby.funzy.Throwing;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;

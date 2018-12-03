@@ -27,6 +27,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <minimizeJar>true</minimizeJar>
               <artifactSet>
                 <includes>
                   <include>org.ow2.asm:*</include>
@@ -35,7 +36,7 @@
               <relocations>
                 <relocation>
                   <pattern>org.objectweb.asm</pattern>
-                  <shadedPattern>org.jooby.internal.asm</shadedPattern>
+                  <shadedPattern>io.jooby.internal.lib.asm</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
@@ -53,7 +54,7 @@
             </goals>
             <configuration>
               <includes>
-                <include>org/jooby/test/*</include>
+                <include>io/jooby/*</include>
               </includes>
               <excludes>
                 <exclude>**/*Test.*</exclude>
@@ -88,11 +89,6 @@
   </build>
 
   <dependencies>
-    <dependency>
-      <groupId>org.jooby</groupId>
-      <artifactId>funzy</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>

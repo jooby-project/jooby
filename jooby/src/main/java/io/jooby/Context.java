@@ -16,7 +16,6 @@
 package io.jooby;
 
 import io.jooby.internal.UrlParser;
-import org.jooby.funzy.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

@@ -44,7 +44,7 @@ public class ReturnTypeTest {
   class SuperUser implements User {
   }
 
-  private RouteAnalyzer analyzer = new RouteAnalyzer(getClass().getClassLoader(), true);
+  private RouteAnalyzer analyzer = new RouteAnalyzer(getClass().getClassLoader(), false);
 
   @Test
   public void literals() {

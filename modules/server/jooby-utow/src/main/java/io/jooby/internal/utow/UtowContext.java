@@ -19,7 +19,7 @@ import io.jooby.*;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.*;
 import io.undertow.util.*;
-import org.jooby.funzy.Throwing;
+import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,7 +31,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import static org.jooby.funzy.Throwing.throwingConsumer;
+import static io.jooby.Throwing.throwingConsumer;
 
 public class UtowContext extends BaseContext {
 
@@ -209,7 +209,7 @@ public class UtowContext extends BaseContext {
   @Override public void destroy() {
     if (files != null) {
       // TODO: use a log
-      files.forEach(throwingConsumer(Upload::destroy).onFailure(x -> x.printStackTrace()));
+      files.forEach(throwingConsumer(Upload::destroy));
     }
   }
 
