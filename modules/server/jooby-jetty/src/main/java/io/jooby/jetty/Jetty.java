@@ -15,7 +15,7 @@
  */
 package io.jooby.jetty;
 
-import io.jooby.App;
+import io.jooby.Jooby;
 import io.jooby.Functions;
 import io.jooby.internal.jetty.JettyHandler;
 import io.jooby.internal.jetty.JettyMultiHandler;
@@ -40,7 +40,7 @@ public class Jetty implements io.jooby.Server {
 
   private Server server;
 
-  private List<App> applications = new ArrayList<>();
+  private List<Jooby> applications = new ArrayList<>();
 
   @Override public io.jooby.Server port(int port) {
     this.port = port;
@@ -51,7 +51,7 @@ public class Jetty implements io.jooby.Server {
     return port;
   }
 
-  @Nonnull @Override public io.jooby.Server deploy(App application) {
+  @Nonnull @Override public io.jooby.Server deploy(Jooby application) {
     applications.add(application);
     return this;
   }

@@ -15,7 +15,7 @@
  */
 package io.jooby.internal.jetty;
 
-import io.jooby.App;
+import io.jooby.Jooby;
 import io.jooby.Router;
 import org.eclipse.jetty.server.Request;
 
@@ -26,9 +26,9 @@ import java.io.IOException;
 import java.util.List;
 
 public class JettyMultiHandler extends JettyHandler {
-  private final List<App> routers;
+  private final List<Jooby> routers;
 
-  public JettyMultiHandler(Router router, List<App> routers) {
+  public JettyMultiHandler(Router router, List<Jooby> routers) {
     super(router);
     this.routers = routers;
   }

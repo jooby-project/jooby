@@ -15,7 +15,7 @@
  */
 package examples;
 
-import io.jooby.App;
+import io.jooby.Jooby;
 import io.jooby.ExecutionMode;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -25,7 +25,7 @@ import java.util.concurrent.SubmissionPublisher;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-public class NonblockingApp extends App {
+public class NonblockingApp extends Jooby {
   {
     get("/future", ctx -> {
       System.out.println("Scheduled: " + Thread.currentThread().getName());

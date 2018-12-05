@@ -29,9 +29,10 @@ import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class App implements Router {
+public class Jooby implements Router {
 
   private final RouterImpl router;
 
@@ -40,11 +41,11 @@ public class App implements Router {
 
   private ExecutionMode mode = ExecutionMode.DEFAULT;
 
-  public App() {
+  public Jooby() {
     router = new RouterImpl(new RouteAnalyzer(getClass().getClassLoader(), false));
   }
 
-  @Nonnull @Override public App basePath(String basePath) {
+  @Nonnull @Override public Jooby basePath(String basePath) {
     router.basePath(basePath);
     return this;
   }
@@ -54,18 +55,18 @@ public class App implements Router {
   }
 
   @Nonnull @Override
-  public App use(@Nonnull Router router) {
+  public Jooby use(@Nonnull Router router) {
     this.router.use(router);
     return this;
   }
 
   @Nonnull @Override
-  public App use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
+  public Jooby use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
     this.router.use(predicate, router);
     return this;
   }
 
-  @Nonnull @Override public App use(@Nonnull String path, @Nonnull Router router) {
+  @Nonnull @Override public Jooby use(@Nonnull String path, @Nonnull Router router) {
     this.router.use(path, router);
     return this;
   }
@@ -74,37 +75,37 @@ public class App implements Router {
     return router.routes();
   }
 
-  @Nonnull @Override public App gzip(@Nonnull Runnable action) {
+  @Nonnull @Override public Jooby gzip(@Nonnull Runnable action) {
     router.gzip(action);
     return this;
   }
 
-  @Nonnull @Override public App error(@Nonnull Route.ErrorHandler handler) {
+  @Nonnull @Override public Jooby error(@Nonnull Route.ErrorHandler handler) {
     router.error(handler);
     return this;
   }
 
-  @Nonnull @Override public App filter(@Nonnull Route.Filter filter) {
+  @Nonnull @Override public Jooby filter(@Nonnull Route.Filter filter) {
     router.filter(filter);
     return this;
   }
 
-  @Nonnull @Override public App before(@Nonnull Route.Before before) {
+  @Nonnull @Override public Jooby before(@Nonnull Route.Before before) {
     router.before(before);
     return this;
   }
 
-  @Nonnull @Override public App after(@Nonnull Route.After after) {
+  @Nonnull @Override public Jooby after(@Nonnull Route.After after) {
     router.after(after);
     return this;
   }
 
-  @Nonnull @Override public App renderer(@Nonnull Renderer renderer) {
+  @Nonnull @Override public Jooby renderer(@Nonnull Renderer renderer) {
     router.renderer(renderer);
     return this;
   }
 
-  @Nonnull @Override public App stack(@Nonnull Runnable action) {
+  @Nonnull @Override public Jooby stack(@Nonnull Runnable action) {
     router.stack(action);
     return this;
   }
@@ -114,7 +115,7 @@ public class App implements Router {
     return this;
   }
 
-  @Nonnull @Override public App path(@Nonnull String pattern, @Nonnull Runnable action) {
+  @Nonnull @Override public Jooby path(@Nonnull String pattern, @Nonnull Runnable action) {
     router.path(pattern, action);
     return this;
   }
@@ -131,7 +132,7 @@ public class App implements Router {
 
   /** Error handler: */
   @Nonnull @Override
-  public App errorCode(@Nonnull Class<? extends Throwable> type,
+  public Jooby errorCode(@Nonnull Class<? extends Throwable> type,
       @Nonnull StatusCode statusCode) {
     router.errorCode(type, statusCode);
     return this;
@@ -141,7 +142,7 @@ public class App implements Router {
     return router.worker();
   }
 
-  @Nonnull @Override public App worker(Executor worker) {
+  @Nonnull @Override public Jooby worker(Executor worker) {
     this.router.worker(worker);
     return this;
   }
@@ -159,7 +160,7 @@ public class App implements Router {
     return tmpdir;
   }
 
-  public App tmpdir(@Nonnull Path tmpdir) {
+  public Jooby tmpdir(@Nonnull Path tmpdir) {
     this.tmpdir = tmpdir;
     return this;
   }
@@ -168,7 +169,7 @@ public class App implements Router {
     return mode;
   }
 
-  public App mode(ExecutionMode mode) {
+  public Jooby mode(ExecutionMode mode) {
     this.mode = mode;
     return this;
   }
@@ -192,7 +193,7 @@ public class App implements Router {
         .start();
   }
 
-  public App start(Server server) {
+  public Jooby start(Server server) {
     /** Start router: */
     ensureTmpdir(tmpdir);
     Logger log = log();
@@ -204,13 +205,18 @@ public class App implements Router {
     return this;
   }
 
-  public App stop() {
+  public Jooby stop() {
     router.destroy();
     return this;
   }
 
   @Override public String toString() {
     return router.toString();
+  }
+
+  public static void run(Supplier<Jooby> provider, String... args) {
+    // TODO: add conf, logging, etc...
+    provider.get().start().join();
   }
 
   private static void ensureTmpdir(Path tmpdir) {

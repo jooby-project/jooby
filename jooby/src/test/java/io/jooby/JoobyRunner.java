@@ -9,19 +9,19 @@ import java.util.function.Supplier;
 
 public class JoobyRunner {
 
-  private final Supplier<App> provider;
+  private final Supplier<Jooby> provider;
 
   private final List<ExecutionMode> modes = new ArrayList<>();
 
-  public JoobyRunner(Consumer<App> configurer) {
+  public JoobyRunner(Consumer<Jooby> configurer) {
     this(() -> {
-      App app = new App();
+      Jooby app = new Jooby();
       configurer.accept(app);
       return app;
     });
   }
 
-  public JoobyRunner(Supplier<App> provider) {
+  public JoobyRunner(Supplier<Jooby> provider) {
     this.provider = provider;
   }
 
@@ -45,7 +45,7 @@ public class JoobyRunner {
       for (Supplier<Server> serverFactory : serverList) {
         Server server = serverFactory.get();
         try {
-          App app = this.provider.get().mode(mode);
+          Jooby app = this.provider.get().mode(mode);
           server.port(9999)
               .deploy(app)
               .start();

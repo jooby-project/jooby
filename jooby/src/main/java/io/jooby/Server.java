@@ -16,7 +16,6 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
-import java.util.concurrent.TimeUnit;
 
 public interface Server {
 
@@ -27,7 +26,7 @@ public interface Server {
 
   @Nonnull Server port(int port);
 
-  @Nonnull Server deploy(App application);
+  @Nonnull Server deploy(Jooby application);
 
   @Nonnull Server start();
 

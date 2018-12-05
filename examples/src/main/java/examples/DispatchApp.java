@@ -15,12 +15,12 @@
  */
 package examples;
 
-import io.jooby.App;
+import io.jooby.Jooby;
 import io.jooby.ExecutionMode;
 
 import java.util.concurrent.Executors;
 
-public class DispatchApp extends App {
+public class DispatchApp extends Jooby {
   {
 
     worker(Executors.newCachedThreadPool());

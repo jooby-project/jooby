@@ -722,7 +722,7 @@ public class FeaturedTest {
   public void simpleRouterComposition() {
     new JoobyRunner(app -> {
 
-      App bar = new App();
+      Jooby bar = new Jooby();
       bar.get("/bar", Context::path);
 
       app.get("/foo", Context::path);
@@ -744,10 +744,10 @@ public class FeaturedTest {
   public void dynamicRoutingComposition() {
     new JoobyRunner(app -> {
 
-      App v1 = new App();
+      Jooby v1 = new Jooby();
       v1.get("/api", ctx -> "v1");
 
-      App v2 = new App();
+      Jooby v2 = new Jooby();
       v2.get("/api", ctx -> "v2");
 
       app.use(ctx -> ctx.header("version").value().equals("v1"), v1);
@@ -770,7 +770,7 @@ public class FeaturedTest {
   public void prefixPathOnExistingRouter() {
     new JoobyRunner(app -> {
 
-      App bar = new App();
+      Jooby bar = new Jooby();
       bar.get("/bar", Context::path);
 
       app.use("/prefix", bar);
@@ -786,7 +786,7 @@ public class FeaturedTest {
   public void compose() {
     new JoobyRunner(app -> {
 
-      App bar = new App();
+      Jooby bar = new Jooby();
       bar.get("/bar", Context::path);
 
       app.path("/api", () -> {
@@ -818,7 +818,7 @@ public class FeaturedTest {
 
   @Test
   public void silentFavicon() {
-    new JoobyRunner(App::new).ready(client -> {
+    new JoobyRunner(Jooby::new).ready(client -> {
       client.get("/favicon.ico", rsp -> {
         assertEquals(StatusCode.NOT_FOUND.value(), rsp.code());
       });

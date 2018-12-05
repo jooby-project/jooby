@@ -15,20 +15,20 @@
  */
 package examples;
 
-import io.jooby.App;
+import io.jooby.Jooby;
 import io.jooby.Context;
 import io.jooby.Server;
 import io.jooby.netty.Netty;
 
 public class MultiApp {
 
-  public static class Foo extends App {
+  public static class Foo extends Jooby {
     {
       get("/foo", Context::path);
     }
   }
 
-  public static class Bar extends App {
+  public static class Bar extends Jooby {
     {
       basePath("/some");
       get("/bar", Context::path);

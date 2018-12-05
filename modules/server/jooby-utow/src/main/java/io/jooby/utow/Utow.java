@@ -15,7 +15,7 @@
  */
 package io.jooby.utow;
 
-import io.jooby.App;
+import io.jooby.Jooby;
 import io.jooby.Functions;
 import io.jooby.Server;
 import io.jooby.internal.utow.UtowHandler;
@@ -38,7 +38,7 @@ public class Utow implements Server {
 
   private int port = 8080;
 
-  private List<App> applications = new ArrayList<>();
+  private List<Jooby> applications = new ArrayList<>();
 
   @Override public Server port(int port) {
     this.port = port;
@@ -49,13 +49,13 @@ public class Utow implements Server {
     return port;
   }
 
-  @Nonnull @Override public Server deploy(App application) {
+  @Nonnull @Override public Server deploy(Jooby application) {
     applications.add(application);
     return this;
   }
 
   @Override public Server start() {
-    Map<App, UtowHandler> handlers = new LinkedHashMap<>(applications.size());
+    Map<Jooby, UtowHandler> handlers = new LinkedHashMap<>(applications.size());
     applications.forEach(app -> handlers.put(app, new UtowHandler(app)));
 
     HttpHandler handler = handlers.size() == 1

@@ -15,11 +15,11 @@
  */
 package examples;
 
-import io.jooby.App;
+import io.jooby.Jooby;
 import io.jooby.ExecutionMode;
 import io.jooby.Filters;
 
-public class BenchApp extends App {
+public class BenchApp extends Jooby {
 
   private static final String MESSAGE = "Hello World!";
 

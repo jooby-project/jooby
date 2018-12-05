@@ -15,7 +15,7 @@
  */
 package io.jooby.netty;
 
-import io.jooby.App;
+import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.Functions;
 import io.jooby.internal.netty.NettyMultiHandler;
@@ -72,7 +72,7 @@ public class Netty implements Server {
     }
   }
 
-  private List<App> applications = new ArrayList<>();
+  private List<Jooby> applications = new ArrayList<>();
 
   private boolean SSL = false;
 
@@ -93,7 +93,7 @@ public class Netty implements Server {
     return port;
   }
 
-  @Nonnull @Override public Server deploy(App application) {
+  @Nonnull @Override public Server deploy(Jooby application) {
     applications.add(application);
     return this;
   }
@@ -119,7 +119,7 @@ public class Netty implements Server {
       if (applications.size() == 1) {
         handler = new NettyHandler(applications.get(0));
       } else {
-        Map<App, NettyHandler> handlers = new LinkedHashMap<>(applications.size());
+        Map<Jooby, NettyHandler> handlers = new LinkedHashMap<>(applications.size());
         applications.forEach(app -> handlers.put(app, new NettyHandler(app)));
         handler = new NettyMultiHandler(handlers, worker);
       }

@@ -15,7 +15,7 @@
  */
 package io.jooby.internal;
 
-import io.jooby.App;
+import io.jooby.Jooby;
 import io.jooby.BaseContext;
 import io.jooby.Context;
 import io.jooby.Err;
@@ -286,7 +286,7 @@ public class RouterImpl implements Router {
     return route;
   }
 
-  @Nonnull public Router start(@Nonnull App owner) {
+  @Nonnull public Router start(@Nonnull Jooby owner) {
     if (err == null) {
       err = Route.ErrorHandler.DEFAULT;
     }
