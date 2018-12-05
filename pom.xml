@@ -20,6 +20,7 @@
     <module>modules</module>
     <module>examples</module>
     <module>tests</module>
+    <module>docs</module>
   </modules>
 
   <licenses>

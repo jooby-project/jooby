@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>io.jooby</groupId>
+    <artifactId>jooby-project</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.jooby</groupId>
+  <artifactId>jooby-docs</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.asciidoctor</groupId>
+        <artifactId>asciidoctor-maven-plugin</artifactId>
+        <version>1.5.7.1</version>
+        <configuration>
+          <sourceDirectory>${project.basedir}</sourceDirectory>
+          <baseDir>${project.basedir}</baseDir>
+          <outputDirectory>out</outputDirectory>
+          <preserveDirectories>true</preserveDirectories>
+          <backend>html</backend>
+          <resources>
+            <resource>
+              <directory>.</directory>
+              <excludes>
+                <exclude>pom.xml</exclude>
+                <exclude>*.iml</exclude>
+                <exclude>out/**</exclude>
+                <exclude>target/**</exclude>
+              </excludes>
+            </resource>
+          </resources>
+        </configuration>
+        <executions>
+          <execution>
+            <id>html</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>process-asciidoc</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

@@ -1,0 +1,174 @@
+= Welcome to Jooby!
+:doctype: book
+:title: Jooby: do more! more easily!!
+:toc: left
+:toclevels: 3
+:sectanchors:
+:sectlinks:
+:sectnums:
+:linkattrs:
+:icons: font
+:source-language: asciidoc
+:imagesdir: images
+:source-highlighter: highlightjs
+:highlightjs-theme: agate
+:favicon: images/favicon96.png
+:joobyVersion: 2.0.0-Alpha1
+:love: &#10084;
+
+////
+Style guidelines:
+
+* Refer to the project in prose as simply Jooby, with no adornment or formatting. Enclose the class
+  name `Jooby` in back ticks so readers can distinguish references to the `Jooby` class from 
+  references to the Jooby project as a whole.
+* 100 characters per line, except when you can't break it up e.g. links or asciidoc directives
+* Avoid class definition on Jooby code examples. Always start an example with `{...}`
+* Avoid JUnit boilerplate in code examples. Assertions are ok if they complement the example.
+* External links should use a caret at the end of the link title e.g.
+  link:path/to/doc[the title^] so they open in separate tabs. See
+  http://asciidoctor.org/docs/asciidoc-writers-guide/#target-window-and-role-attributes-for-links
+* Be funny. Nobody like reading dry documentation.
+* Be inclusive: keep usage of male and female names equal in code examples.
+* Best edited while drunk
+
+////
+
+== Introduction
+
+Jooby is a modern, fun and easy to use web framework for Java built on top of your favorite web server.
+
+.App.java
+[source,java]
+----
+public class App extends Jooby { // <1>
+
+  {
+    get("/", ctx -> { // <2>
+      return "Hello Jooby";  // <3>
+    }); 
+  }
+
+  public static void main(String[] args) {
+    run(App::new, args); // <4>
+  }
+}
+----
+<1> Create a new instance of `Jooby`
+<2> Define a route. A route consist of: a `HTTP method`, a `path pattern` and `handler` function
+<3> Returns `Hello Jooby` to the client
+<4> Initialize and run `App.java` 
+
+=== Status
+
+[IMPORTANT]
+====
+There is no stable release yet for `2.0.0`. API may change between `alpha/beta` releases without
+warning.
+
+This is a **work-in-progress** document and contains documentation and examples of what is ready to use. If it is not documented here, it is not implemented.
+
+Not ready to play yet? Try https://jooby.org[Jooby 1.x] 
+
+Thank you {love}
+====
+
+=== Micro and Fullstack
+
+Jooby is a modular micro framework. At the core level:
+  
+- Reflection and annotation free
+- No dependency injection
+- Only HTTP Routing
+- Multi Server: link:server/jetty.html[Jetty], Netty, Undertow
+
+Now, if you need more... Jooby don't leave you alone:
+
+- Dependency injection via https://github.com/google/guice[Guice]
+- MVC programming model (subset of https://github.com/jax-rs[JAX-RS])
+- Extensive module ecosytem
+
+=== Script API
+
+Script API (a.k.a script routes) provides a fluent DSL, reflection and annotation free based on `lambda` functions.
+
+We usually extends `Jooby` and define routes in the instance initializer:
+
+.App.java
+[source,java]
+----
+public class App extends Jooby {
+
+  {
+    get("/", ctx -> {
+      return "Hello Jooby";
+    }); 
+  }
+
+  public static void main(String[] args) {
+    run(App::new, args);
+  }
+}
+----
+
+This is not strictly necessary (of course), you may instantiate `Jooby` like:
+
+.App.java
+[source,java]
+----
+public class App {
+
+  public static void main(String[] args) {
+    run(() -> {
+      Jooby app = new Jooby();
+
+      app.get("/", ctx -> {
+        return "Hello Jooby";
+      });
+    }, args);
+  }
+}
+----
+
+=== MVC API
+
+MVC API (a.k.a mvc routes) on the other hand uses annotation and reflection to define routes. Jooby
+implements a subset of https://github.com/jax-rs[JAX-RS] and it is not intended to be a fully
+https://github.com/jax-rs[JAX-RS] compliant.
+
+.App.java
+[source,java]
+----
+public class App {
+
+  {
+    use(new MyController());
+  }
+
+  public static void main(String[] args) {
+    run(App::new, args);
+  }
+}
+----
+
+.MyController.java
+[source,java]
+----
+public class MyController {
+
+  @GET
+  public String hello() {
+    return "Hello Jooby";
+  }
+}
+----
+
+[NOTE]
+====
+MVC API is not implemented yet.
+====
+
+include::getting-started.adoc[]
+
+
+

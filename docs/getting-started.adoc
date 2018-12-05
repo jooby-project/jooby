@@ -1,0 +1,68 @@
+== Getting Started
+
+Add the dependency:
+
+.maven:
+[source,xml,subs="normal"]
+----
+<dependency>
+    <groupId>io.jooby</groupId>
+    <artifactId>jooby-utow</artifactId>
+    <version>{joobyVersion}</version>
+</dependency>
+----
+
+.gradle:
+[source,gradle,subs="normal"]
+----
+compile 'io.jooby:jooby-utow:{joobyVersion}'
+----
+
+[TIP]
+====
+We choose the http://undertow.io[Undertow] web server. Still Jooby is a multi-server web 
+framework. You are free to choose between: link:server/jetty.html[Jetty],
+link:server/netty.html[Netty] and link:server/utow.html[Undertow]. 
+====
+
+Write your application:
+
+.App.java:
+[source, java]
+----
+import io.jooby.Jooby;
+
+public class App extends Jooby {
+  {
+    get("/", ctx -> "Hello World!");
+  }
+
+  public static void main(String[] args) {
+    run(App::new, args);
+  }
+}
+----
+
+Run `App.java`:
+
+[source]
+----
+INFO  [2018-12-05 10:17:22,686] [main] App [utow@default]
+
+  GET /
+
+listening on:
+  http://localhost:8080
+----
+
+`App.java` is ready {love}!
+
+[TIP]
+====
+
+Alternative you may want to try one of the starter projects:
+
+- https://github.com/jooby-project/maven-starter[Maven starter]
+- https://github.com/jooby-project/gradle-starter[Gradle starter]
+- https://github.com/search?q=topic%3A2.x+org%3Ajooby-project&type=Repositories[All starter projects]
+====
