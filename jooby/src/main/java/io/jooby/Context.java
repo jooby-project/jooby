@@ -74,9 +74,11 @@ public interface Context {
   @Nonnull Map<String, String> params();
 
   /* **********************************************************************************************
-   * Query String methods
+   * Query String API
    * **********************************************************************************************
    */
+  @Nonnull QueryString query();
+
   @Nonnull default Value query(@Nonnull String name) {
     return query().get(name);
   }
@@ -90,8 +92,6 @@ public interface Context {
     return query().queryString();
   }
 
-  @Nonnull QueryString query();
-
   @Nonnull default <T> T query(Reified<T> type) {
     return query().to(type);
   }
@@ -100,8 +100,12 @@ public interface Context {
     return query().to(type);
   }
 
+  @Nonnull default Map<String, List<String>> queryMap() {
+    return query().toMap();
+  }
+
   /* **********************************************************************************************
-   * Request Headers
+   * Header API
    * **********************************************************************************************
    */
 
@@ -112,15 +116,19 @@ public interface Context {
   @Nonnull Value headers();
 
   /* **********************************************************************************************
-   * Formdata/Multipart methods
+   * Form API
    * **********************************************************************************************
    */
+
+  @Nonnull Formdata form();
+
+  @Nonnull default Map<String, List<String>> formMap() {
+    return form().toMap();
+  }
 
   @Nonnull default Value form(@Nonnull String name) {
     return form().get(name);
   }
-
-  @Nonnull Formdata form();
 
   @Nonnull default <T> T form(Reified<T> type) {
     return form().to(type);
@@ -129,6 +137,21 @@ public interface Context {
   @Nonnull default <T> T form(Class<T> type) {
     return form().to(type);
   }
+
+  /* **********************************************************************************************
+   * Multipart API
+   * **********************************************************************************************
+   */
+
+  /**
+   * Parse a multipart/form-data request and returns the result.
+   *
+   * <strong>NOTE:</strong> this method throws an {@link IllegalStateException} when call it from
+   * <code>EVENT_LOOP thread</code>;
+   *
+   * @return Multipart node.
+   */
+  @Nonnull Multipart multipart();
 
   @Nonnull default Value multipart(@Nonnull String name) {
     return multipart().get(name);
@@ -140,6 +163,21 @@ public interface Context {
 
   @Nonnull default <T> T multipart(Class<T> type) {
     return multipart().to(type);
+  }
+
+  @Nonnull default Map<String, List<String>> multipartMap() {
+    return multipart().toMap();
+  }
+
+  @Nonnull default List<Upload> files() {
+    Value multipart = multipart();
+    List<Upload> result = new ArrayList<>();
+    for (Value value : multipart) {
+      if (value.isUpload()) {
+        result.add(value.upload());
+      }
+    }
+    return result;
   }
 
   @Nonnull default List<Upload> files(@Nonnull String name) {
@@ -155,20 +193,12 @@ public interface Context {
     return multipart(name).upload();
   }
 
-  /**
-   * Parse a multipart/form-data request and returns the result.
-   *
-   * <strong>NOTE:</strong> this method throws an {@link IllegalStateException} when call it from
-   * <code>EVENT_LOOP thread</code>;
-   *
-   * @return Multipart node.
-   */
-  @Nonnull Multipart multipart();
-
   /* **********************************************************************************************
    * Request Body
    * **********************************************************************************************
    */
+
+  @Nonnull Body body();
 
   default @Nonnull <T> T body(@Nonnull Class<T> type) {
     return body(Reified.get(type));
@@ -194,8 +224,6 @@ public interface Context {
       throw Throwing.sneakyThrow(x);
     }
   }
-
-  @Nonnull Body body();
 
   /* **********************************************************************************************
    * Body Parser

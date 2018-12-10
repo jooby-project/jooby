@@ -85,8 +85,8 @@ public class Jooby implements Router {
     return this;
   }
 
-  @Nonnull @Override public Jooby filter(@Nonnull Route.Filter filter) {
-    router.filter(filter);
+  @Nonnull @Override public Jooby decorate(@Nonnull Route.Decorator decorator) {
+    router.decorate(decorator);
     return this;
   }
 

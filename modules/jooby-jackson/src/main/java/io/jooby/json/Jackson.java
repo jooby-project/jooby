@@ -47,6 +47,6 @@ public class Jackson extends Converter {
 
   @Override public <T> T parse(Context ctx, Reified<T> type) throws Exception {
     JavaType javaType = mapper.getTypeFactory().constructType(type.getType());
-    return mapper.readValue(ctx.body().stream(), javaType);
+    return mapper.readValue(ctx.body().bytes(), javaType);
   }
 }

@@ -1,0 +1,35 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/3.0.2/tocbot.min.js"></script>
+<script>
+
+  var oldtoc = document.getElementById('toctitle').nextElementSibling;
+  var newtoc = document.createElement('div');
+  newtoc.setAttribute('id', 'tocbot');
+  newtoc.setAttribute('class', 'js-toc');
+  oldtoc.parentNode.replaceChild(newtoc, oldtoc);
+  tocbot.init({
+    contentSelector: '#content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    ignoreSelector: '.discrete',
+    smoothScroll: false
+  });
+  var handleTocOnResize = function() {
+    var width = window.innerWidth
+        || document.documentElement.clientWidth
+        || document.body.clientWidth;
+    if (width < 768) {
+      tocbot.refresh({
+        contentSelector: '#content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        collapseDepth: 6,
+        ignoreSelector: '.discrete',
+        throttleTimeout: 1000,
+        smoothScroll: false
+      });
+    }
+    else {
+      tocbot.refresh();
+    }
+  };
+  window.addEventListener('resize', handleTocOnResize);
+  handleTocOnResize();
+</script>

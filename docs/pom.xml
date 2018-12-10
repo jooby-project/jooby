@@ -33,6 +33,9 @@
           <outputDirectory>out</outputDirectory>
           <preserveDirectories>true</preserveDirectories>
           <backend>html</backend>
+          <attributes>
+            <docinfo>shared</docinfo>
+          </attributes>
           <resources>
             <resource>
               <directory>.</directory>

@@ -62,7 +62,7 @@ public class UtowContext extends BaseContext {
     if (!exchange.isBlocking()) {
       exchange.startBlocking();
     }
-    return Body.of(exchange.getInputStream(), exchange.getResponseContentLength());
+    return Body.of(exchange.getInputStream(), exchange.getRequestContentLength());
   }
 
   @Nonnull @Override public String method() {

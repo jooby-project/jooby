@@ -1,0 +1,38 @@
+== Body
+
+This chapter covers the request and response `HTTP Body`.
+
+=== Request
+
+HTTP Request body is available via {javadoc}Context.html#body--[body] method:
+
+[source, java]
+----
+{
+  post("/string", ctx -> {
+    String body = ctx.body().value();        // <1>
+    ...
+  });
+  
+  post("/bytes", ctx -> {
+    byte[] body = ctx.body().bytes();        // <2>
+    ...
+  });
+  
+  post("/stream", ctx -> {
+    InputStream body = ctx.body().stream();  // <3>
+    ...
+  });
+}
+----
+
+<1> `HTTP Body` as `String`
+<2> `HTTP Body` as `byte`
+<3> `HTTP Body` as `InputStream`
+
+=== Parser
+
+The {javadoc}Parser.html[Parser] functional interface allows you to plug-in a `content-type` 
+specific parser.
+
+Suppose you want to provide your own `json`   

@@ -271,6 +271,36 @@ public class ValueToBeanTest {
     }
   }
 
+  public static class UserId {
+    private String id;
+
+    public UserId(String id) {
+      this.id = id;
+    }
+
+    public static UserId valueOf(String value) {
+      return new UserId("valueOf:" + value);
+    }
+
+    @Override
+    public String toString() {
+      return id;
+    }
+  }
+
+  public static class UserCons {
+    private String id;
+
+    public UserCons(String id) {
+      this.id = id;
+    }
+
+    @Override
+    public String toString() {
+      return id;
+    }
+  }
+
   @Test
   public void constructorInjection() {
     queryString("?name=user&password=pass", queryString -> {
@@ -283,7 +313,7 @@ public class ValueToBeanTest {
 
       ValueInjector injector = new ValueInjector().missingToNull();
       assertEquals("user:null",
-          injector.inject(Reified.get(User.class), queryString).toString());
+          injector.inject(queryString, User.class).toString());
     });
 
     queryString("?name=Sherlock Holmes&age=42&address.street=Baker&address.number=221B",
@@ -378,6 +408,13 @@ public class ValueToBeanTest {
     queryString("?[0]letter=A&[1]letter=B", queryString -> {
       assertEquals("[A, B]", queryString.toList(Abc.class).toString());
     });
+
+    queryString("?id=userId", queryString -> {
+      assertEquals("valueOf:userId", queryString.to(UserId.class).toString());
+    });
+    queryString("?id=userId", queryString -> {
+      assertEquals("valueOf:userId", queryString.get("id").to(UserId.class).toString());
+    });
   }
 
   @Test
@@ -417,6 +454,10 @@ public class ValueToBeanTest {
 
     queryString("?foo=foo&bar=bar&values=v1&values=v2", queryString -> {
       assertEquals("foo:bar:0:[v1, v2]", queryString.to(Mixed.class).toString());
+    });
+
+    queryString("?id=userId", queryString -> {
+      assertEquals("userId", queryString.to(UserCons.class).toString());
     });
   }
 

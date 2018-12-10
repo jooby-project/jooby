@@ -47,7 +47,7 @@ public final class Filters {
    *
    * @return A filter that set the `server` header.
    */
-  public static final Route.Filter server() {
+  public static final Route.Decorator server() {
     return next -> ctx -> next.apply(ctx.header(H_SERVER, ctx.name()));
   }
 
@@ -57,7 +57,7 @@ public final class Filters {
    * @param type Content-Type header.
    * @return A filter that set the `content-type` header.
    */
-  public static final Route.Filter contentType(@Nonnull String type) {
+  public static final Route.Decorator contentType(@Nonnull String type) {
     return contentType(MediaType.valueOf(type));
   }
 
@@ -67,7 +67,7 @@ public final class Filters {
    * @param type Content-Type header.
    * @return A filter that set the `content-type` header.
    */
-  public static final Route.Filter contentType(@Nonnull MediaType type) {
+  public static final Route.Decorator contentType(@Nonnull MediaType type) {
     return next -> ctx -> next.apply(ctx.type(type));
   }
 
@@ -76,7 +76,7 @@ public final class Filters {
    *
    * @return A filter that set the `date` header.
    */
-  public static final Route.Filter date() {
+  public static final Route.Decorator date() {
     DateHeader date = new DateHeader();
     return next -> ctx -> next.apply(ctx.header(H_DATE, date.compute()));
   }
@@ -91,7 +91,7 @@ public final class Filters {
    * @param contentType Content type.
    * @return Default headers filter.
    */
-  public static final Route.Filter defaultHeaders(@Nonnull MediaType contentType) {
+  public static final Route.Decorator defaultHeaders(@Nonnull MediaType contentType) {
     return defaultHeaders(contentType.toString(), contentType.charset());
   }
 
@@ -104,11 +104,11 @@ public final class Filters {
    *
    * @return Default headers filter.
    */
-  public static final Route.Filter defaultHeaders() {
+  public static final Route.Decorator defaultHeaders() {
     return defaultHeaders("text/plain", null);
   }
 
-  private static final Route.Filter defaultHeaders(String contentType, String charset) {
+  private static final Route.Decorator defaultHeaders(String contentType, String charset) {
     DateHeader date = new DateHeader();
     return next -> ctx -> {
       ctx.header(H_SERVER, ctx.name());

@@ -22,9 +22,6 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.synchronizedList;
-
 public interface Router {
 
   interface Match {
@@ -66,7 +63,7 @@ public interface Router {
   @Nonnull Path tmpdir();
 
   @Nonnull default Router parser(@Nonnull Parser parser) {
-    return filter(next -> ctx -> {
+    return decorate(next -> ctx -> {
       ctx.parser(parser.contentType(), parser);
       return next.apply(ctx);
     });
@@ -82,7 +79,7 @@ public interface Router {
 
   @Nonnull Router worker(Executor worker);
 
-  @Nonnull Router filter(@Nonnull Route.Filter filter);
+  @Nonnull Router decorate(@Nonnull Route.Decorator decorator);
 
   @Nonnull Router gzip(@Nonnull Runnable action);
 

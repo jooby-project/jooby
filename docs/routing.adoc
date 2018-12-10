@@ -1,0 +1,667 @@
+== Router
+
+The {javadoc}Router.html[router] is the heart of Jooby. The router consist of:
+
+- Routing algorithm (radix tree)
+- One or more {javadoc}Route.html[routes]
+- Collection of operator over {javadoc}Route.html[routes]
+
+=== Route
+
+A {javadoc}Route.html[route] consist of three part:
+
+.routes:
+[source, java]
+----
+{
+  
+  // <1> <2>
+  get("/foo", ctx -> {
+    return "foo"; // <3>
+  });
+
+  // Get example with path variable
+  get("/foo/{id}", ctx -> {
+    return ctx.param("id").value();
+  });
+  
+  // Post example
+  post("/", ctx -> {
+    return ctx.body().value();
+  });
+}
+----
+
+<1> HTTP method/verb, like: `GET`, `POST`, etc...
+<2> Path pattern, like: `/foo`, `/foo/{id}`, etc...
+<3> Handler function
+
+The {javadoc}Route.Handler.html[handler] function always produces a result, which is send it back
+to the client.
+
+=== Path Pattern
+
+==== Static
+
+[source, java]
+----
+{
+  
+  get("/foo", ctx -> "Foo");
+}
+----
+
+==== Variable
+
+.single path variable:
+[source, java]
+----
+{
+  // <1>
+  get("/user/{id}", ctx -> {
+    var id = ctx.param("id").intValue(); // <2>
+    return id;
+  });
+}
+----
+
+<1> Defines a path variable `id`
+<2> Retrieve the variable `id` as `int`
+
+.multiple path variables:
+[source, java]
+----
+{
+  // <1>
+  get("/file/{file}.{ext}", ctx -> {
+    var file = ctx.param("file").value(); // <2>
+    var ext = ctx.param("ext").value();   // <3>
+    return file + "." + ext;
+  });
+}
+----
+
+<1> Defines two path variables: `file` and `ext`
+<2> Retrieve string variable: `file`
+<3> Retrieve string variable: `ext`
+
+==== Regex
+
+.regex path variable:
+[source, java]
+----
+{
+  // <1>
+  get("/user/{id:[0-9]+}", ctx -> {
+    var id = ctx.param("id").intValue(); // <2>
+    return id;
+  });
+  
+  get("/user/{id:[0-9]+}/edit", ctx -> {
+    var id = ctx.param("id").intValue();
+    return id;
+  });
+}
+----
+
+<1> Defines a path variable: `id`. Regex expression is everything after the first `:`, like: `[0-9]+`
+<2> Retrieve an int value
+
+==== * Catchall
+
+.catchall
+[source, java]
+----
+{
+  // <1>
+  get("/articles/*", ctx -> {
+    var catchall = ctx.param("*").value(); // <2>
+    return catchall;
+  });
+  
+  get("/articles/*path", ctx -> {
+    var path = ctx.param("path").value(); // <3>
+    return path;
+  });
+}
+----
+
+<1> The trailing `*` defines a `catchall` pattern
+<2> We access to the `catchall` value using the `*` character
+<3> Same example, but this time we named the `catchall` pattern and we access to it using `path` 
+variable name.
+
+[NOTE]
+----
+A `catchall` pattern must be defined at the end of the path pattern.
+----
+ 
+=== Handler
+
+Application logic goes inside a {javadoc}Route.Handler.html[handler]. A 
+{javadoc}Route.Handler.html[handler] is a function that accepts a {javadoc}Context.html[context] 
+object and produces a `result`.
+
+A {javadoc}Context.html[context] allows you to interact with the `HTTP Request` and manipulate the 
+`HTTP Response`.
+
+.Incoming request matches exactly **one** route handler:
+[source,java]
+----
+{
+  get("/user/{id}", ctx -> ctx.param("id").value()); // <1>
+  
+  get("/user/me", ctx -> "my profile");              // <2>
+  
+  get("/users", ctx -> "users");                     // <3>
+  
+  get("/users", ctx -> "new users");                 // <4>
+}
+---- 
+
+Output:
+
+<1> `GET /user/ppicapiedra` produces `ppicapiedra`
+<2> `GET /user/me` produces `me`
+<3> Unreachable, override it by next route
+<4> `GET /users` produces `new users` not `users`
+
+Routes with most specific path pattern (`2` vs `1`) has more precedence. Also, route overrides is
+silently ignored and makes previous route unreachable.
+
+==== Decorator
+
+Cross cutting concerns such as response modification, verification, security, tracing, etc. is available
+via {javadoc}Route.Decorator.html[decorator] (a.k.a filter)
+
+A `decorator` takes the `next` handler in the pipeline and returns a `new` handler:
+
+[source,java]
+----
+interface Decorator {
+  Handler apply(Handler next);
+}
+----
+
+Example:
+
+.Timing decorator
+[source,java]
+----
+{
+  decorator(next -> ctx -> {
+    var start = System.currentTimeMillis();       // <1>
+
+    var response = next.apply(ctx);               // <2>
+
+    var end = System.currentTimeMillis();
+    var took = end - start;
+
+    System.out.println("Took: " + took + "ms");   // <3>
+
+    return response;                              // <4>
+  });
+  
+  get("/", ctx -> {
+    return "decorator";
+  });
+}
+----
+
+<1> Save start time
+<2> Proceed with execution (pipeline)
+<3> Compute and print latency
+<4> Returns a response
+
+Unlike in other web frameworks a `decorator` lack of a `path pattern`. Sounds odd? All these is
+explained in the <<pipeline, pipeline>> section.
+
+[NOTE]
+====
+Decorators (including before/after) must be defined before a `handler`:
+====
+
+.It works:
+[source, java]
+----
+{
+  decorator(next -> ctx -> {
+    return "Hello " + next.apply(ctx);
+  });
+
+  // Produces: Hello Jooby
+  get("/", ctx -> "Jooby");
+}
+----
+
+Now if you move the decorator after the handler:
+ 
+.Ignored:
+[source, java]
+----
+{
+  // Produces: Jooby
+  get("/", ctx -> "Jooby");
+  
+  decorator(next -> ctx -> {
+    return "Hello " + next.apply(ctx);
+  });
+}
+----
+
+Output:
+
+<1> '/' => `Jooby`
+
+==== Before Decorator
+
+The {javadoc}Route.Before.html[before] decorator is a specialized decorator that runs before a 
+`handler`.
+
+A `before` decorator takes a `context` as argument and don't produces a response.
+
+[source,java]
+----
+interface Before {
+  void apply(Context ctx);
+}
+----
+
+.Example:
+[source,java]
+----
+{
+  before(ctx -> {
+    // your code goes here
+  });
+
+  get("/", ctx -> {
+    return ...;
+  });
+}
+----
+
+==== After Decorator
+
+The {javadoc}Route.After.html[after] decorator is a specialized decorator that runs after a 
+`handler`.
+
+An `after` decorator takes two arguments. The first argument is the `HTTP context`, while the second
+argument is the result/response from a `handler`.  
+
+[source,java]
+----
+interface After {
+  Object apply(Context ctx, Object result);
+}
+----
+
+.Example:
+[source,java]
+----
+{
+  after((ctx, result) -> {
+    return "Hello " + result;
+  });
+
+  get("/", ctx -> {
+    return "Jooby";
+  });
+}
+----
+
+=== Pipeline
+
+Route pipeline (a.k.a route stack) is a composition of zero, one or more decorator(s) tied to a single `handler`:
+
+[source, java]
+----
+{
+  // Increment +1
+  decorator(next -> ctx -> {
+    var n = (Number) next.apply(ctx);
+    return 1 + n.intValue();
+  });
+
+  // Increment +1
+  decorator(next -> ctx -> {
+    var n = (Number) next.apply(ctx);
+    return 1 + n.intValue();
+  });
+  
+  get("/1", ctx -> 1); // <1>
+  
+  get("/2", ctx -> 2); // <2>
+}
+----
+
+Output:
+
+<1> `/1` => `3`
+<2> `/2` => `5`
+
+Behind the scene, Jooby build something like:
+
+[source, java]
+----
+{
+  // Increment +1
+  var increment = decorator(next -> ctx -> {
+    var n = (Number) next.apply(ctx);
+    return 1 + n.intValue();
+  });
+
+  Handler one = ctx -> 1;
+  
+  Handler two = ctx -> 2;
+  
+  Handler handler1 = increment.then(increment).then(one);
+  Handler handler2 = increment.then(increment).then(two);
+  
+  get("/1", handler1);
+  
+  get("/2", handler2);
+}
+----
+
+Any `decorator` defined on top of the handler will be stacked/chained into a new handler: The `pipeline`.
+
+[NOTE]
+.Decorator without path pattern
+====
+
+This was a hard decision to make, but we know is the right one. Other Java web framework 
+(including Jooby 1.x) uses a path pattern to define `filter`.
+
+For example, the `pipeline` in Jooby 1.x consists of multiple filters and handlers. They are match
+sequentially one by one. The following `filter` is always executed in Jooby 1.x
+
+.Jooby 1.x
+[source, java]
+----
+{
+   use("/*", (req, rsp, chain) -> {
+     // remote call, db call 
+   });
+
+   // ...
+}
+----
+
+Suppose there is bot trying to access and causing lot of `404` responses (path doesn't exist).
+In Jooby 1.x (most of other web frameworks too) executed the `filter` for every single request sent
+by the bot to realize there is NO matching route and all we need is a `404`.
+
+In Jooby 2.x this won't happen anymore. If there is a matching handler, the `pipeline` will be 
+executed. Otherwise, nothing will do {love}!
+
+====
+
+==== Order
+
+Order follows the **what you see is what you get** approach. Routes are stacked in the way they were added/defined.
+
+.Order example:
+[source, java]
+----
+{
+  // Increment +1
+  decorator(next -> ctx -> {
+    var n = (Number) next.apply(ctx);
+    return 1 + n.intValue();
+  });
+
+  get("/1", ctx -> 1);                // <1>
+  
+  // Increment +1
+  decorator(next -> ctx -> {
+    var n = (Number) next.apply(ctx);
+    return 1 + n.intValue();
+  });
+
+  get("/2", ctx -> 2);               // <2>
+}
+----
+
+Output:
+
+<1> `/1` => `2`
+<2> `/2` => `4` 
+
+==== Scoped Decorator
+
+A `scoped decorator` allows us to selectively apply one or more `decorators` to one or more `routes`.
+
+.Scoped decorator:
+[source, java]
+----
+{
+  // Increment +1
+  decorator(next -> ctx -> {
+    var n = (Number) next.apply(ctx);
+    return 1 + n.intValue();
+  });
+
+  stack(() -> {
+    // Multiply by 2
+    decorator(next -> ctx -> {
+      var n = (Number) next.apply(ctx);
+      return 2 * n.intValue();
+    });
+    
+    get("/worker", ctx -> 4);  // <1>
+  });
+  
+  get("/io", ctx -> 1);        // <2>
+}
+----
+
+Output:
+
+<1> `/worker` => `9`
+<2> `/io`     => `2`
+
+The {javadoc}Router.html#stack-java.lang.Runnable-[stack operator] creates a new `scope` for routes. It
+allows us to selectively apply `decorator` to one or more `routes`.
+
+=== Operators
+
+==== use
+
+The `use` operator allows to mount/import routes from another `router` and from <<mvc-api, mvc route>>.
+
+.use operator
+[source,java]
+----
+{
+  use(new Clients()); // <1>
+}
+----
+
+<1> Import all routes from `Clients` router
+
+This operator is covered in <<composition, next section>>.
+
+==== stack
+
+The {javadoc}Router.html#stack-java.lang.Runnable-[stack operator] push a new route `scope` and
+allows you to selectively apply one or more route `decorators`.
+
+.stack operator
+[source,java]
+----
+{
+  stack(() -> {   
+    decorator(next -> ctx -> next.apply(ctx) + " Stack!"); // <1>
+
+    get("/", ctx -> "Hello");                              // <2>
+  });
+}
+----
+
+<1> The `stack` operator applies the `decorator` to the `handlers` defined below it.
+<2> `/` => `Hello Stack!`
+
+This operator is covered in <<scoped-decorator, scoped decorator section>>. 
+
+==== path
+
+The {javadoc}Router.html#path-java.lang.String,java.lang.Runnable-[path operator] group one or more
+routes under a common path prefix:
+
+.path operator
+[source,java]
+----
+{
+   path("/api/user", () -> {    // <1>
+   
+     get("/{id}", ctx -> ...);  // <2>
+   
+     get("/", ctx -> ...);      // <3>
+     
+     post("/", ctx -> ...);     // <4>
+     
+     ...
+   }); 
+}
+----
+
+<1> Set common prefix `/api/user`
+<2> `GET /api/user/{id}`
+<3> `GET /api/user`
+<4> `POST /api/user`
+
+This operator inherited from <<stack, stack operator>>.
+
+[#operators-disaptch]
+==== dispatch
+
+The {javadoc}Router.html#dispatch-java.lang.Runnable-[dispatch operator] moves pipeline execution
+to a `worker` thread allowing to execute blocking code.
+
+.path operator
+[source,java]
+----
+{
+   dispatch(() -> {             // <1>
+   
+     get("/", ctx -> ...);
+     
+     post("/", ctx -> ...);
+     
+     ...
+   }); 
+}
+----
+
+<1> All routes wrapped by `dispatch` run in the `worker/io` thread.
+
+This operator inherited from <<stack, stack operator>>.
+
+This operator is covered in <<dispatch, thread model section>>. 
+
+=== Composition
+
+Composition is a technique for building complex application. You can compose one or more
+router/application into a new one. Composition let you build applications as components/modules.
+
+Composition is available through the {javadoc}Router.html#use-io.jooby.Jooby-[use operator]:
+
+.Composing
+[source, java]
+----
+public class Foo extends Jooby {
+  {
+    get("/foo", Context::path);
+  }
+}
+
+public class Bar extends Jooby {
+  {
+    get("/bar", Context::path);
+  }
+}
+
+public class App extends Jooby {
+  {
+    use(new Foo());               // <1>
+
+    use(new Bar());               // <2>
+
+    get("/app", Context::path);   // <3>
+  }
+}
+----
+
+<1> Imports all routes from `Foo.java`. Output: `/foo` => `/foo`
+
+<2> Imports all routes from `Bar.java`. Output: `/bar`  => `/bar`
+
+<3> Add more routes . Output `/app` => `/app`
+
+
+You can provides a `path prefix` too:
+
+.Composing with path prefix
+[source,java]
+----
+public class Foo extends Jooby {
+  {
+    get("/foo", Context::path);
+  }
+}
+
+public class App extends Jooby {
+  {
+    use("/prefix", new Foo());  // <1>
+  }
+}
+----
+
+<1> Now all routes from `Foo` will be prefixed with `/prefix`. Output: `/prefix/foo` => `/prefix/foo`
+
+[INFO]
+----
+Composition is a great option for modularization. You can easily develop/test/deploy each 
+application indendepently and compose them all in another application.
+
+We do provide <<mvc-api, MVC API>> as another alternative for modularization.
+----
+
+=== Dynamic Routing
+
+Dynamic routing is looks similar to <<composition, composition>> but enabled/disabled routes 
+dynamically based on a `predicate`.
+
+Suppose you own two version of an `API` and for some time you need to support both: `old` and `new` API:
+
+.Dynamic Routing
+[source,java]
+----
+public class V1 extends Jooby {
+  {
+    get("/api", ctx -> "v1");
+  }
+}
+
+public class V2 extends Jooby {
+  {
+    get("/api", ctx -> "v2");
+  }
+}
+
+public class App extends Jooby {
+  {
+    use(ctx -> ctx.header("version").value().equals("v1"), v1); // <1>
+
+    use(ctx -> ctx.header("version").value().equals("v2"), v2); // <2>
+  }
+}
+----
+
+Output:
+
+<1> `/api` => `v1`; when `version` header is `v1`
+<2> `/api` => `v2`; when `version` header is `v2`
+
+Done {love}!

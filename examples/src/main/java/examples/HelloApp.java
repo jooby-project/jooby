@@ -17,10 +17,29 @@ package examples;
 
 import io.jooby.Jooby;
 import io.jooby.Filters;
+import io.jooby.Upload;
 import io.jooby.json.Jackson;
+
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 public class HelloApp extends Jooby {
 
+  public static class User {
+
+    public final String id;
+
+    public final String pass;
+
+    public final Upload pic;
+
+    public User(String id, String pass, Upload pic) {
+      this.id = id;
+      this.pass = pass;
+      this.pic = pic;
+    }
+  }
   private static final String MESSAGE = "Hello World!";
 
   static class Message {
@@ -32,21 +51,27 @@ public class HelloApp extends Jooby {
   }
 
   {
-    filter(next -> ctx -> {
+    decorate(next -> ctx -> {
       System.out.println(Thread.currentThread());
       return next.apply(ctx);
     });
 
-    filter(Filters.defaultHeaders());
+    decorate(Filters.defaultHeaders());
 
     get("/", ctx -> ctx.sendText(MESSAGE));
 
     get("/{foo}", ctx -> ctx.sendText("Hello World!"));
 
+    post("/user", ctx -> {
+      User user = ctx.multipart(User.class);
+      return user.pic.toString();
+    });
+
     renderer(new Jackson());
     get("/json", ctx -> ctx.type("application/json").send(new Message("Hello World!")));
 
     error((ctx, cause, statusCode) -> {
+      cause.printStackTrace();
       ctx.statusCode(statusCode)
           .sendText(statusCode.reason());
     });

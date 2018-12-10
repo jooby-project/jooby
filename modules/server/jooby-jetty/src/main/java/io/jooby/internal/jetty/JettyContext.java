@@ -118,14 +118,17 @@ public class JettyContext extends BaseContext {
       request.setAttribute(__MULTIPART_CONFIG_ELEMENT,
           new MultipartConfigElement(tmpdir.toString(), -1L, -1L, Server._16KB));
 
-      formParam(request, form);
+      formParam(request, multipart);
+
       // Files:
       try {
         Collection<Part> parts = request.getParts();
         for (Part part : parts) {
-          String name = part.getName();
-          multipart.put(name,
-              register(new JettyUpload(name, (MultiPartFormInputStream.MultiPart) part)));
+          if (part.getSubmittedFileName() != null) {
+            String name = part.getName();
+            multipart.put(name,
+                register(new JettyUpload(name, (MultiPartFormInputStream.MultiPart) part)));
+          }
         }
       } catch (IOException | ServletException x) {
         throw Throwing.sneakyThrow(x);

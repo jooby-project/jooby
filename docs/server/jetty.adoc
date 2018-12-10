@@ -1,4 +1,4 @@
-include::module.adoc[]
+include::page-header.adoc[]
 
 == Jetty
 

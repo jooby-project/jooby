@@ -111,6 +111,14 @@ public class ValueTest {
       assertEquals("pass", queryString.get("user").get("pwd").value());
     });
 
+    queryString("?user[name]=root&user[pwd]=pass", queryString -> {
+      assertEquals("?user[name]=root&user[pwd]=pass", queryString.queryString());
+      assertEquals(1, queryString.size());
+      assertEquals(2, queryString.get("user").size());
+      assertEquals("root", queryString.get("user").get("name").value());
+      assertEquals("pass", queryString.get("user").get("pwd").value());
+    });
+
     queryString("?0.name=root&0.pwd=pass", queryString -> {
       assertEquals("?0.name=root&0.pwd=pass", queryString.queryString());
       assertEquals(1, queryString.size());

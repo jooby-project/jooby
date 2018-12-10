@@ -273,9 +273,11 @@ public interface Value extends Iterable<Value> {
       String scope = name == null ? "" : name + ".";
       for (Map.Entry<String, Value> entry : entries) {
         Value value = entry.getValue();
-        value.toMap().forEach((k, v) -> {
-          result.put(scope + k, v);
-        });
+        if (!value.isUpload()) {
+          value.toMap().forEach((k, v) -> {
+            result.put(scope + k, v);
+          });
+        }
       }
       return result;
     }
@@ -545,12 +547,13 @@ public interface Value extends Iterable<Value> {
   }
 
   default <T> T to(Class<T> type) {
-    return to(Reified.get(type));
+    ValueInjector injector = new ValueInjector();
+    return injector.inject(this, type, type);
   }
 
   default <T> T to(Reified<T> type) {
     ValueInjector injector = new ValueInjector();
-    return injector.inject(type, this);
+    return injector.inject(this, type.getType(), type.getRawType());
   }
 
   default @Override Iterator<Value> iterator() {

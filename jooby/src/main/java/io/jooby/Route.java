@@ -16,17 +16,16 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.List;
 
 public interface Route {
 
-  interface Filter {
+  interface Decorator {
     @Nonnull Handler apply(@Nonnull Handler next);
 
-    @Nonnull default Filter then(@Nonnull Filter next) {
+    @Nonnull default Decorator then(@Nonnull Decorator next) {
       return h -> apply(next.apply(h));
     }
 
@@ -35,7 +34,7 @@ public interface Route {
     }
   }
 
-  interface Before extends Filter {
+  interface Before extends Decorator {
     @Nonnull @Override default Handler apply(@Nonnull Handler next) {
       return ctx -> {
         before(ctx);

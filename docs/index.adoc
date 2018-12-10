@@ -1,20 +1,4 @@
-= Welcome to Jooby!
-:doctype: book
-:title: Jooby: do more! more easily!!
-:toc: left
-:toclevels: 3
-:sectanchors:
-:sectlinks:
-:sectnums:
-:linkattrs:
-:icons: font
-:source-language: asciidoc
-:imagesdir: images
-:source-highlighter: highlightjs
-:highlightjs-theme: agate
-:favicon: images/favicon96.png
-:joobyVersion: 2.0.0-Alpha1
-:love: &#10084;
+include::page-header.adoc[]
 
 ////
 Style guidelines:
@@ -34,23 +18,28 @@ Style guidelines:
 
 ////
 
+= Welcome to Jooby!
+
+[discrete]
+== &infin; do more, more easily 
+
 == Introduction
 
 Jooby is a modern, fun and easy to use web framework for Java built on top of your favorite web server.
 
-.App.java
+.Hello World:
 [source,java]
 ----
-public class App extends Jooby { // <1>
+public class App extends Jooby {           // <1>
 
   {
-    get("/", ctx -> { // <2>
-      return "Hello Jooby";  // <3>
+    get("/", ctx -> {                      // <2>
+      return "Hello Jooby";                // <3>
     }); 
   }
 
   public static void main(String[] args) {
-    run(App::new, args); // <4>
+    run(App::new, args);                   // <4>
   }
 }
 ----
@@ -94,7 +83,7 @@ Script API (a.k.a script routes) provides a fluent DSL, reflection and annotatio
 
 We usually extends `Jooby` and define routes in the instance initializer:
 
-.App.java
+.Script:
 [source,java]
 ----
 public class App extends Jooby {
@@ -113,7 +102,7 @@ public class App extends Jooby {
 
 This is not strictly necessary (of course), you may instantiate `Jooby` like:
 
-.App.java
+.Static bootstrap:
 [source,java]
 ----
 public class App {
@@ -130,13 +119,14 @@ public class App {
 }
 ----
 
+[#introduction-mvc-api]
 === MVC API
 
 MVC API (a.k.a mvc routes) on the other hand uses annotation and reflection to define routes. Jooby
 implements a subset of https://github.com/jax-rs[JAX-RS] and it is not intended to be a fully
 https://github.com/jax-rs[JAX-RS] compliant.
 
-.App.java
+.MVC API:
 [source,java]
 ----
 public class App {
@@ -151,7 +141,7 @@ public class App {
 }
 ----
 
-.MyController.java
+.MyController:
 [source,java]
 ----
 public class MyController {
@@ -170,5 +160,10 @@ MVC API is not implemented yet.
 
 include::getting-started.adoc[]
 
+include::routing.adoc[]
 
+include::context.adoc[]
 
+include::thread-model.adoc[]
+
+include::mvc-api.adoc[]

@@ -25,7 +25,7 @@ public class DispatchApp extends Jooby {
 
     worker(Executors.newCachedThreadPool());
 
-    filter(next -> ctx -> {
+    decorate(next -> ctx -> {
       System.out.println(Thread.currentThread().getName());
       return next.apply(ctx);
     });

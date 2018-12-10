@@ -672,6 +672,10 @@ class $Chi implements RadixTree {
     root.insertRoute(method, pattern, route);
   }
 
+  public void insert(RouteImpl route) {
+    root.insertRoute(route.method(), route.pattern(), route);
+  }
+
   @Override public void destroy() {
     root.destroy();
   }

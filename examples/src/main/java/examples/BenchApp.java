@@ -32,7 +32,7 @@ public class BenchApp extends Jooby {
   }
 
   {
-    filter(Filters.defaultHeaders());
+    decorate(Filters.defaultHeaders());
 
     get("/", ctx -> ctx.sendText(MESSAGE));
 

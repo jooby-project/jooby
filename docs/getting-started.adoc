@@ -20,8 +20,7 @@ compile 'io.jooby:jooby-utow:{joobyVersion}'
 
 [TIP]
 ====
-We choose the http://undertow.io[Undertow] web server. Still Jooby is a multi-server web 
-framework. You are free to choose between: link:server/jetty.html[Jetty],
+Jooby is a multi-server web framework. You are free to choose between: link:server/jetty.html[Jetty],
 link:server/netty.html[Netty] and link:server/utow.html[Undertow]. 
 ====
 
@@ -55,7 +54,7 @@ listening on:
   http://localhost:8080
 ----
 
-`App.java` is ready {love}!
+Ready {love}!
 
 [TIP]
 ====

@@ -1,0 +1,23 @@
+:doctype: book
+:title: jooby: do more! more easily!!
+:toc: left
+:toclevels: 3
+:sectanchors:
+:sectlinks:
+:sectnums:
+:linkattrs:
+:icons: font
+:nofooter:
+:idprefix:
+:idseparator: -
+:sectnumlevels: 3
+:description: The modular micro web framework for Java
+:keywords: Java, Modern, Micro, Web, Framework, Reactive, Lightweight, Microservices
+:source-language: asciidoc
+:imagesdir: images
+:source-highlighter: highlightjs
+:highlightjs-theme: agate
+:favicon: images/favicon96.png
+:joobyVersion: 2.0.0-Alpha1
+:love: &#9825;
+:javadoc: https://static.javadoc.io/io.jooby/jooby/{joobyVersion}/io/jooby/

@@ -1,0 +1,230 @@
+=== Value API
+
+{javadoc}Value.html[Value API] is an unified API 
+ 
+
+==== Single value
+
+Single value is available via `value()` or `xxxValue()` functions: 
+
+[source, java]
+----
+{
+  // Query parameter `q` as `String`
+  get("/search", ctx -> {
+    String q = ctx.query("q").value();              // <1>
+    return q;
+  });
+  
+  // Query parameter `score` as `float`
+  get("/search", ctx -> {
+    float score = ctx.query("score").floatValue();  // <2>
+    return score;
+  });
+}
+----
+
+<1> Access to query parameter `q` and convert to `String`:
+
+- `/search?q=foo` => `foo`
+- `/search`       => `Bad Request(400)` (Required parameter `q` is not present)
+
+<1> Access to query parameter `score` and convert to `float`:
+
+- `/search?score=1`      => `1.0`
+- `/search?score=string` => `Bad Request(404)` (Type mismatch: cannot convert to number)
+- `/search`              => `Bad Request(400)` (Required parameter `score` is not present)
+
+Parameter are required and valid (if you convert them to something else). Default and optional
+parameters are described next.
+
+==== Default and optional value
+
+Default and optional value are available by providing a `default` value or using the `toOptional` method:
+
+[source, java]
+----
+{
+  // Default query parameter `q` with default value `*:*`
+  get("/search", ctx -> {
+    String q = ctx.query("q").value("*:*");             // <1>
+    return q;
+  });
+
+  // Optional query parameter `q` as `java.util.Optional`
+  get("/search", ctx -> {
+    Optional<String> q = ctx.query("q").toOptional();   // <2>
+    return q;
+  });
+}
+----
+
+<1> Access to query variable `q` and convert to `String` with a default value of `*:*`.
+
+- `/search?q=foo` => `foo`
+- `/search`       => `*:*`
+
+<2> Access to query variable `q` and convert to `Optional<String?`:
+
+- `/search?q=foo` => `Optional[foo]`
+- `/search`       => `Optional[]` (empty)
+
+  
+==== Multiple values
+
+Multiple values are available via `toList` and `toSet` functions:
+
+[source, java]
+----
+{
+  // Query parameter `q` as `List<String>`
+  get("/search", ctx -> {
+    List<String> q = ctx.query("q").toList();                // <1>    
+    return q;
+  });
+  
+  // Query parameter `n` as `List<Integer>`
+  get("/numbers", ctx -> {
+    List<Integer> n = ctx.query("n").toList(Integer.class);  // <2>
+    return n;
+  });
+}
+----
+
+<1> Multi-value query parameter as `List<String>`:
+
+- `/search`             => `[]` (empty list)
+- `/search?q=foo`       => `[foo]`
+- `/search?q=foo&q=bar` => `[foo, bar]`
+
+<2> Multi-value query parameter as `List<Integer>`
+
+- `/numbers`         => `[]` (empty list)
+- `/numbers?n=1`     => `[1]`
+- `/numbers?n=1&n=2` => `[1, 2]`
+
+==== Custom Mapper
+
+Custom mappings is done in one of this way:
+
+- Using a `mapping function`
+- Your class has a static factory method: `valueOf(String)`
+
+[source, java]
+----
+{
+  // Parameter `n` as `BigDecimal`
+  get("/n", ctx -> {
+    BigDecimal n = ctx.query("n").value(BigDecimal::new);                // <1>
+    return n;
+  });
+
+  // Parameter `n` as `Optional<BigDecimal>`
+  get("/n", ctx -> {
+    Optional<BigDecimal> n = ctx.query("n").toOptional(BigDecimal::new); // <2>
+    return n;
+  });
+ 
+  // Parameter `n` as `List<BigDecimal>`
+  get("/n", ctx -> {
+    List<BigDecimal> n = ctx.query("n").toList(BigDecimal::new);         // <3>
+    return n;
+  });
+  
+  // Custom mapper with user type: `UserId.valueOf(String)`
+  get("/user/{id}", ctx -> {
+    UserId userId = ctx.param("id").to(UserId.class);                    // <4>
+    return userId;
+  });
+}
+----
+
+<1> Custom mapper on single value
+<2> Custom mapper on optional value
+<3> Custom mapper on multiple values
+<4> Custom mapper using `UserId.valueOf(String)`
+
+==== Structured data
+
+The {javadoc}Value.html[Value API] allows us to traverse structured data.
+
+.Traversal
+[source, java]
+----
+{
+  get{"/queryString", ctx -> {
+    Value user = ctx.query("user");                  // <1>
+    String name  = user.get("name").value();         // <2>
+    String pass  = user.get("pass").value();         // <3>
+    String email = user.get("email").value("none");  // <4>
+    return name + ":" + pass;
+  }}
+}
+----
+
+Output:
+
+- `/queryString?user.name=root&user.pass=pass`                       => `root:pass:none`
+- `/queryString?user.name=root&user.pass=pass&user.email=user@mail`  => `root:pass:user@mail`
+
+Explanation:
+
+<1> Get the `user` node
+<2> Get the `name` value from `user` node
+<3> Get the `pass` value from `user` node
+<4> Get the `email` value from `user` node. This is an optional value.
+
+[TIP]
+.Safe traversal for optional paths
+====
+
+The {javadoc}Value.html#get(-java.lang.String-)[get(String)] method always produces a result, won't
+be ever `null`. Instead it produces a `missing` value allowing you to efectivly provide default values:
+
+[source,java]
+----
+String email = user.get("email").value("none"); 
+----
+
+====
+
+[TIP]
+.Dot and bracket notation support
+====
+
+- `?user.name=root&user.pass=pass`
+- `?user[name]=root&user[pass]=pass`
+====
+
+It is possible to parse `query`, `form` and `multipart` parameters into a Java class too:
+
+.User.java
+[source, java]
+----
+public class User {
+  public final String userId;
+  public final String email;
+  
+  public User(String userId, String email) { // <1>
+    this.userId = userId;
+    this.email = email;
+  }
+}
+
+...
+
+{
+  get("/user", ctx -> {
+    User user = ctx.query(User.class);       // <2>
+    ...
+    return user.userId + ":" + user.email;
+  });
+}
+----
+
+<1> Injection of value is done via constructor arguments
+<2> Parse `User` from `query string`
+
+Output:
+
+- `/user?userId=pedro&email=pedro@mail` => `pedro:pedro@mail`

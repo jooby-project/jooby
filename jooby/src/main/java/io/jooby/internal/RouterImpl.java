@@ -49,7 +49,7 @@ public class RouterImpl implements Router {
     private String pattern;
     private boolean gzip;
     private Executor executor;
-    private List<Route.Filter> filters = new ArrayList<>();
+    private List<Route.Decorator> filters = new ArrayList<>();
     private List<Renderer> renderers = new ArrayList<>();
     private List<Route.After> afters = new ArrayList<>();
 
@@ -61,7 +61,7 @@ public class RouterImpl implements Router {
       renderers.add(renderer);
     }
 
-    public void then(Route.Filter filter) {
+    public void then(Route.Decorator filter) {
       filters.add(filter);
     }
 
@@ -69,7 +69,7 @@ public class RouterImpl implements Router {
       afters.add(after);
     }
 
-    public Stream<Route.Filter> toFilter() {
+    public Stream<Route.Decorator> toFilter() {
       return filters.stream();
     }
 
@@ -196,8 +196,8 @@ public class RouterImpl implements Router {
     return newStack(push().gzip(true), action);
   }
 
-  @Override @Nonnull public Router filter(@Nonnull Route.Filter filter) {
-    stack.peekLast().then(filter);
+  @Override @Nonnull public Router decorate(@Nonnull Route.Decorator decorator) {
+    stack.peekLast().then(decorator);
     return this;
   }
 
@@ -207,7 +207,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router before(@Nonnull Route.Before before) {
-    return filter(before);
+    return decorate(before);
   }
 
   @Nonnull @Override public Router error(@Nonnull Route.ErrorHandler handler) {
@@ -241,13 +241,13 @@ public class RouterImpl implements Router {
     pat.append(pattern);
 
     /** Filters: */
-    List<Route.Filter> filters = stack.stream()
+    List<Route.Decorator> filters = stack.stream()
         .flatMap(Stack::toFilter)
         .collect(Collectors.toList());
 
     /** Before: */
-    Route.Filter before = null;
-    for (Route.Filter filter : filters) {
+    Route.Decorator before = null;
+    for (Route.Decorator filter : filters) {
       before = before == null ? filter : before.then(filter);
     }
 
@@ -383,7 +383,7 @@ public class RouterImpl implements Router {
   }
 
   private Router newStack(@Nonnull String pattern, @Nonnull Runnable action,
-      Route.Filter... filter) {
+      Route.Decorator... filter) {
     return newStack(push(pattern), action, filter);
   }
 
@@ -402,7 +402,7 @@ public class RouterImpl implements Router {
   }
 
   private Router newStack(@Nonnull Stack stack, @Nonnull Runnable action,
-      Route.Filter... filter) {
+      Route.Decorator... filter) {
     Stream.of(filter).forEach(stack::then);
     this.stack.addLast(stack);
     if (action != null) {

@@ -47,6 +47,30 @@ public class FeaturedTest {
 
   private static MediaType textplain = MediaType.parse("text/plain");
 
+  public static class Datafile {
+
+    public final String name;
+
+    public final Path filename;
+
+    public Datafile(String name, Path filename) {
+      this.name = name;
+      this.filename = filename;
+    }
+  }
+
+  public static class Datafiles {
+
+    public final String name;
+
+    public final List<Upload> filename;
+
+    public Datafiles(String name, List<Upload> filename) {
+      this.name = name;
+      this.filename = filename;
+    }
+  }
+
   @Test
   public void sayHi() {
     new JoobyRunner(app -> {
@@ -305,6 +329,9 @@ public class FeaturedTest {
 
       app.get("/file/*path", ctx -> ctx.param("path").value());
 
+      app.get("/catchallWithVarPrefix/{id}/*path",
+          ctx -> ctx.param("id").value() + ":" + ctx.param("path").value());
+
       app.get("/regex/{nid:[0-9]+}", ctx -> ctx.param("nid").intValue());
       app.get("/regex/{zid:[0-9]+}/edit", ctx -> ctx.param("zid").intValue());
 
@@ -324,6 +351,10 @@ public class FeaturedTest {
 
       client.get("/articles/tail/match", rsp -> {
         assertEquals("tail/match", rsp.body().string());
+      });
+
+      client.get("/catchallWithVarPrefix/55/js/index.js", rsp -> {
+        assertEquals("55:js/index.js", rsp.body().string());
       });
 
       client.get("/file/js/index.js", rsp -> {
@@ -485,6 +516,20 @@ public class FeaturedTest {
         return files.stream().map(f -> f.filename() + "=" + f.filesize())
             .collect(Collectors.toList());
       });
+
+      app.post("/datafile", ctx -> {
+        Datafile file = ctx.multipart(Datafile.class);
+        return file.name + "=" + Files.exists(file.filename);
+      });
+
+      app.post("/datafiles", ctx -> {
+        Datafiles file = ctx.multipart(Datafiles.class);
+        return file.name + "=" + file.filename;
+      });
+
+      app.post("/multipart", ctx -> {
+        return ctx.multipart().toMap();
+      });
     }).ready(client -> {
       client.post("/f", new MultipartBody.Builder()
           .setType(MultipartBody.FORM)
@@ -506,6 +551,38 @@ public class FeaturedTest {
               create(MediaType.parse("text/plain"), "text2"))
           .build(), rsp -> {
         assertEquals("[f1.txt=5, f2.txt=5]", rsp.body().string());
+      });
+
+      client.post("/multipart", new MultipartBody.Builder()
+          .setType(MultipartBody.FORM)
+          .addFormDataPart("user.name", "user")
+          .addFormDataPart("f", "f1.txt",
+              create(MediaType.parse("text/plain"), "text1"))
+          .addFormDataPart("f", "f2.txt",
+              create(MediaType.parse("text/plain"), "text2"))
+          .build(), rsp -> {
+        assertEquals("{user.name=[user], f=[f1.txt, f2.txt]}", rsp.body().string());
+      });
+
+      client.post("/datafile", new MultipartBody.Builder()
+          .setType(MultipartBody.FORM)
+          .addFormDataPart("name", "foo_report")
+          .addFormDataPart("filename", "fileupload.js",
+              create(MediaType.parse("application/javascript"),
+                  userdir("src", "test", "resources", "files", "fileupload.js").toFile()))
+          .build(), rsp -> {
+        assertEquals("foo_report=true", rsp.body().string());
+      });
+
+      client.post("/datafiles", new MultipartBody.Builder()
+          .setType(MultipartBody.FORM)
+          .addFormDataPart("name", "foo_report")
+          .addFormDataPart("filename", "f1.txt",
+              create(MediaType.parse("text/plain"), "text1"))
+          .addFormDataPart("filename", "f2.txt",
+              create(MediaType.parse("text/plain"), "text2"))
+          .build(), rsp -> {
+        assertEquals("foo_report=[f1.txt, f2.txt]", rsp.body().string());
       });
     });
   }
@@ -592,7 +669,7 @@ public class FeaturedTest {
         return ints;
       });
 
-      app.post("/str", ctx -> ctx.body().string());
+      app.post("/str", ctx -> ctx.body().value());
     }).ready(client -> {
       client.header("Content-Type", "application/json");
       client.post("/map", create(json, "{\"foo\": \"bar\"}"), rsp -> {
@@ -888,7 +965,7 @@ public class FeaturedTest {
   public void defaultHeaders() {
     LinkedList<String> servers = new LinkedList<>(Arrays.asList("netty", "utow", "jetty"));
     new JoobyRunner(app -> {
-      app.filter(Filters.defaultHeaders());
+      app.decorate(Filters.defaultHeaders());
       app.get("/", Context::path);
     }).ready(client -> {
       client.get("/", rsp -> {
@@ -903,7 +980,7 @@ public class FeaturedTest {
   @Test
   public void defaultContentType() {
     new JoobyRunner(app -> {
-      app.filter(Filters.contentType(text));
+      app.decorate(Filters.contentType(text));
       app.get("/type", Context::path);
     }).ready(client -> {
       client.get("/type", rsp -> {
@@ -912,7 +989,7 @@ public class FeaturedTest {
     });
 
     new JoobyRunner(app -> {
-      app.filter(Filters.contentType("text/plain"));
+      app.decorate(Filters.contentType("text/plain"));
       app.get("/type-text", Context::path);
     }).ready(client -> {
       client.get("/type-text", rsp -> {
@@ -921,7 +998,7 @@ public class FeaturedTest {
     });
 
     new JoobyRunner(app -> {
-      app.filter(Filters.contentType("text/plain"));
+      app.decorate(Filters.contentType("text/plain"));
       app.get("/type-override", ctx -> ctx.type("text/html").sendText("OK"));
     }).ready(client -> {
       client.get("/type-override", rsp -> {

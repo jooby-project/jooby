@@ -45,8 +45,6 @@ import java.util.concurrent.CompletableFuture;
  * @author Jesse Wilson
  */
 public class Reified<T> {
-  public static final Reified<Integer> INT = new Reified<>(Integer.class);
-
   final Class<? super T> rawType;
   final Type type;
   final int hashCode;
@@ -140,9 +138,6 @@ public class Reified<T> {
    * Gets type literal for the given {@code Class} instance.
    */
   public static <T> Reified<T> get(Class<T> type) {
-    if (type == int.class || type == Integer.class) {
-      return (Reified<T>) INT;
-    }
     return new Reified<>(type);
   }
 

@@ -16,7 +16,7 @@
 package io.jooby.internal;
 
 import io.jooby.Err;
-import io.jooby.Reified;
+import io.jooby.Upload;
 import io.jooby.Value;
 
 import javax.inject.Inject;
@@ -31,6 +31,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -55,9 +56,13 @@ public class ValueInjector {
     return this;
   }
 
-  public <T> T inject(Reified<T> type, Value scope) {
+  public <T> T inject(Value scope, Class type) {
+    return inject(scope, type, type);
+  }
+
+  public <T> T inject(Value scope, Type type, Class rawType) {
     try {
-      Object result = value(scope, type.getRawType(), type.getType());
+      Object result = value(scope, rawType, type);
       return (T) result;
     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException x) {
       throw sneakyThrow(x);
@@ -75,28 +80,27 @@ public class ValueInjector {
           Collections.emptySet());
     }
     Constructor constructor = selectConstructor(constructors);
-    if (constructor.getParameterCount() == 0) {
-      return setters(type.getDeclaredConstructor().newInstance(), scope,
-          Collections.emptySet());
-    }
     Set<Value> state = new HashSet<>();
-    Object[] args = inject(scope, constructor, state::add);
+    Object[] args = constructor.getParameterCount() == 0 ?
+        new Object[0] :
+        inject(scope, constructor, state::add);
     return (T) setters(constructor.newInstance(args), scope, state);
   }
 
   private Constructor selectConstructor(Constructor[] constructors) {
-    if (constructors.length == 1) {
-      return constructors[0];
-    }
     Constructor result = null;
-    for (Constructor constructor : constructors) {
-      if (Modifier.isPublic(constructor.getModifiers())) {
-        Annotation inject = constructor.getAnnotation(Inject.class);
-        if (inject != null) {
-          if (result == null) {
-            result = constructor;
-          } else {
-            throw new IllegalStateException(AMBIGUOUS_CONSTRUCTOR);
+    if (constructors.length == 1) {
+      result = constructors[0];
+    } else {
+      for (Constructor constructor : constructors) {
+        if (Modifier.isPublic(constructor.getModifiers())) {
+          Annotation inject = constructor.getAnnotation(Inject.class);
+          if (inject != null) {
+            if (result == null) {
+              result = constructor;
+            } else {
+              throw new IllegalStateException(AMBIGUOUS_CONSTRUCTOR);
+            }
           }
         }
       }
@@ -139,11 +143,11 @@ public class ValueInjector {
     return null;
   }
 
-  private Object resolve(Value scope, Type type)
+  private Object resolve(Value scope, Class type)
       throws IllegalAccessException, InvocationTargetException, InstantiationException,
       NoSuchMethodException {
     if (scope.isObject() || scope.isSimple()) {
-      return newInstance(Reified.get(type).getRawType(), scope);
+      return newInstance(type, scope);
     } else if (scope.isMissing()) {
       // TODO: Add supports for null
       return missingToNull ? null : scope.value();
@@ -184,7 +188,7 @@ public class ValueInjector {
       throws InvocationTargetException, IllegalAccessException, InstantiationException,
       NoSuchMethodException {
     if (value.isMissing()) {
-      return resolve(value, type);
+      return resolve(value, rawType);
     }
     if (rawType == String.class) {
       return value.get(0).value();
@@ -224,6 +228,19 @@ public class ValueInjector {
     if (Charset.class == rawType) {
       return Charset.forName(value.get(0).value());
     }
+    if (Path.class == rawType) {
+      if (value.get(0).isUpload()) {
+        Upload upload = (Upload) value.get(0);
+        return upload.path();
+      }
+      throw new Err.BadRequest("Type mismatch: cannot convert value to path");
+    }
+    if (Upload.class == rawType) {
+      if (value.get(0).isUpload()) {
+        return value.get(0);
+      }
+      throw new Err.BadRequest("Type mismatch: cannot convert value to file upload");
+    }
     /**********************************************************************************************
      * Static method: valueOf
      * ********************************************************************************************
@@ -231,12 +248,12 @@ public class ValueInjector {
     try {
       Method valueOf = rawType.getMethod("valueOf", String.class);
       if (Modifier.isStatic(valueOf.getModifiers())) {
-        return valueOf.invoke(null, value.get(0).value());
+        return valueOf.invoke(null, value.iterator().next().value());
       }
     } catch (NoSuchMethodException x) {
       // Ignored
     }
-    return resolve(value, type);
+    return resolve(value, rawType);
   }
 
   private Collection collection(Value scope, ParameterizedType type, Collection result)

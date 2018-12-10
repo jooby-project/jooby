@@ -15,23 +15,21 @@
  */
 package io.jooby;
 
+import io.jooby.internal.BodyImpl;
+
 import javax.annotation.Nonnull;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
-public interface Body {
+public interface Body extends Value {
 
-  default String string() {
-    return string(StandardCharsets.UTF_8);
-  }
-
-  default String string(Charset charset) {
+  default String value(Charset charset) {
     return new String(bytes(), charset);
   }
 
   default byte[] bytes() {
-    // TODO: Improve reading for small bodies
     try (InputStream stream = stream()) {
       int bufferSize = Server._16KB;
       ByteArrayOutputStream out = new ByteArrayOutputStream(bufferSize);
@@ -51,14 +49,6 @@ public interface Body {
   InputStream stream();
 
   static Body of(@Nonnull InputStream stream, long contentLength) {
-    return new Body() {
-      @Override public long contentLength() {
-        return contentLength;
-      }
-
-      @Override public InputStream stream() {
-        return stream;
-      }
-    };
+    return new BodyImpl(stream, contentLength);
   }
 }
