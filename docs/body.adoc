@@ -1,8 +1,8 @@
-== Body
+=== Body
 
 This chapter covers the request and response `HTTP Body`.
 
-=== Request
+==== Request
 
 HTTP Request body is available via {javadoc}Context.html#body--[body] method:
 
@@ -30,9 +30,54 @@ HTTP Request body is available via {javadoc}Context.html#body--[body] method:
 <2> `HTTP Body` as `byte`
 <3> `HTTP Body` as `InputStream`
 
-=== Parser
+==== Parser
 
-The {javadoc}Parser.html[Parser] functional interface allows you to plug-in a `content-type` 
-specific parser.
+Request body parsing is achieved using the {javadoc}Parser.html[Parser] functional interface.
 
-Suppose you want to provide your own `json`   
+.Parser.java
+[source, java]
+----
+public interface Parser {
+
+  <T> T parse(Context ctx, Reified<T> reified) throws Exception; // <1>
+}
+----
+
+<1> Parser API has a single `parse` method that takes the HTTP context and type reference and
+produces a result (parsed type).
+
+
+.Example of Json parser:
+[source, java]
+----
+{
+  FavoriteJson lib = ...;                          // <1>
+
+  parser("appplication/json", (ctx, reified) -> {  // <2>
+
+    String body = ctx.body().value();              // <3>
+
+    return lib.fromJson(body, reified.getType());  // <4>
+  });
+
+  post("/", ctx -> {
+    MyObject myObject = ctx.body(MyObject.class);  // <5>
+  });
+}
+----
+
+<1> Choose your favorite `json` library
+<2> This parser kick in when `Accept` header is set to `application/json`
+<3> Ready the body as `String`
+<4> Parse the `body` and use the requested type
+<5> Route handler now call the `body(Type)` function to trigger the parser function
+
+[TIP]
+====
+
+Jooby comes with a `json` parser built on top of https://github.com/FasterXML/jackson-databind[Jackson]:
+
+[dependency, artifactId="jooby-jackson"]
+.
+
+====

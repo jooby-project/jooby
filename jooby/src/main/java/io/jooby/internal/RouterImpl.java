@@ -215,16 +215,21 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Override @Nonnull public Router stack(@Nonnull Runnable action) {
-    return newStack("", action);
+  @Override @Nonnull public Router group(@Nonnull Runnable action) {
+    return newStack(push(), action);
   }
 
-  @Nonnull @Override public Router stack(@Nonnull Executor executor, @Nonnull Runnable action) {
+  @Nonnull @Override public Router group(@Nonnull Executor executor, @Nonnull Runnable action) {
     return newStack(push().executor(executor == null ? LAZY_WORKER : executor), action);
   }
 
-  @Override @Nonnull public Router path(@Nonnull String pattern, @Nonnull Runnable action) {
+  @Override @Nonnull public Router group(@Nonnull String pattern, @Nonnull Runnable action) {
     return newStack(pattern, action);
+  }
+
+  @Nonnull @Override public Router group(@Nonnull Executor executor, @Nonnull String pattern,
+      @Nonnull Runnable action) {
+    return newStack(push(pattern).executor(executor == null ? LAZY_WORKER : executor), action);
   }
 
   @Override

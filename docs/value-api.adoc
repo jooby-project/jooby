@@ -29,7 +29,7 @@ Single value is available via `value()` or `xxxValue()` functions:
 - `/search?q=foo` => `foo`
 - `/search`       => `Bad Request(400)` (Required parameter `q` is not present)
 
-<1> Access to query parameter `score` and convert to `float`:
+<2> Access to query parameter `score` and convert to `float`:
 
 - `/search?score=1`      => `1.0`
 - `/search?score=string` => `Bad Request(404)` (Type mismatch: cannot convert to number)

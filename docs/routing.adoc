@@ -132,9 +132,9 @@ to the client.
 variable name.
 
 [NOTE]
-----
+====
 A `catchall` pattern must be defined at the end of the path pattern.
-----
+====
  
 === Handler
 
@@ -241,7 +241,7 @@ Now if you move the decorator after the handler:
 ----
 {
   // Produces: Jooby
-  get("/", ctx -> "Jooby");
+  get("/", ctx -> "Jooby");            // <1>
   
   decorator(next -> ctx -> {
     return "Hello " + next.apply(ctx);
@@ -442,56 +442,36 @@ A `scoped decorator` allows us to selectively apply one or more `decorators` to 
     return 1 + n.intValue();
   });
 
-  stack(() -> {
+  group(() -> {                          // <1>
     // Multiply by 2
     decorator(next -> ctx -> {
       var n = (Number) next.apply(ctx);
       return 2 * n.intValue();
     });
     
-    get("/worker", ctx -> 4);  // <1>
+    get("/4", ctx -> 4);                 // <2>
   });
   
-  get("/io", ctx -> 1);        // <2>
+  get("/1", ctx -> 1);                   // <3>
 }
 ----
 
 Output:
 
-<1> `/worker` => `9`
-<2> `/io`     => `2`
+<1> Introduce a new scope via `group` operator
+<2> `/4`  => `9`
+<3> `/1`  => `2`
 
-The {javadoc}Router.html#stack-java.lang.Runnable-[stack operator] creates a new `scope` for routes. It
-allows us to selectively apply `decorator` to one or more `routes`.
+=== Grouping routes
 
-=== Operators
-
-==== use
-
-The `use` operator allows to mount/import routes from another `router` and from <<mvc-api, mvc route>>.
-
-.use operator
-[source,java]
-----
-{
-  use(new Clients()); // <1>
-}
-----
-
-<1> Import all routes from `Clients` router
-
-This operator is covered in <<composition, next section>>.
-
-==== stack
-
-The {javadoc}Router.html#stack-java.lang.Runnable-[stack operator] push a new route `scope` and
+The {javadoc}Router.html#group-java.lang.Runnable-[group operator] push a new route `scope` and
 allows you to selectively apply one or more route `decorators`.
 
-.stack operator
+.group operator
 [source,java]
 ----
 {
-  stack(() -> {   
+  group(() -> {   
     decorator(next -> ctx -> next.apply(ctx) + " Stack!"); // <1>
 
     get("/", ctx -> "Hello");                              // <2>
@@ -499,21 +479,16 @@ allows you to selectively apply one or more route `decorators`.
 }
 ----
 
-<1> The `stack` operator applies the `decorator` to the `handlers` defined below it.
+<1> The `group` operator applies the `decorator` to the `handlers` defined below it.
 <2> `/` => `Hello Stack!`
 
-This operator is covered in <<scoped-decorator, scoped decorator section>>. 
+More about scoped decorators in the <<scoped-decorator, scoped decorator section>>. 
 
-==== path
-
-The {javadoc}Router.html#path-java.lang.String,java.lang.Runnable-[path operator] group one or more
-routes under a common path prefix:
-
-.path operator
+.Group one or more route under a common path prefix:
 [source,java]
 ----
 {
-   path("/api/user", () -> {    // <1>
+   group("/api/user", () -> {   // <1>
    
      get("/{id}", ctx -> ...);  // <2>
    
@@ -531,19 +506,11 @@ routes under a common path prefix:
 <3> `GET /api/user`
 <4> `POST /api/user`
 
-This operator inherited from <<stack, stack operator>>.
-
-[#operators-disaptch]
-==== dispatch
-
-The {javadoc}Router.html#dispatch-java.lang.Runnable-[dispatch operator] moves pipeline execution
-to a `worker` thread allowing to execute blocking code.
-
-.path operator
+.Dispatch one or more route to the worker or custom thread pool:
 [source,java]
 ----
 {
-   dispatch(() -> {             // <1>
+   group(worker(), () -> {             // <1>
    
      get("/", ctx -> ...);
      
@@ -556,11 +523,9 @@ to a `worker` thread allowing to execute blocking code.
 
 <1> All routes wrapped by `dispatch` run in the `worker/io` thread.
 
-This operator inherited from <<stack, stack operator>>.
+More about `dispatch` in the <<dispatch, thread model section>>. 
 
-This operator is covered in <<dispatch, thread model section>>. 
-
-=== Composition
+=== Composing routes
 
 Composition is a technique for building complex application. You can compose one or more
 router/application into a new one. Composition let you build applications as components/modules.
@@ -620,13 +585,13 @@ public class App extends Jooby {
 
 <1> Now all routes from `Foo` will be prefixed with `/prefix`. Output: `/prefix/foo` => `/prefix/foo`
 
-[INFO]
-----
+[TIP]
+====
 Composition is a great option for modularization. You can easily develop/test/deploy each 
 application indendepently and compose them all in another application.
 
 We do provide <<mvc-api, MVC API>> as another alternative for modularization.
-----
+====
 
 === Dynamic Routing
 

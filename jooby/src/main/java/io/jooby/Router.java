@@ -62,15 +62,15 @@ public interface Router {
 
   @Nonnull Path tmpdir();
 
-  @Nonnull default Router parser(@Nonnull Parser parser) {
+  @Nonnull default Router parser(@Nonnull String contentType, @Nonnull Parser parser) {
     return decorate(next -> ctx -> {
-      ctx.parser(parser.contentType(), parser);
+      ctx.parser(contentType, parser);
       return next.apply(ctx);
     });
   }
 
   @Nonnull default Router converter(@Nonnull Converter converter) {
-    parser(converter);
+    parser(converter.contentType(), converter);
     renderer(converter);
     return this;
   }
@@ -87,19 +87,13 @@ public interface Router {
 
   @Nonnull Router after(@Nonnull Route.After after);
 
-  @Nonnull Router stack(@Nonnull Runnable action);
+  @Nonnull Router group(@Nonnull Runnable action);
 
-  @Nonnull Router stack(@Nonnull Executor executor, @Nonnull Runnable action);
+  @Nonnull Router group(@Nonnull String pattern, @Nonnull Runnable action);
 
-  @Nonnull default Router dispatch(@Nonnull Runnable action) {
-    return dispatch(worker(), action);
-  }
+  @Nonnull Router group(@Nonnull Executor executor, @Nonnull Runnable action);
 
-  @Nonnull default Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
-    return stack(executor, action);
-  }
-
-  @Nonnull Router path(@Nonnull String pattern, @Nonnull Runnable action);
+  @Nonnull Router group(@Nonnull Executor executor, @Nonnull String pattern, @Nonnull Runnable action);
 
   @Nonnull default Route get(@Nonnull String pattern, @Nonnull Route.Handler handler) {
     return route(GET, pattern, handler);

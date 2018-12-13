@@ -215,7 +215,7 @@ Output:
 `curl -d "id=root&pass=pwd" -X POST http://localhost:8080/user` =>
 
 <1> form variable `id`  : `root`
-<1> form variable `pass`: `pwd`
+<2> form variable `pass`: `pwd`
 <3> form object         : `User(id=root, pass=pwd)`
 <4> form map            : `{id=root, pass=pwd}` 
 
@@ -253,9 +253,9 @@ the given name.
     
     Upload pic = ctx.multipart("pic").upload();                  // <3>
 
-    User user = ctx.multipart(User.class);                       // <3>
+    User user = ctx.multipart(User.class);                       // <4>
 
-    Map<String, List<String> multipartMap = ctx.multipartMap();  // <4>
+    Map<String, List<String> multipartMap = ctx.multipartMap();  // <5>
     ...
   });
 }
@@ -281,7 +281,7 @@ Output:
 `curl -F id=root -F pass=root -F pic=@/path/to/local/file/profile.png http://localhost:8080/user` =>
 
 <1> form variable `id`  : `root`
-<1> form variable `pass`: `pwd`
+<2> form variable `pass`: `pwd`
 <3> file upload   `pic` : {javadoc}Upload.html[upload] object
 <4> multipart object:   : `User(id=root, pass=pwd, pic=profile.png)`
 <5> multipart map       : `{id=root, pass=pwd}` 

@@ -24,7 +24,7 @@ public abstract class Converter implements Parser, Renderer {
     this.contentType = contentType;
   }
 
-  @Override public String contentType() {
+  public String contentType() {
     return contentType;
   }
 }

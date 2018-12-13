@@ -37,7 +37,7 @@ public class DispatchApp extends Jooby {
 
     get("/", ctx -> ctx.query("n").intValue(2));
 
-    dispatch(() -> {
+    group(worker(), () -> {
       get("/worker", ctx -> ctx.query("n").intValue(2));
     });
   }

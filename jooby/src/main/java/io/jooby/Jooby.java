@@ -105,18 +105,24 @@ public class Jooby implements Router {
     return this;
   }
 
-  @Nonnull @Override public Jooby stack(@Nonnull Runnable action) {
-    router.stack(action);
+  @Nonnull @Override public Jooby group(@Nonnull Runnable action) {
+    router.group(action);
     return this;
   }
 
-  @Nonnull @Override public Router stack(@Nonnull Executor executor, @Nonnull Runnable action) {
-    router.stack(executor, action);
+  @Nonnull @Override public Router group(@Nonnull Executor executor, @Nonnull Runnable action) {
+    router.group(executor, action);
     return this;
   }
 
-  @Nonnull @Override public Jooby path(@Nonnull String pattern, @Nonnull Runnable action) {
-    router.path(pattern, action);
+  @Nonnull @Override public Jooby group(@Nonnull String pattern, @Nonnull Runnable action) {
+    router.group(pattern, action);
+    return this;
+  }
+
+  @Nonnull @Override public Router group(@Nonnull Executor executor, @Nonnull String pattern,
+      @Nonnull Runnable action) {
+    router.group(executor, pattern, action);
     return this;
   }
 

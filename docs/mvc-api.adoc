@@ -1,6 +1,6 @@
 == MVC API
 
-[INFO]
-----
+[IMPORTANT]
+====
 MVC API is not implemented yet.
-----
+====

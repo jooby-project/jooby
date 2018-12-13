@@ -18,6 +18,5 @@
 :source-highlighter: highlightjs
 :highlightjs-theme: agate
 :favicon: images/favicon96.png
-:joobyVersion: 2.0.0-Alpha1
 :love: &#9825;
 :javadoc: https://static.javadoc.io/io.jooby/jooby/{joobyVersion}/io/jooby/

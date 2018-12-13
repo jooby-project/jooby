@@ -89,7 +89,7 @@ public class FeaturedTest {
   public void sayHiFromIO() {
     new JoobyRunner(app -> {
       app.get("/", ctx -> "Hello World!");
-      app.dispatch(() -> {
+      app.group(app.worker(), () -> {
         app.get("/worker", ctx -> "Hello World!");
       });
     }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
@@ -142,7 +142,7 @@ public class FeaturedTest {
   public void sayHiFromWorker() {
     new JoobyRunner(app -> {
       app.get("/", ctx -> "Hello World!");
-      app.dispatch(() -> {
+      app.group(app.worker(), () -> {
         app.get("/worker", ctx -> "Hello World!");
       });
     }).mode(ExecutionMode.WORKER).ready(client -> {
@@ -592,7 +592,7 @@ public class FeaturedTest {
     new JoobyRunner(app -> {
       app.post("/f", ctx -> ctx.multipart());
 
-      app.dispatch(() ->
+      app.group(app.worker(), () ->
           app.post("/w", ctx -> ctx.multipart()));
 
       app.error(IllegalStateException.class, (ctx, x, statusCode) -> {
@@ -633,7 +633,7 @@ public class FeaturedTest {
         return buff;
       });
 
-      app.dispatch(() -> {
+      app.group(app.worker(), () -> {
         app.before(ctx -> {
           StringBuilder buff = ctx.get("buff");
           buff.append("before2:" + ctx.isInIoThread()).append(";");
@@ -866,7 +866,7 @@ public class FeaturedTest {
       Jooby bar = new Jooby();
       bar.get("/bar", Context::path);
 
-      app.path("/api", () -> {
+      app.group("/api", () -> {
         app.use(bar);
 
         app.use("/bar", bar);
