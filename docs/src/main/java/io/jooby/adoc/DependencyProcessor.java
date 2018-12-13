@@ -1,6 +1,5 @@
 package io.jooby.adoc;
 
-import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.StructuralNode;
 import org.asciidoctor.extension.BlockProcessor;
 import org.asciidoctor.extension.Reader;
@@ -40,16 +39,16 @@ public class DependencyProcessor extends BlockProcessor {
   }
 
   private void gradle(Object groupId, Object artifactId, Object version, Consumer<String> lines) {
-    lines.accept(".Gradle:");
-    lines.accept("[source,javascript]");
+    lines.accept(".Gradle");
+    lines.accept("[source,javascript,role=\"secondary\"]");
     lines.accept("----");
     lines.accept("compile: '" + groupId + ":" + artifactId + ":" + version + "'");
     lines.accept("----");
   }
 
   private void maven(Object groupId, Object artifactId, Object version, Consumer<String> lines) {
-    lines.accept(".Maven:");
-    lines.accept("[source, xml]");
+    lines.accept(".Maven");
+    lines.accept("[source, xml,role=\"primary\"]");
     lines.accept("----");
     lines.accept("<dependency>");
     lines.accept("  <groupId>" + groupId + "</groupId>");

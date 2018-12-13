@@ -1,5 +1,3 @@
-include::page-header.adoc[]
-
 ////
 Style guidelines:
 

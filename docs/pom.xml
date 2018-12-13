@@ -16,8 +16,13 @@
   <dependencies>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby</artifactId>
+      <artifactId>jooby-utow</artifactId>
       <version>${jooby.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm-util</artifactId>
     </dependency>
 
     <dependency>
