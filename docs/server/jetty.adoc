@@ -1,5 +1,3 @@
-include::page-header.adoc[]
-
 == Jetty
 
 Jetty web server implementation.
