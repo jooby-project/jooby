@@ -62,16 +62,20 @@ public interface Context {
    *
    * @return Request path without decoding (a.k.a raw Path). QueryString (if any) is not included.
    */
-  @Nonnull String path();
+  @Nonnull String pathString();
 
-  @Nonnull default Value param(@Nonnull String name) {
-    String value = params().get(name);
+  @Nonnull default Value path(@Nonnull String name) {
+    String value = pathMap().get(name);
     return value == null ?
         new Value.Missing(name) :
         new Value.Simple(name, UrlParser.decodePath(value));
   }
 
-  @Nonnull Map<String, String> params();
+  @Nonnull default Value path() {
+    return Value.path(pathMap());
+  }
+
+  @Nonnull Map<String, String> pathMap();
 
   /* **********************************************************************************************
    * Query String API
@@ -100,7 +104,7 @@ public interface Context {
     return query().to(type);
   }
 
-  @Nonnull default Map<String, List<String>> queryMap() {
+  @Nonnull default Map<String, List<String>> queryMultimap() {
     return query().toMap();
   }
 
@@ -109,11 +113,15 @@ public interface Context {
    * **********************************************************************************************
    */
 
+  @Nonnull Value headers();
+
   @Nonnull default Value header(@Nonnull String name) {
     return headers().get(name);
   }
 
-  @Nonnull Value headers();
+  @Nonnull default Map<String, List<String>> headerMultimap() {
+    return headers().toMap();
+  }
 
   /* **********************************************************************************************
    * Form API
@@ -122,7 +130,7 @@ public interface Context {
 
   @Nonnull Formdata form();
 
-  @Nonnull default Map<String, List<String>> formMap() {
+  @Nonnull default Map<String, List<String>> formMultimap() {
     return form().toMap();
   }
 
@@ -165,32 +173,32 @@ public interface Context {
     return multipart().to(type);
   }
 
-  @Nonnull default Map<String, List<String>> multipartMap() {
+  @Nonnull default Map<String, List<String>> multipartMultimap() {
     return multipart().toMap();
   }
 
-  @Nonnull default List<Upload> files() {
+  @Nonnull default List<FileUpload> files() {
     Value multipart = multipart();
-    List<Upload> result = new ArrayList<>();
+    List<FileUpload> result = new ArrayList<>();
     for (Value value : multipart) {
       if (value.isUpload()) {
-        result.add(value.upload());
+        result.add(value.fileUpload());
       }
     }
     return result;
   }
 
-  @Nonnull default List<Upload> files(@Nonnull String name) {
+  @Nonnull default List<FileUpload> files(@Nonnull String name) {
     Value multipart = multipart(name);
-    List<Upload> result = new ArrayList<>();
+    List<FileUpload> result = new ArrayList<>();
     for (Value value : multipart) {
-      result.add(value.upload());
+      result.add(value.fileUpload());
     }
     return result;
   }
 
-  @Nonnull default Upload file(@Nonnull String name) {
-    return multipart(name).upload();
+  @Nonnull default FileUpload file(@Nonnull String name) {
+    return multipart(name).fileUpload();
   }
 
   /* **********************************************************************************************

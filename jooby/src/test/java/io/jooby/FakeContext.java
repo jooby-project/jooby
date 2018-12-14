@@ -28,16 +28,16 @@ public class FakeContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public String path() {
+  @Nonnull @Override public String pathString() {
     return path;
   }
 
-  public FakeContext path(String path) {
+  public FakeContext setPath(String path) {
     this.path = path;
     return this;
   }
 
-  @Nonnull @Override public Map<String, String> params() {
+  @Nonnull @Override public Map<String, String> pathMap() {
     return params;
   }
 

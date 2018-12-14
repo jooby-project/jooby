@@ -16,6 +16,7 @@
 package io.jooby.internal.netty;
 
 import io.jooby.*;
+import io.jooby.FileUpload;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
@@ -56,7 +57,7 @@ public class NettyContext extends BaseContext {
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
-  private List<Upload> files;
+  private List<FileUpload> files;
   private Value.Object headers;
 
   public NettyContext(ChannelHandlerContext ctx, Executor executor,
@@ -83,7 +84,7 @@ public class NettyContext extends BaseContext {
     return req.method().asciiName().toUpperCase().toString();
   }
 
-  @Nonnull @Override public final String path() {
+  @Nonnull @Override public final String pathString() {
     return path;
   }
 
@@ -241,12 +242,12 @@ public class NettyContext extends BaseContext {
   public void destroy() {
     if (files != null) {
       // TODO: use a log
-      files.forEach(throwingConsumer(Upload::destroy));
+      files.forEach(throwingConsumer(FileUpload::destroy));
     }
     release(req);
   }
 
-  private Upload register(Upload upload) {
+  private FileUpload register(FileUpload upload) {
     if (this.files == null) {
       this.files = new ArrayList<>();
     }
@@ -261,7 +262,7 @@ public class NettyContext extends BaseContext {
         HttpData next = (HttpData) decoder.next();
         if (next.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
           form.put(next.getName(),
-              register(new NettyUpload(tmpdir, next.getName(), (FileUpload) next)));
+              register(new NettyFileUpload(tmpdir, next.getName(), (io.netty.handler.codec.http.multipart.FileUpload) next)));
         } else {
           form.put(next.getName(), next.getString(UTF_8));
           next.release();

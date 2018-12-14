@@ -16,7 +16,7 @@
 package io.jooby.internal;
 
 import io.jooby.Err;
-import io.jooby.Upload;
+import io.jooby.FileUpload;
 import io.jooby.Value;
 
 import javax.inject.Inject;
@@ -230,12 +230,12 @@ public class ValueInjector {
     }
     if (Path.class == rawType) {
       if (value.get(0).isUpload()) {
-        Upload upload = (Upload) value.get(0);
+        FileUpload upload = (FileUpload) value.get(0);
         return upload.path();
       }
       throw new Err.BadRequest("Type mismatch: cannot convert value to path");
     }
-    if (Upload.class == rawType) {
+    if (FileUpload.class == rawType) {
       if (value.get(0).isUpload()) {
         return value.get(0);
       }

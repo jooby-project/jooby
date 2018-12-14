@@ -21,7 +21,7 @@ public class ChiTest {
     router.insert(bar);
 
     RouterMatch result = router
-        .find(new FakeContext().path("/abcd"), Renderer.TO_STRING, Collections.emptyList());
+        .find(new FakeContext().setPath("/abcd"), Renderer.TO_STRING, Collections.emptyList());
     assertTrue(result.matches);
     assertEquals(bar, result.route());
   }

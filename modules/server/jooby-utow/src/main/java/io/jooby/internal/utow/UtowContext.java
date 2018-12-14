@@ -42,7 +42,7 @@ public class UtowContext extends BaseContext {
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
-  private List<Upload> files;
+  private List<FileUpload> files;
   private Value.Object headers;
 
   public UtowContext(HttpServerExchange exchange, Executor worker,
@@ -69,7 +69,7 @@ public class UtowContext extends BaseContext {
     return exchange.getRequestMethod().toString().toUpperCase();
   }
 
-  @Nonnull @Override public String path() {
+  @Nonnull @Override public String pathString() {
     return exchange.getRequestPath();
   }
 
@@ -210,11 +210,11 @@ public class UtowContext extends BaseContext {
   @Override public void destroy() {
     if (files != null) {
       // TODO: use a log
-      files.forEach(throwingConsumer(Upload::destroy));
+      files.forEach(throwingConsumer(FileUpload::destroy));
     }
   }
 
-  private Upload register(Upload upload) {
+  private FileUpload register(FileUpload upload) {
     if (files == null) {
       files = new ArrayList<>();
     }
@@ -229,7 +229,7 @@ public class UtowContext extends BaseContext {
       Deque<FormData.FormValue> values = data.get(path);
       for (FormData.FormValue value : values) {
         if (value.isFile()) {
-          form.put(path, register(new UtowUpload(path, value)));
+          form.put(path, register(new UtowFileUpload(path, value)));
         } else {
           form.put(path, value.getValue());
         }

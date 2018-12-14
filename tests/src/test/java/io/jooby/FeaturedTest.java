@@ -63,9 +63,9 @@ public class FeaturedTest {
 
     public final String name;
 
-    public final List<Upload> filename;
+    public final List<FileUpload> filename;
 
-    public Datafiles(String name, List<Upload> filename) {
+    public Datafiles(String name, List<FileUpload> filename) {
       this.name = name;
       this.filename = filename;
     }
@@ -197,7 +197,7 @@ public class FeaturedTest {
   public void rawPath() {
     new JoobyRunner(app -> {
 
-      app.get("/{code}", ctx -> ctx.path());
+      app.get("/{code}", ctx -> ctx.pathString());
 
     }).ready(client -> {
       client.get("/foo", rsp -> {
@@ -323,24 +323,24 @@ public class FeaturedTest {
   @Test
   public void pathVariable() {
     new JoobyRunner(app -> {
-      app.get("/articles/{id}", ctx -> ctx.param("id").intValue());
+      app.get("/articles/{id}", ctx -> ctx.path("id").intValue());
 
-      app.get("/articles/*", ctx -> ctx.param("*").value());
+      app.get("/articles/*", ctx -> ctx.path("*").value());
 
-      app.get("/file/*path", ctx -> ctx.param("path").value());
+      app.get("/file/*path", ctx -> ctx.path("path").value());
 
       app.get("/catchallWithVarPrefix/{id}/*path",
-          ctx -> ctx.param("id").value() + ":" + ctx.param("path").value());
+          ctx -> ctx.path("id").value() + ":" + ctx.path("path").value());
 
-      app.get("/regex/{nid:[0-9]+}", ctx -> ctx.param("nid").intValue());
-      app.get("/regex/{zid:[0-9]+}/edit", ctx -> ctx.param("zid").intValue());
+      app.get("/regex/{nid:[0-9]+}", ctx -> ctx.path("nid").intValue());
+      app.get("/regex/{zid:[0-9]+}/edit", ctx -> ctx.path("zid").intValue());
 
-      app.get("/file/{file}.json", ctx -> ctx.param("file").value() + ".JSON");
+      app.get("/file/{file}.json", ctx -> ctx.path("file").value() + ".JSON");
 
       app.get("/file/{file}.{ext}",
-          ctx -> ctx.param("file").value() + "." + ctx.param("ext").value());
+          ctx -> ctx.path("file").value() + "." + ctx.path("ext").value());
 
-      app.get("/profile/{pid}", ctx -> ctx.param("pid").value());
+      app.get("/profile/{pid}", ctx -> ctx.path("pid").value());
 
       app.get("/profile/me", ctx -> "me!");
 
@@ -453,7 +453,7 @@ public class FeaturedTest {
   @Test
   public void pathEncoding() {
     new JoobyRunner(app -> {
-      app.get("/{value}", ctx -> ctx.path() + "@" + ctx.param("value").value());
+      app.get("/{value}", ctx -> ctx.pathString() + "@" + ctx.path("value").value());
     }).ready(client -> {
       client.get("/a+b", rsp -> {
         assertEquals("/a+b@a+b", rsp.body().string());
@@ -505,14 +505,14 @@ public class FeaturedTest {
   public void multipartFromWorker() {
     new JoobyRunner(app -> {
       app.post("/f", ctx -> {
-        Upload f = ctx.file("f");
+        FileUpload f = ctx.file("f");
         return f.filename() + "(type=" + f.contentType() + ";exists=" + Files
             .exists(f.path())
             + ")";
       });
 
       app.post("/files", ctx -> {
-        List<Upload> files = ctx.files("f");
+        List<FileUpload> files = ctx.files("f");
         return files.stream().map(f -> f.filename() + "=" + f.filesize())
             .collect(Collectors.toList());
       });
@@ -774,7 +774,7 @@ public class FeaturedTest {
   public void basePath() {
     new JoobyRunner(app -> {
       app.basePath("/foo");
-      app.get("/bar", ctx -> ctx.path());
+      app.get("/bar", ctx -> ctx.pathString());
 
     }).ready(client -> {
       client.get("/foo/bar", rsp -> {
@@ -800,9 +800,9 @@ public class FeaturedTest {
     new JoobyRunner(app -> {
 
       Jooby bar = new Jooby();
-      bar.get("/bar", Context::path);
+      bar.get("/bar", Context::pathString);
 
-      app.get("/foo", Context::path);
+      app.get("/foo", Context::pathString);
 
       app.use(bar);
 
@@ -848,7 +848,7 @@ public class FeaturedTest {
     new JoobyRunner(app -> {
 
       Jooby bar = new Jooby();
-      bar.get("/bar", Context::path);
+      bar.get("/bar", Context::pathString);
 
       app.use("/prefix", bar);
 
@@ -864,7 +864,7 @@ public class FeaturedTest {
     new JoobyRunner(app -> {
 
       Jooby bar = new Jooby();
-      bar.get("/bar", Context::path);
+      bar.get("/bar", Context::pathString);
 
       app.group("/api", () -> {
         app.use(bar);
@@ -885,7 +885,7 @@ public class FeaturedTest {
   @Test
   public void methodNotAllowed() {
     new JoobyRunner(app -> {
-      app.post("/method", Context::path);
+      app.post("/method", Context::pathString);
     }).ready(client -> {
       client.get("/method", rsp -> {
         assertEquals(StatusCode.METHOD_NOT_ALLOWED.value(), rsp.code());
@@ -966,7 +966,7 @@ public class FeaturedTest {
     LinkedList<String> servers = new LinkedList<>(Arrays.asList("netty", "utow", "jetty"));
     new JoobyRunner(app -> {
       app.decorate(Filters.defaultHeaders());
-      app.get("/", Context::path);
+      app.get("/", Context::pathString);
     }).ready(client -> {
       client.get("/", rsp -> {
         assertNotNull(rsp.header("Date"));
@@ -981,7 +981,7 @@ public class FeaturedTest {
   public void defaultContentType() {
     new JoobyRunner(app -> {
       app.decorate(Filters.contentType(text));
-      app.get("/type", Context::path);
+      app.get("/type", Context::pathString);
     }).ready(client -> {
       client.get("/type", rsp -> {
         assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
@@ -990,7 +990,7 @@ public class FeaturedTest {
 
     new JoobyRunner(app -> {
       app.decorate(Filters.contentType("text/plain"));
-      app.get("/type-text", Context::path);
+      app.get("/type-text", Context::pathString);
     }).ready(client -> {
       client.get("/type-text", rsp -> {
         assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());

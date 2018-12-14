@@ -17,12 +17,8 @@ package examples;
 
 import io.jooby.Jooby;
 import io.jooby.Filters;
-import io.jooby.Upload;
+import io.jooby.FileUpload;
 import io.jooby.json.Jackson;
-
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 
 public class HelloApp extends Jooby {
 
@@ -32,9 +28,9 @@ public class HelloApp extends Jooby {
 
     public final String pass;
 
-    public final Upload pic;
+    public final FileUpload pic;
 
-    public User(String id, String pass, Upload pic) {
+    public User(String id, String pass, FileUpload pic) {
       this.id = id;
       this.pass = pass;
       this.pic = pic;

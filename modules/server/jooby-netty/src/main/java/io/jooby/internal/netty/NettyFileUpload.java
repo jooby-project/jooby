@@ -15,26 +15,22 @@
  */
 package io.jooby.internal.netty;
 
-import io.jooby.Upload;
+import io.jooby.FileUpload;
 import io.jooby.Value;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
-import io.netty.handler.codec.http.multipart.FileUpload;
 import io.jooby.Throwing;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
-public class NettyUpload extends Value.Simple implements Upload {
+public class NettyFileUpload extends Value.Simple implements FileUpload {
 
-  private final FileUpload upload;
+  private final io.netty.handler.codec.http.multipart.FileUpload upload;
   private final Path basedir;
   private Path path;
 
-  public NettyUpload(Path basedir, String name, FileUpload upload) {
+  public NettyFileUpload(Path basedir, String name, io.netty.handler.codec.http.multipart.FileUpload upload) {
     super(name, upload.getFilename());
     this.basedir = basedir;
     this.upload = upload;

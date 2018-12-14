@@ -134,7 +134,7 @@ public interface Value extends Iterable<Value> {
       return put(path, Collections.singletonList(value));
     }
 
-    public Object put(String path, Upload upload) {
+    public Object put(String path, FileUpload upload) {
       put(path, (name, scope) -> {
         Value existing = scope.get(name);
         if (existing == null) {
@@ -472,7 +472,7 @@ public interface Value extends Iterable<Value> {
   }
 
   default boolean isUpload() {
-    return this instanceof Upload;
+    return this instanceof FileUpload;
   }
 
   default boolean isMissing() {
@@ -530,7 +530,7 @@ public interface Value extends Iterable<Value> {
     return to(Reified.optional(type));
   }
 
-  default Upload upload() {
+  default FileUpload fileUpload() {
     throw new Err.BadRequest("Type mismatch: not a file upload");
   }
 
@@ -594,12 +594,18 @@ public interface Value extends Iterable<Value> {
     return array;
   }
 
-  static Object object(@Nonnull String name) {
+  static Value.Object object(@Nonnull String name) {
     return new Object(name);
   }
 
   static Value.Object headers() {
     return new Object(null);
+  }
+
+  static Value.Object path(Map<String, String> params) {
+    Value.Object path = new Object(null);
+    params.forEach(path::put);
+    return path;
   }
 
   static QueryString queryString(@Nonnull String queryString) {

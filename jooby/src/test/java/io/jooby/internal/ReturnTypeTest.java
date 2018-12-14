@@ -80,9 +80,9 @@ public class ReturnTypeTest {
 
   @Test
   public void methodInvocation() {
-    assertType(String.class, ctx -> ctx.path());
+    assertType(String.class, ctx -> ctx.pathString());
 
-    assertType(String.class, Context::path);
+    assertType(String.class, Context::pathString);
   }
 
   @Test
@@ -165,7 +165,7 @@ public class ReturnTypeTest {
     });
 
     assertType(Double.class, ctx -> {
-      Value value = ctx.param("f");
+      Value value = ctx.path("f");
 
       Double to = value.to(Double.class);
 
@@ -173,7 +173,7 @@ public class ReturnTypeTest {
     });
 
     assertType(String[].class, ctx -> {
-      String[] values = ctx.param("v").toList().toArray(new String[0]);
+      String[] values = ctx.path("v").toList().toArray(new String[0]);
 
       compute(values);
 

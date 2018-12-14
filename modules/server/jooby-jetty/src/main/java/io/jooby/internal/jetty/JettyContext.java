@@ -55,7 +55,7 @@ public class JettyContext extends BaseContext {
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
-  private List<Upload> files;
+  private List<FileUpload> files;
   private Value.Object headers;
 
   public JettyContext(Request request, Executor worker, Route.RootErrorHandler errorHandler,
@@ -86,7 +86,7 @@ public class JettyContext extends BaseContext {
     return request.getMethod().toUpperCase();
   }
 
-  @Nonnull @Override public String path() {
+  @Nonnull @Override public String pathString() {
     return request.getRequestURI();
   }
 
@@ -127,7 +127,7 @@ public class JettyContext extends BaseContext {
           if (part.getSubmittedFileName() != null) {
             String name = part.getName();
             multipart.put(name,
-                register(new JettyUpload(name, (MultiPartFormInputStream.MultiPart) part)));
+                register(new JettyFileUpload(name, (MultiPartFormInputStream.MultiPart) part)));
           }
         }
       } catch (IOException | ServletException x) {
@@ -251,7 +251,7 @@ public class JettyContext extends BaseContext {
   @Override public void destroy() {
     if (files != null) {
       // TODO: use a log
-      files.forEach(throwingConsumer(Upload::destroy));
+      files.forEach(throwingConsumer(FileUpload::destroy));
     }
   }
 
@@ -270,7 +270,7 @@ public class JettyContext extends BaseContext {
     };
   }
 
-  private Upload register(Upload upload) {
+  private FileUpload register(FileUpload upload) {
     if (files == null) {
       files = new ArrayList<>();
     }

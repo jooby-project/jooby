@@ -24,14 +24,14 @@ public class MultiApp {
 
   public static class Foo extends Jooby {
     {
-      get("/foo", Context::path);
+      get("/foo", Context::pathString);
     }
   }
 
   public static class Bar extends Jooby {
     {
       basePath("/some");
-      get("/bar", Context::path);
+      get("/bar", Context::pathString);
     }
   }
 

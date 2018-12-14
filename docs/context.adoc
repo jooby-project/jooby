@@ -1,6 +1,6 @@
 == Context
 
-{javadoc}Context.html[Context] gives you access to `HTTP Request/Response`.
+javadoc:Context[Context] gives you access to `HTTP Request/Response`.
 
 === Parameters
 
@@ -8,13 +8,40 @@ There are four parameter types: `path`, `query`, `form` and `multipart`. All the
 API for accessing and parsing to their values.
 
 We are going to describe them briefly in the next sections, then go into specific features of the
-{javadoc}Value.html[Value API].
+javadoc:Value[Value API].
+
+[id=http-header]
+==== Header
+
+HTTP headers allow the client and the server to pass additional information with the request or the
+response. An HTTP header consists of its case-insensitive name followed by a colon `:`, then by its 
+value (without line breaks). Leading white space before the value is ignored.
+
+.Header API:
+[source, java]
+----
+{
+  get("/" ctx -> {
+    String token = ctx.header("token").value();            // <1>
+
+    Value headers = ctx.headers();                         // <2>
+
+    Map<String, List<String>> headerMap = ctx.headerMap(); // <3>
+    ...
+  });
+  
+}
+----
+
+<1> Header variable `token`
+<2> All headers as javadoc:Value[]
+<3> All headers as a `multi-value` map
 
 ==== Path
 
 Path parameter are part of the `URI`. To define a path variable you need to use the `{..}` notation.
 
-.Path variable syntax:
+.Syntax:
 [source,java]
 ----
 {
@@ -36,84 +63,63 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 <4> Unnamed catchall path variable
 <5> Path variable with a regular expression
 
-The path parameters API is defined by three methods:
-
-- {javadoc}Context.html#pathString--[pathString(): String]: the requested path send by a client. This is the
-`raw` path *without* the `queryString` part.
-
-- {javadoc}Context.html#path-java.lang.String-[path(String): Value]: a value for the given parameter name.
-Values are decoded according to the https://www.ietf.org/rfc/rfc3986.txt[RFC 3986] section 2.
-
-- {javadoc}Context.html#pathMap--[pathMap(): Map<String, String>]: a `map` with all the path
-variables. Values are decoded according to the https://www.ietf.org/rfc/rfc3986.txt[RFC 3986] section 2.
-
-.Path parameter API:
+.Path:
 [source, java]
 ----
 {
   get("/{name}", ctx -> {
     String pathString = ctx.pathString();         // <1>
-
-    String name = ctx.path("name").value();       // <2>
-
+    
+    Value path = ctx.path();                      // <2>
+    
     Map<String, String> pathMap = ctx.pathMap();  // <3>
 
-    ...
+    String name = ctx.path("name").value();       // <4>
+
+    ...    
   });
 }
 ----
 
-Output:
+<1> Access to the `raw` path string:
 
-`/a+b` =>
+- `/a+b`    => `/a+b`
+- `/a b`    => `/a%20b`  (not decoded)
+- `/%2F%2B` => `/%2F%2B` (not decoded)
 
-<1> path string:   `/a+b`
-<2> path variable: `a+b`
-<3> path map:      `{name=a+b}` 
+<2> Path as javadoc:Value[] object:
 
-`/a b` (` ` = `%20`) =>
+- `/a+b`    => `{name=a+b}`
+- `/a b`    => `{name=a b}` (decoded)
+- `/%2F%2B` => `{name=/+}`  (decoded)
 
-<1> path string:   `/a%20b`     (not decoded)
-<2> path variable: `a b`        (`%20` decoded => ` `)
-<3> path map:      `{name=a b}` (`%20` decoded => ` `)
+<3> Path as `Map<String, String>` object:
 
-`/%2F%2B` (`%2F` = `/`; `%2B` = `+`) =>
+- `/a+b`    => `{name=a+b}`
+- `/a b`    => `{name=a b}` (decoded)
+- `/%2F%2B` => `{name=/+}`  (decoded)
 
-<1> path string:  `/%2F%2B`    (not decoded)
-<2> path variable: `/+`        (`%2F` decoded to `/`; `%2B` decoded to `+`)
-<3> path path:     `{name=/+}` (`%2F` decoded to `/`; `%2B` decoded to `+`)
+<4> Path variable `name` as `String`: 
+
+- `/a+b`    => `a+b`
+- `/a b`    => `a b`  (decoded)
+- `/%2F%2B` => `/+`   (decoded)
 
 ==== Query
 
-Query parameter comes after the first `?` character found in the `URI`.
-
-The Query Parameter API is defined by four methods:
-
-- {javadoc}Context.html#queryString--[queryString(): String]: query string send by client. This is the
-`raw` query string.
-
-- {javadoc}Context.html#query-java.lang.String-[query(String): Value]: retrieves a value for the 
-given parameter name. Values are decoded according to the https://www.ietf.org/rfc/rfc3986.txt[RFC 3986] section 2.
-
-- {javadoc}Context.html#query-java.lang.Class-[query(Class): T]: creates an instance of the
-given type and inject all matching parameters. Values are decoded according to the 
-https://www.ietf.org/rfc/rfc3986.txt[RFC 3986, section 2].
-
-- {javadoc}Context.html#queryMap--[queryMap(): Map<String, List<String>>]: a `map` with all the query
-variables. Values are decoded according to the https://www.ietf.org/rfc/rfc3986.txt[RFC 3986] section 2.
-
-.Query API:
 [source, java]
 ----
 {
   get("/search", ctx -> {
-    String queryString = ctx.queryString();                 // <1>
+    String queryString = ctx.queryString();                    // <1>
 
-    String q = ctx.query("q").value();                      // <2>
+    QueryString query = ctx.query();                           // <2>
 
-    SearchQuery searchQuery = ctx.query(SearchQuery.class); // <3>
+    Map<String, List<String>> queryMap = ctx.queryMultimap();  // <3>
 
-    Map<String, List<String>> queryMap = ctx.queryMap();    // <4>
+    String q = ctx.query("q").value();                         // <4>
+
+    SearchQuery searchQuery = ctx.query(SearchQuery.class);    // <5>
 
     ...
   });
@@ -129,70 +135,53 @@ class SearchQuery {
 }
 ----
 
-Output:
+<1> Access to `raw` queryString:
 
-`/search` =>
+- `/search`       => `""` (empty)
+- `/search?q=a+b` => `?q=a+b`
+- `/search?q=a b` => `?q=a%20b` (not decoded)
 
-<1> query string:   `` (empty)
-<2> query variable: `Bad Request (400). Missing value: "q"`
-<3> query object:   `Bad Request (400). Missing value: "q"`
-<4> query map:      `{}` (empty map) 
+<2> Query String as javadoc:QueryString[] object:
 
-`/search?q=a+b` =>
+- `/search`       => `{}`      (empty)
+- `/search?q=a+b` => `{q=a+b}` 
+- `/search?q=a b` => `{q=a b}` (decoded)
 
-<1> query string:   `?q=a+b` 
-<2> query variable: `a+b`
-<3> query object:   `SearchQuery(q="a+b")`
-<4> query map:      `{q=a+b}`
+<3> Query string as `multi-value map`
 
-`/search?q=a b` =>
+- `/search`       => `{}`       (empty) 
+- `/search?q=a+b` => `{q=[a+b]}`
+- `/search?q=a b` => `{q=[a b]}`  (decoded)
 
-<1> query string:   `?q=a%20b` (not decoded) 
-<2> query variable: `a b`      (decoded)
-<3> query object:   `SearchQuery(q="a b")`
-<4> query map:      `{q=a b}`  (decoded)
+<4> Access to decoded variable `q`:
 
-[NOTE]
-.Structured data
-====
-Structured data from query string is available via: 
-javadoc:Context[query, java.lang.Class] method:
+- `/search`       => `Bad Request (400). Missing value: "q"`
+- `/search?q=a+b` => `a+b`
+- `/search?q=a b` => `a b` (decoded)
 
-[source,java]
-----
-  SearchQuery searchQuery = ctx.query(SearchQuery.class);
-----
+<5> Query string as `SearchQuery`
 
-Strucutured data is fully covered later in this chapter.
-====
+- `/search`       => `Bad Request (400). Missing value: "q"`
+- `/search?q=a+b` => `SearchQuery(q="a+b")`
+- `/search?q=a b` => `SearchQuery(q="a b")` (decoded)
 
-==== Form
+==== Formdata
 
-Form parameters comes in the `HTTP Body` encoded as `application/x-www-form-urlencoded`.
-
-The javadoc:Formdata[Form API] consist of couple of utility context methods:
-
-- javadoc:Context[form]: `Formdata` object.
-
-- javadoc:Context[form, java.lang.String]: retrieves a value for the 
-given parameter name. Values are decoded according to the https://www.ietf.org/rfc/rfc3986.txt[RFC 3986] section 2.
-
-- javadoc:Context[form, java.lang.Class]: creates an instance of the
-given type and inject all matching parameters. Values are decoded according to the 
-https://www.ietf.org/rfc/rfc3986.txt[RFC 3986] section 2.
-
-.Form API:
 [source, java]
 ----
 {
   post("/user", ctx -> {
-    String userId = ctx.form("id").value();            // <1>
+    Formdata form = ctx.form();                                // <1>
+
+    Map<String, List<String> formMap = ctx.formMultimap();  // <2>
+
+    String userId = ctx.form("id").value();                 // <3>
     
-    String pass = ctx.form("pass").value();            // <2>
+    String pass = ctx.form("pass").value();                 // <4>
 
-    User user = ctx.form(User.class);                  // <3>
+    User user = ctx.form(User.class);                       // <5>
 
-    Map<String, List<String> formMap = ctx.formMap();  // <4>
+    
     ...
   });
 }
@@ -210,50 +199,39 @@ class User {
 }
 ----
 
-Output:
+----
+curl -d "id=root&pass=pwd" -X POST http://localhost:8080/user
+----
 
-`curl -d "id=root&pass=pwd" -X POST http://localhost:8080/user` =>
+<1> Form as javadoc:Formdata[] => `{id=root, pass=pwd}`
+<2> Form as `multi-value map`  => `{id=root, pass=[pwd]}`
+<3> Form variable `id`         => `root`
+<4> Form variable `pass`       => `pwd`
+<5> Form as `User` object      => `User(id=root, pass=pwd)`
 
-<1> form variable `id`  : `root`
-<2> form variable `pass`: `pwd`
-<3> form object         : `User(id=root, pass=pwd)`
-<4> form map            : `{id=root, pass=pwd}` 
+[NOTE]
+====
+Form data must be encoded as `application/x-www-form-urlencoded`
+====
 
 ==== Multipart
 
-Form item or file upload parameter from a `HTTP Body` encoded as `multipart/form-data`.
-
-The javadoc:Multipart[Multipart API] consist of couple of utility context methods:
-
-- javadoc:Context[multipart]: `Multipart` object.
-
-- javadoc:Context[multipart, java.lang.String]: retrieves a value for the 
-given parameter name. Values are decoded according to the https://www.ietf.org/rfc/rfc3986.txt[RFC 3986] section 2.
-
-- javadoc:Context[multipart, java.lang.Class]: creates an instance of the
-given type and inject all matching parameters. Values are decoded according to the 
-https://www.ietf.org/rfc/rfc3986.txt[RFC 3986] section 2.
-
-- javadoc:Context[files]: All file uploads.
-
-- javadoc:Context[files, java.lang.String]: Zero or more file uploads matching the given name.
-
-- javadoc:Context[file, java.lang.String]: A file upload matching the given name.
-
-.Multipart API:
 [source, java]
 ----
 {
   post("/user", ctx -> {
-    String userId = ctx.multipart("id").value();                 // <1>
-    
-    String pass = ctx.multipart("pass").value();                 // <2>
-    
-    Upload pic = ctx.multipart("pic").upload();                  // <3>
+    Multipart multipart = ctx.multipart();                            // <1>
 
-    User user = ctx.multipart(User.class);                       // <4>
+    Map<String, List<String> multipartMap = ctx.multipartMultimap();  // <2>
+   
+    String userId = ctx.multipart("id").value();                      // <3>
+    
+    String pass = ctx.multipart("pass").value();                      // <4>
+    
+    FileUpload pic = ctx.multipart("pic").fileUpload();               // <5>
 
-    Map<String, List<String> multipartMap = ctx.multipartMap();  // <5>
+    User user = ctx.multipart(User.class);                            // <6>
+
     ...
   });
 }
@@ -264,9 +242,9 @@ class User {
 
    public final String pass;
    
-   public final Upload pic;
+   public final FileUpload pic;
 
-   public User(String id, String pass, Upload pic) {
+   public User(String id, String pass, FileUpload pic) {
      this.id = id;
      this.pass = pass;
      this.pic = pic;
@@ -274,56 +252,43 @@ class User {
 }
 ----
 
-Output:
-
-[source]
 ----
 curl -F id=root -F pass=root -F pic=@/path/to/local/file/profile.png http://localhost:8080/user
 ----
 
-<1> form variable `id`  : `root`
-<2> form variable `pass`: `pwd`
-<3> file upload   `pic` : javadoc:Upload[upload] object
-<4> multipart object:   : `User(id=root, pass=pwd, pic=profile.png)`
-<5> multipart map       : `{id=root, pass=pwd}` 
+<1> Form as javadoc:Multipart[] => `{id=root, pass=pwd, pic=profile.png}`
+<2> Form as `multi-value map`  => `{id=root, pass=[pwd]}`
+<3> Form variable `id`         => `root`
+<4> Form variable `pass`       => `pwd`
+<5> javadoc:FileUpload[] variable `pic`
+<6> Form as `User` object      => `User(id=root, pass=pwd, pic=profile.png)`
 
-===== File Upload
+[TIP]
+.File Upload
+====
 
-As showed it before javadoc:Upload[text=file upload] are available via:
+You may prefer to use one of the utility methods:
 
 [source,java]
 ----
-  Upload pic = ctx.multipart("pic").upload();
+  FileUpload pic = ctx.file("pic");         // <1>
+
+  List<FileUpload> pic = ctx.files("pic");  // <2>
+
+  List<FileUpload> files = ctx.files();     // <3>
 ----
 
-There are a couple of utility method to retrieve them directly:
+<1> Single file upload named `pic`
+<2> Multiple file uploads named `pic`
+<3> All file uploads
 
-.Single Upload
-[source,java]
-----
-  Upload pic = ctx.file("pic");
-----
+====
 
-.Multiple Uploads
-[source,java]
-----
-  List<Upload> pic = ctx.files("pic");
-----
-
-.All Uploads
-[source,java]
-----
-  List<Upload> files = ctx.files();
-----
-
-File `uploads` are *only* available on `multipart/form-data` request. The javadoc:Upload[Upload API]
-consists of these methods:
-
-- javadoc:Upload[filename]: Represents the file name submitted by client
-- javadoc:Upload[contentType] Represent the `mime type` of the uploaded file
-- javadoc:Upload[filesize] File length/size
-- javadoc:Upload[path] File location as `java.nio.file.Path`
-
-include::body.adoc[]
+[NOTE]
+====
+Form data must be encoded as `multipart/form-data`
+====
 
 include::value-api.adoc[]
+
+include::body.adoc[]

@@ -17,7 +17,7 @@ package io.jooby;
 
 import java.nio.file.Path;
 
-public interface Upload extends Value {
+public interface FileUpload extends Value {
   default String filename() {
     return value();
   }
@@ -28,7 +28,7 @@ public interface Upload extends Value {
 
   long filesize();
 
-  @Override default io.jooby.Upload upload() {
+  @Override default FileUpload fileUpload() {
     return this;
   }
 

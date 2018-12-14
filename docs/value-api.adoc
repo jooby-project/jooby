@@ -1,57 +1,77 @@
 === Value API
 
-javadoc:Value[Value API] is an unified API 
- 
+The javadoc:Value[Value] is an unified API across all parameter types:
+
+- <<http-header, Header>>
+- <<path, Path>>
+- <<query, Query>>
+- <<formdata, Formdata>>
+- <<multipart, Multipart>> 
+
+For learning purpose we are going to show all the javadoc:Value[Value] features using query
+parameters, but keep in mind these features apply to all the parameter types.
 
 ==== Single value
 
-Single value is available via `value()` or `xxxValue()` functions: 
+Single value is available via `value()` or `[type]Value()` functions: 
 
 [source, java]
 ----
 {
-  // Query parameter `q` as `String`
-  get("/search", ctx -> {
-    String q = ctx.query("q").value();              // <1>
-    return q;
-  });
-  
-  // Query parameter `score` as `float`
-  get("/search", ctx -> {
-    float score = ctx.query("score").floatValue();  // <2>
-    return score;
+  get("/", ctx -> {
+    String name = ctx.query("name").value();                          // <1>
+
+    float score = ctx.query("score").floatValue();                    // <2>
+
+    boolean enabled = ctx.query("enabled").booleanValue();            // <3>
+    
+    BigDecimal decimal = ctx.query("decimal").value(BigDecimal::new); // <4>
+    ...
   });
 }
 ----
 
+The javadoc:Value[value] family methods always retrieve a `value`. If there is no value, a
+`BadRequest(400)` response is generated. So single value parameters *are required*: 
+
 <1> Access to query parameter `q` and convert to `String`:
 
-- `/search?q=foo` => `foo`
-- `/search`       => `Bad Request(400)` (Required parameter `q` is not present)
+- `/?name=foo` => `foo`
+- `/`          => `Bad Request(400): Missing value: "q"`
 
 <2> Access to query parameter `score` and convert to `float`:
 
-- `/search?score=1`      => `1.0`
-- `/search?score=string` => `Bad Request(404)` (Type mismatch: cannot convert to number)
-- `/search`              => `Bad Request(400)` (Required parameter `score` is not present)
+- `/?score=1`      => `1.0`
+- `/?score=string` => `Bad Request(400)` (Type mismatch: cannot convert to number)
+- `/`              => `Bad Request(400)` (Required parameter `score` is not present)
 
-Parameter are required and valid (if you convert them to something else). Default and optional
-parameters are described next.
+<3> Access to query parameter `enabled` and convert to `boolean`:
 
-==== Default and optional value
+- `/?enabled=true`   => `true`
+- `/?enabled=string` => `Bad Request(400)` (Type mismatch: cannot convert to boolean)
+- `/`                => `Bad Request(400): Missing value: "enabled"`
 
-Default and optional value are available by providing a `default` value or using the `toOptional` method:
+<4> Access to query parameter `decimal` and convert to `BigDecimal`:
+
+- `/?decimal=2.3`    => `2.3`
+- `/?decimal=string` => `Bad Request(400)` (Type mismatch: cannot convert to BigDecimal)
+- `/`                => `Bad Request(400): Missing value: "decimal"`
+
+==== Default and Optional value
+
+Default and optional value are available in two different ways:
+
+- Providing a default value
+- Requesting an `java.uti.Optional` object
 
 [source, java]
 ----
 {
-  // Default query parameter `q` with default value `*:*`
   get("/search", ctx -> {
     String q = ctx.query("q").value("*:*");             // <1>
     return q;
   });
 
-  // Optional query parameter `q` as `java.util.Optional`
   get("/search", ctx -> {
     Optional<String> q = ctx.query("q").toOptional();   // <2>
     return q;
@@ -64,167 +84,215 @@ Default and optional value are available by providing a `default` value or using
 - `/search?q=foo` => `foo`
 - `/search`       => `*:*`
 
-<2> Access to query variable `q` and convert to `Optional<String?`:
+<2> Access to query variable `q` and convert to `Optional<String>`:
 
 - `/search?q=foo` => `Optional[foo]`
-- `/search`       => `Optional[]` (empty)
+- `/search`       => `Optional.empty`
 
+Conversion to other types is also possible:
+
+[source, java]
+----
+  int n = ctx.query("n").intValue(0);
+  Optional<Integer> oInt = ctx.query("n").toOptional(Integer.class);
+----
   
 ==== Multiple values
 
-Multiple values are available via `toList` and `toSet` functions:
+Multiple values are available via functions:
+
+- javadoc:Value[toList]: Returns a `java.util.List` of values
+- javadoc:Value[toSet]: Returns a `java.util.Set` of values
 
 [source, java]
 ----
 {
-  // Query parameter `q` as `List<String>`
-  get("/search", ctx -> {
-    List<String> q = ctx.query("q").toList();                // <1>    
-    return q;
-  });
-  
-  // Query parameter `n` as `List<Integer>`
-  get("/numbers", ctx -> {
-    List<Integer> n = ctx.query("n").toList(Integer.class);  // <2>
-    return n;
+  get("/", ctx -> {
+    List<String> q = ctx.query("q").toList();                            // <1>
+
+    List<Integer> n = ctx.query("n").toList(Integer.class);              // <2>
+
+    List<BigDecimal> decimals = ctx.query("d").toList(BigDecimal::new);  // <3>
+
+    ...
   });
 }
 ----
 
-<1> Multi-value query parameter as `List<String>`:
+<1> Multi-value query parameter `q` as `List<String>`:
 
-- `/search`             => `[]` (empty list)
-- `/search?q=foo`       => `[foo]`
-- `/search?q=foo&q=bar` => `[foo, bar]`
+- `/`             => `[]` (empty list)
+- `/?q=foo`       => `[foo]`
+- `/?q=foo&q=bar` => `[foo, bar]`
 
 <2> Multi-value query parameter as `List<Integer>`
 
-- `/numbers`         => `[]` (empty list)
-- `/numbers?n=1`     => `[1]`
-- `/numbers?n=1&n=2` => `[1, 2]`
+- `/`         => `[]` (empty list)
+- `/?n=1`     => `[1]`
+- `/?n=1&n=2` => `[1, 2]`
 
-==== Custom Mapper
+<3> Multi-value query parameter as `List<BigDecimal>`
 
-Custom mappings is done in one of this way:
-
-- Using a `mapping function`
-- Your class has a static factory method: `valueOf(String)`
-
-[source, java]
-----
-{
-  // Parameter `n` as `BigDecimal`
-  get("/n", ctx -> {
-    BigDecimal n = ctx.query("n").value(BigDecimal::new);                // <1>
-    return n;
-  });
-
-  // Parameter `n` as `Optional<BigDecimal>`
-  get("/n", ctx -> {
-    Optional<BigDecimal> n = ctx.query("n").toOptional(BigDecimal::new); // <2>
-    return n;
-  });
- 
-  // Parameter `n` as `List<BigDecimal>`
-  get("/n", ctx -> {
-    List<BigDecimal> n = ctx.query("n").toList(BigDecimal::new);         // <3>
-    return n;
-  });
-  
-  // Custom mapper with user type: `UserId.valueOf(String)`
-  get("/user/{id}", ctx -> {
-    UserId userId = ctx.param("id").to(UserId.class);                    // <4>
-    return userId;
-  });
-}
-----
-
-<1> Custom mapper on single value
-<2> Custom mapper on optional value
-<3> Custom mapper on multiple values
-<4> Custom mapper using `UserId.valueOf(String)`
+- `/`         => `[]` (empty list)
+- `/?d=1`     => `[1]`
+- `/?d=1&n=2` => `[1, 2]`
 
 ==== Structured data
 
-The javadoc:Value[Value API] allows us to traverse structured data.
+The javadoc:Value[Value API] provides a way to traverse and parse structured data:
+
+----
+/?user.name=root&user.pass=pass
+----
 
 .Traversal
 [source, java]
 ----
 {
-  get{"/queryString", ctx -> {
+  get{"/", ctx -> {
     Value user = ctx.query("user");                  // <1>
     String name  = user.get("name").value();         // <2>
     String pass  = user.get("pass").value();         // <3>
     String email = user.get("email").value("none");  // <4>
-    return name + ":" + pass;
+    ...
   }}
 }
 ----
-
-Output:
-
-- `/queryString?user.name=root&user.pass=pass`                       => `root:pass:none`
-- `/queryString?user.name=root&user.pass=pass&user.email=user@mail`  => `root:pass:user@mail`
-
-Explanation:
 
 <1> Get the `user` node
 <2> Get the `name` value from `user` node
 <3> Get the `pass` value from `user` node
 <4> Get the `email` value from `user` node. This is an optional value.
 
-[TIP]
-.Safe traversal for optional paths
-====
+The javadoc:Value[get, java.lang.String] takes a `path` and returns another value. The returning
+value may or may not exists.
 
-The javadoc:Value[get, java.lang.String] method always produces a result, won't
-be ever `null`. Instead it produces a `missing` value allowing you to efectivly provide default values:
+===== Syntax
 
-[source,java]
+Structured data parser supports `dot` and `bracket` notation:
+
+.Dot notation
 ----
-String email = user.get("email").value("none"); 
+?member.firstname=Pedro&member.lastname=Picapiedra
 ----
 
-====
+.Bracket object notation
+----
+?member[firstname]=Pedro&member[lastname]=Picapiedra
+----
 
-[TIP]
-.Dot and bracket notation support
-====
+.Bracket array notation for tabular data
+----
+?members[0]firstname=Pedro&members[0]lastname=Picapiedra
+----
 
-- `?user.name=root&user.pass=pass`
-- `?user[name]=root&user[pass]=pass`
-====
+===== POJO
 
-It is possible to parse `query`, `form` and `multipart` parameters into a Java class too:
+Structured data parser is able to reconstruct a POJO (Plain Old Java Object) from:
 
-.User.java
+- <<query, Query>> encoded as https://tools.ietf.org/html/rfc3986#section-2[RFC 3986]
+- <<formdata, Formdata>> encoded as `application/x-www-form-urlencoded`
+- <<multipart, Multipart>> encoded as `multipart/form-data`
+
+We are going to use a `Group` and `Member` objects to demonstrate how the parser works:
+
+.Member.java
 [source, java]
 ----
-public class User {
-  public final String userId;
-  public final String email;
-  
-  public User(String userId, String email) { // <1>
-    this.userId = userId;
-    this.email = email;
+class Member {
+  public final String firstname;
+  public final String lastName;
+
+  public Member(String firstname, String lastname) {
+    this.firstname = firstname;
+    this.lastname = lastname;
   }
 }
+----
 
-...
+.Group.java
+[source, java]
+----
+class Group {
+  public final String id;
+  public final List<Member> members;
 
+  public Member(String id, List<Member> members) {
+    this.id = id;
+    this.members = members;
+  }
+}
+----
+
+.Member parsing example:
+----
+/?firstname=Pedro&lastName=Picapiedra
+----
+[source, java]
+----
 {
-  get("/user", ctx -> {
-    User user = ctx.query(User.class);       // <2>
+  get("/", ctx -> {
+    Member member = ctx.query(Member.class);
     ...
-    return user.userId + ":" + user.email;
   });
 }
 ----
 
-<1> Injection of value is done via constructor arguments
-<2> Parse `User` from `query string`
+.Member parsing example from base node:
+----
+/?member.firstname=Pedro&member.lastName=Picapiedra
+----
+[source, java]
+----
+{
+  get("/", ctx -> {
+    Member member = ctx.query("member").to(Member.class);
+    ...
+  });
+}
+----
 
-Output:
+Tabular data used the bracket array notation:
 
-- `/user?userId=pedro&email=pedro@mail` => `pedro:pedro@mail`
+.Member as tabular data:
+----
+/?[0]firstname=Pedro&[0]lastName=Picapiedra&[1]firstname=Pablo&[2]lastname=Marmol
+----
+[source, java]
+----
+{
+  get("/", ctx -> {
+    List<Member> members = ctx.query().toList(Member.class);
+    ...
+  });
+}
+----
+
+.Group with members as tabular data:
+----
+/?id=flintstones&members[0]firstname=Pedro&members[0]lastName=Picapiedra
+----
+[source, java]
+----
+{
+  get("/", ctx -> {
+    Group group = ctx.query(Group.class);
+    ...
+  });
+}
+----
+
+The target `POJO` must follow one of these rules:
+
+- Has zero arguments constructor
+- Has only one constructor
+- Has multiple constructors, but only one is annotated with 
+https://static.javadoc.io/javax.inject/javax.inject/1/javax/inject/Inject.html[Inject]
+
+The parser matches HTTP parameters in the following order:
+
+- As constructor arguments
+- As setter method
+
+Also, constructor and method arguments must be annotated with 
+https://static.javadoc.io/javax.inject/javax.inject/1/javax/inject/Named.html[Named] when HTTP parameter name is not a valid Java identifier.

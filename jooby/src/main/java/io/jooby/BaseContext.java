@@ -43,7 +43,7 @@ public abstract class BaseContext implements Context {
     this.params = match.params();
   }
 
-  @Nonnull @Override public Map<String, String> params() {
+  @Nonnull @Override public Map<String, String> pathMap() {
     return params;
   }
 

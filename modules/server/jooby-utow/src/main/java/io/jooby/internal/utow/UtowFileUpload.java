@@ -13,50 +13,42 @@
  *
  *    Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.jetty;
+package io.jooby.internal.utow;
 
-import io.jooby.Upload;
+import io.jooby.FileUpload;
 import io.jooby.Value;
-import org.eclipse.jetty.http.MultiPartFormInputStream;
+import io.undertow.server.handlers.form.FormData;
+import io.undertow.util.Headers;
 import io.jooby.Throwing;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
-public class JettyUpload extends Value.Simple implements Upload {
-  private final MultiPartFormInputStream.MultiPart upload;
+public class UtowFileUpload extends Value.Simple implements FileUpload {
 
-  public JettyUpload(String name, MultiPartFormInputStream.MultiPart upload) {
-    super(name, upload.getSubmittedFileName());
+  private final FormData.FormValue upload;
+
+  public UtowFileUpload(String name, FormData.FormValue upload) {
+    super(name, upload.getFileName());
     this.upload = upload;
   }
 
   @Override public String contentType() {
-    return upload.getContentType();
+    return upload.getHeaders().getFirst(Headers.CONTENT_TYPE);
   }
 
   @Override public Path path() {
-    try {
-      if (upload.getFile() == null) {
-        upload.write("jetty" + System.currentTimeMillis() + ".tmp");
-      }
-      return upload.getFile().toPath();
-    } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
-    }
+    return upload.getPath();
   }
 
   @Override public long filesize() {
-    return upload.getSize();
+    return Long.parseLong(upload.getHeaders().getFirst(Headers.CONTENT_LENGTH));
   }
 
   @Override public void destroy() {
     try {
-      upload.cleanUp();
-      upload.delete();
+      Files.deleteIfExists(upload.getPath());
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }

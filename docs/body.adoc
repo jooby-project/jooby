@@ -1,10 +1,6 @@
-=== Body
+=== Request Body
 
-This chapter covers the request and response `HTTP Body`.
-
-==== Request
-
-HTTP Request body is available via javadoc:Context[body] method:
+Parsing of `request body` is available via javadoc:Context[body] method:
 
 [source, java]
 ----
@@ -30,24 +26,24 @@ HTTP Request body is available via javadoc:Context[body] method:
 <2> `HTTP Body` as `byte`
 <3> `HTTP Body` as `InputStream`
 
+This give us the `raw body`. For custom object you need to provide a `Parser`.
+
 ==== Parser
 
 Request body parsing is achieved using the javadoc:Parser[] functional interface.
 
-.Parser.java
 [source, java]
 ----
 public interface Parser {
 
-  <T> T parse(Context ctx, Reified<T> reified) throws Exception; // <1>
+  <T> T parse(Context ctx, Reified<T> reified) throws Exception;
 }
 ----
 
-<1> Parser API has a single `parse` method that takes the HTTP context and type reference and
-produces a result (parsed type).
+javadoc:Parser[] has a single `parse` method that takes two input arguments: `(context, reified)`
+and returns a single result of the given reified type.
 
-
-.Example of Json parser:
+.JSON example:
 [source, java]
 ----
 {
@@ -67,7 +63,7 @@ produces a result (parsed type).
 ----
 
 <1> Choose your favorite `json` library
-<2> This parser kick in when `Accept` header is set to `application/json`
+<2> Check if the `Content-Type` header matches `application/json`
 <3> Ready the body as `String`
 <4> Parse the `body` and use the requested type
 <5> Route handler now call the `body(Type)` function to trigger the parser function
@@ -81,3 +77,84 @@ Jooby comes with a `json` parser built on top of https://github.com/FasterXML/ja
 .
 
 ====
+
+=== Response Body
+
+Response body is generated from `handler` function:
+
+.Response body
+[source, java]
+----
+{
+  get("/", ctx -> {
+    ctx.statusCode(200);            // <1>
+
+    ctx.type("text/plain");         // <2>
+
+    ctx.header("Date", new Date()); // <3>
+
+    return "Response";              // <4>
+  });
+}
+----
+
+<1> Set `status code` to `OK(200)`. This is the default `status code`
+<2> Set `content-type` to `text/plain`. This is the default `content-type`
+<3> Set the `date` header
+<4> Send a `Response` string to the client
+
+==== Renderer
+
+Response rendering is achieved using the javadoc:Renderer[] functional interface.
+
+[source, java]
+----
+public interface Renderer {
+
+  void render(Context ctx, Object result) throws Exception;
+}
+----
+
+Renderer has a single `render` method that accepts two input arguments: `(context, result)` and 
+returns no result. Unlike the javadoc:Parser[] functional interface, javadoc:Renderer[] is expected 
+to operate via side-effects.
+
+.JSON example:
+[source, java]
+----
+{
+  FavoriteJson lib = ...;                          // <1>
+
+  renderer("application/json", (ctx, result) -> {  // <2>
+
+    String json = lib.toJson(result);              // <3>
+
+    ctx.type("application/json");                  // <4>
+
+    ctx.sendText(json);                            // <5>
+  });
+
+  get("/item", ctx -> {
+    MyObject myObject = ...;
+    return myObject;                               // <6>
+  });
+}
+----
+
+<1> Choose your favorite `json` library
+<2> Check if the `Accept` header matches `application/json`
+<3> Convert `result` to `JSON`
+<4> Set `Content-Type` to `application/json`
+<5> Send json text to client
+<6> Route handler returns a user defined type
+
+[TIP]
+====
+
+Jooby comes with a `json` renderer built on top of https://github.com/FasterXML/jackson-databind[Jackson]:
+
+[dependency, artifactId="jooby-jackson"]
+.
+
+====
+

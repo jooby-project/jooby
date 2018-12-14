@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 class $Chi implements RadixTree {
@@ -682,7 +681,7 @@ class $Chi implements RadixTree {
 
   public RouterMatch find(Context context, Renderer renderer, List<RadixTree> more) {
     String method = context.method();
-    String path = context.path();
+    String path = context.pathString();
     RouterMatch result = new RouterMatch();
     Node node = root.findRoute(result, method, path);
     if (node != null) {
