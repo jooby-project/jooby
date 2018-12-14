@@ -1,14 +1,14 @@
 == Router
 
-The {javadoc}Router.html[router] is the heart of Jooby. The router consist of:
+The javadoc:Router[] is the heart of Jooby. The router consist of:
 
 - Routing algorithm (radix tree)
-- One or more {javadoc}Route.html[routes]
-- Collection of operator over {javadoc}Route.html[routes]
+- One or more javadoc:Route[text="routes"]
+- Collection of operator over javadoc:Route[text="routes"]
 
 === Route
 
-A {javadoc}Route.html[route] consist of three part:
+A javadoc:Route[] consist of three part:
 
 .routes:
 [source, java]
@@ -36,7 +36,7 @@ A {javadoc}Route.html[route] consist of three part:
 <2> Path pattern, like: `/foo`, `/foo/{id}`, etc...
 <3> Handler function
 
-The {javadoc}Route.Handler.html[handler] function always produces a result, which is send it back
+The javadoc:Route.Handler[text="handler"] function always produces a result, which is send it back
 to the client.
 
 === Path Pattern
@@ -138,11 +138,11 @@ A `catchall` pattern must be defined at the end of the path pattern.
  
 === Handler
 
-Application logic goes inside a {javadoc}Route.Handler.html[handler]. A 
-{javadoc}Route.Handler.html[handler] is a function that accepts a {javadoc}Context.html[context] 
+Application logic goes inside a javadoc:Route.Handler[text=handler]. A 
+javadoc:Route.Handler[text=handler] is a function that accepts a javadoc:Context[text=context] 
 object and produces a `result`.
 
-A {javadoc}Context.html[context] allows you to interact with the `HTTP Request` and manipulate the 
+A javadoc:Context[text=context] allows you to interact with the `HTTP Request` and manipulate the 
 `HTTP Response`.
 
 .Incoming request matches exactly **one** route handler:
@@ -172,7 +172,7 @@ silently ignored and makes previous route unreachable.
 ==== Decorator
 
 Cross cutting concerns such as response modification, verification, security, tracing, etc. is available
-via {javadoc}Route.Decorator.html[decorator] (a.k.a filter)
+via javadoc:Route.Decorator[] (a.k.a filter)
 
 A `decorator` takes the `next` handler in the pipeline and returns a `new` handler:
 
@@ -255,7 +255,7 @@ Output:
 
 ==== Before Decorator
 
-The {javadoc}Route.Before.html[before] decorator is a specialized decorator that runs before a 
+The javadoc:Route.Before[text=before] decorator is a specialized decorator that runs before a 
 `handler`.
 
 A `before` decorator takes a `context` as argument and don't produces a response.
@@ -283,7 +283,7 @@ interface Before {
 
 ==== After Decorator
 
-The {javadoc}Route.After.html[after] decorator is a specialized decorator that runs after a 
+The javadoc:Route.After[text=after] decorator is a specialized decorator that runs after a 
 `handler`.
 
 An `after` decorator takes two arguments. The first argument is the `HTTP context`, while the second
@@ -464,7 +464,7 @@ Output:
 
 === Grouping routes
 
-The {javadoc}Router.html#group-java.lang.Runnable-[group operator] push a new route `scope` and
+The javadoc:Router[group, java.lang.Runnable] operator push a new route `scope` and
 allows you to selectively apply one or more route `decorators`.
 
 .group operator
@@ -530,7 +530,7 @@ More about `dispatch` in the <<dispatch, thread model section>>.
 Composition is a technique for building complex application. You can compose one or more
 router/application into a new one. Composition let you build applications as components/modules.
 
-Composition is available through the {javadoc}Router.html#use-io.jooby.Jooby-[use operator]:
+Composition is available through the javadoc:Router[use, io.jooby.Router] operator:
 
 .Composing
 [source, java]

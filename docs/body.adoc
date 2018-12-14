@@ -4,7 +4,7 @@ This chapter covers the request and response `HTTP Body`.
 
 ==== Request
 
-HTTP Request body is available via {javadoc}Context.html#body--[body] method:
+HTTP Request body is available via javadoc:Context[body] method:
 
 [source, java]
 ----
@@ -32,7 +32,7 @@ HTTP Request body is available via {javadoc}Context.html#body--[body] method:
 
 ==== Parser
 
-Request body parsing is achieved using the {javadoc}Parser.html[Parser] functional interface.
+Request body parsing is achieved using the javadoc:Parser[] functional interface.
 
 .Parser.java
 [source, java]

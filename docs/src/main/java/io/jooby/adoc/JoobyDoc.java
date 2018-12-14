@@ -48,8 +48,6 @@ public class JoobyDoc {
     attributes.setAttribute("highlightjs-theme", "agate");
     attributes.setAttribute("favicon", "images/favicon96.png");
     attributes.setAttribute("love", "&#9825;");
-    attributes.setAttribute("javadoc",
-        "https://static.javadoc.io/io.jooby/jooby/" + VERSION + "/io/jooby/");
 
     Path basedir = Paths.get(System.getProperty("user.dir"), "docs");
     Path outdir = basedir.resolve("out");

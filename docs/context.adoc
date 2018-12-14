@@ -156,7 +156,7 @@ Output:
 .Structured data
 ====
 Structured data from query string is available via: 
-{javadoc}Context.html#query-java.lang.Class-[query(Class): T] method:
+javadoc:Context[query, java.lang.Class] method:
 
 [source,java]
 ----
@@ -170,14 +170,14 @@ Strucutured data is fully covered later in this chapter.
 
 Form parameters comes in the `HTTP Body` encoded as `application/x-www-form-urlencoded`.
 
-The {javadoc}Formdata.html[Form API] consist of couple of utility context methods:
+The javadoc:Formdata[Form API] consist of couple of utility context methods:
 
-- {javadoc}Context.html#form--[form(): Formdata]: `Formdata` object.
+- javadoc:Context[form]: `Formdata` object.
 
-- {javadoc}Context.html#form-java.lang.String-[form(String): Value]: retrieves a value for the 
+- javadoc:Context[form, java.lang.String]: retrieves a value for the 
 given parameter name. Values are decoded according to the https://www.ietf.org/rfc/rfc3986.txt[RFC 3986] section 2.
 
-- {javadoc}Context.html#form-java.lang.Class-[form(Class): T]: creates an instance of the
+- javadoc:Context[form, java.lang.Class]: creates an instance of the
 given type and inject all matching parameters. Values are decoded according to the 
 https://www.ietf.org/rfc/rfc3986.txt[RFC 3986] section 2.
 
@@ -223,24 +223,22 @@ Output:
 
 Form item or file upload parameter from a `HTTP Body` encoded as `multipart/form-data`.
 
-The {javadoc}Multipart.html[Multipart API] consist of couple of utility context methods:
+The javadoc:Multipart[Multipart API] consist of couple of utility context methods:
 
-- {javadoc}Context.html#multipart--[multipart(): Multipart]: `Multipart` object.
+- javadoc:Context[multipart]: `Multipart` object.
 
-- {javadoc}Context.html#multipart-java.lang.String-[multipart(String): Value]: retrieves a value for the 
+- javadoc:Context[multipart, java.lang.String]: retrieves a value for the 
 given parameter name. Values are decoded according to the https://www.ietf.org/rfc/rfc3986.txt[RFC 3986] section 2.
 
-- {javadoc}Context.html#multipart-java.lang.Class-[multipart(Class): T]: creates an instance of the
+- javadoc:Context[multipart, java.lang.Class]: creates an instance of the
 given type and inject all matching parameters. Values are decoded according to the 
 https://www.ietf.org/rfc/rfc3986.txt[RFC 3986] section 2.
 
-- {javadoc}Context.html#files--[files(): List<Upload>]: Zero or more file uploads.
+- javadoc:Context[files]: All file uploads.
 
-- {javadoc}Context.html#files-java.lang.String-[files(String): List<Upload>]: Zero or more file 
-uploads matching the given name.
+- javadoc:Context[files, java.lang.String]: Zero or more file uploads matching the given name.
 
-- {javadoc}Context.html#files-java.lang.String-[file(String): List<Upload>]: A file upload matching
-the given name.
+- javadoc:Context[file, java.lang.String]: A file upload matching the given name.
 
 .Multipart API:
 [source, java]
@@ -278,17 +276,20 @@ class User {
 
 Output:
 
-`curl -F id=root -F pass=root -F pic=@/path/to/local/file/profile.png http://localhost:8080/user` =>
+[source]
+----
+curl -F id=root -F pass=root -F pic=@/path/to/local/file/profile.png http://localhost:8080/user
+----
 
 <1> form variable `id`  : `root`
 <2> form variable `pass`: `pwd`
-<3> file upload   `pic` : {javadoc}Upload.html[upload] object
+<3> file upload   `pic` : javadoc:Upload[upload] object
 <4> multipart object:   : `User(id=root, pass=pwd, pic=profile.png)`
 <5> multipart map       : `{id=root, pass=pwd}` 
 
 ===== File Upload
 
-As showed it before {javadoc}Upload.html[file upload] are available via:
+As showed it before javadoc:Upload[text=file upload] are available via:
 
 [source,java]
 ----
@@ -315,13 +316,13 @@ There are a couple of utility method to retrieve them directly:
   List<Upload> files = ctx.files();
 ----
 
-File `uploads` are *only* available on `multipart/form-data` request. The 
-{javadoc}Upload.html[Upload API] consists of these methods:
+File `uploads` are *only* available on `multipart/form-data` request. The javadoc:Upload[Upload API]
+consists of these methods:
 
-- {javadoc}Upload.html#filename--[filename: String]: Represents the file name submitted by client
-- {javadoc}Upload.html#contentType--[contentType: String] Represent the `mime type` of the uploaded file
-- {javadoc}Upload.html#filesize--[filesize: long] File length/size
-- {javadoc}Upload.html#path--[path: Path] File location as `java.nio.file.Path`
+- javadoc:Upload[filename]: Represents the file name submitted by client
+- javadoc:Upload[contentType] Represent the `mime type` of the uploaded file
+- javadoc:Upload[filesize] File length/size
+- javadoc:Upload[path] File location as `java.nio.file.Path`
 
 include::body.adoc[]
 

@@ -1,6 +1,6 @@
 === Value API
 
-{javadoc}Value.html[Value API] is an unified API 
+javadoc:Value[Value API] is an unified API 
  
 
 ==== Single value
@@ -146,7 +146,7 @@ Custom mappings is done in one of this way:
 
 ==== Structured data
 
-The {javadoc}Value.html[Value API] allows us to traverse structured data.
+The javadoc:Value[Value API] allows us to traverse structured data.
 
 .Traversal
 [source, java]
@@ -178,7 +178,7 @@ Explanation:
 .Safe traversal for optional paths
 ====
 
-The {javadoc}Value.html#get(-java.lang.String-)[get(String)] method always produces a result, won't
+The javadoc:Value[get, java.lang.String] method always produces a result, won't
 be ever `null`. Instead it produces a `missing` value allowing you to efectivly provide default values:
 
 [source,java]
