@@ -36,7 +36,7 @@ public class UtowMultiHandler implements HttpHandler {
           router.tmpdir());
       Router.Match match = router.match(context);
       if (match.matches()) {
-        e.getValue().handle(exchange, context, router, match.route());
+        e.getValue().handle(match.route(), context);
       }
     }
   }

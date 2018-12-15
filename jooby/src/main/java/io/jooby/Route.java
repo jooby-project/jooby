@@ -147,8 +147,6 @@ public interface Route {
   @Nonnull Renderer renderer();
 
   @Nonnull Type returnType();
-
-  boolean gzip();
 }
 
 

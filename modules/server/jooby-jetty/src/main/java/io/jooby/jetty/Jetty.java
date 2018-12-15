@@ -24,6 +24,8 @@ import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.MultiPartFormDataCompliance;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
 import org.eclipse.jetty.util.thread.Scheduler;
@@ -40,6 +42,8 @@ public class Jetty implements io.jooby.Server {
 
   private Server server;
 
+  private boolean gzip;
+
   private List<Jooby> applications = new ArrayList<>();
 
   @Override public io.jooby.Server port(int port) {
@@ -49,6 +53,11 @@ public class Jetty implements io.jooby.Server {
 
   @Override public int port() {
     return port;
+  }
+
+  public io.jooby.Server gzip(boolean enabled) {
+    this.gzip = enabled;
+    return this;
   }
 
   @Nonnull @Override public io.jooby.Server deploy(Jooby application) {
@@ -81,9 +90,16 @@ public class Jetty implements io.jooby.Server {
 
     server.addConnector(connector);
 
-    JettyHandler handler = applications.size() == 1 ?
+    AbstractHandler handler = applications.size() == 1 ?
         new JettyHandler(applications.get(0)) :
         new JettyMultiHandler(null, applications);
+
+    if (gzip) {
+      GzipHandler gzipHandler = new GzipHandler();
+      gzipHandler.setHandler(handler);
+      handler = gzipHandler;
+    }
+
 
     server.setHandler(handler);
 

@@ -40,4 +40,5 @@ public interface Server {
 
   @Nonnull Server stop();
 
+  @Nonnull Server gzip(boolean enabled);
 }

@@ -47,7 +47,7 @@ public class NettyMultiHandler extends ChannelInboundHandlerAdapter {
             router.tmpdir(), path);
         Router.Match match = router.match(context);
         if (match.matches()) {
-          e.getValue().handleHttpRequest(ctx, request, context);
+          e.getValue().handle(match.route(), context);
         }
       }
     } else {

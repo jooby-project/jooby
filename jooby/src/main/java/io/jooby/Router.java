@@ -85,8 +85,6 @@ public interface Router {
 
   @Nonnull Router decorate(@Nonnull Route.Decorator decorator);
 
-  @Nonnull Router gzip(@Nonnull Runnable action);
-
   @Nonnull Router before(@Nonnull Route.Before before);
 
   @Nonnull Router after(@Nonnull Route.After after);

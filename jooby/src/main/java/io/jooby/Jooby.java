@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -40,6 +41,8 @@ public class Jooby implements Router {
       .toAbsolutePath();
 
   private ExecutionMode mode = ExecutionMode.DEFAULT;
+
+  private Consumer<Server> serverConfigurer;
 
   public Jooby() {
     router = new RouterImpl(new RouteAnalyzer(getClass().getClassLoader(), false));
@@ -73,11 +76,6 @@ public class Jooby implements Router {
 
   @Nonnull @Override public List<Route> routes() {
     return router.routes();
-  }
-
-  @Nonnull @Override public Jooby gzip(@Nonnull Runnable action) {
-    router.gzip(action);
-    return this;
   }
 
   @Nonnull @Override public Jooby error(@Nonnull Route.ErrorHandler handler) {
@@ -200,7 +198,11 @@ public class Jooby implements Router {
           .collect(Collectors.toList());
       log().warn("Multiple servers found {}. Using: {}", names, names.get(0));
     }
-    return servers.get(0)
+    Server server = servers.get(0);
+    if (serverConfigurer != null) {
+      serverConfigurer.accept(server);
+    }
+    return server
         .deploy(this)
         .start();
   }
@@ -244,5 +246,10 @@ public class Jooby implements Router {
   private static String appname(Class<?> clazz) {
     String[] segments = clazz.getName().split("\\.");
     return segments.length == 1 ? segments[0] : segments[segments.length - 2];
+  }
+
+  public Jooby configureServer(Consumer<Server> configurer) {
+    this.serverConfigurer = configurer;
+    return this;
   }
 }

@@ -23,6 +23,7 @@ import io.jooby.internal.utow.UtowMultiHandler;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.encoding.EncodingHandler;
 import org.xnio.Options;
 
 import javax.annotation.Nonnull;
@@ -38,10 +39,17 @@ public class Utow implements Server {
 
   private int port = 8080;
 
+  private boolean gzip;
+
   private List<Jooby> applications = new ArrayList<>();
 
   @Override public Server port(int port) {
     this.port = port;
+    return this;
+  }
+
+  public Server gzip(boolean enabled) {
+    this.gzip = enabled;
     return this;
   }
 
@@ -61,6 +69,10 @@ public class Utow implements Server {
     HttpHandler handler = handlers.size() == 1
         ? handlers.values().iterator().next()
         : new UtowMultiHandler(handlers);
+
+    if (gzip) {
+      handler = new EncodingHandler.Builder().build(null).wrap(handler);
+    }
 
     server = Undertow.builder()
         .addHttpListener(port, "0.0.0.0")

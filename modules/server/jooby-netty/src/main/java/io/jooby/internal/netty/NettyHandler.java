@@ -15,21 +15,13 @@
  */
 package io.jooby.internal.netty;
 
+import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.HttpContentCompressor;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.util.concurrent.DefaultEventExecutorGroup;
-
-import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 
 @ChannelHandler.Sharable
 public class NettyHandler extends ChannelInboundHandlerAdapter {
@@ -46,42 +38,16 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       NettyContext context = new NettyContext(ctx, router.worker(), req,
           router.errorHandler(),
           router.tmpdir(), pathOnly(req.uri()));
-      handleHttpRequest(ctx, req, context);
+
+      Router.Match match = router.match(context);
+      handle(match.route(), context);
     } else {
       ctx.fireChannelRead(msg);
     }
   }
 
-  void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req, NettyContext context)
-      throws Exception {
-    Router.Match match = router.match(context);
-    Route route = match.route();
-    if (route.gzip() && acceptGzip(req.headers().get(HttpHeaderNames.ACCEPT_ENCODING))) {
-      installGzip(ctx, req);
-    }
-    Route.Handler handler = route.pipeline();
-    handler.execute(context);
-  }
-
-  private static boolean acceptGzip(String value) {
-    return value != null && value.contains("gzip");
-  }
-
-  private static void installGzip(ChannelHandlerContext ctx, HttpRequest req) throws Exception {
-    HttpContentCompressor compressor = new HttpContentCompressor() {
-      @Override
-      protected void encode(ChannelHandlerContext ctx, HttpObject msg, List<Object> out)
-          throws Exception {
-        super.encode(ctx, msg, out);
-        // TODO: is there a better way?
-        if (msg instanceof LastHttpContent) {
-          ctx.pipeline().remove(this);
-        }
-      }
-    };
-    compressor.channelRead(ctx, req);
-    // Initialize
-    ctx.pipeline().addBefore("handler", "gzip", compressor);
+  public void handle(Route route, Context context) {
+    route.pipeline().execute(context);
   }
 
   static String pathOnly(String uri) {

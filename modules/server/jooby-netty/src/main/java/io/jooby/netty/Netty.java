@@ -28,6 +28,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.logging.LogLevel;
@@ -53,10 +54,12 @@ public class Netty implements Server {
 
     private final SslContext sslCtx;
     private final ChannelInboundHandler handler;
+    private final boolean gzip;
 
-    public Pipeline(SslContext sslCtx, ChannelInboundHandler handler) {
+    public Pipeline(SslContext sslCtx, ChannelInboundHandler handler, boolean gzip) {
       this.sslCtx = sslCtx;
       this.handler = handler;
+      this.gzip = gzip;
     }
 
     @Override
@@ -68,6 +71,9 @@ public class Netty implements Server {
       // FIXME: check configuration parameters
       p.addLast("codec", new HttpServerCodec());
       p.addLast("aggregator", new HttpObjectAggregator(_16KB * 2));
+      if (gzip) {
+        p.addLast("gzip", new HttpContentCompressor());
+      }
       p.addLast("handler", handler);
     }
   }
@@ -82,10 +88,17 @@ public class Netty implements Server {
 
   private int port = 8080;
 
+  private boolean gzip;
+
   private DefaultEventExecutorGroup worker;
 
   @Override public Server port(int port) {
     this.port = port;
+    return this;
+  }
+
+  public Server gzip(boolean enabled) {
+    this.gzip = enabled;
     return this;
   }
 
@@ -132,7 +145,7 @@ public class Netty implements Server {
       bootstrap.group(acceptor, ioLoop)
           .channel(provider.channel())
           .handler(new LoggingHandler(LogLevel.DEBUG))
-          .childHandler(new Pipeline(sslCtx, handler))
+          .childHandler(new Pipeline(sslCtx, handler, gzip))
           .childOption(ChannelOption.SO_REUSEADDR, true);
 
       bootstrap.bind(port).sync();

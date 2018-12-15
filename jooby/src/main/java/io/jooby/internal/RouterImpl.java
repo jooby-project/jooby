@@ -47,7 +47,6 @@ public class RouterImpl implements Router {
 
   private static class Stack {
     private String pattern;
-    private boolean gzip;
     private Executor executor;
     private List<Route.Decorator> filters = new ArrayList<>();
     private List<Renderer> renderers = new ArrayList<>();
@@ -79,11 +78,6 @@ public class RouterImpl implements Router {
 
     public Stream<Renderer> toRenderer() {
       return renderers.stream();
-    }
-
-    public Stack gzip(boolean gzip) {
-      this.gzip = gzip;
-      return this;
     }
 
     public void clear() {
@@ -197,10 +191,6 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Nonnull @Override public Router gzip(@Nonnull Runnable action) {
-    return newStack(push().gzip(true), action);
-  }
-
   @Override @Nonnull public Router decorate(@Nonnull Route.Decorator decorator) {
     stack.peekLast().then(decorator);
     return this;
@@ -284,7 +274,6 @@ public class RouterImpl implements Router {
     RouteImpl route = new RouteImpl(method, pat.toString(), returnType, handler, pipeline,
         renderer);
     Stack stack = this.stack.peekLast();
-    route.gzip(stack.gzip);
     route.executor(stack.executor);
     String finalpattern = basePath == null ? route.pattern() : basePath + route.pattern();
     if (method.equals("*")) {
@@ -405,7 +394,6 @@ public class RouterImpl implements Router {
     Stack stack = new Stack(pattern);
     if (this.stack.size() > 0) {
       Stack parent = this.stack.getLast();
-      stack.gzip(parent.gzip);
       stack.executor = parent.executor;
     }
     return stack;

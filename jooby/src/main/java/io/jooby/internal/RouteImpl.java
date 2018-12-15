@@ -20,9 +20,7 @@ import io.jooby.Route;
 import io.jooby.Router;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -36,7 +34,6 @@ public class RouteImpl implements Route {
   private final Renderer renderer;
   private final Type returnType;
   private Executor executor;
-  private boolean gzip;
   private List<String> paramKeys;
 
   public RouteImpl(String method, String pattern, Type returnType, Handler handler,
@@ -60,14 +57,6 @@ public class RouteImpl implements Route {
 
   @Override public String method() {
     return method;
-  }
-
-  @Override public boolean gzip() {
-    return gzip;
-  }
-
-  public void gzip(boolean gzip) {
-    this.gzip = gzip;
   }
 
   public Executor executor() {

@@ -12,6 +12,7 @@ import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -279,34 +280,35 @@ public class FeaturedTest {
             + "lorem. Sed interdum nibh at ante consequat, vitae fermentum augue luctus.";
     new JoobyRunner(app -> {
 
-      app.get("/top", ctx -> text);
+      app.get("/gzip", ctx -> text);
 
-      app.gzip(() -> {
-        app.get("/gzip", ctx -> text);
-      });
+    }).configureServer(server -> {
 
-      app.get("/bottom", ctx -> text);
+      server.gzip(true);
+
     }).ready(client -> {
-
-      Throwing.Consumer<Response> raw = rsp -> {
-        assertEquals(1013, rsp.body().contentLength());
-        assertEquals(null, rsp.header("content-encoding"));
-        assertEquals(text, rsp.body().string());
-      };
-
-      client.get("/top", raw);
-
       client.get("/gzip").prepare(req -> {
         req.addHeader("Accept-Encoding", "gzip");
       }).execute(rsp -> {
         int min = 525;
         int max = 532;
-        assertTrue(rsp.body().contentLength() == min || rsp.body().contentLength() == max);
+        ResponseBody body = rsp.body();
+        long len = body.contentLength();
+        assertTrue(len == min || len == max, "Content-Length:" + len);
         assertEquals("gzip", rsp.header("content-encoding"));
-        assertEquals(text, ungzip(rsp.body().bytes()));
+        assertEquals(text, ungzip(body.bytes()));
       });
 
-      client.get("/bottom", raw);
+      // No Accept-Encoding
+      client.get("/gzip").prepare(req -> {
+        // NOTE: required bc okhttp always set Accept-Encoding to gzip
+        req.addHeader("Accept-Encoding", "");
+      }).execute(rsp -> {
+        ResponseBody body = rsp.body();
+        assertEquals(text, new String(body.bytes()));
+        assertEquals(1013, body.contentLength());
+        assertEquals(null, rsp.header("content-encoding"));
+      });
     });
   }
 
