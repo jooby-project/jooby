@@ -17,10 +17,9 @@ package io.jooby.internal;
 
 import io.jooby.Context;
 import io.jooby.Renderer;
+import io.jooby.Route;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +70,7 @@ class $Chi implements RadixTree {
     Pattern rex;
 
     // HTTP handler endpoints on the leaf node
-    Map<String, RouteImpl> endpoints;
+    Map<String, Route> endpoints;
 
     // subroutes on the leaf node
     //Routes subroutes;
@@ -104,7 +103,7 @@ class $Chi implements RadixTree {
       return this;
     }
 
-    Node insertRoute(String method, String pattern, RouteImpl route) {
+    Node insertRoute(String method, String pattern, Route route) {
       Node n = this;
       Node parent;
       String search = pattern;
@@ -305,7 +304,7 @@ class $Chi implements RadixTree {
       return null;
     }
 
-    void setEndpoint(String method, String pattern, RouteImpl route) {
+    void setEndpoint(String method, String pattern, Route route) {
       Node n = this;
       // Set the handler for the method type on the node
       if (n.endpoints == null) {
@@ -327,7 +326,6 @@ class $Chi implements RadixTree {
       //          h.paramKeys = paramKeys;
       //        }
       //      } else {
-      route.paramKeys = patParamKeys(pattern);
       n.endpoints.put(method, route);
       //        Endpoint h = n.endpoints.computeIfAbsent(method, k -> new Endpoint(handler));
       //        h.handler = handler;
@@ -419,10 +417,10 @@ class $Chi implements RadixTree {
         // did we returnType it yet?
         if (xsearch.length() == 0) {
           if (xn.isLeaf()) {
-            RouteImpl h = xn.endpoints.get(method);
+            Route h = xn.endpoints.get(method);
             if (h != null) {
               // rctx.routeParams.Keys = append(rctx.routeParams.Keys, h.paramKeys...)
-              rctx.key(h.paramKeys);
+              rctx.key(h.pathVariables());
               return xn;
             }
 
@@ -528,33 +526,6 @@ class $Chi implements RadixTree {
             return;
           }
         }
-      }
-    }
-
-    List<String> patParamKeys(String pattern) {
-      String pat = pattern;
-      List<String> paramKeys = new ArrayList<>();
-      while (true) {
-        //        ptyp, paramKey, _, _, _, e :=patNextSegment(pat)
-        Segment s = patNextSegment(pat);
-        if (s.nodeType == ntStatic) {
-          switch (paramKeys.size()) {
-            case 0:
-              return null;
-            case 1:
-              return Collections.singletonList(paramKeys.get(0));
-            default:
-              return Collections.unmodifiableList(paramKeys);
-          }
-        }
-        if (paramKeys.stream().anyMatch(k -> k.equals(s.key))) {
-          throw new IllegalArgumentException(String
-              .format("chi: routing pattern '%s' contains duplicate param key, '%s'",
-                  pattern,
-                  s.key));
-        }
-        paramKeys.add(s.key);
-        pat = pat.substring(s.endIndex);
       }
     }
 
@@ -667,7 +638,7 @@ class $Chi implements RadixTree {
 
   private Node root = new Node();
 
-  public void insert(String method, String pattern, RouteImpl route) {
+  public void insert(String method, String pattern, Route route) {
     root.insertRoute(method, pattern, route);
   }
 
@@ -685,7 +656,7 @@ class $Chi implements RadixTree {
     RouterMatch result = new RouterMatch();
     Node node = root.findRoute(result, method, path);
     if (node != null) {
-      RouteImpl route = node.endpoints.get(method);
+      Route route = node.endpoints.get(method);
       return result.found(route);
     }
     if (more != null) {

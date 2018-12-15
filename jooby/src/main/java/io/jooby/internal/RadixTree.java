@@ -17,18 +17,19 @@ package io.jooby.internal;
 
 import io.jooby.Context;
 import io.jooby.Renderer;
+import io.jooby.Route;
 
 import java.util.List;
 import java.util.function.Predicate;
 
 interface RadixTree {
-  void insert(String method, String pattern, RouteImpl route);
+  void insert(String method, String pattern, Route route);
 
   RouterMatch find(Context context, Renderer renderer, List<RadixTree> more);
 
   default RadixTree with(Predicate<Context> predicate) {
     return new RadixTree() {
-      @Override public void insert(String method, String pattern, RouteImpl route) {
+      @Override public void insert(String method, String pattern, Route route) {
         RadixTree.this.insert(method, pattern, route);
       }
 

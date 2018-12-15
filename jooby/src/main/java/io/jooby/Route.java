@@ -138,7 +138,7 @@ public interface Route {
 
   @Nonnull String method();
 
-  @Nonnull List<String> paramKeys();
+  @Nonnull List<String> pathVariables();
 
   @Nonnull Handler handler();
 

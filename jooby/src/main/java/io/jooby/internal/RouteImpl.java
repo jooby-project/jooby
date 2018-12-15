@@ -17,10 +17,12 @@ package io.jooby.internal;
 
 import io.jooby.Renderer;
 import io.jooby.Route;
+import io.jooby.Router;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -35,7 +37,7 @@ public class RouteImpl implements Route {
   private final Type returnType;
   private Executor executor;
   private boolean gzip;
-  List<String> paramKeys;
+  private List<String> paramKeys;
 
   public RouteImpl(String method, String pattern, Type returnType, Handler handler,
       Route.Handler pipeline, Renderer renderer) {
@@ -45,13 +47,14 @@ public class RouteImpl implements Route {
     this.handler = handler;
     this.pipeline = pipeline;
     this.renderer = renderer;
+    this.paramKeys = Router.pathVariables(this.pattern);
   }
 
   @Override public String pattern() {
     return pattern;
   }
 
-  public List<String> paramKeys() {
+  public List<String> pathVariables() {
     return paramKeys == null ? Collections.EMPTY_LIST : paramKeys;
   }
 

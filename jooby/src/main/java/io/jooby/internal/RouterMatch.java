@@ -70,7 +70,7 @@ public class RouterMatch implements Router.Match {
     return vars;
   }
 
-  public RouterMatch found(RouteImpl route) {
+  public RouterMatch found(Route route) {
     this.route = route;
     this.matches = true;
     return this;

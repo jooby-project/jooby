@@ -394,22 +394,22 @@ public class FeaturedTest {
   @Test
   public void paramKeys() {
     new JoobyRunner(app -> {
-      app.get("/articles/{id}", ctx -> ctx.route().paramKeys());
+      app.get("/articles/{id}", ctx -> ctx.route().pathVariables());
 
-      app.get("/articles/*", ctx -> ctx.route().paramKeys());
+      app.get("/articles/*", ctx -> ctx.route().pathVariables());
 
-      app.get("/file/*path", ctx -> ctx.route().paramKeys());
+      app.get("/file/*path", ctx -> ctx.route().pathVariables());
 
-      app.get("/regex/{nid:[0-9]+}", ctx -> ctx.route().paramKeys());
-      app.get("/regex/{zid:[0-9]+}/edit", ctx -> ctx.route().paramKeys());
+      app.get("/regex/{nid:[0-9]+}", ctx -> ctx.route().pathVariables());
+      app.get("/regex/{zid:[0-9]+}/edit", ctx -> ctx.route().pathVariables());
 
-      app.get("/file/{file}.json", ctx -> ctx.route().paramKeys());
+      app.get("/file/{file}.json", ctx -> ctx.route().pathVariables());
 
-      app.get("/file/{file}.{ext}", ctx -> ctx.route().paramKeys());
+      app.get("/file/{file}.{ext}", ctx -> ctx.route().pathVariables());
 
-      app.get("/profile/{pid}", ctx -> ctx.route().paramKeys());
+      app.get("/profile/{pid}", ctx -> ctx.route().pathVariables());
 
-      app.get("/profile/me", ctx -> ctx.route().paramKeys());
+      app.get("/profile/me", ctx -> ctx.route().pathVariables());
 
     }).ready(client -> {
       client.get("/articles/123", rsp -> {
