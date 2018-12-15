@@ -32,4 +32,12 @@ public interface Renderer {
     };
   }
 
+  @Nonnull default Renderer matches(String contentType) {
+    return (ctx, result) -> {
+      if (ctx.accept(contentType)) {
+        render(ctx, result);
+      }
+    };
+  }
+
 }

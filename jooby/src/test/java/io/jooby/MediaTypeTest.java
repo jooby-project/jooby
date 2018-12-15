@@ -6,6 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MediaTypeTest {
 
@@ -29,6 +31,10 @@ public class MediaTypeTest {
     assertEquals("plain", type.subtype());
     assertEquals(1f, type.quality());
     assertEquals("UTF-8", type.charset());
+
+    assertEquals("text/plain", MediaType.valueOf("text/plain").value());
+
+    assertEquals("text/plain", MediaType.valueOf("text/plain;charset=UTF-8").value());
   }
 
   @Test
@@ -79,5 +85,45 @@ public class MediaTypeTest {
     assertEquals(0, MediaType.parse(null).size());
     assertEquals(0, MediaType.parse("").size());
     assertEquals(1, MediaType.parse("text/plain,").size());
+  }
+
+  @Test
+  public void matches() {
+    assertTrue(MediaType.matches("application/json", "text/html, */*"));
+
+    assertTrue(MediaType.matches("application/json", "application/json"));
+
+    assertTrue(MediaType.matches("application/*+json", "application/xml, application/bar+json "));
+
+    assertFalse(MediaType.matches("application/json", "text/plain"));
+
+    assertFalse(MediaType.matches("application/json", "text/plain"));
+
+    assertTrue(MediaType.matches("application/json", "*"));
+    assertTrue(MediaType.matches("application/json", "*/*"));
+
+
+    assertFalse(MediaType.matches("application/json", "application/jsonx"));
+    assertFalse(MediaType.matches("application/json", "application/xjson"));
+
+    // wild
+    assertTrue(MediaType.matches("application/*json", "application/json"));
+    assertTrue(MediaType.matches("application/*+json", "application/foo+json"));
+
+    assertTrue(MediaType.matches("application/*json", "application/foojson"));
+    assertFalse(MediaType.matches("application/*+json", "application/foojson"));
+    assertFalse(MediaType.matches("application/*+json", "text/plain"));
+    assertFalse(MediaType.matches("application/*+json", "application/jsonplain"));
+
+    // accept header
+    assertTrue(MediaType.matches("application/json", "application/json, application/xml"));
+
+    assertTrue(MediaType.matches("application/json", "application/xml, application/json"));
+
+    assertTrue(MediaType.matches("application/*+json", "application/xml, application/bar+json"));
+
+    assertTrue(MediaType.matches("application/json", "application/json, application/xml"));
+
+
   }
 }

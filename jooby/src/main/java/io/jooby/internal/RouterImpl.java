@@ -183,6 +183,11 @@ public class RouterImpl implements Router {
     return this;
   }
 
+  @Nonnull @Override
+  public Router renderer(@Nonnull String contentType, @Nonnull Renderer renderer) {
+    return renderer(renderer.matches(contentType));
+  }
+
   @Nonnull @Override public Executor worker() {
     return worker;
   }

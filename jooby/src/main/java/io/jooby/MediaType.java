@@ -159,6 +159,14 @@ public class MediaType {
     return value.substring(subtypeStart + 1, subtypeEnd).trim();
   }
 
+  public boolean matches(@Nonnull String contentType) {
+    return matches(value(), contentType);
+  }
+
+  public boolean matches(@Nonnull MediaType type) {
+    return matches(type.value());
+  }
+
   @Nonnull public static MediaType valueOf(@Nonnull String value) {
     if (value == null || value.length() == 0) {
       return all;
@@ -184,6 +192,78 @@ public class MediaType {
       result.add(valueOf(value.substring(typeStart, len).trim()));
     }
     return result;
+  }
+
+  public static boolean matches(@Nonnull String expected, @Nonnull String contentType) {
+    int start = 0;
+    int len1 = expected.length();
+    int end = contentType.indexOf(',');
+    while (end != -1) {
+      if (matchOne(expected, len1, contentType.substring(start, end).trim())) {
+        return true;
+      }
+      start = end + 1;
+      end = contentType.indexOf(',', start);
+    }
+    int clen = contentType.length();
+    if (start < clen) {
+      return matchOne(expected, len1, contentType.substring(start, clen).trim());
+    }
+    return false;
+  }
+
+  private static boolean matchOne(String expected, int len1, String contentType) {
+    if (contentType.equals("*/*") || contentType.equals("*")) {
+      return true;
+    }
+    int i = 0;
+    int len2 = contentType.length();
+    int len = Math.min(len1, len2);
+    while (i < len) {
+      char ch1 = expected.charAt(i);
+      char ch2 = contentType.charAt(i);
+      if (ch1 != ch2) {
+        if (i > 0) {
+          char prev = expected.charAt(i - 1);
+          if (prev == '/') {
+            if (ch1 == '*') {
+              if (i == len1 - 1) {
+                return true;
+              }
+              // tail/suffix matches
+              for (int j = len1 - 1, k = len2 - 1; j > i; j--, k--) {
+                if (expected.charAt(j) != contentType.charAt(k)) {
+                  return false;
+                }
+              }
+              return true;
+            } else {
+              return false;
+            }
+          } else {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      }
+      i += 1;
+    }
+    return i == len && len1 == len2;
+  }
+
+  private static int noLeadingSpace(String contentType, int offset) {
+    while (contentType.charAt(offset) == ' ') {
+      offset += 1;
+    }
+    return offset;
+  }
+
+  private static int noTrailingSpace(String contentType, int offset) {
+    while (contentType.charAt(offset) == ' ') {
+      offset -= 1;
+    }
+    return offset;
   }
 
   @Override public String toString() {

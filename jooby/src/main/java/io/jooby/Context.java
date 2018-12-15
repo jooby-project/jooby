@@ -34,6 +34,8 @@ import java.util.concurrent.Executor;
 
 public interface Context {
 
+  String ACCEPT = "Accept";
+
   ZoneId GMT = ZoneId.of("GMT");
 
   String RFC1123_PATTERN = "EEE, dd MMM yyyy HH:mm:ss z";
@@ -121,6 +123,11 @@ public interface Context {
 
   @Nonnull default Map<String, List<String>> headerMultimap() {
     return headers().toMap();
+  }
+
+  default boolean accept(String contentType) {
+    String accept = headers().get(ACCEPT).value(MediaType.ALL);
+    return MediaType.matches(contentType, accept);
   }
 
   /* **********************************************************************************************

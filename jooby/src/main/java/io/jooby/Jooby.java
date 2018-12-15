@@ -105,6 +105,12 @@ public class Jooby implements Router {
     return this;
   }
 
+  @Nonnull @Override
+  public Jooby renderer(@Nonnull String contentType, @Nonnull Renderer renderer) {
+    router.renderer(contentType, renderer);
+    return this;
+  }
+
   @Nonnull @Override public Jooby group(@Nonnull Runnable action) {
     router.group(action);
     return this;
