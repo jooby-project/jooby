@@ -68,20 +68,13 @@ public class MediaType {
   private final int subtypeEnd;
 
   private MediaType(@Nonnull String value, String charset) {
-    // Old browsers send `*` which means `*/*`
-    if (value.equals("*")) {
-      this.value = "*/*";
-      this.subtypeStart = 1;
-      this.subtypeEnd = this.value.length();
-    } else {
-      this.value = value;
-      this.subtypeStart = value.indexOf('/');
-      if (subtypeStart < 0) {
-        throw new IllegalArgumentException("Invalid media type: " + value);
-      }
-      int subtypeEnd = value.indexOf(';');
-      this.subtypeEnd = subtypeEnd < 0 ? value.length() : subtypeEnd;
+    this.value = value;
+    this.subtypeStart = value.indexOf('/');
+    if (subtypeStart < 0) {
+      throw new IllegalArgumentException("Invalid media type: " + value);
     }
+    int subtypeEnd = value.indexOf(';');
+    this.subtypeEnd = subtypeEnd < 0 ? value.length() : subtypeEnd;
     this.charset = charset;
   }
 
@@ -168,7 +161,8 @@ public class MediaType {
   }
 
   @Nonnull public static MediaType valueOf(@Nonnull String value) {
-    if (value == null || value.length() == 0) {
+    // Old browsers send `*` which means `*/*`
+    if (value == null || value.length() == 0 || value.equals("*/*") || value.equals("*")) {
       return all;
     }
     return new MediaType(value, null);
@@ -250,20 +244,6 @@ public class MediaType {
       i += 1;
     }
     return i == len && len1 == len2;
-  }
-
-  private static int noLeadingSpace(String contentType, int offset) {
-    while (contentType.charAt(offset) == ' ') {
-      offset += 1;
-    }
-    return offset;
-  }
-
-  private static int noTrailingSpace(String contentType, int offset) {
-    while (contentType.charAt(offset) == ' ') {
-      offset -= 1;
-    }
-    return offset;
   }
 
   @Override public String toString() {
