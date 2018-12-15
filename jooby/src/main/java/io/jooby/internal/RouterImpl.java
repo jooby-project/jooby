@@ -340,8 +340,8 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
     Match match = chi.find(ctx, renderer, trees);
-    // Set result and violate encapsulation :S
-    ((BaseContext) ctx).prepare(match);
+    ctx.route(match.route());
+    ctx.pathMap(match.params());
     return match;
   }
 

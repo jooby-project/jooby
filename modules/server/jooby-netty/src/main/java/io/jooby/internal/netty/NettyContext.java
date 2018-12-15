@@ -59,6 +59,7 @@ public class NettyContext extends BaseContext {
   private Multipart multipart;
   private List<FileUpload> files;
   private Value.Object headers;
+  private Map<String, String> pathMap = Collections.emptyMap();
 
   public NettyContext(ChannelHandlerContext ctx, Executor executor,
       HttpRequest req, Route.RootErrorHandler errorHandler, Path tmpdir, String path) {
@@ -84,8 +85,26 @@ public class NettyContext extends BaseContext {
     return req.method().asciiName().toUpperCase().toString();
   }
 
+  @Nonnull @Override public Route route() {
+    return route;
+  }
+
+  @Nonnull @Override public Context route(@Nonnull Route route) {
+    this.route = route;
+    return this;
+  }
+
   @Nonnull @Override public final String pathString() {
     return path;
+  }
+
+  @Nonnull @Override public Map<String, String> pathMap() {
+    return pathMap;
+  }
+
+  @Nonnull @Override public Context pathMap(@Nonnull Map<String, String> pathMap) {
+    this.pathMap = pathMap;
+    return this;
   }
 
   @Override public final boolean isInIoThread() {

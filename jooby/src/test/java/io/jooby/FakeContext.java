@@ -62,7 +62,7 @@ public class FakeContext implements Context {
     return route;
   }
 
-  public FakeContext setRoute(Route route) {
+  public FakeContext route(Route route) {
     this.route = route;
     return this;
   }
@@ -80,7 +80,7 @@ public class FakeContext implements Context {
     return pathMap;
   }
 
-  public FakeContext setPathMap(Map<String, String> pathMap) {
+  public FakeContext pathMap(Map<String, String> pathMap) {
     this.pathMap = pathMap;
     return this;
   }

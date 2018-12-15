@@ -29,22 +29,7 @@ public abstract class BaseContext implements Context {
 
   protected Map<String, Object> locals = Collections.EMPTY_MAP;
 
-  private Map<String, String> params;
-
   public BaseContext() {
-  }
-
-  @Nonnull @Override public Route route() {
-    return route;
-  }
-
-  public void prepare(Router.Match match) {
-    this.route = match.route();
-    this.params = match.params();
-  }
-
-  @Nonnull @Override public Map<String, String> pathMap() {
-    return params;
   }
 
   @Nonnull @Override public Map<String, Object> locals() {

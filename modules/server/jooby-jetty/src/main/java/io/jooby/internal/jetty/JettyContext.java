@@ -57,6 +57,7 @@ public class JettyContext extends BaseContext {
   private Multipart multipart;
   private List<FileUpload> files;
   private Value.Object headers;
+  private Map<String, String> pathMap = Collections.emptyMap();
 
   public JettyContext(Request request, Executor worker, Route.RootErrorHandler errorHandler,
       Path tmpdir) {
@@ -66,7 +67,6 @@ public class JettyContext extends BaseContext {
     this.tmpdir = tmpdir;
 
     // Worker:
-    Connector connector = request.getHttpChannel().getConnector();
     this.worker = worker;
   }
 
@@ -86,8 +86,26 @@ public class JettyContext extends BaseContext {
     return request.getMethod().toUpperCase();
   }
 
+  @Nonnull @Override public Route route() {
+    return route;
+  }
+
+  @Nonnull @Override public Context route(Route route) {
+    this.route = route;
+    return this;
+  }
+
   @Nonnull @Override public String pathString() {
     return request.getRequestURI();
+  }
+
+  @Nonnull @Override public Map<String, String> pathMap() {
+    return pathMap;
+  }
+
+  @Nonnull @Override public Context pathMap(Map<String, String> pathMap) {
+    this.pathMap = pathMap;
+    return this;
   }
 
   @Nonnull @Override public QueryString query() {

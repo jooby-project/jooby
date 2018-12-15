@@ -44,6 +44,7 @@ public class UtowContext extends BaseContext {
   private Multipart multipart;
   private List<FileUpload> files;
   private Value.Object headers;
+  private Map<String, String> pathMap = Collections.emptyMap();
 
   public UtowContext(HttpServerExchange exchange, Executor worker,
       Route.RootErrorHandler errorHandler, Path tmpdir) {
@@ -69,8 +70,26 @@ public class UtowContext extends BaseContext {
     return exchange.getRequestMethod().toString().toUpperCase();
   }
 
+  @Nonnull @Override public Route route() {
+    return route;
+  }
+
+  @Nonnull @Override public Context route(Route route) {
+    this.route = route;
+    return this;
+  }
+
   @Nonnull @Override public String pathString() {
     return exchange.getRequestPath();
+  }
+
+  @Nonnull @Override public Map<String, String> pathMap() {
+    return pathMap;
+  }
+
+  @Nonnull @Override public Context pathMap(Map<String, String> pathMap) {
+    this.pathMap = pathMap;
+    return this;
   }
 
   @Override public boolean isInIoThread() {

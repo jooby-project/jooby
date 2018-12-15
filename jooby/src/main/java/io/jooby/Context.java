@@ -59,6 +59,8 @@ public interface Context {
 
   @Nonnull Route route();
 
+  @Nonnull Context route(@Nonnull Route route);
+
   /**
    * Request path without decoding (a.k.a raw Path). QueryString (if any) is not included.
    *
@@ -78,6 +80,8 @@ public interface Context {
   }
 
   @Nonnull Map<String, String> pathMap();
+
+  @Nonnull Context pathMap(@Nonnull Map<String, String> pathMap);
 
   /* **********************************************************************************************
    * Query String API
