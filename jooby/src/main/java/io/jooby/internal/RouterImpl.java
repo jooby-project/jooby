@@ -329,10 +329,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
-    Match match = chi.find(ctx, renderer, trees);
-    ctx.route(match.route());
-    ctx.pathMap(match.pathMap());
-    return match;
+    return chi.find(ctx, renderer, trees);
   }
 
   @Nonnull @Override public Router errorCode(@Nonnull Class<? extends Throwable> type,

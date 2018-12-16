@@ -20,23 +20,23 @@ import io.jooby.Router;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 
-import java.util.Map;
+import java.util.List;
 
 public class UtowMultiHandler implements HttpHandler {
-  private final Map<Jooby, UtowHandler> router;
+  private final List<Jooby> routers;
 
-  public UtowMultiHandler(Map<Jooby, UtowHandler> router) {
-    this.router = router;
+  public UtowMultiHandler(List<Jooby> routers) {
+    this.routers = routers;
   }
 
   @Override public void handleRequest(HttpServerExchange exchange) throws Exception {
-    for (Map.Entry<Jooby, UtowHandler> e : router.entrySet()) {
-      Jooby router = e.getKey();
+    for (Jooby router : routers) {
       UtowContext context = new UtowContext(exchange, router.worker(), router.errorHandler(),
           router.tmpdir());
       Router.Match match = router.match(context);
       if (match.matches()) {
-        e.getValue().handle(match.route(), context);
+        match.execute(context);
+        return;
       }
     }
   }

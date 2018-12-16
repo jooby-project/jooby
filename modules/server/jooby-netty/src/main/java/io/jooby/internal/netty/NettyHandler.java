@@ -39,15 +39,10 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
           router.errorHandler(),
           router.tmpdir(), pathOnly(req.uri()));
 
-      Router.Match match = router.match(context);
-      handle(match.route(), context);
+      router.match(context).execute(context);
     } else {
       ctx.fireChannelRead(msg);
     }
-  }
-
-  public void handle(Route route, Context context) {
-    route.pipeline().execute(context);
   }
 
   static String pathOnly(String uri) {

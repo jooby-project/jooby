@@ -15,8 +15,6 @@
  */
 package io.jooby.internal.utow;
 
-import io.jooby.Context;
-import io.jooby.Route;
 import io.jooby.Router;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -30,12 +28,8 @@ public class UtowHandler implements HttpHandler {
   }
 
   @Override public void handleRequest(HttpServerExchange exchange) {
-    UtowContext context = new UtowContext(exchange, router.worker(), router.errorHandler(), router.tmpdir());
-    Router.Match match = router.match(context);
-    handle(match.route(), context);
-  }
-
-  public void handle(Route route, Context context) {
-    route.pipeline().execute(context);
+    UtowContext context = new UtowContext(exchange, router.worker(), router.errorHandler(),
+        router.tmpdir());
+    router.match(context).execute(context);
   }
 }

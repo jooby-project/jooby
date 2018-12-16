@@ -132,9 +132,7 @@ public class Netty implements Server {
       if (applications.size() == 1) {
         handler = new NettyHandler(applications.get(0));
       } else {
-        Map<Jooby, NettyHandler> handlers = new LinkedHashMap<>(applications.size());
-        applications.forEach(app -> handlers.put(app, new NettyHandler(app)));
-        handler = new NettyMultiHandler(handlers, worker);
+        handler = new NettyMultiHandler(applications, worker);
       }
 
       /** Bootstrap: */

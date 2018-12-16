@@ -18,18 +18,16 @@ package io.jooby.internal.jetty;
 import io.jooby.Jooby;
 import io.jooby.Router;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 
-public class JettyMultiHandler extends JettyHandler {
+public class JettyMultiHandler extends AbstractHandler {
   private final List<Jooby> routers;
 
-  public JettyMultiHandler(Router router, List<Jooby> routers) {
-    super(router);
+  public JettyMultiHandler(List<Jooby> routers) {
     this.routers = routers;
   }
 
@@ -40,7 +38,7 @@ public class JettyMultiHandler extends JettyHandler {
           router.tmpdir());
       Router.Match match = router.match(ctx);
       if (match.matches()) {
-        handle(match.route(), ctx);
+        match.execute(ctx);
         return;
       }
     }

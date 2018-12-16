@@ -15,6 +15,7 @@
  */
 package io.jooby.internal;
 
+import io.jooby.Context;
 import io.jooby.Renderer;
 import io.jooby.Route;
 import io.jooby.Router;
@@ -63,14 +64,17 @@ public class RouterMatch implements Router.Match {
     return route;
   }
 
-  @Override public Map<String, String> pathMap() {
-    return vars;
-  }
-
   public RouterMatch found(Route route) {
     this.route = route;
     this.matches = true;
     return this;
+  }
+
+  public void execute(Context context) {
+    context.pathMap(vars);
+    context.route(route);
+
+    route.pipeline().execute(context);
   }
 
   public RouterMatch missing(String method, String path, Renderer renderer) {

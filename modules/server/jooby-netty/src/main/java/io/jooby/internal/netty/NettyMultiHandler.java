@@ -23,31 +23,31 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
+import java.util.List;
 import java.util.Map;
 
 @ChannelHandler.Sharable
 public class NettyMultiHandler extends ChannelInboundHandlerAdapter {
-  private final Map<Jooby, NettyHandler> handlers;
+  private final List<Jooby> routers;
   private final DefaultEventExecutorGroup executor;
 
-  public NettyMultiHandler(Map<Jooby, NettyHandler> handlers, DefaultEventExecutorGroup executor) {
-    this.handlers = handlers;
+  public NettyMultiHandler(List<Jooby> routers, DefaultEventExecutorGroup executor) {
+    this.routers = routers;
     this.executor = executor;
   }
 
-  @Override public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+  @Override public void channelRead(ChannelHandlerContext ctx, Object msg) {
     if (msg instanceof HttpRequest) {
       HttpRequest request = (HttpRequest) msg;
       String uri = request.uri();
       String path = NettyHandler.pathOnly(uri);
-      for (Map.Entry<Jooby, NettyHandler> e : handlers.entrySet()) {
-        Jooby router = e.getKey();
-        NettyContext context = new NettyContext(ctx, executor, request,
-            router.errorHandler(),
+      for (Jooby router : routers) {
+        NettyContext context = new NettyContext(ctx, executor, request, router.errorHandler(),
             router.tmpdir(), path);
         Router.Match match = router.match(context);
         if (match.matches()) {
-          e.getValue().handle(match.route(), context);
+          match.execute(context);
+          return;
         }
       }
     } else {

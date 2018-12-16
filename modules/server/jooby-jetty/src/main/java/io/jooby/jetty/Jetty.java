@@ -92,7 +92,7 @@ public class Jetty implements io.jooby.Server {
 
     AbstractHandler handler = applications.size() == 1 ?
         new JettyHandler(applications.get(0)) :
-        new JettyMultiHandler(null, applications);
+        new JettyMultiHandler(applications);
 
     if (gzip) {
       GzipHandler gzipHandler = new GzipHandler();

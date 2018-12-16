@@ -15,8 +15,6 @@
  */
 package io.jooby.internal.jetty;
 
-import io.jooby.Context;
-import io.jooby.Route;
 import io.jooby.Router;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -35,11 +33,6 @@ public class JettyHandler extends AbstractHandler {
       HttpServletResponse response) {
     JettyContext context = new JettyContext(request, router.worker(), router.errorHandler(),
         router.tmpdir());
-    Router.Match match = router.match(context);
-    handle(match.route(), context);
-  }
-
-  public void handle(Route route, Context context) {
-    route.pipeline().execute(context);
+    router.match(context).execute(context);
   }
 }

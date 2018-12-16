@@ -63,12 +63,9 @@ public class Utow implements Server {
   }
 
   @Override public Server start() {
-    Map<Jooby, UtowHandler> handlers = new LinkedHashMap<>(applications.size());
-    applications.forEach(app -> handlers.put(app, new UtowHandler(app)));
-
-    HttpHandler handler = handlers.size() == 1
-        ? handlers.values().iterator().next()
-        : new UtowMultiHandler(handlers);
+    HttpHandler handler = applications.size() == 1
+        ? new UtowHandler(applications.get(0))
+        : new UtowMultiHandler(applications);
 
     if (gzip) {
       handler = new EncodingHandler.Builder().build(null).wrap(handler);
