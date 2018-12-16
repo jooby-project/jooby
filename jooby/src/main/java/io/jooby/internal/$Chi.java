@@ -336,7 +336,7 @@ class $Chi implements RadixTree {
 
     // Recursive edge traversal by checking all nodeTyp groups along the way.
     // It's like searching through a multi-dimensional radix trie.
-    Node findRoute(RouterMatch rctx, String method, String path) {
+    Route findRoute(RouterMatch rctx, String method, String path) {
       Node n = this;
       Node nn = n;
       String search = path;
@@ -421,7 +421,7 @@ class $Chi implements RadixTree {
             if (h != null) {
               // rctx.routeParams.Keys = append(rctx.routeParams.Keys, h.paramKeys...)
               rctx.key(h.pathVariables());
-              return xn;
+              return h;
             }
 
             // flag that the routing context found a route, but not a corresponding
@@ -431,7 +431,7 @@ class $Chi implements RadixTree {
         }
 
         // recursively returnType the next node..
-        Node fin = xn.findRoute(rctx, method, xsearch);
+        Route fin = xn.findRoute(rctx, method, xsearch);
         if (fin != null) {
           return fin;
         }
@@ -447,37 +447,6 @@ class $Chi implements RadixTree {
       }
 
       return null;
-    }
-
-    Node findEdge(int ntyp, char label) {
-      Node n = this;
-      Node[] nds = n.children[ntyp];
-      int num = nds.length;
-      int idx = 0;
-
-      switch (ntyp) {
-        case ntStatic:
-        case ntParam:
-        case ntRegexp:
-          int j = num - 1;
-          for (int i = 0; i < j; i++) {
-            idx = i + (j - i) / 2;
-            if (label > nds[idx].label) {
-              i = idx + 1;
-            } else if (label < nds[idx].label) {
-              j = idx - 1;
-            } else {
-              i = num; // breaks cond
-            }
-          }
-          if (nds[idx].label != label) {
-            return null;
-          }
-          return nds[idx];
-
-        default: // catch all
-          return nds[idx];
-      }
     }
 
     Node findEdge(Node[] ns, char label) {
@@ -642,7 +611,7 @@ class $Chi implements RadixTree {
     root.insertRoute(method, pattern, route);
   }
 
-  public void insert(RouteImpl route) {
+  public void insert(Route route) {
     root.insertRoute(route.method(), route.pattern(), route);
   }
 
@@ -654,9 +623,8 @@ class $Chi implements RadixTree {
     String method = context.method();
     String path = context.pathString();
     RouterMatch result = new RouterMatch();
-    Node node = root.findRoute(result, method, path);
-    if (node != null) {
-      Route route = node.endpoints.get(method);
+    Route route = root.findRoute(result, method, path);
+    if (route != null) {
       return result.found(route);
     }
     if (more != null) {

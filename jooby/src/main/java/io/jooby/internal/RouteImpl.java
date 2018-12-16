@@ -47,12 +47,23 @@ public class RouteImpl implements Route {
     this.paramKeys = Router.pathVariables(this.pattern);
   }
 
+  public RouteImpl(String method, String pattern, List<String> paramKeys, Type returnType, Handler handler,
+      Route.Handler pipeline, Renderer renderer) {
+    this.method = method.toUpperCase();
+    this.pattern = pattern;
+    this.returnType = returnType;
+    this.handler = handler;
+    this.pipeline = pipeline;
+    this.renderer = renderer;
+    this.paramKeys = paramKeys;
+  }
+
   @Override public String pattern() {
     return pattern;
   }
 
   public List<String> pathVariables() {
-    return paramKeys == null ? Collections.EMPTY_LIST : paramKeys;
+    return paramKeys;
   }
 
   @Override public String method() {

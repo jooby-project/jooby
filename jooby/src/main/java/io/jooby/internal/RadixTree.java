@@ -35,7 +35,7 @@ interface RadixTree {
 
       @Override
       public RouterMatch find(Context context, Renderer renderer, List<RadixTree> more) {
-        if (predicate != null && !predicate.test(context)) {
+        if (!predicate.test(context)) {
           return new RouterMatch()
               .missing(context.method(), context.pathString(), renderer);
         }

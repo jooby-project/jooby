@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 public class RouterMatch implements Router.Match {
 
@@ -36,10 +35,8 @@ public class RouterMatch implements Router.Match {
   private Route.Handler handler;
 
   public void key(List<String> keys) {
-    if (keys != null) {
-      for (int i = 0; i < keys.size(); i++) {
-        vars.put(keys.get(i), vars.remove(i));
-      }
+    for (int i = 0; i < keys.size(); i++) {
+      vars.put(keys.get(i), vars.remove(i));
     }
   }
 
@@ -83,8 +80,7 @@ public class RouterMatch implements Router.Match {
     } else {
       h = this.handler;
     }
-    this.route = new RouteImpl(method, path, String.class, h, h, renderer);
-    this.matches = false;
+    this.route = new RouteImpl(method, path, Collections.emptyList(), String.class, h, h, renderer);
     return this;
   }
 }
