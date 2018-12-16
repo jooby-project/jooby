@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -215,7 +216,7 @@ public class PipelineTest {
   }
 
   private RouteImpl route(Type returnType, Route.Handler handler, Executor executor) {
-    return new RouteImpl("GET", "/", returnType, handler, handler, Renderer.TO_STRING)
-        .executor(executor);
+    return new RouteImpl("GET", "/", Collections.emptyList(), returnType, handler, handler,
+        Renderer.TO_STRING).executor(executor);
   }
 }

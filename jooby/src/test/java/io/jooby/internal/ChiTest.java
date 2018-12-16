@@ -21,7 +21,8 @@ public class ChiTest {
     router.insert(bar);
 
     RouterMatch result = router
-        .find(new FakeContext().setPathString("/abcd"), Renderer.TO_STRING, Collections.emptyList());
+        .find(new FakeContext().setPathString("/abcd"), Renderer.TO_STRING,
+            Collections.emptyList());
     assertTrue(result.matches);
     assertEquals(bar, result.route());
   }
@@ -31,6 +32,7 @@ public class ChiTest {
   }
 
   private RouteImpl route(String method, String pattern, Route.Handler handler) {
-    return new RouteImpl(method, pattern, String.class, handler, handler, Renderer.TO_STRING);
+    return new RouteImpl(method, pattern, Collections.emptyList(), String.class, handler, handler,
+        Renderer.TO_STRING);
   }
 }

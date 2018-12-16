@@ -17,11 +17,9 @@ package io.jooby.internal;
 
 import io.jooby.Renderer;
 import io.jooby.Route;
-import io.jooby.Router;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -34,9 +32,9 @@ public class RouteImpl implements Route {
   private final Renderer renderer;
   private final Type returnType;
   private Executor executor;
-  private List<String> paramKeys;
+  private final List<String> pathKeys;
 
-  public RouteImpl(String method, String pattern, Type returnType, Handler handler,
+  public RouteImpl(String method, String pattern, List<String> pathKeys, Type returnType, Handler handler,
       Route.Handler pipeline, Renderer renderer) {
     this.method = method.toUpperCase();
     this.pattern = pattern;
@@ -44,26 +42,15 @@ public class RouteImpl implements Route {
     this.handler = handler;
     this.pipeline = pipeline;
     this.renderer = renderer;
-    this.paramKeys = Router.pathVariables(this.pattern);
-  }
-
-  public RouteImpl(String method, String pattern, List<String> paramKeys, Type returnType, Handler handler,
-      Route.Handler pipeline, Renderer renderer) {
-    this.method = method.toUpperCase();
-    this.pattern = pattern;
-    this.returnType = returnType;
-    this.handler = handler;
-    this.pipeline = pipeline;
-    this.renderer = renderer;
-    this.paramKeys = paramKeys;
+    this.pathKeys = pathKeys;
   }
 
   @Override public String pattern() {
     return pattern;
   }
 
-  public List<String> pathVariables() {
-    return paramKeys;
+  public List<String> pathKeys() {
+    return pathKeys;
   }
 
   @Override public String method() {

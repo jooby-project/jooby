@@ -11,7 +11,6 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
@@ -396,22 +395,22 @@ public class FeaturedTest {
   @Test
   public void paramKeys() {
     new JoobyRunner(app -> {
-      app.get("/articles/{id}", ctx -> ctx.route().pathVariables());
+      app.get("/articles/{id}", ctx -> ctx.route().pathKeys());
 
-      app.get("/articles/*", ctx -> ctx.route().pathVariables());
+      app.get("/articles/*", ctx -> ctx.route().pathKeys());
 
-      app.get("/file/*path", ctx -> ctx.route().pathVariables());
+      app.get("/file/*path", ctx -> ctx.route().pathKeys());
 
-      app.get("/regex/{nid:[0-9]+}", ctx -> ctx.route().pathVariables());
-      app.get("/regex/{zid:[0-9]+}/edit", ctx -> ctx.route().pathVariables());
+      app.get("/regex/{nid:[0-9]+}", ctx -> ctx.route().pathKeys());
+      app.get("/regex/{zid:[0-9]+}/edit", ctx -> ctx.route().pathKeys());
 
-      app.get("/file/{file}.json", ctx -> ctx.route().pathVariables());
+      app.get("/file/{file}.json", ctx -> ctx.route().pathKeys());
 
-      app.get("/file/{file}.{ext}", ctx -> ctx.route().pathVariables());
+      app.get("/file/{file}.{ext}", ctx -> ctx.route().pathKeys());
 
-      app.get("/profile/{pid}", ctx -> ctx.route().pathVariables());
+      app.get("/profile/{pid}", ctx -> ctx.route().pathKeys());
 
-      app.get("/profile/me", ctx -> ctx.route().pathVariables());
+      app.get("/profile/me", ctx -> ctx.route().pathKeys());
 
     }).ready(client -> {
       client.get("/articles/123", rsp -> {

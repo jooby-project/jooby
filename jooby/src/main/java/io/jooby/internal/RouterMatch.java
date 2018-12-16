@@ -63,7 +63,7 @@ public class RouterMatch implements Router.Match {
     return route;
   }
 
-  @Override public Map<String, String> params() {
+  @Override public Map<String, String> pathMap() {
     return vars;
   }
 

@@ -31,7 +31,7 @@ public interface Router {
 
     Route route();
 
-    Map<String, String> params();
+    Map<String, String> pathMap();
   }
 
   /** HTTP Methods: */
@@ -182,7 +182,7 @@ public interface Router {
 
   @Nonnull Route.RootErrorHandler errorHandler();
 
-  static List<String> pathVariables(String pattern) {
+  static List<String> pathKeys(String pattern) {
     List<String> result = new ArrayList<>();
     int start = -1;
     int end = Integer.MAX_VALUE;

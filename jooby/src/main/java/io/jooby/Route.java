@@ -138,7 +138,7 @@ public interface Route {
 
   @Nonnull String method();
 
-  @Nonnull List<String> pathVariables();
+  @Nonnull List<String> pathKeys();
 
   @Nonnull Handler handler();
 
@@ -148,5 +148,3 @@ public interface Route {
 
   @Nonnull Type returnType();
 }
-
-

@@ -420,7 +420,7 @@ class $Chi implements RadixTree {
             Route h = xn.endpoints.get(method);
             if (h != null) {
               // rctx.routeParams.Keys = append(rctx.routeParams.Keys, h.paramKeys...)
-              rctx.key(h.pathVariables());
+              rctx.key(h.pathKeys());
               return h;
             }
 

@@ -16,7 +16,6 @@
 package io.jooby.internal;
 
 import io.jooby.Jooby;
-import io.jooby.BaseContext;
 import io.jooby.Context;
 import io.jooby.Err;
 import io.jooby.ExecutionMode;
@@ -271,15 +270,17 @@ public class RouterImpl implements Router {
     Type returnType = analyzer.returnType(handler);
 
     /** Route: */
-    RouteImpl route = new RouteImpl(method, pat.toString(), returnType, handler, pipeline,
+    String safePattern = pat.toString();
+    List<String> pathKeys = Router.pathKeys(safePattern);
+    RouteImpl route = new RouteImpl(method, safePattern, pathKeys, returnType, handler, pipeline,
         renderer);
     Stack stack = this.stack.peekLast();
     route.executor(stack.executor);
-    String finalpattern = basePath == null ? route.pattern() : basePath + route.pattern();
+    String routePattern = basePath == null ? safePattern : basePath + safePattern;
     if (method.equals("*")) {
-      METHODS.forEach(m -> tree.insert(m, finalpattern, route));
+      METHODS.forEach(m -> tree.insert(m, routePattern, route));
     } else {
-      tree.insert(route.method(), finalpattern, route);
+      tree.insert(route.method(), routePattern, route);
     }
     routes.add(route);
     return route;
@@ -330,7 +331,7 @@ public class RouterImpl implements Router {
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
     Match match = chi.find(ctx, renderer, trees);
     ctx.route(match.route());
-    ctx.pathMap(match.params());
+    ctx.pathMap(match.pathMap());
     return match;
   }
 
