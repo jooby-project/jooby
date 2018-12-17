@@ -21,7 +21,7 @@ public class RendererTest {
   @Test
   public void shouldRenderWhenAcceptHeaderMatches() throws Exception {
     AtomicRefRenderer renderer = new AtomicRefRenderer();
-    FakeContext ctx = new FakeContext()
+    MockContext ctx = new MockContext()
         .setHeaders(Value.headers().put("Accept", "application/json"));
     Object result = new Object();
     renderer.matches("application/json").render(ctx, result);
@@ -31,7 +31,7 @@ public class RendererTest {
   @Test
   public void shouldNotRenderWhenAcceptHeaderMatches() throws Exception {
     AtomicRefRenderer renderer = new AtomicRefRenderer();
-    FakeContext ctx = new FakeContext()
+    MockContext ctx = new MockContext()
         .setHeaders(Value.headers().put("Accept", "text/html"));
     Object result = new Object();
     renderer.matches("application/json").render(ctx, result);

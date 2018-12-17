@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 
@@ -31,6 +32,8 @@ public interface Router {
     Route route();
 
     void execute(Context context);
+
+    Map<String, String> pathMap();
   }
 
   /** HTTP Methods: */

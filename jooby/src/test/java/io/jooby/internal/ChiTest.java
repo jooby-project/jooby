@@ -1,6 +1,6 @@
 package io.jooby.internal;
 
-import io.jooby.FakeContext;
+import io.jooby.MockContext;
 import io.jooby.Renderer;
 import io.jooby.Route;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ public class ChiTest {
     router.insert(bar);
 
     RouterMatch result = router
-        .find(new FakeContext().setPathString("/abcd"), Renderer.TO_STRING,
+        .find(new MockContext().setPathString("/abcd"), Renderer.TO_STRING,
             Collections.emptyList());
     assertTrue(result.matches);
     assertEquals(bar, result.route());

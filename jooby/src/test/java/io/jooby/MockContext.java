@@ -4,15 +4,17 @@ import io.jooby.internal.UrlParser;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-public class FakeContext implements Context {
+public class MockContext implements Context {
 
   private String method = Router.GET;
 
@@ -43,9 +45,9 @@ public class FakeContext implements Context {
   private Map<String, Object> responseHeaders = new HashMap<>();
 
   private long length;
-  private String responseContentType;
-  private String responseCharset;
-  private int responseStatusCode;
+  private String responseContentType = "text/plain";
+  private String responseCharset = "UTF-8";
+  private int responseStatusCode = 200;
   private Object result;
   private boolean responseStarted;
 
@@ -53,7 +55,7 @@ public class FakeContext implements Context {
     return method;
   }
 
-  public Context setMethod(String method) {
+  public MockContext setMethod(String method) {
     this.method = method;
     return this;
   }
@@ -62,7 +64,7 @@ public class FakeContext implements Context {
     return route;
   }
 
-  public FakeContext route(Route route) {
+  public MockContext route(Route route) {
     this.route = route;
     return this;
   }
@@ -71,7 +73,7 @@ public class FakeContext implements Context {
     return pathString;
   }
 
-  public FakeContext setPathString(String pathString) {
+  public MockContext setPathString(String pathString) {
     this.pathString = pathString;
     return this;
   }
@@ -80,7 +82,7 @@ public class FakeContext implements Context {
     return pathMap;
   }
 
-  public FakeContext pathMap(Map<String, String> pathMap) {
+  public MockContext pathMap(Map<String, String> pathMap) {
     this.pathMap = pathMap;
     return this;
   }
@@ -93,7 +95,7 @@ public class FakeContext implements Context {
     return queryString;
   }
 
-  public FakeContext setQueryString(String queryString) {
+  public MockContext setQueryString(String queryString) {
     this.queryString = queryString;
     this.query = UrlParser.queryString("?" + queryString);
     return this;
@@ -103,7 +105,7 @@ public class FakeContext implements Context {
     return headers;
   }
 
-  public FakeContext setHeaders(Value.Object headers) {
+  public MockContext setHeaders(Value.Object headers) {
     this.headers = headers;
     return this;
   }
@@ -112,7 +114,7 @@ public class FakeContext implements Context {
     return formdata;
   }
 
-  public FakeContext setForm(Formdata formdata) {
+  public MockContext setForm(Formdata formdata) {
     this.formdata = formdata;
     return this;
   }
@@ -129,8 +131,18 @@ public class FakeContext implements Context {
     return body;
   }
 
-  public FakeContext setBody(Body body) {
+  public MockContext setBody(Body body) {
     this.body = body;
+    return this;
+  }
+
+  public MockContext setBody(String body) {
+    byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+    return setBody(bytes);
+  }
+
+  public MockContext setBody(byte[] body) {
+    this.body = Body.of(new ByteArrayInputStream(body), body.length);
     return this;
   }
 
@@ -138,7 +150,8 @@ public class FakeContext implements Context {
     return parsers.get(contentType);
   }
 
-  @Nonnull @Override public FakeContext parser(@Nonnull String contentType, @Nonnull Parser parser) {
+  @Nonnull @Override
+  public MockContext parser(@Nonnull String contentType, @Nonnull Parser parser) {
     parsers.put(contentType, parser);
     return this;
   }
@@ -147,23 +160,23 @@ public class FakeContext implements Context {
     return ioThread;
   }
 
-  public FakeContext setIoThread(boolean ioThread) {
+  public MockContext setIoThread(boolean ioThread) {
     this.ioThread = ioThread;
     return this;
   }
 
-  @Nonnull @Override public FakeContext dispatch(@Nonnull Runnable action) {
+  @Nonnull @Override public MockContext dispatch(@Nonnull Runnable action) {
     action.run();
     return this;
   }
 
   @Nonnull @Override
-  public FakeContext dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
+  public MockContext dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
     action.run();
     return this;
   }
 
-  @Nonnull @Override public FakeContext detach(@Nonnull Runnable action) {
+  @Nonnull @Override public MockContext detach(@Nonnull Runnable action) {
     action.run();
     return null;
   }
@@ -172,7 +185,7 @@ public class FakeContext implements Context {
     return (T) locals.get(name);
   }
 
-  @Nonnull @Override public FakeContext set(@Nonnull String name, @Nonnull Object value) {
+  @Nonnull @Override public MockContext set(@Nonnull String name, @Nonnull Object value) {
     locals.put(name, value);
     return this;
   }
@@ -181,27 +194,27 @@ public class FakeContext implements Context {
     return locals;
   }
 
-  @Nonnull @Override public FakeContext header(@Nonnull String name, @Nonnull Date value) {
+  @Nonnull @Override public MockContext header(@Nonnull String name, @Nonnull Date value) {
     Context.super.header(name, value);
     return this;
   }
 
-  @Nonnull @Override public FakeContext header(@Nonnull String name, @Nonnull Instant value) {
+  @Nonnull @Override public MockContext header(@Nonnull String name, @Nonnull Instant value) {
     Context.super.header(name, value);
     return this;
   }
 
-  @Nonnull @Override public FakeContext header(@Nonnull String name, @Nonnull Object value) {
+  @Nonnull @Override public MockContext header(@Nonnull String name, @Nonnull Object value) {
     Context.super.header(name, value);
     return this;
   }
 
-  @Nonnull @Override public FakeContext header(@Nonnull String name, @Nonnull String value) {
+  @Nonnull @Override public MockContext header(@Nonnull String name, @Nonnull String value) {
     responseHeaders.put(name, value);
     return this;
   }
 
-  @Nonnull @Override public FakeContext length(long length) {
+  @Nonnull @Override public MockContext length(long length) {
     this.length = length;
     return this;
   }
@@ -210,18 +223,19 @@ public class FakeContext implements Context {
     return length;
   }
 
-  @Nonnull @Override public FakeContext type(@Nonnull String contentType, @Nullable String charset) {
+  @Nonnull @Override
+  public MockContext type(@Nonnull String contentType, @Nullable String charset) {
     this.responseContentType = contentType;
     this.responseCharset = charset;
     return this;
   }
 
-  @Nonnull @Override public FakeContext statusCode(int statusCode) {
+  @Nonnull @Override public MockContext statusCode(int statusCode) {
     this.responseStatusCode = statusCode;
     return this;
   }
 
-  @Nonnull @Override public FakeContext send(@Nonnull Object result) {
+  @Nonnull @Override public MockContext send(@Nonnull Object result) {
     this.result = result;
     return this;
   }
@@ -234,40 +248,55 @@ public class FakeContext implements Context {
     return (String) result;
   }
 
-  @Nonnull @Override public FakeContext sendText(@Nonnull String data) {
+  @Nonnull @Override public MockContext sendText(@Nonnull String data, @Nonnull Charset charset) {
     responseStarted = true;
     result = data;
+    length = data.getBytes(charset).length;
     return this;
   }
 
-  @Nonnull @Override public FakeContext sendText(@Nonnull String data, @Nonnull Charset charset) {
+  @Nonnull @Override public MockContext sendBytes(@Nonnull byte[] data) {
     responseStarted = true;
     result = data;
+    length = data.length;
     return this;
   }
 
-  @Nonnull @Override public FakeContext sendBytes(@Nonnull byte[] data) {
-    responseStarted = true;
+  @Nonnull @Override public MockContext sendBytes(@Nonnull ByteBuffer data) {
     result = data;
+    length = data.remaining();
     return this;
   }
 
-  @Nonnull @Override public FakeContext sendBytes(@Nonnull ByteBuffer data) {
-    result = data;
-    return this;
-  }
-
-  @Nonnull @Override public FakeContext sendStatusCode(int statusCode) {
+  @Nonnull @Override public MockContext sendStatusCode(int statusCode) {
     responseStarted = true;
     result = statusCode;
-    responseStatusCode =statusCode;
+    responseStatusCode = statusCode;
+    length = 0;
     return this;
   }
 
-  @Nonnull @Override public FakeContext sendError(@Nonnull Throwable cause) {
+  @Nonnull @Override public MockContext sendError(@Nonnull Throwable cause) {
     responseStarted = true;
     result = cause;
+    length = -1;
     return this;
+  }
+
+  public String getResponseContentType() {
+    return responseContentType;
+  }
+
+  public int getResponseStatusCode() {
+    return responseStatusCode;
+  }
+
+  public Map<String, Object> getResponseHeaders() {
+    return responseHeaders;
+  }
+
+  public String getResponseCharset() {
+    return responseCharset;
   }
 
   @Override public boolean isResponseStarted() {
@@ -275,7 +304,6 @@ public class FakeContext implements Context {
   }
 
   @Override public void destroy() {
-
   }
 
   @Override public String name() {

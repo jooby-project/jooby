@@ -64,6 +64,10 @@ public class RouterMatch implements Router.Match {
     return route;
   }
 
+  @Override public Map<String, String> pathMap() {
+    return vars;
+  }
+
   public RouterMatch found(Route route) {
     this.route = route;
     this.matches = true;
