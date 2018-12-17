@@ -67,7 +67,7 @@ public class NettyContext extends BaseContext {
     this.ctx = ctx;
     this.req = req;
     this.executor = executor;
-    this.keepAlive = isKeepAlive(req);
+    this.keepAlive = req.protocolVersion().isKeepAliveDefault() || isKeepAlive(req);
     this.tmpdir = tmpdir;
     this.errorHandler = errorHandler;
   }
