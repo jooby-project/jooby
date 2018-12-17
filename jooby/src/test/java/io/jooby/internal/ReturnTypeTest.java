@@ -90,7 +90,7 @@ public class ReturnTypeTest {
     assertType(CompletableFuture.class, ctx -> supplyAsync(() -> ctx.query("n").intValue(1))
         .thenApply(x -> x * 2)
         .whenComplete((v, x) -> {
-          ctx.send(v);
+          ctx.render(v);
         }));
 
     assertType(CompletableFuture.class, ctx -> CompletableFuture

@@ -36,7 +36,7 @@ public class MaybeHandler implements ChainedHandler {
       Maybe result = (Maybe) next.apply(ctx);
       result.subscribe(new DisposableMaybeObserver() {
         @Override public void onSuccess(Object value) {
-          ctx.send(value);
+          ctx.render(value);
         }
 
         @Override public void onError(Throwable e) {

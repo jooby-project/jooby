@@ -64,7 +64,7 @@ public class HelloApp extends Jooby {
     });
 
     renderer(new Jackson());
-    get("/json", ctx -> ctx.type("application/json").send(new Message("Hello World!")));
+    get("/json", ctx -> ctx.type("application/json").render(new Message("Hello World!")));
 
     error((ctx, cause, statusCode) -> {
       cause.printStackTrace();

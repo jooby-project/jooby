@@ -38,7 +38,7 @@ public class CompletionStageHandler implements ChainedHandler {
           if (x != null) {
             ctx.sendError((Throwable) x);
           } else {
-            ctx.send(value);
+            ctx.render(value);
           }
         } catch (Throwable newx) {
           ctx.sendError(newx);

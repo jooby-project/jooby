@@ -235,7 +235,7 @@ public class MockContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public MockContext send(@Nonnull Object result) {
+  @Nonnull @Override public MockContext render(@Nonnull Object result) {
     this.result = result;
     return this;
   }

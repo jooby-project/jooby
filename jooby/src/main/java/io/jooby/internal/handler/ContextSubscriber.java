@@ -38,7 +38,7 @@ public class ContextSubscriber implements Subscriber<Object>, Flow.Subscriber<Ob
   }
 
   @Override public void onNext(Object value) {
-    ctx.send(value);
+    ctx.render(value);
   }
 
   @Override public void onError(Throwable x) {

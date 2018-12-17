@@ -32,7 +32,7 @@ public class DefaultHandler implements ChainedHandler {
     try {
       Object result = next.apply(ctx);
       if (!ctx.isResponseStarted()) {
-        ctx.send(result);
+        ctx.render(result);
       }
       return result;
     } catch (Throwable x) {

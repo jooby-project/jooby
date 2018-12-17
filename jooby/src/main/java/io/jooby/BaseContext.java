@@ -60,7 +60,7 @@ public abstract class BaseContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public Context send(@Nonnull Object result) {
+  @Nonnull @Override public Context render(@Nonnull Object result) {
     try {
       route.renderer().render(this, result);
       return this;

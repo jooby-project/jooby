@@ -314,7 +314,7 @@ public interface Context {
 
   @Nonnull Context statusCode(int statusCode);
 
-  @Nonnull Context send(@Nonnull Object result);
+  @Nonnull Context render(@Nonnull Object result);
 
   default @Nonnull Context sendText(@Nonnull String data) {
     return sendText(data, StandardCharsets.UTF_8);

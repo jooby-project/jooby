@@ -36,7 +36,7 @@ public class ObservableHandler implements ChainedHandler {
       Observable result = (Observable) next.apply(ctx);
       result.subscribe(new DefaultObserver() {
         @Override public void onNext(Object value) {
-          ctx.send(value);
+          ctx.render(value);
         }
 
         @Override public void onError(Throwable e) {
