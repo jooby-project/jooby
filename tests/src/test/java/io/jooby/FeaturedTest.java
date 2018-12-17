@@ -520,7 +520,8 @@ public class FeaturedTest {
 
       app.post("/datafile", ctx -> {
         Datafile file = ctx.multipart(Datafile.class);
-        return file.name + "=" + Files.exists(file.filename);
+        String result = file.name + "=" + Files.exists(file.filename);
+        return result;
       });
 
       app.post("/datafiles", ctx -> {

@@ -247,13 +247,13 @@ public class NettyContext extends BaseContext {
     responseStarted = true;
     rsp.headers().set(setHeaders);
     if (keepAlive) {
-      // rsp.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+      rsp.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
       ctx.write(rsp, ctx.voidPromise());
     } else {
       ctx.write(rsp).addListener(CLOSE);
     }
-    ctx.executor().execute(ctx::flush);
-    // clean up
+    ctx.executor().execute(() -> ctx.flush());
+    // TODO: move destroy inside a Write listener
     destroy();
     return this;
   }
@@ -281,7 +281,8 @@ public class NettyContext extends BaseContext {
         HttpData next = (HttpData) decoder.next();
         if (next.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
           form.put(next.getName(),
-              register(new NettyFileUpload(tmpdir, next.getName(), (io.netty.handler.codec.http.multipart.FileUpload) next)));
+              register(new NettyFileUpload(tmpdir, next.getName(),
+                  (io.netty.handler.codec.http.multipart.FileUpload) next)));
         } else {
           form.put(next.getName(), next.getString(UTF_8));
           next.release();

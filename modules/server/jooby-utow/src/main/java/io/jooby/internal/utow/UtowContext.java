@@ -16,6 +16,8 @@
 package io.jooby.internal.utow;
 
 import io.jooby.*;
+import io.undertow.io.IoCallback;
+import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.*;
 import io.undertow.util.*;
@@ -23,17 +25,18 @@ import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Closeable;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.Executor;
 
 import static io.jooby.Throwing.throwingConsumer;
 
-public class UtowContext extends BaseContext {
+public class UtowContext extends BaseContext implements IoCallback {
 
   private final HttpServerExchange exchange;
   private final Path tmpdir;
@@ -42,7 +45,7 @@ public class UtowContext extends BaseContext {
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
-  private List<FileUpload> files;
+  private List<Closeable> resources;
   private Value.Object headers;
   private Map<String, String> pathMap = Collections.emptyMap();
 
@@ -146,12 +149,16 @@ public class UtowContext extends BaseContext {
       if (!exchange.isBlocking()) {
         exchange.startBlocking();
       }
-      try (FormDataParser parser = new MultiPartParserDefinition()
-          .setDefaultEncoding(StandardCharsets.UTF_8.name())
-          .setTempFileLocation(tmpdir)
-          .create(exchange)) {
+      try {
+        FormDataParser parser = new MultiPartParserDefinition()
+            .setDefaultEncoding(StandardCharsets.UTF_8.name())
+            .setTempFileLocation(tmpdir)
+            .create(exchange);
+
+        register(parser);
+
         formData(multipart, parser.parseBlocking());
-      } catch (Exception x) {
+      } catch (IOException x) {
         throw Throwing.sneakyThrow(x);
       }
     }
@@ -203,16 +210,17 @@ public class UtowContext extends BaseContext {
   }
 
   @Nonnull @Override public Context sendText(@Nonnull String data, @Nonnull Charset charset) {
-    exchange.getResponseSender().send(data, charset);
-    return this;
+    return sendBytes(ByteBuffer.wrap(data.getBytes(charset)));
   }
 
   @Nonnull @Override public Context sendBytes(@Nonnull ByteBuffer data) {
-    exchange.getResponseSender().send(data);
+    exchange.setResponseContentLength(data.remaining());
+    exchange.getResponseSender().send(data, this);
     return this;
   }
 
   @Nonnull @Override public Context sendStatusCode(int statusCode) {
+    exchange.setResponseContentLength(0);
     exchange.setStatusCode(statusCode).endExchange();
     return this;
   }
@@ -226,19 +234,24 @@ public class UtowContext extends BaseContext {
     return exchange.isResponseStarted();
   }
 
-  @Override public void destroy() {
-    if (files != null) {
-      // TODO: use a log
-      files.forEach(throwingConsumer(FileUpload::destroy));
+  private void destroy(HttpServerExchange exchange) {
+    try {
+      if (resources != null) {
+        // TODO: use a log
+        resources.forEach(throwingConsumer(Closeable::close));
+        resources = null;
+      }
+    } finally {
+      exchange.endExchange();
     }
   }
 
-  private FileUpload register(FileUpload upload) {
-    if (files == null) {
-      files = new ArrayList<>();
+  private Closeable register(Closeable closeable) {
+    if (resources == null) {
+      resources = new ArrayList<>();
     }
-    files.add(upload);
-    return upload;
+    resources.add(closeable);
+    return closeable;
   }
 
   private void formData(Formdata form, FormData data) {
@@ -248,11 +261,20 @@ public class UtowContext extends BaseContext {
       Deque<FormData.FormValue> values = data.get(path);
       for (FormData.FormValue value : values) {
         if (value.isFile()) {
-          form.put(path, register(new UtowFileUpload(path, value)));
+          form.put(path, new UtowFileUpload(path, value));
         } else {
           form.put(path, value.getValue());
         }
       }
     }
+  }
+
+  @Override public void onComplete(HttpServerExchange exchange, Sender sender) {
+    destroy(exchange);
+  }
+
+  @Override
+  public void onException(HttpServerExchange exchange, Sender sender, IOException exception) {
+    destroy(exchange);
   }
 }

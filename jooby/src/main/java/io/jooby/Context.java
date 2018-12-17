@@ -336,8 +336,6 @@ public interface Context {
 
   boolean isResponseStarted();
 
-  void destroy();
-
   /**
    * Name of the underlying HTTP server: netty, utow, jetty, etc..
    *

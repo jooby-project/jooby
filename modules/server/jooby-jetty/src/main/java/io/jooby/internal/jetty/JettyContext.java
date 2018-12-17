@@ -17,23 +17,17 @@ package io.jooby.internal.jetty;
 
 import io.jooby.*;
 import org.eclipse.jetty.http.MultiPartFormInputStream;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.MultiMap;
 import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.servlet.AsyncContext;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -41,12 +35,11 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static io.jooby.Throwing.throwingConsumer;
 import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 
-public class JettyContext extends BaseContext {
+public class JettyContext extends BaseContext implements Callback {
   private final Request request;
   private final Response response;
   private final Route.RootErrorHandler errorHandler;
@@ -248,12 +241,7 @@ public class JettyContext extends BaseContext {
 
   @Nonnull @Override public Context sendBytes(@Nonnull ByteBuffer data) {
     HttpOutput sender = response.getHttpOutput();
-    if (request.isAsyncStarted()) {
-      AsyncContext asyncContext = request.getAsyncContext();
-      sender.sendContent(data, new JettyCallback(asyncContext));
-    } else {
-      sender.sendContent(data, Callback.NOOP);
-    }
+    sender.sendContent(data, this);
     return this;
   }
 
@@ -266,26 +254,26 @@ public class JettyContext extends BaseContext {
     return request.getResponse().isCommitted();
   }
 
-  @Override public void destroy() {
+  @Override public void succeeded() {
+    destroy();
+  }
+
+  @Override public void failed(Throwable x) {
+    destroy();
+  }
+
+  @Override public InvocationType getInvocationType() {
+    return InvocationType.NON_BLOCKING;
+  }
+
+  private void destroy() {
     if (files != null) {
       // TODO: use a log
       files.forEach(throwingConsumer(FileUpload::destroy));
     }
-  }
-
-  private static Handler gzipCall(Context ctx, Route.Handler next,
-      AtomicReference<Object> result) {
-    return new AbstractHandler() {
-      @Override
-      public void handle(String target, Request baseRequest, HttpServletRequest request,
-          HttpServletResponse response) {
-        try {
-          result.set(next.apply(ctx));
-        } catch (Throwable x) {
-          result.set(x);
-        }
-      }
-    };
+    if (request.isAsyncStarted()) {
+      request.getAsyncContext().complete();
+    }
   }
 
   private FileUpload register(FileUpload upload) {

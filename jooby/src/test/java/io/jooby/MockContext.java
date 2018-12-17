@@ -303,9 +303,6 @@ public class MockContext implements Context {
     return responseStarted;
   }
 
-  @Override public void destroy() {
-  }
-
   @Override public String name() {
     return "fake";
   }
