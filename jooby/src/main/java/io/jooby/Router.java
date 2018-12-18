@@ -158,13 +158,13 @@ public interface Router {
   @Nonnull StatusCode errorCode(@Nonnull Throwable cause);
 
   @Nonnull
-  default Router error(@Nonnull StatusCode statusCode, @Nonnull Route.ErrorHandler handler) {
+  default Router error(@Nonnull StatusCode statusCode, @Nonnull ErrorHandler handler) {
     return error(statusCode::equals, handler);
   }
 
   @Nonnull
   default Router error(@Nonnull Class<? extends Throwable> type,
-      @Nonnull Route.ErrorHandler handler) {
+      @Nonnull ErrorHandler handler) {
     return error((ctx, x, statusCode) -> {
       if (type.isInstance(x) || type.isInstance(x.getCause())) {
         handler.apply(ctx, x, statusCode);
@@ -174,7 +174,7 @@ public interface Router {
 
   @Nonnull
   default Router error(@Nonnull Predicate<StatusCode> predicate,
-      @Nonnull Route.ErrorHandler handler) {
+      @Nonnull ErrorHandler handler) {
     return error((ctx, x, statusCode) -> {
       if (predicate.test(statusCode)) {
         handler.apply(ctx, x, statusCode);
@@ -182,9 +182,9 @@ public interface Router {
     });
   }
 
-  @Nonnull Router error(@Nonnull Route.ErrorHandler handler);
+  @Nonnull Router error(@Nonnull ErrorHandler handler);
 
-  @Nonnull Route.ErrorHandler errorHandler();
+  @Nonnull ErrorHandler errorHandler();
 
   static List<String> pathKeys(String pattern) {
     List<String> result = new ArrayList<>();

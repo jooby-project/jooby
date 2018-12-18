@@ -78,7 +78,7 @@ public class Jooby implements Router {
     return router.routes();
   }
 
-  @Nonnull @Override public Jooby error(@Nonnull Route.ErrorHandler handler) {
+  @Nonnull @Override public Jooby error(@Nonnull ErrorHandler handler) {
     router.error(handler);
     return this;
   }
@@ -166,7 +166,7 @@ public class Jooby implements Router {
     return LoggerFactory.getLogger(getClass());
   }
 
-  @Nonnull @Override public Route.ErrorHandler errorHandler() {
+  @Nonnull @Override public ErrorHandler errorHandler() {
     return router.errorHandler();
   }
 

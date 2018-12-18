@@ -49,6 +49,7 @@ public class WebClient {
         .writeTimeout(5, TimeUnit.MINUTES)
         .readTimeout(5, TimeUnit.MINUTES)
         .build();
+    header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
   }
 
   public WebClient header(String name, String value) {
@@ -69,6 +70,7 @@ public class WebClient {
     if (headers != null) {
       req.headers(Headers.of(headers));
       headers = null;
+      header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
     }
     req.url("http://localhost:" + port + path);
     return new Request(req);

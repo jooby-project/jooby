@@ -3,7 +3,9 @@ package io.jooby;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -102,7 +104,6 @@ public class MediaTypeTest {
     assertTrue(MediaType.matches("application/json", "*"));
     assertTrue(MediaType.matches("application/json", "*/*"));
 
-
     assertFalse(MediaType.matches("application/json", "application/jsonx"));
     assertFalse(MediaType.matches("application/json", "application/xjson"));
 
@@ -123,7 +124,29 @@ public class MediaTypeTest {
     assertTrue(MediaType.matches("application/*+json", "application/xml, application/bar+json"));
 
     assertTrue(MediaType.matches("application/json", "application/json, application/xml"));
+  }
 
+  @Test
+  public void precedence() {
+    accept("text/*, text/plain, text/plain;format=flowed, */*", types -> {
+      assertEquals("text/plain;format=flowed", types.get(0).toString());
+      assertEquals("text/plain", types.get(1).toString());
+      assertEquals("text/*", types.get(2).toString());
+      assertEquals("*/*", types.get(3).toString());
+    });
 
+    accept("text/*;q=0.3, text/html;q=0.7, text/html;level=1,text/html;level=2;q=0.4, */*;q=0.5", types -> {
+      assertEquals("text/html;level=1", types.get(0).toString());
+      assertEquals("text/html;q=0.7", types.get(1).toString());
+      assertEquals("text/html;level=2;q=0.4", types.get(2).toString());
+      assertEquals("text/*;q=0.3", types.get(3).toString());
+      assertEquals("*/*;q=0.5", types.get(4).toString());
+    });
+  }
+
+  public static void accept(String value, Consumer<List<MediaType>> consumer) {
+    List<MediaType> types = MediaType.parse(value);
+    Collections.sort(types);
+    consumer.accept(types);
   }
 }

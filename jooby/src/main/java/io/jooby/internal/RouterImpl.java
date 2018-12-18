@@ -15,6 +15,7 @@
  */
 package io.jooby.internal;
 
+import io.jooby.ErrorHandler;
 import io.jooby.Jooby;
 import io.jooby.Context;
 import io.jooby.Err;
@@ -96,7 +97,7 @@ public class RouterImpl implements Router {
     throw new Usage("Worker executor is not ready.");
   };
 
-  private Route.ErrorHandler err;
+  private ErrorHandler err;
 
   private Map<String, StatusCode> errorCodes;
 
@@ -202,7 +203,7 @@ public class RouterImpl implements Router {
     return decorate(before);
   }
 
-  @Nonnull @Override public Router error(@Nonnull Route.ErrorHandler handler) {
+  @Nonnull @Override public Router error(@Nonnull ErrorHandler handler) {
     err = err == null ? handler : err.then(handler);
     return this;
   }
@@ -286,8 +287,8 @@ public class RouterImpl implements Router {
 
   @Nonnull public Router start(@Nonnull Jooby owner) {
     if (err == null) {
-      err = Route.ErrorHandler.log(owner.log(), StatusCode.NOT_FOUND)
-          .then(Route.ErrorHandler.DEFAULT);
+      err = ErrorHandler.log(owner.log(), StatusCode.NOT_FOUND)
+          .then(ErrorHandler.DEFAULT);
     }
     ExecutionMode mode = owner.mode();
     for (Route route : routes) {
@@ -321,7 +322,7 @@ public class RouterImpl implements Router {
     // NOOP
   }
 
-  @Nonnull @Override public Route.ErrorHandler errorHandler() {
+  @Nonnull @Override public ErrorHandler errorHandler() {
     return err;
   }
 

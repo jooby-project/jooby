@@ -132,7 +132,7 @@ public interface Context {
   }
 
   default boolean accept(String contentType) {
-    String accept = headers().get(ACCEPT).value(MediaType.ALL);
+    String accept = header(ACCEPT).value(MediaType.ALL);
     return MediaType.matches(contentType, accept);
   }
 

@@ -129,11 +129,11 @@ public class FeaturedTest {
             + "<title>Not Found (404)</title>\n"
             + "<body>\n"
             + "<h1>Not Found</h1>\n"
-            + "<hr><h2>status code: 404</h2>\n"
+            + "<hr>\n<h2>status code: 404</h2>\n"
             + "</body>\n"
             + "</html>", rsp.body().string());
         assertEquals(404, rsp.code());
-        assertEquals(579, rsp.body().contentLength());
+        assertEquals(580, rsp.body().contentLength());
       });
     });
   }
@@ -184,11 +184,11 @@ public class FeaturedTest {
             + "</title>\n"
             + "<body>\n"
             + "<h1>Not Found</h1>\n"
-            + "<hr><h2>status code: 404</h2>\n"
+            + "<hr>\n<h2>status code: 404</h2>\n"
             + "</body>\n"
             + "</html>", rsp.body().string());
         assertEquals(404, rsp.code());
-        assertEquals(579, rsp.body().contentLength());
+        assertEquals(580, rsp.body().contentLength());
       });
     });
   }
@@ -298,9 +298,9 @@ public class FeaturedTest {
         assertEquals(text, ungzip(body.bytes()));
       });
 
-      // No Accept-Encoding
+      // No ContentNegotiation-Encoding
       client.get("/gzip").prepare(req -> {
-        // NOTE: required bc okhttp always set Accept-Encoding to gzip
+        // NOTE: required bc okhttp always set ContentNegotiation-Encoding to gzip
         req.addHeader("Accept-Encoding", "");
       }).execute(rsp -> {
         ResponseBody body = rsp.body();
@@ -703,6 +703,7 @@ public class FeaturedTest {
 
     }).ready(client -> {
       client.get("/", rsp -> {
+        assertEquals("text/html;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
         assertEquals("<!doctype html>\n"
             + "<html>\n"
             + "<head>\n"
@@ -725,6 +726,14 @@ public class FeaturedTest {
             + "<h2>status code: 400</h2>\n"
             + "</body>\n"
             + "</html>", rsp.body().string());
+      });
+
+      client.header("Accept", "application/json");
+      client.get("/", rsp -> {
+        assertEquals("application/json;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
+        assertEquals(
+            "{\"message\":\"Invalid path\",\"statusCode\":400,\"reason\":\"Bad Request\"}",
+            rsp.body().string());
       });
     });
   }
