@@ -306,4 +306,8 @@ public class MockContext implements Context {
   @Override public String name() {
     return "fake";
   }
+
+  @Nonnull @Override public Router router() {
+    throw new UnsupportedOperationException();
+  }
 }

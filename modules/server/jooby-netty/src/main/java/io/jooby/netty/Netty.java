@@ -130,7 +130,7 @@ public class Netty implements Server {
       if (applications.size() == 1) {
         handler = new NettyHandler(applications.get(0));
       } else {
-        handler = new NettyMultiHandler(applications, worker);
+        handler = new NettyMultiHandler(applications);
       }
 
       /** Bootstrap: */

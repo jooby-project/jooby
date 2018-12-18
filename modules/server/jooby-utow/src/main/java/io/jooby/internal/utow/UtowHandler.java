@@ -28,8 +28,7 @@ public class UtowHandler implements HttpHandler {
   }
 
   @Override public void handleRequest(HttpServerExchange exchange) {
-    UtowContext context = new UtowContext(exchange, router.worker(), router.errorHandler(),
-        router.tmpdir());
+    UtowContext context = new UtowContext(exchange, router);
     router.match(context).execute(context);
   }
 }

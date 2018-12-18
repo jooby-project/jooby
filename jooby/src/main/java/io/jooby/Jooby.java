@@ -148,6 +148,10 @@ public class Jooby implements Router {
     return this;
   }
 
+  @Nonnull @Override public StatusCode errorCode(@Nonnull Throwable cause) {
+    return router.errorCode(cause);
+  }
+
   @Nonnull @Override public Executor worker() {
     return router.worker();
   }
@@ -162,7 +166,7 @@ public class Jooby implements Router {
     return LoggerFactory.getLogger(getClass());
   }
 
-  @Nonnull @Override public Route.RootErrorHandler errorHandler() {
+  @Nonnull @Override public Route.ErrorHandler errorHandler() {
     return router.errorHandler();
   }
 

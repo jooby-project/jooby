@@ -31,8 +31,7 @@ public class UtowMultiHandler implements HttpHandler {
 
   @Override public void handleRequest(HttpServerExchange exchange) throws Exception {
     for (Jooby router : routers) {
-      UtowContext context = new UtowContext(exchange, router.worker(), router.errorHandler(),
-          router.tmpdir());
+      UtowContext context = new UtowContext(exchange, router);
       Router.Match match = router.match(context);
       if (match.matches()) {
         match.execute(context);

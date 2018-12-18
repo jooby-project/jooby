@@ -50,6 +50,8 @@ public interface Context {
    * **********************************************************************************************
    */
 
+  @Nonnull Router router();
+
   /**
    * **********************************************************************************************
    * **** Request methods *************************************************************************
@@ -332,7 +334,14 @@ public interface Context {
 
   @Nonnull Context sendStatusCode(int statusCode);
 
-  @Nonnull Context sendError(@Nonnull Throwable cause);
+  @Nonnull default Context sendError(@Nonnull Throwable cause) {
+    return sendError(cause, router().errorCode(cause));
+  }
+
+  @Nonnull default Context sendError(@Nonnull Throwable cause, StatusCode statusCode) {
+    router().errorHandler().apply(this, cause, statusCode);
+    return this;
+  }
 
   boolean isResponseStarted();
 

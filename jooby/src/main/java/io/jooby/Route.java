@@ -15,10 +15,18 @@
  */
 package io.jooby;
 
+import org.slf4j.Logger;
+
 import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import static java.lang.String.format;
 
 public interface Route {
 
@@ -74,9 +82,20 @@ public interface Route {
 
   interface ErrorHandler {
 
+    static ErrorHandler log(Logger log, StatusCode... quiet) {
+      Set<StatusCode> silent = Set.of(quiet);
+      return (ctx, cause, statusCode) -> {
+        String message = format("%s %s %s %s", ctx.method(), ctx.pathString(),
+            statusCode.value(), statusCode.reason());
+        if (silent.contains(statusCode)) {
+          log.info(message, cause);
+        } else {
+          log.error(message, cause);
+        }
+      };
+    }
+
     ErrorHandler DEFAULT = (ctx, cause, statusCode) -> {
-      // TODO: use a log
-      cause.printStackTrace();
       String message = cause.getMessage();
       StringBuilder html = new StringBuilder("<!doctype html>\n")
           .append("<html>\n")
@@ -97,9 +116,9 @@ public interface Route {
           .append("</title>\n")
           .append("<body>\n")
           .append("<h1>").append(statusCode.reason()).append("</h1>\n")
-          .append("<hr>");
+          .append("<hr>\n");
 
-      if (message != null) {
+      if (message != null && !message.equals(statusCode.toString())) {
         html.append("<h2>message: ").append(message).append("</h2>\n");
       }
       html.append("<h2>status code: ").append(statusCode.value()).append("</h2>\n");
@@ -122,10 +141,6 @@ public interface Route {
         }
       };
     }
-  }
-
-  interface RootErrorHandler {
-    void apply(@Nonnull Context ctx, @Nonnull Throwable cause);
   }
 
   Handler NOT_FOUND = ctx -> ctx.sendError(new Err(StatusCode.NOT_FOUND));

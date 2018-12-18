@@ -155,6 +155,8 @@ public interface Router {
   @Nonnull Router errorCode(@Nonnull Class<? extends Throwable> type,
       @Nonnull StatusCode statusCode);
 
+  @Nonnull StatusCode errorCode(@Nonnull Throwable cause);
+
   @Nonnull
   default Router error(@Nonnull StatusCode statusCode, @Nonnull Route.ErrorHandler handler) {
     return error(statusCode::equals, handler);
@@ -182,7 +184,7 @@ public interface Router {
 
   @Nonnull Router error(@Nonnull Route.ErrorHandler handler);
 
-  @Nonnull Route.RootErrorHandler errorHandler();
+  @Nonnull Route.ErrorHandler errorHandler();
 
   static List<String> pathKeys(String pattern) {
     List<String> result = new ArrayList<>();

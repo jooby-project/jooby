@@ -32,7 +32,6 @@ import javax.servlet.http.Part;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Executor;
 
@@ -40,27 +39,20 @@ import static io.jooby.Throwing.throwingConsumer;
 import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 
 public class JettyContext extends BaseContext implements Callback {
-  private final Request request;
-  private final Response response;
-  private final Route.RootErrorHandler errorHandler;
-  private final Path tmpdir;
-  private final Executor worker;
+  private Request request;
+  private Response response;
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
   private List<FileUpload> files;
   private Value.Object headers;
   private Map<String, String> pathMap = Collections.emptyMap();
+  private Router router;
 
-  public JettyContext(Request request, Executor worker, Route.RootErrorHandler errorHandler,
-      Path tmpdir) {
+  public JettyContext(Request request, Router router) {
     this.request = request;
     this.response = request.getResponse();
-    this.errorHandler = errorHandler;
-    this.tmpdir = tmpdir;
-
-    // Worker:
-    this.worker = worker;
+    this.router = router;
   }
 
   @Override public String name() {
@@ -73,6 +65,10 @@ public class JettyContext extends BaseContext implements Callback {
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
+  }
+
+  @Nonnull @Override public Router router() {
+    return router;
   }
 
   @Nonnull @Override public String method() {
@@ -127,7 +123,7 @@ public class JettyContext extends BaseContext implements Callback {
       form = multipart;
 
       request.setAttribute(__MULTIPART_CONFIG_ELEMENT,
-          new MultipartConfigElement(tmpdir.toString(), -1L, -1L, Server._16KB));
+          new MultipartConfigElement(router.tmpdir().toString(), -1L, -1L, Server._16KB));
 
       formParam(request, multipart);
 
@@ -168,12 +164,12 @@ public class JettyContext extends BaseContext implements Callback {
   }
 
   @Nonnull @Override public Context dispatch(@Nonnull Runnable action) {
-    return dispatch(worker, action);
+    return dispatch(router.worker(), action);
   }
 
   @Nonnull @Override
   public Context dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
-    if (worker == executor) {
+    if (router.worker() == executor) {
       action.run();
     } else {
       if (!request.isAsyncStarted()) {
@@ -245,11 +241,6 @@ public class JettyContext extends BaseContext implements Callback {
     return this;
   }
 
-  @Nonnull @Override public Context sendError(Throwable cause) {
-    errorHandler.apply(this, cause);
-    return this;
-  }
-
   @Override public boolean isResponseStarted() {
     return request.getResponse().isCommitted();
   }
@@ -268,12 +259,16 @@ public class JettyContext extends BaseContext implements Callback {
 
   private void destroy() {
     if (files != null) {
-      // TODO: use a log
       files.forEach(throwingConsumer(FileUpload::destroy));
+      files.clear();
+      files = null;
     }
     if (request.isAsyncStarted()) {
       request.getAsyncContext().complete();
     }
+    this.router = null;
+    this.request = null;
+    this.response = null;
   }
 
   private FileUpload register(FileUpload upload) {

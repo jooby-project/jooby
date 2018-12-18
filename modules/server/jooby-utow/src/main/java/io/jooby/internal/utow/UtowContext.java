@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Executor;
 
@@ -38,10 +37,8 @@ import static io.jooby.Throwing.throwingConsumer;
 
 public class UtowContext extends BaseContext implements IoCallback {
 
-  private final HttpServerExchange exchange;
-  private final Path tmpdir;
-  private final Route.RootErrorHandler errorHandler;
-  private final Executor worker;
+  private HttpServerExchange exchange;
+  private Router router;
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
@@ -49,12 +46,13 @@ public class UtowContext extends BaseContext implements IoCallback {
   private Value.Object headers;
   private Map<String, String> pathMap = Collections.emptyMap();
 
-  public UtowContext(HttpServerExchange exchange, Executor worker,
-      Route.RootErrorHandler errorHandler, Path tmpdir) {
+  public UtowContext(HttpServerExchange exchange, Router router) {
     this.exchange = exchange;
-    this.worker = worker;
-    this.tmpdir = tmpdir;
-    this.errorHandler = errorHandler;
+    this.router = router;
+  }
+
+  @Nonnull @Override public Router router() {
+    return router;
   }
 
   @Override public String name() {
@@ -152,7 +150,7 @@ public class UtowContext extends BaseContext implements IoCallback {
       try {
         FormDataParser parser = new MultiPartParserDefinition()
             .setDefaultEncoding(StandardCharsets.UTF_8.name())
-            .setTempFileLocation(tmpdir)
+            .setTempFileLocation(router.tmpdir())
             .create(exchange);
 
         register(parser);
@@ -166,7 +164,7 @@ public class UtowContext extends BaseContext implements IoCallback {
   }
 
   @Nonnull @Override public Context dispatch(@Nonnull Runnable action) {
-    return dispatch(worker, action);
+    return dispatch(router.worker(), action);
   }
 
   @Nonnull @Override public Context dispatch(@Nonnull Executor executor,
@@ -225,11 +223,6 @@ public class UtowContext extends BaseContext implements IoCallback {
     return this;
   }
 
-  @Nonnull @Override public Context sendError(Throwable cause) {
-    errorHandler.apply(this, cause);
-    return this;
-  }
-
   @Override public boolean isResponseStarted() {
     return exchange.isResponseStarted();
   }
@@ -244,6 +237,8 @@ public class UtowContext extends BaseContext implements IoCallback {
     } finally {
       exchange.endExchange();
     }
+    router = null;
+    this.exchange = null;
   }
 
   private Closeable register(Closeable closeable) {

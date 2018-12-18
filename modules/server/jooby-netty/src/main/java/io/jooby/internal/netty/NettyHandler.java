@@ -15,8 +15,6 @@
  */
 package io.jooby.internal.netty;
 
-import io.jooby.Context;
-import io.jooby.Route;
 import io.jooby.Router;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -35,10 +33,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     if (msg instanceof HttpRequest) {
       HttpRequest req = (HttpRequest) msg;
-      NettyContext context = new NettyContext(ctx, router.worker(), req,
-          router.errorHandler(),
-          router.tmpdir(), pathOnly(req.uri()));
-
+      NettyContext context = new NettyContext(ctx, req, router, pathOnly(req.uri()));
       router.match(context).execute(context);
     } else {
       ctx.fireChannelRead(msg);

@@ -29,11 +29,9 @@ import java.util.Map;
 @ChannelHandler.Sharable
 public class NettyMultiHandler extends ChannelInboundHandlerAdapter {
   private final List<Jooby> routers;
-  private final DefaultEventExecutorGroup executor;
 
-  public NettyMultiHandler(List<Jooby> routers, DefaultEventExecutorGroup executor) {
+  public NettyMultiHandler(List<Jooby> routers) {
     this.routers = routers;
-    this.executor = executor;
   }
 
   @Override public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -42,8 +40,7 @@ public class NettyMultiHandler extends ChannelInboundHandlerAdapter {
       String uri = request.uri();
       String path = NettyHandler.pathOnly(uri);
       for (Jooby router : routers) {
-        NettyContext context = new NettyContext(ctx, executor, request, router.errorHandler(),
-            router.tmpdir(), path);
+        NettyContext context = new NettyContext(ctx, request, router, path);
         Router.Match match = router.match(context);
         if (match.matches()) {
           match.execute(context);

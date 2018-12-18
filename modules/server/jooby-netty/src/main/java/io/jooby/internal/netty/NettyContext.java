@@ -45,12 +45,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class NettyContext extends BaseContext {
   final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
-  private final Route.RootErrorHandler errorHandler;
-  private final ChannelHandlerContext ctx;
-  private final Path tmpdir;
+  private Router router;
+  private ChannelHandlerContext ctx;
   private HttpRequest req;
-  private final String path;
-  private final Executor executor;
+  private String path;
   private HttpResponseStatus status = HttpResponseStatus.OK;
   private boolean keepAlive;
   private boolean responseStarted;
@@ -61,15 +59,16 @@ public class NettyContext extends BaseContext {
   private Value.Object headers;
   private Map<String, String> pathMap = Collections.emptyMap();
 
-  public NettyContext(ChannelHandlerContext ctx, Executor executor,
-      HttpRequest req, Route.RootErrorHandler errorHandler, Path tmpdir, String path) {
+  public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path) {
     this.path = path;
     this.ctx = ctx;
     this.req = req;
-    this.executor = executor;
     this.keepAlive = req.protocolVersion().isKeepAliveDefault() || isKeepAlive(req);
-    this.tmpdir = tmpdir;
-    this.errorHandler = errorHandler;
+    this.router = router;
+  }
+
+  @Nonnull @Override public Router router() {
+    return router;
   }
 
   @Override public String name() {
@@ -112,7 +111,7 @@ public class NettyContext extends BaseContext {
   }
 
   @Nonnull @Override public Context dispatch(@Nonnull Runnable action) {
-    return dispatch(executor, action);
+    return dispatch(router.worker(), action);
   }
 
   @Override public Context dispatch(Executor executor, Runnable action) {
@@ -233,11 +232,6 @@ public class NettyContext extends BaseContext {
     return this;
   }
 
-  @Nonnull @Override public Context sendError(Throwable cause) {
-    errorHandler.apply(this, cause);
-    return this;
-  }
-
   private Context sendByteBuf(ByteBuf buff) {
     setHeaders.set(CONTENT_LENGTH, buff.readableBytes());
     return sendComplete(new DefaultFullHttpResponse(HTTP_1_1, status, buff));
@@ -252,7 +246,7 @@ public class NettyContext extends BaseContext {
     } else {
       ctx.write(rsp).addListener(CLOSE);
     }
-    ctx.executor().execute(() -> ctx.flush());
+    ctx.executor().execute(ctx::flush);
     // TODO: move destroy inside a Write listener
     destroy();
     return this;
@@ -260,10 +254,14 @@ public class NettyContext extends BaseContext {
 
   public void destroy() {
     if (files != null) {
-      // TODO: use a log
       files.forEach(throwingConsumer(FileUpload::destroy));
+      files = null;
     }
     release(req);
+    this.route = null;
+//    this.ctx = null;
+    this.req = null;
+    this.router = null;
   }
 
   private FileUpload register(FileUpload upload) {
@@ -281,7 +279,7 @@ public class NettyContext extends BaseContext {
         HttpData next = (HttpData) decoder.next();
         if (next.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
           form.put(next.getName(),
-              register(new NettyFileUpload(tmpdir, next.getName(),
+              register(new NettyFileUpload(router.tmpdir(), next.getName(),
                   (io.netty.handler.codec.http.multipart.FileUpload) next)));
         } else {
           form.put(next.getName(), next.getString(UTF_8));

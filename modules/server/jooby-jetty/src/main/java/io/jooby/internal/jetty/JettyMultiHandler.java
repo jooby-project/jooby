@@ -34,8 +34,7 @@ public class JettyMultiHandler extends AbstractHandler {
   @Override public void handle(String target, Request request, HttpServletRequest servletRequest,
       HttpServletResponse response) {
     for (Router router : routers) {
-      JettyContext ctx = new JettyContext(request, router.worker(), router.errorHandler(),
-          router.tmpdir());
+      JettyContext ctx = new JettyContext(request, router);
       Router.Match match = router.match(ctx);
       if (match.matches()) {
         match.execute(ctx);

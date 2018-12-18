@@ -98,8 +98,6 @@ public class RouterImpl implements Router {
 
   private Route.ErrorHandler err;
 
-  private Route.RootErrorHandler rootErr;
-
   private Map<String, StatusCode> errorCodes;
 
   private RadixTree chi = new $Chi();
@@ -288,7 +286,8 @@ public class RouterImpl implements Router {
 
   @Nonnull public Router start(@Nonnull Jooby owner) {
     if (err == null) {
-      err = Route.ErrorHandler.DEFAULT;
+      err = Route.ErrorHandler.log(owner.log(), StatusCode.NOT_FOUND)
+          .then(Route.ErrorHandler.DEFAULT);
     }
     ExecutionMode mode = owner.mode();
     for (Route route : routes) {
@@ -300,7 +299,6 @@ public class RouterImpl implements Router {
       Route.Handler pipeline = Pipeline.compute(analyzer.getClassLoader(), routeImpl, mode);
       routeImpl.pipeline(pipeline);
     }
-    this.rootErr = new RootErrorHandlerImpl(err, owner.log(), this::errorCode);
     this.stack.forEach(Stack::clear);
     this.stack = null;
     return this;
@@ -320,12 +318,11 @@ public class RouterImpl implements Router {
       this.trees.clear();
       this.trees = null;
     }
-    this.rootErr = null;
     // NOOP
   }
 
-  @Nonnull @Override public Route.RootErrorHandler errorHandler() {
-    return rootErr;
+  @Nonnull @Override public Route.ErrorHandler errorHandler() {
+    return err;
   }
 
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
@@ -341,7 +338,7 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  private StatusCode errorCode(@Nonnull Throwable x) {
+  @Nonnull @Override public StatusCode errorCode(@Nonnull Throwable x) {
     if (x instanceof Err) {
       return ((Err) x).statusCode;
     }

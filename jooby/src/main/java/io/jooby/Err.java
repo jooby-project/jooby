@@ -36,7 +36,7 @@ public class Err extends RuntimeException {
   public final StatusCode statusCode;
 
   public Err(StatusCode status) {
-    this(status, null);
+    this(status, status.toString());
   }
 
   public Err(StatusCode status, String message) {
