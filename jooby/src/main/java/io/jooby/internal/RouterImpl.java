@@ -20,6 +20,8 @@ import io.jooby.Jooby;
 import io.jooby.Context;
 import io.jooby.Err;
 import io.jooby.ExecutionMode;
+import io.jooby.MediaType;
+import io.jooby.Parser;
 import io.jooby.Renderer;
 import io.jooby.Route;
 import io.jooby.Router;
@@ -117,6 +119,8 @@ public class RouterImpl implements Router {
 
   private Executor worker;
 
+  private Map<String, Parser> parsers = new HashMap<>();
+
   public RouterImpl(RouteAnalyzer analyzer) {
     this.analyzer = analyzer;
     stack.addLast(new Stack(""));
@@ -175,6 +179,11 @@ public class RouterImpl implements Router {
   @Nonnull @Override
   public Router renderer(@Nonnull String contentType, @Nonnull Renderer renderer) {
     return renderer(renderer.accept(contentType));
+  }
+
+  @Nonnull @Override public Router parser(@Nonnull String contentType, @Nonnull Parser parser) {
+    parsers.put(contentType, parser);
+    return this;
   }
 
   @Nonnull @Override public Executor worker() {
@@ -265,7 +274,7 @@ public class RouterImpl implements Router {
     String safePattern = pat.toString();
     List<String> pathKeys = Router.pathKeys(safePattern);
     RouteImpl route = new RouteImpl(method, safePattern, pathKeys, returnType, handler, pipeline,
-        renderer);
+        renderer, parsers);
     Stack stack = this.stack.peekLast();
     route.executor(stack.executor);
     String routePattern = basePath == null ? safePattern : basePath + safePattern;

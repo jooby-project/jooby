@@ -266,9 +266,9 @@ public interface Context {
    * Body Parser
    * **********************************************************************************************
    */
-  @Nonnull Parser parser(@Nonnull String contentType);
-
-  @Nonnull Context parser(@Nonnull String contentType, @Nonnull Parser parser);
+  default @Nonnull Parser parser(@Nonnull String contentType) {
+    return route().parser(contentType);
+  }
 
   /* **********************************************************************************************
    * Dispatch methods

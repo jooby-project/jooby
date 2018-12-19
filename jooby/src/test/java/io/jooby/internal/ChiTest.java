@@ -33,6 +33,6 @@ public class ChiTest {
 
   private RouteImpl route(String method, String pattern, Route.Handler handler) {
     return new RouteImpl(method, pattern, Collections.emptyList(), String.class, handler, handler,
-        Renderer.TO_STRING);
+        Renderer.TO_STRING, Collections.emptyMap());
   }
 }

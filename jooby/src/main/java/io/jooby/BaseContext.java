@@ -23,8 +23,6 @@ import java.util.Map;
 
 public abstract class BaseContext implements Context {
 
-  protected Map<String, Parser> parsers = Collections.EMPTY_MAP;
-
   protected Map<String, Object> locals = Collections.EMPTY_MAP;
 
   public BaseContext() {
@@ -43,18 +41,6 @@ public abstract class BaseContext implements Context {
       locals = new HashMap<>();
     }
     locals.put(name, value);
-    return this;
-  }
-
-  @Nonnull @Override public Parser parser(@Nonnull String contentType) {
-    return parsers.getOrDefault(contentType, Parser.NOT_ACCEPTABLE);
-  }
-
-  @Nonnull @Override public Context parser(@Nonnull String contentType, @Nonnull Parser parser) {
-    if (parsers == Collections.EMPTY_MAP) {
-      parsers = new HashMap<>();
-    }
-    parsers.put(contentType, parser);
     return this;
   }
 

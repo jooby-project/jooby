@@ -91,4 +91,6 @@ public interface Route {
   @Nonnull Renderer renderer();
 
   @Nonnull Type returnType();
+
+  @Nonnull Parser parser(String contentType);
 }

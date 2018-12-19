@@ -19,9 +19,9 @@ import javax.annotation.Nonnull;
 
 public interface Parser {
 
-  Parser NOT_ACCEPTABLE = new Parser() {
+  Parser UNSUPPORTED_MEDIA_TYPE = new Parser() {
     @Override public <T> T parse(Context ctx, Reified<T> type) {
-      throw new Err(StatusCode.NOT_ACCEPTABLE);
+      throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE);
     }
   };
 

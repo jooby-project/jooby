@@ -68,12 +68,7 @@ public interface Router {
 
   @Nonnull Path tmpdir();
 
-  @Nonnull default Router parser(@Nonnull String contentType, @Nonnull Parser parser) {
-    return decorate(next -> ctx -> {
-      ctx.parser(contentType, parser);
-      return next.apply(ctx);
-    });
-  }
+  @Nonnull Router parser(@Nonnull String contentType, @Nonnull Parser parser);
 
   @Nonnull default Router converter(@Nonnull Converter converter) {
     parser(converter.contentType(), converter);

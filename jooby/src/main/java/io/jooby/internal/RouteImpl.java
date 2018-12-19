@@ -15,12 +15,14 @@
  */
 package io.jooby.internal;
 
+import io.jooby.Parser;
 import io.jooby.Renderer;
 import io.jooby.Route;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 public class RouteImpl implements Route {
@@ -28,14 +30,15 @@ public class RouteImpl implements Route {
   private final String method;
   private final String pattern;
   private final Handler handler;
+  private final Map<String, Parser> parsers;
   private Route.Handler pipeline;
   private final Renderer renderer;
   private final Type returnType;
   private Executor executor;
   private final List<String> pathKeys;
 
-  public RouteImpl(String method, String pattern, List<String> pathKeys, Type returnType, Handler handler,
-      Route.Handler pipeline, Renderer renderer) {
+  public RouteImpl(String method, String pattern, List<String> pathKeys, Type returnType,
+      Handler handler, Handler pipeline, Renderer renderer, Map<String, Parser> parsers) {
     this.method = method.toUpperCase();
     this.pattern = pattern;
     this.returnType = returnType;
@@ -43,6 +46,7 @@ public class RouteImpl implements Route {
     this.pipeline = pipeline;
     this.renderer = renderer;
     this.pathKeys = pathKeys;
+    this.parsers = parsers;
   }
 
   @Override public String pattern() {
@@ -55,6 +59,10 @@ public class RouteImpl implements Route {
 
   @Override public String method() {
     return method;
+  }
+
+  @Nonnull @Override public Parser parser(String contentType) {
+    return parsers.getOrDefault(contentType, Parser.UNSUPPORTED_MEDIA_TYPE);
   }
 
   public Executor executor() {

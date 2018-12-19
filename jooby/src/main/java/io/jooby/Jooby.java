@@ -103,6 +103,11 @@ public class Jooby implements Router {
     return this;
   }
 
+  @Nonnull @Override public Jooby parser(@Nonnull String contentType, @Nonnull Parser parser) {
+    router.parser(contentType, parser);
+    return this;
+  }
+
   @Nonnull @Override
   public Jooby renderer(@Nonnull String contentType, @Nonnull Renderer renderer) {
     router.renderer(contentType, renderer);

@@ -217,6 +217,6 @@ public class PipelineTest {
 
   private RouteImpl route(Type returnType, Route.Handler handler, Executor executor) {
     return new RouteImpl("GET", "/", Collections.emptyList(), returnType, handler, handler,
-        Renderer.TO_STRING).executor(executor);
+        Renderer.TO_STRING, Collections.emptyMap()).executor(executor);
   }
 }

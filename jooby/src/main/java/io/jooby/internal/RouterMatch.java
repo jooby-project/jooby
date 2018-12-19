@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+
 public class RouterMatch implements Router.Match {
 
   boolean matches;
@@ -88,7 +91,7 @@ public class RouterMatch implements Router.Match {
     } else {
       h = this.handler;
     }
-    this.route = new RouteImpl(method, path, Collections.emptyList(), String.class, h, h, renderer);
+    this.route = new RouteImpl(method, path, emptyList(), String.class, h, h, renderer, emptyMap());
     return this;
   }
 }

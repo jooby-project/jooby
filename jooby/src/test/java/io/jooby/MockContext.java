@@ -147,13 +147,7 @@ public class MockContext implements Context {
   }
 
   @Nonnull @Override public Parser parser(@Nonnull String contentType) {
-    return parsers.get(contentType);
-  }
-
-  @Nonnull @Override
-  public MockContext parser(@Nonnull String contentType, @Nonnull Parser parser) {
-    parsers.put(contentType, parser);
-    return this;
+    return parsers.getOrDefault(contentType, Parser.UNSUPPORTED_MEDIA_TYPE);
   }
 
   @Override public boolean isInIoThread() {
