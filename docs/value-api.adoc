@@ -294,5 +294,19 @@ The parser matches HTTP parameters in the following order:
 - As constructor arguments
 - As setter method
 
-Also, constructor and method arguments must be annotated with 
-https://static.javadoc.io/javax.inject/javax.inject/1/javax/inject/Named.html[Named] when HTTP parameter name is not a valid Java identifier.
+HTTP parameter name which are not a valid Java identifier must be annotated with https://static.javadoc.io/javax.inject/javax.inject/1/javax/inject/Named.html[Named]:
+
+[source, java]
+----
+class Member {
+  public final String firstname;
+  
+  public final String lastname;
+  
+  public Member(@Named("first-name") String firstname, @Named("last-name") String lastname) {
+    ....
+  }
+}
+----
+
+{love}{love}

@@ -19,7 +19,7 @@ public class Err extends RuntimeException {
 
   public static class Missing extends Err {
     public Missing(String name) {
-      super(StatusCode.BAD_REQUEST, "Required value is not present: '" + name + "'");
+      super(StatusCode.BAD_REQUEST, "Missing value: '" + name + "'");
     }
   }
 

@@ -309,7 +309,7 @@ public class ValueToBeanTest {
 
     queryString("?name=user", queryString -> {
       assertMessage(Err.Missing.class, () -> queryString.to(User.class),
-          "Required value is not present: 'password'");
+          "Missing value: 'password'");
 
       ValueInjector injector = new ValueInjector().missingToNull();
       assertEquals("user:null",

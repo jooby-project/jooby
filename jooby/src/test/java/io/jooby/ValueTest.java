@@ -192,24 +192,24 @@ public class ValueTest {
   @Test
   public void valueToMap() {
     queryString("?foo=bar", queryString -> {
-      assertEquals("{foo=[bar]}", queryString.toMap().toString());
+      assertEquals("{foo=[bar]}", queryString.toMultimap().toString());
     });
     queryString("?a=1;a=2", queryString -> {
-      assertEquals("{a=[1, 2]}", queryString.toMap().toString());
+      assertEquals("{a=[1, 2]}", queryString.toMultimap().toString());
     });
     queryString(
         "?username=xyz&address[country][name]=AR&address[line1]=Line1&address[country][city]=BA",
         queryString -> {
           assertEquals(
               "{username=[xyz], address.country.name=[AR], address.country.city=[BA], address.line1=[Line1]}",
-              queryString.toMap().toString());
+              queryString.toMultimap().toString());
           assertEquals(
               "{address.country.name=[AR], address.country.city=[BA], address.line1=[Line1]}",
-              queryString.get("address").toMap().toString());
+              queryString.get("address").toMultimap().toString());
           assertEquals("{country.name=[AR], country.city=[BA]}",
-              queryString.get("address").get("country").toMap().toString());
+              queryString.get("address").get("country").toMultimap().toString());
           assertEquals("{city=[BA]}",
-              queryString.get("address").get("country").get("city").toMap().toString());
+              queryString.get("address").get("country").get("city").toMultimap().toString());
         });
   }
 
@@ -330,7 +330,7 @@ public class ValueTest {
       assertEquals(Letter.B, queryString.get("e").get(1).toEnum(Letter::valueOf));
       assertMessage(Err.Missing.class,
           () -> queryString.get("e").get(2).toEnum(Letter::valueOf),
-          "Required value is not present: 'e[2]'");
+          "Missing value: 'e[2]'");
     });
   }
 
@@ -345,11 +345,11 @@ public class ValueTest {
       assertMessage(Err.BadRequest.class, () -> queryString.get("foo").intValue(0),
           "Type mismatch: cannot convert to number");
       assertMessage(Err.Missing.class, () -> queryString.get("foo").get("bar").value(),
-          "Required value is not present: 'foo.bar'");
+          "Missing value: 'foo.bar'");
       assertMessage(Err.Missing.class, () -> queryString.get("foo").get(1).value(),
-          "Required value is not present: 'foo.1'");
+          "Missing value: 'foo.1'");
       assertMessage(Err.Missing.class, () -> queryString.get("r").longValue(),
-          "Required value is not present: 'r'");
+          "Missing value: 'r'");
       assertEquals(1, queryString.get("a").intValue(1));
     });
 
@@ -360,11 +360,11 @@ public class ValueTest {
       assertMessage(Err.BadRequest.class, () -> queryString.get("a").get(0).longValue(),
           "Type mismatch: cannot convert to number");
       assertMessage(Err.Missing.class, () -> queryString.get("a").get(3).longValue(),
-          "Required value is not present: 'a[3]'");
+          "Missing value: 'a[3]'");
       assertMessage(Err.Missing.class, () -> queryString.get("a").get("b").value(),
-          "Required value is not present: 'a.b'");
+          "Missing value: 'a.b'");
       assertMessage(Err.Missing.class, () -> queryString.get("a").get("b").get(3).longValue(),
-          "Required value is not present: 'a.b[3]'");
+          "Missing value: 'a.b[3]'");
     });
 
     /** Single: */
@@ -372,10 +372,10 @@ public class ValueTest {
         "Type mismatch: cannot convert to number");
 
     assertMessage(Err.Missing.class, () -> Value.value("foo", "bar").get("foo").value(),
-        "Required value is not present: 'foo.foo'");
+        "Missing value: 'foo.foo'");
 
     assertMessage(Err.Missing.class, () -> Value.value("foo", "bar").get(1).value(),
-        "Required value is not present: 'foo.1'");
+        "Missing value: 'foo.1'");
 
   }
 

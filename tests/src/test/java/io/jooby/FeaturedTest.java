@@ -530,7 +530,7 @@ public class FeaturedTest {
       });
 
       app.post("/multipart", ctx -> {
-        return ctx.multipart().toMap();
+        return ctx.multipart().toMultimap();
       });
     }).ready(client -> {
       client.post("/f", new MultipartBody.Builder()

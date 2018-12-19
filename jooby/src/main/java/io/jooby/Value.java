@@ -20,6 +20,7 @@ import io.jooby.internal.UrlParser;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -91,9 +92,9 @@ public interface Value extends Iterable<Value> {
       return value.iterator();
     }
 
-    @Override public Map<String, List<String>> toMap() {
+    @Override public Map<String, List<String>> toMultimap() {
       List<String> values = new ArrayList<>();
-      value.stream().forEach(it -> it.toMap().values().forEach(values::addAll));
+      value.stream().forEach(it -> it.toMultimap().values().forEach(values::addAll));
       return Collections.singletonMap(name, values);
     }
 
@@ -267,14 +268,14 @@ public interface Value extends Iterable<Value> {
       return hash.values().iterator();
     }
 
-    @Override public Map<String, List<String>> toMap() {
+    @Override public Map<String, List<String>> toMultimap() {
       Map<String, List<String>> result = new LinkedHashMap<>(hash.size());
       Set<Map.Entry<String, Value>> entries = hash.entrySet();
       String scope = name == null ? "" : name + ".";
       for (Map.Entry<String, Value> entry : entries) {
         Value value = entry.getValue();
         if (!value.isUpload()) {
-          value.toMap().forEach((k, v) -> {
+          value.toMultimap().forEach((k, v) -> {
             result.put(scope + k, v);
           });
         }
@@ -310,7 +311,7 @@ public interface Value extends Iterable<Value> {
       throw new Err.Missing(name);
     }
 
-    @Override public Map<String, List<String>> toMap() {
+    @Override public Map<String, List<String>> toMultimap() {
       return Collections.emptyMap();
     }
   }
@@ -354,7 +355,7 @@ public interface Value extends Iterable<Value> {
       return Collections.<Value>singletonList(this).iterator();
     }
 
-    @Override public Map<String, List<String>> toMap() {
+    @Override public Map<String, List<String>> toMultimap() {
       return singletonMap(name, singletonList(value));
     }
 
@@ -416,7 +417,11 @@ public interface Value extends Iterable<Value> {
   }
 
   default float floatValue() {
-    return Float.parseFloat(value());
+    try {
+      return Float.parseFloat(value());
+    } catch (NumberFormatException x) {
+      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
+    }
   }
 
   default float floatValue(float defaultValue) {
@@ -428,7 +433,11 @@ public interface Value extends Iterable<Value> {
   }
 
   default double doubleValue() {
-    return Double.parseDouble(value());
+    try {
+      return Double.parseDouble(value());
+    } catch (NumberFormatException x) {
+      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
+    }
   }
 
   default double doubleValue(double defaultValue) {
@@ -551,6 +560,11 @@ public interface Value extends Iterable<Value> {
     return injector.inject(this, type, type);
   }
 
+  default <T> T to(Type type) {
+    ValueInjector injector = new ValueInjector();
+    return injector.inject(this, type, Reified.rawType(type));
+  }
+
   default <T> T to(Reified<T> type) {
     ValueInjector injector = new ValueInjector();
     return injector.inject(this, type.getType(), type.getRawType());
@@ -562,7 +576,13 @@ public interface Value extends Iterable<Value> {
 
   String name();
 
-  Map<String, List<String>> toMap();
+  Map<String, List<String>> toMultimap();
+
+  default @Nonnull Map<String, String> toMap() {
+    Map<String, String> map = new LinkedHashMap<>();
+    toMultimap().forEach((k, v) -> map.put(k, v.get(0)));
+    return map;
+  }
 
   /* ***********************************************************************************************
    * Factory methods

@@ -112,8 +112,12 @@ public interface Context {
     return query().to(type);
   }
 
-  @Nonnull default Map<String, List<String>> queryMultimap() {
+  @Nonnull default Map<String, String> queryMap() {
     return query().toMap();
+  }
+
+  @Nonnull default Map<String, List<String>> queryMultimap() {
+    return query().toMultimap();
   }
 
   /* **********************************************************************************************
@@ -127,8 +131,12 @@ public interface Context {
     return headers().get(name);
   }
 
-  @Nonnull default Map<String, List<String>> headerMultimap() {
+  @Nonnull default Map<String, String> headerMap() {
     return headers().toMap();
+  }
+
+  @Nonnull default Map<String, List<String>> headerMultimap() {
+    return headers().toMultimap();
   }
 
   default boolean accept(String contentType) {
@@ -144,6 +152,10 @@ public interface Context {
   @Nonnull Formdata form();
 
   @Nonnull default Map<String, List<String>> formMultimap() {
+    return form().toMultimap();
+  }
+
+  @Nonnull default Map<String, String> formMap() {
     return form().toMap();
   }
 
@@ -187,6 +199,10 @@ public interface Context {
   }
 
   @Nonnull default Map<String, List<String>> multipartMultimap() {
+    return multipart().toMultimap();
+  }
+
+  @Nonnull default Map<String, String> multipartMap() {
     return multipart().toMap();
   }
 

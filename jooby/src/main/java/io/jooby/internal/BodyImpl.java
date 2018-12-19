@@ -43,7 +43,7 @@ public class BodyImpl implements Body {
     return "body";
   }
 
-  @Override public Map<String, List<String>> toMap() {
+  @Override public Map<String, List<String>> toMultimap() {
     return Collections.emptyMap();
   }
 }
