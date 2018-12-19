@@ -15,6 +15,7 @@
   <modules>
     <module>server</module>
     <module>jooby-jackson</module>
+    <module>jooby-freemarker</module>
   </modules>
 
 </project>
