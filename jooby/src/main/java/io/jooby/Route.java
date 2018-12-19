@@ -15,18 +15,10 @@
  */
 package io.jooby;
 
-import org.slf4j.Logger;
-
 import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.lang.reflect.Type;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static java.lang.String.format;
 
 public interface Route {
 

@@ -25,8 +25,6 @@ public abstract class BaseContext implements Context {
 
   protected Map<String, Parser> parsers = Collections.EMPTY_MAP;
 
-  protected Route route;
-
   protected Map<String, Object> locals = Collections.EMPTY_MAP;
 
   public BaseContext() {
@@ -58,15 +56,6 @@ public abstract class BaseContext implements Context {
     }
     parsers.put(contentType, parser);
     return this;
-  }
-
-  @Nonnull @Override public Context render(@Nonnull Object result) {
-    try {
-      route.renderer().render(this, result);
-      return this;
-    } catch (Exception x) {
-      throw Throwing.sneakyThrow(x);
-    }
   }
 
   protected void requireBlocking() {

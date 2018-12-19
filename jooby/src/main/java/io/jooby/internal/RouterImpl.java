@@ -107,9 +107,7 @@ public class RouterImpl implements Router {
 
   private List<Route> routes = new ArrayList<>();
 
-  private Renderer renderer = Renderer.TO_STRING;
-
-  private Map<String, Executor> executors = new HashMap<>();
+  private CompositeRenderer renderer = new CompositeRenderer();
 
   private String basePath = "";
 
@@ -170,14 +168,13 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router renderer(@Nonnull Renderer renderer) {
-    this.renderer = renderer.then(this.renderer);
-    stack.peekLast().then(renderer);
+    this.renderer.add(renderer);
     return this;
   }
 
   @Nonnull @Override
   public Router renderer(@Nonnull String contentType, @Nonnull Renderer renderer) {
-    return renderer(renderer.matches(contentType));
+    return renderer(renderer.accept(contentType));
   }
 
   @Nonnull @Override public Executor worker() {
@@ -260,10 +257,6 @@ public class RouterImpl implements Router {
     if (after != null) {
       pipeline = pipeline.then(after);
     }
-    /** Renderer: */
-    Renderer renderer = stack.stream()
-        .flatMap(Stack::toRenderer)
-        .reduce(Renderer.TO_STRING, (it, next) -> next.then(it));
 
     /** Return type: */
     Type returnType = analyzer.returnType(handler);

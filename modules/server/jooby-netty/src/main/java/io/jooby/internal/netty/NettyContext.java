@@ -29,7 +29,6 @@ import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Executor;
 
@@ -46,6 +45,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class NettyContext extends BaseContext {
   final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
   private Router router;
+  private Route route;
   private ChannelHandlerContext ctx;
   private HttpRequest req;
   private String path;

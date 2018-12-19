@@ -13,8 +13,9 @@ public class RendererTest {
 
     AtomicReference<Object> result = new AtomicReference<>();
 
-    @Override public void render(@Nonnull Context ctx, @Nonnull Object result) throws Exception {
+    @Override public boolean render(@Nonnull Context ctx, @Nonnull Object result) throws Exception {
       this.result.set(result);
+      return true;
     }
   }
 
@@ -24,7 +25,7 @@ public class RendererTest {
     MockContext ctx = new MockContext()
         .setHeaders(Value.headers().put("Accept", "application/json"));
     Object result = new Object();
-    renderer.matches("application/json").render(ctx, result);
+    renderer.accept("application/json").render(ctx, result);
     assertEquals(result, renderer.result.get());
   }
 
@@ -34,7 +35,7 @@ public class RendererTest {
     MockContext ctx = new MockContext()
         .setHeaders(Value.headers().put("Accept", "text/html"));
     Object result = new Object();
-    renderer.matches("application/json").render(ctx, result);
+    renderer.accept("application/json").render(ctx, result);
     assertEquals(null, renderer.result.get());
   }
 }

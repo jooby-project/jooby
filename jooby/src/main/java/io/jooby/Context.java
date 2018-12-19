@@ -332,7 +332,14 @@ public interface Context {
 
   @Nonnull Context statusCode(int statusCode);
 
-  @Nonnull Context render(@Nonnull Object result);
+  default @Nonnull Context render(@Nonnull Object result) {
+    try {
+      route().renderer().render(this, result);
+      return this;
+    } catch (Exception x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
 
   default @Nonnull Context sendText(@Nonnull String data) {
     return sendText(data, StandardCharsets.UTF_8);

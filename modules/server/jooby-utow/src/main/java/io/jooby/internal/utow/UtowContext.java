@@ -37,6 +37,7 @@ import static io.jooby.Throwing.throwingConsumer;
 
 public class UtowContext extends BaseContext implements IoCallback {
 
+  private Route route;
   private HttpServerExchange exchange;
   private Router router;
   private QueryString query;
@@ -237,7 +238,8 @@ public class UtowContext extends BaseContext implements IoCallback {
     } finally {
       exchange.endExchange();
     }
-    router = null;
+    this.router = null;
+    this.route = null;
     this.exchange = null;
   }
 

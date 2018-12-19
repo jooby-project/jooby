@@ -30,6 +30,8 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import static io.jooby.MediaType.html;
+import static io.jooby.MediaType.json;
 import static io.jooby.MediaType.text;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static okhttp3.RequestBody.create;
@@ -690,6 +692,40 @@ public class FeaturedTest {
   }
 
   @Test
+  public void renderVsTemplateEngine() {
+    new JoobyRunner(app -> {
+      app.renderer((TemplateEngine) (ctx, modelAndView) -> modelAndView.view + modelAndView.model);
+
+      app.get("/map", ctx -> Map.of("k", "v"));
+
+      app.get("/view", ctx ->
+          new ModelAndView("view", Map.of("k", "v"))
+      );
+
+      app.get("/", ctx ->
+          new ContentNegotiation()
+              .accept(io.jooby.MediaType.json, () -> Map.of("k", "v"))
+              .accept(html, () -> new ModelAndView("view", Map.of("k", "v")))
+              .render(ctx)
+      );
+    }).ready(client -> {
+      client.get("/map", rsp -> {
+        assertEquals("{k=v}", rsp.body().string());
+      });
+      client.get("/view", rsp -> {
+        assertEquals("view{k=v}", rsp.body().string());
+      });
+      client.get("/", rsp -> {
+        assertEquals("view{k=v}", rsp.body().string());
+      });
+      client.header("Accept", "application/json");
+      client.get("/", rsp -> {
+        assertEquals("{k=v}", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
   public void errorhandler() {
     new JoobyRunner(app -> {
       app.converter(new Jackson());
@@ -730,7 +766,8 @@ public class FeaturedTest {
 
       client.header("Accept", "application/json");
       client.get("/", rsp -> {
-        assertEquals("application/json;charset=utf-8", rsp.body().contentType().toString().toLowerCase());
+        assertEquals("application/json;charset=utf-8",
+            rsp.body().contentType().toString().toLowerCase());
         assertEquals(
             "{\"message\":\"Invalid path\",\"statusCode\":400,\"reason\":\"Bad Request\"}",
             rsp.body().string());

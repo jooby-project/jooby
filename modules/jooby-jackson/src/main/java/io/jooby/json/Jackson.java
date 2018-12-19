@@ -37,12 +37,13 @@ public class Jackson extends Converter {
     this(new ObjectMapper());
   }
 
-  @Override public void render(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
+  @Override public boolean render(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
     if (value instanceof CharSequence) {
       // Ignore string/charsequence responses, those are going to be processed by the default renderer and let route to return raw JSON
-      return;
+      return false;
     }
     ctx.type(MediaType.JSON).sendBytes(mapper.writeValueAsBytes(value));
+    return true;
   }
 
   @Override public <T> T parse(Context ctx, Reified<T> type) throws Exception {

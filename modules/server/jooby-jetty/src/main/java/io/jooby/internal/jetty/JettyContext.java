@@ -48,6 +48,7 @@ public class JettyContext extends BaseContext implements Callback {
   private Value.Object headers;
   private Map<String, String> pathMap = Collections.emptyMap();
   private Router router;
+  private Route route;
 
   public JettyContext(Request request, Router router) {
     this.request = request;

@@ -19,24 +19,19 @@ import javax.annotation.Nonnull;
 
 public interface Renderer {
 
-  Renderer TO_STRING = (ctx, value) -> ctx.sendText(value.toString());
+  Renderer TO_STRING = (ctx, value) -> {
+    ctx.sendText(value.toString());
+    return true;
+  };
 
-  void render(@Nonnull Context ctx, @Nonnull Object result) throws Exception;
+  boolean render(@Nonnull Context ctx, @Nonnull Object result) throws Exception;
 
-  @Nonnull default Renderer then(@Nonnull Renderer next) {
-    return (ctx, result) -> {
-      render(ctx, result);
-      if (!ctx.isResponseStarted()) {
-        next.render(ctx, result);
-      }
-    };
-  }
-
-  @Nonnull default Renderer matches(String contentType) {
+  @Nonnull default Renderer accept(String contentType) {
     return (ctx, result) -> {
       if (ctx.accept(contentType)) {
-        render(ctx, result);
+        return render(ctx, result);
       }
+      return false;
     };
   }
 
