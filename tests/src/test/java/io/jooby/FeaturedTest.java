@@ -18,6 +18,9 @@ import reactor.core.publisher.Mono;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,12 +29,13 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import static io.jooby.MediaType.html;
-import static io.jooby.MediaType.json;
 import static io.jooby.MediaType.text;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static okhttp3.RequestBody.create;
@@ -44,6 +48,10 @@ public class FeaturedTest {
 
   private static String _19kb = readText(
       userdir("src", "test", "resources", "files", "19kb.txt"));
+
+  private static String _16kb = _19kb.substring(0, Server._16KB);
+
+  private static String _8kb = _16kb.substring(0, _16kb.length() / 2);
 
   private static MediaType json = MediaType.parse("application/json");
 
@@ -1066,6 +1074,72 @@ public class FeaturedTest {
   }
 
   @Test
+  public void writer() {
+    new JoobyRunner(app -> {
+      app.get("/19kb", ctx ->
+          ctx.writer(writer -> {
+            try (StringReader reader = new StringReader(_19kb)) {
+              transfer(reader, writer);
+            }
+          })
+      );
+
+      app.get("/16kb", ctx ->
+          ctx.writer(writer -> {
+            try (StringReader reader = new StringReader(_16kb)) {
+              transfer(reader, writer);
+            }
+          })
+      );
+
+      app.get("/8kb", ctx ->
+          ctx.writer(writer -> {
+            try (StringReader reader = new StringReader(_8kb)) {
+              transfer(reader, writer);
+            }
+          })
+      );
+
+    }).ready(client -> {
+      // Large responses always send as chunk
+      client.get("/19kb", rsp -> {
+        assertEquals(_19kb, rsp.body().string());
+        assertEquals("chunked", rsp.header("Transfer-Encoding").toLowerCase());
+        assertEquals(null, rsp.header("Content-Length"));
+      });
+      // Responses <= 16kb may send content-length or chunks (server specific), but not both.
+      client.get("/16kb", rsp -> {
+        assertEquals(_16kb, rsp.body().string());
+        AtomicInteger i = new AtomicInteger();
+        Optional.ofNullable(rsp.header("Content-Length")).ifPresent(value -> {
+          assertEquals("16384", value);
+          i.incrementAndGet();
+        });
+        Optional.ofNullable(rsp.header("Transfer-Encoding")).ifPresent(value -> {
+          assertEquals("chunked", value.toLowerCase());
+          i.incrementAndGet();
+        });
+        assertEquals(1, i.get());
+      });
+
+      client.get("/8kb", rsp -> {
+        assertEquals(_8kb, rsp.body().string());
+        AtomicInteger i = new AtomicInteger();
+        Optional.ofNullable(rsp.header("Content-Length")).ifPresent(value -> {
+          assertEquals("8192", value);
+          i.incrementAndGet();
+        });
+        Optional.ofNullable(rsp.header("Transfer-Encoding")).ifPresent(value -> {
+          assertEquals("chunked", value.toLowerCase());
+          i.incrementAndGet();
+        });
+        assertEquals(1, i.get());
+      });
+
+    });
+  }
+
+  @Test
   public void defaultContentType() {
     new JoobyRunner(app -> {
       app.decorate(Filters.contentType(text));
@@ -1109,5 +1183,16 @@ public class FeaturedTest {
       path = path.resolve(segment);
     }
     return path;
+  }
+
+  public long transfer(Reader reader, Writer out) throws IOException {
+    long transferred = 0;
+    char[] buffer = new char[Server._16KB];
+    int nRead;
+    while ((nRead = reader.read(buffer, 0, Server._16KB)) >= 0) {
+      out.write(buffer, 0, nRead);
+      transferred += nRead;
+    }
+    return transferred;
   }
 }

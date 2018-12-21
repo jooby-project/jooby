@@ -5,6 +5,8 @@ import io.jooby.internal.UrlParser;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -240,6 +242,15 @@ public class MockContext implements Context {
 
   public String getResultText() {
     return (String) result;
+  }
+
+  @Nonnull @Override public Context outputStream(Throwing.Consumer<OutputStream> consumer)
+      throws Exception {
+    responseStarted = true;
+    ByteArrayOutputStream out = new ByteArrayOutputStream(Server._16KB);
+    result = out;
+    consumer.accept(out);
+    return this;
   }
 
   @Nonnull @Override public MockContext sendText(@Nonnull String data, @Nonnull Charset charset) {

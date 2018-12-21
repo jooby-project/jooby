@@ -19,7 +19,10 @@ import io.jooby.internal.UrlParser;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -339,6 +342,22 @@ public interface Context {
     } catch (Exception x) {
       throw Throwing.sneakyThrow(x);
     }
+  }
+
+  @Nonnull Context outputStream(Throwing.Consumer<OutputStream> consumer) throws Exception;
+
+  default @Nonnull Context writer(Throwing.Consumer<Writer> consumer) throws Exception {
+    return writer(StandardCharsets.UTF_8, consumer);
+  }
+
+  default @Nonnull Context writer(Charset charset, Throwing.Consumer<Writer> consumer)
+      throws Exception {
+    return outputStream(out -> {
+      try (Writer writer = Channels
+          .newWriter(Channels.newChannel(out), charset.newEncoder(), Server._16KB)) {
+        consumer.accept(writer);
+      }
+    });
   }
 
   default @Nonnull Context sendText(@Nonnull String data) {

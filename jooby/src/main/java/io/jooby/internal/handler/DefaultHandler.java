@@ -31,7 +31,9 @@ public class DefaultHandler implements ChainedHandler {
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
       Object result = next.apply(ctx);
-      ctx.render(result);
+      if (result != ctx) {
+        ctx.render(result);
+      }
       return result;
     } catch (Throwable x) {
       ctx.sendError(x);

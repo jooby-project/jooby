@@ -30,6 +30,7 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.Part;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -212,6 +213,18 @@ public class JettyContext extends BaseContext implements Callback {
 
   @Nonnull @Override public Context length(long length) {
     response.setContentLengthLong(length);
+    return this;
+  }
+
+  @Nonnull @Override public Context outputStream(Throwing.Consumer<OutputStream> consumer) {
+    HttpOutput output = response.getHttpOutput();
+    try {
+      consumer.accept(output);
+    } finally {
+      if (output != null && !output.isClosed()) {
+        output.close();
+      }
+    }
     return this;
   }
 

@@ -26,6 +26,7 @@ import io.netty.util.ReferenceCounted;
 import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -203,6 +204,15 @@ public class NettyContext extends BaseContext {
     return this;
   }
 
+  @Nonnull @Override public Context outputStream(Throwing.Consumer<OutputStream> consumer) {
+    responseStarted = true;
+    HttpResponse headers = new DefaultHttpResponse(req.protocolVersion(), status, setHeaders);
+    try (NettyOutputStream output = new NettyOutputStream(ctx, headers, Server._16KB)) {
+      consumer.accept(output);
+    }
+    return this;
+  }
+
   @Nonnull @Override public Context sendText(@Nonnull String data) {
     return sendByteBuf(copiedBuffer(data, UTF_8));
   }
@@ -259,7 +269,7 @@ public class NettyContext extends BaseContext {
     }
     release(req);
     this.route = null;
-//    this.ctx = null;
+    //    this.ctx = null;
     this.req = null;
     this.router = null;
   }

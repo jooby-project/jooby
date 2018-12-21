@@ -54,7 +54,7 @@ public class Freemarker implements TemplateEngine {
   @Override public String apply(Context ctx, ModelAndView modelAndView) throws Exception {
     Template template = freemarker.getTemplate(modelAndView.view);
     StringWriter writer = new StringWriter();
-    Map<String, Object> attributes = new HashMap<>( ctx.locals());
+    Map<String, Object> attributes = new HashMap<>(ctx.locals());
     attributes.putAll(modelAndView.attributes);
     ObjectWrapper wrapper = freemarker.getObjectWrapper();
     TemplateModel root = wrapper.wrap(modelAndView.model);

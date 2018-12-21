@@ -18,8 +18,12 @@ package io.jooby.internal.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.LastHttpContent;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 public class NettyOutputStream extends OutputStream {
@@ -27,30 +31,35 @@ public class NettyOutputStream extends OutputStream {
 
   private final ChannelHandlerContext ctx;
 
-  public NettyOutputStream(ChannelHandlerContext ctx, int chunksize) {
+  private HttpResponse headers;
+
+  public NettyOutputStream(ChannelHandlerContext ctx, HttpResponse rsp, int chunksize) {
     this.buffer = ctx.alloc().buffer(0, chunksize);
     this.ctx = ctx;
+    this.headers = rsp;
   }
 
   @Override
-  public void write(int b) throws IOException {
+  public void write(int b) {
     if (buffer.maxWritableBytes() < 1) {
-      flush();
+      write(false);
     }
     buffer.writeByte(b);
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     try {
-      flush();
+      write(true);
     } finally {
-      buffer.release();
+      if (buffer.refCnt() > 0) {
+        buffer.release();
+      }
     }
   }
 
   @Override
-  public void write(byte[] bytes, int off, int len) throws IOException {
+  public void write(byte[] bytes, int off, int len) {
     int dataLengthLeftToWrite = len;
     int dataToWriteOffset = off;
     int spaceLeftInCurrentChunk;
@@ -58,18 +67,34 @@ public class NettyOutputStream extends OutputStream {
       buffer.writeBytes(bytes, dataToWriteOffset, spaceLeftInCurrentChunk);
       dataToWriteOffset = dataToWriteOffset + spaceLeftInCurrentChunk;
       dataLengthLeftToWrite = dataLengthLeftToWrite - spaceLeftInCurrentChunk;
-      flush();
+      write(false);
     }
     if (dataLengthLeftToWrite > 0) {
       buffer.writeBytes(bytes, dataToWriteOffset, dataLengthLeftToWrite);
     }
   }
 
-  @Override
-  public void flush() throws IOException {
+  private void write(boolean last) {
     int chunkSize = buffer.readableBytes();
     if (chunkSize > 0) {
-      ctx.writeAndFlush(new DefaultHttpContent(buffer.copy()));
+      if (headers != null) {
+        HttpHeaders h = headers.headers();
+        if (last) {
+          h.remove(HttpHeaderNames.TRANSFER_ENCODING);
+          h.set(HttpHeaderNames.CONTENT_LENGTH, chunkSize);
+        } else if (!h.contains(HttpHeaderNames.CONTENT_LENGTH)) {
+          h.set(HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED);
+        }
+        ctx.write(headers, ctx.voidPromise());
+        this.headers = null;
+      }
+      DefaultHttpContent chunk = new DefaultHttpContent(buffer.copy());
+      if (last) {
+        ctx.write(chunk, ctx.voidPromise());
+        ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT, ctx.voidPromise());
+      } else {
+        ctx.writeAndFlush(chunk, ctx.voidPromise());
+      }
       buffer.clear();
     }
   }
