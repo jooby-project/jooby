@@ -17,6 +17,7 @@
     <module>server</module>
     <module>jooby-jackson</module>
     <module>jooby-freemarker</module>
+    <module>jooby-handlebars</module>
   </modules>
 
   <dependencyManagement>

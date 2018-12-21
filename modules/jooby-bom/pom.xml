@@ -15,6 +15,7 @@
   <properties>
     <!-- Parser and Renderer -->
     <freemarker.version>2.3.28</freemarker.version>
+    <handlebars.version>4.1.2</handlebars.version>
     <jackson.version>2.9.6</jackson.version>
 
     <!-- logging -->
@@ -168,6 +169,13 @@
         <groupId>org.freemarker</groupId>
         <artifactId>freemarker</artifactId>
         <version>${freemarker.version}</version>
+      </dependency>
+
+      <!-- Handlebars -->
+      <dependency>
+        <groupId>com.github.jknack</groupId>
+        <artifactId>handlebars</artifactId>
+        <version>${handlebars.version}</version>
       </dependency>
 
       <!-- Logging System -->

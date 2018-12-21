@@ -25,10 +25,10 @@
       <version>${jooby.version}</version>
     </dependency>
 
-    <!-- Freemarker -->
+    <!-- Handlebars -->
     <dependency>
-      <groupId>org.freemarker</groupId>
-      <artifactId>freemarker</artifactId>
+      <groupId>com.github.jknack</groupId>
+      <artifactId>handlebars</artifactId>
     </dependency>
 
     <!-- Test dependencies -->
