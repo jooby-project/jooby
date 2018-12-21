@@ -8,6 +8,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -244,12 +246,21 @@ public class MockContext implements Context {
     return (String) result;
   }
 
-  @Nonnull @Override public Context outputStream(Throwing.Consumer<OutputStream> consumer)
+  @Nonnull @Override public MockContext outputStream(Throwing.Consumer<OutputStream> consumer)
       throws Exception {
     responseStarted = true;
     ByteArrayOutputStream out = new ByteArrayOutputStream(Server._16KB);
     result = out;
     consumer.accept(out);
+    return this;
+  }
+
+  @Nonnull @Override public MockContext responseChannel(Throwing.Consumer<WritableByteChannel> consumer)
+      throws Exception {
+    responseStarted = true;
+    WritableByteChannel channel = Channels.newChannel(new ByteArrayOutputStream(Server._16KB));
+    result = channel;
+    consumer.accept(channel);
     return this;
   }
 

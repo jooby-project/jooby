@@ -1135,7 +1135,6 @@ public class FeaturedTest {
         });
         assertEquals(1, i.get());
       });
-
     });
   }
 

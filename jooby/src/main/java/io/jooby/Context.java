@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -344,7 +345,12 @@ public interface Context {
     }
   }
 
-  @Nonnull Context outputStream(Throwing.Consumer<OutputStream> consumer) throws Exception;
+  @Nonnull Context responseChannel(Throwing.Consumer<WritableByteChannel> consumer) throws
+      Exception;
+
+  default @Nonnull Context outputStream(Throwing.Consumer<OutputStream> consumer) throws Exception {
+    return responseChannel(channel -> consumer.accept(Channels.newOutputStream(channel)));
+  }
 
   default @Nonnull Context writer(Throwing.Consumer<Writer> consumer) throws Exception {
     return writer(StandardCharsets.UTF_8, consumer);
@@ -352,9 +358,8 @@ public interface Context {
 
   default @Nonnull Context writer(Charset charset, Throwing.Consumer<Writer> consumer)
       throws Exception {
-    return outputStream(out -> {
-      try (Writer writer = Channels
-          .newWriter(Channels.newChannel(out), charset.newEncoder(), Server._16KB)) {
+    return responseChannel(channel -> {
+      try (Writer writer = Channels.newWriter(channel, charset.newEncoder(), Server._16KB)) {
         consumer.accept(writer);
       }
     });

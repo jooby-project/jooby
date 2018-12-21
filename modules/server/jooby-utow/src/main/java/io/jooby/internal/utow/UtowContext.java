@@ -29,6 +29,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -205,18 +206,22 @@ public class UtowContext extends BaseContext implements IoCallback {
     return this;
   }
 
-  @Nonnull @Override public Context outputStream(Throwing.Consumer<OutputStream> consumer) throws Exception {
+  @Nonnull @Override public Context outputStream(Throwing.Consumer<OutputStream> consumer)
+      throws Exception {
     requireBlocking();
     if (!exchange.isBlocking()) {
       exchange.startBlocking();
     }
-    OutputStream output = exchange.getOutputStream();
-    try {
+    try (OutputStream output = exchange.getOutputStream()) {
       consumer.accept(output);
-    } finally {
-      if (output != null) {
-        output.close();
-      }
+    }
+    return this;
+  }
+
+  @Nonnull @Override public Context responseChannel(Throwing.Consumer<WritableByteChannel> consumer)
+      throws Exception {
+    try (UtowResponseChannel channel = new UtowResponseChannel(exchange.getResponseChannel())) {
+      consumer.accept(channel);
     }
     return this;
   }

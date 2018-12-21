@@ -28,6 +28,7 @@ import io.jooby.Throwing;
 import javax.annotation.Nonnull;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -39,6 +40,8 @@ import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.channel.ChannelFutureListener.CLOSE;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
+import static io.netty.handler.codec.http.HttpHeaderValues.CHUNKED;
 import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -204,11 +207,13 @@ public class NettyContext extends BaseContext {
     return this;
   }
 
-  @Nonnull @Override public Context outputStream(Throwing.Consumer<OutputStream> consumer) {
-    responseStarted = true;
-    HttpResponse headers = new DefaultHttpResponse(req.protocolVersion(), status, setHeaders);
-    try (NettyOutputStream output = new NettyOutputStream(ctx, headers, Server._16KB)) {
-      consumer.accept(output);
+  @Nonnull @Override public Context responseChannel(Throwing.Consumer<WritableByteChannel> consumer) {
+    if (!setHeaders.contains(CONTENT_LENGTH)) {
+      setHeaders.set(TRANSFER_ENCODING, CHUNKED);
+    }
+    try (NettyResponseChannel channel = new NettyResponseChannel(ctx,
+        new DefaultHttpResponse(req.protocolVersion(), status, setHeaders), Server._16KB)) {
+      consumer.accept(channel);
     }
     return this;
   }

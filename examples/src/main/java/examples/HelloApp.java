@@ -92,7 +92,7 @@ public class HelloApp extends Jooby {
         + "Aenean elementum lectus a convallis placerat. In placerat, nisl id pellentesque vestibulum, nisl leo consequat lorem, viverra dignissim risus magna sit amet nunc. Sed vitae velit et turpis vehicula finibus. Ut quis velit ac libero molestie eleifend. Aliquam erat volutpat. Phasellus sollicitudin justo ac ligula semper posuere. Fusce ullamcorper nisl ut placerat facilisis. Nunc lectus mauris, malesuada ac pretium ut, mollis ac velit.\n";
     get("/writer", ctx -> {
       return ctx.writer(writer -> {
-        writer.append(text);
+        writer.append("Foo bar");
       });
     });
 

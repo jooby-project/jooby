@@ -31,7 +31,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Part;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -216,6 +219,18 @@ public class JettyContext extends BaseContext implements Callback {
     return this;
   }
 
+  @Nonnull @Override public Context responseChannel(Throwing.Consumer<WritableByteChannel> consumer) {
+    HttpOutput output = response.getHttpOutput();
+    try {
+      consumer.accept(Channels.newChannel(output));
+    } finally {
+      if (output != null && !output.isClosed()) {
+        output.close();
+      }
+    }
+    return this;
+  }
+
   @Nonnull @Override public Context outputStream(Throwing.Consumer<OutputStream> consumer) {
     HttpOutput output = response.getHttpOutput();
     try {
@@ -224,6 +239,15 @@ public class JettyContext extends BaseContext implements Callback {
       if (output != null && !output.isClosed()) {
         output.close();
       }
+    }
+    return this;
+  }
+
+  @Nonnull @Override public Context writer(Charset charset, Throwing.Consumer<Writer> consumer)
+      throws Exception {
+    response.setCharacterEncoding(charset.name());
+    try (Writer writer = response.getWriter()) {
+      consumer.accept(writer);
     }
     return this;
   }
