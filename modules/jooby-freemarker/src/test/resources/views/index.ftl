@@ -1,1 +1,1 @@
-Hello ${firstname} ${lastname} ${local}${sign}
+Hello ${user.firstname} ${user.lastname} ${local}${sign}

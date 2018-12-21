@@ -23,22 +23,24 @@ public class ModelAndView {
 
   public final String view;
 
-  public final Object model;
+  public final Map<String, Object> model;
 
-  public final Map<String, Object> attributes = new HashMap<>();
-
-  public ModelAndView(@Nonnull String view, @Nonnull Object model) {
+  public ModelAndView(@Nonnull String view, @Nonnull Map<String, Object> model) {
     this.view = view;
     this.model = model;
   }
 
-  public ModelAndView put(String name, Object value) {
-    attributes.put(name, value);
+  public ModelAndView(@Nonnull String view) {
+    this(view, new HashMap<>());
+  }
+
+  public ModelAndView put(@Nonnull String name, Object value) {
+    model.put(name, value);
     return this;
   }
 
-  public ModelAndView put(Map<String, Object> attributes) {
-    this.attributes.putAll(attributes);
+  public ModelAndView put(@Nonnull Map<String, Object> attributes) {
+    model.putAll(attributes);
     return this;
   }
 }

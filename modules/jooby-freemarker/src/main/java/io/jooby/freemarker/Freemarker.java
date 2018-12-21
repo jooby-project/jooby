@@ -28,7 +28,7 @@ public class Freemarker implements TemplateEngine {
   }
 
   public Freemarker() {
-    this(build(new ClassTemplateLoader(Freemarker.class.getClassLoader(), "/views"), options()));
+    this(create(new ClassTemplateLoader(Freemarker.class.getClassLoader(), "/views"), options()));
   }
 
   public static Properties options() {
@@ -39,7 +39,7 @@ public class Freemarker implements TemplateEngine {
     return properties;
   }
 
-  public static Configuration build(TemplateLoader loader, Properties options) {
+  public static Configuration create(TemplateLoader loader, Properties options) {
     try {
       Configuration freemarker = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
       freemarker.setSettings(options);
@@ -54,11 +54,8 @@ public class Freemarker implements TemplateEngine {
   @Override public String apply(Context ctx, ModelAndView modelAndView) throws Exception {
     Template template = freemarker.getTemplate(modelAndView.view);
     StringWriter writer = new StringWriter();
-    Map<String, Object> attributes = new HashMap<>(ctx.locals());
-    attributes.putAll(modelAndView.attributes);
-    ObjectWrapper wrapper = freemarker.getObjectWrapper();
-    TemplateModel root = wrapper.wrap(modelAndView.model);
-    TemplateModel model = new ViewModel(wrapper, attributes, (TemplateHashModel) root);
+    Map<String, Object> model = new HashMap<>(ctx.locals());
+    model.putAll(modelAndView.model);
     template.process(model, writer);
     return writer.toString();
   }
