@@ -15,6 +15,7 @@
  */
 package examples;
 
+import io.jooby.Env;
 import io.jooby.Jooby;
 import io.jooby.Filters;
 import io.jooby.FileUpload;
@@ -112,8 +113,6 @@ public class HelloApp extends Jooby {
   }
 
   public static void main(String[] args) {
-    new HelloApp()
-        .start()
-        .join();
+    run(HelloApp::new);
   }
 }

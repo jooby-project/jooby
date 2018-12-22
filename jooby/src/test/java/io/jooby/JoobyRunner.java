@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class JoobyRunner {
@@ -15,16 +16,28 @@ public class JoobyRunner {
 
   private Consumer<Server> serverConfigurer;
 
-  public JoobyRunner(Consumer<Jooby> configurer) {
-    this(() -> {
-      Jooby app = new Jooby();
-      configurer.accept(app);
-      return app;
-    });
+  public JoobyRunner(Consumer<Jooby> provider) {
+    this.provider = () -> {
+      try {
+        Jooby.setEnv(Env.defaultEnvironment("test"));
+        Jooby app = new Jooby();
+        provider.accept(app);
+        return app;
+      } finally {
+        Jooby.setEnv(null);
+      }
+    };
   }
 
   public JoobyRunner(Supplier<Jooby> provider) {
-    this.provider = provider;
+    this.provider = () -> {
+      try {
+        Jooby.setEnv(Env.defaultEnvironment("test"));
+        return provider.get();
+      } finally {
+        Jooby.setEnv(null);
+      }
+    };
   }
 
   public JoobyRunner mode(ExecutionMode... mode) {

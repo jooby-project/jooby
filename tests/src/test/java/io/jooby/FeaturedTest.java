@@ -84,7 +84,9 @@ public class FeaturedTest {
   @Test
   public void sayHi() {
     new JoobyRunner(app -> {
+
       app.get("/", ctx -> "Hello World!");
+
     }).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("Hello World!", rsp.body().string());

@@ -44,8 +44,28 @@ public class Jooby implements Router {
 
   private Consumer<Server> serverConfigurer;
 
+  /**
+   * Not ideal but useful. We want to have access to environment properties from instance
+   * initializer. So external method before creating a new Jooby instance does a call to
+   * {@link Jooby#setEnv(Env)} this makes available the env instance in any other Jooby instance
+   * created.
+   */
+  private static ThreadLocal<Env> ENV = new ThreadLocal<>();
+
+  protected Env environment;
+
   public Jooby() {
     router = new RouterImpl(new RouteAnalyzer(getClass().getClassLoader(), false));
+    environment = ENV.get();
+  }
+
+  public Env environment() {
+    return environment;
+  }
+
+  public Jooby environment(Env environment) {
+    this.environment = environment;
+    return this;
   }
 
   @Nonnull @Override public Jooby basePath(String basePath) {
@@ -237,9 +257,23 @@ public class Jooby implements Router {
     return router.toString();
   }
 
+  public static void setEnv(Env environment) {
+    ENV.set(environment);
+  }
+
   public static void run(Supplier<Jooby> provider, String... args) {
-    // TODO: add conf, logging, etc...
-    provider.get().start().join();
+    // TODO: add logging, etc...
+    Server server;
+    try {
+      Env environment = Env.defaultEnvironment(args);
+      setEnv(environment);
+      Jooby app = provider.get();
+      server = app.start();
+    } finally {
+      // clear env
+      setEnv(null);
+    }
+    server.join();
   }
 
   private static void ensureTmpdir(Path tmpdir) {
