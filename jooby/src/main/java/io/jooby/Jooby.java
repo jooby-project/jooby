@@ -240,6 +240,7 @@ public class Jooby implements Router {
     /** Start router: */
     ensureTmpdir(tmpdir);
     Logger log = log();
+    log.debug("environment:\n{}", environment);
     router.start(this);
     log.info("{} [{}@{}]\n\n{}\n\nlistening on:\n  http://localhost:{}{}\n",
         getClass().getSimpleName(),

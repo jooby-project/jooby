@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -14,13 +16,39 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class Env extends Value.Object {
 
+  public static class PropertySource {
+    private String name;
+
+    private Map<String, String> properties;
+
+    public PropertySource(String name, Map properties) {
+      this.name = name;
+      this.properties = properties;
+    }
+
+    public String name() {
+      return name;
+    }
+
+    public Map<String, String> properties() {
+      return properties;
+    }
+
+    @Override public String toString() {
+      return name;
+    }
+  }
+
   private final String name;
 
-  private final Map<String, String> properties = new LinkedHashMap<>();
+  private final List<PropertySource> sources = new ArrayList<>();
 
   public Env(final String name) {
     this.name = name;
@@ -30,9 +58,9 @@ public class Env extends Value.Object {
     Value result = super.get(name);
     if (result.isMissing()) {
       // fallback to full path access
-      String value = properties.get(name);
+      String value = fromSource(sources, name, null);
       if (value != null) {
-        result = Value.value(name, value);
+        return Value.value(name, value);
       }
     }
     return result;
@@ -42,9 +70,21 @@ public class Env extends Value.Object {
     return name;
   }
 
-  public static Map<String, String> parse(String... args) {
+  @Override public String toString() {
+    StringBuilder buff = new StringBuilder();
+    buff.append(name).append("\n");
+    String indent = "  ";
+    for (int i = sources.size() - 1; i >= 0; i--) {
+      String sname = sources.get(i).name;
+      buff.append(indent).append("::").append(sname).append("\n");
+      indent += "  ";
+    }
+    return buff.toString().trim();
+  }
+
+  public static PropertySource parse(String... args) {
     if (args == null || args.length == 0) {
-      return Collections.emptyMap();
+      return new PropertySource("args", Collections.emptyMap());
     }
     Map<String, String> conf = new HashMap<>();
     for (String arg : args) {
@@ -56,25 +96,28 @@ public class Env extends Value.Object {
         conf.putIfAbsent("application.env", arg);
       }
     }
-    return conf;
+    return new PropertySource("args", conf);
   }
 
-  public static Map<String, String> load(ClassLoader loader, String filename) {
-    return load(loader, filename, stream -> {
-      Map<String, String> result = new LinkedHashMap<>();
-      Properties properties = new Properties();
-      properties.load(stream);
-      properties.forEach((k, v) -> result.put(k.toString(), v.toString()));
-      return result;
+  public static PropertySource load(ClassLoader loader, String filename) {
+    return load(loader, filename, (name, stream) -> {
+      try {
+        Properties properties = new Properties();
+        properties.load(stream);
+        return new PropertySource(name, properties);
+      } catch (IOException x) {
+        throw Throwing.sneakyThrow(x);
+      }
     });
   }
 
-  public static Map<String, String> load(ClassLoader loader, String filename,
-      Throwing.Function<InputStream, Map<String, String>> propertyLoader) {
-    InputStream stream = findProperties(loader, filename);
+  public static PropertySource load(ClassLoader loader, String filename,
+      BiFunction<String, InputStream, PropertySource> propertyLoader) {
+    AtomicReference<String> fullpath = new AtomicReference<>();
+    InputStream stream = findProperties(loader, filename, fullpath::set);
     if (stream != null) {
       try {
-        return propertyLoader.apply(stream);
+        return propertyLoader.apply(fullpath.get(), stream);
       } finally {
         try {
           stream.close();
@@ -83,68 +126,90 @@ public class Env extends Value.Object {
         }
       }
     }
-    return Collections.emptyMap();
+    return new PropertySource(filename, Collections.emptyMap());
+  }
+
+  public static PropertySource systemProperties() {
+    return new PropertySource("systemProperties", System.getProperties());
+  }
+
+  public static PropertySource systemEnv() {
+    return new PropertySource("systemEnv", System.getenv());
   }
 
   public static Env defaultEnvironment(String... args) {
     ClassLoader classLoader = Env.class.getClassLoader();
-    Map<String, String> argMap = parse(args);
-    String env = argMap.getOrDefault("application.env", "dev");
-    List<Map> sources = new LinkedList<>();
+    PropertySource argMap = parse(args);
+    String env = argMap.properties.getOrDefault("application.env", "dev");
+    List<PropertySource> sources = new LinkedList<>();
     Stream
         .of("application.properties", "application." + env + ".properties")
         .map(filename -> load(classLoader, filename))
-        .filter(props -> props.size() > 0)
+        .filter(props -> props.properties().size() > 0)
         .forEach(sources::add);
-    sources.add(System.getProperties());
-    sources.add(System.getenv());
-    if (argMap.size() > 0) {
-      sources.add(argMap);
-    }
-    return build(sources.toArray(new Map[sources.size()]));
+    sources.add(systemProperties());
+    sources.add(systemEnv());
+    sources.add(argMap);
+    return build(sources.toArray(new PropertySource[sources.size()]));
   }
 
-  public static Env build(Map<String, String>... sources) {
-    Env env = new Env(environmentName(sources));
-    for (Map<String, String> source : sources) {
-      env.properties.putAll(source);
+  public static Env build(PropertySource... sources) {
+    Env env = new Env(fromSource(Arrays.asList(sources), "application.env", "dev").toLowerCase());
+    /** Merge to build values: */
+    Map<String, String> merged = new LinkedHashMap<>();
+    for (PropertySource source : sources) {
+      merged.putAll(source.properties);
     }
-    env.properties.forEach((k, v) -> {
-      try {
-        String[] values = v.split(",");
-        for (String value : values) {
-          env.put(k, value.trim());
+    List<String> skip = Arrays.asList("java.", "sun.");
+    merged.forEach((k, v) -> {
+      if (skip.stream().anyMatch(it -> !it.startsWith(k))) {
+        // ignore java. and sun. properties (too many, not worth it)
+        try {
+          String[] values = v.split(",");
+          for (String value : values) {
+            env.put(k, value.trim());
+          }
+        } catch (ClassCastException x) {
+          // Caused by system properties like:
+          // java.vendor.url vs java.vendor.url.bug
         }
-      } catch (ClassCastException x) {
-        // Caused by system properties like:
-        // java.vendor.url vs java.vendor.url.bug
       }
     });
+    // Only worth it property from java.*
+    env.put("java.io.tmpdir", System.getProperty("java.io.tmpdir"));
+
+    merged.clear();
+
+    /** Add sources */
+    Stream.of(sources).forEach(env.sources::add);
     return env;
   }
 
-  private static InputStream findProperties(ClassLoader loader, String filename) {
+  private static InputStream findProperties(ClassLoader loader, String filename,
+      Consumer<String> fullpath) {
     try {
       String envdir = System.getProperty("env.dir", "conf");
       Path file = Paths.get(System.getProperty("user.dir"), envdir, filename).toAbsolutePath();
       if (Files.exists(file)) {
+        fullpath.accept(file.toString());
         return new FileInputStream(file.toFile());
       }
-      return loader.getResourceAsStream(envdir + "/" + filename);
+      String resource = envdir + "/" + filename;
+      fullpath.accept(resource);
+      return loader.getResourceAsStream(resource);
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
   }
 
-  private static String environmentName(Map<String, String>[] sources) {
-    for (int i = sources.length - 1; i >= 0; i--) {
-      Map<String, String> properties = sources[i];
-      String name = properties.get("application.env");
-      if (name != null) {
-        return name.toLowerCase();
+  private static String fromSource(List<PropertySource> sources, String name, String defaults) {
+    for (int i = sources.size() - 1; i >= 0; i--) {
+      PropertySource source = sources.get(i);
+      String value = source.properties().get(name);
+      if (value != null) {
+        return value;
       }
     }
-    return "dev";
+    return defaults;
   }
-
 }
