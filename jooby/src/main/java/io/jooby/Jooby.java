@@ -37,12 +37,11 @@ public class Jooby implements Router {
 
   private final RouterImpl router;
 
-  private Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir"), appname(getClass()))
-      .toAbsolutePath();
-
   private ExecutionMode mode = ExecutionMode.DEFAULT;
 
   private Consumer<Server> serverConfigurer;
+
+  private Path tmpdir;
 
   /**
    * Not ideal but useful. We want to have access to environment properties from instance
@@ -57,6 +56,8 @@ public class Jooby implements Router {
   public Jooby() {
     router = new RouterImpl(new RouteAnalyzer(getClass().getClassLoader(), false));
     environment = ENV.get();
+    tmpdir = Paths.get(environment.get("application.tmpdir").value(), appname(getClass()))
+        .toAbsolutePath();
   }
 
   public Env environment() {

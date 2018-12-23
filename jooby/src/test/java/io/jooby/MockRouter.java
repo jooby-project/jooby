@@ -12,13 +12,22 @@ public class MockRouter {
   private Supplier<Jooby> supplier;
 
   public MockRouter(Supplier<Jooby> supplier) {
-    this.supplier = supplier;
+    this.supplier = () -> {
+      Env env = Env.defaultEnvironment("test");
+      Jooby.setEnv(env);
+      Jooby jooby = supplier.get();
+      Jooby.setEnv(null);
+      return jooby;
+    };
   }
 
   public MockRouter(Consumer<Jooby> consumer) {
     this.supplier = () -> {
+      Env env = Env.defaultEnvironment("test");
+      Jooby.setEnv(env);
       Jooby app = new Jooby();
       consumer.accept(app);
+      Jooby.setEnv(null);
       return app;
     };
   }

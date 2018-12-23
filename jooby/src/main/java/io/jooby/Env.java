@@ -172,6 +172,9 @@ public class Env extends Value.Object {
     Env env = new Env(fromSource(Arrays.asList(sources), "application.env", "dev").toLowerCase());
     /** Merge to build values: */
     Map<String, String> merged = new LinkedHashMap<>();
+    String tmpdir = System.getProperty("java.io.tmpdir");
+    PropertySource defaults = new PropertySource("defaults", Map.of("application.tmpdir", tmpdir));
+    merged.putAll(defaults.properties);
     for (PropertySource source : sources) {
       merged.putAll(source.properties);
     }
@@ -191,11 +194,12 @@ public class Env extends Value.Object {
       }
     });
     // Only worth it property from java.*
-    env.put("java.io.tmpdir", System.getProperty("java.io.tmpdir"));
+    env.put("java.io.tmpdir", tmpdir);
 
     merged.clear();
 
     /** Add sources */
+    env.sources.add(defaults);
     Stream.of(sources).forEach(env.sources::add);
     return env;
   }
