@@ -634,7 +634,7 @@ public interface Value extends Iterable<Value> {
           src = src.get(path[i]);
         }
         value = src.value();
-      } catch (Err.Missing x) {
+      } catch (NoSuchElementException x) {
         if (ignoreMissing) {
           value = text.substring(start, end + endDelim.length());
         } else {

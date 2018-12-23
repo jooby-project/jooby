@@ -15,11 +15,13 @@
  */
 package io.jooby;
 
+import java.util.NoSuchElementException;
+
 public class Err extends RuntimeException {
 
-  public static class Missing extends Err {
+  public static class Missing extends NoSuchElementException {
     public Missing(String name) {
-      super(StatusCode.BAD_REQUEST, "Missing value: '" + name + "'");
+      super("Missing value: '" + name + "'");
     }
   }
 
