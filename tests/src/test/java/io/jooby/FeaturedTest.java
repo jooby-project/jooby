@@ -1063,7 +1063,7 @@ public class FeaturedTest {
   public void defaultHeaders() {
     LinkedList<String> servers = new LinkedList<>(Arrays.asList("netty", "utow", "jetty"));
     new JoobyRunner(app -> {
-      app.decorate(Filters.defaultHeaders());
+      app.decorate(Decorators.defaultHeaders());
       app.get("/", Context::pathString);
     }).ready(client -> {
       client.get("/", rsp -> {
@@ -1143,7 +1143,7 @@ public class FeaturedTest {
   @Test
   public void defaultContentType() {
     new JoobyRunner(app -> {
-      app.decorate(Filters.contentType(text));
+      app.decorate(Decorators.contentType(text));
       app.get("/type", Context::pathString);
     }).ready(client -> {
       client.get("/type", rsp -> {
@@ -1152,7 +1152,7 @@ public class FeaturedTest {
     });
 
     new JoobyRunner(app -> {
-      app.decorate(Filters.contentType("text/plain"));
+      app.decorate(Decorators.contentType("text/plain"));
       app.get("/type-text", Context::pathString);
     }).ready(client -> {
       client.get("/type-text", rsp -> {
@@ -1161,7 +1161,7 @@ public class FeaturedTest {
     });
 
     new JoobyRunner(app -> {
-      app.decorate(Filters.contentType("text/plain"));
+      app.decorate(Decorators.contentType("text/plain"));
       app.get("/type-override", ctx -> ctx.type("text/html").sendText("OK"));
     }).ready(client -> {
       client.get("/type-override", rsp -> {

@@ -244,7 +244,7 @@ public class RouterImpl implements Router {
     stack.stream().filter(it -> it.pattern != null).forEach(it -> pat.append(it.pattern));
     pat.append(pattern);
 
-    /** Filters: */
+    /** Decorators: */
     List<Route.Decorator> filters = stack.stream()
         .flatMap(Stack::toFilter)
         .collect(Collectors.toList());

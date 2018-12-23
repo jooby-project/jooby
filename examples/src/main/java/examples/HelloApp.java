@@ -15,9 +15,8 @@
  */
 package examples;
 
-import io.jooby.Env;
 import io.jooby.Jooby;
-import io.jooby.Filters;
+import io.jooby.Decorators;
 import io.jooby.FileUpload;
 import io.jooby.json.Jackson;
 
@@ -53,7 +52,7 @@ public class HelloApp extends Jooby {
       return next.apply(ctx);
     });
 
-    decorate(Filters.defaultHeaders());
+    decorate(Decorators.defaultHeaders());
 
     get("/", ctx -> ctx.sendText(MESSAGE));
 

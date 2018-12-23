@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * Collection of utility filters.
  */
-public final class Filters {
+public final class Decorators {
   private static class DateHeader {
     private volatile long nextUpdateTime = -1;
     private volatile String cachedDate;

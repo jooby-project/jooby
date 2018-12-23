@@ -15,9 +15,9 @@
  */
 package examples;
 
+import io.jooby.Decorators;
 import io.jooby.Jooby;
 import io.jooby.ExecutionMode;
-import io.jooby.Filters;
 
 public class BenchApp extends Jooby {
 
@@ -32,7 +32,7 @@ public class BenchApp extends Jooby {
   }
 
   {
-    decorate(Filters.defaultHeaders());
+    decorate(Decorators.defaultHeaders());
 
     get("/", ctx -> ctx.sendText(MESSAGE));
 
