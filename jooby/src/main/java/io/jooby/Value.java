@@ -29,10 +29,12 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -582,6 +584,75 @@ public interface Value extends Iterable<Value> {
     Map<String, String> map = new LinkedHashMap<>();
     toMultimap().forEach((k, v) -> map.put(k, v.get(0)));
     return map;
+  }
+
+  default String resolve(@Nonnull String text) {
+    return resolve(text, "${", "}");
+  }
+
+  default String resolve(@Nonnull String text, boolean ignoreMissing) {
+    return resolve(text, "${", "}", ignoreMissing);
+  }
+
+  default String resolve(@Nonnull String text, @Nonnull String startDelim,
+      @Nonnull String endDelim) {
+    return resolve(text, startDelim, endDelim, false);
+  }
+
+  default String resolve(@Nonnull String text, @Nonnull String startDelim, @Nonnull String endDelim,
+      boolean ignoreMissing) {
+    if (text.length() == 0) {
+      return "";
+    }
+
+    BiFunction<Integer, BiFunction<Integer, Integer, RuntimeException>, RuntimeException> err = (
+        start, ex) -> {
+      String snapshot = text.substring(0, start);
+      int line = Math.max(1, (int) snapshot.chars().filter(ch -> ch == '\n').count());
+      int column = start - snapshot.lastIndexOf('\n');
+      return ex.apply(line, column);
+    };
+
+    StringBuilder buffer = new StringBuilder();
+    int offset = 0;
+    int start = text.indexOf(startDelim);
+    while (start >= 0) {
+      int end = text.indexOf(endDelim, start + startDelim.length());
+      if (end == -1) {
+        throw err.apply(start, (line, column) -> new IllegalArgumentException(
+            "found '" + startDelim + "' expecting '" + endDelim + "' at " + line + ":"
+                + column));
+      }
+      buffer.append(text.substring(offset, start));
+      String key = text.substring(start + startDelim.length(), end);
+      String value;
+      try {
+        // seek
+        String[] path = key.split("\\.");
+        Value src = path[0].equals(name()) ? this : get(path[0]);
+        for (int i = 1; i < path.length; i++) {
+          src = src.get(path[i]);
+        }
+        value = src.value();
+      } catch (Err.Missing x) {
+        if (ignoreMissing) {
+          value = text.substring(start, end + endDelim.length());
+        } else {
+          throw err.apply(start, (line, column) -> new NoSuchElementException(
+              "Missing " + startDelim + key + endDelim + " at " + line + ":" + column));
+        }
+      }
+      buffer.append(value);
+      offset = end + endDelim.length();
+      start = text.indexOf(startDelim, offset);
+    }
+    if (buffer.length() == 0) {
+      return text;
+    }
+    if (offset < text.length()) {
+      buffer.append(text.substring(offset));
+    }
+    return buffer.toString();
   }
 
   /* ***********************************************************************************************

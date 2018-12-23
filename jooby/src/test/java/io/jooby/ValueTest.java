@@ -376,7 +376,6 @@ public class ValueTest {
 
     assertMessage(Err.Missing.class, () -> Value.value("foo", "bar").get(1).value(),
         "Missing value: 'foo.1'");
-
   }
 
   public static <T extends Throwable> void assertMessage(Class<T> expectedType,
