@@ -1,5 +1,6 @@
 package io.jooby.freemarker;
 
+import io.jooby.Env;
 import io.jooby.MockContext;
 import io.jooby.ModelAndView;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ public class FreemarkerTest {
 
   @Test
   public void render() throws Exception {
-    Freemarker freemarker = new Freemarker();
+    Freemarker freemarker = Freemarker.builder().build(Env.empty("test"));
     String output = freemarker
         .apply(new MockContext().set("local", "var"), new ModelAndView("index.ftl")
             .put("user", new User("foo", "bar"))

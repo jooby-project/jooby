@@ -85,6 +85,19 @@ public class Env extends Value.Object {
     return name;
   }
 
+  public boolean matches(String... names) {
+    return Stream.of(names)
+        .anyMatch(it -> it.equalsIgnoreCase(this.name));
+  }
+
+  public boolean matches(@Nonnull String name) {
+    return this.name.equalsIgnoreCase(name);
+  }
+
+  public static Env empty(String name) {
+    return new Env(name);
+  }
+
   @Override public String toString() {
     StringBuilder buff = new StringBuilder();
     buff.append(name).append("\n");

@@ -17,6 +17,10 @@ package io.jooby.json;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import io.jooby.Context;
 import io.jooby.Converter;
 import io.jooby.MediaType;
@@ -34,15 +38,30 @@ public class Jackson extends Converter {
   }
 
   public Jackson() {
-    this(new ObjectMapper());
+    this(defaultObjectMapper());
+  }
+
+  private static ObjectMapper defaultObjectMapper() {
+    ObjectMapper m = new ObjectMapper();
+
+    m.registerModule(new Jdk8Module());
+    m.registerModule(new JavaTimeModule());
+    m.registerModule(new ParameterNamesModule());
+    m.registerModule(new AfterburnerModule());
+
+    return m;
   }
 
   @Override public boolean render(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
     if (value instanceof CharSequence) {
-      // Ignore string/charsequence responses, those are going to be processed by the default renderer and let route to return raw JSON
-      return false;
+      // Ignore string/charsequence responses, those are going to be processed by the default
+      // renderer and let route to return raw JSON
+      ctx.type(MediaType.JSON)
+          .sendText(value.toString());
+    } else {
+      ctx.type(MediaType.JSON)
+          .sendBytes(mapper.writeValueAsBytes(value));
     }
-    ctx.type(MediaType.JSON).sendBytes(mapper.writeValueAsBytes(value));
     return true;
   }
 

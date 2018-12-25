@@ -28,7 +28,7 @@ public class HbsTest {
 
   @Test
   public void render() throws Exception {
-    Hbs engine = new Hbs();
+    Hbs engine = Hbs.builder().build();
     String output = engine
         .apply(new MockContext().set("local", "var"), new ModelAndView("index.hbs")
             .put("user", new User("foo", "bar"))

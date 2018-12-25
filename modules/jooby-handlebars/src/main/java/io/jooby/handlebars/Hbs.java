@@ -1,18 +1,139 @@
 package io.jooby.handlebars;
 
+import com.github.jknack.handlebars.Decorator;
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.cache.HighConcurrencyTemplateCache;
+import com.github.jknack.handlebars.cache.NullTemplateCache;
+import com.github.jknack.handlebars.cache.TemplateCache;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
 import io.jooby.Context;
+import io.jooby.Env;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Optional.ofNullable;
+
 public class Hbs implements TemplateEngine {
+
+  public static class Builder {
+
+    private Handlebars handlebars;
+
+    private TemplateLoader loader;
+
+    private TemplateCache cache;
+
+    public Builder() {
+      handlebars = new Handlebars();
+      handlebars.setCharset(StandardCharsets.UTF_8);
+    }
+
+    public Builder cache(TemplateCache cache) {
+      this.cache = cache;
+      return this;
+    }
+
+    public Builder loader(TemplateLoader loader) {
+      this.loader = loader;
+      return this;
+    }
+
+    public <H> Builder registerHelper(String name, Helper<H> helper) {
+      handlebars.registerHelper(name, helper);
+      return this;
+    }
+
+    public <H> Builder registerHelperMissing(Helper<H> helper) {
+      handlebars.registerHelperMissing(helper);
+      return this;
+    }
+
+    public Builder registerHelpers(Object helperSource) {
+      handlebars.registerHelpers(helperSource);
+      return this;
+    }
+
+    public Builder registerHelpers(Class<?> helperSource) {
+      handlebars.registerHelpers(helperSource);
+      return this;
+    }
+
+    public Builder registerHelpers(URI location) throws Exception {
+      handlebars.registerHelpers(location);
+      return this;
+    }
+
+    public Builder registerHelpers(File input) throws Exception {
+      handlebars.registerHelpers(input);
+      return this;
+    }
+
+    public Builder registerHelpers(String filename, Reader source)
+        throws Exception {
+      handlebars.registerHelpers(filename, source);
+      return this;
+    }
+
+    public Builder registerHelpers(String filename, InputStream source)
+        throws Exception {
+      handlebars.registerHelpers(filename, source);
+      return this;
+    }
+
+    public Builder registerHelpers(String filename, String source)
+        throws IOException {
+      handlebars.registerHelpers(filename, source);
+      return this;
+    }
+
+    public Builder registerDecorator(String name, Decorator decorator) {
+      handlebars.registerDecorator(name, decorator);
+      return this;
+    }
+
+    public Builder charset(Charset charset) {
+      handlebars.setCharset(charset);
+      return this;
+    }
+
+    public Hbs build() {
+      return build(Env.empty("dev"));
+    }
+
+    public Hbs build(Env env) {
+      handlebars.with(ofNullable(loader).orElseGet(this::defaultTemplateLoader));
+
+      TemplateCache cache = ofNullable(this.cache).orElseGet(() ->
+          env.matches("dev", "test") ?
+              NullTemplateCache.INSTANCE :
+              new HighConcurrencyTemplateCache()
+      );
+      handlebars.with(cache);
+
+      Hbs result = new Hbs(handlebars);
+      this.loader = null;
+      this.handlebars = null;
+      this.cache = null;
+      return result;
+    }
+
+    private TemplateLoader defaultTemplateLoader() {
+      return new ClassPathTemplateLoader("/views", "");
+    }
+  }
 
   private Handlebars handlebars;
 
@@ -20,20 +141,14 @@ public class Hbs implements TemplateEngine {
     this.handlebars = handlebars;
   }
 
-  public Hbs() {
-    this(build(new ClassPathTemplateLoader("/views", "")));
-  }
-
-  public static Handlebars build(TemplateLoader loader) {
-    Handlebars handlebars = new Handlebars(loader);
-    handlebars.setCharset(StandardCharsets.UTF_8);
-    return handlebars;
-  }
-
   @Override public String apply(Context ctx, ModelAndView modelAndView) throws Exception {
     Template template = handlebars.compile(modelAndView.view);
     Map<String, Object> model = new HashMap<>(ctx.locals());
     model.putAll(modelAndView.model);
     return template.apply(model);
+  }
+
+  public static Hbs.Builder builder() {
+    return new Hbs.Builder();
   }
 }
