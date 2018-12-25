@@ -58,6 +58,8 @@
               </includes>
               <excludes>
                 <exclude>**/*Test.*</exclude>
+                <exclude>**/*Test$*.*</exclude>
+                <exclude>**/internal</exclude>
               </excludes>
             </configuration>
           </execution>
