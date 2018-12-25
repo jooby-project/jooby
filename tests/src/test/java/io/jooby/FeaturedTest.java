@@ -674,7 +674,7 @@ public class FeaturedTest {
   @Test
   public void parser() {
     new JoobyRunner(app -> {
-      app.converter(new Jackson());
+      app.install(new Jackson());
 
       app.post("/map", ctx -> ctx.body(Map.class));
 
@@ -738,7 +738,7 @@ public class FeaturedTest {
   @Test
   public void errorhandler() {
     new JoobyRunner(app -> {
-      app.converter(new Jackson());
+      app.install(new Jackson());
 
       app.get("/", ctx -> {
         if (ctx.pathString().length() != 0) {

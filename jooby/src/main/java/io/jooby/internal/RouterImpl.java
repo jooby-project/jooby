@@ -16,6 +16,7 @@
 package io.jooby.internal;
 
 import io.jooby.ErrorHandler;
+import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.Context;
 import io.jooby.Err;

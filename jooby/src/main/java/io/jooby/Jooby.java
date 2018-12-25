@@ -135,6 +135,11 @@ public class Jooby implements Router {
     return this;
   }
 
+  @Nonnull public Jooby install(@Nonnull Extension extension) {
+    extension.install(environment, this);
+    return this;
+  }
+
   @Nonnull @Override public Jooby group(@Nonnull Runnable action) {
     router.group(action);
     return this;

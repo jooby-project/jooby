@@ -91,6 +91,8 @@ public class MediaTypeTest {
 
   @Test
   public void matches() {
+    assertTrue(MediaType.matches("application/json", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"));
+
     assertTrue(MediaType.matches("application/json", "text/html, */*"));
 
     assertTrue(MediaType.matches("application/json", "application/json"));

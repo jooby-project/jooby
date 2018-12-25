@@ -688,7 +688,7 @@ public class MediaType implements Comparable<MediaType> {
   }
 
   private static boolean matchOne(String expected, int len1, String contentType) {
-    if (contentType.equals("*/*") || contentType.equals("*")) {
+    if (contentType.startsWith("*/*") || contentType.equals("*")) {
       return true;
     }
     int i = 0;

@@ -15,16 +15,7 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
+public interface Extension {
 
-public abstract class Converter implements Parser, Renderer {
-  private String contentType;
-
-  public Converter(@Nonnull String contentType) {
-    this.contentType = contentType;
-  }
-
-  public String contentType() {
-    return contentType;
-  }
+  void install(Env env, Router router);
 }

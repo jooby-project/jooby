@@ -101,8 +101,8 @@ public class HelloApp extends Jooby {
       return user.pic.toString();
     });
 
-    renderer(new Jackson());
-    get("/json", ctx -> ctx.type("application/json").render(new Message("Hello World!")));
+    install(new Jackson());
+    get("/json", ctx -> new Message("Hello World!"));
 
     error((ctx, cause, statusCode) -> {
       cause.printStackTrace();

@@ -22,19 +22,21 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import io.jooby.Context;
-import io.jooby.Converter;
+import io.jooby.Env;
+import io.jooby.Extension;
 import io.jooby.MediaType;
-import io.jooby.Reified;
+import io.jooby.Parser;
+import io.jooby.Renderer;
+import io.jooby.Router;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
 
-public class Jackson extends Converter {
+public class Jackson implements Extension, Parser, Renderer {
 
   private final ObjectMapper mapper;
 
   public Jackson(ObjectMapper mapper) {
-    super(MediaType.JSON);
     this.mapper = mapper;
   }
 
@@ -42,15 +44,20 @@ public class Jackson extends Converter {
     this(defaultObjectMapper());
   }
 
-  private static ObjectMapper defaultObjectMapper() {
-    ObjectMapper m = new ObjectMapper();
+  public static final ObjectMapper defaultObjectMapper() {
+    ObjectMapper objectMapper = new ObjectMapper();
 
-    m.registerModule(new Jdk8Module());
-    m.registerModule(new JavaTimeModule());
-    m.registerModule(new ParameterNamesModule());
-    m.registerModule(new AfterburnerModule());
+    objectMapper.registerModule(new Jdk8Module());
+    objectMapper.registerModule(new JavaTimeModule());
+    objectMapper.registerModule(new ParameterNamesModule());
+    objectMapper.registerModule(new AfterburnerModule());
 
-    return m;
+    return objectMapper;
+  }
+
+  @Override public void install(Env env, Router router) {
+    router.parser(MediaType.JSON, this);
+    router.renderer(MediaType.JSON, this);
   }
 
   @Override public boolean render(@Nonnull Context ctx, @Nonnull Object value) throws Exception {

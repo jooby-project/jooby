@@ -70,12 +70,6 @@ public interface Router {
 
   @Nonnull Router parser(@Nonnull String contentType, @Nonnull Parser parser);
 
-  @Nonnull default Router converter(@Nonnull Converter converter) {
-    parser(converter.contentType(), converter);
-    renderer(converter);
-    return this;
-  }
-
   @Nonnull Executor worker();
 
   @Nonnull Router worker(Executor worker);
