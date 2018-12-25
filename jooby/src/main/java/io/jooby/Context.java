@@ -21,6 +21,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
@@ -241,15 +242,15 @@ public interface Context {
 
   @Nonnull Body body();
 
-  default @Nonnull <T> T body(@Nonnull Class<T> type) {
-    return body(Reified.get(type));
-  }
-
-  default @Nonnull <T> T body(@Nonnull Class<T> type, @Nonnull String contentType) {
-    return body(Reified.get(type), contentType);
-  }
-
   default @Nonnull <T> T body(@Nonnull Reified<T> type) {
+    return body(type.getType());
+  }
+
+  default @Nonnull <T> T body(@Nonnull Reified<T> type, @Nonnull String contentType) {
+    return body(type.getType(), contentType);
+  }
+
+  default @Nonnull <T> T body(@Nonnull Type type) {
     String contentType = header("Content-Type").value("text/plain");
     int i = contentType.indexOf(';');
     if (i > 0) {
@@ -258,7 +259,7 @@ public interface Context {
     return body(type, contentType);
   }
 
-  default @Nonnull <T> T body(@Nonnull Reified<T> type, @Nonnull String contentType) {
+  default @Nonnull <T> T body(@Nonnull Type type, @Nonnull String contentType) {
     try {
       return parser(contentType).parse(this, type);
     } catch (Exception x) {

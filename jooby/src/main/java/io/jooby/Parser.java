@@ -16,14 +16,15 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.lang.reflect.Type;
 
 public interface Parser {
 
   Parser UNSUPPORTED_MEDIA_TYPE = new Parser() {
-    @Override public <T> T parse(Context ctx, Reified<T> type) {
+    @Override public <T> T parse(Context ctx, Type type) {
       throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE);
     }
   };
 
-  @Nonnull <T> T parse(@Nonnull Context ctx, @Nonnull Reified<T> type) throws Exception;
+  @Nonnull <T> T parse(@Nonnull Context ctx, @Nonnull Type type) throws Exception;
 }

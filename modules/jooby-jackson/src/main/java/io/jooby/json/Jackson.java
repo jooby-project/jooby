@@ -27,6 +27,7 @@ import io.jooby.MediaType;
 import io.jooby.Reified;
 
 import javax.annotation.Nonnull;
+import java.lang.reflect.Type;
 
 public class Jackson extends Converter {
 
@@ -65,8 +66,8 @@ public class Jackson extends Converter {
     return true;
   }
 
-  @Override public <T> T parse(Context ctx, Reified<T> type) throws Exception {
-    JavaType javaType = mapper.getTypeFactory().constructType(type.getType());
+  @Override public <T> T parse(Context ctx, Type type) throws Exception {
+    JavaType javaType = mapper.getTypeFactory().constructType(type);
     return mapper.readValue(ctx.body().bytes(), javaType);
   }
 }

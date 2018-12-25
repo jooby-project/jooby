@@ -1,7 +1,6 @@
 package io.jooby.json;
 
 import io.jooby.MockContext;
-import io.jooby.Reified;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -47,7 +46,7 @@ public class JacksonTest {
     MockContext ctx = new MockContext();
     ctx.setBody("{\"k\":\"v\"}".getBytes(StandardCharsets.UTF_8));
 
-    Map<String, String> result = jackson.parse(ctx, Reified.get(Map.class));
+    Map<String, String> result = jackson.parse(ctx, Map.class);
     assertEquals(Map.of("k", "v"), result);
   }
 }
