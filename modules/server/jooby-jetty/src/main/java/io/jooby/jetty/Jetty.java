@@ -16,7 +16,6 @@
 package io.jooby.jetty;
 
 import io.jooby.Jooby;
-import io.jooby.Functions;
 import io.jooby.internal.jetty.JettyHandler;
 import io.jooby.internal.jetty.JettyMultiHandler;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -36,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class Jetty implements io.jooby.Server {
+public class Jetty extends io.jooby.Server.Base {
 
   private int port = 8080;
 
@@ -66,10 +65,14 @@ public class Jetty implements io.jooby.Server {
   }
 
   @Nonnull @Override public io.jooby.Server start() {
+    System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
+
+    addShutdownHook();
+
     QueuedThreadPool executor = new QueuedThreadPool(64);
     executor.setName("jetty");
 
-    System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
+    fireStart(applications, () -> executor);
 
     this.server = new Server(executor);
     server.setStopAtShutdown(false);
@@ -101,7 +104,6 @@ public class Jetty implements io.jooby.Server {
       handler = gzipHandler;
     }
 
-
     server.setHandler(handler);
 
     try {
@@ -110,18 +112,20 @@ public class Jetty implements io.jooby.Server {
       throw Throwing.sneakyThrow(x);
     }
 
-    applications.forEach(app -> {
-      app.worker(Optional.ofNullable(app.worker()).orElse(executor));
-      app.start(this);
-    });
+    fireReady(applications);
 
     return this;
   }
 
   @Override public io.jooby.Server stop() {
-    try (Functions.Closer closer = Functions.closer()) {
-      applications.forEach(app -> closer.register(app::stop));
-      closer.register(server::stop);
+    fireStop(applications);
+    if (server != null) {
+      try {
+        server.stop();
+      } catch (Exception x) {
+        throw Throwing.sneakyThrow(x);
+      }
+      server = null;
     }
     return this;
   }

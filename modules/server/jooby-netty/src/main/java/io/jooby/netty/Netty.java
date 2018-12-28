@@ -17,7 +17,6 @@ package io.jooby.netty;
 
 import io.jooby.Jooby;
 import io.jooby.Server;
-import io.jooby.Functions;
 import io.jooby.internal.netty.NettyMultiHandler;
 import io.jooby.internal.netty.NettyNative;
 import io.jooby.internal.netty.NettyHandler;
@@ -44,9 +43,8 @@ import javax.net.ssl.SSLException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-public class Netty implements Server {
+public class Netty extends Server.Base {
 
   private static class Pipeline extends ChannelInitializer<SocketChannel> {
 
@@ -111,6 +109,10 @@ public class Netty implements Server {
 
   @Nonnull @Override public Server start() {
     try {
+      addShutdownHook();
+
+      fireStart(applications, () -> worker = new DefaultEventExecutorGroup(32));
+
       NettyNative provider = NettyNative.get();
       /** Acceptor: */
       this.acceptor = provider.group(1);
@@ -151,27 +153,25 @@ public class Netty implements Server {
       Thread.currentThread().interrupt();
     }
 
-    applications.forEach(app -> {
-      app.worker(Optional.ofNullable(app.worker()).orElseGet(() -> {
-        if (worker == null) {
-          worker = new DefaultEventExecutorGroup(32);
-        }
-        return worker;
-      }));
-      app.start(this);
-    });
+    fireReady(applications);
 
     return this;
   }
 
   public Server stop() {
-    try (Functions.Closer closer = Functions.closer()) {
-      applications.forEach(app -> closer.register(app::stop));
-      closer.register(ioLoop::shutdownGracefully);
-      closer.register(acceptor::shutdownGracefully);
-      if (worker != null) {
-        closer.register(worker::shutdownGracefully);
-      }
+    fireStop(applications);
+    applications = null;
+    if (ioLoop != null) {
+      ioLoop.shutdownGracefully();
+      ioLoop = null;
+    }
+    if (acceptor != null) {
+      acceptor.shutdownGracefully();
+      acceptor = null;
+    }
+    if (worker != null) {
+      worker.shutdownGracefully();
+      worker = null;
     }
     return this;
   }

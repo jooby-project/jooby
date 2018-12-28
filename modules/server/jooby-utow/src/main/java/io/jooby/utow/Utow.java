@@ -16,7 +16,6 @@
 package io.jooby.utow;
 
 import io.jooby.Jooby;
-import io.jooby.Functions;
 import io.jooby.Server;
 import io.jooby.internal.utow.UtowHandler;
 import io.jooby.internal.utow.UtowMultiHandler;
@@ -28,12 +27,9 @@ import org.xnio.Options;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
-public class Utow implements Server {
+public class Utow extends Server.Base {
 
   private Undertow server;
 
@@ -63,6 +59,9 @@ public class Utow implements Server {
   }
 
   @Override public Server start() {
+
+    addShutdownHook();
+
     HttpHandler handler = applications.size() == 1
         ? new UtowHandler(applications.get(0))
         : new UtowMultiHandler(applications);
@@ -85,19 +84,20 @@ public class Utow implements Server {
         .build();
 
     server.start();
+    // NOT IDEAL, but we need to fire onStart after server.start and got access to Worker
+    fireStart(applications, server::getWorker);
 
-    applications.forEach(app -> {
-      app.worker(Optional.ofNullable(app.worker()).orElse(server.getWorker()));
-      app.start(this);
-    });
+    fireReady(applications);
 
     return this;
   }
 
   @Override public Server stop() {
-    try (Functions.Closer closer = Functions.closer()) {
-      applications.forEach(app -> closer.register(app::stop));
-      closer.register(server::stop);
+    fireStop(applications);
+    applications = null;
+    if (server != null) {
+      server.stop();
+      server = null;
     }
     return this;
   }

@@ -1,5 +1,6 @@
 package io.jooby;
 
+import io.jooby.jetty.Jetty;
 import io.jooby.json.Jackson;
 import io.jooby.netty.Netty;
 import io.jooby.utow.Utow;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -668,7 +670,7 @@ public class FeaturedTest {
         assertEquals("before1:false;before2:false;result:false;after2:false;after1:false;",
             rsp.body().string());
       });
-    }, Netty::new, Utow::new/* No Jetty bc always use a worker thread */);
+    }, Netty::new, Utow::new /* No Jetty bc always use a worker thread */);
   }
 
   @Test
@@ -1138,6 +1140,52 @@ public class FeaturedTest {
         assertEquals(1, i.get());
       });
     });
+  }
+
+  @Test
+  public void lifeCycle() {
+    AtomicInteger counter = new AtomicInteger();
+
+    Consumer<Jooby> lifeCycle = app -> {
+      app.onStart(() -> counter.incrementAndGet());
+
+      app.onStarted(() -> counter.incrementAndGet());
+
+      app.onStop(() -> {
+        counter.decrementAndGet();
+      });
+
+      app.onStop(() -> {
+        counter.decrementAndGet();
+        throw new IllegalStateException("expected error");
+      });
+
+      app.get("/lifeCycle", ctx -> counter.get());
+    };
+
+    new JoobyRunner(lifeCycle).ready(client -> {
+      client.get("/lifeCycle", rsp ->
+          assertEquals("2", rsp.body().string())
+      );
+    }, Netty::new);
+
+    assertEquals(0, counter.get());
+
+    new JoobyRunner(lifeCycle).ready(client -> {
+      client.get("/lifeCycle", rsp ->
+          assertEquals("2", rsp.body().string())
+      );
+    }, Utow::new);
+
+    assertEquals(0, counter.get());
+
+    new JoobyRunner(lifeCycle).ready(client -> {
+      client.get("/lifeCycle", rsp ->
+          assertEquals("2", rsp.body().string())
+      );
+    }, Jetty::new);
+
+    assertEquals(0, counter.get());
   }
 
   @Test

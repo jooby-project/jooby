@@ -16,8 +16,52 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 public interface Server {
+
+  abstract class Base implements Server {
+
+    private AtomicBoolean stopping = new AtomicBoolean();
+
+    protected void fireStart(List<Jooby> applications, Supplier<Executor> workerProvider) {
+      Executor serverWorker = null;
+      for (Jooby app : applications) {
+        Executor worker = app.worker();
+        if (worker == null) {
+          if (serverWorker == null) {
+            // server worker is shared between app
+            serverWorker = workerProvider.get();
+          }
+          app.worker(serverWorker);
+        }
+        app.start(this);
+      }
+    }
+
+    protected void fireReady(List<Jooby> applications) {
+      for (Jooby app : applications) {
+        app.ready(this);
+      }
+    }
+
+    protected void fireStop(List<Jooby> applications) {
+      if (stopping.compareAndSet(false, true)) {
+        if (applications != null) {
+          for (Jooby app : applications) {
+            app.stop();
+          }
+        }
+      }
+    }
+
+    protected void addShutdownHook() {
+      Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
+    }
+  }
 
   /** 16KB constant. */
   int _16KB = 0x4000;
@@ -41,4 +85,5 @@ public interface Server {
   @Nonnull Server stop();
 
   @Nonnull Server gzip(boolean enabled);
+
 }

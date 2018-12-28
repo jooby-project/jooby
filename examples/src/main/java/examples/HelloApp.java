@@ -20,6 +20,8 @@ import io.jooby.Decorators;
 import io.jooby.FileUpload;
 import io.jooby.json.Jackson;
 
+import java.util.concurrent.Executors;
+
 public class HelloApp extends Jooby {
 
   public static class User {
@@ -109,6 +111,15 @@ public class HelloApp extends Jooby {
       ctx.statusCode(statusCode)
           .sendText(statusCode.reason());
     });
+
+    new Thread(() -> {
+      try {
+        Thread.sleep(5000);
+        System.exit(0);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }).start();
   }
 
   public static void main(String[] args) {

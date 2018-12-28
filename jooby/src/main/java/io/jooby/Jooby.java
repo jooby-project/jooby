@@ -25,6 +25,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.Executor;
@@ -35,13 +38,19 @@ import java.util.stream.Collectors;
 
 public class Jooby implements Router {
 
-  private final RouterImpl router;
+  private RouterImpl router;
 
   private ExecutionMode mode = ExecutionMode.DEFAULT;
 
   private Consumer<Server> serverConfigurer;
 
   private Path tmpdir;
+
+  private List<Throwing.Runnable> startCallbacks;
+
+  private List<Throwing.Runnable> readyCallbacks;
+
+  private LinkedList<Throwing.Runnable> stopCallbacks;
 
   /**
    * Not ideal but useful. We want to have access to environment properties from instance
@@ -64,12 +73,36 @@ public class Jooby implements Router {
     return environment;
   }
 
-  public Jooby environment(Env environment) {
+  public Jooby environment(@Nonnull Env environment) {
     this.environment = environment;
     return this;
   }
 
-  @Nonnull @Override public Jooby basePath(String basePath) {
+  public Jooby onStart(@Nonnull Throwing.Runnable task) {
+    if (startCallbacks == null) {
+      startCallbacks = new ArrayList<>();
+    }
+    startCallbacks.add(task);
+    return this;
+  }
+
+  public Jooby onStarted(@Nonnull Throwing.Runnable task) {
+    if (readyCallbacks == null) {
+      readyCallbacks = new ArrayList<>();
+    }
+    readyCallbacks.add(task);
+    return this;
+  }
+
+  public Jooby onStop(@Nonnull Throwing.Runnable task) {
+    if (stopCallbacks == null) {
+      stopCallbacks = new LinkedList<>();
+    }
+    stopCallbacks.addFirst(task);
+    return this;
+  }
+
+  @Nonnull @Override public Jooby basePath(@Nonnull String basePath) {
     router.basePath(basePath);
     return this;
   }
@@ -247,7 +280,19 @@ public class Jooby implements Router {
     ensureTmpdir(tmpdir);
     Logger log = log();
     log.debug("environment:\n{}", environment);
+
     router.start(this);
+
+    fireStart();
+
+    return this;
+  }
+
+  public Jooby ready(Server server) {
+    Logger log = log();
+
+    fireStarted();
+
     log.info("{} [{}@{}]\n\n{}\n\nlistening on:\n  http://localhost:{}{}\n",
         getClass().getSimpleName(),
         server.getClass().getSimpleName().toLowerCase(), mode.name().toLowerCase(), router,
@@ -256,7 +301,17 @@ public class Jooby implements Router {
   }
 
   public Jooby stop() {
-    router.destroy();
+    if (router != null) {
+      router.destroy();
+      router = null;
+    }
+
+    fireStop();
+    return this;
+  }
+
+  public Jooby configureServer(Consumer<Server> configurer) {
+    this.serverConfigurer = configurer;
     return this;
   }
 
@@ -298,8 +353,43 @@ public class Jooby implements Router {
     return segments.length == 1 ? segments[0] : segments[segments.length - 2];
   }
 
-  public Jooby configureServer(Consumer<Server> configurer) {
-    this.serverConfigurer = configurer;
-    return this;
+  private void fireStart() {
+    if (startCallbacks != null) {
+      fire(startCallbacks);
+      startCallbacks = null;
+    }
+  }
+
+  private void fireStarted() {
+    if (readyCallbacks != null) {
+      fire(readyCallbacks);
+      readyCallbacks = null;
+    }
+  }
+
+  private void fire(List<Throwing.Runnable> tasks) {
+    Iterator<Throwing.Runnable> iterator = tasks.iterator();
+    while (iterator.hasNext()) {
+      Throwing.Runnable task = iterator.next();
+      task.run();
+      iterator.remove();
+    }
+  }
+
+  private void fireStop() {
+    if (stopCallbacks != null) {
+      List<Throwing.Runnable> tasks = stopCallbacks;
+      stopCallbacks = null;
+      Iterator<Throwing.Runnable> iterator = tasks.iterator();
+      while (iterator.hasNext()) {
+        Throwing.Runnable task = iterator.next();
+        try {
+          task.run();
+        } catch (Exception x) {
+          log().info("exception found while executing onStop:", x);
+        }
+        iterator.remove();
+      }
+    }
   }
 }
