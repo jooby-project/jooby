@@ -50,7 +50,7 @@ public class MaybeHandler implements ChainedHandler {
       return result;
     } catch (Throwable x) {
       ctx.sendError(x);
-      return Flowable.error(x);
+      return Maybe.error(x);
     }
   }
 

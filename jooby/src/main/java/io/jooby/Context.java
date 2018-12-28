@@ -383,7 +383,11 @@ public interface Context {
   @Nonnull Context sendStatusCode(int statusCode);
 
   @Nonnull default Context sendError(@Nonnull Throwable cause) {
-    return sendError(cause, router().errorCode(cause));
+    sendError(cause, router().errorCode(cause));
+    if (Throwing.isFatal(cause)) {
+      throw Throwing.sneakyThrow(cause);
+    }
+    return this;
   }
 
   @Nonnull default Context sendError(@Nonnull Throwable cause, StatusCode statusCode) {

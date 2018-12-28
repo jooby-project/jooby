@@ -37,7 +37,7 @@ public class Lambdas {
         }
       } catch (NoSuchMethodException e) {
         // fall through the loop and try the next class
-      } catch (Throwable t) {
+      } catch (Exception t) {
         throw Throwing.sneakyThrow(t);
       }
     }

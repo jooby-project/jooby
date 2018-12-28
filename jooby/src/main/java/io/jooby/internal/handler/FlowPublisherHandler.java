@@ -17,8 +17,6 @@ package io.jooby.internal.handler;
 
 import io.jooby.Context;
 import io.jooby.Route;
-import io.reactivex.Flowable;
-import org.reactivestreams.Publisher;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.Flow;
@@ -38,7 +36,7 @@ public class FlowPublisherHandler implements ChainedHandler {
       return result;
     } catch (Throwable x) {
       ctx.sendError(x);
-      return Flowable.error(x);
+      return x;
     }
   }
 

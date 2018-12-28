@@ -37,7 +37,7 @@ public class MonoHandler implements ChainedHandler {
       return result;
     } catch (Throwable x) {
       ctx.sendError(x);
-      return Flowable.error(x);
+      return Mono.error(x);
     }
   }
 

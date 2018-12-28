@@ -15,13 +15,6 @@
  */
 package io.jooby;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
 /**
  * Collection of throwable interfaces to simplify exception handling, specially on lambdas.
  *
@@ -57,12 +50,12 @@ public class Throwing {
    * @param <V> Input type.
    */
   public interface Predicate<V> extends java.util.function.Predicate<V> {
-    boolean tryTest(V v) throws Throwable;
+    boolean tryTest(V v) throws Exception;
 
     @Override default boolean test(V v) {
       try {
         return tryTest(v);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -75,12 +68,12 @@ public class Throwing {
    * @param <V2> Input type.
    */
   public interface Predicate2<V1, V2> extends java.util.function.BiPredicate<V1, V2> {
-    boolean tryTest(V1 v1, V2 v2) throws Throwable;
+    boolean tryTest(V1 v1, V2 v2) throws Exception;
 
     @Override default boolean test(V1 v1, V2 v2) {
       try {
         return tryTest(v1, v2);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -91,12 +84,12 @@ public class Throwing {
    */
   @FunctionalInterface
   public interface Runnable extends java.lang.Runnable {
-    void tryRun() throws Throwable;
+    void tryRun() throws Exception;
 
     @Override default void run() {
       try {
         tryRun();
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -110,12 +103,12 @@ public class Throwing {
   @FunctionalInterface
   public interface Supplier<V> extends java.util.function.Supplier<V> {
 
-    V tryGet() throws Throwable;
+    V tryGet() throws Exception;
 
     @Override default V get() {
       try {
         return tryGet();
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -134,14 +127,14 @@ public class Throwing {
      * Performs this operation on the given argument.
      *
      * @param value Argument.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    void tryAccept(V value) throws Throwable;
+    void tryAccept(V value) throws Exception;
 
     @Override default void accept(V v) {
       try {
         tryAccept(v);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -164,12 +157,12 @@ public class Throwing {
      * @param v2 Argument.
      * @throws Throwable If something goes wrong.
      */
-    void tryAccept(V1 v1, V2 v2) throws Throwable;
+    void tryAccept(V1 v1, V2 v2) throws Exception;
 
     default void accept(V1 v1, V2 v2) {
       try {
         tryAccept(v1, v2);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -192,14 +185,14 @@ public class Throwing {
      * @param v1 Argument.
      * @param v2 Argument.
      * @param v3 Argument.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    void tryAccept(V1 v1, V2 v2, V3 v3) throws Throwable;
+    void tryAccept(V1 v1, V2 v2, V3 v3) throws Exception;
 
     default void accept(V1 v1, V2 v2, V3 v3) {
       try {
         tryAccept(v1, v2, v3);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -224,14 +217,14 @@ public class Throwing {
      * @param v2 Argument.
      * @param v3 Argument.
      * @param v4 Argument.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4) throws Throwable;
+    void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4) throws Exception;
 
     default void accept(V1 v1, V2 v2, V3 v3, V4 v4) {
       try {
         tryAccept(v1, v2, v3, v4);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -258,14 +251,14 @@ public class Throwing {
      * @param v3 Argument.
      * @param v4 Argument.
      * @param v5 Argument.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5) throws Throwable;
+    void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5) throws Exception;
 
     default void accept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5) {
       try {
         tryAccept(v1, v2, v3, v4, v5);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -294,9 +287,9 @@ public class Throwing {
      * @param v4 Argument.
      * @param v5 Argument.
      * @param v6 Argument.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6) throws Throwable;
+    void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6) throws Exception;
 
     /**
      * Performs this operation on the given arguments and throw any exception using {@link #sneakyThrow(Throwable)} method.
@@ -311,7 +304,7 @@ public class Throwing {
     default void accept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6) {
       try {
         tryAccept(v1, v2, v3, v4, v5, v6);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -342,9 +335,9 @@ public class Throwing {
      * @param v5 Argument.
      * @param v6 Argument.
      * @param v7 Argument.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7) throws Throwable;
+    void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7) throws Exception;
 
     /**
      * Performs this operation on the given arguments and throw any exception using {@link #sneakyThrow(Throwable)} method.
@@ -360,7 +353,7 @@ public class Throwing {
     default void accept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7) {
       try {
         tryAccept(v1, v2, v3, v4, v5, v6, v7);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -393,9 +386,9 @@ public class Throwing {
      * @param v6 Argument.
      * @param v7 Argument.
      * @param v8 Argument.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7, V8 v8) throws Throwable;
+    void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7, V8 v8) throws Exception;
 
     /**
      * Performs this operation on the given arguments and throw any exception using {@link #sneakyThrow(Throwable)} method.
@@ -412,7 +405,7 @@ public class Throwing {
     default void accept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7, V8 v8) {
       try {
         tryAccept(v1, v2, v3, v4, v5, v6, v7, v8);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -433,9 +426,9 @@ public class Throwing {
      *
      * @param value Input argument.
      * @return Result.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    R tryApply(V value) throws Throwable;
+    R tryApply(V value) throws Exception;
 
     /**
      * Apply this function to the given argument and produces a result.
@@ -446,7 +439,7 @@ public class Throwing {
     @Override default R apply(V v) {
       try {
         return tryApply(v);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -469,9 +462,9 @@ public class Throwing {
      * @param v1 Input argument.
      * @param v2 Input argument.
      * @return Result.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    R tryApply(V1 v1, V2 v2) throws Throwable;
+    R tryApply(V1 v1, V2 v2) throws Exception;
 
     /**
      * Apply this function to the given argument and produces a result.
@@ -483,7 +476,7 @@ public class Throwing {
     @Override default R apply(V1 v1, V2 v2) {
       try {
         return tryApply(v1, v2);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -508,9 +501,9 @@ public class Throwing {
      * @param v2 Input argument.
      * @param v3 Input argument.
      * @return Result.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    R tryApply(V1 v1, V2 v2, V3 v3) throws Throwable;
+    R tryApply(V1 v1, V2 v2, V3 v3) throws Exception;
 
     /**
      * Apply this function to the given argument and produces a result.
@@ -523,7 +516,7 @@ public class Throwing {
     default R apply(V1 v1, V2 v2, V3 v3) {
       try {
         return tryApply(v1, v2, v3);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -550,9 +543,9 @@ public class Throwing {
      * @param v3 Input argument.
      * @param v4 Input argument.
      * @return Result.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    R tryApply(V1 v1, V2 v2, V3 v3, V4 v4) throws Throwable;
+    R tryApply(V1 v1, V2 v2, V3 v3, V4 v4) throws Exception;
 
     /**
      * Apply this function to the given argument and produces a result.
@@ -566,7 +559,7 @@ public class Throwing {
     default R apply(V1 v1, V2 v2, V3 v3, V4 v4) {
       try {
         return tryApply(v1, v2, v3, v4);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -595,9 +588,9 @@ public class Throwing {
      * @param v4 Input argument.
      * @param v5 Input argument.
      * @return Result.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    R tryApply(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5) throws Throwable;
+    R tryApply(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5) throws Exception;
 
     /**
      * Apply this function to the given argument and produces a result.
@@ -612,7 +605,7 @@ public class Throwing {
     default R apply(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5) {
       try {
         return tryApply(v1, v2, v3, v4, v5);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -643,9 +636,9 @@ public class Throwing {
      * @param v5 Input argument.
      * @param v6 Input argument.
      * @return Result.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    R tryApply(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6) throws Throwable;
+    R tryApply(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6) throws Exception;
 
     /**
      * Apply this function to the given argument and produces a result.
@@ -661,7 +654,7 @@ public class Throwing {
     default R apply(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6) {
       try {
         return tryApply(v1, v2, v3, v4, v5, v6);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -694,9 +687,9 @@ public class Throwing {
      * @param v6 Input argument.
      * @param v7 Input argument.
      * @return Result.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    R tryApply(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7) throws Throwable;
+    R tryApply(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7) throws Exception;
 
     /**
      * Apply this function to the given argument and produces a result.
@@ -713,7 +706,7 @@ public class Throwing {
     default R apply(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7) {
       try {
         return tryApply(v1, v2, v3, v4, v5, v6, v7);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
@@ -748,9 +741,9 @@ public class Throwing {
      * @param v7 Input argument.
      * @param v8 Input argument.
      * @return Result.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
-    R tryApply(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7, V8 v8) throws Throwable;
+    R tryApply(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7, V8 v8) throws Exception;
 
     /**
      * Apply this function to the given argument and produces a result.
@@ -768,7 +761,7 @@ public class Throwing {
     default R apply(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7, V8 v8) {
       try {
         return tryApply(v1, v2, v3, v4, v5, v6, v7, v8);
-      } catch (Throwable x) {
+      } catch (Exception x) {
         throw sneakyThrow(x);
       }
     }
