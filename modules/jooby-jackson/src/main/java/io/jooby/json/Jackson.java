@@ -24,10 +24,10 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import io.jooby.Context;
 import io.jooby.Env;
 import io.jooby.Extension;
+import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.Parser;
 import io.jooby.Renderer;
-import io.jooby.Router;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
@@ -55,9 +55,9 @@ public class Jackson implements Extension, Parser, Renderer {
     return objectMapper;
   }
 
-  @Override public void install(Env env, Router router) {
-    router.parser(MediaType.JSON, this);
-    router.renderer(MediaType.JSON, this);
+  @Override public void install(Jooby application) {
+    application.parser(MediaType.JSON, this);
+    application.renderer(MediaType.JSON, this);
   }
 
   @Override public boolean render(@Nonnull Context ctx, @Nonnull Object value) throws Exception {

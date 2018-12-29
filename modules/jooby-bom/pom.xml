@@ -18,6 +18,12 @@
     <handlebars.version>4.1.2</handlebars.version>
     <jackson.version>2.9.6</jackson.version>
 
+    <!-- hikari -->
+    <hikari.version>3.2.0</hikari.version>
+    <mysql-connector-java.version>8.0.13</mysql-connector-java.version>
+    <log4jdbc.version>1.2</log4jdbc.version>
+    <h2.version>1.4.197</h2.version>
+
     <!-- logging -->
     <logback-classic.version>1.2.3</logback-classic.version>
     <slf4j-api.version>1.7.25</slf4j-api.version>
@@ -94,6 +100,19 @@
         <groupId>io.jooby</groupId>
         <artifactId>jooby-jackson</artifactId>
         <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-hikari</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <!-- Connection Pool -->
+      <dependency>
+        <groupId>com.zaxxer</groupId>
+        <artifactId>HikariCP</artifactId>
+        <version>${hikari.version}</version>
       </dependency>
 
       <!-- ASM -->
@@ -178,6 +197,13 @@
         <version>${handlebars.version}</version>
       </dependency>
 
+      <!-- log4jdbc -->
+      <dependency>
+        <groupId>com.googlecode.log4jdbc</groupId>
+        <artifactId>log4jdbc</artifactId>
+        <version>${log4jdbc.version}</version>
+      </dependency>
+
       <!-- Logging System -->
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -215,6 +241,21 @@
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
       </dependency>
+
+      <!-- mySQL -->
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>${mysql-connector-java.version}</version>
+      </dependency>
+
+      <!-- h2 -->
+      <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>${h2.version}</version>
+      </dependency>
+
 
       <!-- OKHttp -->
       <dependency>

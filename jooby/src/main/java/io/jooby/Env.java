@@ -72,10 +72,11 @@ public class Env extends Value.Object {
   @Override public Value get(@Nonnull String name) {
     Value result = super.get(name);
     if (result.isMissing()) {
-      // fallback to full path access
-      String value = fromSource(sources, name, null);
-      if (value != null) {
-        return Value.value(name, value);
+      // Subpath lookup?
+      String[] path = name.split("\\.");
+      result = super.get(path[0]);
+      for (int i = 1; i < path.length; i++) {
+        result = result.get(path[i]);
       }
     }
     return result;

@@ -37,6 +37,16 @@ public class EnvTest {
   }
 
   @Test
+  public void objectLookup() {
+
+    Env env = Env.build(new Env.PropertySource("test", Map.of("h.pool", "1", "h.db.pool", "2")));
+
+    assertEquals("1", env.get("h.pool").value());
+    assertEquals("2", env.get("h.db.pool").value());
+    assertEquals(Map.of("db.pool", "2"), env.get("h.db").toMap());
+  }
+
+  @Test
   public void args() {
     Env.PropertySource args = Env.parse("foo", " bar = ");
     assertEquals("args", args.name());

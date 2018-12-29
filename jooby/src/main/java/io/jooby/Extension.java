@@ -15,7 +15,9 @@
  */
 package io.jooby;
 
+import javax.annotation.Nonnull;
+
 public interface Extension {
 
-  void install(Env env, Router router);
+  void install(@Nonnull Jooby application);
 }

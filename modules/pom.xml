@@ -15,6 +15,7 @@
   <modules>
     <module>jooby-bom</module>
     <module>server</module>
+    <module>jooby-hikari</module>
     <module>jooby-jackson</module>
     <module>jooby-freemarker</module>
     <module>jooby-handlebars</module>

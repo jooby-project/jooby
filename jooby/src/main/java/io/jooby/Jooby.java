@@ -26,9 +26,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
@@ -51,6 +54,8 @@ public class Jooby implements Router {
   private List<Throwing.Runnable> readyCallbacks;
 
   private LinkedList<Throwing.Runnable> stopCallbacks;
+
+  private Map<Object, Object> services = new HashMap<>();
 
   /**
    * Not ideal but useful. We want to have access to environment properties from instance
@@ -169,7 +174,7 @@ public class Jooby implements Router {
   }
 
   @Nonnull public Jooby install(@Nonnull Extension extension) {
-    extension.install(environment, this);
+    extension.install(this);
     return this;
   }
 
@@ -250,6 +255,52 @@ public class Jooby implements Router {
   public Jooby mode(ExecutionMode mode) {
     this.mode = mode;
     return this;
+  }
+
+  public <T> T require(Class<T> type) {
+    return findService(type, type.getName());
+  }
+
+  public <T> T require(Class<T> type, String name) {
+    return findService(type, type.getName() + "." + name);
+  }
+
+  private <T> T findService(Class<T> type, String key) {
+    Object service = services.get(key);
+    if (service == null) {
+      throw new IllegalStateException("Service not found: " + type);
+    }
+    return type.cast(service);
+  }
+
+  public <T> Jooby addService(@Nonnull Class<T> type, @Nonnull T service) {
+    putService(type, null, service);
+    return this;
+  }
+
+  public <T> Jooby addService(@Nonnull T service) {
+    putService(service.getClass(), null, service);
+    return this;
+  }
+
+  public <T> Jooby addService(@Nonnull String name, @Nonnull T service) {
+    putService(service.getClass(), name, service);
+    return this;
+  }
+
+  public <T> Jooby addService(@Nonnull Class<T> type, @Nonnull String name, @Nonnull T service) {
+    putService(type, name, service);
+    return this;
+  }
+
+  private void putService(@Nonnull Class type, String name, @Nonnull Object service) {
+    String defkey = type.getName();
+    String key = type.getName();
+    if (name != null) {
+      key += "." + name;
+    }
+    services.put(key, service);
+    services.putIfAbsent(defkey, service);
   }
 
   /** Boot: */
