@@ -22,7 +22,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import io.jooby.Context;
-import io.jooby.Env;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;

@@ -11,7 +11,6 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-jetty</artifactId>
-  <name>server jetty</name>
 
   <dependencies>
     <dependency>
@@ -63,6 +62,32 @@
       <artifactId>okhttp</artifactId>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>${license-maven-plugin.version}</version>
+        <configuration>
+          <header>etc${file.separator}LICENSE</header>
+          <strictCheck>true</strictCheck>
+          <skipExistingHeaders>true</skipExistingHeaders>
+          <includes>
+            <include>src/main/java/**/*.java</include>
+            <include>src/main/java/**/*.kt</include>
+          </includes>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>format</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

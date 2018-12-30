@@ -1,3 +1,9 @@
+/**
+ *                                  Apache License
+ *                            Version 2.0, January 2004
+ *                         http://www.apache.org/licenses/LICENSE-2.0
+ *                         Copyright 2014 Edgar Espina
+ */
 package io.jooby.internal.utow;
 
 import org.xnio.channels.StreamSinkChannel;
