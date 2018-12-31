@@ -203,26 +203,25 @@
  */
 package org.jooby.jedis;
 
-import java.net.URI;
-
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.util.Pool;
 
-import redis.clients.jedis.JedisPool;
+import java.net.URI;
 
 class RedisProvider {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(Redis.class);
 
-  private JedisPool pool;
+  private Pool pool;
 
   private URI uri;
 
   private GenericObjectPoolConfig config;
 
-  public RedisProvider(final JedisPool pool, final URI uri, final GenericObjectPoolConfig config) {
+  public RedisProvider(final Pool pool, final URI uri, final GenericObjectPoolConfig config) {
     this.pool = pool;
     this.uri = uri;
     this.config = config;
