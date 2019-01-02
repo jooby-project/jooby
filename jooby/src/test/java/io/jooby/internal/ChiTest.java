@@ -27,6 +27,22 @@ public class ChiTest {
     assertEquals(bar, result.route());
   }
 
+  @Test
+  public void routeCase() {
+    $Chi router = new $Chi();
+    router.setIgnoreTrailingSlash(false);
+    RouteImpl foo = route("GET", "/abcd", stringHandler("foo"));
+    RouteImpl foos = route("GET", "/abcd/", stringHandler("foo/"));
+    router.insert(foo);
+    router.insert(foos);
+
+    RouterMatch result = router
+        .find(new MockContext().setPathString("/abcd/"), Renderer.TO_STRING,
+            Collections.emptyList());
+    assertTrue(result.matches);
+    assertEquals(foos, result.route());
+  }
+
   private Route.Handler stringHandler(String foo) {
     return ctx -> foo;
   }
@@ -35,4 +51,5 @@ public class ChiTest {
     return new RouteImpl(method, pattern, Collections.emptyList(), String.class, handler, handler,
         Renderer.TO_STRING, Collections.emptyMap());
   }
+
 }

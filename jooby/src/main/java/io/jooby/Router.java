@@ -50,6 +50,10 @@ public interface Router {
   /** HTTP Methods: */
   List<String> METHODS = List.of(GET, POST, PUT, DELETE, PATCH, HEAD, CONNECT, OPTIONS, TRACE);
 
+  @Nonnull Router caseSensitive(boolean caseSensitive);
+
+  @Nonnull Router ignoreTrailingSlash(boolean ignoreTrailingSlash);
+
   @Nonnull Router basePath(@Nonnull String basePath);
 
   @Nonnull String basePath();
@@ -174,6 +178,48 @@ public interface Router {
   @Nonnull Router error(@Nonnull ErrorHandler handler);
 
   @Nonnull ErrorHandler errorHandler();
+
+  static String normalizePath(@Nonnull String path, boolean caseSensitive,
+      boolean ignoreTrailingSlash) {
+    if (path == null || path.length() == 0 || path.equals("/")) {
+      return "/";
+    }
+    boolean modified = false;
+    StringBuilder buff = new StringBuilder(path.length());
+    if (path.charAt(0) != '/') {
+      buff.append('/');
+      modified = true;
+    }
+    char prev = Character.MIN_VALUE;
+    for (int i = 0; i < path.length(); i++) {
+      char ch = path.charAt(i);
+      if (ch != '/') {
+        if (caseSensitive) {
+          buff.append(ch);
+        } else {
+          char low = Character.toLowerCase(ch);
+          if (low != ch) {
+            modified = true;
+          }
+          buff.append(low);
+        }
+      } else if (prev != '/') {
+        buff.append(ch);
+      } else {
+        modified = true;
+      }
+      prev = ch;
+    }
+    if (buff.length() > 1 && buff.charAt(buff.length() - 1) == '/' && ignoreTrailingSlash) {
+      buff.setLength(buff.length() - 1);
+      modified = true;
+    }
+    // creates string?
+    if (modified) {
+      return buff.toString();
+    }
+    return path;
+  }
 
   static List<String> pathKeys(String pattern) {
     List<String> result = new ArrayList<>();

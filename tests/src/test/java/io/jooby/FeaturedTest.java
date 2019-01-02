@@ -966,7 +966,7 @@ public class FeaturedTest {
       Jooby bar = new Jooby();
       bar.get("/bar", Context::pathString);
 
-      app.group("/api", () -> {
+      app.group("/api/", () -> {
         app.use(bar);
 
         app.use("/bar", bar);
@@ -978,6 +978,90 @@ public class FeaturedTest {
       });
       client.get("/api/bar/bar", rsp -> {
         assertEquals("/api/bar/bar", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
+  public void routerCaseInsensitive() {
+    new JoobyRunner(app -> {
+      // This is on by default:
+      // app.caseSensitive(false);
+      app.get("/foo", Context::pathString);
+
+      app.get("/BAR", Context::pathString);
+    }).ready(client -> {
+      client.get("/foo", rsp -> {
+        assertEquals("/foo", rsp.body().string());
+      });
+      client.get("/foo/", rsp -> {
+        assertEquals("/foo/", rsp.body().string());
+      });
+      client.get("/fOo", rsp -> {
+        assertEquals("/fOo", rsp.body().string());
+      });
+
+      client.get("/bar", rsp -> {
+        assertEquals("/bar", rsp.body().string());
+      });
+      client.get("/BAR", rsp -> {
+        assertEquals("/BAR", rsp.body().string());
+      });
+    });
+
+    /** Now do it case sensitive: */
+    new JoobyRunner(app -> {
+
+      app.caseSensitive(true);
+
+      app.get("/foo", Context::pathString);
+
+      app.get("/BAR", Context::pathString);
+    }).ready(client -> {
+      client.get("/foo", rsp -> {
+        assertEquals("/foo", rsp.body().string());
+      });
+      client.get("/fOo", rsp -> {
+        assertEquals(404, rsp.code());
+      });
+
+      client.get("/bar", rsp -> {
+        assertEquals(404, rsp.code());
+      });
+      client.get("/BAR", rsp -> {
+        assertEquals("/BAR", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
+  public void routerGotOverrideWhenTrailingSlashOff() {
+    new JoobyRunner(app -> {
+      // This is on by default:
+      // app.ignoreTrailingSlash(true);
+      app.get("/foo/", ctx -> "foo/");
+
+      app.get("/foo", ctx -> "new foo");
+    }).ready(client -> {
+      client.get("/foo", rsp -> {
+        assertEquals("new foo", rsp.body().string());
+      });
+      client.get("/foo/", rsp -> {
+        assertEquals("new foo", rsp.body().string());
+      });
+    });
+
+    new JoobyRunner(app -> {
+      app.ignoreTrailingSlash(false);
+      app.get("/foo/", ctx -> "trailing slash");
+
+      app.get("/foo", ctx -> "no trailing slash");
+    }).ready(client -> {
+      client.get("/foo", rsp -> {
+        assertEquals("no trailing slash", rsp.body().string());
+      });
+      client.get("/foo/", rsp -> {
+        assertEquals("trailing slash", rsp.body().string());
       });
     });
   }

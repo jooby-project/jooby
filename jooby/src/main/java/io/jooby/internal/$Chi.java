@@ -18,11 +18,13 @@ package io.jooby.internal;
 import io.jooby.Context;
 import io.jooby.Renderer;
 import io.jooby.Route;
+import io.jooby.Router;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 class $Chi implements RadixTree {
@@ -607,9 +609,31 @@ class $Chi implements RadixTree {
 
   private Node root = new Node();
 
+  private boolean caseSensitive;
+
+  private boolean ignoreTrailingSlash;
+
+  public $Chi(boolean caseSensitive, boolean ignoreTrailingSlash) {
+    setCaseSensitive(caseSensitive);
+    setIgnoreTrailingSlash(ignoreTrailingSlash);
+  }
+
+  public $Chi() {
+    this(false, true);
+  }
+
+  public void setCaseSensitive(boolean caseSensitive) {
+    this.caseSensitive = caseSensitive;
+  }
+
+  public void setIgnoreTrailingSlash(boolean ignoreTrailingSlash) {
+    this.ignoreTrailingSlash = ignoreTrailingSlash;
+  }
+
   public void insert(String method, String pattern, Route route) {
     root.insertRoute(method, pattern, route);
   }
+
 
   public void insert(Route route) {
     root.insertRoute(route.method(), route.pattern(), route);
@@ -621,7 +645,7 @@ class $Chi implements RadixTree {
 
   public RouterMatch find(Context context, Renderer renderer, List<RadixTree> more) {
     String method = context.method();
-    String path = context.pathString();
+    String path = Router.normalizePath(context.pathString(), caseSensitive, ignoreTrailingSlash);
     RouterMatch result = new RouterMatch();
     Route route = root.findRoute(result, method, path);
     if (route != null) {

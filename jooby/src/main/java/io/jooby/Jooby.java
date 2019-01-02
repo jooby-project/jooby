@@ -83,6 +83,16 @@ public class Jooby implements Router {
     return this;
   }
 
+  @Nonnull @Override public Jooby caseSensitive(boolean caseSensitive) {
+    this.router.caseSensitive(caseSensitive);
+    return this;
+  }
+
+  @Nonnull @Override public Jooby ignoreTrailingSlash(boolean ignoreTrailingSlash) {
+    this.router.ignoreTrailingSlash(ignoreTrailingSlash);
+    return this;
+  }
+
   public Jooby onStart(@Nonnull Throwing.Runnable task) {
     if (startCallbacks == null) {
       startCallbacks = new ArrayList<>();

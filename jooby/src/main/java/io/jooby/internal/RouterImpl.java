@@ -35,16 +35,20 @@ import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static io.jooby.Router.normalizePath;
 
 public class RouterImpl implements Router {
 
@@ -104,7 +108,11 @@ public class RouterImpl implements Router {
 
   private Map<String, StatusCode> errorCodes;
 
-  private RadixTree chi = new $Chi();
+  private boolean caseSensitive = false;
+
+  private boolean ignoreTrailingSlash = true;
+
+  private $Chi chi = new $Chi(caseSensitive, ignoreTrailingSlash);
 
   private LinkedList<Stack> stack = new LinkedList<>();
 
@@ -112,7 +120,7 @@ public class RouterImpl implements Router {
 
   private CompositeRenderer renderer = new CompositeRenderer();
 
-  private String basePath = "";
+  private String basePath;
 
   private List<RadixTree> trees;
 
@@ -127,11 +135,23 @@ public class RouterImpl implements Router {
     stack.addLast(new Stack(""));
   }
 
+  @Nonnull @Override public Router caseSensitive(boolean caseSensitive) {
+    this.caseSensitive = caseSensitive;
+    chi.setCaseSensitive(caseSensitive);
+    return this;
+  }
+
+  @Nonnull @Override public Router ignoreTrailingSlash(boolean ignoreTrailingSlash) {
+    this.ignoreTrailingSlash = ignoreTrailingSlash;
+    chi.setIgnoreTrailingSlash(ignoreTrailingSlash);
+    return this;
+  }
+
   @Nonnull @Override public Router basePath(@Nonnull String basePath) {
     if (routes.size() > 0) {
       throw new IllegalStateException("Base path must be set before adding any routes.");
     }
-    this.basePath = basePath;
+    this.basePath = normalizePath(basePath, caseSensitive, true);
     return this;
   }
 
@@ -140,7 +160,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public String basePath() {
-    return basePath;
+    return basePath == null ? "/": basePath;
   }
 
   @Nonnull @Override public List<Route> routes() {
@@ -149,7 +169,7 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override
   public Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
-    RadixTree tree = new $Chi().with(predicate);
+    RadixTree tree = new $Chi(caseSensitive, ignoreTrailingSlash).with(predicate);
     if (trees == null) {
       trees = new ArrayList<>();
     }
@@ -161,8 +181,13 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router use(@Nonnull String path, @Nonnull Router router) {
+    String prefix = normalizePath(path, caseSensitive, true);
+    if (prefix.equals("/")) {
+      prefix = "";
+    }
     for (Route route : router.routes()) {
-      route(route.method(), path + route.pattern(), route.handler());
+      String routePattern = prefix + route.pattern();
+      route(route.method(), routePattern, route.handler());
     }
     return this;
   }
@@ -278,7 +303,7 @@ public class RouterImpl implements Router {
         renderer, parsers);
     Stack stack = this.stack.peekLast();
     route.executor(stack.executor);
-    String routePattern = basePath == null ? safePattern : basePath + safePattern;
+    String routePattern = normalizePath(basePath == null ? safePattern : basePath + safePattern, caseSensitive, ignoreTrailingSlash);
     if (method.equals("*")) {
       METHODS.forEach(m -> tree.insert(m, routePattern, route));
     } else {
@@ -390,7 +415,7 @@ public class RouterImpl implements Router {
   }
 
   private Stack push(String pattern) {
-    Stack stack = new Stack(pattern);
+    Stack stack = new Stack(normalizePath(pattern, caseSensitive, true));
     if (this.stack.size() > 0) {
       Stack parent = this.stack.getLast();
       stack.executor = parent.executor;
