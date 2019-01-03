@@ -45,6 +45,8 @@ public class Jetty extends io.jooby.Server.Base {
 
   private List<Jooby> applications = new ArrayList<>();
 
+  private long maxRequestSize = _10MB;
+
   @Override public io.jooby.Server port(int port) {
     this.port = port;
     return this;
@@ -52,6 +54,11 @@ public class Jetty extends io.jooby.Server.Base {
 
   @Override public int port() {
     return port;
+  }
+
+  @Nonnull @Override public io.jooby.Server maxRequestSize(long maxRequestSize) {
+    this.maxRequestSize = maxRequestSize;
+    return this;
   }
 
   public io.jooby.Server gzip(boolean enabled) {
@@ -66,6 +73,9 @@ public class Jetty extends io.jooby.Server.Base {
 
   @Nonnull @Override public io.jooby.Server start() {
     System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
+    /** Set max request size attribute: */
+    System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize",
+        Long.toString(maxRequestSize));
 
     addShutdownHook();
 

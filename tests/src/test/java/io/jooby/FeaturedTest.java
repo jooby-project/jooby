@@ -12,6 +12,7 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
@@ -1030,6 +1031,22 @@ public class FeaturedTest {
       });
       client.get("/BAR", rsp -> {
         assertEquals("/BAR", rsp.body().string());
+      });
+    });
+  }
+
+  // TODO: get back and fix this
+  public void maxRequestSize() {
+    new JoobyRunner(app -> {
+      app.post("/request-size", ctx -> {
+        return "OK";
+      });
+    }).configureServer(server -> {
+      server.maxRequestSize(Server._16KB);
+    }).ready(client -> {
+      client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), _19kb), rsp -> {
+        System.out.println(rsp.body().string());
+        assertEquals(413, rsp.code());
       });
     });
   }

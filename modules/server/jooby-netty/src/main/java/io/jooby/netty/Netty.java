@@ -51,11 +51,14 @@ public class Netty extends Server.Base {
     private final SslContext sslCtx;
     private final ChannelInboundHandler handler;
     private final boolean gzip;
+    private final long maxRequestSize;
 
-    public Pipeline(SslContext sslCtx, ChannelInboundHandler handler, boolean gzip) {
+    public Pipeline(SslContext sslCtx, ChannelInboundHandler handler, boolean gzip,
+        long maxRequestSize) {
       this.sslCtx = sslCtx;
       this.handler = handler;
       this.gzip = gzip;
+      this.maxRequestSize = maxRequestSize;
     }
 
     @Override
@@ -66,7 +69,7 @@ public class Netty extends Server.Base {
       }
       // FIXME: check configuration parameters
       p.addLast("codec", new HttpServerCodec());
-      p.addLast("aggregator", new HttpObjectAggregator(_16KB * 2));
+      p.addLast("aggregator", new HttpObjectAggregator((int) maxRequestSize));
       if (gzip) {
         p.addLast("gzip", new HttpContentCompressor());
       }
@@ -86,10 +89,17 @@ public class Netty extends Server.Base {
 
   private boolean gzip;
 
+  private long maxRequestSize = _10MB;
+
   private DefaultEventExecutorGroup worker;
 
   @Override public Server port(int port) {
     this.port = port;
+    return this;
+  }
+
+  @Nonnull @Override public Server maxRequestSize(long maxRequestSize) {
+    this.maxRequestSize = maxRequestSize;
     return this;
   }
 
@@ -143,7 +153,7 @@ public class Netty extends Server.Base {
       bootstrap.group(acceptor, ioLoop)
           .channel(provider.channel())
           .handler(new LoggingHandler(LogLevel.DEBUG))
-          .childHandler(new Pipeline(sslCtx, handler, gzip))
+          .childHandler(new Pipeline(sslCtx, handler, gzip, maxRequestSize))
           .childOption(ChannelOption.SO_REUSEADDR, true);
 
       bootstrap.bind(port).sync();

@@ -15,14 +15,20 @@
  */
 package io.jooby.internal.netty;
 
+import io.jooby.Context;
 import io.jooby.Router;
+import io.jooby.Server;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 
 @ChannelHandler.Sharable
 public class NettyHandler extends ChannelInboundHandlerAdapter {
+  private static final AttributeKey<Context> CONTEXT = AttributeKey
+      .newInstance(Context.class.getName());
   private final Router router;
 
   public NettyHandler(Router router) {
@@ -34,6 +40,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     if (msg instanceof HttpRequest) {
       HttpRequest req = (HttpRequest) msg;
       NettyContext context = new NettyContext(ctx, req, router, pathOnly(req.uri()));
+      ctx.channel().attr(CONTEXT).set(context);
       router.match(context).execute(context);
     } else {
       ctx.fireChannelRead(msg);
@@ -53,14 +60,20 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    //cause.printStackTrace();
-    ctx.close();
-    //    if (!ConnectionLost.test(cause)) {
-    //      String path = ctx.channel().attr(PATH).get();
-    //      ctx.close();
-    //      LoggerFactory.getLogger(Err.class)
-    //          .error("execution of {} resulted in unexpected exception", path, cause);
-    //    }
+    try {
+      if (Server.connectionLost(cause)) {
+
+      } else {
+        Context context = ctx.channel().attr(CONTEXT).getAndSet(null);
+        if (context == null) {
+          // log
+        } else {
+          context.sendError(cause);
+        }
+      }
+    } finally {
+      ctx.close();
+    }
   }
 }
 

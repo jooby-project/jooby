@@ -39,6 +39,8 @@ public class Utow extends Server.Base {
 
   private List<Jooby> applications = new ArrayList<>();
 
+  private long maxRequestSize = _10MB;
+
   @Override public Server port(int port) {
     this.port = port;
     return this;
@@ -51,6 +53,11 @@ public class Utow extends Server.Base {
 
   @Override public int port() {
     return port;
+  }
+
+  @Nonnull @Override public Server maxRequestSize(long maxRequestSize) {
+    this.maxRequestSize = maxRequestSize;
+    return this;
   }
 
   @Nonnull @Override public Server deploy(Jooby application) {
@@ -80,6 +87,7 @@ public class Utow extends Server.Base {
         .setServerOption(UndertowOptions.ALWAYS_SET_DATE, false)
         .setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, false)
         .setServerOption(UndertowOptions.DECODE_URL, false)
+        .setServerOption(UndertowOptions.MAX_ENTITY_SIZE, maxRequestSize)
         .setHandler(handler)
         .build();
 

@@ -168,18 +168,31 @@ public class Env extends Value.Object {
 
   public static Env defaultEnvironment(String... args) {
     ClassLoader classLoader = Env.class.getClassLoader();
+    LinkedList<PropertySource> sources = new LinkedList<>();
     PropertySource argMap = parse(args);
-    String env = argMap.properties.getOrDefault("application.env", "dev");
-    List<PropertySource> sources = new LinkedList<>();
+
+    sources.add(systemEnv());
+    sources.add(systemProperties());
+    sources.add(argMap);
+
+    String env = fromSource(sources, "application.env", "dev").toLowerCase();
     Stream
-        .of("application.properties", "application." + env + ".properties")
+        .of("application." + env + ".properties", "application.properties")
         .map(filename -> load(classLoader, filename))
         .filter(props -> props.properties().size() > 0)
-        .forEach(sources::add);
-    sources.add(systemProperties());
-    sources.add(systemEnv());
-    sources.add(argMap);
+        .forEach(sources::addFirst);
+
     return build(sources.toArray(new PropertySource[sources.size()]));
+  }
+
+  public static PropertySource defaults() {
+    String tmpdir = System.getProperty("java.io.tmpdir");
+    PropertySource defaults = new PropertySource("defaults", Map.of(
+        "application.tmpdir", tmpdir,
+
+        /** server: */
+        "server.maxRequestSize", Integer.toString(Server._10MB)));
+    return defaults;
   }
 
   public static Env build(PropertySource... sources) {
@@ -187,7 +200,7 @@ public class Env extends Value.Object {
     /** Merge to build values: */
     Map<String, String> merged = new LinkedHashMap<>();
     String tmpdir = System.getProperty("java.io.tmpdir");
-    PropertySource defaults = new PropertySource("defaults", Map.of("application.tmpdir", tmpdir));
+    PropertySource defaults = defaults();
     merged.putAll(defaults.properties);
     for (PropertySource source : sources) {
       merged.putAll(source.properties);

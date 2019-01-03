@@ -16,6 +16,8 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -66,9 +68,13 @@ public interface Server {
   /** 16KB constant. */
   int _16KB = 0x4000;
 
+  int _10MB = 20971520;
+
   int port();
 
   @Nonnull Server port(int port);
+
+  @Nonnull Server maxRequestSize(long maxRequestSize);
 
   @Nonnull Server deploy(Jooby application);
 
@@ -86,4 +92,16 @@ public interface Server {
 
   @Nonnull Server gzip(boolean enabled);
 
+  static boolean connectionLost(Throwable cause) {
+    if (cause instanceof ClosedChannelException) {
+      return true;
+    }
+    if (cause instanceof IOException) {
+      String message = cause.getMessage();
+      if (message != null) {
+        return message.toLowerCase().contains("connection reset by peer");
+      }
+    }
+    return false;
+  }
 }
