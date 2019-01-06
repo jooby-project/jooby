@@ -20,15 +20,15 @@ public class UtowBodyHandler implements Receiver.FullBytesCallback, Receiver.Par
 
   private final int bufferSize;
   private final long maxRequestSize;
-  private Router router;
+  private Router.Match route;
   private UtowContext context;
   private long chunkSize;
   private List chunks;
   private File file;
   private FileChannel channel;
 
-  public UtowBodyHandler(Router router, UtowContext context, int bufferSize, long maxRequestSize) {
-    this.router = router;
+  public UtowBodyHandler(Router.Match route, UtowContext context, int bufferSize, long maxRequestSize) {
+    this.route = route;
     this.context = context;
     this.bufferSize = bufferSize;
     this.maxRequestSize = maxRequestSize;
@@ -36,7 +36,7 @@ public class UtowBodyHandler implements Receiver.FullBytesCallback, Receiver.Par
 
   @Override public void handle(HttpServerExchange exchange, byte[] bytes) {
     context.body = Body.of(bytes);
-    router.match(context).execute(context);
+    route.execute(context);
   }
 
   @Override public void handle(HttpServerExchange exchange, byte[] chunk, boolean last) {
@@ -61,7 +61,7 @@ public class UtowBodyHandler implements Receiver.FullBytesCallback, Receiver.Par
         } else {
           // overflow
           if (file == null) {
-            file = router.tmpdir().resolve(System.currentTimeMillis() + ".tmp").toFile();
+            file = context.router().tmpdir().resolve(System.currentTimeMillis() + ".tmp").toFile();
             FileOutputStream fos = new FileOutputStream(file);
             channel = fos.getChannel();
           }
@@ -84,7 +84,7 @@ public class UtowBodyHandler implements Receiver.FullBytesCallback, Receiver.Par
         } else {
           context.body = Body.of(bytes((int) chunkSize));
         }
-        router.match(context).execute(context);
+        route.execute(context);
       }
     } catch (IOException x) {
       try {

@@ -55,12 +55,18 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     if (msg instanceof HttpRequest) {
       HttpRequest req = (HttpRequest) msg;
       context = new NettyContext(ctx, req, router, pathOnly(req.uri()));
-      contentLength = HttpUtil.getContentLength(req, -1L);
-      boolean chunked = HttpUtil.isTransferEncodingChunked(req);
-      if (contentLength > 0 || chunked) {
-        decoder = newDecoder(req, factory);
+      Router.Match result = router.match(context);
+      /** Don't check/parse for body if there is no match: */
+      if (result.matches()) {
+        contentLength = HttpUtil.getContentLength(req, -1L);
+        boolean chunked = HttpUtil.isTransferEncodingChunked(req);
+        if (contentLength > 0 || chunked) {
+          decoder = newDecoder(req, factory);
+        } else {
+          result.execute(context);
+        }
       } else {
-        router.match(context).execute(context);
+        result.execute(context);
       }
     } else if (decoder != null && msg instanceof HttpContent) {
       HttpContent chunk = (HttpContent) msg;

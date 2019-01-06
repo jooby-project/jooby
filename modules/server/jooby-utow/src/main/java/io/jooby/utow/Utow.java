@@ -41,7 +41,7 @@ public class Utow extends Server.Base {
 
   private long maxRequestSize = _10MB;
 
-  private int requestBufferSize = _16KB;
+  private int bufferSize = _16KB;
 
   @Override public Server port(int port) {
     this.port = port;
@@ -63,7 +63,7 @@ public class Utow extends Server.Base {
   }
 
   @Nonnull @Override public Server bufferSize(int bufferSize) {
-    this.requestBufferSize = bufferSize;
+    this.bufferSize = bufferSize;
     return this;
   }
 
@@ -77,7 +77,7 @@ public class Utow extends Server.Base {
     addShutdownHook();
 
     HttpHandler handler = applications.size() == 1
-        ? new UtowHandler(applications.get(0), requestBufferSize, maxRequestSize)
+        ? new UtowHandler(applications.get(0), bufferSize, maxRequestSize)
         : new UtowMultiHandler(applications);
 
     if (gzip) {
@@ -86,7 +86,7 @@ public class Utow extends Server.Base {
 
     server = Undertow.builder()
         .addHttpListener(port, "0.0.0.0")
-        .setBufferSize(requestBufferSize)
+        .setBufferSize(bufferSize)
         // HTTP/1.1 is keep-alive by default, turn this option off
         .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
         .setServerOption(Options.BACKLOG, 10000)
