@@ -32,6 +32,7 @@ import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
 
@@ -98,11 +99,12 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     try {
+      Logger log = router.log();
       if (Server.connectionLost(cause)) {
-
+        log.debug("execution resulted in connection lost", cause);
       } else {
         if (context == null) {
-          // log
+          log.error("execution resulted in exception", cause);
         } else {
           context.sendError(cause);
           context = null;

@@ -6,6 +6,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.ssl.SslContext;
 
 import java.util.function.Supplier;
@@ -31,9 +32,8 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     if (sslCtx != null) {
       p.addLast(sslCtx.newHandler(ch.alloc()));
     }
-    // FIXME: check configuration parameters
+    p.addLast("flusher", new FlushConsolidationHandler(1024, true));
     p.addLast("codec", new HttpServerCodec());
-    // p.addLast("aggregator", new HttpObjectAggregator((int) maxRequestSize));
     if (gzip) {
       p.addLast("gzip", new HttpContentCompressor());
     }

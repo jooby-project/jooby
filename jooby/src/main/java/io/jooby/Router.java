@@ -15,6 +15,8 @@
  */
 package io.jooby;
 
+import org.slf4j.Logger;
+
 import javax.annotation.Nonnull;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -178,6 +180,8 @@ public interface Router {
   @Nonnull Router error(@Nonnull ErrorHandler handler);
 
   @Nonnull ErrorHandler errorHandler();
+
+  Logger log();
 
   static String normalizePath(@Nonnull String path, boolean caseSensitive,
       boolean ignoreTrailingSlash) {

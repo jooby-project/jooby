@@ -52,12 +52,6 @@ public class HelloApp extends Jooby {
   {
     mode(ExecutionMode.EVENT_LOOP);
 
-
-    decorate(next -> ctx -> {
-      System.out.println(Thread.currentThread());
-      return next.apply(ctx);
-    });
-
     decorate(Decorators.defaultHeaders());
 
     get("/", ctx -> ctx.sendText(MESSAGE));

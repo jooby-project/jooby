@@ -28,12 +28,19 @@ public interface ErrorHandler {
   static ErrorHandler log(Logger log, StatusCode... quiet) {
     Set<StatusCode> silent = Set.of(quiet);
     return (ctx, cause, statusCode) -> {
-      String message = format("%s %s %s %s", ctx.method(), ctx.pathString(),
-          statusCode.value(), statusCode.reason());
+      String msg = new StringBuilder()
+          .append(ctx.method())
+          .append(" ")
+          .append(ctx.pathString())
+          .append(" ")
+          .append(statusCode.value())
+          .append(" ")
+          .append(statusCode.reason())
+          .toString();
       if (silent.contains(statusCode)) {
-        log.info(message, cause);
+        log.error(msg, cause);
       } else {
-        log.error(message, cause);
+        log.error(msg, cause);
       }
     };
   }

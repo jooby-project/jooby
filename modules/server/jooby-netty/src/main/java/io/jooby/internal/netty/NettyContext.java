@@ -44,7 +44,7 @@ import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class NettyContext implements Context {
+public class NettyContext implements Context, Runnable {
   final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
@@ -271,17 +271,20 @@ public class NettyContext implements Context {
     rsp.headers().set(setHeaders);
     if (keepAlive) {
       rsp.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-      ctx.write(rsp, ctx.voidPromise());
+      ctx.writeAndFlush(rsp, ctx.voidPromise());
     } else {
-      ctx.write(rsp).addListener(CLOSE);
+      ctx.writeAndFlush(rsp).addListener(CLOSE);
     }
-    ctx.executor().execute(ctx::flush);
-    // TODO: move destroy inside a Write listener
-    destroy();
+    ctx.executor().execute(this);
     return this;
   }
 
-  public void destroy() {
+  @Override public void run() {
+    ctx.flush();
+    destroy();
+  }
+
+  private void destroy() {
     if (files != null) {
       files.forEach(throwingConsumer(FileUpload::destroy));
       files = null;

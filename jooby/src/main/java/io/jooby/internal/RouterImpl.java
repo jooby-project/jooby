@@ -28,6 +28,8 @@ import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.StatusCode;
 import io.jooby.Usage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
@@ -331,6 +333,10 @@ public class RouterImpl implements Router {
     this.stack.forEach(Stack::clear);
     this.stack = null;
     return this;
+  }
+
+  @Override public Logger log() {
+    return LoggerFactory.getLogger(getClass());
   }
 
   public void destroy() {
