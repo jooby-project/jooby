@@ -80,7 +80,7 @@ public class UtowBodyHandler implements Receiver.FullBytesCallback, Receiver.Par
         if (channel != null) {
           forceAndClose();
           channel = null;
-          context.body = Body.of(new FileInputStream(file), chunkSize);
+          context.body = Body.of(file);
         } else {
           context.body = Body.of(bytes((int) chunkSize));
         }

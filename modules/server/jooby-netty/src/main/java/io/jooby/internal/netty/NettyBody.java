@@ -11,7 +11,10 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +28,11 @@ public class NettyBody implements Body {
     this.length = contentLength;
   }
 
-  @Override public long contentLength() {
+  @Override public boolean isInMemory() {
+    return data.isInMemory();
+  }
+
+  @Override public long length() {
     return length;
   }
 
@@ -35,6 +42,21 @@ public class NettyBody implements Body {
         return new ByteArrayInputStream(data.get());
       }
       return new FileInputStream(data.getFile());
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  @Override public ReadableByteChannel channel() {
+    return Channels.newChannel(stream());
+  }
+
+  @Override public byte[] bytes() {
+    try {
+      if (data.isInMemory()) {
+        return data.get();
+      }
+      return Files.readAllBytes(data.getFile().toPath());
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }

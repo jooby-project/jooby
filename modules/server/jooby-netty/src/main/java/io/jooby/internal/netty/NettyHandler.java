@@ -95,6 +95,24 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     }
   }
 
+  @Override
+  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    try {
+      if (Server.connectionLost(cause)) {
+
+      } else {
+        if (context == null) {
+          // log
+        } else {
+          context.sendError(cause);
+          context = null;
+        }
+      }
+    } finally {
+      ctx.close();
+    }
+  }
+
   private void offer(HttpContent chunk) {
     try {
       decoder.offer(chunk);
@@ -135,24 +153,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       }
     }
     return uri;
-  }
-
-  @Override
-  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    try {
-      if (Server.connectionLost(cause)) {
-
-      } else {
-        if (context == null) {
-          // log
-        } else {
-          context.sendError(cause);
-          context = null;
-        }
-      }
-    } finally {
-      ctx.close();
-    }
   }
 }
 

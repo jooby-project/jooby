@@ -62,7 +62,7 @@ public class HelloApp extends Jooby {
 
     get("/", ctx -> ctx.sendText(MESSAGE));
 
-    get("/{foo}", ctx -> ctx.sendText("Hello World!"));
+//    get("/{foo}", ctx -> ctx.sendText("Hello World!"));
 
     String text = "Ut viverra erat finibus, interdum felis ac, bibendum nisi. Mauris sit amet augue ac mauris suscipit sagittis. Aenean dui orci, consequat et dictum in, fermentum non lectus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Etiam pulvinar metus nisl, sed consectetur sem iaculis dignissim. Quisque luctus tortor risus, quis sodales turpis rutrum ac. Quisque hendrerit, magna in auctor sollicitudin, lectus lacus aliquam nisi, id dapibus sem mauris vel sem. Donec eu elit congue, tincidunt urna fringilla, euismod metus. Nullam venenatis blandit gravida. Aenean a augue sed orci pretium maximus ac viverra elit. Praesent id pellentesque orci. Nam finibus condimentum mi at iaculis.\n"
         + "Vivamus eget nunc commodo, lacinia magna eget, suscipit arcu. Proin id ullamcorper felis. Suspendisse a hendrerit velit. Sed ullamcorper pulvinar ipsum, eu ultrices nisl fermentum at. Fusce at erat quis ante rutrum porta euismod auctor lorem. Maecenas scelerisque massa id augue luctus lacinia. Praesent tempor scelerisque feugiat. Pellentesque vestibulum fermentum convallis. Donec molestie pretium feugiat. Quisque at tincidunt dolor. Maecenas rhoncus turpis a dui lobortis, sed suscipit felis blandit. Praesent molestie justo lorem, eget semper nulla feugiat tristique.\n"

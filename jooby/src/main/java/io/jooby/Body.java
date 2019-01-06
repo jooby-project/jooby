@@ -15,13 +15,14 @@
  */
 package io.jooby;
 
-import io.jooby.internal.BodyImpl;
+import io.jooby.internal.FileBody;
+import io.jooby.internal.InputStreamBody;
 import io.jooby.internal.ByteArrayBody;
 
 import javax.annotation.Nonnull;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.File;
 import java.io.InputStream;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
 public interface Body extends Value {
@@ -30,34 +31,34 @@ public interface Body extends Value {
     return new String(bytes(), charset);
   }
 
-  default byte[] bytes() {
-    try (InputStream stream = stream()) {
-      int bufferSize = Server._16KB;
-      ByteArrayOutputStream out = new ByteArrayOutputStream(bufferSize);
-      int len;
-      byte[] buffer = new byte[bufferSize];
-      while ((len = stream.read(buffer, 0, buffer.length)) != -1) {
-        out.write(buffer, 0, len);
-      }
-      return out.toByteArray();
-    } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
-    }
-  }
+  byte[] bytes();
 
-  long contentLength();
+  boolean isInMemory();
+
+  long length();
+
+  ReadableByteChannel channel();
 
   InputStream stream();
+
+  /* **********************************************************************************************
+   * Factory methods:
+   * **********************************************************************************************
+   */
 
   static Body empty() {
     return ByteArrayBody.EMPTY;
   }
 
   static Body of(@Nonnull InputStream stream, long contentLength) {
-    return new BodyImpl(stream, contentLength);
+    return new InputStreamBody(stream, contentLength);
   }
 
   static Body of(@Nonnull byte[] bytes) {
     return new ByteArrayBody(bytes);
+  }
+
+  static Body of(@Nonnull File file) {
+    return new FileBody(file);
   }
 }

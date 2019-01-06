@@ -16,26 +16,54 @@
 package io.jooby.internal;
 
 import io.jooby.Body;
+import io.jooby.Server;
+import io.jooby.Throwing;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
-import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class BodyImpl implements Body {
+public class InputStreamBody implements Body {
   private long length;
   private InputStream in;
 
-  public BodyImpl(InputStream stream, long contentLength) {
+  public InputStreamBody(InputStream stream, long contentLength) {
     this.in = stream;
     this.length = contentLength;
   }
 
-  @Override public long contentLength() {
+  public byte[] bytes() {
+    try (InputStream stream = in) {
+      int bufferSize = Server._16KB;
+      ByteArrayOutputStream out = new ByteArrayOutputStream(bufferSize);
+      int len;
+      byte[] buffer = new byte[bufferSize];
+      while ((len = stream.read(buffer, 0, buffer.length)) != -1) {
+        out.write(buffer, 0, len);
+      }
+      return out.toByteArray();
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  @Override public boolean isInMemory() {
+    return false;
+  }
+
+  @Override public ReadableByteChannel channel() {
+    return Channels.newChannel(in);
+  }
+
+  @Override public long length() {
     return length;
   }
 

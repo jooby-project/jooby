@@ -16,45 +16,59 @@
 package io.jooby.internal;
 
 import io.jooby.Body;
+import io.jooby.Throwing;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
-import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class ByteArrayBody implements Body {
-  public static final Body EMPTY = new ByteArrayBody(new byte[0]);
+public class FileBody implements Body {
+  private File file;
 
-  private byte[] bytes;
-
-  public ByteArrayBody(byte[] bytes) {
-    this.bytes = bytes;
+  public FileBody(File file) {
+    this.file = file;
   }
 
   @Override public long length() {
-    return bytes.length;
-  }
-
-  @Override public byte[] bytes() {
-    return bytes;
-  }
-
-  @Override public ReadableByteChannel channel() {
-    return Channels.newChannel(stream());
+    return file.length();
   }
 
   @Override public boolean isInMemory() {
-    return true;
+    return false;
+  }
+
+  @Override public ReadableByteChannel channel() {
+    try {
+      return Files.newByteChannel(file.toPath());
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
   }
 
   @Override public InputStream stream() {
-    return new ByteArrayInputStream(bytes);
+    try {
+      return new FileInputStream(file);
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  @Override public byte[] bytes() {
+    try {
+      return Files.readAllBytes(file.toPath());
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
   }
 
   @Nonnull @Override public String value() {
