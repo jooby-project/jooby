@@ -54,7 +54,8 @@ public class UtowHandler implements HttpHandler {
         return;
       }
       String chunked = exchange.getRequestHeaders().getFirst(Headers.TRANSFER_ENCODING);
-      if (len > 0 || "chunked".equalsIgnoreCase(chunked)) {
+      if (len > 0 || (chunked != null && "chunked".equalsIgnoreCase(chunked))) {
+        /** Eager body parsing: */
         FormDataParser parser = null;
         String contentType = headers.getFirst(Headers.CONTENT_TYPE);
         if (contentType != null) {
