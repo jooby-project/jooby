@@ -16,7 +16,6 @@
 package io.jooby.internal.utow;
 
 import io.jooby.FileUpload;
-import io.jooby.Value;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.Headers;
 import io.jooby.Throwing;
@@ -25,13 +24,27 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class UtowFileUpload extends Value.Simple implements FileUpload {
+public class UtowFileUpload implements FileUpload {
+
+  private final String name;
 
   private final FormData.FormValue upload;
 
   public UtowFileUpload(String name, FormData.FormValue upload) {
-    super(name, upload.getFileName());
+    this.name = name;
     this.upload = upload;
+  }
+
+  @Override public byte[] bytes() {
+    try {
+      return Files.readAllBytes(upload.getPath());
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  @Override public String filename() {
+    return upload.getFileName();
   }
 
   @Override public String contentType() {
@@ -52,5 +65,13 @@ public class UtowFileUpload extends Value.Simple implements FileUpload {
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
+  }
+
+  @Override public String name() {
+    return name;
+  }
+
+  @Override public String toString() {
+    return filename();
   }
 }

@@ -92,8 +92,8 @@ public class WebClient {
     post(path).execute(callback);
   }
 
-  public Request post(String path, RequestBody form) {
-    return invoke("POST", path, form);
+  public Request post(String path, RequestBody body) {
+    return invoke("POST", path, body);
   }
 
   public void post(String path, RequestBody form, Throwing.Consumer<Response> callback) {

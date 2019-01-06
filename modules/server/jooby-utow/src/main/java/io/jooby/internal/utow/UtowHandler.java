@@ -15,20 +15,89 @@
  */
 package io.jooby.internal.utow;
 
+import io.jooby.Context;
+import io.jooby.Err;
+import io.jooby.MediaType;
 import io.jooby.Router;
+import io.jooby.StatusCode;
+import io.undertow.io.Receiver;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.server.handlers.form.FormDataParser;
+import io.undertow.server.handlers.form.FormEncodedDataDefinition;
+import io.undertow.server.handlers.form.MultiPartParserDefinition;
+import io.undertow.util.AttachmentKey;
+import io.undertow.util.HeaderMap;
+import io.undertow.util.HeaderValues;
+import io.undertow.util.Headers;
+
+import java.nio.charset.StandardCharsets;
 
 public class UtowHandler implements HttpHandler {
-
   protected final Router router;
+  private final long maxRequestSize;
+  private final int bufferSize;
 
-  public UtowHandler(Router router) {
+  public UtowHandler(Router router, int bufferSize, long maxRequestSize) {
     this.router = router;
+    this.maxRequestSize = maxRequestSize;
+    this.bufferSize = bufferSize;
   }
 
-  @Override public void handleRequest(HttpServerExchange exchange) {
+  @Override public void handleRequest(HttpServerExchange exchange) throws Exception {
     UtowContext context = new UtowContext(exchange, router);
-    router.match(context).execute(context);
+    HeaderMap headers = exchange.getRequestHeaders();
+    long len = parseLen(headers.getFirst(Headers.CONTENT_LENGTH));
+    if (len > maxRequestSize) {
+      context.sendError(new Err(StatusCode.REQUEST_ENTITY_TOO_LARGE));
+      return;
+    }
+    String chunked = exchange.getRequestHeaders().getFirst(Headers.TRANSFER_ENCODING);
+    if (len > 0 || "chunked".equalsIgnoreCase(chunked)) {
+      FormDataParser parser = null;
+      String contentType = headers.getFirst(Headers.CONTENT_TYPE);
+      if (contentType != null) {
+        String lowerContentType = contentType.toLowerCase();
+        if (lowerContentType.startsWith(MediaType.MULTIPART_FORMDATA)) {
+          parser = new MultiPartParserDefinition(router.tmpdir())
+              .setDefaultEncoding(StandardCharsets.UTF_8.name())
+              .create(exchange);
+        } else if (lowerContentType.equals(MediaType.FORM_URLENCODED)) {
+          parser = new FormEncodedDataDefinition()
+              .setDefaultEncoding(StandardCharsets.UTF_8.name())
+              .create(exchange);
+        }
+      }
+      if (parser == null) {
+        // Read raw body
+        Receiver receiver = exchange.getRequestReceiver();
+        UtowBodyHandler reader = new UtowBodyHandler(router, context, bufferSize, maxRequestSize);
+        if (len > 0 && len <= bufferSize) {
+          receiver.receiveFullBytes(reader);
+        } else {
+          receiver.receivePartialBytes(reader);
+        }
+      } else {
+        try {
+          parser.parse(execute(router, context));
+        } catch (Exception x) {
+          context.sendError(x, StatusCode.BAD_REQUEST);
+        }
+      }
+    } else {
+      router.match(context).execute(context);
+    }
+  }
+
+  private static long parseLen(String value) {
+    try {
+      return value == null ? -1 : Long.parseLong(value);
+    } catch (NumberFormatException x) {
+      return -1;
+    }
+  }
+
+  private static HttpHandler execute(Router router, Context ctx) {
+    return exchange -> router.match(ctx).execute(ctx);
   }
 }

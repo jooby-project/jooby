@@ -30,6 +30,7 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.Part;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.ByteBuffer;
@@ -42,7 +43,9 @@ import java.util.concurrent.Executor;
 import static io.jooby.Throwing.throwingConsumer;
 import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 
-public class JettyContext extends BaseContext implements Callback {
+public class JettyContext implements Callback, Context {
+  private final int bufferSize;
+  private final long maxRequestSize;
   private Request request;
   private Response response;
   private QueryString query;
@@ -50,14 +53,33 @@ public class JettyContext extends BaseContext implements Callback {
   private Multipart multipart;
   private List<FileUpload> files;
   private Value.Object headers;
-  private Map<String, String> pathMap = Collections.emptyMap();
+  private Map<String, String> pathMap = Collections.EMPTY_MAP;
+  private Map<String, Object> locals = Collections.EMPTY_MAP;
   private Router router;
   private Route route;
 
-  public JettyContext(Request request, Router router) {
+  public JettyContext(Request request, Router router, int bufferSize, long maxRequestSize) {
     this.request = request;
     this.response = request.getResponse();
     this.router = router;
+    this.bufferSize = bufferSize;
+    this.maxRequestSize = maxRequestSize;
+  }
+
+  @Nonnull @Override public Map<String, Object> locals() {
+    return locals;
+  }
+
+  @Nullable @Override public <T> T get(String name) {
+    return (T) locals.get(name);
+  }
+
+  @Nonnull @Override public Context set(@Nonnull String name, @Nonnull Object value) {
+    if (locals == Collections.EMPTY_MAP) {
+      locals = new HashMap<>();
+    }
+    locals.put(name, value);
+    return this;
   }
 
   @Override public String name() {
@@ -66,7 +88,12 @@ public class JettyContext extends BaseContext implements Callback {
 
   @Nonnull @Override public Body body() {
     try {
-      return Body.of(request.getInputStream(), request.getContentLengthLong());
+      InputStream in = request.getInputStream();
+      long len = request.getContentLengthLong();
+      if (maxRequestSize > 0) {
+        in = new LimitedInputStream(in, maxRequestSize);
+      }
+      return Body.of(in, len);
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
@@ -128,7 +155,7 @@ public class JettyContext extends BaseContext implements Callback {
       form = multipart;
 
       request.setAttribute(__MULTIPART_CONFIG_ELEMENT,
-          new MultipartConfigElement(router.tmpdir().toString(), -1L, -1L, Server._16KB));
+          new MultipartConfigElement(router.tmpdir().toString(), -1L, maxRequestSize, bufferSize));
 
       formParam(request, multipart);
 
@@ -193,10 +220,6 @@ public class JettyContext extends BaseContext implements Callback {
     return this;
   }
 
-  @Nonnull @Override public Map<String, Object> locals() {
-    return locals;
-  }
-
   @Nonnull @Override public Context statusCode(int statusCode) {
     response.setStatus(statusCode);
     return this;
@@ -219,7 +242,8 @@ public class JettyContext extends BaseContext implements Callback {
     return this;
   }
 
-  @Nonnull @Override public Context responseChannel(Throwing.Consumer<WritableByteChannel> consumer) {
+  @Nonnull @Override
+  public Context responseChannel(Throwing.Consumer<WritableByteChannel> consumer) {
     HttpOutput output = response.getHttpOutput();
     try {
       consumer.accept(Channels.newChannel(output));

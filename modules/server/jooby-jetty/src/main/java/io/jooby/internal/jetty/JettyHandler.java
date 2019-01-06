@@ -24,14 +24,18 @@ import javax.servlet.http.HttpServletResponse;
 
 public class JettyHandler extends AbstractHandler {
   private final Router router;
+  private int bufferSize;
+  private long maxRequestSize;
 
-  public JettyHandler(Router router) {
+  public JettyHandler(Router router, int bufferSize, long maxRequestSize) {
     this.router = router;
+    this.bufferSize = bufferSize;
+    this.maxRequestSize = maxRequestSize;
   }
 
   @Override public void handle(String target, Request request, HttpServletRequest servletRequest,
       HttpServletResponse response) {
-    JettyContext context = new JettyContext(request, router);
+    JettyContext context = new JettyContext(request, router, bufferSize, maxRequestSize);
     router.match(context).execute(context);
   }
 }

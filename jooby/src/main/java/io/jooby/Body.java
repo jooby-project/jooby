@@ -16,6 +16,7 @@
 package io.jooby;
 
 import io.jooby.internal.BodyImpl;
+import io.jooby.internal.ByteArrayBody;
 
 import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
@@ -48,7 +49,15 @@ public interface Body extends Value {
 
   InputStream stream();
 
+  static Body empty() {
+    return ByteArrayBody.EMPTY;
+  }
+
   static Body of(@Nonnull InputStream stream, long contentLength) {
     return new BodyImpl(stream, contentLength);
+  }
+
+  static Body of(@Nonnull byte[] bytes) {
+    return new ByteArrayBody(bytes);
   }
 }

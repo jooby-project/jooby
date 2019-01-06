@@ -26,21 +26,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class BodyImpl implements Body {
-  private long length;
-  private InputStream in;
+public class ByteArrayBody implements Body {
+  public static final Body EMPTY = new ByteArrayBody(new byte[0]);
 
-  public BodyImpl(InputStream stream, long contentLength) {
-    this.in = stream;
-    this.length = contentLength;
+  private byte[] bytes;
+
+  public ByteArrayBody(byte[] bytes) {
+    this.bytes = bytes;
   }
 
   @Override public long contentLength() {
-    return length;
+    return bytes.length;
   }
 
   @Override public InputStream stream() {
-    return in;
+    return new ByteArrayInputStream(bytes);
   }
 
   @Nonnull @Override public String value() {

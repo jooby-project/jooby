@@ -16,19 +16,31 @@
 package io.jooby.internal.jetty;
 
 import io.jooby.FileUpload;
-import io.jooby.Value;
 import org.eclipse.jetty.http.MultiPartFormInputStream;
 import io.jooby.Throwing;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class JettyFileUpload extends Value.Simple implements FileUpload {
+public class JettyFileUpload implements FileUpload {
   private final MultiPartFormInputStream.MultiPart upload;
+  private final String name;
 
   public JettyFileUpload(String name, MultiPartFormInputStream.MultiPart upload) {
-    super(name, upload.getSubmittedFileName());
+    this.name = name;
     this.upload = upload;
+  }
+
+  @Override public String name() {
+    return name;
+  }
+
+  @Override public String filename() {
+    return upload.getSubmittedFileName();
+  }
+
+  @Override public byte[] bytes() {
+    return upload.getBytes();
   }
 
   @Override public String contentType() {
@@ -57,5 +69,9 @@ public class JettyFileUpload extends Value.Simple implements FileUpload {
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
+  }
+
+  @Override public String toString() {
+    return filename();
   }
 }

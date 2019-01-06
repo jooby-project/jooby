@@ -15,36 +15,109 @@
  */
 package io.jooby.internal.netty;
 
-import io.jooby.Context;
+import io.jooby.Err;
+import io.jooby.MediaType;
 import io.jooby.Router;
 import io.jooby.Server;
-import io.netty.channel.ChannelHandler;
+import io.jooby.StatusCode;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.util.Attribute;
-import io.netty.util.AttributeKey;
+import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.multipart.HttpDataFactory;
+import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
+import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 
-@ChannelHandler.Sharable
+import java.nio.charset.StandardCharsets;
+
 public class NettyHandler extends ChannelInboundHandlerAdapter {
-  private static final AttributeKey<Context> CONTEXT = AttributeKey
-      .newInstance(Context.class.getName());
   private final Router router;
+  private final long maxRequestSize;
+  private final HttpDataFactory factory;
+  private InterfaceHttpPostRequestDecoder decoder;
+  private NettyContext context;
+  private long contentLength;
+  private long chunkSize;
 
-  public NettyHandler(Router router) {
+  public NettyHandler(Router router, long maxRequestSize, HttpDataFactory factory) {
     this.router = router;
+    this.maxRequestSize = maxRequestSize;
+    this.factory = factory;
   }
 
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     if (msg instanceof HttpRequest) {
       HttpRequest req = (HttpRequest) msg;
-      NettyContext context = new NettyContext(ctx, req, router, pathOnly(req.uri()));
-      ctx.channel().attr(CONTEXT).set(context);
-      router.match(context).execute(context);
+      context = new NettyContext(ctx, req, router, pathOnly(req.uri()));
+      contentLength = HttpUtil.getContentLength(req, -1L);
+      boolean chunked = HttpUtil.isTransferEncodingChunked(req);
+      if (contentLength > 0 || chunked) {
+        decoder = newDecoder(req, factory);
+      } else {
+        router.match(context).execute(context);
+      }
+    } else if (decoder != null && msg instanceof HttpContent) {
+      HttpContent chunk = (HttpContent) msg;
+      chunkSize += chunk.content().readableBytes();
+      if (chunkSize > maxRequestSize) {
+        resetDecoderState(true);
+        chunk.release();
+        context.sendError(new Err(StatusCode.REQUEST_ENTITY_TOO_LARGE));
+        return;
+      }
+
+      offer(chunk);
+
+      if (contentLength == chunkSize && !(chunk instanceof LastHttpContent)) {
+        chunk = LastHttpContent.EMPTY_LAST_CONTENT;
+        offer(chunk);
+      }
+
+      if (chunk instanceof LastHttpContent) {
+        context.decoder = decoder;
+        resetDecoderState(false);
+        router.match(context).execute(context);
+      }
     } else {
       ctx.fireChannelRead(msg);
     }
+  }
+
+  private void offer(HttpContent chunk) {
+    try {
+      decoder.offer(chunk);
+    } catch (HttpPostRequestDecoder.ErrorDataDecoderException x) {
+      resetDecoderState(true);
+      context.sendError(x, StatusCode.BAD_REQUEST);
+    }
+  }
+
+  private void resetDecoderState(boolean destroy) {
+    chunkSize = 0;
+    contentLength = -1;
+    if (destroy && decoder != null) {
+      decoder.destroy();
+    }
+    decoder = null;
+  }
+
+  private InterfaceHttpPostRequestDecoder newDecoder(HttpRequest request, HttpDataFactory factory) {
+    String contentType = request.headers().get(HttpHeaderNames.CONTENT_TYPE);
+    if (contentType != null) {
+      String lowerContentType = contentType.toLowerCase();
+      if (lowerContentType.startsWith(MediaType.MULTIPART_FORMDATA)) {
+        return new HttpPostMultipartRequestDecoder(factory, request, StandardCharsets.UTF_8);
+      } else if (lowerContentType.equals(MediaType.FORM_URLENCODED)) {
+        return new HttpPostStandardRequestDecoder(factory, request, StandardCharsets.UTF_8);
+      }
+    }
+    return new HttpRawPostRequestDecoder(factory.createAttribute(request, "body"));
   }
 
   static String pathOnly(String uri) {
@@ -64,11 +137,11 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       if (Server.connectionLost(cause)) {
 
       } else {
-        Context context = ctx.channel().attr(CONTEXT).getAndSet(null);
         if (context == null) {
           // log
         } else {
           context.sendError(cause);
+          context = null;
         }
       }
     } finally {

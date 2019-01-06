@@ -47,6 +47,8 @@ public class Jetty extends io.jooby.Server.Base {
 
   private long maxRequestSize = _10MB;
 
+  private int bufferSize = _16KB;
+
   @Override public io.jooby.Server port(int port) {
     this.port = port;
     return this;
@@ -58,6 +60,11 @@ public class Jetty extends io.jooby.Server.Base {
 
   @Nonnull @Override public io.jooby.Server maxRequestSize(long maxRequestSize) {
     this.maxRequestSize = maxRequestSize;
+    return this;
+  }
+
+  @Nonnull @Override public io.jooby.Server bufferSize(int bufferSize) {
+    this.bufferSize = bufferSize;
     return this;
   }
 
@@ -80,7 +87,7 @@ public class Jetty extends io.jooby.Server.Base {
     addShutdownHook();
 
     QueuedThreadPool executor = new QueuedThreadPool(64);
-    executor.setName("jetty");
+    executor.setName("worker");
 
     fireStart(applications, () -> executor);
 
@@ -88,8 +95,8 @@ public class Jetty extends io.jooby.Server.Base {
     server.setStopAtShutdown(false);
 
     HttpConfiguration httpConf = new HttpConfiguration();
-    httpConf.setOutputBufferSize(_16KB);
-    httpConf.setOutputAggregationSize(_16KB);
+    httpConf.setOutputBufferSize(bufferSize);
+    httpConf.setOutputAggregationSize(bufferSize);
     httpConf.setSendXPoweredBy(false);
     httpConf.setSendDateHeader(false);
     httpConf.setSendServerVersion(false);
@@ -105,8 +112,8 @@ public class Jetty extends io.jooby.Server.Base {
     server.addConnector(connector);
 
     AbstractHandler handler = applications.size() == 1 ?
-        new JettyHandler(applications.get(0)) :
-        new JettyMultiHandler(applications);
+        new JettyHandler(applications.get(0), bufferSize, maxRequestSize) :
+        new JettyMultiHandler(applications, bufferSize, maxRequestSize);
 
     if (gzip) {
       GzipHandler gzipHandler = new GzipHandler();

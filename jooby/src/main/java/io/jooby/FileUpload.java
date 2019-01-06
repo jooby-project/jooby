@@ -15,14 +15,43 @@
  */
 package io.jooby;
 
+import javax.annotation.Nonnull;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 public interface FileUpload extends Value {
-  default String filename() {
-    return value();
-  }
+  String filename();
 
   String contentType();
+
+  @Override default Value get(@Nonnull int index) {
+    return index == 0 ? this : get(Integer.toString(index));
+  }
+
+  @Override default Value get(@Nonnull String name) {
+    return new Missing(name);
+  }
+
+  @Override default int size() {
+    return 1;
+  }
+
+  @Override default @Nonnull String value() {
+    return value(StandardCharsets.UTF_8);
+  }
+
+  default @Nonnull String value(Charset charset) {
+    return new String(bytes(), charset);
+  }
+
+  @Override default Map<String, List<String>> toMultimap() {
+    return Map.of(name(), List.of(filename()));
+  }
+
+  byte[] bytes();
 
   Path path();
 

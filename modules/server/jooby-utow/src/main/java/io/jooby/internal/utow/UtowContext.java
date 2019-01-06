@@ -37,7 +37,7 @@ import java.util.concurrent.Executor;
 
 import static io.jooby.Throwing.throwingConsumer;
 
-public class UtowContext extends BaseContext implements IoCallback {
+public class UtowContext implements Context, IoCallback {
 
   private Route route;
   private HttpServerExchange exchange;
@@ -47,7 +47,9 @@ public class UtowContext extends BaseContext implements IoCallback {
   private Multipart multipart;
   private List<Closeable> resources;
   private Value.Object headers;
-  private Map<String, String> pathMap = Collections.emptyMap();
+  private Map<String, String> pathMap = Collections.EMPTY_MAP;
+  private Map<String, Object> locals = Collections.EMPTY_MAP;
+  Body body;
 
   public UtowContext(HttpServerExchange exchange, Router router) {
     this.exchange = exchange;
@@ -63,11 +65,23 @@ public class UtowContext extends BaseContext implements IoCallback {
   }
 
   @Nonnull @Override public Body body() {
-    requireBlocking();
-    if (!exchange.isBlocking()) {
-      exchange.startBlocking();
+    return body == null ? Body.empty() : body;
+  }
+
+  @Nonnull @Override public Map<String, Object> locals() {
+    return locals;
+  }
+
+  @Nullable @Override public <T> T get(String name) {
+    return (T) locals.get(name);
+  }
+
+  @Nonnull @Override public Context set(@Nonnull String name, @Nonnull Object value) {
+    if (locals == Collections.EMPTY_MAP) {
+      locals = new HashMap<>();
     }
-    return Body.of(exchange.getInputStream(), exchange.getRequestContentLength());
+    locals.put(name, value);
+    return this;
   }
 
   @Nonnull @Override public String method() {
@@ -143,13 +157,9 @@ public class UtowContext extends BaseContext implements IoCallback {
   }
 
   @Nonnull @Override public Multipart multipart() {
-    requireBlocking();
     if (multipart == null) {
       multipart = new Multipart();
       form = multipart;
-      if (!exchange.isBlocking()) {
-        exchange.startBlocking();
-      }
       try {
         FormDataParser parser = new MultiPartParserDefinition()
             .setDefaultEncoding(StandardCharsets.UTF_8.name())
@@ -208,7 +218,6 @@ public class UtowContext extends BaseContext implements IoCallback {
 
   @Nonnull @Override public Context outputStream(Throwing.Consumer<OutputStream> consumer)
       throws Exception {
-    requireBlocking();
     if (!exchange.isBlocking()) {
       exchange.startBlocking();
     }

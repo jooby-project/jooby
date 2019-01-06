@@ -14,6 +14,8 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import okio.Buffer;
+import okio.ByteString;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -518,8 +520,13 @@ public class FeaturedTest {
   }
 
   @Test
-  public void multipartFromWorker() {
+  public void multipart() {
     new JoobyRunner(app -> {
+      app.post("/large", ctx -> {
+        FileUpload f = ctx.file("f");
+        return f.value();
+      });
+
       app.post("/f", ctx -> {
         FileUpload f = ctx.file("f");
         return f.filename() + "(type=" + f.contentType() + ";exists=" + Files
@@ -545,9 +552,17 @@ public class FeaturedTest {
       });
 
       app.post("/multipart", ctx -> {
-        return ctx.multipart().toMultimap();
+        Map<String, List<String>> multimap = ctx.multipart().toMultimap();
+        return multimap;
       });
     }).ready(client -> {
+      client.post("/large", new MultipartBody.Builder()
+          .setType(MultipartBody.FORM)
+          .addFormDataPart("f", "19kb.txt", create(MediaType.parse("text/plain"), _19kb))
+          .build(), rsp -> {
+        assertEquals(_19kb, rsp.body().string());
+      });
+
       client.post("/f", new MultipartBody.Builder()
           .setType(MultipartBody.FORM)
           .addFormDataPart("user.name", "user")
@@ -601,37 +616,7 @@ public class FeaturedTest {
           .build(), rsp -> {
         assertEquals("foo_report=[f1.txt, f2.txt]", rsp.body().string());
       });
-    });
-  }
-
-  @Test
-  public void multipartFromIO() {
-    new JoobyRunner(app -> {
-      app.post("/f", ctx -> ctx.multipart());
-
-      app.group(app.worker(), () ->
-          app.post("/w", ctx -> ctx.multipart()));
-
-      app.error(IllegalStateException.class, (ctx, x, statusCode) -> {
-        ctx.sendText(x.getMessage());
-      });
-    }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
-      client.post("/f", new MultipartBody.Builder()
-          .setType(MultipartBody.FORM)
-          .addFormDataPart("foo", "bar")
-          .build(), rsp -> {
-        assertEquals(
-            "Attempted to do blocking EVENT_LOOP from the EVENT_LOOP thread. This is prohibited as it may result in deadlocks",
-            rsp.body().string());
-      });
-
-      client.post("/w", new MultipartBody.Builder()
-          .setType(MultipartBody.FORM)
-          .addFormDataPart("foo", "bar")
-          .build(), rsp -> {
-        assertEquals("{foo=bar}", rsp.body().string());
-      });
-    }, Netty::new, Utow::new);
+    }, Utow::new);
   }
 
   @Test
@@ -739,7 +724,7 @@ public class FeaturedTest {
   }
 
   @Test
-  public void errorhandler() {
+  public void errorHandler() {
     new JoobyRunner(app -> {
       app.install(new Jackson());
 
@@ -1035,18 +1020,39 @@ public class FeaturedTest {
     });
   }
 
-  // TODO: get back and fix this
+  @Test
   public void maxRequestSize() {
     new JoobyRunner(app -> {
-      app.post("/request-size", ctx -> {
-        return "OK";
-      });
+      app.post("/request-size", ctx -> ctx.body().value());
+
+      app.get("/request-size", ctx -> ctx.body().value());
     }).configureServer(server -> {
+      server.bufferSize(Server._16KB / 2);
       server.maxRequestSize(Server._16KB);
     }).ready(client -> {
+      // Exceeds
       client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), _19kb), rsp -> {
-        System.out.println(rsp.body().string());
         assertEquals(413, rsp.code());
+      });
+      // Chunk by chunk
+      client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), _16kb), rsp -> {
+        assertEquals(200, rsp.code());
+        assertEquals(_16kb, rsp.body().string());
+      });
+      // Single read
+      client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), _8kb), rsp -> {
+        assertEquals(200, rsp.code());
+        assertEquals(_8kb, rsp.body().string());
+      });
+      // Empty
+      client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), ""), rsp -> {
+        assertEquals(200, rsp.code());
+        assertEquals("", rsp.body().string());
+      });
+      // No body
+      client.get("/request-size", rsp -> {
+        assertEquals(200, rsp.code());
+        assertEquals("", rsp.body().string());
       });
     });
   }

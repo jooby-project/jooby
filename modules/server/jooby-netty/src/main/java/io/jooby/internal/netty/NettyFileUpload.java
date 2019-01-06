@@ -16,7 +16,6 @@
 package io.jooby.internal.netty;
 
 import io.jooby.FileUpload;
-import io.jooby.Value;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.jooby.Throwing;
 
@@ -24,16 +23,33 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class NettyFileUpload extends Value.Simple implements FileUpload {
+public class NettyFileUpload implements FileUpload {
 
   private final io.netty.handler.codec.http.multipart.FileUpload upload;
   private final Path basedir;
+  private final String name;
   private Path path;
 
-  public NettyFileUpload(Path basedir, String name, io.netty.handler.codec.http.multipart.FileUpload upload) {
-    super(name, upload.getFilename());
+  public NettyFileUpload(Path basedir, String name,
+      io.netty.handler.codec.http.multipart.FileUpload upload) {
+    this.name = name;
     this.basedir = basedir;
     this.upload = upload;
+  }
+
+  @Override public String name() {
+    return name;
+  }
+
+  @Override public byte[] bytes() {
+    try {
+      if (upload.isInMemory()) {
+        return upload.get();
+      }
+      return Files.readAllBytes(path());
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
   }
 
   @Override public String filename() {
@@ -79,5 +95,9 @@ public class NettyFileUpload extends Value.Simple implements FileUpload {
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
+  }
+
+  @Override public String toString() {
+    return filename();
   }
 }

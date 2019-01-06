@@ -18,7 +18,6 @@ package io.jooby.internal.netty;
 import io.jooby.*;
 import io.jooby.FileUpload;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
@@ -26,11 +25,10 @@ import io.netty.util.ReferenceCounted;
 import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
-import java.io.OutputStream;
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executor;
 
@@ -46,8 +44,9 @@ import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class NettyContext extends BaseContext {
+public class NettyContext implements Context {
   final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
+  InterfaceHttpPostRequestDecoder decoder;
   private Router router;
   private Route route;
   private ChannelHandlerContext ctx;
@@ -61,7 +60,8 @@ public class NettyContext extends BaseContext {
   private Multipart multipart;
   private List<FileUpload> files;
   private Value.Object headers;
-  private Map<String, String> pathMap = Collections.emptyMap();
+  private Map<String, String> pathMap = Collections.EMPTY_MAP;
+  private Map<String, Object> locals = Collections.EMPTY_MAP;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path) {
     this.path = path;
@@ -83,6 +83,22 @@ public class NettyContext extends BaseContext {
    * Request methods:
    * **********************************************************************************************
    */
+
+  @Nonnull @Override public Map<String, Object> locals() {
+    return locals;
+  }
+
+  @Nullable @Override public <T> T get(String name) {
+    return (T) locals.get(name);
+  }
+
+  @Nonnull @Override public Context set(@Nonnull String name, @Nonnull Object value) {
+    if (locals == Collections.EMPTY_MAP) {
+      locals = new HashMap<>();
+    }
+    locals.put(name, value);
+    return this;
+  }
 
   @Nonnull @Override public String method() {
     return req.method().asciiName().toUpperCase().toString();
@@ -138,20 +154,16 @@ public class NettyContext extends BaseContext {
   @Nonnull @Override public Formdata form() {
     if (form == null) {
       form = new Formdata();
-      decodeForm(req, new HttpPostStandardRequestDecoder(req), form);
+      decodeForm(req, form);
     }
     return form;
   }
 
   @Nonnull @Override public Multipart multipart() {
-    requireBlocking();
     if (multipart == null) {
       multipart = new Multipart();
       form = multipart;
-      HttpDataFactory factory = new DefaultHttpDataFactory(Server._16KB);
-      decodeForm(req,
-          new HttpPostMultipartRequestDecoder(factory, req, StandardCharsets.UTF_8),
-          multipart);
+      decodeForm(req, multipart);
     }
     return multipart;
   }
@@ -173,9 +185,10 @@ public class NettyContext extends BaseContext {
   }
 
   @Nonnull @Override public Body body() {
-    requireBlocking();
-    return Body.of(new ByteBufInputStream(((HttpContent) req).content()),
-        req.headers().getInt(HttpHeaderNames.CONTENT_LENGTH, -1));
+    if (decoder != null && decoder.hasNext()) {
+      return new NettyBody((HttpData) decoder.next(), HttpUtil.getContentLength(req, -1L));
+    }
+    return Body.empty();
   }
 
   /* **********************************************************************************************
@@ -207,7 +220,8 @@ public class NettyContext extends BaseContext {
     return this;
   }
 
-  @Nonnull @Override public Context responseChannel(Throwing.Consumer<WritableByteChannel> consumer) {
+  @Nonnull @Override
+  public Context responseChannel(Throwing.Consumer<WritableByteChannel> consumer) {
     if (!setHeaders.contains(CONTENT_LENGTH)) {
       setHeaders.set(TRANSFER_ENCODING, CHUNKED);
     }
@@ -287,8 +301,7 @@ public class NettyContext extends BaseContext {
     return upload;
   }
 
-  private void decodeForm(HttpRequest req, InterfaceHttpPostRequestDecoder decoder,
-      Value.Object form) {
+  private void decodeForm(HttpRequest req, Value.Object form) {
     try {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();

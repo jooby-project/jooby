@@ -41,6 +41,8 @@ public class Utow extends Server.Base {
 
   private long maxRequestSize = _10MB;
 
+  private int requestBufferSize = _16KB;
+
   @Override public Server port(int port) {
     this.port = port;
     return this;
@@ -60,6 +62,11 @@ public class Utow extends Server.Base {
     return this;
   }
 
+  @Nonnull @Override public Server bufferSize(int bufferSize) {
+    this.requestBufferSize = bufferSize;
+    return this;
+  }
+
   @Nonnull @Override public Server deploy(Jooby application) {
     applications.add(application);
     return this;
@@ -70,7 +77,7 @@ public class Utow extends Server.Base {
     addShutdownHook();
 
     HttpHandler handler = applications.size() == 1
-        ? new UtowHandler(applications.get(0))
+        ? new UtowHandler(applications.get(0), requestBufferSize, maxRequestSize)
         : new UtowMultiHandler(applications);
 
     if (gzip) {
@@ -79,7 +86,7 @@ public class Utow extends Server.Base {
 
     server = Undertow.builder()
         .addHttpListener(port, "0.0.0.0")
-        .setBufferSize(_16KB)
+        .setBufferSize(requestBufferSize)
         // HTTP/1.1 is keep-alive by default, turn this option off
         .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
         .setServerOption(Options.BACKLOG, 10000)
@@ -87,7 +94,6 @@ public class Utow extends Server.Base {
         .setServerOption(UndertowOptions.ALWAYS_SET_DATE, false)
         .setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, false)
         .setServerOption(UndertowOptions.DECODE_URL, false)
-        .setServerOption(UndertowOptions.MAX_ENTITY_SIZE, maxRequestSize)
         .setHandler(handler)
         .build();
 

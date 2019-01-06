@@ -20,16 +20,13 @@ import io.jooby.Server;
 import io.jooby.internal.netty.NettyMultiHandler;
 import io.jooby.internal.netty.NettyNative;
 import io.jooby.internal.netty.NettyHandler;
+import io.jooby.internal.netty.NettyPipeline;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInboundHandler;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.http.HttpContentCompressor;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
+import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
@@ -43,39 +40,9 @@ import javax.net.ssl.SSLException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class Netty extends Server.Base {
-
-  private static class Pipeline extends ChannelInitializer<SocketChannel> {
-
-    private final SslContext sslCtx;
-    private final ChannelInboundHandler handler;
-    private final boolean gzip;
-    private final long maxRequestSize;
-
-    public Pipeline(SslContext sslCtx, ChannelInboundHandler handler, boolean gzip,
-        long maxRequestSize) {
-      this.sslCtx = sslCtx;
-      this.handler = handler;
-      this.gzip = gzip;
-      this.maxRequestSize = maxRequestSize;
-    }
-
-    @Override
-    public void initChannel(SocketChannel ch) {
-      ChannelPipeline p = ch.pipeline();
-      if (sslCtx != null) {
-        p.addLast(sslCtx.newHandler(ch.alloc()));
-      }
-      // FIXME: check configuration parameters
-      p.addLast("codec", new HttpServerCodec());
-      p.addLast("aggregator", new HttpObjectAggregator((int) maxRequestSize));
-      if (gzip) {
-        p.addLast("gzip", new HttpContentCompressor());
-      }
-      p.addLast("handler", handler);
-    }
-  }
 
   private List<Jooby> applications = new ArrayList<>();
 
@@ -93,6 +60,8 @@ public class Netty extends Server.Base {
 
   private DefaultEventExecutorGroup worker;
 
+  private int bufferSize = _16KB;
+
   @Override public Server port(int port) {
     this.port = port;
     return this;
@@ -100,6 +69,11 @@ public class Netty extends Server.Base {
 
   @Nonnull @Override public Server maxRequestSize(long maxRequestSize) {
     this.maxRequestSize = maxRequestSize;
+    return this;
+  }
+
+  @Nonnull @Override public Server bufferSize(int bufferSize) {
+    this.bufferSize = bufferSize;
     return this;
   }
 
@@ -138,11 +112,12 @@ public class Netty extends Server.Base {
       }
 
       /** Handler: */
-      ChannelInboundHandler handler;
+      HttpDataFactory factory = new DefaultHttpDataFactory(bufferSize);
+      Supplier<ChannelInboundHandler> handler;
       if (applications.size() == 1) {
-        handler = new NettyHandler(applications.get(0));
+        handler = () -> new NettyHandler(applications.get(0), maxRequestSize, factory);
       } else {
-        handler = new NettyMultiHandler(applications);
+        handler = () -> new NettyMultiHandler(applications);
       }
 
       /** Bootstrap: */
@@ -153,7 +128,7 @@ public class Netty extends Server.Base {
       bootstrap.group(acceptor, ioLoop)
           .channel(provider.channel())
           .handler(new LoggingHandler(LogLevel.DEBUG))
-          .childHandler(new Pipeline(sslCtx, handler, gzip, maxRequestSize))
+          .childHandler(new NettyPipeline(sslCtx, handler, gzip, maxRequestSize))
           .childOption(ChannelOption.SO_REUSEADDR, true);
 
       bootstrap.bind(port).sync();

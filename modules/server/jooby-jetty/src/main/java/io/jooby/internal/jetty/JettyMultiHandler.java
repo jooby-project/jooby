@@ -26,15 +26,19 @@ import java.util.List;
 
 public class JettyMultiHandler extends AbstractHandler {
   private final List<Jooby> routers;
+  private int bufferSize;
+  private long maxRequestSize;
 
-  public JettyMultiHandler(List<Jooby> routers) {
+  public JettyMultiHandler(List<Jooby> routers, int bufferSize, long maxRequestSize) {
     this.routers = routers;
+    this.bufferSize = bufferSize;
+    this.maxRequestSize = maxRequestSize;
   }
 
   @Override public void handle(String target, Request request, HttpServletRequest servletRequest,
       HttpServletResponse response) {
     for (Router router : routers) {
-      JettyContext ctx = new JettyContext(request, router);
+      JettyContext ctx = new JettyContext(request, router, bufferSize, maxRequestSize);
       Router.Match match = router.match(ctx);
       if (match.matches()) {
         match.execute(ctx);

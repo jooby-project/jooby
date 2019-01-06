@@ -50,7 +50,7 @@ public class JoobyRunner {
     return this;
   }
 
-  public void ready(Consumer<WebClient> onReady, Supplier<Server>... servers) {
+  public void ready(Throwing.Consumer<WebClient> onReady, Supplier<Server>... servers) {
     if (modes.size() == 0) {
       modes.add(ExecutionMode.WORKER);
     }

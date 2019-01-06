@@ -76,6 +76,8 @@ public interface Server {
 
   @Nonnull Server maxRequestSize(long maxRequestSize);
 
+  @Nonnull Server bufferSize(int bufferSize);
+
   @Nonnull Server deploy(Jooby application);
 
   @Nonnull Server start();

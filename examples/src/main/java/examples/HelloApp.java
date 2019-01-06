@@ -15,6 +15,7 @@
  */
 package examples;
 
+import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
 import io.jooby.Decorators;
 import io.jooby.FileUpload;
@@ -49,6 +50,9 @@ public class HelloApp extends Jooby {
   }
 
   {
+    mode(ExecutionMode.EVENT_LOOP);
+
+
     decorate(next -> ctx -> {
       System.out.println(Thread.currentThread());
       return next.apply(ctx);
@@ -103,23 +107,14 @@ public class HelloApp extends Jooby {
       return user.pic.toString();
     });
 
+    post("/docx", ctx -> {
+      byte[] bytes = ctx.body().bytes();
+      return bytes.length;
+    });
+
     install(new Jackson());
     get("/json", ctx -> new Message("Hello World!"));
 
-    error((ctx, cause, statusCode) -> {
-      cause.printStackTrace();
-      ctx.statusCode(statusCode)
-          .sendText(statusCode.reason());
-    });
-
-    new Thread(() -> {
-      try {
-        Thread.sleep(5000);
-        System.exit(0);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }).start();
   }
 
   public static void main(String[] args) {
