@@ -21,6 +21,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -29,6 +30,7 @@ import io.jooby.Parser;
 import io.jooby.Renderer;
 
 import javax.annotation.Nonnull;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 
 public class Jackson implements Extension, Parser, Renderer {
@@ -74,6 +76,13 @@ public class Jackson implements Extension, Parser, Renderer {
 
   @Override public <T> T parse(Context ctx, Type type) throws Exception {
     JavaType javaType = mapper.getTypeFactory().constructType(type);
-    return mapper.readValue(ctx.body().bytes(), javaType);
+    Body body = ctx.body();
+    if (body.isInMemory()) {
+      return mapper.readValue(body.bytes(), javaType);
+    } else {
+      try (InputStream stream = body.stream()) {
+        return mapper.readValue(stream, javaType);
+      }
+    }
   }
 }
