@@ -38,10 +38,13 @@ import java.nio.charset.StandardCharsets;
 
 public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final Router router;
-  private final long maxRequestSize;
+  private NettyContext context;
+  private Router.Match result;
+
   private final HttpDataFactory factory;
   private InterfaceHttpPostRequestDecoder decoder;
-  private NettyContext context;
+
+  private final long maxRequestSize;
   private long contentLength;
   private long chunkSize;
 
@@ -56,10 +59,10 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     if (msg instanceof HttpRequest) {
       HttpRequest req = (HttpRequest) msg;
       context = new NettyContext(ctx, req, router, pathOnly(req.uri()));
-      Router.Match result = router.match(context);
+      result = router.match(context);
       /** Don't check/parse for body if there is no match: */
       if (result.matches()) {
-        contentLength = HttpUtil.getContentLength(req, -1L);
+        contentLength = contentLength(req);
         boolean chunked = HttpUtil.isTransferEncodingChunked(req);
         if (contentLength > 0 || chunked) {
           decoder = newDecoder(req, factory);
@@ -89,10 +92,22 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       if (chunk instanceof LastHttpContent) {
         context.decoder = decoder;
         resetDecoderState(false);
-        router.match(context).execute(context);
+        result.execute(context);
       }
     } else {
       ctx.fireChannelRead(msg);
+    }
+  }
+
+  private long contentLength(HttpRequest req) {
+    String value = req.headers().get(HttpHeaderNames.CONTENT_LENGTH);
+    if (value == null) {
+      return -1;
+    }
+    try {
+      return Long.parseLong(value);
+    } catch (NumberFormatException x) {
+      return -1;
     }
   }
 
@@ -101,10 +116,18 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     try {
       Logger log = router.log();
       if (Server.connectionLost(cause)) {
-        log.debug("execution resulted in connection lost", cause);
+        if (log.isDebugEnabled()) {
+          if (context == null) {
+            log.debug("execution resulted in connection lost", cause);
+          } else {
+            log.debug("%s %s", context.method(), context.pathString(), cause);
+          }
+        }
       } else {
         if (context == null) {
           log.error("execution resulted in exception", cause);
+        } else if (context.isResponseStarted()) {
+          log.error("%s %s", context.method(), context.pathString());
         } else {
           context.sendError(cause);
           context = null;

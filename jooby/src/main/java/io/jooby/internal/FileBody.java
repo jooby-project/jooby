@@ -28,19 +28,24 @@ import java.io.InputStream;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class FileBody implements Body {
-  private File file;
+  private Path file;
 
-  public FileBody(File file) {
+  public FileBody(Path file) {
     this.file = file;
   }
 
   @Override public long length() {
-    return file.length();
+    try {
+    return Files.size(file);
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
   }
 
   @Override public boolean isInMemory() {
@@ -49,7 +54,7 @@ public class FileBody implements Body {
 
   @Override public ReadableByteChannel channel() {
     try {
-      return Files.newByteChannel(file.toPath());
+      return Files.newByteChannel(file);
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
@@ -57,7 +62,7 @@ public class FileBody implements Body {
 
   @Override public InputStream stream() {
     try {
-      return new FileInputStream(file);
+      return Files.newInputStream(file);
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
@@ -65,7 +70,7 @@ public class FileBody implements Body {
 
   @Override public byte[] bytes() {
     try {
-      return Files.readAllBytes(file.toPath());
+      return Files.readAllBytes(file);
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }

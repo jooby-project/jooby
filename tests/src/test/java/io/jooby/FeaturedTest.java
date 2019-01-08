@@ -14,8 +14,6 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import okio.Buffer;
-import okio.ByteString;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -616,7 +614,7 @@ public class FeaturedTest {
           .build(), rsp -> {
         assertEquals("foo_report=[f1.txt, f2.txt]", rsp.body().string());
       });
-    }, Utow::new);
+    } );
   }
 
   @Test

@@ -18,6 +18,8 @@ package io.jooby.internal.netty;
 import io.jooby.*;
 import io.jooby.FileUpload;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
@@ -26,6 +28,7 @@ import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
@@ -35,7 +38,6 @@ import java.util.concurrent.Executor;
 import static io.jooby.Throwing.throwingConsumer;
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
-import static io.netty.channel.ChannelFutureListener.CLOSE;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
@@ -44,7 +46,8 @@ import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class NettyContext implements Context, Runnable {
+public class NettyContext implements Context, ChannelFutureListener {
+
   final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
@@ -53,7 +56,6 @@ public class NettyContext implements Context, Runnable {
   private HttpRequest req;
   private String path;
   private HttpResponseStatus status = HttpResponseStatus.OK;
-  private boolean keepAlive;
   private boolean responseStarted;
   private QueryString query;
   private Formdata form;
@@ -67,7 +69,6 @@ public class NettyContext implements Context, Runnable {
     this.path = path;
     this.ctx = ctx;
     this.req = req;
-    this.keepAlive = req.protocolVersion().isKeepAliveDefault() || isKeepAlive(req);
     this.router = router;
   }
 
@@ -254,8 +255,8 @@ public class NettyContext implements Context, Runnable {
 
   @Nonnull @Override public Context sendStatusCode(int statusCode) {
     responseStarted = true;
-    DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HTTP_1_1,
-        HttpResponseStatus.valueOf(statusCode));
+    DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1,
+        HttpResponseStatus.valueOf(statusCode), false);
     rsp.headers().set(CONTENT_LENGTH, 0);
     ctx.writeAndFlush(rsp).addListener(CLOSE);
     return this;
@@ -263,35 +264,49 @@ public class NettyContext implements Context, Runnable {
 
   private Context sendByteBuf(ByteBuf buff) {
     setHeaders.set(CONTENT_LENGTH, buff.readableBytes());
-    return sendComplete(new DefaultFullHttpResponse(HTTP_1_1, status, buff));
+    return sendComplete(new DefaultFullHttpResponse(HTTP_1_1, status, buff, false));
   }
 
   private Context sendComplete(HttpResponse rsp) {
     responseStarted = true;
     rsp.headers().set(setHeaders);
-    if (keepAlive) {
-      rsp.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-      ctx.writeAndFlush(rsp, ctx.voidPromise());
-    } else {
-      ctx.writeAndFlush(rsp).addListener(CLOSE);
-    }
-    ctx.executor().execute(this);
+    ctx.writeAndFlush(rsp).addListener(this);
     return this;
   }
 
-  @Override public void run() {
-    ctx.flush();
-    destroy();
+  @Override public void operationComplete(ChannelFuture future) {
+    boolean keepAlive = isKeepAlive(req);
+    try {
+      destroy();
+    } finally {
+      if (!keepAlive) {
+        future.channel().close();
+      }
+    }
   }
 
   private void destroy() {
     if (files != null) {
-      files.forEach(throwingConsumer(FileUpload::destroy));
+      for (FileUpload file : files) {
+        try {
+          file.destroy();
+        } catch (Exception x) {
+          router.log().debug("file upload destroy resulted in exception", x);
+        }
+      }
       files = null;
+    }
+    if (decoder != null) {
+      try {
+        decoder.destroy();
+      } catch (Exception x) {
+        router.log().debug("body decoder destroy resulted in exception", x);
+      }
+      decoder = null;
     }
     release(req);
     this.route = null;
-    //    this.ctx = null;
+    this.ctx = null;
     this.req = null;
     this.router = null;
   }
@@ -314,7 +329,6 @@ public class NettyContext implements Context, Runnable {
                   (io.netty.handler.codec.http.multipart.FileUpload) next)));
         } else {
           form.put(next.getName(), next.getString(UTF_8));
-          next.release();
         }
       }
     } catch (HttpPostRequestDecoder.EndOfDataDecoderException x) {

@@ -21,6 +21,7 @@ import io.undertow.util.Headers;
 import io.jooby.Throwing;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -38,6 +39,14 @@ public class UtowFileUpload implements FileUpload {
   @Override public byte[] bytes() {
     try {
       return Files.readAllBytes(upload.getPath());
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  @Override public InputStream stream() {
+    try {
+      return Files.newInputStream(upload.getPath());
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }

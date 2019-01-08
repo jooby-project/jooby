@@ -16,6 +16,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -50,6 +51,8 @@ public interface FileUpload extends Value {
   @Override default Map<String, List<String>> toMultimap() {
     return Map.of(name(), List.of(filename()));
   }
+
+  InputStream stream();
 
   byte[] bytes();
 

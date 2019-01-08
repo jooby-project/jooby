@@ -20,6 +20,8 @@ import org.eclipse.jetty.http.MultiPartFormInputStream;
 import io.jooby.Throwing;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class JettyFileUpload implements FileUpload {
@@ -40,7 +42,23 @@ public class JettyFileUpload implements FileUpload {
   }
 
   @Override public byte[] bytes() {
-    return upload.getBytes();
+    try {
+      byte[] bytes = upload.getBytes();
+      if (bytes == null) {
+        return Files.readAllBytes(upload.getFile().toPath());
+      }
+      return bytes;
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  @Override public InputStream stream() {
+    try {
+      return upload.getInputStream();
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
   }
 
   @Override public String contentType() {

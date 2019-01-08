@@ -16,10 +16,12 @@
 package io.jooby.internal.netty;
 
 import io.jooby.FileUpload;
+import io.netty.buffer.ByteBufInputStream;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.jooby.Throwing;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -52,6 +54,17 @@ public class NettyFileUpload implements FileUpload {
     }
   }
 
+  @Override public InputStream stream() {
+    try {
+      if (upload.isInMemory()) {
+        return new ByteBufInputStream(upload.content(), true);
+      }
+      return Files.newInputStream(path());
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
   @Override public String filename() {
     return upload.getFilename();
   }
@@ -69,8 +82,7 @@ public class NettyFileUpload implements FileUpload {
       if (path == null) {
         if (upload.isInMemory()) {
           path = basedir
-              .resolve(DiskFileUpload.prefix + System.currentTimeMillis()
-                  + DiskFileUpload.postfix);
+              .resolve(DiskFileUpload.prefix + System.nanoTime() + DiskFileUpload.postfix);
           upload.renameTo(path.toFile());
           upload.release();
         } else {

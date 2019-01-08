@@ -26,7 +26,7 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-netty</artifactId>
+      <artifactId>jooby-utow</artifactId>
       <version>${jooby.version}</version>
     </dependency>
     <dependency>

@@ -95,15 +95,12 @@ public interface Server {
   @Nonnull Server gzip(boolean enabled);
 
   static boolean connectionLost(Throwable cause) {
-    if (cause instanceof ClosedChannelException) {
-      return true;
-    }
     if (cause instanceof IOException) {
       String message = cause.getMessage();
       if (message != null) {
         return message.toLowerCase().contains("connection reset by peer");
       }
     }
-    return false;
+    return (cause instanceof ClosedChannelException);
   }
 }

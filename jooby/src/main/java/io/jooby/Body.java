@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 
 public interface Body extends Value {
 
@@ -58,7 +59,7 @@ public interface Body extends Value {
     return new ByteArrayBody(bytes);
   }
 
-  static Body of(@Nonnull File file) {
+  static Body of(@Nonnull Path file) {
     return new FileBody(file);
   }
 }

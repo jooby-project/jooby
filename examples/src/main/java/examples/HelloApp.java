@@ -97,11 +97,13 @@ public class HelloApp extends Jooby {
     });
 
     post("/user", ctx -> {
+      System.out.println(Thread.currentThread());
       User user = ctx.multipart(User.class);
       return user.pic.toString();
     });
 
     post("/docx", ctx -> {
+      System.out.println(Thread.currentThread());
       byte[] bytes = ctx.body().bytes();
       return bytes.length;
     });

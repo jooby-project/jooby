@@ -25,6 +25,7 @@ import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.FormDataParser;
 import io.undertow.server.handlers.form.FormEncodedDataDefinition;
+import io.undertow.server.handlers.form.FormParserFactory;
 import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.Headers;
@@ -56,20 +57,13 @@ public class UtowHandler implements HttpHandler {
       String chunked = exchange.getRequestHeaders().getFirst(Headers.TRANSFER_ENCODING);
       if (len > 0 || (chunked != null && "chunked".equalsIgnoreCase(chunked))) {
         /** Eager body parsing: */
-        FormDataParser parser = null;
-        String contentType = headers.getFirst(Headers.CONTENT_TYPE);
-        if (contentType != null) {
-          String lowerContentType = contentType.toLowerCase();
-          if (lowerContentType.startsWith(MediaType.MULTIPART_FORMDATA)) {
-            parser = new MultiPartParserDefinition(router.tmpdir())
-                .setDefaultEncoding(StandardCharsets.UTF_8.name())
-                .create(exchange);
-          } else if (lowerContentType.equals(MediaType.FORM_URLENCODED)) {
-            parser = new FormEncodedDataDefinition()
-                .setDefaultEncoding(StandardCharsets.UTF_8.name())
-                .create(exchange);
-          }
-        }
+        FormDataParser parser = FormParserFactory.builder(false)
+            .addParser(new MultiPartParserDefinition(router.tmpdir())
+                .setDefaultEncoding(StandardCharsets.UTF_8.name()))
+            .addParser(new FormEncodedDataDefinition()
+                .setDefaultEncoding(StandardCharsets.UTF_8.name()))
+            .build()
+            .createParser(exchange);
         if (parser == null) {
           // Read raw body
           Receiver receiver = exchange.getRequestReceiver();

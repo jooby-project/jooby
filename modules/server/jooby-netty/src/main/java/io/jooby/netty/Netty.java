@@ -26,6 +26,8 @@ import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
+import io.netty.handler.codec.http.multipart.DiskAttribute;
+import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
@@ -114,6 +116,7 @@ public class Netty extends Server.Base {
       /** Handler: */
       HttpDataFactory factory = new DefaultHttpDataFactory(bufferSize);
       Supplier<ChannelInboundHandler> handler;
+
       if (applications.size() == 1) {
         handler = () -> new NettyHandler(applications.get(0), maxRequestSize, factory);
       } else {
@@ -139,6 +142,16 @@ public class Netty extends Server.Base {
     }
 
     fireReady(applications);
+
+    /** Disk attributes: */
+    if (applications.size() == 1) {
+      String tmpdir = applications.get(0).tmpdir().toString();
+      DiskFileUpload.baseDirectory = tmpdir;
+      DiskAttribute.baseDirectory = tmpdir;
+    } else {
+      DiskFileUpload.baseDirectory = null; // system temp directory
+      DiskAttribute.baseDirectory = null; // system temp directory
+    }
 
     return this;
   }
