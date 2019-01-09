@@ -22,33 +22,30 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.flush.FlushConsolidationHandler;
-import io.netty.handler.ssl.SslContext;
 
 import java.util.function.Supplier;
 
+import static io.jooby.Server._4KB;
+import static io.jooby.Server._8KB;
+
 public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
-  private final SslContext sslCtx;
   private final Supplier<ChannelInboundHandler> handler;
   private final boolean gzip;
-  private final long maxRequestSize;
+  private final int bufferSize;
 
-  public NettyPipeline(SslContext sslCtx, Supplier<ChannelInboundHandler> handler, boolean gzip,
-      long maxRequestSize) {
-    this.sslCtx = sslCtx;
+  public NettyPipeline(Supplier<ChannelInboundHandler> handler, boolean gzip,
+      int bufferSize) {
     this.handler = handler;
     this.gzip = gzip;
-    this.maxRequestSize = maxRequestSize;
+    this.bufferSize = bufferSize;
   }
 
   @Override
   public void initChannel(SocketChannel ch) {
     ChannelPipeline p = ch.pipeline();
-    if (sslCtx != null) {
-      p.addLast(sslCtx.newHandler(ch.alloc()));
-    }
     p.addLast("flusher", new FlushConsolidationHandler(256, true));
-    p.addLast("codec", new HttpServerCodec());
+    p.addLast("codec", new HttpServerCodec(_4KB, _8KB, bufferSize, false));
     if (gzip) {
       p.addLast("gzip", new HttpContentCompressor());
     }

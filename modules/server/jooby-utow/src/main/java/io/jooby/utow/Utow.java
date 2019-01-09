@@ -87,13 +87,16 @@ public class Utow extends Server.Base {
     server = Undertow.builder()
         .addHttpListener(port, "0.0.0.0")
         .setBufferSize(bufferSize)
+        /** Socket : */
+        .setSocketOption(Options.BACKLOG, 8192)
+        /** Server: */
         // HTTP/1.1 is keep-alive by default, turn this option off
         .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
-        .setServerOption(Options.BACKLOG, 10000)
-        .setServerOption(Options.REUSE_ADDRESSES, true)
         .setServerOption(UndertowOptions.ALWAYS_SET_DATE, false)
         .setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, false)
         .setServerOption(UndertowOptions.DECODE_URL, false)
+        /** Worker: */
+        .setWorkerOption(Options.WORKER_NAME, "utow")
         .setHandler(handler)
         .build();
 

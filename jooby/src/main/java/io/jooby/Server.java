@@ -65,8 +65,12 @@ public interface Server {
     }
   }
 
+  int _4KB = 4096;
+
+  int _8KB = 8192;
+
   /** 16KB constant. */
-  int _16KB = 0x4000;
+  int _16KB = 16384;
 
   int _10MB = 20971520;
 

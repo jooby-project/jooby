@@ -36,6 +36,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.jooby.Throwing;
+import io.netty.util.concurrent.DefaultThreadFactory;
 
 import javax.annotation.Nonnull;
 import javax.net.ssl.SSLException;
@@ -47,8 +48,6 @@ import java.util.function.Supplier;
 public class Netty extends Server.Base {
 
   private List<Jooby> applications = new ArrayList<>();
-
-  private boolean SSL = false;
 
   private EventLoopGroup acceptor;
 
@@ -97,21 +96,27 @@ public class Netty extends Server.Base {
     try {
       addShutdownHook();
 
-      fireStart(applications, () -> worker = new DefaultEventExecutorGroup(32));
+      int threads = Math.max(Runtime.getRuntime().availableProcessors(), 2);
+      int workerThreads = threads * 8;
+      fireStart(applications, () -> worker = new DefaultEventExecutorGroup(workerThreads,
+          new DefaultThreadFactory("netty-worker")));
 
-      NettyNative provider = NettyNative.get();
-      /** Acceptor: */
-      this.acceptor = provider.group(1);
-      /** Client: */
-      this.ioLoop = provider.group(0);
-
-      final SslContext sslCtx;
-      if (SSL) {
-        SelfSignedCertificate ssc = new SelfSignedCertificate();
-        sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+      /** Disk attributes: */
+      if (applications.size() == 1) {
+        String tmpdir = applications.get(0).tmpdir().toString();
+        DiskFileUpload.baseDirectory = tmpdir;
+        DiskAttribute.baseDirectory = tmpdir;
       } else {
-        sslCtx = null;
+        DiskFileUpload.baseDirectory = null; // system temp directory
+        DiskAttribute.baseDirectory = null; // system temp directory
       }
+
+      NettyNative provider = NettyNative.get(getClass().getClassLoader());
+      /** Acceptor: */
+      this.acceptor = provider.group("netty-acceptor", 1);
+
+      /** Client: */
+      this.ioLoop = provider.group("netty", threads);
 
       /** Handler: */
       HttpDataFactory factory = new DefaultHttpDataFactory(bufferSize);
@@ -125,33 +130,21 @@ public class Netty extends Server.Base {
 
       /** Bootstrap: */
       ServerBootstrap bootstrap = new ServerBootstrap();
-      bootstrap.option(ChannelOption.SO_BACKLOG, 10000);
+      bootstrap.option(ChannelOption.SO_BACKLOG, 8192);
       bootstrap.option(ChannelOption.SO_REUSEADDR, true);
 
       bootstrap.group(acceptor, ioLoop)
           .channel(provider.channel())
-          .handler(new LoggingHandler(LogLevel.DEBUG))
-          .childHandler(new NettyPipeline(sslCtx, handler, gzip, maxRequestSize))
-          .childOption(ChannelOption.SO_REUSEADDR, true);
+          .childHandler(new NettyPipeline(handler, gzip, bufferSize))
+          .childOption(ChannelOption.SO_REUSEADDR, true)
+          .childOption(ChannelOption.TCP_NODELAY, true);
 
       bootstrap.bind(port).sync();
-    } catch (CertificateException | SSLException x) {
-      throw Throwing.sneakyThrow(x);
     } catch (InterruptedException x) {
       Thread.currentThread().interrupt();
     }
 
     fireReady(applications);
-
-    /** Disk attributes: */
-    if (applications.size() == 1) {
-      String tmpdir = applications.get(0).tmpdir().toString();
-      DiskFileUpload.baseDirectory = tmpdir;
-      DiskAttribute.baseDirectory = tmpdir;
-    } else {
-      DiskFileUpload.baseDirectory = null; // system temp directory
-      DiskAttribute.baseDirectory = null; // system temp directory
-    }
 
     return this;
   }
