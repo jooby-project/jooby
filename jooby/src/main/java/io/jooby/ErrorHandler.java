@@ -38,7 +38,7 @@ public interface ErrorHandler {
           .append(statusCode.reason())
           .toString();
       if (silent.contains(statusCode)) {
-        log.error(msg, cause);
+        log.debug(msg, cause);
       } else {
         log.error(msg, cause);
       }

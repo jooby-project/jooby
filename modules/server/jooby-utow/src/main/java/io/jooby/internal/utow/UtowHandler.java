@@ -30,6 +30,7 @@ import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.Headers;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class UtowHandler implements HttpHandler {
@@ -74,6 +75,15 @@ public class UtowHandler implements HttpHandler {
             receiver.receivePartialBytes(reader);
           }
         } else {
+//          exchange.addExchangeCompleteListener((xchange, next) -> {
+//            try {
+//              parser.close();
+//            } catch (IOException x) {
+//              router.log().debug("exception found while closing resource", x);
+//            } finally {
+//              next.proceed();
+//            }
+//          });
           try {
             parser.parse(execute(route, context));
           } catch (Exception x) {

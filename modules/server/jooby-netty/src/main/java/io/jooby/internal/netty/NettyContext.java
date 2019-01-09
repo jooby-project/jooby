@@ -28,14 +28,12 @@ import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
 
-import static io.jooby.Throwing.throwingConsumer;
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
@@ -48,7 +46,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class NettyContext implements Context, ChannelFutureListener {
 
-  final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
+  private static final HttpHeaders NO_TRAILING = new DefaultHttpHeaders(false);
+  private final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
   private Route route;
@@ -255,21 +254,17 @@ public class NettyContext implements Context, ChannelFutureListener {
 
   @Nonnull @Override public Context sendStatusCode(int statusCode) {
     responseStarted = true;
+    setHeaders.set(CONTENT_LENGTH, 0);
     DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1,
-        HttpResponseStatus.valueOf(statusCode), false);
-    rsp.headers().set(CONTENT_LENGTH, 0);
+        HttpResponseStatus.valueOf(statusCode), setHeaders);
     ctx.writeAndFlush(rsp).addListener(CLOSE);
     return this;
   }
 
   private Context sendByteBuf(ByteBuf buff) {
-    setHeaders.set(CONTENT_LENGTH, buff.readableBytes());
-    return sendComplete(new DefaultFullHttpResponse(HTTP_1_1, status, buff, false));
-  }
-
-  private Context sendComplete(HttpResponse rsp) {
     responseStarted = true;
-    rsp.headers().set(setHeaders);
+    setHeaders.set(CONTENT_LENGTH, buff.readableBytes());
+    HttpResponse rsp = new DefaultFullHttpResponse(HTTP_1_1, status, buff, setHeaders, NO_TRAILING);
     ctx.writeAndFlush(rsp).addListener(this);
     return this;
   }

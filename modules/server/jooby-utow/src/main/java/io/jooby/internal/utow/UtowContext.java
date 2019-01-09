@@ -22,20 +22,19 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.*;
 import io.undertow.util.*;
 import io.jooby.Throwing;
+import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executor;
 
-import static io.jooby.Throwing.throwingConsumer;
+import static io.undertow.server.handlers.form.FormDataParser.FORM_DATA;
 
 public class UtowContext implements Context, IoCallback {
 
@@ -45,7 +44,6 @@ public class UtowContext implements Context, IoCallback {
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
-  private List<Closeable> resources;
   private Value.Object headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private Map<String, Object> locals = Collections.EMPTY_MAP;
@@ -145,13 +143,7 @@ public class UtowContext implements Context, IoCallback {
   @Nonnull @Override public Formdata form() {
     if (form == null) {
       form = new Formdata();
-      try (FormDataParser parser = new FormEncodedDataDefinition()
-          .setDefaultEncoding(StandardCharsets.UTF_8.name())
-          .create(exchange)) {
-        formData(form, parser.parseBlocking());
-      } catch (Exception x) {
-        throw Throwing.sneakyThrow(x);
-      }
+      formData(form, exchange.getAttachment(FORM_DATA));
     }
     return form;
   }
@@ -160,18 +152,7 @@ public class UtowContext implements Context, IoCallback {
     if (multipart == null) {
       multipart = new Multipart();
       form = multipart;
-      try {
-        FormDataParser parser = new MultiPartParserDefinition()
-            .setDefaultEncoding(StandardCharsets.UTF_8.name())
-            .setTempFileLocation(router.tmpdir())
-            .create(exchange);
-
-        register(parser);
-
-        formData(multipart, parser.parseBlocking());
-      } catch (IOException x) {
-        throw Throwing.sneakyThrow(x);
-      }
+      formData(multipart, exchange.getAttachment(FORM_DATA));
     }
     return multipart;
   }
@@ -259,27 +240,20 @@ public class UtowContext implements Context, IoCallback {
     return exchange.isResponseStarted();
   }
 
-  private void destroy(HttpServerExchange exchange) {
-    try {
-      if (resources != null) {
-        // TODO: use a log
-        resources.forEach(throwingConsumer(Closeable::close));
-        resources = null;
+  private void destroy(Exception exception) {
+    if (exception != null) {
+      Logger log = router.log();
+      if (Server.connectionLost(exception)) {
+        log.debug("%s %s", method(), pathString(), exception);
+      } else {
+        log.error("exception found while sending response {} {} {}", method(), pathString(),
+            exception);
       }
-    } finally {
-      exchange.endExchange();
     }
     this.router = null;
     this.route = null;
+    this.exchange.endExchange();
     this.exchange = null;
-  }
-
-  private Closeable register(Closeable closeable) {
-    if (resources == null) {
-      resources = new ArrayList<>();
-    }
-    resources.add(closeable);
-    return closeable;
   }
 
   private void formData(Formdata form, FormData data) {
@@ -298,11 +272,11 @@ public class UtowContext implements Context, IoCallback {
   }
 
   @Override public void onComplete(HttpServerExchange exchange, Sender sender) {
-    destroy(exchange);
+    destroy(null);
   }
 
   @Override
   public void onException(HttpServerExchange exchange, Sender sender, IOException exception) {
-    destroy(exchange);
+    destroy(exception);
   }
 }
