@@ -16,6 +16,8 @@
 package io.jooby.internal.jetty;
 
 import io.jooby.*;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpHeaderValue;
 import org.eclipse.jetty.http.MultiPartFormInputStream;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
@@ -29,13 +31,13 @@ import javax.annotation.Nullable;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.Part;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -242,38 +244,27 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
-  @Nonnull @Override
-  public Context responseChannel(Throwing.Consumer<WritableByteChannel> consumer) {
-    HttpOutput output = response.getHttpOutput();
+  @Nonnull @Override public OutputStream responseStream() {
     try {
-      consumer.accept(Channels.newChannel(output));
-    } finally {
-      if (output != null && !output.isClosed()) {
-        output.close();
-      }
+      OutputStream outputStream = response.getOutputStream();
+      return outputStream;
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
     }
-    return this;
   }
 
-  @Nonnull @Override public Context outputStream(Throwing.Consumer<OutputStream> consumer) {
-    HttpOutput output = response.getHttpOutput();
+  @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
     try {
-      consumer.accept(output);
-    } finally {
-      if (output != null && !output.isClosed()) {
-        output.close();
+      if (response.getHeader(HttpHeader.CONTENT_LENGTH.name()) == null) {
+        response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
       }
+      response.setCharacterEncoding(charset.name());
+      response.setContentType(type.value());
+      PrintWriter writer = response.getWriter();
+      return writer;
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
     }
-    return this;
-  }
-
-  @Nonnull @Override public Context writer(Charset charset, Throwing.Consumer<Writer> consumer)
-      throws Exception {
-    response.setCharacterEncoding(charset.name());
-    try (Writer writer = response.getWriter()) {
-      consumer.accept(writer);
-    }
-    return this;
   }
 
   @Nonnull @Override public Context sendStatusCode(int statusCode) {

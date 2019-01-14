@@ -123,7 +123,7 @@ public class Netty extends Server.Base {
       Supplier<ChannelInboundHandler> handler;
 
       if (applications.size() == 1) {
-        handler = () -> new NettyHandler(applications.get(0), maxRequestSize, factory);
+        handler = () -> new NettyHandler(applications.get(0), maxRequestSize, bufferSize, factory);
       } else {
         handler = () -> new NettyMultiHandler(applications);
       }

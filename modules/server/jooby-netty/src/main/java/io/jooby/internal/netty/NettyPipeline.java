@@ -22,6 +22,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.flush.FlushConsolidationHandler;
+import io.netty.handler.stream.ChunkedWriteHandler;
 
 import java.util.function.Supplier;
 
@@ -49,6 +50,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     if (gzip) {
       p.addLast("gzip", new HttpContentCompressor());
     }
+    p.addLast("chunked", new ChunkedWriteHandler());
     p.addLast("handler", handler.get());
   }
 }

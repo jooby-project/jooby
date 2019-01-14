@@ -7,6 +7,8 @@ import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
@@ -246,22 +248,18 @@ public class MockContext implements Context {
     return (String) result;
   }
 
-  @Nonnull @Override public MockContext outputStream(Throwing.Consumer<OutputStream> consumer)
-      throws Exception {
+  @Nonnull @Override public OutputStream responseStream() {
     responseStarted = true;
     ByteArrayOutputStream out = new ByteArrayOutputStream(Server._16KB);
     result = out;
-    consumer.accept(out);
-    return this;
+    return out;
   }
 
-  @Nonnull @Override public MockContext responseChannel(Throwing.Consumer<WritableByteChannel> consumer)
-      throws Exception {
+  @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
     responseStarted = true;
-    WritableByteChannel channel = Channels.newChannel(new ByteArrayOutputStream(Server._16KB));
-    result = channel;
-    consumer.accept(channel);
-    return this;
+    Writer writer = new StringWriter();
+    result = writer;
+    return writer;
   }
 
   @Nonnull @Override public MockContext sendText(@Nonnull String data, @Nonnull Charset charset) {

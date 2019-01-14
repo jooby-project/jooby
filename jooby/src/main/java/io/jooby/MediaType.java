@@ -61,7 +61,7 @@ public class MediaType implements Comparable<MediaType> {
 
   public static final MediaType formUrlencoded = new MediaType(FORM_URLENCODED, "UTF-8");
 
-  public static final MediaType multipartFormdata = new MediaType(MULTIPART_FORMDATA, null);
+  public static final MediaType multipartFormdata = new MediaType(MULTIPART_FORMDATA, "UTF-8");
 
   public static final MediaType all = new MediaType(ALL, null);
 

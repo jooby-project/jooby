@@ -28,8 +28,10 @@ import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Closeable;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -48,6 +50,7 @@ public class NettyContext implements Context, ChannelFutureListener {
 
   private static final HttpHeaders NO_TRAILING = new DefaultHttpHeaders(false);
   private final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
+  private final int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
   private Route route;
@@ -64,11 +67,13 @@ public class NettyContext implements Context, ChannelFutureListener {
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private Map<String, Object> locals = Collections.EMPTY_MAP;
 
-  public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path) {
+  public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
+      int bufferSize) {
     this.path = path;
     this.ctx = ctx;
     this.req = req;
     this.router = router;
+    this.bufferSize = bufferSize;
   }
 
   @Nonnull @Override public Router router() {
@@ -220,16 +225,24 @@ public class NettyContext implements Context, ChannelFutureListener {
     return this;
   }
 
-  @Nonnull @Override
-  public Context responseChannel(Throwing.Consumer<WritableByteChannel> consumer) {
+  @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
     if (!setHeaders.contains(CONTENT_LENGTH)) {
       setHeaders.set(TRANSFER_ENCODING, CHUNKED);
     }
-    try (NettyResponseChannel channel = new NettyResponseChannel(ctx,
-        new DefaultHttpResponse(req.protocolVersion(), status, setHeaders), Server._16KB)) {
-      consumer.accept(channel);
+    type(type.value(), charset.name());
+    return new NettyWriter(newOutputStream(), charset);
+  }
+
+  @Nonnull @Override public OutputStream responseStream() {
+    if (!setHeaders.contains(CONTENT_LENGTH)) {
+      setHeaders.set(TRANSFER_ENCODING, CHUNKED);
     }
-    return this;
+    return newOutputStream();
+  }
+
+  private OutputStream newOutputStream() {
+    return new NettyOutputStream(ctx, bufferSize,
+        new DefaultHttpResponse(req.protocolVersion(), status, setHeaders));
   }
 
   @Nonnull @Override public Context sendText(@Nonnull String data) {

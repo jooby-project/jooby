@@ -346,24 +346,34 @@ public interface Context {
     }
   }
 
-  @Nonnull Context responseChannel(Throwing.Consumer<WritableByteChannel> consumer) throws
-      Exception;
+  @Nonnull OutputStream responseStream();
 
-  default @Nonnull Context outputStream(Throwing.Consumer<OutputStream> consumer) throws Exception {
-    return responseChannel(channel -> consumer.accept(Channels.newOutputStream(channel)));
+  default @Nonnull Context responseStream(Throwing.Consumer<OutputStream> consumer) throws Exception {
+    try (OutputStream out = responseStream()) {
+      consumer.accept(out);
+    }
+    return this;
   }
 
-  default @Nonnull Context writer(Throwing.Consumer<Writer> consumer) throws Exception {
-    return writer(StandardCharsets.UTF_8, consumer);
+  default @Nonnull Writer responseWriter() {
+    return responseWriter(MediaType.text, StandardCharsets.UTF_8);
   }
 
-  default @Nonnull Context writer(Charset charset, Throwing.Consumer<Writer> consumer)
-      throws Exception {
-    return responseChannel(channel -> {
-      try (Writer writer = Channels.newWriter(channel, charset.newEncoder(), Server._16KB)) {
-        consumer.accept(writer);
-      }
-    });
+  default @Nonnull Writer responseWriter(MediaType type) {
+    return responseWriter(type, StandardCharsets.UTF_8);
+  }
+
+  default @Nonnull Writer responseWriter(Charset charset) {
+    return responseWriter(MediaType.text, charset);
+  }
+
+  @Nonnull Writer responseWriter(MediaType type, Charset charset);
+
+  default @Nonnull Context responseWriter(Throwing.Consumer<Writer> consumer) throws Exception {
+    try (Writer writer = responseWriter()) {
+      consumer.accept(writer);
+    }
+    return this;
   }
 
   default @Nonnull Context sendText(@Nonnull String data) {

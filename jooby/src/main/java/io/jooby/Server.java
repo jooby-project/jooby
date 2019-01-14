@@ -102,7 +102,8 @@ public interface Server {
     if (cause instanceof IOException) {
       String message = cause.getMessage();
       if (message != null) {
-        return message.toLowerCase().contains("connection reset by peer");
+        String msg = message.toLowerCase();
+        return msg.contains("reset by peer") || msg.contains("broken pipe");
       }
     }
     return (cause instanceof ClosedChannelException);

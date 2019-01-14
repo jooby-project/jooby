@@ -90,12 +90,6 @@ public class HelloApp extends Jooby {
         + "Duis tempor magna facilisis nunc commodo cursus. Maecenas nibh quam, vehicula a sapien a, congue tincidunt dui. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Praesent ultrices consequat lectus non pharetra. Fusce justo lorem, pharetra ut leo eu, elementum tincidunt lectus. Cras pretium dignissim arcu at tempor. In blandit molestie mi id fermentum. Curabitur id varius risus. Sed tellus eros, maximus sit amet volutpat quis, cursus quis eros. In vulputate, orci a consequat viverra, velit ex iaculis erat, vitae fermentum enim nunc id odio. Donec faucibus lorem non massa vehicula efficitur. Suspendisse potenti. Donec elit lectus, pellentesque vitae gravida id, pretium vestibulum est. Mauris porttitor ipsum quis nisi tincidunt pretium.\n"
         + "Nulla iaculis dignissim risus ut sagittis. Suspendisse justo tortor, mattis cursus consequat sed, pulvinar nec diam. Maecenas luctus maximus blandit. Nunc vel augue quis urna rhoncus tempor in vel dolor. Proin hendrerit, velit non elementum consequat, odio mi molestie nisi, vitae bibendum ex urna quis purus. Vivamus dui dolor, venenatis ac nisl eget, sollicitudin egestas nunc. Maecenas tristique nisl quis erat tincidunt, eget semper nibh pharetra. Integer id efficitur purus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Proin ut porttitor sem, aliquet sagittis tellus. Aenean congue ornare eros, eget dignissim dolor malesuada at.\n"
         + "Aenean elementum lectus a convallis placerat. In placerat, nisl id pellentesque vestibulum, nisl leo consequat lorem, viverra dignissim risus magna sit amet nunc. Sed vitae velit et turpis vehicula finibus. Ut quis velit ac libero molestie eleifend. Aliquam erat volutpat. Phasellus sollicitudin justo ac ligula semper posuere. Fusce ullamcorper nisl ut placerat facilisis. Nunc lectus mauris, malesuada ac pretium ut, mollis ac velit.\n";
-    get("/writer", ctx -> {
-      return ctx.writer(writer -> {
-        writer.append("Foo bar");
-      });
-    });
-
     post("/user", ctx -> {
       System.out.println(Thread.currentThread());
       User user = ctx.multipart(User.class);

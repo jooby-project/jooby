@@ -38,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 
 public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final Router router;
+  private final int bufferSize;
   private NettyContext context;
   private Router.Match result;
 
@@ -48,17 +49,18 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private long contentLength;
   private long chunkSize;
 
-  public NettyHandler(Router router, long maxRequestSize, HttpDataFactory factory) {
+  public NettyHandler(Router router, long maxRequestSize, int bufferSize, HttpDataFactory factory) {
     this.router = router;
     this.maxRequestSize = maxRequestSize;
     this.factory = factory;
+    this.bufferSize = bufferSize;
   }
 
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     if (msg instanceof HttpRequest) {
       HttpRequest req = (HttpRequest) msg;
-      context = new NettyContext(ctx, req, router, pathOnly(req.uri()));
+      context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize);
       result = router.match(context);
       /** Don't check/parse body if there is no match: */
       if (result.matches()) {

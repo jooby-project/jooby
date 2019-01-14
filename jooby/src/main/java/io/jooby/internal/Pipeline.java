@@ -21,6 +21,7 @@ import io.jooby.Route.Handler;
 import io.jooby.internal.handler.CompletionStageHandler;
 import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
+import io.jooby.internal.handler.DisposableHandler;
 import io.jooby.internal.handler.WorkerExecHandler;
 import io.jooby.internal.handler.FlowPublisherHandler;
 import io.jooby.internal.handler.FluxHandler;
@@ -77,6 +78,13 @@ public class Pipeline {
         return Pipeline::observable;
       }
     }
+    // Disposable
+    Optional<Class> disposable = loadClass(loader, "io.reactivex.disposables.Disposable");
+    if (disposable.isPresent()) {
+      if (disposable.get().isAssignableFrom(type)) {
+        return Pipeline::disposable;
+      }
+    }
     /** Reactor: */
     // Flux:
     Optional<Class> flux = loadClass(loader, "reactor.core.publisher.Flux");
@@ -113,6 +121,11 @@ public class Pipeline {
 
   private static Handler publisher(ExecutionMode mode, RouteImpl next) {
     return next(mode, next.executor(), new DetachHandler(new PublisherHandler(next.pipeline())),
+        false);
+  }
+
+  private static Handler disposable(ExecutionMode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new DisposableHandler(next.pipeline())),
         false);
   }
 

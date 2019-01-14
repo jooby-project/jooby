@@ -1186,7 +1186,7 @@ public class FeaturedTest {
   public void writer() {
     new JoobyRunner(app -> {
       app.get("/19kb", ctx ->
-          ctx.writer(writer -> {
+          ctx.responseWriter(writer -> {
             try (StringReader reader = new StringReader(_19kb)) {
               transfer(reader, writer);
             }
@@ -1194,7 +1194,7 @@ public class FeaturedTest {
       );
 
       app.get("/16kb", ctx ->
-          ctx.writer(writer -> {
+          ctx.responseWriter(writer -> {
             try (StringReader reader = new StringReader(_16kb)) {
               transfer(reader, writer);
             }
@@ -1202,7 +1202,7 @@ public class FeaturedTest {
       );
 
       app.get("/8kb", ctx ->
-          ctx.writer(writer -> {
+          ctx.responseWriter(writer -> {
             try (StringReader reader = new StringReader(_8kb)) {
               transfer(reader, writer);
             }

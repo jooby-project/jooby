@@ -21,15 +21,15 @@ import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.*;
 import io.undertow.util.*;
-import io.jooby.Throwing;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -197,23 +197,27 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
-  @Nonnull @Override public Context outputStream(Throwing.Consumer<OutputStream> consumer)
-      throws Exception {
+  @Nonnull @Override public OutputStream responseStream() {
     if (!exchange.isBlocking()) {
       exchange.startBlocking();
     }
-    try (OutputStream output = exchange.getOutputStream()) {
-      consumer.accept(output);
-    }
-    return this;
+    OutputStream outputStream = exchange.getOutputStream();
+    return outputStream;
   }
 
-  @Nonnull @Override public Context responseChannel(Throwing.Consumer<WritableByteChannel> consumer)
-      throws Exception {
-    try (UtowResponseChannel channel = new UtowResponseChannel(exchange.getResponseChannel())) {
-      consumer.accept(channel);
+  @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
+    if (!exchange.isBlocking()) {
+      exchange.startBlocking();
     }
-    return this;
+
+    HeaderMap responseHeaders = exchange.getResponseHeaders();
+    if (!responseHeaders.contains(Headers.CONTENT_LENGTH)) {
+      exchange.getResponseHeaders().put(Headers.TRANSFER_ENCODING, Headers.CHUNKED.toString());
+    }
+
+    type(type.value(), charset.name());
+    UtowWriter writer = new UtowWriter(exchange.getOutputStream(), charset);
+    return writer;
   }
 
   @Nonnull @Override public Context sendBytes(@Nonnull byte[] data) {

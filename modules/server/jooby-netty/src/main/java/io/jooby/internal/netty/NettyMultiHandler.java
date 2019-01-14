@@ -40,7 +40,7 @@ public class NettyMultiHandler extends ChannelInboundHandlerAdapter {
       String uri = request.uri();
       String path = NettyHandler.pathOnly(uri);
       for (Jooby router : routers) {
-        NettyContext context = new NettyContext(ctx, request, router, path);
+        NettyContext context = null;//new NettyContext(ctx, request, router, path);
         Router.Match match = router.match(context);
         if (match.matches()) {
           match.execute(context);
