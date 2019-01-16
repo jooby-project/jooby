@@ -201,22 +201,20 @@ public class UtowContext implements Context, IoCallback {
     if (!exchange.isBlocking()) {
       exchange.startBlocking();
     }
-    OutputStream outputStream = exchange.getOutputStream();
-    return outputStream;
-  }
-
-  @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
-    if (!exchange.isBlocking()) {
-      exchange.startBlocking();
-    }
 
     HeaderMap responseHeaders = exchange.getResponseHeaders();
     if (!responseHeaders.contains(Headers.CONTENT_LENGTH)) {
       exchange.getResponseHeaders().put(Headers.TRANSFER_ENCODING, Headers.CHUNKED.toString());
     }
 
+    return exchange.getOutputStream();
+  }
+
+  @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
+    OutputStream outputStream = responseStream();
+
     type(type.value(), charset.name());
-    UtowWriter writer = new UtowWriter(exchange.getOutputStream(), charset);
+    UtowWriter writer = new UtowWriter(outputStream, charset);
     return writer;
   }
 

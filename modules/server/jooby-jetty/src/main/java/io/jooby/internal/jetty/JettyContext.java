@@ -246,6 +246,9 @@ public class JettyContext implements Callback, Context {
 
   @Nonnull @Override public OutputStream responseStream() {
     try {
+      if (response.getHeader(HttpHeader.CONTENT_LENGTH.name()) == null) {
+        response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
+      }
       OutputStream outputStream = response.getOutputStream();
       return outputStream;
     } catch (IOException x) {
