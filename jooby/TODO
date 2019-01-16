@@ -1,1 +1,6 @@
 * Make Route a class not an interface
+
+* Flowable
+ * Must be a chunked stream
+ * Render need to be use it standalone, produces a byte[] or string, etc..
+ * Check for json responses and preppend/append [ ]
