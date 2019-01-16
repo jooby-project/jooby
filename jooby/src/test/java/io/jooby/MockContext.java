@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -281,6 +282,11 @@ public class MockContext implements Context {
   @Nonnull @Override public MockContext sendBytes(@Nonnull ByteBuffer data) {
     result = data;
     length = data.remaining();
+    return this;
+  }
+
+  @Nonnull @Override public Context sendStream(InputStream input) {
+    result = input;
     return this;
   }
 

@@ -26,9 +26,11 @@ import org.slf4j.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -183,7 +185,8 @@ public class UtowContext implements Context, IoCallback {
 
   @Nonnull @Override
   public Context type(@Nonnull MediaType contentType, @Nullable Charset charset) {
-    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType.toContenTypeHeader(charset));
+    exchange.getResponseHeaders()
+        .put(Headers.CONTENT_TYPE, contentType.toContenTypeHeader(charset));
     return this;
   }
 
@@ -193,23 +196,32 @@ public class UtowContext implements Context, IoCallback {
   }
 
   @Nonnull @Override public OutputStream responseStream(MediaType type) {
-    type(type);
     if (!exchange.isBlocking()) {
       exchange.startBlocking();
     }
 
-    HeaderMap responseHeaders = exchange.getResponseHeaders();
-    if (!responseHeaders.contains(Headers.CONTENT_LENGTH)) {
-      exchange.getResponseHeaders().put(Headers.TRANSFER_ENCODING, Headers.CHUNKED.toString());
-    }
+    type(type);
+    ifSetChunked();
 
     return exchange.getOutputStream();
   }
 
-  @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
-    OutputStream outputStream = responseStream(type);
+  private void ifSetChunked() {
+    HeaderMap responseHeaders = exchange.getResponseHeaders();
+    if (!responseHeaders.contains(Headers.CONTENT_LENGTH)) {
+      exchange.getResponseHeaders().put(Headers.TRANSFER_ENCODING, Headers.CHUNKED.toString());
+    }
+  }
 
-    UtowWriter writer = new UtowWriter(outputStream, charset);
+  @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
+    if (!exchange.isBlocking()) {
+      exchange.startBlocking();
+    }
+
+    type(type, charset);
+    ifSetChunked();
+
+    UtowWriter writer = new UtowWriter(exchange.getOutputStream(), charset);
     return writer;
   }
 
@@ -234,23 +246,32 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
+  @Nonnull @Override public Context sendStream(@Nonnull InputStream input) {
+    ifSetChunked();
+    new UtowChunkedStream().send(Channels.newChannel(input), exchange, this);
+    return this;
+  }
+
   @Override public boolean isResponseStarted() {
     return exchange.isResponseStarted();
   }
 
   private void destroy(Exception cause) {
-    if (cause != null) {
-      Logger log = router.log();
-      if (Server.connectionLost(cause)) {
-        log.debug("exception found while sending response {} {}", method(), pathString(), cause);
-      } else {
-        log.error("exception found while sending response {} {}", method(), pathString(), cause);
+    try {
+      if (cause != null) {
+        Logger log = router.log();
+        if (Server.connectionLost(cause)) {
+          log.debug("exception found while sending response {} {}", method(), pathString(), cause);
+        } else {
+          log.error("exception found while sending response {} {}", method(), pathString(), cause);
+        }
       }
+      this.router = null;
+      this.route = null;
+    } finally {
+      this.exchange.endExchange();
+      this.exchange = null;
     }
-    this.router = null;
-    this.route = null;
-    this.exchange.endExchange();
-    this.exchange = null;
   }
 
   private void formData(Formdata form, FormData data) {

@@ -19,6 +19,7 @@ import io.jooby.internal.UrlParser;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.reflect.Type;
@@ -383,6 +384,8 @@ public interface Context {
   @Nonnull Context sendBytes(@Nonnull byte[] data);
 
   @Nonnull Context sendBytes(@Nonnull ByteBuffer data);
+
+  @Nonnull Context sendStream(@Nonnull InputStream input);
 
   @Nonnull default Context sendStatusCode(StatusCode statusCode) {
     return sendStatusCode(statusCode.value());

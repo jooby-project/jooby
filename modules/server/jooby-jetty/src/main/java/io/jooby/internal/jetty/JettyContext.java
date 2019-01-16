@@ -289,8 +289,16 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
+  @Nonnull @Override public Context sendStream(@Nonnull InputStream input) {
+    if (!request.isAsyncStarted()) {
+      request.startAsync();
+    }
+    response.getHttpOutput().sendContent(input, this);
+    return this;
+  }
+
   @Override public boolean isResponseStarted() {
-    return request.getResponse().isCommitted();
+    return response.isCommitted();
   }
 
   @Override public void succeeded() {

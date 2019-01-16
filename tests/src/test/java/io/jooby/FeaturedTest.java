@@ -614,7 +614,7 @@ public class FeaturedTest {
           .build(), rsp -> {
         assertEquals("foo_report=[f1.txt, f2.txt]", rsp.body().string());
       });
-    } );
+    });
   }
 
   @Test
@@ -1178,6 +1178,27 @@ public class FeaturedTest {
         assertEquals(servers.getFirst(), rsp.header("Server"));
         assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
         servers.removeFirst();
+      });
+    });
+  }
+
+  @Test
+  public void sendInputStream() {
+    new JoobyRunner(app -> {
+      app.get("/txt", ctx -> {
+        ctx.query("l").toOptional().ifPresent(len -> ctx.length(Long.parseLong(len)));
+        return ctx.sendStream(new ByteArrayInputStream(_19kb.getBytes(StandardCharsets.UTF_8)));
+      });
+    }).ready(client -> {
+      client.get("/txt", rsp -> {
+        assertEquals("chunked", rsp.header("transfer-encoding").toLowerCase());
+        assertEquals(_19kb, rsp.body().string());
+      });
+
+      client.get("/txt?l=" + _19kb.length(), rsp -> {
+        assertEquals(null, rsp.header("transfer-encoding"));
+        assertEquals(Integer.toString(_19kb.length()), rsp.header("content-length").toLowerCase());
+        assertEquals(_19kb, rsp.body().string());
       });
     });
   }

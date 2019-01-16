@@ -24,12 +24,14 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
+import io.netty.handler.stream.ChunkedStream;
 import io.netty.util.ReferenceCounted;
 import io.jooby.Throwing;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.ByteBuffer;
@@ -234,11 +236,15 @@ public class NettyContext implements Context, ChannelFutureListener {
   }
 
   private OutputStream newOutputStream() {
+    ifSetChunked();
+    return new NettyOutputStream(ctx, bufferSize,
+        new DefaultHttpResponse(req.protocolVersion(), status, setHeaders), this);
+  }
+
+  private void ifSetChunked() {
     if (!setHeaders.contains(CONTENT_LENGTH)) {
       setHeaders.set(TRANSFER_ENCODING, CHUNKED);
     }
-    return new NettyOutputStream(ctx, bufferSize,
-        new DefaultHttpResponse(req.protocolVersion(), status, setHeaders), this);
   }
 
   @Nonnull @Override public Context sendText(@Nonnull String data) {
@@ -255,6 +261,21 @@ public class NettyContext implements Context, ChannelFutureListener {
 
   @Override public final Context sendBytes(ByteBuffer data) {
     return sendByteBuf(wrappedBuffer(data));
+  }
+
+  @Nonnull @Override public Context sendStream(@Nonnull InputStream input) {
+    responseStarted = true;
+    ifSetChunked();
+    DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
+    ctx.channel().eventLoop().execute(() -> {
+      // Headers
+      ctx.write(rsp);
+      // Body
+      ctx.write(new ChunkedStream(input, bufferSize));
+      // Finish
+      ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(this);
+    });
+    return this;
   }
 
   @Override public boolean isResponseStarted() {
