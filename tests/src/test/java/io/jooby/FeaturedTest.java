@@ -1124,7 +1124,7 @@ public class FeaturedTest {
   @Test
   public void setContentType() {
     new JoobyRunner(app -> {
-      app.get("/plain", ctx -> ctx.type("text/plain").sendText("Text"));
+      app.get("/plain", ctx -> ctx.type(text).sendText("Text"));
     }).ready(client -> {
       client.get("/plain", rsp -> {
         assertEquals("text/plain;charset=utf-8",
@@ -1176,7 +1176,7 @@ public class FeaturedTest {
       client.get("/", rsp -> {
         assertNotNull(rsp.header("Date"));
         assertEquals(servers.getFirst(), rsp.header("Server"));
-        assertEquals("text/plain", rsp.header("Content-Type").toLowerCase());
+        assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
         servers.removeFirst();
       });
     });
@@ -1315,7 +1315,7 @@ public class FeaturedTest {
 
     new JoobyRunner(app -> {
       app.decorate(Decorators.contentType("text/plain"));
-      app.get("/type-override", ctx -> ctx.type("text/html").sendText("OK"));
+      app.get("/type-override", ctx -> ctx.type(html).sendText("OK"));
     }).ready(client -> {
       client.get("/type-override", rsp -> {
         assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());

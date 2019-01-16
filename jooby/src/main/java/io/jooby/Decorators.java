@@ -16,6 +16,8 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
@@ -92,7 +94,7 @@ public final class Decorators {
    * @return Default headers filter.
    */
   public static final Route.Decorator defaultHeaders(@Nonnull MediaType contentType) {
-    return defaultHeaders(contentType.toString(), contentType.charset());
+    return defaultHeaders(contentType, contentType.charset());
   }
 
   /**
@@ -105,10 +107,10 @@ public final class Decorators {
    * @return Default headers filter.
    */
   public static final Route.Decorator defaultHeaders() {
-    return defaultHeaders("text/plain", null);
+    return defaultHeaders(MediaType.text, StandardCharsets.UTF_8);
   }
 
-  private static final Route.Decorator defaultHeaders(String contentType, String charset) {
+  private static final Route.Decorator defaultHeaders(MediaType contentType, Charset charset) {
     DateHeader date = new DateHeader();
     return next -> ctx -> {
       ctx.header(H_SERVER, ctx.name());

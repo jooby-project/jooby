@@ -65,10 +65,10 @@ public class Jackson implements Extension, Parser, Renderer {
     if (value instanceof CharSequence) {
       // Ignore string/charsequence responses, those are going to be processed by the default
       // renderer and let route to return raw JSON
-      ctx.type(MediaType.JSON)
+      ctx.type(MediaType.json)
           .sendText(value.toString());
     } else {
-      ctx.type(MediaType.JSON)
+      ctx.type(MediaType.json)
           .sendBytes(mapper.writeValueAsBytes(value));
     }
     return true;

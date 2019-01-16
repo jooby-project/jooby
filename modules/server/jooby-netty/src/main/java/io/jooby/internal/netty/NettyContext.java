@@ -18,7 +18,6 @@ package io.jooby.internal.netty;
 import io.jooby.*;
 import io.jooby.FileUpload;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.EmptyByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -31,7 +30,6 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.Closeable;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.ByteBuffer;
@@ -214,12 +212,8 @@ public class NettyContext implements Context, ChannelFutureListener {
     return this;
   }
 
-  @Override public final Context type(String contentType, String charset) {
-    if (charset == null) {
-      setHeaders.set(CONTENT_TYPE, contentType);
-    } else {
-      setHeaders.set(CONTENT_TYPE, contentType + ";charset=" + charset);
-    }
+  @Override public final Context type(MediaType contentType, Charset charset) {
+    setHeaders.set(CONTENT_TYPE, contentType.toContenTypeHeader(charset));
     return this;
   }
 
@@ -229,21 +223,20 @@ public class NettyContext implements Context, ChannelFutureListener {
   }
 
   @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
-    if (!setHeaders.contains(CONTENT_LENGTH)) {
-      setHeaders.set(TRANSFER_ENCODING, CHUNKED);
-    }
-    type(type.value(), charset.name());
+    type(type, charset);
+
     return new NettyWriter(newOutputStream(), charset);
   }
 
-  @Nonnull @Override public OutputStream responseStream() {
-    if (!setHeaders.contains(CONTENT_LENGTH)) {
-      setHeaders.set(TRANSFER_ENCODING, CHUNKED);
-    }
+  @Nonnull @Override public OutputStream responseStream(MediaType type) {
+    type(type);
     return newOutputStream();
   }
 
   private OutputStream newOutputStream() {
+    if (!setHeaders.contains(CONTENT_LENGTH)) {
+      setHeaders.set(TRANSFER_ENCODING, CHUNKED);
+    }
     return new NettyOutputStream(ctx, bufferSize,
         new DefaultHttpResponse(req.protocolVersion(), status, setHeaders), this);
   }

@@ -2,7 +2,6 @@ package io.jooby;
 
 import org.junit.jupiter.api.Test;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -21,7 +20,7 @@ public class MediaTypeTest {
     assertEquals("application", type.type());
     assertEquals("json", type.subtype());
     assertEquals(1f, type.quality());
-    assertEquals("UTF-8", type.charset());
+    assertEquals("UTF-8", type.charset().name());
   }
 
   @Test
@@ -32,7 +31,7 @@ public class MediaTypeTest {
     assertEquals("text", type.type());
     assertEquals("plain", type.subtype());
     assertEquals(1f, type.quality());
-    assertEquals("UTF-8", type.charset());
+    assertEquals("UTF-8", type.charset().name());
 
     assertEquals("text/plain", MediaType.valueOf("text/plain").value());
 
@@ -47,7 +46,7 @@ public class MediaTypeTest {
     assertEquals("text", type.type());
     assertEquals("html", type.subtype());
     assertEquals(1f, type.quality());
-    assertEquals("UTF-8", type.charset());
+    assertEquals("UTF-8", type.charset().name());
   }
 
   @Test
@@ -58,7 +57,7 @@ public class MediaTypeTest {
     assertEquals("application", type.type());
     assertEquals("json", type.subtype());
     assertEquals(.5f, type.quality());
-    assertEquals("us-ascii", type.charset());
+    assertEquals("us-ascii", type.charset().name().toLowerCase());
 
     MediaType any = MediaType.valueOf("*");
     assertEquals("*/*", any.value());
@@ -78,15 +77,15 @@ public class MediaTypeTest {
 
   @Test
   public void parse() {
-    List<MediaType> result = MediaType.parse("application/json , text/html,*");
+    List<MediaType> result = MediaType.fromAcceptHeader("application/json , text/html,*");
     assertEquals(3, result.size());
     assertEquals("application/json", result.get(0).value());
     assertEquals("text/html", result.get(1).value());
     assertEquals("*/*", result.get(2).value());
 
-    assertEquals(0, MediaType.parse(null).size());
-    assertEquals(0, MediaType.parse("").size());
-    assertEquals(1, MediaType.parse("text/plain,").size());
+    assertEquals(0, MediaType.fromAcceptHeader(null).size());
+    assertEquals(0, MediaType.fromAcceptHeader("").size());
+    assertEquals(1, MediaType.fromAcceptHeader("text/plain,").size());
   }
 
   @Test
@@ -147,7 +146,7 @@ public class MediaTypeTest {
   }
 
   public static void accept(String value, Consumer<List<MediaType>> consumer) {
-    List<MediaType> types = MediaType.parse(value);
+    List<MediaType> types = MediaType.fromAcceptHeader(value);
     Collections.sort(types);
     consumer.accept(types);
   }

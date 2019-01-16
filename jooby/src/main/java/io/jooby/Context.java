@@ -23,8 +23,6 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -322,14 +320,10 @@ public interface Context {
   @Nonnull Context length(long length);
 
   @Nonnull default Context type(@Nonnull MediaType contentType) {
-    return type(contentType.value(), contentType.charset());
+    return type(contentType, contentType.charset());
   }
 
-  @Nonnull default Context type(@Nonnull String contentType) {
-    return type(MediaType.valueOf(contentType));
-  }
-
-  @Nonnull Context type(@Nonnull String contentType, @Nullable String charset);
+  @Nonnull Context type(@Nonnull MediaType contentType, @Nullable Charset charset);
 
   @Nonnull default Context statusCode(StatusCode statusCode) {
     return statusCode(statusCode.value());
@@ -346,31 +340,35 @@ public interface Context {
     }
   }
 
-  @Nonnull OutputStream responseStream();
+  @Nonnull OutputStream responseStream(MediaType type);
 
-  default @Nonnull Context responseStream(Throwing.Consumer<OutputStream> consumer) throws Exception {
-    try (OutputStream out = responseStream()) {
+  default @Nonnull Context responseStream(MediaType type, Throwing.Consumer<OutputStream> consumer) throws Exception {
+    try (OutputStream out = responseStream(type)) {
       consumer.accept(out);
     }
     return this;
   }
 
   default @Nonnull Writer responseWriter() {
-    return responseWriter(MediaType.text, StandardCharsets.UTF_8);
+    return responseWriter(MediaType.text);
   }
 
-  default @Nonnull Writer responseWriter(MediaType type) {
-    return responseWriter(type, StandardCharsets.UTF_8);
+  default @Nonnull Writer responseWriter(MediaType contentType) {
+    return responseWriter(contentType, contentType.charset());
   }
 
-  default @Nonnull Writer responseWriter(Charset charset) {
-    return responseWriter(MediaType.text, charset);
-  }
-
-  @Nonnull Writer responseWriter(MediaType type, Charset charset);
+  @Nonnull Writer responseWriter(MediaType contentType, Charset charset);
 
   default @Nonnull Context responseWriter(Throwing.Consumer<Writer> consumer) throws Exception {
-    try (Writer writer = responseWriter()) {
+    return responseWriter(MediaType.text, consumer);
+  }
+
+  default @Nonnull Context responseWriter(MediaType contentType, Throwing.Consumer<Writer> consumer) throws Exception {
+    return responseWriter(contentType, contentType.charset(), consumer);
+  }
+
+  default @Nonnull Context responseWriter(MediaType contentType, Charset charset, Throwing.Consumer<Writer> consumer) throws Exception {
+    try (Writer writer = responseWriter(contentType, charset)) {
       consumer.accept(writer);
     }
     return this;

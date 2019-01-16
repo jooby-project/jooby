@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.Part;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -228,10 +227,8 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
-  @Nonnull @Override public Context type(@Nonnull String contentType, @Nullable String charset) {
-    response.setContentType(contentType);
-    if (charset != null)
-      response.setCharacterEncoding(charset);
+  @Nonnull @Override public Context type(@Nonnull MediaType contentType, @Nullable Charset charset) {
+    response.setHeader(HttpHeader.CONTENT_TYPE, contentType.toContenTypeHeader(charset));
     return this;
   }
 
@@ -245,11 +242,12 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
-  @Nonnull @Override public OutputStream responseStream() {
+  @Nonnull @Override public OutputStream responseStream(MediaType type) {
     try {
       if (response.getHeader(HttpHeader.CONTENT_LENGTH.name()) == null) {
         response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
       }
+      type(type);
       OutputStream outputStream = response.getOutputStream();
       return outputStream;
     } catch (IOException x) {
@@ -262,8 +260,7 @@ public class JettyContext implements Callback, Context {
       if (response.getHeader(HttpHeader.CONTENT_LENGTH.name()) == null) {
         response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
       }
-      response.setCharacterEncoding(charset.name());
-      response.setContentType(type.value());
+      type(type, charset);
       PrintWriter writer = response.getWriter();
       return writer;
     } catch (IOException x) {

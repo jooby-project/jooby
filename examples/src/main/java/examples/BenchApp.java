@@ -32,6 +32,8 @@ public class BenchApp extends Jooby {
   }
 
   {
+    mode(ExecutionMode.EVENT_LOOP);
+
     decorate(Decorators.defaultHeaders());
 
     get("/", ctx -> ctx.sendText(MESSAGE));
@@ -42,9 +44,6 @@ public class BenchApp extends Jooby {
   }
 
   public static void main(String[] args) {
-    new BenchApp()
-        .mode(ExecutionMode.EVENT_LOOP)
-        .start()
-        .join();
+    run(BenchApp::new, args);
   }
 }

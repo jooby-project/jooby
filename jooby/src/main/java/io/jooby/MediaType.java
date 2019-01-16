@@ -18,10 +18,14 @@ package io.jooby;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MediaType implements Comparable<MediaType> {
 
@@ -45,35 +49,35 @@ public class MediaType implements Comparable<MediaType> {
 
   public static final String ALL = "*/*";
 
-  public static final MediaType json = new MediaType(JSON, "UTF-8");
+  public static final MediaType json = new MediaType(JSON, UTF_8);
 
-  public static final MediaType xml = new MediaType(XML, "UTF-8");
+  public static final MediaType xml = new MediaType(XML, UTF_8);
 
-  public static final MediaType text = new MediaType(TEXT, "UTF-8");
+  public static final MediaType text = new MediaType(TEXT, UTF_8);
 
-  public static final MediaType html = new MediaType(HTML, "UTF-8");
+  public static final MediaType html = new MediaType(HTML, UTF_8);
 
-  public static final MediaType js = new MediaType(JS, "UTF-8");
+  public static final MediaType js = new MediaType(JS, UTF_8);
 
-  public static final MediaType css = new MediaType(CSS, "UTF-8");
+  public static final MediaType css = new MediaType(CSS, UTF_8);
 
   public static final MediaType octetStream = new MediaType(OCTET_STREAM, null);
 
-  public static final MediaType formUrlencoded = new MediaType(FORM_URLENCODED, "UTF-8");
+  public static final MediaType formUrlencoded = new MediaType(FORM_URLENCODED, UTF_8);
 
-  public static final MediaType multipartFormdata = new MediaType(MULTIPART_FORMDATA, "UTF-8");
+  public static final MediaType multipartFormdata = new MediaType(MULTIPART_FORMDATA, UTF_8);
 
   public static final MediaType all = new MediaType(ALL, null);
 
   private final String value;
 
-  private final String charset;
+  private final Charset charset;
 
   private final int subtypeStart;
 
   private final int subtypeEnd;
 
-  private MediaType(@Nonnull String value, String charset) {
+  private MediaType(@Nonnull String value, Charset charset) {
     this.value = value;
     this.subtypeStart = value.indexOf('/');
     if (subtypeStart < 0) {
@@ -120,6 +124,17 @@ public class MediaType implements Comparable<MediaType> {
     return value.substring(0, subtypeEnd);
   }
 
+  public @Nonnull String toContenTypeHeader(@Nullable Charset charset) {
+    if (charset == null) {
+      Charset paramCharset = charset();
+      if (paramCharset == null) {
+        return value();
+      }
+      charset = paramCharset;
+    }
+    return value() + ";charset=" + charset.name();
+  }
+
   @Nonnull public float quality() {
     String q = param("q");
     return q == null ? 1f : Float.parseFloat(q);
@@ -140,28 +155,24 @@ public class MediaType implements Comparable<MediaType> {
   }
 
   public boolean isTextual() {
-    String type = type();
-    if (type.equals("text")) {
+    if (type().equals("text")) {
       return true;
     }
-    if (type.equals("application")) {
-      String subtype = subtype();
-      return subtype.endsWith("json") || subtype.endsWith("javascript") || subtype.endsWith("xml");
-    }
-    return false;
+    String subtype = subtype();
+    return subtype.endsWith("json") || subtype.endsWith("javascript") || subtype.endsWith("xml");
   }
 
-  public @Nullable String charset() {
-    String charset = _charset(this.charset);
+  public @Nullable Charset charset() {
+    Charset charset = _charset(this.charset);
     if (charset == null && isTextual()) {
-      return "UTF-8";
+      return UTF_8;
     }
     return charset;
   }
 
-  private String _charset(String charset) {
+  private Charset _charset(Charset charset) {
     String charsetName = param("charset");
-    return charsetName == null ? charset : charsetName;
+    return charsetName == null ? charset : Charset.forName(charsetName);
   }
 
   public @Nonnull String type() {
@@ -203,40 +214,40 @@ public class MediaType implements Comparable<MediaType> {
   }
 
   public static @Nonnull MediaType valueOf(@Nonnull String value) {
-    if (value == null) {
+    if (value == null || value.length() == 0 || value.equals("*")) {
       return all;
     }
-    switch (value.trim()) {
-      case HTML:
-        return html;
-      case TEXT:
-        return text;
-      case JSON:
-        return json;
-      case JS:
-        return js;
-      case CSS:
-        return css;
-      case FORM_URLENCODED:
-        return formUrlencoded;
-      case MULTIPART_FORMDATA:
-        return multipartFormdata;
-      case OCTET_STREAM:
-        return octetStream;
-      case XML:
-        return xml;
-      /** ALL */
-      case "":
-      case "*":
-      case ALL:
-        return all;
-      /** Creates new: */
-      default:
-        return new MediaType(value, null);
+    if (HTML.equalsIgnoreCase(value)) {
+      return html;
     }
+    if (TEXT.equalsIgnoreCase(value)) {
+      return text;
+    }
+    if (JSON.equalsIgnoreCase(value)) {
+      return json;
+    }
+    if (JS.equalsIgnoreCase(value)) {
+      return js;
+    }
+    if (CSS.equalsIgnoreCase(value)) {
+      return css;
+    }
+    if (FORM_URLENCODED.equalsIgnoreCase(value)) {
+      return formUrlencoded;
+    }
+    if (MULTIPART_FORMDATA.equalsIgnoreCase(value)) {
+      return multipartFormdata;
+    }
+    if (OCTET_STREAM.equalsIgnoreCase(value)) {
+      return octetStream;
+    }
+    if (XML.equalsIgnoreCase(value)) {
+      return xml;
+    }
+    return new MediaType(value, null);
   }
 
-  public static @Nonnull List<MediaType> parse(@Nullable String value) {
+  public static @Nonnull List<MediaType> fromAcceptHeader(@Nullable String value) {
     if (value == null || value.length() == 0) {
       return Collections.emptyList();
     }
@@ -316,7 +327,7 @@ public class MediaType implements Comparable<MediaType> {
       case "msi":
         return octetStream;
       case "xht":
-        return new MediaType("application/xhtml+xml", "UTF-8");
+        return new MediaType("application/xhtml+xml", UTF_8);
       case "bmp":
         return new MediaType("image/bmp", null);
       case "silo":
@@ -404,9 +415,9 @@ public class MediaType implements Comparable<MediaType> {
       case "ps":
         return new MediaType("application/postscript", null);
       case "xul":
-        return new MediaType("application/vnd.mozilla.xul+xml", "UTF-8");
+        return new MediaType("application/vnd.mozilla.xul+xml", UTF_8);
       case "xslt":
-        return new MediaType("application/xslt+xml", "UTF-8");
+        return new MediaType("application/xslt+xml", UTF_8);
       case "dms":
         return octetStream;
       case "mol":
@@ -456,9 +467,9 @@ public class MediaType implements Comparable<MediaType> {
       case "mp4":
         return new MediaType("video/mp4", null);
       case "vxml":
-        return new MediaType("application/voicexml+xml", "UTF-8");
+        return new MediaType("application/voicexml+xml", UTF_8);
       case "mathml":
-        return new MediaType("application/mathml+xml", "UTF-8");
+        return new MediaType("application/mathml+xml", UTF_8);
       case "hdf":
         return new MediaType("application/x-hdf", null);
       case "wav":
@@ -502,7 +513,7 @@ public class MediaType implements Comparable<MediaType> {
       case "texi":
         return new MediaType("application/x-texinfo", null);
       case "conf":
-        return new MediaType("application/hocon", "UTF-8");
+        return new MediaType("application/hocon", UTF_8);
       case "lzh":
         return new MediaType("application/octet-stream", null);
       case "tr":
@@ -540,7 +551,7 @@ public class MediaType implements Comparable<MediaType> {
       case "ppm":
         return new MediaType("image/x-portable-pixmap", null);
       case "rtx":
-        return new MediaType("text/richtext", "UTF-8");
+        return new MediaType("text/richtext", UTF_8);
       case "movie":
         return new MediaType("video/x-sgi-movie", null);
       case "ra":
@@ -554,7 +565,7 @@ public class MediaType implements Comparable<MediaType> {
       case "pps":
         return new MediaType("application/vnd.ms-powerpoint", null);
       case "rdf":
-        return new MediaType("application/rdf+xml", "UTF-8");
+        return new MediaType("application/rdf+xml", UTF_8);
       case "ppt":
         return new MediaType("application/vnd.ms-powerpoint", null);
       case "asf":
@@ -592,7 +603,7 @@ public class MediaType implements Comparable<MediaType> {
       case "qt":
         return new MediaType("video/quicktime", null);
       case "yaml":
-        return new MediaType("application/yaml", "UTF-8");
+        return new MediaType("application/yaml", UTF_8);
       case "pnm":
         return new MediaType("image/x-portable-anymap", null);
       case "tar.gz":
@@ -626,11 +637,11 @@ public class MediaType implements Comparable<MediaType> {
       case "scss":
         return css;
       case "csv":
-        return new MediaType("text/comma-separated-values", "UTF-8");
+        return new MediaType("text/comma-separated-values", UTF_8);
       case "css":
         return css;
       case "xhtml":
-        return new MediaType("application/xhtml+xml", "UTF-8");
+        return new MediaType("application/xhtml+xml", UTF_8);
       case "rpm":
         return new MediaType("application/x-rpm", null);
       case "wtls-ca-certificate":

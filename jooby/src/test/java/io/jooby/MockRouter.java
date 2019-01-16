@@ -114,13 +114,7 @@ public class MockRouter {
     Result result = new Result(value, ctx.getResponseStatusCode());
 
     /** Content-Type: */
-    String contentType = ctx.getResponseContentType().toLowerCase();
-    String responseCharset = ctx.getResponseCharset();
-    if (responseCharset == null) {
-      result.header("Content-Type", contentType);
-    } else {
-      result.header("Content-Type", contentType + ";charset=" + responseCharset.toLowerCase());
-    }
+    result.header("Content-Type", ctx.getResponseContentType().toContenTypeHeader(ctx.getResponseCharset()));
 
     /** Length: */
     long responseLength = ctx.getResponseLength();

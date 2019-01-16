@@ -51,8 +51,8 @@ public class MockContext implements Context {
   private Map<String, Object> responseHeaders = new HashMap<>();
 
   private long length;
-  private String responseContentType = "text/plain";
-  private String responseCharset = "UTF-8";
+  private MediaType responseContentType = MediaType.text;
+  private Charset responseCharset = StandardCharsets.UTF_8;
   private int responseStatusCode = 200;
   private Object result;
   private boolean responseStarted;
@@ -224,7 +224,7 @@ public class MockContext implements Context {
   }
 
   @Nonnull @Override
-  public MockContext type(@Nonnull String contentType, @Nullable String charset) {
+  public MockContext type(@Nonnull MediaType contentType, @Nullable Charset charset) {
     this.responseContentType = contentType;
     this.responseCharset = charset;
     return this;
@@ -248,8 +248,9 @@ public class MockContext implements Context {
     return (String) result;
   }
 
-  @Nonnull @Override public OutputStream responseStream() {
+  @Nonnull @Override public OutputStream responseStream(MediaType type) {
     responseStarted = true;
+    type(type);
     ByteArrayOutputStream out = new ByteArrayOutputStream(Server._16KB);
     result = out;
     return out;
@@ -257,6 +258,7 @@ public class MockContext implements Context {
 
   @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
     responseStarted = true;
+    type(type, charset);
     Writer writer = new StringWriter();
     result = writer;
     return writer;
@@ -297,7 +299,7 @@ public class MockContext implements Context {
     return this;
   }
 
-  public String getResponseContentType() {
+  public MediaType getResponseContentType() {
     return responseContentType;
   }
 
@@ -309,7 +311,7 @@ public class MockContext implements Context {
     return responseHeaders;
   }
 
-  public String getResponseCharset() {
+  public Charset getResponseCharset() {
     return responseCharset;
   }
 
@@ -318,7 +320,7 @@ public class MockContext implements Context {
   }
 
   @Override public String name() {
-    return "fake";
+    return "mock";
   }
 
   @Nonnull @Override public Router router() {

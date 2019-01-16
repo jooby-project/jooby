@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -182,13 +181,9 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
-  @Nonnull @Override public Context type(@Nonnull String contentType, @Nullable String charset) {
-    if (charset == null) {
-      exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType);
-    } else {
-      exchange.getResponseHeaders()
-          .put(Headers.CONTENT_TYPE, contentType + ";charset=" + charset);
-    }
+  @Nonnull @Override
+  public Context type(@Nonnull MediaType contentType, @Nullable Charset charset) {
+    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType.toContenTypeHeader(charset));
     return this;
   }
 
@@ -197,7 +192,8 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
-  @Nonnull @Override public OutputStream responseStream() {
+  @Nonnull @Override public OutputStream responseStream(MediaType type) {
+    type(type);
     if (!exchange.isBlocking()) {
       exchange.startBlocking();
     }
@@ -211,9 +207,8 @@ public class UtowContext implements Context, IoCallback {
   }
 
   @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
-    OutputStream outputStream = responseStream();
+    OutputStream outputStream = responseStream(type);
 
-    type(type.value(), charset.name());
     UtowWriter writer = new UtowWriter(outputStream, charset);
     return writer;
   }

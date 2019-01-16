@@ -16,6 +16,9 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -28,6 +31,10 @@ public class Result {
 
   private Map<String, String> headers;
 
+  private MediaType contentType = MediaType.text;
+
+  private Charset charset = StandardCharsets.UTF_8;
+
   public Result(Object value, int statusCode) {
     this.value = value;
     this.statusCode = statusCode;
@@ -37,17 +44,17 @@ public class Result {
     this(value, statusCode.value());
   }
 
-  public Map<String, String> headers() {
-    return headers == null ? Collections.emptyMap() : headers;
+  public @Nonnull Map<String, String> headers() {
+    return headers == null ? Collections.emptyMap() : Collections.unmodifiableMap(headers);
   }
 
-  public Result headers(Map<String, String> headers) {
+  public @Nonnull Result headers(@Nonnull Map<String, String> headers) {
     this.headers = new LinkedHashMap<>();
     headers.forEach((k, v) -> this.headers.put(k.toLowerCase(), v));
     return this;
   }
 
-  public Result header(@Nonnull String name, @Nonnull String value) {
+  public @Nonnull Result header(@Nonnull String name, @Nonnull String value) {
     if (headers == null) {
       headers = new LinkedHashMap<>();
     }
@@ -55,8 +62,22 @@ public class Result {
     return this;
   }
 
-  public String contentType() {
-    return headers().get("content-type");
+  public @Nullable MediaType type() {
+    return contentType;
+  }
+
+  public @Nonnull Result type(@Nonnull MediaType contentType) {
+    return type(contentType, contentType.charset());
+  }
+
+  public @Nonnull Result type(@Nonnull MediaType contentType, @Nullable Charset charset) {
+    this.contentType = contentType;
+    this.charset = charset;
+    return this;
+  }
+
+  public @Nullable Charset charset() {
+    return charset;
   }
 
   public long contentLength() {

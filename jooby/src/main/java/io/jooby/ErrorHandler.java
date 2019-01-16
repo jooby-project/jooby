@@ -21,6 +21,7 @@ import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.jooby.MediaType.json;
 import static java.lang.String.format;
 
 public interface ErrorHandler {
@@ -49,7 +50,7 @@ public interface ErrorHandler {
     new ContentNegotiation()
         .accept("application/json", () -> {
           String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
-          return ctx.type("application/json")
+          return ctx.type(json)
               .statusCode(statusCode)
               .sendText("{\"message\":\"" + message + "\",\"statusCode\":" + statusCode.value()
                   + ",\"reason\":\"" + statusCode.reason() + "\"}");

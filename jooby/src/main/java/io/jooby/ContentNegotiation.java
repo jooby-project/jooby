@@ -42,7 +42,7 @@ public class ContentNegotiation {
   }
 
   public Object render(String accept) {
-    List<MediaType> types = MediaType.parse(accept);
+    List<MediaType> types = MediaType.fromAcceptHeader(accept);
     int maxScore = Integer.MIN_VALUE;
     Throwing.Supplier<Object> result = fallback;
     for (Map.Entry<MediaType, Throwing.Supplier<Object>> entry : options.entrySet()) {

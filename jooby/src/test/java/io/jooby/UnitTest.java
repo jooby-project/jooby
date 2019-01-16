@@ -25,14 +25,14 @@ public class UnitTest {
 
       router.get("/", result -> {
         assertEquals(200, result.statusCode());
-        assertEquals("text/plain;charset=utf-8", result.contentType());
+        assertEquals("text/plain", result.type().value());
         assertEquals(2, result.contentLength());
         assertEquals("OK", result.value());
       });
 
       router.get("/123", result -> {
         assertEquals(200, result.statusCode());
-        assertEquals("text/plain;charset=utf-8", result.contentType());
+        assertEquals("text/plain", result.type().value());
         assertEquals(3, result.contentLength());
         assertEquals(123, result.value());
       });
