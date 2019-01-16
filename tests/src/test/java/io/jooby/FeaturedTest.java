@@ -728,7 +728,7 @@ public class FeaturedTest {
 
       app.get("/", ctx -> {
         if (ctx.pathString().length() != 0) {
-          throw new IllegalArgumentException("Invalid path");
+          throw new IllegalArgumentException("Intentional error");
         }
         return "OK";
       });
@@ -754,7 +754,7 @@ public class FeaturedTest {
             + "<body>\n"
             + "<h1>Bad Request</h1>\n"
             + "<hr>\n"
-            + "<h2>message: Invalid path</h2>\n"
+            + "<h2>message: Intentional error</h2>\n"
             + "<h2>status code: 400</h2>\n"
             + "</body>\n"
             + "</html>", rsp.body().string());
@@ -765,7 +765,7 @@ public class FeaturedTest {
         assertEquals("application/json;charset=utf-8",
             rsp.body().contentType().toString().toLowerCase());
         assertEquals(
-            "{\"message\":\"Invalid path\",\"statusCode\":400,\"reason\":\"Bad Request\"}",
+            "{\"message\":\"Intentional error\",\"statusCode\":400,\"reason\":\"Bad Request\"}",
             rsp.body().string());
       });
     });

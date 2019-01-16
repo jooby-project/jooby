@@ -234,7 +234,8 @@ public class UtowContext implements Context, IoCallback {
 
   @Nonnull @Override public Context sendStatusCode(int statusCode) {
     exchange.setResponseContentLength(0);
-    exchange.setStatusCode(statusCode).endExchange();
+    exchange.setStatusCode(statusCode);
+    destroy(null);
     return this;
   }
 
@@ -242,14 +243,13 @@ public class UtowContext implements Context, IoCallback {
     return exchange.isResponseStarted();
   }
 
-  private void destroy(Exception exception) {
-    if (exception != null) {
+  private void destroy(Exception cause) {
+    if (cause != null) {
       Logger log = router.log();
-      if (Server.connectionLost(exception)) {
-        log.debug("%s %s", method(), pathString(), exception);
+      if (Server.connectionLost(cause)) {
+        log.debug("exception found while sending response {} {}", method(), pathString(), cause);
       } else {
-        log.error("exception found while sending response {} {} {}", method(), pathString(),
-            exception);
+        log.error("exception found while sending response {} {}", method(), pathString(), cause);
       }
     }
     this.router = null;

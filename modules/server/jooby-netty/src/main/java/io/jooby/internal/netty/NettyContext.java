@@ -18,6 +18,8 @@ package io.jooby.internal.netty;
 import io.jooby.*;
 import io.jooby.FileUpload;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.EmptyByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,6 +27,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
 import io.netty.util.ReferenceCounted;
 import io.jooby.Throwing;
+import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -242,7 +245,7 @@ public class NettyContext implements Context, ChannelFutureListener {
 
   private OutputStream newOutputStream() {
     return new NettyOutputStream(ctx, bufferSize,
-        new DefaultHttpResponse(req.protocolVersion(), status, setHeaders));
+        new DefaultHttpResponse(req.protocolVersion(), status, setHeaders), this);
   }
 
   @Nonnull @Override public Context sendText(@Nonnull String data) {
@@ -268,9 +271,9 @@ public class NettyContext implements Context, ChannelFutureListener {
   @Nonnull @Override public Context sendStatusCode(int statusCode) {
     responseStarted = true;
     setHeaders.set(CONTENT_LENGTH, 0);
-    DefaultHttpResponse rsp = new DefaultHttpResponse(HTTP_1_1,
-        HttpResponseStatus.valueOf(statusCode), setHeaders);
-    ctx.writeAndFlush(rsp).addListener(CLOSE);
+    DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HTTP_1_1,
+        HttpResponseStatus.valueOf(statusCode), Unpooled.EMPTY_BUFFER, setHeaders, NO_TRAILING);
+    ctx.writeAndFlush(rsp).addListener(this);
     return this;
   }
 
@@ -285,7 +288,7 @@ public class NettyContext implements Context, ChannelFutureListener {
   @Override public void operationComplete(ChannelFuture future) {
     boolean keepAlive = isKeepAlive(req);
     try {
-      destroy();
+      destroy(future.cause());
     } finally {
       if (!keepAlive) {
         future.channel().close();
@@ -293,13 +296,21 @@ public class NettyContext implements Context, ChannelFutureListener {
     }
   }
 
-  private void destroy() {
+  private void destroy(Throwable cause) {
+    Logger log = router.log();
+    if (cause != null) {
+      if (Server.connectionLost(cause)) {
+        log.debug("exception found while sending response {} {}", method(), pathString(), cause);
+      } else {
+        log.error("exception found while sending response {} {}", method(), pathString(), cause);
+      }
+    }
     if (files != null) {
       for (FileUpload file : files) {
         try {
           file.destroy();
         } catch (Exception x) {
-          router.log().debug("file upload destroy resulted in exception", x);
+          log.debug("file upload destroy resulted in exception", x);
         }
       }
       files = null;
@@ -308,7 +319,7 @@ public class NettyContext implements Context, ChannelFutureListener {
       try {
         decoder.destroy();
       } catch (Exception x) {
-        router.log().debug("body decoder destroy resulted in exception", x);
+        log.debug("body decoder destroy resulted in exception", x);
       }
       decoder = null;
     }

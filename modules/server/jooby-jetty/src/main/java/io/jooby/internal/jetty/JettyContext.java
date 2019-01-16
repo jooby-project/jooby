@@ -25,6 +25,7 @@ import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.MultiMap;
 import io.jooby.Throwing;
+import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -271,16 +272,10 @@ public class JettyContext implements Callback, Context {
   }
 
   @Nonnull @Override public Context sendStatusCode(int statusCode) {
-    try {
-      response.setLongContentLength(0);
-      response.setStatus(statusCode);
-      if (!request.isAsyncStarted()) {
-        response.closeOutput();
-      }
-      return this;
-    } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
-    }
+    response.setLongContentLength(0);
+    response.setStatus(statusCode);
+    destroy(null);
+    return this;
   }
 
   @Nonnull @Override public Context sendBytes(@Nonnull byte[] data) {
@@ -302,25 +297,39 @@ public class JettyContext implements Callback, Context {
   }
 
   @Override public void succeeded() {
-    destroy();
+    destroy(null);
   }
 
   @Override public void failed(Throwable x) {
-    destroy();
+    destroy(x);
   }
 
   @Override public InvocationType getInvocationType() {
     return InvocationType.NON_BLOCKING;
   }
 
-  private void destroy() {
+  private void destroy(Throwable x) {
+    Logger log = router.log();
+    if (x != null) {
+      if (Server.connectionLost(x)) {
+        log.debug("exception found while sending response {} {}", method(), pathString(), x);
+      } else {
+        log.error("exception found while sending response {} {}", method(), pathString(), x);
+      }
+    }
     if (files != null) {
       files.forEach(throwingConsumer(FileUpload::destroy));
       files.clear();
       files = null;
     }
-    if (request.isAsyncStarted()) {
-      request.getAsyncContext().complete();
+    try {
+      if (request.isAsyncStarted()) {
+        request.getAsyncContext().complete();
+      } else {
+        response.closeOutput();
+      }
+    } catch (IOException e) {
+      log.debug("exception found while closing resources {} {} {}", method(), pathString(), e);
     }
     this.router = null;
     this.request = null;
