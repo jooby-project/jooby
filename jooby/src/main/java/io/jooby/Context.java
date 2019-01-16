@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -386,6 +387,8 @@ public interface Context {
   @Nonnull Context sendBytes(@Nonnull ByteBuffer data);
 
   @Nonnull Context sendStream(@Nonnull InputStream input);
+
+  @Nonnull Context sendFile(@Nonnull FileChannel file);
 
   @Nonnull default Context sendStatusCode(StatusCode statusCode) {
     return sendStatusCode(statusCode.value());

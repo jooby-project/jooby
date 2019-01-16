@@ -31,6 +31,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -249,6 +250,18 @@ public class UtowContext implements Context, IoCallback {
   @Nonnull @Override public Context sendStream(@Nonnull InputStream input) {
     ifSetChunked();
     new UtowChunkedStream().send(Channels.newChannel(input), exchange, this);
+    return this;
+  }
+
+  @Nonnull @Override public Context sendFile(@Nonnull FileChannel file) {
+    try {
+      exchange.setResponseContentLength(file.size());
+
+      new UtowChunkedStream().send(file, exchange, this);
+
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
     return this;
   }
 

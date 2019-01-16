@@ -38,6 +38,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -227,7 +228,8 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
-  @Nonnull @Override public Context type(@Nonnull MediaType contentType, @Nullable Charset charset) {
+  @Nonnull @Override
+  public Context type(@Nonnull MediaType contentType, @Nullable Charset charset) {
     response.setHeader(HttpHeader.CONTENT_TYPE, contentType.toContenTypeHeader(charset));
     return this;
   }
@@ -295,6 +297,19 @@ public class JettyContext implements Callback, Context {
     }
     response.getHttpOutput().sendContent(input, this);
     return this;
+  }
+
+  @Nonnull @Override public Context sendFile(@Nonnull FileChannel file) {
+    try {
+      response.setLongContentLength(file.size());
+      if (!request.isAsyncStarted()) {
+        request.startAsync();
+      }
+      response.getHttpOutput().sendContent(file, this);
+      return this;
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
   }
 
   @Override public boolean isResponseStarted() {

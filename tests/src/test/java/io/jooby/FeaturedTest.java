@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -1196,6 +1197,22 @@ public class FeaturedTest {
       });
 
       client.get("/txt?l=" + _19kb.length(), rsp -> {
+        assertEquals(null, rsp.header("transfer-encoding"));
+        assertEquals(Integer.toString(_19kb.length()), rsp.header("content-length").toLowerCase());
+        assertEquals(_19kb, rsp.body().string());
+      });
+    });
+  }
+
+  @Test
+  public void sendFile() {
+    new JoobyRunner(app -> {
+      app.get("/file", ctx -> {
+        return ctx
+            .sendFile(FileChannel.open(userdir("src", "test", "resources", "files", "19kb.txt")));
+      });
+    }).ready(client -> {
+      client.get("/file", rsp -> {
         assertEquals(null, rsp.header("transfer-encoding"));
         assertEquals(Integer.toString(_19kb.length()), rsp.header("content-length").toLowerCase());
         assertEquals(_19kb, rsp.body().string());

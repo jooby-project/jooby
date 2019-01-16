@@ -12,6 +12,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -286,7 +287,14 @@ public class MockContext implements Context {
   }
 
   @Nonnull @Override public Context sendStream(InputStream input) {
+    responseStarted = true;
     result = input;
+    return this;
+  }
+
+  @Nonnull @Override public Context sendFile(@Nonnull FileChannel file) {
+    responseStarted = true;
+    result = file;
     return this;
   }
 
