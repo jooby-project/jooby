@@ -38,6 +38,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -292,21 +293,33 @@ public class JettyContext implements Callback, Context {
   }
 
   @Nonnull @Override public Context sendStream(@Nonnull InputStream input) {
-    if (!request.isAsyncStarted()) {
-      request.startAsync();
-    }
-    response.getHttpOutput().sendContent(input, this);
-    return this;
-  }
-
-  @Nonnull @Override public Context sendFile(@Nonnull FileChannel file) {
     try {
-      response.setLongContentLength(file.size());
       if (!request.isAsyncStarted()) {
         request.startAsync();
       }
-      response.getHttpOutput().sendContent(file, this);
+
+      long len = response.getContentLength();
+      InputStream stream;
+      if (len > 0) {
+        ByteRange range = ByteRange.parse(request.getHeader(HttpHeader.RANGE.asString()))
+            .apply(this, len);
+        input.skip(range.start);
+        stream = Functions.limit(input, range.end);
+      } else {
+        response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
+        stream = input;
+      }
+      response.getHttpOutput().sendContent(stream, this);
       return this;
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  @Nonnull @Override public Context sendFile(@Nonnull FileChannel file) {
+    try (FileChannel channel = file) {
+      response.setLongContentLength(channel.size());
+      return sendStream(Channels.newInputStream(file));
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }

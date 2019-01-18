@@ -1184,7 +1184,7 @@ public class FeaturedTest {
   }
 
   @Test
-  public void sendInputStream() {
+  public void sendStream() {
     new JoobyRunner(app -> {
       app.get("/txt", ctx -> {
         ctx.query("l").toOptional().ifPresent(len -> ctx.length(Long.parseLong(len)));
@@ -1205,6 +1205,39 @@ public class FeaturedTest {
   }
 
   @Test
+  public void sendStreamRange() {
+    new JoobyRunner(app -> {
+      app.get("/range", ctx -> {
+        ctx.length(_19kb.length());
+        return ctx.sendStream(new ByteArrayInputStream(_19kb.getBytes(StandardCharsets.UTF_8)));
+      });
+    }).ready(client -> {
+      client.header("Range", "bytes=-");
+      client.get("/range", rsp -> {
+        assertEquals(416, rsp.code());
+      });
+
+      client.header("Range", "bytes=0-99");
+      client.get("/range", rsp -> {
+        assertEquals("bytes", rsp.header("accept-ranges"));
+        assertEquals("bytes 0-99/18944", rsp.header("content-range"));
+        assertEquals("100", rsp.header("content-length"));
+        assertEquals(206, rsp.code());
+        assertEquals(_19kb.substring(0, 100), rsp.body().string());
+      });
+
+      client.header("Range", "bytes=-100");
+      client.get("/range", rsp -> {
+        assertEquals("bytes", rsp.header("accept-ranges"));
+        assertEquals("bytes 18844-18943/18944", rsp.header("content-range"));
+        assertEquals("100", rsp.header("content-length"));
+        assertEquals(206, rsp.code());
+        assertEquals(_19kb.substring(_19kb.length() - 100), rsp.body().string());
+      });
+    });
+  }
+
+  @Test
   public void sendFile() {
     new JoobyRunner(app -> {
       app.get("/file", ctx -> {
@@ -1216,6 +1249,35 @@ public class FeaturedTest {
         assertEquals(null, rsp.header("transfer-encoding"));
         assertEquals(Integer.toString(_19kb.length()), rsp.header("content-length").toLowerCase());
         assertEquals(_19kb, rsp.body().string());
+      });
+    });
+  }
+
+  @Test
+  public void sendFileRange() {
+    new JoobyRunner(app -> {
+      app.get("/file-range", ctx -> {
+        ctx.length(_19kb.length());
+        return ctx
+            .sendFile(FileChannel.open(userdir("src", "test", "resources", "files", "19kb.txt")));
+      });
+    }).ready(client -> {
+      client.header("Range", "bytes=0-99");
+      client.get("/file-range", rsp -> {
+        assertEquals("bytes", rsp.header("accept-ranges"));
+        assertEquals("bytes 0-99/18944", rsp.header("content-range"));
+        assertEquals("100", rsp.header("content-length"));
+        assertEquals(206, rsp.code());
+        assertEquals(_19kb.substring(0, 100), rsp.body().string());
+      });
+
+      client.header("Range", "bytes=-100");
+      client.get("/file-range", rsp -> {
+        assertEquals("bytes", rsp.header("accept-ranges"));
+        assertEquals("bytes 18844-18943/18944", rsp.header("content-range"));
+        assertEquals("100", rsp.header("content-length"));
+        assertEquals(206, rsp.code());
+        assertEquals(_19kb.substring(_19kb.length() - 100), rsp.body().string());
       });
     });
   }

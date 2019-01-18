@@ -46,6 +46,7 @@ import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpHeaderNames.RANGE;
 import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
 import static io.netty.handler.codec.http.HttpHeaderValues.CHUNKED;
 import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
@@ -267,33 +268,50 @@ public class NettyContext implements Context, ChannelFutureListener {
     return sendByteBuf(wrappedBuffer(data));
   }
 
-  @Nonnull @Override public Context sendStream(@Nonnull InputStream input) {
-    responseStarted = true;
-    ifSetChunked();
-    DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
-    ctx.channel().eventLoop().execute(() -> {
-      // Headers
-      ctx.write(rsp);
-      // Body
-      ctx.write(new ChunkedStream(input, bufferSize));
-      // Finish
-      ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
-    });
-    return this;
+  @Nonnull @Override public Context sendStream(@Nonnull InputStream in) {
+    try {
+      ifSetChunked();
+      long len = responseLength();
+      ChunkedStream chunkedStream;
+      if (len > 0) {
+        ByteRange range = ByteRange.parse(req.headers().get(RANGE)).apply(this, len);
+        in.skip(range.start);
+        chunkedStream = new ChunkedStream(Functions.limit(in, range.end));
+      } else {
+        chunkedStream = new ChunkedStream(in, bufferSize);
+      }
+      responseStarted = true;
+      DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
+      ctx.channel().eventLoop().execute(() -> {
+        // Headers
+        ctx.write(rsp);
+        // Body
+        ctx.write(chunkedStream);
+        // Finish
+        ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
+      });
+      return this;
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
   }
 
   @Nonnull @Override public Context sendFile(@Nonnull FileChannel file) {
     try {
       long len = file.size();
-      setHeaders.set(CONTENT_LENGTH, file.size());
+      setHeaders.set(CONTENT_LENGTH, len);
+
+      ByteRange range = ByteRange.parse(req.headers().get(RANGE)).apply(this, len);
 
       DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
+
+      responseStarted = true;
 
       ctx.channel().eventLoop().execute(() -> {
         // Headers
         ctx.write(rsp);
         // Body
-        ctx.write(new DefaultFileRegion(file, 0, len));
+        ctx.write(new DefaultFileRegion(file, range.start, range.end));
         // Finish
         ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
       });
@@ -405,6 +423,11 @@ public class NettyContext implements Context, ChannelFutureListener {
         ref.release();
       }
     }
+  }
+
+  private long responseLength() {
+    String len = setHeaders.get(CONTENT_LENGTH);
+    return len == null ? -1 : Long.parseLong(len);
   }
 
 }

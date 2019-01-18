@@ -19,6 +19,7 @@ import io.jooby.internal.UrlParser;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -27,6 +28,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -344,7 +347,8 @@ public interface Context {
 
   @Nonnull OutputStream responseStream(MediaType type);
 
-  default @Nonnull Context responseStream(MediaType type, Throwing.Consumer<OutputStream> consumer) throws Exception {
+  default @Nonnull Context responseStream(MediaType type, Throwing.Consumer<OutputStream> consumer)
+      throws Exception {
     try (OutputStream out = responseStream(type)) {
       consumer.accept(out);
     }
@@ -365,11 +369,13 @@ public interface Context {
     return responseWriter(MediaType.text, consumer);
   }
 
-  default @Nonnull Context responseWriter(MediaType contentType, Throwing.Consumer<Writer> consumer) throws Exception {
+  default @Nonnull Context responseWriter(MediaType contentType, Throwing.Consumer<Writer> consumer)
+      throws Exception {
     return responseWriter(contentType, contentType.charset(), consumer);
   }
 
-  default @Nonnull Context responseWriter(MediaType contentType, Charset charset, Throwing.Consumer<Writer> consumer) throws Exception {
+  default @Nonnull Context responseWriter(MediaType contentType, Charset charset,
+      Throwing.Consumer<Writer> consumer) throws Exception {
     try (Writer writer = responseWriter(contentType, charset)) {
       consumer.accept(writer);
     }
@@ -387,6 +393,14 @@ public interface Context {
   @Nonnull Context sendBytes(@Nonnull ByteBuffer data);
 
   @Nonnull Context sendStream(@Nonnull InputStream input);
+
+  default @Nonnull Context sendFile(@Nonnull Path file) {
+    try {
+      return sendFile(FileChannel.open(file));
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
 
   @Nonnull Context sendFile(@Nonnull FileChannel file);
 

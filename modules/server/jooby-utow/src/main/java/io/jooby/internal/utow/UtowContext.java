@@ -16,6 +16,7 @@
 package io.jooby.internal.utow;
 
 import io.jooby.*;
+import io.jooby.ByteRange;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
@@ -37,6 +38,7 @@ import java.util.*;
 import java.util.concurrent.Executor;
 
 import static io.undertow.server.handlers.form.FormDataParser.FORM_DATA;
+import static io.undertow.util.Headers.RANGE;
 
 public class UtowContext implements Context, IoCallback {
 
@@ -247,17 +249,33 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
-  @Nonnull @Override public Context sendStream(@Nonnull InputStream input) {
-    ifSetChunked();
-    new UtowChunkedStream().send(Channels.newChannel(input), exchange, this);
-    return this;
+  @Nonnull @Override public Context sendStream(@Nonnull InputStream in) {
+    try {
+      ifSetChunked();
+      long len = exchange.getResponseContentLength();
+      if (len > 0) {
+        ByteRange range = ByteRange.parse(exchange.getRequestHeaders().getFirst(RANGE))
+            .apply(this, len);
+        in.skip(range.start);
+        len = range.end;
+      } else {
+        len = -1;
+      }
+      new UtowChunkedStream(len).send(Channels.newChannel(in), exchange, this);
+      return this;
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
+    }
   }
 
   @Nonnull @Override public Context sendFile(@Nonnull FileChannel file) {
     try {
-      exchange.setResponseContentLength(file.size());
-
-      new UtowChunkedStream().send(file, exchange, this);
+      long len = file.size();
+      exchange.setResponseContentLength(len);
+      ByteRange range = ByteRange.parse(exchange.getRequestHeaders().getFirst(RANGE))
+          .apply(this, len);
+      file.position(range.start);
+      new UtowChunkedStream(range.end).send(file, exchange, this);
 
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
