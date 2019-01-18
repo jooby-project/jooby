@@ -534,18 +534,24 @@ public class BytecodeRouteParser {
               .findFirst()
               .map(MethodInsnNode.class::cast)
               .ifPresent(node -> {
-                List<Lambda> lambdas = lambdas(loader, loadClass(node.owner)).stream()
-                    .filter(Lambda.class::isInstance)
-                    .map(Lambda.class::cast)
-                    .collect(Collectors.toList());
+                List<Object> rlist = lambdas(loader, loadClass(node.owner));
+
                 Insn.ldcFor(node).stream()
                     .map(e -> e.cst.toString())
                     .findFirst()
                     .ifPresent(prefix -> {
-                      IntStream.range(0, lambdas.size())
-                          .forEach(i -> lambdas.set(i, lambdas.get(i).prefix(prefix)));
+                      IntStream.range(0, rlist.size())
+                          .forEach(i -> {
+                            Object o = rlist.get(i);
+                            if (o instanceof Lambda) {
+                              rlist.set(i, ((Lambda) o).prefix(prefix));
+                            } else {
+                              RouteMethod r = (RouteMethod) o;
+                              r.pattern(prefix + r.pattern());
+                            }
+                          });
                     });
-                result.addAll(lambdas);
+                result.addAll(rlist);
               });
         })
         .forEach();
