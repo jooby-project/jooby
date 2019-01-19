@@ -203,7 +203,6 @@
  */
 package org.jooby.run;
 
-import com.sun.nio.file.SensitivityWatchEventModifier;
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
@@ -212,6 +211,8 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -231,7 +232,18 @@ import java.util.function.BiConsumer;
  */
 public class Watcher {
 
-  private static final WatchEvent.Modifier HIGH = SensitivityWatchEventModifier.HIGH;
+  private static final WatchEvent.Modifier HIGH = modifier("HIGH");
+
+  public static WatchEvent.Modifier modifier(String name) {
+    try {
+      Class e = Watcher.class.getClassLoader()
+          .loadClass("com.sun.nio.file.SensitivityWatchEventModifier");
+      Method m = e.getDeclaredMethod("valueOf", String.class);
+      return (WatchEvent.Modifier) m.invoke(null, name);
+    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException x) {
+      return () -> name;
+    }
+  }
 
   private final WatchService watcher;
   private volatile Map<WatchKey, Path> keys;
@@ -240,7 +252,7 @@ public class Watcher {
   private volatile boolean stopped = false;
 
   public Watcher(final BiConsumer<Kind<?>, Path> listener, final Path... dirs)
-          throws IOException {
+      throws IOException {
     this.watcher = FileSystems.getDefault().newWatchService();
     this.keys = new HashMap<>();
     this.listener = listener;
@@ -275,7 +287,8 @@ public class Watcher {
    * Register the given directory with the WatchService
    */
   private void register(final Path dir) throws IOException {
-    WatchKey key = dir.register(watcher, new Kind[]{ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY }, HIGH);
+    WatchKey key = dir
+        .register(watcher, new Kind[]{ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY}, HIGH);
     keys.put(key, dir);
   }
 

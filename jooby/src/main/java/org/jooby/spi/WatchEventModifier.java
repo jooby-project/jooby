@@ -201,25 +201,22 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.jooby.filewatcher;
+package org.jooby.spi;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.WatchEvent;
 
-class WatchEventModifier implements WatchEvent.Modifier {
+public class WatchEventModifier {
 
-  private final String name;
-
-  public WatchEventModifier(final String name) {
-    this.name = name.toUpperCase();
-  }
-
-  @Override
-  public String name() {
-    return name;
-  }
-
-  @Override
-  public String toString() {
-    return name;
+  public static WatchEvent.Modifier modifier(String name) {
+    try {
+      Class e = WatchEventModifier.class.getClassLoader()
+          .loadClass("com.sun.nio.file.SensitivityWatchEventModifier");
+      Method m = e.getDeclaredMethod("valueOf", String.class);
+      return (WatchEvent.Modifier) m.invoke(null, name);
+    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException x) {
+      return () -> name;
+    }
   }
 }

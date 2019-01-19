@@ -203,6 +203,8 @@
  */
 package org.jooby.filewatcher;
 
+import org.jooby.spi.WatchEventModifier;
+
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
@@ -256,7 +258,7 @@ public class FileEventOptions {
 
   private final List<PathMatcher> matchers = new ArrayList<>();
 
-  private Modifier modifier = new WatchEventModifier("HIGH");
+  private Modifier modifier = WatchEventModifier.modifier("HIGH");
 
   private boolean recursive = true;
 

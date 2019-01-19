@@ -211,6 +211,7 @@ import com.typesafe.config.ConfigFactory;
 import org.jooby.Env;
 import org.jooby.Jooby.Module;
 import org.jooby.funzy.Throwing;
+import org.jooby.spi.WatchEventModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -548,7 +549,7 @@ public class FileWatcher implements Module {
       Path path = Paths.get(coptions.getString("path"));
       FileEventOptions options = new FileEventOptions(path, handler);
       list(coptions, "kind", it -> options.kind(new WatchEventKind(it.toString())));
-      list(coptions, "modifier", it -> options.modifier(new WatchEventModifier(it.toString())));
+      list(coptions, "modifier", it -> options.modifier(WatchEventModifier.modifier(it.toString())));
       list(coptions, "includes", it -> options.includes(it.toString()));
       list(coptions, "recursive", it -> options.recursive(Boolean.valueOf(it.toString())));
       callback.accept(options);
