@@ -327,7 +327,7 @@ public class BytecodeRouteParser {
           .isPresent();
   static final Predicate<Parameter> SKIP = TYPE_TO_SKIP.and(ANNOTATION_TO_SKIP);
 
-  private static final ObjectMapper mapper = new ObjectMapper();
+  static final ObjectMapper mapper = new ObjectMapper();
   private static final String OBJECT = Type.getInternalName(Object.class);
   private static final String RETURN_OBJ = "L" + OBJECT + ";";
 

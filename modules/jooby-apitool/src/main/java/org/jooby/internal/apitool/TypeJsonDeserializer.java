@@ -250,8 +250,11 @@ class TypeJsonDeserializer extends JsonDeserializer<Type> {
         types.add(element);
         singleType.setLength(0);
       } else if (ch == '>') {
-        Type element = BytecodeRouteParser.loadType(loader, singleType.toString());
-        types.add(element);
+        if (singleType.length() > 0) {
+          Type element = BytecodeRouteParser.loadType(loader, singleType.toString());
+          types.add(element);
+          singleType.setLength(0);
+        }
       } else if (ch == ']') {
         // java.lang.String[]
         singleType.setLength(singleType.length() - 1);
