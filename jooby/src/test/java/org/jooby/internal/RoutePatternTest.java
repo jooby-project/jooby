@@ -457,4 +457,9 @@ public class RoutePatternTest {
         .matches("GET/Path1");
   }
 
+  @Test
+  public void shouldNotBreakOnMissing () {
+    new RoutePathAssert("GET", "/")
+        .butNot("GET(X11;");
+  }
 }

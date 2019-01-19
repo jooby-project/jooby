@@ -387,7 +387,7 @@ public class RoutePattern {
 
       @Override
       public RouteMatcher apply(final String fullpath) {
-        String path = fullpath.substring(fullpath.indexOf('/'));
+        String path = fullpath.substring(Math.max(0, fullpath.indexOf('/')));
         if (complex) {
           return new RegexRouteMatcher(path, regex.matcher(fullpath), vars);
         }
