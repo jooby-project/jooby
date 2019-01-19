@@ -206,7 +206,9 @@ package org.jooby.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+
 import static java.util.Objects.requireNonNull;
+
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
@@ -307,7 +309,9 @@ public class WebSocketImpl implements WebSocket {
     removeSession(this);
     synchronized (this) {
       open = false;
-      ws.close(status.code(), status.reason());
+      if (ws != null) {
+        ws.close(status.code(), status.reason());
+      }
     }
   }
 
