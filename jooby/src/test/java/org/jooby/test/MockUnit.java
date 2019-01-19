@@ -209,6 +209,10 @@ public class MockUnit {
     return this;
   }
 
+  public MockUnit run(final Block block) throws Exception {
+    return run(new Block[] {block});
+  }
+
   public MockUnit run(final Block... blocks) throws Exception {
 
     for (Block block : this.blocks) {
