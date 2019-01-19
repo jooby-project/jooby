@@ -334,8 +334,6 @@ public class ServletServletResponse implements NativeResponse {
       }
       committed = true;
     }
-    req = null;
-    rsp = null;
   }
 
   protected void close() {
