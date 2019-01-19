@@ -206,6 +206,7 @@ package org.jooby.internal.apitool;
 import org.jooby.Jooby;
 import org.jooby.Mutant;
 import org.jooby.Request;
+import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Router;
 import org.objectweb.asm.Opcodes;
@@ -301,6 +302,10 @@ class Filters {
 
   public static Predicate<MethodNode> methodName(final String name) {
     return is(MethodNode.class).and(m -> m.name.equals(name));
+  }
+
+  public static Predicate<MethodInsnNode> sendObject() {
+    return call(Response.class, "send", Object.class.getName());
   }
 
   @SuppressWarnings("rawtypes")

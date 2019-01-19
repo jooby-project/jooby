@@ -230,11 +230,13 @@ import org.jooby.apitool.RouteMethod;
 import org.jooby.apitool.RouteParameter;
 import org.jooby.apitool.RouteResponse;
 import org.jooby.funzy.Try;
+
 import static org.jooby.funzy.When.when;
+
 import org.jooby.internal.RouteMetadata;
+
 import static org.jooby.internal.apitool.Filters.access;
 import static org.jooby.internal.apitool.Filters.and;
-import static org.jooby.internal.apitool.Filters.call;
 import static org.jooby.internal.apitool.Filters.file;
 import static org.jooby.internal.apitool.Filters.getOrCreateKotlinClass;
 import static org.jooby.internal.apitool.Filters.is;
@@ -249,7 +251,9 @@ import static org.jooby.internal.apitool.Filters.opcode;
 import static org.jooby.internal.apitool.Filters.param;
 import static org.jooby.internal.apitool.Filters.path;
 import static org.jooby.internal.apitool.Filters.scriptRoute;
+import static org.jooby.internal.apitool.Filters.sendObject;
 import static org.jooby.internal.apitool.Filters.use;
+
 import org.jooby.internal.mvc.MvcRoutes;
 import org.jooby.mvc.Body;
 import org.jooby.mvc.Flash;
@@ -259,8 +263,10 @@ import org.jooby.mvc.POST;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
+
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -408,7 +414,7 @@ public class BytecodeRouteParser {
 
           java.lang.reflect.Type returnType;
           if (method.desc.endsWith("V")) {
-            returnType = void.class;
+            returnType = sendReturnType(loader, method);
           } else if (method.desc.endsWith(RETURN_OBJ)) {
             returnType = returnType(loader, method);
           } else {
@@ -1055,36 +1061,53 @@ public class BytecodeRouteParser {
         .filter(and(is(InsnNode.class), opcode(Opcodes.ARETURN)))
         .findFirst()
         .map(AbstractInsnNode::getPrevious)
-        .map(previous -> {
-          /** return 1; return true; return new Foo(); */
-          if (previous instanceof MethodInsnNode) {
-            MethodInsnNode minnsn = ((MethodInsnNode) previous);
-            if (minnsn.name.equals("<init>")) {
-              return loadType(loader, minnsn.owner);
-            }
-            String desc = minnsn.desc;
-            java.lang.reflect.Type type = TypeDescriptorParser.parse(loader, desc);
-            if (type.getTypeName().equals(Result.class.getName())) {
-              return new TypeWithStatus(type, statusCodeFor(minnsn));
-            }
-            return type;
-          }
-          /** return "String" | int | double */
-          if (previous instanceof LdcInsnNode) {
-            Object cst = ((LdcInsnNode) previous).cst;
-            if (cst instanceof Type) {
-              return TypeDescriptorParser.parse(loader, ((Type) cst).getDescriptor());
-            }
-            return cst.getClass();
-          }
-          /** return variable */
-          if (previous instanceof VarInsnNode) {
-            VarInsnNode varInsn = (VarInsnNode) previous;
-            return localVariable(loader, m, varInsn);
-          }
+        .map(previous -> handleReturnType(loader, m, previous))
+        .orElseGet(() -> sendReturnType(loader, m));
+  }
 
-          return Object.class;
-        }).orElse(Object.class);
+  private java.lang.reflect.Type handleReturnType(ClassLoader loader, MethodNode m,
+      AbstractInsnNode previous) {
+    /** return 1; return true; return new Foo(); */
+    if (previous instanceof MethodInsnNode) {
+      MethodInsnNode minnsn = ((MethodInsnNode) previous);
+      if (minnsn.name.equals("<init>")) {
+        return loadType(loader, minnsn.owner);
+      }
+      String desc = minnsn.desc;
+      java.lang.reflect.Type type = TypeDescriptorParser.parse(loader, desc);
+      if (type.getTypeName().equals(Result.class.getName())) {
+        return new TypeWithStatus(type, statusCodeFor(minnsn));
+      }
+      return type;
+    }
+    /** return "String" | int | double */
+    if (previous instanceof LdcInsnNode) {
+      Object cst = ((LdcInsnNode) previous).cst;
+      if (cst instanceof Type) {
+        return TypeDescriptorParser.parse(loader, ((Type) cst).getDescriptor());
+      }
+      return cst.getClass();
+    }
+    /** return variable */
+    if (previous instanceof VarInsnNode) {
+      VarInsnNode varInsn = (VarInsnNode) previous;
+      return localVariable(loader, m, varInsn);
+    }
+
+    return Object.class;
+  }
+
+  private java.lang.reflect.Type sendReturnType(ClassLoader loader, MethodNode m) {
+    return new Insns(m)
+        .last()
+        .prev()
+        .filter(MethodInsnNode.class::isInstance)
+        .map(MethodInsnNode.class::cast)
+        .filter(sendObject())
+        .findFirst()
+        .map(AbstractInsnNode::getPrevious)
+        .map(node -> handleReturnType(loader, m, node))
+        .orElse(void.class);
   }
 
   private Integer statusCodeFor(MethodInsnNode node) {
