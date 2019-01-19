@@ -204,13 +204,18 @@
 package org.jooby.internal.apitool;
 
 import org.jooby.Route;
+
 import static org.jooby.internal.apitool.Insn.ldcFor;
+
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -291,7 +296,30 @@ class Lambda {
     List<String> patterns = Insn.ldcFor(method).stream().map(it -> it.cst.toString())
         .collect(Collectors.toList());
     if (patterns.size() == 0) {
-      patterns.add("/");
+      if (method.owner.equals("org/jooby/Kooby")) {
+        if (method.getPrevious() instanceof TypeInsnNode) {
+          // get(path) { req -> ...}
+          // seek and find first MethodInsnNode, which contains the path pattern.
+          AbstractInsnNode ldcpath = new Insn<>(implementation, method)
+              .prev()
+              .filter(Filters.is(TypeInsnNode.class))
+              .flatMap(n -> {
+                if (n.getPrevious() instanceof LdcInsnNode) {
+                  return Stream.of(n.getPrevious());
+                }
+                return Stream.empty();
+              })
+              .findFirst()
+              .orElse(null);
+          if (ldcpath instanceof LdcInsnNode) {
+            patterns.add(((LdcInsnNode) ldcpath).cst.toString());
+          }
+        }
+      }
+      // Still empty? use default
+      if (patterns.size() == 0) {
+        patterns.add("/");
+      }
     }
     prefix.ifPresent(p -> {
       IntStream.range(0, patterns.size())

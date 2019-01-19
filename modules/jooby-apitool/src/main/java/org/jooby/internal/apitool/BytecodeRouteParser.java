@@ -711,22 +711,34 @@ public class BytecodeRouteParser {
     new Insns(method)
         .on(scriptRoute, it -> {
           log.debug("  lambda candidate: {}", it.node);
-          it.prev()
+          String lambdaOwner = it.prev()
+              // Implicit request: get ("/") { ...};
               .filter(and(is(FieldInsnNode.class), opcode(GETSTATIC)))
               .findFirst()
               .map(FieldInsnNode.class::cast)
-              .ifPresent(field -> {
-                ClassNode lambda = loadClass(field.owner);
-                log.debug("  lambda: {}", field.owner);
-                lambda.methods.stream()
-                    .filter(kotlinRouteHandler())
-                    .forEach(e -> {
-                      MethodNode m = (MethodNode) e;
-                      log.debug("    implementation: {}.{}()", lambda.name, m.name, m.desc);
-                      Lambda.create(field.owner, Optional.empty(), it.node, m)
-                          .forEach(result::add);
-                    });
+              .map(f -> f.owner)
+              .orElseGet(() -> {
+                // Explicit request: get ("/") {req -> ...};
+                return new Insn<>(method, it.node.getPrevious())
+                    .prev()
+                    .filter(is(MethodInsnNode.class))
+                    .findFirst()
+                    .map(MethodInsnNode.class::cast)
+                    .map(m -> m.owner)
+                    .orElse(null);
               });
+          if (lambdaOwner != null) {
+            ClassNode lambda = loadClass(lambdaOwner);
+            log.debug("  lambda: {}", lambdaOwner);
+            lambda.methods.stream()
+                .filter(kotlinRouteHandler())
+                .forEach(e -> {
+                  MethodNode m = (MethodNode) e;
+                  log.debug("    implementation: {}.{}()", lambda.name, m.name, m.desc);
+                  Lambda.create(lambdaOwner, Optional.empty(), it.node, m)
+                      .forEach(result::add);
+                });
+          }
         })
         // use(Mvc class)
         .on(use(loader, "org.jooby.Kooby"), it -> mvc(it, result::add))
