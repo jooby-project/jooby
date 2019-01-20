@@ -16,14 +16,14 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.nio.charset.StandardCharsets;
 
 public interface TemplateEngine extends Renderer {
 
   String apply(Context ctx, ModelAndView modelAndView) throws Exception;
 
-  @Override default boolean render(@Nonnull Context ctx, @Nonnull Object result) throws Exception {
-    String output = apply(ctx, (ModelAndView) result);
-    ctx.sendString(output);
-    return true;
+  @Override default byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
+    String output = apply(ctx, (ModelAndView) value);
+    return output.getBytes(StandardCharsets.UTF_8);
   }
 }

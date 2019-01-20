@@ -16,22 +16,20 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.nio.charset.StandardCharsets;
 
 public interface Renderer {
 
-  Renderer TO_STRING = (ctx, value) -> {
-    ctx.sendString(value.toString());
-    return true;
-  };
+  Renderer TO_STRING = (ctx, value) -> value.toString().getBytes(StandardCharsets.UTF_8);
 
-  boolean render(@Nonnull Context ctx, @Nonnull Object result) throws Exception;
+  byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
 
   @Nonnull default Renderer accept(@Nonnull MediaType contentType) {
-    return (ctx, result) -> {
+    return (ctx, value) -> {
       if (ctx.accept(contentType)) {
-        return render(ctx, result);
+        return encode(ctx, value);
       }
-      return false;
+      return null;
     };
   }
 

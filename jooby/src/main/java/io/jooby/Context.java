@@ -337,7 +337,8 @@ public interface Context {
 
   default @Nonnull Context render(@Nonnull Object result) {
     try {
-      route().renderer().render(this, result);
+      byte[] encode = route().renderer().encode(this, result);
+      sendBytes(encode);
       return this;
     } catch (Exception x) {
       throw Throwing.sneakyThrow(x);

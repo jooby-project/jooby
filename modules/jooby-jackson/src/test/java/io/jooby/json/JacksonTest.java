@@ -15,11 +15,7 @@ public class JacksonTest {
   public void render() throws Exception {
     Jackson jackson = new Jackson();
     MockContext ctx = new MockContext();
-    boolean renderered = jackson.render(ctx, Map.of("k", "v"));
-    assertTrue(renderered);
-
-    /** Body: */
-    byte[] bytes = (byte[]) ctx.getResult();
+    byte [] bytes = jackson.encode(ctx, Map.of("k", "v"));
     assertEquals("{\"k\":\"v\"}", new String(bytes, StandardCharsets.UTF_8));
     /** Type: */
     assertEquals("application/json", ctx.getResponseContentType().value());
@@ -30,11 +26,7 @@ public class JacksonTest {
   public void renderRawString() throws Exception {
     Jackson jackson = new Jackson();
     MockContext ctx = new MockContext();
-    boolean renderered = jackson.render(ctx, "{\"k\":\"v\"}");
-    assertTrue(renderered);
-
-    /** Body: */
-    byte[] bytes = (byte[]) ctx.getResult();
+    byte [] bytes = jackson.encode(ctx, "{\"k\":\"v\"}");
     assertEquals("{\"k\":\"v\"}", new String(bytes, StandardCharsets.UTF_8));
     /** Type: */
     assertEquals("application/json", ctx.getResponseContentType().value());

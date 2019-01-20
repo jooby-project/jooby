@@ -57,18 +57,18 @@ public class CompositeRenderer implements Renderer {
     }
   }
 
-  @Override public boolean render(@Nonnull Context ctx, @Nonnull Object result) throws Exception {
-    if (result instanceof ModelAndView) {
-      return templateEngine.render(ctx, result);
+  @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
+    if (value instanceof ModelAndView) {
+      return templateEngine.encode(ctx, value);
     } else {
       Iterator<Renderer> iterator = list.iterator();
-      boolean done = false;
       /** NOTE: looks like an infinite loop but there is a default renderer at the end of iterator. */
-      while (!done) {
+      byte[] result = null;
+      while (result == null) {
         Renderer next = iterator.next();
-        done = next.render(ctx, result);
+        result = next.encode(ctx, value);
       }
-      return done;
+      return result;
     }
   }
 }

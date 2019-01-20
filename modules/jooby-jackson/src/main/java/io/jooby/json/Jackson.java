@@ -62,17 +62,15 @@ public class Jackson implements Extension, Parser, Renderer {
     application.renderer(MediaType.json, this);
   }
 
-  @Override public boolean render(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
+  @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
+    ctx.type(MediaType.json);
     if (value instanceof CharSequence) {
       // Ignore string/charsequence responses, those are going to be processed by the default
       // renderer and let route to return raw JSON
-      ctx.type(MediaType.json)
-          .sendBytes(value.toString().getBytes(StandardCharsets.UTF_8));
+      return value.toString().getBytes(StandardCharsets.UTF_8);
     } else {
-      ctx.type(MediaType.json)
-          .sendBytes(mapper.writeValueAsBytes(value));
+      return mapper.writeValueAsBytes(value);
     }
-    return true;
   }
 
   @Override public <T> T parse(Context ctx, Type type) throws Exception {
