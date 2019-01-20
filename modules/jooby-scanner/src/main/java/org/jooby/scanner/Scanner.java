@@ -211,14 +211,16 @@ import com.google.common.util.concurrent.ServiceManager;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.typesafe.config.Config;
-import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
-import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ScanResult;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Router;
 import org.jooby.funzy.Throwing;
-import static org.jooby.funzy.Throwing.throwingConsumer;
+
 import static org.jooby.funzy.Throwing.throwingSupplier;
+
 import org.jooby.mvc.Path;
 
 import javax.annotation.PostConstruct;
@@ -399,7 +401,8 @@ public class Scanner implements Jooby.Module {
     Set<String> spec = Sets.newLinkedHashSet(packages);
     serviceTypes.forEach(it -> spec.add(it.getPackage().getName()));
 
-    FastClasspathScanner scanner = new FastClasspathScanner(spec.toArray(new String[spec.size()]));
+    ClassGraph scanner = new ClassGraph().enableAllInfo()
+        .whitelistPackages(spec.toArray(new String[spec.size()]));
 
     Router routes = env.router();
 
@@ -415,24 +418,26 @@ public class Scanner implements Jooby.Module {
       env.lifeCycle(klass);
     };
 
-    ScanResult result = scanner.scan(conf.getInt("runtime.processors") + 1);
+    ScanResult result = scanner.scan();
 
-    Predicate<String> inPackage = name -> packages.stream()
-        .anyMatch(name::startsWith);
+    Predicate<ClassInfo> inPackage = c -> packages.stream()
+        .anyMatch(c.getName()::startsWith);
 
     /** Controllers: */
-    result.getNamesOfClassesWithAnnotation(Path.class)
+    result.getClassesWithAnnotation(Path.class.getName())
         .stream()
         .filter(once)
+        .map(ClassInfo::getName)
         .map(loadClass)
         .filter(C)
         .forEach(routes::use);
 
     String mainClass = conf.getString("application.class");
     /** Apps: */
-    result.getNamesOfSubclassesOf(Jooby.class)
+    result.getSubclasses(Jooby.class.getName())
         .stream()
         .filter(once)
+        .map(ClassInfo::getName)
         .filter(name -> !name.equals(mainClass))
         .map(loadClass)
         .filter(C)
@@ -441,9 +446,10 @@ public class Scanner implements Jooby.Module {
     /** Annotated with: */
     serviceTypes.stream()
         .filter(A)
-        .forEach(a -> result.getNamesOfClassesWithAnnotation(a)
+        .forEach(a -> result.getClassesWithAnnotation(a.getName())
             .stream()
             .filter(once)
+            .map(ClassInfo::getName)
             .map(loadClass)
             .filter(C)
             .forEach(bind));
@@ -452,10 +458,11 @@ public class Scanner implements Jooby.Module {
     serviceTypes.stream()
         .filter(I)
         .filter(type -> type != Jooby.Module.class && type != Module.class && type != Service.class)
-        .forEach(i -> result.getNamesOfClassesImplementing(i)
+        .forEach(i -> result.getClassesImplementing(i.getName())
             .stream()
             .filter(inPackage)
             .filter(once)
+            .map(ClassInfo::getName)
             .map(loadClass)
             .filter(C)
             .forEach(bind));
@@ -463,20 +470,22 @@ public class Scanner implements Jooby.Module {
     /** SubclassOf: */
     serviceTypes.stream()
         .filter(S)
-        .forEach(k -> result.getNamesOfSubclassesOf(k)
+        .forEach(k -> result.getSubclasses(k.getName())
             .stream()
             .filter(inPackage)
             .filter(once)
+            .map(ClassInfo::getName)
             .map(loadClass)
             .filter(C)
             .forEach(bind));
 
     /** Guice modules: */
     if (serviceTypes.contains(Module.class)) {
-      result.getNamesOfClassesImplementing(Module.class)
+      result.getClassesImplementing(Module.class.getName())
           .stream()
           .filter(inPackage)
           .filter(once)
+          .map(ClassInfo::getName)
           .map(loadClass)
           .filter(C)
           .forEach(klass -> ((Module) newObject(klass)).configure(binder));
@@ -485,10 +494,11 @@ public class Scanner implements Jooby.Module {
     /** Guava services: */
     if (serviceTypes.contains(Service.class)) {
       Set<Class<Service>> guavaServices = new HashSet<>();
-      result.getNamesOfClassesImplementing(Service.class)
+      result.getClassesImplementing(Service.class.getName())
           .stream()
           .filter(inPackage)
           .filter(once)
+          .map(ClassInfo::getName)
           .map(loadClass)
           .filter(C)
           .forEach(guavaServices::add);

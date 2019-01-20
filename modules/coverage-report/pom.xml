@@ -82,7 +82,6 @@
                     <source>${project.parent.basedir}/jooby-mongodb-rx/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-couchbase/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-cassandra/src/main/java</source>
-                    <source>${project.parent.basedir}/jooby-scanner/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-csl/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-unbescape/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-thymeleaf/src/main/java</source>
@@ -149,7 +148,6 @@
                     <source>${project.parent.basedir}/jooby-mongodb-rx/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-couchbase/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-cassandra/src/test/java</source>
-                    <source>${project.parent.basedir}/jooby-scanner/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-csl/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-unbescape/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-thymeleaf/src/test/java</source>
@@ -874,12 +872,6 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-cassandra</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jooby</groupId>
-      <artifactId>jooby-scanner</artifactId>
       <version>${project.version}</version>
     </dependency>
 

@@ -621,9 +621,9 @@
 
       <!-- fast-classpath-scanner -->
       <dependency>
-        <groupId>io.github.lukehutch</groupId>
-        <artifactId>fast-classpath-scanner</artifactId>
-        <version>${fast-classpath-scanner.version}</version>
+        <groupId>io.github.classgraph</groupId>
+        <artifactId>classgraph</artifactId>
+        <version>${classgraph.version}</version>
       </dependency>
 
       <!-- bson4jackon -->
@@ -3273,7 +3273,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <cassandra.version>3.5.0</cassandra.version>
     <couchbase-client.version>2.5.9</couchbase-client.version>
     <coverity-escapers.version>1.1.1</coverity-escapers.version>
-    <fast-classpath-scanner.version>3.1.6</fast-classpath-scanner.version>
+    <classgraph.version>4.6.18</classgraph.version>
     <jfiglet.version>0.0.8</jfiglet.version>
     <jsitemapgenerator.version>2.2</jsitemapgenerator.version>
     <mongo-driver-driver-rx.version>1.2.0</mongo-driver-driver-rx.version>
