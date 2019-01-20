@@ -114,7 +114,7 @@ public class MockRouter {
     Result result = new Result(value, ctx.getResponseStatusCode());
 
     /** Content-Type: */
-    result.header("Content-Type", ctx.getResponseContentType().toContenTypeHeader(ctx.getResponseCharset()));
+    result.header("Content-Type", ctx.getResponseContentType().toContentTypeHeader(ctx.getResponseCharset()));
 
     /** Length: */
     long responseLength = ctx.getResponseLength();

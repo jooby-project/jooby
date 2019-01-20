@@ -19,7 +19,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,7 +68,7 @@ public class MediaType implements Comparable<MediaType> {
 
   public static final MediaType all = new MediaType(ALL, null);
 
-  private final String value;
+  private final String raw;
 
   private final Charset charset;
 
@@ -77,14 +76,22 @@ public class MediaType implements Comparable<MediaType> {
 
   private final int subtypeEnd;
 
+  private final String value;
+
   private MediaType(@Nonnull String value, Charset charset) {
-    this.value = value;
+    this.raw = value;
     this.subtypeStart = value.indexOf('/');
     if (subtypeStart < 0) {
       throw new IllegalArgumentException("Invalid media type: " + value);
     }
     int subtypeEnd = value.indexOf(';');
-    this.subtypeEnd = subtypeEnd < 0 ? value.length() : subtypeEnd;
+    if (subtypeEnd < 0) {
+      this.value = raw;
+      this.subtypeEnd = value.length();
+    } else {
+      this.value = raw.substring(0, subtypeEnd);
+      this.subtypeEnd = subtypeEnd;
+    }
     this.charset = charset;
   }
 
@@ -97,21 +104,21 @@ public class MediaType implements Comparable<MediaType> {
   }
 
   @Override public int hashCode() {
-    return value.hashCode();
+    return raw.hashCode();
   }
 
   public @Nullable String param(@Nonnull String name) {
     int paramStart = subtypeEnd + 1;
-    for (int i = subtypeEnd; i < value.length(); i++) {
-      char ch = value.charAt(i);
+    for (int i = subtypeEnd; i < raw.length(); i++) {
+      char ch = raw.charAt(i);
       if (ch == '=') {
-        String pname = value.substring(paramStart, i).trim();
-        int paramValueEnd = value.indexOf(';', i);
+        String pname = raw.substring(paramStart, i).trim();
+        int paramValueEnd = raw.indexOf(';', i);
         if (paramValueEnd < 0) {
-          paramValueEnd = value.length();
+          paramValueEnd = raw.length();
         }
         if (pname.equals(name)) {
-          return value.substring(i + 1, paramValueEnd).trim();
+          return raw.substring(i + 1, paramValueEnd).trim();
         }
         paramStart = paramValueEnd + 1;
         i = paramStart;
@@ -121,18 +128,18 @@ public class MediaType implements Comparable<MediaType> {
   }
 
   public @Nonnull String value() {
-    return value.substring(0, subtypeEnd);
+    return value;
   }
 
-  public @Nonnull String toContenTypeHeader(@Nullable Charset charset) {
+  public @Nonnull String toContentTypeHeader(@Nullable Charset charset) {
     if (charset == null) {
       Charset paramCharset = charset();
       if (paramCharset == null) {
-        return value();
+        return value;
       }
       charset = paramCharset;
     }
-    return value() + ";charset=" + charset.name();
+    return value + ";charset=" + charset.name();
   }
 
   @Nonnull public float quality() {
@@ -176,19 +183,19 @@ public class MediaType implements Comparable<MediaType> {
   }
 
   public @Nonnull String type() {
-    return value.substring(0, subtypeStart).trim();
+    return raw.substring(0, subtypeStart).trim();
   }
 
   public @Nonnull String subtype() {
-    return value.substring(subtypeStart + 1, subtypeEnd).trim();
+    return raw.substring(subtypeStart + 1, subtypeEnd).trim();
   }
 
   public boolean matches(@Nonnull String contentType) {
-    return matches(value(), contentType);
+    return matches(value, contentType);
   }
 
   public boolean matches(@Nonnull MediaType type) {
-    return matches(type.value());
+    return matches(value, type.value);
   }
 
   public int score() {
@@ -204,8 +211,8 @@ public class MediaType implements Comparable<MediaType> {
 
   public int paramSize() {
     int p = 0;
-    for (int i = subtypeEnd; i < value.length(); i++) {
-      char ch = value.charAt(i);
+    for (int i = subtypeEnd; i < raw.length(); i++) {
+      char ch = raw.charAt(i);
       if (ch == '=') {
         p += 1;
       }
@@ -247,7 +254,7 @@ public class MediaType implements Comparable<MediaType> {
     return new MediaType(value, null);
   }
 
-  public static @Nonnull List<MediaType> fromAcceptHeader(@Nullable String value) {
+  public static @Nonnull List<MediaType> parse(@Nullable String value) {
     if (value == null || value.length() == 0) {
       return Collections.emptyList();
     }
@@ -739,6 +746,6 @@ public class MediaType implements Comparable<MediaType> {
   }
 
   @Override public String toString() {
-    return value;
+    return raw;
   }
 }

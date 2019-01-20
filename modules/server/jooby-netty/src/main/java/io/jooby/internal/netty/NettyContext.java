@@ -220,7 +220,7 @@ public class NettyContext implements Context, ChannelFutureListener {
   }
 
   @Override public final Context type(MediaType contentType, Charset charset) {
-    setHeaders.set(CONTENT_TYPE, contentType.toContenTypeHeader(charset));
+    setHeaders.set(CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
   }
 
@@ -252,11 +252,11 @@ public class NettyContext implements Context, ChannelFutureListener {
     }
   }
 
-  @Nonnull @Override public Context sendText(@Nonnull String data) {
+  @Nonnull @Override public Context sendString(@Nonnull String data) {
     return sendByteBuf(copiedBuffer(data, UTF_8));
   }
 
-  @Override public final Context sendText(String data, Charset charset) {
+  @Override public final Context sendString(String data, Charset charset) {
     return sendByteBuf(copiedBuffer(data, charset));
   }
 

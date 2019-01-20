@@ -32,6 +32,7 @@ import io.jooby.Renderer;
 import javax.annotation.Nonnull;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 
 public class Jackson implements Extension, Parser, Renderer {
 
@@ -57,8 +58,8 @@ public class Jackson implements Extension, Parser, Renderer {
   }
 
   @Override public void install(Jooby application) {
-    application.parser(MediaType.JSON, this);
-    application.renderer(MediaType.JSON, this);
+    application.parser(MediaType.json, this);
+    application.renderer(MediaType.json, this);
   }
 
   @Override public boolean render(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
@@ -66,7 +67,7 @@ public class Jackson implements Extension, Parser, Renderer {
       // Ignore string/charsequence responses, those are going to be processed by the default
       // renderer and let route to return raw JSON
       ctx.type(MediaType.json)
-          .sendText(value.toString());
+          .sendBytes(value.toString().getBytes(StandardCharsets.UTF_8));
     } else {
       ctx.type(MediaType.json)
           .sendBytes(mapper.writeValueAsBytes(value));

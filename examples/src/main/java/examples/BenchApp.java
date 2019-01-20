@@ -36,7 +36,7 @@ public class BenchApp extends Jooby {
 
     decorate(Decorators.defaultHeaders());
 
-    get("/", ctx -> ctx.sendText(MESSAGE));
+    get("/", ctx -> ctx.sendString(MESSAGE));
 
     get("/json", ctx -> Thread.currentThread().getName());
 

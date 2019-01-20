@@ -70,11 +70,11 @@ public interface Router {
 
   @Nonnull Router renderer(@Nonnull Renderer renderer);
 
-  @Nonnull Router renderer(@Nonnull String contentType, @Nonnull Renderer renderer);
+  @Nonnull Router renderer(@Nonnull MediaType contentType, @Nonnull Renderer renderer);
 
   @Nonnull Path tmpdir();
 
-  @Nonnull Router parser(@Nonnull String contentType, @Nonnull Parser parser);
+  @Nonnull Router parser(@Nonnull MediaType contentType, @Nonnull Parser parser);
 
   @Nonnull Executor worker();
 

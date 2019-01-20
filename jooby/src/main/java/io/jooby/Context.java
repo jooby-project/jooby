@@ -28,7 +28,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -147,9 +146,9 @@ public interface Context {
     return headers().toMultimap();
   }
 
-  default boolean accept(String contentType) {
+  default boolean accept(MediaType contentType) {
     String accept = header(ACCEPT).value(MediaType.ALL);
-    return MediaType.matches(contentType, accept);
+    return contentType.matches(accept);
   }
 
   /* **********************************************************************************************
@@ -382,11 +381,11 @@ public interface Context {
     return this;
   }
 
-  default @Nonnull Context sendText(@Nonnull String data) {
-    return sendText(data, StandardCharsets.UTF_8);
+  default @Nonnull Context sendString(@Nonnull String data) {
+    return sendString(data, StandardCharsets.UTF_8);
   }
 
-  @Nonnull Context sendText(@Nonnull String data, @Nonnull Charset charset);
+  @Nonnull Context sendString(@Nonnull String data, @Nonnull Charset charset);
 
   @Nonnull Context sendBytes(@Nonnull byte[] data);
 

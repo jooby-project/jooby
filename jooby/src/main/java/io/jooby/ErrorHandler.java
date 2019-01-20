@@ -52,7 +52,7 @@ public interface ErrorHandler {
           String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
           return ctx.type(json)
               .statusCode(statusCode)
-              .sendText("{\"message\":\"" + message + "\",\"statusCode\":" + statusCode.value()
+              .sendString("{\"message\":\"" + message + "\",\"statusCode\":" + statusCode.value()
                   + ",\"reason\":\"" + statusCode.reason() + "\"}");
         })
         .accept("text/html", () -> {
@@ -89,7 +89,7 @@ public interface ErrorHandler {
           return ctx
               .type(MediaType.html)
               .statusCode(statusCode)
-              .sendText(html.toString());
+              .sendString(html.toString());
         }).render(ctx);
   };
 

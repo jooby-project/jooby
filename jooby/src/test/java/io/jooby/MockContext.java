@@ -266,7 +266,7 @@ public class MockContext implements Context {
     return writer;
   }
 
-  @Nonnull @Override public MockContext sendText(@Nonnull String data, @Nonnull Charset charset) {
+  @Nonnull @Override public MockContext sendString(@Nonnull String data, @Nonnull Charset charset) {
     responseStarted = true;
     result = data;
     length = data.getBytes(charset).length;

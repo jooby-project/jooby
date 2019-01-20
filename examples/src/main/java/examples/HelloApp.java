@@ -21,8 +21,6 @@ import io.jooby.Decorators;
 import io.jooby.FileUpload;
 import io.jooby.json.Jackson;
 
-import java.util.concurrent.Executors;
-
 public class HelloApp extends Jooby {
 
   public static class User {
@@ -54,7 +52,7 @@ public class HelloApp extends Jooby {
 
     decorate(Decorators.defaultHeaders());
 
-    get("/", ctx -> ctx.sendText(MESSAGE));
+    get("/", ctx -> ctx.sendString(MESSAGE));
 
 //    get("/{foo}", ctx -> ctx.sendText("Hello World!"));
 

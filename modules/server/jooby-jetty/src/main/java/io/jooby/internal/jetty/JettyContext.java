@@ -231,7 +231,7 @@ public class JettyContext implements Callback, Context {
 
   @Nonnull @Override
   public Context type(@Nonnull MediaType contentType, @Nullable Charset charset) {
-    response.setHeader(HttpHeader.CONTENT_TYPE, contentType.toContenTypeHeader(charset));
+    response.setHeader(HttpHeader.CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
   }
 
@@ -282,7 +282,7 @@ public class JettyContext implements Callback, Context {
     return sendBytes(ByteBuffer.wrap(data));
   }
 
-  @Nonnull @Override public Context sendText(@Nonnull String data, @Nonnull Charset charset) {
+  @Nonnull @Override public Context sendString(@Nonnull String data, @Nonnull Charset charset) {
     return sendBytes(ByteBuffer.wrap(data.getBytes(charset)));
   }
 

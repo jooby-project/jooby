@@ -205,12 +205,12 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override
-  public Router renderer(@Nonnull String contentType, @Nonnull Renderer renderer) {
+  public Router renderer(@Nonnull MediaType contentType, @Nonnull Renderer renderer) {
     return renderer(renderer.accept(contentType));
   }
 
-  @Nonnull @Override public Router parser(@Nonnull String contentType, @Nonnull Parser parser) {
-    parsers.put(contentType, parser);
+  @Nonnull @Override public Router parser(@Nonnull MediaType contentType, @Nonnull Parser parser) {
+    parsers.put(contentType.value(), parser);
     return this;
   }
 

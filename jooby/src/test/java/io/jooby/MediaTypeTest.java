@@ -77,15 +77,15 @@ public class MediaTypeTest {
 
   @Test
   public void parse() {
-    List<MediaType> result = MediaType.fromAcceptHeader("application/json , text/html,*");
+    List<MediaType> result = MediaType.parse("application/json , text/html,*");
     assertEquals(3, result.size());
     assertEquals("application/json", result.get(0).value());
     assertEquals("text/html", result.get(1).value());
     assertEquals("*/*", result.get(2).value());
 
-    assertEquals(0, MediaType.fromAcceptHeader(null).size());
-    assertEquals(0, MediaType.fromAcceptHeader("").size());
-    assertEquals(1, MediaType.fromAcceptHeader("text/plain,").size());
+    assertEquals(0, MediaType.parse(null).size());
+    assertEquals(0, MediaType.parse("").size());
+    assertEquals(1, MediaType.parse("text/plain,").size());
   }
 
   @Test
@@ -146,7 +146,7 @@ public class MediaTypeTest {
   }
 
   public static void accept(String value, Consumer<List<MediaType>> consumer) {
-    List<MediaType> types = MediaType.fromAcceptHeader(value);
+    List<MediaType> types = MediaType.parse(value);
     Collections.sort(types);
     consumer.accept(types);
   }

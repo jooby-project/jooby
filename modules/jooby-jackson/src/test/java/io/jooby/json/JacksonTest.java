@@ -34,7 +34,8 @@ public class JacksonTest {
     assertTrue(renderered);
 
     /** Body: */
-    assertEquals("{\"k\":\"v\"}", ctx.getResultText());
+    byte[] bytes = (byte[]) ctx.getResult();
+    assertEquals("{\"k\":\"v\"}", new String(bytes, StandardCharsets.UTF_8));
     /** Type: */
     assertEquals("application/json", ctx.getResponseContentType().value());
     assertEquals("utf-8", ctx.getResponseCharset().name().toLowerCase());

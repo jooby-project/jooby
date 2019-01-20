@@ -189,7 +189,7 @@ public class UtowContext implements Context, IoCallback {
   @Nonnull @Override
   public Context type(@Nonnull MediaType contentType, @Nullable Charset charset) {
     exchange.getResponseHeaders()
-        .put(Headers.CONTENT_TYPE, contentType.toContenTypeHeader(charset));
+        .put(Headers.CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
   }
 
@@ -232,7 +232,7 @@ public class UtowContext implements Context, IoCallback {
     return sendBytes(ByteBuffer.wrap(data));
   }
 
-  @Nonnull @Override public Context sendText(@Nonnull String data, @Nonnull Charset charset) {
+  @Nonnull @Override public Context sendString(@Nonnull String data, @Nonnull Charset charset) {
     return sendBytes(ByteBuffer.wrap(data.getBytes(charset)));
   }
 

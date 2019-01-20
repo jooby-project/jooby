@@ -20,13 +20,13 @@ import javax.annotation.Nonnull;
 public interface Renderer {
 
   Renderer TO_STRING = (ctx, value) -> {
-    ctx.sendText(value.toString());
+    ctx.sendString(value.toString());
     return true;
   };
 
   boolean render(@Nonnull Context ctx, @Nonnull Object result) throws Exception;
 
-  @Nonnull default Renderer accept(String contentType) {
+  @Nonnull default Renderer accept(@Nonnull MediaType contentType) {
     return (ctx, result) -> {
       if (ctx.accept(contentType)) {
         return render(ctx, result);

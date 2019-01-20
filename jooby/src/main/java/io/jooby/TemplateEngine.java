@@ -23,7 +23,7 @@ public interface TemplateEngine extends Renderer {
 
   @Override default boolean render(@Nonnull Context ctx, @Nonnull Object result) throws Exception {
     String output = apply(ctx, (ModelAndView) result);
-    ctx.sendText(output);
+    ctx.sendString(output);
     return true;
   }
 }

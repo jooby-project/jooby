@@ -36,12 +36,12 @@ Request body parsing is achieved using the javadoc:Parser[] functional interface
 ----
 public interface Parser {
 
-  <T> T parse(Context ctx, Reified<T> reified) throws Exception;
+  <T> T parse(Context ctx, Type type) throws Exception;
 }
 ----
 
-javadoc:Parser[] has a single `parse` method that takes two input arguments: `(context, reified)`
-and returns a single result of the given reified type.
+javadoc:Parser[] has a single `parse` method that takes two input arguments: `(context, type)`
+and returns a single result of the given type.
 
 .JSON example:
 [source, java]
@@ -49,11 +49,11 @@ and returns a single result of the given reified type.
 {
   FavoriteJson lib = ...;                          // <1>
 
-  parser("appplication/json", (ctx, reified) -> {  // <2>
+  parser(MediaType.json, (ctx, type) -> {          // <2>
 
     String body = ctx.body().value();              // <3>
 
-    return lib.fromJson(body, reified.getType());  // <4>
+    return lib.fromJson(body, type);               // <4>
   });
 
   post("/", ctx -> {
@@ -89,7 +89,7 @@ Response body is generated from `handler` function:
   get("/", ctx -> {
     ctx.statusCode(200);            // <1>
 
-    ctx.type("text/plain");         // <2>
+    ctx.type(MediaType.text);       // <2>
 
     ctx.header("Date", new Date()); // <3>
 
@@ -125,11 +125,11 @@ to operate via side-effects.
 {
   FavoriteJson lib = ...;                          // <1>
 
-  renderer("application/json", (ctx, result) -> {  // <2>
+  renderer(MediaType.json, (ctx, result) -> {      // <2>
 
     String json = lib.toJson(result);              // <3>
 
-    ctx.type("application/json");                  // <4>
+    ctx.type(MediaType.json);                      // <4>
 
     ctx.sendText(json);                            // <5>
   });

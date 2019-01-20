@@ -1125,7 +1125,7 @@ public class FeaturedTest {
   @Test
   public void setContentType() {
     new JoobyRunner(app -> {
-      app.get("/plain", ctx -> ctx.type(text).sendText("Text"));
+      app.get("/plain", ctx -> ctx.type(text).sendString("Text"));
     }).ready(client -> {
       client.get("/plain", rsp -> {
         assertEquals("text/plain;charset=utf-8",
@@ -1139,7 +1139,7 @@ public class FeaturedTest {
   public void setContentLen() {
     String value = "...";
     new JoobyRunner(app -> {
-      app.get("/len", ctx -> ctx.type(text).length(value.length()).sendText(value));
+      app.get("/len", ctx -> ctx.type(text).length(value.length()).sendString(value));
     }).ready(client -> {
       client.get("/len", rsp -> {
         assertEquals("text/plain;charset=utf-8",
@@ -1415,7 +1415,7 @@ public class FeaturedTest {
 
     new JoobyRunner(app -> {
       app.decorate(Decorators.contentType("text/plain"));
-      app.get("/type-override", ctx -> ctx.type(html).sendText("OK"));
+      app.get("/type-override", ctx -> ctx.type(html).sendString("OK"));
     }).ready(client -> {
       client.get("/type-override", rsp -> {
         assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
