@@ -40,6 +40,43 @@ public class GsonRendererTest {
   }
 
   @Test
+  public void rawWithCharSequence() throws Exception {
+    String value = "{\"foo\":\"bar\"}";
+    new MockUnit(Gson.class, Renderer.Context.class)
+        .expect(unit -> {
+          Context ctx = unit.get(Renderer.Context.class);
+          expect(ctx.type(MediaType.json)).andReturn(ctx);
+          ctx.send(value);
+        })
+        .run(unit -> {
+          new GsonRawRenderer(MediaType.json, unit.get(Gson.class))
+              .render(value, unit.get(Renderer.Context.class));
+        }, unit -> {
+        });
+  }
+
+  @Test
+  public void rawWithObject() throws Exception {
+    Object value = new GsonRendererTest();
+    new MockUnit(Gson.class, Renderer.Context.class)
+        .expect(unit -> {
+          Context ctx = unit.get(Renderer.Context.class);
+          expect(ctx.accepts(MediaType.json)).andReturn(true);
+          expect(ctx.type(MediaType.json)).andReturn(ctx);
+          ctx.send("{}");
+        })
+        .expect(unit -> {
+          Gson gson = unit.get(Gson.class);
+          expect(gson.toJson(value)).andReturn("{}");
+        })
+        .run(unit -> {
+          new GsonRawRenderer(MediaType.json, unit.get(Gson.class))
+              .render(value, unit.get(Renderer.Context.class));
+        }, unit -> {
+        });
+  }
+
+  @Test
   public void renderSkip() throws Exception {
     Object value = new GsonRendererTest();
     new MockUnit(Gson.class, Renderer.Context.class)

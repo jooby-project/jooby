@@ -278,6 +278,8 @@ public class Gzon implements Jooby.Module {
 
   private BiConsumer<GsonBuilder, Config> configurer;
 
+  private boolean raw;
+
   /**
    * Creates a new {@link Gson}.
    *
@@ -351,8 +353,27 @@ public class Gzon implements Jooby.Module {
     Multibinder.newSetBinder(binder, Parser.class).addBinding()
         .toInstance(new GsonParser(type, gson));
 
-    Multibinder.newSetBinder(binder, Renderer.class).addBinding()
-        .toInstance(new GsonRenderer(type, gson));
+    GsonRenderer renderer = raw ? new GsonRawRenderer(type, gson) : new GsonRenderer(type, gson);
+
+    Multibinder.newSetBinder(binder, Renderer.class).addBinding().toInstance(renderer);
+  }
+
+  /**
+   * Add support raw string json responses:
+   *
+   * <pre>{@code
+   * {
+   *   get("/raw", () -> {
+   *     return "{\"raw\": \"json\"}";
+   *   });
+   * }
+   * }</pre>
+   *
+   * @return This module.
+   */
+  public Gzon raw() {
+    raw = true;
+    return this;
   }
 
 }

@@ -216,7 +216,7 @@ class JacksonRawRenderer extends JacksonRenderer {
   @Override
   protected void renderValue(final Object value, final Renderer.Context ctx) throws Exception {
     if (value instanceof CharSequence) {
-      ctx.send(value.toString());
+      ctx.type(type).send(value.toString());
     } else {
       super.renderValue(value, ctx);
     }

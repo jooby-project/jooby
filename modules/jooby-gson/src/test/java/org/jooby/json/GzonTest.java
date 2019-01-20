@@ -70,6 +70,17 @@ public class GzonTest {
         });
   }
 
+  @Test
+  public void raw() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class, Gson.class)
+        .expect(body)
+        .run(unit -> {
+          new Gzon()
+              .raw()
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
+  }
+
   @SuppressWarnings("unchecked")
   @Test
   public void withCallback() throws Exception {

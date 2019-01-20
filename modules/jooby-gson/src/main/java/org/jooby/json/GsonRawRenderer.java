@@ -203,41 +203,20 @@
  */
 package org.jooby.json;
 
-import static java.util.Objects.requireNonNull;
-
-import org.jooby.MediaType;
-import org.jooby.Renderer;
-
 import com.google.gson.Gson;
+import org.jooby.MediaType;
 
-class GsonRenderer implements Renderer {
+class GsonRawRenderer extends GsonRenderer {
 
-  protected final MediaType type;
-
-  private final Gson gson;
-
-  public GsonRenderer(final MediaType type, final Gson gson) {
-    this.type = requireNonNull(type, "Media type is required.");
-
-    this.gson = requireNonNull(gson, "Gson is required.");
+  public GsonRawRenderer(MediaType type, Gson gson) {
+    super(type, gson);
   }
 
-  @Override
-  public void render(final Object object, final Context ctx) throws Exception {
-    if (ctx.accepts(this.type)) {
-      ctx.type(this.type)
-          .send(gson.toJson(object));
+  @Override public void render(Object value, Context ctx) throws Exception {
+    if (value instanceof CharSequence) {
+      ctx.type(type).send(value.toString());
+    } else {
+      super.render(value, ctx);
     }
   }
-
-  @Override
-  public String name() {
-    return "json";
-  }
-
-  @Override
-  public String toString() {
-    return name();
-  }
-
 }
