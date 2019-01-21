@@ -21,16 +21,17 @@ import io.jooby.Route.Handler;
 import io.jooby.internal.handler.CompletionStageHandler;
 import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
-import io.jooby.internal.handler.DisposableHandler;
+import io.jooby.internal.handler.reactive.DisposableHandler;
+import io.jooby.internal.handler.reactive.ReactivePublisherHandler;
 import io.jooby.internal.handler.WorkerExecHandler;
-import io.jooby.internal.handler.FlowPublisherHandler;
-import io.jooby.internal.handler.FluxHandler;
-import io.jooby.internal.handler.MaybeHandler;
-import io.jooby.internal.handler.MonoHandler;
-import io.jooby.internal.handler.ObservableHandler;
+import io.jooby.internal.handler.reactive.JavaFlowPublisher;
+import io.jooby.internal.handler.reactive.ReactorFluxHandler;
+import io.jooby.internal.handler.reactive.RxMaybeHandler;
+import io.jooby.internal.handler.reactive.ReactorMonoHandler;
+import io.jooby.internal.handler.reactive.ObservableHandler;
 import io.jooby.internal.handler.WorkerHandler;
-import io.jooby.internal.handler.PublisherHandler;
-import io.jooby.internal.handler.SingleHandler;
+import io.jooby.internal.handler.reactive.RxFlowableHandler;
+import io.jooby.internal.handler.reactive.RxSingleHandler;
 
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -61,21 +62,21 @@ public class Pipeline {
     Optional<Class> maybe = loadClass(loader, "io.reactivex.Maybe");
     if (maybe.isPresent()) {
       if (maybe.get().isAssignableFrom(type)) {
-        return Pipeline::maybe;
+        return Pipeline::rxMaybe;
       }
     }
     // Flowable:
     Optional<Class> flowable = loadClass(loader, "io.reactivex.Flowable");
     if (flowable.isPresent()) {
       if (flowable.get().isAssignableFrom(type)) {
-        return Pipeline::publisher;
+        return Pipeline::rxFlowable;
       }
     }
     // Observable:
     Optional<Class> observable = loadClass(loader, "io.reactivex.Observable");
     if (observable.isPresent()) {
       if (observable.get().isAssignableFrom(type)) {
-        return Pipeline::observable;
+        return Pipeline::rxObservable;
       }
     }
     // Disposable
@@ -90,25 +91,25 @@ public class Pipeline {
     Optional<Class> flux = loadClass(loader, "reactor.core.publisher.Flux");
     if (flux.isPresent()) {
       if (flux.get().isAssignableFrom(type)) {
-        return Pipeline::flux;
+        return Pipeline::reactorFlux;
       }
     }
     // Mono:
     Optional<Class> mono = loadClass(loader, "reactor.core.publisher.Mono");
     if (mono.isPresent()) {
       if (mono.get().isAssignableFrom(type)) {
-        return Pipeline::mono;
+        return Pipeline::reactorMono;
       }
     }
     /** Flow API + ReactiveStream: */
     Optional<Class> publisher = loadClass(loader, "org.reactivestreams.Publisher");
     if (publisher.isPresent()) {
       if (publisher.get().isAssignableFrom(type)) {
-        return Pipeline::publisher;
+        return Pipeline::reactivePublisher;
       }
     }
     if (Flow.Publisher.class.isAssignableFrom(type)) {
-      return Pipeline::flowPublisher;
+      return Pipeline::javaFlowPublisher;
     }
     return (mode, route) -> next(mode, route.executor(), new DefaultHandler(route.pipeline()),
         true);
@@ -119,8 +120,13 @@ public class Pipeline {
         new DetachHandler(new CompletionStageHandler(next.pipeline())), false);
   }
 
-  private static Handler publisher(ExecutionMode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new PublisherHandler(next.pipeline())),
+  private static Handler rxFlowable(ExecutionMode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new RxFlowableHandler(next.pipeline())),
+        false);
+  }
+
+  private static Handler reactivePublisher(ExecutionMode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new ReactivePublisherHandler(next.pipeline())),
         false);
   }
 
@@ -129,34 +135,34 @@ public class Pipeline {
         false);
   }
 
-  private static Handler observable(ExecutionMode mode, RouteImpl next) {
+  private static Handler rxObservable(ExecutionMode mode, RouteImpl next) {
     return next(mode, next.executor(),
         new DetachHandler(new ObservableHandler(next.pipeline())),
         false);
   }
 
-  private static Handler flux(ExecutionMode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new FluxHandler(next.pipeline())),
+  private static Handler reactorFlux(ExecutionMode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new ReactorFluxHandler(next.pipeline())),
         false);
   }
 
-  private static Handler mono(ExecutionMode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new MonoHandler(next.pipeline())),
+  private static Handler reactorMono(ExecutionMode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new ReactorMonoHandler(next.pipeline())),
         false);
   }
 
-  private static Handler flowPublisher(ExecutionMode mode, RouteImpl next) {
+  private static Handler javaFlowPublisher(ExecutionMode mode, RouteImpl next) {
     return next(mode, next.executor(),
-        new DetachHandler(new FlowPublisherHandler(next.pipeline())), false);
+        new DetachHandler(new JavaFlowPublisher(next.pipeline())), false);
   }
 
   private static Handler single(ExecutionMode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new SingleHandler(next.pipeline())),
+    return next(mode, next.executor(), new DetachHandler(new RxSingleHandler(next.pipeline())),
         false);
   }
 
-  private static Handler maybe(ExecutionMode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new MaybeHandler(next.pipeline())),
+  private static Handler rxMaybe(ExecutionMode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new RxMaybeHandler(next.pipeline())),
         false);
   }
 

@@ -61,6 +61,7 @@ public class JettyContext implements Callback, Context {
   private Map<String, Object> locals = Collections.EMPTY_MAP;
   private Router router;
   private Route route;
+  private MediaType responseType;
 
   public JettyContext(Request request, Router router, int bufferSize, long maxRequestSize) {
     this.request = request;
@@ -208,18 +209,14 @@ public class JettyContext implements Callback, Context {
     if (router.worker() == executor) {
       action.run();
     } else {
-      if (!request.isAsyncStarted()) {
-        request.startAsync();
-      }
+      ifStartAsync();
       executor.execute(action);
     }
     return this;
   }
 
   @Nonnull @Override public Context detach(@Nonnull Runnable action) {
-    if (!request.isAsyncStarted()) {
-      request.startAsync();
-    }
+    ifStartAsync();
     action.run();
     return this;
   }
@@ -229,8 +226,13 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
+  @Nonnull @Override public MediaType type() {
+    return responseType == null ? MediaType.text : responseType;
+  }
+
   @Nonnull @Override
   public Context type(@Nonnull MediaType contentType, @Nullable Charset charset) {
+    this.responseType = contentType;
     response.setHeader(HttpHeader.CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
   }
@@ -245,11 +247,21 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
+  @Nonnull @Override public Sender responseSender() {
+    ifStartAsync();
+    ifSetChunked();
+    return new JettySender(this, response.getHttpOutput());
+  }
+
+  private void ifStartAsync() {
+    if (!request.isAsyncStarted()) {
+      request.startAsync();
+    }
+  }
+
   @Nonnull @Override public OutputStream responseStream(MediaType type) {
     try {
-      if (response.getHeader(HttpHeader.CONTENT_LENGTH.name()) == null) {
-        response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
-      }
+      ifSetChunked();
       type(type);
       OutputStream outputStream = response.getOutputStream();
       return outputStream;
@@ -260,9 +272,7 @@ public class JettyContext implements Callback, Context {
 
   @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
     try {
-      if (response.getHeader(HttpHeader.CONTENT_LENGTH.name()) == null) {
-        response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
-      }
+      ifSetChunked();
       type(type, charset);
       PrintWriter writer = response.getWriter();
       return writer;
@@ -271,10 +281,17 @@ public class JettyContext implements Callback, Context {
     }
   }
 
+  private void ifSetChunked() {
+    if (response.getHeader(HttpHeader.CONTENT_LENGTH.name()) == null) {
+      response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
+    }
+  }
+
   @Nonnull @Override public Context sendStatusCode(int statusCode) {
+    response.setHeader(HttpHeader.TRANSFER_ENCODING, null);
     response.setLongContentLength(0);
     response.setStatus(statusCode);
-    destroy(null);
+    sendBytes(ByteBuffer.wrap(new byte[0]));
     return this;
   }
 
@@ -294,9 +311,7 @@ public class JettyContext implements Callback, Context {
 
   @Nonnull @Override public Context sendStream(@Nonnull InputStream input) {
     try {
-      if (!request.isAsyncStarted()) {
-        request.startAsync();
-      }
+      ifStartAsync();
 
       long len = response.getContentLength();
       InputStream stream;
@@ -341,7 +356,7 @@ public class JettyContext implements Callback, Context {
     return InvocationType.NON_BLOCKING;
   }
 
-  private void destroy(Throwable x) {
+  void destroy(Throwable x) {
     Logger log = router.log();
     if (x != null) {
       if (Server.connectionLost(x)) {

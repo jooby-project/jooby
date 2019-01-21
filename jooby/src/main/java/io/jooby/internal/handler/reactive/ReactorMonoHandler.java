@@ -13,27 +13,27 @@
  *
  *    Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.handler;
+package io.jooby.internal.handler.reactive;
 
 import io.jooby.Context;
 import io.jooby.Route;
-import io.reactivex.Flowable;
+import io.jooby.internal.handler.ChainedHandler;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Nonnull;
 
-public class MonoHandler implements ChainedHandler {
+public class ReactorMonoHandler implements ChainedHandler {
 
   private final Route.Handler next;
 
-  public MonoHandler(Route.Handler next) {
+  public ReactorMonoHandler(Route.Handler next) {
     this.next = next;
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
       Mono result = (Mono) next.apply(ctx);
-      result.subscribe(new ContextSubscriber(ctx));
+      result.subscribe(ctx::render, x -> ctx.sendError((Throwable) x));
       return result;
     } catch (Throwable x) {
       ctx.sendError(x);

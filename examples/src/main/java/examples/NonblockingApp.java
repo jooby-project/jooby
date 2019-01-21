@@ -18,7 +18,9 @@ package examples;
 import io.jooby.Jooby;
 import io.jooby.ExecutionMode;
 import io.jooby.MediaType;
+import io.jooby.json.Jackson;
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 
@@ -26,6 +28,7 @@ import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 
@@ -98,21 +101,23 @@ public class NonblockingApp extends Jooby {
           .subscribeOn(Schedulers.io());
     });
 
-    get("/iter", ctx -> {
+    install(new Jackson());
+
+    get("/flow", ctx -> {
       System.out.println("Scheduled: " + Thread.currentThread().getName());
 
-      Writer writer = ctx.responseWriter(MediaType.text);
+      return Flowable.fromArray(
+          Map.of("k1", "v1"),
+          Map.of("k2", "v2"),
+          Map.of("k3", "v3")
+      ).subscribeOn(Schedulers.io());
+    });
 
+    get("/iter", ctx -> {
+      System.out.println("Scheduled: " + Thread.currentThread().getName());
       return Flowable.range(1, 10)
           .map(x -> x * x)
-          .delay(300L, TimeUnit.MILLISECONDS)
-          .doFinally(writer::close)
-          .doOnError(ctx::sendError)
-          .forEach(it -> {
-            writer.write(it + ",");
-            writer.flush();
-            Thread.sleep(100L);
-          });
+          .delay(300L, TimeUnit.MILLISECONDS);
     });
 
     get("/publisher", ctx -> {

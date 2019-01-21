@@ -13,30 +13,31 @@
  *
  *    Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.handler;
+package io.jooby.internal.handler.reactive;
 
 import io.jooby.Context;
 import io.jooby.Route;
+import io.jooby.internal.handler.ChainedHandler;
+import io.reactivex.Flowable;
 
 import javax.annotation.Nonnull;
-import java.util.concurrent.Flow;
 
-public class FlowPublisherHandler implements ChainedHandler {
+public class RxFlowableHandler implements ChainedHandler {
 
   private final Route.Handler next;
 
-  public FlowPublisherHandler(Route.Handler next) {
+  public RxFlowableHandler(Route.Handler next) {
     this.next = next;
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      Flow.Publisher result = (Flow.Publisher) next.apply(ctx);
-      result.subscribe(new ContextSubscriber(ctx));
+      Flowable result = (Flowable) next.apply(ctx);
+      result.subscribe(new ReactiveSubscriber(new ChunkedSubscriber(ctx)));
       return result;
     } catch (Throwable x) {
       ctx.sendError(x);
-      return x;
+      return Flowable.error(x);
     }
   }
 

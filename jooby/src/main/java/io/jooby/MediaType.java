@@ -169,6 +169,11 @@ public class MediaType implements Comparable<MediaType> {
     return subtype.endsWith("json") || subtype.endsWith("javascript") || subtype.endsWith("xml");
   }
 
+  public boolean isJson() {
+    String subtype = subtype();
+    return subtype.equals("json") || subtype.endsWith("+json");
+  }
+
   public @Nullable Charset charset() {
     Charset charset = _charset(this.charset);
     if (charset == null && isTextual()) {

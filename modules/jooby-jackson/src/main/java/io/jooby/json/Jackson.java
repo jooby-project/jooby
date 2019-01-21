@@ -35,6 +35,13 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
 public class Jackson implements Extension, Parser, Renderer {
+  private static final byte[] ARRAY_START = {'['};
+
+  private static final byte[] ARRAY_SEPARATOR = {','};
+
+  private static final byte[] ARRAY_END = {']'};
+
+  private static final byte[][] DELIMITERS = {ARRAY_START, ARRAY_SEPARATOR, ARRAY_END};
 
   private final ObjectMapper mapper;
 
@@ -64,13 +71,15 @@ public class Jackson implements Extension, Parser, Renderer {
 
   @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
     ctx.type(MediaType.json);
+    byte[] json;
     if (value instanceof CharSequence) {
       // Ignore string/charsequence responses, those are going to be processed by the default
       // renderer and let route to return raw JSON
-      return value.toString().getBytes(StandardCharsets.UTF_8);
+      json = value.toString().getBytes(StandardCharsets.UTF_8);
     } else {
-      return mapper.writeValueAsBytes(value);
+      json = mapper.writeValueAsBytes(value);
     }
+    return json;
   }
 
   @Override public <T> T parse(Context ctx, Type type) throws Exception {

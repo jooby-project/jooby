@@ -258,6 +258,20 @@ public class MockContext implements Context {
     return out;
   }
 
+  @Nonnull @Override public Sender responseSender() {
+    return new Sender() {
+      @Override public Sender sendBytes(@Nonnull byte[] data, @Nonnull Callback callback) {
+        result = data;
+        callback.onComplete(MockContext.this, null);
+        return this;
+      }
+
+      @Override public void close() {
+
+      }
+    };
+  }
+
   @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
     responseStarted = true;
     type(type, charset);
@@ -314,6 +328,10 @@ public class MockContext implements Context {
   }
 
   public MediaType getResponseContentType() {
+    return responseContentType;
+  }
+
+  @Nonnull @Override public MediaType type() {
     return responseContentType;
   }
 

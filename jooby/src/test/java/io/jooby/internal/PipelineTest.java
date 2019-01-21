@@ -8,9 +8,10 @@ import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
 import io.jooby.internal.handler.ChainedHandler;
 import io.jooby.internal.handler.WorkerExecHandler;
-import io.jooby.internal.handler.MaybeHandler;
-import io.jooby.internal.handler.PublisherHandler;
-import io.jooby.internal.handler.SingleHandler;
+import io.jooby.internal.handler.reactive.ReactivePublisherHandler;
+import io.jooby.internal.handler.reactive.RxMaybeHandler;
+import io.jooby.internal.handler.reactive.RxFlowableHandler;
+import io.jooby.internal.handler.reactive.RxSingleHandler;
 import io.jooby.internal.handler.WorkerHandler;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -85,8 +86,8 @@ public class PipelineTest {
     ChainedHandler pipeline = pipeline(route(Single.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler);
     Route.Handler next = pipeline.next();
-    assertTrue(next instanceof SingleHandler);
-    SingleHandler reactive = (SingleHandler) next;
+    assertTrue(next instanceof RxSingleHandler);
+    RxSingleHandler reactive = (RxSingleHandler) next;
     assertTrue(reactive.next() == h,
         "found: " + reactive.next() + ", expected: " + h.getClass());
   }
@@ -97,8 +98,8 @@ public class PipelineTest {
     ChainedHandler pipeline = pipeline(route(Publisher.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
-    assertTrue(next instanceof PublisherHandler);
-    PublisherHandler reactive = (PublisherHandler) next;
+    assertTrue(next instanceof ReactivePublisherHandler, next.toString());
+    ReactivePublisherHandler reactive = (ReactivePublisherHandler) next;
     assertTrue(reactive.next() == h,
         "found: " + reactive.next() + ", expected: " + h.getClass());
   }
@@ -109,8 +110,8 @@ public class PipelineTest {
     ChainedHandler pipeline = pipeline(route(Flowable.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
-    assertTrue(next instanceof PublisherHandler);
-    PublisherHandler reactive = (PublisherHandler) next;
+    assertTrue(next instanceof RxFlowableHandler);
+    RxFlowableHandler reactive = (RxFlowableHandler) next;
     assertTrue(reactive.next() == h,
         "found: " + reactive.next() + ", expected: " + h.getClass());
   }
@@ -147,8 +148,8 @@ public class PipelineTest {
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next.getClass());
     next = ((DetachHandler) next).next();
-    assertTrue(next instanceof SingleHandler, "found: " + next.getClass());
-    next = ((SingleHandler) next).next();
+    assertTrue(next instanceof RxSingleHandler, "found: " + next.getClass());
+    next = ((RxSingleHandler) next).next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
@@ -160,8 +161,8 @@ public class PipelineTest {
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next.getClass());
     next = ((DetachHandler) next).next();
-    assertTrue(next instanceof MaybeHandler, "found: " + next.getClass());
-    next = ((MaybeHandler) next).next();
+    assertTrue(next instanceof RxMaybeHandler, "found: " + next.getClass());
+    next = ((RxMaybeHandler) next).next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
@@ -173,8 +174,8 @@ public class PipelineTest {
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next.getClass());
     next = ((DetachHandler) next).next();
-    assertTrue(next instanceof PublisherHandler, "found: " + next.getClass());
-    next = ((PublisherHandler) next).next();
+    assertTrue(next instanceof ReactivePublisherHandler, "found: " + next.getClass());
+    next = ((ReactivePublisherHandler) next).next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 

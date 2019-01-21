@@ -776,14 +776,14 @@ public class FeaturedTest {
   public void rx2() {
     new JoobyRunner(app -> {
       app.get("/rx/flowable", ctx ->
-          Flowable.fromCallable(() -> "Flowable")
-              .map(s -> "Hello " + s)
+          Flowable.range(1, 10)
+              .map(i -> i + ",")
               .subscribeOn(Schedulers.io())
               .observeOn(Schedulers.computation())
       );
       app.get("/rx/observable", ctx ->
-          Observable.fromCallable(() -> "Observable")
-              .map(s -> "Hello " + s)
+          Observable.range(1, 10)
+              .map(i -> i + ",")
               .subscribeOn(Schedulers.io())
               .observeOn(Schedulers.computation())
       );
@@ -799,18 +799,29 @@ public class FeaturedTest {
               .subscribeOn(Schedulers.io())
               .observeOn(Schedulers.computation())
       );
+
+      app.get("/rx/nomaybe", ctx ->
+          Maybe.empty()
+              .subscribeOn(Schedulers.io())
+      );
     }).ready(client -> {
       client.get("/rx/flowable", rsp -> {
-        assertEquals("Hello Flowable", rsp.body().string());
+        assertEquals("chunked", rsp.header("transfer-encoding").toLowerCase());
+        assertEquals("1,2,3,4,5,6,7,8,9,10,", rsp.body().string());
       });
       client.get("/rx/observable", rsp -> {
-        assertEquals("Hello Observable", rsp.body().string());
+        assertEquals("chunked", rsp.header("transfer-encoding").toLowerCase());
+        assertEquals("1,2,3,4,5,6,7,8,9,10,", rsp.body().string());
       });
       client.get("/rx/single", rsp -> {
         assertEquals("Hello Single", rsp.body().string());
       });
       client.get("/rx/maybe", rsp -> {
         assertEquals("Hello Maybe", rsp.body().string());
+      });
+      client.get("/rx/nomaybe", rsp -> {
+        assertEquals(404, rsp.code());
+        assertEquals("", rsp.body().string());
       });
     });
   }
@@ -825,16 +836,18 @@ public class FeaturedTest {
       );
 
       app.get("/reactor/flux", ctx ->
-          Flux.just("Flux")
-              .map(s -> "Hello " + s)
+          Flux.range(1, 10)
+              .map(i -> i + ",")
               .subscribeOn(elastic())
       );
     }).ready(client -> {
       client.get("/reactor/mono", rsp -> {
+        assertEquals("10", rsp.header("content-length").toLowerCase());
         assertEquals("Hello Mono", rsp.body().string());
       });
       client.get("/reactor/flux", rsp -> {
-        assertEquals("Hello Flux", rsp.body().string());
+        assertEquals("chunked", rsp.header("transfer-encoding").toLowerCase());
+        assertEquals("1,2,3,4,5,6,7,8,9,10,", rsp.body().string());
       });
     });
   }

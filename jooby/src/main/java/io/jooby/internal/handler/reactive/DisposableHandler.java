@@ -13,43 +13,29 @@
  *
  *    Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.handler;
+package io.jooby.internal.handler.reactive;
 
 import io.jooby.Context;
 import io.jooby.Route;
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.observers.DefaultObserver;
+import io.jooby.internal.handler.ChainedHandler;
 
 import javax.annotation.Nonnull;
 
-public class ObservableHandler implements ChainedHandler {
+public class DisposableHandler implements ChainedHandler {
 
   private final Route.Handler next;
 
-  public ObservableHandler(Route.Handler next) {
+  public DisposableHandler(Route.Handler next) {
     this.next = next;
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      Observable result = (Observable) next.apply(ctx);
-      result.subscribe(new DefaultObserver() {
-        @Override public void onNext(Object value) {
-          ctx.render(value);
-        }
-
-        @Override public void onError(Throwable e) {
-          ctx.sendError(e);
-        }
-
-        @Override public void onComplete() {
-        }
-      });
-      return result;
+      Object result = next.apply(ctx);
+      return ctx;
     } catch (Throwable x) {
       ctx.sendError(x);
-      return Observable.error(x);
+      return x;
     }
   }
 

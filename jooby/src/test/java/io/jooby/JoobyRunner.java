@@ -52,7 +52,7 @@ public class JoobyRunner {
 
   public void ready(Throwing.Consumer<WebClient> onReady, Supplier<Server>... servers) {
     if (modes.size() == 0) {
-      modes.add(ExecutionMode.WORKER);
+      modes.add(ExecutionMode.DEFAULT);
     }
     List<Supplier<Server>> serverList = new ArrayList<>();
     if (servers.length == 0) {

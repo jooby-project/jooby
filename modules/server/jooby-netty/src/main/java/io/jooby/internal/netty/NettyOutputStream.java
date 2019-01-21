@@ -13,15 +13,15 @@ import java.io.OutputStream;
 public class NettyOutputStream extends OutputStream {
   private final ByteBuf buffer;
   private final ChannelHandlerContext ctx;
-  private final ChannelFutureListener listener;
+  private final ChannelFutureListener closeListener;
   private HttpResponse headers;
 
   public NettyOutputStream(ChannelHandlerContext ctx, int bufferSize, HttpResponse headers,
-      ChannelFutureListener listener) {
+      ChannelFutureListener closeListener) {
     this.buffer = ctx.alloc().buffer(0, bufferSize);
     this.ctx = ctx;
     this.headers = headers;
-    this.listener = listener;
+    this.closeListener = closeListener;
   }
 
   @Override
@@ -29,13 +29,17 @@ public class NettyOutputStream extends OutputStream {
     writeHeaders();
 
     if (buffer.maxWritableBytes() < 1) {
-      flush(null);
+      flush(null, null);
     }
     buffer.writeByte(b);
   }
 
   @Override
   public void write(byte[] src, int off, int len) {
+    write(src, off, len, null);
+  }
+
+  public void write(byte[] src, int off, int len, ChannelFutureListener callback) {
     writeHeaders();
 
     int dataLengthLeftToWrite = len;
@@ -46,7 +50,7 @@ public class NettyOutputStream extends OutputStream {
       buffer.writeBytes(src, dataToWriteOffset, spaceLeftInCurrentChunk);
       dataToWriteOffset = dataToWriteOffset + spaceLeftInCurrentChunk;
       dataLengthLeftToWrite = dataLengthLeftToWrite - spaceLeftInCurrentChunk;
-      flush(null);
+      flush(callback, null);
     }
     if (dataLengthLeftToWrite > 0) {
       buffer.writeBytes(src, dataToWriteOffset, dataLengthLeftToWrite);
@@ -61,18 +65,26 @@ public class NettyOutputStream extends OutputStream {
   }
 
   @Override public void flush() throws IOException {
-    flush(null);
+    flush(null, null);
   }
 
-  private void flush(ChannelFutureListener listener) {
+  private void flush(ChannelFutureListener callback, ChannelFutureListener listener) {
     int chunkSize = buffer.readableBytes();
     if (chunkSize > 0) {
       if (listener != null) {
-        ctx.write(new DefaultHttpContent(buffer.copy()), ctx.voidPromise());
+        if (callback == null) {
+          ctx.write(new DefaultHttpContent(buffer.copy()), ctx.voidPromise());
+        } else {
+          ctx.write(new DefaultHttpContent(buffer.copy())).addListener(callback);
+        }
         ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(listener);
         buffer.release();
       } else {
-        ctx.writeAndFlush(new DefaultHttpContent(buffer.copy()));
+        if (callback == null) {
+          ctx.write(new DefaultHttpContent(buffer.copy()), ctx.voidPromise());
+        } else {
+          ctx.write(new DefaultHttpContent(buffer.copy())).addListener(callback);
+        }
         buffer.clear();
       }
     } else {
@@ -82,6 +94,6 @@ public class NettyOutputStream extends OutputStream {
 
   @Override
   public void close() {
-    flush(listener);
+    flush(null, closeListener);
   }
 }

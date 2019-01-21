@@ -13,30 +13,31 @@
  *
  *    Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.handler;
+package io.jooby.internal.handler.reactive;
 
 import io.jooby.Context;
 import io.jooby.Route;
-import io.reactivex.Single;
+import io.jooby.internal.handler.ChainedHandler;
+import io.reactivex.Maybe;
 
 import javax.annotation.Nonnull;
 
-public class SingleHandler implements ChainedHandler {
+public class RxMaybeHandler implements ChainedHandler {
 
   private final Route.Handler next;
 
-  public SingleHandler(Route.Handler next) {
+  public RxMaybeHandler(Route.Handler next) {
     this.next = next;
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      Single result = (Single) next.apply(ctx);
-      result.subscribe(ctx::render, x -> ctx.sendError((Throwable) x));
+      Maybe result = (Maybe) next.apply(ctx);
+      result.subscribe(new RxSubscriber(ctx));
       return result;
     } catch (Throwable x) {
       ctx.sendError(x);
-      return Single.error(x);
+      return Maybe.error(x);
     }
   }
 

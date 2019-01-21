@@ -52,6 +52,7 @@ public class UtowContext implements Context, IoCallback {
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private Map<String, Object> locals = Collections.EMPTY_MAP;
   Body body;
+  private MediaType responseType;
 
   public UtowContext(HttpServerExchange exchange, Router router) {
     this.exchange = exchange;
@@ -186,8 +187,13 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
+  @Nonnull @Override public MediaType type() {
+    return responseType == null ? MediaType.text : responseType;
+  }
+
   @Nonnull @Override
   public Context type(@Nonnull MediaType contentType, @Nullable Charset charset) {
+    this.responseType = contentType;
     exchange.getResponseHeaders()
         .put(Headers.CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
@@ -207,6 +213,10 @@ public class UtowContext implements Context, IoCallback {
     ifSetChunked();
 
     return exchange.getOutputStream();
+  }
+
+  @Nonnull @Override public io.jooby.Sender responseSender() {
+    return new UtowSender(this, exchange);
   }
 
   private void ifSetChunked() {
@@ -287,7 +297,7 @@ public class UtowContext implements Context, IoCallback {
     return exchange.isResponseStarted();
   }
 
-  private void destroy(Exception cause) {
+  void destroy(Exception cause) {
     try {
       if (cause != null) {
         Logger log = router.log();

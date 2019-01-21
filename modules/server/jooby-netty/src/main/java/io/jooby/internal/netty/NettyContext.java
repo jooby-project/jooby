@@ -74,6 +74,7 @@ public class NettyContext implements Context, ChannelFutureListener {
   private Value.Object headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private Map<String, Object> locals = Collections.EMPTY_MAP;
+  private MediaType responseType;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
       int bufferSize) {
@@ -219,7 +220,12 @@ public class NettyContext implements Context, ChannelFutureListener {
     return this;
   }
 
+  @Nonnull @Override public MediaType type() {
+    return responseType == null ? MediaType.text : responseType;
+  }
+
   @Override public final Context type(MediaType contentType, Charset charset) {
+    this.responseType = contentType;
     setHeaders.set(CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
   }
@@ -235,21 +241,22 @@ public class NettyContext implements Context, ChannelFutureListener {
     return new NettyWriter(newOutputStream(), charset);
   }
 
+  @Nonnull @Override public Sender responseSender() {
+    responseStarted = true;
+    ifSetChunked();
+    ctx.write(new DefaultHttpResponse(req.protocolVersion(), status, setHeaders));
+    return new NettySender(this, ctx);
+  }
+
   @Nonnull @Override public OutputStream responseStream(MediaType type) {
     type(type);
     return newOutputStream();
   }
 
-  private OutputStream newOutputStream() {
+  private NettyOutputStream newOutputStream() {
     ifSetChunked();
     return new NettyOutputStream(ctx, bufferSize,
         new DefaultHttpResponse(req.protocolVersion(), status, setHeaders), this);
-  }
-
-  private void ifSetChunked() {
-    if (!setHeaders.contains(CONTENT_LENGTH)) {
-      setHeaders.set(TRANSFER_ENCODING, CHUNKED);
-    }
   }
 
   @Nonnull @Override public Context sendString(@Nonnull String data) {
@@ -280,8 +287,9 @@ public class NettyContext implements Context, ChannelFutureListener {
       } else {
         chunkedStream = new ChunkedStream(in, bufferSize);
       }
-      responseStarted = true;
+
       DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
+      responseStarted = true;
       ctx.channel().eventLoop().execute(() -> {
         // Headers
         ctx.write(rsp);
@@ -304,9 +312,7 @@ public class NettyContext implements Context, ChannelFutureListener {
       ByteRange range = ByteRange.parse(req.headers().get(RANGE)).apply(this, len);
 
       DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
-
       responseStarted = true;
-
       ctx.channel().eventLoop().execute(() -> {
         // Headers
         ctx.write(rsp);
@@ -337,8 +343,8 @@ public class NettyContext implements Context, ChannelFutureListener {
   private Context sendByteBuf(ByteBuf buff) {
     responseStarted = true;
     setHeaders.set(CONTENT_LENGTH, buff.readableBytes());
-    HttpResponse rsp = new DefaultFullHttpResponse(HTTP_1_1, status, buff, setHeaders, NO_TRAILING);
-    ctx.writeAndFlush(rsp).addListener(this);
+    ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, status, buff, setHeaders, NO_TRAILING))
+        .addListener(this);
     return this;
   }
 
@@ -353,7 +359,7 @@ public class NettyContext implements Context, ChannelFutureListener {
     }
   }
 
-  private void destroy(Throwable cause) {
+  void destroy(Throwable cause) {
     Logger log = router.log();
     if (cause != null) {
       if (Server.connectionLost(cause)) {
@@ -430,4 +436,9 @@ public class NettyContext implements Context, ChannelFutureListener {
     return len == null ? -1 : Long.parseLong(len);
   }
 
+  private void ifSetChunked() {
+    if (!setHeaders.contains(CONTENT_LENGTH)) {
+      setHeaders.set(TRANSFER_ENCODING, CHUNKED);
+    }
+  }
 }

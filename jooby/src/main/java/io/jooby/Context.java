@@ -329,6 +329,8 @@ public interface Context {
 
   @Nonnull Context type(@Nonnull MediaType contentType, @Nullable Charset charset);
 
+  @Nonnull MediaType type();
+
   @Nonnull default Context statusCode(StatusCode statusCode) {
     return statusCode(statusCode.value());
   }
@@ -354,6 +356,8 @@ public interface Context {
     }
     return this;
   }
+
+  @Nonnull Sender responseSender();
 
   default @Nonnull Writer responseWriter() {
     return responseWriter(MediaType.text);
