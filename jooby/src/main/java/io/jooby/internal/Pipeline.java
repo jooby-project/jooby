@@ -15,13 +15,14 @@
  */
 package io.jooby.internal;
 
+import io.jooby.Context;
 import io.jooby.ExecutionMode;
 import io.jooby.Reified;
 import io.jooby.Route.Handler;
 import io.jooby.internal.handler.CompletionStageHandler;
 import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
-import io.jooby.internal.handler.reactive.DisposableHandler;
+import io.jooby.internal.handler.NoopHandler;
 import io.jooby.internal.handler.reactive.ReactivePublisherHandler;
 import io.jooby.internal.handler.WorkerExecHandler;
 import io.jooby.internal.handler.reactive.JavaFlowPublisher;
@@ -83,7 +84,7 @@ public class Pipeline {
     Optional<Class> disposable = loadClass(loader, "io.reactivex.disposables.Disposable");
     if (disposable.isPresent()) {
       if (disposable.get().isAssignableFrom(type)) {
-        return Pipeline::disposable;
+        return Pipeline::rxDisposable;
       }
     }
     /** Reactor: */
@@ -111,6 +112,10 @@ public class Pipeline {
     if (Flow.Publisher.class.isAssignableFrom(type)) {
       return Pipeline::javaFlowPublisher;
     }
+    if (Context.class.isAssignableFrom(type)) {
+      return (mode, route) -> next(mode, route.executor(), new NoopHandler(route.pipeline()),
+          true);
+    }
     return (mode, route) -> next(mode, route.executor(), new DefaultHandler(route.pipeline()),
         true);
   }
@@ -130,8 +135,8 @@ public class Pipeline {
         false);
   }
 
-  private static Handler disposable(ExecutionMode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new DisposableHandler(next.pipeline())),
+  private static Handler rxDisposable(ExecutionMode mode, RouteImpl next) {
+    return next(mode, next.executor(), new DetachHandler(new NoopHandler(next.pipeline())),
         false);
   }
 
