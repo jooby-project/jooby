@@ -804,6 +804,19 @@ public class FeaturedTest {
           Maybe.empty()
               .subscribeOn(Schedulers.io())
       );
+
+      app.get("/rx/flowable/each", ctx -> {
+        Writer writer = ctx.responseWriter();
+        return Flowable.range(1, 10)
+            .map(i -> i + ",")
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
+            .doOnError(ctx::sendError)
+            .doFinally(writer::close)
+            .forEach(it -> {
+              writer.write(it);
+            });
+      });
     }).ready(client -> {
       client.get("/rx/flowable", rsp -> {
         assertEquals("chunked", rsp.header("transfer-encoding").toLowerCase());
@@ -823,6 +836,10 @@ public class FeaturedTest {
         assertEquals(404, rsp.code());
         assertEquals("", rsp.body().string());
       });
+      client.get("/rx/flowable/each", rsp -> {
+        assertEquals("chunked", rsp.header("transfer-encoding").toLowerCase());
+        assertEquals("1,2,3,4,5,6,7,8,9,10,", rsp.body().string());
+      });
     });
   }
 
@@ -834,7 +851,6 @@ public class FeaturedTest {
               .map(s -> "Hello " + s)
               .subscribeOn(elastic())
       );
-
       app.get("/reactor/flux", ctx ->
           Flux.range(1, 10)
               .map(i -> i + ",")
@@ -1254,7 +1270,7 @@ public class FeaturedTest {
   public void sendFile() {
     new JoobyRunner(app -> {
       app.get("/filechannel", ctx ->
-        FileChannel.open(userdir("src", "test", "resources", "files", "19kb.txt"))
+          FileChannel.open(userdir("src", "test", "resources", "files", "19kb.txt"))
       );
       app.get("/path", ctx ->
           userdir("src", "test", "resources", "files", "19kb.txt")
