@@ -1201,7 +1201,7 @@ public class FeaturedTest {
     new JoobyRunner(app -> {
       app.get("/txt", ctx -> {
         ctx.query("l").toOptional().ifPresent(len -> ctx.length(Long.parseLong(len)));
-        return ctx.sendStream(new ByteArrayInputStream(_19kb.getBytes(StandardCharsets.UTF_8)));
+        return new ByteArrayInputStream(_19kb.getBytes(StandardCharsets.UTF_8));
       });
     }).ready(client -> {
       client.get("/txt", rsp -> {
@@ -1253,15 +1253,39 @@ public class FeaturedTest {
   @Test
   public void sendFile() {
     new JoobyRunner(app -> {
-      app.get("/file", ctx -> {
-        return ctx
-            .sendFile(FileChannel.open(userdir("src", "test", "resources", "files", "19kb.txt")));
-      });
+      app.get("/filechannel", ctx ->
+        FileChannel.open(userdir("src", "test", "resources", "files", "19kb.txt"))
+      );
+      app.get("/path", ctx ->
+          userdir("src", "test", "resources", "files", "19kb.txt")
+      );
+      app.get("/file", ctx ->
+          userdir("src", "test", "resources", "files", "19kb.txt").toFile()
+      );
+      app.get("/filenotfound", ctx ->
+          userdir("src", "test", "resources", "files", "notfound.txt")
+      );
     }).ready(client -> {
+      client.get("/filechannel", rsp -> {
+        assertEquals(null, rsp.header("transfer-encoding"));
+        assertEquals(Integer.toString(_19kb.length()), rsp.header("content-length").toLowerCase());
+        assertEquals(_19kb, rsp.body().string());
+      });
+
+      client.get("/path", rsp -> {
+        assertEquals(null, rsp.header("transfer-encoding"));
+        assertEquals(Integer.toString(_19kb.length()), rsp.header("content-length").toLowerCase());
+        assertEquals(_19kb, rsp.body().string());
+      });
+
       client.get("/file", rsp -> {
         assertEquals(null, rsp.header("transfer-encoding"));
         assertEquals(Integer.toString(_19kb.length()), rsp.header("content-length").toLowerCase());
         assertEquals(_19kb, rsp.body().string());
+      });
+
+      client.get("/filenotfound", rsp -> {
+        assertEquals(404, rsp.code());
       });
     });
   }

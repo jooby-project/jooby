@@ -22,6 +22,8 @@ import io.jooby.Route.Handler;
 import io.jooby.internal.handler.CompletionStageHandler;
 import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
+import io.jooby.internal.handler.FileChannelHandler;
+import io.jooby.internal.handler.InputStreamHandler;
 import io.jooby.internal.handler.NoopHandler;
 import io.jooby.internal.handler.reactive.ReactivePublisherHandler;
 import io.jooby.internal.handler.WorkerExecHandler;
@@ -34,6 +36,10 @@ import io.jooby.internal.handler.WorkerHandler;
 import io.jooby.internal.handler.reactive.RxFlowableHandler;
 import io.jooby.internal.handler.reactive.RxSingleHandler;
 
+import java.io.File;
+import java.io.InputStream;
+import java.nio.channels.FileChannel;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
@@ -116,6 +122,18 @@ public class Pipeline {
       return (mode, route) -> next(mode, route.executor(), new NoopHandler(route.pipeline()),
           true);
     }
+
+    if (InputStream.class.isAssignableFrom(type)) {
+      return (mode, route) -> next(mode, route.executor(), new InputStreamHandler(route.pipeline()),
+          true);
+    }
+
+    if (FileChannel.class.isAssignableFrom(type) || Path.class.isAssignableFrom(type) || File.class
+        .isAssignableFrom(type)) {
+      return (mode, route) -> next(mode, route.executor(), new FileChannelHandler(route.pipeline()),
+          false);
+    }
+
     return (mode, route) -> next(mode, route.executor(), new DefaultHandler(route.pipeline()),
         true);
   }
@@ -131,7 +149,8 @@ public class Pipeline {
   }
 
   private static Handler reactivePublisher(ExecutionMode mode, RouteImpl next) {
-    return next(mode, next.executor(), new DetachHandler(new ReactivePublisherHandler(next.pipeline())),
+    return next(mode, next.executor(),
+        new DetachHandler(new ReactivePublisherHandler(next.pipeline())),
         false);
   }
 
