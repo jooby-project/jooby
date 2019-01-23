@@ -99,8 +99,9 @@ public class Route {
 
   private Type returnType;
 
-  public Route(String method, String pattern, List<String> pathKeys, Type returnType,
-      Handler handler, Handler pipeline, Renderer renderer, Map<String, Parser> parsers) {
+  public Route(@Nonnull String method, @Nonnull String pattern, @Nonnull List<String> pathKeys,
+      @Nonnull Type returnType, @Nonnull Handler handler, @Nonnull Handler pipeline,
+      @Nonnull Renderer renderer, @Nonnull Map<String, Parser> parsers) {
     this.method = method.toUpperCase();
     this.pattern = pattern;
     this.returnType = returnType;
@@ -111,8 +112,9 @@ public class Route {
     this.parsers = parsers;
   }
 
-  public Route(String method, String pattern, Type returnType,
-      Handler handler, Handler pipeline, Renderer renderer, Map<String, Parser> parsers) {
+  public Route(@Nonnull String method, @Nonnull String pattern, @Nonnull Type returnType,
+      @Nonnull Handler handler, @Nonnull Handler pipeline, @Nonnull Renderer renderer,
+      @Nonnull Map<String, Parser> parsers) {
     this(method, pattern, Router.pathKeys(pattern), returnType, handler, pipeline, renderer, parsers);
   }
 
@@ -136,7 +138,7 @@ public class Route {
     return pipeline;
   }
 
-  public Route pipeline(Route.Handler pipeline) {
+  public @Nonnull Route pipeline(Route.Handler pipeline) {
     this.pipeline = pipeline;
     return this;
   }
@@ -149,7 +151,7 @@ public class Route {
     return returnType;
   }
 
-  public Route returnType(@Nonnull Type returnType) {
+  public @Nonnull Route returnType(@Nonnull Type returnType) {
     this.returnType = returnType;
     return this;
   }
