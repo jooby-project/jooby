@@ -17,6 +17,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import redis.clients.jedis.JedisSentinelPool;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,7 +39,8 @@ public class RedisSentinelTest {
     @SuppressWarnings("unchecked")
     @Test
     public void shouldGetJedisSentinelInstance() throws Exception {
-        Config config = jedisConfig().withValue("db", ConfigValueFactory.fromAnyRef("redis://localhost:26379"));
+        Config config = jedisConfig().withValue("db", ConfigValueFactory.fromAnyRef("redis://localhost:26379"))
+                .withValue("jedis.sentinel.hosts", ConfigValueFactory.fromAnyRef(Collections.singletonList("localhost:26379")));
         new MockUnit(Env.class, Binder.class, JedisSentinelPool.class)
                 .expect(unit -> {
                     Env env = unit.get(Env.class);

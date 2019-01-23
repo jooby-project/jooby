@@ -238,9 +238,9 @@ public class RedisSentinel extends Redis {
      * application.conf
      *
      * <pre>
-     * jedis.sentinel.hosts = ["localhost:26379"]
+     * jedis.sentinel.hosts = ["localhost:26379", "host2:26379"]
      * jedis.sentinel.master = "master"
-     * jedis.password = ""
+     * jedis.password = "mySuperSecretPasswordPutHere"
      * </pre>
      *
      * Example:
