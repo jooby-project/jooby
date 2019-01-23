@@ -209,13 +209,10 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.jooby.Env;
 import redis.clients.jedis.JedisSentinelPool;
 
-import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Created by
@@ -224,11 +221,6 @@ import static java.util.Objects.requireNonNull;
  * @since 1.5.0
  */
 public class RedisSentinel extends Redis {
-
-    /**
-     * Database name.
-     */
-    private String name = "db";
 
     /**
      * <p>
@@ -246,32 +238,29 @@ public class RedisSentinel extends Redis {
      * application.conf
      *
      * <pre>
-     * db1 = ""redis://localhost:6379""
      * jedis.sentinel.hosts = ["localhost:26379"]
      * jedis.sentinel.master = "master"
      * jedis.password = ""
      * </pre>
      *
-     * Default database name is: <code>db</code>
-     *
-     * @param name A database name.
+     * Example:
+     * <pre>
+     * try (Jedis redis = request.require(JedisSentinelPool.class).getResource()) {
+     *   System.out.println( redis.set("test", "this is work") );
+     *   System.out.println( redis.get("test");
+     * } catch (Exception e) {
+     *   e.printStackTrace();
+     * }
+     * </pre>
      */
-    public RedisSentinel(final String name) {
-        this.name = requireNonNull(name, "A db property is required.");
-    }
-
-    public RedisSentinel() {
-        this("db");
-    }
 
     @Override
     public void configure(Env env, Config config, Binder binder) {
         /**
          * Pool
          */
-        GenericObjectPoolConfig poolConfig = poolConfig(config, name);
+        GenericObjectPoolConfig poolConfig = poolConfig(config.getConfig("jedis.pool"));
         int timeout = (int) config.getDuration("jedis.timeout", TimeUnit.MILLISECONDS);
-        URI uri = URI.create(config.getString(name));
 
         List<String> hosts = config.getStringList("jedis.sentinel.hosts");
         if (hosts.size() < 1) throw new IllegalArgumentException("List of hosts (jedis.sentinel.hosts) can not be empty");
@@ -287,12 +276,12 @@ public class RedisSentinel extends Redis {
             pool = new JedisSentinelPool(MASTER_NAME, sentinels, poolConfig, timeout);
         }
 
-        RedisProvider provider = new RedisProvider(pool, uri, poolConfig);
+        RedisProvider provider = new RedisProvider(pool, null, poolConfig);
         env.onStart(provider::start);
         env.onStop(provider::stop);
 
         Env.ServiceKey serviceKey = env.serviceKey();
-        serviceKey.generate(JedisSentinelPool.class, name, k -> binder.bind(k).toInstance(pool));
+        serviceKey.generate(JedisSentinelPool.class, "db", k -> binder.bind(k).toInstance(pool));
     }
 
 }
