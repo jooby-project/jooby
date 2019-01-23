@@ -158,8 +158,8 @@ public class Route {
     return this;
   }
 
-  public @Nonnull Parser parser(String contentType) {
-    return parsers.getOrDefault(contentType, Parser.UNSUPPORTED_MEDIA_TYPE);
+  public @Nonnull Parser parser(MediaType contentType) {
+    return parsers.getOrDefault(contentType.value(), Parser.UNSUPPORTED_MEDIA_TYPE);
   }
 
   public @Nonnull Executor executor() {

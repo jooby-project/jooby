@@ -29,7 +29,7 @@ public class MultiApp {
 
   public static class Bar extends Jooby {
     {
-      basePath("/some");
+      contextPath("/some");
       get("/bar", Context::pathString);
     }
   }

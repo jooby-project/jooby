@@ -56,9 +56,9 @@ public interface Router {
 
   @Nonnull Router ignoreTrailingSlash(boolean ignoreTrailingSlash);
 
-  @Nonnull Router basePath(@Nonnull String basePath);
+  @Nonnull Router contextPath(@Nonnull String contextPath);
 
-  @Nonnull String basePath();
+  @Nonnull String contextPath();
 
   @Nonnull Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router);
 

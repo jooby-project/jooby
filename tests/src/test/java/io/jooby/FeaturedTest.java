@@ -887,7 +887,7 @@ public class FeaturedTest {
   @Test
   public void basePath() {
     new JoobyRunner(app -> {
-      app.basePath("/foo");
+      app.contextPath("/foo");
       app.get("/bar", ctx -> ctx.pathString());
 
     }).ready(client -> {

@@ -248,20 +248,17 @@ public interface Context {
     return body(type.getType());
   }
 
-  default @Nonnull <T> T body(@Nonnull Reified<T> type, @Nonnull String contentType) {
+  default @Nonnull <T> T body(@Nonnull Reified<T> type, @Nonnull MediaType contentType) {
     return body(type.getType(), contentType);
   }
 
   default @Nonnull <T> T body(@Nonnull Type type) {
-    String contentType = header("Content-Type").value("text/plain");
-    int i = contentType.indexOf(';');
-    if (i > 0) {
-      return body(type, contentType.substring(0, i));
-    }
+    MediaType contentType = MediaType.valueOf(header("Content-Type")
+        .value("text/plain"));
     return body(type, contentType);
   }
 
-  default @Nonnull <T> T body(@Nonnull Type type, @Nonnull String contentType) {
+  default @Nonnull <T> T body(@Nonnull Type type, @Nonnull MediaType contentType) {
     try {
       return parser(contentType).parse(this, type);
     } catch (Exception x) {
@@ -273,7 +270,7 @@ public interface Context {
    * Body Parser
    * **********************************************************************************************
    */
-  default @Nonnull Parser parser(@Nonnull String contentType) {
+  default @Nonnull Parser parser(@Nonnull MediaType contentType) {
     return route().parser(contentType);
   }
 

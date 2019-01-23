@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
@@ -117,13 +116,13 @@ public class Jooby implements Router {
     return this;
   }
 
-  @Nonnull @Override public Jooby basePath(@Nonnull String basePath) {
-    router.basePath(basePath);
+  @Nonnull @Override public Jooby contextPath(@Nonnull String basePath) {
+    router.contextPath(basePath);
     return this;
   }
 
-  @Nonnull @Override public String basePath() {
-    return router.basePath();
+  @Nonnull @Override public String contextPath() {
+    return router.contextPath();
   }
 
   @Nonnull @Override
@@ -357,7 +356,7 @@ public class Jooby implements Router {
     log.info("{} [{}@{}]\n\n{}\n\nlistening on:\n  http://localhost:{}{}\n",
         getClass().getSimpleName(),
         server.getClass().getSimpleName().toLowerCase(), mode.name().toLowerCase(), router,
-        server.port(), router.basePath());
+        server.port(), router.contextPath());
     return this;
   }
 

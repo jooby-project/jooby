@@ -149,7 +149,7 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Nonnull @Override public Router basePath(@Nonnull String basePath) {
+  @Nonnull @Override public Router contextPath(@Nonnull String basePath) {
     if (routes.size() > 0) {
       throw new IllegalStateException("Base path must be set before adding any routes.");
     }
@@ -161,7 +161,7 @@ public class RouterImpl implements Router {
     return Paths.get(System.getProperty("java.io.tmpdir"));
   }
 
-  @Nonnull @Override public String basePath() {
+  @Nonnull @Override public String contextPath() {
     return basePath == null ? "/" : basePath;
   }
 

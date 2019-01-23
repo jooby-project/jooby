@@ -154,7 +154,7 @@ public class MockContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public Parser parser(@Nonnull String contentType) {
+  @Nonnull @Override public Parser parser(@Nonnull MediaType contentType) {
     return parsers.getOrDefault(contentType, Parser.UNSUPPORTED_MEDIA_TYPE);
   }
 
