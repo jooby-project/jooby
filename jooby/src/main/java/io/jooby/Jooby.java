@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -69,6 +70,10 @@ public class Jooby implements Router {
   public Jooby() {
     router = new RouterImpl(new RouteAnalyzer(getClass().getClassLoader(), false));
     environment = ENV.get();
+    if (environment == null) {
+      // TODO: fallback for now, but probablye if we throws a specific error
+      environment = Env.defaultEnvironment();
+    }
     tmpdir = Paths.get(environment.get("application.tmpdir").value(), appname(getClass()))
         .toAbsolutePath();
   }
@@ -187,24 +192,18 @@ public class Jooby implements Router {
     return this;
   }
 
-  @Nonnull @Override public Jooby group(@Nonnull Runnable action) {
-    router.group(action);
+  @Nonnull @Override public Jooby dispatch(@Nonnull Runnable action) {
+    router.dispatch(action);
     return this;
   }
 
-  @Nonnull @Override public Router group(@Nonnull Executor executor, @Nonnull Runnable action) {
-    router.group(executor, action);
+  @Nonnull @Override public Jooby dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
+    router.dispatch(executor, action);
     return this;
   }
 
-  @Nonnull @Override public Jooby group(@Nonnull String pattern, @Nonnull Runnable action) {
-    router.group(pattern, action);
-    return this;
-  }
-
-  @Nonnull @Override public Router group(@Nonnull Executor executor, @Nonnull String pattern,
-      @Nonnull Runnable action) {
-    router.group(executor, pattern, action);
+  @Nonnull @Override public Jooby path(@Nonnull String pattern, @Nonnull Runnable action) {
+    router.path(pattern, action);
     return this;
   }
 
@@ -384,12 +383,17 @@ public class Jooby implements Router {
   }
 
   public static void run(Supplier<Jooby> provider, String... args) {
+    run(provider, ExecutionMode.DEFAULT, args);
+  }
+
+  public static void run(Supplier<Jooby> provider, ExecutionMode mode, String... args) {
     // TODO: add logging, etc...
     Server server;
     try {
       Env environment = Env.defaultEnvironment(args);
       setEnv(environment);
       Jooby app = provider.get();
+      app.mode(mode);
       server = app.start();
     } finally {
       // clear env

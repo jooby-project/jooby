@@ -42,8 +42,7 @@ public class PipelineTest {
     Executor executor = task -> {
     };
     Route.Handler h = ctx -> "OK";
-    ChainedHandler pipeline = pipeline(route(String.class, h, executor),
-        ExecutionMode.EVENT_LOOP);
+    ChainedHandler pipeline = pipeline(route(String.class, h), ExecutionMode.EVENT_LOOP, executor);
     assertTrue(pipeline instanceof WorkerExecHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DefaultHandler);
@@ -54,8 +53,7 @@ public class PipelineTest {
   @Test
   public void eventLoopDetachOnCompletableFutures() {
     Route.Handler h = ctx -> "OK";
-    ChainedHandler pipeline = pipeline(route(CompletableFuture.class, h),
-        ExecutionMode.EVENT_LOOP);
+    ChainedHandler pipeline = pipeline(route(CompletableFuture.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof CompletionStageHandler);
@@ -69,8 +67,8 @@ public class PipelineTest {
     Executor executor = task -> {
     };
     Route.Handler h = ctx -> "OK";
-    ChainedHandler pipeline = pipeline(route(CompletableFuture.class, h, executor),
-        ExecutionMode.EVENT_LOOP);
+    ChainedHandler pipeline = pipeline(route(CompletableFuture.class, h),
+        ExecutionMode.EVENT_LOOP, executor);
     assertTrue(pipeline instanceof WorkerExecHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next);
@@ -184,7 +182,7 @@ public class PipelineTest {
     Executor executor = task -> {
     };
     Route.Handler h = ctx -> "OK";
-    ChainedHandler pipeline = pipeline(route(String.class, h, executor), ExecutionMode.WORKER);
+    ChainedHandler pipeline = pipeline(route(String.class, h), ExecutionMode.WORKER, executor);
     assertTrue(pipeline instanceof WorkerExecHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DefaultHandler);
@@ -197,8 +195,8 @@ public class PipelineTest {
     Executor executor = task -> {
     };
     Route.Handler h = ctx -> "OK";
-    ChainedHandler pipeline = pipeline(route(CompletableFuture.class, h, executor),
-        ExecutionMode.WORKER);
+    ChainedHandler pipeline = pipeline(route(CompletableFuture.class, h),
+        ExecutionMode.WORKER, executor);
     assertTrue(pipeline instanceof WorkerExecHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next);
@@ -209,15 +207,15 @@ public class PipelineTest {
   }
 
   private ChainedHandler pipeline(Route route, ExecutionMode mode) {
-    return (ChainedHandler) Pipeline.compute(getClass().getClassLoader(), route, mode);
+    return pipeline(route, mode, null);
+  }
+
+  private ChainedHandler pipeline(Route route, ExecutionMode mode, Executor executor) {
+    return (ChainedHandler) Pipeline.compute(getClass().getClassLoader(), route, mode, executor);
   }
 
   private Route route(Type returnType, Route.Handler handler) {
-    return route(returnType, handler, null);
-  }
-
-  private Route route(Type returnType, Route.Handler handler, Executor executor) {
     return new Route("GET", "/", returnType, handler, handler,
-        Renderer.TO_STRING, Collections.emptyMap()).executor(executor);
+        Renderer.TO_STRING, Collections.emptyMap());
   }
 }

@@ -105,7 +105,7 @@ public class FeaturedTest {
   public void sayHiFromIO() {
     new JoobyRunner(app -> {
       app.get("/", ctx -> "Hello World!");
-      app.group(app.worker(), () -> {
+      app.dispatch(() -> {
         app.get("/worker", ctx -> "Hello World!");
       });
     }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
@@ -158,7 +158,7 @@ public class FeaturedTest {
   public void sayHiFromWorker() {
     new JoobyRunner(app -> {
       app.get("/", ctx -> "Hello World!");
-      app.group(app.worker(), () -> {
+      app.dispatch(() -> {
         app.get("/worker", ctx -> "Hello World!");
       });
     }).mode(ExecutionMode.WORKER).ready(client -> {
@@ -634,7 +634,7 @@ public class FeaturedTest {
         return buff;
       });
 
-      app.group(app.worker(), () -> {
+      app.dispatch(() -> {
         app.before(ctx -> {
           StringBuilder buff = ctx.get("buff");
           buff.append("before2:" + ctx.isInIoThread()).append(";");
@@ -980,7 +980,7 @@ public class FeaturedTest {
       Jooby bar = new Jooby();
       bar.get("/bar", Context::pathString);
 
-      app.group("/api/", () -> {
+      app.path("/api/", () -> {
         app.use(bar);
 
         app.use("/bar", bar);

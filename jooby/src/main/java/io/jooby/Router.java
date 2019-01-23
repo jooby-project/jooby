@@ -78,7 +78,7 @@ public interface Router {
 
   @Nonnull Executor worker();
 
-  @Nonnull Router worker(Executor worker);
+  @Nonnull Router worker(@Nonnull Executor worker);
 
   @Nonnull Router decorate(@Nonnull Route.Decorator decorator);
 
@@ -86,14 +86,11 @@ public interface Router {
 
   @Nonnull Router after(@Nonnull Route.After after);
 
-  @Nonnull Router group(@Nonnull Runnable action);
+  @Nonnull Router dispatch(@Nonnull Runnable action);
 
-  @Nonnull Router group(@Nonnull String pattern, @Nonnull Runnable action);
+  @Nonnull Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action);
 
-  @Nonnull Router group(@Nonnull Executor executor, @Nonnull Runnable action);
-
-  @Nonnull Router group(@Nonnull Executor executor, @Nonnull String pattern,
-      @Nonnull Runnable action);
+  @Nonnull Router path(@Nonnull String pattern, @Nonnull Runnable action);
 
   @Nonnull default Route get(@Nonnull String pattern, @Nonnull Route.Handler handler) {
     return route(GET, pattern, handler);

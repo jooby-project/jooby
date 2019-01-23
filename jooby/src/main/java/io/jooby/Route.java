@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 public class Route {
 
@@ -100,8 +99,6 @@ public class Route {
 
   private Type returnType;
 
-  private Executor executor;
-
   public Route(String method, String pattern, List<String> pathKeys, Type returnType,
       Handler handler, Handler pipeline, Renderer renderer, Map<String, Parser> parsers) {
     this.method = method.toUpperCase();
@@ -141,7 +138,6 @@ public class Route {
 
   public Route pipeline(Route.Handler pipeline) {
     this.pipeline = pipeline;
-    this.executor = null;
     return this;
   }
 
@@ -162,17 +158,7 @@ public class Route {
     return parsers.getOrDefault(contentType.value(), Parser.UNSUPPORTED_MEDIA_TYPE);
   }
 
-  public @Nonnull Executor executor() {
-    return executor;
-  }
-
-  public @Nonnull Route executor(@Nonnull Executor executor) {
-    this.executor = executor;
-    return this;
-  }
-
   @Override public String toString() {
     return method + " " + pattern;
   }
-
 }

@@ -102,8 +102,7 @@ public class RouterImpl implements Router {
     }
   }
 
-  private static final Executor LAZY_WORKER = task -> {
-    throw new Usage("Worker executor is not ready.");
+  private static final Executor WORKER_MARK = command -> {
   };
 
   private ErrorHandler err;
@@ -129,6 +128,8 @@ public class RouterImpl implements Router {
   private RouteAnalyzer analyzer;
 
   private Executor worker;
+
+  private Map<Route, Executor> routeExecutor = new HashMap<>();
 
   private Map<String, Parser> parsers = new HashMap<>();
 
@@ -215,6 +216,9 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Executor worker() {
+    if (worker == null) {
+      throw new Usage("Worker is not ready");
+    }
     return worker;
   }
 
@@ -242,21 +246,16 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Override @Nonnull public Router group(@Nonnull Runnable action) {
-    return newStack(push(), action);
+  @Nonnull @Override public Router dispatch(@Nonnull Runnable action) {
+    return newStack(push().executor(worker == null ? WORKER_MARK : worker), action);
   }
 
-  @Nonnull @Override public Router group(@Nonnull Executor executor, @Nonnull Runnable action) {
-    return newStack(push().executor(executor == null ? LAZY_WORKER : executor), action);
+  @Nonnull @Override public Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
+    return newStack(push().executor(executor), action);
   }
 
-  @Override @Nonnull public Router group(@Nonnull String pattern, @Nonnull Runnable action) {
+  @Override @Nonnull public Router path(@Nonnull String pattern, @Nonnull Runnable action) {
     return newStack(pattern, action);
-  }
-
-  @Nonnull @Override public Router group(@Nonnull Executor executor, @Nonnull String pattern,
-      @Nonnull Runnable action) {
-    return newStack(push(pattern).executor(executor == null ? LAZY_WORKER : executor), action);
   }
 
   @Override
@@ -299,7 +298,9 @@ public class RouterImpl implements Router {
     String safePattern = pat.toString();
     Route route = new Route(method, safePattern, null, handler, pipeline, renderer, parsers);
     Stack stack = this.stack.peekLast();
-    route.executor(stack.executor);
+    if (stack.executor != null) {
+      routeExecutor.put(route, stack.executor);
+    }
     String routePattern = normalizePath(basePath == null
             ? safePattern
             : basePath + safePattern,
@@ -324,19 +325,21 @@ public class RouterImpl implements Router {
     }
     ExecutionMode mode = owner.mode();
     for (Route route : routes) {
-      Executor executor = route.executor();
-      if (executor == LAZY_WORKER) {
-        route.executor(owner.worker());
+      Executor executor = routeExecutor.get(route);
+      if (executor == WORKER_MARK) {
+        executor = owner.worker();
       }
       /** Return type: */
       if (route.returnType() == null) {
         route.returnType(analyzer.returnType(route.handler()));
       }
-      Route.Handler pipeline = Pipeline.compute(analyzer.getClassLoader(), route, mode);
+      Route.Handler pipeline = Pipeline.compute(analyzer.getClassLoader(), route, mode, executor);
       route.pipeline(pipeline);
     }
     this.stack.forEach(Stack::clear);
     this.stack = null;
+    routeExecutor.clear();
+    routeExecutor = null;
     return this;
   }
 

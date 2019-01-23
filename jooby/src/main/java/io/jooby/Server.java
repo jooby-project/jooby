@@ -32,8 +32,9 @@ public interface Server {
     protected void fireStart(List<Jooby> applications, Supplier<Executor> workerProvider) {
       Executor serverWorker = null;
       for (Jooby app : applications) {
-        Executor worker = app.worker();
-        if (worker == null) {
+        try {
+          app.worker();
+        } catch (Usage workerNotReady) {
           if (serverWorker == null) {
             // server worker is shared between app
             serverWorker = workerProvider.get();

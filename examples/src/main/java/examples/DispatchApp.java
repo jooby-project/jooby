@@ -37,15 +37,12 @@ public class DispatchApp extends Jooby {
 
     get("/", ctx -> ctx.query("n").intValue(2));
 
-    group(worker(), () -> {
+    dispatch(() -> {
       get("/worker", ctx -> ctx.query("n").intValue(2));
     });
   }
 
   public static void main(String[] args) {
-    new DispatchApp()
-        .mode(ExecutionMode.EVENT_LOOP)
-        .start()
-        .join();
+    run(DispatchApp::new, ExecutionMode.EVENT_LOOP, args);
   }
 }
