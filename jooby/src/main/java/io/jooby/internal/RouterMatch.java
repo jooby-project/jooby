@@ -21,7 +21,6 @@ import io.jooby.Route;
 import io.jooby.Router;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +91,7 @@ public class RouterMatch implements Router.Match {
     } else {
       h = this.handler;
     }
-    this.route = new RouteImpl(method, path, emptyList(), String.class, h, h, renderer, emptyMap());
+    this.route = new Route(method, path, emptyList(), String.class, h, h, renderer, emptyMap());
     return this;
   }
 }

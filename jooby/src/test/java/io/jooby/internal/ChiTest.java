@@ -19,8 +19,8 @@ public class ChiTest {
   @Test
   public void routeOverride() {
     $Chi router = new $Chi();
-    RouteImpl foo = route("GET", "/abcd", stringHandler("foo"));
-    RouteImpl bar = route("GET", "/abcd", stringHandler("bar"));
+    Route foo = route("GET", "/abcd", stringHandler("foo"));
+    Route bar = route("GET", "/abcd", stringHandler("bar"));
     router.insert(foo);
     router.insert(bar);
 
@@ -35,8 +35,8 @@ public class ChiTest {
   public void routeCase() {
     $Chi router = new $Chi();
     router.setIgnoreTrailingSlash(false);
-    RouteImpl foo = route("GET", "/abcd", stringHandler("foo"));
-    RouteImpl foos = route("GET", "/abcd/", stringHandler("foo/"));
+    Route foo = route("GET", "/abcd", stringHandler("foo"));
+    Route foos = route("GET", "/abcd/", stringHandler("foo/"));
     router.insert(foo);
     router.insert(foos);
 
@@ -86,8 +86,8 @@ public class ChiTest {
     return ctx -> foo;
   }
 
-  private RouteImpl route(String method, String pattern, Route.Handler handler) {
-    return new RouteImpl(method, pattern, Collections.emptyList(), String.class, handler, handler,
+  private Route route(String method, String pattern, Route.Handler handler) {
+    return new Route(method, pattern, String.class, handler, handler,
         Renderer.TO_STRING, Collections.emptyMap());
   }
 

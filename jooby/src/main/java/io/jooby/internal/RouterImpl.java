@@ -162,7 +162,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public String basePath() {
-    return basePath == null ? "/": basePath;
+    return basePath == null ? "/" : basePath;
   }
 
   @Nonnull @Override public List<Route> routes() {
@@ -295,23 +295,25 @@ public class RouterImpl implements Router {
       pipeline = pipeline.then(after);
     }
 
-    /** Return type: */
-    Type returnType = analyzer.returnType(handler);
-
     /** Route: */
     String safePattern = pat.toString();
-    List<String> pathKeys = Router.pathKeys(safePattern);
-    RouteImpl route = new RouteImpl(method, safePattern, pathKeys, returnType, handler, pipeline,
-        renderer, parsers);
+    Route route = new Route(method, safePattern, null, handler, pipeline, renderer, parsers);
     Stack stack = this.stack.peekLast();
     route.executor(stack.executor);
-    String routePattern = normalizePath(basePath == null ? safePattern : basePath + safePattern, caseSensitive, ignoreTrailingSlash);
+    String routePattern = normalizePath(basePath == null
+            ? safePattern
+            : basePath + safePattern,
+        caseSensitive, ignoreTrailingSlash);
     if (method.equals("*")) {
       METHODS.forEach(m -> tree.insert(m, routePattern, route));
     } else {
       tree.insert(route.method(), routePattern, route);
     }
     routes.add(route);
+
+    if (handler instanceof Route.Aware) {
+      ((Route.Aware) handler).setRoute(route);
+    }
     return route;
   }
 
@@ -322,13 +324,16 @@ public class RouterImpl implements Router {
     }
     ExecutionMode mode = owner.mode();
     for (Route route : routes) {
-      RouteImpl routeImpl = (RouteImpl) route;
-      Executor executor = routeImpl.executor();
+      Executor executor = route.executor();
       if (executor == LAZY_WORKER) {
-        routeImpl.executor(owner.worker());
+        route.executor(owner.worker());
       }
-      Route.Handler pipeline = Pipeline.compute(analyzer.getClassLoader(), routeImpl, mode);
-      routeImpl.pipeline(pipeline);
+      /** Return type: */
+      if (route.returnType() == null) {
+        route.returnType(analyzer.returnType(route.handler()));
+      }
+      Route.Handler pipeline = Pipeline.compute(analyzer.getClassLoader(), route, mode);
+      route.pipeline(pipeline);
     }
     this.stack.forEach(Stack::clear);
     this.stack = null;

@@ -19,10 +19,16 @@ import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executor;
 
-public interface Route {
+public class Route {
 
-  interface Decorator {
+  public interface Aware {
+    void setRoute(Route route);
+  }
+
+  public interface Decorator {
     @Nonnull Handler apply(@Nonnull Handler next);
 
     @Nonnull default Decorator then(@Nonnull Decorator next) {
@@ -34,7 +40,7 @@ public interface Route {
     }
   }
 
-  interface Before extends Decorator {
+  public interface Before extends Decorator {
     @Nonnull @Override default Handler apply(@Nonnull Handler next) {
       return ctx -> {
         before(ctx);
@@ -45,7 +51,7 @@ public interface Route {
     void before(@Nonnull Context ctx) throws Exception;
   }
 
-  interface After {
+  public interface After {
 
     @Nonnull default After then(@Nonnull After next) {
       return (ctx, result) -> apply(ctx, next.apply(ctx, result));
@@ -54,7 +60,7 @@ public interface Route {
     @Nonnull Object apply(@Nonnull Context ctx, Object result) throws Exception;
   }
 
-  interface Handler extends Serializable {
+  public interface Handler extends Serializable {
 
     @Nonnull Object apply(@Nonnull Context ctx) throws Exception;
 
@@ -72,25 +78,101 @@ public interface Route {
     }
   }
 
-  Handler NOT_FOUND = ctx -> ctx.sendError(new Err(StatusCode.NOT_FOUND));
+  public static final Handler NOT_FOUND = ctx -> ctx.sendError(new Err(StatusCode.NOT_FOUND));
 
-  Handler METHOD_NOT_ALLOWED = ctx -> ctx.sendError(new Err(StatusCode.METHOD_NOT_ALLOWED));
+  public static final Handler METHOD_NOT_ALLOWED = ctx -> ctx.sendError(new Err(StatusCode.METHOD_NOT_ALLOWED));
 
-  Handler FAVICON = ctx -> ctx.sendStatusCode(StatusCode.NOT_FOUND);
+  public static final Handler FAVICON = ctx -> ctx.sendStatusCode(StatusCode.NOT_FOUND);
 
-  @Nonnull String pattern();
+  private final Map<String, Parser> parsers;
 
-  @Nonnull String method();
+  private String pattern;
 
-  @Nonnull List<String> pathKeys();
+  private String method;
 
-  @Nonnull Handler handler();
+  private List<String> pathKeys;
 
-  @Nonnull Handler pipeline();
+  private Handler handler;
 
-  @Nonnull Renderer renderer();
+  private Handler pipeline;
 
-  @Nonnull Type returnType();
+  private Renderer renderer;
 
-  @Nonnull Parser parser(String contentType);
+  private Type returnType;
+
+  private Executor executor;
+
+  public Route(String method, String pattern, List<String> pathKeys, Type returnType,
+      Handler handler, Handler pipeline, Renderer renderer, Map<String, Parser> parsers) {
+    this.method = method.toUpperCase();
+    this.pattern = pattern;
+    this.returnType = returnType;
+    this.handler = handler;
+    this.pipeline = pipeline;
+    this.renderer = renderer;
+    this.pathKeys = pathKeys;
+    this.parsers = parsers;
+  }
+
+  public Route(String method, String pattern, Type returnType,
+      Handler handler, Handler pipeline, Renderer renderer, Map<String, Parser> parsers) {
+    this(method, pattern, Router.pathKeys(pattern), returnType, handler, pipeline, renderer, parsers);
+  }
+
+  public @Nonnull String pattern() {
+    return pattern;
+  }
+
+  public  @Nonnull String method() {
+    return method;
+  }
+
+  public @Nonnull List<String> pathKeys() {
+    return pathKeys;
+  }
+
+  public @Nonnull Handler handler() {
+    return handler;
+  }
+
+  public @Nonnull Handler pipeline() {
+    return pipeline;
+  }
+
+  public Route pipeline(Route.Handler pipeline) {
+    this.pipeline = pipeline;
+    this.executor = null;
+    return this;
+  }
+
+  public @Nonnull Renderer renderer() {
+    return renderer;
+  }
+
+  public @Nonnull Type returnType() {
+    return returnType;
+  }
+
+  public Route returnType(@Nonnull Type returnType) {
+    this.returnType = returnType;
+    return this;
+  }
+
+  public @Nonnull Parser parser(String contentType) {
+    return parsers.getOrDefault(contentType, Parser.UNSUPPORTED_MEDIA_TYPE);
+  }
+
+  public @Nonnull Executor executor() {
+    return executor;
+  }
+
+  public @Nonnull Route executor(@Nonnull Executor executor) {
+    this.executor = executor;
+    return this;
+  }
+
+  @Override public String toString() {
+    return method + " " + pattern;
+  }
+
 }

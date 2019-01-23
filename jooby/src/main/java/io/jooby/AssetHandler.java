@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 import java.util.Date;
 import java.util.List;
 
-public class AssetHandler implements Route.Handler {
+public class AssetHandler implements Route.Handler, Route.Aware {
   private final AssetSource[] sources;
 
   private boolean etag = true;
@@ -91,8 +91,11 @@ public class AssetHandler implements Route.Handler {
     return null;
   }
 
-  void route(Route route) {
+  @Override public void setRoute(Route route) {
     List<String> keys = route.pathKeys();
     this.filekey = keys.size() == 0 ? "*" : keys.get(0);
+
+    // NOTE: It send an inputstream we don't need a renderer
+    route.returnType(Context.class);
   }
 }

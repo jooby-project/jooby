@@ -40,15 +40,11 @@ public class RouteAnalyzer {
     this.debug = debug;
   }
 
-  public RouteAnalyzer(ClassLoader loader) {
-    this(loader, false);
-  }
-
   public java.lang.reflect.Type returnType(Route.Handler handler) {
     try {
       Method method = Lambdas.getLambdaMethod(handler);
       if (method == null) {
-        return Context.class;
+        return Object.class;
       }
       Class<?> returnType = method.getReturnType();
       if (returnType != Object.class) {

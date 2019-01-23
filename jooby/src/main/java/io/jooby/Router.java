@@ -144,9 +144,7 @@ public interface Router {
   }
 
   default @Nonnull Route assets(@Nonnull String pattern, @Nonnull AssetHandler handler) {
-    Route route = route(GET, pattern, handler);
-    handler.route(route);
-    return route;
+    return route(GET, pattern, handler);
   }
 
   @Nonnull Route route(@Nonnull String method, @Nonnull String pattern, @Nonnull

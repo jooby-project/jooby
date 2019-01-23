@@ -18,6 +18,7 @@ package io.jooby.internal;
 import io.jooby.Context;
 import io.jooby.ExecutionMode;
 import io.jooby.Reified;
+import io.jooby.Route;
 import io.jooby.Route.Handler;
 import io.jooby.internal.handler.CompletionStageHandler;
 import io.jooby.internal.handler.DefaultHandler;
@@ -48,11 +49,11 @@ import java.util.function.BiFunction;
 
 public class Pipeline {
 
-  public static Handler compute(ClassLoader loader, RouteImpl route, ExecutionMode mode) {
+  public static Handler compute(ClassLoader loader, Route route, ExecutionMode mode) {
     return provider(loader, Reified.rawType(route.returnType())).apply(mode, route);
   }
 
-  private static BiFunction<ExecutionMode, RouteImpl, Handler> provider(ClassLoader loader,
+  private static BiFunction<ExecutionMode, Route, Handler> provider(ClassLoader loader,
       Class type) {
     if (CompletionStage.class.isAssignableFrom(type)) {
       return Pipeline::completableFuture;
@@ -138,54 +139,54 @@ public class Pipeline {
         true);
   }
 
-  private static Handler completableFuture(ExecutionMode mode, RouteImpl next) {
+  private static Handler completableFuture(ExecutionMode mode, Route next) {
     return next(mode, next.executor(),
         new DetachHandler(new CompletionStageHandler(next.pipeline())), false);
   }
 
-  private static Handler rxFlowable(ExecutionMode mode, RouteImpl next) {
+  private static Handler rxFlowable(ExecutionMode mode, Route next) {
     return next(mode, next.executor(), new DetachHandler(new RxFlowableHandler(next.pipeline())),
         false);
   }
 
-  private static Handler reactivePublisher(ExecutionMode mode, RouteImpl next) {
+  private static Handler reactivePublisher(ExecutionMode mode, Route next) {
     return next(mode, next.executor(),
         new DetachHandler(new ReactivePublisherHandler(next.pipeline())),
         false);
   }
 
-  private static Handler rxDisposable(ExecutionMode mode, RouteImpl next) {
+  private static Handler rxDisposable(ExecutionMode mode, Route next) {
     return next(mode, next.executor(), new DetachHandler(new NoopHandler(next.pipeline())),
         false);
   }
 
-  private static Handler rxObservable(ExecutionMode mode, RouteImpl next) {
+  private static Handler rxObservable(ExecutionMode mode, Route next) {
     return next(mode, next.executor(),
         new DetachHandler(new ObservableHandler(next.pipeline())),
         false);
   }
 
-  private static Handler reactorFlux(ExecutionMode mode, RouteImpl next) {
+  private static Handler reactorFlux(ExecutionMode mode, Route next) {
     return next(mode, next.executor(), new DetachHandler(new ReactorFluxHandler(next.pipeline())),
         false);
   }
 
-  private static Handler reactorMono(ExecutionMode mode, RouteImpl next) {
+  private static Handler reactorMono(ExecutionMode mode, Route next) {
     return next(mode, next.executor(), new DetachHandler(new ReactorMonoHandler(next.pipeline())),
         false);
   }
 
-  private static Handler javaFlowPublisher(ExecutionMode mode, RouteImpl next) {
+  private static Handler javaFlowPublisher(ExecutionMode mode, Route next) {
     return next(mode, next.executor(),
         new DetachHandler(new JavaFlowPublisher(next.pipeline())), false);
   }
 
-  private static Handler single(ExecutionMode mode, RouteImpl next) {
+  private static Handler single(ExecutionMode mode, Route next) {
     return next(mode, next.executor(), new DetachHandler(new RxSingleHandler(next.pipeline())),
         false);
   }
 
-  private static Handler rxMaybe(ExecutionMode mode, RouteImpl next) {
+  private static Handler rxMaybe(ExecutionMode mode, Route next) {
     return next(mode, next.executor(), new DetachHandler(new RxMaybeHandler(next.pipeline())),
         false);
   }

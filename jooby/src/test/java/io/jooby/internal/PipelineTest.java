@@ -208,16 +208,16 @@ public class PipelineTest {
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
-  private ChainedHandler pipeline(RouteImpl route, ExecutionMode mode) {
+  private ChainedHandler pipeline(Route route, ExecutionMode mode) {
     return (ChainedHandler) Pipeline.compute(getClass().getClassLoader(), route, mode);
   }
 
-  private RouteImpl route(Type returnType, Route.Handler handler) {
+  private Route route(Type returnType, Route.Handler handler) {
     return route(returnType, handler, null);
   }
 
-  private RouteImpl route(Type returnType, Route.Handler handler, Executor executor) {
-    return new RouteImpl("GET", "/", Collections.emptyList(), returnType, handler, handler,
+  private Route route(Type returnType, Route.Handler handler, Executor executor) {
+    return new Route("GET", "/", returnType, handler, handler,
         Renderer.TO_STRING, Collections.emptyMap()).executor(executor);
   }
 }
