@@ -22,6 +22,7 @@ import io.jooby.Router;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +47,7 @@ public class RouterMatch implements Router.Match {
 
   public void value(String value) {
     if (vars == Collections.EMPTY_MAP) {
-      vars = new HashMap();
+      vars = new LinkedHashMap();
     }
     vars.put(vars.size(), value);
   }

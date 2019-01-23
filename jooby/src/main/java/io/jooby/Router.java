@@ -131,6 +131,24 @@ public interface Router {
     return route(TRACE, pattern, handler);
   }
 
+  default @Nonnull Route assets(@Nonnull String pattern, @Nonnull Path source) {
+    return assets(pattern, AssetSource.create(source));
+  }
+
+  default @Nonnull Route assets(@Nonnull String pattern, @Nonnull String source) {
+    return assets(pattern, AssetSource.create(getClass().getClassLoader(), source));
+  }
+
+  default @Nonnull Route assets(@Nonnull String pattern, @Nonnull AssetSource... source) {
+    return assets(pattern, new AssetHandler(source));
+  }
+
+  default @Nonnull Route assets(@Nonnull String pattern, @Nonnull AssetHandler handler) {
+    Route route = route(GET, pattern, handler);
+    handler.route(route);
+    return route;
+  }
+
   @Nonnull Route route(@Nonnull String method, @Nonnull String pattern, @Nonnull
       Route.Handler handler);
 
@@ -146,7 +164,7 @@ public interface Router {
    */
   @Nonnull Match match(@Nonnull Context ctx);
 
-  /** Error handler: */
+  /* Error handler: */
   @Nonnull Router errorCode(@Nonnull Class<? extends Throwable> type,
       @Nonnull StatusCode statusCode);
 

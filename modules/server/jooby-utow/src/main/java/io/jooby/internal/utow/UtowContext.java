@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -260,6 +261,10 @@ public class UtowContext implements Context, IoCallback {
   }
 
   @Nonnull @Override public Context sendStream(@Nonnull InputStream in) {
+    if (in instanceof FileInputStream) {
+      // use channel
+      return sendFile(((FileInputStream) in).getChannel());
+    }
     try {
       ifSetChunked();
       long len = exchange.getResponseContentLength();

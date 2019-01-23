@@ -4,7 +4,6 @@ import io.jooby.Context;
 import io.jooby.Route;
 
 import javax.annotation.Nonnull;
-import java.io.FileInputStream;
 import java.io.InputStream;
 
 public class InputStreamHandler implements ChainedHandler {
@@ -17,12 +16,7 @@ public class InputStreamHandler implements ChainedHandler {
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
     try {
       InputStream stream = (InputStream) next.apply(ctx);
-      if (stream instanceof FileInputStream) {
-        // use channel
-        ctx.sendFile(((FileInputStream) stream).getChannel());
-      } else {
-        ctx.sendStream(stream);
-      }
+      ctx.sendStream(stream);
     } catch (Throwable x) {
       ctx.sendError(x);
     }

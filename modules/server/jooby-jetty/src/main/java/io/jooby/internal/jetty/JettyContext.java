@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.Part;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -309,7 +310,11 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
-  @Nonnull @Override public Context sendStream(@Nonnull InputStream input) {
+  @Nonnull @Override public Context sendStream(@Nonnull InputStream in) {
+    if (in instanceof FileInputStream) {
+      // use channel
+      return sendFile(((FileInputStream) in).getChannel());
+    }
     try {
       ifStartAsync();
 
@@ -318,11 +323,11 @@ public class JettyContext implements Callback, Context {
       if (len > 0) {
         ByteRange range = ByteRange.parse(request.getHeader(HttpHeader.RANGE.asString()))
             .apply(this, len);
-        input.skip(range.start);
-        stream = Functions.limit(input, range.end);
+        in.skip(range.start);
+        stream = Functions.limit(in, range.end);
       } else {
         response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
-        stream = input;
+        stream = in;
       }
       response.getHttpOutput().sendContent(stream, this);
       return this;

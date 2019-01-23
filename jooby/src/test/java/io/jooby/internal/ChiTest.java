@@ -1,11 +1,15 @@
 package io.jooby.internal;
 
+import io.jooby.Context;
 import io.jooby.MockContext;
 import io.jooby.Renderer;
 import io.jooby.Route;
+import io.jooby.Throwing;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,6 +45,41 @@ public class ChiTest {
             Collections.emptyList());
     assertTrue(result.matches);
     assertEquals(foos, result.route());
+  }
+
+  @Test
+  public void wildOnRoot() throws Exception {
+    $Chi router = new $Chi();
+
+    router.insert(route("GET", "/foo/*", stringHandler("foo")));
+    router.insert(route("GET", "/*", stringHandler("root")));
+
+    find(router, "/", (ctx, result) -> {
+      assertTrue(result.matches);
+      assertEquals("root", result.route().pipeline().apply(ctx));
+    });
+
+    find(router, "/foo", (ctx, result) -> {
+      assertTrue(result.matches);
+      assertEquals("root", result.route().pipeline().apply(ctx));
+    });
+
+    find(router, "/foo/", (ctx, result) -> {
+      assertTrue(result.matches);
+      assertEquals("root", result.route().pipeline().apply(ctx));
+    });
+
+    find(router, "/foo/x", (ctx, result) -> {
+      assertTrue(result.matches);
+      assertEquals("foo", result.route().pipeline().apply(ctx));
+    });
+  }
+
+  private void find($Chi router, String pattern, Throwing.Consumer2<Context, RouterMatch> consumer) {
+    Context rootctx = new MockContext().setPathString(pattern);
+    RouterMatch result = router
+        .find(rootctx, Renderer.TO_STRING, Collections.emptyList());
+    consumer.accept(rootctx, result);
   }
 
   private Route.Handler stringHandler(String foo) {

@@ -87,6 +87,13 @@
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
+
+    <!-- webjars tests: -->
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>vue</artifactId>
+      <version>2.5.22</version>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>

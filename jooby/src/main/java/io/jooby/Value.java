@@ -21,6 +21,12 @@ import io.jooby.internal.UrlParser;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -374,6 +380,13 @@ public interface Value extends Iterable<Value> {
     try {
       return Long.parseLong(value());
     } catch (NumberFormatException x) {
+      try {
+        LocalDateTime date = LocalDateTime.parse(value(), Context.RFC1123);
+        Instant instant = date.toInstant(ZoneOffset.UTC);
+        return instant.toEpochMilli();
+      } catch (DateTimeParseException ignored) {
+      }
+
       throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
     }
   }

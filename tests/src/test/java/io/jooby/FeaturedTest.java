@@ -1383,7 +1383,6 @@ public class FeaturedTest {
         });
         assertEquals(1, i.get());
       });
-
       client.get("/8kb", rsp -> {
         assertEquals(_8kb, rsp.body().string());
         AtomicInteger i = new AtomicInteger();
@@ -1472,6 +1471,116 @@ public class FeaturedTest {
     }).ready(client -> {
       client.get("/type-override", rsp -> {
         assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+      });
+    });
+  }
+
+  @Test
+  public void assets() {
+    new JoobyRunner(app -> {
+      app.assets("/static", userdir("src", "test", "www", "index.html"));
+      app.assets("/static/*", userdir("src", "test", "www"));
+      app.assets("/*", userdir("src", "test", "www"));
+      app.assets("/cp/*", "/www");
+      app.assets("/jar/*", "/META-INF/resources/webjars/vue/2.5.22");
+      app.assets("/jar2/*", "/META-INF/resources/webjars/vue/2.5.22/dist");
+
+      app.assets("/m/*", AssetSource.create(userdir("src", "test", "www")),
+          AssetSource.create(getClass().getClassLoader(), "/www"));
+    }).ready(client -> {
+      /** Multiple sources on same path: */
+      client.get("/m/foo.js", rsp -> {
+        assertEquals("application/javascript;charset=utf-8",
+            rsp.header("Content-Type").toLowerCase());
+        assertEquals("41", rsp.header("Content-Length").toLowerCase());
+      });
+      client.get("/m/js/index.js", rsp -> {
+        assertEquals("application/javascript;charset=utf-8",
+            rsp.header("Content-Type").toLowerCase());
+        assertEquals("23", rsp.header("Content-Length").toLowerCase());
+        assertEquals(200, rsp.code());
+
+        String etag = rsp.header("etag");
+        client.header("If-None-Match", etag);
+        client.get("/m/js/index.js", etagrsp -> {
+          assertEquals(null, etagrsp.header("etag"));
+          assertEquals(304, etagrsp.code());
+        });
+
+        String lastModified = rsp.header("Last-Modified");
+        client.header("If-Modified-Since", lastModified);
+        client.get("/m/js/index.js", rsp2 -> {
+          assertEquals(null, rsp2.header("Last-Modified"));
+          assertEquals(304, rsp2.code());
+        });
+      });
+      /** Project classpath: */
+      client.get("/cp/foo.js", rsp -> {
+        assertEquals("application/javascript;charset=utf-8",
+            rsp.header("Content-Type").toLowerCase());
+        assertEquals("41", rsp.header("Content-Length").toLowerCase());
+      });
+      client.get("/cp", rsp -> {
+        assertEquals(404, rsp.code());
+      });
+      client.get("/cp/", rsp -> {
+        assertEquals(404, rsp.code());
+      });
+      /** File system: */
+      client.get("/", rsp -> {
+        assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+        assertEquals("155", rsp.header("Content-Length").toLowerCase());
+      });
+      client.get("/static", rsp -> {
+        assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+        assertEquals("155", rsp.header("Content-Length").toLowerCase());
+      });
+      client.get("/static/index.html", rsp -> {
+        assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+        assertEquals("155", rsp.header("Content-Length").toLowerCase());
+      });
+      client.get("/static/js/index.js", rsp -> {
+        assertEquals("application/javascript;charset=utf-8",
+            rsp.header("Content-Type").toLowerCase());
+        assertEquals("23", rsp.header("Content-Length").toLowerCase());
+      });
+      client.get("/static/css/styles.css", rsp -> {
+        assertEquals("text/css;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+        assertEquals("136", rsp.header("Content-Length").toLowerCase());
+      });
+      client.get("/static/../resources/fileupload.js", rsp -> {
+        assertEquals(404, rsp.code());
+      });
+
+      /* ROOT: */
+      client.get("/index.html", rsp -> {
+        assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+        assertEquals("155", rsp.header("Content-Length").toLowerCase());
+      });
+      client.get("/js/index.js", rsp -> {
+        assertEquals("application/javascript;charset=utf-8",
+            rsp.header("Content-Type").toLowerCase());
+        assertEquals("23", rsp.header("Content-Length").toLowerCase());
+      });
+      client.get("/css/styles.css", rsp -> {
+        assertEquals("text/css;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+        assertEquals("136", rsp.header("Content-Length").toLowerCase());
+      });
+
+      // Inside jar
+      client.get("/jar/dist/vue.js", rsp -> {
+        assertEquals("application/javascript;charset=utf-8",
+            rsp.header("Content-Type").toLowerCase());
+        assertEquals("310837", rsp.header("Content-Length").toLowerCase());
+      });
+      client.get("/jar2/dist/../package.json", rsp -> {
+        assertEquals(404, rsp.code());
+      });
+      client.get("/jar/dist/nope.js", rsp -> {
+        assertEquals(404, rsp.code());
+      });
+      client.get("/jar/dist", rsp -> {
+        assertEquals(404, rsp.code());
       });
     });
   }

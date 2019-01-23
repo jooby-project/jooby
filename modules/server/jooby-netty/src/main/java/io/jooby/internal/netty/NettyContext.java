@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -253,12 +254,6 @@ public class NettyContext implements Context, ChannelFutureListener {
     return newOutputStream();
   }
 
-  private NettyOutputStream newOutputStream() {
-    ifSetChunked();
-    return new NettyOutputStream(ctx, bufferSize,
-        new DefaultHttpResponse(req.protocolVersion(), status, setHeaders), this);
-  }
-
   @Nonnull @Override public Context sendString(@Nonnull String data) {
     return sendByteBuf(copiedBuffer(data, UTF_8));
   }
@@ -276,6 +271,10 @@ public class NettyContext implements Context, ChannelFutureListener {
   }
 
   @Nonnull @Override public Context sendStream(@Nonnull InputStream in) {
+    if (in instanceof FileInputStream) {
+      // use channel
+      return sendFile(((FileInputStream) in).getChannel());
+    }
     try {
       ifSetChunked();
       long len = responseLength();
@@ -357,6 +356,12 @@ public class NettyContext implements Context, ChannelFutureListener {
         future.channel().close();
       }
     }
+  }
+
+  private NettyOutputStream newOutputStream() {
+    ifSetChunked();
+    return new NettyOutputStream(ctx, bufferSize,
+        new DefaultHttpResponse(req.protocolVersion(), status, setHeaders), this);
   }
 
   void destroy(Throwable cause) {

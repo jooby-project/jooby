@@ -15,6 +15,7 @@
  */
 package io.jooby.internal;
 
+import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.asm.Lambdas;
@@ -46,6 +47,9 @@ public class RouteAnalyzer {
   public java.lang.reflect.Type returnType(Route.Handler handler) {
     try {
       Method method = Lambdas.getLambdaMethod(handler);
+      if (method == null) {
+        return Context.class;
+      }
       Class<?> returnType = method.getReturnType();
       if (returnType != Object.class) {
         return method.getGenericReturnType();

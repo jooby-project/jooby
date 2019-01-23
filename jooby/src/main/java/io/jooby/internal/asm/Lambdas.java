@@ -42,23 +42,24 @@ public class Lambdas {
       }
     }
 
-    throw new NoSuchMethodException("writeReplace");
+    return null;
   }
 
   // getting the synthetic static lambda method
   public static Method getLambdaMethod(Serializable function) throws Exception {
     SerializedLambda lambda = getSerializedLambda(function);
-    String implClassName = lambda.getImplClass().replace('/', '.');
-    Class<?> implClass = Class.forName(implClassName);
+    if (lambda != null) {
+      String implClassName = lambda.getImplClass().replace('/', '.');
+      Class<?> implClass = Class.forName(implClassName);
 
-    String lambdaName = lambda.getImplMethodName();
+      String lambdaName = lambda.getImplMethodName();
 
-    for (Method m : implClass.getDeclaredMethods()) {
-      if (m.getName().equals(lambdaName)) {
-        return m;
+      for (Method m : implClass.getDeclaredMethods()) {
+        if (m.getName().equals(lambdaName)) {
+          return m;
+        }
       }
     }
-
-    throw new NoSuchMethodException(lambdaName);
+    return null;
   }
 }
