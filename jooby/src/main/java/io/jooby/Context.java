@@ -386,6 +386,16 @@ public interface Context {
     return this;
   }
 
+  default @Nonnull Context sendRedirect(@Nonnull String location) {
+    return sendRedirect(StatusCode.FOUND, location);
+  }
+
+  default @Nonnull Context sendRedirect(@Nonnull StatusCode redirect, @Nonnull String location) {
+    header("location", location);
+    sendStatusCode(redirect);
+    return this;
+  }
+
   default @Nonnull Context sendString(@Nonnull String data) {
     return sendString(data, StandardCharsets.UTF_8);
   }

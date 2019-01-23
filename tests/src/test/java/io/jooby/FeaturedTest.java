@@ -1476,6 +1476,18 @@ public class FeaturedTest {
   }
 
   @Test
+  public void sendRedirect() {
+    new JoobyRunner(app -> {
+      app.get("/", ctx -> ctx.sendRedirect("/foo"));
+      app.get("/foo", Context::pathString);
+    }).ready(client -> {
+      client.get("/", rsp -> {
+        assertEquals("/foo", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
   public void assets() {
     new JoobyRunner(app -> {
       app.assets("/static", userdir("src", "test", "www", "index.html"));
