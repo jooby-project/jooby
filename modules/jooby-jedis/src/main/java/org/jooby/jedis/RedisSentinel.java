@@ -291,11 +291,8 @@ public class RedisSentinel extends Redis {
         env.onStart(provider::start);
         env.onStop(provider::stop);
 
-//        Provider<Jedis> jedis = () -> pool.getResource();
-
         Env.ServiceKey serviceKey = env.serviceKey();
         serviceKey.generate(JedisSentinelPool.class, name, k -> binder.bind(k).toInstance(pool));
-//        serviceKey.generate(Jedis.class, name, k -> binder.bind(k).toProvider(jedis));
     }
 
 }
