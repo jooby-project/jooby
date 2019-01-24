@@ -38,6 +38,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Jooby implements Router {
 
@@ -387,11 +388,13 @@ public class Jooby implements Router {
   }
 
   public static void run(Supplier<Jooby> provider, ExecutionMode mode, String... args) {
-    // TODO: add logging, etc...
     Server server;
     try {
       Env environment = Env.defaultEnvironment(args);
       setEnv(environment);
+
+      logback(environment);
+
       Jooby app = provider.get();
       app.mode(mode);
       server = app.start();
@@ -400,6 +403,28 @@ public class Jooby implements Router {
       setEnv(null);
     }
     server.join();
+  }
+
+  public static void logback(Env env) {
+    String setfile = env.get("logback.configurationFile").value((String) null);
+    if (setfile != null) {
+      System.setProperty("logback.configurationFile", setfile);
+      return;
+    }
+    String name = env.name();
+    Path userdir = Paths.get(System.getProperty("user.dir"));
+    Path conf = userdir.resolve("conf");
+    String logbackenv = "logback." + name + ".xml";
+    String fallback = "logback.xml";
+    Stream.of(
+        /** Env specific inside conf or userdir: */
+        conf.resolve(logbackenv), userdir.resolve(logbackenv),
+        /** Fallback inside conf or userdir: */
+        conf.resolve(fallback), userdir.resolve(fallback)
+    ).filter(Files::exists)
+        .findFirst()
+        .map(Path::toAbsolutePath)
+        .ifPresent(logback -> System.setProperty("logback.configurationFile", logback.toString()));
   }
 
   private static void ensureTmpdir(Path tmpdir) {
