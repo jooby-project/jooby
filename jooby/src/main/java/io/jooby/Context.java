@@ -151,11 +151,11 @@ public interface Context {
     return contentType.matches(accept);
   }
 
-  @Nonnull default MediaType contentType() {
+  @Nonnull default MediaType requestType() {
     return header("Content-Type").toOptional().map(MediaType::valueOf).orElse(null);
   }
 
-  default long contentLength() {
+  default long requestLength() {
     return header("Content-Length").longValue(-1);
   }
 
@@ -307,11 +307,11 @@ public interface Context {
 
   @Nonnull Context detach(@Nonnull Runnable action);
 
-  @Nullable <T> T get(String name);
+  @Nullable <T> T attribute(String name);
 
-  @Nonnull Context set(@Nonnull String name, @Nonnull Object value);
+  @Nonnull Context attribute(@Nonnull String name, @Nonnull Object value);
 
-  @Nonnull Map<String, Object> locals();
+  @Nonnull Map<String, Object> attributes();
 
   /**
    * **********************************************************************************************
@@ -345,6 +345,8 @@ public interface Context {
     return responseType(contentType, contentType.charset());
   }
 
+  @Nonnull Context defaultResponseType(@Nonnull MediaType contentType);
+
   @Nonnull Context responseType(@Nonnull MediaType contentType, @Nullable Charset charset);
 
   @Nonnull MediaType responseType();
@@ -366,6 +368,17 @@ public interface Context {
   }
 
   @Nonnull OutputStream responseStream();
+
+  default @Nonnull OutputStream responseStream(MediaType contentType) {
+    responseType(contentType);
+    return responseStream();
+  }
+
+  default @Nonnull Context responseStream(MediaType contentType,
+      Throwing.Consumer<OutputStream> consumer) throws Exception {
+    responseType(contentType);
+    return responseStream(consumer);
+  }
 
   default @Nonnull Context responseStream(Throwing.Consumer<OutputStream> consumer)
       throws Exception {

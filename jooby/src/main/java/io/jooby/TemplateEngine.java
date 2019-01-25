@@ -23,6 +23,7 @@ public interface TemplateEngine extends Renderer {
   String apply(Context ctx, ModelAndView modelAndView) throws Exception;
 
   @Override default byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
+    ctx.defaultResponseType(MediaType.html);
     String output = apply(ctx, (ModelAndView) value);
     return output.getBytes(StandardCharsets.UTF_8);
   }

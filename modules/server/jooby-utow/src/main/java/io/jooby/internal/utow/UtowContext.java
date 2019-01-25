@@ -73,15 +73,15 @@ public class UtowContext implements Context, IoCallback {
     return body == null ? Body.empty() : body;
   }
 
-  @Nonnull @Override public Map<String, Object> locals() {
+  @Nonnull @Override public Map<String, Object> attributes() {
     return locals;
   }
 
-  @Nullable @Override public <T> T get(String name) {
+  @Nullable @Override public <T> T attribute(String name) {
     return (T) locals.get(name);
   }
 
-  @Nonnull @Override public Context set(@Nonnull String name, @Nonnull Object value) {
+  @Nonnull @Override public Context attribute(@Nonnull String name, @Nonnull Object value) {
     if (locals == Collections.EMPTY_MAP) {
       locals = new HashMap<>();
     }
@@ -199,6 +199,13 @@ public class UtowContext implements Context, IoCallback {
 
   @Nonnull @Override public MediaType responseType() {
     return responseType == null ? MediaType.text : responseType;
+  }
+
+  @Nonnull @Override public Context defaultResponseType(@Nonnull MediaType contentType) {
+    if (responseType == null) {
+      responseType(contentType, contentType.charset());
+    }
+    return this;
   }
 
   @Nonnull @Override

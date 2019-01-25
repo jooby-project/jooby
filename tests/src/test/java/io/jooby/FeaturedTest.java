@@ -625,7 +625,7 @@ public class FeaturedTest {
       app.before(ctx -> {
         StringBuilder buff = new StringBuilder();
         buff.append("before1:" + ctx.isInIoThread()).append(";");
-        ctx.set("buff", buff);
+        ctx.attribute("buff", buff);
       });
 
       app.after((ctx, value) -> {
@@ -636,12 +636,12 @@ public class FeaturedTest {
 
       app.dispatch(() -> {
         app.before(ctx -> {
-          StringBuilder buff = ctx.get("buff");
+          StringBuilder buff = ctx.attribute("buff");
           buff.append("before2:" + ctx.isInIoThread()).append(";");
         });
 
         app.after((ctx, value) -> {
-          StringBuilder buff = ctx.get("buff");
+          StringBuilder buff = ctx.attribute("buff");
           buff.append(value).append(";");
           buff.append("after2:" + ctx.isInIoThread()).append(";");
           return buff;

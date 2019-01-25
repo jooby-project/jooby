@@ -119,7 +119,7 @@ public class Freemarker implements TemplateEngine {
   @Override public String apply(Context ctx, ModelAndView modelAndView) throws Exception {
     Template template = freemarker.getTemplate(modelAndView.view);
     StringWriter writer = new StringWriter();
-    Map<String, Object> model = new HashMap<>(ctx.locals());
+    Map<String, Object> model = new HashMap<>(ctx.attributes());
     model.putAll(modelAndView.model);
     template.process(model, writer);
     return writer.toString();

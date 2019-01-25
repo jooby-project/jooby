@@ -158,7 +158,7 @@ public class Hbs implements TemplateEngine {
 
   @Override public String apply(Context ctx, ModelAndView modelAndView) throws Exception {
     Template template = handlebars.compile(modelAndView.view);
-    Map<String, Object> model = new HashMap<>(ctx.locals());
+    Map<String, Object> model = new HashMap<>(ctx.attributes());
     model.putAll(modelAndView.model);
     return template.apply(model);
   }

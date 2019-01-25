@@ -51,7 +51,7 @@ public class MockContext implements Context {
   private Map<String, Object> responseHeaders = new HashMap<>();
 
   private long length;
-  private MediaType responseContentType = MediaType.text;
+  private MediaType responseType;
   private Charset responseCharset = StandardCharsets.UTF_8;
   private int responseStatusCode = 200;
   private Object result;
@@ -181,16 +181,16 @@ public class MockContext implements Context {
     return null;
   }
 
-  @Nullable @Override public <T> T get(String name) {
+  @Nullable @Override public <T> T attribute(String name) {
     return (T) locals.get(name);
   }
 
-  @Nonnull @Override public MockContext set(@Nonnull String name, @Nonnull Object value) {
+  @Nonnull @Override public MockContext attribute(@Nonnull String name, @Nonnull Object value) {
     locals.put(name, value);
     return this;
   }
 
-  @Nonnull @Override public Map<String, Object> locals() {
+  @Nonnull @Override public Map<String, Object> attributes() {
     return locals;
   }
 
@@ -225,7 +225,7 @@ public class MockContext implements Context {
 
   @Nonnull @Override
   public MockContext responseType(@Nonnull MediaType contentType, @Nullable Charset charset) {
-    this.responseContentType = contentType;
+    this.responseType = contentType;
     this.responseCharset = charset;
     return this;
   }
@@ -332,12 +332,16 @@ public class MockContext implements Context {
     return this;
   }
 
-  public MediaType getResponseContentType() {
-    return responseContentType;
+  @Nonnull @Override public Context defaultResponseType(@Nonnull MediaType contentType) {
+    if (responseType == null) {
+      responseType = contentType;
+      responseCharset = contentType.charset();
+    }
+    return this;
   }
 
   @Nonnull @Override public MediaType responseType() {
-    return responseContentType;
+    return responseType == null ? MediaType.text : responseType;
   }
 
   public int getResponseStatusCode() {

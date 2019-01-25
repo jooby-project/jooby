@@ -32,7 +32,7 @@ public class FreemarkerTest {
   public void render() throws Exception {
     Freemarker freemarker = Freemarker.builder().build(Env.empty("test"));
     String output = freemarker
-        .apply(new MockContext().set("local", "var"), new ModelAndView("index.ftl")
+        .apply(new MockContext().attribute("local", "var"), new ModelAndView("index.ftl")
             .put("user", new User("foo", "bar"))
             .put("sign", "!"));
     assertEquals("Hello foo bar var!\n", output);

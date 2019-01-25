@@ -70,7 +70,7 @@ public class Jackson implements Extension, Parser, Renderer {
   }
 
   @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
-    ctx.responseType(MediaType.json);
+    ctx.defaultResponseType(MediaType.json);
     byte[] json;
     if (value instanceof CharSequence) {
       // Ignore string/charsequence responses, those are going to be processed by the default

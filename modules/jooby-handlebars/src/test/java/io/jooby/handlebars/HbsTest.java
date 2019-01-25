@@ -30,7 +30,7 @@ public class HbsTest {
   public void render() throws Exception {
     Hbs engine = Hbs.builder().build();
     String output = engine
-        .apply(new MockContext().set("local", "var"), new ModelAndView("index.hbs")
+        .apply(new MockContext().attribute("local", "var"), new ModelAndView("index.hbs")
             .put("user", new User("foo", "bar"))
             .put("sign", "!"));
     assertEquals("Hello foo bar var!\n", output);
