@@ -371,7 +371,13 @@ public class JettyContext implements Callback, Context {
       }
     }
     if (files != null) {
-      files.forEach(throwingConsumer(FileUpload::destroy));
+      for (FileUpload file : files) {
+        try {
+          file.destroy();
+        } catch (Exception e) {
+          log.debug("file upload destroy resulted in exception", e);
+        }
+      }
       files.clear();
       files = null;
     }
