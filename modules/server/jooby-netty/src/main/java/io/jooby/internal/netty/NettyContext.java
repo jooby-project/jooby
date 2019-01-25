@@ -249,8 +249,7 @@ public class NettyContext implements Context, ChannelFutureListener {
     return new NettySender(this, ctx);
   }
 
-  @Nonnull @Override public OutputStream responseStream(MediaType type) {
-    type(type);
+  @Nonnull @Override public OutputStream responseStream() {
     return newOutputStream();
   }
 

@@ -53,7 +53,7 @@ public class EnvTest {
     assertEquals(Map.of("application.env", "foo", "bar", ""), args.properties());
 
     assertEquals(Collections.emptyMap(), Env.parse().properties());
-    assertEquals(Collections.emptyMap(), Env.parse(null).properties());
+    assertEquals(Collections.emptyMap(), Env.parse((String[]) null).properties());
   }
 
   private void env(String dir, Consumer<Env> consumer) {

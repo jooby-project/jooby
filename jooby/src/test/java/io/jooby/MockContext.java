@@ -250,9 +250,8 @@ public class MockContext implements Context {
     return (String) result;
   }
 
-  @Nonnull @Override public OutputStream responseStream(MediaType type) {
+  @Nonnull @Override public OutputStream responseStream() {
     responseStarted = true;
-    type(type);
     ByteArrayOutputStream out = new ByteArrayOutputStream(Server._16KB);
     result = out;
     return out;

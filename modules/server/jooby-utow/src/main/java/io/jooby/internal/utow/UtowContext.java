@@ -205,12 +205,11 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
-  @Nonnull @Override public OutputStream responseStream(MediaType type) {
+  @Nonnull @Override public OutputStream responseStream() {
     if (!exchange.isBlocking()) {
       exchange.startBlocking();
     }
 
-    type(type);
     ifSetChunked();
 
     return exchange.getOutputStream();
@@ -326,7 +325,7 @@ public class UtowContext implements Context, IoCallback {
       String path = it.next();
       Deque<FormData.FormValue> values = data.get(path);
       for (FormData.FormValue value : values) {
-        if (value.isFile()) {
+        if (value.isFileItem()) {
           form.put(path, new UtowFileUpload(path, value));
         } else {
           form.put(path, value.getValue());

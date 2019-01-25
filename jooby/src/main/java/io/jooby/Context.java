@@ -344,11 +344,11 @@ public interface Context {
     }
   }
 
-  @Nonnull OutputStream responseStream(MediaType type);
+  @Nonnull OutputStream responseStream();
 
-  default @Nonnull Context responseStream(MediaType type, Throwing.Consumer<OutputStream> consumer)
+  default @Nonnull Context responseStream(Throwing.Consumer<OutputStream> consumer)
       throws Exception {
-    try (OutputStream out = responseStream(type)) {
+    try (OutputStream out = responseStream()) {
       consumer.accept(out);
     }
     return this;

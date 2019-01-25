@@ -45,7 +45,6 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
 
-import static io.jooby.Throwing.throwingConsumer;
 import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 
 public class JettyContext implements Callback, Context {
@@ -260,10 +259,9 @@ public class JettyContext implements Callback, Context {
     }
   }
 
-  @Nonnull @Override public OutputStream responseStream(MediaType type) {
+  @Nonnull @Override public OutputStream responseStream() {
     try {
       ifSetChunked();
-      type(type);
       OutputStream outputStream = response.getOutputStream();
       return outputStream;
     } catch (IOException x) {

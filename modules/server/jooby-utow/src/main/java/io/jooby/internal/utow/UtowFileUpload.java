@@ -22,7 +22,6 @@ import io.jooby.Throwing;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class UtowFileUpload implements FileUpload {
@@ -37,8 +36,8 @@ public class UtowFileUpload implements FileUpload {
   }
 
   @Override public byte[] bytes() {
-    try {
-      return Files.readAllBytes(upload.getPath());
+    try (InputStream in = stream()) {
+      return in.readAllBytes();
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
@@ -46,7 +45,7 @@ public class UtowFileUpload implements FileUpload {
 
   @Override public InputStream stream() {
     try {
-      return Files.newInputStream(upload.getPath());
+      return upload.getFileItem().getInputStream();
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
@@ -61,7 +60,7 @@ public class UtowFileUpload implements FileUpload {
   }
 
   @Override public Path path() {
-    return upload.getPath();
+    return upload.getFileItem().getFile();
   }
 
   @Override public long filesize() {
@@ -70,7 +69,7 @@ public class UtowFileUpload implements FileUpload {
 
   @Override public void destroy() {
     try {
-      Files.deleteIfExists(upload.getPath());
+      upload.getFileItem().delete();
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
