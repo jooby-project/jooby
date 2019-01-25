@@ -151,6 +151,27 @@ public interface Context {
     return contentType.matches(accept);
   }
 
+  @Nonnull default MediaType contentType() {
+    return header("Content-Type").toOptional().map(MediaType::valueOf).orElse(null);
+  }
+
+  default long contentLength() {
+    return header("Content-Length").longValue(-1);
+  }
+
+  @Nonnull String remoteAddress();
+
+  default @Nonnull String hostname() {
+    return header("host").toOptional()
+        .map(host -> {
+          int index = host.indexOf(':');
+          return index > 0 ? host.substring(0, index) : host;
+        })
+        .orElse(remoteAddress());
+  }
+
+  @Nonnull String protocol();
+
   /* **********************************************************************************************
    * Form API
    * **********************************************************************************************
@@ -318,15 +339,15 @@ public interface Context {
 
   @Nonnull Context header(@Nonnull String name, @Nonnull String value);
 
-  @Nonnull Context length(long length);
+  @Nonnull Context responseLength(long length);
 
-  @Nonnull default Context type(@Nonnull MediaType contentType) {
-    return type(contentType, contentType.charset());
+  @Nonnull default Context responseType(@Nonnull MediaType contentType) {
+    return responseType(contentType, contentType.charset());
   }
 
-  @Nonnull Context type(@Nonnull MediaType contentType, @Nullable Charset charset);
+  @Nonnull Context responseType(@Nonnull MediaType contentType, @Nullable Charset charset);
 
-  @Nonnull MediaType type();
+  @Nonnull MediaType responseType();
 
   @Nonnull default Context statusCode(StatusCode statusCode) {
     return statusCode(statusCode.value());

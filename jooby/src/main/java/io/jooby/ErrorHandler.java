@@ -50,7 +50,7 @@ public interface ErrorHandler {
     new ContentNegotiation()
         .accept("application/json", () -> {
           String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
-          return ctx.type(json)
+          return ctx.responseType(json)
               .statusCode(statusCode)
               .sendString("{\"message\":\"" + message + "\",\"statusCode\":" + statusCode.value()
                   + ",\"reason\":\"" + statusCode.reason() + "\"}");
@@ -87,7 +87,7 @@ public interface ErrorHandler {
               .append("</html>");
 
           return ctx
-              .type(MediaType.html)
+              .responseType(MediaType.html)
               .statusCode(statusCode)
               .sendString(html.toString());
         }).render(ctx);

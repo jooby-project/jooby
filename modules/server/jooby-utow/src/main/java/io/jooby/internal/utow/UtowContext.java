@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -118,6 +119,14 @@ public class UtowContext implements Context, IoCallback {
     return exchange.isInIoThread();
   }
 
+  @Nonnull @Override public String remoteAddress() {
+    return exchange.getSourceAddress().getHostName();
+  }
+
+  @Nonnull @Override public String protocol() {
+    return exchange.getProtocol().toString();
+  }
+
   @Nonnull @Override public Value header(@Nonnull String name) {
     return Value.create(name, exchange.getRequestHeaders().get(name));
   }
@@ -188,27 +197,25 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
-  @Nonnull @Override public MediaType type() {
+  @Nonnull @Override public MediaType responseType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
   @Nonnull @Override
-  public Context type(@Nonnull MediaType contentType, @Nullable Charset charset) {
+  public Context responseType(@Nonnull MediaType contentType, @Nullable Charset charset) {
     this.responseType = contentType;
     exchange.getResponseHeaders()
         .put(Headers.CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
   }
 
-  @Nonnull @Override public Context length(long length) {
+  @Nonnull @Override public Context responseLength(long length) {
     exchange.setResponseContentLength(length);
     return this;
   }
 
   @Nonnull @Override public OutputStream responseStream() {
-    if (!exchange.isBlocking()) {
-      exchange.startBlocking();
-    }
+    ifStartBlocking();
 
     ifSetChunked();
 
@@ -219,19 +226,10 @@ public class UtowContext implements Context, IoCallback {
     return new UtowSender(this, exchange);
   }
 
-  private void ifSetChunked() {
-    HeaderMap responseHeaders = exchange.getResponseHeaders();
-    if (!responseHeaders.contains(Headers.CONTENT_LENGTH)) {
-      exchange.getResponseHeaders().put(Headers.TRANSFER_ENCODING, Headers.CHUNKED.toString());
-    }
-  }
-
   @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
-    if (!exchange.isBlocking()) {
-      exchange.startBlocking();
-    }
+    ifStartBlocking();
 
-    type(type, charset);
+    responseType(type, charset);
     ifSetChunked();
 
     UtowWriter writer = new UtowWriter(exchange.getOutputStream(), charset);
@@ -301,6 +299,15 @@ public class UtowContext implements Context, IoCallback {
     return exchange.isResponseStarted();
   }
 
+  @Override public void onComplete(HttpServerExchange exchange, Sender sender) {
+    destroy(null);
+  }
+
+  @Override
+  public void onException(HttpServerExchange exchange, Sender sender, IOException exception) {
+    destroy(exception);
+  }
+
   void destroy(Exception cause) {
     try {
       if (cause != null) {
@@ -334,12 +341,16 @@ public class UtowContext implements Context, IoCallback {
     }
   }
 
-  @Override public void onComplete(HttpServerExchange exchange, Sender sender) {
-    destroy(null);
+  private void ifSetChunked() {
+    HeaderMap responseHeaders = exchange.getResponseHeaders();
+    if (!responseHeaders.contains(Headers.CONTENT_LENGTH)) {
+      exchange.getResponseHeaders().put(Headers.TRANSFER_ENCODING, Headers.CHUNKED.toString());
+    }
   }
 
-  @Override
-  public void onException(HttpServerExchange exchange, Sender sender, IOException exception) {
-    destroy(exception);
+  private void ifStartBlocking() {
+    if (!exchange.isBlocking()) {
+      exchange.startBlocking();
+    }
   }
 }

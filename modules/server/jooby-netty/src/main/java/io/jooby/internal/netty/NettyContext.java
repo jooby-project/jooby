@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -187,6 +188,15 @@ public class NettyContext implements Context, ChannelFutureListener {
     return Value.create(name, req.headers().getAll(name));
   }
 
+  @Nonnull @Override public String remoteAddress() {
+    InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+    return remoteAddress.getAddress().getHostAddress();
+  }
+
+  @Nonnull @Override public String protocol() {
+    return req.protocolVersion().text();
+  }
+
   @Nonnull @Override public Value headers() {
     if (headers == null) {
       headers = Value.headers();
@@ -221,23 +231,23 @@ public class NettyContext implements Context, ChannelFutureListener {
     return this;
   }
 
-  @Nonnull @Override public MediaType type() {
+  @Nonnull @Override public MediaType responseType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
-  @Override public final Context type(MediaType contentType, Charset charset) {
+  @Override public final Context responseType(MediaType contentType, Charset charset) {
     this.responseType = contentType;
     setHeaders.set(CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
   }
 
-  @Nonnull @Override public Context length(long length) {
+  @Nonnull @Override public Context responseLength(long length) {
     setHeaders.set(CONTENT_LENGTH, length);
     return this;
   }
 
   @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
-    type(type, charset);
+    responseType(type, charset);
 
     return new NettyWriter(newOutputStream(), charset);
   }

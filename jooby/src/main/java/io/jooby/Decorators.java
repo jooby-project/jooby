@@ -70,7 +70,7 @@ public final class Decorators {
    * @return A filter that set the `content-type` header.
    */
   public static final Route.Decorator contentType(@Nonnull MediaType type) {
-    return next -> ctx -> next.apply(ctx.type(type));
+    return next -> ctx -> next.apply(ctx.responseType(type));
   }
 
   /**
@@ -114,7 +114,7 @@ public final class Decorators {
     DateHeader date = new DateHeader();
     return next -> ctx -> {
       ctx.header(H_SERVER, ctx.name());
-      ctx.type(contentType, charset);
+      ctx.responseType(contentType, charset);
       ctx.header(H_DATE, date.compute());
       return next.apply(ctx);
     };

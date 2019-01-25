@@ -11,9 +11,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -216,7 +214,7 @@ public class MockContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public MockContext length(long length) {
+  @Nonnull @Override public MockContext responseLength(long length) {
     this.length = length;
     return this;
   }
@@ -226,7 +224,7 @@ public class MockContext implements Context {
   }
 
   @Nonnull @Override
-  public MockContext type(@Nonnull MediaType contentType, @Nullable Charset charset) {
+  public MockContext responseType(@Nonnull MediaType contentType, @Nullable Charset charset) {
     this.responseContentType = contentType;
     this.responseCharset = charset;
     return this;
@@ -271,9 +269,17 @@ public class MockContext implements Context {
     };
   }
 
+  @Nonnull @Override public String remoteAddress() {
+    return "0.0.0.0";
+  }
+
+  @Nonnull @Override public String protocol() {
+    return "HTTP/1.1";
+  }
+
   @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
     responseStarted = true;
-    type(type, charset);
+    responseType(type, charset);
     Writer writer = new StringWriter();
     result = writer;
     return writer;
@@ -330,7 +336,7 @@ public class MockContext implements Context {
     return responseContentType;
   }
 
-  @Nonnull @Override public MediaType type() {
+  @Nonnull @Override public MediaType responseType() {
     return responseContentType;
   }
 

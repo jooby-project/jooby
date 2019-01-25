@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 public interface Renderer {
 
   Renderer TO_STRING = (ctx, value) -> {
-    ctx.type(MediaType.text);
+    ctx.responseType(MediaType.text);
     return value.toString().getBytes(StandardCharsets.UTF_8);
   };
 

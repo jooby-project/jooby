@@ -196,6 +196,14 @@ public class JettyContext implements Callback, Context {
     return headers;
   }
 
+  @Nonnull @Override public String remoteAddress() {
+    return request.getRemoteAddr();
+  }
+
+  @Nonnull @Override public String protocol() {
+    return request.getProtocol();
+  }
+
   @Override public boolean isInIoThread() {
     return false;
   }
@@ -226,12 +234,12 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
-  @Nonnull @Override public MediaType type() {
+  @Nonnull @Override public MediaType responseType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
   @Nonnull @Override
-  public Context type(@Nonnull MediaType contentType, @Nullable Charset charset) {
+  public Context responseType(@Nonnull MediaType contentType, @Nullable Charset charset) {
     this.responseType = contentType;
     response.setHeader(HttpHeader.CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
@@ -242,21 +250,15 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
-  @Nonnull @Override public Context length(long length) {
+  @Nonnull @Override public Context responseLength(long length) {
     response.setContentLengthLong(length);
     return this;
   }
 
   @Nonnull @Override public Sender responseSender() {
-    ifStartAsync();
     ifSetChunked();
+    ifStartAsync();
     return new JettySender(this, response.getHttpOutput());
-  }
-
-  private void ifStartAsync() {
-    if (!request.isAsyncStarted()) {
-      request.startAsync();
-    }
   }
 
   @Nonnull @Override public OutputStream responseStream() {
@@ -272,17 +274,11 @@ public class JettyContext implements Callback, Context {
   @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
     try {
       ifSetChunked();
-      type(type, charset);
+      responseType(type, charset);
       PrintWriter writer = response.getWriter();
       return writer;
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
-    }
-  }
-
-  private void ifSetChunked() {
-    if (response.getHeader(HttpHeader.CONTENT_LENGTH.name()) == null) {
-      response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
     }
   }
 
@@ -391,6 +387,18 @@ public class JettyContext implements Callback, Context {
     this.router = null;
     this.request = null;
     this.response = null;
+  }
+
+  private void ifStartAsync() {
+    if (!request.isAsyncStarted()) {
+      request.startAsync();
+    }
+  }
+
+  private void ifSetChunked() {
+    if (response.getHeader(HttpHeader.CONTENT_LENGTH.name()) == null) {
+      response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
+    }
   }
 
   private FileUpload register(FileUpload upload) {

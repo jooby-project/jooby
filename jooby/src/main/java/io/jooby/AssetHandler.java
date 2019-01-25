@@ -75,9 +75,9 @@ public class AssetHandler implements Route.Handler, Route.Aware {
 
     long length = asset.length();
     if (length != -1) {
-      ctx.length(length);
+      ctx.responseLength(length);
     }
-    ctx.type(asset.type());
+    ctx.responseType(asset.type());
     return ctx.sendStream(asset.content());
   }
 
