@@ -19,21 +19,21 @@ import io.jooby.Context;
 import io.jooby.Route;
 
 import javax.annotation.Nonnull;
+import java.nio.ByteBuffer;
 
-public class NoopHandler implements ChainedHandler {
+public class SendByteBuffer implements NextHandler {
   private Route.Handler next;
 
-  public NoopHandler(Route.Handler next) {
+  public SendByteBuffer(Route.Handler next) {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      next.apply(ctx);
-      return ctx;
+      ByteBuffer result = (ByteBuffer) next.apply(ctx);
+      return ctx.sendBytes(result);
     } catch (Throwable x) {
-      ctx.sendError(x);
-      return x;
+      return ctx.sendError(x);
     }
   }
 

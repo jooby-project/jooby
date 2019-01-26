@@ -17,6 +17,6 @@ package io.jooby.internal.handler;
 
 import io.jooby.Route;
 
-public interface ChainedHandler extends Route.Handler {
+public interface NextHandler extends Route.Handler {
   Route.Handler next();
 }

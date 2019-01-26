@@ -21,11 +21,11 @@ import io.jooby.Route;
 import javax.annotation.Nonnull;
 import java.util.concurrent.Executor;
 
-public class WorkerExecHandler implements ChainedHandler {
+public class DispatchHandler implements NextHandler {
   private final Route.Handler next;
   private final Executor executor;
 
-  public WorkerExecHandler(Route.Handler next, Executor executor) {
+  public DispatchHandler(Route.Handler next, Executor executor) {
     this.next = next;
     this.executor = executor;
   }

@@ -20,7 +20,7 @@ import io.jooby.Route;
 
 import javax.annotation.Nonnull;
 
-public class WorkerHandler implements ChainedHandler {
+public class WorkerHandler implements NextHandler {
   private final Route.Handler next;
 
   public WorkerHandler(Route.Handler next) {

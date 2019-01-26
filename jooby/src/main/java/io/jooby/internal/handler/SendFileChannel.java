@@ -19,18 +19,34 @@ import io.jooby.Context;
 import io.jooby.Route;
 
 import javax.annotation.Nonnull;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
-public class CharSequenceHandler implements ChainedHandler {
+public class SendFileChannel implements NextHandler {
   private Route.Handler next;
 
-  public CharSequenceHandler(Route.Handler next) {
+  public SendFileChannel(Route.Handler next) {
     this.next = next;
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      CharSequence result = (CharSequence) next.apply(ctx);
-      return ctx.sendString(result.toString());
+      Object file = next.apply(ctx);
+      if (file instanceof File) {
+        file = ((File) file).toPath();
+      }
+      if (file instanceof Path) {
+        if (Files.exists((Path) file)) {
+          file = FileChannel.open((Path) file, StandardOpenOption.READ);
+        } else {
+          throw new FileNotFoundException(file.toString());
+        }
+      }
+      return ctx.sendFile((FileChannel) file);
     } catch (Throwable x) {
       return ctx.sendError(x);
     }

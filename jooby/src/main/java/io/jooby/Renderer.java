@@ -16,6 +16,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 public interface Renderer {

@@ -20,18 +20,18 @@ import io.jooby.ExecutionMode;
 import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.Route.Handler;
-import io.jooby.internal.handler.ByteArrayHandler;
-import io.jooby.internal.handler.ByteBufHandler;
-import io.jooby.internal.handler.ByteBufferHandler;
-import io.jooby.internal.handler.CharSequenceHandler;
+import io.jooby.internal.handler.SendByteArray;
+import io.jooby.internal.handler.SendByteBuf;
+import io.jooby.internal.handler.SendByteBuffer;
+import io.jooby.internal.handler.SendCharSequence;
 import io.jooby.internal.handler.CompletionStageHandler;
 import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
-import io.jooby.internal.handler.FileChannelHandler;
-import io.jooby.internal.handler.InputStreamHandler;
-import io.jooby.internal.handler.NoopHandler;
+import io.jooby.internal.handler.SendFileChannel;
+import io.jooby.internal.handler.SendStream;
+import io.jooby.internal.handler.SendDirect;
 import io.jooby.internal.handler.reactive.ReactivePublisherHandler;
-import io.jooby.internal.handler.WorkerExecHandler;
+import io.jooby.internal.handler.DispatchHandler;
 import io.jooby.internal.handler.reactive.JavaFlowPublisher;
 import io.jooby.internal.handler.reactive.ReactorFluxHandler;
 import io.jooby.internal.handler.reactive.RxMaybeHandler;
@@ -51,7 +51,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
-import java.util.function.BiFunction;
 
 public class Pipeline {
 
@@ -124,30 +123,30 @@ public class Pipeline {
     }
     /** Context: */
     if (Context.class.isAssignableFrom(type)) {
-      return next(mode, executor, new NoopHandler(route.pipeline()), true);
+      return next(mode, executor, new SendDirect(route.pipeline()), true);
     }
     /** InputStream: */
     if (InputStream.class.isAssignableFrom(type)) {
-      return next(mode, executor, new InputStreamHandler(route.pipeline()), true);
+      return next(mode, executor, new SendStream(route.pipeline()), true);
     }
     /** FileChannel: */
     if (FileChannel.class.isAssignableFrom(type) || Path.class.isAssignableFrom(type) || File.class
         .isAssignableFrom(type)) {
-      return next(mode, executor, new FileChannelHandler(route.pipeline()), true);
+      return next(mode, executor, new SendFileChannel(route.pipeline()), true);
     }
     /** Strings: */
     if (CharSequence.class.isAssignableFrom(type)) {
-      return next(mode, executor, new CharSequenceHandler(route.pipeline()), true);
+      return next(mode, executor, new SendCharSequence(route.pipeline()), true);
     }
     /** RawByte: */
     if (byte[].class == type) {
-      return next(mode, executor, new ByteArrayHandler(route.pipeline()), true);
+      return next(mode, executor, new SendByteArray(route.pipeline()), true);
     }
     if (ByteBuffer.class.isAssignableFrom(type)) {
-      return next(mode, executor, new ByteBufferHandler(route.pipeline()), true);
+      return next(mode, executor, new SendByteBuffer(route.pipeline()), true);
     }
     if (ByteBuf.class.isAssignableFrom(type)) {
-      return next(mode, executor, new ByteBufHandler(route.pipeline()), true);
+      return next(mode, executor, new SendByteBuf(route.pipeline()), true);
     }
 
     return next(mode, executor, new DefaultHandler(route.pipeline()), true);
@@ -169,7 +168,7 @@ public class Pipeline {
   }
 
   private static Handler rxDisposable(ExecutionMode mode, Route next, Executor executor) {
-    return next(mode, executor, new DetachHandler(new NoopHandler(next.pipeline())),
+    return next(mode, executor, new DetachHandler(new SendDirect(next.pipeline())),
         false);
   }
 
@@ -215,7 +214,7 @@ public class Pipeline {
       }
       return handler;
     }
-    return new WorkerExecHandler(handler, executor);
+    return new DispatchHandler(handler, executor);
   }
 
   private static Optional<Class> loadClass(ClassLoader loader, String name) {

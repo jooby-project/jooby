@@ -19,23 +19,22 @@ import io.jooby.Context;
 import io.jooby.Route;
 
 import javax.annotation.Nonnull;
-import java.io.InputStream;
 
-public class InputStreamHandler implements ChainedHandler {
+public class SendDirect implements NextHandler {
   private Route.Handler next;
 
-  public InputStreamHandler(Route.Handler next) {
+  public SendDirect(Route.Handler next) {
     this.next = next;
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
     try {
-      InputStream stream = (InputStream) next.apply(ctx);
-      ctx.sendStream(stream);
+      next.apply(ctx);
+      return ctx;
     } catch (Throwable x) {
       ctx.sendError(x);
+      return x;
     }
-    return ctx;
   }
 
   @Override public Route.Handler next() {

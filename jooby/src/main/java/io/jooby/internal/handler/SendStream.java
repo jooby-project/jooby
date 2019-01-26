@@ -19,21 +19,23 @@ import io.jooby.Context;
 import io.jooby.Route;
 
 import javax.annotation.Nonnull;
+import java.io.InputStream;
 
-public class ByteArrayHandler implements ChainedHandler {
+public class SendStream implements NextHandler {
   private Route.Handler next;
 
-  public ByteArrayHandler(Route.Handler next) {
+  public SendStream(Route.Handler next) {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
     try {
-      byte[] result = (byte[]) next.apply(ctx);
-      return ctx.sendBytes(result);
+      InputStream stream = (InputStream) next.apply(ctx);
+      ctx.sendStream(stream);
     } catch (Throwable x) {
-      return ctx.sendError(x);
+      ctx.sendError(x);
     }
+    return ctx;
   }
 
   @Override public Route.Handler next() {

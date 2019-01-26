@@ -17,12 +17,12 @@ package io.jooby.internal.handler.reactive;
 
 import io.jooby.Context;
 import io.jooby.Route;
-import io.jooby.internal.handler.ChainedHandler;
+import io.jooby.internal.handler.NextHandler;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.Flow;
 
-public class JavaFlowPublisher implements ChainedHandler {
+public class JavaFlowPublisher implements NextHandler {
 
   private final Route.Handler next;
 

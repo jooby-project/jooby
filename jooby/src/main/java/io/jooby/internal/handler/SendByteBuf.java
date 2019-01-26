@@ -17,39 +17,21 @@ package io.jooby.internal.handler;
 
 import io.jooby.Context;
 import io.jooby.Route;
+import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.function.Function;
 
-public class FileChannelHandler implements ChainedHandler {
+public class SendByteBuf implements NextHandler {
   private Route.Handler next;
 
-  public FileChannelHandler(Route.Handler next) {
+  public SendByteBuf(Route.Handler next) {
     this.next = next;
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      Object file = next.apply(ctx);
-      if (file instanceof File) {
-        file = ((File) file).toPath();
-      }
-      if (file instanceof Path) {
-        if (Files.exists((Path) file)) {
-          file = FileChannel.open((Path) file, StandardOpenOption.READ);
-        } else {
-          throw new FileNotFoundException(file.toString());
-        }
-      }
-      return ctx.sendFile((FileChannel) file);
+      ByteBuf result = (ByteBuf) next.apply(ctx);
+      return ctx.sendBytes(result);
     } catch (Throwable x) {
       return ctx.sendError(x);
     }

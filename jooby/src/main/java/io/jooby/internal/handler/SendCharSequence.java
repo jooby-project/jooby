@@ -17,21 +17,20 @@ package io.jooby.internal.handler;
 
 import io.jooby.Context;
 import io.jooby.Route;
-import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
 
-public class ByteBufHandler implements ChainedHandler {
+public class SendCharSequence implements NextHandler {
   private Route.Handler next;
 
-  public ByteBufHandler(Route.Handler next) {
+  public SendCharSequence(Route.Handler next) {
     this.next = next;
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      ByteBuf result = (ByteBuf) next.apply(ctx);
-      return ctx.sendBytes(result);
+      CharSequence result = (CharSequence) next.apply(ctx);
+      return ctx.sendString(result.toString());
     } catch (Throwable x) {
       return ctx.sendError(x);
     }
