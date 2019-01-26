@@ -3,6 +3,7 @@ package io.jooby.internal;
 import io.jooby.ExecutionMode;
 import io.jooby.Renderer;
 import io.jooby.Route;
+import io.jooby.internal.handler.CharSequenceHandler;
 import io.jooby.internal.handler.CompletionStageHandler;
 import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
@@ -32,7 +33,7 @@ public class PipelineTest {
   public void eventLoopDoesNothingOnSimpleTypes() {
     Route.Handler h = ctx -> "OK";
     ChainedHandler pipeline = pipeline(route(String.class, h), ExecutionMode.EVENT_LOOP);
-    assertTrue(pipeline instanceof DefaultHandler);
+    assertTrue(pipeline instanceof CharSequenceHandler, pipeline.toString());
     assertTrue(pipeline.next() == h,
         "found: " + pipeline.next() + ", expected: " + h.getClass());
   }
@@ -45,8 +46,8 @@ public class PipelineTest {
     ChainedHandler pipeline = pipeline(route(String.class, h), ExecutionMode.EVENT_LOOP, executor);
     assertTrue(pipeline instanceof WorkerExecHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
-    assertTrue(next instanceof DefaultHandler);
-    next = ((DefaultHandler) next).next();
+    assertTrue(next instanceof CharSequenceHandler);
+    next = ((ChainedHandler) next).next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
@@ -120,8 +121,8 @@ public class PipelineTest {
     ChainedHandler pipeline = pipeline(route(String.class, h), ExecutionMode.WORKER);
     assertTrue(pipeline instanceof WorkerHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
-    assertTrue(next instanceof DefaultHandler);
-    next = ((DefaultHandler) next).next();
+    assertTrue(next instanceof CharSequenceHandler);
+    next = ((ChainedHandler) next).next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
@@ -185,8 +186,8 @@ public class PipelineTest {
     ChainedHandler pipeline = pipeline(route(String.class, h), ExecutionMode.WORKER, executor);
     assertTrue(pipeline instanceof WorkerExecHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
-    assertTrue(next instanceof DefaultHandler);
-    next = ((DefaultHandler) next).next();
+    assertTrue(next instanceof CharSequenceHandler);
+    next = ((ChainedHandler) next).next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 

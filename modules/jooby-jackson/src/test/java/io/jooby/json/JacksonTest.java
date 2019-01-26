@@ -23,17 +23,6 @@ public class JacksonTest {
   }
 
   @Test
-  public void renderRawString() throws Exception {
-    Jackson jackson = new Jackson();
-    MockContext ctx = new MockContext();
-    byte [] bytes = jackson.encode(ctx, "{\"k\":\"v\"}");
-    assertEquals("{\"k\":\"v\"}", new String(bytes, StandardCharsets.UTF_8));
-    /** Type: */
-    assertEquals("application/json", ctx.responseType().value());
-    assertEquals("utf-8", ctx.getResponseCharset().name().toLowerCase());
-  }
-
-  @Test
   public void parse() throws Exception {
     Jackson jackson = new Jackson();
     MockContext ctx = new MockContext();

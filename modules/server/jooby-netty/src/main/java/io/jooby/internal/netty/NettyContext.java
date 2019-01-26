@@ -275,19 +275,27 @@ public class NettyContext implements Context, ChannelFutureListener {
   }
 
   @Nonnull @Override public Context sendString(@Nonnull String data) {
-    return sendByteBuf(copiedBuffer(data, UTF_8));
+    return sendBytes(copiedBuffer(data, UTF_8));
   }
 
   @Override public final Context sendString(String data, Charset charset) {
-    return sendByteBuf(copiedBuffer(data, charset));
+    return sendBytes(copiedBuffer(data, charset));
   }
 
   @Override public final Context sendBytes(byte[] data) {
-    return sendByteBuf(wrappedBuffer(data));
+    return sendBytes(wrappedBuffer(data));
   }
 
   @Override public final Context sendBytes(ByteBuffer data) {
-    return sendByteBuf(wrappedBuffer(data));
+    return sendBytes(wrappedBuffer(data));
+  }
+
+  @Nonnull @Override public Context sendBytes(@Nonnull ByteBuf data) {
+    responseStarted = true;
+    setHeaders.set(CONTENT_LENGTH, data.readableBytes());
+    ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING))
+        .addListener(this);
+    return this;
   }
 
   @Nonnull @Override public Context sendStream(@Nonnull InputStream in) {
@@ -356,14 +364,6 @@ public class NettyContext implements Context, ChannelFutureListener {
     DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HTTP_1_1,
         HttpResponseStatus.valueOf(statusCode), Unpooled.EMPTY_BUFFER, setHeaders, NO_TRAILING);
     ctx.writeAndFlush(rsp).addListener(this);
-    return this;
-  }
-
-  private Context sendByteBuf(ByteBuf buff) {
-    responseStarted = true;
-    setHeaders.set(CONTENT_LENGTH, buff.readableBytes());
-    ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, status, buff, setHeaders, NO_TRAILING))
-        .addListener(this);
     return this;
   }
 

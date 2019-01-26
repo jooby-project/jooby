@@ -1,6 +1,6 @@
 === Request Body
 
-Parsing of `request body` is available via javadoc:Context[body] method:
+Raw `request body` is available via javadoc:Context[body] method:
 
 [source, java]
 ----
@@ -26,7 +26,7 @@ Parsing of `request body` is available via javadoc:Context[body] method:
 <2> `HTTP Body` as `byte`
 <3> `HTTP Body` as `InputStream`
 
-This give us the `raw body`. For custom object you need to provide a `Parser`.
+This give us the `raw body`.
 
 ==== Parser
 
@@ -51,7 +51,7 @@ and returns a single result of the given type.
 
   parser(MediaType.json, (ctx, type) -> {          // <2>
 
-    String body = ctx.body().value();              // <3>
+    byte[] body = ctx.body().bytes();              // <3>
 
     return lib.fromJson(body, type);               // <4>
   });
@@ -64,7 +64,7 @@ and returns a single result of the given type.
 
 <1> Choose your favorite `json` library
 <2> Check if the `Content-Type` header matches `application/json`
-<3> Ready the body as `String`
+<3> Ready the body as `byte[]`
 <4> Parse the `body` and use the requested type
 <5> Route handler now call the `body(Type)` function to trigger the parser function
 

@@ -1,6 +1,7 @@
 package io.jooby;
 
 import io.jooby.internal.UrlParser;
+import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -300,6 +301,13 @@ public class MockContext implements Context {
     responseStarted = true;
     result = data;
     length = data.length;
+    return this;
+  }
+
+  @Nonnull @Override public Context sendBytes(@Nonnull ByteBuf data) {
+    responseStarted = true;
+    result = data;
+    length = data.readableBytes();
     return this;
   }
 

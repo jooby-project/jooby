@@ -71,15 +71,7 @@ public class Jackson implements Extension, Parser, Renderer {
 
   @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
     ctx.defaultResponseType(MediaType.json);
-    byte[] json;
-    if (value instanceof CharSequence) {
-      // Ignore string/charsequence responses, those are going to be processed by the default
-      // renderer and let route to return raw JSON
-      json = value.toString().getBytes(StandardCharsets.UTF_8);
-    } else {
-      json = mapper.writeValueAsBytes(value);
-    }
-    return json;
+    return mapper.writeValueAsBytes(value);
   }
 
   @Override public <T> T parse(Context ctx, Type type) throws Exception {

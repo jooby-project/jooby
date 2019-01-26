@@ -150,6 +150,12 @@
       <version>1</version>
     </dependency>
 
+    <!-- netty-buffer -->
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-buffer</artifactId>
+    </dependency>
+
     <!-- rxjava -->
     <dependency>
       <groupId>io.reactivex.rxjava2</groupId>

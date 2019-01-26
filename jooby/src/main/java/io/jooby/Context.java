@@ -16,6 +16,7 @@
 package io.jooby;
 
 import io.jooby.internal.UrlParser;
+import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -361,8 +362,10 @@ public interface Context {
 
   default @Nonnull Context render(@Nonnull Object result) {
     try {
-      byte[] encode = route().renderer().encode(this, result);
-      sendBytes(encode);
+      Route route = route();
+      Renderer renderer = route.renderer();
+      byte[] bytes = renderer.encode(this, result);
+      sendBytes(bytes);
       return this;
     } catch (Exception x) {
       throw Throwing.sneakyThrow(x);
@@ -425,8 +428,7 @@ public interface Context {
 
   default @Nonnull Context sendRedirect(@Nonnull StatusCode redirect, @Nonnull String location) {
     header("location", location);
-    sendStatusCode(redirect);
-    return this;
+    return sendStatusCode(redirect);
   }
 
   default @Nonnull Context sendString(@Nonnull String data) {
@@ -438,6 +440,10 @@ public interface Context {
   @Nonnull Context sendBytes(@Nonnull byte[] data);
 
   @Nonnull Context sendBytes(@Nonnull ByteBuffer data);
+
+  default @Nonnull Context sendBytes(@Nonnull ByteBuf data) {
+    return sendBytes(data.nioBuffer());
+  }
 
   @Nonnull Context sendStream(@Nonnull InputStream input);
 

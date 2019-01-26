@@ -689,6 +689,45 @@ public class FeaturedTest {
   }
 
   @Test
+  public void jsonVsRawOutput() {
+    new JoobyRunner(app -> {
+      app.install(new Jackson());
+
+      app.path("/api/pets", () -> {
+
+        app.get("/{id}", ctx -> {
+          ctx.responseType(io.jooby.MediaType.json);
+          return "{\"message\": \"" + ctx.path("id") + "\"}";
+        });
+
+        app.get("/raw", ctx -> {
+          ctx.responseType(io.jooby.MediaType.json);
+          return "{\"message\": \"raw\"}".getBytes(StandardCharsets.UTF_8);
+        });
+
+        app.get("/", ctx -> {
+          return Arrays.asList(Map.of("message", "fooo"));
+        });
+      });
+    }).ready(client -> {
+      client.get("/api/pets/fooo", rsp -> {
+        assertEquals("application/json;charset=utf-8", rsp.header("content-type").toLowerCase());
+        assertEquals("{\"message\": \"fooo\"}", rsp.body().string());
+      });
+
+      client.get("/api/pets/raw", rsp -> {
+        assertEquals("application/json;charset=utf-8", rsp.header("content-type").toLowerCase());
+        assertEquals("{\"message\": \"raw\"}", rsp.body().string());
+      });
+
+      client.get("/api/pets", rsp -> {
+        assertEquals("application/json;charset=utf-8", rsp.header("content-type").toLowerCase());
+        assertEquals("[{\"message\":\"fooo\"}]", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
   public void renderVsTemplateEngine() {
     new JoobyRunner(app -> {
       app.renderer((TemplateEngine) (ctx, modelAndView) -> modelAndView.view + modelAndView.model);
@@ -1168,7 +1207,8 @@ public class FeaturedTest {
   public void setContentLen() {
     String value = "...";
     new JoobyRunner(app -> {
-      app.get("/len", ctx -> ctx.responseType(text).responseLength(value.length()).sendString(value));
+      app.get("/len",
+          ctx -> ctx.responseType(text).responseLength(value.length()).sendString(value));
     }).ready(client -> {
       client.get("/len", rsp -> {
         assertEquals("text/plain;charset=utf-8",

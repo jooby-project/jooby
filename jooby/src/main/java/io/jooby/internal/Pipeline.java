@@ -20,6 +20,10 @@ import io.jooby.ExecutionMode;
 import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.Route.Handler;
+import io.jooby.internal.handler.ByteArrayHandler;
+import io.jooby.internal.handler.ByteBufHandler;
+import io.jooby.internal.handler.ByteBufferHandler;
+import io.jooby.internal.handler.CharSequenceHandler;
 import io.jooby.internal.handler.CompletionStageHandler;
 import io.jooby.internal.handler.DefaultHandler;
 import io.jooby.internal.handler.DetachHandler;
@@ -36,9 +40,11 @@ import io.jooby.internal.handler.reactive.ObservableHandler;
 import io.jooby.internal.handler.WorkerHandler;
 import io.jooby.internal.handler.reactive.RxFlowableHandler;
 import io.jooby.internal.handler.reactive.RxSingleHandler;
+import io.netty.buffer.ByteBuf;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -116,17 +122,32 @@ public class Pipeline {
     if (Flow.Publisher.class.isAssignableFrom(type)) {
       return javaFlowPublisher(mode, route, executor);
     }
+    /** Context: */
     if (Context.class.isAssignableFrom(type)) {
       return next(mode, executor, new NoopHandler(route.pipeline()), true);
     }
-
+    /** InputStream: */
     if (InputStream.class.isAssignableFrom(type)) {
       return next(mode, executor, new InputStreamHandler(route.pipeline()), true);
     }
-
+    /** FileChannel: */
     if (FileChannel.class.isAssignableFrom(type) || Path.class.isAssignableFrom(type) || File.class
         .isAssignableFrom(type)) {
-      return next(mode, executor, new FileChannelHandler(route.pipeline()), false);
+      return next(mode, executor, new FileChannelHandler(route.pipeline()), true);
+    }
+    /** Strings: */
+    if (CharSequence.class.isAssignableFrom(type)) {
+      return next(mode, executor, new CharSequenceHandler(route.pipeline()), true);
+    }
+    /** RawByte: */
+    if (byte[].class == type) {
+      return next(mode, executor, new ByteArrayHandler(route.pipeline()), true);
+    }
+    if (ByteBuffer.class.isAssignableFrom(type)) {
+      return next(mode, executor, new ByteBufferHandler(route.pipeline()), true);
+    }
+    if (ByteBuf.class.isAssignableFrom(type)) {
+      return next(mode, executor, new ByteBufHandler(route.pipeline()), true);
     }
 
     return next(mode, executor, new DefaultHandler(route.pipeline()), true);
