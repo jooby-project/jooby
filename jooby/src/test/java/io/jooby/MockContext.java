@@ -53,7 +53,7 @@ public class MockContext implements Context {
   private long length;
   private MediaType responseType;
   private Charset responseCharset = StandardCharsets.UTF_8;
-  private int responseStatusCode = 200;
+  private StatusCode statusCode = StatusCode.OK;
   private Object result;
   private boolean responseStarted;
 
@@ -231,8 +231,12 @@ public class MockContext implements Context {
   }
 
   @Nonnull @Override public MockContext statusCode(int statusCode) {
-    this.responseStatusCode = statusCode;
+    this.statusCode = StatusCode.valueOf(statusCode);
     return this;
+  }
+
+  @Nonnull @Override public StatusCode statusCode() {
+    return statusCode;
   }
 
   @Nonnull @Override public MockContext render(@Nonnull Object result) {
@@ -320,7 +324,7 @@ public class MockContext implements Context {
   @Nonnull @Override public MockContext sendStatusCode(int statusCode) {
     responseStarted = true;
     result = statusCode;
-    responseStatusCode = statusCode;
+    this.statusCode = StatusCode.valueOf(statusCode);
     length = 0;
     return this;
   }
@@ -342,10 +346,6 @@ public class MockContext implements Context {
 
   @Nonnull @Override public MediaType responseType() {
     return responseType == null ? MediaType.text : responseType;
-  }
-
-  public int getResponseStatusCode() {
-    return responseStatusCode;
   }
 
   public Map<String, Object> getResponseHeaders() {

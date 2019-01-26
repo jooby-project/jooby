@@ -187,6 +187,10 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
+  @Nonnull @Override public StatusCode statusCode() {
+    return StatusCode.valueOf(exchange.getStatusCode());
+  }
+
   @Nonnull @Override public Context statusCode(int statusCode) {
     exchange.setStatusCode(statusCode);
     return this;

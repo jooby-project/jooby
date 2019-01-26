@@ -111,7 +111,7 @@ public class MockRouter {
     ctx.pathMap(match.pathMap());
     ctx.route(match.route());
     Object value = match.route().handler().execute(ctx);
-    Result result = new Result(value, ctx.getResponseStatusCode());
+    Result result = new Result(value, ctx.statusCode());
 
     /** Content-Type: */
     result.header("Content-Type", ctx.responseType().toContentTypeHeader(ctx.getResponseCharset()));

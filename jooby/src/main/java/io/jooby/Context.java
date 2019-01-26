@@ -357,6 +357,8 @@ public interface Context {
 
   @Nonnull Context statusCode(int statusCode);
 
+  @Nonnull StatusCode statusCode();
+
   default @Nonnull Context render(@Nonnull Object result) {
     try {
       byte[] encode = route().renderer().encode(this, result);

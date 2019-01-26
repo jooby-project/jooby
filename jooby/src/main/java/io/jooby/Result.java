@@ -27,21 +27,19 @@ public class Result {
 
   private final Object value;
 
-  private final int statusCode;
+  private final StatusCode statusCode;
 
-  private Map<String, String> headers;
+  private Map<String, String> headers = new LinkedHashMap<>();
 
-  private MediaType contentType = MediaType.text;
+  private MediaType contentType;
 
   private Charset charset = StandardCharsets.UTF_8;
 
-  public Result(Object value, int statusCode) {
-    this.value = value;
-    this.statusCode = statusCode;
-  }
+  private long length = -1;
 
   public Result(Object value, StatusCode statusCode) {
-    this(value, statusCode.value());
+    this.value = value;
+    this.statusCode = statusCode;
   }
 
   public @Nonnull Map<String, String> headers() {
@@ -49,21 +47,23 @@ public class Result {
   }
 
   public @Nonnull Result headers(@Nonnull Map<String, String> headers) {
-    this.headers = new LinkedHashMap<>();
-    headers.forEach((k, v) -> this.headers.put(k.toLowerCase(), v));
+    headers.forEach(this::header);
     return this;
   }
 
   public @Nonnull Result header(@Nonnull String name, @Nonnull String value) {
-    if (headers == null) {
-      headers = new LinkedHashMap<>();
+    if ("content-type".equalsIgnoreCase(name)) {
+      type(MediaType.valueOf(value));
+    } else if ("content-length".equalsIgnoreCase(name)) {
+      length(Long.parseLong(value));
+    } else {
+      this.headers.put(name.toLowerCase(), value);
     }
-    this.headers.put(name.toLowerCase(), value);
     return this;
   }
 
   public @Nullable MediaType type() {
-    return contentType;
+    return contentType == null ? MediaType.text : contentType;
   }
 
   public @Nonnull Result type(@Nonnull MediaType contentType) {
@@ -73,6 +73,7 @@ public class Result {
   public @Nonnull Result type(@Nonnull MediaType contentType, @Nullable Charset charset) {
     this.contentType = contentType;
     this.charset = charset;
+    headers.put("content-type", contentType.toContentTypeHeader(charset));
     return this;
   }
 
@@ -80,12 +81,17 @@ public class Result {
     return charset;
   }
 
-  public long contentLength() {
-    String len = headers().get("content-length");
-    return len == null ? -1 : Long.parseLong(len);
+  public long length() {
+    return length;
   }
 
-  public int statusCode() {
+  public Result length(long length) {
+    this.length = length;
+    headers.put("content-length", Long.toString(length));
+    return this;
+  }
+
+  public StatusCode statusCode() {
     return statusCode;
   }
 

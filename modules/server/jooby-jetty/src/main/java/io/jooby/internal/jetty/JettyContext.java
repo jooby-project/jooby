@@ -229,6 +229,10 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
+  @Nonnull @Override public StatusCode statusCode() {
+    return StatusCode.valueOf(response.getStatus());
+  }
+
   @Nonnull @Override public Context statusCode(int statusCode) {
     response.setStatus(statusCode);
     return this;
