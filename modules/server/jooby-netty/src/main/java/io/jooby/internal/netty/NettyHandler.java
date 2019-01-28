@@ -128,8 +128,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       } else {
         if (context == null) {
           log.error("execution resulted in exception", cause);
-        } else if (context.isResponseStarted()) {
-          log.error("%s %s", context.method(), context.pathString());
         } else {
           context.sendError(cause);
           context = null;

@@ -17,6 +17,7 @@ package io.jooby;
 
 import io.jooby.internal.UrlParser;
 import io.netty.buffer.ByteBuf;
+import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -465,14 +466,20 @@ public interface Context {
 
   @Nonnull default Context sendError(@Nonnull Throwable cause) {
     sendError(cause, router().errorCode(cause));
-    if (Throwing.isFatal(cause)) {
-      throw Throwing.sneakyThrow(cause);
-    }
     return this;
   }
 
   @Nonnull default Context sendError(@Nonnull Throwable cause, StatusCode statusCode) {
-    router().errorHandler().apply(this, cause, statusCode);
+    Router router = router();
+    try {
+      router.errorHandler().apply(this, cause, statusCode);
+    } catch (Exception x) {
+      router.log().error("error handler resulted in exception {} {}", method(), pathString(), x);
+    }
+    /** re throw fatal exceptions: */
+    if (Throwing.isFatal(cause)) {
+      throw Throwing.sneakyThrow(cause);
+    }
     return this;
   }
 

@@ -33,7 +33,7 @@ public class RxSingleHandler implements NextHandler {
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
       Single result = (Single) next.apply(ctx);
-      result.subscribe(ctx::render, x -> ctx.sendError((Throwable) x));
+      result.subscribe(new RxSubscriber(ctx));
       return result;
     } catch (Throwable x) {
       ctx.sendError(x);

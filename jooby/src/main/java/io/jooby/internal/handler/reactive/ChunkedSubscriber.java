@@ -25,6 +25,9 @@ import org.slf4j.Logger;
 
 public class ChunkedSubscriber {
 
+  private static final byte JSON_LBRACKET = '[';
+  private static final byte JSON_SEP = ',';
+  private static final byte[] JSON_RBRACKET = {']'};
   private ChunkedSubscription subscription;
   private Context ctx;
   private Sender sender;
@@ -49,11 +52,11 @@ public class ChunkedSubscriber {
       if (responseType == null) {
         responseType = ctx.responseType();
         if (responseType.isJson()) {
-          data = prepend(data, (byte) '[');
+          data = prepend(data, JSON_LBRACKET);
         }
       } else {
         if (responseType.isJson()) {
-          data = prepend(data, (byte) ',');
+          data = prepend(data, JSON_SEP);
         }
       }
 
@@ -74,30 +77,18 @@ public class ChunkedSubscriber {
   }
 
   private void onError(Throwable x, boolean cancel) {
+    // we use it to mark the response as errored so we don't sent a possible trailing json response.
+    responseType = null;
     try {
-      if (ctx.isResponseStarted()) {
-        Logger log = ctx.router().log();
-        if (x != null) {
-          if (Server.connectionLost(x)) {
-            log.debug("exception found while sending response {} {}", ctx.method(),
-                ctx.pathString(),
-                x);
-          } else {
-            log.error("exception found while sending response {} {}", ctx.method(),
-                ctx.pathString(),
-                x);
-          }
-        }
+      Logger log = ctx.router().log();
+      if (Server.connectionLost(x)) {
+        log.debug("connection lost: {} {}", ctx.method(), ctx.pathString(), x);
       } else {
         ctx.sendError(x);
       }
     } finally {
-      try {
-        if (cancel) {
-          subscription.cancel();
-        }
-      } finally {
-        onComplete();
+      if (cancel) {
+        subscription.cancel();
       }
     }
   }
@@ -105,7 +96,7 @@ public class ChunkedSubscriber {
   public void onComplete() {
     if (responseType != null && responseType.isJson()) {
       responseType = null;
-      sender.sendBytes(new byte[]{']'}, (ctx, x) -> {
+      sender.sendBytes(JSON_RBRACKET, (ctx, x) -> {
         if (x != null) {
           onError(x);
         }
