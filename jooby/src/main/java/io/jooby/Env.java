@@ -187,12 +187,11 @@ public class Env extends Value.Object {
 
   public static PropertySource defaults() {
     String tmpdir = System.getProperty("java.io.tmpdir");
-    PropertySource defaults = new PropertySource("defaults", Map.of(
-        "application.tmpdir", tmpdir,
+    Map<String, String> defaultMap = new HashMap<>();
+    defaultMap.put("application.tmpdir", tmpdir);
+    defaultMap.put("server.maxRequestSize", Integer.toString(Server._10MB));
 
-        /** server: */
-        "server.maxRequestSize", Integer.toString(Server._10MB)));
-    return defaults;
+    return new PropertySource("defaults", defaultMap);
   }
 
   public static Env build(PropertySource... sources) {

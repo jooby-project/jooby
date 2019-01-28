@@ -49,19 +49,14 @@
     <!-- Misc -->
     <okhttp.version>3.11.0</okhttp.version>
 
-    <guava.version>25.1-jre</guava.version>
-    <guice.version>4.2.0</guice.version>
     <javassist.version>3.22.0-GA</javassist.version>
     <javax.inject.version>1</javax.inject.version>
     <jsr305.version>3.0.2</jsr305.version>
     <kotlin.version>1.2.51</kotlin.version>
 
     <!-- Test dependencies -->
-    <easymock.version>3.6</easymock.version>
     <jacoco.version>0.8.2</jacoco.version>
     <junit.version>5.3.1</junit.version>
-    <junit-platform.version>1.3.1</junit-platform.version>
-    <powermock.version>1.7.4</powermock.version>
     <rest-assured.version>3.3.0</rest-assured.version>
 
     <!-- Gradle plugins -->
@@ -69,15 +64,9 @@
     <gradle-plugins.version>0.9-rc-1</gradle-plugins.version>
     <gradle-tooling-api.version>2.6</gradle-tooling-api.version>
 
-    <!-- Test dependencies -->
-    <easymock.version>3.6</easymock.version>
-    <jacoco.version>0.8.1</jacoco.version>
-    <junit.version>5.3.1</junit.version>
-    <junit-platform.version>1.3.1</junit-platform.version>
-    <powermock.version>1.7.4</powermock.version>
-
     <!-- Maven properties -->
-    <java.source.version>9</java.source.version>
+    <maven.compiler.source>9</maven.compiler.source>
+    <maven.compiler.target>9</maven.compiler.target>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <timestamp>${maven.build.timestamp}</timestamp>
@@ -492,18 +481,8 @@
       <!-- Test dependencies -->
       <dependency>
         <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${junit.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-engine</artifactId>
         <version>${junit.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.platform</groupId>
-        <artifactId>junit-platform-launcher</artifactId>
-        <version>${junit-platform.version}</version>
       </dependency>
 
       <dependency>
@@ -594,38 +573,10 @@
   <build>
 
     <plugins>
-
-      <!-- Force maven-3.x and java-1.8 -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>${maven-enforcer-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>enforce.versions</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <requireMavenVersion>
-                  <version>[3.5,)</version>
-                </requireMavenVersion>
-                <requireJavaVersion>
-                  <version>[9,)</version>
-                </requireJavaVersion>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <source>${java.source.version}</source>
-          <target>${java.source.version}</target>
           <encoding>${project.build.sourceEncoding}</encoding>
         </configuration>
       </plugin>
@@ -857,7 +808,6 @@
       </activation>
       <build>
         <plugins>
-
           <!-- Force maven-3.x and java-9 -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -875,7 +825,7 @@
                       <version>[3.5,)</version>
                     </requireMavenVersion>
                     <requireJavaVersion>
-                      <version>[9,)</version>
+                      <version>[${maven.compiler.source},)</version>
                     </requireJavaVersion>
                   </rules>
                 </configuration>
@@ -887,8 +837,6 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <version>${maven-compiler-plugin.version}</version>
             <configuration>
-              <source>${java.source.version}</source>
-              <target>${java.source.version}</target>
               <encoding>${project.build.sourceEncoding}</encoding>
               <compilerArgs>
                 <arg>-parameters</arg>
@@ -914,27 +862,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <version>${maven-surefire-plugin.version}</version>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>jdk9</id>
-      <activation>
-        <jdk>[9,)</jdk>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>${maven-compiler-plugin.version}</version>
-            <configuration>
-              <source>${java.source.version}</source>
-              <target>${java.source.version}</target>
-              <release>${java.source.version}</release>
-              <encoding>${project.build.sourceEncoding}</encoding>
-            </configuration>
           </plugin>
         </plugins>
       </build>
@@ -966,171 +893,6 @@
           <artifactId>jackson-module-kotlin</artifactId>
         </dependency>
       </dependencies>
-    </profile>
-
-    <profile>
-      <id>stork</id>
-      <activation>
-        <file>
-          <exists>
-            ${basedir}${file.separator}src${file.separator}etc${file.separator}stork.yml
-          </exists>
-        </file>
-      </activation>
-      <properties>
-        <stork-src>${basedir}${file.separator}src${file.separator}etc</stork-src>
-        <inputFiles>${basedir}${file.separator}target${file.separator}stork-launchers
-        </inputFiles>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-resources-plugin</artifactId>
-            <version>${maven-resources-plugin.version}</version>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>copy-resources</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${inputFiles}</outputDirectory>
-                  <resources>
-                    <resource>
-                      <directory>${stork-src}</directory>
-                      <filtering>true</filtering>
-                      <includes>
-                        <include>stork.yml</include>
-                      </includes>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <!-- stork:generate -->
-          <plugin>
-            <groupId>com.fizzed</groupId>
-            <artifactId>stork-maven-plugin</artifactId>
-            <version>${stork-maven-plugin.version}</version>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>launcher</goal>
-                </goals>
-              </execution>
-            </executions>
-            <dependencies>
-              <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>2.3.0</version>
-              </dependency>
-            </dependencies>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <version>${maven-assembly-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>jooby.stork</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-                <configuration>
-                  <appendAssemblyId>false</appendAssemblyId>
-                  <finalName>${project.artifactId}-${project.version}.stork
-                  </finalName>
-                  <descriptorRefs>
-                    <descriptorRef>jooby.stork</descriptorRef>
-                  </descriptorRefs>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>coverage</id>
-      <build>
-        <plugins>
-          <!-- coveralls -->
-          <plugin>
-            <groupId>org.eluder.coveralls</groupId>
-            <artifactId>coveralls-maven-plugin</artifactId>
-            <version>${coveralls-maven-plugin.version}</version>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <!-- Config directory -->
-    <profile>
-      <id>conf-directory</id>
-      <activation>
-        <file>
-          <exists>conf</exists>
-        </file>
-      </activation>
-      <properties>
-        <project.conf.directory>conf</project.conf.directory>
-      </properties>
-      <build>
-        <resources>
-          <resource>
-            <directory>src/main/resources</directory>
-          </resource>
-          <resource>
-            <directory>${project.conf.directory}</directory>
-          </resource>
-        </resources>
-      </build>
-    </profile>
-
-    <!-- checkstyle -->
-    <profile>
-      <id>checkstyle</id>
-      <activation>
-        <file>
-          <exists>
-            ${basedir}${file.separator}src${file.separator}etc${file.separator}checkstyle.xml
-          </exists>
-        </file>
-      </activation>
-      <properties>
-        <checkstyle-file>
-          ${basedir}${file.separator}src${file.separator}etc${file.separator}checkstyle.xml
-        </checkstyle-file>
-        <checkstyle.phase>package</checkstyle.phase>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>${maven-checkstyle-plugin.version}</version>
-            <configuration>
-              <consoleOutput>true</consoleOutput>
-              <configLocation>${checkstyle-file}</configLocation>
-              <failsOnError>true</failsOnError>
-            </configuration>
-            <executions>
-              <execution>
-                <id>checkstyle</id>
-                <phase>${checkstyle.phase}</phase>
-                <goals>
-                  <goal>checkstyle</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
 
     <!-- Sonatype OSS release -->
@@ -1208,43 +970,5 @@
         </plugins>
       </build>
     </profile>
-
-    <!-- gh-pages -->
-    <profile>
-      <id>gh-pages</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-site-plugin</artifactId>
-            <version>${maven-site-plugin.version}</version>
-            <configuration>
-              <generateProjectInfo>false</generateProjectInfo>
-              <generateReports>false</generateReports>
-              <generateSitemap>false</generateSitemap>
-            </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>${maven-javadoc-plugin.version}</version>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>javadoc</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <excludePackageNames>${javadoc.excludes}</excludePackageNames>
-              <aggregate>true</aggregate>
-              <show>public</show>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
   </profiles>
 </project>

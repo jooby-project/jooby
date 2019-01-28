@@ -46,7 +46,7 @@ public class CompletionStageHandler implements NextHandler {
       });
     } catch (Throwable x) {
       ctx.sendError(x);
-      return CompletableFuture.failedFuture(x);
+      return CompletableFuture.completedFuture(x);
     }
   }
 

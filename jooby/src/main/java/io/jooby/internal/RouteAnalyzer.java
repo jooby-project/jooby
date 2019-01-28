@@ -15,7 +15,6 @@
  */
 package io.jooby.internal;
 
-import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.asm.Lambdas;

@@ -18,6 +18,8 @@ package io.jooby;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,7 +30,7 @@ import static java.lang.String.format;
 public interface ErrorHandler {
 
   static ErrorHandler log(Logger log, StatusCode... quiet) {
-    Set<StatusCode> silent = Set.of(quiet);
+    Set<StatusCode> silent = new HashSet<>(Arrays.asList(quiet));
     return (ctx, cause, statusCode) -> {
       String msg = new StringBuilder()
           .append(ctx.method())

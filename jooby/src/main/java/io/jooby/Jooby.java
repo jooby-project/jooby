@@ -32,13 +32,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Spliterator;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Spliterators.spliteratorUnknownSize;
+import static java.util.stream.StreamSupport.stream;
 
 public class Jooby implements Router {
 
@@ -314,8 +317,11 @@ public class Jooby implements Router {
 
   /** Boot: */
   public Server start() {
-    List<Server> servers = ServiceLoader.load(Server.class).stream()
-        .map(ServiceLoader.Provider::get)
+    List<Server> servers = stream(
+        spliteratorUnknownSize(
+            ServiceLoader.load(Server.class).iterator(),
+            Spliterator.ORDERED),
+        false)
         .collect(Collectors.toList());
     if (servers.size() == 0) {
       throw new IllegalStateException("Server not found.");

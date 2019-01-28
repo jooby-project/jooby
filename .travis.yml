@@ -13,7 +13,7 @@ jdk:
 
 branches:
   only:
-    - master
+    - 2.x
 
 script:
   - mvn clean package

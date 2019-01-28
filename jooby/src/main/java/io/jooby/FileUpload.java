@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +51,9 @@ public interface FileUpload extends Value {
   }
 
   @Override default Map<String, List<String>> toMultimap() {
-    return Map.of(name(), List.of(filename()));
+    Map<String, List<String>> result = new HashMap<>(1);
+    result.put(name(), Collections.singletonList(filename()));
+    return result;
   }
 
   InputStream stream();

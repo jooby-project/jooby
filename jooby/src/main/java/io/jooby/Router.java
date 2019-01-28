@@ -20,11 +20,15 @@ import org.slf4j.Logger;
 import javax.annotation.Nonnull;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
 
 public interface Router {
 
@@ -50,7 +54,8 @@ public interface Router {
   String TRACE = "TRACE";
 
   /** HTTP Methods: */
-  List<String> METHODS = List.of(GET, POST, PUT, DELETE, PATCH, HEAD, CONNECT, OPTIONS, TRACE);
+  List<String> METHODS = unmodifiableList(
+      asList(GET, POST, PUT, DELETE, PATCH, HEAD, CONNECT, OPTIONS, TRACE));
 
   @Nonnull Router caseSensitive(boolean caseSensitive);
 
@@ -279,7 +284,7 @@ public interface Router {
       case 1:
         return Collections.singletonList(result.get(0));
       default:
-        return Collections.unmodifiableList(result);
+        return unmodifiableList(result);
     }
   }
 }
