@@ -17,7 +17,6 @@ package io.jooby;
 
 import io.jooby.internal.UrlParser;
 import io.netty.buffer.ByteBuf;
-import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -343,8 +342,16 @@ public interface Context {
 
   @Nonnull Context responseLength(long length);
 
+  @Nonnull default Context responseType(@Nonnull String contentType) {
+    return responseType(MediaType.valueOf(contentType));
+  }
+
   @Nonnull default Context responseType(@Nonnull MediaType contentType) {
     return responseType(contentType, contentType.charset());
+  }
+
+  @Nonnull default Context defaultResponseType(@Nonnull String contentType) {
+    return defaultResponseType(MediaType.valueOf(contentType));
   }
 
   @Nonnull Context defaultResponseType(@Nonnull MediaType contentType);
@@ -361,11 +368,11 @@ public interface Context {
 
   @Nonnull StatusCode statusCode();
 
-  default @Nonnull Context render(@Nonnull Object result) {
+  default @Nonnull Context render(@Nonnull Object value) {
     try {
       Route route = route();
       Renderer renderer = route.renderer();
-      byte[] bytes = renderer.encode(this, result);
+      byte[] bytes = renderer.encode(this, value);
       sendBytes(bytes);
       return this;
     } catch (Exception x) {
@@ -476,7 +483,7 @@ public interface Context {
     } catch (Exception x) {
       router.log().error("error handler resulted in exception {} {}", method(), pathString(), x);
     }
-    /** re throw fatal exceptions: */
+    /** rethrow fatal exceptions: */
     if (Throwing.isFatal(cause)) {
       throw Throwing.sneakyThrow(cause);
     }

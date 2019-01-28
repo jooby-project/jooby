@@ -21,6 +21,7 @@ import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.jooby.MediaType.html;
 import static io.jooby.MediaType.json;
 import static java.lang.String.format;
 
@@ -48,14 +49,14 @@ public interface ErrorHandler {
 
   ErrorHandler DEFAULT = (ctx, cause, statusCode) -> {
     new ContentNegotiation()
-        .accept("application/json", () -> {
+        .accept(json, () -> {
           String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
           return ctx.responseType(json)
               .statusCode(statusCode)
               .sendString("{\"message\":\"" + message + "\",\"statusCode\":" + statusCode.value()
                   + ",\"reason\":\"" + statusCode.reason() + "\"}");
         })
-        .accept("text/html", () -> {
+        .accept(html, () -> {
           String message = cause.getMessage();
           StringBuilder html = new StringBuilder("<!doctype html>\n")
               .append("<html>\n")
