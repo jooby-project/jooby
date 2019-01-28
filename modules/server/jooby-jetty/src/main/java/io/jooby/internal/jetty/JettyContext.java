@@ -328,8 +328,7 @@ public class JettyContext implements Callback, Context {
       if (len > 0) {
         ByteRange range = ByteRange.parse(request.getHeader(HttpHeader.RANGE.asString()))
             .apply(this, len);
-        in.skip(range.start);
-        stream = Functions.limit(in, range.end);
+        stream = new ByteRangeInputStream(in, range);
       } else {
         response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
         stream = in;

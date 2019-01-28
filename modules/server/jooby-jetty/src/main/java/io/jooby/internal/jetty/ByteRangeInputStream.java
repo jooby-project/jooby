@@ -13,21 +13,24 @@
  *
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal;
+package io.jooby.internal.jetty;
+
+import io.jooby.ByteRange;
 
 import javax.annotation.Nonnull;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class LimitedInputStream extends FilterInputStream {
+public class ByteRangeInputStream extends FilterInputStream {
 
   private long left;
   private long mark = -1;
 
-  public LimitedInputStream(@Nonnull InputStream in, long limit) {
+  public ByteRangeInputStream(@Nonnull InputStream in, ByteRange range) throws IOException {
     super(in);
-    left = limit;
+    in.skip(range.start);
+    left = range.end;
   }
 
   @Override

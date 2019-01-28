@@ -1303,6 +1303,24 @@ public class FeaturedTest {
         assertEquals(206, rsp.code());
         assertEquals(_19kb.substring(_19kb.length() - 100), rsp.body().string());
       });
+
+      int last = _16kb.length() + 5;
+      client.header("Range", "bytes=-" + last);
+      client.get("/range", rsp -> {
+        assertEquals("bytes", rsp.header("accept-ranges"));
+        assertEquals("bytes 2555-18943/18944", rsp.header("content-range"));
+        assertEquals(Integer.toString(last), rsp.header("content-length"));
+        assertEquals(206, rsp.code());
+        assertEquals(_19kb.substring(_19kb.length() - last), rsp.body().string());
+      });
+      client.header("Range", "bytes=0-" + last);
+      client.get("/range", rsp -> {
+        assertEquals("bytes", rsp.header("accept-ranges"));
+        assertEquals("bytes 0-" + last + "/18944", rsp.header("content-range"));
+        assertEquals(Integer.toString(last + 1), rsp.header("content-length"));
+        assertEquals(206, rsp.code());
+        assertEquals(_19kb.substring(0, last + 1), rsp.body().string());
+      });
     });
   }
 

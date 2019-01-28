@@ -25,6 +25,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
+import io.netty.handler.stream.ChunkedInput;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.util.ReferenceCounted;
 import io.jooby.Throwing;
@@ -306,11 +307,11 @@ public class NettyContext implements Context, ChannelFutureListener {
     try {
       ifSetChunked();
       long len = responseLength();
-      ChunkedStream chunkedStream;
+      ChunkedInput chunkedStream;
       if (len > 0) {
         ByteRange range = ByteRange.parse(req.headers().get(RANGE)).apply(this, len);
         in.skip(range.start);
-        chunkedStream = new ChunkedStream(Functions.limit(in, range.end));
+        chunkedStream = new ChunkedLimitedStream(in, bufferSize, range.end);
       } else {
         chunkedStream = new ChunkedStream(in, bufferSize);
       }
@@ -326,7 +327,7 @@ public class NettyContext implements Context, ChannelFutureListener {
         ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
       });
       return this;
-    } catch (IOException x) {
+    } catch (Exception x) {
       throw Throwing.sneakyThrow(x);
     }
   }
