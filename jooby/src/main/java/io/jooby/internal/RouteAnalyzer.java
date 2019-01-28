@@ -15,7 +15,7 @@
  */
 package io.jooby.internal;
 
-import io.jooby.Route;
+import io.jooby.Context;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.asm.Lambdas;
 import io.jooby.internal.asm.MethodFinder;
@@ -26,6 +26,7 @@ import org.objectweb.asm.ClassReader;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 public class RouteAnalyzer {
 
@@ -39,9 +40,9 @@ public class RouteAnalyzer {
     this.debug = debug;
   }
 
-  public java.lang.reflect.Type returnType(Route.Handler handler) {
+  public java.lang.reflect.Type returnType(Object handler) {
     try {
-      Method method = Lambdas.getLambdaMethod(handler);
+      Method method = methodHandler(handler);
       if (method == null) {
         return Object.class;
       }
@@ -67,7 +68,34 @@ public class RouteAnalyzer {
     }
   }
 
+  private Method methodHandler(Object handler) throws Exception {
+    Method result = Lambdas.getLambdaMethod(handler);
+    if (result == null) {
+      Method[] methods = handler.getClass().getDeclaredMethods();
+      for (Method method : methods) {
+        Parameter[] parameters = method.getParameters();
+        String name = method.getName();
+        if ((parameters.length == 1 && parameters[0].getType() == Context.class) &&
+            (name.equals("apply") || name.equals("invoke"))) {
+          if (result == null) {
+            result = method;
+          } else {
+            // choose more specific return type
+            if (result.getReturnType() == Object.class) {
+              result = method;
+            }
+          }
+        }
+      }
+    }
+    return result;
+  }
+
   public ClassLoader getClassLoader() {
     return typeParser.getClassLoader();
+  }
+
+  public void release() {
+    source.destroy();
   }
 }

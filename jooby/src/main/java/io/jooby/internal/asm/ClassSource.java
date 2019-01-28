@@ -42,5 +42,7 @@ public class ClassSource {
 
   public void destroy() {
     bytecode.clear();
+    bytecode = null;
+    loader = null;
   }
 }

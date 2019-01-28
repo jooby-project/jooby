@@ -99,6 +99,8 @@ public class Route {
 
   private Type returnType;
 
+  private Object handle;
+
   public Route(@Nonnull String method, @Nonnull String pattern, @Nonnull List<String> pathKeys,
       @Nonnull Type returnType, @Nonnull Handler handler, @Nonnull Handler pipeline,
       @Nonnull Renderer renderer, @Nonnull Map<String, Parser> parsers) {
@@ -110,6 +112,7 @@ public class Route {
     this.renderer = renderer;
     this.pathKeys = pathKeys;
     this.parsers = parsers;
+    this.handle = handler;
   }
 
   public Route(@Nonnull String method, @Nonnull String pattern, @Nonnull Type returnType,
@@ -136,6 +139,15 @@ public class Route {
 
   public @Nonnull Handler pipeline() {
     return pipeline;
+  }
+
+  public Object handle() {
+    return handle;
+  }
+
+  Route handle(Object handle) {
+    this.handle = handle;
+    return this;
   }
 
   public @Nonnull Route pipeline(Route.Handler pipeline) {

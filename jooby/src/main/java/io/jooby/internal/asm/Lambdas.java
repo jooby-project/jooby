@@ -46,7 +46,7 @@ public class Lambdas {
   }
 
   // getting the synthetic static lambda method
-  public static Method getLambdaMethod(Serializable function) throws Exception {
+  public static Method getLambdaMethod(Object function) throws Exception {
     SerializedLambda lambda = getSerializedLambda(function);
     if (lambda != null) {
       String implClassName = lambda.getImplClass().replace('/', '.');

@@ -46,10 +46,19 @@ public class MethodFinder extends ClassVisitor {
     if (this.name.equals(name) && this.descriptor.equals(descriptor)) {
       this.node = new MethodNode(access, name, descriptor, signature, exceptions);
       if (debug) {
-        printer = new ASMifier();
+        if (printer == null) {
+          printer = new ASMifier();
+        }
         return new TraceMethodVisitor(this.node, printer);
       }
       return this.node;
+    } else {
+      if (debug) {
+        if (printer == null) {
+          printer = new ASMifier();
+        }
+        return new TraceMethodVisitor(this.node, printer);
+      }
     }
     return up;
   }

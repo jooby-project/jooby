@@ -16,7 +16,6 @@
 package io.jooby.internal;
 
 import io.jooby.ErrorHandler;
-import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.Context;
 import io.jooby.Err;
@@ -33,17 +32,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
-import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -331,7 +327,7 @@ public class RouterImpl implements Router {
       }
       /** Return type: */
       if (route.returnType() == null) {
-        route.returnType(analyzer.returnType(route.handler()));
+        route.returnType(analyzer.returnType(route.handle()));
       }
       Route.Handler pipeline = Pipeline.compute(analyzer.getClassLoader(), route, mode, executor);
       route.pipeline(pipeline);
@@ -340,6 +336,7 @@ public class RouterImpl implements Router {
     this.stack = null;
     routeExecutor.clear();
     routeExecutor = null;
+    analyzer.release();
     return this;
   }
 
