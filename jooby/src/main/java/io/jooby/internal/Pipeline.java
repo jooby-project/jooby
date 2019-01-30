@@ -20,6 +20,7 @@ import io.jooby.ExecutionMode;
 import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.Route.Handler;
+import io.jooby.internal.handler.KotlinJobHandler;
 import io.jooby.internal.handler.SendByteArray;
 import io.jooby.internal.handler.SendByteBuf;
 import io.jooby.internal.handler.SendByteBuffer;
@@ -111,6 +112,20 @@ public class Pipeline {
         return reactorMono(mode, route, executor);
       }
     }
+    /** Kotlin: */
+    Optional<Class> deferred = loadClass(loader, "kotlinx.coroutines.Deferred");
+    if (deferred.isPresent()) {
+      if (deferred.get().isAssignableFrom(type)) {
+        return kotlinJob(mode, route, executor);
+      }
+    }
+    Optional<Class> job = loadClass(loader, "kotlinx.coroutines.Job");
+    if (job.isPresent()) {
+      if (job.get().isAssignableFrom(type)) {
+        return kotlinJob(mode, route, executor);
+      }
+    }
+
     /** Flow API + ReactiveStream: */
     Optional<Class> publisher = loadClass(loader, "org.reactivestreams.Publisher");
     if (publisher.isPresent()) {
@@ -185,6 +200,11 @@ public class Pipeline {
 
   private static Handler reactorMono(ExecutionMode mode, Route next, Executor executor) {
     return next(mode, executor, new DetachHandler(new ReactorMonoHandler(next.pipeline())),
+        false);
+  }
+
+  private static Handler kotlinJob(ExecutionMode mode, Route next, Executor executor) {
+    return next(mode, executor, new DetachHandler(new KotlinJobHandler(next.pipeline())),
         false);
   }
 
