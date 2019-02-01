@@ -104,8 +104,8 @@ public class TypeParser {
           return Object.class;
         default:
           Class<?> result;
-          if (name.startsWith("[")) {
-            result = Class.forName(name, false, loader);
+          if (classname.startsWith("[")) {
+            result = Class.forName(classname, false, loader);
           } else {
             result = loader.loadClass(classname);
           }

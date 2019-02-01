@@ -33,7 +33,6 @@ import io.jooby.internal.handler.SendStream;
 import io.jooby.internal.handler.SendDirect;
 import io.jooby.internal.handler.reactive.ReactivePublisherHandler;
 import io.jooby.internal.handler.DispatchHandler;
-import io.jooby.internal.handler.reactive.JavaFlowPublisher;
 import io.jooby.internal.handler.reactive.ReactorFluxHandler;
 import io.jooby.internal.handler.reactive.RxMaybeHandler;
 import io.jooby.internal.handler.reactive.ReactorMonoHandler;
@@ -51,7 +50,6 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Flow;
 
 public class Pipeline {
 
@@ -132,15 +130,12 @@ public class Pipeline {
       }
     }
 
-    /** Flow API + ReactiveStream: */
+    /** ReactiveStream: */
     Optional<Class> publisher = loadClass(loader, "org.reactivestreams.Publisher");
     if (publisher.isPresent()) {
       if (publisher.get().isAssignableFrom(type)) {
         return reactivePublisher(mode, route, executor);
       }
-    }
-    if (Flow.Publisher.class.isAssignableFrom(type)) {
-      return javaFlowPublisher(mode, route, executor);
     }
     /** Context: */
     if (Context.class.isAssignableFrom(type)) {
@@ -216,11 +211,6 @@ public class Pipeline {
 
   private static Handler kotlinContinuation(ExecutionMode mode, Route next, Executor executor) {
     return next(mode, executor, new DetachHandler(next.pipeline()), false);
-  }
-
-  private static Handler javaFlowPublisher(ExecutionMode mode, Route next, Executor executor) {
-    return next(mode, executor,
-        new DetachHandler(new JavaFlowPublisher(next.pipeline())), false);
   }
 
   private static Handler single(ExecutionMode mode, Route next, Executor executor) {

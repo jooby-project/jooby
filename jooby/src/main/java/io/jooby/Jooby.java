@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -490,6 +491,14 @@ public class Jooby implements Router {
         }
         iterator.remove();
       }
+    }
+  }
+
+  private static long pid() {
+    try {
+      return Long.parseLong(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
+    } catch (Exception e) {
+      return -1;
     }
   }
 }

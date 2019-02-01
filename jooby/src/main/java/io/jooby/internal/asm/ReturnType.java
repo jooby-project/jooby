@@ -88,7 +88,7 @@ public class ReturnType extends MethodVisitor {
                 MethodInsnNode invokeSpecial = (MethodInsnNode) previous;
                 Class owner = typeParser.resolve(invokeSpecial.owner);
                 Class[] args = Stream.of(Type.getArgumentTypes(invokeSpecial.desc))
-                    .map(e -> typeParser.resolve(e.getClassName()))
+                    .map(e -> typeParser.resolve(e.getInternalName()))
                     .toArray(Class[]::new);
                 Method reference = owner.getDeclaredMethod(invokeSpecial.name, args);
                 return reference.getGenericReturnType();

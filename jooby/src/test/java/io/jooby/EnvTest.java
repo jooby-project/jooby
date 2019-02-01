@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -25,7 +26,7 @@ public class EnvTest {
       assertEquals(asList("a", "b", "c"), env.get("letters").toList());
     });
 
-    env("foo", Map.of("application.env", "PROD"), env -> {
+    env("foo", mapOf("application.env", "PROD"), env -> {
       assertEquals("prod", env.name());
       assertEquals("bazz", env.get("foo").value());
       assertEquals(asList("a", "b", "c"), env.get("letters").toList());
@@ -39,18 +40,18 @@ public class EnvTest {
   @Test
   public void objectLookup() {
 
-    Env env = Env.build(new Env.PropertySource("test", Map.of("h.pool", "1", "h.db.pool", "2")));
+    Env env = Env.build(new Env.PropertySource("test", mapOf("h.pool", "1", "h.db.pool", "2")));
 
     assertEquals("1", env.get("h.pool").value());
     assertEquals("2", env.get("h.db.pool").value());
-    assertEquals(Map.of("db.pool", "2"), env.get("h.db").toMap());
+    assertEquals(mapOf("db.pool", "2"), env.get("h.db").toMap());
   }
 
   @Test
   public void args() {
     Env.PropertySource args = Env.parse("foo", " bar = ");
     assertEquals("args", args.name());
-    assertEquals(Map.of("application.env", "foo", "bar", ""), args.properties());
+    assertEquals(mapOf("application.env", "foo", "bar", ""), args.properties());
 
     assertEquals(Collections.emptyMap(), Env.parse().properties());
     assertEquals(Collections.emptyMap(), Env.parse((String[]) null).properties());
@@ -70,5 +71,13 @@ public class EnvTest {
     List<String> result = new ArrayList<>();
     args.forEach((k, v) -> result.add(k + "=" + v));
     return result.toArray(new String[result.size()]);
+  }
+
+  private Map<String, String> mapOf(String... values) {
+    Map<String, String> hash = new HashMap<>();
+    for (int i = 0; i < values.length; i += 2) {
+      hash.put(values[i], values[i + 1]);
+    }
+    return hash;
   }
 }

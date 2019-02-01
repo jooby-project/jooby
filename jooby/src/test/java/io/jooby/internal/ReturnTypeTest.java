@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Flow;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -125,31 +124,6 @@ public class ReturnTypeTest {
     assertType(Reified.getParameterized(Callable.class, Object.class), ctx ->
         (Callable) () -> new ReturnTypeTest()
     );
-  }
-
-  @Test
-  public void flowPublisher() {
-    assertType(Reified.getParameterized(Flow.Publisher.class, Float.class), ctx -> {
-      Flow.Publisher<Float> publisher = subscriber -> {
-      };
-      return publisher;
-    });
-
-    assertType(Reified.getParameterized(Flow.Publisher.class, Number.class),
-        ctx -> newPublisher());
-
-    assertType(Reified.getParameterized(Flow.Publisher.class, String.class),
-        ctx -> newPublisher(ctx.query("q").value()));
-  }
-
-  private Flow.Publisher<Number> newPublisher() {
-    return subscriber -> {
-    };
-  }
-
-  private Flow.Publisher<String> newPublisher(String value) {
-    return subscriber -> {
-    };
   }
 
   @Test

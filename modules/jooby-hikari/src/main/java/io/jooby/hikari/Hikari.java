@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
@@ -35,6 +36,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Hikari implements Extension {
 
@@ -148,7 +151,8 @@ public class Hikari implements Extension {
 
   private static final String DATASOURCE_CLASS_NAME = "dataSourceClassName";
 
-  private static final Set<String> SKIP_TOKENS = Set.of("jdbc", "jtds");
+  private static final Set<String> SKIP_TOKENS = Stream.of("jdbc", "jtds")
+      .collect(Collectors.toSet());
 
   private HikariConfig hikari;
 

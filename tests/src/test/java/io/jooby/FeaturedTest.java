@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -706,7 +707,7 @@ public class FeaturedTest {
         });
 
         app.get("/", ctx -> {
-          return Arrays.asList(Map.of("message", "fooo"));
+          return Arrays.asList(mapOf("message", "fooo"));
         });
       });
     }).ready(client -> {
@@ -732,16 +733,16 @@ public class FeaturedTest {
     new JoobyRunner(app -> {
       app.renderer((TemplateEngine) (ctx, modelAndView) -> modelAndView.view + modelAndView.model);
 
-      app.get("/map", ctx -> Map.of("k", "v"));
+      app.get("/map", ctx -> mapOf("k", "v"));
 
       app.get("/view", ctx ->
-          new ModelAndView("view", Map.of("k", "v"))
+          new ModelAndView("view", mapOf("k", "v"))
       );
 
       app.get("/", ctx ->
           new ContentNegotiation()
-              .accept(io.jooby.MediaType.json, () -> Map.of("k", "v"))
-              .accept(html, () -> new ModelAndView("view", Map.of("k", "v")))
+              .accept(io.jooby.MediaType.json, () -> mapOf("k", "v"))
+              .accept(html, () -> new ModelAndView("view", mapOf("k", "v")))
               .render(ctx)
       );
     }).ready(client -> {
@@ -1680,5 +1681,13 @@ public class FeaturedTest {
       transferred += nRead;
     }
     return transferred;
+  }
+
+  private Map<String, Object> mapOf(String... values) {
+    Map<String, Object> hash = new HashMap<>();
+    for (int i = 0; i < values.length; i += 2) {
+      hash.put(values[i], values[i + 1]);
+    }
+    return hash;
   }
 }

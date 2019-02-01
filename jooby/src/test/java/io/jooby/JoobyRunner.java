@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import static java.util.Spliterators.spliteratorUnknownSize;
+import static java.util.stream.StreamSupport.stream;
 
 public class JoobyRunner {
 
@@ -56,8 +60,13 @@ public class JoobyRunner {
     }
     List<Supplier<Server>> serverList = new ArrayList<>();
     if (servers.length == 0) {
-      ServiceLoader.load(Server.class).stream()
-          .forEach(provider -> serverList.add(() -> provider.get()));
+      stream(
+          spliteratorUnknownSize(
+              ServiceLoader.load(Server.class).iterator(),
+              Spliterator.ORDERED),
+          false)
+          .map(Server::getClass)
+          .forEach(server -> serverList.add(Throwing.throwingSupplier(server::newInstance)));
     } else {
       serverList.addAll(Arrays.asList(servers));
     }
