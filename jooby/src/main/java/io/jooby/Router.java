@@ -85,6 +85,8 @@ public interface Router {
 
   @Nonnull Router worker(@Nonnull Executor worker);
 
+  @Nonnull Router defaultWorker(@Nonnull Executor worker);
+
   @Nonnull Router decorate(@Nonnull Route.Decorator decorator);
 
   @Nonnull Router before(@Nonnull Route.Before before);

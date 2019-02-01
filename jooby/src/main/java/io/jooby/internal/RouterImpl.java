@@ -26,7 +26,6 @@ import io.jooby.Renderer;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.StatusCode;
-import io.jooby.Usage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,9 +97,6 @@ public class RouterImpl implements Router {
     }
   }
 
-  private static final Executor WORKER_MARK = command -> {
-  };
-
   private ErrorHandler err;
 
   private Map<String, StatusCode> errorCodes;
@@ -123,7 +119,7 @@ public class RouterImpl implements Router {
 
   private RouteAnalyzer analyzer;
 
-  private Executor worker;
+  private Executor worker = new ForwardingExecutor();
 
   private Map<Route, Executor> routeExecutor = new HashMap<>();
 
@@ -212,14 +208,20 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Executor worker() {
-    if (worker == null) {
-      throw new Usage("Worker is not ready");
-    }
     return worker;
   }
 
   @Nonnull @Override public Router worker(Executor worker) {
-    this.worker = worker;
+    ForwardingExecutor workerRef = (ForwardingExecutor) this.worker;
+    workerRef.executor = worker;
+    return this;
+  }
+
+  @Nonnull @Override public Router defaultWorker(@Nonnull Executor worker) {
+    ForwardingExecutor workerRef = (ForwardingExecutor) this.worker;
+    if (workerRef.executor == null) {
+      workerRef.executor = worker;
+    }
     return this;
   }
 
@@ -243,7 +245,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router dispatch(@Nonnull Runnable action) {
-    return newStack(push().executor(worker == null ? WORKER_MARK : worker), action);
+    return newStack(push().executor(worker), action);
   }
 
   @Nonnull @Override public Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
@@ -322,8 +324,8 @@ public class RouterImpl implements Router {
     ExecutionMode mode = owner.mode();
     for (Route route : routes) {
       Executor executor = routeExecutor.get(route);
-      if (executor == WORKER_MARK) {
-        executor = owner.worker();
+      if (executor instanceof ForwardingExecutor) {
+        executor = ((ForwardingExecutor) executor).executor;
       }
       /** Return type: */
       if (route.returnType() == null) {
@@ -332,6 +334,8 @@ public class RouterImpl implements Router {
       Route.Handler pipeline = Pipeline.compute(analyzer.getClassLoader(), route, mode, executor);
       route.pipeline(pipeline);
     }
+    // unwrap executor
+    worker = ((ForwardingExecutor) worker).executor;
     this.stack.forEach(Stack::clear);
     this.stack = null;
     routeExecutor.clear();

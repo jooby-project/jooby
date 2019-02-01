@@ -242,6 +242,11 @@ public class Jooby implements Router {
     return this;
   }
 
+  @Nonnull @Override public Jooby defaultWorker(@Nonnull Executor worker) {
+    this.router.defaultWorker(worker);
+    return this;
+  }
+
   /** Log: */
   public Logger log() {
     return LoggerFactory.getLogger(getClass());

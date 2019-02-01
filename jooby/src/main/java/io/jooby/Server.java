@@ -29,19 +29,9 @@ public interface Server {
 
     private AtomicBoolean stopping = new AtomicBoolean();
 
-    protected void fireStart(List<Jooby> applications, Supplier<Executor> workerProvider) {
-      Executor serverWorker = null;
+    protected void fireStart(List<Jooby> applications, Executor defaultWorker) {
       for (Jooby app : applications) {
-        try {
-          app.worker();
-        } catch (Usage workerNotReady) {
-          if (serverWorker == null) {
-            // server worker is shared between app
-            serverWorker = workerProvider.get();
-          }
-          app.worker(serverWorker);
-        }
-        app.start(this);
+        app.defaultWorker(defaultWorker).start(this);
       }
     }
 

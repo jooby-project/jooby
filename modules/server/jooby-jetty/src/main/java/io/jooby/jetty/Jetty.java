@@ -89,7 +89,7 @@ public class Jetty extends io.jooby.Server.Base {
     QueuedThreadPool executor = new QueuedThreadPool(64);
     executor.setName("jetty-worker");
 
-    fireStart(applications, () -> executor);
+    fireStart(applications, executor);
 
     this.server = new Server(executor);
     server.setStopAtShutdown(false);

@@ -101,8 +101,8 @@ public class Utow extends Server.Base {
         .build();
 
     server.start();
-    // NOT IDEAL, but we need to fire onStart after server.start and got access to Worker
-    fireStart(applications, server::getWorker);
+    // NOT IDEAL, but we need to fire onStart after server.start to get access to Worker
+    fireStart(applications, server.getWorker());
 
     fireReady(applications);
 

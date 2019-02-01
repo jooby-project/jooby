@@ -98,8 +98,9 @@ public class Netty extends Server.Base {
 
       int threads = Math.max(Runtime.getRuntime().availableProcessors(), 2);
       int workerThreads = threads * 8;
-      fireStart(applications, () -> worker = new DefaultEventExecutorGroup(workerThreads,
-          new DefaultThreadFactory("netty-worker")));
+      worker = new DefaultEventExecutorGroup(workerThreads,
+          new DefaultThreadFactory("netty-worker"));
+      fireStart(applications, worker);
 
       /** Disk attributes: */
       if (applications.size() == 1) {
