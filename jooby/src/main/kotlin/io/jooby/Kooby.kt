@@ -1,7 +1,7 @@
 package io.jooby
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -13,7 +13,7 @@ import kotlin.coroutines.CoroutineContext
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
 annotation class RouterDsl
 
-internal class JoobyCoroutineScope(coroutineContext: CoroutineContext) : CoroutineScope {
+internal class WorkerCoroutineScope(coroutineContext: CoroutineContext) : CoroutineScope {
   override val coroutineContext = coroutineContext
 }
 
@@ -21,103 +21,125 @@ class ContextRef(val ctx: Context)
 
 open class Kooby constructor() : Jooby() {
 
-  val workerScope: CoroutineScope by lazy {
-    val dispatcher: CoroutineDispatcher = worker().asCoroutineDispatcher()
-    JoobyCoroutineScope(dispatcher)
-  }
+  private val coroutineScope: CoroutineScope = WorkerCoroutineScope(worker().asCoroutineDispatcher())
 
   constructor(init: Kooby.() -> Unit) : this() {
     this.init()
   }
 
   @RouterDsl
-  @ExperimentalCoroutinesApi
-  fun get(pattern: String = "/",
-          coroutineScope: CoroutineScope? = null,
-          handler: suspend ContextRef.() -> Any): Route {
+  fun get(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+    return get(pattern, coroutineScope, handler)
+  }
+
+  @RouterDsl
+  fun get(pattern: String = "/", coroutineScope: CoroutineScope, handler: suspend ContextRef.() -> Any): Route {
     return route(Router.GET, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  @ExperimentalCoroutinesApi
-  fun post(pattern: String = "/",
-          coroutineScope: CoroutineScope? = null,
-          handler: suspend ContextRef.() -> Any): Route {
+  fun post(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+    return post(pattern, coroutineScope, handler)
+  }
+
+  @RouterDsl
+  fun post(pattern: String = "/", coroutineScope: CoroutineScope, handler: suspend ContextRef.() -> Any): Route {
     return route(Router.POST, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  @ExperimentalCoroutinesApi
-  fun put(pattern: String = "/",
-           coroutineScope: CoroutineScope? = null,
-           handler: suspend ContextRef.() -> Any): Route {
+  fun put(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+    return put(pattern, coroutineScope, handler)
+  }
+
+  @RouterDsl
+  fun put(pattern: String = "/", coroutineScope: CoroutineScope, handler: suspend ContextRef.() -> Any): Route {
     return route(Router.PUT, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  @ExperimentalCoroutinesApi
-  fun delete(pattern: String = "/",
-          coroutineScope: CoroutineScope? = null,
-          handler: suspend ContextRef.() -> Any): Route {
+  fun delete(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+    return delete(pattern, coroutineScope, handler)
+  }
+
+  @RouterDsl
+  fun delete(pattern: String = "/", coroutineScope: CoroutineScope, handler: suspend ContextRef.() -> Any): Route {
     return route(Router.DELETE, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  @ExperimentalCoroutinesApi
-  fun patch(pattern: String = "/",
-             coroutineScope: CoroutineScope? = null,
-             handler: suspend ContextRef.() -> Any): Route {
+  fun patch(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+    return patch(pattern, coroutineScope, handler)
+  }
+
+  @RouterDsl
+  fun patch(pattern: String = "/", coroutineScope: CoroutineScope, handler: suspend ContextRef.() -> Any): Route {
     return route(Router.PATCH, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  @ExperimentalCoroutinesApi
-  fun head(pattern: String = "/",
-            coroutineScope: CoroutineScope? = null,
-            handler: suspend ContextRef.() -> Any): Route {
+  fun head(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+    return head(pattern, coroutineScope, handler)
+  }
+
+  @RouterDsl
+  fun head(pattern: String = "/", coroutineScope: CoroutineScope, handler: suspend ContextRef.() -> Any): Route {
     return route(Router.HEAD, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  @ExperimentalCoroutinesApi
-  fun trace(pattern: String = "/",
-            coroutineScope: CoroutineScope? = null,
-            handler: suspend ContextRef.() -> Any): Route {
+  fun trace(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+    return trace(pattern, coroutineScope, handler)
+  }
+
+  @RouterDsl
+  fun trace(pattern: String = "/", coroutineScope: CoroutineScope, handler: suspend ContextRef.() -> Any): Route {
     return route(Router.TRACE, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  @ExperimentalCoroutinesApi
-  fun options(pattern: String = "/",
-            coroutineScope: CoroutineScope? = null,
-            handler: suspend ContextRef.() -> Any): Route {
+  fun options(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+    return options(pattern, coroutineScope, handler)
+  }
+
+  @RouterDsl
+  fun options(pattern: String = "/", coroutineScope: CoroutineScope, handler: suspend ContextRef.() -> Any): Route {
     return route(Router.OPTIONS, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  @ExperimentalCoroutinesApi
-  fun connect(pattern: String = "/",
-              coroutineScope: CoroutineScope? = null,
-              handler: suspend ContextRef.() -> Any): Route {
+  fun connect(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+    return connect(pattern, coroutineScope, handler)
+  }
+
+  @RouterDsl
+  fun connect(pattern: String = "/", coroutineScope: CoroutineScope, handler: suspend ContextRef.() -> Any): Route {
     return route(Router.CONNECT, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  @ExperimentalCoroutinesApi
-  fun route(method: String, pattern: String,
-            coroutineScope: CoroutineScope? = null,
+  fun route(method: String, pattern: String, handler: suspend ContextRef.() -> Any): Route {
+    return route(method, pattern, coroutineScope, handler)
+  }
+
+  @RouterDsl
+  fun route(method: String, pattern: String, coroutineScope: CoroutineScope,
             handler: suspend ContextRef.() -> Any): Route {
     return route(method, pattern) { ctx ->
       val xhandler = CoroutineExceptionHandler { _, x ->
         ctx.sendError(x)
       }
-      (coroutineScope ?: workerScope).launch(xhandler) {
+      coroutineScope.launch(ContextCoroutineName + xhandler) {
         val result = ContextRef(ctx).handler()
         if (result != ctx) {
           ctx.render(result)
         }
       }
     }.handle(handler)
+  }
+
+  companion object {
+    private val ContextCoroutineName = CoroutineName("ctx")
   }
 }
 
