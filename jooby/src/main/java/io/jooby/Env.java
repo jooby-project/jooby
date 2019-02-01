@@ -19,6 +19,7 @@ import javax.annotation.Nonnull;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -190,6 +191,11 @@ public class Env extends Value.Object {
     Map<String, String> defaultMap = new HashMap<>();
     defaultMap.put("application.tmpdir", tmpdir);
     defaultMap.put("server.maxRequestSize", Integer.toString(Server._10MB));
+    String pid = pid();
+    if (pid != null) {
+      System.setProperty("PID", pid);
+      defaultMap.put("pid", pid);
+    }
 
     return new PropertySource("defaults", defaultMap);
   }
@@ -256,5 +262,17 @@ public class Env extends Value.Object {
       }
     }
     return defaults;
+  }
+
+  private static String pid() {
+    String pid = System.getenv().getOrDefault("PID", System.getProperty("PID"));
+    if (pid == null) {
+      pid = ManagementFactory.getRuntimeMXBean().getName();
+      int i = pid.indexOf("@");
+      if (i > 0) {
+        pid = pid.substring(0, i);
+      }
+    }
+    return pid;
   }
 }
