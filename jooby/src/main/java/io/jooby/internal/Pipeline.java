@@ -125,6 +125,12 @@ public class Pipeline {
         return kotlinJob(mode, route, executor);
       }
     }
+    Optional<Class> continuation = loadClass(loader, "kotlin.coroutines.Continuation");
+    if (continuation.isPresent()) {
+      if (continuation.get().isAssignableFrom(type)) {
+        return kotlinContinuation(mode, route, executor);
+      }
+    }
 
     /** Flow API + ReactiveStream: */
     Optional<Class> publisher = loadClass(loader, "org.reactivestreams.Publisher");
@@ -206,6 +212,10 @@ public class Pipeline {
   private static Handler kotlinJob(ExecutionMode mode, Route next, Executor executor) {
     return next(mode, executor, new DetachHandler(new KotlinJobHandler(next.pipeline())),
         false);
+  }
+
+  private static Handler kotlinContinuation(ExecutionMode mode, Route next, Executor executor) {
+    return next(mode, executor, new DetachHandler(next.pipeline()), false);
   }
 
   private static Handler javaFlowPublisher(ExecutionMode mode, Route next, Executor executor) {

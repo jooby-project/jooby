@@ -25,11 +25,13 @@ import io.jooby.Throwing;
 import org.objectweb.asm.ClassReader;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 public class RouteAnalyzer {
 
+  private static final String CONTINUATION = "kotlin.coroutines.Continuation";
   private final TypeParser typeParser;
   private ClassSource source;
   private boolean debug;
@@ -71,12 +73,12 @@ public class RouteAnalyzer {
   private Method methodHandler(Object handler) throws Exception {
     Method result = Lambdas.getLambdaMethod(handler);
     if (result == null) {
+      // Kotlin?
       Method[] methods = handler.getClass().getDeclaredMethods();
+      Field[] fields = handler.getClass().getDeclaredFields();
+      System.out.println(fields);
       for (Method method : methods) {
-        Parameter[] parameters = method.getParameters();
-        String name = method.getName();
-        if ((parameters.length == 1 && parameters[0].getType() == Context.class) &&
-            (name.equals("apply") || name.equals("invoke"))) {
+        if (isKotlinApply(method) || isKotlinInvoke(method) || isKotlinContinuation(method)) {
           if (result == null) {
             result = method;
           } else {
@@ -97,5 +99,32 @@ public class RouteAnalyzer {
 
   public void release() {
     source.destroy();
+  }
+
+  private boolean isKotlinApply(Method method) {
+    return isContextFunction(method, "apply");
+  }
+
+  private boolean isKotlinInvoke(Method method) {
+    return isContextFunction(method, "invoke");
+  }
+
+  private boolean isKotlinContinuation(Method method) {
+    if (method.getName().equals("create") && method.getReturnType().getName()
+        .equals(CONTINUATION)) {
+      Parameter[] parameters = method.getParameters();
+      if (parameters.length > 0) {
+        return parameters[parameters.length - 1].getType().getName().equals(CONTINUATION);
+      }
+    }
+    return false;
+  }
+
+  private boolean isContextFunction(Method method, String name) {
+    if (method.getName().equals(name)) {
+      Parameter[] parameters = method.getParameters();
+      return parameters.length == 1 && parameters[0].getType() == Context.class;
+    }
+    return false;
   }
 }

@@ -1,10 +1,10 @@
 package io.jooby
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
@@ -17,23 +17,7 @@ internal class JoobyCoroutineScope(coroutineContext: CoroutineContext) : Corouti
   override val coroutineContext = coroutineContext
 }
 
-open class CoroutineRouter (val router: Kooby) {
-  @RouterDsl
-  fun get(pattern: String = "/", coroutineScope: CoroutineScope? = null,
-          coroutineStart: CoroutineStart = CoroutineStart.UNDISPATCHED,
-          block: suspend Context.() -> Any): Route {
-    return router.get(pattern) { ctx ->
-      (coroutineScope ?: router.workerScope).launch(ContextCoroutineName, coroutineStart) {
-        val result = ctx.block()
-        ctx.render(result)
-      }
-    }.returnType(Job::class.java)
-  }
-
-  companion object {
-    private val ContextCoroutineName = CoroutineName("ctx-handler")
-  }
-}
+class ContextRef(val ctx: Context)
 
 open class Kooby constructor() : Jooby() {
 
@@ -47,58 +31,93 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun coroutine(init: CoroutineRouter.() -> Unit): Kooby {
-    CoroutineRouter(this).init()
-    return this
+  @ExperimentalCoroutinesApi
+  fun get(pattern: String = "/",
+          coroutineScope: CoroutineScope? = null,
+          handler: suspend ContextRef.() -> Any): Route {
+    return route(Router.GET, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  fun get(pattern: String = "/", init: Context.() -> Any): Route {
-    return get(pattern) { ctx -> ctx.init() }.handle(init)
+  @ExperimentalCoroutinesApi
+  fun post(pattern: String = "/",
+          coroutineScope: CoroutineScope? = null,
+          handler: suspend ContextRef.() -> Any): Route {
+    return route(Router.POST, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  fun post(pattern: String = "/", init: Context.() -> Any): Route {
-    return post(pattern) { ctx -> ctx.init() }.handle(init)
+  @ExperimentalCoroutinesApi
+  fun put(pattern: String = "/",
+           coroutineScope: CoroutineScope? = null,
+           handler: suspend ContextRef.() -> Any): Route {
+    return route(Router.PUT, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  fun put(pattern: String = "/", init: Context.() -> Any): Route {
-    return put(pattern) { ctx -> ctx.init() }.handle(init)
+  @ExperimentalCoroutinesApi
+  fun delete(pattern: String = "/",
+          coroutineScope: CoroutineScope? = null,
+          handler: suspend ContextRef.() -> Any): Route {
+    return route(Router.DELETE, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  fun delete(pattern: String = "/", init: Context.() -> Any): Route {
-    return delete(pattern) { ctx -> ctx.init() }.handle(init)
+  @ExperimentalCoroutinesApi
+  fun patch(pattern: String = "/",
+             coroutineScope: CoroutineScope? = null,
+             handler: suspend ContextRef.() -> Any): Route {
+    return route(Router.PATCH, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  fun patch(pattern: String = "/", init: Context.() -> Any): Route {
-    return patch(pattern) { ctx -> ctx.init() }.handle(init)
+  @ExperimentalCoroutinesApi
+  fun head(pattern: String = "/",
+            coroutineScope: CoroutineScope? = null,
+            handler: suspend ContextRef.() -> Any): Route {
+    return route(Router.HEAD, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  fun head(pattern: String = "/", init: Context.() -> Any): Route {
-    return head(pattern) { ctx -> ctx.init() }.handle(init)
+  @ExperimentalCoroutinesApi
+  fun trace(pattern: String = "/",
+            coroutineScope: CoroutineScope? = null,
+            handler: suspend ContextRef.() -> Any): Route {
+    return route(Router.TRACE, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  fun trace(pattern: String = "/", init: Context.() -> Any): Route {
-    return trace(pattern) { ctx -> ctx.init() }.handle(init)
+  @ExperimentalCoroutinesApi
+  fun options(pattern: String = "/",
+            coroutineScope: CoroutineScope? = null,
+            handler: suspend ContextRef.() -> Any): Route {
+    return route(Router.OPTIONS, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  fun options(pattern: String = "/", init: Context.() -> Any): Route {
-    return options(pattern) { ctx -> ctx.init() }.handle(init)
+  @ExperimentalCoroutinesApi
+  fun connect(pattern: String = "/",
+              coroutineScope: CoroutineScope? = null,
+              handler: suspend ContextRef.() -> Any): Route {
+    return route(Router.CONNECT, pattern, coroutineScope, handler)
   }
 
   @RouterDsl
-  fun connect(pattern: String = "/", init: Context.() -> Any): Route {
-    return connect(pattern) { ctx -> ctx.init() }.handle(init)
-  }
-
-  companion object {
-    private val ContextCoroutineName = CoroutineName("ctx-handler")
+  @ExperimentalCoroutinesApi
+  fun route(method: String, pattern: String,
+            coroutineScope: CoroutineScope? = null,
+            handler: suspend ContextRef.() -> Any): Route {
+    return route(method, pattern) { ctx ->
+      val xhandler = CoroutineExceptionHandler { _, x ->
+        ctx.sendError(x)
+      }
+      (coroutineScope ?: workerScope).launch(xhandler) {
+        val result = ContextRef(ctx).handler()
+        if (result != ctx) {
+          ctx.render(result)
+        }
+      }
+    }.handle(handler)
   }
 }
 
@@ -112,21 +131,21 @@ open class Kooby constructor() : Jooby() {
  * </pre>
  */
 @RouterDsl
-fun run(mode: ExecutionMode, args: Array<String>, init: Kooby.() -> Unit) {
+fun run(mode: ExecutionMode, vararg args: String, init: Kooby.() -> Unit) {
   Jooby.run({ Kooby(init) }, mode, args)
 }
 
 @RouterDsl
-fun run(args: Array<String>, init: Kooby.() -> Unit) {
+fun run(vararg args: String, init: Kooby.() -> Unit) {
   Jooby.run({ Kooby(init) }, args)
 }
 
 @RouterDsl
-fun run(supplier: () -> Jooby, args: Array<String>) {
+fun run(supplier: () -> Jooby, vararg args: String) {
   Jooby.run(supplier, ExecutionMode.DEFAULT, args)
 }
 
 @RouterDsl
-fun run(supplier: () -> Jooby, mode: ExecutionMode, args: Array<String>) {
+fun run(supplier: () -> Jooby, mode: ExecutionMode, vararg args: String) {
   Jooby.run(supplier, mode, args)
 }
