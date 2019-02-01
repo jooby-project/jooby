@@ -75,8 +75,6 @@ public class RouteAnalyzer {
     if (result == null) {
       // Kotlin?
       Method[] methods = handler.getClass().getDeclaredMethods();
-      Field[] fields = handler.getClass().getDeclaredFields();
-      System.out.println(fields);
       for (Method method : methods) {
         if (isKotlinApply(method) || isKotlinInvoke(method) || isKotlinContinuation(method)) {
           if (result == null) {
