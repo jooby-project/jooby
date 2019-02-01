@@ -79,8 +79,7 @@ public class JoobyRunner {
           }
           Jooby app = this.provider.get().mode(mode);
           server.port(9999)
-              .deploy(app)
-              .start();
+              .start(app);
 
           onReady.accept(new WebClient(9999));
         } finally {

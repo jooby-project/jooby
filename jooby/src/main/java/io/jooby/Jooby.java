@@ -341,9 +341,7 @@ public class Jooby implements Router {
     if (serverConfigurer != null) {
       serverConfigurer.accept(server);
     }
-    return server
-        .deploy(this)
-        .start();
+    return server.start(this);
   }
 
   public Jooby start(Server server) {

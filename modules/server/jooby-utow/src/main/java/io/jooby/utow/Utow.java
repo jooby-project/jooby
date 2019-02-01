@@ -18,7 +18,6 @@ package io.jooby.utow;
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.internal.utow.UtowHandler;
-import io.jooby.internal.utow.UtowMultiHandler;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
@@ -27,6 +26,7 @@ import org.xnio.Options;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Utow extends Server.Base {
@@ -37,11 +37,11 @@ public class Utow extends Server.Base {
 
   private boolean gzip;
 
-  private List<Jooby> applications = new ArrayList<>();
-
   private long maxRequestSize = _10MB;
 
   private int bufferSize = _16KB;
+
+  private List<Jooby> applications = new ArrayList<>();
 
   @Override public Server port(int port) {
     this.port = port;
@@ -67,18 +67,13 @@ public class Utow extends Server.Base {
     return this;
   }
 
-  @Nonnull @Override public Server deploy(Jooby application) {
-    applications.add(application);
-    return this;
-  }
+  @Override public Server start(Jooby application) {
 
-  @Override public Server start() {
+    applications.add(application);
 
     addShutdownHook();
 
-    HttpHandler handler = applications.size() == 1
-        ? new UtowHandler(applications.get(0), bufferSize, maxRequestSize)
-        : new UtowMultiHandler(applications);
+    HttpHandler handler = new UtowHandler(applications.get(0), bufferSize, maxRequestSize);
 
     if (gzip) {
       handler = new EncodingHandler.Builder().build(null).wrap(handler);
@@ -104,7 +99,7 @@ public class Utow extends Server.Base {
     // NOT IDEAL, but we need to fire onStart after server.start to get access to Worker
     fireStart(applications, server.getWorker());
 
-    fireReady(applications);
+    fireReady(Collections.singletonList(application));
 
     return this;
   }

@@ -73,16 +73,13 @@ public class Jetty extends io.jooby.Server.Base {
     return this;
   }
 
-  @Nonnull @Override public io.jooby.Server deploy(Jooby application) {
-    applications.add(application);
-    return this;
-  }
-
-  @Nonnull @Override public io.jooby.Server start() {
+  @Nonnull @Override public io.jooby.Server start(Jooby application) {
     System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
     /** Set max request size attribute: */
     System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize",
         Long.toString(maxRequestSize));
+
+    applications.add(application);
 
     addShutdownHook();
 

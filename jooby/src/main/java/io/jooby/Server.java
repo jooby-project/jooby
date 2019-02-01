@@ -73,9 +73,7 @@ public interface Server {
 
   @Nonnull Server bufferSize(int bufferSize);
 
-  @Nonnull Server deploy(Jooby application);
-
-  @Nonnull Server start();
+  @Nonnull Server start(Jooby application);
 
   @Nonnull default void join() {
     try {

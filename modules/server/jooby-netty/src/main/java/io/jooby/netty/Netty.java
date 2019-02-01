@@ -87,13 +87,10 @@ public class Netty extends Server.Base {
     return port;
   }
 
-  @Nonnull @Override public Server deploy(Jooby application) {
-    applications.add(application);
-    return this;
-  }
-
-  @Nonnull @Override public Server start() {
+  @Nonnull @Override public Server start(Jooby application) {
     try {
+      applications.add(application);
+
       addShutdownHook();
 
       int threads = Math.max(Runtime.getRuntime().availableProcessors(), 2);
@@ -121,13 +118,9 @@ public class Netty extends Server.Base {
 
       /** Handler: */
       HttpDataFactory factory = new DefaultHttpDataFactory(bufferSize);
-      Supplier<ChannelInboundHandler> handler;
 
-      if (applications.size() == 1) {
-        handler = () -> new NettyHandler(applications.get(0), maxRequestSize, bufferSize, factory);
-      } else {
-        handler = () -> new NettyMultiHandler(applications);
-      }
+      Supplier<ChannelInboundHandler> handler = () -> new NettyHandler(applications.get(0),
+          maxRequestSize, bufferSize, factory);
 
       /** Bootstrap: */
       ServerBootstrap bootstrap = new ServerBootstrap();
