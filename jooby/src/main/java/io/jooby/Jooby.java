@@ -362,10 +362,19 @@ public class Jooby implements Router {
 
     fireStarted();
 
-    log.info("{} [{}@{}]\n\n{}\n\nlistening on:\n  http://localhost:{}{}\n",
-        getClass().getSimpleName(),
-        server.getClass().getSimpleName().toLowerCase(), mode.name().toLowerCase(), router,
-        server.port(), router.contextPath());
+    log.info("{} started with:", getClass().getSimpleName());
+
+    log.info("    PID: {}", System.getProperty("PID"));
+    log.info("    port: {}", server.port());
+    log.info("    server: {}", server.getClass().getSimpleName().toLowerCase());
+    log.info("    env: {}", environment.name());
+    log.info("    thread mode: {}", mode.name().toLowerCase());
+    log.info("    user: {}", System.getProperty("user.name"));
+    log.info("    app dir: {}", System.getProperty("user.dir"));
+    log.info("    tmp dir: {}", environment.get("application.tmpdir").value());
+
+    log.info("routes: \n\n{}\n\nlistening on:\n  http://localhost:{}{}\n", router, server.port(),
+        router.contextPath());
     return this;
   }
 
