@@ -15,10 +15,9 @@
  */
 package io.jooby.internal.asm;
 
-import io.jooby.Server;
 import io.jooby.Throwing;
+import org.apache.commons.io.IOUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -35,21 +34,11 @@ public class ClassSource {
   public byte[] byteCode(Class source) {
     return (byte[]) bytecode.computeIfAbsent(source.getName(), k -> {
       try (InputStream in = loader.getResourceAsStream(k.replace(".", "/") + ".class")) {
-        return readAllBytes(in);
+        return IOUtils.toByteArray(in);
       } catch (IOException x) {
         throw Throwing.sneakyThrow(x);
       }
     });
-  }
-
-  private byte[] readAllBytes(InputStream in) throws IOException {
-    ByteArrayOutputStream buffer = new ByteArrayOutputStream(Server._16KB);
-    byte[] data = new byte[Server._16KB];
-    int nRead;
-    while ((nRead = in.read(data, 0, data.length)) != -1) {
-      buffer.write(data, 0, nRead);
-    }
-    return buffer.toByteArray();
   }
 
   public void destroy() {

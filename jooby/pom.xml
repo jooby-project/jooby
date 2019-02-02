@@ -49,12 +49,10 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <executions>
-          <!-- Replacing default-compile as it is treated specially by maven -->
           <execution>
             <id>default-compile</id>
             <phase>none</phase>
           </execution>
-          <!-- Replacing default-testCompile as it is treated specially by maven -->
           <execution>
             <id>default-testCompile</id>
             <phase>none</phase>
@@ -91,12 +89,17 @@
               <artifactSet>
                 <includes>
                   <include>org.ow2.asm:*</include>
+                  <include>commons-io:*</include>
                 </includes>
               </artifactSet>
               <relocations>
                 <relocation>
                   <pattern>org.objectweb.asm</pattern>
                   <shadedPattern>io.jooby.internal.lib.asm</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.commons.io</pattern>
+                  <shadedPattern>io.jooby.internal.lib.commonsio</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
@@ -200,6 +203,13 @@
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm-util</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- commons-io -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
       <optional>true</optional>
     </dependency>
 

@@ -78,7 +78,7 @@ public class Jooby implements Router {
       // TODO: fallback for now, but probablye if we throws a specific error
       environment = Env.defaultEnvironment();
     }
-    tmpdir = Paths.get(environment.get("application.tmpdir").value(), appname(getClass()))
+    tmpdir = Paths.get(environment.get("application.tmpdir").value(), getClass().getName())
         .toAbsolutePath();
   }
 
@@ -88,6 +88,7 @@ public class Jooby implements Router {
 
   public Jooby environment(@Nonnull Env environment) {
     this.environment = environment;
+    this.environment.put("application.tmpdir", tmpdir.toString());
     return this;
   }
 
@@ -453,11 +454,6 @@ public class Jooby implements Router {
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
-  }
-
-  private static String appname(Class<?> clazz) {
-    String[] segments = clazz.getName().split("\\.");
-    return segments.length == 1 ? segments[0] : segments[segments.length - 2];
   }
 
   private void fireStart() {

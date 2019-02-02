@@ -33,6 +33,7 @@
 
     <!-- ASM -->
     <asm.version>7.0</asm.version>
+    <commons-io.version>2.6</commons-io.version>
 
     <!-- Server -->
     <undertow.version>2.0.17.Final</undertow.version>
@@ -320,6 +321,13 @@
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
         <version>${logback-classic.version}</version>
+      </dependency>
+
+      <!-- commons-io -->
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons-io.version}</version>
       </dependency>
 
       <!-- mySQL -->
