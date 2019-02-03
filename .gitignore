@@ -23,5 +23,6 @@ jacoco.exec
 .*.md.html
 node
 dump
-TODO.md
+TODO
 .interp
+tmp

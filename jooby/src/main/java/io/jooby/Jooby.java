@@ -75,11 +75,11 @@ public class Jooby implements Router {
     router = new RouterImpl(new RouteAnalyzer(getClass().getClassLoader(), false));
     environment = ENV.get();
     if (environment == null) {
-      // TODO: fallback for now, but probablye if we throws a specific error
+      // TODO: fallback for now, but probably better if we throws a specific error
       environment = Env.defaultEnvironment();
     }
-    tmpdir = Paths.get(environment.get("application.tmpdir").value(), getClass().getName())
-        .toAbsolutePath();
+    tmpdir = Paths.get(environment.get("application.tmpdir").value()).toAbsolutePath();
+
   }
 
   public Env environment() {
@@ -88,7 +88,9 @@ public class Jooby implements Router {
 
   public Jooby environment(@Nonnull Env environment) {
     this.environment = environment;
-    this.environment.put("application.tmpdir", tmpdir.toString());
+    if (tmpdir == null) {
+      tmpdir = Paths.get(environment.get("application.tmpdir").value()).toAbsolutePath();
+    }
     return this;
   }
 
@@ -372,7 +374,7 @@ public class Jooby implements Router {
     log.info("    thread mode: {}", mode.name().toLowerCase());
     log.info("    user: {}", System.getProperty("user.name"));
     log.info("    app dir: {}", System.getProperty("user.dir"));
-    log.info("    tmp dir: {}", environment.get("application.tmpdir").value());
+    log.info("    tmp dir: {}", tmpdir);
 
     log.info("routes: \n\n{}\n\nlistening on:\n  http://localhost:{}{}\n", router, server.port(),
         router.contextPath());

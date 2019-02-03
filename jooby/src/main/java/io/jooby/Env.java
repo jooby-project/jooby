@@ -187,9 +187,9 @@ public class Env extends Value.Object {
   }
 
   public static PropertySource defaults() {
-    String tmpdir = System.getProperty("java.io.tmpdir");
+    Path tmpdir = Paths.get(System.getProperty("user.dir"), "tmp");
     Map<String, String> defaultMap = new HashMap<>();
-    defaultMap.put("application.tmpdir", tmpdir);
+    defaultMap.put("application.tmpdir", tmpdir.toString());
     defaultMap.put("server.maxRequestSize", Integer.toString(Server._10MB));
     String pid = pid();
     if (pid != null) {
