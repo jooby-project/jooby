@@ -50,7 +50,7 @@ public class AssetHandler implements Route.Handler, Route.Aware {
         asset.release();
         return ctx;
       } else {
-        ctx.header("ETag", asset.etag());
+        ctx.setHeader("ETag", asset.etag());
       }
     }
 
@@ -64,20 +64,20 @@ public class AssetHandler implements Route.Handler, Route.Aware {
           asset.release();
           return ctx;
         }
-        ctx.header("Last-Modified", new Date(lastModified));
+        ctx.setHeader("Last-Modified", new Date(lastModified));
       }
     }
 
     // cache max-age
     if (maxAge > 0) {
-      ctx.header("Cache-Control", "max-age=" + maxAge);
+      ctx.setHeader("Cache-Control", "max-age=" + maxAge);
     }
 
     long length = asset.length();
     if (length != -1) {
-      ctx.responseLength(length);
+      ctx.setContentLength(length);
     }
-    ctx.responseType(asset.type());
+    ctx.setContentType(asset.type());
     return ctx.sendStream(asset.content());
   }
 

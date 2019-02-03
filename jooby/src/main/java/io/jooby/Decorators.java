@@ -50,7 +50,7 @@ public final class Decorators {
    * @return A filter that set the `server` header.
    */
   public static final Route.Decorator server() {
-    return next -> ctx -> next.apply(ctx.header(H_SERVER, ctx.name()));
+    return next -> ctx -> next.apply(ctx.setHeader(H_SERVER, ctx.name()));
   }
 
   /**
@@ -70,7 +70,7 @@ public final class Decorators {
    * @return A filter that set the `content-type` header.
    */
   public static final Route.Decorator contentType(@Nonnull MediaType type) {
-    return next -> ctx -> next.apply(ctx.responseType(type));
+    return next -> ctx -> next.apply(ctx.setContentType(type));
   }
 
   /**
@@ -80,7 +80,7 @@ public final class Decorators {
    */
   public static final Route.Decorator date() {
     DateHeader date = new DateHeader();
-    return next -> ctx -> next.apply(ctx.header(H_DATE, date.compute()));
+    return next -> ctx -> next.apply(ctx.setHeader(H_DATE, date.compute()));
   }
 
   /**
@@ -113,9 +113,9 @@ public final class Decorators {
   private static final Route.Decorator defaultHeaders(MediaType contentType, Charset charset) {
     DateHeader date = new DateHeader();
     return next -> ctx -> {
-      ctx.header(H_SERVER, ctx.name());
-      ctx.responseType(contentType, charset);
-      ctx.header(H_DATE, date.compute());
+      ctx.setHeader(H_SERVER, ctx.name());
+      ctx.setContentType(contentType, charset);
+      ctx.setHeader(H_DATE, date.compute());
       return next.apply(ctx);
     };
   }

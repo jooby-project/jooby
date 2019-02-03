@@ -238,30 +238,30 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
-  @Nonnull @Override public MediaType responseType() {
+  @Nonnull @Override public MediaType responseContentType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
-  @Nonnull @Override public Context defaultResponseType(@Nonnull MediaType contentType) {
+  @Nonnull @Override public Context setDefaultContentType(@Nonnull MediaType contentType) {
     if (responseType == null) {
-      responseType(contentType, contentType.charset());
+      setContentType(contentType, contentType.charset());
     }
     return this;
   }
 
   @Nonnull @Override
-  public Context responseType(@Nonnull MediaType contentType, @Nullable Charset charset) {
+  public Context setContentType(@Nonnull MediaType contentType, @Nullable Charset charset) {
     this.responseType = contentType;
     response.setHeader(HttpHeader.CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
   }
 
-  @Nonnull @Override public Context header(@Nonnull String name, @Nonnull String value) {
+  @Nonnull @Override public Context setHeader(@Nonnull String name, @Nonnull String value) {
     response.setHeader(name, value);
     return this;
   }
 
-  @Nonnull @Override public Context responseLength(long length) {
+  @Nonnull @Override public Context setContentLength(long length) {
     response.setContentLengthLong(length);
     return this;
   }
@@ -285,7 +285,7 @@ public class JettyContext implements Callback, Context {
   @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
     try {
       ifSetChunked();
-      responseType(type, charset);
+      setContentType(type, charset);
       PrintWriter writer = response.getWriter();
       return writer;
     } catch (IOException x) {

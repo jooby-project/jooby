@@ -16,13 +16,12 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 public interface Renderer {
 
   Renderer TO_STRING = (ctx, value) -> {
-    ctx.defaultResponseType(MediaType.text);
+    ctx.setDefaultContentType(MediaType.text);
     return value.toString().getBytes(StandardCharsets.UTF_8);
   };
 

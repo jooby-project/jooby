@@ -153,11 +153,11 @@ public interface Context {
     return contentType.matches(accept);
   }
 
-  @Nonnull default MediaType requestType() {
+  @Nullable default MediaType contentType() {
     return header("Content-Type").toOptional().map(MediaType::valueOf).orElse(null);
   }
 
-  default long requestLength() {
+  default long contentLength() {
     return header("Content-Length").longValue(-1);
   }
 
@@ -321,45 +321,45 @@ public interface Context {
    * **********************************************************************************************
    */
 
-  @Nonnull default Context header(@Nonnull String name, @Nonnull Date value) {
-    return header(name, RFC1123.format(Instant.ofEpochMilli(value.getTime())));
+  @Nonnull default Context setHeader(@Nonnull String name, @Nonnull Date value) {
+    return setHeader(name, RFC1123.format(Instant.ofEpochMilli(value.getTime())));
   }
 
-  @Nonnull default Context header(@Nonnull String name, @Nonnull Instant value) {
-    return header(name, RFC1123.format(value));
+  @Nonnull default Context setHeader(@Nonnull String name, @Nonnull Instant value) {
+    return setHeader(name, RFC1123.format(value));
   }
 
-  @Nonnull default Context header(@Nonnull String name, @Nonnull Object value) {
+  @Nonnull default Context setHeader(@Nonnull String name, @Nonnull Object value) {
     if (value instanceof Date) {
-      return header(name, (Date) value);
+      return setHeader(name, (Date) value);
     }
     if (value instanceof Instant) {
-      return header(name, (Instant) value);
+      return setHeader(name, (Instant) value);
     }
-    return header(name, value.toString());
+    return setHeader(name, value.toString());
   }
 
-  @Nonnull Context header(@Nonnull String name, @Nonnull String value);
+  @Nonnull Context setHeader(@Nonnull String name, @Nonnull String value);
 
-  @Nonnull Context responseLength(long length);
+  @Nonnull Context setContentLength(long length);
 
-  @Nonnull default Context responseType(@Nonnull String contentType) {
-    return responseType(MediaType.valueOf(contentType));
+  @Nonnull default Context setContentType(@Nonnull String contentType) {
+    return setContentType(MediaType.valueOf(contentType));
   }
 
-  @Nonnull default Context responseType(@Nonnull MediaType contentType) {
-    return responseType(contentType, contentType.charset());
+  @Nonnull default Context setContentType(@Nonnull MediaType contentType) {
+    return setContentType(contentType, contentType.charset());
   }
 
-  @Nonnull default Context defaultResponseType(@Nonnull String contentType) {
-    return defaultResponseType(MediaType.valueOf(contentType));
+  @Nonnull default Context setDefaultContentType(@Nonnull String contentType) {
+    return setDefaultContentType(MediaType.valueOf(contentType));
   }
 
-  @Nonnull Context defaultResponseType(@Nonnull MediaType contentType);
+  @Nonnull Context setDefaultContentType(@Nonnull MediaType contentType);
 
-  @Nonnull Context responseType(@Nonnull MediaType contentType, @Nullable Charset charset);
+  @Nonnull Context setContentType(@Nonnull MediaType contentType, @Nullable Charset charset);
 
-  @Nonnull MediaType responseType();
+  @Nonnull MediaType responseContentType();
 
   @Nonnull default Context statusCode(StatusCode statusCode) {
     return statusCode(statusCode.value());
@@ -384,13 +384,13 @@ public interface Context {
   @Nonnull OutputStream responseStream();
 
   default @Nonnull OutputStream responseStream(MediaType contentType) {
-    responseType(contentType);
+    setContentType(contentType);
     return responseStream();
   }
 
   default @Nonnull Context responseStream(MediaType contentType,
       Throwing.Consumer<OutputStream> consumer) throws Exception {
-    responseType(contentType);
+    setContentType(contentType);
     return responseStream(consumer);
   }
 
@@ -436,7 +436,7 @@ public interface Context {
   }
 
   default @Nonnull Context sendRedirect(@Nonnull StatusCode redirect, @Nonnull String location) {
-    header("location", location);
+    setHeader("location", location);
     return sendStatusCode(redirect);
   }
 
@@ -457,13 +457,13 @@ public interface Context {
   @Nonnull Context sendStream(@Nonnull InputStream input);
 
   default Context sendAttachment(AttachedFile file) {
-    header("Content-Disposition", file.contentDisposition());
+    setHeader("Content-Disposition", file.contentDisposition());
     InputStream content = file.content();
     long length = file.length();
     if (length > 0) {
-      responseLength(length);
+      setContentLength(length);
     }
-    defaultResponseType(file.contentType());
+    setDefaultContentType(file.contentType());
     if (content instanceof FileInputStream) {
       sendFile(((FileInputStream) content).getChannel());
     } else {

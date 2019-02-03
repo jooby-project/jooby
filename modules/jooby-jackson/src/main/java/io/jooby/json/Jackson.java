@@ -32,7 +32,6 @@ import io.jooby.Renderer;
 import javax.annotation.Nonnull;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 
 public class Jackson implements Extension, Parser, Renderer {
   private static final byte[] ARRAY_START = {'['};
@@ -70,7 +69,7 @@ public class Jackson implements Extension, Parser, Renderer {
   }
 
   @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
-    ctx.defaultResponseType(MediaType.json);
+    ctx.setDefaultContentType(MediaType.json);
     return mapper.writeValueAsBytes(value);
   }
 

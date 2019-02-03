@@ -50,7 +50,7 @@ public class ChunkedSubscriber {
       byte[] data = renderer.encode(ctx, item);
 
       if (responseType == null) {
-        responseType = ctx.responseType();
+        responseType = ctx.responseContentType();
         if (responseType.isJson()) {
           data = prepend(data, JSON_LBRACKET);
         }

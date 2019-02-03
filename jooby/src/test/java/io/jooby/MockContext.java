@@ -195,27 +195,27 @@ public class MockContext implements Context {
     return locals;
   }
 
-  @Nonnull @Override public MockContext header(@Nonnull String name, @Nonnull Date value) {
-    Context.super.header(name, value);
+  @Nonnull @Override public MockContext setHeader(@Nonnull String name, @Nonnull Date value) {
+    Context.super.setHeader(name, value);
     return this;
   }
 
-  @Nonnull @Override public MockContext header(@Nonnull String name, @Nonnull Instant value) {
-    Context.super.header(name, value);
+  @Nonnull @Override public MockContext setHeader(@Nonnull String name, @Nonnull Instant value) {
+    Context.super.setHeader(name, value);
     return this;
   }
 
-  @Nonnull @Override public MockContext header(@Nonnull String name, @Nonnull Object value) {
-    Context.super.header(name, value);
+  @Nonnull @Override public MockContext setHeader(@Nonnull String name, @Nonnull Object value) {
+    Context.super.setHeader(name, value);
     return this;
   }
 
-  @Nonnull @Override public MockContext header(@Nonnull String name, @Nonnull String value) {
+  @Nonnull @Override public MockContext setHeader(@Nonnull String name, @Nonnull String value) {
     responseHeaders.put(name, value);
     return this;
   }
 
-  @Nonnull @Override public MockContext responseLength(long length) {
+  @Nonnull @Override public MockContext setContentLength(long length) {
     this.length = length;
     return this;
   }
@@ -225,7 +225,7 @@ public class MockContext implements Context {
   }
 
   @Nonnull @Override
-  public MockContext responseType(@Nonnull MediaType contentType, @Nullable Charset charset) {
+  public MockContext setContentType(@Nonnull MediaType contentType, @Nullable Charset charset) {
     this.responseType = contentType;
     this.responseCharset = charset;
     return this;
@@ -284,7 +284,7 @@ public class MockContext implements Context {
 
   @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
     responseStarted = true;
-    responseType(type, charset);
+    setContentType(type, charset);
     Writer writer = new StringWriter();
     result = writer;
     return writer;
@@ -344,7 +344,7 @@ public class MockContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public Context defaultResponseType(@Nonnull MediaType contentType) {
+  @Nonnull @Override public Context setDefaultContentType(@Nonnull MediaType contentType) {
     if (responseType == null) {
       responseType = contentType;
       responseCharset = contentType.charset();
@@ -352,7 +352,7 @@ public class MockContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public MediaType responseType() {
+  @Nonnull @Override public MediaType responseContentType() {
     return responseType == null ? MediaType.text : responseType;
   }
 

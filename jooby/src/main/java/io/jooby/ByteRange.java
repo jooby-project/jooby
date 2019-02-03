@@ -55,9 +55,9 @@ public class ByteRange {
     }
     // offset
     long limit = (end - start + 1);
-    ctx.header("Accept-Ranges", "bytes");
-    ctx.header("Content-Range", "bytes " + start + "-" + end + "/" + contentLength);
-    ctx.header("Content-Length", limit);
+    ctx.setHeader("Accept-Ranges", "bytes");
+    ctx.setHeader("Content-Range", "bytes " + start + "-" + end + "/" + contentLength);
+    ctx.setHeader("Content-Length", limit);
     ctx.statusCode(StatusCode.PARTIAL_CONTENT);
     return new ByteRange(start, limit);
   }

@@ -697,12 +697,12 @@ public class FeaturedTest {
       app.path("/api/pets", () -> {
 
         app.get("/{id}", ctx -> {
-          ctx.responseType(io.jooby.MediaType.json);
+          ctx.setContentType(io.jooby.MediaType.json);
           return "{\"message\": \"" + ctx.path("id") + "\"}";
         });
 
         app.get("/raw", ctx -> {
-          ctx.responseType(io.jooby.MediaType.json);
+          ctx.setContentType(io.jooby.MediaType.json);
           return "{\"message\": \"raw\"}".getBytes(StandardCharsets.UTF_8);
         });
 
@@ -1194,7 +1194,7 @@ public class FeaturedTest {
   @Test
   public void setContentType() {
     new JoobyRunner(app -> {
-      app.get("/plain", ctx -> ctx.responseType(text).sendString("Text"));
+      app.get("/plain", ctx -> ctx.setContentType(text).sendString("Text"));
     }).ready(client -> {
       client.get("/plain", rsp -> {
         assertEquals("text/plain;charset=utf-8",
@@ -1209,7 +1209,7 @@ public class FeaturedTest {
     String value = "...";
     new JoobyRunner(app -> {
       app.get("/len",
-          ctx -> ctx.responseType(text).responseLength(value.length()).sendString(value));
+          ctx -> ctx.setContentType(text).setContentLength(value.length()).sendString(value));
     }).ready(client -> {
       client.get("/len", rsp -> {
         assertEquals("text/plain;charset=utf-8",
@@ -1257,7 +1257,7 @@ public class FeaturedTest {
   public void sendStream() {
     new JoobyRunner(app -> {
       app.get("/txt", ctx -> {
-        ctx.query("l").toOptional().ifPresent(len -> ctx.responseLength(Long.parseLong(len)));
+        ctx.query("l").toOptional().ifPresent(len -> ctx.setContentLength(Long.parseLong(len)));
         return new ByteArrayInputStream(_19kb.getBytes(StandardCharsets.UTF_8));
       });
     }).ready(client -> {
@@ -1278,7 +1278,7 @@ public class FeaturedTest {
   public void sendStreamRange() {
     new JoobyRunner(app -> {
       app.get("/range", ctx -> {
-        ctx.responseLength(_19kb.length());
+        ctx.setContentLength(_19kb.length());
         return ctx.sendStream(new ByteArrayInputStream(_19kb.getBytes(StandardCharsets.UTF_8)));
       });
     }).ready(client -> {
@@ -1396,7 +1396,7 @@ public class FeaturedTest {
   public void sendFileRange() {
     new JoobyRunner(app -> {
       app.get("/file-range", ctx -> {
-        ctx.responseLength(_19kb.length());
+        ctx.setContentLength(_19kb.length());
         return ctx
             .sendFile(FileChannel.open(userdir("src", "test", "resources", "files", "19kb.txt")));
       });
@@ -1553,7 +1553,7 @@ public class FeaturedTest {
 
     new JoobyRunner(app -> {
       app.decorate(Decorators.contentType("text/plain"));
-      app.get("/type-override", ctx -> ctx.responseType(html).sendString("OK"));
+      app.get("/type-override", ctx -> ctx.setContentType(html).sendString("OK"));
     }).ready(client -> {
       client.get("/type-override", rsp -> {
         assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
