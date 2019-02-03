@@ -474,6 +474,7 @@ public interface Context {
 
   default @Nonnull Context sendFile(@Nonnull Path file) {
     try {
+      setDefaultContentType(MediaType.byFile(file));
       return sendFile(FileChannel.open(file));
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);

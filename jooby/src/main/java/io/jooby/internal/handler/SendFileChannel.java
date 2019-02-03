@@ -16,6 +16,7 @@
 package io.jooby.internal.handler;
 
 import io.jooby.Context;
+import io.jooby.MediaType;
 import io.jooby.Route;
 
 import javax.annotation.Nonnull;
@@ -41,6 +42,7 @@ public class SendFileChannel implements NextHandler {
       }
       if (file instanceof Path) {
         if (Files.exists((Path) file)) {
+          ctx.setDefaultContentType(MediaType.byFile((Path) file));
           file = FileChannel.open((Path) file, StandardOpenOption.READ);
         } else {
           throw new FileNotFoundException(file.toString());
