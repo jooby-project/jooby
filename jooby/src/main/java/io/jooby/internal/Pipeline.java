@@ -15,12 +15,14 @@
  */
 package io.jooby.internal;
 
+import io.jooby.AttachedFile;
 import io.jooby.Context;
 import io.jooby.ExecutionMode;
 import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.Route.Handler;
 import io.jooby.internal.handler.KotlinJobHandler;
+import io.jooby.internal.handler.SendAttachment;
 import io.jooby.internal.handler.SendByteArray;
 import io.jooby.internal.handler.SendByteBuf;
 import io.jooby.internal.handler.SendByteBuffer;
@@ -149,6 +151,10 @@ public class Pipeline {
     if (FileChannel.class.isAssignableFrom(type) || Path.class.isAssignableFrom(type) || File.class
         .isAssignableFrom(type)) {
       return next(mode, executor, new SendFileChannel(route.pipeline()), true);
+    }
+    /** Attached file: */
+    if (AttachedFile.class.isAssignableFrom(type)) {
+      return next(mode, executor, new SendAttachment(route.pipeline()), true);
     }
     /** Strings: */
     if (CharSequence.class.isAssignableFrom(type)) {

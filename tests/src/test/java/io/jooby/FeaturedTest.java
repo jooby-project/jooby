@@ -1340,27 +1340,54 @@ public class FeaturedTest {
       app.get("/filenotfound", ctx ->
           userdir("src", "test", "resources", "files", "notfound.txt")
       );
+      app.get("/attachment", ctx -> {
+        Path file = userdir("src", "test", "resources", "files", "19kb.txt");
+        return new AttachedFile(ctx.query("name").value(file.getFileName().toString()), file);
+      });
     }).ready(client -> {
       client.get("/filechannel", rsp -> {
         assertEquals(null, rsp.header("transfer-encoding"));
-        assertEquals(Integer.toString(_19kb.length()), rsp.header("content-length").toLowerCase());
+        assertEquals(Integer.toString(_19kb.length()),
+            rsp.header("content-length").toLowerCase());
         assertEquals(_19kb, rsp.body().string());
       });
 
       client.get("/path", rsp -> {
         assertEquals(null, rsp.header("transfer-encoding"));
-        assertEquals(Integer.toString(_19kb.length()), rsp.header("content-length").toLowerCase());
+        assertEquals(Integer.toString(_19kb.length()),
+            rsp.header("content-length").toLowerCase());
         assertEquals(_19kb, rsp.body().string());
       });
 
       client.get("/file", rsp -> {
         assertEquals(null, rsp.header("transfer-encoding"));
-        assertEquals(Integer.toString(_19kb.length()), rsp.header("content-length").toLowerCase());
+        assertEquals(Integer.toString(_19kb.length()),
+            rsp.header("content-length").toLowerCase());
         assertEquals(_19kb, rsp.body().string());
       });
 
       client.get("/filenotfound", rsp -> {
         assertEquals(404, rsp.code());
+      });
+
+      client.get("/attachment", rsp -> {
+        assertEquals(null, rsp.header("transfer-encoding"));
+        assertEquals(Integer.toString(_19kb.length()),
+            rsp.header("content-length").toLowerCase());
+        assertEquals("text/plain;charset=utf-8", rsp.header("content-type").toLowerCase());
+        assertEquals("attachment;filename=\"19kb.txt\"",
+            rsp.header("content-disposition").toLowerCase());
+        assertEquals(_19kb, rsp.body().string());
+      });
+
+      client.get("/attachment?name=foo+bar.txt", rsp -> {
+        assertEquals(null, rsp.header("transfer-encoding"));
+        assertEquals(Integer.toString(_19kb.length()),
+            rsp.header("content-length").toLowerCase());
+        assertEquals("text/plain;charset=utf-8", rsp.header("content-type").toLowerCase());
+        assertEquals("attachment;filename=\"foo bar.txt\";filename*=utf-8''foo%20bar.txt",
+            rsp.header("content-disposition").toLowerCase());
+        assertEquals(_19kb, rsp.body().string());
       });
     });
   }

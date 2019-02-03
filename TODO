@@ -2,3 +2,5 @@
 * api doc
 * tests and coverage
 * checkstyle for public API
+
+* cookie (request and response)

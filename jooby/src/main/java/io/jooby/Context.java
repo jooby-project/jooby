@@ -20,6 +20,7 @@ import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -454,6 +455,22 @@ public interface Context {
   }
 
   @Nonnull Context sendStream(@Nonnull InputStream input);
+
+  default Context sendAttachment(AttachedFile file) {
+    header("Content-Disposition", file.contentDisposition());
+    InputStream content = file.content();
+    long length = file.length();
+    if (length > 0) {
+      responseLength(length);
+    }
+    defaultResponseType(file.contentType());
+    if (content instanceof FileInputStream) {
+      sendFile(((FileInputStream) content).getChannel());
+    } else {
+      sendStream(content);
+    }
+    return this;
+  }
 
   default @Nonnull Context sendFile(@Nonnull Path file) {
     try {
