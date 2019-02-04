@@ -61,4 +61,42 @@ public class YassonRendererTest {
           assertEquals("json", new YassonRenderer(MediaType.json, unit.get(Jsonb.class)).toString());
         });
   }
+
+  @Test
+  public void rawWithCharSequence() throws Exception {
+    String value = "{\"foo\":\"bar\"}";
+    new MockUnit(Jsonb.class, Renderer.Context.class)
+        .expect(unit -> {
+          Context ctx = unit.get(Renderer.Context.class);
+          expect(ctx.type(MediaType.json)).andReturn(ctx);
+          ctx.send(value);
+        })
+        .run(unit -> {
+          new YassonRawRenderer(MediaType.json, unit.get(Jsonb.class))
+              .render(value, unit.get(Renderer.Context.class));
+        }, unit -> {
+        });
+  }
+
+  @Test
+  public void rawWithObject() throws Exception {
+    Object value = new YassonRendererTest();
+    new MockUnit(Jsonb.class, Renderer.Context.class)
+        .expect(unit -> {
+          Context ctx = unit.get(Renderer.Context.class);
+          expect(ctx.accepts(MediaType.json)).andReturn(true);
+          expect(ctx.type(MediaType.json)).andReturn(ctx);
+          ctx.send("{}");
+        })
+        .expect(unit -> {
+            Jsonb gson = unit.get(Jsonb.class);
+          expect(gson.toJson(value)).andReturn("{}");
+        })
+        .run(unit -> {
+          new YassonRawRenderer(MediaType.json, unit.get(Jsonb.class))
+              .render(value, unit.get(Renderer.Context.class));
+        }, unit -> {
+        });
+  }
+
 }

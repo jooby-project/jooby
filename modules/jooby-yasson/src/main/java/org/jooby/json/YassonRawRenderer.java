@@ -201,42 +201,29 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.jooby.json;
 
-import static java.util.Objects.requireNonNull;
+package org.jooby.json;
 
 import javax.json.bind.Jsonb;
 
 import org.jooby.MediaType;
-import org.jooby.Renderer;
 
-public class YassonRenderer implements Renderer {
-    
-  protected final MediaType type;
+/**
+ * @author Daniel Dias
+ * @since 1.6.0
+ */
+public class YassonRawRenderer extends YassonRenderer {
 
-  private final Jsonb jsonb;
-
-  public YassonRenderer(final MediaType type, final Jsonb jsonb) {
-    this.type = requireNonNull(type, "Media type is required.");
-
-    this.jsonb = requireNonNull(jsonb, "Jsonb is required.");
+  public YassonRawRenderer(MediaType type, Jsonb jsonb) {
+    super(type, jsonb);
   }
 
-  @Override
-  public void render(final Object object, final Context ctx) throws Exception {
-    if (ctx.accepts(this.type)) {
-      ctx.type(this.type)
-          .send(jsonb.toJson(object));
+  @Override 
+  public void render(Object value, Context ctx) throws Exception {
+    if (value instanceof CharSequence) {
+      ctx.type(type).send(value.toString());
+    } else {
+      super.render(value, ctx);
     }
-  }
-
-  @Override
-  public String name() {
-    return "json";
-  }
-
-  @Override
-  public String toString() {
-    return name();
   }
 }

@@ -280,7 +280,9 @@ public class Yasson implements Jooby.Module  {
   private final MediaType type;
 
   private BiConsumer<JsonbConfig, Config> configurer;
-    
+
+  private boolean raw;
+
   public Yasson(final MediaType type) {
     this.type = requireNonNull(type, "Media type is required.");
   }
@@ -315,8 +317,26 @@ public class Yasson implements Jooby.Module  {
     Multibinder.newSetBinder(binder, Parser.class).addBinding()
         .toInstance(new YassonParser(type, jsonb));
 
-    Multibinder.newSetBinder(binder, Renderer.class).addBinding()
-        .toInstance(new YassonRenderer(type, jsonb));
+    YassonRenderer renderer = raw ? new YassonRawRenderer(type, jsonb) : new YassonRenderer(type, jsonb);
+
+    Multibinder.newSetBinder(binder, Renderer.class).addBinding().toInstance(renderer);
   }
 
+  /**
+   * Add support raw string json responses:
+   *
+   * <pre>{@code
+   * {
+   *   get("/raw", () -> {
+   *     return "{\"raw\": \"json\"}";
+   *   });
+   * }
+   * }</pre>
+   *
+   * @return This module.
+   */
+  public Yasson raw() {
+      raw = true;
+      return this;
+  }
 }
