@@ -203,58 +203,85 @@
  */
 package org.jooby.jedis;
 
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import redis.clients.util.Pool;
+import org.jooby.Env;
+import redis.clients.jedis.JedisSentinelPool;
 
-import java.net.URI;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-class RedisProvider {
+/**
+ * Created by
+ *
+ * @Author: lis, Luganski Igor
+ * @since 1.5.0
+ */
+public class RedisSentinel extends Redis {
 
-  /** The logging system. */
-  private final Logger log = LoggerFactory.getLogger(Redis.class);
+    /**
+     * <p>
+     * Creates a new {@link RedisSentinel} instance and connect to the provided database. Please note, the
+     * name is a property in your <code>application.conf</code> file with Redis URI.
+     * RedisSentinel is pool of Jedis and for get Jedis just call pool.getResource()
+     * </p>
+     *
+     * <pre>
+     * {
+     *   use(new RedisSentinel("db1"));
+     * }
+     * </pre>
+     *
+     * application.conf
+     *
+     * <pre>
+     * jedis.sentinel.hosts = ["localhost:26379", "host2:26379"]
+     * jedis.sentinel.master = "master"
+     * jedis.password = "mySuperSecretPasswordPutHere"
+     * </pre>
+     *
+     * Example:
+     * <pre>
+     * try (Jedis redis = request.require(JedisSentinelPool.class).getResource()) {
+     *   System.out.println( redis.set("test", "this is work") );
+     *   System.out.println( redis.get("test");
+     * } catch (Exception e) {
+     *   e.printStackTrace();
+     * }
+     * </pre>
+     */
 
-  private Pool pool;
+    @Override
+    public void configure(Env env, Config config, Binder binder) {
+        /**
+         * Pool
+         */
+        GenericObjectPoolConfig poolConfig = poolConfig(config.getConfig("jedis.pool"));
+        int timeout = (int) config.getDuration("jedis.timeout", TimeUnit.MILLISECONDS);
 
-  private URI uri;
+        List<String> hosts = config.getStringList("jedis.sentinel.hosts");
+        if (hosts.size() < 1) throw new IllegalArgumentException("List of hosts (jedis.sentinel.hosts) can not be empty");
+        final Set<String> sentinels = new HashSet<>(hosts);
 
-  private GenericObjectPoolConfig config;
+        final String MASTER_NAME = config.getString("jedis.sentinel.master");
+        final String REDIS_PASSWORD = config.getString("jedis.password");
 
-  public RedisProvider(final Pool pool, final URI uri, final GenericObjectPoolConfig config) {
-    this.pool = pool;
-    this.uri = uri;
-    this.config = config;
-  }
+        JedisSentinelPool pool;
+        if (REDIS_PASSWORD.length() > 0) {
+            pool = new JedisSentinelPool(MASTER_NAME, sentinels, poolConfig, timeout, REDIS_PASSWORD);
+        } else {
+            pool = new JedisSentinelPool(MASTER_NAME, sentinels, poolConfig, timeout);
+        }
 
-  public void start() {
-    // NOOP
-    log.info("Starting {}", uri);
-    if (log.isDebugEnabled()) {
-      log.debug("  blockWhenExhausted = {}", config.getBlockWhenExhausted());
-      log.debug("  evictionPolicyClassName = {}", config.getEvictionPolicyClassName());
-      log.debug("  jmxEnabled = {}", config.getJmxEnabled());
-      log.debug("  jmxNamePrefix = {}", config.getJmxNamePrefix());
-      log.debug("  lifo = {}", config.getLifo());
-      log.debug("  maxIdle = {}", config.getMaxIdle());
-      log.debug("  maxTotal = {}", config.getMaxTotal());
-      log.debug("  maxWaitMillis = {}", config.getMaxWaitMillis());
-      log.debug("  minEvictableIdleTimeMillis = {}", config.getMinEvictableIdleTimeMillis());
-      log.debug("  minIdle = {}", config.getMinIdle());
-      log.debug("  numTestsPerEvictionRun = {}", config.getNumTestsPerEvictionRun());
-      log.debug("  softMinEvictableIdleTimeMillis = {}", config.getSoftMinEvictableIdleTimeMillis());
-      log.debug("  testOnBorrow = {}", config.getTestOnBorrow());
-      log.debug("  testOnReturn = {}", config.getTestOnReturn());
-      log.debug("  timeBetweenEvictionRunsMillis = {}", config.getTimeBetweenEvictionRunsMillis());
+        RedisProvider provider = new RedisProvider(pool, null, poolConfig);
+        env.onStart(provider::start);
+        env.onStop(provider::stop);
+
+        Env.ServiceKey serviceKey = env.serviceKey();
+        serviceKey.generate(JedisSentinelPool.class, "db", k -> binder.bind(k).toInstance(pool));
     }
-  }
-
-  public void stop() {
-    if (this.pool != null) {
-      log.info("Stopping {}", uri);
-      this.pool.destroy();
-      this.pool = null;
-    }
-  }
 
 }

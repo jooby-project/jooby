@@ -203,24 +203,21 @@
  */
 package org.jooby.jedis;
 
-import static java.util.Objects.requireNonNull;
-
-import java.net.URI;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Provider;
-
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
 import org.jooby.Jooby;
-
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+
+import javax.inject.Provider;
+import java.net.URI;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Redis cache and key/value data store for Jooby. Exposes a {@link Jedis} service.
@@ -378,7 +375,7 @@ public class Redis implements Jooby.Module {
         k -> binder.bind(k).toProvider(jedis));
   }
 
-  private GenericObjectPoolConfig poolConfig(final Config config, final String name) {
+  GenericObjectPoolConfig poolConfig(final Config config, final String name) {
     Config poolConfig = config.getConfig("jedis.pool");
     String override = "jedis." + name;
     if (config.hasPath(override)) {
@@ -387,7 +384,7 @@ public class Redis implements Jooby.Module {
     return poolConfig(poolConfig);
   }
 
-  private GenericObjectPoolConfig poolConfig(final Config config) {
+  GenericObjectPoolConfig poolConfig(final Config config) {
     GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
     poolConfig.setBlockWhenExhausted(config.getBoolean("blockWhenExhausted"));
     poolConfig.setEvictionPolicyClassName(config.getString("evictionPolicyClassName"));

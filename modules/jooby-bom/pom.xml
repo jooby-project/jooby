@@ -67,7 +67,7 @@
   <jcypher.version>3.9.0</jcypher.version>
   <jdbi.version>2.78</jdbi.version>
   <jdbi3.version>3.3.0</jdbi3.version>
-  <jedis.version>2.9.0</jedis.version>
+  <jedis.version>3.0.1</jedis.version>
   <jersey-client.version>1.19.4</jersey-client.version>
   <jetty.version>9.4.10.v20180503</jetty.version>
   <jongo.version>1.4.0</jongo.version>
