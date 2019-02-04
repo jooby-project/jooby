@@ -17,6 +17,8 @@ internal class WorkerCoroutineScope(coroutineContext: CoroutineContext) : Corout
   override val coroutineContext = coroutineContext
 }
 
+internal val NO_ARG = arrayOf<String>()
+
 class ContextRef(val ctx: Context)
 
 open class Kooby constructor() : Jooby() {
@@ -37,8 +39,18 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
+  override fun get(pattern: String, handler: Route.Handler): Route {
+    return super.get(pattern, handler)
+  }
+
+  @RouterDsl
   fun post(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
     return route(Router.POST, pattern, handler)
+  }
+
+  @RouterDsl
+  override fun post(pattern: String, handler: Route.Handler): Route {
+    return super.post(pattern, handler)
   }
 
   @RouterDsl
@@ -47,8 +59,18 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
+  override fun put(pattern: String, handler: Route.Handler): Route {
+    return super.put(pattern, handler)
+  }
+
+  @RouterDsl
   fun delete(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
     return route(Router.DELETE, pattern, handler)
+  }
+
+  @RouterDsl
+  override fun delete(pattern: String, handler: Route.Handler): Route {
+    return super.delete(pattern, handler)
   }
 
   @RouterDsl
@@ -57,8 +79,18 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
+  override fun patch(pattern: String, handler: Route.Handler): Route {
+    return super.patch(pattern, handler)
+  }
+
+  @RouterDsl
   fun head(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
     return route(Router.HEAD, pattern, handler)
+  }
+
+  @RouterDsl
+  override fun head(pattern: String, handler: Route.Handler): Route {
+    return super.head(pattern, handler)
   }
 
   @RouterDsl
@@ -67,13 +99,28 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
+  override fun trace(pattern: String, handler: Route.Handler): Route {
+    return super.trace(pattern, handler)
+  }
+
+  @RouterDsl
   fun options(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
     return route(Router.OPTIONS, pattern, handler)
   }
 
   @RouterDsl
+  override fun options(pattern: String, handler: Route.Handler): Route {
+    return super.options(pattern, handler)
+  }
+
+  @RouterDsl
   fun connect(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
     return route(Router.CONNECT, pattern, handler)
+  }
+
+  @RouterDsl
+  override fun connect(pattern: String, handler: Route.Handler): Route {
+    return super.connect(pattern, handler)
   }
 
   @RouterDsl
@@ -91,36 +138,50 @@ open class Kooby constructor() : Jooby() {
     }.handle(handler)
   }
 
+  @RouterDsl
+  override fun route(method: String, pattern: String, handler: Route.Handler): Route {
+    return super.route(method, pattern, handler)
+  }
+
   companion object {
     private val ContextCoroutineName = CoroutineName("ctx")
   }
 }
 
-/**
- * Creates and run jooby application.
- *
- * <pre>
- * run(*args) {
- *  get("/") {-> "Hi Kotlin"}
- * }
- * </pre>
- */
 @RouterDsl
-fun run(mode: ExecutionMode, vararg args: String, init: Kooby.() -> Unit) {
+fun run(mode: ExecutionMode, args: Array<String>, init: Kooby.() -> Unit) {
   Jooby.run({ Kooby(init) }, mode, args)
 }
 
 @RouterDsl
-fun run(vararg args: String, init: Kooby.() -> Unit) {
-  Jooby.run({ Kooby(init) }, args)
+fun run(args: Array<String>, init: Kooby.() -> Unit) {
+  Jooby.run({ Kooby(init) }, ExecutionMode.DEFAULT, args)
+}
+
+// ::App
+@RouterDsl
+fun run(supplier: () -> Kooby, args: Array<String>) {
+  run(supplier, ExecutionMode.DEFAULT, args)
 }
 
 @RouterDsl
-fun run(supplier: () -> Jooby, vararg args: String) {
-  Jooby.run(supplier, ExecutionMode.DEFAULT, args)
-}
-
-@RouterDsl
-fun run(supplier: () -> Jooby, mode: ExecutionMode, vararg args: String) {
+fun run(supplier: () -> Kooby, mode: ExecutionMode, args: Array<String>) {
   Jooby.run(supplier, mode, args)
+}
+
+// jooby {..}
+fun jooby(init: Jooby.() -> Unit) {
+  jooby(NO_ARG, init)
+}
+
+fun jooby(args: Array<String>, init: Jooby.() -> Unit) {
+  jooby(ExecutionMode.DEFAULT, args, init)
+}
+
+fun jooby(mode: ExecutionMode, args: Array<String>, init: Jooby.() -> Unit) {
+  Jooby.run({
+    val app = Jooby()
+    app.init()
+    app
+  }, mode, args)
 }

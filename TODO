@@ -4,3 +4,5 @@
 * checkstyle for public API
 
 * cookie (request and response)
+*
+* websockets
