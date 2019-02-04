@@ -36,7 +36,7 @@ public class DependencyProcessor extends BlockProcessor {
     maven(
         attributes.getOrDefault("groupId", "io.jooby"),
         attributes.get("artifactId"),
-        attributes.getOrDefault("version", JoobyDoc.VERSION),
+        attributes.getOrDefault("version", DocGenerator.VERSION),
         lines::add
     );
     lines.add("");
@@ -44,7 +44,7 @@ public class DependencyProcessor extends BlockProcessor {
     gradle(
         attributes.getOrDefault("groupId", "io.jooby"),
         attributes.get("artifactId"),
-        attributes.getOrDefault("version", JoobyDoc.VERSION),
+        attributes.getOrDefault("version", DocGenerator.VERSION),
         lines::add
     );
     lines.add("");

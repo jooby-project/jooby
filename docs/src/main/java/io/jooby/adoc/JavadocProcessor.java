@@ -16,19 +16,11 @@
 package io.jooby.adoc;
 
 import org.asciidoctor.ast.ContentNode;
-import org.asciidoctor.ast.StructuralNode;
-import org.asciidoctor.extension.BlockProcessor;
 import org.asciidoctor.extension.InlineMacroProcessor;
-import org.asciidoctor.extension.Reader;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class JavadocProcessor extends InlineMacroProcessor {
 
@@ -40,7 +32,7 @@ public class JavadocProcessor extends InlineMacroProcessor {
   public Object process(ContentNode parent, String clazz, Map<String, Object> attributes) {
     StringBuilder link = new StringBuilder("https://static.javadoc.io/io.jooby/jooby/");
     StringBuilder text = new StringBuilder();
-    link.append(JoobyDoc.VERSION);
+    link.append(DocGenerator.VERSION);
     link.append("/io/jooby/").append(clazz).append(".html");
 
     String arg1 = (String) attributes.get("1");

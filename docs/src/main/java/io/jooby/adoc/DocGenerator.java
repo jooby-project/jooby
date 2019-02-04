@@ -15,7 +15,6 @@
  */
 package io.jooby.adoc;
 
-import io.jooby.Jooby;
 import org.apache.commons.io.FileUtils;
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.Attributes;
@@ -27,7 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class JoobyDoc {
+public class DocGenerator {
   public static final Object VERSION = "2.0.0-Alpha1";
 
   public static void main(String[] args) throws IOException {
@@ -64,8 +63,15 @@ public class JoobyDoc {
     attributes.setAttribute("favicon", "images/favicon96.png");
     attributes.setAttribute("love", "&#9825;");
 
-    Path basedir = Paths.get(System.getProperty("user.dir"), "docs");
+    Path basedir = Paths.get(System.getProperty("user.dir"));
+    if (!basedir.toString().endsWith("docs")) {
+      // maven exec vs main method from IDE
+      basedir = basedir.resolve("docs");
+    }
     Path outdir = basedir.resolve("out");
+    if (!Files.exists(outdir)) {
+      Files.createDirectories(outdir);
+    }
 
     Options options = new Options();
     options.setBackend("html");
