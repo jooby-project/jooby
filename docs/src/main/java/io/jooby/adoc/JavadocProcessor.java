@@ -37,9 +37,14 @@ public class JavadocProcessor extends InlineMacroProcessor {
 
     String arg1 = (String) attributes.get("1");
     String method = null;
+    String variable = null;
     if (arg1 != null) {
       if (Character.isLowerCase(arg1.charAt(0))) {
         method = arg1;
+      }
+      if (arg1.chars().allMatch(c -> Character.isUpperCase(c) || c == '_')) {
+        // ENUM or constant
+        variable = arg1;
       }
     }
     if (method != null) {
@@ -64,6 +69,9 @@ public class JavadocProcessor extends InlineMacroProcessor {
       }
       link.append("-");
       text.append(")");
+    } else if (variable != null) {
+      link.append("#").append(variable);
+      text.append(attributes.getOrDefault("text", Optional.ofNullable(arg1).orElse(clazz)));
     } else {
       text.append(attributes.getOrDefault("text", Optional.ofNullable(arg1).orElse(clazz)));
     }

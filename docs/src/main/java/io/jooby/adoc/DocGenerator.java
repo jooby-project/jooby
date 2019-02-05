@@ -30,6 +30,10 @@ public class DocGenerator {
   public static final Object VERSION = "2.0.0-Alpha1";
 
   public static void main(String[] args) throws IOException {
+    generate(basedir());
+  }
+
+  public static void generate(Path basedir) throws IOException {
     Asciidoctor asciidoctor = Asciidoctor.Factory.create();
 
     Attributes attributes = new Attributes();
@@ -63,11 +67,6 @@ public class DocGenerator {
     attributes.setAttribute("favicon", "images/favicon96.png");
     attributes.setAttribute("love", "&#9825;");
 
-    Path basedir = Paths.get(System.getProperty("user.dir"));
-    if (!basedir.toString().endsWith("docs")) {
-      // maven exec vs main method from IDE
-      basedir = basedir.resolve("docs");
-    }
     Path outdir = basedir.resolve("out");
     if (!Files.exists(outdir)) {
       Files.createDirectories(outdir);
@@ -96,6 +95,15 @@ public class DocGenerator {
     );
 
     asciidoctor.convertFile(basedir.resolve("index.adoc").toFile(), options);
+  }
+
+  public static Path basedir() {
+    Path basedir = Paths.get(System.getProperty("user.dir"));
+    if (!basedir.toString().endsWith("docs")) {
+      // maven exec vs main method from IDE
+      basedir = basedir.resolve("docs");
+    }
+    return basedir;
   }
 
   private static void copyFile(Path out, Path... dirs) throws IOException {

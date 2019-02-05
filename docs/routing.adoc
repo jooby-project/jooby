@@ -1,6 +1,6 @@
 == Router
 
-The javadoc:Router[] is the heart of Jooby. The router consist of:
+The javadoc:Router[] is the heart of Jooby and consist of:
 
 - Routing algorithm (radix tree)
 - One or more javadoc:Route[text="routes"]
@@ -59,7 +59,7 @@ to the client.
 {
   // <1>
   get("/user/{id}", ctx -> {
-    var id = ctx.param("id").intValue(); // <2>
+    int id = ctx.param("id").intValue(); // <2>
     return id;
   });
 }
@@ -74,8 +74,8 @@ to the client.
 {
   // <1>
   get("/file/{file}.{ext}", ctx -> {
-    var file = ctx.param("file").value(); // <2>
-    var ext = ctx.param("ext").value();   // <3>
+    String file = ctx.param("file").value(); // <2>
+    String ext = ctx.param("ext").value();   // <3>
     return file + "." + ext;
   });
 }
@@ -93,12 +93,12 @@ to the client.
 {
   // <1>
   get("/user/{id:[0-9]+}", ctx -> {
-    var id = ctx.param("id").intValue(); // <2>
+    int id = ctx.param("id").intValue(); // <2>
     return id;
   });
   
   get("/user/{id:[0-9]+}/edit", ctx -> {
-    var id = ctx.param("id").intValue();
+    int id = ctx.param("id").intValue();
     return id;
   });
 }
@@ -115,12 +115,12 @@ to the client.
 {
   // <1>
   get("/articles/*", ctx -> {
-    var catchall = ctx.param("*").value(); // <2>
+    String catchall = ctx.param("*").value(); // <2>
     return catchall;
   });
   
   get("/articles/*path", ctx -> {
-    var path = ctx.param("path").value(); // <3>
+    String path = ctx.param("path").value(); // <3>
     return path;
   });
 }
@@ -161,10 +161,10 @@ A javadoc:Context[text=context] allows you to interact with the `HTTP Request` a
 
 Output:
 
-<1> `GET /user/ppicapiedra` produces `ppicapiedra`
-<2> `GET /user/me` produces `me`
-<3> Unreachable, override it by next route
-<4> `GET /users` produces `new users` not `users`
+<1> `GET /user/ppicapiedra` => `ppicapiedra`
+<2> `GET /user/me` => `me`
+<3> Unreachable, => override it by next route
+<4> `GET /users` => `new users` not `users`
 
 Routes with most specific path pattern (`2` vs `1`) has more precedence. Also, route overrides is
 silently ignored and makes previous route unreachable.
@@ -183,19 +183,17 @@ interface Decorator {
 }
 ----
 
-Example:
-
-.Timing decorator
+.Timing decorator example:
 [source,java]
 ----
 {
   decorator(next -> ctx -> {
-    var start = System.currentTimeMillis();       // <1>
+    long start = System.currentTimeMillis();       // <1>
 
-    var response = next.apply(ctx);               // <2>
+    Object response = next.apply(ctx);             // <2>
 
-    var end = System.currentTimeMillis();
-    var took = end - start;
+    long end = System.currentTimeMillis();
+    long took = end - start;
 
     System.out.println("Took: " + took + "ms");   // <3>
 
@@ -216,7 +214,7 @@ Example:
 Unlike in other web frameworks a `decorator` lack of a `path pattern`. Sounds odd? All these is
 explained in the <<pipeline, pipeline>> section.
 
-[NOTE]
+[IMPORTANT]
 ====
 Decorators (including before/after) must be defined before a `handler`:
 ====
@@ -234,6 +232,11 @@ Decorators (including before/after) must be defined before a `handler`:
 }
 ----
 
+Output:
+
+'/' => `Hello Jooby`
+
+
 Now if you move the decorator after the handler:
  
 .Ignored:
@@ -241,7 +244,7 @@ Now if you move the decorator after the handler:
 ----
 {
   // Produces: Jooby
-  get("/", ctx -> "Jooby");            // <1>
+  get("/", ctx -> "Jooby");
   
   decorator(next -> ctx -> {
     return "Hello " + next.apply(ctx);
@@ -251,14 +254,17 @@ Now if you move the decorator after the handler:
 
 Output:
 
-<1> '/' => `Jooby`
+'/' => `Jooby`
+
+Decorator has no effect over route, due is defined after it.
 
 ==== Before Decorator
 
 The javadoc:Route.Before[text=before] decorator is a specialized decorator that runs before a 
 `handler`.
 
-A `before` decorator takes a `context` as argument and don't produces a response.
+A `before` decorator takes a `context` as argument and don't produces a response. It expected to operate
+via side effects (usually modifying the HTTP response).
 
 [source,java]
 ----
@@ -312,20 +318,20 @@ interface After {
 
 === Pipeline
 
-Route pipeline (a.k.a route stack) is a composition of zero, one or more decorator(s) tied to a single `handler`:
+Route pipeline (a.k.a route stack) is a composition of one or more decorator(s) tied to a single `handler`:
 
 [source, java]
 ----
 {
   // Increment +1
   decorator(next -> ctx -> {
-    var n = (Number) next.apply(ctx);
+    Number n = (Number) next.apply(ctx);
     return 1 + n.intValue();
   });
 
   // Increment +1
   decorator(next -> ctx -> {
-    var n = (Number) next.apply(ctx);
+    Number n = (Number) next.apply(ctx);
     return 1 + n.intValue();
   });
   
@@ -347,7 +353,7 @@ Behind the scene, Jooby build something like:
 {
   // Increment +1
   var increment = decorator(next -> ctx -> {
-    var n = (Number) next.apply(ctx);
+    Number n = (Number) next.apply(ctx);
     return 1 + n.intValue();
   });
 
@@ -364,7 +370,7 @@ Behind the scene, Jooby build something like:
 }
 ----
 
-Any `decorator` defined on top of the handler will be stacked/chained into a new handler: The `pipeline`.
+Any `decorator` defined on top of the handler will be stacked/chained into a new handler, call it: `pipeline`.
 
 [NOTE]
 .Decorator without path pattern
@@ -393,7 +399,7 @@ In Jooby 1.x (most of other web frameworks too) executed the `filter` for every 
 by the bot to realize there is NO matching route and all we need is a `404`.
 
 In Jooby 2.x this won't happen anymore. If there is a matching handler, the `pipeline` will be 
-executed. Otherwise, nothing will do {love}!
+executed. Otherwise, nothing will do!
 
 ====
 
@@ -407,7 +413,7 @@ Order follows the **what you see is what you get** approach. Routes are stacked 
 {
   // Increment +1
   decorator(next -> ctx -> {
-    var n = (Number) next.apply(ctx);
+    Number n = (Number) next.apply(ctx);
     return 1 + n.intValue();
   });
 
@@ -415,7 +421,7 @@ Order follows the **what you see is what you get** approach. Routes are stacked 
   
   // Increment +1
   decorator(next -> ctx -> {
-    var n = (Number) next.apply(ctx);
+    Number n = (Number) next.apply(ctx);
     return 1 + n.intValue();
   });
 
@@ -438,14 +444,14 @@ A `scoped decorator` allows us to selectively apply one or more `decorators` to 
 {
   // Increment +1
   decorator(next -> ctx -> {
-    var n = (Number) next.apply(ctx);
+    Number n = (Number) next.apply(ctx);
     return 1 + n.intValue();
   });
 
-  group(() -> {                          // <1>
+  route(() -> {                          // <1>
     // Multiply by 2
     decorator(next -> ctx -> {
-      var n = (Number) next.apply(ctx);
+      Number n = (Number) next.apply(ctx);
       return 2 * n.intValue();
     });
     
@@ -458,20 +464,20 @@ A `scoped decorator` allows us to selectively apply one or more `decorators` to 
 
 Output:
 
-<1> Introduce a new scope via `group` operator
+<1> Introduce a new scope via `route` operator
 <2> `/4`  => `9`
 <3> `/1`  => `2`
 
 === Grouping routes
 
-The javadoc:Router[group, java.lang.Runnable] operator push a new route `scope` and
-allows you to selectively apply one or more route `decorators`.
+As showed previously, the javadoc:Router[route, java.lang.Runnable] operator push a new route `scope`
+and allows you to selectively apply one or more route `decorators`.
 
 .group operator
 [source,java]
 ----
 {
-  group(() -> {   
+  route(() -> {   
     decorator(next -> ctx -> next.apply(ctx) + " Stack!"); // <1>
 
     get("/", ctx -> "Hello");                              // <2>
@@ -479,16 +485,17 @@ allows you to selectively apply one or more route `decorators`.
 }
 ----
 
-<1> The `group` operator applies the `decorator` to the `handlers` defined below it.
+<1> The `route` operator applies the `decorator` to the `handlers` defined below it.
 <2> `/` => `Hello Stack!`
 
-More about scoped decorators in the <<scoped-decorator, scoped decorator section>>. 
+In similar way the javadoc:Router[path, java.lang.String, java.lang.Runnable] operator groups
+one or more routes under a common path pattern.
 
 .Group one or more route under a common path prefix:
 [source,java]
 ----
 {
-   group("/api/user", () -> {   // <1>
+   path("/api/user", () -> {    // <1>
    
      get("/{id}", ctx -> ...);  // <2>
    
@@ -506,29 +513,11 @@ More about scoped decorators in the <<scoped-decorator, scoped decorator section
 <3> `GET /api/user`
 <4> `POST /api/user`
 
-.Dispatch one or more route to the worker or custom thread pool:
-[source,java]
-----
-{
-   group(worker(), () -> {             // <1>
-   
-     get("/", ctx -> ...);
-     
-     post("/", ctx -> ...);
-     
-     ...
-   }); 
-}
-----
-
-<1> All routes wrapped by `dispatch` run in the `worker/io` thread.
-
-More about `dispatch` in the <<dispatch, thread model section>>. 
 
 === Composing routes
 
 Composition is a technique for building complex application. You can compose one or more
-router/application into a new one. Composition let you build applications as components/modules.
+router/application into a new one. Composition let you build modular applications.
 
 Composition is available through the javadoc:Router[use, io.jooby.Router] operator:
 
@@ -537,23 +526,23 @@ Composition is available through the javadoc:Router[use, io.jooby.Router] operat
 ----
 public class Foo extends Jooby {
   {
-    get("/foo", Context::path);
+    get("/foo", Context::pathString);
   }
 }
 
 public class Bar extends Jooby {
   {
-    get("/bar", Context::path);
+    get("/bar", Context::pathString);
   }
 }
 
 public class App extends Jooby {
   {
-    use(new Foo());               // <1>
+    use(new Foo());                     // <1>
 
-    use(new Bar());               // <2>
+    use(new Bar());                     // <2>
 
-    get("/app", Context::path);   // <3>
+    get("/app", Context::pathString);   // <3>
   }
 }
 ----
@@ -565,14 +554,12 @@ public class App extends Jooby {
 <3> Add more routes . Output `/app` => `/app`
 
 
-You can provides a `path prefix` too:
-
 .Composing with path prefix
 [source,java]
 ----
 public class Foo extends Jooby {
   {
-    get("/foo", Context::path);
+    get("/foo", Context::pathString);
   }
 }
 
@@ -595,8 +582,8 @@ We do provide <<mvc-api, MVC API>> as another alternative for modularization.
 
 === Dynamic Routing
 
-Dynamic routing is looks similar to <<composition, composition>> but enabled/disabled routes 
-dynamically based on a `predicate`.
+Dynamic routing is looks similar to <<composition, composition>> but enabled/disabled routes at runtime
+using a `predicate`.
 
 Suppose you own two version of an `API` and for some time you need to support both: `old` and `new` API:
 

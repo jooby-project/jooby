@@ -47,7 +47,7 @@ public class ChunkedSubscriber {
     try {
       Route route = ctx.route();
       Renderer renderer = route.renderer();
-      byte[] data = renderer.encode(ctx, item);
+      byte[] data = renderer.render(ctx, item);
 
       if (responseType == null) {
         responseType = ctx.responseContentType();

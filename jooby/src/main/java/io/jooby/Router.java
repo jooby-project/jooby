@@ -97,6 +97,8 @@ public interface Router {
 
   @Nonnull Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action);
 
+  @Nonnull Router route(@Nonnull Runnable action);
+
   @Nonnull Router path(@Nonnull String pattern, @Nonnull Runnable action);
 
   @Nonnull default Route get(@Nonnull String pattern, @Nonnull Route.Handler handler) {

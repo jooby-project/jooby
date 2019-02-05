@@ -2,7 +2,7 @@
 
 Add the dependency:
 
-[dependency, artifactId="jooby-utow"]
+[dependency, artifactId="jooby-netty"]
 .
 
 [TIP]
@@ -33,22 +33,17 @@ Run `App.java`:
 
 [source]
 ----
-INFO  [2018-12-05 10:17:22,686] [main] App [utow@default]
+INFO App started with:
+INFO     PID: 21661
+INFO     port: 8080
+INFO     server: netty
+INFO routes: 
 
   GET /
 
 listening on:
-  http://localhost:8080
+  http://localhost:8080/
+
 ----
 
 Ready {love}!
-
-[TIP]
-====
-
-Alternative you may want to try one of the starter projects:
-
-- https://github.com/jooby-project/maven-starter[Maven starter]
-- https://github.com/jooby-project/gradle-starter[Gradle starter]
-- https://github.com/search?q=topic%3A2.x+org%3Ajooby-project&type=Repositories[All starter projects]
-====

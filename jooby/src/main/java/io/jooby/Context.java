@@ -373,7 +373,7 @@ public interface Context {
     try {
       Route route = route();
       Renderer renderer = route.renderer();
-      byte[] bytes = renderer.encode(this, value);
+      byte[] bytes = renderer.render(this, value);
       sendBytes(bytes);
       return this;
     } catch (Exception x) {

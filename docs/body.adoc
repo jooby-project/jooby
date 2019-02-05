@@ -23,7 +23,7 @@ Raw `request body` is available via javadoc:Context[body] method:
 ----
 
 <1> `HTTP Body` as `String`
-<2> `HTTP Body` as `byte`
+<2> `HTTP Body` as `byte array`
 <3> `HTTP Body` as `InputStream`
 
 This give us the `raw body`.
@@ -111,13 +111,12 @@ Response rendering is achieved using the javadoc:Renderer[] functional interface
 ----
 public interface Renderer {
 
-  void render(Context ctx, Object result) throws Exception;
+  byte[] render(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
 }
 ----
 
 Renderer has a single `render` method that accepts two input arguments: `(context, result)` and 
-returns no result. Unlike the javadoc:Parser[] functional interface, javadoc:Renderer[] is expected 
-to operate via side-effects.
+produces a result.
 
 .JSON example:
 [source, java]
@@ -129,9 +128,9 @@ to operate via side-effects.
 
     String json = lib.toJson(result);              // <3>
 
-    ctx.type(MediaType.json);                      // <4>
+    ctx.defaultResponseType(MediaType.json);       // <4>
 
-    ctx.sendText(json);                            // <5>
+    return json;                                   // <5>
   });
 
   get("/item", ctx -> {
@@ -144,8 +143,8 @@ to operate via side-effects.
 <1> Choose your favorite `json` library
 <2> Check if the `Accept` header matches `application/json`
 <3> Convert `result` to `JSON`
-<4> Set `Content-Type` to `application/json`
-<5> Send json text to client
+<4> Set default `Content-Type` to `application/json`
+<5> Produces JSON response
 <6> Route handler returns a user defined type
 
 [TIP]

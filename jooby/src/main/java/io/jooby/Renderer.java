@@ -25,12 +25,12 @@ public interface Renderer {
     return value.toString().getBytes(StandardCharsets.UTF_8);
   };
 
-  byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
+  byte[] render(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
 
   @Nonnull default Renderer accept(@Nonnull MediaType contentType) {
     return (ctx, value) -> {
       if (ctx.accept(contentType)) {
-        return encode(ctx, value);
+        return render(ctx, value);
       }
       return null;
     };

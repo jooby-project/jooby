@@ -71,7 +71,6 @@ Jooby is a modular micro framework. At the core level:
 
 Now, if you need more... Jooby don't leave you alone:
 
-- Dependency injection via https://github.com/google/guice[Guice]
 - MVC programming model (subset of https://github.com/jax-rs[JAX-RS])
 - Extensive module ecosytem
 
@@ -98,9 +97,9 @@ public class App extends Jooby {
 }
 ----
 
-This is not strictly necessary (of course), you may instantiate `Jooby` like:
+This is not strictly necessary (of course), you may create a `Jooby` application like:
 
-.Static bootstrap:
+.No-subclass bootstrap:
 [source,java]
 ----
 public class App {
@@ -112,6 +111,8 @@ public class App {
       app.get("/", ctx -> {
         return "Hello Jooby";
       });
+
+      return app;
     }, args);
   }
 }
@@ -120,9 +121,9 @@ public class App {
 [#introduction-mvc-api]
 === MVC API
 
-MVC API (a.k.a mvc routes) on the other hand uses annotation and reflection to define routes. Jooby
-implements a subset of https://github.com/jax-rs[JAX-RS] and it is not intended to be a fully
-https://github.com/jax-rs[JAX-RS] compliant.
+MVC API (a.k.a mvc routes) on the other hand uses annotation and reflection to define/execute routes.
+Jooby implements a subset of https://github.com/jax-rs[JAX-RS] but not intended to be a fully
+https://github.com/jax-rs[JAX-RS] compliant implementation.
 
 .MVC API:
 [source,java]
@@ -150,11 +151,6 @@ public class MyController {
   }
 }
 ----
-
-[NOTE]
-====
-MVC API is not implemented yet.
-====
 
 include::getting-started.adoc[]
 

@@ -4,20 +4,18 @@ javadoc:Context[Context] gives you access to `HTTP Request/Response`.
 
 === Parameters
 
-There are four parameter types: `path`, `query`, `form` and `multipart`. All them share an unified
-API for accessing and parsing to their values.
+There are four parameter types: `path`, `query`, `form` and `multipart`. All them share an 
+unified/type-safe API for accessing and manipulating their values.
 
 We are going to describe them briefly in the next sections, then go into specific features of the
-javadoc:Value[Value API].
+<<Value API>>.
 
 [id=http-header]
 ==== Header
 
 HTTP headers allow the client and the server to pass additional information with the request or the
-response. An HTTP header consists of its case-insensitive name followed by a colon `:`, then by its 
-value (without line breaks). Leading white space before the value is ignored.
+response.
 
-.Header API:
 [source, java]
 ----
 {
@@ -26,7 +24,7 @@ value (without line breaks). Leading white space before the value is ignored.
 
     Value headers = ctx.headers();                         // <2>
 
-    Map<String, List<String>> headerMap = ctx.headerMap(); // <3>
+    Map<String, String> headerMap = ctx.headerMap(); // <3>
     ...
   });
   
@@ -35,11 +33,11 @@ value (without line breaks). Leading white space before the value is ignored.
 
 <1> Header variable `token`
 <2> All headers as javadoc:Value[]
-<3> All headers as a `multi-value` map
+<3> All headers as map
 
 ==== Path
 
-Path parameter are part of the `URI`. To define a path variable you need to use the `{..}` notation.
+Path parameter are part of the `URI`. To define a path variable you need to use the `{identifier}` notation.
 
 .Syntax:
 [source,java]
@@ -53,7 +51,7 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
   
   get("/file/*", ctx -> ctx.path("*"))                                        // <4>
 
-  get("/{id:[0-9]+}", ctx -> ctx.path("id))                                    // <5>
+  get("/{id:[0-9]+}", ctx -> ctx.path("id))                                   // <5>
 }
 ----
 
@@ -63,7 +61,6 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 <4> Unnamed catchall path variable
 <5> Path variable with a regular expression
 
-.Path:
 [source, java]
 ----
 {
@@ -106,6 +103,8 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 - `/%2F%2B` => `/+`   (decoded)
 
 ==== Query
+
+Query String is part of the `URI` that start after the `?` character.
 
 [source, java]
 ----
@@ -167,20 +166,23 @@ class SearchQuery {
 
 ==== Formdata
 
+Formdata is expected to be in HTTP body, or for as part of the `URI` for `GET` requests.
+
+Data is expected to be encoded as `application/x-www-form-urlencoded`.
+
 [source, java]
 ----
 {
   post("/user", ctx -> {
-    Formdata form = ctx.form();                                // <1>
+    Formdata form = ctx.form();                             // <1>
 
-    Map<String, List<String> formMap = ctx.formMultimap();  // <2>
+    Map<String, List<String>> formMap = ctx.formMultimap(); // <2>
 
     String userId = ctx.form("id").value();                 // <3>
     
     String pass = ctx.form("pass").value();                 // <4>
 
     User user = ctx.form(User.class);                       // <5>
-
     
     ...
   });
@@ -209,12 +211,9 @@ curl -d "id=root&pass=pwd" -X POST http://localhost:8080/user
 <4> Form variable `pass`       => `pwd`
 <5> Form as `User` object      => `User(id=root, pass=pwd)`
 
-[NOTE]
-====
-Form data must be encoded as `application/x-www-form-urlencoded`
-====
-
 ==== Multipart
+
+Form-data must be present in the HTTP body and encoded as `multipart/form-data`:
 
 [source, java]
 ----
@@ -257,11 +256,11 @@ curl -F id=root -F pass=root -F pic=@/path/to/local/file/profile.png http://loca
 ----
 
 <1> Form as javadoc:Multipart[] => `{id=root, pass=pwd, pic=profile.png}`
-<2> Form as `multi-value map`  => `{id=root, pass=[pwd]}`
-<3> Form variable `id`         => `root`
-<4> Form variable `pass`       => `pwd`
+<2> Form as `multi-value map`   => `{id=root, pass=[pwd]}`
+<3> Form variable `id`          => `root`
+<4> Form variable `pass`        => `pwd`
 <5> javadoc:FileUpload[] variable `pic`
-<6> Form as `User` object      => `User(id=root, pass=pwd, pic=profile.png)`
+<6> Form as `User` object       => `User(id=root, pass=pwd, pic=profile.png)`
 
 [TIP]
 .File Upload
@@ -282,11 +281,6 @@ You may prefer to use one of the utility methods:
 <2> Multiple file uploads named `pic`
 <3> All file uploads
 
-====
-
-[NOTE]
-====
-Form data must be encoded as `multipart/form-data`
 ====
 
 include::value-api.adoc[]

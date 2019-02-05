@@ -1,5 +1,172 @@
 == Thread Model
 
-=== dispatch
+Jooby is a flexible performant microframework providing both blocking and non-blocking APIs for 
+building web applications in Java and Kotlin.
 
-Nam sed magna eleifend augue dictum auctor tristique vitae arcu. Mauris sit amet ante et augue euismod ultrices eu et nibh.
+In this chapter we are going to learn about Jooby execution/thread model while next chapter discuss 
+how to use reactive libraries and Kotlin coroutines.
+
+=== execution mode
+
+The execution mode defines the threading model used by Jooby. That's how the incoming requests are 
+execute it.
+
+==== event loop
+
+The javadoc:ExecutionMode[EVENT_LOOP] mode allows us to run a route handler from the
+*event loop thread* (a.k.a as non-blocking thread).
+
+[source,java]
+----
+{
+  mode(EVENT_LOOP);
+
+  get("/", ctx -> {
+    return "I'm non-blocking!"
+  });
+}
+----
+
+The javadoc:ExecutionMode[EVENT_LOOP] mode is the more advanced execution mode and requires you carefully
+design and implement your application due *BLOCKING IS NOT ALLOWED*
+
+What if you need to block?
+
+The javadoc:Router[dispatch, java.lang.Runnable] operator moves execution to a *worker thread* which 
+allows to do *blocking calls*:
+
+[source,java]
+----
+{
+  mode(EVENT_LOOP);
+
+  get("/", ctx -> {
+    return "I'm non-blocking!"
+  });
+
+  dispatch(() -> {
+    // All the routes defined here are allowed to block:
+
+    get("/db-list", ctx -> {
+      /** Safe to block! */
+      Object result = // Remote service, db call, etc..
+      return result;
+    });
+
+  });
+}
+----
+
+By default, the javadoc:Router[dispatch, java.lang.Runnable] operator moves execution to the *server
+worker thread* (executor provided by web server).
+
+You can provide your own *worker thread* at application level or at dispatch level: 
+
+[source, java]
+----
+{
+  mode(EVENT_LOOP);
+  
+  worker(Executors.newCachedThreadPool());
+
+  // dispatch with cached thread pool
+  dispatch(() -> {
+    ...
+  });
+  
+  // dispatch with a explicit executor
+  Executor cpuIntensive = Executors.newSingleThreadExecutor();
+  dispatch(cpuIntesive, () -> {
+    ...
+  });
+}
+----
+
+==== worker
+
+The javadoc:ExecutionMode[WORKER] mode allows us to making blocking calls from a route handler.
+You just write code without worry about blocking calls.
+
+[source, java]
+----
+{
+  mode(WORKER);
+  
+  get("/", ctx -> {
+    /** Safe to block! */
+    Object result = // Remote service, db call, etc..
+    return result;
+  });
+}
+----
+
+Like with javadoc:ExecutionMode[EVENT_LOOP] mode, you can provide your own worker thread:
+
+[source, java]
+----
+{
+  mode(WORKER);
+
+  worker(Executors.newCachedThreadPool());
+
+  get("/", ctx -> {
+    /** Safe to block from cached thread pool! */
+    Object result = // Remote service, db call, etc..
+    return result;
+  });
+}
+----
+
+[NOTE]
+====
+While running in javadoc:ExecutionMode[WORKER] mode, Jooby internally does the dispatch call to the
+worker thread. This is done per route, not globally.
+====
+
+==== default mode
+
+The javadoc:ExecutionMode[DEFAULT] execution mode is a mix between javadoc:ExecutionMode[WORKER] 
+and javadoc:ExecutionMode[EVENT_LOOP] modes. This (as name implies) is the default execution mode in Jooby.
+
+This mode detects the route response type and determines which execution mode fits better.
+
+If the response type is considered non-blocking, then it uses the *event loop thread*. Otherwise, uses
+ the *worker thread*.
+
+A response type is considered *non-blocking* when route handler produces:
+
+- A `CompletableFuture` type
+- A https://github.com/ReactiveX/RxJava[Rx2 type]
+- A https://kotlinlang.org/docs/reference/coroutines/coroutines-guide.html[Kotlin coroutine]
+
+As example we are going to use `CompletableFuture`, but there is a dedicated chapter for 
+<<non-blocking-responses, non-blocking responses>>.
+
+[source, java]
+----
+{
+  get("/non-blocking", ctx -> {
+    return CompletableFuture
+        .supplyAsync(() -> "I'm non-blocking!")  // <1>    
+  });
+
+  get("/blocking", ctx -> {
+    return "I'm blocking";                       // <2>
+  });
+}
+----
+
+<1> `CompletableFuture` is a non-blocking type, run in *event loop thread*
+<2> `String` is a blocking type, run in *worker thread*
+
+{love} {love} {love}
+
+=== worker
+
+This section described some details about the default *worker thread* provided by web server. The
+worker thread is used to run blocking code.
+
+The *worker thread* along with the javadoc:Router[dispatch, java.lang.Runnable] operator are the tools
+provided by Jooby to support blocking code.
+
+

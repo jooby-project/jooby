@@ -252,6 +252,10 @@ public class RouterImpl implements Router {
     return newStack(push().executor(executor), action);
   }
 
+  @Nonnull @Override public Router route(@Nonnull Runnable action) {
+    return newStack("/", action);
+  }
+
   @Override @Nonnull public Router path(@Nonnull String pattern, @Nonnull Runnable action) {
     return newStack(pattern, action);
   }

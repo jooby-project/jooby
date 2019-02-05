@@ -16,7 +16,7 @@ public class JacksonTest {
   public void render() throws Exception {
     Jackson jackson = new Jackson();
     MockContext ctx = new MockContext();
-    byte [] bytes = jackson.encode(ctx, mapOf("k", "v"));
+    byte [] bytes = jackson.render(ctx, mapOf("k", "v"));
     assertEquals("{\"k\":\"v\"}", new String(bytes, StandardCharsets.UTF_8));
     /** Type: */
     assertEquals("application/json", ctx.responseContentType().value());

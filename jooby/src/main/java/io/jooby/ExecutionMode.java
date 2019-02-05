@@ -53,7 +53,7 @@ public enum ExecutionMode {
    *
    *   mode(WORKER);
    *
-   *   get("/worker", cxtx -> {
+   *   get("/worker", ctx -> {
    *     // remote call: another service, database, etc..
    *     return "Safe to block";
    *   });
@@ -74,7 +74,6 @@ public enum ExecutionMode {
    * A reactive type is one of:
    *
    * - {@link java.util.concurrent.CompletableFuture}.
-   * - {@link java.util.concurrent.Flow.Publisher}
    * - A reactive stream Publisher
    * - Rx types: Observable, Flowable, Single, Maybe, etc..
    * - Reactor types: Flux and Mono.

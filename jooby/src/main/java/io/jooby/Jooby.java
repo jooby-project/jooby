@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Spliterator;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -214,6 +215,11 @@ public class Jooby implements Router {
     return this;
   }
 
+  @Nonnull @Override public Jooby route(@Nonnull Runnable action) {
+    router.route(action);
+    return this;
+  }
+
   @Nonnull @Override
   public Route route(@Nonnull String method, @Nonnull String pattern,
       @Nonnull Route.Handler handler) {
@@ -242,6 +248,9 @@ public class Jooby implements Router {
 
   @Nonnull @Override public Jooby worker(Executor worker) {
     this.router.worker(worker);
+    if (worker instanceof ExecutorService) {
+      onStop(((ExecutorService) worker)::shutdown);
+    }
     return this;
   }
 

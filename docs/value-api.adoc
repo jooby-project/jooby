@@ -1,6 +1,6 @@
 === Value API
 
-The javadoc:Value[Value] is an unified API across all parameter types:
+The javadoc:Value[Value] is an unified and type-safe API across all parameter types:
 
 - <<http-header, Header>>
 - <<path, Path>>
@@ -31,7 +31,7 @@ Single value is available via `value()` or `[type]Value()` functions:
 }
 ----
 
-The javadoc:Value[value] family methods always retrieve a `value`. If there is no value, a
+The `*value()` family methods always retrieve a `value`. If there is no value, a
 `BadRequest(400)` response is generated. So single value parameters *are required*: 
 
 <1> Access to query parameter `q` and convert to `String`:
