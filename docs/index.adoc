@@ -67,7 +67,7 @@ Jooby is a modular micro framework. At the core level:
 - Reflection and annotation free
 - No dependency injection
 - Only HTTP Routing
-- Multi Server: link:server/jetty.html[Jetty], Netty, Undertow
+- Multi Server: link:server/jetty.html[Jetty], link:server/netty.html[Netty], link:server/undertow.html[Undertow]
 
 Now, if you need more... Jooby don't leave you alone:
 
