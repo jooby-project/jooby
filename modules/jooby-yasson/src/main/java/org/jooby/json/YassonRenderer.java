@@ -210,6 +210,10 @@ import javax.json.bind.Jsonb;
 import org.jooby.MediaType;
 import org.jooby.Renderer;
 
+ /**
+  * @author Daniel Dias
+  * @since 1.6.0
+ */
 public class YassonRenderer implements Renderer {
     
   protected final MediaType type;
@@ -225,8 +229,7 @@ public class YassonRenderer implements Renderer {
   @Override
   public void render(final Object object, final Context ctx) throws Exception {
     if (ctx.accepts(this.type)) {
-      ctx.type(this.type)
-          .send(jsonb.toJson(object));
+        ctx.type(this.type).send(jsonb.toJson(object));
     }
   }
 
