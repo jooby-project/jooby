@@ -212,6 +212,10 @@ import org.jooby.Parser.Context;
 
 import com.google.inject.TypeLiteral;
 
+ /**
+  * @author Daniel Dias
+  * @since 1.6.0
+ */
 class YassonParser implements Parser {
 
   private final MediaType type;
@@ -227,7 +231,6 @@ class YassonParser implements Parser {
   public Object parse(final TypeLiteral<?> type, final Context ctx) throws Throwable {
     MediaType ctype = ctx.type();
     if (ctype.isAny()) {
-      // */*
       return ctx.next();
     }
 

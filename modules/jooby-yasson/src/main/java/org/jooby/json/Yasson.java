@@ -283,19 +283,58 @@ public class Yasson implements Jooby.Module  {
 
   private boolean raw;
 
+  /**
+   * Creates a new {@link Jsonb}.
+   *
+   * @param type {@link MediaType} to use.
+   */
   public Yasson(final MediaType type) {
     this.type = requireNonNull(type, "Media type is required.");
   }
   
+  /**
+   * Creates a new {@link Jsonb} and set type to: {@link MediaType#json}.
+   *
+   */
   public Yasson() {
     this(MediaType.json);
   }
 
+  /**
+   * Configurer callback.
+   *
+   * <pre>
+   * {
+   *   use(new Yasson().doWith(builder {@literal ->} {
+   *     builder.withFormatting(true);
+   *     // ...
+   *   });
+   * }
+   * </pre>
+   *
+   * @param configurer A callback.
+   * @return This instance.
+   */
   public Yasson doWith(final BiConsumer<JsonbConfig, Config> configurer) {
     this.configurer = requireNonNull(configurer, "Configurer callback is required.");
     return this;
   }
-    
+
+  /**
+   * Configurer callback.
+   *
+   * <pre>
+   * {
+   *   use(new Yasson().doWith((builder, config) {@literal ->} {
+   *     builder.withFormatting(true);
+   *     // ...
+   *   });
+   * }
+   * </pre>
+   *
+   * @param configurer A callback.
+   * @return This instance.
+   */  
   public Yasson doWith(final Consumer<JsonbConfig> configurer) {
     requireNonNull(configurer, "Configurer callback is required.");
     this.configurer = (jsonConfig, conf) -> configurer.accept(jsonConfig);
@@ -314,8 +353,7 @@ public class Yasson implements Jooby.Module  {
 
     binder.bind(Jsonb.class).toInstance(jsonb);
 
-    Multibinder.newSetBinder(binder, Parser.class).addBinding()
-        .toInstance(new YassonParser(type, jsonb));
+    Multibinder.newSetBinder(binder, Parser.class).addBinding().toInstance(new YassonParser(type, jsonb));
 
     YassonRenderer renderer = raw ? new YassonRawRenderer(type, jsonb) : new YassonRenderer(type, jsonb);
 
