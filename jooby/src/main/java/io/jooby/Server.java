@@ -75,6 +75,8 @@ public interface Server {
 
   @Nonnull Server start(Jooby application);
 
+  Server workerThreads(int workerThreads);
+
   @Nonnull default void join() {
     try {
       Thread.currentThread().join();

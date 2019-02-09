@@ -1,9 +1,7 @@
 package io.jooby.adoc;
 
 import io.methvin.watcher.DirectoryWatcher;
-import org.slf4j.helpers.NOPLogger;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,10 +10,10 @@ import static org.slf4j.helpers.NOPLogger.NOP_LOGGER;
 
 public class DocServer {
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws Exception {
     Path basedir = DocGenerator.basedir();
 
-    DocGenerator.generate(basedir);
+    DocGenerator.generate(basedir, false);
 
     System.out.println("listening for changes on: " + basedir);
     System.out.println("ready");
@@ -31,10 +29,10 @@ public class DocServer {
             executor.execute(() -> {
               try {
                 long start = System.currentTimeMillis();
-                DocGenerator.generate(basedir);
+                DocGenerator.generate(basedir, false);
                 long end = System.currentTimeMillis();
                 System.out.println("Sync ready in " + (end - start) + "ms");
-              } catch (IOException x) {
+              } catch (Exception x) {
                 x.printStackTrace();
               }
             });

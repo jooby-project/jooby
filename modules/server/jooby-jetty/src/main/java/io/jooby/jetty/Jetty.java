@@ -17,7 +17,6 @@ package io.jooby.jetty;
 
 import io.jooby.Jooby;
 import io.jooby.internal.jetty.JettyHandler;
-import io.jooby.internal.jetty.JettyMultiHandler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.MultiPartFormDataCompliance;
@@ -26,14 +25,11 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
-import org.eclipse.jetty.util.thread.Scheduler;
 import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class Jetty extends io.jooby.Server.Base {
 
@@ -48,6 +44,12 @@ public class Jetty extends io.jooby.Server.Base {
   private long maxRequestSize = _10MB;
 
   private int bufferSize = _16KB;
+
+  private int workerThreads = 200;
+
+  static {
+    System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.Slf4jLog");
+  }
 
   @Override public io.jooby.Server port(int port) {
     this.port = port;
@@ -73,6 +75,11 @@ public class Jetty extends io.jooby.Server.Base {
     return this;
   }
 
+  @Override public io.jooby.Server workerThreads(int workerThreads) {
+    this.workerThreads = workerThreads;
+    return this;
+  }
+
   @Nonnull @Override public io.jooby.Server start(Jooby application) {
     System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
     /** Set max request size attribute: */
@@ -83,7 +90,7 @@ public class Jetty extends io.jooby.Server.Base {
 
     addShutdownHook();
 
-    QueuedThreadPool executor = new QueuedThreadPool(64);
+    QueuedThreadPool executor = new QueuedThreadPool(workerThreads);
     executor.setName("jetty-worker");
 
     fireStart(applications, executor);
@@ -98,19 +105,14 @@ public class Jetty extends io.jooby.Server.Base {
     httpConf.setSendDateHeader(false);
     httpConf.setSendServerVersion(false);
     httpConf.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
-    int acceptors = 1;
-    int selectors = Runtime.getRuntime().availableProcessors();
-    Scheduler scheduler = new ScheduledExecutorScheduler("jetty-scheduler", false);
-    ServerConnector connector = new ServerConnector(server, executor, scheduler, null,
-        acceptors, selectors, new HttpConnectionFactory(httpConf));
+    ServerConnector connector = new ServerConnector(server);
+    connector.addConnectionFactory(new HttpConnectionFactory(httpConf));
     connector.setPort(port);
     connector.setHost("0.0.0.0");
 
     server.addConnector(connector);
 
-    AbstractHandler handler = applications.size() == 1 ?
-        new JettyHandler(applications.get(0), bufferSize, maxRequestSize) :
-        new JettyMultiHandler(applications, bufferSize, maxRequestSize);
+    AbstractHandler handler = new JettyHandler(applications.get(0), bufferSize, maxRequestSize);
 
     if (gzip) {
       GzipHandler gzipHandler = new GzipHandler();

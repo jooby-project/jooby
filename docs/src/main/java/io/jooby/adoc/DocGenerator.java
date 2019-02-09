@@ -25,15 +25,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 public class DocGenerator {
   public static final Object VERSION = "2.0.0-Alpha1";
 
-  public static void main(String[] args) throws IOException {
-    generate(basedir());
+  public static void main(String[] args) throws Exception {
+    generate(basedir(), args.length > 0 && "publish".equals(args[0]));
   }
 
-  public static void generate(Path basedir) throws IOException {
+  public static void generate(Path basedir, boolean publish) throws Exception {
     Asciidoctor asciidoctor = Asciidoctor.Factory.create();
 
     Attributes attributes = new Attributes();
@@ -95,6 +96,22 @@ public class DocGenerator {
     );
 
     asciidoctor.convertFile(basedir.resolve("index.adoc").toFile(), options);
+
+    if (publish) {
+      Path website = basedir.resolve("target")// Paths.get(System.getProperty("java.io.tmpdir"))
+          .resolve(Long.toHexString(UUID.randomUUID().getMostSignificantBits()));
+      Files.createDirectories(website);
+      Git git = new Git("jooby-project", "jooby.io", website);
+      git.clone();
+
+      /** Clean: */
+      FileUtils.deleteDirectory(website.resolve("images").toFile());
+      FileUtils.deleteDirectory(website.resolve("js").toFile());
+      FileUtils.deleteQuietly(website.resolve("index.html").toFile());
+
+      FileUtils.copyDirectory(outdir.toFile(), website.toFile());
+      git.commit("Sync documentation");
+    }
   }
 
   public static Path basedir() {

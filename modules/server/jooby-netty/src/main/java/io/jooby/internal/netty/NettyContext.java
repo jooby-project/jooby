@@ -294,7 +294,8 @@ public class NettyContext implements Context, ChannelFutureListener {
   @Nonnull @Override public Context sendBytes(@Nonnull ByteBuf data) {
     responseStarted = true;
     setHeaders.set(CONTENT_LENGTH, data.readableBytes());
-    ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING))
+    ctx.writeAndFlush(
+        new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING))
         .addListener(this);
     return this;
   }

@@ -152,7 +152,7 @@ public class FeaturedTest {
         assertEquals(404, rsp.code());
         assertEquals(580, rsp.body().contentLength());
       });
-    });
+    }, Jetty::new);
   }
 
   @Test
@@ -1500,7 +1500,7 @@ public class FeaturedTest {
 
       app.onStop(() -> {
         counter.decrementAndGet();
-        throw new IllegalStateException("expected error");
+        throw new IllegalStateException("intentional error");
       });
 
       app.get("/lifeCycle", ctx -> counter.get());

@@ -6,8 +6,6 @@ building web applications in Java and Kotlin.
 In this chapter we are going to learn about Jooby execution/thread model while next chapter discuss 
 how to use reactive libraries and Kotlin coroutines.
 
-=== execution mode
-
 The execution mode defines the threading model used by Jooby. That's how the incoming requests are 
 executed.
 
@@ -131,7 +129,7 @@ and javadoc:ExecutionMode[EVENT_LOOP] modes. This (as name implies) is the defau
 This mode detects the route response type and determines which execution mode fits better.
 
 If the response type is considered non-blocking, then it uses the *event loop thread*. Otherwise, it uses
- the *worker thread*.
+the *worker thread*.
 
 A response type is considered *non-blocking* when route handler produces:
 
@@ -170,3 +168,33 @@ The *worker thread* along with the javadoc:Router[dispatch, java.lang.Runnable] 
 provided by Jooby to support blocking code.
 
 
+=======
+<2> `String` is a blocking type, run in *worker executor*
+
+{love} {love} {love}
+
+=== worker executor
+
+This section describes more details about the default *worker executor* provided by web server. The
+worker thread is used to run blocking code.
+
+The *worker executor* along with the javadoc:Router[dispatch, java.lang.Runnable] operator are the tools
+provided by Jooby to support blocking code.
+
+The next table describe the number of threads assigned to the *worker executor* per web server:
+
+- Jetty: 
+
+.Thread
+|===
+|Name of Column 1 |Name of Column 2 |Name of Column 3 
+
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+
+|Cell in column 1, row 2
+|Cell in column 2, row 2
+|Cell in column 3, row 2
+|===
+>>>>>>> sync doc with server thread pool + server cleanup

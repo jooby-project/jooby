@@ -41,6 +41,8 @@ public class Utow extends Server.Base {
 
   private int bufferSize = _16KB;
 
+  private int workerThreads = Math.max(Runtime.getRuntime().availableProcessors(), 2) * 8;
+
   private List<Jooby> applications = new ArrayList<>();
 
   @Override public Server port(int port) {
@@ -64,6 +66,11 @@ public class Utow extends Server.Base {
 
   @Nonnull @Override public Server bufferSize(int bufferSize) {
     this.bufferSize = bufferSize;
+    return this;
+  }
+
+  @Override public Server workerThreads(int workerThreads) {
+    this.workerThreads = workerThreads;
     return this;
   }
 
@@ -92,6 +99,7 @@ public class Utow extends Server.Base {
         .setServerOption(UndertowOptions.DECODE_URL, false)
         /** Worker: */
         .setWorkerOption(Options.WORKER_NAME, "utow")
+        .setWorkerThreads(workerThreads)
         .setHandler(handler)
         .build();
 

@@ -17,7 +17,6 @@ package io.jooby.netty;
 
 import io.jooby.Jooby;
 import io.jooby.Server;
-import io.jooby.internal.netty.NettyMultiHandler;
 import io.jooby.internal.netty.NettyNative;
 import io.jooby.internal.netty.NettyHandler;
 import io.jooby.internal.netty.NettyPipeline;
@@ -29,18 +28,10 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.DiskAttribute;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import io.jooby.Throwing;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 import javax.annotation.Nonnull;
-import javax.net.ssl.SSLException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -62,6 +53,16 @@ public class Netty extends Server.Base {
   private DefaultEventExecutorGroup worker;
 
   private int bufferSize = _16KB;
+
+  private int processors = Math.max(Runtime.getRuntime().availableProcessors(), 1);
+
+  private int parallelism = Math.max(2, processors);
+
+  private int acceptorThreads = processors;
+
+  private int ioThreads = parallelism * 2;
+
+  private int workerThreads = parallelism * 8;
 
   @Override public Server port(int port) {
     this.port = port;
@@ -87,16 +88,19 @@ public class Netty extends Server.Base {
     return port;
   }
 
+  @Override public Server workerThreads(int workerThreads) {
+    this.workerThreads = workerThreads;
+    return this;
+  }
+
   @Nonnull @Override public Server start(Jooby application) {
     try {
       applications.add(application);
 
       addShutdownHook();
 
-      int threads = Math.max(Runtime.getRuntime().availableProcessors(), 2);
-      int workerThreads = threads * 8;
-      worker = new DefaultEventExecutorGroup(workerThreads,
-          new DefaultThreadFactory("netty-worker"));
+      /** Worker: Application blocking code */
+      worker = new DefaultEventExecutorGroup(workerThreads, new DefaultThreadFactory("netty-worker"));
       fireStart(applications, worker);
 
       /** Disk attributes: */
@@ -110,11 +114,11 @@ public class Netty extends Server.Base {
       }
 
       NettyNative provider = NettyNative.get(getClass().getClassLoader());
-      /** Acceptor: */
-      this.acceptor = provider.group("netty-acceptor", 1);
+      /** Acceptor: Accepts connections */
+      this.acceptor = provider.group("netty-acceptor", acceptorThreads);
 
-      /** Client: */
-      this.ioLoop = provider.group("netty", threads);
+      /** IO: processing connections, parsing messages and doing engine's internal work */
+      this.ioLoop = provider.group("netty", ioThreads);
 
       /** Handler: */
       HttpDataFactory factory = new DefaultHttpDataFactory(bufferSize);

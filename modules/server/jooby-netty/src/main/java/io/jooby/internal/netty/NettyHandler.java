@@ -57,7 +57,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   }
 
   @Override
-  public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+  public void channelRead(ChannelHandlerContext ctx, Object msg) {
     if (msg instanceof HttpRequest) {
       HttpRequest req = (HttpRequest) msg;
       context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize);
