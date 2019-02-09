@@ -1,4 +1,4 @@
-== Thread Model
+== Execution Model
 
 Jooby is a flexible performant microframework providing both blocking and non-blocking APIs for 
 building web applications in Java and Kotlin.
@@ -9,7 +9,7 @@ how to use reactive libraries and Kotlin coroutines.
 === execution mode
 
 The execution mode defines the threading model used by Jooby. That's how the incoming requests are 
-execute it.
+executed.
 
 ==== event loop
 
@@ -28,7 +28,7 @@ The javadoc:ExecutionMode[EVENT_LOOP] mode allows us to run a route handler from
 ----
 
 The javadoc:ExecutionMode[EVENT_LOOP] mode is the more advanced execution mode and requires you carefully
-design and implement your application due *BLOCKING IS NOT ALLOWED*
+design and implement your application due to that *BLOCKING IS NOT ALLOWED*
 
 What if you need to block?
 
@@ -85,7 +85,7 @@ You can provide your own *worker thread* at application level or at dispatch lev
 ==== worker
 
 The javadoc:ExecutionMode[WORKER] mode allows us to making blocking calls from a route handler.
-You just write code without worry about blocking calls.
+You just write code without worrying about blocking calls.
 
 [source, java]
 ----
@@ -130,7 +130,7 @@ and javadoc:ExecutionMode[EVENT_LOOP] modes. This (as name implies) is the defau
 
 This mode detects the route response type and determines which execution mode fits better.
 
-If the response type is considered non-blocking, then it uses the *event loop thread*. Otherwise, uses
+If the response type is considered non-blocking, then it uses the *event loop thread*. Otherwise, it uses
  the *worker thread*.
 
 A response type is considered *non-blocking* when route handler produces:

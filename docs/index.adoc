@@ -158,6 +158,6 @@ include::routing.adoc[]
 
 include::context.adoc[]
 
-include::thread-model.adoc[]
+include::execution-model.adoc[]
 
 include::mvc-api.adoc[]
