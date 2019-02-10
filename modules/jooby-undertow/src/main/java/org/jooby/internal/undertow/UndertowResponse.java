@@ -268,7 +268,8 @@ public class UndertowResponse implements NativeResponse {
 
   @Override
   public void send(final ByteBuffer buffer) throws Exception {
-    exchange.getResponseSender().send(buffer);
+    endExchange = false;
+    exchange.getResponseSender().send(buffer, new LogIoCallback(IoCallback.END_EXCHANGE));
   }
 
   @Override
