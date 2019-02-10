@@ -23,28 +23,40 @@ Style guidelines:
 
 == Introduction
 
-Jooby is a modern, fun and easy to use web framework for Java built on top of your favorite web server.
+Jooby is a modern, performant and easy to use web framework for Java and Kotlin  built on top of your favorite web server.
 
-.Hello World:
-[source,java]
+.Welcome!!
+[source,java,role="primary"]
 ----
-public class App extends Jooby {           // <1>
+import io.jooby.Jooby;
+
+public class App extends Jooby {
 
   {
-    get("/", ctx -> {                      // <2>
-      return "Hello Jooby";                // <3>
+    get("/", ctx -> {
+      return "Welcome to Jooby!";
     }); 
   }
 
   public static void main(String[] args) {
-    run(App::new, args);                   // <4>
+    run(App::new, args);
   }
 }
 ----
-<1> Create a new instance of `Jooby`
-<2> Define a route. A route consist of: a `HTTP method`, a `path pattern` and `handler` function
-<3> Returns `Hello Jooby` to the client
-<4> Initialize and run `App.java` 
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.run
+
+fun main(args: Array<String>) {
+  run(args) {
+    get {
+      "Welcome to Jooby!"
+    }
+  }
+}
+----
 
 === Status
 
@@ -81,13 +93,15 @@ Script API (a.k.a script routes) provides a fluent DSL, reflection and annotatio
 We usually extends `Jooby` and define routes in the instance initializer:
 
 .Script:
-[source,java]
+[source,java,role="primary"]
 ----
+import io.jooby.Jooby;
+
 public class App extends Jooby {
 
   {
     get("/", ctx -> {
-      return "Hello Jooby";
+      return "Hello Jooby!";
     }); 
   }
 
@@ -97,11 +111,32 @@ public class App extends Jooby {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.Kooby;
+import io.jooby.run;
+
+class App : Kooby({
+
+  get {
+    "Hello Jooby!"
+  }
+
+})
+
+fun main(args: Array<String>) {
+  run(::App, args)
+}
+----
+
 This is not strictly necessary (of course), you may create a `Jooby` application like:
 
 .No-subclass bootstrap:
-[source,java]
+[source,java,role="primary"]
 ----
+import io.jooby.Jooby;
+
 public class App {
 
   public static void main(String[] args) {
@@ -109,7 +144,7 @@ public class App {
       Jooby app = new Jooby();
 
       app.get("/", ctx -> {
-        return "Hello Jooby";
+        return "Hello Jooby!";
       });
 
       return app;
@@ -118,17 +153,31 @@ public class App {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.run
+
+fun main(args: Array<String>) {
+  run(args) {
+    get {
+      "Hello Jooby!"
+    }
+  }
+}
+----
+
 [#introduction-mvc-api]
 === MVC API
 
-MVC API (a.k.a mvc routes) on the other hand uses annotation and reflection to define/execute routes.
+On the other hand, the MVC API (a.k.a mvc routes) uses annotation and reflection to define/execute routes.
 Jooby implements a subset of https://github.com/jax-rs[JAX-RS] but not intended to be a fully
 https://github.com/jax-rs[JAX-RS] compliant implementation.
 
 .MVC API:
-[source,java]
+[source,java,role="primary"]
 ----
-public class App {
+public class App extends Jooby {
 
   {
     use(new MyController());
@@ -138,16 +187,34 @@ public class App {
     run(App::new, args);
   }
 }
-----
 
-.MyController:
-[source,java]
-----
 public class MyController {
 
   @GET
-  public String hello() {
-    return "Hello Jooby";
+  public String sayHi() {
+    return "Hello Jooby!";
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class App : Kooby({
+
+    use(MyController())
+
+})
+
+fun main(args: Array<String>) {
+  run(::App, args)
+}
+
+class MyController {
+
+  @GET
+  fun sayHi() : String {
+    return "Hello Jooby!"
   }
 }
 ----
@@ -159,5 +226,7 @@ include::routing.adoc[]
 include::context.adoc[]
 
 include::execution-model.adoc[]
+
+include::responses.adoc[]
 
 include::mvc-api.adoc[]

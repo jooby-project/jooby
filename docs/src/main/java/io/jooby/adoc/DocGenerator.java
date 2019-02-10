@@ -64,6 +64,7 @@ public class DocGenerator {
         "Java, Modern, Micro, Web, Framework, Reactive, Lightweight, Microservices");
     attributes.setAttribute("imagesdir", "images");
     attributes.setAttribute("source-highlighter", "highlightjs");
+    attributes.setAttribute("highlightjsdir", "js");
     attributes.setAttribute("highlightjs-theme", "agate");
     attributes.setAttribute("favicon", "images/favicon96.png");
     attributes.setAttribute("love", "&#9825;");

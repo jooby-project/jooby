@@ -43,6 +43,7 @@ import static io.undertow.util.Headers.RANGE;
 
 public class UtowContext implements Context, IoCallback {
 
+  private static final ByteBuffer EMPTY = ByteBuffer.wrap(new byte[0]);
   private Route route;
   private HttpServerExchange exchange;
   private Router router;
@@ -263,7 +264,7 @@ public class UtowContext implements Context, IoCallback {
   @Nonnull @Override public Context sendStatusCode(int statusCode) {
     exchange.setResponseContentLength(0);
     exchange.setStatusCode(statusCode);
-    destroy(null);
+    exchange.getResponseSender().send(EMPTY, this);
     return this;
   }
 

@@ -1,3 +1,5 @@
+* check sendBytes implementation and don't set content-length if there is one already
+
 * doc
 * api doc
 * tests and coverage

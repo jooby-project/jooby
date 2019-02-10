@@ -1,0 +1,330 @@
+== Responses
+
+This chapter covers some special response types, like `raw responses`, `streaming`, `file download`, `non-blocking`, etc...
+
+=== NonBlocking
+
+Non-blocking responses is a new feature of Jooby 2.x.
+
+From user point of view there is nothing special about them, you just write your route handler as 
+usually due with blocking types.
+
+In Jooby 1.x we are force to produces directly/indirectly a `Deferred` result. All that is gone now, 
+we don't need a custom type to do the integration.
+
+Before we jump to each of the supported types, we need to learn what occurs in the pipeline when
+there is a non-blocking route handler.
+
+.In event loop
+[source,java,role="primary",text="XXX xxx"]
+----
+{
+  mode(EVENT_LOOP);                 // <1>
+
+  get("/non-blocking", ctx -> {
+
+    ...                             // <2>
+
+    return CompletableFuture        // <3>
+        .supplyAsync(() -> {
+          ...                       // <4>
+        });
+  })
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  mode(EVENT_LOOP)                  // <1>
+
+  get("/non-blocking") {
+
+    ...                             // <2>
+
+    CompletableFuture               // <3>
+        .supplyAsync {
+          ...                       // <4>
+        }
+  }
+}
+----
+
+
+<1> App run in *event loop*
+<2> Route block run in *event loop*. No blocking code is permitted
+<3> Value is provided from *event loop*. No blocking code is permitted
+<4> Value is computed/produces from completable future context
+
+Running your `App` in *worker* mode works identically, except for we are able to do blocking calls:
+
+
+.In worker mode
+[source,java,role="primary"]
+----
+{
+  mode(WORKER);                     // <1>
+
+  get("/blocking", ctx -> {
+
+    ...                             // <2>
+
+    return CompletableFuture        // <3>
+        .supplyAsync(() -> {
+          ...                       // <4>
+        });
+  })
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  mode(WORKER)                      // <1>
+
+  get("/blocking") {
+
+    ...                             // <2>
+
+    CompletableFuture               // <3>
+        .supplyAsync {
+          ...                       // <4>
+        }
+  }
+}
+----
+
+<1> App run in *worker mode*
+<2> Route block run in *worker mode*. Blocking code is permitted
+<3> Value is provided from *worker mode*. Blocking code is permitted
+<4> Value is computed/produces from completable future context
+
+Running your `App` in *default* mode works identically to running in the *event loop* mode:
+
+.In default mode
+[source,java,role="primary"]
+----
+{
+  mode(DEFAULT);                    // <1>
+
+  get("/non-blocking", ctx -> {
+
+    ...                             // <2>
+
+    return CompletableFuture        // <3>
+        .supplyAsync(() -> {
+          ...                       // <4>
+        });
+  })
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  mode(DEFAULT)                     // <1>
+
+  get("/non-blocking") {
+
+    ...                             // <2>
+
+    CompletableFuture               // <3>
+        .supplyAsync {
+          ...                       // <4>
+        }
+  }
+}
+----
+
+<1> App run in *event loop*
+<2> Route block run in *event loop*. No blocking code is permitted
+<3> Value is provided from *event loop*. No blocking code is permitted
+<4> Value is computed/produces from completable future context
+
+The *default* mode mimics the *event loop* mode execution when route produces a *non-blocking* type.
+
+==== CompletableFuture
+
+CompletableFuture is considered a non-blocking type which is able to produces a single result:
+
+
+.Java
+[source,java, role="primary"]
+----
+{
+  get("/non-blocking", ctx -> {
+    return CompletableFuture
+        .supplyAsync(() -> "Completable Future!")
+        .thenApply(it -> "Hello " + it);
+  })
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  get("/non-blocking") {
+    CompletableFuture
+        .supplyAsync { "Completable Future!" }
+        .thenApply { "Hello $it" }
+  }
+}
+----
+
+==== RxJava
+
+Jooby produces different responses based on the reactive type: `Single` vs `Flowable`
+
+===== Single
+
+.Java
+[source,java, role="primary"]
+----
+{
+  get("/non-blocking", ctx -> {
+    return Single
+        .fromCallable(() -> "Single")
+        .map(it -> "Hello " + it);
+  })
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  get("/non-blocking") {
+    Single
+        .fromCallable { "Single" }
+        .map { "Hello $it" }
+  }
+}
+----
+
+Jooby is able to set the `Content-Length` header when using *Single* responses.
+
+===== Flowable
+
+.Java
+[source,java, role="primary"]
+----
+{
+  get("/non-blocking", ctx -> {
+    return Flowable.range(1, 10)
+        .map(it -> it + ", ");
+  })
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  get("/non-blocking") {
+    Flowable.range(1, 10)
+        .map{ "$it, " }
+  }
+}
+----
+
+Flowable responses are handled bit different, because is impossible to know how many item are going
+to be generated.
+
+Jooby builds a `chunked` response. That is:
+
+. Set the `Transfer-Encoding: chunked` header
+. Each item means new `chunk` send it to client 
+
+==== Reactor
+
+It works like <<RxJava>> using reactor types `Mono` and `Flux`.
+
+==== Kotlin Coroutines
+
+Probably one of most exciting new features of Jooby 2.x is the builtin integration with https://kotlinlang.org/docs/reference/coroutines/coroutines-guide.html[Kotlin Coroutines]:
+
+.Hello Coroutines
+[source, kotlin]
+----
+{
+  get("/") {
+    delay(100)           // <1>
+    "Hello Coroutines!"  // <2>
+  }
+}
+----
+
+<1> Call a suspending function
+<2> Send response to client
+
+Here is another example with an extension and suspending function:
+
+[source, kotlin]
+----
+{
+  get("/") {
+    ctx.doSomething()       // <1>
+  }
+}
+
+suspend fun Context.doSomething(): String {
+  delay(100)                // <2>
+  return "Hi Coroutines"    // <3>
+}
+----
+
+<1> Call extension suspending function
+<2> Call a suspending function or do a blocking call
+<3> Send response to client
+
+A coroutine works like any of the other non-blocking types. You start Jooby using the **event loop**
+or **default mode**, Jooby detects we produce a coroutine and creates a coroutine context to execute
+it.
+
+Jooby uses the *worker executor* to creates a coroutine context. As described in <<worker-executor, worker executor section>>
+this is provided by the web server implementation unless you provided your own.
+
+.Coroutines with custom executor:
+[source, kotlin]
+----
+{
+  worker(Executors.newCachedThreadPool())
+
+  get("/") {
+    val n = 5 * 5        // <1>
+    delay(100)           // <2>
+    "Hello Coroutines!"  // <3>
+  }
+}
+----
+
+<1> Statement run in the *worker executor* (cached thread pool)
+<2> Call a suspending function
+<3> Produces a response
+
+Coroutines always run in the <<worker-executor, worker executor>>. There is an experimental API where
+coroutines run in the *caller thread*(event loop in this case) until a suspending function is found.
+
+Jooby allows you to use this experimental API by setting the `coroutineStart` option:
+
+.UNDISPATCHED
+[source, kotlin]
+----
+{
+  coroutineStart = CoroutineStart.UNDISPATCHED
+
+  get("/") {
+    val n = 5 * 5        // <1>
+    delay(100)           // <2>
+    "Hello Coroutines!"  // <3>
+  }
+}
+----
+
+<1> Statement run in the *event loop* (caller thread)
+<2> Call a suspending function and dispatch to *worker executor*
+<3> Produces a response from *worker executor*

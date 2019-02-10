@@ -34,15 +34,25 @@
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
 <script>
+  var primarySelector = '.primary';
+  var secondarySelector = '.secondary';
   function addBlockSwitches() {
-    $('.primary').each(function() {
+    $(primarySelector).each(function() {
       primary = $(this);
       createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
       primary.children('.title').remove();
     });
-    $('.secondary').each(function(idx, node) {
+    $(secondarySelector).each(function(idx, node) {
       secondary = $(node);
       primary = findPrimary(secondary);
+      var title = secondary.children('.title').text();
+      if (title === 'Kotlin') {
+        var item = primary.children('.switch').children('.switch--item');
+        if (item.text() !== 'Java') {
+          primary.prepend('<div class="title">' + item.text() + '</div>');
+          item.text('Java');
+        }
+      }
       switchItem = createSwitchItem(secondary, primary.children('.switch'));
       switchItem.content.addClass('hidden');
       findPrimary(secondary).append(switchItem.content);
@@ -58,7 +68,7 @@
 
   function findPrimary(secondary) {
     candidate = secondary.prev();
-    while (!candidate.is('.primary')) {
+    while (!candidate.is(primarySelector)) {
       candidate = candidate.prev();
     }
     return candidate;
@@ -66,7 +76,7 @@
 
   function createSwitchItem(block, blockSwitch) {
     blockName = block.children('.title').text();
-    content = block.children('.content').first().append(block.next('.colist'));
+    content = block.children('.content').first();
     item = $('<div class="switch--item">' + blockName + '</div>');
     item.on('click', '', content, function(e) {
       $(this).addClass('selected');

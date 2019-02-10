@@ -1221,6 +1221,18 @@ public class FeaturedTest {
   }
 
   @Test
+  public void sendStatusCode() {
+    new JoobyRunner(app -> {
+      app.get("/statuscode", ctx -> ctx.sendStatusCode(StatusCode.OK));
+    }).ready(client -> {
+      client.get("/statuscode", rsp -> {
+        assertEquals("", rsp.body().string());
+        assertEquals(0L, rsp.body().contentLength());
+      });
+    });
+  }
+
+  @Test
   public void mixedMode() {
     new JoobyRunner(app -> {
       app.get("/blocking", ctx -> !ctx.isInIoThread());

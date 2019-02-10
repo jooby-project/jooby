@@ -18,9 +18,16 @@ package io.jooby.adoc;
 import org.asciidoctor.ast.ContentNode;
 import org.asciidoctor.extension.InlineMacroProcessor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.joining;
 
 public class JavadocProcessor extends InlineMacroProcessor {
 
@@ -33,7 +40,22 @@ public class JavadocProcessor extends InlineMacroProcessor {
     StringBuilder link = new StringBuilder("https://static.javadoc.io/io.jooby/jooby/");
     StringBuilder text = new StringBuilder();
     link.append(DocGenerator.VERSION);
-    link.append("/io/jooby/").append(clazz).append(".html");
+    String[] names = clazz.split("\\.");
+    List<String> pkg = new ArrayList<>();
+    List<String> nameList = new ArrayList<>();
+    for (String name : names) {
+      if (Character.isUpperCase(name.charAt(0))) {
+        nameList.add(name);
+      } else {
+        pkg.add(name);
+      }
+    }
+    link.append("/io/jooby/");
+    if (pkg.size() > 0) {
+      link.append(pkg.stream().collect(Collectors.joining("/"))).append("/");
+    }
+    String classname = nameList.stream().collect(Collectors.joining("."));
+    link.append(classname).append(".html");
 
     String arg1 = (String) attributes.get("1");
     String method = null;
@@ -71,9 +93,9 @@ public class JavadocProcessor extends InlineMacroProcessor {
       text.append(")");
     } else if (variable != null) {
       link.append("#").append(variable);
-      text.append(attributes.getOrDefault("text", Optional.ofNullable(arg1).orElse(clazz)));
+      text.append(attributes.getOrDefault("text", Optional.ofNullable(arg1).orElse(classname)));
     } else {
-      text.append(attributes.getOrDefault("text", Optional.ofNullable(arg1).orElse(clazz)));
+      text.append(attributes.getOrDefault("text", Optional.ofNullable(arg1).orElse(classname)));
     }
 
     Map<String, Object> options = new HashMap<>();

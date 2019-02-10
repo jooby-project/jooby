@@ -13,8 +13,8 @@ link:server/netty.html[Netty] and link:server/utow.html[Undertow].
 
 Write your application:
 
-.App.java:
-[source, java]
+.App:
+[source, java, role="primary"]
 ----
 import io.jooby.Jooby;
 
@@ -29,7 +29,21 @@ public class App extends Jooby {
 }
 ----
 
-Run `App.java`:
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+import io.jooby.run
+
+fun main(args: Array<String>) {
+  run(args) {
+    get {
+      "Hello World!"
+    }
+  }
+}
+----
+
+Run `App`:
 
 [source]
 ----

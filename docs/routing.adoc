@@ -10,8 +10,8 @@ The javadoc:Router[] is the heart of Jooby and consist of:
 
 A javadoc:Route[] consist of three part:
 
-.routes:
-[source, java]
+.Routes:
+[source, java, role="primary"]
 ----
 {
   
@@ -32,6 +32,28 @@ A javadoc:Route[] consist of three part:
 }
 ----
 
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  
+  // <1> <2>
+  get("/foo") {
+    "foo" // <3>
+  }
+
+  // Get example with path variable
+  get("/foo/{id}") {
+    ctx.param("id").value()
+  }
+  
+  // Post example
+  post("/") {
+    ctx.body().value()
+  }
+}
+----
+
 <1> HTTP method/verb, like: `GET`, `POST`, etc...
 <2> Path pattern, like: `/foo`, `/foo/{id}`, etc...
 <3> Handler function
@@ -43,18 +65,26 @@ to the client.
 
 ==== Static
 
-[source, java]
+.Java
+[source, java, role="primary"]
 ----
 {
-  
   get("/foo", ctx -> "Foo");
+}
+----
+
+.Koltin
+[source, kotlin, role="secondary"]
+----
+{
+  get("/foo") { "Foo" }
 }
 ----
 
 ==== Variable
 
-.single path variable:
-[source, java]
+.Single path variable:
+[source, java, role="primary"]
 ----
 {
   // <1>
@@ -65,19 +95,44 @@ to the client.
 }
 ----
 
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  // <1>
+  get("/user/{id}") {
+    val id = ctx.param("id").intValue() // <2>
+    id
+  }
+}
+----
+
 <1> Defines a path variable `id`
 <2> Retrieve the variable `id` as `int`
 
-.multiple path variables:
-[source, java]
+.Multiple path variables:
+[source, java,role="primary"]
 ----
 {
   // <1>
   get("/file/{file}.{ext}", ctx -> {
-    String file = ctx.param("file").value(); // <2>
+    String filename = ctx.param("file").value(); // <2>
     String ext = ctx.param("ext").value();   // <3>
-    return file + "." + ext;
+    return filename + "." + ext;
   });
+}
+----
+
+.Kotlin
+[source, kotlin,role="secondary"]
+----
+{
+  // <1>
+  get("/file/{file}.{ext}") {
+    val filename = ctx.param("file").value() // <2>
+    val ext = ctx.param("ext").value()       // <3>
+    filename + "." + ext
+  }
 }
 ----
 

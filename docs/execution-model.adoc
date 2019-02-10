@@ -3,16 +3,20 @@
 Jooby is a flexible performant microframework providing both blocking and non-blocking APIs for 
 building web applications in Java and Kotlin.
 
-In this chapter we are going to learn about Jooby execution/thread model while next chapter discuss 
-how to use reactive libraries and Kotlin coroutines.
+In this chapter we are going to learn about Jooby execution model, more specifically:
 
-The execution mode defines the threading model used by Jooby. That's how the incoming requests are 
-executed.
+- Execute code on the *event loop*
 
-==== event loop
+- Safely execution of blocking code
+
+- Working with non-blocking types, like: `CompletableFuture`, Reactive Streams, Kotlin Coroutines, etc.
+
+=== Mode
+
+==== Event Loop
 
 The javadoc:ExecutionMode[EVENT_LOOP] mode allows us to run a route handler from the
-*event loop thread* (a.k.a as non-blocking thread).
+*event loop* (a.k.a as non-blocking mode).
 
 [source,java]
 ----
@@ -30,7 +34,7 @@ design and implement your application due to that *BLOCKING IS NOT ALLOWED*
 
 What if you need to block?
 
-The javadoc:Router[dispatch, java.lang.Runnable] operator moves execution to a *worker thread* which 
+The javadoc:Router[dispatch, java.lang.Runnable] operator moves execution to a *worker executor* which 
 allows to do *blocking calls*:
 
 [source,java]
@@ -56,23 +60,24 @@ allows to do *blocking calls*:
 ----
 
 By default, the javadoc:Router[dispatch, java.lang.Runnable] operator moves execution to the *server
-worker thread* (executor provided by web server).
+worker executor* (executor provided by web server).
 
-You can provide your own *worker thread* at application level or at dispatch level: 
+You can provide your own *worker executor* at application level or at dispatch level: 
 
 [source, java]
 ----
 {
   mode(EVENT_LOOP);
   
+  // Application level executor
   worker(Executors.newCachedThreadPool());
 
-  // dispatch with cached thread pool
+  // Dispatch to application level executor which is cached thread pool
   dispatch(() -> {
     ...
   });
   
-  // dispatch with a explicit executor
+  // Dispatch to a explicit executor
   Executor cpuIntensive = Executors.newSingleThreadExecutor();
   dispatch(cpuIntesive, () -> {
     ...
@@ -80,9 +85,9 @@ You can provide your own *worker thread* at application level or at dispatch lev
 }
 ----
 
-==== worker
+==== Worker
 
-The javadoc:ExecutionMode[WORKER] mode allows us to making blocking calls from a route handler.
+The javadoc:ExecutionMode[WORKER] mode allows us to do blocking calls from a route handler (a.k.a blocking mode).
 You just write code without worrying about blocking calls.
 
 [source, java]
@@ -98,7 +103,7 @@ You just write code without worrying about blocking calls.
 }
 ----
 
-Like with javadoc:ExecutionMode[EVENT_LOOP] mode, you can provide your own worker thread:
+Like with javadoc:ExecutionMode[EVENT_LOOP] mode, you can provide your own worker executor:
 
 [source, java]
 ----
@@ -118,27 +123,25 @@ Like with javadoc:ExecutionMode[EVENT_LOOP] mode, you can provide your own worke
 [NOTE]
 ====
 While running in javadoc:ExecutionMode[WORKER] mode, Jooby internally does the dispatch call to the
-worker thread. This is done per route, not globally.
+worker executor. This is done per route, not globally.
 ====
 
-==== default mode
+==== Default
 
 The javadoc:ExecutionMode[DEFAULT] execution mode is a mix between javadoc:ExecutionMode[WORKER] 
 and javadoc:ExecutionMode[EVENT_LOOP] modes. This (as name implies) is the default execution mode in Jooby.
 
-This mode detects the route response type and determines which execution mode fits better.
+Jooby detects the route response type and determines which execution mode fits better.
 
-If the response type is considered non-blocking, then it uses the *event loop thread*. Otherwise, it uses
-the *worker thread*.
+If the response type is considered non-blocking, then it uses the *event loop*. Otherwise, it uses
+the *worker executor*.
 
 A response type is considered *non-blocking* when route handler produces:
 
 - A `CompletableFuture` type
-- A https://github.com/ReactiveX/RxJava[Rx2 type]
+- A https://github.com/ReactiveX/RxJava[RxJava type]
+- A https://projectreactor.io/[Reactor type]
 - A https://kotlinlang.org/docs/reference/coroutines/coroutines-guide.html[Kotlin coroutine]
-
-As example we are going to use `CompletableFuture`, but there is a dedicated chapter for 
-<<non-blocking-responses, non-blocking responses>>.
 
 [source, java]
 ----
@@ -154,47 +157,56 @@ As example we are going to use `CompletableFuture`, but there is a dedicated cha
 }
 ----
 
-<1> `CompletableFuture` is a non-blocking type, run in *event loop thread*
-<2> `String` is a blocking type, run in *worker thread*
-
-{love} {love} {love}
-
-=== worker
-
-This section described some details about the default *worker thread* provided by web server. The
-worker thread is used to run blocking code.
-
-The *worker thread* along with the javadoc:Router[dispatch, java.lang.Runnable] operator are the tools
-provided by Jooby to support blocking code.
-
-
-=======
+<1> `CompletableFuture` is a non-blocking type, run in *event loop*
 <2> `String` is a blocking type, run in *worker executor*
 
-{love} {love} {love}
+[TIP]
+====
+You are free to use *non-blocking* types in all the other execution mode too. Non-blocking response
+types are not specific to the **default mode** execution. All the *default mode* does with them is
+to dispatch or not to a *worker executor*.
+====
 
-=== worker executor
+=== Worker Executor
 
-This section describes more details about the default *worker executor* provided by web server. The
-worker thread is used to run blocking code.
+This section described some details about the default *worker executor* provided by web server. The
+worker executor is used when:
 
-The *worker executor* along with the javadoc:Router[dispatch, java.lang.Runnable] operator are the tools
-provided by Jooby to support blocking code.
+- Application mode was set to javadoc:ExecutionMode[WORKER]
 
-The next table describe the number of threads assigned to the *worker executor* per web server:
+- Application mode was set to javadoc:ExecutionMode[EVENT_LOOP] and there is a javadoc:Router[dispatch, java.lang.Runnable] call
 
-- Jetty: 
+Each web server provides a default *worker executor*:
 
-.Thread
-|===
-|Name of Column 1 |Name of Column 2 |Name of Column 3 
+- Netty: The javadoc:netty.Netty[text=Netty server implementation] multiply the number of available processors
+(with a minimum of 2) by 8.
 
-|Cell in column 1, row 1
-|Cell in column 2, row 1
-|Cell in column 3, row 1
+----
+workerThreads = Math.max(Runtime.getRuntime().availableProcessors(), 2) * 8
+----
 
-|Cell in column 1, row 2
-|Cell in column 2, row 2
-|Cell in column 3, row 2
-|===
->>>>>>> sync doc with server thread pool + server cleanup
+For example `8` cores gives us `64` worker threads.
+
+- Undertow: The javadoc:utow.Utow[text=Undertow server implementation] multiply the number of available processors
+(with a minimum of 2) by 8.
+
+----
+workerThreads = Math.max(Runtime.getRuntime().availableProcessors(), 2) * 8
+----
+
+For example `8` cores gives us `64` worker threads.
+
+- Jetty: The javadoc:jetty.Jetty[text=Jetty server implementation] uses the default configuration
+with `200` worker threads.
+
+These are sensible defaults suggested by the server implementation. If you need to increase/decrease
+worker threads:
+
+[source,java]
+----
+{
+  configureServer(server -> {
+    server.workerThreads(Number);
+  });
+}
+---- 
