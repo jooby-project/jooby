@@ -341,6 +341,7 @@ public class JettyServer implements org.jooby.spi.Server {
     sslContextFactory.setSslContext(sslContext);
     sslContextFactory.setIncludeProtocols("TLSv1.2");
     sslContextFactory.setIncludeCipherSuites("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
+    sslContextFactory.setEndpointIdentificationAlgorithm("HTTPS");
 
     HttpConfiguration httpsConf = new HttpConfiguration(httpConf);
     httpsConf.addCustomizer(new SecureRequestCustomizer());

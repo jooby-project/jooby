@@ -204,7 +204,9 @@
 package org.jooby.internal.undertow;
 
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 
+import org.jooby.internal.ConnectionResetByPeer;
 import org.jooby.spi.NativeResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,7 +234,9 @@ public class LogIoCallback implements IoCallback {
   @Override
   public void onException(final HttpServerExchange exchange, final Sender sender,
       final IOException x) {
-    log.error("execution of {} resulted in exception", exchange.getRequestPath(), x);
+    if (!(x instanceof ClosedChannelException)) {
+      log.error("execution of {} resulted in exception", exchange.getRequestPath(), x);
+    }
     callback.onException(exchange, sender, x);
   }
 

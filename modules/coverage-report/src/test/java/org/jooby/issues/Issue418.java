@@ -26,9 +26,11 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.jooby.MediaType;
 import org.jooby.Results;
 import org.jooby.test.ServerFeature;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import java.io.IOException;
@@ -45,6 +47,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.UnaryOperator;
 
 public class Issue418 extends ServerFeature {
 
@@ -224,7 +227,7 @@ public class Issue418 extends ServerFeature {
         }
       }
 
-      assertTrue(upgrade.toString().startsWith("HTTP/1.1 101 "));
+      assertTrue(upgrade.toString(), upgrade.toString().startsWith("HTTP/1.1 101 "));
 
       MappedByteBufferPool byteBufferPool = new MappedByteBufferPool();
       new Generator(byteBufferPool);
@@ -232,7 +235,7 @@ public class Issue418 extends ServerFeature {
       final AtomicReference<HeadersFrame> headersRef = new AtomicReference<>();
       final AtomicReference<DataFrame> dataRef = new AtomicReference<>();
       final AtomicReference<CountDownLatch> latchRef = new AtomicReference<>(new CountDownLatch(2));
-      Parser parser = new Parser(byteBufferPool, new Parser.Listener.Adapter() {
+      Parser.Listener.Adapter listener = new Parser.Listener.Adapter() {
         @Override
         public void onHeaders(final HeadersFrame frame) {
           headersRef.set(frame);
@@ -244,11 +247,14 @@ public class Issue418 extends ServerFeature {
           dataRef.set(frame);
           latchRef.get().countDown();
         }
-      }, 4096, 8192);
+      };
+      Parser parser = new Parser(byteBufferPool, listener, 4096, 8192);
+      parser.init(UnaryOperator.identity());
 
       parseResponse(client, parser);
 
       assertTrue(latchRef.get().await(5, TimeUnit.SECONDS));
+      //      latchRef.get().await();
 
       HeadersFrame response = headersRef.get();
       assertNotNull(response);

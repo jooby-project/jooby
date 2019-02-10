@@ -20,6 +20,7 @@
 * [ehcache](https://github.com/jooby-project/jooby/tree/master/jooby-ehcache/#session-store): HTTP session store for {{ehcache}}.
 
 ## sql
+* [expose](https://github.com/jooby-project/jooby/tree/master/jooby-expose): [Exposed](https://github.com/JetBrains/Exposed) is a prototype for a lightweight SQL library written over JDBC driver for Kotlin language
 * [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc): high performance connection pool for jdbc via {{hikari}}.
 * [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi): fluent API for JDBC.
 * [flyway](https://github.com/jooby-project/jooby/tree/master/jooby-flyway): database migrations via {{flyway}}.
