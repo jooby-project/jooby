@@ -217,7 +217,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by
  *
- * @Author: lis, Luganski Igor
+ * @author: lis, Luganski Igor
  * @since 1.5.0
  */
 public class RedisSentinel extends Redis {
