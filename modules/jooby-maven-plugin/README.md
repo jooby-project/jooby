@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-maven-plugin/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-maven-plugin/1.5.1)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-maven-plugin.svg)](https://javadoc.io/doc/org.jooby/jooby-maven-plugin/1.5.1)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-maven-plugin/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-maven-plugin/1.6.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-maven-plugin.svg)](https://javadoc.io/doc/org.jooby/jooby-maven-plugin/1.6.0)
 [![jooby-maven-plugin website](https://img.shields.io/badge/jooby-maven-plugin-brightgreen.svg)](http://jooby.org/doc/maven-plugin)
 # maven
 
@@ -43,7 +43,7 @@ It's worth to mention that dynamic reload of classes is done via [JBoss Modules]
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.5.1</version>
+  <version>1.6.0</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -117,7 +117,7 @@ List of commands to execute before starting the ```application```. Useful for [n
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.5.1</version>
+  <version>1.6.0</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -138,7 +138,7 @@ Set one or more ```JVM args```:
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.5.1</version>
+  <version>1.6.0</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <fork>true</fork>

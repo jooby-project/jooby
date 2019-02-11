@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-undertow/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-undertow/1.5.1)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-undertow.svg)](https://javadoc.io/doc/org.jooby/jooby-undertow/1.5.1)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-undertow/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-undertow/1.6.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-undertow.svg)](https://javadoc.io/doc/org.jooby/jooby-undertow/1.6.0)
 [![jooby-undertow website](https://img.shields.io/badge/jooby-undertow-brightgreen.svg)](http://jooby.org/doc/undertow)
 # undertow
 
@@ -15,7 +15,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-undertow</artifactId>
-  <version>1.5.1</version>
+  <version>1.6.0</version>
 </dependency>
 ```
 

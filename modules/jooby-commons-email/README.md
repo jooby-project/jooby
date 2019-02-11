@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-commons-email/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-commons-email/1.5.1)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-commons-email.svg)](https://javadoc.io/doc/org.jooby/jooby-commons-email/1.5.1)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-commons-email/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-commons-email/1.6.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-commons-email.svg)](https://javadoc.io/doc/org.jooby/jooby-commons-email/1.6.0)
 [![jooby-commons-email website](https://img.shields.io/badge/jooby-commons-email-brightgreen.svg)](http://jooby.org/doc/commons-email)
 # commons-email
 
@@ -12,7 +12,6 @@ Small but helpful module that provides access to ```Email``` instances.
 * ```SimpleEmail```
 * ```MultiPartEmail```
 * ```HtmlEmail```
-* ```ImageHtmlEmail```
 
 ## dependency
 
@@ -20,7 +19,7 @@ Small but helpful module that provides access to ```Email``` instances.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-commons-email</artifactId>
-  <version>1.5.1</version>
+  <version>1.6.0</version>
 </dependency>
 ```
 

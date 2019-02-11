@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-gson/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-gson/1.5.1)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-gson.svg)](https://javadoc.io/doc/org.jooby/jooby-gson/1.5.1)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-gson/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-gson/1.6.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-gson.svg)](https://javadoc.io/doc/org.jooby/jooby-gson/1.6.0)
 [![jooby-gson website](https://img.shields.io/badge/jooby-gson-brightgreen.svg)](http://jooby.org/doc/gson)
 # gson
 
@@ -17,7 +17,7 @@ JSON support via [Gson](https://github.com/google/gson) library.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-gson</artifactId>
-  <version>1.5.1</version>
+  <version>1.6.0</version>
 </dependency>
 ```
 

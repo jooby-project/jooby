@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-quartz/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-quartz/1.5.1)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-quartz.svg)](https://javadoc.io/doc/org.jooby/jooby-quartz/1.5.1)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-quartz/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-quartz/1.6.0)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-quartz.svg)](https://javadoc.io/doc/org.jooby/jooby-quartz/1.6.0)
 [![jooby-quartz website](https://img.shields.io/badge/jooby-quartz-brightgreen.svg)](http://jooby.org/doc/quartz)
 # quartz
 
@@ -11,7 +11,7 @@ Cron triggers, job scheduling and async processing via [Quartz](http://quartz-sc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>1.5.1</version>
+  <version>1.6.0</version>
 </dependency>
 ```
 
