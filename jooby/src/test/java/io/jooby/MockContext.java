@@ -89,7 +89,7 @@ public class MockContext implements Context {
     return pathMap;
   }
 
-  public MockContext pathMap(Map<String, String> pathMap) {
+  public MockContext setPathMap(Map<String, String> pathMap) {
     this.pathMap = pathMap;
     return this;
   }

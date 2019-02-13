@@ -78,7 +78,7 @@ public class RouterMatch implements Router.Match {
   }
 
   public void execute(Context context) {
-    context.pathMap(vars);
+    context.setPathMap(vars);
     context.route(route);
 
     route.pipeline().execute(context);

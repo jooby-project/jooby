@@ -164,8 +164,8 @@ public class Jooby implements Router {
     return this;
   }
 
-  @Nonnull @Override public Jooby decorate(@Nonnull Route.Decorator decorator) {
-    router.decorate(decorator);
+  @Nonnull @Override public Jooby decorator(@Nonnull Route.Decorator decorator) {
+    router.decorator(decorator);
     return this;
   }
 

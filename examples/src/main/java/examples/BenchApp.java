@@ -34,7 +34,7 @@ public class BenchApp extends Jooby {
   {
     mode(ExecutionMode.EVENT_LOOP);
 
-    decorate(Decorators.defaultHeaders());
+    decorator(Decorators.defaultHeaders());
 
     get("/", ctx -> ctx.sendString(MESSAGE));
 

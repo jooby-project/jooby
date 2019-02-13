@@ -108,7 +108,7 @@ public class MockRouter {
       prepare.accept(ctx);
     }
     Router.Match match = router.match(ctx);
-    ctx.pathMap(match.pathMap());
+    ctx.setPathMap(match.pathMap());
     ctx.route(match.route());
     Object value = match.route().handler().execute(ctx);
     Result result = new Result(value, ctx.statusCode());

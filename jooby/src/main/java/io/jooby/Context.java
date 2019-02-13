@@ -92,7 +92,7 @@ public interface Context {
 
   @Nonnull Map<String, String> pathMap();
 
-  @Nonnull Context pathMap(@Nonnull Map<String, String> pathMap);
+  @Nonnull Context setPathMap(@Nonnull Map<String, String> pathMap);
 
   /* **********************************************************************************************
    * Query String API

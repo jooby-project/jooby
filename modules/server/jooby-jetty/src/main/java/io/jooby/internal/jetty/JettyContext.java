@@ -129,7 +129,7 @@ public class JettyContext implements Callback, Context {
     return pathMap;
   }
 
-  @Nonnull @Override public Context pathMap(Map<String, String> pathMap) {
+  @Nonnull @Override public Context setPathMap(Map<String, String> pathMap) {
     this.pathMap = pathMap;
     return this;
   }

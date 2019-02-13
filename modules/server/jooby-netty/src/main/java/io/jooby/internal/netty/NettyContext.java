@@ -138,7 +138,7 @@ public class NettyContext implements Context, ChannelFutureListener {
     return pathMap;
   }
 
-  @Nonnull @Override public Context pathMap(@Nonnull Map<String, String> pathMap) {
+  @Nonnull @Override public Context setPathMap(@Nonnull Map<String, String> pathMap) {
     this.pathMap = pathMap;
     return this;
   }

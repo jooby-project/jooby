@@ -225,7 +225,7 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Override @Nonnull public Router decorate(@Nonnull Route.Decorator decorator) {
+  @Override @Nonnull public Router decorator(@Nonnull Route.Decorator decorator) {
     stack.peekLast().then(decorator);
     return this;
   }
@@ -236,7 +236,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router before(@Nonnull Route.Before before) {
-    return decorate(before);
+    return decorator(before);
   }
 
   @Nonnull @Override public Router error(@Nonnull ErrorHandler handler) {

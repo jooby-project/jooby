@@ -6,7 +6,27 @@ import kotlinx.coroutines.delay
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class FeaturedKotlinTest {
+  class FeaturedKotlinTest {
+
+  @Test
+  fun decorator() {
+    JoobyRunner { ->
+      Kooby {
+
+        decorator {
+          "Hello " + next.apply(ctx)
+        }
+
+        get("/") {
+          ctx.pathString()
+        }
+      }
+    }.ready { client ->
+      client.get("/") { rsp ->
+        assertEquals("Hello World!", rsp.body()!!.string())
+      }
+    }
+  }
 
   @Test
   fun explicitContext() {
