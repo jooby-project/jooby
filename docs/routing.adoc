@@ -142,8 +142,8 @@ to the client.
 
 ==== Regex
 
-.regex path variable:
-[source, java]
+.Regex path variable:
+[source, java, role="primary"]
 ----
 {
   // <1>
@@ -159,13 +159,30 @@ to the client.
 }
 ----
 
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  // <1>
+  get("/user/{id:[0-9]+}") {
+    val id = ctx.param("id").intValue() // <2>
+    id
+  }
+  
+  get("/user/{id:[0-9]+}/edit") {
+    val id = ctx.param("id").intValue()
+    id
+  }
+}
+----
+
 <1> Defines a path variable: `id`. Regex expression is everything after the first `:`, like: `[0-9]+`
 <2> Retrieve an int value
 
 ==== * Catchall
 
 .catchall
-[source, java]
+[source, java, role="primary"]
 ----
 {
   // <1>
@@ -178,6 +195,23 @@ to the client.
     String path = ctx.param("path").value(); // <3>
     return path;
   });
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  // <1>
+  get("/articles/*") {
+    val catchall = ctx.param("*").value() // <2>
+    catchall
+  }
+  
+  get("/articles/*path") {
+    val path = ctx.param("path").value()  // <3>
+    path
+  }
 }
 ----
 
@@ -200,8 +234,14 @@ object and produces a `result`.
 A javadoc:Context[text=context] allows you to interact with the `HTTP Request` and manipulate the 
 `HTTP Response`.
 
-.Incoming request matches exactly **one** route handler:
-[source,java]
+[NOTE]
+====
+Incoming request matches exactly **ONE** route handler. If there is no handler, produces a `404`
+response.
+====
+
+.Java
+[source,java,role="primary"]
 ----
 {
   get("/user/{id}", ctx -> ctx.param("id").value()); // <1>
@@ -214,6 +254,20 @@ A javadoc:Context[text=context] allows you to interact with the `HTTP Request` a
 }
 ---- 
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  get("/user/{id}") { ctx.param("id").value() } // <1>
+  
+  get("/user/me") { "my profile" }              // <2>
+  
+  get("/users") { "users" }                     // <3>
+  
+  get("/users") { "new users" }                 // <4>
+}
+----
+
 Output:
 
 <1> `GET /user/ppicapiedra` => `ppicapiedra`
@@ -221,8 +275,8 @@ Output:
 <3> Unreachable, => override it by next route
 <4> `GET /users` => `new users` not `users`
 
-Routes with most specific path pattern (`2` vs `1`) has more precedence. Also, route overrides is
-silently ignored and makes previous route unreachable.
+Routes with most specific path pattern (`2` vs `1`) has more precedence. Also, is one or more routes
+result in the same path pattern, like `3` and `4`, last registered route hides/overrides previous route.
 
 ==== Decorator
 
@@ -239,7 +293,7 @@ interface Decorator {
 ----
 
 .Timing decorator example:
-[source,java]
+[source,java,role="primary"]
 ----
 {
   decorator(next -> ctx -> {
@@ -261,57 +315,39 @@ interface Decorator {
 }
 ----
 
-<1> Save start time
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  /** Kotlin uses implicit variables: `ctx` and `next` */
+  decorator {
+    val start = System.currentTimeMillis()  // <1>
+
+    val response = next.apply(ctx)          // <2>
+
+    val end = System.currentTimeMillis()
+    val took = end - start
+
+    println("Took: " + took + "ms")         // <3>
+
+    response                                // <4>
+  }
+  
+  get("/") {
+    "decorator"
+  }
+}
+----
+
+<1> Saves start time
 <2> Proceed with execution (pipeline)
 <3> Compute and print latency
 <4> Returns a response
 
-Unlike in other web frameworks a `decorator` lack of a `path pattern`. Sounds odd? All these is
-explained in the <<pipeline, pipeline>> section.
-
-[IMPORTANT]
+[NOTE]
 ====
-Decorators (including before/after) must be defined before a `handler`:
+A `decorator` lacks of a `path pattern`. Sound strange? It is explained in the <<pipeline, pipeline>> section.
 ====
-
-.It works:
-[source, java]
-----
-{
-  decorator(next -> ctx -> {
-    return "Hello " + next.apply(ctx);
-  });
-
-  // Produces: Hello Jooby
-  get("/", ctx -> "Jooby");
-}
-----
-
-Output:
-
-'/' => `Hello Jooby`
-
-
-Now if you move the decorator after the handler:
- 
-.Ignored:
-[source, java]
-----
-{
-  // Produces: Jooby
-  get("/", ctx -> "Jooby");
-  
-  decorator(next -> ctx -> {
-    return "Hello " + next.apply(ctx);
-  });
-}
-----
-
-Output:
-
-'/' => `Jooby`
-
-Decorator has no effect over route, due is defined after it.
 
 ==== Before Decorator
 
@@ -328,17 +364,31 @@ interface Before {
 }
 ----
 
-.Example:
-[source,java]
+.Example
+[source,java,role="primary"]
 ----
 {
   before(ctx -> {
-    // your code goes here
+    ctx.setHeader("Server", "Jooby");
   });
 
   get("/", ctx -> {
-    return ...;
+    return "...";
   });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  before {
+    ctx.setHeader("Server", "Jooby")
+  }
+
+  get("/") {
+    "..."
+  }
 }
 ----
 
@@ -358,7 +408,7 @@ interface After {
 ----
 
 .Example:
-[source,java]
+[source,java,role="primary"]
 ----
 {
   after((ctx, result) -> {
@@ -371,11 +421,26 @@ interface After {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  after {
+    "Hello $result"
+  }
+
+  get("/") {
+    "Jooby"
+  }
+}
+----
+
 === Pipeline
 
 Route pipeline (a.k.a route stack) is a composition of one or more decorator(s) tied to a single `handler`:
 
-[source, java]
+.Java
+[source, java, role="primary"]
 ----
 {
   // Increment +1
@@ -396,12 +461,34 @@ Route pipeline (a.k.a route stack) is a composition of one or more decorator(s) 
 }
 ----
 
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  // Increment +1
+  decorator {
+    val n = next.apply(ctx) as Int
+    1 + n
+  }
+
+  // Increment +1
+  decorator {
+    val n = next.apply(ctx) as Int
+    1 + n
+  }
+  
+  get("/1") { 1 } // <1>
+  
+  get("/2") { 2 } // <2>
+}
+----
+
 Output:
 
 <1> `/1` => `3`
 <2> `/2` => `5`
 
-Behind the scene, Jooby build something like:
+Behind the scene, Jooby builds something like:
 
 [source, java]
 ----
@@ -425,16 +512,16 @@ Behind the scene, Jooby build something like:
 }
 ----
 
-Any `decorator` defined on top of the handler will be stacked/chained into a new handler, call it: `pipeline`.
+Any `decorator` defined on top of the handler will be stacked/chained into a new handler.
 
 [NOTE]
 .Decorator without path pattern
 ====
 
-This was a hard decision to make, but we know is the right one. Other Java web framework 
-(including Jooby 1.x) uses a path pattern to define `filter`.
+This was a hard decision to make, but we know is the right one. Jooby 1.x uses a path pattern to
+define `filter`/`decorator`.
 
-For example, the `pipeline` in Jooby 1.x consists of multiple filters and handlers. They are match
+The `pipeline` in Jooby 1.x consists of multiple filters and handlers. They are match
 sequentially one by one. The following `filter` is always executed in Jooby 1.x
 
 .Jooby 1.x
@@ -450,8 +537,8 @@ sequentially one by one. The following `filter` is always executed in Jooby 1.x
 ----
 
 Suppose there is bot trying to access and causing lot of `404` responses (path doesn't exist).
-In Jooby 1.x (most of other web frameworks too) executed the `filter` for every single request sent
-by the bot to realize there is NO matching route and all we need is a `404`.
+In Jooby 1.x the `filter` is executed for every single request sent by the bot just to realize 
+there is NO matching route and all we need is a `404`.
 
 In Jooby 2.x this won't happen anymore. If there is a matching handler, the `pipeline` will be 
 executed. Otherwise, nothing will do!
@@ -463,7 +550,7 @@ executed. Otherwise, nothing will do!
 Order follows the **what you see is what you get** approach. Routes are stacked in the way they were added/defined.
 
 .Order example:
-[source, java]
+[source, java, role="primary"]
 ----
 {
   // Increment +1
@@ -484,6 +571,28 @@ Order follows the **what you see is what you get** approach. Routes are stacked 
 }
 ----
 
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  // Increment +1
+  decorator {
+    val n = next.apply(ctx) as Int
+    1 + n
+  }
+
+  get("/1") { 1 }                // <1>
+  
+  // Increment +1
+  decorator {
+    val n = next.apply(ctx) as Int
+    1 + n
+  }
+
+  get("/2") { 2 }                // <2>
+}
+----
+
 Output:
 
 <1> `/1` => `2`
@@ -491,10 +600,13 @@ Output:
 
 ==== Scoped Decorator
 
-A `scoped decorator` allows us to selectively apply one or more `decorators` to one or more `routes`.
+The javadoc:Router[route, java.lang.Runnable] and javadoc:Router[path, java.lang.Runnable] operators
+are used to group one or more routes.
+  
+A `scoped decorator` looks like:
 
 .Scoped decorator:
-[source, java]
+[source, java, role="primary"]
 ----
 {
   // Increment +1
@@ -517,37 +629,76 @@ A `scoped decorator` allows us to selectively apply one or more `decorators` to 
 }
 ----
 
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  // Increment +1
+  decorator {
+    val n = next.apply(ctx) as Int
+    return 1 + n
+  }
+
+  route {                          // <1>
+    // Multiply by 2
+    decorator {
+      val n = next.apply(ctx) as Int
+      1 + n
+    }
+    
+    get("/4") { 4 }                // <2>
+  });
+  
+  get("/3") { 3 }                 // <3>
+}
+----
+
 Output:
 
 <1> Introduce a new scope via `route` operator
 <2> `/4`  => `9`
 <3> `/1`  => `2`
 
+It is a normal `decorator` inside of one of the group operators.
+
 === Grouping routes
 
 As showed previously, the javadoc:Router[route, java.lang.Runnable] operator push a new route `scope`
-and allows you to selectively apply one or more route `decorators`.
+and allows you to selectively apply one or more routes.
 
-.group operator
-[source,java]
+.Route operator
+[source,java,role="primary"]
 ----
 {
   route(() -> {   
-    decorator(next -> ctx -> next.apply(ctx) + " Stack!"); // <1>
 
-    get("/", ctx -> "Hello");                              // <2>
+    get("/", ctx -> "Hello");
+
   });
 }
 ----
 
-<1> The `route` operator applies the `decorator` to the `handlers` defined below it.
-<2> `/` => `Hello Stack!`
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  route {
 
-In similar way the javadoc:Router[path, java.lang.String, java.lang.Runnable] operator groups
+    get("/") {
+      "Hello"
+    }
+
+  }
+}
+----
+
+Route operator is for grouping one or more routes and apply cross cutting concerns to all them.
+
+In similar fashin the javadoc:Router[path, java.lang.String, java.lang.Runnable] operator groups
 one or more routes under a common path pattern.
 
-.Group one or more route under a common path prefix:
-[source,java]
+.Routes with path prefix:
+[source,java,role="primary"]
 ----
 {
    path("/api/user", () -> {    // <1>
@@ -563,6 +714,24 @@ one or more routes under a common path pattern.
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+   path("/api/user") {    // <1>
+   
+     get("/{id}") {...}   // <2>
+   
+     get("/") {...}       // <3>
+     
+     post("/") {...}      // <4>
+     
+     ...
+   }); 
+}
+----
+
+
 <1> Set common prefix `/api/user`
 <2> `GET /api/user/{id}`
 <3> `GET /api/user`
@@ -571,13 +740,13 @@ one or more routes under a common path pattern.
 
 === Composing routes
 
-Composition is a technique for building complex application. You can compose one or more
-router/application into a new one. Composition let you build modular applications.
+Composition is a technique for building modular applications. You can compose one or more
+router/application into a new one.
 
 Composition is available through the javadoc:Router[use, io.jooby.Router] operator:
 
 .Composing
-[source, java]
+[source, java, role="primary"]
 ----
 public class Foo extends Jooby {
   {
@@ -602,15 +771,39 @@ public class App extends Jooby {
 }
 ----
 
-<1> Imports all routes from `Foo.java`. Output: `/foo` => `/foo`
+.Kotlin
+[source, kotlin,role="secondary"]
+----
+class Foo: Kooby({
+   
+  get("/foo") { ctx.pathString() }
 
-<2> Imports all routes from `Bar.java`. Output: `/bar`  => `/bar`
+})
+
+class Bar: Kooby({
+  
+  get("/bar") { ctx.pathString() }
+
+})
+
+class Bar: Kooby({
+  use(Foo())                       // <1>
+
+  use(Bar())                       // <2>
+
+  get("/app") { ctx.pathString() } // <3>
+})
+----
+
+<1> Imports all routes from `Foo`. Output: `/foo` => `/foo`
+
+<2> Imports all routes from `Bar`. Output: `/bar` => `/bar`
 
 <3> Add more routes . Output `/app` => `/app`
 
 
 .Composing with path prefix
-[source,java]
+[source,java,role="primary"]
 ----
 public class Foo extends Jooby {
   {
@@ -623,6 +816,22 @@ public class App extends Jooby {
     use("/prefix", new Foo());  // <1>
   }
 }
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class Foo: Kooby({
+   
+  get("/foo") { ctx.pathString() }
+
+})
+
+class App: Kooby({
+
+  use("/prefix", Foo())  // <1>
+
+})
 ----
 
 <1> Now all routes from `Foo` will be prefixed with `/prefix`. Output: `/prefix/foo` => `/prefix/foo`
@@ -643,7 +852,7 @@ using a `predicate`.
 Suppose you own two version of an `API` and for some time you need to support both: `old` and `new` API:
 
 .Dynamic Routing
-[source,java]
+[source,java,role="primary"]
 ----
 public class V1 extends Jooby {
   {
@@ -659,11 +868,35 @@ public class V2 extends Jooby {
 
 public class App extends Jooby {
   {
-    use(ctx -> ctx.header("version").value().equals("v1"), v1); // <1>
+    use(ctx -> ctx.header("version").value().equals("v1"), new V1()); // <1>
 
-    use(ctx -> ctx.header("version").value().equals("v2"), v2); // <2>
+    use(ctx -> ctx.header("version").value().equals("v2"), new V2()); // <2>
   }
 }
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class V1: Kooby({
+  
+  get("/api") { "v1" }
+
+})
+
+class V2: Kooby({
+  
+  get("/api") { "v2" }
+
+})
+
+class App: Kooby({
+
+  use(ctx -> ctx.header("version").value().equals("v1"), V1); // <1>
+
+  use(ctx -> ctx.header("version").value().equals("v2"), V2); // <2>
+
+})
 ----
 
 Output:

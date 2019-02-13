@@ -1,6 +1,6 @@
 == Context
 
-javadoc:Context[Context] gives you access to `HTTP Request/Response`.
+A javadoc:Context[Context] allows you to interact with the HTTP Request and manipulate the HTTP Response
 
 === Parameters
 
@@ -16,15 +16,32 @@ We are going to describe them briefly in the next sections, then go into specifi
 HTTP headers allow the client and the server to pass additional information with the request or the
 response.
 
-[source, java]
+.Java
+[source, java, role="primary"]
 ----
 {
-  get("/" ctx -> {
-    String token = ctx.header("token").value();            // <1>
+  get("/", ctx -> {
+    String token = ctx.header("token").value();      // <1>
 
-    Value headers = ctx.headers();                         // <2>
+    Value headers = ctx.headers();                   // <2>
 
     Map<String, String> headerMap = ctx.headerMap(); // <3>
+    ...
+  });
+  
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  get("/") {
+    val token = ctx.header("token").value() // <1>
+
+    val headers = ctx.headers()             // <2>
+
+    val = ctx.headerMap();                  // <3>
     ...
   });
   
@@ -40,7 +57,7 @@ response.
 Path parameter are part of the `URI`. To define a path variable you need to use the `{identifier}` notation.
 
 .Syntax:
-[source,java]
+[source,java,role="primary"]
 ----
 {
   get("/{id}" ctx -> ctx.path("id").value());                                 // <1>
@@ -55,13 +72,30 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  get("/{id}") { ctx.path("id").value() }                                 // <1>
+  
+  get("/@{id}") { ctx.path("id").value() }                                // <2>
+  
+  get("/file/{name}.{ext}") { cxt.path("name") + "." + ctx.path("ext") }  // <3>
+  
+  get("/file/*") { ctx.path("*") }                                        // <4>
+
+  get("/{id:[0-9]+}") { ctx.path("id) }                                   // <5>
+}
+----
+
 <1> Path variable `id`
 <2> Path variable `id` prefixed with `@`
 <3> Multiple variables `name` and `ext`
 <4> Unnamed catchall path variable
 <5> Path variable with a regular expression
 
-[source, java]
+.Java
+[source, java, role="primary"]
 ----
 {
   get("/{name}", ctx -> {
@@ -72,6 +106,24 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
     Map<String, String> pathMap = ctx.pathMap();  // <3>
 
     String name = ctx.path("name").value();       // <4>
+
+    ...    
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  get("/{name}") {
+    val pathString = ctx.pathString()     // <1>
+    
+    val path = ctx.path()                 // <2>
+    
+    val pathMap = ctx.pathMap()           // <3>
+
+    val name = ctx.path("name").value()   // <4>
 
     ...    
   });
@@ -106,7 +158,8 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 
 Query String is part of the `URI` that start after the `?` character.
 
-[source, java]
+.Java
+[source, java, role="primary"]
 ----
 {
   get("/search", ctx -> {
@@ -132,6 +185,28 @@ class SearchQuery {
      this.q = q;
    }
 }
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  get("/search") {
+    val queryString = ctx.queryString()         // <1>
+
+    val query = ctx.query()                     // <2>
+
+    val queryMap = ctx.queryMultimap()          // <3>
+
+    val q = ctx.query("q").value()              // <4>
+
+    val searchQuery = ctx.query<SearchQuery>()  // <5>
+
+    ...
+  });
+}
+
+data class SearchQuery (val q: String)
 ----
 
 <1> Access to `raw` queryString:
@@ -170,7 +245,8 @@ Formdata is expected to be in HTTP body, or for as part of the `URI` for `GET` r
 
 Data is expected to be encoded as `application/x-www-form-urlencoded`.
 
-[source, java]
+.Java
+[source, java, role="primary"]
 ----
 {
   post("/user", ctx -> {
@@ -201,6 +277,29 @@ class User {
 }
 ----
 
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  post("/user") {
+    val form = ctx.form()               // <1>
+
+    val formMap = ctx.formMultimap()    // <2>
+
+    val userId = ctx.form("id").value() // <3>
+    
+    val pass = ctx.form("pass").value() // <4>
+
+    val user = ctx.form<User>()         // <5>
+    
+    ...
+  });
+}
+
+data class User (val id: String, val pass: String)
+
+----
+
 ----
 curl -d "id=root&pass=pwd" -X POST http://localhost:8080/user
 ----
@@ -215,7 +314,8 @@ curl -d "id=root&pass=pwd" -X POST http://localhost:8080/user
 
 Form-data must be present in the HTTP body and encoded as `multipart/form-data`:
 
-[source, java]
+.Java
+[source, java, role="primary"]
 ----
 {
   post("/user", ctx -> {
@@ -251,6 +351,30 @@ class User {
 }
 ----
 
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  post("/user") {
+    val multipart = ctx.multipart()              // <1>
+
+    val multipartMap = ctx.multipartMultimap()   // <2>
+   
+    val userId = ctx.multipart("id").value()     // <3>
+    
+    val pass = ctx.multipart("pass").value()     // <4>
+    
+    val pic = ctx.multipart("pic").fileUpload()  // <5>
+
+    val user = ctx.multipart<User>()             // <6>
+
+    ...
+  });
+}
+
+data class User (val id: String, val pass: String, val pic: FileUpload)
+----
+
 ----
 curl -F id=root -F pass=root -F pic=@/path/to/local/file/profile.png http://localhost:8080/user
 ----
@@ -268,13 +392,24 @@ curl -F id=root -F pass=root -F pic=@/path/to/local/file/profile.png http://loca
 
 You may prefer to use one of the utility methods:
 
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
   FileUpload pic = ctx.file("pic");         // <1>
 
   List<FileUpload> pic = ctx.files("pic");  // <2>
 
   List<FileUpload> files = ctx.files();     // <3>
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+  val pic = ctx.file("pic")   // <1>
+
+  val pic = ctx.files("pic")  // <2>
+
+  val files = ctx.files()     // <3>
 ----
 
 <1> Single file upload named `pic`
