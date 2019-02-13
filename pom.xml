@@ -626,18 +626,18 @@
           <artifactId>kotlin-maven-plugin</artifactId>
           <groupId>org.jetbrains.kotlin</groupId>
           <version>${kotlin.version}</version>
+          <configuration>
+            <args>
+              <arg>-java-parameters</arg>
+            </args>
+            <jvmTarget>1.8</jvmTarget>
+          </configuration>
           <executions>
             <execution>
               <id>compile</id>
               <goals>
                 <goal>compile</goal>
               </goals>
-              <configuration>
-                <args>
-                  <arg>-java-parameters</arg>
-                </args>
-                <jvmTarget>1.8</jvmTarget>
-              </configuration>
             </execution>
 
             <execution>

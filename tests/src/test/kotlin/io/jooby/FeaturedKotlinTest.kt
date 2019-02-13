@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
         }
 
         get("/") {
-          ctx.pathString()
+          "World!"
         }
       }
     }.ready { client ->
