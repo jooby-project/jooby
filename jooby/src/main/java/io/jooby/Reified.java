@@ -58,7 +58,7 @@ public class Reified<T> {
    * at runtime despite erasure.
    */
   @SuppressWarnings("unchecked")
-  protected Reified() {
+  public Reified() {
     this.type = getSuperclassTypeParameter(getClass());
     this.rawType = (Class<? super T>) $Types.getRawType(type);
     this.hashCode = type.hashCode();
@@ -175,4 +175,5 @@ public class Reified<T> {
   public static Reified<?> getArray(Type componentType) {
     return new Reified<>($Types.arrayOf(componentType));
   }
+
 }

@@ -30,6 +30,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -283,9 +284,13 @@ public class ValueInjector {
   }
 
   private Class parameterizedType0(Type type) {
-    if (type instanceof ParameterizedType) {
+    if (type instanceof Class) {
+      return (Class) type;
+    } else if (type instanceof ParameterizedType) {
       ParameterizedType parameterizedType = (ParameterizedType) type;
-      return (Class) parameterizedType.getActualTypeArguments()[0];
+      return parameterizedType0(parameterizedType.getActualTypeArguments()[0]);
+    } else if (type instanceof WildcardType) {
+      return parameterizedType0(((WildcardType) type).getUpperBounds()[0]);
     } else {
       // We expect a parameterized type like: List/Set/Optional, but there is no type information
       // fallback to String
