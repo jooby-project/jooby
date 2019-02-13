@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
@@ -13,13 +12,39 @@ import kotlin.coroutines.CoroutineContext
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
 annotation class RouterDsl
 
+/** Context: */
+inline fun <reified T : Any> Context.query(): T {
+  val reified = object : Reified<T>() {}
+  return this.query(reified)
+}
+
+inline fun <reified T : Any> Context.form(): T {
+  val reified = object : Reified<T>() {}
+  return this.form(reified)
+}
+
+inline fun <reified T : Any> Context.multipart(): T {
+  val reified = object : Reified<T>() {}
+  return this.multipart(reified)
+}
+
+inline fun <reified T : Any> Context.body(): T {
+  val reified = object : Reified<T>() {}
+  return this.body(reified)
+}
+
+/** Handler context: */
+class AfterContext(val ctx: Context, val result: Any)
+
+class HandlerContext(val ctx: Context)
+
+class DecoratorContext(val ctx: Context, val next: Route.Handler)
+
+/** Kooby: */
+
 internal class WorkerCoroutineScope(coroutineContext: CoroutineContext) : CoroutineScope {
   override val coroutineContext = coroutineContext
 }
-
-internal val NO_ARG = arrayOf<String>()
-
-class ContextRef(val ctx: Context)
 
 open class Kooby constructor() : Jooby() {
 
@@ -34,7 +59,25 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun get(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+  fun decorator(handler: DecoratorContext.() -> Any): Kooby {
+    super.decorator { next -> Route.Handler { ctx -> DecoratorContext(ctx, next).handler() } }
+    return this
+  }
+
+  @RouterDsl
+  fun before(handler: HandlerContext.() -> Unit): Kooby {
+    super.before { ctx -> HandlerContext(ctx).handler() }
+    return this
+  }
+
+  @RouterDsl
+  fun after(handler: AfterContext.() -> Any): Kooby {
+    super.after { ctx, result -> AfterContext(ctx, result).handler() }
+    return this
+  }
+
+  @RouterDsl
+  fun get(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.GET, pattern, handler)
   }
 
@@ -44,7 +87,7 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun post(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+  fun post(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.POST, pattern, handler)
   }
 
@@ -54,7 +97,7 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun put(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+  fun put(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.PUT, pattern, handler)
   }
 
@@ -64,7 +107,7 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun delete(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+  fun delete(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.DELETE, pattern, handler)
   }
 
@@ -74,7 +117,7 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun patch(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+  fun patch(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.PATCH, pattern, handler)
   }
 
@@ -84,7 +127,7 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun head(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+  fun head(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.HEAD, pattern, handler)
   }
 
@@ -94,7 +137,7 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun trace(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+  fun trace(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.TRACE, pattern, handler)
   }
 
@@ -104,7 +147,7 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun options(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+  fun options(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.OPTIONS, pattern, handler)
   }
 
@@ -114,7 +157,7 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun connect(pattern: String = "/", handler: suspend ContextRef.() -> Any): Route {
+  fun connect(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
     return route(Router.CONNECT, pattern, handler)
   }
 
@@ -124,13 +167,13 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun route(method: String, pattern: String, handler: suspend ContextRef.() -> Any): Route {
+  fun route(method: String, pattern: String, handler: suspend HandlerContext.() -> Any): Route {
     return route(method, pattern) { ctx ->
       val xhandler = CoroutineExceptionHandler { _, x ->
         ctx.sendError(x)
       }
       coroutineScope.launch(ContextCoroutineName + xhandler, coroutineStart) {
-        val result = ContextRef(ctx).handler()
+        val result = HandlerContext(ctx).handler()
         if (result != ctx) {
           ctx.render(result)
         }
@@ -167,21 +210,4 @@ fun run(supplier: () -> Kooby, args: Array<String>) {
 @RouterDsl
 fun run(supplier: () -> Kooby, mode: ExecutionMode, args: Array<String>) {
   Jooby.run(supplier, mode, args)
-}
-
-// jooby {..}
-fun jooby(init: Jooby.() -> Unit) {
-  jooby(NO_ARG, init)
-}
-
-fun jooby(args: Array<String>, init: Jooby.() -> Unit) {
-  jooby(ExecutionMode.DEFAULT, args, init)
-}
-
-fun jooby(mode: ExecutionMode, args: Array<String>, init: Jooby.() -> Unit) {
-  Jooby.run({
-    val app = Jooby()
-    app.init()
-    app
-  }, mode, args)
 }
