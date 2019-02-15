@@ -36,7 +36,7 @@ import io.jooby.run
 
 fun main(args: Array<String>) {
   run(args) {
-    get {
+    get("/") { ctx ->
       "Hello World!"
     }
   }

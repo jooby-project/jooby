@@ -15,7 +15,8 @@ parameters, but keep in mind these features apply to all the parameter types.
 
 Single value is available via `value()` or `[type]Value()` functions: 
 
-[source, java]
+.Java
+[source, java, role="primary"]
 ----
 {
   get("/", ctx -> {
@@ -31,7 +32,24 @@ Single value is available via `value()` or `[type]Value()` functions:
 }
 ----
 
-The `*value()` family methods always retrieve a `value`. If there is no value, a
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  get("/") { ctx ->
+    val name = ctx.query("name").value()                     // <1>
+
+    val score = ctx.query("score").floatValue()              // <2>
+
+    val enabled = ctx.query("enabled").booleanValue()        // <3>
+    
+    val decimal = ctx.query("decimal").value(::BigDecimal)   // <4>
+    ...
+  });
+}
+----
+
+The `value()` family methods always retrieve a `value`. If there is no value, a
 `BadRequest(400)` response is generated. So single value parameters *are required*: 
 
 <1> Access to query parameter `q` and convert to `String`:
@@ -64,7 +82,8 @@ Default and optional value are available in two different ways:
 - Providing a default value
 - Requesting an `java.uti.Optional` object
 
-[source, java]
+.Java
+[source, java,role="primary"]
 ----
 {
   get("/search", ctx -> {
@@ -79,6 +98,22 @@ Default and optional value are available in two different ways:
 }
 ----
 
+.Kotlin
+[source, kotlin,role="secondary"]
+----
+{
+  get("/search") { ctx ->
+    val q = ctx.query("q").value("*:*")    // <1>
+    q
+  });
+
+  get("/search") { ctx ->
+    val q = ctx.query("q").toOptional();   // <2>
+    q
+  });
+}
+----
+
 <1> Access to query variable `q` and convert to `String` with a default value of `*:*`.
 
 - `/search?q=foo` => `foo`
@@ -89,14 +124,6 @@ Default and optional value are available in two different ways:
 - `/search?q=foo` => `Optional[foo]`
 - `/search`       => `Optional.empty`
 
-Conversion to other types is also possible:
-
-[source, java]
-----
-  int n = ctx.query("n").intValue(0);
-  Optional<Integer> oInt = ctx.query("n").toOptional(Integer.class);
-----
-  
 ==== Multiple values
 
 Multiple values are available via functions:
@@ -104,7 +131,8 @@ Multiple values are available via functions:
 - javadoc:Value[toList]: Returns a `java.util.List` of values
 - javadoc:Value[toSet]: Returns a `java.util.Set` of values
 
-[source, java]
+.Java
+[source, java,role="primary"]
 ----
 {
   get("/", ctx -> {
@@ -113,6 +141,22 @@ Multiple values are available via functions:
     List<Integer> n = ctx.query("n").toList(Integer.class);              // <2>
 
     List<BigDecimal> decimals = ctx.query("d").toList(BigDecimal::new);  // <3>
+
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kotlin,role="secondary"]
+----
+{
+  get("/") { ctx ->
+    val q = ctx.query("q").toList()                     // <1>
+
+    val n = ctx.query("n").toList(Integer.class)        // <2>
+
+    val decimals = ctx.query("d").toList(::BigDecimal)  // <3>
 
     ...
   });
@@ -146,7 +190,7 @@ The javadoc:Value[Value API] provides a way to traverse and parse structured dat
 ----
 
 .Traversal
-[source, java]
+[source, java, role="primary"]
 ----
 {
   get{"/", ctx -> {
@@ -154,6 +198,20 @@ The javadoc:Value[Value API] provides a way to traverse and parse structured dat
     String name  = user.get("name").value();         // <2>
     String pass  = user.get("pass").value();         // <3>
     String email = user.get("email").value("none");  // <4>
+    ...
+  }}
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  get{"/") { ctx ->
+    val user = ctx.query("user")              // <1>
+    val name  = user["name"].value()          // <2>
+    val pass  = user["pass"].value()          // <3>
+    val email = user["email"].value("none")   // <4>
     ...
   }}
 }
@@ -196,8 +254,8 @@ Structured data parser is able to reconstruct a POJO (Plain Old Java Object) fro
 
 We are going to use a `Group` and `Member` objects to demonstrate how the parser works:
 
-.Member.java
-[source, java]
+.Example
+[source, java, role="primary"]
 ----
 class Member {
   public final String firstname;
@@ -208,11 +266,7 @@ class Member {
     this.lastname = lastname;
   }
 }
-----
 
-.Group.java
-[source, java]
-----
 class Group {
   public final String id;
   public final List<Member> members;
@@ -224,11 +278,21 @@ class Group {
 }
 ----
 
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+class Member (val firstname: String, lastName: String)
+
+class Group (val id: String, val members: List<Member>)
+----
+
 .Member parsing example:
 ----
 /?firstname=Pedro&lastName=Picapiedra
 ----
-[source, java]
+
+.Java
+[source, java,role="primary"]
 ----
 {
   get("/", ctx -> {
@@ -238,15 +302,39 @@ class Group {
 }
 ----
 
+.Kotlin
+[source, kotlin,role="secondary"]
+----
+{
+  get("/") { ctx ->
+    val member = ctx.query<Member>()
+    ...
+  }
+}
+----
+
 .Member parsing example from base node:
 ----
 /?member.firstname=Pedro&member.lastName=Picapiedra
 ----
-[source, java]
+
+.Java
+[source, java,role="primary"]
 ----
 {
   get("/", ctx -> {
     Member member = ctx.query("member").to(Member.class);
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kotlin,role="secondary"]
+----
+{
+  get("/") { ctx ->
+    val member = ctx.query("member").to<Member>()
     ...
   });
 }
@@ -258,7 +346,9 @@ Tabular data uses the bracket array notation:
 ----
 /?[0]firstname=Pedro&[0]lastName=Picapiedra&[1]firstname=Pablo&[2]lastname=Marmol
 ----
-[source, java]
+
+.Java
+[source, java,role="primary"]
 ----
 {
   get("/", ctx -> {
@@ -268,15 +358,39 @@ Tabular data uses the bracket array notation:
 }
 ----
 
+.Kotlin
+[source, kotlin,role="secondary"]
+----
+{
+  get("/") { ctx ->
+    val members = ctx.query<List<Member>>()
+    ...
+  });
+}
+----
+
 .Group with members as tabular data:
 ----
 /?id=flintstones&members[0]firstname=Pedro&members[0]lastName=Picapiedra
 ----
-[source, java]
+
+.Java
+[source, java,role="primary"]
 ----
 {
   get("/", ctx -> {
     Group group = ctx.query(Group.class);
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kotlin,role="secondary"]
+----
+{
+  get("/") { ctx ->
+    val group = ctx.query<Group>()
     ...
   });
 }
@@ -296,7 +410,8 @@ The parser matches HTTP parameters in the following order:
 
 HTTP parameter name which are not a valid Java identifier must be annotated with https://static.javadoc.io/javax.inject/javax.inject/1/javax/inject/Named.html[Named]:
 
-[source, java]
+.Java
+[source, java,role="primary"]
 ----
 class Member {
   public final String firstname;
@@ -307,6 +422,12 @@ class Member {
     ....
   }
 }
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class Member (@Named("first-name") val firstname: String, @Named("last-name") val lastName: String)
 ----
 
 {love}{love}

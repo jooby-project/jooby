@@ -12,6 +12,20 @@ import kotlin.coroutines.CoroutineContext
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
 annotation class RouterDsl
 
+/** Value: */
+operator fun Value.get(name: String): Value {
+  return this.get(name)
+}
+
+operator fun Value.get(index: Int): Value {
+  return this.get(index)
+}
+
+inline fun <reified T : Any> Value.to(): T {
+  val reified = object : Reified<T>() {}
+  return this.to(reified)
+}
+
 /** Context: */
 inline fun <reified T : Any> Context.query(): T {
   val reified = object : Reified<T>() {}

@@ -18,7 +18,8 @@ In this chapter we are going to learn about Jooby execution model, more specific
 The javadoc:ExecutionMode[EVENT_LOOP] mode allows us to run a route handler from the
 *event loop* (a.k.a as non-blocking mode).
 
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 {
   mode(EVENT_LOOP);
@@ -26,6 +27,18 @@ The javadoc:ExecutionMode[EVENT_LOOP] mode allows us to run a route handler from
   get("/", ctx -> {
     return "I'm non-blocking!"
   });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  mode(EVENT_LOOP)
+
+  get("/") { ctx ->
+    "I'm non-blocking!"
+  }
 }
 ----
 
@@ -37,13 +50,14 @@ What if you need to block?
 The javadoc:Router[dispatch, java.lang.Runnable] operator moves execution to a *worker executor* which 
 allows to do *blocking calls*:
 
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 {
   mode(EVENT_LOOP);
 
   get("/", ctx -> {
-    return "I'm non-blocking!"
+    return "I'm non-blocking!";
   });
 
   dispatch(() -> {
@@ -51,11 +65,34 @@ allows to do *blocking calls*:
 
     get("/db-list", ctx -> {
       /** Safe to block! */
-      Object result = // Remote service, db call, etc..
+      Object result = ...; // Remote service, db call, etc..
       return result;
     });
 
   });
+}
+----
+
+.Koltin
+[source,kotlin,role="secondary"]
+----
+{
+  mode(EVENT_LOOP)
+
+  get("/") { ctx ->
+    "I'm non-blocking!"
+  }
+
+  dispatch {
+    // All the routes defined here are allowed to block:
+
+    get("/db-list") { ctx ->
+      /** Safe to block! */
+      val result = ...; // Remote service, db call, etc..
+      result
+    }
+
+  }
 }
 ----
 
@@ -64,7 +101,8 @@ worker executor* (executor provided by web server).
 
 You can provide your own *worker executor* at application level or at dispatch level: 
 
-[source, java]
+.Java
+[source,java,role="primary"]
 ----
 {
   mode(EVENT_LOOP);
@@ -85,12 +123,35 @@ You can provide your own *worker executor* at application level or at dispatch l
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  mode(EVENT_LOOP)
+  
+  // Application level executor
+  worker(Executors.newCachedThreadPool())
+
+  // Dispatch to application level executor which is cached thread pool
+  dispatch {
+    ...
+  }
+  
+  // Dispatch to a explicit executor
+  Executor cpuIntensive = Executors.newSingleThreadExecutor()
+  dispatch(cpuIntesive) {
+    ...
+  }
+}
+----
+
 ==== Worker
 
 The javadoc:ExecutionMode[WORKER] mode allows us to do blocking calls from a route handler (a.k.a blocking mode).
 You just write code without worrying about blocking calls.
 
-[source, java]
+.Java
+[source, java,role="primary"]
 ----
 {
   mode(WORKER);
@@ -103,9 +164,24 @@ You just write code without worrying about blocking calls.
 }
 ----
 
+.Kotlin
+[source, kotlin,role="secondary"]
+----
+{
+  mode(WORKER)
+  
+  get("/") { ctx ->
+    /** Safe to block! */
+    val result = ...;// Remote service, db call, etc..
+    result
+  }
+}
+----
+
 Like with javadoc:ExecutionMode[EVENT_LOOP] mode, you can provide your own worker executor:
 
-[source, java]
+.Java
+[source,java,role="primary"]
 ----
 {
   mode(WORKER);
@@ -117,6 +193,22 @@ Like with javadoc:ExecutionMode[EVENT_LOOP] mode, you can provide your own worke
     Object result = // Remote service, db call, etc..
     return result;
   });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  mode(WORKER)
+
+  worker(Executors.newCachedThreadPool())
+
+  get("/") { ctx ->
+    /** Safe to block from cached thread pool! */
+    val result = ...;// Remote service, db call, etc..
+    result
+  }
 }
 ----
 
@@ -143,7 +235,8 @@ A response type is considered *non-blocking* when route handler produces:
 - A https://projectreactor.io/[Reactor type]
 - A https://kotlinlang.org/docs/reference/coroutines/coroutines-guide.html[Kotlin coroutine]
 
-[source, java]
+.Java
+[source, java,role="primary"]
 ----
 {
   get("/non-blocking", ctx -> {
@@ -154,6 +247,21 @@ A response type is considered *non-blocking* when route handler produces:
   get("/blocking", ctx -> {
     return "I'm blocking";                       // <2>
   });
+}
+----
+
+.Kotlin
+[source, kotlin,role="secondary"]
+----
+{
+  get("/non-blocking") { ctx ->
+    CompletableFuture
+        .supplyAsync { "I'm non-blocking!" }  // <1>    
+  }
+
+  get("/blocking") { ctx ->
+    "I'm blocking"                            // <2>
+  }
 }
 ----
 
@@ -202,11 +310,22 @@ with `200` worker threads.
 These are sensible defaults suggested by the server implementation. If you need to increase/decrease
 worker threads:
 
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 {
   configureServer(server -> {
     server.workerThreads(Number);
   });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  configureServer { server ->
+    server.workerThreads(Number)
+  }
 }
 ---- 

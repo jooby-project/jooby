@@ -2,7 +2,8 @@
 
 Raw `request body` is available via javadoc:Context[body] method:
 
-[source, java]
+.Java
+[source,java,role="primary"]
 ----
 {
   post("/string", ctx -> {
@@ -19,6 +20,27 @@ Raw `request body` is available via javadoc:Context[body] method:
     InputStream body = ctx.body().stream();  // <3>
     ...
   });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  post("/string") { ctx ->
+    val body = ctx.body().value()   // <1>
+    ...
+  }
+  
+  post("/bytes") ctx -> {
+    val body = ctx.body().bytes()   // <2>
+    ...
+  }
+  
+  post("/stream") { ctx ->
+    val body = ctx.body().stream()  // <3>
+    ...
+  }
 }
 ----
 
@@ -44,10 +66,10 @@ javadoc:Parser[] has a single `parse` method that takes two input arguments: `(c
 and returns a single result of the given type.
 
 .JSON example:
-[source, java]
+[source, java, role="primary"]
 ----
 {
-  FavoriteJson lib = ...;                          // <1>
+  FavoriteJson lib = new FavoriteJson();           // <1>
 
   parser(MediaType.json, (ctx, type) -> {          // <2>
 
@@ -59,6 +81,25 @@ and returns a single result of the given type.
   post("/", ctx -> {
     MyObject myObject = ctx.body(MyObject.class);  // <5>
   });
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  val lib = FavoriteJson()                 // <1>
+
+  parser(MediaType.json, { ctx, type ->    // <2>
+
+    val body = ctx.body().bytes()          // <3>
+
+    lib.fromJson(body, type)               // <4>
+  }
+
+  post("/") { ctx ->
+    val myObject = ctx.body<MyObject>()    // <5>
+  }
 }
 ----
 
@@ -83,7 +124,7 @@ Jooby comes with a `json` parser built on top of https://github.com/FasterXML/ja
 Response body is generated from `handler` function:
 
 .Response body
-[source, java]
+[source, java,role="primary"]
 ----
 {
   get("/", ctx -> {
@@ -95,6 +136,22 @@ Response body is generated from `handler` function:
 
     return "Response";              // <4>
   });
+}
+----
+
+.Kotlin
+[source, kotlin,role="secondary"]
+----
+{
+  get("/") { ctx ->
+    ctx.statusCode(200)        // <1>
+
+    ctx.type(MediaType.text)   // <2>
+
+    ctx.header("Date", Date()) // <3>
+
+    "Response"                 // <4>
+  }
 }
 ----
 
@@ -119,10 +176,10 @@ Renderer has a single `render` method that accepts two input arguments: `(contex
 produces a result.
 
 .JSON example:
-[source, java]
+[source, java, role="primary"]
 ----
 {
-  FavoriteJson lib = ...;                          // <1>
+  FavoriteJson lib = new FavoriteJson();                          // <1>
 
   renderer(MediaType.json, (ctx, result) -> {      // <2>
 
@@ -137,6 +194,28 @@ produces a result.
     MyObject myObject = ...;
     return myObject;                               // <6>
   });
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  val lib = FavoriteJson()                         // <1>
+
+  renderer(MediaType.json, { ctx, result ->        // <2>
+
+    val json = lib.toJson(result)                  // <3>
+
+    ctx.defaultResponseType(MediaType.json)        // <4>
+
+    json                                           // <5>
+  }
+
+  get("/item") { ctx ->
+    val myObject = ...;
+    myObject                                       // <6>
+  }
 }
 ----
 

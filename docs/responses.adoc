@@ -2,9 +2,48 @@
 
 This chapter covers some special response types, like `raw responses`, `streaming`, `file download`, `non-blocking`, etc...
 
+=== Raw
+
+Raw responses are NOT processed by a <<renderer, Renderer>>. These response types are considered `raw`:
+
+- byte[]
+- String/CharSequence
+- java.nio.ByteBuffer/io.netty.buffer.ByteBuf
+- java.io.File/java.io.InputStream/java.nio.file.Path/java.nio.channels.FileChannel
+
+.Generate a JSON String from handler
+[source,java,role="primary"]
+----
+{
+  get("/json", ctx -> {
+    ctx.setContentType(MediaType.json);
+    return "{\"message\": \"Hello Raw Response\"}";
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  get("/json") { ctx ->
+    ctx.contentType = MediaType.json
+    """
+      "message": "Hello Raw Response"
+    """
+  }
+}
+----
+
+No matter if there is a JSON renderer installed, a raw response is always send directly to client.
+
+=== OutputStream and Writer
+
+Blocking APIs usually require an `java.io.OutputStream` or `java.io.Writer`. Jooby 2.x exposes them 
+
 === NonBlocking
 
-Non-blocking responses is a new feature of Jooby 2.x.
+Non-blocking responses are a new feature of Jooby 2.x.
 
 From user point of view there is nothing special about them, you just write your route handler as 
 usually due with blocking types.
@@ -16,7 +55,7 @@ Before we jump to each of the supported types, we need to learn what occurs in t
 there is a non-blocking route handler.
 
 .In event loop
-[source,java,role="primary",text="XXX xxx"]
+[source,java,role="primary"]
 ----
 {
   mode(EVENT_LOOP);                 // <1>
@@ -50,7 +89,6 @@ there is a non-blocking route handler.
   }
 }
 ----
-
 
 <1> App run in *event loop*
 <2> Route block run in *event loop*. No blocking code is permitted
@@ -146,10 +184,26 @@ Running your `App` in *default* mode works identically to running in the *event 
 
 The *default* mode mimics the *event loop* mode execution when route produces a *non-blocking* type.
 
+==== Limitations
+
+While writing non-blocking/reactive responses we should *avoid the use of Jooby filters*: <<decorator, decorator>>, <<before, before>> and <<after, after>>.
+
+In most use cases they won't work, so it is preferred to avoid them while programming
+non-blocking/reactive responses.
+
+On non-blocking/reactive responses there is always a "dispatch call". This call moves execution to
+somewhere else (usually a different thread). Because of this is almost impossible to ensure the
+execution of pipeline.
+
+[quote]
+If you have a non-blocking route handler, it is better to not have any type of filter in the pipeline
+
+The alternative options is to write cross-cutting concerns we usually put inside a filter using the
+non-blocking API.
+
 ==== CompletableFuture
 
 CompletableFuture is considered a non-blocking type which is able to produces a single result:
-
 
 .Java
 [source,java, role="primary"]
@@ -231,10 +285,10 @@ Jooby is able to set the `Content-Length` header when using *Single* responses.
 }
 ----
 
-Flowable responses are handled bit different, because is impossible to know how many item are going
+Flowable responses are handled bit different because is impossible to know how many item are going
 to be generated.
 
-Jooby builds a `chunked` response. That is:
+Jooby builds a `chunked` response. That:
 
 . Set the `Transfer-Encoding: chunked` header
 . Each item means new `chunk` send it to client 
@@ -246,6 +300,49 @@ It works like <<RxJava>> using reactor types `Mono` and `Flux`.
 ==== Kotlin Coroutines
 
 Probably one of most exciting new features of Jooby 2.x is the builtin integration with https://kotlinlang.org/docs/reference/coroutines/coroutines-guide.html[Kotlin Coroutines]:
+
+.Coroutine handler:
+[source, kotlin, role="primary"]
+----
+{
+  get("/") {         // <1>
+    ctx.pathString() 
+  }
+}
+----
+
+.Normal handler:
+[source, kotlin, role="secondary"]
+----
+{
+  get("/") { ctx ->  // <2>
+    ctx.pathString() 
+  }
+}
+----
+
+<1> Coroutine handler uses a implicit `Context` parameter: `ctx`
+
+<2> Normal handler has an explicit 'Context' parameter
+
+
+
+Also, if you try to call a suspending function from normal handler, Kotlin complains about:
+
+.Not allowed it:
+[source, kotlin]
+----
+{
+  get("/") { ctx ->
+    delay(100)      // <1>
+    "..."
+  }
+}
+----
+
+<1> Suspend function 'delay' should be called only from a coroutine or another suspend function
+
+Now, if we remove the explicit parameter we have our first coroutine handler:
 
 .Hello Coroutines
 [source, kotlin]
@@ -261,19 +358,31 @@ Probably one of most exciting new features of Jooby 2.x is the builtin integrati
 <1> Call a suspending function
 <2> Send response to client
 
-Here is another example with an extension and suspending function:
+[NOTE]
+.Normal vs Coroutine handler
+====
+The difference between them is really small, just the presences/abscense of the `Context` parameter.
+We realize this might be confusion at first, but the reason why was done like this was to keep
+*DSL simple and natural*.
 
+For example we don't need an extra keyword or route names to write a
+coroutine handler.
+
+The existing `get`, `post`, ..., etc. DSL methods just works. 
+====
+
+.Here is another example with an extension and suspending function:
 [source, kotlin]
 ----
 {
   get("/") {
-    ctx.doSomething()       // <1>
+    ctx.doSomething()         // <1>
   }
 }
 
 suspend fun Context.doSomething(): String {
-  delay(100)                // <2>
-  return "Hi Coroutines"    // <3>
+  delay(100)                  // <2>
+  return "Hello Coroutines!"  // <3>
 }
 ----
 
@@ -328,3 +437,5 @@ Jooby allows you to use this experimental API by setting the `coroutineStart` op
 <1> Statement run in the *event loop* (caller thread)
 <2> Call a suspending function and dispatch to *worker executor*
 <3> Produces a response from *worker executor*
+
+{love} {love}!

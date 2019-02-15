@@ -36,7 +36,7 @@ response.
 [source, kotlin, role="secondary"]
 ----
 {
-  get("/") {
+  get("/") { ctx ->
     val token = ctx.header("token").value() // <1>
 
     val headers = ctx.headers()             // <2>
@@ -76,15 +76,15 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 [source,kotlin,role="secondary"]
 ----
 {
-  get("/{id}") { ctx.path("id").value() }                                 // <1>
+  get("/{id}") { ctx -> ctx.path("id").value() }                                 // <1>
   
-  get("/@{id}") { ctx.path("id").value() }                                // <2>
+  get("/@{id}") { ctx -> ctx.path("id").value() }                                // <2>
   
-  get("/file/{name}.{ext}") { cxt.path("name") + "." + ctx.path("ext") }  // <3>
+  get("/file/{name}.{ext}") { ctx -> cxt.path("name") + "." + ctx.path("ext") }  // <3>
   
-  get("/file/*") { ctx.path("*") }                                        // <4>
+  get("/file/*") { ctx -> ctx.path("*") }                                        // <4>
 
-  get("/{id:[0-9]+}") { ctx.path("id) }                                   // <5>
+  get("/{id:[0-9]+}") { ctx -> ctx.path("id) }                                   // <5>
 }
 ----
 
@@ -116,7 +116,7 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 [source, kotlin, role="secondary"]
 ----
 {
-  get("/{name}") {
+  get("/{name}") { ctx ->
     val pathString = ctx.pathString()     // <1>
     
     val path = ctx.path()                 // <2>
@@ -191,7 +191,7 @@ class SearchQuery {
 [source, kotlin, role="secondary"]
 ----
 {
-  get("/search") {
+  get("/search") { ctx ->
     val queryString = ctx.queryString()         // <1>
 
     val query = ctx.query()                     // <2>
@@ -281,7 +281,7 @@ class User {
 [source, kotlin, role="secondary"]
 ----
 {
-  post("/user") {
+  post("/user") { ctx ->
     val form = ctx.form()               // <1>
 
     val formMap = ctx.formMultimap()    // <2>
@@ -355,7 +355,7 @@ class User {
 [source, kotlin, role="secondary"]
 ----
 {
-  post("/user") {
+  post("/user") { ctx ->
     val multipart = ctx.multipart()              // <1>
 
     val multipartMap = ctx.multipartMultimap()   // <2>
