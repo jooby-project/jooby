@@ -266,7 +266,7 @@ public class NettyContext implements Context, ChannelFutureListener {
 
   @Nonnull @Override public Sender responseSender() {
     responseStarted = true;
-    ifSetChunked();
+    prepareChunked();
     ctx.write(new DefaultHttpResponse(req.protocolVersion(), status, setHeaders));
     return new NettySender(this, ctx);
   }
@@ -306,7 +306,7 @@ public class NettyContext implements Context, ChannelFutureListener {
       return sendFile(((FileInputStream) in).getChannel());
     }
     try {
-      ifSetChunked();
+      prepareChunked();
       long len = responseLength();
       ChunkedInput chunkedStream;
       if (len > 0) {
@@ -381,7 +381,7 @@ public class NettyContext implements Context, ChannelFutureListener {
   }
 
   private NettyOutputStream newOutputStream() {
-    ifSetChunked();
+    prepareChunked();
     return new NettyOutputStream(ctx, bufferSize,
         new DefaultHttpResponse(req.protocolVersion(), status, setHeaders), this);
   }
@@ -463,7 +463,9 @@ public class NettyContext implements Context, ChannelFutureListener {
     return len == null ? -1 : Long.parseLong(len);
   }
 
-  private void ifSetChunked() {
+  private void prepareChunked() {
+    // remove flusher, doesn't play well with streaming/chunked responses
+    ctx.pipeline().remove("flusher");
     if (!setHeaders.contains(CONTENT_LENGTH)) {
       setHeaders.set(TRANSFER_ENCODING, CHUNKED);
     }

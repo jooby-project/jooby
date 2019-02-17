@@ -45,6 +45,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   @Override
   public void initChannel(SocketChannel ch) {
     ChannelPipeline p = ch.pipeline();
+    // FlushConsolidationHandler doesn't work well with chunked responses. It is removed in NettyContext.prepareChunked
     p.addLast("flusher", new FlushConsolidationHandler(256, true));
     p.addLast("codec", new HttpServerCodec(_4KB, _8KB, bufferSize, false));
     if (gzip) {
