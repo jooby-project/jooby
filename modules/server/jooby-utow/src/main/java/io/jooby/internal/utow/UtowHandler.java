@@ -28,6 +28,7 @@ import io.undertow.server.handlers.form.FormEncodedDataDefinition;
 import io.undertow.server.handlers.form.FormParserFactory;
 import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.util.HeaderMap;
+import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 
 import java.io.IOException;
@@ -37,11 +38,13 @@ public class UtowHandler implements HttpHandler {
   protected final Router router;
   private final long maxRequestSize;
   private final int bufferSize;
+  private final boolean defaultHeaders;
 
-  public UtowHandler(Router router, int bufferSize, long maxRequestSize) {
+  public UtowHandler(Router router, int bufferSize, long maxRequestSize, boolean defaultHeaders) {
     this.router = router;
     this.maxRequestSize = maxRequestSize;
     this.bufferSize = bufferSize;
+    this.defaultHeaders = defaultHeaders;
   }
 
   @Override public void handleRequest(HttpServerExchange exchange) throws Exception {
@@ -49,6 +52,13 @@ public class UtowHandler implements HttpHandler {
     Router.Match route = router.match(context);
     /** Don't check/parse for body if there is no match: */
     if (route.matches()) {
+      /** default headers: */
+      HeaderMap responseHeaders = exchange.getResponseHeaders();
+      responseHeaders.put(Headers.CONTENT_TYPE, "text/plain");
+      if (defaultHeaders) {
+        responseHeaders.put(Headers.SERVER, "utow");
+      }
+
       HeaderMap headers = exchange.getRequestHeaders();
       long len = parseLen(headers.getFirst(Headers.CONTENT_LENGTH));
       if (len > maxRequestSize) {
@@ -75,15 +85,15 @@ public class UtowHandler implements HttpHandler {
             receiver.receivePartialBytes(reader);
           }
         } else {
-//          exchange.addExchangeCompleteListener((xchange, next) -> {
-//            try {
-//              parser.close();
-//            } catch (IOException x) {
-//              router.log().debug("exception found while closing resource", x);
-//            } finally {
-//              next.proceed();
-//            }
-//          });
+          //          exchange.addExchangeCompleteListener((xchange, next) -> {
+          //            try {
+          //              parser.close();
+          //            } catch (IOException x) {
+          //              router.log().debug("exception found while closing resource", x);
+          //            } finally {
+          //              next.proceed();
+          //            }
+          //          });
           try {
             parser.parse(execute(route, context));
           } catch (Exception x) {

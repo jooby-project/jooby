@@ -48,7 +48,7 @@ public class Jooby implements Router {
 
   private RouterImpl router;
 
-  private ExecutionMode mode = ExecutionMode.DEFAULT;
+  private ExecutionMode mode;
 
   private Consumer<Server> serverConfigurer;
 
@@ -362,6 +362,9 @@ public class Jooby implements Router {
     Logger log = log();
     log.debug("environment:\n{}", environment);
 
+    if (mode == null) {
+      mode = ExecutionMode.DEFAULT;
+    }
     router.start(this);
 
     fireStart();
@@ -426,7 +429,9 @@ public class Jooby implements Router {
       logback(environment);
 
       Jooby app = provider.get();
-      app.mode(mode);
+      if (app.mode == null) {
+        app.mode = mode;
+      }
       server = app.start();
     } finally {
       // clear env

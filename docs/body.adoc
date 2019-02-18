@@ -179,7 +179,7 @@ produces a result.
 [source, java, role="primary"]
 ----
 {
-  FavoriteJson lib = new FavoriteJson();                          // <1>
+  FavoriteJson lib = new FavoriteJson();           // <1>
 
   renderer(MediaType.json, (ctx, result) -> {      // <2>
 

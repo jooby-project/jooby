@@ -17,6 +17,8 @@ package io.jooby.netty;
 
 import io.jooby.Jooby;
 import io.jooby.Server;
+import io.jooby.internal.netty.DefaultHeaders;
+import io.jooby.internal.netty.NettyContext;
 import io.jooby.internal.netty.NettyNative;
 import io.jooby.internal.netty.NettyHandler;
 import io.jooby.internal.netty.NettyPipeline;
@@ -24,6 +26,9 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.DiskAttribute;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
@@ -34,6 +39,9 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class Netty extends Server.Base {
@@ -64,8 +72,15 @@ public class Netty extends Server.Base {
 
   private int workerThreads = parallelism * 8;
 
+  private boolean defaultHeaders = true;
+
   @Override public Server port(int port) {
     this.port = port;
+    return this;
+  }
+
+  @Nonnull @Override public Server defaultHeaders(boolean value) {
+    defaultHeaders = value;
     return this;
   }
 
@@ -100,7 +115,8 @@ public class Netty extends Server.Base {
       addShutdownHook();
 
       /** Worker: Application blocking code */
-      worker = new DefaultEventExecutorGroup(workerThreads, new DefaultThreadFactory("netty-worker"));
+      worker = new DefaultEventExecutorGroup(workerThreads,
+          new DefaultThreadFactory("netty-worker"));
       fireStart(applications, worker);
 
       /** Disk attributes: */
@@ -120,20 +136,23 @@ public class Netty extends Server.Base {
       /** IO: processing connections, parsing messages and doing engine's internal work */
       this.ioLoop = provider.group("netty", ioThreads);
 
-      /** Handler: */
+      /** File data factory: */
       HttpDataFactory factory = new DefaultHttpDataFactory(bufferSize);
-
-      Supplier<ChannelInboundHandler> handler = () -> new NettyHandler(applications.get(0),
-          maxRequestSize, bufferSize, factory);
 
       /** Bootstrap: */
       ServerBootstrap bootstrap = new ServerBootstrap();
       bootstrap.option(ChannelOption.SO_BACKLOG, 8192);
       bootstrap.option(ChannelOption.SO_REUSEADDR, true);
 
+      Consumer<HttpHeaders> defaultHeaders = this.defaultHeaders ?
+          defaultHeaders(acceptor.next()) :
+          defaultResponseType();
+
       bootstrap.group(acceptor, ioLoop)
           .channel(provider.channel())
-          .childHandler(new NettyPipeline(handler, gzip, bufferSize))
+          .childHandler(
+              new NettyPipeline(applications.get(0), factory, defaultHeaders, gzip, bufferSize,
+                  maxRequestSize))
           .childOption(ChannelOption.SO_REUSEADDR, true)
           .childOption(ChannelOption.TCP_NODELAY, true);
 
@@ -165,4 +184,13 @@ public class Netty extends Server.Base {
     return this;
   }
 
+  private static DefaultHeaders defaultHeaders(ScheduledExecutorService executor) {
+    DefaultHeaders headers = new DefaultHeaders();
+    executor.scheduleWithFixedDelay(headers, 1000, 1000, TimeUnit.MILLISECONDS);
+    return headers;
+  }
+
+  private static Consumer<HttpHeaders> defaultResponseType() {
+    return headers -> headers.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
+  }
 }

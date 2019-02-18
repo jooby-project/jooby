@@ -20,10 +20,7 @@ import java.nio.charset.StandardCharsets;
 
 public interface Renderer {
 
-  Renderer TO_STRING = (ctx, value) -> {
-    ctx.setDefaultContentType(MediaType.text);
-    return value.toString().getBytes(StandardCharsets.UTF_8);
-  };
+  Renderer TO_STRING = (ctx, value) -> value.toString().getBytes(StandardCharsets.UTF_8);
 
   byte[] render(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
 

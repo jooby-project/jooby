@@ -45,6 +45,8 @@ public class Utow extends Server.Base {
 
   private List<Jooby> applications = new ArrayList<>();
 
+  private boolean defaultHeaders = true;
+
   @Override public Server port(int port) {
     this.port = port;
     return this;
@@ -74,13 +76,19 @@ public class Utow extends Server.Base {
     return this;
   }
 
+  @Nonnull @Override public Server defaultHeaders(boolean value) {
+    this.defaultHeaders = value;
+    return this;
+  }
+
   @Override public Server start(Jooby application) {
 
     applications.add(application);
 
     addShutdownHook();
 
-    HttpHandler handler = new UtowHandler(applications.get(0), bufferSize, maxRequestSize);
+    HttpHandler handler = new UtowHandler(applications.get(0), bufferSize, maxRequestSize,
+        defaultHeaders);
 
     if (gzip) {
       handler = new EncodingHandler.Builder().build(null).wrap(handler);
@@ -94,7 +102,7 @@ public class Utow extends Server.Base {
         /** Server: */
         // HTTP/1.1 is keep-alive by default, turn this option off
         .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
-        .setServerOption(UndertowOptions.ALWAYS_SET_DATE, false)
+        .setServerOption(UndertowOptions.ALWAYS_SET_DATE, defaultHeaders)
         .setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, false)
         .setServerOption(UndertowOptions.DECODE_URL, false)
         /** Worker: */

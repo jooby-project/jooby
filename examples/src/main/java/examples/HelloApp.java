@@ -17,7 +17,6 @@ package examples;
 
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
-import io.jooby.Decorators;
 import io.jooby.FileUpload;
 import io.jooby.json.Jackson;
 
@@ -49,8 +48,6 @@ public class HelloApp extends Jooby {
 
   {
     mode(ExecutionMode.EVENT_LOOP);
-
-    decorator(Decorators.defaultHeaders());
 
     get("/", ctx -> ctx.sendString(MESSAGE));
 

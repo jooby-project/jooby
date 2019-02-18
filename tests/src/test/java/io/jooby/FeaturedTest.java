@@ -1253,13 +1253,12 @@ public class FeaturedTest {
   public void defaultHeaders() {
     LinkedList<String> servers = new LinkedList<>(Arrays.asList("netty", "utow", "jetty"));
     new JoobyRunner(app -> {
-      app.decorator(Decorators.defaultHeaders());
       app.get("/", Context::pathString);
     }).ready(client -> {
       client.get("/", rsp -> {
         assertNotNull(rsp.header("Date"));
         assertEquals(servers.getFirst(), rsp.header("Server"));
-        assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+        assertEquals("text/plain", rsp.header("Content-Type").toLowerCase());
         servers.removeFirst();
       });
     });
@@ -1541,36 +1540,6 @@ public class FeaturedTest {
     }, Jetty::new);
 
     assertEquals(0, counter.get());
-  }
-
-  @Test
-  public void defaultContentType() {
-    new JoobyRunner(app -> {
-      app.decorator(Decorators.contentType(text));
-      app.get("/type", Context::pathString);
-    }).ready(client -> {
-      client.get("/type", rsp -> {
-        assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
-      });
-    });
-
-    new JoobyRunner(app -> {
-      app.decorator(Decorators.contentType("text/plain"));
-      app.get("/type-text", Context::pathString);
-    }).ready(client -> {
-      client.get("/type-text", rsp -> {
-        assertEquals("text/plain;charset=utf-8", rsp.header("Content-Type").toLowerCase());
-      });
-    });
-
-    new JoobyRunner(app -> {
-      app.decorator(Decorators.contentType("text/plain"));
-      app.get("/type-override", ctx -> ctx.setContentType(html).sendString("OK"));
-    }).ready(client -> {
-      client.get("/type-override", rsp -> {
-        assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
-      });
-    });
   }
 
   @Test

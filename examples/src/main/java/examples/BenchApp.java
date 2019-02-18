@@ -15,7 +15,6 @@
  */
 package examples;
 
-import io.jooby.Decorators;
 import io.jooby.Jooby;
 import io.jooby.ExecutionMode;
 
@@ -32,9 +31,11 @@ public class BenchApp extends Jooby {
   }
 
   {
-    mode(ExecutionMode.EVENT_LOOP);
+    configureServer(server -> {
+      server.defaultHeaders(true);
+    });
 
-    decorator(Decorators.defaultHeaders());
+    mode(ExecutionMode.EVENT_LOOP);
 
     get("/", ctx -> ctx.sendString(MESSAGE));
 

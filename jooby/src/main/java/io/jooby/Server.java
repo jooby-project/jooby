@@ -73,6 +73,8 @@ public interface Server {
 
   @Nonnull Server bufferSize(int bufferSize);
 
+  @Nonnull Server defaultHeaders(boolean value);
+
   @Nonnull Server start(Jooby application);
 
   Server workerThreads(int workerThreads);

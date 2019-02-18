@@ -21,7 +21,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
@@ -61,7 +63,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class NettyContext implements Context, ChannelFutureListener {
 
   private static final HttpHeaders NO_TRAILING = new DefaultHttpHeaders(false);
-  private final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
+  final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
   private final int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
@@ -466,7 +468,11 @@ public class NettyContext implements Context, ChannelFutureListener {
 
   private void prepareChunked() {
     // remove flusher, doesn't play well with streaming/chunked responses
-    ctx.pipeline().remove("flusher");
+    ChannelPipeline pipeline = ctx.pipeline();
+    ChannelHandler flusher = pipeline.get("flusher");
+    if (flusher != null) {
+      pipeline.remove(flusher);
+    }
     if (!setHeaders.contains(CONTENT_LENGTH)) {
       setHeaders.set(TRANSFER_ENCODING, CHUNKED);
     }

@@ -15,6 +15,7 @@
  */
 package io.jooby.jetty;
 
+import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
 import io.jooby.internal.jetty.JettyHandler;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -47,6 +48,8 @@ public class Jetty extends io.jooby.Server.Base {
 
   private int workerThreads = 200;
 
+  private boolean defaultHeaders = true;
+
   static {
     System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.Slf4jLog");
   }
@@ -62,6 +65,11 @@ public class Jetty extends io.jooby.Server.Base {
 
   @Nonnull @Override public io.jooby.Server maxRequestSize(long maxRequestSize) {
     this.maxRequestSize = maxRequestSize;
+    return this;
+  }
+
+  @Nonnull @Override public io.jooby.Server defaultHeaders(boolean value) {
+    this.defaultHeaders = value;
     return this;
   }
 
@@ -86,6 +94,8 @@ public class Jetty extends io.jooby.Server.Base {
     System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize",
         Long.toString(maxRequestSize));
 
+    /** Jetty only support worker executor: */
+    application.mode(ExecutionMode.WORKER);
     applications.add(application);
 
     addShutdownHook();
@@ -102,7 +112,7 @@ public class Jetty extends io.jooby.Server.Base {
     httpConf.setOutputBufferSize(bufferSize);
     httpConf.setOutputAggregationSize(bufferSize);
     httpConf.setSendXPoweredBy(false);
-    httpConf.setSendDateHeader(false);
+    httpConf.setSendDateHeader(defaultHeaders);
     httpConf.setSendServerVersion(false);
     httpConf.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
     ServerConnector connector = new ServerConnector(server);
@@ -112,7 +122,7 @@ public class Jetty extends io.jooby.Server.Base {
 
     server.addConnector(connector);
 
-    AbstractHandler handler = new JettyHandler(applications.get(0), bufferSize, maxRequestSize);
+    AbstractHandler handler = new JettyHandler(applications.get(0), bufferSize, maxRequestSize, defaultHeaders);
 
     if (gzip) {
       GzipHandler gzipHandler = new GzipHandler();

@@ -24,6 +24,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -35,10 +36,12 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final Router router;
   private final int bufferSize;
+  private final Consumer<HttpHeaders> defaultHeaders;
   private NettyContext context;
   private Router.Match result;
 
@@ -49,11 +52,13 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private long contentLength;
   private long chunkSize;
 
-  public NettyHandler(Router router, long maxRequestSize, int bufferSize, HttpDataFactory factory) {
+  public NettyHandler(Router router, long maxRequestSize, int bufferSize, HttpDataFactory factory,
+      final Consumer<HttpHeaders> defaultHeaders) {
     this.router = router;
     this.maxRequestSize = maxRequestSize;
     this.factory = factory;
     this.bufferSize = bufferSize;
+    this.defaultHeaders = defaultHeaders;
   }
 
   @Override
@@ -61,6 +66,9 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     if (msg instanceof HttpRequest) {
       HttpRequest req = (HttpRequest) msg;
       context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize);
+
+      defaultHeaders.accept(context.setHeaders);
+
       result = router.match(context);
       /** Don't check/parse body if there is no match: */
       if (result.matches()) {

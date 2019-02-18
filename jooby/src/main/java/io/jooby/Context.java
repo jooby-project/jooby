@@ -114,11 +114,11 @@ public interface Context {
     return query().queryString();
   }
 
-  @Nonnull default <T> T query(Reified<T> type) {
+  @Nonnull default <T> T query(@Nonnull Reified<T> type) {
     return query().to(type);
   }
 
-  @Nonnull default <T> T query(Class<T> type) {
+  @Nonnull default <T> T query(@Nonnull Class<T> type) {
     return query().to(type);
   }
 
@@ -149,7 +149,7 @@ public interface Context {
     return headers().toMultimap();
   }
 
-  default boolean accept(MediaType contentType) {
+  default boolean accept(@Nonnull MediaType contentType) {
     String accept = header(ACCEPT).value(MediaType.ALL);
     return contentType.matches(accept);
   }
@@ -194,11 +194,11 @@ public interface Context {
     return form().get(name);
   }
 
-  @Nonnull default <T> T form(Reified<T> type) {
+  @Nonnull default <T> T form(@Nonnull Reified<T> type) {
     return form().to(type);
   }
 
-  @Nonnull default <T> T form(Class<T> type) {
+  @Nonnull default <T> T form(@Nonnull Class<T> type) {
     return form().to(type);
   }
 
@@ -221,11 +221,11 @@ public interface Context {
     return multipart().get(name);
   }
 
-  @Nonnull default <T> T multipart(Reified<T> type) {
+  @Nonnull default <T> T multipart(@Nonnull Reified<T> type) {
     return multipart().to(type);
   }
 
-  @Nonnull default <T> T multipart(Class<T> type) {
+  @Nonnull default <T> T multipart(@Nonnull Class<T> type) {
     return multipart().to(type);
   }
 
@@ -310,7 +310,7 @@ public interface Context {
 
   @Nonnull Context detach(@Nonnull Runnable action);
 
-  @Nullable <T> T attribute(String name);
+  @Nullable <T> T attribute(@Nonnull String name);
 
   @Nonnull Context attribute(@Nonnull String name, @Nonnull Object value);
 
@@ -362,7 +362,7 @@ public interface Context {
 
   @Nonnull MediaType responseContentType();
 
-  @Nonnull default Context statusCode(StatusCode statusCode) {
+  @Nonnull default Context statusCode(@Nonnull StatusCode statusCode) {
     return statusCode(statusCode.value());
   }
 
@@ -384,18 +384,18 @@ public interface Context {
 
   @Nonnull OutputStream responseStream();
 
-  default @Nonnull OutputStream responseStream(MediaType contentType) {
+  default @Nonnull OutputStream responseStream(@Nonnull MediaType contentType) {
     setContentType(contentType);
     return responseStream();
   }
 
-  default @Nonnull Context responseStream(MediaType contentType,
-      Throwing.Consumer<OutputStream> consumer) throws Exception {
+  default @Nonnull Context responseStream(@Nonnull MediaType contentType,
+      @Nonnull Throwing.Consumer<OutputStream> consumer) throws Exception {
     setContentType(contentType);
     return responseStream(consumer);
   }
 
-  default @Nonnull Context responseStream(Throwing.Consumer<OutputStream> consumer)
+  default @Nonnull Context responseStream(@Nonnull Throwing.Consumer<OutputStream> consumer)
       throws Exception {
     try (OutputStream out = responseStream()) {
       consumer.accept(out);
@@ -409,23 +409,23 @@ public interface Context {
     return responseWriter(MediaType.text);
   }
 
-  default @Nonnull PrintWriter responseWriter(MediaType contentType) {
+  default @Nonnull PrintWriter responseWriter(@Nonnull MediaType contentType) {
     return responseWriter(contentType, contentType.charset());
   }
 
-  @Nonnull PrintWriter responseWriter(MediaType contentType, Charset charset);
+  @Nonnull PrintWriter responseWriter(@Nonnull MediaType contentType, @Nullable Charset charset);
 
-  default @Nonnull Context responseWriter(Throwing.Consumer<PrintWriter> consumer) throws Exception {
+  default @Nonnull Context responseWriter(@Nonnull Throwing.Consumer<PrintWriter> consumer) throws Exception {
     return responseWriter(MediaType.text, consumer);
   }
 
-  default @Nonnull Context responseWriter(MediaType contentType, Throwing.Consumer<PrintWriter> consumer)
+  default @Nonnull Context responseWriter(@Nonnull MediaType contentType, @Nonnull Throwing.Consumer<PrintWriter> consumer)
       throws Exception {
     return responseWriter(contentType, contentType.charset(), consumer);
   }
 
-  default @Nonnull Context responseWriter(MediaType contentType, Charset charset,
-      Throwing.Consumer<PrintWriter> consumer) throws Exception {
+  default @Nonnull Context responseWriter(@Nonnull MediaType contentType, @Nullable Charset charset,
+      @Nonnull Throwing.Consumer<PrintWriter> consumer) throws Exception {
     try (PrintWriter writer = responseWriter(contentType, charset)) {
       consumer.accept(writer);
     }
@@ -457,7 +457,7 @@ public interface Context {
 
   @Nonnull Context sendStream(@Nonnull InputStream input);
 
-  default Context sendAttachment(AttachedFile file) {
+  default @Nonnull Context sendAttachment(@Nonnull AttachedFile file) {
     setHeader("Content-Disposition", file.contentDisposition());
     InputStream content = file.content();
     long length = file.length();
@@ -484,7 +484,7 @@ public interface Context {
 
   @Nonnull Context sendFile(@Nonnull FileChannel file);
 
-  @Nonnull default Context sendStatusCode(StatusCode statusCode) {
+  @Nonnull default Context sendStatusCode(@Nonnull StatusCode statusCode) {
     return sendStatusCode(statusCode.value());
   }
 
@@ -495,7 +495,7 @@ public interface Context {
     return this;
   }
 
-  @Nonnull default Context sendError(@Nonnull Throwable cause, StatusCode statusCode) {
+  @Nonnull default Context sendError(@Nonnull Throwable cause, @Nonnull StatusCode statusCode) {
     Router router = router();
     try {
       router.errorHandler().apply(this, cause, statusCode);
@@ -516,5 +516,5 @@ public interface Context {
    *
    * @return Name of the underlying HTTP server: netty, utow, jetty, etc..
    */
-  String name();
+  @Nonnull String name();
 }
