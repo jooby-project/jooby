@@ -35,11 +35,11 @@ public interface Router {
   interface Match {
     boolean matches();
 
-    Route route();
+    @Nonnull Route route();
 
-    void execute(Context context);
+    void execute(@Nonnull Context context);
 
-    Map<String, String> pathMap();
+    @Nonnull Map<String, String> pathMap();
   }
 
   /** HTTP Methods: */
@@ -203,9 +203,9 @@ public interface Router {
 
   @Nonnull ErrorHandler errorHandler();
 
-  Logger log();
+  @Nonnull Logger log();
 
-  static String normalizePath(@Nonnull String path, boolean caseSensitive,
+  static @Nonnull String normalizePath(@Nonnull String path, boolean caseSensitive,
       boolean ignoreTrailingSlash) {
     if (path == null || path.length() == 0 || path.equals("/")) {
       return "/";
@@ -247,7 +247,7 @@ public interface Router {
     return path;
   }
 
-  static List<String> pathKeys(String pattern) {
+  static @Nonnull List<String> pathKeys(@Nonnull String pattern) {
     List<String> result = new ArrayList<>();
     int start = -1;
     int end = Integer.MAX_VALUE;

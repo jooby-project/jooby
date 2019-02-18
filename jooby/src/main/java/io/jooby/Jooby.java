@@ -83,11 +83,11 @@ public class Jooby implements Router {
 
   }
 
-  public Env environment() {
+  public @Nonnull Env environment() {
     return environment;
   }
 
-  public Jooby environment(@Nonnull Env environment) {
+  public @Nonnull Jooby environment(@Nonnull Env environment) {
     this.environment = environment;
     if (tmpdir == null) {
       tmpdir = Paths.get(environment.get("application.tmpdir").value()).toAbsolutePath();
@@ -105,7 +105,7 @@ public class Jooby implements Router {
     return this;
   }
 
-  public Jooby onStart(@Nonnull Throwing.Runnable task) {
+  public @Nonnull Jooby onStart(@Nonnull Throwing.Runnable task) {
     if (startCallbacks == null) {
       startCallbacks = new ArrayList<>();
     }
@@ -113,7 +113,7 @@ public class Jooby implements Router {
     return this;
   }
 
-  public Jooby onStarted(@Nonnull Throwing.Runnable task) {
+  public @Nonnull Jooby onStarted(@Nonnull Throwing.Runnable task) {
     if (readyCallbacks == null) {
       readyCallbacks = new ArrayList<>();
     }
@@ -121,7 +121,7 @@ public class Jooby implements Router {
     return this;
   }
 
-  public Jooby onStop(@Nonnull Throwing.Runnable task) {
+  public @Nonnull Jooby onStop(@Nonnull Throwing.Runnable task) {
     if (stopCallbacks == null) {
       stopCallbacks = new LinkedList<>();
     }
@@ -246,7 +246,7 @@ public class Jooby implements Router {
     return router.worker();
   }
 
-  @Nonnull @Override public Jooby worker(Executor worker) {
+  @Nonnull @Override public Jooby worker(@Nonnull Executor worker) {
     this.router.worker(worker);
     if (worker instanceof ExecutorService) {
       onStop(((ExecutorService) worker)::shutdown);
@@ -260,7 +260,7 @@ public class Jooby implements Router {
   }
 
   /** Log: */
-  public Logger log() {
+  public @Nonnull Logger log() {
     return LoggerFactory.getLogger(getClass());
   }
 
@@ -268,33 +268,33 @@ public class Jooby implements Router {
     return router.errorHandler();
   }
 
-  public Path tmpdir() {
+  public @Nonnull Path tmpdir() {
     return tmpdir;
   }
 
-  public Jooby tmpdir(@Nonnull Path tmpdir) {
+  public @Nonnull Jooby tmpdir(@Nonnull Path tmpdir) {
     this.tmpdir = tmpdir;
     return this;
   }
 
-  public ExecutionMode mode() {
-    return mode;
+  public @Nonnull ExecutionMode mode() {
+    return mode == null ? ExecutionMode.DEFAULT : mode;
   }
 
-  public Jooby mode(ExecutionMode mode) {
+  public @Nonnull Jooby mode(@Nonnull ExecutionMode mode) {
     this.mode = mode;
     return this;
   }
 
-  public <T> T require(Class<T> type) {
+  public @Nonnull <T> T require(@Nonnull Class<T> type) {
     return findService(type, type.getName());
   }
 
-  public <T> T require(Class<T> type, String name) {
+  public @Nonnull <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
     return findService(type, type.getName() + "." + name);
   }
 
-  private <T> T findService(Class<T> type, String key) {
+  private @Nonnull <T> T findService(@Nonnull Class<T> type, @Nonnull String key) {
     Object service = services.get(key);
     if (service == null) {
       throw new IllegalStateException("Service not found: " + type);
@@ -302,22 +302,22 @@ public class Jooby implements Router {
     return type.cast(service);
   }
 
-  public <T> Jooby addService(@Nonnull Class<T> type, @Nonnull T service) {
+  public @Nonnull <T> Jooby addService(@Nonnull Class<T> type, @Nonnull T service) {
     putService(type, null, service);
     return this;
   }
 
-  public <T> Jooby addService(@Nonnull T service) {
+  public @Nonnull <T> Jooby addService(@Nonnull T service) {
     putService(service.getClass(), null, service);
     return this;
   }
 
-  public <T> Jooby addService(@Nonnull String name, @Nonnull T service) {
+  public @Nonnull <T> Jooby addService(@Nonnull String name, @Nonnull T service) {
     putService(service.getClass(), name, service);
     return this;
   }
 
-  public <T> Jooby addService(@Nonnull Class<T> type, @Nonnull String name, @Nonnull T service) {
+  public @Nonnull <T> Jooby addService(@Nonnull Class<T> type, @Nonnull String name, @Nonnull T service) {
     putService(type, name, service);
     return this;
   }
@@ -333,7 +333,7 @@ public class Jooby implements Router {
   }
 
   /** Boot: */
-  public Server start() {
+  public @Nonnull Server start() {
     List<Server> servers = stream(
         spliteratorUnknownSize(
             ServiceLoader.load(Server.class).iterator(),
@@ -356,7 +356,7 @@ public class Jooby implements Router {
     return server.start(this);
   }
 
-  public Jooby start(Server server) {
+  public @Nonnull Jooby start(@Nonnull Server server) {
     /** Start router: */
     ensureTmpdir(tmpdir);
     Logger log = log();
@@ -372,7 +372,7 @@ public class Jooby implements Router {
     return this;
   }
 
-  public Jooby ready(Server server) {
+  public @Nonnull Jooby ready(@Nonnull Server server) {
     Logger log = log();
 
     fireStarted();
@@ -393,7 +393,7 @@ public class Jooby implements Router {
     return this;
   }
 
-  public Jooby stop() {
+  public @Nonnull Jooby stop() {
     if (router != null) {
       router.destroy();
       router = null;
@@ -403,7 +403,7 @@ public class Jooby implements Router {
     return this;
   }
 
-  public Jooby configureServer(Consumer<Server> configurer) {
+  public @Nonnull Jooby configureServer(@Nonnull Consumer<Server> configurer) {
     this.serverConfigurer = configurer;
     return this;
   }
@@ -412,15 +412,15 @@ public class Jooby implements Router {
     return router.toString();
   }
 
-  public static void setEnv(Env environment) {
+  public static void setEnv(@Nonnull Env environment) {
     ENV.set(environment);
   }
 
-  public static void run(Supplier<Jooby> provider, String... args) {
+  public static void run(@Nonnull Supplier<Jooby> provider, String... args) {
     run(provider, ExecutionMode.DEFAULT, args);
   }
 
-  public static void run(Supplier<Jooby> provider, ExecutionMode mode, String... args) {
+  public static void run(@Nonnull Supplier<Jooby> provider, @Nonnull ExecutionMode mode, String... args) {
     Server server;
     try {
       Env environment = Env.defaultEnvironment(args);
@@ -440,7 +440,7 @@ public class Jooby implements Router {
     server.join();
   }
 
-  public static void logback(Env env) {
+  public static void logback(@Nonnull Env env) {
     String setfile = env.get("logback.configurationFile").value((String) null);
     if (setfile != null) {
       System.setProperty("logback.configurationFile", setfile);
