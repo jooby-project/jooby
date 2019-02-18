@@ -9,6 +9,21 @@ import org.junit.jupiter.api.Test
 class FeaturedKotlinTest {
 
   @Test
+  fun stream() {
+    JoobyRunner { app ->
+      app.get("/") { ctx ->
+        ctx.responseWriter {writer ->
+
+        }
+      }
+    }.ready { client ->
+      client.get("/") { rsp ->
+        assertEquals("Hello World!", rsp.body()!!.string())
+      }
+    }
+  }
+
+  @Test
   fun explicitContext() {
     JoobyRunner { app ->
       app.get("/") { ctx ->

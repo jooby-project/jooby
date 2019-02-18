@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.ByteBuffer;
@@ -282,10 +283,10 @@ public class MockContext implements Context {
     return "HTTP/1.1";
   }
 
-  @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
+  @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
     responseStarted = true;
     setContentType(type, charset);
-    Writer writer = new StringWriter();
+    PrintWriter writer = new PrintWriter(new StringWriter());
     result = writer;
     return writer;
   }

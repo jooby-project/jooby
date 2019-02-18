@@ -37,6 +37,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -258,10 +259,10 @@ public class NettyContext implements Context, ChannelFutureListener {
     return this;
   }
 
-  @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
+  @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
     setContentType(type, charset);
 
-    return new NettyWriter(newOutputStream(), charset);
+    return new PrintWriter(new NettyWriter(newOutputStream(), charset));
   }
 
   @Nonnull @Override public Sender responseSender() {

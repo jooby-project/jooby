@@ -30,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -237,14 +238,13 @@ public class UtowContext implements Context, IoCallback {
     return new UtowSender(this, exchange);
   }
 
-  @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
+  @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
     ifStartBlocking();
 
     setContentType(type, charset);
     ifSetChunked();
 
-    UtowWriter writer = new UtowWriter(exchange.getOutputStream(), charset);
-    return writer;
+    return new PrintWriter(new UtowWriter(exchange.getOutputStream(), charset));
   }
 
   @Nonnull @Override public Context sendBytes(@Nonnull byte[] data) {

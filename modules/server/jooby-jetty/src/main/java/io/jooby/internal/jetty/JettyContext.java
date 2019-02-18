@@ -282,12 +282,11 @@ public class JettyContext implements Callback, Context {
     }
   }
 
-  @Nonnull @Override public Writer responseWriter(MediaType type, Charset charset) {
+  @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
     try {
       ifSetChunked();
       setContentType(type, charset);
-      PrintWriter writer = response.getWriter();
-      return writer;
+      return response.getWriter();
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }

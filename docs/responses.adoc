@@ -6,8 +6,8 @@ This chapter covers some special response types, like `raw responses`, `streamin
 
 Raw responses are NOT processed by a <<renderer, Renderer>>. These response types are considered `raw`:
 
-- byte[]
 - String/CharSequence
+- byte[]
 - java.nio.ByteBuffer/io.netty.buffer.ByteBuf
 - java.io.File/java.io.InputStream/java.nio.file.Path/java.nio.channels.FileChannel
 
@@ -37,9 +37,124 @@ Raw responses are NOT processed by a <<renderer, Renderer>>. These response type
 
 No matter if there is a JSON renderer installed, a raw response is always send directly to client.
 
-=== OutputStream and Writer
+=== Streaming / Chunked
 
-Blocking APIs usually require an `java.io.OutputStream` or `java.io.Writer`. Jooby 2.x exposes them 
+Streaming/chunked API is available via:
+
+- javadoc:Context[responseStream]: blocking API that provides an `OutputStream`
+- javadoc:Context[responseWriter]: blocking API that provides a `PrintWriter`
+- javadoc:Context[responseSender]: non-blocking API that provides a javadoc:Sender[]
+
+Only one of these methods must be call it per request. At the time you call one of these methods Jooby
+automatically adds the `Transfer-Encoding: chunked` header when `Content-Length` is missing.
+
+All the three APIs have a `close` method. You must call it once you finish.
+
+.Writer example
+[source,java,role="primary"]
+----
+{
+  get("/chunk", ctx -> {
+    try(Writer writer = ctx.responseWriter()) { // <1>
+      writer.write("chunk1");                   // <2>
+      ...
+      writer.write("chunkN");
+    }
+
+    return ctx;                                 // <3>
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  get("/chunk") { ctx ->
+    ctx.responseWriter().use {                  // <1>
+      writer.write("chunk1")                    // <2>
+      ...
+      writer.write("chunkN")
+    }
+    ctx                                         // <3>
+  }
+}
+----
+
+<1> Get the `Writer` inside a try-with-resources statement, so close it automatically. 
+<2> Write chunks
+<3> Return the `Context`
+
+There is an overloaded version (for Java mainly) that let you skip the try-with-resources and
+automatically close the writer/stream:
+
+.Writer example
+[source,java,role="primary"]
+----
+{
+  get("/chunk", ctx -> {
+    return ctx.responseWriter(writer -> { // <1>
+      writer.write("chunk1");             // <2>
+      ...
+      writer.write("chunkN");
+    });
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  get("/chunk") { ctx ->
+    ctx.responseWriter {                  // <1>
+      writer.write("chunk1")              // <2>
+      ...
+      writer.write("chunkN")
+    }
+  }
+}
+----
+
+=== File download
+
+The javadoc:AttachedFile[] is used to generate file downloads, i.e. responses with 
+`Content-Disposition` header.
+
+.File download example
+[source,java,role="primary"]
+----
+{
+  get("/download-file", ctx -> {
+    Path source = Paths.get("logo.png");
+    return new AttachedFile(source);               // <1>
+  });
+  
+  get("/download-stream", ctx -> {
+    InputStream source = ...;
+    return new AttachedFile("myfile.txt", source); // <2>
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  get("/download-file") { ctx ->
+    val source = Paths.get("logo.png")
+    AttachedFile(source)                // <1>
+  }
+
+  get("/download-stream") { ctx ->
+    val source = ...
+    AttachedFile("myfile.txt", source)  // <2>
+  }
+}
+----
+
+<1> Send a download from an `InputStream`
+<2> Send a download from a `File`
 
 === NonBlocking
 
@@ -439,3 +554,44 @@ Jooby allows you to use this experimental API by setting the `coroutineStart` op
 <3> Produces a response from *worker executor*
 
 {love} {love}!
+
+=== Send methods
+
+Jooby provides a family of `sendXXX()` methods that produces a response via side effects.
+
+.sendString example
+[source,java,role="primary"]
+----
+{
+  get("/", ctx -> {
+    return ctx.sendString("Hello World!");
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  get("/") { ctx ->
+    ctx.sendString("Hello World!")
+  }
+}
+----
+
+Beside we operate via side effects, the route still returns something. This is required because a route
+handler is a function which always produces a result.
+
+All the send methods returns the current `Context`, this signal Jooby that we want to operate via
+side effects ignoring the output of the route handler.
+
+Family of send methods include:
+
+- javadoc:Context[sendBytes, byte[]]
+- javadoc:Context[sendBytes, java.nio.Buffer]
+- javadoc:Context[sendString, java.lang.String]
+- javadoc:Context[sendFile, java.nio.file.Path]
+- javadoc:Context[sendFile, java.io.File]
+- javadoc:Context[sendFile, java.nio.channels.FileChannel]
+- javadoc:Context[sendAttachment, io.jooby.AttachedFile]
+- javadoc:Context[sendStatusCode, io.jooby.StatusCode]

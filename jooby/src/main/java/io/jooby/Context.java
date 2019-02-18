@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
@@ -404,28 +405,28 @@ public interface Context {
 
   @Nonnull Sender responseSender();
 
-  default @Nonnull Writer responseWriter() {
+  default @Nonnull PrintWriter responseWriter() {
     return responseWriter(MediaType.text);
   }
 
-  default @Nonnull Writer responseWriter(MediaType contentType) {
+  default @Nonnull PrintWriter responseWriter(MediaType contentType) {
     return responseWriter(contentType, contentType.charset());
   }
 
-  @Nonnull Writer responseWriter(MediaType contentType, Charset charset);
+  @Nonnull PrintWriter responseWriter(MediaType contentType, Charset charset);
 
-  default @Nonnull Context responseWriter(Throwing.Consumer<Writer> consumer) throws Exception {
+  default @Nonnull Context responseWriter(Throwing.Consumer<PrintWriter> consumer) throws Exception {
     return responseWriter(MediaType.text, consumer);
   }
 
-  default @Nonnull Context responseWriter(MediaType contentType, Throwing.Consumer<Writer> consumer)
+  default @Nonnull Context responseWriter(MediaType contentType, Throwing.Consumer<PrintWriter> consumer)
       throws Exception {
     return responseWriter(contentType, contentType.charset(), consumer);
   }
 
   default @Nonnull Context responseWriter(MediaType contentType, Charset charset,
-      Throwing.Consumer<Writer> consumer) throws Exception {
-    try (Writer writer = responseWriter(contentType, charset)) {
+      Throwing.Consumer<PrintWriter> consumer) throws Exception {
+    try (PrintWriter writer = responseWriter(contentType, charset)) {
       consumer.accept(writer);
     }
     return this;
