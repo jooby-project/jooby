@@ -17,6 +17,8 @@ package io.jooby.hikari;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.jooby.AttributeKey;
+import io.jooby.AttributeMap;
 import io.jooby.Env;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -154,6 +156,8 @@ public class Hikari implements Extension {
   private static final Set<String> SKIP_TOKENS = Stream.of("jdbc", "jtds")
       .collect(Collectors.toSet());
 
+  public static final AttributeKey<DataSource> KEY = new AttributeKey<>(DataSource.class);
+
   private HikariConfig hikari;
 
   private String database;
@@ -176,7 +180,14 @@ public class Hikari implements Extension {
       hikari = builder().build(application.environment(), database);
     }
     HikariDataSource dataSource = new HikariDataSource(hikari);
-    application.addService(DataSource.class, database, dataSource);
+    AttributeMap attributes = application.attributes();
+    AttributeKey<DataSource> key = new AttributeKey<>(DataSource.class, database);
+    /** Global default database: */
+    attributes.putIfAbsent(KEY, dataSource);
+
+    /** Specific access: */
+    attributes.put(key, dataSource);
+
     application.onStop(dataSource::close);
   }
 

@@ -24,6 +24,8 @@ import freemarker.core.OutputFormat;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import io.jooby.AttributeKey;
+import io.jooby.AttributeMap;
 import io.jooby.Context;
 import io.jooby.Env;
 import io.jooby.ModelAndView;
@@ -34,6 +36,7 @@ import javax.annotation.Nonnull;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
@@ -119,7 +122,7 @@ public class Freemarker implements TemplateEngine {
   @Override public String apply(Context ctx, ModelAndView modelAndView) throws Exception {
     Template template = freemarker.getTemplate(modelAndView.view);
     StringWriter writer = new StringWriter();
-    Map<String, Object> model = new HashMap<>(ctx.attributes());
+    Map<String, Object> model = new HashMap<>(ctx.attributes().toMap());
     model.putAll(modelAndView.model);
     template.process(model, writer);
     return writer.toString();

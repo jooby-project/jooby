@@ -15,6 +15,7 @@
  */
 package io.jooby.internal;
 
+import io.jooby.AttributeMap;
 import io.jooby.ErrorHandler;
 import io.jooby.Jooby;
 import io.jooby.Context;
@@ -39,6 +40,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -125,9 +127,15 @@ public class RouterImpl implements Router {
 
   private Map<String, Parser> parsers = new HashMap<>();
 
+  private AttributeMap attributes = new AttributeMap(new ConcurrentHashMap<>());
+
   public RouterImpl(RouteAnalyzer analyzer) {
     this.analyzer = analyzer;
     stack.addLast(new Stack(""));
+  }
+
+  @Nonnull @Override public AttributeMap attributes() {
+    return attributes;
   }
 
   @Nonnull @Override public Router caseSensitive(boolean caseSensitive) {

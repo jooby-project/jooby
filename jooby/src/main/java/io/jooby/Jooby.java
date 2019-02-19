@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.Spliterator;
 import java.util.concurrent.Executor;
@@ -44,7 +45,7 @@ import java.util.stream.Stream;
 import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
 
-public class Jooby implements Router {
+public class Jooby implements Router, Registry {
 
   private RouterImpl router;
 
@@ -60,8 +61,6 @@ public class Jooby implements Router {
 
   private LinkedList<Throwing.Runnable> stopCallbacks;
 
-  private Map<Object, Object> services = new HashMap<>();
-
   /**
    * Not ideal but useful. We want to have access to environment properties from instance
    * initializer. So external method before creating a new Jooby instance does a call to
@@ -71,6 +70,8 @@ public class Jooby implements Router {
   private static ThreadLocal<Env> ENV = new ThreadLocal<>();
 
   protected Env environment;
+
+  private Registry registry;
 
   public Jooby() {
     router = new RouterImpl(new RouteAnalyzer(getClass().getClassLoader(), false));
@@ -286,50 +287,36 @@ public class Jooby implements Router {
     return this;
   }
 
-  public @Nonnull <T> T require(@Nonnull Class<T> type) {
-    return findService(type, type.getName());
+  @Nonnull @Override public AttributeMap attributes() {
+    return router.attributes();
   }
 
   public @Nonnull <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
-    return findService(type, type.getName() + "." + name);
+    return require(new AttributeKey<>(type, name));
   }
 
-  private @Nonnull <T> T findService(@Nonnull Class<T> type, @Nonnull String key) {
-    Object service = services.get(key);
-    if (service == null) {
-      throw new IllegalStateException("Service not found: " + type);
+  public @Nonnull <T> T require(@Nonnull Class<T> type) {
+    return require(new AttributeKey<>(type));
+  }
+
+  public @Nonnull Jooby registry(@Nonnull Registry registry) {
+    this.registry = registry;
+    return this;
+  }
+
+  private <T> T require(AttributeKey<T> key) {
+    AttributeMap attributes = attributes();
+    if (attributes.contains(key)) {
+      return attributes.get(key);
     }
-    return type.cast(service);
-  }
-
-  public @Nonnull <T> Jooby addService(@Nonnull Class<T> type, @Nonnull T service) {
-    putService(type, null, service);
-    return this;
-  }
-
-  public @Nonnull <T> Jooby addService(@Nonnull T service) {
-    putService(service.getClass(), null, service);
-    return this;
-  }
-
-  public @Nonnull <T> Jooby addService(@Nonnull String name, @Nonnull T service) {
-    putService(service.getClass(), name, service);
-    return this;
-  }
-
-  public @Nonnull <T> Jooby addService(@Nonnull Class<T> type, @Nonnull String name, @Nonnull T service) {
-    putService(type, name, service);
-    return this;
-  }
-
-  private void putService(@Nonnull Class type, String name, @Nonnull Object service) {
-    String defkey = type.getName();
-    String key = type.getName();
-    if (name != null) {
-      key += "." + name;
+    if (registry != null) {
+      String name = key.getName();
+      if (name == null) {
+        return registry.require(key.getType());
+      }
+      return registry.require(key.getType(), name);
     }
-    services.put(key, service);
-    services.putIfAbsent(defkey, service);
+    throw new NoSuchElementException(key.toString());
   }
 
   /** Boot: */
@@ -420,7 +407,8 @@ public class Jooby implements Router {
     run(provider, ExecutionMode.DEFAULT, args);
   }
 
-  public static void run(@Nonnull Supplier<Jooby> provider, @Nonnull ExecutionMode mode, String... args) {
+  public static void run(@Nonnull Supplier<Jooby> provider, @Nonnull ExecutionMode mode,
+      String... args) {
     Server server;
     try {
       Env environment = Env.defaultEnvironment(args);

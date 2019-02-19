@@ -79,8 +79,8 @@ public class NettyContext implements Context, ChannelFutureListener {
   private List<FileUpload> files;
   private Value.Object headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
-  private Map<String, Object> locals = Collections.EMPTY_MAP;
   private MediaType responseType;
+  private AttributeMap attributes = new AttributeMap();
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
       int bufferSize) {
@@ -104,20 +104,8 @@ public class NettyContext implements Context, ChannelFutureListener {
    * **********************************************************************************************
    */
 
-  @Nonnull @Override public Map<String, Object> attributes() {
-    return locals;
-  }
-
-  @Nullable @Override public <T> T attribute(String name) {
-    return (T) locals.get(name);
-  }
-
-  @Nonnull @Override public Context attribute(@Nonnull String name, @Nonnull Object value) {
-    if (locals == Collections.EMPTY_MAP) {
-      locals = new HashMap<>();
-    }
-    locals.put(name, value);
-    return this;
+  @Nonnull @Override public AttributeMap attributes() {
+    return attributes;
   }
 
   @Nonnull @Override public String method() {

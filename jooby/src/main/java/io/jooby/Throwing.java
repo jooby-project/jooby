@@ -149,7 +149,7 @@ public class Throwing {
    * @param <V2> Input type.
    */
   @FunctionalInterface
-  public interface Consumer2<V1, V2> {
+  public interface Consumer2<V1, V2> extends java.util.function.BiConsumer<V1, V2> {
     /**
      * Performs this operation on the given argument.
      *

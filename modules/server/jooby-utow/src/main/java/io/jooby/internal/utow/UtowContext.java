@@ -53,7 +53,7 @@ public class UtowContext implements Context, IoCallback {
   private Multipart multipart;
   private Value.Object headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
-  private Map<String, Object> locals = Collections.EMPTY_MAP;
+  private AttributeMap attributes = new AttributeMap();
   Body body;
   private MediaType responseType;
 
@@ -74,20 +74,8 @@ public class UtowContext implements Context, IoCallback {
     return body == null ? Body.empty() : body;
   }
 
-  @Nonnull @Override public Map<String, Object> attributes() {
-    return locals;
-  }
-
-  @Nullable @Override public <T> T attribute(String name) {
-    return (T) locals.get(name);
-  }
-
-  @Nonnull @Override public Context attribute(@Nonnull String name, @Nonnull Object value) {
-    if (locals == Collections.EMPTY_MAP) {
-      locals = new HashMap<>();
-    }
-    locals.put(name, value);
-    return this;
+  @Nonnull @Override public AttributeMap attributes() {
+    return attributes;
   }
 
   @Nonnull @Override public String method() {

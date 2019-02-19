@@ -57,6 +57,8 @@ public interface Router {
   List<String> METHODS = unmodifiableList(
       asList(GET, POST, PUT, DELETE, PATCH, HEAD, CONNECT, OPTIONS, TRACE));
 
+  @Nonnull AttributeMap attributes();
+
   @Nonnull Router caseSensitive(boolean caseSensitive);
 
   @Nonnull Router ignoreTrailingSlash(boolean ignoreTrailingSlash);

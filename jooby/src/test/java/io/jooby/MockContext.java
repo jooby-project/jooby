@@ -44,13 +44,13 @@ public class MockContext implements Context {
 
   private Body body;
 
-  private Map<String, Object> locals = new HashMap<>();
-
   private Map<String, Parser> parsers = new HashMap<>();
 
   private boolean ioThread;
 
   private Map<String, Object> responseHeaders = new HashMap<>();
+
+  private AttributeMap attributes = new AttributeMap();
 
   private long length;
   private MediaType responseType;
@@ -180,20 +180,11 @@ public class MockContext implements Context {
 
   @Nonnull @Override public MockContext detach(@Nonnull Runnable action) {
     action.run();
-    return null;
-  }
-
-  @Nullable @Override public <T> T attribute(String name) {
-    return (T) locals.get(name);
-  }
-
-  @Nonnull @Override public MockContext attribute(@Nonnull String name, @Nonnull Object value) {
-    locals.put(name, value);
     return this;
   }
 
-  @Nonnull @Override public Map<String, Object> attributes() {
-    return locals;
+  @Nonnull @Override public AttributeMap attributes() {
+    return attributes;
   }
 
   @Nonnull @Override public MockContext setHeader(@Nonnull String name, @Nonnull Date value) {

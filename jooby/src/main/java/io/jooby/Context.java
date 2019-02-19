@@ -60,6 +60,8 @@ public interface Context {
    * **********************************************************************************************
    */
 
+  @Nonnull AttributeMap attributes();
+
   @Nonnull Router router();
 
   /**
@@ -309,12 +311,6 @@ public interface Context {
   @Nonnull Context dispatch(@Nonnull Executor executor, @Nonnull Runnable action);
 
   @Nonnull Context detach(@Nonnull Runnable action);
-
-  @Nullable <T> T attribute(@Nonnull String name);
-
-  @Nonnull Context attribute(@Nonnull String name, @Nonnull Object value);
-
-  @Nonnull Map<String, Object> attributes();
 
   /**
    * **********************************************************************************************

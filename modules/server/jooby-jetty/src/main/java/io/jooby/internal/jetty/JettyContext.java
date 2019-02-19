@@ -58,7 +58,7 @@ public class JettyContext implements Callback, Context {
   private List<FileUpload> files;
   private Value.Object headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
-  private Map<String, Object> locals = Collections.EMPTY_MAP;
+  private AttributeMap attributes = new AttributeMap();
   private Router router;
   private Route route;
   private MediaType responseType;
@@ -71,20 +71,8 @@ public class JettyContext implements Callback, Context {
     this.maxRequestSize = maxRequestSize;
   }
 
-  @Nonnull @Override public Map<String, Object> attributes() {
-    return locals;
-  }
-
-  @Nullable @Override public <T> T attribute(String name) {
-    return (T) locals.get(name);
-  }
-
-  @Nonnull @Override public Context attribute(@Nonnull String name, @Nonnull Object value) {
-    if (locals == Collections.EMPTY_MAP) {
-      locals = new HashMap<>();
-    }
-    locals.put(name, value);
-    return this;
+  @Nonnull @Override public AttributeMap attributes() {
+    return attributes;
   }
 
   @Override public String name() {
