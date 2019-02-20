@@ -22,25 +22,20 @@ public class JoobyRunner {
 
   public JoobyRunner(Consumer<Jooby> provider) {
     this.provider = () -> {
-      try {
-        Jooby.setEnv(Env.defaultEnvironment("test"));
-        Jooby app = new Jooby();
-        provider.accept(app);
-        return app;
-      } finally {
-        Jooby.setEnv(null);
-      }
+      Jooby app = new Jooby();
+      app.environment(Env.defaultEnvironment(getClass().getClassLoader(), "test"));
+      provider.accept(app);
+      return app;
     };
   }
 
   public JoobyRunner(Supplier<Jooby> provider) {
     this.provider = () -> {
-      try {
-        Jooby.setEnv(Env.defaultEnvironment("test"));
-        return provider.get();
-      } finally {
-        Jooby.setEnv(null);
+      Jooby app = provider.get();
+      if (app.environment() == null) {
+        app.environment(Env.defaultEnvironment(app.getClass().getClassLoader(), "test"));
       }
+      return app;
     };
   }
 

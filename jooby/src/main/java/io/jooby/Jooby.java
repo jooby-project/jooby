@@ -26,11 +26,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.Spliterator;
@@ -47,6 +46,8 @@ import static java.util.stream.StreamSupport.stream;
 
 public class Jooby implements Router, Registry {
 
+  private static final String ENV_KEY = "application.env";
+
   private RouterImpl router;
 
   private ExecutionMode mode;
@@ -61,27 +62,12 @@ public class Jooby implements Router, Registry {
 
   private LinkedList<Throwing.Runnable> stopCallbacks;
 
-  /**
-   * Not ideal but useful. We want to have access to environment properties from instance
-   * initializer. So external method before creating a new Jooby instance does a call to
-   * {@link Jooby#setEnv(Env)} this makes available the env instance in any other Jooby instance
-   * created.
-   */
-  private static ThreadLocal<Env> ENV = new ThreadLocal<>();
-
-  protected Env environment;
+  private Env environment;
 
   private Registry registry;
 
   public Jooby() {
     router = new RouterImpl(new RouteAnalyzer(getClass().getClassLoader(), false));
-    environment = ENV.get();
-    if (environment == null) {
-      // TODO: fallback for now, but probably better if we throws a specific error
-      environment = Env.defaultEnvironment();
-    }
-    tmpdir = Paths.get(environment.get("application.tmpdir").value()).toAbsolutePath();
-
   }
 
   public @Nonnull Env environment() {
@@ -340,14 +326,20 @@ public class Jooby implements Router, Registry {
     if (serverConfigurer != null) {
       serverConfigurer.accept(server);
     }
+    if (environment == null) {
+      environment = Env.defaultEnvironment(getClass().getClassLoader());
+    }
+    if (tmpdir == null) {
+      tmpdir = Paths.get(environment.get("application.tmpdir").value()).toAbsolutePath();
+    }
     return server.start(this);
   }
 
   public @Nonnull Jooby start(@Nonnull Server server) {
     /** Start router: */
     ensureTmpdir(tmpdir);
-    Logger log = log();
-    log.debug("environment:\n{}", environment);
+
+    log().debug("environment:\n{}", environment);
 
     if (mode == null) {
       mode = ExecutionMode.DEFAULT;
@@ -399,55 +391,51 @@ public class Jooby implements Router, Registry {
     return router.toString();
   }
 
-  public static void setEnv(@Nonnull Env environment) {
-    ENV.set(environment);
-  }
-
   public static void run(@Nonnull Supplier<Jooby> provider, String... args) {
     run(provider, ExecutionMode.DEFAULT, args);
   }
 
   public static void run(@Nonnull Supplier<Jooby> provider, @Nonnull ExecutionMode mode,
       String... args) {
-    Server server;
-    try {
-      Env environment = Env.defaultEnvironment(args);
-      setEnv(environment);
 
-      logback(environment);
+    /** Dump command line as system properties. */
+    Env.parse(args).properties().forEach(System::setProperty);
 
-      Jooby app = provider.get();
-      if (app.mode == null) {
-        app.mode = mode;
-      }
-      server = app.start();
-    } finally {
-      // clear env
-      setEnv(null);
+    /** Fin application.env: */
+    String env = System.getProperty(ENV_KEY, System.getenv().getOrDefault(ENV_KEY, "dev"))
+        .toLowerCase();
+
+    logback(env);
+
+    Jooby app = provider.get();
+    if (app.mode == null) {
+      app.mode = mode;
     }
+    Server server = app.start();
     server.join();
   }
 
-  public static void logback(@Nonnull Env env) {
-    String setfile = env.get("logback.configurationFile").value((String) null);
-    if (setfile != null) {
-      System.setProperty("logback.configurationFile", setfile);
-      return;
+  public static void logback(@Nonnull String env) {
+    String logfile = System
+        .getProperty("logback.configurationFile", System.getenv().get("logback.configurationFile"));
+    if (logfile != null) {
+      System.setProperty("logback.configurationFile", logfile);
+    } else {
+      Path userdir = Paths.get(System.getProperty("user.dir"));
+      Path conf = userdir.resolve("conf");
+      String logbackenv = "logback." + env + ".xml";
+      String fallback = "logback.xml";
+      Stream.of(
+          /** Env specific inside conf or userdir: */
+          conf.resolve(logbackenv), userdir.resolve(logbackenv),
+          /** Fallback inside conf or userdir: */
+          conf.resolve(fallback), userdir.resolve(fallback)
+      ).filter(Files::exists)
+          .findFirst()
+          .map(Path::toAbsolutePath)
+          .ifPresent(
+              logback -> System.setProperty("logback.configurationFile", logback.toString()));
     }
-    String name = env.name();
-    Path userdir = Paths.get(System.getProperty("user.dir"));
-    Path conf = userdir.resolve("conf");
-    String logbackenv = "logback." + name + ".xml";
-    String fallback = "logback.xml";
-    Stream.of(
-        /** Env specific inside conf or userdir: */
-        conf.resolve(logbackenv), userdir.resolve(logbackenv),
-        /** Fallback inside conf or userdir: */
-        conf.resolve(fallback), userdir.resolve(fallback)
-    ).filter(Files::exists)
-        .findFirst()
-        .map(Path::toAbsolutePath)
-        .ifPresent(logback -> System.setProperty("logback.configurationFile", logback.toString()));
   }
 
   private static void ensureTmpdir(Path tmpdir) {

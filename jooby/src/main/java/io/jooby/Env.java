@@ -129,7 +129,7 @@ public class Env extends Value.Object {
     return new PropertySource("args", conf);
   }
 
-  public static PropertySource load(ClassLoader loader, String filename) {
+  private static PropertySource load(ClassLoader loader, String filename) {
     return load(loader, filename, (name, stream) -> {
       try {
         Properties properties = new Properties();
@@ -141,7 +141,7 @@ public class Env extends Value.Object {
     });
   }
 
-  public static PropertySource load(ClassLoader loader, String filename,
+  private static PropertySource load(ClassLoader loader, String filename,
       BiFunction<String, InputStream, PropertySource> propertyLoader) {
     AtomicReference<String> fullpath = new AtomicReference<>();
     InputStream stream = findProperties(loader, filename, fullpath::set);
@@ -167,19 +167,20 @@ public class Env extends Value.Object {
     return new PropertySource("systemEnv", System.getenv());
   }
 
-  public static Env defaultEnvironment(String... args) {
-    ClassLoader classLoader = Env.class.getClassLoader();
+  public static Env defaultEnvironment(ClassLoader loader) {
+    return defaultEnvironment(loader, "application");
+  }
+
+  public static Env defaultEnvironment(ClassLoader loader, String filename) {
     LinkedList<PropertySource> sources = new LinkedList<>();
-    PropertySource argMap = parse(args);
 
     sources.add(systemEnv());
     sources.add(systemProperties());
-    sources.add(argMap);
 
     String env = fromSource(sources, "application.env", "dev").toLowerCase();
     Stream
-        .of("application." + env + ".properties", "application.properties")
-        .map(filename -> load(classLoader, filename))
+        .of(filename + "." + env + ".properties", filename + ".properties")
+        .map(it -> load(loader, it))
         .filter(props -> props.properties().size() > 0)
         .forEach(sources::addFirst);
 

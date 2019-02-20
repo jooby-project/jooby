@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.function.Consumer;
 
 import static java.util.Arrays.asList;
@@ -62,15 +63,15 @@ public class EnvTest {
   }
 
   private void env(String dir, Map<String, String> args, Consumer<Env> consumer) {
-    Path file = Paths.get("env", dir);
-    System.setProperty("env.dir", file.toString());
-    consumer.accept(Env.defaultEnvironment(toArray(args)));
-  }
-
-  private String[] toArray(Map<String, String> args) {
-    List<String> result = new ArrayList<>();
-    args.forEach((k, v) -> result.add(k + "=" + v));
-    return result.toArray(new String[result.size()]);
+    Properties sysprops = new Properties(System.getProperties());
+    try {
+      Path file = Paths.get("env", dir);
+      System.setProperty("env.dir", file.toString());
+      args.forEach((k, v) -> System.setProperty(k, v));
+      consumer.accept(Env.defaultEnvironment(getClass().getClassLoader()));
+    } finally {
+      System.setProperties(sysprops);
+    }
   }
 
   private Map<String, String> mapOf(String... values) {

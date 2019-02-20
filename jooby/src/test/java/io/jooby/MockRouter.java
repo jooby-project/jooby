@@ -13,22 +13,21 @@ public class MockRouter {
 
   public MockRouter(Supplier<Jooby> supplier) {
     this.supplier = () -> {
-      Env env = Env.defaultEnvironment("test");
-      Jooby.setEnv(env);
       Jooby jooby = supplier.get();
-      Jooby.setEnv(null);
+      if (jooby.environment() == null) {
+        jooby.environment(Env.defaultEnvironment(jooby.getClass().getClassLoader(), "test"));
+      }
       return jooby;
     };
   }
 
   public MockRouter(Consumer<Jooby> consumer) {
     this.supplier = () -> {
-      Env env = Env.defaultEnvironment("test");
-      Jooby.setEnv(env);
-      Jooby app = new Jooby();
-      consumer.accept(app);
-      Jooby.setEnv(null);
-      return app;
+      Jooby jooby = new Jooby();
+      Env env = Env.defaultEnvironment(getClass().getClassLoader(), "test");
+      jooby.environment(env);
+      consumer.accept(jooby);
+      return jooby;
     };
   }
 
@@ -114,7 +113,8 @@ public class MockRouter {
     Result result = new Result(value, ctx.statusCode());
 
     /** Content-Type: */
-    result.header("Content-Type", ctx.responseContentType().toContentTypeHeader(ctx.getResponseCharset()));
+    result.header("Content-Type",
+        ctx.responseContentType().toContentTypeHeader(ctx.getResponseCharset()));
 
     /** Length: */
     long responseLength = ctx.getResponseLength();
