@@ -47,6 +47,9 @@
     <rxjava.version>2.2.5</rxjava.version>
     <reactor.version>3.2.5.RELEASE</reactor.version>
 
+    <!-- Guice -->
+    <guice.version>4.2.2</guice.version>
+
     <!-- Misc -->
     <okhttp.version>3.11.0</okhttp.version>
 
@@ -344,6 +347,12 @@
         <version>${h2.version}</version>
       </dependency>
 
+      <!-- javax.inject -->
+      <dependency>
+        <groupId>javax.inject</groupId>
+        <artifactId>javax.inject</artifactId>
+        <version>${javax.inject.version}</version>
+      </dependency>
 
       <!-- OKHttp -->
       <dependency>
@@ -434,6 +443,13 @@
         <groupId>io.projectreactor</groupId>
         <artifactId>reactor-core</artifactId>
         <version>${reactor.version}</version>
+      </dependency>
+
+      <!-- Guice -->
+      <dependency>
+        <groupId>com.google.inject</groupId>
+        <artifactId>guice</artifactId>
+        <version>${guice.version}</version>
       </dependency>
 
       <!-- Kotlin -->

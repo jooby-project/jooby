@@ -15,6 +15,7 @@
  */
 package io.jooby;
 
+import io.jooby.internal.RegistryImpl;
 import io.jooby.internal.RouteAnalyzer;
 import io.jooby.internal.RouterImpl;
 import org.slf4j.Logger;
@@ -26,7 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,7 +62,7 @@ public class Jooby implements Router, Registry {
 
   private LinkedList<Throwing.Runnable> stopCallbacks;
 
-  private Env environment;
+  private Env env;
 
   private Registry registry;
 
@@ -71,14 +71,11 @@ public class Jooby implements Router, Registry {
   }
 
   public @Nonnull Env environment() {
-    return environment;
+    return env;
   }
 
   public @Nonnull Jooby environment(@Nonnull Env environment) {
-    this.environment = environment;
-    if (tmpdir == null) {
-      tmpdir = Paths.get(environment.get("application.tmpdir").value()).toAbsolutePath();
-    }
+    this.env = environment;
     return this;
   }
 
@@ -285,8 +282,8 @@ public class Jooby implements Router, Registry {
     return require(new AttributeKey<>(type));
   }
 
-  public @Nonnull Jooby registry(@Nonnull Registry registry) {
-    this.registry = registry;
+  public @Nonnull Jooby registry(@Nonnull Object registry) {
+    this.registry = RegistryImpl.wrap(getClass().getClassLoader(), registry);
     return this;
   }
 
@@ -326,20 +323,21 @@ public class Jooby implements Router, Registry {
     if (serverConfigurer != null) {
       serverConfigurer.accept(server);
     }
-    if (environment == null) {
-      environment = Env.defaultEnvironment(getClass().getClassLoader());
-    }
-    if (tmpdir == null) {
-      tmpdir = Paths.get(environment.get("application.tmpdir").value()).toAbsolutePath();
-    }
     return server.start(this);
   }
 
   public @Nonnull Jooby start(@Nonnull Server server) {
+    if (env == null) {
+      env = Env.defaultEnvironment(getClass().getClassLoader());
+    }
+    if (tmpdir == null) {
+      tmpdir = Paths.get(env.get("application.tmpdir").value()).toAbsolutePath();
+    }
+
     /** Start router: */
     ensureTmpdir(tmpdir);
 
-    log().debug("environment:\n{}", environment);
+    log().debug("environment:\n{}", env);
 
     if (mode == null) {
       mode = ExecutionMode.DEFAULT;
@@ -361,7 +359,7 @@ public class Jooby implements Router, Registry {
     log.info("    PID: {}", System.getProperty("PID"));
     log.info("    port: {}", server.port());
     log.info("    server: {}", server.getClass().getSimpleName().toLowerCase());
-    log.info("    env: {}", environment.name());
+    log.info("    env: {}", env.name());
     log.info("    thread mode: {}", mode.name().toLowerCase());
     log.info("    user: {}", System.getProperty("user.name"));
     log.info("    app dir: {}", System.getProperty("user.dir"));
