@@ -51,7 +51,7 @@ import io.jooby.run
 
 fun main(args: Array<String>) {
   run(args) {
-    get ("/) { ctx ->
+    get ("/") { ctx ->
       "Welcome to Jooby!"
     }
   }
