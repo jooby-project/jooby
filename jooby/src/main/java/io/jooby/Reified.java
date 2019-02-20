@@ -95,6 +95,8 @@ public class Reified<T> {
 
   /**
    * Returns the raw (non-generic) type for this type.
+   *
+   * @return Returns the raw (non-generic) type for this type.
    */
   public final Class<? super T> getRawType() {
     return rawType;
@@ -102,6 +104,8 @@ public class Reified<T> {
 
   /**
    * Gets underlying {@code Type} instance.
+   *
+   * @return Gets underlying {@code Type} instance.
    */
   public final Type getType() {
     return type;
@@ -122,6 +126,9 @@ public class Reified<T> {
 
   /**
    * Gets type literal for the given {@code Type} instance.
+   *
+   * @param type Source type.
+   * @return Gets type literal for the given {@code Type} instance.
    */
   public static Reified<?> get(Type type) {
     return new Reified<>(type);
@@ -136,6 +143,10 @@ public class Reified<T> {
 
   /**
    * Gets type literal for the given {@code Class} instance.
+   *
+   * @param type Java type.
+   * @param <T> Generic type.
+   * @return Gets type literal for the given {@code Class} instance.
    */
   public static <T> Reified<T> get(Class<T> type) {
     return new Reified<>(type);
@@ -164,6 +175,11 @@ public class Reified<T> {
   /**
    * Gets type literal for the parameterized type represented by applying {@code typeArguments} to
    * {@code rawType}.
+   *
+   * @param rawType Raw type.
+   * @param typeArguments Parameter types.
+   * @return Gets type literal for the parameterized type represented by applying
+   *    {@code typeArguments} to {@code rawType}.
    */
   public static Reified<?> getParameterized(Type rawType, Type... typeArguments) {
     return new Reified<>($Types.newParameterizedTypeWithOwner(null, rawType, typeArguments));
@@ -171,6 +187,10 @@ public class Reified<T> {
 
   /**
    * Gets type literal for the array type whose elements are all instances of {@code componentType}.
+   *
+   * @param  componentType Array component type.
+   * @return Gets type literal for the array type whose elements are all instances of
+   *    {@code componentType}.
    */
   public static Reified<?> getArray(Type componentType) {
     return new Reified<>($Types.arrayOf(componentType));

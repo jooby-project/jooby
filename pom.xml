@@ -126,8 +126,7 @@
 
     <jooby.version>${project.version}</jooby.version>
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
-    <javadoc.excludes>org.jooby.internal:com.impossibl.postgres.jdbc:org.skife.jdbi.v2
-    </javadoc.excludes>
+    <javadoc.excludes>io.jooby.internal</javadoc.excludes>
   </properties>
 
   <modules>
@@ -878,7 +877,7 @@
 
     <!-- Sonatype OSS release -->
     <profile>
-      <id>sonatype-oss-release</id>
+      <id>central</id>
       <build>
         <plugins>
           <!-- Source -->

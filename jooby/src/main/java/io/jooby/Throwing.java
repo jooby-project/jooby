@@ -155,7 +155,7 @@ public class Throwing {
      *
      * @param v1 Argument.
      * @param v2 Argument.
-     * @throws Throwable If something goes wrong.
+     * @throws Exception If something goes wrong.
      */
     void tryAccept(V1 v1, V2 v2) throws Exception;
 

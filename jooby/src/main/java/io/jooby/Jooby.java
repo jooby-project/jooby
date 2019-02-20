@@ -302,7 +302,6 @@ public class Jooby implements Router, Registry {
     throw new NoSuchElementException(key.toString());
   }
 
-  /** Boot: */
   public @Nonnull Server start() {
     List<Server> servers = stream(
         spliteratorUnknownSize(
