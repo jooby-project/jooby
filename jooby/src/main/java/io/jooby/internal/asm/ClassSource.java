@@ -31,6 +31,10 @@ public class ClassSource {
     this.loader = loader;
   }
 
+  public ClassLoader getLoader() {
+    return loader;
+  }
+
   public byte[] byteCode(Class source) {
     return (byte[]) bytecode.computeIfAbsent(source.getName(), k -> {
       try (InputStream in = loader.getResourceAsStream(k.replace(".", "/") + ".class")) {

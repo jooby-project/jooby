@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.inject.Provider;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,7 +68,7 @@ public class Jooby implements Router, Registry {
   private Registry registry;
 
   public Jooby() {
-    router = new RouterImpl(new RouteAnalyzer(getClass().getClassLoader(), false));
+    router = new RouterImpl(getClass().getClassLoader());
   }
 
   public @Nonnull Env environment() {
@@ -136,6 +137,22 @@ public class Jooby implements Router, Registry {
 
   @Nonnull @Override public Jooby use(@Nonnull String path, @Nonnull Router router) {
     this.router.use(path, router);
+    return this;
+  }
+
+  @Nonnull @Override public Jooby use(@Nonnull Object router) {
+    this.router.use(router);
+    return this;
+  }
+
+  @Nonnull @Override public Jooby use(@Nonnull Class router) {
+    this.router.use(router, () -> require(router));
+    return this;
+  }
+
+  @Nonnull @Override
+  public <T> Jooby use(@Nonnull Class<T> router, @Nonnull Provider<T> provider) {
+    this.router.use(router, provider);
     return this;
   }
 

@@ -4,6 +4,7 @@ import io.jooby.Context;
 import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.Value;
+import io.jooby.internal.asm.ClassSource;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
@@ -43,7 +44,7 @@ public class ReturnTypeTest {
   class SuperUser implements User {
   }
 
-  private RouteAnalyzer analyzer = new RouteAnalyzer(getClass().getClassLoader(), false);
+  private RouteAnalyzer analyzer = new RouteAnalyzer(new ClassSource(getClass().getClassLoader()), false);
 
   @Test
   public void literals() {

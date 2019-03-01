@@ -421,6 +421,21 @@ public final class $Types {
     }
   }
 
+  public static Class parameterizedType0(Type type) {
+    if (type instanceof Class) {
+      return (Class) type;
+    } else if (type instanceof ParameterizedType) {
+      ParameterizedType parameterizedType = (ParameterizedType) type;
+      return parameterizedType0(parameterizedType.getActualTypeArguments()[0]);
+    } else if (type instanceof WildcardType) {
+      return parameterizedType0(((WildcardType) type).getUpperBounds()[0]);
+    } else {
+      // We expect a parameterized type like: List/Set/Optional, but there is no type information
+      // fallback to String
+      return String.class;
+    }
+  }
+
   private static final class ParameterizedTypeImpl implements ParameterizedType, Serializable {
     private final Type ownerType;
     private final Type rawType;

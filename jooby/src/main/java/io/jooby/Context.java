@@ -89,6 +89,14 @@ public interface Context {
         new Value.Simple(name, UrlParser.decodePath(value));
   }
 
+  @Nonnull default <T> T path(@Nonnull Reified<T> type) {
+    return path().to(type);
+  }
+
+  @Nonnull default <T> T path(@Nonnull Class<T> type) {
+    return path().to(type);
+  }
+
   @Nonnull default Value path() {
     return Value.path(pathMap());
   }

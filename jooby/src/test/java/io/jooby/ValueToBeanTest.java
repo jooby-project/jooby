@@ -1,6 +1,5 @@
 package io.jooby;
 
-import io.jooby.internal.ValueInjector;
 import io.jooby.internal.UrlParser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -24,6 +23,21 @@ public class ValueToBeanTest {
     private final String password;
 
     public User(String name, String password) {
+      this.name = name;
+      this.password = password;
+    }
+
+    @Override public String toString() {
+      return name + ":" + password;
+    }
+  }
+
+  public static class UserOpt {
+
+    private final String name;
+    private final Optional<String> password;
+
+    public UserOpt(String name, Optional<String> password) {
       this.name = name;
       this.password = password;
     }
@@ -308,12 +322,9 @@ public class ValueToBeanTest {
     });
 
     queryString("?name=user", queryString -> {
-      assertMessage(Err.Missing.class, () -> queryString.to(User.class),
-          "Missing value: 'password'");
+      assertEquals("user:null", queryString.to(User.class).toString());
 
-      ValueInjector injector = new ValueInjector().missingToNull();
-      assertEquals("user:null",
-          injector.inject(queryString, User.class).toString());
+      assertEquals("user:Optional.empty", queryString.to(UserOpt.class).toString());
     });
 
     queryString("?name=Sherlock Holmes&age=42&address.street=Baker&address.number=221B",

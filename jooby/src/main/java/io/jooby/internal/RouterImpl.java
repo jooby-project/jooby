@@ -27,14 +27,26 @@ import io.jooby.Renderer;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.StatusCode;
+import io.jooby.Throwing;
+import io.jooby.internal.asm.ClassSource;
+import io.jooby.internal.mvc.MvcCompiler;
+import io.jooby.internal.mvc.MvcMetadata;
+import io.jooby.internal.mvc.MvcMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.inject.Provider;
 import java.io.FileNotFoundException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -99,6 +111,16 @@ public class RouterImpl implements Router {
     }
   }
 
+  private static final List<Class<? extends Annotation>> M_ANN = Arrays
+      .asList(io.jooby.annotations.GET.class,
+          io.jooby.annotations.Path.class,
+          io.jooby.annotations.POST.class,
+          io.jooby.annotations.PUT.class,
+          io.jooby.annotations.DELETE.class,
+          io.jooby.annotations.PATCH.class,
+          io.jooby.annotations.HEAD.class,
+          io.jooby.annotations.OPTIONS.class);
+
   private ErrorHandler err;
 
   private Map<String, StatusCode> errorCodes;
@@ -129,8 +151,11 @@ public class RouterImpl implements Router {
 
   private AttributeMap attributes = new AttributeMap(new ConcurrentHashMap<>());
 
-  public RouterImpl(RouteAnalyzer analyzer) {
-    this.analyzer = analyzer;
+  private ClassSource source;
+
+  public RouterImpl(ClassLoader loader) {
+    this.source = new ClassSource(loader);
+    this.analyzer = new RouteAnalyzer(source, false);
     stack.addLast(new Stack(""));
   }
 
@@ -198,6 +223,21 @@ public class RouterImpl implements Router {
   @Nonnull @Override
   public Router use(@Nonnull Router router) {
     return use("", router);
+  }
+
+  @Nonnull @Override public Router use(@Nonnull Object router) {
+    mvc(null, router.getClass(), () -> router);
+    return this;
+  }
+
+  @Nonnull @Override public Router use(@Nonnull Class router) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nonnull @Override
+  public <T> Router use(@Nonnull Class<T> router, @Nonnull Provider<T> provider) {
+    mvc(null, router, provider);
+    return this;
   }
 
   @Nonnull @Override public Router renderer(@Nonnull Renderer renderer) {
@@ -305,7 +345,7 @@ public class RouterImpl implements Router {
     }
 
     /** Route: */
-    String safePattern = pat.toString();
+    String safePattern = normalizePath(pat.toString(), caseSensitive, ignoreTrailingSlash);
     Route route = new Route(method, safePattern, null, handler, pipeline, renderer, parsers);
     Stack stack = this.stack.peekLast();
     if (stack.executor != null) {
@@ -343,7 +383,7 @@ public class RouterImpl implements Router {
       if (route.returnType() == null) {
         route.returnType(analyzer.returnType(route.handle()));
       }
-      Route.Handler pipeline = Pipeline.compute(analyzer.getClassLoader(), route, mode, executor);
+      Route.Handler pipeline = Pipeline.compute(source.getLoader(), route, mode, executor);
       route.pipeline(pipeline);
     }
     // unwrap executor
@@ -352,7 +392,8 @@ public class RouterImpl implements Router {
     this.stack = null;
     routeExecutor.clear();
     routeExecutor = null;
-    analyzer.release();
+    source.destroy();
+    source = null;
     return this;
   }
 
@@ -459,5 +500,48 @@ public class RouterImpl implements Router {
     }
     this.stack.removeLast().clear();
     return this;
+  }
+
+  private void mvc(String prefix, Class type, Provider provider) {
+    find(prefix, type, (mvcMethod, method, pattern) -> {
+
+      Method handler = mvcMethod.getMethod();
+      boolean isVoid = handler.getReturnType() == void.class;
+      Class<? extends Route.Handler> compiled = MvcCompiler.compileClass(mvcMethod);
+      Route.Handler routeHandler = compiled.getDeclaredConstructor(Provider.class)
+          .newInstance(provider);
+
+      route(method, pattern, routeHandler)
+          .returnType(isVoid ? Context.class : handler.getGenericReturnType());
+    });
+  }
+
+  private void find(String prefix, Class type,
+      Throwing.Consumer3<MvcMethod, String, String> consumer) {
+    String classPath = prefix == null ? path(type) : prefix + "/" + path(type);
+    MvcMetadata mvcMetadata = new MvcMetadata(source);
+    mvcMetadata.parse(type);
+    Stream.of(type.getDeclaredMethods())
+        .filter(it -> Modifier.isPublic(it.getModifiers()))
+        .sorted(Comparator.comparingInt(it -> mvcMetadata.get(it).getLine()))
+        .forEach(method -> {
+          if (Modifier.isPublic(method.getModifiers())) {
+            for (Class<? extends Annotation> m : M_ANN) {
+              Annotation httpMethod = method.getAnnotation(m);
+              if (httpMethod != null) {
+                String httpMethodName = httpMethod.annotationType().getSimpleName().replace("Path", "GET");
+                String pattern = classPath + "/" + path(method);
+                consumer
+                    .accept(mvcMetadata.get(method), httpMethodName, pattern);
+              }
+            }
+          }
+        });
+    mvcMetadata.destroy();
+  }
+
+  private String path(AnnotatedElement type) {
+    io.jooby.annotations.Path path = type.getAnnotation(io.jooby.annotations.Path.class);
+    return path == null ? "" : path.value()[0];
   }
 }

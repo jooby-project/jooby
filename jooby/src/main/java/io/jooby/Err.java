@@ -15,13 +15,63 @@
  */
 package io.jooby;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Parameter;
 import java.util.NoSuchElementException;
+import java.util.StringJoiner;
+import java.util.stream.Stream;
 
 public class Err extends RuntimeException {
 
   public static class Missing extends NoSuchElementException {
+    private final String parameter;
+
     public Missing(String name) {
       super("Missing value: '" + name + "'");
+      this.parameter = name;
+    }
+
+    public String getParameter() {
+      return parameter;
+    }
+  }
+
+  public static class Provisioning extends NoSuchElementException {
+
+    public Provisioning(Parameter parameter, Throwable cause) {
+      this("Unable to provision parameter: '" + toString(parameter) + "', require by: " + toString(
+          parameter.getDeclaringExecutable()), cause);
+    }
+
+    public Provisioning(String message, Throwable cause) {
+      super(message);
+      initCause(cause);
+    }
+
+    private static String toString(Parameter parameter) {
+      return parameter.getName() + ": " + parameter.getParameterizedType();
+    }
+
+    private static String toString(Executable method) {
+      StringBuilder buff = new StringBuilder();
+      if (method instanceof Constructor) {
+        buff.append("constructor ");
+        buff.append(method.getDeclaringClass().getCanonicalName());
+      } else {
+        buff.append("method ");
+        buff.append(method.getDeclaringClass().getCanonicalName());
+        buff.append(".");
+        buff.append(method.getName());
+      }
+      buff.append("(");
+      StringJoiner params = new StringJoiner(", ");
+      Stream.of(method.getGenericParameterTypes()).forEach(type -> params.add(type.getTypeName()));
+      buff.append(params);
+      buff.append(")");
+      return buff.toString();
     }
   }
 

@@ -18,6 +18,7 @@ package io.jooby.internal;
 import io.jooby.Err;
 import io.jooby.FileUpload;
 import io.jooby.Value;
+import io.jooby.internal.reflect.$Types;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -30,13 +31,15 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.WildcardType;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -50,12 +53,8 @@ public class ValueInjector {
   private static final String AMBIGUOUS_CONSTRUCTOR =
       "Ambiguous constructor found. Expecting a single constructor or only one annotated with "
           + Inject.class.getName();
-  private boolean missingToNull;
 
-  public ValueInjector missingToNull() {
-    missingToNull = true;
-    return this;
-  }
+  private static final Object[] NO_ARGS = new Object[0];
 
   public <T> T inject(Value scope, Class type) {
     return inject(scope, type, type);
@@ -82,9 +81,9 @@ public class ValueInjector {
     }
     Constructor constructor = selectConstructor(constructors);
     Set<Value> state = new HashSet<>();
-    Object[] args = constructor.getParameterCount() == 0 ?
-        new Object[0] :
-        inject(scope, constructor, state::add);
+    Object[] args = constructor.getParameterCount() == 0
+        ? new Object[0]
+        : inject(scope, constructor, state::add);
     return (T) setters(constructor.newInstance(args), scope, state);
   }
 
@@ -126,9 +125,13 @@ public class ValueInjector {
         }
         if (method != null) {
           Parameter parameter = method.getParameters()[0];
-          Object arg = value(value, parameter.getType(),
-              parameter.getParameterizedType());
-          method.invoke(newInstance, arg);
+          try {
+            Object arg = value(value, parameter.getType(),
+                parameter.getParameterizedType());
+            method.invoke(newInstance, arg);
+          } catch (Exception x) {
+            throw new Err.Provisioning(parameter, x);
+          }
         }
       }
     }
@@ -150,8 +153,11 @@ public class ValueInjector {
     if (scope.isObject() || scope.isSimple()) {
       return newInstance(type, scope);
     } else if (scope.isMissing()) {
-      // TODO: Add supports for null
-      return missingToNull ? null : scope.value();
+      if (type.isPrimitive()) {
+        // throws Err.Missing
+        return scope.value();
+      }
+      return null;
     } else {
       throw new Err.BadRequest(
           "Type mismatch: cannot convert to " + type.getTypeName());
@@ -163,7 +169,7 @@ public class ValueInjector {
       NoSuchMethodException {
     Parameter[] parameters = method.getParameters();
     if (parameters.length == 0) {
-      return new Object[0];
+      return NO_ARGS;
     }
     Object[] args = new Object[parameters.length];
     for (int i = 0; i < parameters.length; i++) {
@@ -171,9 +177,25 @@ public class ValueInjector {
       String name = paramName(parameter);
       Value value = scope.get(name);
       state.accept(value);
-      args[i] = value(value, parameter.getType(), parameter.getParameterizedType());
+      try {
+        args[i] = value(value, parameter.getType(), parameter.getParameterizedType());
+      } catch (Err.Missing x) {
+        throw new Err.Provisioning(parameter, x);
+      } catch (Err.BadRequest x) {
+        throw new Err.Provisioning(parameter, x);
+      }
     }
     return args;
+  }
+
+  private String toString(Executable method) {
+    StringBuilder name = new StringBuilder(method.getDeclaringClass().getCanonicalName());
+    if (method instanceof Constructor) {
+      name.append("()");
+    } else {
+      name.append(".").append(method.getName()).append("()");
+    }
+    return name.toString();
   }
 
   private String paramName(Parameter parameter) {
@@ -185,10 +207,77 @@ public class ValueInjector {
     return name;
   }
 
+  public static boolean isSimple(Class rawType, Type type) {
+    if (rawType == String.class) {
+      return true;
+    }
+    if (rawType == int.class || rawType == Integer.class) {
+      return true;
+    }
+    if (rawType == long.class || rawType == Long.class) {
+      return true;
+    }
+    if (rawType == float.class || rawType == Float.class) {
+      return true;
+    }
+    if (rawType == double.class || rawType == Double.class) {
+      return true;
+    }
+    if (rawType == boolean.class || rawType == Boolean.class) {
+      return true;
+    }
+    if (rawType == byte.class || rawType == Byte.class) {
+      return true;
+    }
+    if (List.class.isAssignableFrom(rawType)) {
+      Class type0 = $Types.parameterizedType0(type);
+      return isSimple(type0, type0);
+    }
+    if (Set.class.isAssignableFrom(rawType)) {
+      Class type0 = $Types.parameterizedType0(type);
+      return isSimple(type0, type0);
+    }
+    if (Optional.class.isAssignableFrom(rawType)) {
+      Class type0 = $Types.parameterizedType0(type);
+      return isSimple(type0, type0);
+    }
+    if (UUID.class == rawType) {
+      return true;
+    }
+    if (BigDecimal.class == rawType) {
+      return true;
+    }
+    if (BigInteger.class == rawType) {
+      return true;
+    }
+    if (Charset.class == rawType) {
+      return true;
+    }
+    if (Path.class == rawType) {
+      return true;
+    }
+    if (FileUpload.class == rawType) {
+      return true;
+    }
+    /**********************************************************************************************
+     * Static method: valueOf
+     * ********************************************************************************************
+     */
+    try {
+      Method valueOf = rawType.getMethod("valueOf", String.class);
+      if (Modifier.isStatic(valueOf.getModifiers())) {
+        return true;
+      }
+    } catch (NoSuchMethodException x) {
+      // Ignored
+    }
+    return false;
+  }
+
   private Object value(Value value, Class rawType, Type type)
       throws InvocationTargetException, IllegalAccessException, InstantiationException,
       NoSuchMethodException {
-    if (value.isMissing()) {
+    if (value.isMissing() && rawType != Optional.class) {
       return resolve(value, rawType);
     }
     if (rawType == String.class) {
@@ -209,15 +298,18 @@ public class ValueInjector {
     if (rawType == boolean.class || rawType == Boolean.class) {
       return value.get(0).booleanValue();
     }
+    if (rawType == byte.class || rawType == Byte.class) {
+      return value.get(0).byteValue();
+    }
     if (List.class.isAssignableFrom(rawType)) {
       return collection(value, (ParameterizedType) type, new ArrayList(value.size()));
     }
     if (Set.class.isAssignableFrom(rawType)) {
-      return collection(value, (ParameterizedType) type, new HashSet());
+      return collection(value, (ParameterizedType) type, new LinkedHashSet(value.size()));
     }
     if (Optional.class.isAssignableFrom(rawType)) {
       try {
-        Class itemType = parameterizedType0(type);
+        Class itemType = $Types.parameterizedType0(type);
         return Optional.ofNullable(value(value.get(0), itemType, itemType));
       } catch (Err.Missing x) {
         return Optional.empty();
@@ -225,6 +317,12 @@ public class ValueInjector {
     }
     if (UUID.class == rawType) {
       return UUID.fromString(value.get(0).value());
+    }
+    if (BigDecimal.class == rawType) {
+      return new BigDecimal(value.get(0).value());
+    }
+    if (BigInteger.class == rawType) {
+      return new BigInteger(value.get(0).value());
     }
     if (Charset.class == rawType) {
       return Charset.forName(value.get(0).value());
@@ -260,7 +358,7 @@ public class ValueInjector {
   private Collection collection(Value scope, ParameterizedType type, Collection result)
       throws InvocationTargetException, IllegalAccessException, InstantiationException,
       NoSuchMethodException {
-    Class itemType = parameterizedType0(type);
+    Class itemType = $Types.parameterizedType0(type);
     if (scope.isArray()) {
       for (Value value : scope) {
         result.add(value(value, itemType, itemType));
@@ -281,20 +379,5 @@ public class ValueInjector {
       result.add(value(scope, itemType, itemType));
     }
     return result;
-  }
-
-  private Class parameterizedType0(Type type) {
-    if (type instanceof Class) {
-      return (Class) type;
-    } else if (type instanceof ParameterizedType) {
-      ParameterizedType parameterizedType = (ParameterizedType) type;
-      return parameterizedType0(parameterizedType.getActualTypeArguments()[0]);
-    } else if (type instanceof WildcardType) {
-      return parameterizedType0(((WildcardType) type).getUpperBounds()[0]);
-    } else {
-      // We expect a parameterized type like: List/Set/Optional, but there is no type information
-      // fallback to String
-      return String.class;
-    }
   }
 }

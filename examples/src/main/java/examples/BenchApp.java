@@ -17,10 +17,17 @@ package examples;
 
 import io.jooby.Jooby;
 import io.jooby.ExecutionMode;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 
 public class BenchApp extends Jooby {
 
-  private static final String MESSAGE = "Hello World!";
+  private static final String MESSAGE = "Hello, World!";
+
+  private static final ByteBuffer MESSAGE_BUFFER = ByteBuffer.allocateDirect(MESSAGE.length());
 
   static class Message {
     public final String message;
@@ -30,14 +37,18 @@ public class BenchApp extends Jooby {
     }
   }
 
+  static {
+    try {
+      MESSAGE_BUFFER.put(MESSAGE.getBytes("US-ASCII")).flip();
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
   {
-    configureServer(server -> {
-      server.defaultHeaders(true);
-    });
+    get("/plaintext", ctx -> ctx.sendString(MESSAGE));
 
-    mode(ExecutionMode.EVENT_LOOP);
-
-    get("/", ctx -> ctx.sendString(MESSAGE));
+    get("/", ctx -> ctx.sendBytes(MESSAGE_BUFFER.duplicate()));
 
     get("/json", ctx -> Thread.currentThread().getName());
 
@@ -45,6 +56,6 @@ public class BenchApp extends Jooby {
   }
 
   public static void main(String[] args) {
-    run(BenchApp::new, args);
+    run(BenchApp::new, ExecutionMode.EVENT_LOOP, args);
   }
 }

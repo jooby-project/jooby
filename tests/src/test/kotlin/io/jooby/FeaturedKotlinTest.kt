@@ -1,5 +1,6 @@
 package io.jooby
 
+import io.jooby.internal.mvc.KotlinMvc
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.delay
@@ -12,7 +13,7 @@ class FeaturedKotlinTest {
   fun explicitContext() {
     JoobyRunner { app ->
       app.get("/") { ctx ->
-           "Hello World!"
+        "Hello World!"
       }
     }.ready { client ->
       client.get("/") { rsp ->
@@ -68,6 +69,37 @@ class FeaturedKotlinTest {
     }.ready { client ->
       client.get("/") { rsp ->
         assertEquals("1,2,3,4,5,6,7,8,9,10,", rsp.body()!!.string())
+      }
+    }
+  }
+
+  @Test
+  fun mvc() {
+    JoobyRunner { app ->
+      app.use(KotlinMvc())
+    }.ready { client ->
+      client.get("/kotlin") { rsp ->
+        assertEquals("Got it!", rsp.body()!!.string())
+      }
+
+      client.get("/kotlin/78") { rsp ->
+        assertEquals("78", rsp.body()!!.string())
+      }
+
+      client.get("/kotlin/point?x=8&y=1") { rsp ->
+        assertEquals("QueryPoint(x=8, y=1) : 8", rsp.body()!!.string())
+      }
+
+      client.get("/kotlin/point") { rsp ->
+        assertEquals("QueryPoint(x=null, y=null) : null", rsp.body()!!.string())
+      }
+
+      client.get("/kotlin/point?x=9") { rsp ->
+        assertEquals("QueryPoint(x=9, y=null) : 9", rsp.body()!!.string())
+      }
+
+      client.get("/kotlin/point?x=9&y=8") { rsp ->
+        assertEquals("QueryPoint(x=9, y=8) : 9", rsp.body()!!.string())
       }
     }
   }

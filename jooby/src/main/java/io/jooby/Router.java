@@ -18,6 +18,7 @@ package io.jooby;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
+import javax.inject.Provider;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,11 +68,27 @@ public interface Router {
 
   @Nonnull String contextPath();
 
+  /* ***********************************************************************************************
+   * use(Router)
+   * ***********************************************************************************************
+   */
+
   @Nonnull Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router);
 
   @Nonnull Router use(@Nonnull String path, @Nonnull Router router);
 
   @Nonnull Router use(@Nonnull Router router);
+
+  /* ***********************************************************************************************
+   * use(Mvc)
+   * ***********************************************************************************************
+   */
+  @Nonnull Router use(@Nonnull Class router);
+
+  @Nonnull <T> Router use(@Nonnull Class<T> router, @Nonnull Provider<T> provider);
+
+  @Nonnull Router use(@Nonnull Object router);
+
 
   @Nonnull List<Route> routes();
 

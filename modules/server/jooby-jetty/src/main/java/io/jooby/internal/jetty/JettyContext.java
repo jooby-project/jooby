@@ -16,8 +16,10 @@
 package io.jooby.internal.jetty;
 
 import io.jooby.*;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
+import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.http.MultiPartFormInputStream;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
@@ -153,17 +155,22 @@ public class JettyContext implements Callback, Context {
       formParam(request, multipart);
 
       // Files:
-      try {
-        Collection<Part> parts = request.getParts();
-        for (Part part : parts) {
-          if (part.getSubmittedFileName() != null) {
-            String name = part.getName();
-            multipart.put(name,
-                register(new JettyFileUpload(name, (MultiPartFormInputStream.MultiPart) part)));
+      String contentType = request.getContentType();
+      if (contentType != null &&
+          MimeTypes.Type.MULTIPART_FORM_DATA.is(
+              HttpFields.valueParameters(contentType,null))) {
+        try {
+          Collection<Part> parts = request.getParts();
+          for (Part part : parts) {
+            if (part.getSubmittedFileName() != null) {
+              String name = part.getName();
+              multipart.put(name,
+                  register(new JettyFileUpload(name, (MultiPartFormInputStream.MultiPart) part)));
+            }
           }
+        } catch (IOException | ServletException x) {
+          throw Throwing.sneakyThrow(x);
         }
-      } catch (IOException | ServletException x) {
-        throw Throwing.sneakyThrow(x);
       }
     }
     return multipart;

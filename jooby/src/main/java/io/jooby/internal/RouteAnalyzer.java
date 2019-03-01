@@ -36,9 +36,9 @@ public class RouteAnalyzer {
   private ClassSource source;
   private boolean debug;
 
-  public RouteAnalyzer(ClassLoader loader, boolean debug) {
-    this.source = new ClassSource(loader);
-    this.typeParser = new TypeParser(loader);
+  public RouteAnalyzer(ClassSource source, boolean debug) {
+    this.source = source;
+    this.typeParser = new TypeParser(source.getLoader());
     this.debug = debug;
   }
 
@@ -89,14 +89,6 @@ public class RouteAnalyzer {
       }
     }
     return result;
-  }
-
-  public ClassLoader getClassLoader() {
-    return typeParser.getClassLoader();
-  }
-
-  public void release() {
-    source.destroy();
   }
 
   private boolean isKotlinApply(Method method) {
