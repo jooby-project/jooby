@@ -575,6 +575,9 @@
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
               <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
             </manifest>
+            <manifestEntries>
+              <Automatic-Module-Name>io.jooby</Automatic-Module-Name>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>
