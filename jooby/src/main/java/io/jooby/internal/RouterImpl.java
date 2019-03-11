@@ -157,6 +157,12 @@ public class RouterImpl implements Router {
     this.source = new ClassSource(loader);
     this.analyzer = new RouteAnalyzer(source, false);
     stack.addLast(new Stack(""));
+
+    defaultParser();
+  }
+
+  private void defaultParser() {
+    parsers.put(MediaType.text.value(), Parser.RAW);
   }
 
   @Nonnull @Override public AttributeMap attributes() {
@@ -503,21 +509,21 @@ public class RouterImpl implements Router {
   }
 
   private void mvc(String prefix, Class type, Provider provider) {
-    find(prefix, type, (mvcMethod, method, pattern) -> {
+    find(prefix, type, (method, pattern) -> {
 
-      Method handler = mvcMethod.getMethod();
+      Method handler = method.getMethod();
       boolean isVoid = handler.getReturnType() == void.class;
-      Class<? extends Route.Handler> compiled = MvcCompiler.compileClass(mvcMethod);
+      Class<? extends Route.Handler> compiled = MvcCompiler.compileClass(method);
       Route.Handler routeHandler = compiled.getDeclaredConstructor(Provider.class)
           .newInstance(provider);
 
-      route(method, pattern, routeHandler)
+      route(method.getHttpMethod(), pattern, routeHandler)
           .returnType(isVoid ? Context.class : handler.getGenericReturnType());
     });
   }
 
   private void find(String prefix, Class type,
-      Throwing.Consumer3<MvcMethod, String, String> consumer) {
+      Throwing.Consumer2<MvcMethod, String> consumer) {
     String classPath = prefix == null ? path(type) : prefix + "/" + path(type);
     MvcMetadata mvcMetadata = new MvcMetadata(source);
     mvcMetadata.parse(type);
@@ -527,17 +533,25 @@ public class RouterImpl implements Router {
         .forEach(method -> {
           if (Modifier.isPublic(method.getModifiers())) {
             for (Class<? extends Annotation> m : M_ANN) {
-              Annotation httpMethod = method.getAnnotation(m);
+              String httpMethod = toHttpMethod(method.getAnnotation(m));
               if (httpMethod != null) {
-                String httpMethodName = httpMethod.annotationType().getSimpleName().replace("Path", "GET");
                 String pattern = classPath + "/" + path(method);
-                consumer
-                    .accept(mvcMetadata.get(method), httpMethodName, pattern);
+                MvcMethod mvc = mvcMetadata.get(method);
+                mvc.setMethod(method);
+                mvc.setHttpMethod(httpMethod);
+                consumer.accept(mvc, pattern);
               }
             }
           }
         });
     mvcMetadata.destroy();
+  }
+
+  private String toHttpMethod(Annotation annotation) {
+    if (annotation != null) {
+      return annotation.annotationType().getSimpleName().replace("Path", "GET");
+    }
+    return null;
   }
 
   private String path(AnnotatedElement type) {

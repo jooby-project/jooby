@@ -81,7 +81,7 @@ Jooby is a modular micro framework. At the core level:
 
 Now, if you need more... Jooby don't leave you alone:
 
-- MVC programming model (subset of https://github.com/jax-rs[JAX-RS])
+- MVC programming model (similar to JAX-RS)
 - Module ecosytem
 
 === Script API
@@ -168,9 +168,7 @@ fun main(args: Array<String>) {
 [#introduction-mvc-api]
 === MVC API
 
-On the other hand, the MVC API (a.k.a mvc routes) uses annotation and reflection to define/execute routes.
-Jooby implements a subset of https://github.com/jax-rs[JAX-RS] but not intended to be a fully
-https://github.com/jax-rs[JAX-RS] compliant implementation.
+On the other hand, the MVC API (a.k.a mvc routes) uses annotation to define routes and byte code generation to execute routes.
 
 .MVC API:
 [source,java,role="primary"]
@@ -185,6 +183,8 @@ public class App extends Jooby {
     run(App::new, args);
   }
 }
+
+import io.jooby.annotations.*;
 
 public class MyController {
 
@@ -207,6 +207,8 @@ class App : Kooby({
 fun main(args: Array<String>) {
   run(::App, args)
 }
+
+import io.jooby.annotations.*;
 
 class MyController {
 

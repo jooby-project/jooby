@@ -15,6 +15,8 @@ public class MvcMethod {
 
   String source;
 
+  private String httpMethod;
+
   public String getSource() {
     return source == null ? method.getDeclaringClass().getSimpleName() : source;
   }
@@ -47,6 +49,18 @@ public class MvcMethod {
   }
 
   public String getHandlerName() {
-    return method.getDeclaringClass().getName() + "$" + method.getName();
+    return method.getDeclaringClass().getName() + "$" + httpMethod + "$" + method.getName();
+  }
+
+  public void setMethod(Method method) {
+    this.method = method;
+  }
+
+  public String getHttpMethod() {
+    return httpMethod;
+  }
+
+  public void setHttpMethod(String httpMethod) {
+    this.httpMethod = httpMethod;
   }
 }

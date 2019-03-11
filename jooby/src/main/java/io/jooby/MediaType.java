@@ -104,7 +104,7 @@ public class MediaType implements Comparable<MediaType> {
   }
 
   @Override public int hashCode() {
-    return raw.hashCode();
+    return value.hashCode();
   }
 
   public @Nullable String param(@Nonnull String name) {

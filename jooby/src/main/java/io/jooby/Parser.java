@@ -25,6 +25,11 @@ public interface Parser {
       throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE);
     }
   };
+  Parser RAW = new Parser() {
+    @Override public <T> T parse(Context ctx, Type type) {
+      return ctx.body().to(type);
+    }
+  };
 
   @Nonnull <T> T parse(@Nonnull Context ctx, @Nonnull Type type) throws Exception;
 }

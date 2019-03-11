@@ -267,12 +267,12 @@ public class MvcCompiler {
         } else {
           String source;
           String convert;
-          if (isSimple) {
+          if (isSimple && httpType != null) {
             source = VALUE_NAME;
             convert = "to";
           } else {
             source = CTX_INTERNAL;
-            convert = httpType;
+            convert = httpType == null ? "body" : httpType;
           }
 
           if (paramType == paramClass) {

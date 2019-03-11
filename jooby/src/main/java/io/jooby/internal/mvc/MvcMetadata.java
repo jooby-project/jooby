@@ -32,11 +32,7 @@ public class MvcMetadata {
     String key =
         Type.getType(method.getDeclaringClass()).getInternalName() + "." + method.getName() + Type
             .getMethodDescriptor(method);
-    MvcMethod result = metadata.get(key);
-    if (result.method == null) {
-      result.method = method;
-    }
-    return result;
+    return metadata.get(key);
   }
 
   public void destroy() {

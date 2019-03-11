@@ -1,3 +1,4 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/3.0.2/tocbot.min.js"></script>
 <script>
   var oldtoc = document.getElementById('toctitle').nextElementSibling;
@@ -11,7 +12,7 @@
     ignoreSelector: '.discrete',
     smoothScroll: false
   });
-  var handleTocOnResize = function() {
+  var handleTocOnResize = function () {
     var width = window.innerWidth
         || document.documentElement.clientWidth
         || document.body.clientWidth;
@@ -24,15 +25,16 @@
         throttleTimeout: 1000,
         smoothScroll: false
       });
-    }
-    else {
+    } else {
       tocbot.refresh();
     }
   };
   window.addEventListener('resize', handleTocOnResize);
   handleTocOnResize();
+  $(function () {
+    window.location.hash = window.location.hash;
+  });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
 <script>
   var primarySelector = '.primary';
   var secondarySelector = '.secondary';

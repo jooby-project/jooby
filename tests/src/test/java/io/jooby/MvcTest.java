@@ -1,13 +1,17 @@
 package io.jooby;
 
 import io.jooby.internal.mvc.InstanceRouter;
+import io.jooby.internal.mvc.MvcBody;
 import io.jooby.internal.mvc.NoTopLevelPath;
 import io.jooby.internal.mvc.NullInjection;
 import io.jooby.internal.mvc.Provisioning;
+import io.jooby.json.Jackson;
 import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import org.junit.jupiter.api.Test;
 
+import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MvcTest {
@@ -180,6 +184,42 @@ public class MvcTest {
 
       client.get("/nullbean?foo=0&baz=baz", rsp -> {
         assertEquals("Unable to provision parameter: 'baz: int', require by: method io.jooby.internal.mvc.NullInjection.QParam.setBaz(int)", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
+  public void mvcBody() {
+    new JoobyRunner(app -> {
+
+      app.install(new Jackson());
+
+      app.use(new MvcBody());
+
+      app.error(ErrorHandler.log(app.log()).then((ctx, cause, statusCode) -> {
+        ctx.statusCode(statusCode)
+            .sendString(cause.getMessage());
+      }));
+
+    }).ready(client -> {
+      client.header("Content-Type", "text/plain");
+      client.post("/body/str", create(MediaType.get("text/plain"), "..."), rsp -> {
+        assertEquals("...", rsp.body().string());
+      });
+      client.header("Content-Type", "text/plain");
+      client.post("/body/int", create(MediaType.get("text/plain"), "8"), rsp -> {
+        assertEquals("8", rsp.body().string());
+      });
+      client.post("/body/int", create(MediaType.get("text/plain"), "8x"), rsp -> {
+        assertEquals("Type mismatch: cannot convert to number", rsp.body().string());
+      });
+      client.header("Content-Type", "application/json");
+      client.post("/body/json", create(MediaType.get("application/json"), "{\"foo\": \"bar\"}"), rsp -> {
+        assertEquals("\"{foo=bar}null\"", rsp.body().string());
+      });
+      client.header("Content-Type", "application/json");
+      client.post("/body/json?type=x", create(MediaType.get("application/json"), "{\"foo\": \"bar\"}"), rsp -> {
+        assertEquals("\"{foo=bar}x\"", rsp.body().string());
       });
     });
   }

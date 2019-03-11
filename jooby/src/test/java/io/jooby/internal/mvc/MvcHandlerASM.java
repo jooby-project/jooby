@@ -7,6 +7,7 @@ import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.Value;
 import io.jooby.annotations.GET;
+import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
@@ -34,10 +35,10 @@ class QPoint {
 
 class Poc {
 
-  @GET
+  @POST
   @Path("/")
-  public String getIt(Context ctx) {
-    return ctx.pathString();
+  public String getIt(String body) {
+    return body;
   }
 }
 
@@ -52,10 +53,10 @@ class MvcHandler implements Route.Handler {
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
     try {
       Poc target = provider.get();
-      return target.getIt(ctx);
+      return target.getIt(ctx.body(String.class));
     } catch (Err.Missing x) {
       Map<String, String> debug = new HashMap<>();
-      debug.put("ctx", "ctx: Context");
+      debug.put("body", "body: String");
       String parameter = x.getParameter();
       String param = debug.getOrDefault(parameter, parameter);
       throw new Err.Provisioning("Unable to provision parameter: '" + param + "'", x);
@@ -70,7 +71,7 @@ public class MvcHandlerASM {
     // Lio/jooby/Throwing$Supplier<Lio/jooby/mvc/NoTopLevelPath;>;
     //    ASMifier.main(new String[] {"-debug",MvcHandler.class.getName()});
 
-    Method handler = Poc.class.getDeclaredMethod("getIt", Context.class);
+    Method handler = Poc.class.getDeclaredMethod("getIt", String.class);
     MvcCompiler writer = new MvcCompiler();
     Class runtime = writer.compileClass(mvc(handler));
 

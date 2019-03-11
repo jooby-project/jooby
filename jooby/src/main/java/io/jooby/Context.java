@@ -279,20 +279,26 @@ public interface Context {
   @Nonnull Body body();
 
   default @Nonnull <T> T body(@Nonnull Reified<T> type) {
-    return body(type.getType());
-  }
-
-  default @Nonnull <T> T body(@Nonnull Reified<T> type, @Nonnull MediaType contentType) {
-    return body(type.getType(), contentType);
-  }
-
-  default @Nonnull <T> T body(@Nonnull Type type) {
     MediaType contentType = MediaType.valueOf(header("Content-Type")
         .value("text/plain"));
     return body(type, contentType);
   }
 
-  default @Nonnull <T> T body(@Nonnull Type type, @Nonnull MediaType contentType) {
+  default @Nonnull <T> T body(@Nonnull Reified<T> type, @Nonnull MediaType contentType) {
+    try {
+      return parser(contentType).parse(this, type.getType());
+    } catch (Exception x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  default @Nonnull <T> T body(@Nonnull Class type) {
+    MediaType contentType = MediaType.valueOf(header("Content-Type")
+        .value("text/plain"));
+    return body(type, contentType);
+  }
+
+  default @Nonnull <T> T body(@Nonnull Class type, @Nonnull MediaType contentType) {
     try {
       return parser(contentType).parse(this, type);
     } catch (Exception x) {

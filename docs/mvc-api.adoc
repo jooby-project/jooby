@@ -1,6 +1,208 @@
 == MVC API
 
-[IMPORTANT]
-====
-MVC API is not implemented yet.
-====
+MVC API is an alternative way to define routes in Jooby. It uses annotations and byte code generation
+to define and execute routes.
+
+The package `io.jooby.annotations` contains the annotations available for MVC routes.
+
+.MVC API:
+[source,java,role="primary"]
+----
+import io.jooby.annotations.*;
+
+@Path("/mvc")                  // <1>
+public class MyController {
+
+  @GET                         // <2>
+  public String sayHi() {
+    return "Hello Mvc!";
+  }
+}
+
+App.java
+
+{
+  use(new MyController());     // <3>
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+
+import io.jooby.annotations.*;
+
+@Path("/mvc")                  // <1>
+class MyController {
+
+  @GET                         // <2>
+  fun sayHi() : String {
+    return "Hello Mvc!"
+  }
+}
+
+
+fun main(args: Array<String>) {
+  run(args) {
+    use(MyController())        // <3>
+  }
+}
+
+----
+
+<1> Set a path pattern. The `@Path` annotation is enable at class or method level
+<2> Add a HTTP method
+<3> Register/install the controller in the main application
+
+[id=mvc-parameters]
+=== Parameters
+
+HTTP parameter provision is available via `*Param` annotations.
+
+[id=mvc-header]
+==== Header
+
+Provision of headers is available via javadoc:annotations.HeaderParam[] annotation:
+
+.Headers
+[source, java, role = "primary"]
+----
+public class MyController {
+
+  @GET
+  public Object provisioning(@HeaderParam String token) {  // <1>
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class MyController {
+
+  @GET
+  fun provisioning(@HeaderParam token: String) : Any {  // <1>
+    ...
+  }
+}
+----
+
+<1> Access to HTTP header named `token`
+
+Compared to JAX-RS the parameter name on `@*Param` annotation is completely optional, but required for
+non valid Java names:
+
+
+.Non valid Java name
+[source, java, role = "primary"]
+----
+public class MyController {
+
+  @GET
+  public Object provisioning(@HeaderParam("Last-Modified-Since") long lastModifiedSince) {
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class MyController {
+
+  @GET
+  fun provisioning(@HeaderParam("Last-Modified-Since") lastModifiedSince: Long) : Any {
+    ...
+  }
+}
+----
+
+[id=mvc-path]
+==== Path
+
+For path parameters the javadoc:annotations.PathParam[] annotation is required:
+
+.PathParam
+[source, java, role = "primary"]
+----
+public class MyController {
+
+  @Path("/{id}")
+  public Object provisioning(@PathParam String id) {
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class MyController {
+
+  @Path("/{id}")
+  fun provisioning(@PathParam id: String) : Any {
+    ...
+  }
+}
+----
+
+[id=mvc-query]
+==== Query
+
+For query parameters the javadoc:annotations.QueryParam[] annotation is required:
+
+.QueryParam
+[source, java, role = "primary"]
+----
+public class MyController {
+
+  @Path("/")
+  public Object provisioning(@QueryParam String q) {
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class MyController {
+
+  @Path("/")
+  fun provisioning(@QueryParam q: String) : Any {
+    ...
+  }
+}
+----
+
+[id=mvc-form]
+==== Formdata/Multipart
+
+For formdata/multipart parameters the javadoc:annotations.FormParam[] annotation is required:
+
+.QueryParam
+[source, java, role = "primary"]
+----
+public class MyController {
+
+  @Path("/")
+  @POST
+  public Object provisioning(@FormParam String username) {
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class MyController {
+
+  @Path("/")
+  @POST
+  fun provisioning(@FormParam username: String) : Any {
+    ...
+  }
+}
+----
