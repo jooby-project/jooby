@@ -27,6 +27,7 @@ import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -51,20 +52,28 @@ class MvcHandler implements Route.Handler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+    Poc target = provider.get();
+    return target.getIt(tryParam0(ctx, "body: java.lang.String"));
+  }
+
+  private String tryParam0(Context ctx, String desc) {
     try {
-      Poc target = provider.get();
-      return target.getIt(ctx.body(String.class));
-    } catch (Err.Missing x) {
-      Map<String, String> debug = new HashMap<>();
-      debug.put("body", "body: String");
-      String parameter = x.getParameter();
-      String param = debug.getOrDefault(parameter, parameter);
-      throw new Err.Provisioning("Unable to provision parameter: '" + param + "'", x);
+      return ctx.body(String.class);
+    } catch (Exception x) {
+      throw new Err.Provisioning(desc, x);
     }
   }
 }
 
 public class MvcHandlerASM {
+
+  public static Object param(Supplier supplier, String desc) {
+    try {
+      return supplier.get();
+    } catch (Exception x) {
+      throw new Err.Provisioning("Unable to provision parameter: " + desc, x);
+    }
+  }
 
   @Test
   public void compare() throws IOException, NoSuchMethodException, ClassNotFoundException {

@@ -308,9 +308,9 @@ public class ValueTest {
     /** Array: */
     queryString("?a=1;a=2", queryString -> {
       assertMessage(Err.BadRequest.class, () -> queryString.toOptional(),
-          "Type mismatch: cannot convert object to string");
+          "Cannot convert value: 'QueryString', to: 'java.lang.String'");
       assertMessage(Err.BadRequest.class, () -> queryString.get("a").toOptional(),
-          "Type mismatch: cannot convert array to string");
+          "Cannot convert value: 'a', to: 'java.lang.String'");
       assertEquals(Optional.of("1"), queryString.get("a").get(0).toOptional());
       assertEquals(Optional.of(1), queryString.get("a").get(0).toOptional(Integer::parseInt));
       assertEquals(Optional.empty(), queryString.get("a").get(2).toOptional());
@@ -338,11 +338,11 @@ public class ValueTest {
     /** Object: */
     queryString("?foo=bar", queryString -> {
       assertMessage(Err.BadRequest.class, () -> queryString.value(),
-          "Type mismatch: cannot convert object to string");
+          "Cannot convert value: 'QueryString', to: 'java.lang.String'");
       assertMessage(Err.BadRequest.class, () -> queryString.get("foo").intValue(),
-          "Type mismatch: cannot convert to number");
+          "Cannot convert value: 'foo', to: 'int'");
       assertMessage(Err.BadRequest.class, () -> queryString.get("foo").intValue(0),
-          "Type mismatch: cannot convert to number");
+          "Cannot convert value: 'foo', to: 'int'");
       assertMessage(Err.Missing.class, () -> queryString.get("foo").get("bar").value(),
           "Missing value: 'foo.bar'");
       assertMessage(Err.Missing.class, () -> queryString.get("foo").get(1).value(),
@@ -355,9 +355,9 @@ public class ValueTest {
     /** Array: */
     queryString("?a=b;a=c", queryString -> {
       assertMessage(Err.BadRequest.class, () -> queryString.get("a").value(),
-          "Type mismatch: cannot convert array to string");
+          "Cannot convert value: 'a', to: 'java.lang.String'");
       assertMessage(Err.BadRequest.class, () -> queryString.get("a").get(0).longValue(),
-          "Type mismatch: cannot convert to number");
+          "Cannot convert value: 'a', to: 'long'");
       assertMessage(Err.Missing.class, () -> queryString.get("a").get(3).longValue(),
           "Missing value: 'a[3]'");
       assertMessage(Err.Missing.class, () -> queryString.get("a").get("b").value(),
@@ -368,7 +368,7 @@ public class ValueTest {
 
     /** Single: */
     assertMessage(Err.BadRequest.class, () -> Value.value("foo", "bar").intValue(),
-        "Type mismatch: cannot convert to number");
+        "Cannot convert value: 'foo', to: 'int'");
 
     assertMessage(Err.Missing.class, () -> Value.value("foo", "bar").get("foo").value(),
         "Missing value: 'foo.foo'");

@@ -159,8 +159,7 @@ public class ValueInjector {
       }
       return null;
     } else {
-      throw new Err.BadRequest(
-          "Type mismatch: cannot convert to " + type.getTypeName());
+      throw new Err.TypeMismatch(scope.name(), type);
     }
   }
 
@@ -332,13 +331,13 @@ public class ValueInjector {
         FileUpload upload = (FileUpload) value.get(0);
         return upload.path();
       }
-      throw new Err.BadRequest("Type mismatch: cannot convert value to path");
+      throw new Err.TypeMismatch(value.name(), Path.class);
     }
     if (FileUpload.class == rawType) {
       if (value.get(0).isUpload()) {
         return value.get(0);
       }
-      throw new Err.BadRequest("Type mismatch: cannot convert value to file upload");
+      throw new Err.TypeMismatch(value.name(), FileUpload.class);
     }
     /**********************************************************************************************
      * Static method: valueOf

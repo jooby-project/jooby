@@ -15,18 +15,43 @@
  */
 package io.jooby;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
-import java.util.NoSuchElementException;
+import java.lang.reflect.Type;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 
 public class Err extends RuntimeException {
 
-  public static class Missing extends NoSuchElementException {
+  public static class BadRequest extends Err {
+    public BadRequest(String message) {
+      super(StatusCode.BAD_REQUEST, message);
+    }
+
+    public BadRequest(String message, Throwable cause) {
+      super(StatusCode.BAD_REQUEST, message, cause);
+    }
+  }
+
+  public static class TypeMismatch extends BadRequest {
+    private final String parameter;
+
+    public TypeMismatch(String name, Type type, Throwable cause) {
+      super("Cannot convert value: '" + name + "', to: '" + type.getTypeName() + "'", cause);
+      this.parameter = name;
+    }
+
+    public TypeMismatch(String name, Type type) {
+      this(name, type, null);
+    }
+
+    public String getParameter() {
+      return parameter;
+    }
+  }
+
+  public static class Missing extends BadRequest {
     private final String parameter;
 
     public Missing(String name) {
@@ -39,7 +64,7 @@ public class Err extends RuntimeException {
     }
   }
 
-  public static class Provisioning extends NoSuchElementException {
+  public static class Provisioning extends BadRequest {
 
     public Provisioning(Parameter parameter, Throwable cause) {
       this("Unable to provision parameter: '" + toString(parameter) + "', require by: " + toString(
@@ -47,8 +72,7 @@ public class Err extends RuntimeException {
     }
 
     public Provisioning(String message, Throwable cause) {
-      super(message);
-      initCause(cause);
+      super(message, cause);
     }
 
     private static String toString(Parameter parameter) {
@@ -72,16 +96,6 @@ public class Err extends RuntimeException {
       buff.append(params);
       buff.append(")");
       return buff.toString();
-    }
-  }
-
-  public static class BadRequest extends Err {
-    public BadRequest(String message) {
-      super(StatusCode.BAD_REQUEST, message);
-    }
-
-    public BadRequest(String message, Throwable cause) {
-      super(StatusCode.BAD_REQUEST, message, cause);
     }
   }
 

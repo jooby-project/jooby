@@ -211,7 +211,7 @@ public class MvcTest {
         assertEquals("8", rsp.body().string());
       });
       client.post("/body/int", create(MediaType.get("text/plain"), "8x"), rsp -> {
-        assertEquals("Type mismatch: cannot convert to number", rsp.body().string());
+        assertEquals("Unable to provision parameter: 'body: int'", rsp.body().string());
       });
       client.header("Content-Type", "application/json");
       client.post("/body/json", create(MediaType.get("application/json"), "{\"foo\": \"bar\"}"), rsp -> {

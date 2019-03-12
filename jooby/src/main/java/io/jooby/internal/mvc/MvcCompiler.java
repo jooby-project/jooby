@@ -173,6 +173,8 @@ public class MvcCompiler {
     Label label1 = new Label();
     Label label2 = new Label();
     apply.visitTryCatchBlock(label0, label1, label2, "io/jooby/Err$Missing");
+    Label label3 = new Label();
+    apply.visitTryCatchBlock(label0, label1, label3, "io/jooby/Err$TypeMismatch");
 
     apply.visitLabel(label0);
 
@@ -318,8 +320,18 @@ public class MvcCompiler {
     // Writer was created with COMPUTE_MAXS
     apply.visitLabel(label1);
     apply.visitInsn(ARETURN);
-    apply.visitLabel(label2);
-    apply.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {"io/jooby/Err$Missing"});
+    throwProvision(method, apply, parameters, "io/jooby/Err$Missing", label2);
+    throwProvision(method, apply, parameters, "io/jooby/Err$TypeMismatch", label3);
+    apply.visitMaxs(0, 0);
+    apply.visitEnd();
+    writer.visitEnd();
+    return writer.toByteArray();
+  }
+
+  private static void throwProvision(MvcMethod method, MethodVisitor apply, Parameter[] params, String cathException, Label label) {
+    apply.visitLabel(label);
+
+    apply.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {cathException});
 
     apply.visitVarInsn(ASTORE, 2);
     apply.visitTypeInsn(NEW, "java/util/HashMap");
@@ -327,8 +339,8 @@ public class MvcCompiler {
     apply.visitMethodInsn(INVOKESPECIAL, "java/util/HashMap", "<init>", "()V", false);
     apply.visitVarInsn(ASTORE, 3);
     // dump debug parameter map
-    for (int i = 0; i < parameters.length; i++) {
-      Parameter parameter = parameters[i];
+    for (int i = 0; i < params.length; i++) {
+      Parameter parameter = params[i];
 
       apply.visitVarInsn(ALOAD, 3);
       String parameterName = method.getParameterName(i);
@@ -345,7 +357,7 @@ public class MvcCompiler {
     }
 
     apply.visitVarInsn(ALOAD, 2);
-    apply.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Err$Missing", "getParameter", "()Ljava/lang/String;", false);
+    apply.visitMethodInsn(INVOKEVIRTUAL, cathException, "getParameter", "()Ljava/lang/String;", false);
     apply.visitVarInsn(ASTORE, 4);
     apply.visitVarInsn(ALOAD, 3);
     apply.visitVarInsn(ALOAD, 4);
@@ -368,10 +380,6 @@ public class MvcCompiler {
     apply.visitVarInsn(ALOAD, 2);
     apply.visitMethodInsn(INVOKESPECIAL, "io/jooby/Err$Provisioning", "<init>", "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
     apply.visitInsn(ATHROW);
-    apply.visitMaxs(0, 0);
-    apply.visitEnd();
-    writer.visitEnd();
-    return writer.toByteArray();
   }
 
   private static String httpType(Parameter parameter, String name,

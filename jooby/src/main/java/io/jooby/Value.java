@@ -20,6 +20,7 @@ import io.jooby.internal.UrlParser;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.File;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -89,7 +90,8 @@ public interface Value extends Iterable<Value> {
     }
 
     @Override public String value() {
-      throw new Err.BadRequest("Type mismatch: cannot convert array to string");
+      String name = name();
+      throw new Err.TypeMismatch(name == null ? getClass().getSimpleName() : name, String.class);
     }
 
     @Override public String toString() {
@@ -269,7 +271,8 @@ public interface Value extends Iterable<Value> {
     }
 
     @Override public String value() {
-      throw new Err.BadRequest("Type mismatch: cannot convert object to string");
+      String name = name();
+      throw new Err.TypeMismatch(name == null ? getClass().getSimpleName() : name, String.class);
     }
 
     @Override public Iterator<Value> iterator() {
@@ -386,8 +389,7 @@ public interface Value extends Iterable<Value> {
         return instant.toEpochMilli();
       } catch (DateTimeParseException ignored) {
       }
-
-      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
+      throw new Err.TypeMismatch(name(), long.class, x);
     }
   }
 
@@ -403,7 +405,7 @@ public interface Value extends Iterable<Value> {
     try {
       return Integer.parseInt(value());
     } catch (NumberFormatException x) {
-      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
+      throw new Err.TypeMismatch(name(), int.class, x);
     }
   }
 
@@ -419,7 +421,7 @@ public interface Value extends Iterable<Value> {
     try {
       return Byte.parseByte(value());
     } catch (NumberFormatException x) {
-      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
+      throw new Err.TypeMismatch(name(), byte.class, x);
     }
   }
 
@@ -435,7 +437,7 @@ public interface Value extends Iterable<Value> {
     try {
       return Float.parseFloat(value());
     } catch (NumberFormatException x) {
-      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
+      throw new Err.TypeMismatch(name(), float.class, x);
     }
   }
 
@@ -451,7 +453,7 @@ public interface Value extends Iterable<Value> {
     try {
       return Double.parseDouble(value());
     } catch (NumberFormatException x) {
-      throw new Err.BadRequest("Type mismatch: cannot convert to number", x);
+      throw new Err.TypeMismatch(name(), double.class, x);
     }
   }
 
@@ -555,7 +557,7 @@ public interface Value extends Iterable<Value> {
   }
 
   default FileUpload fileUpload() {
-    throw new Err.BadRequest("Type mismatch: not a file upload");
+    throw new Err.TypeMismatch(name(), FileUpload.class);
   }
 
   /* ***********************************************************************************************
@@ -576,13 +578,11 @@ public interface Value extends Iterable<Value> {
   }
 
   default <T> T to(Type type) {
-    ValueInjector injector = new ValueInjector();
-    return injector.inject(this, type, Reified.rawType(type));
+    return new ValueInjector().inject(this, type, Reified.rawType(type));
   }
 
   default <T> T to(Reified<T> type) {
-    ValueInjector injector = new ValueInjector();
-    return injector.inject(this, type.getType(), type.getRawType());
+    return new ValueInjector().inject(this, type.getType(), type.getRawType());
   }
 
   default @Override Iterator<Value> iterator() {
@@ -647,7 +647,7 @@ public interface Value extends Iterable<Value> {
           src = src.get(path[i]);
         }
         value = src.value();
-      } catch (NoSuchElementException x) {
+      } catch (Err.Missing x) {
         if (ignoreMissing) {
           value = text.substring(start, end + endDelim.length());
         } else {
