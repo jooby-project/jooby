@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
+import kotlin.reflect.KClass
 
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
@@ -70,6 +71,11 @@ open class Kooby constructor() : Jooby() {
 
   constructor(init: Kooby.() -> Unit) : this() {
     this.init()
+  }
+
+  fun <T:Any> mvc(router: KClass<T>): Kooby {
+    super.mvc(router.java)
+    return this
   }
 
   @RouterDsl

@@ -37,10 +37,13 @@ class QPoint {
 class Poc {
 
   @POST
-  @Path("/")
-  public String getIt(String body) {
-    return body;
+  @Path(("/body/json"))
+  public String[] getIt(String body) {
+    String[] result = new String[1];
+    result[0] = body;
+    return result;
   }
+
 }
 
 class MvcHandler implements Route.Handler {
@@ -51,29 +54,23 @@ class MvcHandler implements Route.Handler {
     this.provider = provider;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    Poc target = provider.get();
-    return target.getIt(tryParam0(ctx, "body: java.lang.String"));
-  }
-
   private String tryParam0(Context ctx, String desc) {
     try {
       return ctx.body(String.class);
+    } catch (Err.Provisioning x) {
+      throw x;
     } catch (Exception x) {
       throw new Err.Provisioning(desc, x);
     }
   }
+
+  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
+    Poc target = provider.get();
+    return target.getIt(tryParam0(ctx, "body: java.lang.String"));
+  }
 }
 
 public class MvcHandlerASM {
-
-  public static Object param(Supplier supplier, String desc) {
-    try {
-      return supplier.get();
-    } catch (Exception x) {
-      throw new Err.Provisioning("Unable to provision parameter: " + desc, x);
-    }
-  }
 
   @Test
   public void compare() throws IOException, NoSuchMethodException, ClassNotFoundException {

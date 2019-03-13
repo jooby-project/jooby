@@ -15,8 +15,12 @@ public class DocServer {
 
     DocGenerator.generate(basedir, false);
 
+    Process process = new ProcessBuilder("open", basedir.resolve("out").resolve("index.html").toUri().toString())
+        .start();
+    process.waitFor();
+    process.destroy();
+
     System.out.println("listening for changes on: " + basedir);
-    System.out.println("ready");
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
     DirectoryWatcher watcher = DirectoryWatcher.builder()

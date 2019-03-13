@@ -88,7 +88,8 @@ public class Provisioning {
 
   @GET
   @Path("/{s}/{i}/{j}/{f}/{d}/{b}")
-  public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx, @PathParam long j, @PathParam Float f, @PathParam boolean b) {
+  public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
+      @PathParam long j, @PathParam Float f, @PathParam boolean b) {
     return ctx.pathString();
   }
 

@@ -22,10 +22,14 @@ import javax.inject.Provider;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
@@ -40,8 +44,9 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.DRETURN;
 import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.F_FULL;
+import static org.objectweb.asm.Opcodes.FRETURN;
 import static org.objectweb.asm.Opcodes.F_SAME1;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
@@ -50,8 +55,9 @@ import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.IRETURN;
+import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
@@ -67,8 +73,8 @@ public class MvcCompiler {
   private static final Type OBJ = getType(Object.class);
 
   private static final Type PROVIDER = getType(Provider.class);
-  public static final String PROVIDER_VAR = "provider";
-  public static final String PROVIDER_DESCRIPTOR = getMethodDescriptor(OBJ);
+  private static final String PROVIDER_VAR = "provider";
+  private static final String PROVIDER_DESCRIPTOR = getMethodDescriptor(OBJ);
 
   private static final Type STRING = getType(String.class);
 
@@ -110,6 +116,13 @@ public class MvcCompiler {
 
   private static final BiConsumer<String, String> NOOP = (varname, type) -> {
   };
+
+  private static final Set<Class> NATIVE = new LinkedHashSet<>(asList(
+      Context.class,
+      QueryString.class,
+      Formdata.class,
+      Multipart.class
+  ));
 
   public static Class<? extends Route.Handler> compileClass(MvcMethod method)
       throws ClassNotFoundException {
@@ -160,144 +173,48 @@ public class MvcCompiler {
     constructor.visitMaxs(2, 2);
     constructor.visitEnd();
 
-    /**
-     * Apply implementation:
-     */
+    /** Param methods: */
+    Parameter[] parameters = method.method.getParameters();
+    for (int i = 0; i < parameters.length; i++) {
+      tryParam(method, writer, parameters[i], i);
+    }
+    /** Apply implementation: */
     MethodVisitor apply = writer
         .visitMethod(ACC_PUBLIC, "apply", APPLY_DESCRIPTOR, null, APPLY_THROWS);
     apply.visitParameter("ctx", 0);
     apply.visitCode();
 
-    // try
-    Label label0 = new Label();
-    Label label1 = new Label();
-    Label label2 = new Label();
-    apply.visitTryCatchBlock(label0, label1, label2, "io/jooby/Err$Missing");
-    Label label3 = new Label();
-    apply.visitTryCatchBlock(label0, label1, label3, "io/jooby/Err$TypeMismatch");
-
-    apply.visitLabel(label0);
-
     Label sourceStart = new Label();
     apply.visitLabel(sourceStart);
     apply.visitLineNumber(method.getLine(), sourceStart);
+
+    /** load mvc instance: */
     apply.visitVarInsn(ALOAD, 0);
     apply.visitFieldInsn(GETFIELD, internalName, PROVIDER_VAR, PROVIDER.getDescriptor());
     apply.visitMethodInsn(INVOKEINTERFACE, PROVIDER.getInternalName(), "get", PROVIDER_DESCRIPTOR,
         true);
     apply.visitTypeInsn(CHECKCAST, getInternalName(method.method.getDeclaringClass()));
 
-    Parameter[] parameters = method.method.getParameters();
-
     apply.visitVarInsn(ASTORE, ALOAD_OWNER);
     apply.visitVarInsn(ALOAD, ALOAD_OWNER);
 
+    /** call mvc method arguments: */
     for (int i = 0; i < parameters.length; i++) {
-      Parameter parameter = parameters[i];
-      Class<?> paramClass = parameter.getType();
-      java.lang.reflect.Type paramType = parameter.getParameterizedType();
-      boolean isSimple = ValueInjector.isSimple(paramClass, paramType);
-
-      String name = method.getParameterName(i);
-
-      apply.visitVarInsn(ALOAD, ALOAD_CTX);
-
-      BiConsumer<String, String> varaccess = isSimple ?
-          (varname, type) -> {
-            apply.visitLdcInsn(varname);
-            apply.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, type,
-                getMethodDescriptor(VALUE, STRING), true);
-          }
-          : NOOP;
-      String httpType = httpType(parameter, name, varaccess);
-
-      Consumer<MethodVisitor> checkcast = null;
-      if (paramClass.isPrimitive()) {
-        if (paramClass == int.class) {
-          apply.visitFieldInsn(GETSTATIC, INT_NAME, "TYPE", "Ljava/lang/Class;");
-          checkcast = visitor -> {
-            visitor.visitTypeInsn(CHECKCAST, INT_NAME);
-            visitor.visitMethodInsn(INVOKEVIRTUAL, INT_NAME, "intValue", "()I", false);
-          };
-        } else if (paramClass == long.class) {
-          apply.visitFieldInsn(GETSTATIC, LONG_NAME, "TYPE", "Ljava/lang/Class;");
-          checkcast = visitor -> {
-            visitor.visitTypeInsn(CHECKCAST, LONG_NAME);
-            visitor.visitMethodInsn(INVOKEVIRTUAL, LONG_NAME, "longValue", "()J", false);
-          };
-        } else if (paramClass == float.class) {
-          apply.visitFieldInsn(GETSTATIC, FLOAT_NAME, "TYPE", "Ljava/lang/Class;");
-          checkcast = visitor -> {
-            visitor.visitTypeInsn(CHECKCAST, FLOAT_NAME);
-            visitor.visitMethodInsn(INVOKEVIRTUAL, FLOAT_NAME, "floatValue", "()F", false);
-          };
-        } else if (paramClass == double.class) {
-          apply.visitFieldInsn(GETSTATIC, DOUBLE_NAME, "TYPE", "Ljava/lang/Class;");
-          checkcast = visitor -> {
-            visitor.visitTypeInsn(CHECKCAST, DOUBLE_NAME);
-            visitor.visitMethodInsn(INVOKEVIRTUAL, DOUBLE_NAME, "doubleValue", "()D", false);
-          };
-        } else if (paramClass == boolean.class) {
-          apply.visitFieldInsn(GETSTATIC, BOOL_NAME, "TYPE", "Ljava/lang/Class;");
-          checkcast = visitor -> {
-            visitor.visitTypeInsn(CHECKCAST, BOOL_NAME);
-            visitor.visitMethodInsn(INVOKEVIRTUAL, BOOL_NAME, "booleanValue", "()Z", false);
-          };
-        }
-      } else {
-        if (paramClass == Context.class || paramClass == QueryString.class
-            || paramClass == Formdata.class || paramClass == Multipart.class) {
-          // do nothing
-        } else {
-          Type paramAsmType = getType(paramClass);
-          apply.visitLdcInsn(paramAsmType);
-          checkcast = visitor -> visitor.visitTypeInsn(CHECKCAST, paramAsmType.getInternalName());
-        }
-      }
-
-      if (paramClass != Context.class) {
-        if (paramClass == QueryString.class) {
-          apply.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "query", "()Lio/jooby/QueryString;",
-              true);
-        } else if (paramClass == Formdata.class) {
-          apply.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "form", "()Lio/jooby/Formdata;",
-              true);
-        } else if (paramClass == Multipart.class) {
-          apply
-              .visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "multipart", "()Lio/jooby/Multipart;",
-                  true);
-        } else {
-          String source;
-          String convert;
-          if (isSimple && httpType != null) {
-            source = VALUE_NAME;
-            convert = "to";
-          } else {
-            source = CTX_INTERNAL;
-            convert = httpType == null ? "body" : httpType;
-          }
-
-          if (paramType == paramClass) {
-            // raw parameter
-            apply.visitMethodInsn(INVOKEINTERFACE, source, convert,
-                "(Ljava/lang/Class;)Ljava/lang/Object;", true);
-          } else {
-            dumpParameterType(apply, parameter);
-            apply.visitMethodInsn(INVOKEINTERFACE, source, convert,
-                "(Lio/jooby/Reified;)Ljava/lang/Object;", true);
-          }
-        }
-      }
-
-      if (checkcast != null) {
-        checkcast.accept(apply);
-      }
+      invokeTryParam(internalName, apply, parameters[i], i);
     }
-    apply.visitMethodInsn(INVOKEVIRTUAL, owner.getInternalName(), m.getName(), descriptor, false);
 
+    /** call mvc method: */
+    if (m.getDeclaringClass().isInterface()) {
+      apply
+          .visitMethodInsn(INVOKEINTERFACE, owner.getInternalName(), m.getName(), descriptor, true);
+    } else {
+      apply.visitMethodInsn(INVOKEVIRTUAL, owner.getInternalName(), m.getName(), descriptor, false);
+    }
+
+    /** returns: */
     Class<?> returnType = m.getReturnType();
     if (returnType == void.class) {
-      apply.visitVarInsn(ALOAD, 1);
+      apply.visitVarInsn(ALOAD, ALOAD_CTX);
 
       apply.visitFieldInsn(GETSTATIC, "io/jooby/StatusCode", "NO_CONTENT",
           "Lio/jooby/StatusCode;");
@@ -318,68 +235,172 @@ public class MvcCompiler {
     }
 
     // Writer was created with COMPUTE_MAXS
-    apply.visitLabel(label1);
     apply.visitInsn(ARETURN);
-    throwProvision(method, apply, parameters, "io/jooby/Err$Missing", label2);
-    throwProvision(method, apply, parameters, "io/jooby/Err$TypeMismatch", label3);
     apply.visitMaxs(0, 0);
     apply.visitEnd();
     writer.visitEnd();
     return writer.toByteArray();
   }
 
-  private static void throwProvision(MvcMethod method, MethodVisitor apply, Parameter[] params, String cathException, Label label) {
-    apply.visitLabel(label);
+  private static void invokeTryParam(String internalName, MethodVisitor apply, Parameter parameter,
+      int index) {
+    apply.visitVarInsn(ALOAD, 0);
+    apply.visitVarInsn(ALOAD, 1);
+    apply.visitLdcInsn("Unable to provision parameter: '" + parameter.getName() + ": " + parameter
+        .getParameterizedType().getTypeName() + "'");
+    apply.visitMethodInsn(INVOKESPECIAL, internalName, "tryParam" + index,
+        "(Lio/jooby/Context;Ljava/lang/String;)" + Type.getType(parameter.getType())
+            .getDescriptor(), false);
+  }
 
-    apply.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {cathException});
+  private static void tryParam(MvcMethod method, ClassWriter writer, Parameter parameter,
+      int index) {
+    Class type = parameter.getType();
+    MethodVisitor methodVisitor = writer.visitMethod(ACC_PRIVATE, "tryParam" + index,
+        "(Lio/jooby/Context;Ljava/lang/String;)" + Type.getType(type).getDescriptor(),
+        null, null);
+    methodVisitor.visitParameter("ctx", 0);
+    methodVisitor.visitParameter("desc", 0);
+    methodVisitor.visitCode();
+    Label label0 = new Label();
+    Label label1 = new Label();
+    Label label2 = new Label();
+    methodVisitor.visitTryCatchBlock(label0, label1, label2, "io/jooby/Err$Provisioning");
+    Label label3 = new Label();
+    methodVisitor.visitTryCatchBlock(label0, label1, label3, "java/lang/Exception");
+    methodVisitor.visitLabel(label0);
 
-    apply.visitVarInsn(ASTORE, 2);
-    apply.visitTypeInsn(NEW, "java/util/HashMap");
-    apply.visitInsn(DUP);
-    apply.visitMethodInsn(INVOKESPECIAL, "java/util/HashMap", "<init>", "()V", false);
-    apply.visitVarInsn(ASTORE, 3);
-    // dump debug parameter map
-    for (int i = 0; i < params.length; i++) {
-      Parameter parameter = params[i];
+    tryParamBody(method, methodVisitor, parameter, index);
 
-      apply.visitVarInsn(ALOAD, 3);
-      String parameterName = method.getParameterName(i);
-      StringBuilder name = new StringBuilder();
-      httpType(parameter, parameterName, (n, t) -> name.append(name));
-      if (name.length() == 0) {
-        name.append(parameterName);
+    methodVisitor.visitLabel(label1);
+    if (isIntType(type)) {
+      methodVisitor.visitInsn(IRETURN);
+    } else if (type == long.class) {
+      methodVisitor.visitInsn(LRETURN);
+    } else if (type == float.class) {
+      methodVisitor.visitInsn(FRETURN);
+    } else if (parameter.getType() == double.class) {
+      methodVisitor.visitInsn(DRETURN);
+    } else {
+      methodVisitor.visitInsn(ARETURN);
+    }
+    methodVisitor.visitLabel(label2);
+    methodVisitor
+        .visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"io/jooby/Err$Provisioning"});
+    methodVisitor.visitVarInsn(ASTORE, 3);
+    methodVisitor.visitVarInsn(ALOAD, 3);
+    methodVisitor.visitInsn(ATHROW);
+    methodVisitor.visitLabel(label3);
+    methodVisitor.visitFrame(F_SAME1, 0, null, 1, new Object[]{"java/lang/Exception"});
+    methodVisitor.visitVarInsn(ASTORE, 3);
+    methodVisitor.visitTypeInsn(NEW, "io/jooby/Err$Provisioning");
+    methodVisitor.visitInsn(DUP);
+    methodVisitor.visitVarInsn(ALOAD, 2);
+    methodVisitor.visitVarInsn(ALOAD, 3);
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "io/jooby/Err$Provisioning", "<init>",
+        "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
+    methodVisitor.visitInsn(ATHROW);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+  }
+
+  private static void tryParamBody(MvcMethod method, MethodVisitor apply, Parameter parameter,
+      int index) {
+    Class<?> paramClass = parameter.getType();
+    java.lang.reflect.Type paramType = parameter.getParameterizedType();
+    boolean isSimple = ValueInjector.isSimple(paramClass, paramType);
+
+    String name = method.getParameterName(index);
+
+    apply.visitVarInsn(ALOAD, ALOAD_CTX);
+
+    BiConsumer<String, String> varaccess = isSimple ?
+        (varname, type) -> {
+          apply.visitLdcInsn(varname);
+          apply.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, type,
+              getMethodDescriptor(VALUE, STRING), true);
+        }
+        : NOOP;
+    String httpType = httpType(parameter, name, varaccess);
+
+    Consumer<MethodVisitor> checkcast = null;
+    if (paramClass.isPrimitive()) {
+      if (paramClass == int.class) {
+        apply.visitFieldInsn(GETSTATIC, INT_NAME, "TYPE", "Ljava/lang/Class;");
+        checkcast = visitor -> {
+          visitor.visitTypeInsn(CHECKCAST, INT_NAME);
+          visitor.visitMethodInsn(INVOKEVIRTUAL, INT_NAME, "intValue", "()I", false);
+        };
+      } else if (paramClass == long.class) {
+        apply.visitFieldInsn(GETSTATIC, LONG_NAME, "TYPE", "Ljava/lang/Class;");
+        checkcast = visitor -> {
+          visitor.visitTypeInsn(CHECKCAST, LONG_NAME);
+          visitor.visitMethodInsn(INVOKEVIRTUAL, LONG_NAME, "longValue", "()J", false);
+        };
+      } else if (paramClass == float.class) {
+        apply.visitFieldInsn(GETSTATIC, FLOAT_NAME, "TYPE", "Ljava/lang/Class;");
+        checkcast = visitor -> {
+          visitor.visitTypeInsn(CHECKCAST, FLOAT_NAME);
+          visitor.visitMethodInsn(INVOKEVIRTUAL, FLOAT_NAME, "floatValue", "()F", false);
+        };
+      } else if (paramClass == double.class) {
+        apply.visitFieldInsn(GETSTATIC, DOUBLE_NAME, "TYPE", "Ljava/lang/Class;");
+        checkcast = visitor -> {
+          visitor.visitTypeInsn(CHECKCAST, DOUBLE_NAME);
+          visitor.visitMethodInsn(INVOKEVIRTUAL, DOUBLE_NAME, "doubleValue", "()D", false);
+        };
+      } else if (paramClass == boolean.class) {
+        apply.visitFieldInsn(GETSTATIC, BOOL_NAME, "TYPE", "Ljava/lang/Class;");
+        checkcast = visitor -> {
+          visitor.visitTypeInsn(CHECKCAST, BOOL_NAME);
+          visitor.visitMethodInsn(INVOKEVIRTUAL, BOOL_NAME, "booleanValue", "()Z", false);
+        };
       }
-      apply.visitLdcInsn(name.toString());
-      apply.visitLdcInsn(parameter.getName() + ": " + parameter.getParameterizedType().getTypeName());
-      apply.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "put",
-          "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", true);
-      apply.visitInsn(POP);
+    } else {
+      if (!NATIVE.contains(paramClass)) {
+        Type paramAsmType = getType(paramClass);
+        apply.visitLdcInsn(paramAsmType);
+        checkcast = visitor -> visitor.visitTypeInsn(CHECKCAST, paramAsmType.getInternalName());
+      }
     }
 
-    apply.visitVarInsn(ALOAD, 2);
-    apply.visitMethodInsn(INVOKEVIRTUAL, cathException, "getParameter", "()Ljava/lang/String;", false);
-    apply.visitVarInsn(ASTORE, 4);
-    apply.visitVarInsn(ALOAD, 3);
-    apply.visitVarInsn(ALOAD, 4);
-    apply.visitVarInsn(ALOAD, 4);
-    apply.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "getOrDefault", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", true);
-    apply.visitTypeInsn(CHECKCAST, "java/lang/String");
-    apply.visitVarInsn(ASTORE, 5);
-    apply.visitTypeInsn(NEW, "io/jooby/Err$Provisioning");
-    apply.visitInsn(DUP);
-    apply.visitTypeInsn(NEW, "java/lang/StringBuilder");
-    apply.visitInsn(DUP);
-    apply.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V", false);
-    apply.visitLdcInsn("Unable to provision parameter: '");
-    apply.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-    apply.visitVarInsn(ALOAD, 5);
-    apply.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-    apply.visitLdcInsn("'");
-    apply.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-    apply.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
-    apply.visitVarInsn(ALOAD, 2);
-    apply.visitMethodInsn(INVOKESPECIAL, "io/jooby/Err$Provisioning", "<init>", "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
-    apply.visitInsn(ATHROW);
+    if (paramClass != Context.class) {
+      if (paramClass == QueryString.class) {
+        apply.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "query", "()Lio/jooby/QueryString;",
+            true);
+      } else if (paramClass == Formdata.class) {
+        apply.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "form", "()Lio/jooby/Formdata;",
+            true);
+      } else if (paramClass == Multipart.class) {
+        apply
+            .visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "multipart", "()Lio/jooby/Multipart;",
+                true);
+      } else {
+        String source;
+        String convert;
+        if (isSimple && httpType != null) {
+          source = VALUE_NAME;
+          convert = "to";
+        } else {
+          source = CTX_INTERNAL;
+          convert = httpType == null ? "body" : httpType;
+        }
+
+        if (paramType == paramClass) {
+          // raw parameter
+          apply.visitMethodInsn(INVOKEINTERFACE, source, convert,
+              "(Ljava/lang/Class;)Ljava/lang/Object;", true);
+        } else {
+          dumpParameterType(apply, parameter);
+          apply.visitMethodInsn(INVOKEINTERFACE, source, convert,
+              "(Lio/jooby/Reified;)Ljava/lang/Object;", true);
+        }
+      }
+    }
+
+    if (checkcast != null) {
+      checkcast.accept(apply);
+    }
   }
 
   private static String httpType(Parameter parameter, String name,
@@ -451,5 +472,9 @@ public class MvcCompiler {
     StringBuilder signature = new StringBuilder(PROVIDER.getDescriptor());
     signature.insert(signature.length() - 1, "<" + owner.getDescriptor() + ">");
     return signature.toString();
+  }
+
+  private static boolean isIntType(Class type) {
+    return type == int.class || type == boolean.class || type == byte.class || type == short.class;
   }
 }

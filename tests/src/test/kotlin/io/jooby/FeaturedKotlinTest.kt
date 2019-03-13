@@ -56,7 +56,7 @@ class FeaturedKotlinTest {
   @Test
   fun javaApiWithReactiveType() {
     JoobyRunner { ->
-      val app = Jooby().apply {
+      Jooby().apply {
         get("/") {
           println(Thread.currentThread())
           Flowable.range(1, 10)
@@ -65,7 +65,6 @@ class FeaturedKotlinTest {
               .observeOn(Schedulers.computation())
         }
       }
-      app
     }.ready { client ->
       client.get("/") { rsp ->
         assertEquals("1,2,3,4,5,6,7,8,9,10,", rsp.body()!!.string())
@@ -76,7 +75,8 @@ class FeaturedKotlinTest {
   @Test
   fun mvc() {
     JoobyRunner { app ->
-      app.use(KotlinMvc())
+      app.mvc(KotlinMvc())
+      app.mvc(KotlinMvc::class)
     }.ready { client ->
       client.get("/kotlin") { rsp ->
         assertEquals("Got it!", rsp.body()!!.string())

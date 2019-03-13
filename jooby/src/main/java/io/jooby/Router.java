@@ -80,14 +80,14 @@ public interface Router {
   @Nonnull Router use(@Nonnull Router router);
 
   /* ***********************************************************************************************
-   * use(Mvc)
+   * Mvc
    * ***********************************************************************************************
    */
-  @Nonnull Router use(@Nonnull Class router);
+  @Nonnull Router mvc(@Nonnull Class router);
 
-  @Nonnull <T> Router use(@Nonnull Class<T> router, @Nonnull Provider<T> provider);
+  @Nonnull <T> Router mvc(@Nonnull Class<T> router, @Nonnull Provider<T> provider);
 
-  @Nonnull Router use(@Nonnull Object router);
+  @Nonnull Router mvc(@Nonnull Object router);
 
 
   @Nonnull List<Route> routes();

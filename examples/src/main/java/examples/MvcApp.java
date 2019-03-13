@@ -6,7 +6,7 @@ import io.jooby.Jooby;
 public class MvcApp extends Jooby {
 
   {
-    use(new PlainText());
+    mvc(new PlainText());
   }
 
   public static void main(String[] args) {

@@ -231,17 +231,17 @@ public class RouterImpl implements Router {
     return use("", router);
   }
 
-  @Nonnull @Override public Router use(@Nonnull Object router) {
+  @Nonnull @Override public Router mvc(@Nonnull Object router) {
     mvc(null, router.getClass(), () -> router);
     return this;
   }
 
-  @Nonnull @Override public Router use(@Nonnull Class router) {
+  @Nonnull @Override public Router mvc(@Nonnull Class router) {
     throw new UnsupportedOperationException();
   }
 
   @Nonnull @Override
-  public <T> Router use(@Nonnull Class<T> router, @Nonnull Provider<T> provider) {
+  public <T> Router mvc(@Nonnull Class<T> router, @Nonnull Provider<T> provider) {
     mvc(null, router, provider);
     return this;
   }

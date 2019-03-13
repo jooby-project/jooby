@@ -20,7 +20,7 @@ public class MvcTest {
   public void routerInstance() {
     new JoobyRunner(app -> {
 
-      app.use(new InstanceRouter());
+      app.mvc(new InstanceRouter());
 
     }).ready(client -> {
       client.get("/", rsp -> {
@@ -46,7 +46,7 @@ public class MvcTest {
   public void noTopLevelPath() {
     new JoobyRunner(app -> {
 
-      app.use(new NoTopLevelPath());
+      app.mvc(new NoTopLevelPath());
 
     }).ready(client -> {
       client.get("/", rsp -> {
@@ -63,7 +63,7 @@ public class MvcTest {
   public void provisioning() {
     new JoobyRunner(app -> {
 
-      app.use(new Provisioning());
+      app.mvc(new Provisioning());
 
     }).ready(client -> {
       client.get("/args/ctx", rsp -> {
@@ -159,7 +159,7 @@ public class MvcTest {
   public void nullinjection() {
     new JoobyRunner(app -> {
 
-      app.use(new NullInjection());
+      app.mvc(new NullInjection());
 
       app.error(ErrorHandler.log(app.log()).then((ctx, cause, statusCode) -> {
         ctx.statusCode(statusCode)
@@ -194,7 +194,7 @@ public class MvcTest {
 
       app.install(new Jackson());
 
-      app.use(new MvcBody());
+      app.mvc(new MvcBody());
 
       app.error(ErrorHandler.log(app.log()).then((ctx, cause, statusCode) -> {
         ctx.statusCode(statusCode)
@@ -212,6 +212,10 @@ public class MvcTest {
       });
       client.post("/body/int", create(MediaType.get("text/plain"), "8x"), rsp -> {
         assertEquals("Unable to provision parameter: 'body: int'", rsp.body().string());
+      });
+      client.header("Content-Type", "application/json");
+      client.post("/body/json", create(MediaType.get("application/json"), "{\"foo\"= \"bar\"}"), rsp -> {
+        assertEquals("Unable to provision parameter: 'body: java.util.Map<java.lang.String, java.lang.Object>'", rsp.body().string());
       });
       client.header("Content-Type", "application/json");
       client.post("/body/json", create(MediaType.get("application/json"), "{\"foo\": \"bar\"}"), rsp -> {

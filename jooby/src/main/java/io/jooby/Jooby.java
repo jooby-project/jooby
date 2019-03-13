@@ -16,7 +16,6 @@
 package io.jooby;
 
 import io.jooby.internal.RegistryImpl;
-import io.jooby.internal.RouteAnalyzer;
 import io.jooby.internal.RouterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,19 +139,19 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public Jooby use(@Nonnull Object router) {
-    this.router.use(router);
+  @Nonnull @Override public Jooby mvc(@Nonnull Object router) {
+    this.router.mvc(router);
     return this;
   }
 
-  @Nonnull @Override public Jooby use(@Nonnull Class router) {
-    this.router.use(router, () -> require(router));
+  @Nonnull @Override public Jooby mvc(@Nonnull Class router) {
+    this.router.mvc(router, () -> require(router));
     return this;
   }
 
   @Nonnull @Override
-  public <T> Jooby use(@Nonnull Class<T> router, @Nonnull Provider<T> provider) {
-    this.router.use(router, provider);
+  public <T> Jooby mvc(@Nonnull Class<T> router, @Nonnull Provider<T> provider) {
+    this.router.mvc(router, provider);
     return this;
   }
 
