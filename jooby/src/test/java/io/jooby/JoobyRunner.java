@@ -23,7 +23,7 @@ public class JoobyRunner {
   public JoobyRunner(Consumer<Jooby> provider) {
     this.provider = () -> {
       Jooby app = new Jooby();
-      app.environment(Env.defaultEnvironment(getClass().getClassLoader(), "test"));
+      app.environment(Env.create().build(getClass().getClassLoader(), "test"));
       provider.accept(app);
       return app;
     };
@@ -33,7 +33,7 @@ public class JoobyRunner {
     this.provider = () -> {
       Jooby app = provider.get();
       if (app.environment() == null) {
-        app.environment(Env.defaultEnvironment(app.getClass().getClassLoader(), "test"));
+        app.environment(Env.create().build(app.getClass().getClassLoader(), "test"));
       }
       return app;
     };

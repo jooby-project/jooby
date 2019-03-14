@@ -15,72 +15,109 @@
  */
 package io.jooby;
 
+import com.google.common.base.Strings;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigParseOptions;
+import org.slf4j.Logger;
+
 import javax.annotation.Nonnull;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Env extends Value.Object {
+public class Env {
 
-  public static class PropertySource {
-    private String name;
+  public static final String KEY = "application.env";
 
-    private Map<String, String> properties;
+  public static class Builder {
 
-    public PropertySource(String name, Map properties) {
-      this.name = name;
-      this.properties = properties;
+    private String basedir;
+
+    private String filename = "application";
+
+    private String extension = "conf";
+
+    public Builder basedir(@Nonnull String basedir) {
+      this.basedir = basedir;
+      return this;
     }
 
-    public String name() {
-      return name;
+    public Builder basedir(@Nonnull Path basedir) {
+      this.basedir = basedir.toAbsolutePath().toString();
+      return this;
     }
 
-    public Map<String, String> properties() {
-      return properties;
+    public Builder filename(@Nonnull String filename) {
+      this.filename = filename;
+      return this;
     }
 
-    @Override public String toString() {
-      return name;
+    public Builder extension(@Nonnull String extension) {
+      this.extension = extension;
+      return this;
+    }
+
+    public Env build(@Nonnull ClassLoader loader, @Nonnull String env) {
+      Config sysprops = systemProperties();
+
+      /** Application file: */
+      Config application = ConfigFactory.empty();
+      String[][] names = {
+          {filename + "." + env.toLowerCase() + "." + extension},
+          {filename + "." + extension}
+      };
+      Path userdir = Paths.get(System.getProperty("user.dir"));
+      Path confdir = userdir.resolve("conf");
+      Path defdir = Files.exists(confdir) ? confdir : userdir;
+      Path fsroot = this.basedir == null ? defdir : Paths.get(this.basedir).toAbsolutePath();
+      String[] cproot = this.basedir == null ? new String[0] : this.basedir.split("/");
+      for (String[] name : names) {
+        Path fsfile = Stream.of(name).reduce(fsroot, Path::resolve, Path::resolve);
+        Config it;
+        if (Files.exists(fsfile)) {
+          String origin = fsfile.startsWith(userdir)
+              ? userdir.relativize(fsfile).toString()
+              : fsfile.toString();
+          it = ConfigFactory.parseFile(fsfile.toFile(),
+              ConfigParseOptions.defaults().setOriginDescription(origin));
+        } else {
+          String cpfile = Stream.concat(Stream.of(cproot), Stream.of(name))
+              .collect(Collectors.joining("/"));
+          it = ConfigFactory.parseResources(loader, cpfile,
+              ConfigParseOptions.defaults().setOriginDescription("classpath://" + cpfile));
+        }
+        application = application.withFallback(it);
+      }
+
+      Config result = sysprops
+          .withFallback(systemEnv())
+          .withFallback(application)
+          .withFallback(defaults())
+          .resolve();
+
+      return new Env(result.getString(KEY), result);
     }
   }
 
   private final String name;
 
-  private final List<PropertySource> sources = new ArrayList<>();
+  private final Config conf;
 
-  public Env(final String name) {
-    this.name = name;
+  public Env(@Nonnull final String name, @Nonnull final Config conf) {
+    this.name = name.toLowerCase();
+    this.conf = conf;
   }
 
-  @Override public Value get(@Nonnull String name) {
-    Value result = super.get(name);
-    if (result.isMissing()) {
-      // Subpath lookup?
-      String[] path = name.split("\\.");
-      result = super.get(path[0]);
-      for (int i = 1; i < path.length; i++) {
-        result = result.get(path[i]);
-      }
-    }
-    return result;
+  public Config conf() {
+    return conf;
   }
 
   public @Nonnull String name() {
@@ -97,24 +134,39 @@ public class Env extends Value.Object {
   }
 
   public static Env empty(String name) {
-    return new Env(name);
+    return new Env(name, ConfigFactory.empty());
   }
 
   @Override public String toString() {
-    StringBuilder buff = new StringBuilder();
-    buff.append(name).append("\n");
-    String indent = "  ";
-    for (int i = sources.size() - 1; i >= 0; i--) {
-      String sname = sources.get(i).name;
-      buff.append(indent).append("::").append(sname).append("\n");
-      indent += "  ";
-    }
-    return buff.toString().trim();
+    return name + "\n" + toString(conf).trim();
   }
 
-  public static PropertySource parse(String... args) {
+  private String toString(final Config conf) {
+    return configTree(conf.origin().description());
+  }
+
+  private String configTree(final String description) {
+    return configTree(description.split(":\\s+\\d+,|,"), 0);
+  }
+
+  private String configTree(final String[] sources, final int i) {
+    char[] pad = new char[i];
+    Arrays.fill(pad, ' ');
+    if (i < sources.length) {
+      return new StringBuilder()
+          .append(pad)
+          .append("└── ")
+          .append(sources[i].replace("merge of", "").trim())
+          .append("\n")
+          .append(configTree(sources, i + 1))
+          .toString();
+    }
+    return "";
+  }
+
+  public static Map<String, String> parse(String... args) {
     if (args == null || args.length == 0) {
-      return new PropertySource("args", Collections.emptyMap());
+      return Collections.emptyMap();
     }
     Map<String, String> conf = new HashMap<>();
     for (String arg : args) {
@@ -126,71 +178,32 @@ public class Env extends Value.Object {
         conf.putIfAbsent("application.env", arg);
       }
     }
-    return new PropertySource("args", conf);
+    return conf;
   }
 
-  private static PropertySource load(ClassLoader loader, String filename) {
-    return load(loader, filename, (name, stream) -> {
-      try {
-        Properties properties = new Properties();
-        properties.load(stream);
-        return new PropertySource(name, properties);
-      } catch (IOException x) {
-        throw Throwing.sneakyThrow(x);
-      }
-    });
+  public static Config systemProperties() {
+    return ConfigFactory.parseProperties(System.getProperties(),
+        ConfigParseOptions.defaults().setOriginDescription("system.properties"));
   }
 
-  private static PropertySource load(ClassLoader loader, String filename,
-      BiFunction<String, InputStream, PropertySource> propertyLoader) {
-    AtomicReference<String> fullpath = new AtomicReference<>();
-    InputStream stream = findProperties(loader, filename, fullpath::set);
-    if (stream != null) {
-      try {
-        return propertyLoader.apply(fullpath.get(), stream);
-      } finally {
-        try {
-          stream.close();
-        } catch (IOException x) {
-          throw Throwing.sneakyThrow(x);
-        }
-      }
-    }
-    return new PropertySource(filename, Collections.emptyMap());
-  }
-
-  public static PropertySource systemProperties() {
-    return new PropertySource("systemProperties", System.getProperties());
-  }
-
-  public static PropertySource systemEnv() {
-    return new PropertySource("systemEnv", System.getenv());
+  public static Config systemEnv() {
+    return ConfigFactory.systemEnvironment();
   }
 
   public static Env defaultEnvironment(ClassLoader loader) {
-    return defaultEnvironment(loader, "application");
+    return new Builder().build(loader, System.getProperty(KEY, "dev"));
   }
 
-  public static Env defaultEnvironment(ClassLoader loader, String filename) {
-    LinkedList<PropertySource> sources = new LinkedList<>();
-
-    sources.add(systemEnv());
-    sources.add(systemProperties());
-
-    String env = fromSource(sources, "application.env", "dev").toLowerCase();
-    Stream
-        .of(filename + "." + env + ".properties", filename + ".properties")
-        .map(it -> load(loader, it))
-        .filter(props -> props.properties().size() > 0)
-        .forEach(sources::addFirst);
-
-    return build(sources.toArray(new PropertySource[sources.size()]));
+  public static Builder create() {
+    return new Builder();
   }
 
-  public static PropertySource defaults() {
+  public static Config defaults() {
     Path tmpdir = Paths.get(System.getProperty("user.dir"), "tmp");
     Map<String, String> defaultMap = new HashMap<>();
     defaultMap.put("application.tmpdir", tmpdir.toString());
+    defaultMap.put("application.env", "dev");
+    defaultMap.put("application.charset", "UTF-8");
     defaultMap.put("server.maxRequestSize", Integer.toString(Server._10MB));
     String pid = pid();
     if (pid != null) {
@@ -198,71 +211,7 @@ public class Env extends Value.Object {
       defaultMap.put("pid", pid);
     }
 
-    return new PropertySource("defaults", defaultMap);
-  }
-
-  public static Env build(PropertySource... sources) {
-    Env env = new Env(fromSource(Arrays.asList(sources), "application.env", "dev").toLowerCase());
-    /** Merge to build values: */
-    Map<String, String> merged = new LinkedHashMap<>();
-    String tmpdir = System.getProperty("java.io.tmpdir");
-    PropertySource defaults = defaults();
-    merged.putAll(defaults.properties);
-    for (PropertySource source : sources) {
-      merged.putAll(source.properties);
-    }
-    List<String> skip = Arrays.asList("java.", "sun.");
-    merged.forEach((k, v) -> {
-      if (skip.stream().anyMatch(it -> !it.startsWith(k))) {
-        // ignore java. and sun. properties (too many, not worth it)
-        try {
-          String[] values = v.split(",");
-          for (String value : values) {
-            env.put(k, value.trim());
-          }
-        } catch (ClassCastException x) {
-          // Caused by system properties like:
-          // java.vendor.url vs java.vendor.url.bug
-        }
-      }
-    });
-    // Only worth it property from java.*
-    env.put("java.io.tmpdir", tmpdir);
-
-    merged.clear();
-
-    /** Add sources */
-    env.sources.add(defaults);
-    Stream.of(sources).forEach(env.sources::add);
-    return env;
-  }
-
-  private static InputStream findProperties(ClassLoader loader, String filename,
-      Consumer<String> fullpath) {
-    try {
-      String envdir = System.getProperty("env.dir", "conf");
-      Path file = Paths.get(System.getProperty("user.dir"), envdir, filename).toAbsolutePath();
-      if (Files.exists(file)) {
-        fullpath.accept(file.toString());
-        return new FileInputStream(file.toFile());
-      }
-      String resource = envdir + "/" + filename;
-      fullpath.accept(resource);
-      return loader.getResourceAsStream(resource);
-    } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
-    }
-  }
-
-  private static String fromSource(List<PropertySource> sources, String name, String defaults) {
-    for (int i = sources.size() - 1; i >= 0; i--) {
-      PropertySource source = sources.get(i);
-      String value = source.properties().get(name);
-      if (value != null) {
-        return value;
-      }
-    }
-    return defaults;
+    return ConfigFactory.parseMap(defaultMap, "defaults");
   }
 
   private static String pid() {

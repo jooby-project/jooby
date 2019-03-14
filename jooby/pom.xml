@@ -217,6 +217,12 @@
       <artifactId>netty-buffer</artifactId>
     </dependency>
 
+    <!-- config -->
+    <dependency>
+      <groupId>com.typesafe</groupId>
+      <artifactId>config</artifactId>
+    </dependency>
+
     <!-- kotlin -->
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>

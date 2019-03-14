@@ -46,6 +46,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -54,6 +55,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -509,7 +511,7 @@ public class RouterImpl implements Router {
   }
 
   private void mvc(String prefix, Class type, Provider provider) {
-    find(prefix, type, (method, pattern) -> {
+    find(prefix, type, method -> {
 
       Method handler = method.getMethod();
       boolean isVoid = handler.getReturnType() == void.class;
@@ -517,33 +519,33 @@ public class RouterImpl implements Router {
       Route.Handler routeHandler = compiled.getDeclaredConstructor(Provider.class)
           .newInstance(provider);
 
-      route(method.getHttpMethod(), pattern, routeHandler)
+      route(method.getHttpMethod(), method.getPattern(), routeHandler)
           .returnType(isVoid ? Context.class : handler.getGenericReturnType());
     });
   }
 
-  private void find(String prefix, Class type,
-      Throwing.Consumer2<MvcMethod, String> consumer) {
+  private void find(String prefix, Class type, Throwing.Consumer<MvcMethod> consumer) {
     String classPath = prefix == null ? path(type) : prefix + "/" + path(type);
     MvcMetadata mvcMetadata = new MvcMetadata(source);
     mvcMetadata.parse(type);
+    List<MvcMethod> routes = new ArrayList<>();
     Stream.of(type.getDeclaredMethods())
-        .filter(it -> Modifier.isPublic(it.getModifiers()))
-        .sorted(Comparator.comparingInt(it -> mvcMetadata.get(it).getLine()))
         .forEach(method -> {
           if (Modifier.isPublic(method.getModifiers())) {
             for (Class<? extends Annotation> m : M_ANN) {
               String httpMethod = toHttpMethod(method.getAnnotation(m));
               if (httpMethod != null) {
-                String pattern = classPath + "/" + path(method);
                 MvcMethod mvc = mvcMetadata.get(method);
+                mvc.setPattern(classPath + "/" + path(method));
                 mvc.setMethod(method);
                 mvc.setHttpMethod(httpMethod);
-                consumer.accept(mvc, pattern);
+                routes.add(mvc);
               }
             }
           }
         });
+    Collections.sort(routes, Comparator.comparingInt(MvcMethod::getLine));
+    routes.forEach(consumer);
     mvcMetadata.destroy();
   }
 

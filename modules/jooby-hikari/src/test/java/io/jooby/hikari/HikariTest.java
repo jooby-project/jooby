@@ -1,5 +1,7 @@
 package io.jooby.hikari;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import com.zaxxer.hikari.HikariConfig;
 import io.jooby.Env;
 import org.junit.jupiter.api.Test;
@@ -19,7 +21,7 @@ public class HikariTest {
   @Test
   public void mem() {
     HikariConfig conf = Hikari.builder()
-        .build(Env.build(new Env.PropertySource("test", mapOf("db", "mem"))));
+        .build(new Env("test", mapOf("db", "mem")));
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals("org.h2.jdbcx.JdbcDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
@@ -34,8 +36,8 @@ public class HikariTest {
   @Test
   public void fs() {
     HikariConfig conf = Hikari.builder()
-        .build(Env.build(new Env.PropertySource("test",
-            mapOf("db", "fs", "application.name", "foo", "application.tmpdir", "target"))));
+        .build(new Env("test",
+            mapOf("db", "fs", "application.name", "foo", "application.tmpdir", "target")));
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals("org.h2.jdbcx.JdbcDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
@@ -50,8 +52,8 @@ public class HikariTest {
   @Test
   public void dbWithCredentials() {
     HikariConfig conf = Hikari.builder()
-        .build(Env.build(new Env.PropertySource("test",
-            mapOf("db.url", "jdbc:mysql://localhost/db", "db.user", "root", "db.password", ""))));
+        .build(new Env("test",
+            mapOf("db.url", "jdbc:mysql://localhost/db", "db.user", "root", "db.password", "")));
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
@@ -65,8 +67,7 @@ public class HikariTest {
   @Test
   public void connectionString() {
     HikariConfig conf = Hikari.builder()
-        .build(Env.build(
-            new Env.PropertySource("test", mapOf("mydb.user", "root", "mydb.password", ""))),
+        .build(new Env("test", mapOf("mydb.user", "root", "mydb.password", "")),
             "jdbc:mysql://localhost/mydb");
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", conf.getDataSourceClassName());
@@ -95,13 +96,13 @@ public class HikariTest {
 
   @Test
   public void multipledb() {
-    Env env = Env.build(new Env.PropertySource("test",
+    Env env = new Env("test",
         mapOf("db.main.url", "jdbc:mysql://localhost/main", "db.main.user", "m",
             "db.main.password", "p1",
             "db.audit.url", "jdbc:mysql://localhost/audit", "db.audit.user", "a",
             "db.audit.password", "p2",
             "hikari.maximumPoolSize", "5",
-            "hikari.audit.maximumPoolSize", "1")));
+            "hikari.audit.maximumPoolSize", "1"));
     HikariConfig db = Hikari.builder().build(env, "db.main");
     assertEquals(5, db.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", db.getDataSourceClassName());
@@ -126,9 +127,9 @@ public class HikariTest {
   @Test
   public void dbUrlWithParams() {
     HikariConfig conf = Hikari.builder()
-        .build(Env.build(new Env.PropertySource("test",
+        .build(new Env("test",
             mapOf("db.url",
-                "jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8"))));
+                "jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8")));
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
@@ -143,8 +144,8 @@ public class HikariTest {
   @Test
   public void hikariOptions() {
     HikariConfig conf = Hikari.builder()
-        .build(Env.build(new Env.PropertySource("test",
-            mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.db.maximumPoolSize", "5"))));
+        .build(new Env("test",
+            mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.db.maximumPoolSize", "5")));
     assertEquals(5, conf.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
@@ -158,8 +159,8 @@ public class HikariTest {
   @Test
   public void hikariDefaultOptions() {
     HikariConfig conf = Hikari.builder()
-        .build(Env.build(new Env.PropertySource("test",
-            mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.maximumPoolSize", "5"))));
+        .build(new Env("test",
+            mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.maximumPoolSize", "5")));
     assertEquals(5, conf.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
@@ -173,9 +174,9 @@ public class HikariTest {
   @Test
   public void hikariOverrideOptions() {
     HikariConfig conf = Hikari.builder()
-        .build(Env.build(new Env.PropertySource("test",
+        .build(new Env("test",
             mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.maximumPoolSize", "5",
-                "hikari.db.maximumPoolSize", "7"))));
+                "hikari.db.maximumPoolSize", "7")));
     assertEquals(7, conf.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
@@ -189,9 +190,9 @@ public class HikariTest {
   @Test
   public void overrideDataSource() {
     HikariConfig conf = Hikari.builder()
-        .build(Env.build(new Env.PropertySource("test",
+        .build(new Env("test",
             mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.dataSourceClassName",
-                "test.MyDS"))));
+                "test.MyDS")));
     assertEquals("test.MyDS", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
     assertEquals("mysql.db", conf.getPoolName());
@@ -204,13 +205,13 @@ public class HikariTest {
   @Test
   public void noUrlProperty() {
     HikariConfig conf = Hikari.builder()
-        .build(Env.build(new Env.PropertySource("test",
+        .build(new Env("test",
             mapOf(
                 "db.host", "localhost",
                 "db.database", "foo",
                 "db.user", "root",
                 "db.port", "333",
-                "db.dataSourceClassName", "com.impossibl.postgres.jdbc.PGDataSource"))));
+                "db.dataSourceClassName", "com.impossibl.postgres.jdbc.PGDataSource")));
     assertEquals("com.impossibl.postgres.jdbc.PGDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
     assertEquals("pg.foo", conf.getPoolName());
@@ -224,8 +225,8 @@ public class HikariTest {
   @Test
   public void log4jdbc() {
     HikariConfig conf = Hikari.builder()
-        .build(Env.build(new Env.PropertySource("test",
-            mapOf("db.url", "jdbc:log4jdbc:mysql://localhost/db"))));
+        .build(new Env("test",
+            mapOf("db.url", "jdbc:log4jdbc:mysql://localhost/db")));
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals(null, conf.getDataSourceClassName());
     assertEquals("net.sf.log4jdbc.DriverSpy", conf.getDriverClassName());
@@ -293,11 +294,11 @@ public class HikariTest {
     assertEquals("foo", Hikari.databaseType("foo"));
   }
 
-  private Map<String, String> mapOf(String... values) {
+  private Config mapOf(String... values) {
     Map<String, String> hash = new HashMap<>();
     for (int i = 0; i < values.length; i += 2) {
       hash.put(values[i], values[i + 1]);
     }
-    return hash;
+    return ConfigFactory.parseMap(hash);
   }
 }

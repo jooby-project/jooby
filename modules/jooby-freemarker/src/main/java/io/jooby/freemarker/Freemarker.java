@@ -15,6 +15,7 @@
  */
 package io.jooby.freemarker;
 
+import com.typesafe.config.Config;
 import freemarker.cache.CacheStorage;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.NullCacheStorage;
@@ -81,7 +82,11 @@ public class Freemarker implements TemplateEngine {
       freemarker.setOutputFormat(outputFormat);
 
       // Settings
-      env.get("freemarker").toMap().forEach(settings::putIfAbsent);
+      Config conf = env.conf();
+      if (conf.hasPath("freemarker")) {
+        conf.getConfig("freemarker").root().unwrapped()
+            .forEach((k, v) -> settings.put(k, v.toString()));
+      }
       settings.putIfAbsent("defaultEncoding", "UTF-8");
       settings.forEach((k, v) -> {
         try {

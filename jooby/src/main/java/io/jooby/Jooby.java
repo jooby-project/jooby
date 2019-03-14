@@ -15,6 +15,7 @@
  */
 package io.jooby;
 
+import com.typesafe.config.Config;
 import io.jooby.internal.RegistryImpl;
 import io.jooby.internal.RouterImpl;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,8 +47,6 @@ import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
 
 public class Jooby implements Router, Registry {
-
-  private static final String ENV_KEY = "application.env";
 
   private RouterImpl router;
 
@@ -71,6 +71,9 @@ public class Jooby implements Router, Registry {
   }
 
   public @Nonnull Env environment() {
+    if (env == null) {
+      env = Env.defaultEnvironment(getClass().getClassLoader());
+    }
     return env;
   }
 
@@ -342,17 +345,13 @@ public class Jooby implements Router, Registry {
   }
 
   public @Nonnull Jooby start(@Nonnull Server server) {
-    if (env == null) {
-      env = Env.defaultEnvironment(getClass().getClassLoader());
-    }
+    Env env = environment();
     if (tmpdir == null) {
-      tmpdir = Paths.get(env.get("application.tmpdir").value()).toAbsolutePath();
+      tmpdir = Paths.get(env.conf().getString("application.tmpdir")).toAbsolutePath();
     }
 
     /** Start router: */
     ensureTmpdir(tmpdir);
-
-    log().debug("environment:\n{}", env);
 
     if (mode == null) {
       mode = ExecutionMode.DEFAULT;
@@ -374,7 +373,11 @@ public class Jooby implements Router, Registry {
     log.info("    PID: {}", System.getProperty("PID"));
     log.info("    port: {}", server.port());
     log.info("    server: {}", server.getClass().getSimpleName().toLowerCase());
-    log.info("    env: {}", env.name());
+    if (log.isDebugEnabled()) {
+      log.debug("    env: {}", env);
+    } else {
+      log.info("    env: {}", env.name());
+    }
     log.info("    thread mode: {}", mode.name().toLowerCase());
     log.info("    user: {}", System.getProperty("user.name"));
     log.info("    app dir: {}", System.getProperty("user.dir"));
@@ -412,10 +415,10 @@ public class Jooby implements Router, Registry {
       String... args) {
 
     /** Dump command line as system properties. */
-    Env.parse(args).properties().forEach(System::setProperty);
+    Env.parse(args).forEach(System::setProperty);
 
     /** Fin application.env: */
-    String env = System.getProperty(ENV_KEY, System.getenv().getOrDefault(ENV_KEY, "dev"))
+    String env = System.getProperty(Env.KEY, System.getenv().getOrDefault(Env.KEY, "dev"))
         .toLowerCase();
 
     logback(env);
@@ -500,4 +503,5 @@ public class Jooby implements Router, Registry {
       }
     }
   }
+
 }

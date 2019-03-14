@@ -1,7 +1,10 @@
 package io.jooby;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -10,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static java.util.Arrays.asList;
@@ -20,55 +24,89 @@ public class EnvTest {
   @Test
   public void defaultEnv() {
 
-    env("foo", env -> {
+    env("foo", (env, conf) -> {
+      assertEquals("dev\n"
+          + "└── system.properties\n"
+          + " └── env variables\n"
+          + "  └── classpath://env/foo/application.conf\n"
+          + "   └── defaults", env.toString());
       assertEquals("dev", env.name());
-      assertEquals(System.getProperty("user.dir"), env.get("user.dir").value());
-      assertEquals("bar", env.get("foo").value());
-      assertEquals(asList("a", "b", "c"), env.get("letters").toList());
+      assertEquals(System.getProperty("user.dir"), conf.getString("user.dir"));
+      assertEquals("bar", conf.getString("foo"));
+      assertEquals(asList("a", "b", "c"), conf.getStringList("letters"));
     });
 
-    env("foo", mapOf("application.env", "PROD"), env -> {
+    env("foo", mapOf("application.env", "PROD"), (env, conf) -> {
+      assertEquals("prod\n"
+          + "└── system.properties\n"
+          + " └── env variables\n"
+          + "  └── classpath://env/foo/application.prod.conf\n"
+          + "   └── classpath://env/foo/application.conf\n"
+          + "    └── defaults", env.toString());
       assertEquals("prod", env.name());
-      assertEquals("bazz", env.get("foo").value());
-      assertEquals(asList("a", "b", "c"), env.get("letters").toList());
+      assertEquals("bazz", conf.getString("foo"));
+      assertEquals(asList("a", "b", "c"), conf.getStringList("letters"));
     });
 
-    env("empty", env -> {
+    env("empty", (env, conf) -> {
       assertEquals("dev", env.name());
     });
+  }
+
+  @Test
+  public void envfromfs() {
+    Path basedir = Paths.get(System.getProperty("user.dir"));
+    if (Files.exists(basedir.resolve("jooby"))) {
+      // maven vs IDE
+      basedir = basedir.resolve("jooby");
+    }
+    basedir = basedir.resolve("src").resolve("test").resolve("resources").resolve("env")
+        .resolve("foo");
+
+    Env env = Env.create()
+        .basedir(basedir)
+        .build(getClass().getClassLoader(), "prod");
+    assertEquals("bazz", env.conf().getString("foo"));
+    assertEquals("dev\n"
+        + "└── system.properties\n"
+        + " └── env variables\n"
+        + "  └── src/test/resources/env/foo/application.prod.conf\n"
+        + "   └── src/test/resources/env/foo/application.conf\n"
+        + "    └── defaults", env.toString());
   }
 
   @Test
   public void objectLookup() {
 
-    Env env = Env.build(new Env.PropertySource("test", mapOf("h.pool", "1", "h.db.pool", "2")));
+    Env env = new Env("test", ConfigFactory.parseMap(mapOf("h.pool", "1", "h.db.pool", "2")));
 
-    assertEquals("1", env.get("h.pool").value());
-    assertEquals("2", env.get("h.db.pool").value());
-    assertEquals(mapOf("db.pool", "2"), env.get("h.db").toMap());
+    assertEquals("1", env.conf().getString("h.pool"));
+    assertEquals("2", env.conf().getString("h.db.pool"));
+    assertEquals(mapOf("pool", "2"), env.conf().getConfig("h.db").root().unwrapped());
   }
 
   @Test
   public void args() {
-    Env.PropertySource args = Env.parse("foo", " bar = ");
-    assertEquals("args", args.name());
-    assertEquals(mapOf("application.env", "foo", "bar", ""), args.properties());
+    Map<String, String> args = Env.parse("foo", " bar = ");
+    assertEquals("{bar=, application.env=foo}", args.toString());
 
-    assertEquals(Collections.emptyMap(), Env.parse().properties());
-    assertEquals(Collections.emptyMap(), Env.parse((String[]) null).properties());
+    assertEquals(Collections.emptyMap(), Env.parse());
+    assertEquals(Collections.emptyMap(), Env.parse((String[]) null));
   }
 
-  private void env(String dir, Consumer<Env> consumer) {
+  private void env(String dir, BiConsumer<Env, Config> consumer) {
     env(dir, Collections.emptyMap(), consumer);
   }
 
-  private void env(String dir, Map<String, String> args, Consumer<Env> consumer) {
-    Properties sysprops = new Properties(System.getProperties());
+  private void env(String dir, Map<String, String> args, BiConsumer<Env, Config> consumer) {
+    Properties sysprops = new Properties();
+    sysprops.putAll(System.getProperties());
     try {
-      Path file = Paths.get("env", dir);
-      System.setProperty("env.dir", file.toString());
       args.forEach((k, v) -> System.setProperty(k, v));
-      consumer.accept(Env.defaultEnvironment(getClass().getClassLoader()));
+      Env env = Env.create()
+          .basedir("env/" + dir)
+          .build(getClass().getClassLoader(), args.getOrDefault("application.env", "dev"));
+      consumer.accept(env, env.conf());
     } finally {
       System.setProperties(sysprops);
     }
