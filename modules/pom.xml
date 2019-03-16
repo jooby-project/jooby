@@ -21,6 +21,7 @@
     <module>jooby-handlebars</module>
     <module>jooby-guice</module>
     <module>jooby-spring</module>
+    <module>jooby-weld</module>
   </modules>
 
 </project>

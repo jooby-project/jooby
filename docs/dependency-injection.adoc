@@ -246,7 +246,7 @@ import io.jooby.run
 fun main(args: Array<String>) {
   run(args) {
     install(Guiceby())         <1>
-    
+
     mvc(MyController::class)   <2>
   }
 }
@@ -326,7 +326,7 @@ install(new Spring("foo", "bar"));
 
 The Spring extension does a bit more in relation to MVC routes:
 
-- A MVC route annotated with the `org.springframework.stereotype.Controller` annotation is
+- A MVC route annotated with `io.jooby.annotations.Controller` or `org.springframework.stereotype.Controller` annotation is
 automatically registered. No need to register it manually
 
 - A MVC route provided by Spring is a singleton object by default. Singleton is the default scope in Spring
@@ -335,7 +335,6 @@ automatically registered. No need to register it manually
 [source, java, role="primary"]
 ----
 import io.jooby.annotations.*;
-import org.springframework.stereotype.Controller;
 
 @Controller
 public class Hello {
@@ -351,7 +350,6 @@ public class Hello {
 [source, kotlin, role="secondary"]
 ----
 import io.jooby.annotations.*;
-import org.springframework.stereotype.Controller;
 
 @Controller
 class Hello {
@@ -367,27 +365,21 @@ class Hello {
 
 1) Add Weld dependency to your project:
 
-[dependency, groupId="org.jboss.weld.se", artifactId="weld-se-shaded",  version="3.1.0.Final"]
+[dependency, artifactId="jooby-weld"]
 .
 
-2) Bootstrap Weld from application:
+2) Install Weld:
 
-.Weld
+.Installing Weld
 [source, java, role = "primary"]
 ----
 public class App extends Jooby {
 
   {
-    Weld weld = new Weld();                         <1>
-
-    WeldContainer container = weld.initialize();
-
-    onStop(weld::shutdown);                         <2>
-    
-    registry(container);                            <3>
+    install(new Weldby());                          <1>
 
     get ("/", ctx -> {
-      MyService service = require(MyService.class); <4>
+      MyService service = require(MyService.class); <2>
       service.doSomething();
     });
   }
@@ -401,78 +393,55 @@ import io.jooby.run
 
 fun main(args: Array<String>) {
   run(args) {
-    val weld = Weld()                              <1>
-
-    val container = weld.initialize()
-
-    onStop(weld::shutdown)                         <2>
-
-    registry(container)                            <3>
+    install(Weldby())                               <1>
 
     get ("/") { ctx ->
-      val service = require(MyService::class)      <4>
+      val service = require(MyService::class)       <2>
       service.doSomething()
     }
   }
 }
 ----
 
-<1> Bootstrap Weld and creates an WeldContainer
-<2> On stop, shutdown Weld
-<3> Integrates javadoc:Jooby[require, java.lang.Class] with Weld
-<4> Access to an instance provided by Weld
+<1> Install Weld
+<2> The javadoc:Jooby[require, java.lang.Class] call is now resolved by Weld
 
 [id=weld-mvc-routes]
 ==== MVC routes
 
-Integration of MVC routes with Weld is as follow:
- 
-.MVC and Weld
-[source, java, role = "primary"]
-----
-public class App extends Jooby {
+The Weld extension does a bit more in relation to MVC routes:
 
-  {
-    Weld weld = new Weld();                       <1>
-    
-    WeldContainer container = weld.initialize();
-    
-    onStop(weld::shutdown);                       <2>
-    
-    registry(container);                          <3>
-    
-    mvc(MyController.class);                      <4>
-  }
+- A MVC route annotated with the `io.jooby.annotations.Controller` annotation is
+automatically registered. No need to register it manually
+
+- A MVC route provided by Weld is a singleton object by default. Singleton is the default scope in Weld
+
+.MVC route
+[source, java, role="primary"]
+----
+import io.jooby.annotations.*;
+
+@Controller
+public class Hello {
+
+   @GET
+   public String sayHi() {
+     return "Hi Weld!";
+   }
 }
 ----
 
 .Kotlin
-[source, kotlin, role = "secondary"]
+[source, kotlin, role="secondary"]
 ----
-import io.jooby.run
+import io.jooby.annotations.*;
 
-fun main(args: Array<String>) {
-  run(args) {
-    val weld = Weld()                              <1>
-    
-    val container = weld.initialize()
+@Controller
+class Hello {
 
-    onStop(weld::shutdown)                         <2>
-
-    registry(container)                            <3>
-
-    mvc(MyController::class)                       <4>
-  }
+   @GET
+   fun sayHi(): String {
+     return "Hi Weld!"
+   }
 }
 ----
-
-<1> Bootstrap Weld and creates a WeldContainer
-<2> On top, close Weld
-<3> Integrates javadoc:Jooby[require, java.lang.Class] with Weld
-<3> Let Weld creates and provision `MyController`
-
-The lifecycle of `MyController` is now managed by Weld. Also:
-
-- MyController must be in the `myapp` package or subpackage of it
-- MyController must be annotated with `org.springframework.stereotype.Controller`
-- In Spring, a bean is Singleton by default.

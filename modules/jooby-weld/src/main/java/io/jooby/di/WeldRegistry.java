@@ -13,7 +13,7 @@
  *
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.registry;
+package io.jooby.di;
 
 import io.jooby.Registry;
 import org.jboss.weld.environment.se.WeldContainer;
@@ -21,18 +21,22 @@ import org.jboss.weld.environment.se.WeldContainer;
 import javax.annotation.Nonnull;
 import javax.enterprise.inject.literal.NamedLiteral;
 
-public class WeldAdapter implements Registry {
-  private final WeldContainer injector;
+import static javax.enterprise.inject.Any.Literal.INSTANCE;
 
-  public WeldAdapter(Object candidate) {
-    this.injector = (WeldContainer) candidate;
+public class WeldRegistry implements Registry {
+
+  private WeldContainer container;
+
+  public WeldRegistry(WeldContainer container) {
+    this.container = container;
   }
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type) {
-    return injector.select(type).get();
+
+    return container.select(type, INSTANCE).get();
   }
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
-    return injector.select(type, NamedLiteral.of(name)).get();
+    return container.select(type, NamedLiteral.of(name)).get();
   }
 }

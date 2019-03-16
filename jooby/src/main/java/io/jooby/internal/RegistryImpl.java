@@ -16,15 +16,11 @@
 package io.jooby.internal;
 
 import io.jooby.Registry;
-import io.jooby.internal.registry.WeldAdapter;
 
 public class RegistryImpl {
   public static Registry wrap(ClassLoader loader, Object candidate) {
     if (candidate instanceof Registry) {
       return (Registry) candidate;
-    }
-    if (isInstanceOf(loader, "org.jboss.weld.environment.se.WeldContainer", candidate)) {
-      return new WeldAdapter(candidate);
     }
     throw new IllegalArgumentException("No registry adapter for: " + candidate);
   }
