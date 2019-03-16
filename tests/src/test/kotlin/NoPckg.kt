@@ -1,13 +1,13 @@
-package io.jooby
+import io.jooby.run
 
 data class SearchQuery(val q: String)
 
 fun main(args: Array<String>) {
   run(args) {
-    println(basePackage())
+    val p = basePackage()
+    println(p)
     get {
-      val q = ctx.query<SearchQuery>()
-      q.q
+      ":+1"
     }
   }
 }

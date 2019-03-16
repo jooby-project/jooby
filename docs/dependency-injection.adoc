@@ -267,26 +267,25 @@ The lifecycle of `MyController` is now managed by Guice. Also:
 
 1) Add Spring dependency to your project:
 
-[dependency, groupId="org.springframework", artifactId="spring-context",  version="5.1.5.RELEASE"]
+[dependency, artifactId="jooby-spring"]
 .
 
-2) Bootstrap Spring from application:
+2) Install Spring:
 
-.Spring
+.Installing Spring
 [source, java, role = "primary"]
 ----
+package myapp;                                       <1>
+
+import io.jooby.di.Spring;
+
 public class App extends Jooby {
 
   {
-    AnnotationConfigApplicationContext applicationContext =
-        new AnnotationConfigApplicationContext("myapp");    <1>
-    
-    onStop(applicationContext);                             <2>                            
-
-    registry(applicationContext);                           <3>
+    install(new Spring());                           <2>
 
     get("/", ctx -> {
-      MyService service = require(MyService.class);         <4>
+      MyService service = require(MyService.class);  <3>
       return service.doSomething();
     });
   }
@@ -296,82 +295,76 @@ public class App extends Jooby {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
+package myapp                                        <1>
+
+import io.jooby.di.Spring
+
 import io.jooby.run
 
 fun main(args: Array<String>) {
   run(args) {
-    val applicationContext = 
-        AnnotationConfigApplicationContext("myapp")  <1>
-    
-    onStop(applicationContext)                       <2>
 
-    registry(applicationContext)                     <3>
+    install(new Spring())                            <2>
 
     get ("/") { ctx ->
-      val service = require(MyService::class)        <4>
+      val service = require(MyService::class)        <3>
       service.doSomething()
     }
   }
 }
 ----
 
-<1> Bootstrap Spring and creates an ApplicationContext
-<2> On stop, close the ApplicationContext
-<3> Integrates javadoc:Jooby[require, java.lang.Class] with Spring
-<4> Access to an instance provided by Spring
+<1> Spring scan the package `myapp` and subpackages
+<2> Install Spring module
+<3> The javadoc:Jooby[require, java.lang.Class] call is now resolved by Spring
+
+Spring uses the application package and sub-packages to scan. If you need extra packages, provide them at creation time:
+
+----
+install(new Spring("foo", "bar"));
+----
 
 [id=spring-mvc-routes]
 ==== MVC routes
 
-Integration of MVC routes with Spring is as follow:
+The Spring extension does a bit more in relation to MVC routes:
 
- 
-.MVC and Guice
-[source, java, role = "primary"]
+- A MVC route annotated with the `org.springframework.stereotype.Controller` annotation is
+automatically registered. No need to register it manually
+
+- A MVC route provided by Spring is a singleton object by default. Singleton is the default scope in Spring
+
+.MVC route
+[source, java, role="primary"]
 ----
-public class App extends Jooby {
+import io.jooby.annotations.*;
+import org.springframework.stereotype.Controller;
 
-  {
-    AnnotationConfigApplicationContext applicationContext = 
-        new AnnotationConfigApplicationContext("myapp");     <1>
-        
-    onStop(applicationContext);                              <2>                            
+@Controller
+public class Hello {
 
-    registry(applicationContext);                            <3>
-
-    mvc(MyController.class);                                 <4>
-  }
+   @GET
+   public String sayHi() {
+     return "Hi Spring!";
+   }
 }
 ----
 
 .Kotlin
-[source, kotlin, role = "secondary"]
+[source, kotlin, role="secondary"]
 ----
-import io.jooby.run
+import io.jooby.annotations.*;
+import org.springframework.stereotype.Controller;
 
-fun main(args: Array<String>) {
-  run(args) {
-    val applicationContext = AnnotationConfigApplicationContext("myapp")  <1>
-        
-    onStop(applicationContext)                                            <2>
-    
-    registry(applicationContext)                                          <3>
-    
-    mvc(MyController::class)                                              <4>
-  }
+@Controller
+class Hello {
+
+   @GET
+   fun sayHi(): String {
+     return "Hi Spring!"
+   }
 }
 ----
-
-<1> Bootstrap Spring and creates an ApplicationContext
-<2> On stop, close ApplicationContext
-<3> Integrates javadoc:Jooby[require, java.lang.Class] with Spring
-<4> Let Guice creates and provision `MyController`
-
-The lifecycle of `MyController` is now managed by Spring. Also:
-
-- MyController must be in the `myapp` package or subpackage of it
-- MyController must be annotated with `org.springframework.stereotype.Controller`
-- In Spring, a bean is Singleton by default.
 
 === Weld
 

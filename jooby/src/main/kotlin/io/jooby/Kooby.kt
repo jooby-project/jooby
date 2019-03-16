@@ -213,21 +213,28 @@ open class Kooby constructor() : Jooby() {
 
 @RouterDsl
 fun run(mode: ExecutionMode, args: Array<String>, init: Kooby.() -> Unit) {
+  configurePackage(init)
   Jooby.run({ Kooby(init) }, mode, args)
 }
 
 @RouterDsl
 fun run(args: Array<String>, init: Kooby.() -> Unit) {
+  configurePackage(init)
   Jooby.run({ Kooby(init) }, ExecutionMode.DEFAULT, args)
 }
 
 // ::App
 @RouterDsl
-fun run(supplier: () -> Kooby, args: Array<String>) {
-  run(supplier, ExecutionMode.DEFAULT, args)
+fun run(init: () -> Kooby, args: Array<String>) {
+  run(init, ExecutionMode.DEFAULT, args)
 }
 
 @RouterDsl
-fun run(supplier: () -> Kooby, mode: ExecutionMode, args: Array<String>) {
-  Jooby.run(supplier, mode, args)
+fun run(init: () -> Kooby, mode: ExecutionMode, args: Array<String>) {
+  configurePackage(init)
+  Jooby.run(init, mode, args)
+}
+
+internal fun configurePackage(value: Any) {
+  value::class.java.`package`?.let { System.setProperty(Jooby.DEF_PCKG, it.name) }
 }

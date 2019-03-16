@@ -19,5 +19,5 @@ import javax.annotation.Nonnull;
 
 public interface Extension {
 
-  void install(@Nonnull Jooby application);
+  void install(@Nonnull Jooby application) throws Exception;
 }

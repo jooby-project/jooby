@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.io.Closeable;
 import java.io.IOException;
@@ -48,6 +49,8 @@ import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
 
 public class Jooby implements Router, Registry {
+
+  static final String DEF_PCKG = "___def_package__";
 
   private RouterImpl router;
 
@@ -200,8 +203,12 @@ public class Jooby implements Router, Registry {
   }
 
   @Nonnull public Jooby install(@Nonnull Extension extension) {
-    extension.install(this);
-    return this;
+    try {
+      extension.install(this);
+      return this;
+    } catch (Exception x) {
+      throw Throwing.sneakyThrow(x);
+    }
   }
 
   @Nonnull @Override public Jooby dispatch(@Nonnull Runnable action) {
@@ -322,6 +329,14 @@ public class Jooby implements Router, Registry {
     throw new NoSuchElementException(key.toString());
   }
 
+  public @Nullable String basePackage() {
+    String classname = getClass().getName();
+    if (classname.equals("io.jooby.Jooby") || classname.equals("io.jooby.Kooby")) {
+      return System.getProperty(DEF_PCKG);
+    }
+    return getClass().getPackage().getName();
+  }
+
   public @Nonnull Server start() {
     List<Server> servers = stream(
         spliteratorUnknownSize(
@@ -414,6 +429,12 @@ public class Jooby implements Router, Registry {
 
   public static void run(@Nonnull Supplier<Jooby> provider, @Nonnull ExecutionMode mode,
       String... args) {
+
+    Class providerClass = provider.getClass();
+    if (!providerClass.getName().contains("KoobyKt")) {
+      System.setProperty(DEF_PCKG,
+          System.getProperty(DEF_PCKG, providerClass.getPackage().getName()));
+    }
 
     /** Dump command line as system properties. */
     Env.parse(args).forEach(System::setProperty);

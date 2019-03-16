@@ -13,25 +13,25 @@
  *
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.registry;
+package io.jooby.di;
 
 import io.jooby.Registry;
 import org.springframework.context.ApplicationContext;
 
 import javax.annotation.Nonnull;
 
-public class SpringAdapter implements Registry {
-  private final ApplicationContext injector;
+public class SpringRegistry implements Registry {
+  private final ApplicationContext ctx;
 
-  public SpringAdapter(Object candidate) {
-    this.injector = (ApplicationContext) candidate;
+  public SpringRegistry(ApplicationContext ctx) {
+    this.ctx = ctx;
   }
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type) {
-    return injector.getBean(type);
+    return ctx.getBean(type);
   }
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
-    return injector.getBean(name, type);
+    return ctx.getBean(name, type);
   }
 }
