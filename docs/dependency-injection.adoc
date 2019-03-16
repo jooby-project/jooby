@@ -1,0 +1,488 @@
+== Dependency Injection
+
+In Jooby 2.x there is no dependency injection framework. This is another major difference with 1.x which
+was built with Guice.
+
+This make Jooby 2.x more lightweight than 1.x but most important give you freedom of using the
+dependency injection of your choice.
+
+=== Dagger
+
+1) Add Dagger 2 to your project
+
+[dependency, groupId="com.google.dagger", artifactId="dagger", version="2.20"]
+.
+
+2) Configure annotation processor
+
+.Maven
+[source, xml, role = "primary"]
+----
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>...</version>
+      <configuration>
+        <annotationProcessorPaths>
+          <path>
+            <groupId>com.google.dagger</groupId>
+            <artifactId>dagger-compiler</artifactId>
+            <version>2.20</version>
+          </path>
+        </annotationProcessorPaths>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+----
+
+.Gradle
+[source, kotlin, role = "secondary"]
+----
+plugins {
+  id "net.ltgt.apt" version "0.21"
+}
+
+dependencies {
+  apt 'com.google.dagger:dagger-compiler:2.20'
+}
+----
+
+3) Bootstrap Dagger from application:
+
+.Dagger
+[source, java, role = "primary"]
+----
+public class App extends Jooby {
+
+  {
+    /** Dagger: */
+    AppComponent dagger = DaggerAppComponent.builder()      <1>
+        .build();
+    
+    get("/", ctx -> {
+      MyService service = dagger.getMyService();            <2>
+      return service.doSomething();
+    });
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.run
+
+fun main(args: Array<String>) {
+  run(args) {
+    val dagger = DaggerAppComponent.builder() <1>
+        .build()
+    
+    get("/") { ctx ->
+      val service = dagger.getMyService()     <2>
+      service.doSomething()
+    }
+  }
+}
+----
+
+<1> Bootstrap dagger component
+<2> Use dagger provided objects
+
+[id=dagger-mvc-routes]
+==== MVC routes
+
+Integration of MVC routes with Dagger is as simple as:
+
+.MVC and Dagger
+[source, java, role = "primary"]
+----
+public class App extends Jooby {
+
+  {
+    /** Dagger: */
+    AppComponent dagger = DaggerAppComponent.builder()      <1>
+        .build();
+    
+    mvc(dagger.myController());                             <2>
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.run
+
+fun main(args: Array<String>) {
+  run(args) {
+    val dagger = DaggerAppComponent.builder() <1>
+        .build()
+    
+    mvc(dagger.myController())                <2>
+  }
+}
+----
+
+<1> Bootstrap dagger component
+<2> Register MVC route provided by Dagger
+
+Due the static nature of Dagger mvc integration identical to normal usage. For custom scopes/lifecycles
+Dagger generate a `javax.inject.Provider` on such use cases you need to switch and use the provider
+version of the `mvc` method:
+
+.MVC and Dagger provider
+[source, java, role = "primary"]
+----
+public class App extends Jooby {
+
+  {
+    /** Dagger: */
+    AppComponent dagger = DaggerAppComponent.builder()      <1>
+        .build();
+    
+    mvc(MyController.class, dagger.myController());         <2>
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.run
+
+fun main(args: Array<String>) {
+  run(args) {
+    val dagger = DaggerAppComponent.builder()        <1>
+        .build()
+    
+    mvc(MyController::class, dagger.myController())  <2>
+  }
+}
+----
+
+<1> Bootstrap dagger component
+<2> Register MVC route using a Dagger provider
+
+
+=== Guice
+
+1) Add Guice dependency to your project:
+
+[dependency, groupId="com.google.inject", artifactId="guice",  version="4.2.2"]
+.
+
+2) Bootstrap Guice from application:
+
+.Java
+[source, java, role = "primary"]
+----
+public class App extends Jooby {
+
+  {
+    Injector injector = Guice.createInjector(...);  <1>
+    
+    registry(injector);                             <2>
+    
+    get("/", ctx -> {
+      MyService service = require(MyService.class); <3>
+      return service.doSomething();
+    });
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.run
+
+fun main(args: Array<String>) {
+  run(args) {
+    val injector = Guice.createInjector(...)  <1>
+    
+    registry(injector)                        <2>
+
+    get ("/") { ctx ->
+      val service = require(MyService::class) <3>
+      service.doSomething()
+    }
+  }
+}
+----
+
+<1> Bootstrap Guice and creates an Injector
+<2> Integrates javadoc:Jooby[require, java.lang.Class] with Guice
+<3> Access to an instance provided by Guice
+
+[id=guice-mvc-routes]
+==== MVC routes
+
+Integration of MVC routes with Guice is as simple as:
+
+ 
+.MVC and Guice
+[source, java, role = "primary"]
+----
+public class App extends Jooby {
+
+  {
+    Injector injector = Guice.createInjector(...);  <1>
+    
+    registry(injector);                             <2>
+    
+    mvc(MyController.class);                        <3>
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.run
+
+fun main(args: Array<String>) {
+  run(args) {
+    val injector = Guice.createInjector(...)  <1>
+    
+    registry(injector)                        <2>
+
+    mvc(MyController::class)                  <3>
+  }
+}
+----
+
+<1> Bootstrap Guice and creates an Injector
+<2> Integrates javadoc:Jooby[require, java.lang.Class] with Guice
+<3> Let Guice creates and provision `MyController`
+
+The lifecycle of `MyController` is now managed by Guice. Also:
+
+- In Guice, the default scope is `prototype` (creates a new instance per request)
+- If you prefer a single instance add the `javax.inject.Singleton` annotation 
+
+=== Spring
+
+1) Add Spring dependency to your project:
+
+[dependency, groupId="org.springframework", artifactId="spring-context",  version="5.1.5.RELEASE"]
+.
+
+2) Bootstrap Spring from application:
+
+.Spring
+[source, java, role = "primary"]
+----
+public class App extends Jooby {
+
+  {
+    AnnotationConfigApplicationContext applicationContext =
+        new AnnotationConfigApplicationContext("myapp");    <1>
+    
+    onStop(applicationContext);                             <2>                            
+
+    registry(applicationContext);                           <3>
+
+    get("/", ctx -> {
+      MyService service = require(MyService.class);         <4>
+      return service.doSomething();
+    });
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.run
+
+fun main(args: Array<String>) {
+  run(args) {
+    val applicationContext = 
+        AnnotationConfigApplicationContext("myapp")  <1>
+    
+    onStop(applicationContext)                       <2>
+
+    registry(applicationContext)                     <3>
+
+    get ("/") { ctx ->
+      val service = require(MyService::class)        <4>
+      service.doSomething()
+    }
+  }
+}
+----
+
+<1> Bootstrap Spring and creates an ApplicationContext
+<2> On stop, close the ApplicationContext
+<3> Integrates javadoc:Jooby[require, java.lang.Class] with Spring
+<4> Access to an instance provided by Spring
+
+[id=spring-mvc-routes]
+==== MVC routes
+
+Integration of MVC routes with Spring is as follow:
+
+ 
+.MVC and Guice
+[source, java, role = "primary"]
+----
+public class App extends Jooby {
+
+  {
+    AnnotationConfigApplicationContext applicationContext = 
+        new AnnotationConfigApplicationContext("myapp");     <1>
+        
+    onStop(applicationContext);                              <2>                            
+
+    registry(applicationContext);                            <3>
+
+    mvc(MyController.class);                                 <4>
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.run
+
+fun main(args: Array<String>) {
+  run(args) {
+    val applicationContext = AnnotationConfigApplicationContext("myapp")  <1>
+        
+    onStop(applicationContext)                                            <2>
+    
+    registry(applicationContext)                                          <3>
+    
+    mvc(MyController::class)                                              <4>
+  }
+}
+----
+
+<1> Bootstrap Spring and creates an ApplicationContext
+<2> On stop, close ApplicationContext
+<3> Integrates javadoc:Jooby[require, java.lang.Class] with Spring
+<4> Let Guice creates and provision `MyController`
+
+The lifecycle of `MyController` is now managed by Spring. Also:
+
+- MyController must be in the `myapp` package or subpackage of it
+- MyController must be annotated with `org.springframework.stereotype.Controller`
+- In Spring, a bean is Singleton by default.
+
+=== Weld
+
+1) Add Weld dependency to your project:
+
+[dependency, groupId="org.jboss.weld.se", artifactId="weld-se-shaded",  version="3.1.0.Final"]
+.
+
+2) Bootstrap Weld from application:
+
+.Weld
+[source, java, role = "primary"]
+----
+public class App extends Jooby {
+
+  {
+    Weld weld = new Weld();                         <1>
+
+    WeldContainer container = weld.initialize();
+
+    onStop(weld::shutdown);                         <2>
+    
+    registry(container);                            <3>
+
+    get ("/", ctx -> {
+      MyService service = require(MyService.class); <4>
+      service.doSomething();
+    });
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.run
+
+fun main(args: Array<String>) {
+  run(args) {
+    val weld = Weld()                              <1>
+
+    val container = weld.initialize()
+
+    onStop(weld::shutdown)                         <2>
+
+    registry(container)                            <3>
+
+    get ("/") { ctx ->
+      val service = require(MyService::class)      <4>
+      service.doSomething()
+    }
+  }
+}
+----
+
+<1> Bootstrap Weld and creates an WeldContainer
+<2> On stop, shutdown Weld
+<3> Integrates javadoc:Jooby[require, java.lang.Class] with Weld
+<4> Access to an instance provided by Weld
+
+[id=weld-mvc-routes]
+==== MVC routes
+
+Integration of MVC routes with Weld is as follow:
+ 
+.MVC and Weld
+[source, java, role = "primary"]
+----
+public class App extends Jooby {
+
+  {
+    Weld weld = new Weld();                       <1>
+    
+    WeldContainer container = weld.initialize();
+    
+    onStop(weld::shutdown);                       <2>
+    
+    registry(container);                          <3>
+    
+    mvc(MyController.class);                      <4>
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.run
+
+fun main(args: Array<String>) {
+  run(args) {
+    val weld = Weld()                              <1>
+    
+    val container = weld.initialize()
+
+    onStop(weld::shutdown)                         <2>
+
+    registry(container)                            <3>
+
+    mvc(MyController::class)                       <4>
+  }
+}
+----
+
+<1> Bootstrap Weld and creates a WeldContainer
+<2> On top, close Weld
+<3> Integrates javadoc:Jooby[require, java.lang.Class] with Weld
+<3> Let Weld creates and provision `MyController`
+
+The lifecycle of `MyController` is now managed by Weld. Also:
+
+- MyController must be in the `myapp` package or subpackage of it
+- MyController must be annotated with `org.springframework.stereotype.Controller`
+- In Spring, a bean is Singleton by default.

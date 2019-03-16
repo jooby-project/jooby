@@ -230,3 +230,5 @@ include::execution-model.adoc[]
 include::responses.adoc[]
 
 include::mvc-api.adoc[]
+
+include::dependency-injection.adoc[]

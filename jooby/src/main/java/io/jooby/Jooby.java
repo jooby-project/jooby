@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,7 +61,7 @@ public class Jooby implements Router, Registry {
 
   private List<Throwing.Runnable> readyCallbacks;
 
-  private LinkedList<Throwing.Runnable> stopCallbacks;
+  private LinkedList<AutoCloseable> stopCallbacks;
 
   private Env env;
 
@@ -108,7 +109,7 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  public @Nonnull Jooby onStop(@Nonnull Throwing.Runnable task) {
+  public @Nonnull Jooby onStop(@Nonnull AutoCloseable task) {
     if (stopCallbacks == null) {
       stopCallbacks = new LinkedList<>();
     }
@@ -489,15 +490,15 @@ public class Jooby implements Router, Registry {
 
   private void fireStop() {
     if (stopCallbacks != null) {
-      List<Throwing.Runnable> tasks = stopCallbacks;
+      List<AutoCloseable> tasks = stopCallbacks;
       stopCallbacks = null;
-      Iterator<Throwing.Runnable> iterator = tasks.iterator();
+      Iterator<AutoCloseable> iterator = tasks.iterator();
       while (iterator.hasNext()) {
-        Throwing.Runnable task = iterator.next();
+        AutoCloseable task = iterator.next();
         try {
-          task.run();
+          task.close();
         } catch (Exception x) {
-          log().info("exception found while executing onStop:", x);
+          log().error("exception found while executing onStop:", x);
         }
         iterator.remove();
       }
