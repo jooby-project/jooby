@@ -27,6 +27,8 @@
     <log4jdbc.version>1.2</log4jdbc.version>
     <h2.version>1.4.197</h2.version>
     <config.version>1.3.3</config.version>
+    <weld.version>3.1.0.Final</weld.version>
+    <spring.version>5.1.5.RELEASE</spring.version>
 
     <!-- logging -->
     <logback-classic.version>1.2.3</logback-classic.version>
@@ -223,6 +225,20 @@
         <groupId>org.ow2.asm</groupId>
         <artifactId>asm-util</artifactId>
         <version>${asm.version}</version>
+      </dependency>
+
+      <!-- weld -->
+      <dependency>
+        <groupId>org.jboss.weld.se</groupId>
+        <artifactId>weld-se-shaded</artifactId>
+        <version>${weld.version}</version>
+      </dependency>
+
+      <!-- Spring -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>${spring.version}</version>
       </dependency>
 
       <!-- config -->

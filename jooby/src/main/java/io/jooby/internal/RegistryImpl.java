@@ -17,6 +17,8 @@ package io.jooby.internal;
 
 import io.jooby.Registry;
 import io.jooby.internal.registry.GuiceAdapter;
+import io.jooby.internal.registry.SpringAdapter;
+import io.jooby.internal.registry.WeldAdapter;
 
 public class RegistryImpl {
   public static Registry wrap(ClassLoader loader, Object candidate) {
@@ -25,6 +27,12 @@ public class RegistryImpl {
     }
     if (isInstanceOf(loader, "com.google.inject.Injector", candidate)) {
       return new GuiceAdapter(candidate);
+    }
+    if (isInstanceOf(loader, "org.jboss.weld.environment.se.WeldContainer", candidate)) {
+      return new WeldAdapter(candidate);
+    }
+    if (isInstanceOf(loader, "org.springframework.context.ApplicationContext", candidate)) {
+      return new SpringAdapter(candidate);
     }
     throw new IllegalArgumentException("No registry adapter for: " + candidate);
   }
