@@ -22,9 +22,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.Nonnull;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Spring implements Extension {
 
@@ -82,12 +79,8 @@ public class Spring implements Extension {
     application.registry(new SpringRegistry(applicationContext));
 
     if (registerMvcRoutes) {
-      Set<String> names = Stream.concat(
-          Stream.of(applicationContext
-              .getBeanNamesForAnnotation(io.jooby.annotations.Controller.class)),
-          Stream.of(applicationContext
-              .getBeanNamesForAnnotation(Controller.class)))
-          .collect(Collectors.toSet());
+      String[] names = applicationContext
+          .getBeanNamesForAnnotation(Controller.class);
       ClassLoader loader = application.getClass().getClassLoader();
       for (String name : names) {
         BeanDefinition bean = applicationContext.getBeanDefinition(name);

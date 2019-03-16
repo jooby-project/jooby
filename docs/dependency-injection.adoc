@@ -326,7 +326,7 @@ install(new Spring("foo", "bar"));
 
 The Spring extension does a bit more in relation to MVC routes:
 
-- A MVC route annotated with `io.jooby.annotations.Controller` or `org.springframework.stereotype.Controller` annotation is
+- A MVC route annotated with the `org.springframework.stereotype.Controller` annotation is
 automatically registered. No need to register it manually
 
 - A MVC route provided by Spring is a singleton object by default. Singleton is the default scope in Spring
@@ -334,7 +334,7 @@ automatically registered. No need to register it manually
 .MVC route
 [source, java, role="primary"]
 ----
-import io.jooby.annotations.*;
+import org.springframework.stereotype.Controller;
 
 @Controller
 public class Hello {
@@ -349,7 +349,7 @@ public class Hello {
 .Kotlin
 [source, kotlin, role="secondary"]
 ----
-import io.jooby.annotations.*;
+import org.springframework.stereotype.Controller
 
 @Controller
 class Hello {
