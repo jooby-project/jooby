@@ -15,11 +15,9 @@
  */
 package io.jooby;
 
-import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigParseOptions;
-import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.lang.management.ManagementFactory;

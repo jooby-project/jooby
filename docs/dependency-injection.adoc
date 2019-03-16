@@ -171,23 +171,24 @@ fun main(args: Array<String>) {
 
 1) Add Guice dependency to your project:
 
-[dependency, groupId="com.google.inject", artifactId="guice",  version="4.2.2"]
+[dependency, artifactId="jooby-guice"]
 .
 
-2) Bootstrap Guice from application:
+2) Install Guice:
 
-.Java
+.Installing Guice
 [source, java, role = "primary"]
 ----
+
+import io.jooby.di.Guiceby;
+
 public class App extends Jooby {
 
   {
-    Injector injector = Guice.createInjector(...);  <1>
-    
-    registry(injector);                             <2>
+    install(new Guiceby());                         <1>
     
     get("/", ctx -> {
-      MyService service = require(MyService.class); <3>
+      MyService service = require(MyService.class); <2>
       return service.doSomething();
     });
   }
@@ -197,43 +198,41 @@ public class App extends Jooby {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
+import io.jooby.di.Guiceby
 import io.jooby.run
 
 fun main(args: Array<String>) {
   run(args) {
-    val injector = Guice.createInjector(...)  <1>
+    install(Guiceby())                        <1>
     
-    registry(injector)                        <2>
-
     get ("/") { ctx ->
-      val service = require(MyService::class) <3>
+      val service = require(MyService::class) <2>
       service.doSomething()
     }
   }
 }
 ----
 
-<1> Bootstrap Guice and creates an Injector
-<2> Integrates javadoc:Jooby[require, java.lang.Class] with Guice
-<3> Access to an instance provided by Guice
+<1> Install Guice extension
+<2> The javadoc:Jooby[require, java.lang.Class] call is now resolved by Guice
 
 [id=guice-mvc-routes]
 ==== MVC routes
 
-Integration of MVC routes with Guice is as simple as:
+Guice will also provisioning MVC routes
 
- 
 .MVC and Guice
 [source, java, role = "primary"]
 ----
+
+import io.jooby.di.Guiceby;
+
 public class App extends Jooby {
 
   {
-    Injector injector = Guice.createInjector(...);  <1>
+    install(new Guiceby())     <1>
     
-    registry(injector);                             <2>
-    
-    mvc(MyController.class);                        <3>
+    mvc(MyController.class);   <2>
   }
 }
 ----
@@ -241,22 +240,20 @@ public class App extends Jooby {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
+import io.jooby.di.Guiceby
 import io.jooby.run
 
 fun main(args: Array<String>) {
   run(args) {
-    val injector = Guice.createInjector(...)  <1>
+    install(Guiceby())         <1>
     
-    registry(injector)                        <2>
-
-    mvc(MyController::class)                  <3>
+    mvc(MyController::class)   <2>
   }
 }
 ----
 
-<1> Bootstrap Guice and creates an Injector
-<2> Integrates javadoc:Jooby[require, java.lang.Class] with Guice
-<3> Let Guice creates and provision `MyController`
+<1> Install Guice extension
+<2> Register a MVC route
 
 The lifecycle of `MyController` is now managed by Guice. Also:
 

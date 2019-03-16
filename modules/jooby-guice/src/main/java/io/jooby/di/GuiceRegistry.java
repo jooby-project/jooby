@@ -13,7 +13,7 @@
  *
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.registry;
+package io.jooby.di;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -22,11 +22,11 @@ import io.jooby.Registry;
 
 import javax.annotation.Nonnull;
 
-public class GuiceAdapter implements Registry {
-  private final Injector injector;
+public class GuiceRegistry implements Registry {
+  private Injector injector;
 
-  public GuiceAdapter(Object candidate) {
-    this.injector = (Injector) candidate;
+  public GuiceRegistry(Injector injector) {
+    this.injector = injector;
   }
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type) {

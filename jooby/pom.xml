@@ -256,13 +256,6 @@
       <optional>true</optional>
     </dependency>
 
-    <!-- Guice -->
-    <dependency>
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <optional>true</optional>
-    </dependency>
-
     <!-- weld -->
     <dependency>
       <groupId>org.jboss.weld.se</groupId>
