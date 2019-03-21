@@ -108,6 +108,11 @@ class FeaturedKotlinTest {
     JoobyRunner { ->
       Kooby {
         mvc(SuspendMvc())
+
+        error(ErrorHandler.log(log()).then { ctx, cause, statusCode ->
+          ctx.statusCode(statusCode)
+              .sendString(cause.message!!)
+        })
       }
     }.ready { client ->
       client.get("/") { rsp ->
@@ -118,8 +123,12 @@ class FeaturedKotlinTest {
         assertEquals("/delay", rsp.body()!!.string())
       }
 
-      client.get("/str") { rsp ->
-        assertEquals("str", rsp.body()!!.string())
+      client.get("/456") { rsp ->
+        assertEquals("456", rsp.body()!!.string())
+      }
+
+      client.get("/456x") { rsp ->
+        assertEquals("Unable to provision parameter: 'id: int'", rsp.body()!!.string())
       }
     }
   }

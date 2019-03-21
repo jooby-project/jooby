@@ -150,16 +150,16 @@ public class MvcCompiler {
     }.loadClass(method.getHandlerName());
   }
 
-  public static byte[] compile(MvcMethod method) {
-    Method m = method.getMethod();
-    String descriptor = getMethodDescriptor(m);
-    Type owner = getType(m.getDeclaringClass());
-    String internalName = method.getHandlerName().replace(".", "/");
+  public static byte[] compile(MvcMethod metadata) {
+    Method method = metadata.getMethod();
+    String descriptor = getMethodDescriptor(method);
+    Type owner = getType(method.getDeclaringClass());
+    String internalName = metadata.getHandlerName().replace(".", "/");
     ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     writer.visit(V1_8, ACC_PUBLIC | ACC_SUPER, internalName, null, OBJ.getInternalName(),
         HANDLER_IMPLEMENTS);
 
-    writer.visitSource(method.getSource(), null);
+    writer.visitSource(metadata.getSource(), null);
 
     writer.visitInnerClass(getInternalName(Route.Handler.class),
         getInternalName(Route.class),
@@ -190,13 +190,17 @@ public class MvcCompiler {
     constructor.visitEnd();
 
     /** Param methods: */
-    Parameter[] parameters = method.method.getParameters();
+    Parameter[] parameters = method.getParameters();
     for (int i = 0; i < parameters.length; i++) {
-      tryParam(method, writer, parameters[i], i);
+      tryParam(metadata, writer, parameters[i], i);
     }
-    args(internalName, writer.visitMethod(ACC_PUBLIC | Opcodes.ACC_FINAL, "args",
-        "(Lio/jooby/Context;)[Ljava/lang/Object;", null, null), method.isSuspendFunction(),
-        parameters);
+
+    if (metadata.isSuspendFunction()) {
+      args(internalName, metadata, writer.visitMethod(ACC_PUBLIC | Opcodes.ACC_FINAL, "args",
+          "(Lio/jooby/Context;)[Ljava/lang/Object;", null, null),
+          parameters);
+    }
+
     /** Apply implementation: */
     MethodVisitor apply = writer
         .visitMethod(ACC_PUBLIC, "apply", APPLY_DESCRIPTOR, null, APPLY_THROWS);
@@ -205,33 +209,33 @@ public class MvcCompiler {
 
     Label sourceStart = new Label();
     apply.visitLabel(sourceStart);
-    apply.visitLineNumber(method.getLine(), sourceStart);
+    apply.visitLineNumber(metadata.getLine(), sourceStart);
 
     /** load mvc instance: */
     apply.visitVarInsn(ALOAD, 0);
     apply.visitFieldInsn(GETFIELD, internalName, PROVIDER_VAR, PROVIDER.getDescriptor());
     apply.visitMethodInsn(INVOKEINTERFACE, PROVIDER.getInternalName(), "get", PROVIDER_DESCRIPTOR,
         true);
-    apply.visitTypeInsn(CHECKCAST, getInternalName(method.method.getDeclaringClass()));
+    apply.visitTypeInsn(CHECKCAST, getInternalName(metadata.method.getDeclaringClass()));
 
     apply.visitVarInsn(ASTORE, ALOAD_OWNER);
     apply.visitVarInsn(ALOAD, ALOAD_OWNER);
 
     /** call mvc method arguments: */
     for (int i = 0; i < parameters.length; i++) {
-      invokeTryParam(internalName, apply, parameters[i], i);
+      invokeTryParam(internalName, apply, parameters[i], metadata.getParameterName(i));
     }
 
     /** call mvc method: */
-    if (m.getDeclaringClass().isInterface()) {
+    if (method.getDeclaringClass().isInterface()) {
       apply
-          .visitMethodInsn(INVOKEINTERFACE, owner.getInternalName(), m.getName(), descriptor, true);
+          .visitMethodInsn(INVOKEINTERFACE, owner.getInternalName(), method.getName(), descriptor, true);
     } else {
-      apply.visitMethodInsn(INVOKEVIRTUAL, owner.getInternalName(), m.getName(), descriptor, false);
+      apply.visitMethodInsn(INVOKEVIRTUAL, owner.getInternalName(), method.getName(), descriptor, false);
     }
 
     /** returns: */
-    Class<?> returnType = m.getReturnType();
+    Class<?> returnType = method.getReturnType();
     if (returnType == void.class) {
       apply.visitVarInsn(ALOAD, ALOAD_CTX);
 
@@ -267,60 +271,61 @@ public class MvcCompiler {
     }
   }
 
-  private static void args(String internalName, MethodVisitor methodVisitor, boolean isSuspend,
+  private static void args(String internalName, MvcMethod metadata, MethodVisitor method,
       Parameter[] parameters) {
-    //methodVisitor = classWriter.visitMethod(ACC_PRIVATE | ACC_FINAL, "args", "(Lio/jooby/Context;)[Ljava/lang/Object;", null, null);
-    methodVisitor.visitParameter("ctx", 0);
-    methodVisitor.visitCode();
+    method.visitParameter("ctx", 0);
+    method.visitCode();
+
+    Label sourceStart = new Label();
+    method.visitLabel(sourceStart);
+    method.visitLineNumber(metadata.getLine(), sourceStart);
 
     if (parameters.length == 0) {
-      methodVisitor.visitInsn(ICONST_0);
-      methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+      method.visitInsn(ICONST_0);
+      method.visitTypeInsn(ANEWARRAY, "java/lang/Object");
     } else {
       int iconstbase = ICONST_0;
       int iconstlimt = 5;
       // This is for coroutines, we need to ignore last argument
-      int paramCount = isSuspend ?
+      int paramCount = metadata.isSuspendFunction() ?
           parameters.length - 1 :
           parameters.length;
 
       if (paramCount > iconstlimt) {
-        methodVisitor.visitIntInsn(BIPUSH, paramCount);
+        method.visitIntInsn(BIPUSH, paramCount);
       } else {
-        methodVisitor.visitInsn(iconstbase + paramCount);
+        method.visitInsn(iconstbase + paramCount);
       }
-      methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+      method.visitTypeInsn(ANEWARRAY, "java/lang/Object");
       if (paramCount > 0) {
-        methodVisitor.visitInsn(DUP);
+        method.visitInsn(DUP);
 
         for (int i = 0; i < paramCount; i++) {
           if (i > 0) {
-            methodVisitor.visitInsn(DUP);
+            method.visitInsn(DUP);
           }
           Parameter parameter = parameters[i];
           if (i <= iconstlimt) {
-            methodVisitor.visitInsn(iconstbase + i);
+            method.visitInsn(iconstbase + i);
           } else {
-            methodVisitor.visitIntInsn(BIPUSH, i);
+            method.visitIntInsn(BIPUSH, i);
           }
-          invokeTryParam(internalName, methodVisitor, parameter, i);
-          primitiveToWrapper(methodVisitor, parameter.getType());
-          methodVisitor.visitInsn(AASTORE);
+          invokeTryParam(internalName, method, parameter, metadata.getParameterName(i));
+          primitiveToWrapper(method, parameter.getType());
+          method.visitInsn(AASTORE);
         }
       }
     }
-    methodVisitor.visitInsn(ARETURN);
-    methodVisitor.visitMaxs(0, 0);
-    methodVisitor.visitEnd();
+    method.visitInsn(ARETURN);
+    method.visitMaxs(0, 0);
+    method.visitEnd();
   }
 
-  private static void invokeTryParam(String internalName, MethodVisitor visitor,
-      Parameter parameter,
-      int index) {
+  private static void invokeTryParam(String internalName, MethodVisitor visitor, Parameter parameter, String paramName) {
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitVarInsn(ALOAD, 1);
     visitor.visitLdcInsn(provisionError(parameter));
-    visitor.visitMethodInsn(INVOKESPECIAL, internalName, "tryParam" + index,
+    visitor.visitMethodInsn(INVOKESPECIAL, internalName, paramName,
         "(Lio/jooby/Context;Ljava/lang/String;)" + Type.getType(parameter.getType())
             .getDescriptor(), false);
   }
@@ -330,58 +335,62 @@ public class MvcCompiler {
         .getParameterizedType().getTypeName() + "'";
   }
 
-  private static void tryParam(MvcMethod method, ClassWriter writer, Parameter parameter,
+  private static void tryParam(MvcMethod metadata, ClassWriter writer, Parameter parameter,
       int index) {
     Class type = parameter.getType();
-    MethodVisitor methodVisitor = writer.visitMethod(ACC_PRIVATE, "tryParam" + index,
+    MethodVisitor visitor = writer.visitMethod(ACC_PRIVATE, metadata.getParameterName(index),
         "(Lio/jooby/Context;Ljava/lang/String;)" + Type.getType(type).getDescriptor(),
         null, null);
-    methodVisitor.visitParameter("ctx", 0);
-    methodVisitor.visitParameter("desc", 0);
-    methodVisitor.visitCode();
+    visitor.visitParameter("ctx", 0);
+    visitor.visitParameter("desc", 0);
+    visitor.visitCode();
+    Label sourceStart = new Label();
+    visitor.visitLabel(sourceStart);
+    visitor.visitLineNumber(metadata.getLine(), sourceStart);
+
     Label label0 = new Label();
     Label label1 = new Label();
     Label label2 = new Label();
-    methodVisitor.visitTryCatchBlock(label0, label1, label2, "io/jooby/Err$Provisioning");
+    visitor.visitTryCatchBlock(label0, label1, label2, "io/jooby/Err$Provisioning");
     Label label3 = new Label();
-    methodVisitor.visitTryCatchBlock(label0, label1, label3, "java/lang/Exception");
-    methodVisitor.visitLabel(label0);
+    visitor.visitTryCatchBlock(label0, label1, label3, "java/lang/Exception");
+    visitor.visitLabel(label0);
 
-    tryParamBody(method, methodVisitor, parameter, index);
+    tryParamBody(metadata, visitor, parameter, index);
 
-    methodVisitor.visitLabel(label1);
+    visitor.visitLabel(label1);
     if (isIntType(type)) {
-      methodVisitor.visitInsn(IRETURN);
+      visitor.visitInsn(IRETURN);
     } else if (type == long.class) {
-      methodVisitor.visitInsn(LRETURN);
+      visitor.visitInsn(LRETURN);
     } else if (type == float.class) {
-      methodVisitor.visitInsn(FRETURN);
+      visitor.visitInsn(FRETURN);
     } else if (parameter.getType() == double.class) {
-      methodVisitor.visitInsn(DRETURN);
+      visitor.visitInsn(DRETURN);
     } else {
-      methodVisitor.visitInsn(ARETURN);
+      visitor.visitInsn(ARETURN);
     }
-    methodVisitor.visitLabel(label2);
-    methodVisitor
+    visitor.visitLabel(label2);
+    visitor
         .visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"io/jooby/Err$Provisioning"});
-    methodVisitor.visitVarInsn(ASTORE, 3);
-    methodVisitor.visitVarInsn(ALOAD, 3);
-    methodVisitor.visitInsn(ATHROW);
-    methodVisitor.visitLabel(label3);
-    methodVisitor.visitFrame(F_SAME1, 0, null, 1, new Object[]{"java/lang/Exception"});
-    methodVisitor.visitVarInsn(ASTORE, 3);
-    methodVisitor.visitTypeInsn(NEW, "io/jooby/Err$Provisioning");
-    methodVisitor.visitInsn(DUP);
-    methodVisitor.visitVarInsn(ALOAD, 2);
-    methodVisitor.visitVarInsn(ALOAD, 3);
-    methodVisitor.visitMethodInsn(INVOKESPECIAL, "io/jooby/Err$Provisioning", "<init>",
+    visitor.visitVarInsn(ASTORE, 3);
+    visitor.visitVarInsn(ALOAD, 3);
+    visitor.visitInsn(ATHROW);
+    visitor.visitLabel(label3);
+    visitor.visitFrame(F_SAME1, 0, null, 1, new Object[]{"java/lang/Exception"});
+    visitor.visitVarInsn(ASTORE, 3);
+    visitor.visitTypeInsn(NEW, "io/jooby/Err$Provisioning");
+    visitor.visitInsn(DUP);
+    visitor.visitVarInsn(ALOAD, 2);
+    visitor.visitVarInsn(ALOAD, 3);
+    visitor.visitMethodInsn(INVOKESPECIAL, "io/jooby/Err$Provisioning", "<init>",
         "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
-    methodVisitor.visitInsn(ATHROW);
-    methodVisitor.visitMaxs(0, 0);
-    methodVisitor.visitEnd();
+    visitor.visitInsn(ATHROW);
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
   }
 
-  private static void tryParamBody(MvcMethod method, MethodVisitor apply, Parameter parameter,
+  private static void tryParamBody(MvcMethod method, MethodVisitor visitor, Parameter parameter,
       int index) {
     Class<?> paramClass = parameter.getType();
     java.lang.reflect.Type paramType = parameter.getParameterizedType();
@@ -389,28 +398,28 @@ public class MvcCompiler {
 
     String name = method.getParameterName(index);
 
-    apply.visitVarInsn(ALOAD, ALOAD_CTX);
+    visitor.visitVarInsn(ALOAD, ALOAD_CTX);
 
     BiConsumer<String, String> varaccess = isSimple ?
         (varname, type) -> {
-          apply.visitLdcInsn(varname);
-          apply.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, type,
+          visitor.visitLdcInsn(varname);
+          visitor.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, type,
               getMethodDescriptor(VALUE, STRING), true);
         }
         : NOOP;
     String httpType = httpType(parameter, name, varaccess);
 
-    Consumer<MethodVisitor> checkcast = checkCast(apply, paramClass);
+    Consumer<MethodVisitor> checkcast = checkCast(visitor, paramClass);
 
     if (paramClass != Context.class) {
       if (paramClass == QueryString.class) {
-        apply.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "query", "()Lio/jooby/QueryString;",
+        visitor.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "query", "()Lio/jooby/QueryString;",
             true);
       } else if (paramClass == Formdata.class) {
-        apply.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "form", "()Lio/jooby/Formdata;",
+        visitor.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "form", "()Lio/jooby/Formdata;",
             true);
       } else if (paramClass == Multipart.class) {
-        apply
+        visitor
             .visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "multipart", "()Lio/jooby/Multipart;",
                 true);
       } else {
@@ -426,18 +435,18 @@ public class MvcCompiler {
 
         if (paramType == paramClass) {
           // raw parameter
-          apply.visitMethodInsn(INVOKEINTERFACE, source, convert,
+          visitor.visitMethodInsn(INVOKEINTERFACE, source, convert,
               "(Ljava/lang/Class;)Ljava/lang/Object;", true);
         } else {
-          dumpParameterType(apply, parameter);
-          apply.visitMethodInsn(INVOKEINTERFACE, source, convert,
+          dumpParameterType(visitor, parameter);
+          visitor.visitMethodInsn(INVOKEINTERFACE, source, convert,
               "(Lio/jooby/Reified;)Ljava/lang/Object;", true);
         }
       }
     }
 
     if (checkcast != null) {
-      checkcast.accept(apply);
+      checkcast.accept(visitor);
     }
   }
 
