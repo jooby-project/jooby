@@ -222,7 +222,6 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
-import org.hibernate.jpa.event.spi.JpaIntegrator;
 import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
@@ -752,7 +751,6 @@ public class Hbm implements Jooby.Module {
         .orElseThrow(() -> new NoSuchElementException("DataSource missing: " + dskey));
 
     BootstrapServiceRegistryBuilder bsrb = new BootstrapServiceRegistryBuilder();
-    bsrb.applyIntegrator(new JpaIntegrator());
 
     this.bsrb.accept(bsrb, conf);
 

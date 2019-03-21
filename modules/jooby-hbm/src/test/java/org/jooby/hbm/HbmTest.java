@@ -32,7 +32,6 @@ import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.event.spi.PostLoadEventListener;
 import org.hibernate.integrator.spi.Integrator;
-import org.hibernate.jpa.event.spi.JpaIntegrator;
 import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
@@ -67,7 +66,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Hbm.class, BootstrapServiceRegistryBuilder.class, JpaIntegrator.class,
+@PrepareForTest({Hbm.class, BootstrapServiceRegistryBuilder.class,
     MetadataSources.class, CompletableFuture.class, GuiceBeanManager.class, SessionProvider.class,
     OpenSessionInView.class})
 public class HbmTest {
@@ -76,11 +75,6 @@ public class HbmTest {
     BootstrapServiceRegistryBuilder bsrb = unit.constructor(BootstrapServiceRegistryBuilder.class)
         .build();
     unit.registerMock(BootstrapServiceRegistryBuilder.class, bsrb);
-
-    JpaIntegrator jpa = unit.constructor(JpaIntegrator.class)
-        .build();
-
-    expect(bsrb.applyIntegrator(jpa)).andReturn(bsrb);
 
     BootstrapServiceRegistry bsr = unit.mock(BootstrapServiceRegistry.class);
     unit.registerMock(BootstrapServiceRegistry.class, bsr);
