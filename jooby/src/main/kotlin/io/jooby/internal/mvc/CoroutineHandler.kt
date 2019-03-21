@@ -18,8 +18,7 @@ class CoroutineHandler(val provider: Provider<Any>, val handler: Method, val arg
       ctx.sendError(x)
     }
     router.coroutineScope.launch(CoroutineName(handler.name) + xhandler, router.coroutineStart) {
-      val instance = provider.get()
-      val result = handler.kotlinFunction!!.callSuspend(instance, *argumentResolver.args(ctx))
+      val result = handler.kotlinFunction!!.callSuspend(provider.get(), *argumentResolver.arguments(ctx))
       if (result != ctx) {
         ctx.render(result!!)
       }

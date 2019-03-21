@@ -43,7 +43,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -53,6 +52,7 @@ import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
@@ -195,11 +195,10 @@ public class MvcCompiler {
       tryParam(metadata, writer, parameters[i], i);
     }
 
-    if (metadata.isSuspendFunction()) {
-      args(internalName, metadata, writer.visitMethod(ACC_PUBLIC | Opcodes.ACC_FINAL, "args",
-          "(Lio/jooby/Context;)[Ljava/lang/Object;", null, null),
-          parameters);
-    }
+    /** Arguments: */
+    args(internalName, metadata, writer.visitMethod(ACC_PUBLIC | Opcodes.ACC_FINAL, "arguments",
+        "(Lio/jooby/Context;)[Ljava/lang/Object;", null, null),
+        parameters);
 
     /** Apply implementation: */
     MethodVisitor apply = writer
@@ -229,9 +228,11 @@ public class MvcCompiler {
     /** call mvc method: */
     if (method.getDeclaringClass().isInterface()) {
       apply
-          .visitMethodInsn(INVOKEINTERFACE, owner.getInternalName(), method.getName(), descriptor, true);
+          .visitMethodInsn(INVOKEINTERFACE, owner.getInternalName(), method.getName(), descriptor,
+              true);
     } else {
-      apply.visitMethodInsn(INVOKEVIRTUAL, owner.getInternalName(), method.getName(), descriptor, false);
+      apply.visitMethodInsn(INVOKEVIRTUAL, owner.getInternalName(), method.getName(), descriptor,
+          false);
     }
 
     /** returns: */
@@ -321,7 +322,8 @@ public class MvcCompiler {
     method.visitEnd();
   }
 
-  private static void invokeTryParam(String internalName, MethodVisitor visitor, Parameter parameter, String paramName) {
+  private static void invokeTryParam(String internalName, MethodVisitor visitor,
+      Parameter parameter, String paramName) {
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitVarInsn(ALOAD, 1);
     visitor.visitLdcInsn(provisionError(parameter));
@@ -356,7 +358,7 @@ public class MvcCompiler {
     visitor.visitTryCatchBlock(label0, label1, label3, "java/lang/Exception");
     visitor.visitLabel(label0);
 
-    tryParamBody(metadata, visitor, parameter, index);
+    tryParamBlock(metadata, visitor, parameter, index);
 
     visitor.visitLabel(label1);
     if (isIntType(type)) {
@@ -390,7 +392,7 @@ public class MvcCompiler {
     visitor.visitEnd();
   }
 
-  private static void tryParamBody(MvcMethod method, MethodVisitor visitor, Parameter parameter,
+  private static void tryParamBlock(MvcMethod method, MethodVisitor visitor, Parameter parameter,
       int index) {
     Class<?> paramClass = parameter.getType();
     java.lang.reflect.Type paramType = parameter.getParameterizedType();
@@ -412,7 +414,17 @@ public class MvcCompiler {
     Consumer<MethodVisitor> checkcast = checkCast(visitor, paramClass);
 
     if (paramClass != Context.class) {
-      if (paramClass == QueryString.class) {
+      if (paramClass == String.class) {
+        String source = "Value";
+        if (httpType == null) {
+          source = "Body";
+          visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "body", "()Lio/jooby/Body;", true);
+        }
+        visitor.visitInsn(ACONST_NULL);
+        visitor.visitTypeInsn(CHECKCAST, "java/lang/String");
+        visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/" + source, "value",
+            "(Ljava/lang/String;)Ljava/lang/String;", true);
+      } else if (paramClass == QueryString.class) {
         visitor.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "query", "()Lio/jooby/QueryString;",
             true);
       } else if (paramClass == Formdata.class) {
@@ -453,6 +465,9 @@ public class MvcCompiler {
   @Nullable
   private static Consumer<MethodVisitor> checkCast(MethodVisitor apply, Class<?> paramClass) {
     Consumer<MethodVisitor> checkcast = null;
+    if (paramClass == String.class) {
+      return checkcast;
+    }
     if (paramClass.isPrimitive()) {
       if (paramClass == int.class) {
         apply.visitFieldInsn(GETSTATIC, INT_NAME, "TYPE", "Ljava/lang/Class;");

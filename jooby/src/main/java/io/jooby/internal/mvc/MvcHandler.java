@@ -19,5 +19,5 @@ import io.jooby.Context;
 import io.jooby.Route;
 
 public interface MvcHandler extends Route.Handler {
-  Object[] args(Context ctx);
+  Object[] arguments(Context ctx);
 }
