@@ -418,12 +418,21 @@ public class MvcCompiler {
         String source = "Value";
         if (httpType == null) {
           source = "Body";
-          visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "body", "()Lio/jooby/Body;", true);
+          visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "body", "()Lio/jooby/Body;",
+              true);
         }
         visitor.visitInsn(ACONST_NULL);
         visitor.visitTypeInsn(CHECKCAST, "java/lang/String");
         visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/" + source, "value",
             "(Ljava/lang/String;)Ljava/lang/String;", true);
+      } else if (paramClass == int.class) {
+        String source = "Value";
+        if (httpType == null) {
+          source = "Body";
+          visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "body", "()Lio/jooby/Body;",
+              true);
+        }
+        visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/" + source, "intValue", "()I", true);
       } else if (paramClass == QueryString.class) {
         visitor.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "query", "()Lio/jooby/QueryString;",
             true);
@@ -469,13 +478,7 @@ public class MvcCompiler {
       return checkcast;
     }
     if (paramClass.isPrimitive()) {
-      if (paramClass == int.class) {
-        apply.visitFieldInsn(GETSTATIC, INT_NAME, "TYPE", "Ljava/lang/Class;");
-        checkcast = visitor -> {
-          visitor.visitTypeInsn(CHECKCAST, INT_NAME);
-          visitor.visitMethodInsn(INVOKEVIRTUAL, INT_NAME, "intValue", "()I", false);
-        };
-      } else if (paramClass == long.class) {
+      if (paramClass == long.class) {
         apply.visitFieldInsn(GETSTATIC, LONG_NAME, "TYPE", "Ljava/lang/Class;");
         checkcast = visitor -> {
           visitor.visitTypeInsn(CHECKCAST, LONG_NAME);
