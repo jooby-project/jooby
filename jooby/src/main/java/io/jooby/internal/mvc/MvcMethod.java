@@ -15,8 +15,11 @@
  */
 package io.jooby.internal.mvc;
 
+import io.jooby.Context;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,5 +101,21 @@ public class MvcMethod {
 
   public void setPattern(String pattern) {
     this.pattern = pattern;
+  }
+
+  public boolean isSuspendFunction() {
+    int len = method.getParameterCount();
+    if (len > 0) {
+      return method.getParameterTypes()[len - 1].getName().equals("kotlin.coroutines.Continuation");
+    }
+    return false;
+  }
+
+  public Type getReturnType(ClassLoader loader) throws ClassNotFoundException {
+    if (isSuspendFunction()) {
+      return loader.loadClass("kotlin.coroutines.Continuation");
+    }
+    boolean isVoid = method.getReturnType() == void.class;
+    return isVoid ? Context.class : method.getGenericReturnType();
   }
 }

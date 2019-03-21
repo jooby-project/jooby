@@ -76,7 +76,6 @@ class FeaturedKotlinTest {
   fun mvc() {
     JoobyRunner { app ->
       app.mvc(KotlinMvc())
-      app.mvc(KotlinMvc::class)
     }.ready { client ->
       client.get("/kotlin") { rsp ->
         assertEquals("Got it!", rsp.body()!!.string())
@@ -100,6 +99,27 @@ class FeaturedKotlinTest {
 
       client.get("/kotlin/point?x=9&y=8") { rsp ->
         assertEquals("QueryPoint(x=9, y=8) : 9", rsp.body()!!.string())
+      }
+    }
+  }
+
+  @Test
+  fun suspendMvc() {
+    JoobyRunner { ->
+      Kooby {
+        mvc(SuspendMvc())
+      }
+    }.ready { client ->
+      client.get("/") { rsp ->
+        assertEquals("Got it!", rsp.body()!!.string())
+      }
+
+      client.get("/delay") { rsp ->
+        assertEquals("/delay", rsp.body()!!.string())
+      }
+
+      client.get("/str") { rsp ->
+        assertEquals("str", rsp.body()!!.string())
       }
     }
   }

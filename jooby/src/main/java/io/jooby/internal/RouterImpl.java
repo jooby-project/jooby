@@ -55,7 +55,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -115,7 +114,6 @@ public class RouterImpl implements Router {
 
   private static final List<Class<? extends Annotation>> M_ANN = Arrays
       .asList(io.jooby.annotations.GET.class,
-          io.jooby.annotations.Path.class,
           io.jooby.annotations.POST.class,
           io.jooby.annotations.PUT.class,
           io.jooby.annotations.DELETE.class,
@@ -513,14 +511,10 @@ public class RouterImpl implements Router {
   private void mvc(String prefix, Class type, Provider provider) {
     find(prefix, type, method -> {
 
-      Method handler = method.getMethod();
-      boolean isVoid = handler.getReturnType() == void.class;
-      Class<? extends Route.Handler> compiled = MvcCompiler.compileClass(method);
-      Route.Handler routeHandler = compiled.getDeclaredConstructor(Provider.class)
-          .newInstance(provider);
+      Route.Handler instance = MvcCompiler.newHandler(source.getLoader(), method, provider);
 
-      route(method.getHttpMethod(), method.getPattern(), routeHandler)
-          .returnType(isVoid ? Context.class : handler.getGenericReturnType());
+      route(method.getHttpMethod(), method.getPattern(), instance)
+          .returnType(method.getReturnType(source.getLoader()));
     });
   }
 
@@ -532,16 +526,13 @@ public class RouterImpl implements Router {
     Stream.of(type.getDeclaredMethods())
         .forEach(method -> {
           if (Modifier.isPublic(method.getModifiers())) {
-            for (Class<? extends Annotation> m : M_ANN) {
-              String httpMethod = toHttpMethod(method.getAnnotation(m));
-              if (httpMethod != null) {
-                MvcMethod mvc = mvcMetadata.get(method);
-                mvc.setPattern(classPath + "/" + path(method));
-                mvc.setMethod(method);
-                mvc.setHttpMethod(httpMethod);
-                routes.add(mvc);
-              }
-            }
+            toHttpMethod(method).forEach(httpMethod -> {
+              MvcMethod mvc = mvcMetadata.get(method);
+              mvc.setPattern(classPath + "/" + path(method));
+              mvc.setMethod(method);
+              mvc.setHttpMethod(httpMethod);
+              routes.add(mvc);
+            });
           }
         });
     Collections.sort(routes, Comparator.comparingInt(MvcMethod::getLine));
@@ -549,11 +540,20 @@ public class RouterImpl implements Router {
     mvcMetadata.destroy();
   }
 
-  private String toHttpMethod(Annotation annotation) {
-    if (annotation != null) {
-      return annotation.annotationType().getSimpleName().replace("Path", "GET");
+  private List<String> toHttpMethod(Method method) {
+    List<String> result = new ArrayList<>();
+    for (Class<? extends Annotation> m : M_ANN) {
+      Annotation annotation = method.getAnnotation(m);
+      if (annotation != null) {
+        result.add(annotation.annotationType().getSimpleName());
+      }
     }
-    return null;
+    if (result.size() == 0) {
+      if (method.getAnnotation(io.jooby.annotations.Path.class) != null) {
+        result.add("GET");
+      }
+    }
+    return result;
   }
 
   private String path(AnnotatedElement type) {

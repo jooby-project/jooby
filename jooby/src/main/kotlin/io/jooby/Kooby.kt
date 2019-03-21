@@ -65,7 +65,7 @@ open class Kooby constructor() : Jooby() {
 
   var coroutineStart: CoroutineStart = CoroutineStart.DEFAULT
 
-  private val coroutineScope: CoroutineScope by lazy {
+  val coroutineScope: CoroutineScope by lazy {
     WorkerCoroutineScope(worker().asCoroutineDispatcher())
   }
 

@@ -38,25 +38,29 @@ class Poc {
 
   @POST
   @Path(("/body/json"))
-  public String[] getIt(String body) {
-    String[] result = new String[1];
-    result[0] = body;
-    return result;
+  public Long getIt(@PathParam Long l) {
+    return l;
   }
 
+  @GET
+  @Path("/{s}/{i}/{j}/{f}/{d}/{b}")
+  public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
+      @PathParam long j, @PathParam Float f, @PathParam boolean b) {
+    return ctx.pathString();
+  }
 }
 
-class MvcHandler implements Route.Handler {
+class MvcHandlerImpl implements MvcHandler {
 
   private Provider<Poc> provider;
 
-  public MvcHandler(Provider<Poc> provider) {
+  public MvcHandlerImpl(Provider<Poc> provider) {
     this.provider = provider;
   }
 
   private String tryParam0(Context ctx, String desc) {
     try {
-      return ctx.body(String.class);
+      return ctx.path("s").to(String.class);
     } catch (Err.Provisioning x) {
       throw x;
     } catch (Exception x) {
@@ -64,9 +68,75 @@ class MvcHandler implements Route.Handler {
     }
   }
 
+  private Integer tryParam1(Context ctx, String desc) {
+    try {
+      return ctx.path("i").to(Integer.class);
+    } catch (Err.Provisioning x) {
+      throw x;
+    } catch (Exception x) {
+      throw new Err.Provisioning(desc, x);
+    }
+  }
+
+  private double tryParam2(Context ctx, String desc) {
+    try {
+      return ctx.path("d").to(double.class);
+    } catch (Err.Provisioning x) {
+      throw x;
+    } catch (Exception x) {
+      throw new Err.Provisioning(desc, x);
+    }
+  }
+
+  private Context tryParam3(Context ctx, String desc) {
+    try {
+      return ctx;
+    } catch (Err.Provisioning x) {
+      throw x;
+    } catch (Exception x) {
+      throw new Err.Provisioning(desc, x);
+    }
+  }
+
+  private long tryParam4(Context ctx, String desc) {
+    try {
+      return ctx.path("j").to(long.class);
+    } catch (Err.Provisioning x) {
+      throw x;
+    } catch (Exception x) {
+      throw new Err.Provisioning(desc, x);
+    }
+  }
+
+  private Float tryParam5(Context ctx, String desc) {
+    try {
+      return ctx.path("f").to(Float.class);
+    } catch (Err.Provisioning x) {
+      throw x;
+    } catch (Exception x) {
+      throw new Err.Provisioning(desc, x);
+    }
+  }
+
+  private boolean tryParam6(Context ctx, String desc) {
+    try {
+      return ctx.path("b").to(boolean.class);
+    } catch (Err.Provisioning x) {
+      throw x;
+    } catch (Exception x) {
+      throw new Err.Provisioning(desc, x);
+    }
+  }
+
+  public final Object[] args(Context ctx) {
+    return new Object[]{tryParam0(ctx, "s: String"), tryParam1(ctx, ""), tryParam2(ctx, ""),
+        tryParam3(ctx, ""), tryParam4(ctx, ""), tryParam5(ctx, ""), tryParam6(ctx, "")};
+  }
+
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
     Poc target = provider.get();
-    return target.getIt(tryParam0(ctx, "body: java.lang.String"));
+    return target.mix(tryParam0(ctx, "s: String"), tryParam1(ctx, ""), tryParam2(ctx, ""),
+        tryParam3(ctx, ""), tryParam4(ctx, ""), tryParam5(ctx, ""), tryParam6(ctx, ""));
   }
 }
 
@@ -76,15 +146,16 @@ public class MvcHandlerASM {
   public void compare() throws IOException, NoSuchMethodException, ClassNotFoundException {
     // Lio/jooby/Throwing$Supplier<Lio/jooby/mvc/NoTopLevelPath;>;
     //    ASMifier.main(new String[] {"-debug",MvcHandler.class.getName()});
-
-    Method handler = Poc.class.getDeclaredMethod("getIt", String.class);
+//public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
+    //      @PathParam long j, @PathParam Float f, @PathParam boolean b) {
+    Method handler = Poc.class.getDeclaredMethod("mix", String.class, Integer.class, double.class, Context.class, long.class, Float.class, boolean.class);
     MvcCompiler writer = new MvcCompiler();
     Class runtime = writer.compileClass(mvc(handler));
 
     System.out.println("Loaded: " + runtime);
     //    byte[] asm = writer.toByteCode(classname, handler);
 
-    assertEquals(asmifier(new ClassReader(MvcHandler.class.getName())),
+    assertEquals(asmifier(new ClassReader(MvcHandlerImpl.class.getName())),
         asmifier(new ClassReader(writer.compile(mvc(handler)))));
 
   }

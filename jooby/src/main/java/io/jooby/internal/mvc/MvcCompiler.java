@@ -27,6 +27,8 @@ import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
 import io.jooby.internal.ValueInjector;
 import io.jooby.internal.reflect.$Types;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -37,12 +39,11 @@ import javax.inject.Provider;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -123,7 +124,7 @@ public class MvcCompiler {
   private static final String[] APPLY_THROWS = new String[]{getInternalName(Exception.class)};
 
   private static final String[] HANDLER_IMPLEMENTS = new String[]{
-      getInternalName(Route.Handler.class)};
+      getInternalName(MvcHandler.class)};
 
   private static final int ALOAD_CTX = 1;
 
@@ -139,10 +140,10 @@ public class MvcCompiler {
       Multipart.class
   ));
 
-  public static Class<? extends Route.Handler> compileClass(MvcMethod method)
+  public static Class<? extends MvcHandler> compileClass(MvcMethod method)
       throws ClassNotFoundException {
     byte[] bytes = compile(method);
-    return (Class<? extends Route.Handler>) new ClassLoader() {
+    return (Class<? extends MvcHandler>) new ClassLoader() {
       @Override protected Class<?> findClass(String name) {
         return defineClass(name, bytes, 0, bytes.length);
       }
@@ -193,6 +194,9 @@ public class MvcCompiler {
     for (int i = 0; i < parameters.length; i++) {
       tryParam(method, writer, parameters[i], i);
     }
+    args(internalName, writer.visitMethod(ACC_PUBLIC | Opcodes.ACC_FINAL, "args",
+        "(Lio/jooby/Context;)[Ljava/lang/Object;", null, null), method.isSuspendFunction(),
+        parameters);
     /** Apply implementation: */
     MethodVisitor apply = writer
         .visitMethod(ACC_PUBLIC, "apply", APPLY_DESCRIPTOR, null, APPLY_THROWS);
@@ -237,16 +241,8 @@ public class MvcCompiler {
           "(Lio/jooby/StatusCode;)Lio/jooby/Context;", true);
       apply.visitInsn(Opcodes.POP);
       apply.visitVarInsn(ALOAD, 1);
-    } else if (returnType == int.class) {
-      apply.visitMethodInsn(INVOKESTATIC, INT_NAME, "valueOf", IVALUEOF, false);
-    } else if (returnType == long.class) {
-      apply.visitMethodInsn(INVOKESTATIC, LONG_NAME, "valueOf", LVALUEOF, false);
-    } else if (returnType == float.class) {
-      apply.visitMethodInsn(INVOKESTATIC, FLOAT_NAME, "valueOf", FVALUEOF, false);
-    } else if (returnType == double.class) {
-      apply.visitMethodInsn(INVOKESTATIC, DOUBLE_NAME, "valueOf", DVALUEOF, false);
-    } else if (returnType == boolean.class) {
-      apply.visitMethodInsn(INVOKESTATIC, BOOL_NAME, "valueOf", BVALUEOF, false);
+    } else if (returnType.isPrimitive()) {
+      primitiveToWrapper(apply, returnType);
     }
 
     // Writer was created with COMPUTE_MAXS
@@ -257,15 +253,81 @@ public class MvcCompiler {
     return writer.toByteArray();
   }
 
-  private static void invokeTryParam(String internalName, MethodVisitor apply, Parameter parameter,
+  private static void primitiveToWrapper(MethodVisitor visitor, Class type) {
+    if (type == int.class) {
+      visitor.visitMethodInsn(INVOKESTATIC, INT_NAME, "valueOf", IVALUEOF, false);
+    } else if (type == long.class) {
+      visitor.visitMethodInsn(INVOKESTATIC, LONG_NAME, "valueOf", LVALUEOF, false);
+    } else if (type == float.class) {
+      visitor.visitMethodInsn(INVOKESTATIC, FLOAT_NAME, "valueOf", FVALUEOF, false);
+    } else if (type == double.class) {
+      visitor.visitMethodInsn(INVOKESTATIC, DOUBLE_NAME, "valueOf", DVALUEOF, false);
+    } else if (type == boolean.class) {
+      visitor.visitMethodInsn(INVOKESTATIC, BOOL_NAME, "valueOf", BVALUEOF, false);
+    }
+  }
+
+  private static void args(String internalName, MethodVisitor methodVisitor, boolean isSuspend,
+      Parameter[] parameters) {
+    //methodVisitor = classWriter.visitMethod(ACC_PRIVATE | ACC_FINAL, "args", "(Lio/jooby/Context;)[Ljava/lang/Object;", null, null);
+    methodVisitor.visitParameter("ctx", 0);
+    methodVisitor.visitCode();
+
+    if (parameters.length == 0) {
+      methodVisitor.visitInsn(ICONST_0);
+      methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+    } else {
+      int iconstbase = ICONST_0;
+      int iconstlimt = 5;
+      // This is for coroutines, we need to ignore last argument
+      int paramCount = isSuspend ?
+          parameters.length - 1 :
+          parameters.length;
+
+      if (paramCount > iconstlimt) {
+        methodVisitor.visitIntInsn(BIPUSH, paramCount);
+      } else {
+        methodVisitor.visitInsn(iconstbase + paramCount);
+      }
+      methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+      if (paramCount > 0) {
+        methodVisitor.visitInsn(DUP);
+
+        for (int i = 0; i < paramCount; i++) {
+          if (i > 0) {
+            methodVisitor.visitInsn(DUP);
+          }
+          Parameter parameter = parameters[i];
+          if (i <= iconstlimt) {
+            methodVisitor.visitInsn(iconstbase + i);
+          } else {
+            methodVisitor.visitIntInsn(BIPUSH, i);
+          }
+          invokeTryParam(internalName, methodVisitor, parameter, i);
+          primitiveToWrapper(methodVisitor, parameter.getType());
+          methodVisitor.visitInsn(AASTORE);
+        }
+      }
+    }
+    methodVisitor.visitInsn(ARETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+  }
+
+  private static void invokeTryParam(String internalName, MethodVisitor visitor,
+      Parameter parameter,
       int index) {
-    apply.visitVarInsn(ALOAD, 0);
-    apply.visitVarInsn(ALOAD, 1);
-    apply.visitLdcInsn("Unable to provision parameter: '" + parameter.getName() + ": " + parameter
-        .getParameterizedType().getTypeName() + "'");
-    apply.visitMethodInsn(INVOKESPECIAL, internalName, "tryParam" + index,
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitVarInsn(ALOAD, 1);
+    visitor.visitLdcInsn(provisionError(parameter));
+    visitor.visitMethodInsn(INVOKESPECIAL, internalName, "tryParam" + index,
         "(Lio/jooby/Context;Ljava/lang/String;)" + Type.getType(parameter.getType())
             .getDescriptor(), false);
+  }
+
+  @NotNull private static String provisionError(Parameter parameter) {
+    return "Unable to provision parameter: '" + parameter.getName() + ": " + parameter
+        .getParameterizedType().getTypeName() + "'";
   }
 
   private static void tryParam(MvcMethod method, ClassWriter writer, Parameter parameter,
@@ -338,46 +400,7 @@ public class MvcCompiler {
         : NOOP;
     String httpType = httpType(parameter, name, varaccess);
 
-    Consumer<MethodVisitor> checkcast = null;
-    if (paramClass.isPrimitive()) {
-      if (paramClass == int.class) {
-        apply.visitFieldInsn(GETSTATIC, INT_NAME, "TYPE", "Ljava/lang/Class;");
-        checkcast = visitor -> {
-          visitor.visitTypeInsn(CHECKCAST, INT_NAME);
-          visitor.visitMethodInsn(INVOKEVIRTUAL, INT_NAME, "intValue", "()I", false);
-        };
-      } else if (paramClass == long.class) {
-        apply.visitFieldInsn(GETSTATIC, LONG_NAME, "TYPE", "Ljava/lang/Class;");
-        checkcast = visitor -> {
-          visitor.visitTypeInsn(CHECKCAST, LONG_NAME);
-          visitor.visitMethodInsn(INVOKEVIRTUAL, LONG_NAME, "longValue", "()J", false);
-        };
-      } else if (paramClass == float.class) {
-        apply.visitFieldInsn(GETSTATIC, FLOAT_NAME, "TYPE", "Ljava/lang/Class;");
-        checkcast = visitor -> {
-          visitor.visitTypeInsn(CHECKCAST, FLOAT_NAME);
-          visitor.visitMethodInsn(INVOKEVIRTUAL, FLOAT_NAME, "floatValue", "()F", false);
-        };
-      } else if (paramClass == double.class) {
-        apply.visitFieldInsn(GETSTATIC, DOUBLE_NAME, "TYPE", "Ljava/lang/Class;");
-        checkcast = visitor -> {
-          visitor.visitTypeInsn(CHECKCAST, DOUBLE_NAME);
-          visitor.visitMethodInsn(INVOKEVIRTUAL, DOUBLE_NAME, "doubleValue", "()D", false);
-        };
-      } else if (paramClass == boolean.class) {
-        apply.visitFieldInsn(GETSTATIC, BOOL_NAME, "TYPE", "Ljava/lang/Class;");
-        checkcast = visitor -> {
-          visitor.visitTypeInsn(CHECKCAST, BOOL_NAME);
-          visitor.visitMethodInsn(INVOKEVIRTUAL, BOOL_NAME, "booleanValue", "()Z", false);
-        };
-      }
-    } else {
-      if (!NATIVE.contains(paramClass)) {
-        Type paramAsmType = getType(paramClass);
-        apply.visitLdcInsn(paramAsmType);
-        checkcast = visitor -> visitor.visitTypeInsn(CHECKCAST, paramAsmType.getInternalName());
-      }
-    }
+    Consumer<MethodVisitor> checkcast = checkCast(apply, paramClass);
 
     if (paramClass != Context.class) {
       if (paramClass == QueryString.class) {
@@ -416,6 +439,49 @@ public class MvcCompiler {
     if (checkcast != null) {
       checkcast.accept(apply);
     }
+  }
+
+  @Nullable
+  private static Consumer<MethodVisitor> checkCast(MethodVisitor apply, Class<?> paramClass) {
+    Consumer<MethodVisitor> checkcast = null;
+    if (paramClass.isPrimitive()) {
+      if (paramClass == int.class) {
+        apply.visitFieldInsn(GETSTATIC, INT_NAME, "TYPE", "Ljava/lang/Class;");
+        checkcast = visitor -> {
+          visitor.visitTypeInsn(CHECKCAST, INT_NAME);
+          visitor.visitMethodInsn(INVOKEVIRTUAL, INT_NAME, "intValue", "()I", false);
+        };
+      } else if (paramClass == long.class) {
+        apply.visitFieldInsn(GETSTATIC, LONG_NAME, "TYPE", "Ljava/lang/Class;");
+        checkcast = visitor -> {
+          visitor.visitTypeInsn(CHECKCAST, LONG_NAME);
+          visitor.visitMethodInsn(INVOKEVIRTUAL, LONG_NAME, "longValue", "()J", false);
+        };
+      } else if (paramClass == float.class) {
+        apply.visitFieldInsn(GETSTATIC, FLOAT_NAME, "TYPE", "Ljava/lang/Class;");
+        checkcast = visitor -> {
+          visitor.visitTypeInsn(CHECKCAST, FLOAT_NAME);
+          visitor.visitMethodInsn(INVOKEVIRTUAL, FLOAT_NAME, "floatValue", "()F", false);
+        };
+      } else if (paramClass == double.class) {
+        apply.visitFieldInsn(GETSTATIC, DOUBLE_NAME, "TYPE", "Ljava/lang/Class;");
+        checkcast = visitor -> {
+          visitor.visitTypeInsn(CHECKCAST, DOUBLE_NAME);
+          visitor.visitMethodInsn(INVOKEVIRTUAL, DOUBLE_NAME, "doubleValue", "()D", false);
+        };
+      } else if (paramClass == boolean.class) {
+        apply.visitFieldInsn(GETSTATIC, BOOL_NAME, "TYPE", "Ljava/lang/Class;");
+        checkcast = visitor -> {
+          visitor.visitTypeInsn(CHECKCAST, BOOL_NAME);
+          visitor.visitMethodInsn(INVOKEVIRTUAL, BOOL_NAME, "booleanValue", "()Z", false);
+        };
+      }
+    } else if (!NATIVE.contains(paramClass)) {
+      Type paramAsmType = getType(paramClass);
+      apply.visitLdcInsn(paramAsmType);
+      checkcast = visitor -> visitor.visitTypeInsn(CHECKCAST, paramAsmType.getInternalName());
+    }
+    return checkcast;
   }
 
   private static String httpType(Parameter parameter, String name,
@@ -491,5 +557,19 @@ public class MvcCompiler {
 
   private static boolean isIntType(Class type) {
     return type == int.class || type == boolean.class || type == byte.class || type == short.class;
+  }
+
+  public static Route.Handler newHandler(ClassLoader loader, MvcMethod metadata, Provider provider)
+      throws Exception {
+    Class<? extends MvcHandler> handler = compileClass(metadata);
+    MvcHandler instance = handler.getDeclaredConstructor(Provider.class)
+        .newInstance(provider);
+    if (metadata.isSuspendFunction()) {
+      Class coroutine = loader.loadClass("io.jooby.internal.mvc.CoroutineHandler");
+      return (Route.Handler) coroutine
+          .getDeclaredConstructor(Provider.class, Method.class, MvcHandler.class)
+          .newInstance(provider, metadata.method, instance);
+    }
+    return instance;
   }
 }
