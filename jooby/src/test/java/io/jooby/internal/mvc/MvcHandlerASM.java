@@ -38,14 +38,14 @@ class Poc {
 
   @POST
   @Path(("/body/json"))
-  public float getIt(@PathParam float l) {
+  public double getIt(@PathParam double l) {
     return l;
   }
 
   @GET
   @Path("/{s}/{i}/{j}/{f}/{d}/{b}")
   public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
-      @PathParam long j, @PathParam Float f, @PathParam boolean b) {
+      @PathParam long j, @PathParam double f, @PathParam boolean b) {
     return ctx.pathString();
   }
 }
@@ -58,9 +58,9 @@ class MvcHandlerImpl implements MvcHandler {
     this.provider = provider;
   }
 
-  private float tryParam0(Context ctx, String desc) {
+  private double tryParam0(Context ctx, String desc) {
     try {
-      return ctx.path("l").floatValue();
+      return ctx.path("l").doubleValue();
     } catch (Err.Provisioning x) {
       throw x;
     } catch (Exception x) {
@@ -85,8 +85,8 @@ public class MvcHandlerASM {
     // Lio/jooby/Throwing$Supplier<Lio/jooby/mvc/NoTopLevelPath;>;
     //    ASMifier.main(new String[] {"-debug",MvcHandler.class.getName()});
 //public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
-    //      @PathParam long j, @PathParam Float f, @PathParam boolean b) {
-    Method handler = Poc.class.getDeclaredMethod("getIt", float.class);
+    //      @PathParam long j, @PathParam double f, @PathParam boolean b) {
+    Method handler = Poc.class.getDeclaredMethod("getIt", double.class);
     MvcCompiler writer = new MvcCompiler();
     Class runtime = writer.compileClass(mvc(handler));
 

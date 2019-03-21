@@ -27,8 +27,6 @@ import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
 import io.jooby.internal.ValueInjector;
 import io.jooby.internal.reflect.$Types;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -332,7 +330,7 @@ public class MvcCompiler {
             .getDescriptor(), false);
   }
 
-  @NotNull private static String provisionError(Parameter parameter) {
+  private static String provisionError(Parameter parameter) {
     return "Unable to provision parameter: '" + parameter.getName() + ": " + parameter
         .getParameterizedType().getTypeName() + "'";
   }
@@ -425,30 +423,16 @@ public class MvcCompiler {
         visitor.visitTypeInsn(CHECKCAST, "java/lang/String");
         visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/" + source, "value",
             "(Ljava/lang/String;)Ljava/lang/String;", true);
-      } else if (paramClass == int.class) {
+      } else if (paramClass.isPrimitive()) {
         String source = "Value";
         if (httpType == null) {
           source = "Body";
           visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "body", "()Lio/jooby/Body;",
               true);
         }
-        visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/" + source, "intValue", "()I", true);
-      } else if (paramClass == long.class) {
-        String source = "Value";
-        if (httpType == null) {
-          source = "Body";
-          visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "body", "()Lio/jooby/Body;",
-              true);
-        }
-        visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/" + source, "longValue", "()J", true);
-      } else if (paramClass == float.class) {
-        String source = "Value";
-        if (httpType == null) {
-          source = "Body";
-          visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "body", "()Lio/jooby/Body;",
-              true);
-        }
-        visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/" + source, "floatValue", "()F", true);
+        String valueMethod = paramClass.getSimpleName() + "Value";
+        String valueDescriptor = "()" + Type.getDescriptor(paramClass);
+        visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/" + source, valueMethod, valueDescriptor, true);
       } else if (paramClass == QueryString.class) {
         visitor.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "query", "()Lio/jooby/QueryString;",
             true);
@@ -487,32 +471,16 @@ public class MvcCompiler {
     }
   }
 
-  @Nullable
   private static Consumer<MethodVisitor> checkCast(MethodVisitor apply, Class<?> paramClass) {
-    Consumer<MethodVisitor> checkcast = null;
-    if (paramClass == String.class) {
-      return checkcast;
+    if (paramClass.isPrimitive() || paramClass == String.class) {
+      return null;
     }
-    if (paramClass.isPrimitive()) {
-      if (paramClass == double.class) {
-        apply.visitFieldInsn(GETSTATIC, DOUBLE_NAME, "TYPE", "Ljava/lang/Class;");
-        checkcast = visitor -> {
-          visitor.visitTypeInsn(CHECKCAST, DOUBLE_NAME);
-          visitor.visitMethodInsn(INVOKEVIRTUAL, DOUBLE_NAME, "doubleValue", "()D", false);
-        };
-      } else if (paramClass == boolean.class) {
-        apply.visitFieldInsn(GETSTATIC, BOOL_NAME, "TYPE", "Ljava/lang/Class;");
-        checkcast = visitor -> {
-          visitor.visitTypeInsn(CHECKCAST, BOOL_NAME);
-          visitor.visitMethodInsn(INVOKEVIRTUAL, BOOL_NAME, "booleanValue", "()Z", false);
-        };
-      }
-    } else if (!NATIVE.contains(paramClass)) {
+    if (!NATIVE.contains(paramClass)) {
       Type paramAsmType = getType(paramClass);
       apply.visitLdcInsn(paramAsmType);
-      checkcast = visitor -> visitor.visitTypeInsn(CHECKCAST, paramAsmType.getInternalName());
+      return visitor -> visitor.visitTypeInsn(CHECKCAST, paramAsmType.getInternalName());
     }
-    return checkcast;
+    return null;
   }
 
   private static String httpType(Parameter parameter, String name,
