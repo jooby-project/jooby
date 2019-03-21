@@ -38,7 +38,7 @@ class Poc {
 
   @POST
   @Path(("/body/json"))
-  public int getIt(@PathParam int l) {
+  public long getIt(@PathParam long l) {
     return l;
   }
 
@@ -58,9 +58,9 @@ class MvcHandlerImpl implements MvcHandler {
     this.provider = provider;
   }
 
-  private int tryParam0(Context ctx, String desc) {
+  private long tryParam0(Context ctx, String desc) {
     try {
-      return ctx.path("l").intValue();
+      return ctx.path("l").longValue();
     } catch (Err.Provisioning x) {
       throw x;
     } catch (Exception x) {
@@ -86,7 +86,7 @@ public class MvcHandlerASM {
     //    ASMifier.main(new String[] {"-debug",MvcHandler.class.getName()});
 //public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
     //      @PathParam long j, @PathParam Float f, @PathParam boolean b) {
-    Method handler = Poc.class.getDeclaredMethod("getIt", int.class);
+    Method handler = Poc.class.getDeclaredMethod("getIt", long.class);
     MvcCompiler writer = new MvcCompiler();
     Class runtime = writer.compileClass(mvc(handler));
 

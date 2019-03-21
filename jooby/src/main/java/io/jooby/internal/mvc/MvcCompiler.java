@@ -433,6 +433,14 @@ public class MvcCompiler {
               true);
         }
         visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/" + source, "intValue", "()I", true);
+      } else if (paramClass == long.class) {
+        String source = "Value";
+        if (httpType == null) {
+          source = "Body";
+          visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "body", "()Lio/jooby/Body;",
+              true);
+        }
+        visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/" + source, "longValue", "()J", true);
       } else if (paramClass == QueryString.class) {
         visitor.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "query", "()Lio/jooby/QueryString;",
             true);
@@ -478,13 +486,7 @@ public class MvcCompiler {
       return checkcast;
     }
     if (paramClass.isPrimitive()) {
-      if (paramClass == long.class) {
-        apply.visitFieldInsn(GETSTATIC, LONG_NAME, "TYPE", "Ljava/lang/Class;");
-        checkcast = visitor -> {
-          visitor.visitTypeInsn(CHECKCAST, LONG_NAME);
-          visitor.visitMethodInsn(INVOKEVIRTUAL, LONG_NAME, "longValue", "()J", false);
-        };
-      } else if (paramClass == float.class) {
+      if (paramClass == float.class) {
         apply.visitFieldInsn(GETSTATIC, FLOAT_NAME, "TYPE", "Ljava/lang/Class;");
         checkcast = visitor -> {
           visitor.visitTypeInsn(CHECKCAST, FLOAT_NAME);
