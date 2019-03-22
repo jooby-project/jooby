@@ -912,13 +912,18 @@ public class HbmTest {
     return unit -> {
       unit.mockStatic(GuiceBeanManager.class);
 
+      StandardServiceRegistryBuilder ssrb = unit.get(StandardServiceRegistryBuilder.class);
+
+      expect(ssrb.applySetting(org.hibernate.cfg.AvailableSettings.DELAY_CDI_ACCESS, true))
+                .andReturn(ssrb);
+
       BeanManager bm = unit.mock(BeanManager.class);
       unit.registerMock(BeanManager.class, bm);
 
       expect(GuiceBeanManager.beanManager(unit.capture(CompletableFuture.class))).andReturn(bm);
 
-      SessionFactoryBuilder sfb = unit.get(SessionFactoryBuilder.class);
-      expect(sfb.applyBeanManager(bm)).andReturn(sfb);
+      expect(ssrb.applySetting(org.hibernate.cfg.AvailableSettings.CDI_BEAN_MANAGER, bm))
+                .andReturn(ssrb);
     };
   }
 
@@ -1002,8 +1007,6 @@ public class HbmTest {
     return unit -> {
       StandardServiceRegistryBuilder ssrb = unit.get(StandardServiceRegistryBuilder.class);
       expect(ssrb.applySettings(settings)).andReturn(ssrb);
-      expect(ssrb.applySetting(org.hibernate.jpa.AvailableSettings.DELAY_CDI_ACCESS, true))
-          .andReturn(ssrb);
     };
   }
 
