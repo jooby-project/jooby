@@ -14,6 +14,10 @@ import static java.util.stream.StreamSupport.stream;
 
 public class JoobyRunner {
 
+  static {
+    System.setProperty("io.netty.leakDetection.level", "PARANOID");
+  }
+
   private final Supplier<Jooby> provider;
 
   private final List<ExecutionMode> modes = new ArrayList<>();
