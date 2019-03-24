@@ -29,9 +29,9 @@ public class DefaultHeaders implements Consumer<HttpHeaders>, Runnable {
 
   private static final DateTimeFormatter FORMATTER = Context.RFC1123;
 
-  private volatile AsciiString date = new AsciiString(FORMATTER.format(Instant.now()));
+  private static final AsciiString server = AsciiString.cached("netty");
 
-  private final AsciiString server = new AsciiString("netty");
+  private volatile AsciiString date = new AsciiString(FORMATTER.format(Instant.now()));
 
   @Override public void run() {
     date = new AsciiString(FORMATTER.format(Instant.now()));

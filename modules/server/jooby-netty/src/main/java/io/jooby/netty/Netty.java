@@ -18,12 +18,9 @@ package io.jooby.netty;
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.internal.netty.DefaultHeaders;
-import io.jooby.internal.netty.NettyContext;
 import io.jooby.internal.netty.NettyNative;
-import io.jooby.internal.netty.NettyHandler;
 import io.jooby.internal.netty.NettyPipeline;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -33,6 +30,7 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.DiskAttribute;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
+import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
@@ -42,7 +40,6 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class Netty extends Server.Base {
 
@@ -64,15 +61,15 @@ public class Netty extends Server.Base {
 
   private int processors = Math.max(Runtime.getRuntime().availableProcessors(), 1);
 
-  private int parallelism = Math.max(2, processors);
-
   private int acceptorThreads = processors;
 
-  private int ioThreads = parallelism * 2;
+  private int ioThreads = processors + (processors / 2);
 
-  private int workerThreads = parallelism * 8;
+  private int workerThreads = processors * 8;
 
   private boolean defaultHeaders = true;
+
+  private ResourceLeakDetector.Level leakDectectorLevel;
 
   @Override public Server port(int port) {
     this.port = port;
@@ -99,6 +96,11 @@ public class Netty extends Server.Base {
     return this;
   }
 
+  public Server leakDectectorLevel(@Nonnull ResourceLeakDetector.Level level) {
+    this.leakDectectorLevel = level;
+    return this;
+  }
+
   @Override public int port() {
     return port;
   }
@@ -110,6 +112,13 @@ public class Netty extends Server.Base {
 
   @Nonnull @Override public Server start(Jooby application) {
     try {
+
+      if (leakDectectorLevel == null) {
+        leakDectectorLevel = ResourceLeakDetector.Level
+            .valueOf(System.getProperty("io.netty.leakDetection.level", "disabled").toUpperCase());
+      }
+      ResourceLeakDetector.setLevel(leakDectectorLevel);
+
       applications.add(application);
 
       addShutdownHook();
@@ -144,9 +153,9 @@ public class Netty extends Server.Base {
       bootstrap.option(ChannelOption.SO_BACKLOG, 8192);
       bootstrap.option(ChannelOption.SO_REUSEADDR, true);
 
-      Consumer<HttpHeaders> defaultHeaders = this.defaultHeaders ?
-          defaultHeaders(acceptor.next()) :
-          defaultResponseType();
+      Consumer<HttpHeaders> defaultHeaders = this.defaultHeaders
+          ? defaultHeaders(acceptor.next())
+          : defaultResponseType();
 
       bootstrap.group(acceptor, ioLoop)
           .channel(provider.channel())

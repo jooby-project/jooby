@@ -42,7 +42,8 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private final long maxRequestSize;
   private final Consumer<HttpHeaders> defaultHeaders;
 
-  public NettyPipeline(Router router, HttpDataFactory factory, Consumer<HttpHeaders> defaultHeaders, boolean gzip,
+  public NettyPipeline(Router router, HttpDataFactory factory, Consumer<HttpHeaders> defaultHeaders,
+      boolean gzip,
       int bufferSize, long maxRequestSize) {
     this.router = router;
     this.factory = factory;
@@ -55,14 +56,11 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   @Override
   public void initChannel(SocketChannel ch) {
     ChannelPipeline p = ch.pipeline();
-    // FlushConsolidationHandler doesn't work well with chunked responses. It is removed in NettyContext.prepareChunked
-    p.addLast("flusher", new FlushConsolidationHandler(256, true));
     p.addLast("decoder", new HttpRequestDecoder(_4KB, _8KB, bufferSize, false));
     p.addLast("encoder", new HttpResponseEncoder());
     if (gzip) {
       p.addLast("gzip", new HttpContentCompressor());
     }
-    p.addLast("chunked", new ChunkedWriteHandler());
     p.addLast("handler", new NettyHandler(router, maxRequestSize, bufferSize, factory,
         defaultHeaders));
   }

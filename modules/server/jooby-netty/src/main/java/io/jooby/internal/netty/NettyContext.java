@@ -29,18 +29,18 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
 import io.netty.handler.stream.ChunkedInput;
 import io.netty.handler.stream.ChunkedStream;
+import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.ReferenceCounted;
 import io.jooby.Throwing;
+import io.netty.util.ResourceLeakDetector;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -60,10 +60,10 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class NettyContext implements Context, ChannelFutureListener {
+public class NettyContext implements Context, ChannelFutureListener, Runnable {
 
   private static final HttpHeaders NO_TRAILING = new DefaultHttpHeaders(false);
-  final HttpHeaders setHeaders = new DefaultHttpHeaders(false);
+  final DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(false);
   private final int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
@@ -285,10 +285,14 @@ public class NettyContext implements Context, ChannelFutureListener {
   @Nonnull @Override public Context sendBytes(@Nonnull ByteBuf data) {
     responseStarted = true;
     setHeaders.set(CONTENT_LENGTH, data.readableBytes());
-    ctx.writeAndFlush(
-        new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING))
+    ctx.write(new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING))
         .addListener(this);
+    ctx.executor().execute(this);
     return this;
+  }
+
+  @Override public void run() {
+    ctx.flush();
   }
 
   @Nonnull @Override public Context sendStream(@Nonnull InputStream in) {
@@ -406,7 +410,6 @@ public class NettyContext implements Context, ChannelFutureListener {
     }
     release(req);
     this.route = null;
-    this.ctx = null;
     this.req = null;
     this.router = null;
   }
@@ -457,9 +460,8 @@ public class NettyContext implements Context, ChannelFutureListener {
   private void prepareChunked() {
     // remove flusher, doesn't play well with streaming/chunked responses
     ChannelPipeline pipeline = ctx.pipeline();
-    ChannelHandler flusher = pipeline.get("flusher");
-    if (flusher != null) {
-      pipeline.remove(flusher);
+    if (pipeline.get("chunker") == null) {
+      pipeline.addAfter("encoder", "chunker", new ChunkedWriteHandler());
     }
     if (!setHeaders.contains(CONTENT_LENGTH)) {
       setHeaders.set(TRANSFER_ENCODING, CHUNKED);

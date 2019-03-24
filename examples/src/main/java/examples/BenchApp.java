@@ -22,10 +22,13 @@ import io.netty.buffer.Unpooled;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 public class BenchApp extends Jooby {
 
   private static final String MESSAGE = "Hello, World!";
+
+  private static final byte[] MESSAGE_BYTE = MESSAGE.getBytes(StandardCharsets.UTF_8);
 
   private static final ByteBuffer MESSAGE_BUFFER = ByteBuffer.allocateDirect(MESSAGE.length());
 
@@ -46,9 +49,14 @@ public class BenchApp extends Jooby {
   }
 
   {
-    get("/plaintext", ctx -> ctx.sendString(MESSAGE));
+    get("/plaintext", ctx -> {
+      return ctx.sendBytes(MESSAGE_BYTE);
+    });
 
-    get("/", ctx -> ctx.sendBytes(MESSAGE_BUFFER.duplicate()));
+    get("/", ctx -> {
+      System.out.println(ctx.pathString());
+      return ctx.sendBytes(MESSAGE_BYTE);
+    });
 
     get("/json", ctx -> Thread.currentThread().getName());
 

@@ -416,7 +416,7 @@ public class MvcCompiler {
         String source = "Value";
         if (httpType == null) {
           source = "Body";
-          visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "body", "()Lio/jooby/Body;",
+          visitor.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "body", "()Lio/jooby/Body;",
               true);
         }
         visitor.visitInsn(ACONST_NULL);
@@ -427,7 +427,7 @@ public class MvcCompiler {
         String source = "Value";
         if (httpType == null) {
           source = "Body";
-          visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "body", "()Lio/jooby/Body;",
+          visitor.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "body", "()Lio/jooby/Body;",
               true);
         }
         String valueMethod = paramClass.getSimpleName() + "Value";
