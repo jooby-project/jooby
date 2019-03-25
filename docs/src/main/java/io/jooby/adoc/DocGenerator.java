@@ -19,14 +19,12 @@ import org.apache.commons.io.FileUtils;
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.Attributes;
 import org.asciidoctor.Options;
-import org.asciidoctor.Placement;
 import org.asciidoctor.SafeMode;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 public class DocGenerator {
@@ -50,8 +48,8 @@ public class DocGenerator {
     //:favicon: images/favicon96.png
     //:love: &#9825;
     //:javadoc: https://static.javadoc.io/io.jooby/jooby/{joobyVersion}/io/jooby/
-    attributes.setTitle("jooby: do more! more easily!!");
-    attributes.setTableOfContents(Placement.LEFT);
+    attributes.setAttribute("title", "jooby: do more! more easily!!");
+    attributes.setAttribute("toc", "left");
     attributes.setAttribute("toclevels", "3");
     attributes.setAttribute("sectanchors", "");
     attributes.setAttribute("sectlinks", "");
@@ -101,8 +99,19 @@ public class DocGenerator {
     asciidoctor.convertFile(asciidoc.resolve("index.adoc").toFile(), options);
 
     if (publish) {
+      Path website = basedir.resolve("target")// Paths.get(System.getProperty("java.io.tmpdir"))
+          .resolve(Long.toHexString(UUID.randomUUID().getMostSignificantBits()));
+      Files.createDirectories(website);
+      Git git = new Git("jooby-project", "jooby.io", website);
+      git.clone();
+
       /** Clean: */
-      Files.copy(outdir.resolve("index.html"), basedir.resolve("index.html"), StandardCopyOption.REPLACE_EXISTING);
+      FileUtils.deleteDirectory(website.resolve("images").toFile());
+      FileUtils.deleteDirectory(website.resolve("js").toFile());
+      FileUtils.deleteQuietly(website.resolve("index.html").toFile());
+
+      FileUtils.copyDirectory(outdir.toFile(), website.toFile());
+      git.commit("Sync documentation");
     }
   }
 
