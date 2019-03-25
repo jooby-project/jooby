@@ -99,7 +99,7 @@ public class Err extends RuntimeException {
     }
   }
 
-  public final StatusCode statusCode;
+  private final StatusCode statusCode;
 
   public Err(StatusCode status) {
     this(status, status.toString());
@@ -114,4 +114,7 @@ public class Err extends RuntimeException {
     this.statusCode = status;
   }
 
+  public StatusCode getStatusCode() {
+    return statusCode;
+  }
 }

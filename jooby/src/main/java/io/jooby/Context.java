@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Writer;
-import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -60,20 +58,20 @@ public interface Context {
    * **********************************************************************************************
    */
 
-  @Nonnull AttributeMap attributes();
+  @Nonnull AttributeMap getAttributes();
 
-  @Nonnull Router router();
+  @Nonnull Router getRouter();
 
   /*
    * **********************************************************************************************
    * **** Request methods *************************************************************************
    * **********************************************************************************************
    */
-  @Nonnull String method();
+  @Nonnull String getMethod();
 
-  @Nonnull Route route();
+  @Nonnull Route getRoute();
 
-  @Nonnull Context route(@Nonnull Route route);
+  @Nonnull Context setRoute(@Nonnull Route route);
 
   /**
    * Request path without decoding (a.k.a raw Path). QueryString (if any) is not included.
@@ -164,26 +162,26 @@ public interface Context {
     return contentType.matches(accept);
   }
 
-  @Nullable default MediaType contentType() {
+  @Nullable default MediaType getContentType() {
     return header("Content-Type").toOptional().map(MediaType::valueOf).orElse(null);
   }
 
-  default long contentLength() {
+  default long getContentLength() {
     return header("Content-Length").longValue(-1);
   }
 
-  @Nonnull String remoteAddress();
+  @Nonnull String getRemoteAddress();
 
-  default @Nonnull String hostname() {
+  default @Nonnull String getHostname() {
     return header("host").toOptional()
         .map(host -> {
           int index = host.indexOf(':');
           return index > 0 ? host.substring(0, index) : host;
         })
-        .orElse(remoteAddress());
+        .orElse(getRemoteAddress());
   }
 
-  @Nonnull String protocol();
+  @Nonnull String getProtocol();
 
   /* **********************************************************************************************
    * Form API
@@ -311,7 +309,7 @@ public interface Context {
    * **********************************************************************************************
    */
   default @Nonnull Parser parser(@Nonnull MediaType contentType) {
-    return route().parser(contentType);
+    return getRoute().parser(contentType);
   }
 
   /* **********************************************************************************************
@@ -359,7 +357,7 @@ public interface Context {
   }
 
   @Nonnull default Context setContentType(@Nonnull MediaType contentType) {
-    return setContentType(contentType, contentType.charset());
+    return setContentType(contentType, contentType.getCharset());
   }
 
   @Nonnull default Context setDefaultContentType(@Nonnull String contentType) {
@@ -370,20 +368,20 @@ public interface Context {
 
   @Nonnull Context setContentType(@Nonnull MediaType contentType, @Nullable Charset charset);
 
-  @Nonnull MediaType responseContentType();
+  @Nonnull MediaType getResponseContentType();
 
-  @Nonnull default Context statusCode(@Nonnull StatusCode statusCode) {
-    return statusCode(statusCode.value());
+  @Nonnull default Context setStatusCode(@Nonnull StatusCode statusCode) {
+    return setStatusCode(statusCode.value());
   }
 
-  @Nonnull Context statusCode(int statusCode);
+  @Nonnull Context setStatusCode(int statusCode);
 
-  @Nonnull StatusCode statusCode();
+  @Nonnull StatusCode getStatusCode();
 
   default @Nonnull Context render(@Nonnull Object value) {
     try {
-      Route route = route();
-      Renderer renderer = route.renderer();
+      Route route = getRoute();
+      Renderer renderer = route.getRenderer();
       byte[] bytes = renderer.render(this, value);
       sendBytes(bytes);
       return this;
@@ -420,7 +418,7 @@ public interface Context {
   }
 
   default @Nonnull PrintWriter responseWriter(@Nonnull MediaType contentType) {
-    return responseWriter(contentType, contentType.charset());
+    return responseWriter(contentType, contentType.getCharset());
   }
 
   @Nonnull PrintWriter responseWriter(@Nonnull MediaType contentType, @Nullable Charset charset);
@@ -431,7 +429,7 @@ public interface Context {
 
   default @Nonnull Context responseWriter(@Nonnull MediaType contentType, @Nonnull Throwing.Consumer<PrintWriter> consumer)
       throws Exception {
-    return responseWriter(contentType, contentType.charset(), consumer);
+    return responseWriter(contentType, contentType.getCharset(), consumer);
   }
 
   default @Nonnull Context responseWriter(@Nonnull MediaType contentType, @Nullable Charset charset,
@@ -468,13 +466,13 @@ public interface Context {
   @Nonnull Context sendStream(@Nonnull InputStream input);
 
   default @Nonnull Context sendAttachment(@Nonnull AttachedFile file) {
-    setHeader("Content-Disposition", file.contentDisposition());
-    InputStream content = file.content();
-    long length = file.length();
+    setHeader("Content-Disposition", file.getContentDisposition());
+    InputStream content = file.getContent();
+    long length = file.getLength();
     if (length > 0) {
       setContentLength(length);
     }
-    setDefaultContentType(file.contentType());
+    setDefaultContentType(file.getContentType());
     if (content instanceof FileInputStream) {
       sendFile(((FileInputStream) content).getChannel());
     } else {
@@ -501,16 +499,16 @@ public interface Context {
   @Nonnull Context sendStatusCode(int statusCode);
 
   @Nonnull default Context sendError(@Nonnull Throwable cause) {
-    sendError(cause, router().errorCode(cause));
+    sendError(cause, getRouter().errorCode(cause));
     return this;
   }
 
   @Nonnull default Context sendError(@Nonnull Throwable cause, @Nonnull StatusCode statusCode) {
-    Router router = router();
+    Router router = getRouter();
     try {
-      router.errorHandler().apply(this, cause, statusCode);
+      router.getErrorHandler().apply(this, cause, statusCode);
     } catch (Exception x) {
-      router.log().error("error handler resulted in exception {} {}", method(), pathString(), x);
+      router.getLog().error("error handler resulted in exception {} {}", getMethod(), pathString(), x);
     }
     /** rethrow fatal exceptions: */
     if (Throwing.isFatal(cause)) {
@@ -526,5 +524,5 @@ public interface Context {
    *
    * @return Name of the underlying HTTP server: netty, utow, jetty, etc..
    */
-  @Nonnull String name();
+  @Nonnull String getServerName();
 }

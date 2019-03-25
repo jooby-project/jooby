@@ -95,7 +95,7 @@ public class Jetty extends io.jooby.Server.Base {
         Long.toString(maxRequestSize));
 
     /** Jetty only support worker executor: */
-    application.mode(ExecutionMode.WORKER);
+    application.setExecutionMode(ExecutionMode.WORKER);
     applications.add(application);
 
     addShutdownHook();

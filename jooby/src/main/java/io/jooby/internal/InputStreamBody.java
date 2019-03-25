@@ -63,7 +63,7 @@ public class InputStreamBody implements Body {
     return Channels.newChannel(in);
   }
 
-  @Override public long length() {
+  @Override public long getLength() {
     return length;
   }
 

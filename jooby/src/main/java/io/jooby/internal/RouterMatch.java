@@ -79,9 +79,9 @@ public class RouterMatch implements Router.Match {
 
   public void execute(Context context) {
     context.setPathMap(vars);
-    context.route(route);
+    context.setRoute(route);
 
-    route.pipeline().execute(context);
+    route.getPipeline().execute(context);
   }
 
   public RouterMatch missing(String method, String path, Renderer renderer) {

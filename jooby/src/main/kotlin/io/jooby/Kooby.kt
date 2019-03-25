@@ -66,7 +66,7 @@ open class Kooby constructor() : Jooby() {
   var coroutineStart: CoroutineStart = CoroutineStart.DEFAULT
 
   val coroutineScope: CoroutineScope by lazy {
-    WorkerCoroutineScope(worker().asCoroutineDispatcher())
+    WorkerCoroutineScope(getWorker().asCoroutineDispatcher())
   }
 
   constructor(init: Kooby.() -> Unit) : this() {
@@ -198,7 +198,7 @@ open class Kooby constructor() : Jooby() {
           ctx.render(result)
         }
       }
-    }.handle(handler)
+    }.setHandle(handler)
   }
 
   @RouterDsl

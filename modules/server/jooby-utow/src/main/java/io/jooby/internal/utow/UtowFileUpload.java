@@ -59,11 +59,11 @@ public class UtowFileUpload implements FileUpload {
     }
   }
 
-  @Override public String filename() {
+  @Override public String getFileName() {
     return upload.getFileName();
   }
 
-  @Override public String contentType() {
+  @Override public String getContentType() {
     return upload.getHeaders().getFirst(Headers.CONTENT_TYPE);
   }
 
@@ -71,7 +71,7 @@ public class UtowFileUpload implements FileUpload {
     return upload.getFileItem().getFile();
   }
 
-  @Override public long filesize() {
+  @Override public long getFileSize() {
     return Long.parseLong(upload.getHeaders().getFirst(Headers.CONTENT_LENGTH));
   }
 
@@ -88,6 +88,6 @@ public class UtowFileUpload implements FileUpload {
   }
 
   @Override public String toString() {
-    return filename();
+    return getFileName();
   }
 }

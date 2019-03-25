@@ -47,7 +47,7 @@ public class HelloApp extends Jooby {
   }
 
   {
-    mode(ExecutionMode.EVENT_LOOP);
+    setExecutionMode(ExecutionMode.EVENT_LOOP);
 
     get("/", ctx -> ctx.sendString(MESSAGE));
 

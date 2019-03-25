@@ -21,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
@@ -32,7 +31,6 @@ import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.ReferenceCounted;
 import io.jooby.Throwing;
-import io.netty.util.ResourceLeakDetector;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
@@ -91,11 +89,11 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     this.bufferSize = bufferSize;
   }
 
-  @Nonnull @Override public Router router() {
+  @Nonnull @Override public Router getRouter() {
     return router;
   }
 
-  @Override public String name() {
+  @Override public String getServerName() {
     return "netty";
   }
 
@@ -104,19 +102,19 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
    * **********************************************************************************************
    */
 
-  @Nonnull @Override public AttributeMap attributes() {
+  @Nonnull @Override public AttributeMap getAttributes() {
     return attributes;
   }
 
-  @Nonnull @Override public String method() {
+  @Nonnull @Override public String getMethod() {
     return req.method().asciiName().toUpperCase().toString();
   }
 
-  @Nonnull @Override public Route route() {
+  @Nonnull @Override public Route getRoute() {
     return route;
   }
 
-  @Nonnull @Override public Context route(@Nonnull Route route) {
+  @Nonnull @Override public Context setRoute(@Nonnull Route route) {
     this.route = route;
     return this;
   }
@@ -139,7 +137,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
   }
 
   @Nonnull @Override public Context dispatch(@Nonnull Runnable action) {
-    return dispatch(router.worker(), action);
+    return dispatch(router.getWorker(), action);
   }
 
   @Override public Context dispatch(Executor executor, Runnable action) {
@@ -180,12 +178,12 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     return Value.create(name, req.headers().getAll(name));
   }
 
-  @Nonnull @Override public String remoteAddress() {
+  @Nonnull @Override public String getRemoteAddress() {
     InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
     return remoteAddress.getAddress().getHostAddress();
   }
 
-  @Nonnull @Override public String protocol() {
+  @Nonnull @Override public String getProtocol() {
     return req.protocolVersion().text();
   }
 
@@ -213,11 +211,11 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
    * **********************************************************************************************
    */
 
-  @Nonnull @Override public StatusCode statusCode() {
+  @Nonnull @Override public StatusCode getStatusCode() {
     return StatusCode.valueOf(this.status.code());
   }
 
-  @Nonnull @Override public Context statusCode(int statusCode) {
+  @Nonnull @Override public Context setStatusCode(int statusCode) {
     this.status = HttpResponseStatus.valueOf(statusCode);
     return this;
   }
@@ -227,13 +225,13 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     return this;
   }
 
-  @Nonnull @Override public MediaType responseContentType() {
+  @Nonnull @Override public MediaType getResponseContentType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
   @Nonnull @Override public Context setDefaultContentType(@Nonnull MediaType contentType) {
     if (responseType == null) {
-      setContentType(contentType, contentType.charset());
+      setContentType(contentType, contentType.getCharset());
     }
     return this;
   }
@@ -382,12 +380,12 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
   }
 
   void destroy(Throwable cause) {
-    Logger log = router.log();
+    Logger log = router.getLog();
     if (cause != null) {
       if (Server.connectionLost(cause)) {
-        log.debug("exception found while sending response {} {}", method(), pathString(), cause);
+        log.debug("exception found while sending response {} {}", getMethod(), pathString(), cause);
       } else {
-        log.error("exception found while sending response {} {}", method(), pathString(), cause);
+        log.error("exception found while sending response {} {}", getMethod(), pathString(), cause);
       }
     }
     if (files != null) {
@@ -428,7 +426,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
         HttpData next = (HttpData) decoder.next();
         if (next.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
           form.put(next.getName(),
-              register(new NettyFileUpload(router.tmpdir(), next.getName(),
+              register(new NettyFileUpload(router.getTmpdir(), next.getName(),
                   (io.netty.handler.codec.http.multipart.FileUpload) next)));
         } else {
           form.put(next.getName(), next.getString(UTF_8));

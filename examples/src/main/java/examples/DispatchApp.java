@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 public class DispatchApp extends Jooby {
   {
 
-    worker(Executors.newCachedThreadPool());
+    setWorker(Executors.newCachedThreadPool());
 
     decorator(next -> ctx -> {
       System.out.println(Thread.currentThread().getName());

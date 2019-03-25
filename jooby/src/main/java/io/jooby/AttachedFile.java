@@ -71,23 +71,23 @@ public class AttachedFile {
     this(file.getFileName().toString(), file);
   }
 
-  public long length() {
+  public long getLength() {
     return length;
   }
 
-  public MediaType contentType() {
+  public MediaType getContentType() {
     return contentType;
   }
 
-  public String filename() {
+  public String getFilename() {
     return filename;
   }
 
-  public String contentDisposition() {
+  public String getContentDisposition() {
     return contentDisposition;
   }
 
-  public InputStream content() {
+  public InputStream getContent() {
     return content;
   }
 

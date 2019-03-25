@@ -30,7 +30,6 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.DiskAttribute;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
-import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
@@ -42,6 +41,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Netty extends Server.Base {
+
+  static {
+    System.setProperty("io.netty.leakDetection.level", System.getProperty("io.netty.leakDetection.level", "disabled"));
+  }
 
   private List<Jooby> applications = new ArrayList<>();
 
@@ -69,8 +72,6 @@ public class Netty extends Server.Base {
 
   private boolean defaultHeaders = true;
 
-  private ResourceLeakDetector.Level leakDectectorLevel;
-
   @Override public Server port(int port) {
     this.port = port;
     return this;
@@ -96,11 +97,6 @@ public class Netty extends Server.Base {
     return this;
   }
 
-  public Server leakDectectorLevel(@Nonnull ResourceLeakDetector.Level level) {
-    this.leakDectectorLevel = level;
-    return this;
-  }
-
   @Override public int port() {
     return port;
   }
@@ -112,13 +108,6 @@ public class Netty extends Server.Base {
 
   @Nonnull @Override public Server start(Jooby application) {
     try {
-
-      if (leakDectectorLevel == null) {
-        leakDectectorLevel = ResourceLeakDetector.Level
-            .valueOf(System.getProperty("io.netty.leakDetection.level", "disabled").toUpperCase());
-      }
-      ResourceLeakDetector.setLevel(leakDectectorLevel);
-
       applications.add(application);
 
       addShutdownHook();
@@ -130,7 +119,7 @@ public class Netty extends Server.Base {
 
       /** Disk attributes: */
       if (applications.size() == 1) {
-        String tmpdir = applications.get(0).tmpdir().toString();
+        String tmpdir = applications.get(0).getTmpdir().toString();
         DiskFileUpload.baseDirectory = tmpdir;
         DiskAttribute.baseDirectory = tmpdir;
       } else {

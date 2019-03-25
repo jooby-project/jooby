@@ -57,7 +57,7 @@ public class Pipeline {
 
   public static Handler compute(ClassLoader loader, Route route, ExecutionMode mode,
       Executor executor) {
-    Class<?> type = Reified.rawType(route.returnType());
+    Class<?> type = Reified.rawType(route.getReturnType());
     if (CompletionStage.class.isAssignableFrom(type)) {
       return completableFuture(mode, route, executor);
     }
@@ -141,91 +141,91 @@ public class Pipeline {
     }
     /** Context: */
     if (Context.class.isAssignableFrom(type)) {
-      return next(mode, executor, new SendDirect(route.pipeline()), true);
+      return next(mode, executor, new SendDirect(route.getPipeline()), true);
     }
     /** InputStream: */
     if (InputStream.class.isAssignableFrom(type)) {
-      return next(mode, executor, new SendStream(route.pipeline()), true);
+      return next(mode, executor, new SendStream(route.getPipeline()), true);
     }
     /** FileChannel: */
     if (FileChannel.class.isAssignableFrom(type) || Path.class.isAssignableFrom(type) || File.class
         .isAssignableFrom(type)) {
-      return next(mode, executor, new SendFileChannel(route.pipeline()), true);
+      return next(mode, executor, new SendFileChannel(route.getPipeline()), true);
     }
     /** Attached file: */
     if (AttachedFile.class.isAssignableFrom(type)) {
-      return next(mode, executor, new SendAttachment(route.pipeline()), true);
+      return next(mode, executor, new SendAttachment(route.getPipeline()), true);
     }
     /** Strings: */
     if (CharSequence.class.isAssignableFrom(type)) {
-      return next(mode, executor, new SendCharSequence(route.pipeline()), true);
+      return next(mode, executor, new SendCharSequence(route.getPipeline()), true);
     }
     /** RawByte: */
     if (byte[].class == type) {
-      return next(mode, executor, new SendByteArray(route.pipeline()), true);
+      return next(mode, executor, new SendByteArray(route.getPipeline()), true);
     }
     if (ByteBuffer.class.isAssignableFrom(type)) {
-      return next(mode, executor, new SendByteBuffer(route.pipeline()), true);
+      return next(mode, executor, new SendByteBuffer(route.getPipeline()), true);
     }
     if (ByteBuf.class.isAssignableFrom(type)) {
-      return next(mode, executor, new SendByteBuf(route.pipeline()), true);
+      return next(mode, executor, new SendByteBuf(route.getPipeline()), true);
     }
 
-    return next(mode, executor, new DefaultHandler(route.pipeline()), true);
+    return next(mode, executor, new DefaultHandler(route.getPipeline()), true);
   }
 
   private static Handler completableFuture(ExecutionMode mode, Route next, Executor executor) {
-    return next(mode, executor, new DetachHandler(new CompletionStageHandler(next.pipeline())),
+    return next(mode, executor, new DetachHandler(new CompletionStageHandler(next.getPipeline())),
         false);
   }
 
   private static Handler rxFlowable(ExecutionMode mode, Route next, Executor executor) {
-    return next(mode, executor, new DetachHandler(new RxFlowableHandler(next.pipeline())),
+    return next(mode, executor, new DetachHandler(new RxFlowableHandler(next.getPipeline())),
         false);
   }
 
   private static Handler reactivePublisher(ExecutionMode mode, Route next, Executor executor) {
-    return next(mode, executor, new DetachHandler(new ReactivePublisherHandler(next.pipeline())),
+    return next(mode, executor, new DetachHandler(new ReactivePublisherHandler(next.getPipeline())),
         false);
   }
 
   private static Handler rxDisposable(ExecutionMode mode, Route next, Executor executor) {
-    return next(mode, executor, new DetachHandler(new SendDirect(next.pipeline())),
+    return next(mode, executor, new DetachHandler(new SendDirect(next.getPipeline())),
         false);
   }
 
   private static Handler rxObservable(ExecutionMode mode, Route next, Executor executor) {
     return next(mode, executor,
-        new DetachHandler(new ObservableHandler(next.pipeline())),
+        new DetachHandler(new ObservableHandler(next.getPipeline())),
         false);
   }
 
   private static Handler reactorFlux(ExecutionMode mode, Route next, Executor executor) {
-    return next(mode, executor, new DetachHandler(new ReactorFluxHandler(next.pipeline())),
+    return next(mode, executor, new DetachHandler(new ReactorFluxHandler(next.getPipeline())),
         false);
   }
 
   private static Handler reactorMono(ExecutionMode mode, Route next, Executor executor) {
-    return next(mode, executor, new DetachHandler(new ReactorMonoHandler(next.pipeline())),
+    return next(mode, executor, new DetachHandler(new ReactorMonoHandler(next.getPipeline())),
         false);
   }
 
   private static Handler kotlinJob(ExecutionMode mode, Route next, Executor executor) {
-    return next(mode, executor, new DetachHandler(new KotlinJobHandler(next.pipeline())),
+    return next(mode, executor, new DetachHandler(new KotlinJobHandler(next.getPipeline())),
         false);
   }
 
   private static Handler kotlinContinuation(ExecutionMode mode, Route next, Executor executor) {
-    return next(mode, executor, new DetachHandler(next.pipeline()), false);
+    return next(mode, executor, new DetachHandler(next.getPipeline()), false);
   }
 
   private static Handler single(ExecutionMode mode, Route next, Executor executor) {
-    return next(mode, executor, new DetachHandler(new RxSingleHandler(next.pipeline())),
+    return next(mode, executor, new DetachHandler(new RxSingleHandler(next.getPipeline())),
         false);
   }
 
   private static Handler rxMaybe(ExecutionMode mode, Route next, Executor executor) {
-    return next(mode, executor, new DetachHandler(new RxMaybeHandler(next.pipeline())),
+    return next(mode, executor, new DetachHandler(new RxMaybeHandler(next.getPipeline())),
         false);
   }
 

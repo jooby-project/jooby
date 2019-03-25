@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface FileUpload extends Value {
-  String filename();
+  String getFileName();
 
-  String contentType();
+  String getContentType();
 
   @Override default Value get(@Nonnull int index) {
     return index == 0 ? this : get(Integer.toString(index));
@@ -52,7 +52,7 @@ public interface FileUpload extends Value {
 
   @Override default Map<String, List<String>> toMultimap() {
     Map<String, List<String>> result = new HashMap<>(1);
-    result.put(name(), Collections.singletonList(filename()));
+    result.put(name(), Collections.singletonList(getFileName()));
     return result;
   }
 
@@ -62,7 +62,7 @@ public interface FileUpload extends Value {
 
   Path path();
 
-  long filesize();
+  long getFileSize();
 
   @Override default FileUpload fileUpload() {
     return this;

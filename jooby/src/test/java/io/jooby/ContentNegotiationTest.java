@@ -75,7 +75,7 @@ public class ContentNegotiationTest {
           .accept("text/html", () -> "html")
           .render("text/plain");
     } catch (Err x) {
-      assertEquals(406, x.statusCode.value());
+      assertEquals(406, x.getStatusCode().value());
     }
   }
 

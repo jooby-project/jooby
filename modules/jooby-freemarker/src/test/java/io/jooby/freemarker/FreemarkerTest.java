@@ -34,7 +34,7 @@ public class FreemarkerTest {
     Freemarker freemarker = Freemarker.builder().build(Env.empty("test"));
     AttributeKey<String> local = new AttributeKey<>(String.class, "local");
     MockContext ctx = new MockContext();
-    ctx.attributes().put(local, "var");
+    ctx.getAttributes().put(local, "var");
     String output = freemarker
         .apply(ctx, new ModelAndView("index.ftl")
             .put("user", new User("foo", "bar"))

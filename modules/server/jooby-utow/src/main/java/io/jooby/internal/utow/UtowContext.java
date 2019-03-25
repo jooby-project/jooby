@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -62,11 +61,11 @@ public class UtowContext implements Context, IoCallback {
     this.router = router;
   }
 
-  @Nonnull @Override public Router router() {
+  @Nonnull @Override public Router getRouter() {
     return router;
   }
 
-  @Override public String name() {
+  @Override public String getServerName() {
     return "utow";
   }
 
@@ -74,19 +73,19 @@ public class UtowContext implements Context, IoCallback {
     return body == null ? Body.empty() : body;
   }
 
-  @Nonnull @Override public AttributeMap attributes() {
+  @Nonnull @Override public AttributeMap getAttributes() {
     return attributes;
   }
 
-  @Nonnull @Override public String method() {
+  @Nonnull @Override public String getMethod() {
     return exchange.getRequestMethod().toString().toUpperCase();
   }
 
-  @Nonnull @Override public Route route() {
+  @Nonnull @Override public Route getRoute() {
     return route;
   }
 
-  @Nonnull @Override public Context route(Route route) {
+  @Nonnull @Override public Context setRoute(Route route) {
     this.route = route;
     return this;
   }
@@ -108,11 +107,11 @@ public class UtowContext implements Context, IoCallback {
     return exchange.isInIoThread();
   }
 
-  @Nonnull @Override public String remoteAddress() {
+  @Nonnull @Override public String getRemoteAddress() {
     return exchange.getSourceAddress().getHostName();
   }
 
-  @Nonnull @Override public String protocol() {
+  @Nonnull @Override public String getProtocol() {
     return exchange.getProtocol().toString();
   }
 
@@ -162,7 +161,7 @@ public class UtowContext implements Context, IoCallback {
   }
 
   @Nonnull @Override public Context dispatch(@Nonnull Runnable action) {
-    return dispatch(router.worker(), action);
+    return dispatch(router.getWorker(), action);
   }
 
   @Nonnull @Override public Context dispatch(@Nonnull Executor executor,
@@ -176,11 +175,11 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
-  @Nonnull @Override public StatusCode statusCode() {
+  @Nonnull @Override public StatusCode getStatusCode() {
     return StatusCode.valueOf(exchange.getStatusCode());
   }
 
-  @Nonnull @Override public Context statusCode(int statusCode) {
+  @Nonnull @Override public Context setStatusCode(int statusCode) {
     exchange.setStatusCode(statusCode);
     return this;
   }
@@ -190,13 +189,13 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
-  @Nonnull @Override public MediaType responseContentType() {
+  @Nonnull @Override public MediaType getResponseContentType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
   @Nonnull @Override public Context setDefaultContentType(@Nonnull MediaType contentType) {
     if (responseType == null) {
-      setContentType(contentType, contentType.charset());
+      setContentType(contentType, contentType.getCharset());
     }
     return this;
   }
@@ -310,11 +309,11 @@ public class UtowContext implements Context, IoCallback {
   void destroy(Exception cause) {
     try {
       if (cause != null) {
-        Logger log = router.log();
+        Logger log = router.getLog();
         if (Server.connectionLost(cause)) {
-          log.debug("exception found while sending response {} {}", method(), pathString(), cause);
+          log.debug("exception found while sending response {} {}", getMethod(), pathString(), cause);
         } else {
-          log.error("exception found while sending response {} {}", method(), pathString(), cause);
+          log.error("exception found while sending response {} {}", getMethod(), pathString(), cause);
         }
       }
       this.router = null;

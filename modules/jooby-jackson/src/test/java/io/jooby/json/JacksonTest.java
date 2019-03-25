@@ -19,7 +19,7 @@ public class JacksonTest {
     byte [] bytes = jackson.render(ctx, mapOf("k", "v"));
     assertEquals("{\"k\":\"v\"}", new String(bytes, StandardCharsets.UTF_8));
     /** Type: */
-    assertEquals("application/json", ctx.responseContentType().value());
+    assertEquals("application/json", ctx.getResponseContentType().getValue());
     assertEquals("utf-8", ctx.getResponseCharset().name().toLowerCase());
   }
 

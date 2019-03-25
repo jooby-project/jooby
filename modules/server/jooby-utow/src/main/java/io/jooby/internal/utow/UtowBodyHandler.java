@@ -23,13 +23,11 @@ import io.undertow.io.Receiver;
 import io.undertow.server.ExchangeCompletionListener;
 import io.undertow.server.HttpServerExchange;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,7 +91,7 @@ public class UtowBodyHandler
         } else {
           // overflow
           if (file == null) {
-            file = context.router().tmpdir().resolve("undertow" + System.nanoTime() + "body");
+            file = context.getRouter().getTmpdir().resolve("undertow" + System.nanoTime() + "body");
             channel = FileChannel.open(file, CREATE, WRITE);
           }
           if (chunks != null) {

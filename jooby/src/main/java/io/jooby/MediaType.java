@@ -98,7 +98,7 @@ public class MediaType implements Comparable<MediaType> {
   @Override public boolean equals(Object obj) {
     if (obj instanceof MediaType) {
       MediaType that = (MediaType) obj;
-      return type().equals(that.type()) && subtype().equals(that.subtype());
+      return getType().equals(that.getType()) && getSubtype().equals(that.getSubtype());
     }
     return false;
   }
@@ -107,7 +107,7 @@ public class MediaType implements Comparable<MediaType> {
     return value.hashCode();
   }
 
-  public @Nullable String param(@Nonnull String name) {
+  public @Nullable String getParameter(@Nonnull String name) {
     int paramStart = subtypeEnd + 1;
     for (int i = subtypeEnd; i < raw.length(); i++) {
       char ch = raw.charAt(i);
@@ -127,13 +127,13 @@ public class MediaType implements Comparable<MediaType> {
     return null;
   }
 
-  public @Nonnull String value() {
+  public @Nonnull String getValue() {
     return value;
   }
 
   public @Nonnull String toContentTypeHeader(@Nullable Charset charset) {
     if (charset == null) {
-      Charset paramCharset = charset();
+      Charset paramCharset = getCharset();
       if (paramCharset == null) {
         return value;
       }
@@ -142,8 +142,8 @@ public class MediaType implements Comparable<MediaType> {
     return value + ";charset=" + charset.name();
   }
 
-  @Nonnull public float quality() {
-    String q = param("q");
+  @Nonnull public float getQuality() {
+    String q = getParameter("q");
     return q == null ? 1f : Float.parseFloat(q);
   }
 
@@ -151,30 +151,30 @@ public class MediaType implements Comparable<MediaType> {
     if (this == other) {
       return 0;
     }
-    int diff = other.score() - score();
+    int diff = other.getScore() - getScore();
     if (diff == 0) {
-      diff = Float.compare(other.quality(), quality());
+      diff = Float.compare(other.getQuality(), getQuality());
       if (diff == 0) {
-        diff = other.paramSize() - paramSize();
+        diff = other.getParameterCount() - getParameterCount();
       }
     }
     return diff;
   }
 
   public boolean isTextual() {
-    if (type().equals("text")) {
+    if (getType().equals("text")) {
       return true;
     }
-    String subtype = subtype();
+    String subtype = getSubtype();
     return subtype.endsWith("json") || subtype.endsWith("javascript") || subtype.endsWith("xml");
   }
 
   public boolean isJson() {
-    String subtype = subtype();
+    String subtype = getSubtype();
     return subtype.equals("json") || subtype.endsWith("+json");
   }
 
-  public @Nullable Charset charset() {
+  public @Nullable Charset getCharset() {
     Charset charset = _charset(this.charset);
     if (charset == null && isTextual()) {
       return UTF_8;
@@ -183,15 +183,15 @@ public class MediaType implements Comparable<MediaType> {
   }
 
   private Charset _charset(Charset charset) {
-    String charsetName = param("charset");
+    String charsetName = getParameter("charset");
     return charsetName == null ? charset : Charset.forName(charsetName);
   }
 
-  public @Nonnull String type() {
+  public @Nonnull String getType() {
     return raw.substring(0, subtypeStart).trim();
   }
 
-  public @Nonnull String subtype() {
+  public @Nonnull String getSubtype() {
     return raw.substring(subtypeStart + 1, subtypeEnd).trim();
   }
 
@@ -203,18 +203,18 @@ public class MediaType implements Comparable<MediaType> {
     return matches(value, type.value);
   }
 
-  public int score() {
+  public int getScore() {
     int precendence = 0;
-    if (!type().equals("*")) {
+    if (!getType().equals("*")) {
       precendence += 1;
     }
-    if (!subtype().equals("*")) {
+    if (!getSubtype().equals("*")) {
       precendence += 1;
     }
     return precendence;
   }
 
-  public int paramSize() {
+  public int getParameterCount() {
     int p = 0;
     for (int i = subtypeEnd; i < raw.length(); i++) {
       char ch = raw.charAt(i);

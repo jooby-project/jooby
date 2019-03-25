@@ -16,72 +16,72 @@ public class MediaTypeTest {
   public void json() {
     MediaType type = MediaType.json;
     assertEquals("application/json", type.toString());
-    assertEquals("application/json", type.value());
-    assertEquals("application", type.type());
-    assertEquals("json", type.subtype());
-    assertEquals(1f, type.quality());
-    assertEquals("UTF-8", type.charset().name());
+    assertEquals("application/json", type.getValue());
+    assertEquals("application", type.getType());
+    assertEquals("json", type.getSubtype());
+    assertEquals(1f, type.getQuality());
+    assertEquals("UTF-8", type.getCharset().name());
   }
 
   @Test
   public void text() {
     MediaType type = MediaType.text;
     assertEquals("text/plain", type.toString());
-    assertEquals("text/plain", type.value());
-    assertEquals("text", type.type());
-    assertEquals("plain", type.subtype());
-    assertEquals(1f, type.quality());
-    assertEquals("UTF-8", type.charset().name());
+    assertEquals("text/plain", type.getValue());
+    assertEquals("text", type.getType());
+    assertEquals("plain", type.getSubtype());
+    assertEquals(1f, type.getQuality());
+    assertEquals("UTF-8", type.getCharset().name());
 
-    assertEquals("text/plain", MediaType.valueOf("text/plain").value());
+    assertEquals("text/plain", MediaType.valueOf("text/plain").getValue());
 
-    assertEquals("text/plain", MediaType.valueOf("text/plain;charset=UTF-8").value());
+    assertEquals("text/plain", MediaType.valueOf("text/plain;charset=UTF-8").getValue());
   }
 
   @Test
   public void html() {
     MediaType type = MediaType.html;
     assertEquals("text/html", type.toString());
-    assertEquals("text/html", type.value());
-    assertEquals("text", type.type());
-    assertEquals("html", type.subtype());
-    assertEquals(1f, type.quality());
-    assertEquals("UTF-8", type.charset().name());
+    assertEquals("text/html", type.getValue());
+    assertEquals("text", type.getType());
+    assertEquals("html", type.getSubtype());
+    assertEquals(1f, type.getQuality());
+    assertEquals("UTF-8", type.getCharset().name());
   }
 
   @Test
   public void valueOf() {
     MediaType type = MediaType.valueOf("application / json; q=0.5; charset=us-ascii");
     assertEquals("application / json; q=0.5; charset=us-ascii", type.toString());
-    assertEquals("application / json", type.value());
-    assertEquals("application", type.type());
-    assertEquals("json", type.subtype());
-    assertEquals(.5f, type.quality());
-    assertEquals("us-ascii", type.charset().name().toLowerCase());
+    assertEquals("application / json", type.getValue());
+    assertEquals("application", type.getType());
+    assertEquals("json", type.getSubtype());
+    assertEquals(.5f, type.getQuality());
+    assertEquals("us-ascii", type.getCharset().name().toLowerCase());
 
     MediaType any = MediaType.valueOf("*");
-    assertEquals("*/*", any.value());
-    assertEquals("*", any.type());
-    assertEquals("*", any.subtype());
+    assertEquals("*/*", any.getValue());
+    assertEquals("*", any.getType());
+    assertEquals("*", any.getSubtype());
 
     any = MediaType.valueOf("");
-    assertEquals("*/*", any.value());
-    assertEquals("*", any.type());
-    assertEquals("*", any.subtype());
+    assertEquals("*/*", any.getValue());
+    assertEquals("*", any.getType());
+    assertEquals("*", any.getSubtype());
 
     any = MediaType.valueOf(null);
-    assertEquals("*/*", any.value());
-    assertEquals("*", any.type());
-    assertEquals("*", any.subtype());
+    assertEquals("*/*", any.getValue());
+    assertEquals("*", any.getType());
+    assertEquals("*", any.getSubtype());
   }
 
   @Test
   public void parse() {
     List<MediaType> result = MediaType.parse("application/json , text/html,*");
     assertEquals(3, result.size());
-    assertEquals("application/json", result.get(0).value());
-    assertEquals("text/html", result.get(1).value());
-    assertEquals("*/*", result.get(2).value());
+    assertEquals("application/json", result.get(0).getValue());
+    assertEquals("text/html", result.get(1).getValue());
+    assertEquals("*/*", result.get(2).getValue());
 
     assertEquals(0, MediaType.parse(null).size());
     assertEquals(0, MediaType.parse("").size());

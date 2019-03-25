@@ -15,7 +15,6 @@
  */
 package io.jooby;
 
-import com.typesafe.config.Config;
 import io.jooby.internal.RegistryImpl;
 import io.jooby.internal.RouterImpl;
 import org.slf4j.Logger;
@@ -24,13 +23,11 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Provider;
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -74,14 +71,14 @@ public class Jooby implements Router, Registry {
     router = new RouterImpl(getClass().getClassLoader());
   }
 
-  public @Nonnull Env environment() {
+  public @Nonnull Env getEnvironment() {
     if (env == null) {
       env = Env.defaultEnvironment(getClass().getClassLoader());
     }
     return env;
   }
 
-  public @Nonnull Jooby environment(@Nonnull Env environment) {
+  public @Nonnull Jooby setEnvironment(@Nonnull Env environment) {
     this.env = environment;
     return this;
   }
@@ -120,13 +117,13 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public Jooby contextPath(@Nonnull String basePath) {
-    router.contextPath(basePath);
+  @Nonnull @Override public Jooby setContextPath(@Nonnull String basePath) {
+    router.setContextPath(basePath);
     return this;
   }
 
-  @Nonnull @Override public String contextPath() {
-    return router.contextPath();
+  @Nonnull @Override public String getContextPath() {
+    return router.getContextPath();
   }
 
   @Nonnull @Override
@@ -162,8 +159,8 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public List<Route> routes() {
-    return router.routes();
+  @Nonnull @Override public List<Route> getRoutes() {
+    return router.getRoutes();
   }
 
   @Nonnull @Override public Jooby error(@Nonnull ErrorHandler handler) {
@@ -253,52 +250,52 @@ public class Jooby implements Router, Registry {
     return router.errorCode(cause);
   }
 
-  @Nonnull @Override public Executor worker() {
-    return router.worker();
+  @Nonnull @Override public Executor getWorker() {
+    return router.getWorker();
   }
 
-  @Nonnull @Override public Jooby worker(@Nonnull Executor worker) {
-    this.router.worker(worker);
+  @Nonnull @Override public Jooby setWorker(@Nonnull Executor worker) {
+    this.router.setWorker(worker);
     if (worker instanceof ExecutorService) {
       onStop(((ExecutorService) worker)::shutdown);
     }
     return this;
   }
 
-  @Nonnull @Override public Jooby defaultWorker(@Nonnull Executor worker) {
-    this.router.defaultWorker(worker);
+  @Nonnull @Override public Jooby setDefaultWorker(@Nonnull Executor worker) {
+    this.router.setDefaultWorker(worker);
     return this;
   }
 
   /** Log: */
-  public @Nonnull Logger log() {
+  public @Nonnull Logger getLog() {
     return LoggerFactory.getLogger(getClass());
   }
 
-  @Nonnull @Override public ErrorHandler errorHandler() {
-    return router.errorHandler();
+  @Nonnull @Override public ErrorHandler getErrorHandler() {
+    return router.getErrorHandler();
   }
 
-  public @Nonnull Path tmpdir() {
+  public @Nonnull Path getTmpdir() {
     return tmpdir;
   }
 
-  public @Nonnull Jooby tmpdir(@Nonnull Path tmpdir) {
+  public @Nonnull Jooby setTmpdir(@Nonnull Path tmpdir) {
     this.tmpdir = tmpdir;
     return this;
   }
 
-  public @Nonnull ExecutionMode mode() {
+  public @Nonnull ExecutionMode getExecutionMode() {
     return mode == null ? ExecutionMode.DEFAULT : mode;
   }
 
-  public @Nonnull Jooby mode(@Nonnull ExecutionMode mode) {
+  public @Nonnull Jooby setExecutionMode(@Nonnull ExecutionMode mode) {
     this.mode = mode;
     return this;
   }
 
-  @Nonnull @Override public AttributeMap attributes() {
-    return router.attributes();
+  @Nonnull @Override public AttributeMap getAttributes() {
+    return router.getAttributes();
   }
 
   public @Nonnull <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
@@ -315,7 +312,7 @@ public class Jooby implements Router, Registry {
   }
 
   private <T> T require(AttributeKey<T> key) {
-    AttributeMap attributes = attributes();
+    AttributeMap attributes = getAttributes();
     if (attributes.contains(key)) {
       return attributes.get(key);
     }
@@ -329,7 +326,7 @@ public class Jooby implements Router, Registry {
     throw new NoSuchElementException(key.toString());
   }
 
-  public @Nullable String basePackage() {
+  public @Nullable String getBasePackage() {
     String classname = getClass().getName();
     if (classname.equals("io.jooby.Jooby") || classname.equals("io.jooby.Kooby")) {
       return System.getProperty(DEF_PCKG);
@@ -351,7 +348,7 @@ public class Jooby implements Router, Registry {
       List<String> names = servers.stream()
           .map(it -> it.getClass().getSimpleName().toLowerCase())
           .collect(Collectors.toList());
-      log().warn("Multiple servers found {}. Using: {}", names, names.get(0));
+      getLog().warn("Multiple servers found {}. Using: {}", names, names.get(0));
     }
     Server server = servers.get(0);
     if (serverConfigurer != null) {
@@ -361,9 +358,9 @@ public class Jooby implements Router, Registry {
   }
 
   public @Nonnull Jooby start(@Nonnull Server server) {
-    Env env = environment();
+    Env env = getEnvironment();
     if (tmpdir == null) {
-      tmpdir = Paths.get(env.conf().getString("application.tmpdir")).toAbsolutePath();
+      tmpdir = Paths.get(env.getConfig().getString("application.tmpdir")).toAbsolutePath();
     }
 
     /** Start router: */
@@ -380,7 +377,7 @@ public class Jooby implements Router, Registry {
   }
 
   public @Nonnull Jooby ready(@Nonnull Server server) {
-    Logger log = log();
+    Logger log = getLog();
 
     fireStarted();
 
@@ -392,7 +389,7 @@ public class Jooby implements Router, Registry {
     if (log.isDebugEnabled()) {
       log.debug("    env: {}", env);
     } else {
-      log.info("    env: {}", env.name());
+      log.info("    env: {}", env.getName());
     }
     log.info("    thread mode: {}", mode.name().toLowerCase());
     log.info("    user: {}", System.getProperty("user.name"));
@@ -400,7 +397,7 @@ public class Jooby implements Router, Registry {
     log.info("    tmp dir: {}", tmpdir);
 
     log.info("routes: \n\n{}\n\nlistening on:\n  http://localhost:{}{}\n", router, server.port(),
-        router.contextPath());
+        router.getContextPath());
     return this;
   }
 
@@ -519,7 +516,7 @@ public class Jooby implements Router, Registry {
         try {
           task.close();
         } catch (Exception x) {
-          log().error("exception found while executing onStop:", x);
+          getLog().error("exception found while executing onStop:", x);
         }
         iterator.remove();
       }

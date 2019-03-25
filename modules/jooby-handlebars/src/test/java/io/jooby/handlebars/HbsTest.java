@@ -32,7 +32,7 @@ public class HbsTest {
     Hbs engine = Hbs.builder().build();
     AttributeKey<String> local = new AttributeKey<>(String.class, "local");
     MockContext ctx = new MockContext();
-    ctx.attributes().put(local, "var");
+    ctx.getAttributes().put(local, "var");
     String output = engine
         .apply(ctx, new ModelAndView("index.hbs")
             .put("user", new User("foo", "bar"))

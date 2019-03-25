@@ -65,15 +65,15 @@ public class NettyFileUpload implements FileUpload {
     }
   }
 
-  @Override public String filename() {
+  @Override public String getFileName() {
     return upload.getFilename();
   }
 
-  @Override public String contentType() {
+  @Override public String getContentType() {
     return upload.getContentType();
   }
 
-  @Override public long filesize() {
+  @Override public long getFileSize() {
     return upload.length();
   }
 
@@ -110,6 +110,6 @@ public class NettyFileUpload implements FileUpload {
   }
 
   @Override public String toString() {
-    return filename();
+    return getFileName();
   }
 }

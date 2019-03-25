@@ -37,7 +37,7 @@ public class JettyFileUpload implements FileUpload {
     return name;
   }
 
-  @Override public String filename() {
+  @Override public String getFileName() {
     return upload.getSubmittedFileName();
   }
 
@@ -61,7 +61,7 @@ public class JettyFileUpload implements FileUpload {
     }
   }
 
-  @Override public String contentType() {
+  @Override public String getContentType() {
     return upload.getContentType();
   }
 
@@ -76,7 +76,7 @@ public class JettyFileUpload implements FileUpload {
     }
   }
 
-  @Override public long filesize() {
+  @Override public long getFileSize() {
     return upload.getSize();
   }
 
@@ -90,6 +90,6 @@ public class JettyFileUpload implements FileUpload {
   }
 
   @Override public String toString() {
-    return filename();
+    return getFileName();
   }
 }

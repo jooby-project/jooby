@@ -114,11 +114,11 @@ public class Env {
     this.conf = conf;
   }
 
-  public Config conf() {
+  public Config getConfig() {
     return conf;
   }
 
-  public @Nonnull String name() {
+  public @Nonnull String getName() {
     return name;
   }
 

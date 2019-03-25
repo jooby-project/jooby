@@ -15,7 +15,7 @@ public class UnitTest {
 
       app.get("/{id}", ctx -> ctx.path("id").intValue());
 
-      app.delete("/{id}", ctx -> ctx.statusCode(NO_CONTENT));
+      app.delete("/{id}", ctx -> ctx.setStatusCode(NO_CONTENT));
 
       app.post("/", ctx -> ctx.body().value());
 
@@ -25,14 +25,14 @@ public class UnitTest {
 
       router.get("/", result -> {
         assertEquals(StatusCode.OK, result.statusCode());
-        assertEquals("text/plain", result.type().value());
+        assertEquals("text/plain", result.type().getValue());
         assertEquals(2, result.length());
         assertEquals("OK", result.value());
       });
 
       router.get("/123", result -> {
         assertEquals(StatusCode.OK, result.statusCode());
-        assertEquals("text/plain", result.type().value());
+        assertEquals("text/plain", result.type().getValue());
         assertEquals(3, result.length());
         assertEquals(123, result.value());
       });

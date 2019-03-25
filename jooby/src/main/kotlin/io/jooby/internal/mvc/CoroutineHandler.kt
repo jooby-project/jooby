@@ -13,7 +13,7 @@ import kotlin.reflect.jvm.kotlinFunction
 
 class CoroutineHandler(val provider: Provider<Any>, val handler: Method, val argumentResolver: MvcHandler) : Route.Handler {
   override fun apply(ctx: Context): Any {
-    val router = ctx.router() as Kooby
+    val router = ctx.getRouter() as Kooby
     val xhandler = CoroutineExceptionHandler { _, x ->
       ctx.sendError(x)
     }

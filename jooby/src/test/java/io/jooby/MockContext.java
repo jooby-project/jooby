@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -59,7 +58,7 @@ public class MockContext implements Context {
   private Object result;
   private boolean responseStarted;
 
-  @Nonnull @Override public String method() {
+  @Nonnull @Override public String getMethod() {
     return method;
   }
 
@@ -68,11 +67,11 @@ public class MockContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public Route route() {
+  @Nonnull @Override public Route getRoute() {
     return route;
   }
 
-  public MockContext route(Route route) {
+  public MockContext setRoute(Route route) {
     this.route = route;
     return this;
   }
@@ -183,7 +182,7 @@ public class MockContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public AttributeMap attributes() {
+  @Nonnull @Override public AttributeMap getAttributes() {
     return attributes;
   }
 
@@ -223,12 +222,12 @@ public class MockContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public MockContext statusCode(int statusCode) {
+  @Nonnull @Override public MockContext setStatusCode(int statusCode) {
     this.statusCode = StatusCode.valueOf(statusCode);
     return this;
   }
 
-  @Nonnull @Override public StatusCode statusCode() {
+  @Nonnull @Override public StatusCode getStatusCode() {
     return statusCode;
   }
 
@@ -266,11 +265,11 @@ public class MockContext implements Context {
     };
   }
 
-  @Nonnull @Override public String remoteAddress() {
+  @Nonnull @Override public String getRemoteAddress() {
     return "0.0.0.0";
   }
 
-  @Nonnull @Override public String protocol() {
+  @Nonnull @Override public String getProtocol() {
     return "HTTP/1.1";
   }
 
@@ -339,12 +338,12 @@ public class MockContext implements Context {
   @Nonnull @Override public Context setDefaultContentType(@Nonnull MediaType contentType) {
     if (responseType == null) {
       responseType = contentType;
-      responseCharset = contentType.charset();
+      responseCharset = contentType.getCharset();
     }
     return this;
   }
 
-  @Nonnull @Override public MediaType responseContentType() {
+  @Nonnull @Override public MediaType getResponseContentType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
@@ -360,11 +359,11 @@ public class MockContext implements Context {
     return responseStarted;
   }
 
-  @Override public String name() {
+  @Override public String getServerName() {
     return "mock";
   }
 
-  @Nonnull @Override public Router router() {
+  @Nonnull @Override public Router getRouter() {
     throw new UnsupportedOperationException();
   }
 }

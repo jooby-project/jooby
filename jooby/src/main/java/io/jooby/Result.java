@@ -67,7 +67,7 @@ public class Result {
   }
 
   public @Nonnull Result type(@Nonnull MediaType contentType) {
-    return type(contentType, contentType.charset());
+    return type(contentType, contentType.getCharset());
   }
 
   public @Nonnull Result type(@Nonnull MediaType contentType, @Nullable Charset charset) {

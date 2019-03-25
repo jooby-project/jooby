@@ -58,15 +58,15 @@ public interface Router {
   List<String> METHODS = unmodifiableList(
       asList(GET, POST, PUT, DELETE, PATCH, HEAD, CONNECT, OPTIONS, TRACE));
 
-  @Nonnull AttributeMap attributes();
+  @Nonnull AttributeMap getAttributes();
 
   @Nonnull Router caseSensitive(boolean caseSensitive);
 
   @Nonnull Router ignoreTrailingSlash(boolean ignoreTrailingSlash);
 
-  @Nonnull Router contextPath(@Nonnull String contextPath);
+  @Nonnull Router setContextPath(@Nonnull String contextPath);
 
-  @Nonnull String contextPath();
+  @Nonnull String getContextPath();
 
   /* ***********************************************************************************************
    * use(Router)
@@ -90,21 +90,21 @@ public interface Router {
   @Nonnull Router mvc(@Nonnull Object router);
 
 
-  @Nonnull List<Route> routes();
+  @Nonnull List<Route> getRoutes();
 
   @Nonnull Router renderer(@Nonnull Renderer renderer);
 
   @Nonnull Router renderer(@Nonnull MediaType contentType, @Nonnull Renderer renderer);
 
-  @Nonnull Path tmpdir();
+  @Nonnull Path getTmpdir();
 
   @Nonnull Router parser(@Nonnull MediaType contentType, @Nonnull Parser parser);
 
-  @Nonnull Executor worker();
+  @Nonnull Executor getWorker();
 
-  @Nonnull Router worker(@Nonnull Executor worker);
+  @Nonnull Router setWorker(@Nonnull Executor worker);
 
-  @Nonnull Router defaultWorker(@Nonnull Executor worker);
+  @Nonnull Router setDefaultWorker(@Nonnull Executor worker);
 
   @Nonnull Router decorator(@Nonnull Route.Decorator decorator);
 
@@ -220,9 +220,9 @@ public interface Router {
 
   @Nonnull Router error(@Nonnull ErrorHandler handler);
 
-  @Nonnull ErrorHandler errorHandler();
+  @Nonnull ErrorHandler getErrorHandler();
 
-  @Nonnull Logger log();
+  @Nonnull Logger getLog();
 
   static @Nonnull String normalizePath(@Nonnull String path, boolean caseSensitive,
       boolean ignoreTrailingSlash) {

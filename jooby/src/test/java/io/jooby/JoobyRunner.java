@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Spliterator;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.Spliterators.spliteratorUnknownSize;
@@ -27,7 +26,7 @@ public class JoobyRunner {
   public JoobyRunner(Consumer<Jooby> provider) {
     this.provider = () -> {
       Jooby app = new Jooby();
-      app.environment(Env.create().build(getClass().getClassLoader(), "test"));
+      app.setEnvironment(Env.create().build(getClass().getClassLoader(), "test"));
       provider.accept(app);
       return app;
     };
@@ -36,8 +35,8 @@ public class JoobyRunner {
   public JoobyRunner(Supplier<Jooby> provider) {
     this.provider = () -> {
       Jooby app = provider.get();
-      if (app.environment() == null) {
-        app.environment(Env.create().build(app.getClass().getClassLoader(), "test"));
+      if (app.getEnvironment() == null) {
+        app.setEnvironment(Env.create().build(app.getClass().getClassLoader(), "test"));
       }
       return app;
     };
@@ -80,7 +79,7 @@ public class JoobyRunner {
           if (serverConfigurer != null) {
             serverConfigurer.accept(server);
           }
-          Jooby app = this.provider.get().mode(mode);
+          Jooby app = this.provider.get().setExecutionMode(mode);
           server.port(9999)
               .start(app);
 

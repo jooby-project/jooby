@@ -24,8 +24,6 @@ import com.github.jknack.handlebars.cache.NullTemplateCache;
 import com.github.jknack.handlebars.cache.TemplateCache;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
-import io.jooby.AttributeKey;
-import io.jooby.AttributeMap;
 import io.jooby.Context;
 import io.jooby.Env;
 import io.jooby.ModelAndView;
@@ -40,7 +38,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
@@ -161,7 +158,7 @@ public class Hbs implements TemplateEngine {
 
   @Override public String apply(Context ctx, ModelAndView modelAndView) throws Exception {
     Template template = handlebars.compile(modelAndView.view);
-    Map<String, Object> model = new HashMap<>(ctx.attributes().toMap());
+    Map<String, Object> model = new HashMap<>(ctx.getAttributes().toMap());
     model.putAll(modelAndView.model);
     return template.apply(model);
   }

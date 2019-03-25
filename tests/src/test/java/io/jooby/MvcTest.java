@@ -161,8 +161,8 @@ public class MvcTest {
 
       app.mvc(new NullInjection());
 
-      app.error(ErrorHandler.log(app.log()).then((ctx, cause, statusCode) -> {
-        ctx.statusCode(statusCode)
+      app.error(ErrorHandler.log(app.getLog()).then((ctx, cause, statusCode) -> {
+        ctx.setStatusCode(statusCode)
             .sendString(cause.getMessage());
       }));
 
@@ -196,8 +196,8 @@ public class MvcTest {
 
       app.mvc(new MvcBody());
 
-      app.error(ErrorHandler.log(app.log()).then((ctx, cause, statusCode) -> {
-        ctx.statusCode(statusCode)
+      app.error(ErrorHandler.log(app.getLog()).then((ctx, cause, statusCode) -> {
+        ctx.setStatusCode(statusCode)
             .sendString(cause.getMessage());
       }));
 

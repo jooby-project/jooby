@@ -60,7 +60,7 @@ public class Spring implements Extension {
     if (applicationContext == null) {
       String[] packages = this.packages;
       if (packages == null) {
-        String basePackage = application.basePackage();
+        String basePackage = application.getBasePackage();
         if (basePackage == null) {
           throw new IllegalArgumentException(
               "Spring application context requires at least one package to scan.");

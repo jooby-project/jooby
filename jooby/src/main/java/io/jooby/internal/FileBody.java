@@ -40,7 +40,7 @@ public class FileBody implements Body {
     this.file = file;
   }
 
-  @Override public long length() {
+  @Override public long getLength() {
     try {
     return Files.size(file);
     } catch (IOException x) {

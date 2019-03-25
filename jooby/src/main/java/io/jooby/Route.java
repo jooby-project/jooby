@@ -121,55 +121,55 @@ public class Route {
     this(method, pattern, Router.pathKeys(pattern), returnType, handler, pipeline, renderer, parsers);
   }
 
-  public @Nonnull String pattern() {
+  public @Nonnull String getPattern() {
     return pattern;
   }
 
-  public  @Nonnull String method() {
+  public  @Nonnull String getMethod() {
     return method;
   }
 
-  public @Nonnull List<String> pathKeys() {
+  public @Nonnull List<String> getPathKeys() {
     return pathKeys;
   }
 
-  public @Nonnull Handler handler() {
+  public @Nonnull Handler getHandler() {
     return handler;
   }
 
-  public @Nonnull Handler pipeline() {
+  public @Nonnull Handler getPipeline() {
     return pipeline;
   }
 
-  public Object handle() {
+  public Object getHandle() {
     return handle;
   }
 
-  Route handle(Object handle) {
+  public Route setHandle(@Nonnull Object handle) {
     this.handle = handle;
     return this;
   }
 
-  public @Nonnull Route pipeline(Route.Handler pipeline) {
+  public @Nonnull Route setPipeline(Route.Handler pipeline) {
     this.pipeline = pipeline;
     return this;
   }
 
-  public @Nonnull Renderer renderer() {
+  public @Nonnull Renderer getRenderer() {
     return renderer;
   }
 
-  public @Nonnull Type returnType() {
+  public @Nonnull Type getReturnType() {
     return returnType;
   }
 
-  public @Nonnull Route returnType(@Nonnull Type returnType) {
+  public @Nonnull Route setReturnType(@Nonnull Type returnType) {
     this.returnType = returnType;
     return this;
   }
 
   public @Nonnull Parser parser(MediaType contentType) {
-    return parsers.getOrDefault(contentType.value(), Parser.UNSUPPORTED_MEDIA_TYPE);
+    return parsers.getOrDefault(contentType.getValue(), Parser.UNSUPPORTED_MEDIA_TYPE);
   }
 
   @Override public String toString() {

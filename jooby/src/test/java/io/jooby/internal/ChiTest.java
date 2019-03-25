@@ -8,8 +8,6 @@ import io.jooby.Throwing;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -56,22 +54,22 @@ public class ChiTest {
 
     find(router, "/", (ctx, result) -> {
       assertTrue(result.matches);
-      assertEquals("root", result.route().pipeline().apply(ctx));
+      assertEquals("root", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/foo", (ctx, result) -> {
       assertTrue(result.matches);
-      assertEquals("root", result.route().pipeline().apply(ctx));
+      assertEquals("root", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/foo/", (ctx, result) -> {
       assertTrue(result.matches);
-      assertEquals("root", result.route().pipeline().apply(ctx));
+      assertEquals("root", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/foo/x", (ctx, result) -> {
       assertTrue(result.matches);
-      assertEquals("foo", result.route().pipeline().apply(ctx));
+      assertEquals("foo", result.route().getPipeline().apply(ctx));
     });
   }
 

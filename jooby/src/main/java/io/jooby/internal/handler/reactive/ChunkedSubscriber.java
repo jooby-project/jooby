@@ -45,12 +45,12 @@ public class ChunkedSubscriber {
 
   public void onNext(Object item) {
     try {
-      Route route = ctx.route();
-      Renderer renderer = route.renderer();
+      Route route = ctx.getRoute();
+      Renderer renderer = route.getRenderer();
       byte[] data = renderer.render(ctx, item);
 
       if (responseType == null) {
-        responseType = ctx.responseContentType();
+        responseType = ctx.getResponseContentType();
         if (responseType.isJson()) {
           data = prepend(data, JSON_LBRACKET);
         }
@@ -80,9 +80,9 @@ public class ChunkedSubscriber {
     // we use it to mark the response as errored so we don't sent a possible trailing json response.
     responseType = null;
     try {
-      Logger log = ctx.router().log();
+      Logger log = ctx.getRouter().getLog();
       if (Server.connectionLost(x)) {
-        log.debug("connection lost: {} {}", ctx.method(), ctx.pathString(), x);
+        log.debug("connection lost: {} {}", ctx.getMethod(), ctx.pathString(), x);
       } else {
         ctx.sendError(x);
       }

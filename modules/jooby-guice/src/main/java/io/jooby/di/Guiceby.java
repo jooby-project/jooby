@@ -40,8 +40,8 @@ public class Guiceby implements Extension {
 
   @Override public void install(@Nonnull Jooby application) {
     if (injector == null) {
-      Env env = application.environment();
-      Stage stage = env.name().equals("dev") ? Stage.DEVELOPMENT : Stage.PRODUCTION;
+      Env env = application.getEnvironment();
+      Stage stage = env.getName().equals("dev") ? Stage.DEVELOPMENT : Stage.PRODUCTION;
       injector = Guice.createInjector(stage, modules);
     }
     application.registry(new GuiceRegistry(injector));

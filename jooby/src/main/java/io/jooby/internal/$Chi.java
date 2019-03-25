@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 class $Chi implements RadixTree {
@@ -422,7 +421,7 @@ class $Chi implements RadixTree {
             Route h = xn.endpoints.get(method);
             if (h != null) {
               // rctx.routeParams.Keys = append(rctx.routeParams.Keys, h.paramKeys...)
-              rctx.key(h.pathKeys());
+              rctx.key(h.getPathKeys());
               return h;
             }
 
@@ -636,7 +635,7 @@ class $Chi implements RadixTree {
 
 
   public void insert(Route route) {
-    root.insertRoute(route.method(), route.pattern(), route);
+    root.insertRoute(route.getMethod(), route.getPattern(), route);
   }
 
   @Override public void destroy() {
@@ -644,7 +643,7 @@ class $Chi implements RadixTree {
   }
 
   public RouterMatch find(Context context, Renderer renderer, List<RadixTree> more) {
-    String method = context.method();
+    String method = context.getMethod();
     String path = Router.normalizePath(context.pathString(), caseSensitive, ignoreTrailingSlash);
     RouterMatch result = new RouterMatch();
     Route route = root.findRoute(result, method, path);

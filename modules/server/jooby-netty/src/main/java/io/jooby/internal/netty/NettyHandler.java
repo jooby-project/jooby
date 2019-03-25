@@ -124,13 +124,13 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     try {
-      Logger log = router.log();
+      Logger log = router.getLog();
       if (Server.connectionLost(cause)) {
         if (log.isDebugEnabled()) {
           if (context == null) {
             log.debug("execution resulted in connection lost", cause);
           } else {
-            log.debug("%s %s", context.method(), context.pathString(), cause);
+            log.debug("%s %s", context.getMethod(), context.pathString(), cause);
           }
         }
       } else {

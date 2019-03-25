@@ -107,10 +107,10 @@ public class AssetHandler implements Route.Handler, Route.Aware {
   }
 
   @Override public void setRoute(Route route) {
-    List<String> keys = route.pathKeys();
+    List<String> keys = route.getPathKeys();
     this.filekey = keys.size() == 0 ? "*" : keys.get(0);
 
     // NOTE: It send an inputstream we don't need a renderer
-    route.returnType(Context.class);
+    route.setReturnType(Context.class);
   }
 }

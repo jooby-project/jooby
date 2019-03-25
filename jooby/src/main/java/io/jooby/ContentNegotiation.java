@@ -49,7 +49,7 @@ public class ContentNegotiation {
       MediaType contentType = entry.getKey();
       for (MediaType type : types) {
         if (contentType.matches(type)) {
-          int score = type.score();
+          int score = type.getScore();
           if (score > maxScore) {
             maxScore = score;
             result = entry.getValue();

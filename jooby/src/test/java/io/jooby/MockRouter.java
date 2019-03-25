@@ -14,8 +14,8 @@ public class MockRouter {
   public MockRouter(Supplier<Jooby> supplier) {
     this.supplier = () -> {
       Jooby jooby = supplier.get();
-      if (jooby.environment() == null) {
-        jooby.environment(Env.create().build(jooby.getClass().getClassLoader(), "test"));
+      if (jooby.getEnvironment() == null) {
+        jooby.setEnvironment(Env.create().build(jooby.getClass().getClassLoader(), "test"));
       }
       return jooby;
     };
@@ -25,7 +25,7 @@ public class MockRouter {
     this.supplier = () -> {
       Jooby jooby = new Jooby();
       Env env = Env.create().build(getClass().getClassLoader(), "test");
-      jooby.environment(env);
+      jooby.setEnvironment(env);
       consumer.accept(jooby);
       return jooby;
     };
@@ -108,13 +108,13 @@ public class MockRouter {
     }
     Router.Match match = router.match(ctx);
     ctx.setPathMap(match.pathMap());
-    ctx.route(match.route());
-    Object value = match.route().handler().execute(ctx);
-    Result result = new Result(value, ctx.statusCode());
+    ctx.setRoute(match.route());
+    Object value = match.route().getHandler().execute(ctx);
+    Result result = new Result(value, ctx.getStatusCode());
 
     /** Content-Type: */
     result.header("Content-Type",
-        ctx.responseContentType().toContentTypeHeader(ctx.getResponseCharset()));
+        ctx.getResponseContentType().toContentTypeHeader(ctx.getResponseCharset()));
 
     /** Length: */
     long responseLength = ctx.getResponseLength();

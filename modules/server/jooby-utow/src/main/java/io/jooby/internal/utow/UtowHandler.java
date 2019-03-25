@@ -17,7 +17,6 @@ package io.jooby.internal.utow;
 
 import io.jooby.Context;
 import io.jooby.Err;
-import io.jooby.MediaType;
 import io.jooby.Router;
 import io.jooby.StatusCode;
 import io.undertow.io.Receiver;
@@ -28,10 +27,8 @@ import io.undertow.server.handlers.form.FormEncodedDataDefinition;
 import io.undertow.server.handlers.form.FormParserFactory;
 import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.util.HeaderMap;
-import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class UtowHandler implements HttpHandler {
@@ -69,7 +66,7 @@ public class UtowHandler implements HttpHandler {
       if (len > 0 || (chunked != null && "chunked".equalsIgnoreCase(chunked))) {
         /** Eager body parsing: */
         FormDataParser parser = FormParserFactory.builder(false)
-            .addParser(new MultiPartParserDefinition(router.tmpdir())
+            .addParser(new MultiPartParserDefinition(router.getTmpdir())
                 .setDefaultEncoding(StandardCharsets.UTF_8.name()))
             .addParser(new FormEncodedDataDefinition()
                 .setDefaultEncoding(StandardCharsets.UTF_8.name()))

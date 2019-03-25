@@ -58,7 +58,7 @@ public class ByteRange {
     ctx.setHeader("Accept-Ranges", "bytes");
     ctx.setHeader("Content-Range", "bytes " + start + "-" + end + "/" + contentLength);
     ctx.setHeader("Content-Length", limit);
-    ctx.statusCode(StatusCode.PARTIAL_CONTENT);
+    ctx.setStatusCode(StatusCode.PARTIAL_CONTENT);
     return new ByteRange(start, limit);
   }
 

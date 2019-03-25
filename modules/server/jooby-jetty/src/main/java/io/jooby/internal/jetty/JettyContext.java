@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -73,11 +72,11 @@ public class JettyContext implements Callback, Context {
     this.maxRequestSize = maxRequestSize;
   }
 
-  @Nonnull @Override public AttributeMap attributes() {
+  @Nonnull @Override public AttributeMap getAttributes() {
     return attributes;
   }
 
-  @Override public String name() {
+  @Override public String getServerName() {
     return "jetty";
   }
 
@@ -94,19 +93,19 @@ public class JettyContext implements Callback, Context {
     }
   }
 
-  @Nonnull @Override public Router router() {
+  @Nonnull @Override public Router getRouter() {
     return router;
   }
 
-  @Nonnull @Override public String method() {
+  @Nonnull @Override public String getMethod() {
     return request.getMethod().toUpperCase();
   }
 
-  @Nonnull @Override public Route route() {
+  @Nonnull @Override public Route getRoute() {
     return route;
   }
 
-  @Nonnull @Override public Context route(Route route) {
+  @Nonnull @Override public Context setRoute(Route route) {
     this.route = route;
     return this;
   }
@@ -150,7 +149,7 @@ public class JettyContext implements Callback, Context {
       form = multipart;
 
       request.setAttribute(__MULTIPART_CONFIG_ELEMENT,
-          new MultipartConfigElement(router.tmpdir().toString(), -1L, maxRequestSize, bufferSize));
+          new MultipartConfigElement(router.getTmpdir().toString(), -1L, maxRequestSize, bufferSize));
 
       formParam(request, multipart);
 
@@ -191,11 +190,11 @@ public class JettyContext implements Callback, Context {
     return headers;
   }
 
-  @Nonnull @Override public String remoteAddress() {
+  @Nonnull @Override public String getRemoteAddress() {
     return request.getRemoteAddr();
   }
 
-  @Nonnull @Override public String protocol() {
+  @Nonnull @Override public String getProtocol() {
     return request.getProtocol();
   }
 
@@ -204,12 +203,12 @@ public class JettyContext implements Callback, Context {
   }
 
   @Nonnull @Override public Context dispatch(@Nonnull Runnable action) {
-    return dispatch(router.worker(), action);
+    return dispatch(router.getWorker(), action);
   }
 
   @Nonnull @Override
   public Context dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {
-    if (router.worker() == executor) {
+    if (router.getWorker() == executor) {
       action.run();
     } else {
       ifStartAsync();
@@ -224,22 +223,22 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
-  @Nonnull @Override public StatusCode statusCode() {
+  @Nonnull @Override public StatusCode getStatusCode() {
     return StatusCode.valueOf(response.getStatus());
   }
 
-  @Nonnull @Override public Context statusCode(int statusCode) {
+  @Nonnull @Override public Context setStatusCode(int statusCode) {
     response.setStatus(statusCode);
     return this;
   }
 
-  @Nonnull @Override public MediaType responseContentType() {
+  @Nonnull @Override public MediaType getResponseContentType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
   @Nonnull @Override public Context setDefaultContentType(@Nonnull MediaType contentType) {
     if (responseType == null) {
-      setContentType(contentType, contentType.charset());
+      setContentType(contentType, contentType.getCharset());
     }
     return this;
   }
@@ -360,12 +359,12 @@ public class JettyContext implements Callback, Context {
   }
 
   void destroy(Throwable x) {
-    Logger log = router.log();
+    Logger log = router.getLog();
     if (x != null) {
       if (Server.connectionLost(x)) {
-        log.debug("exception found while sending response {} {}", method(), pathString(), x);
+        log.debug("exception found while sending response {} {}", getMethod(), pathString(), x);
       } else {
-        log.error("exception found while sending response {} {}", method(), pathString(), x);
+        log.error("exception found while sending response {} {}", getMethod(), pathString(), x);
       }
     }
     if (files != null) {
@@ -386,7 +385,7 @@ public class JettyContext implements Callback, Context {
         response.closeOutput();
       }
     } catch (IOException e) {
-      log.debug("exception found while closing resources {} {} {}", method(), pathString(), e);
+      log.debug("exception found while closing resources {} {} {}", getMethod(), pathString(), e);
     }
     this.router = null;
     this.request = null;

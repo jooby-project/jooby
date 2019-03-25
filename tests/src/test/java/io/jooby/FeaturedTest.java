@@ -241,15 +241,15 @@ public class FeaturedTest {
   public void httpMethods() {
     new JoobyRunner(app -> {
 
-      app.get("/", ctx -> ctx.method());
+      app.get("/", ctx -> ctx.getMethod());
 
-      app.post("/", ctx -> ctx.method());
+      app.post("/", ctx -> ctx.getMethod());
 
-      app.put("/", ctx -> ctx.method());
+      app.put("/", ctx -> ctx.getMethod());
 
-      app.delete("/", ctx -> ctx.method());
+      app.delete("/", ctx -> ctx.getMethod());
 
-      app.patch("/", ctx -> ctx.method());
+      app.patch("/", ctx -> ctx.getMethod());
 
     }).ready(client -> {
       client.get("/", rsp -> {
@@ -412,22 +412,22 @@ public class FeaturedTest {
   @Test
   public void paramKeys() {
     new JoobyRunner(app -> {
-      app.get("/articles/{id}", ctx -> ctx.route().pathKeys());
+      app.get("/articles/{id}", ctx -> ctx.getRoute().getPathKeys());
 
-      app.get("/articles/*", ctx -> ctx.route().pathKeys());
+      app.get("/articles/*", ctx -> ctx.getRoute().getPathKeys());
 
-      app.get("/file/*path", ctx -> ctx.route().pathKeys());
+      app.get("/file/*path", ctx -> ctx.getRoute().getPathKeys());
 
-      app.get("/regex/{nid:[0-9]+}", ctx -> ctx.route().pathKeys());
-      app.get("/regex/{zid:[0-9]+}/edit", ctx -> ctx.route().pathKeys());
+      app.get("/regex/{nid:[0-9]+}", ctx -> ctx.getRoute().getPathKeys());
+      app.get("/regex/{zid:[0-9]+}/edit", ctx -> ctx.getRoute().getPathKeys());
 
-      app.get("/file/{file}.json", ctx -> ctx.route().pathKeys());
+      app.get("/file/{file}.json", ctx -> ctx.getRoute().getPathKeys());
 
-      app.get("/file/{file}.{ext}", ctx -> ctx.route().pathKeys());
+      app.get("/file/{file}.{ext}", ctx -> ctx.getRoute().getPathKeys());
 
-      app.get("/profile/{pid}", ctx -> ctx.route().pathKeys());
+      app.get("/profile/{pid}", ctx -> ctx.getRoute().getPathKeys());
 
-      app.get("/profile/me", ctx -> ctx.route().pathKeys());
+      app.get("/profile/me", ctx -> ctx.getRoute().getPathKeys());
 
     }).ready(client -> {
       client.get("/articles/123", rsp -> {
@@ -529,14 +529,14 @@ public class FeaturedTest {
 
       app.post("/f", ctx -> {
         FileUpload f = ctx.file("f");
-        return f.filename() + "(type=" + f.contentType() + ";exists=" + Files
+        return f.getFileName() + "(type=" + f.getContentType() + ";exists=" + Files
             .exists(f.path())
             + ")";
       });
 
       app.post("/files", ctx -> {
         List<FileUpload> files = ctx.files("f");
-        return files.stream().map(f -> f.filename() + "=" + f.filesize())
+        return files.stream().map(f -> f.getFileName() + "=" + f.getFileSize())
             .collect(Collectors.toList());
       });
 
@@ -627,7 +627,7 @@ public class FeaturedTest {
       app.before(ctx -> {
         StringBuilder buff = new StringBuilder();
         buff.append("before1:" + ctx.isInIoThread()).append(";");
-        ctx.attributes().put(BUFF, buff);
+        ctx.getAttributes().put(BUFF, buff);
       });
 
       app.after((ctx, value) -> {
@@ -638,12 +638,12 @@ public class FeaturedTest {
 
       app.dispatch(() -> {
         app.before(ctx -> {
-          StringBuilder buff = ctx.attributes().get(BUFF);
+          StringBuilder buff = ctx.getAttributes().get(BUFF);
           buff.append("before2:" + ctx.isInIoThread()).append(";");
         });
 
         app.after((ctx, value) -> {
-          StringBuilder buff = ctx.attributes().get(BUFF);
+          StringBuilder buff = ctx.getAttributes().get(BUFF);
           buff.append(value).append(";");
           buff.append("after2:" + ctx.isInIoThread()).append(";");
           return buff;
@@ -928,7 +928,7 @@ public class FeaturedTest {
   @Test
   public void basePath() {
     new JoobyRunner(app -> {
-      app.contextPath("/foo");
+      app.setContextPath("/foo");
       app.get("/bar", ctx -> ctx.pathString());
 
     }).ready(client -> {
@@ -1184,7 +1184,7 @@ public class FeaturedTest {
   @Test
   public void customHttpMethod() {
     new JoobyRunner(app -> {
-      app.route("foo", "/bar", Context::method);
+      app.route("foo", "/bar", Context::getMethod);
     }).ready(client -> {
       client.invoke("foo", "/bar").execute(rsp -> {
         assertEquals("FOO", rsp.body().string());

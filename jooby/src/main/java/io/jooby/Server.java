@@ -21,7 +21,6 @@ import java.nio.channels.ClosedChannelException;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
 
 public interface Server {
 
@@ -31,7 +30,7 @@ public interface Server {
 
     protected void fireStart(List<Jooby> applications, Executor defaultWorker) {
       for (Jooby app : applications) {
-        app.defaultWorker(defaultWorker).start(this);
+        app.setDefaultWorker(defaultWorker).start(this);
       }
     }
 

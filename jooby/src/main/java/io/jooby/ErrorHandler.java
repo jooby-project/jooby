@@ -33,7 +33,7 @@ public interface ErrorHandler {
     Set<StatusCode> silent = new HashSet<>(Arrays.asList(quiet));
     return (ctx, cause, statusCode) -> {
       String msg = new StringBuilder()
-          .append(ctx.method())
+          .append(ctx.getMethod())
           .append(" ")
           .append(ctx.pathString())
           .append(" ")
@@ -54,7 +54,7 @@ public interface ErrorHandler {
         .accept(json, () -> {
           String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
           return ctx.setContentType(json)
-              .statusCode(statusCode)
+              .setStatusCode(statusCode)
               .sendString("{\"message\":\"" + message + "\",\"statusCode\":" + statusCode.value()
                   + ",\"reason\":\"" + statusCode.reason() + "\"}");
         })
@@ -91,7 +91,7 @@ public interface ErrorHandler {
 
           return ctx
               .setContentType(MediaType.html)
-              .statusCode(statusCode)
+              .setStatusCode(statusCode)
               .sendString(html.toString());
         }).render(ctx);
   };

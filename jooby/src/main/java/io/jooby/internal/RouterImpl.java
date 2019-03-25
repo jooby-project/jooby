@@ -162,10 +162,10 @@ public class RouterImpl implements Router {
   }
 
   private void defaultParser() {
-    parsers.put(MediaType.text.value(), Parser.RAW);
+    parsers.put(MediaType.text.getValue(), Parser.RAW);
   }
 
-  @Nonnull @Override public AttributeMap attributes() {
+  @Nonnull @Override public AttributeMap getAttributes() {
     return attributes;
   }
 
@@ -181,7 +181,7 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Nonnull @Override public Router contextPath(@Nonnull String basePath) {
+  @Nonnull @Override public Router setContextPath(@Nonnull String basePath) {
     if (routes.size() > 0) {
       throw new IllegalStateException("Base path must be set before adding any routes.");
     }
@@ -189,15 +189,15 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Nonnull @Override public Path tmpdir() {
+  @Nonnull @Override public Path getTmpdir() {
     return Paths.get(System.getProperty("java.io.tmpdir"));
   }
 
-  @Nonnull @Override public String contextPath() {
+  @Nonnull @Override public String getContextPath() {
     return basePath == null ? "/" : basePath;
   }
 
-  @Nonnull @Override public List<Route> routes() {
+  @Nonnull @Override public List<Route> getRoutes() {
     return routes;
   }
 
@@ -208,8 +208,8 @@ public class RouterImpl implements Router {
       trees = new ArrayList<>();
     }
     trees.add(tree);
-    for (Route route : router.routes()) {
-      route(route.method(), route.pattern(), route.handler(), tree);
+    for (Route route : router.getRoutes()) {
+      route(route.getMethod(), route.getPattern(), route.getHandler(), tree);
     }
     return this;
   }
@@ -219,9 +219,9 @@ public class RouterImpl implements Router {
     if (prefix.equals("/")) {
       prefix = "";
     }
-    for (Route route : router.routes()) {
-      String routePattern = prefix + route.pattern();
-      route(route.method(), routePattern, route.handler());
+    for (Route route : router.getRoutes()) {
+      String routePattern = prefix + route.getPattern();
+      route(route.getMethod(), routePattern, route.getHandler());
     }
     return this;
   }
@@ -257,21 +257,21 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router parser(@Nonnull MediaType contentType, @Nonnull Parser parser) {
-    parsers.put(contentType.value(), parser);
+    parsers.put(contentType.getValue(), parser);
     return this;
   }
 
-  @Nonnull @Override public Executor worker() {
+  @Nonnull @Override public Executor getWorker() {
     return worker;
   }
 
-  @Nonnull @Override public Router worker(Executor worker) {
+  @Nonnull @Override public Router setWorker(Executor worker) {
     ForwardingExecutor workerRef = (ForwardingExecutor) this.worker;
     workerRef.executor = worker;
     return this;
   }
 
-  @Nonnull @Override public Router defaultWorker(@Nonnull Executor worker) {
+  @Nonnull @Override public Router setDefaultWorker(@Nonnull Executor worker) {
     ForwardingExecutor workerRef = (ForwardingExecutor) this.worker;
     if (workerRef.executor == null) {
       workerRef.executor = worker;
@@ -364,7 +364,7 @@ public class RouterImpl implements Router {
     if (method.equals("*")) {
       METHODS.forEach(m -> tree.insert(m, routePattern, route));
     } else {
-      tree.insert(route.method(), routePattern, route);
+      tree.insert(route.getMethod(), routePattern, route);
     }
     routes.add(route);
 
@@ -376,21 +376,21 @@ public class RouterImpl implements Router {
 
   @Nonnull public Router start(@Nonnull Jooby owner) {
     if (err == null) {
-      err = ErrorHandler.log(owner.log(), StatusCode.NOT_FOUND)
+      err = ErrorHandler.log(owner.getLog(), StatusCode.NOT_FOUND)
           .then(ErrorHandler.DEFAULT);
     }
-    ExecutionMode mode = owner.mode();
+    ExecutionMode mode = owner.getExecutionMode();
     for (Route route : routes) {
       Executor executor = routeExecutor.get(route);
       if (executor instanceof ForwardingExecutor) {
         executor = ((ForwardingExecutor) executor).executor;
       }
       /** Return type: */
-      if (route.returnType() == null) {
-        route.returnType(analyzer.returnType(route.handle()));
+      if (route.getReturnType() == null) {
+        route.setReturnType(analyzer.returnType(route.getHandle()));
       }
       Route.Handler pipeline = Pipeline.compute(source.getLoader(), route, mode, executor);
-      route.pipeline(pipeline);
+      route.setPipeline(pipeline);
     }
     // unwrap executor
     worker = ((ForwardingExecutor) worker).executor;
@@ -403,7 +403,7 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Override public Logger log() {
+  @Override public Logger getLog() {
     return LoggerFactory.getLogger(getClass());
   }
 
@@ -424,7 +424,7 @@ public class RouterImpl implements Router {
     // NOOP
   }
 
-  @Nonnull @Override public ErrorHandler errorHandler() {
+  @Nonnull @Override public ErrorHandler getErrorHandler() {
     return err;
   }
 
@@ -443,7 +443,7 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override public StatusCode errorCode(@Nonnull Throwable x) {
     if (x instanceof Err) {
-      return ((Err) x).statusCode;
+      return ((Err) x).getStatusCode();
     }
     if (errorCodes != null) {
       Class type = x.getClass();
@@ -470,12 +470,12 @@ public class RouterImpl implements Router {
   @Override public String toString() {
     StringBuilder buff = new StringBuilder();
     int size = IntStream.range(0, routes.size())
-        .map(i -> routes.get(i).method().length() + 1)
+        .map(i -> routes.get(i).getMethod().length() + 1)
         .max()
         .orElse(0);
 
     routes.forEach(
-        r -> buff.append(String.format("\n  %-" + size + "s", r.method())).append(r.pattern()));
+        r -> buff.append(String.format("\n  %-" + size + "s", r.getMethod())).append(r.getPattern()));
     return buff.length() > 0 ? buff.substring(1) : "";
   }
 
@@ -514,7 +514,7 @@ public class RouterImpl implements Router {
       Route.Handler instance = MvcCompiler.newHandler(source.getLoader(), method, provider);
 
       route(method.getHttpMethod(), method.getPattern(), instance)
-          .returnType(method.getReturnType(source.getLoader()));
+          .setReturnType(method.getReturnType(source.getLoader()));
     });
   }
 

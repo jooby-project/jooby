@@ -7,14 +7,11 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +27,7 @@ public class EnvTest {
           + " └── env variables\n"
           + "  └── classpath://env/foo/application.conf\n"
           + "   └── defaults", env.toString());
-      assertEquals("dev", env.name());
+      assertEquals("dev", env.getName());
       assertEquals(System.getProperty("user.dir"), conf.getString("user.dir"));
       assertEquals("bar", conf.getString("foo"));
       assertEquals(asList("a", "b", "c"), conf.getStringList("letters"));
@@ -43,13 +40,13 @@ public class EnvTest {
           + "  └── classpath://env/foo/application.prod.conf\n"
           + "   └── classpath://env/foo/application.conf\n"
           + "    └── defaults", env.toString());
-      assertEquals("prod", env.name());
+      assertEquals("prod", env.getName());
       assertEquals("bazz", conf.getString("foo"));
       assertEquals(asList("a", "b", "c"), conf.getStringList("letters"));
     });
 
     env("empty", (env, conf) -> {
-      assertEquals("dev", env.name());
+      assertEquals("dev", env.getName());
     });
   }
 
@@ -66,7 +63,7 @@ public class EnvTest {
     Env env = Env.create()
         .basedir(basedir)
         .build(getClass().getClassLoader(), "prod");
-    assertEquals("bazz", env.conf().getString("foo"));
+    assertEquals("bazz", env.getConfig().getString("foo"));
     assertEquals("dev\n"
         + "└── system.properties\n"
         + " └── env variables\n"
@@ -80,9 +77,9 @@ public class EnvTest {
 
     Env env = new Env("test", ConfigFactory.parseMap(mapOf("h.pool", "1", "h.db.pool", "2")));
 
-    assertEquals("1", env.conf().getString("h.pool"));
-    assertEquals("2", env.conf().getString("h.db.pool"));
-    assertEquals(mapOf("pool", "2"), env.conf().getConfig("h.db").root().unwrapped());
+    assertEquals("1", env.getConfig().getString("h.pool"));
+    assertEquals("2", env.getConfig().getString("h.db.pool"));
+    assertEquals(mapOf("pool", "2"), env.getConfig().getConfig("h.db").root().unwrapped());
   }
 
   @Test
@@ -106,7 +103,7 @@ public class EnvTest {
       Env env = Env.create()
           .basedir("env/" + dir)
           .build(getClass().getClassLoader(), args.getOrDefault("application.env", "dev"));
-      consumer.accept(env, env.conf());
+      consumer.accept(env, env.getConfig());
     } finally {
       System.setProperties(sysprops);
     }

@@ -17,7 +17,6 @@ package io.jooby.hikari;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
-import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueType;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -26,7 +25,6 @@ import io.jooby.AttributeMap;
 import io.jooby.Env;
 import io.jooby.Extension;
 import io.jooby.Jooby;
-import io.jooby.Value;
 
 import javax.annotation.Nonnull;
 import javax.sql.DataSource;
@@ -34,14 +32,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
-import java.util.Random;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -62,7 +55,7 @@ public class Hikari implements Extension {
         dbkey = databaseName(database);
         dburl = database;
       } else {
-        Config conf = env.conf();
+        Config conf = env.getConfig();
         dburl = Stream.of(database + ".url", database)
             .filter(key -> conf.hasPath(key) && conf.getValue(key).valueType() == ConfigValueType.STRING)
             .findFirst()
@@ -79,8 +72,8 @@ public class Hikari implements Extension {
         return "jdbc:h2:mem:" + System.currentTimeMillis() + ";DB_CLOSE_DELAY=-1";
       } else if ("fs".equals(database)) {
         Path path = Paths
-            .get(env.conf().getString("application.tmpdir"),
-                env.conf().getString("application.name"));
+            .get(env.getConfig().getString("application.tmpdir"),
+                env.getConfig().getString("application.name"));
         return "jdbc:h2:" + path.toAbsolutePath();
       }
       return database;
@@ -141,7 +134,7 @@ public class Hikari implements Extension {
     private void props(Env env, BiConsumer<String, String> consumer, String... keys) {
       for (String key : keys) {
         try {
-          Config conf = env.conf();
+          Config conf = env.getConfig();
           if (conf.hasPath(key) && conf.getValue(key).valueType() == ConfigValueType.OBJECT) {
             conf.getConfig(key).root().unwrapped().forEach((k, v) -> {
               if (v instanceof String) {
@@ -188,10 +181,10 @@ public class Hikari implements Extension {
 
   @Override public void install(@Nonnull Jooby application) {
     if (hikari == null) {
-      hikari = builder().build(application.environment(), database);
+      hikari = builder().build(application.getEnvironment(), database);
     }
     HikariDataSource dataSource = new HikariDataSource(hikari);
-    AttributeMap attributes = application.attributes();
+    AttributeMap attributes = application.getAttributes();
     AttributeKey<DataSource> key = new AttributeKey<>(DataSource.class, database);
     /** Global default database: */
     attributes.putIfAbsent(KEY, dataSource);
@@ -295,7 +288,7 @@ public class Hikari implements Extension {
         // 5.x
         dataSourceClass("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", name -> {
           defaults.put("dataSourceClassName", name);
-          defaults.put("dataSource.encoding", env.conf().getString("application.charset"));
+          defaults.put("dataSource.encoding", env.getConfig().getString("application.charset"));
           defaults.put("dataSource.cachePrepStmts", true);
           defaults.put("dataSource.prepStmtCacheSize", 250);
           defaults.put("dataSource.prepStmtCacheSqlLimit", 2048);

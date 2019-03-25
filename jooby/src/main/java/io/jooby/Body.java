@@ -36,7 +36,7 @@ public interface Body extends Value {
 
   boolean isInMemory();
 
-  long length();
+  long getLength();
 
   ReadableByteChannel channel();
 

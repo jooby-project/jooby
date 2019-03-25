@@ -46,7 +46,7 @@ public class Weldby implements Extension {
   @Override public void install(@Nonnull Jooby application) {
     if (container == null) {
       if (packages == null || packages.length == 0) {
-        String basePackage = application.basePackage();
+        String basePackage = application.getBasePackage();
         if (basePackage == null) {
           throw new IllegalStateException("Weld requires at least one package to scan.");
         }

@@ -4,7 +4,7 @@ data class SearchQuery(val q: String)
 
 fun main(args: Array<String>) {
   run(args) {
-    val p = basePackage()
+    val p = getBasePackage()
     println(p)
     get {
       ":+1"

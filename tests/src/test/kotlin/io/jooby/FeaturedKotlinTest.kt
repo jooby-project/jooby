@@ -109,8 +109,8 @@ class FeaturedKotlinTest {
       Kooby {
         mvc(SuspendMvc())
 
-        error(ErrorHandler.log(log()).then { ctx, cause, statusCode ->
-          ctx.statusCode(statusCode)
+        error(ErrorHandler.log(getLog()).then { ctx, cause, statusCode ->
+          ctx.setStatusCode(statusCode)
               .sendString(cause.message!!)
         })
       }
