@@ -73,10 +73,10 @@ public class App extends Jooby {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.run
+import io.jooby.runApp
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     val dagger = DaggerAppComponent.builder() <1>
         .build()
     
@@ -114,10 +114,10 @@ public class App extends Jooby {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.run
+import io.jooby.runApp
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     val dagger = DaggerAppComponent.builder() <1>
         .build()
     
@@ -151,10 +151,10 @@ public class App extends Jooby {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.run
+import io.jooby.runApp
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     val dagger = DaggerAppComponent.builder()        <1>
         .build()
     
@@ -199,10 +199,10 @@ public class App extends Jooby {
 [source, kotlin, role = "secondary"]
 ----
 import io.jooby.di.Guiceby
-import io.jooby.run
+import io.jooby.runApp
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     install(Guiceby())                        <1>
     
     get ("/") { ctx ->
@@ -241,10 +241,10 @@ public class App extends Jooby {
 [source, kotlin, role = "secondary"]
 ----
 import io.jooby.di.Guiceby
-import io.jooby.run
+import io.jooby.runApp
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     install(Guiceby())         <1>
 
     mvc(MyController::class)   <2>
@@ -296,10 +296,10 @@ package myapp                                        <1>
 
 import io.jooby.di.Spring
 
-import io.jooby.run
+import io.jooby.runApp
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
 
     install(new Spring())                            <2>
 
@@ -389,10 +389,10 @@ public class App extends Jooby {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.run
+import io.jooby.runApp
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     install(Weldby())                               <1>
 
     get ("/") { ctx ->

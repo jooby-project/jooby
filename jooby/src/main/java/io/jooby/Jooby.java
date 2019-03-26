@@ -420,11 +420,11 @@ public class Jooby implements Router, Registry {
     return router.toString();
   }
 
-  public static void run(@Nonnull Supplier<Jooby> provider, String... args) {
-    run(provider, ExecutionMode.DEFAULT, args);
+  public static void runApp(@Nonnull Supplier<Jooby> provider, String... args) {
+    runApp(provider, ExecutionMode.DEFAULT, args);
   }
 
-  public static void run(@Nonnull Supplier<Jooby> provider, @Nonnull ExecutionMode mode,
+  public static void runApp(@Nonnull Supplier<Jooby> provider, @Nonnull ExecutionMode mode,
       String... args) {
 
     Class providerClass = provider.getClass();

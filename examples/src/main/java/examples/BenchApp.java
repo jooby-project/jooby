@@ -17,8 +17,6 @@ package examples;
 
 import io.jooby.Jooby;
 import io.jooby.ExecutionMode;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -64,6 +62,6 @@ public class BenchApp extends Jooby {
   }
 
   public static void main(String[] args) {
-    run(BenchApp::new, ExecutionMode.EVENT_LOOP, args);
+    runApp(BenchApp::new, ExecutionMode.EVENT_LOOP, args);
   }
 }

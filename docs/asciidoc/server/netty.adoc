@@ -1,3 +1,0 @@
-== Netty
-
-https://netty.io/[Netty] web server implementation.

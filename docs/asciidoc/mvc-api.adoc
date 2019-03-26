@@ -43,7 +43,7 @@ class MyController {
 
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     use(MyController())        // <3>
   }
 }
@@ -252,7 +252,7 @@ public class App extends Jooby {
   }
 
   public static void main(String[] args) {
-    run(App::new, args);
+    runApp(App::new, args);
   }
 }
 ----
@@ -264,7 +264,7 @@ public class App extends Jooby {
 import io.jooby.*
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     mvc(MyController())
   }
 }
@@ -282,7 +282,7 @@ public class App extends Jooby {
   }
 
   public static void main(String[] args) {
-    run(App::new, args);
+    runApp(App::new, args);
   }
 }
 ----
@@ -294,7 +294,7 @@ public class App extends Jooby {
 import io.jooby.*
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     mvc(MyController::class)
   }
 }
@@ -321,7 +321,7 @@ public class App extends Jooby {
   }
 
   public static void main(String[] args) {
-    run(App::new, args);
+    runApp(App::new, args);
   }
 }
 ----
@@ -333,7 +333,7 @@ import javax.inject.Provider
 import io.jooby.*
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     val provider = ...
     mvc(MyController::class, provider)
   }

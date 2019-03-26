@@ -24,7 +24,7 @@ public class App extends Jooby {
   }
 
   public static void main(String[] args) {
-    run(App::new, args);
+    runApp(App::new, args);
   }
 }
 ----
@@ -32,10 +32,10 @@ public class App extends Jooby {
 .Kotlin
 [source, kotlin, role="secondary"]
 ----
-import io.jooby.run
+import io.jooby.runApp
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     get("/") { ctx ->
       "Hello World!"
     }

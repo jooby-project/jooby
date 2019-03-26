@@ -1,9 +1,9 @@
-import io.jooby.run
+import io.jooby.runApp
 
 data class SearchQuery(val q: String)
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     val p = getBasePackage()
     println(p)
     get {

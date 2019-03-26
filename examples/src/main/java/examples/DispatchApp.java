@@ -43,6 +43,6 @@ public class DispatchApp extends Jooby {
   }
 
   public static void main(String[] args) {
-    run(DispatchApp::new, ExecutionMode.EVENT_LOOP, args);
+    runApp(DispatchApp::new, ExecutionMode.EVENT_LOOP, args);
   }
 }

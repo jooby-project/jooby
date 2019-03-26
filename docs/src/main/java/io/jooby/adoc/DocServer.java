@@ -24,7 +24,7 @@ public class DocServer {
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
     DirectoryWatcher watcher = DirectoryWatcher.builder()
-        .path(basedir)
+        .path(basedir.resolve("asciidoc"))
         .logger(NOP_LOGGER)
         .listener(event -> {
           Path file = event.path();

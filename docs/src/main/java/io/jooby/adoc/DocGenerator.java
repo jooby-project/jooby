@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.Attributes;
 import org.asciidoctor.Options;
+import org.asciidoctor.Placement;
 import org.asciidoctor.SafeMode;
 
 import java.io.IOException;
@@ -39,36 +40,32 @@ public class DocGenerator {
     Asciidoctor asciidoctor = Asciidoctor.Factory.create();
 
     Attributes attributes = new Attributes();
-    attributes.setAttribute("docinfo", "shared");
+
     attributes.setAttribute("joobyVersion", VERSION);
-    //:source-language: asciidoc
-    //:imagesdir: images
-    //:source-highlighter: highlightjs
-    //:highlightjs-theme: agate
-    //:favicon: images/favicon96.png
-    //:love: &#9825;
-    //:javadoc: https://static.javadoc.io/io.jooby/jooby/{joobyVersion}/io/jooby/
-    attributes.setAttribute("title", "jooby: do more! more easily!!");
-    attributes.setAttribute("toc", "left");
+    attributes.setAttribute("love", "&#9825;");
+
+    attributes.setAttribute("docinfo", "shared");
+    attributes.setTitle("jooby: do more! more easily!!");
+    attributes.setTableOfContents(Placement.LEFT);
     attributes.setAttribute("toclevels", "3");
-    attributes.setAttribute("sectanchors", "");
+    attributes.setAnchors(true);
     attributes.setAttribute("sectlinks", "");
-    attributes.setAttribute("sectnums", "");
+    attributes.setSectionNumbers(true);
     attributes.setAttribute("sectnumlevels", "3");
-    attributes.setAttribute("linkattrs", "");
-    attributes.setAttribute("nofooter", "");
+    attributes.setLinkAttrs(true);
+    attributes.setNoFooter(true);
     attributes.setAttribute("idprefix", "");
     attributes.setAttribute("idseparator", "-");
-    attributes.setAttribute("icons", "font");
+    attributes.setIcons("font");
     attributes.setAttribute("description", "The modular micro web framework for Java");
     attributes.setAttribute("keywords",
         "Java, Modern, Micro, Web, Framework, Reactive, Lightweight, Microservices");
-    attributes.setAttribute("imagesdir", "images");
-    attributes.setAttribute("source-highlighter", "highlightjs");
+    attributes.setImagesDir("images");
+    attributes.setSourceHighlighter("highlightjs");
     attributes.setAttribute("highlightjsdir", "js");
     attributes.setAttribute("highlightjs-theme", "agate");
     attributes.setAttribute("favicon", "images/favicon96.png");
-    attributes.setAttribute("love", "&#9825;");
+
 
     Path outdir = asciidoc.resolve("site");
     if (!Files.exists(outdir)) {

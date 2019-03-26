@@ -3,8 +3,6 @@ package examples;
 import io.jooby.Jooby;
 import io.reactivex.Flowable;
 
-import java.util.concurrent.TimeUnit;
-
 public class FlowableApp extends Jooby {
   {
     get("/chunk", ctx -> {
@@ -16,7 +14,7 @@ public class FlowableApp extends Jooby {
   }
 
   public static void main(String[] args) {
-    run(FlowableApp::new, args);
+    runApp(FlowableApp::new, args);
   }
 
 }

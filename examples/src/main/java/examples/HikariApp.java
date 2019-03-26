@@ -46,6 +46,6 @@ public class HikariApp extends Jooby {
   }
 
   public static void main(String[] args) {
-    run(HikariApp::new, args);
+    runApp(HikariApp::new, args);
   }
 }

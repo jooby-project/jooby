@@ -39,7 +39,7 @@ public class App extends Jooby {
   }
 
   public static void main(String[] args) {
-    run(App::new, args);
+    runApp(App::new, args);
   }
 }
 ----
@@ -47,10 +47,10 @@ public class App extends Jooby {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-import io.jooby.run
+import io.jooby.runApp
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     get ("/") { ctx ->
       "Welcome to Jooby!"
     }
@@ -90,7 +90,7 @@ Script API (a.k.a script routes) provides a fluent DSL, reflection and annotatio
 
 We usually extends `Jooby` and define routes in the instance initializer:
 
-.Script:
+.Script with sub-class:
 [source,java,role="primary"]
 ----
 import io.jooby.Jooby;
@@ -104,7 +104,7 @@ public class App extends Jooby {
   }
 
   public static void main(String[] args) {
-    run(App::new, args);
+    runApp(App::new, args);
   }
 }
 ----
@@ -113,7 +113,7 @@ public class App extends Jooby {
 [source,kotlin,role="secondary"]
 ----
 import io.jooby.Kooby;
-import io.jooby.run;
+import io.jooby.runApp;
 
 class App : Kooby({
 
@@ -124,13 +124,13 @@ class App : Kooby({
 })
 
 fun main(args: Array<String>) {
-  run(::App, args)
+  runApp(::App, args)
 }
 ----
 
 This is not strictly necessary (of course), you may create a `Jooby` application like:
 
-.No-subclass bootstrap:
+.Script without subclass:
 [source,java,role="primary"]
 ----
 import io.jooby.Jooby;
@@ -138,7 +138,7 @@ import io.jooby.Jooby;
 public class App {
 
   public static void main(String[] args) {
-    run(() -> {
+    runApp(() -> {
       Jooby app = new Jooby();
 
       app.get("/", ctx -> {
@@ -154,10 +154,10 @@ public class App {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-import io.jooby.run
+import io.jooby.runApp
 
 fun main(args: Array<String>) {
-  run(args) {
+  runApp(args) {
     get("/") { ctx ->
       "Hello Jooby!"
     }
@@ -180,7 +180,7 @@ public class App extends Jooby {
   }
 
   public static void main(String[] args) {
-    run(App::new, args);
+    runApp(App::new, args);
   }
 }
 
@@ -205,7 +205,7 @@ class App : Kooby({
 })
 
 fun main(args: Array<String>) {
-  run(::App, args)
+  runApp(::App, args)
 }
 
 import io.jooby.annotations.*;

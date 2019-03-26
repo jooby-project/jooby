@@ -1,3 +1,0 @@
-== Undertow
-
-http://undertow.io/[Undertow] web server implementation.
