@@ -486,6 +486,7 @@ public class NettyWebSocketTest {
               ready.await();
 
               TextWebSocketFrame frame = unit.get(TextWebSocketFrame.class);
+              expect(frame.isFinalFragment()).andReturn(true);
               expect(frame.text()).andReturn("text");
 
               Consumer<String> callback = unit.get(Consumer.class);
@@ -517,6 +518,7 @@ public class NettyWebSocketTest {
               expect(buff.nioBuffer()).andReturn(nioBuff);
 
               BinaryWebSocketFrame frame = unit.get(BinaryWebSocketFrame.class);
+              expect(frame.isFinalFragment()).andReturn(true);
               expect(frame.content()).andReturn(buff);
 
               Consumer<ByteBuffer> callback = unit.get(Consumer.class);
