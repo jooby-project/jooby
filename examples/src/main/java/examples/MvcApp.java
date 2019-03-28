@@ -10,6 +10,6 @@ public class MvcApp extends Jooby {
   }
 
   public static void main(String[] args) {
-    runApp(MvcApp::new, ExecutionMode.EVENT_LOOP, args);
+    runApp(ExecutionMode.EVENT_LOOP, args, MvcApp::new);
   }
 }

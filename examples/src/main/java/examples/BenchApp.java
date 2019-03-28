@@ -62,6 +62,6 @@ public class BenchApp extends Jooby {
   }
 
   public static void main(String[] args) {
-    runApp(BenchApp::new, ExecutionMode.EVENT_LOOP, args);
+    runApp(ExecutionMode.EVENT_LOOP, args, BenchApp::new);
   }
 }

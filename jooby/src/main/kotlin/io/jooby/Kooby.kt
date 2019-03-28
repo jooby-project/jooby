@@ -6,6 +6,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
+import java.util.function.Consumer
+import java.util.function.Supplier
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 
@@ -214,25 +216,25 @@ open class Kooby constructor() : Jooby() {
 @RouterDsl
 fun runApp(mode: ExecutionMode, args: Array<String>, init: Kooby.() -> Unit) {
   configurePackage(init)
-  Jooby.runApp({ Kooby(init) }, mode, args)
+  Jooby.runApp(mode, args, fun() = Kooby(init))
 }
 
 @RouterDsl
 fun runApp(args: Array<String>, init: Kooby.() -> Unit) {
   configurePackage(init)
-  Jooby.runApp({ Kooby(init) }, ExecutionMode.DEFAULT, args)
+  Jooby.runApp(ExecutionMode.DEFAULT, args, fun() = Kooby(init))
 }
 
 // ::App
 @RouterDsl
 fun runApp(init: () -> Kooby, args: Array<String>) {
-  runApp(init, ExecutionMode.DEFAULT, args)
+  runApp(ExecutionMode.DEFAULT, args, init)
 }
 
 @RouterDsl
-fun runApp(init: () -> Kooby, mode: ExecutionMode, args: Array<String>) {
+fun runApp(mode: ExecutionMode, args: Array<String>, init: () -> Kooby) {
   configurePackage(init)
-  Jooby.runApp(init, mode, args)
+  Jooby.runApp( mode, args, init)
 }
 
 internal fun configurePackage(value: Any) {

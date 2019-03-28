@@ -14,7 +14,7 @@ public class FlowableApp extends Jooby {
   }
 
   public static void main(String[] args) {
-    runApp(FlowableApp::new, args);
+    runApp(args, FlowableApp::new);
   }
 
 }

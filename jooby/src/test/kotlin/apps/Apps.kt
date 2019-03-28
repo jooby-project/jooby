@@ -32,7 +32,7 @@ fun runClass(args: Array<String>) {
 
 /** run class with mode: */
 fun runWithMode(args: Array<String>) {
-  runApp(::App, ExecutionMode.DEFAULT, args)
+  runApp(ExecutionMode.DEFAULT, args, ::App)
 }
 
 /** run inline: */

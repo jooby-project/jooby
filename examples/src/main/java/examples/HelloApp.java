@@ -103,6 +103,6 @@ public class HelloApp extends Jooby {
   }
 
   public static void main(String[] args) {
-    runApp(HelloApp::new, args);
+    runApp(args, HelloApp::new);
   }
 }

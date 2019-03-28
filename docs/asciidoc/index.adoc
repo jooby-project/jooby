@@ -28,18 +28,14 @@ Jooby is a modern, performant and easy to use web framework for Java and Kotlin 
 .Welcome!!
 [source,java,role="primary"]
 ----
-import io.jooby.Jooby;
+import static io.jooby.Jooby.runApp;
 
-public class App extends Jooby {
-
-  {
-    get("/", ctx -> {
-      return "Welcome to Jooby!";
-    }); 
-  }
+public class App {
 
   public static void main(String[] args) {
-    runApp(App::new, args);
+    runApp(args, app -> {
+      app.get("/", ctx -> "Welcome to Jooby!");
+    });
   }
 }
 ----
@@ -51,9 +47,7 @@ import io.jooby.runApp
 
 fun main(args: Array<String>) {
   runApp(args) {
-    get ("/") { ctx ->
-      "Welcome to Jooby!"
-    }
+    get ("/") { ctx -> "Welcome to Jooby!" }
   }
 }
 ----
@@ -73,16 +67,17 @@ Thank you {love}
 
 === Micro and Fullstack
 
-Jooby is a modular micro framework. At the core level:
+Jooby is a modular micro framework. At his core:
   
 - Reflection and annotation free
 - Only HTTP Routing
-- Multi Server: link:server/jetty.html[Jetty], link:server/netty.html[Netty], link:server/undertow.html[Undertow]
+- https://github.com/lightbend/config[Configuration] and https://www.slf4j.org[SLF4J]
+- Multi Server: https://https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty], http://undertow.io[Undertow]
 
-Now, if you need more... Jooby don't leave you alone:
+and more:
 
 - MVC programming model (similar to JAX-RS)
-- Module ecosytem
+- Module extension system
 
 === Script API
 
@@ -98,13 +93,11 @@ import io.jooby.Jooby;
 public class App extends Jooby {
 
   {
-    get("/", ctx -> {
-      return "Hello Jooby!";
-    }); 
+    get("/", ctx -> "Hello Jooby!"); 
   }
 
   public static void main(String[] args) {
-    runApp(App::new, args);
+    runApp(args, App::new);
   }
 }
 ----
@@ -117,18 +110,16 @@ import io.jooby.runApp;
 
 class App : Kooby({
 
-  get("/") { ctx ->
-    "Hello Jooby!"
-  }
+  get("/") { ctx -> "Hello Jooby!" }
 
 })
 
 fun main(args: Array<String>) {
-  runApp(::App, args)
+  runApp(args, ::App)
 }
 ----
 
-This is not strictly necessary (of course), you may create a `Jooby` application like:
+This is not strictly necessary (of course), you may create a `Jooby` application without subclass:
 
 .Script without subclass:
 [source,java,role="primary"]
@@ -138,14 +129,10 @@ import io.jooby.Jooby;
 public class App {
 
   public static void main(String[] args) {
-    runApp(() -> {
-      Jooby app = new Jooby();
+    runApp(app -> {
 
-      app.get("/", ctx -> {
-        return "Hello Jooby!";
-      });
+      app.get("/", ctx -> "Hello Jooby!");
 
-      return app;
     }, args);
   }
 }
@@ -158,9 +145,9 @@ import io.jooby.runApp
 
 fun main(args: Array<String>) {
   runApp(args) {
-    get("/") { ctx ->
-      "Hello Jooby!"
-    }
+
+    get("/") { ctx -> "Hello Jooby!" }
+
   }
 }
 ----
@@ -168,21 +155,11 @@ fun main(args: Array<String>) {
 [#introduction-mvc-api]
 === MVC API
 
-On the other hand, the MVC API (a.k.a mvc routes) uses annotation to define routes and byte code generation to execute routes.
+The MVC API (a.k.a mvc routes) uses annotation to define routes and byte code generation to execute them.
 
 .MVC API:
 [source,java,role="primary"]
 ----
-public class App extends Jooby {
-
-  {
-    use(new MyController());
-  }
-
-  public static void main(String[] args) {
-    runApp(App::new, args);
-  }
-}
 
 import io.jooby.annotations.*;
 
@@ -193,21 +170,22 @@ public class MyController {
     return "Hello Jooby!";
   }
 }
+
+public class App {
+
+  public static void main(String[] args) {
+    runApp(args, app -> {
+
+      app.use(new MyController());
+
+    });
+  }
+}
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-class App : Kooby({
-
-    use(MyController())
-
-})
-
-fun main(args: Array<String>) {
-  runApp(::App, args)
-}
-
 import io.jooby.annotations.*;
 
 class MyController {
@@ -215,6 +193,14 @@ class MyController {
   @GET
   fun sayHi() : String {
     return "Hello Jooby!"
+  }
+}
+
+fun main(args: Array<String>) {
+  runApp(args) {
+
+    use(MyController())
+
   }
 }
 ----

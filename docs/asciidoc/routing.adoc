@@ -8,7 +8,7 @@ The javadoc:Router[] is the heart of Jooby and consist of:
 
 === Route
 
-A javadoc:Route[] consist of three part:
+A javadoc:Route[] consists of three part:
 
 .Routes:
 [source, java, role="primary"]
@@ -151,11 +151,6 @@ to the client.
     int id = ctx.param("id").intValue(); // <2>
     return id;
   });
-  
-  get("/user/{id:[0-9]+}/edit", ctx -> {
-    int id = ctx.param("id").intValue();
-    return id;
-  });
 }
 ----
 
@@ -168,12 +163,7 @@ to the client.
     val id = ctx.param("id").intValue() // <2>
     id
   }
-  
-  get("/user/{id:[0-9]+}/edit") { ctx ->
-    val id = ctx.param("id").intValue()
-    id
-  }
-}
+}`
 ----
 
 <1> Defines a path variable: `id`. Regex expression is everything after the first `:`, like: `[0-9]+`
@@ -271,8 +261,8 @@ response.
 Output:
 
 <1> `GET /user/ppicapiedra` => `ppicapiedra`
-<2> `GET /user/me` => `me`
-<3> Unreachable, => override it by next route
+<2> `GET /user/me` => `my profile`
+<3> Unreachable => override it by next route
 <4> `GET /users` => `new users` not `users`
 
 Routes with most specific path pattern (`2` vs `1`) has more precedence. Also, is one or more routes

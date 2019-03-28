@@ -1,44 +1,57 @@
 == Getting Started
 
-Add the dependency:
+[id="getting-started-java"]
+=== Java
+
+1) Add the dependency:
 
 [dependency, artifactId="jooby-netty"]
 .
 
 [TIP]
 ====
-Jooby is a multi-server web framework. You are free to choose between: link:server/jetty.html[Jetty],
-link:server/netty.html[Netty] and link:server/utow.html[Undertow]. 
+Jooby is a multi-server web framework. You are free to choose between: Jetty, Netty and Undertow. 
 ====
 
-Write your application:
+2) Write code:
 
-.App:
-[source, java, role="primary"]
+.App.java:
+[source, java]
 ----
 import io.jooby.Jooby;
 
-public class App extends Jooby {
-  {
-    get("/", ctx -> "Hello World!");
-  }
+public class App {
 
   public static void main(String[] args) {
-    runApp(App::new, args);
+    runApp(args, app -> {
+
+       app.get("/", ctx -> "Hello World!");
+
+    });
   }
 }
 ----
 
-.Kotlin
-[source, kotlin, role="secondary"]
+[id="getting-started-kotlin"]
+=== Kotlin
+
+1) Add Kotlin dependencies:
+
+[dependency, artifactId="kotlin-stdlib-jdk8, kotlin-reflect:Optional. Only for MVC routes, kotlinx-coroutines-core:Optional. Only for suspend handlers"]
+.
+
+2) Write code:
+
+.App.kt
+[source, kotlin]
 ----
 import io.jooby.runApp
 
 fun main(args: Array<String>) {
   runApp(args) {
-    get("/") { ctx ->
-      "Hello World!"
-    }
+
+    get("/") { ctx -> "Hello World!" }
+
   }
 }
 ----

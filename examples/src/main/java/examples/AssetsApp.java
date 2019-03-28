@@ -29,6 +29,6 @@ public class AssetsApp extends Jooby {
   }
 
   public static void main(String[] args) {
-    runApp(AssetsApp::new, args);
+    runApp(args, AssetsApp::new);
   }
 }

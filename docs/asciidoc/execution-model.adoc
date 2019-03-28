@@ -21,23 +21,28 @@ The javadoc:ExecutionMode[EVENT_LOOP] mode allows us to run a route handler from
 .Java
 [source,java,role="primary"]
 ----
-{
-  mode(EVENT_LOOP);
+import static io.jooby.ExecutionMode.EVENT_LOOP;
+import static io.jooby.Jooby.runApp;
 
-  get("/", ctx -> {
-    return "I'm non-blocking!"
-  });
+public class App {
+
+  public static void main(String[] args) {
+    runApp(EVENT_LOOP, args, app -> {
+      app.get("/", ctx -> "I'm non-blocking!" );
+    }
+  }
 }
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-{
-  mode(EVENT_LOOP)
+import io.jooby.ExecutionMode.EVENT_LOOP
+import io.jooby.Jooby.runApp
 
-  get("/") { ctx ->
-    "I'm non-blocking!"
+fun main(args: Array<String>) {
+  runApp(EVENT_LOOP, args) {
+    get("/") { ctx -> "I'm non-blocking!" }
   }
 }
 ----
@@ -53,45 +58,56 @@ allows to do *blocking calls*:
 .Java
 [source,java,role="primary"]
 ----
-{
-  mode(EVENT_LOOP);
+import static io.jooby.ExecutionMode.EVENT_LOOP;
+import static io.jooby.Jooby.runApp;
 
-  get("/", ctx -> {
-    return "I'm non-blocking!";
-  });
+public class App {
 
-  dispatch(() -> {
-    // All the routes defined here are allowed to block:
+  public static void main(String[] args) {
+    runApp(EVENT_LOOP, args, app -> {
 
-    get("/db-list", ctx -> {
-      /** Safe to block! */
-      Object result = ...; // Remote service, db call, etc..
-      return result;
+      app.get("/", ctx -> {
+        return "I'm non-blocking!";
+      });
+    
+      app.dispatch(() -> {
+        // All the routes defined here are allowed to block:
+
+        app.get("/db-list", ctx -> {
+          /** Safe to block! */
+          Object result = ...; // Remote service, db call, etc..
+          return result;
+        });
+    
+      });
     });
-
-  });
+  }
 }
 ----
 
 .Koltin
 [source,kotlin,role="secondary"]
 ----
-{
-  mode(EVENT_LOOP)
+import io.jooby.ExecutionMode.EVENT_LOOP
+import io.jooby.Jooby.runApp
 
-  get("/") { ctx ->
-    "I'm non-blocking!"
-  }
+fun main(args: Array<String>) {
+  runApp(EVENT_LOOP, args) {
 
-  dispatch {
-    // All the routes defined here are allowed to block:
-
-    get("/db-list") { ctx ->
-      /** Safe to block! */
-      val result = ...; // Remote service, db call, etc..
-      result
+    get("/") { ctx ->
+      "I'm non-blocking!"
     }
-
+  
+    dispatch {
+      // All the routes defined here are allowed to block:
+  
+      get("/db-list") { ctx ->
+        /** Safe to block! */
+        val result = ...; // Remote service, db call, etc..
+        result
+      }
+  
+    }
   }
 }
 ----
@@ -104,43 +120,54 @@ You can provide your own *worker executor* at application level or at dispatch l
 .Java
 [source,java,role="primary"]
 ----
-{
-  mode(EVENT_LOOP);
-  
-  // Application level executor
-  worker(Executors.newCachedThreadPool());
+import static io.jooby.ExecutionMode.EVENT_LOOP;
+import static io.jooby.Jooby.runApp;
 
-  // Dispatch to application level executor which is cached thread pool
-  dispatch(() -> {
-    ...
-  });
+public class App {
+
+  public static void main(String[] args) {
+    runApp(EVENT_LOOP, args, app -> {
   
-  // Dispatch to a explicit executor
-  Executor cpuIntensive = Executors.newSingleThreadExecutor();
-  dispatch(cpuIntesive, () -> {
-    ...
-  });
+      // Application level executor
+      app.worker(Executors.newCachedThreadPool());
+    
+      // Dispatch to application level executor which is cached thread pool
+      app.dispatch(() -> {
+        ...
+      });
+      
+      // Dispatch to a explicit executor
+      Executor cpuIntensive = Executors.newSingleThreadExecutor();
+      app.dispatch(cpuIntesive, () -> {
+        ...
+      });
+    });
+  }
 }
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-{
-  mode(EVENT_LOOP)
-  
-  // Application level executor
-  worker(Executors.newCachedThreadPool())
+import io.jooby.ExecutionMode.EVENT_LOOP
+import io.jooby.Jooby.runApp
 
-  // Dispatch to application level executor which is cached thread pool
-  dispatch {
-    ...
-  }
+fun main(args: Array<String>) {
+  runApp(EVENT_LOOP, args) {
   
-  // Dispatch to a explicit executor
-  Executor cpuIntensive = Executors.newSingleThreadExecutor()
-  dispatch(cpuIntesive) {
-    ...
+    // Application level executor
+    worker(Executors.newCachedThreadPool())
+  
+    // Dispatch to application level executor which is cached thread pool
+    dispatch {
+      ...
+    }
+    
+    // Dispatch to a explicit executor
+    Executor cpuIntensive = Executors.newSingleThreadExecutor()
+    dispatch(cpuIntesive) {
+      ...
+    }
   }
 }
 ----
@@ -153,27 +180,38 @@ You just write code without worrying about blocking calls.
 .Java
 [source, java,role="primary"]
 ----
-{
-  mode(WORKER);
+import static io.jooby.ExecutionMode.WORKER;
+import static io.jooby.Jooby.runApp;
+
+public class App {
+
+  public static void main(String[] args) {
+    runApp(WORKER, args, app -> {
   
-  get("/", ctx -> {
-    /** Safe to block! */
-    Object result = // Remote service, db call, etc..
-    return result;
-  });
+      app.get("/", ctx -> {
+        /** Safe to block! */
+        Object result = // Remote service, db call, etc..
+        return result;
+      });
+    });
+  }
 }
 ----
 
 .Kotlin
 [source, kotlin,role="secondary"]
 ----
-{
-  mode(WORKER)
-  
-  get("/") { ctx ->
-    /** Safe to block! */
-    val result = ...;// Remote service, db call, etc..
-    result
+import io.jooby.ExecutionMode.WORKER
+import io.jooby.Jooby.runApp
+
+fun main(args: Array<String>) {
+  runApp(WORKER, args) {
+
+    get("/") { ctx ->
+      /** Safe to block! */
+      val result = ...;// Remote service, db call, etc..
+      result
+    }
   }
 }
 ----
@@ -183,31 +221,42 @@ Like with javadoc:ExecutionMode[EVENT_LOOP] mode, you can provide your own worke
 .Java
 [source,java,role="primary"]
 ----
-{
-  mode(WORKER);
+import static io.jooby.ExecutionMode.WORKER;
+import static io.jooby.Jooby.runApp;
 
-  worker(Executors.newCachedThreadPool());
+public class App {
 
-  get("/", ctx -> {
-    /** Safe to block from cached thread pool! */
-    Object result = // Remote service, db call, etc..
-    return result;
-  });
+  public static void main(String[] args) {
+    runApp(WORKER, args, app -> {
+
+      app.worker(Executors.newCachedThreadPool());
+    
+      app.get("/", ctx -> {
+        /** Safe to block from cached thread pool! */
+        Object result = // Remote service, db call, etc..
+        return result;
+      });
+    });
+  }
 }
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-{
-  mode(WORKER)
+import io.jooby.ExecutionMode.WORKER
+import io.jooby.Jooby.runApp
 
-  worker(Executors.newCachedThreadPool())
+fun main(args: Array<String>) {
+  runApp(WORKER, args) {
 
-  get("/") { ctx ->
-    /** Safe to block from cached thread pool! */
-    val result = ...;// Remote service, db call, etc..
-    result
+    worker(Executors.newCachedThreadPool())
+  
+    get("/") { ctx ->
+      /** Safe to block from cached thread pool! */
+      val result = ...;// Remote service, db call, etc..
+      result
+    }
   }
 }
 ----
@@ -238,29 +287,40 @@ A response type is considered *non-blocking* when route handler produces:
 .Java
 [source, java,role="primary"]
 ----
-{
-  get("/non-blocking", ctx -> {
-    return CompletableFuture
-        .supplyAsync(() -> "I'm non-blocking!")  // <1>    
-  });
+import static io.jooby.Jooby.runApp;
 
-  get("/blocking", ctx -> {
-    return "I'm blocking";                       // <2>
-  });
+public class App {
+
+  public static void main(String[] args) {
+    runApp(args, app -> {
+      get("/non-blocking", ctx -> {
+        return CompletableFuture
+            .supplyAsync(() -> "I'm non-blocking!")  // <1>    
+      });
+    
+      get("/blocking", ctx -> {
+        return "I'm blocking";                       // <2>
+      });
+    });
+  }
 }
 ----
 
 .Kotlin
 [source, kotlin,role="secondary"]
 ----
-{
-  get("/non-blocking") { ctx ->
-    CompletableFuture
-        .supplyAsync { "I'm non-blocking!" }  // <1>    
-  }
+import io.jooby.Jooby.runApp
 
-  get("/blocking") { ctx ->
-    "I'm blocking"                            // <2>
+fun main(args: Array<String>) {
+  runApp(args) {
+    get("/non-blocking") { ctx ->
+      CompletableFuture
+          .supplyAsync { "I'm non-blocking!" }  // <1>    
+    }
+  
+    get("/blocking") { ctx ->
+      "I'm blocking"                            // <2>
+    }
   }
 }
 ----

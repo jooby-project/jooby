@@ -420,18 +420,23 @@ public class Jooby implements Router, Registry {
     return router.toString();
   }
 
-  public static void runApp(@Nonnull Supplier<Jooby> provider, String... args) {
-    runApp(provider, ExecutionMode.DEFAULT, args);
+  public static void runApp(String[] args, @Nonnull Supplier<Jooby> provider) {
+    runApp(ExecutionMode.DEFAULT, args, provider);
   }
 
-  public static void runApp(@Nonnull Supplier<Jooby> provider, @Nonnull ExecutionMode mode,
-      String... args) {
+  public static void runApp(String[] args, @Nonnull Consumer<Jooby> consumer) {
+    runApp(ExecutionMode.DEFAULT, args, toProvider(consumer));
+  }
 
-    Class providerClass = provider.getClass();
-    if (!providerClass.getName().contains("KoobyKt")) {
-      System.setProperty(DEF_PCKG,
-          System.getProperty(DEF_PCKG, providerClass.getPackage().getName()));
-    }
+  public static void runApp(@Nonnull ExecutionMode mode, @Nonnull String[] args,
+      @Nonnull Consumer<Jooby> consumer) {
+    runApp(mode, args, toProvider(consumer));
+  }
+
+  public static void runApp(@Nonnull ExecutionMode mode, @Nonnull String[] args,
+      @Nonnull Supplier<Jooby> provider) {
+
+    configurePackage(provider);
 
     /** Dump command line as system properties. */
     Env.parse(args).forEach(System::setProperty);
@@ -448,6 +453,14 @@ public class Jooby implements Router, Registry {
     }
     Server server = app.start();
     server.join();
+  }
+
+  private static void configurePackage(@Nonnull Object provider) {
+    Class providerClass = provider.getClass();
+    if (!providerClass.getName().contains("KoobyKt")) {
+      System.setProperty(DEF_PCKG,
+          System.getProperty(DEF_PCKG, providerClass.getPackage().getName()));
+    }
   }
 
   public static void logback(@Nonnull String env) {
@@ -521,6 +534,15 @@ public class Jooby implements Router, Registry {
         iterator.remove();
       }
     }
+  }
+
+  private static Supplier<Jooby> toProvider(Consumer<Jooby> consumer) {
+    configurePackage(consumer);
+    return () -> {
+      Jooby app = new Jooby();
+      consumer.accept(app);
+      return app;
+    };
   }
 
 }
