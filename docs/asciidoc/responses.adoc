@@ -346,7 +346,12 @@ CompletableFuture is considered a non-blocking type which is able to produces a 
 
 ==== RxJava
 
-Jooby produces different responses based on the reactive type: `Single` vs `Flowable`
+1) Add the https://github.com/ReactiveX/RxJava[RxJava] dependency:
+
+[dependency, artifactId="rxjava"]
+.
+
+2) Write code:
 
 ===== Single
 
@@ -374,8 +379,6 @@ Jooby produces different responses based on the reactive type: `Single` vs `Flow
 }
 ----
 
-Jooby is able to set the `Content-Length` header when using *Single* responses.
-
 ===== Flowable
 
 .Java
@@ -400,17 +403,74 @@ Jooby is able to set the `Content-Length` header when using *Single* responses.
 }
 ----
 
-Flowable responses are handled bit different because is impossible to know how many item are going
-to be generated.
-
-Jooby builds a `chunked` response. That:
+For Flowable, Jooby builds a `chunked` response. That:
 
 . Set the `Transfer-Encoding: chunked` header
 . Each item means new `chunk` send it to client 
 
 ==== Reactor
 
-It works like <<RxJava>> using reactor types `Mono` and `Flux`.
+1) Add the https://projectreactor.io/[Reactor] dependency:
+
+[dependency, artifactId="reactor-core"]
+.
+
+2) Write code:
+
+===== Mono
+
+.Java
+[source,java, role="primary"]
+----
+{
+  get("/non-blocking", ctx -> {
+    return Mono
+        .fromCallable(() -> "Mono")
+        .map(it -> "Hello " + it);
+  })
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  get("/non-blocking") {
+    Mono
+        .fromCallable { "Mono" }
+        .map { "Hello $it" }
+  }
+}
+----
+
+===== Flux
+
+.Java
+[source,java, role="primary"]
+----
+{
+  get("/non-blocking", ctx -> {
+    return Flux.range(1, 10)
+        .map(it -> it + ", ");
+  })
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  get("/non-blocking") {
+    Flux.range(1, 10)
+        .map{ "$it, " }
+  }
+}
+----
+
+For Flux, Jooby builds a `chunked` response. That:
+
+. Set the `Transfer-Encoding: chunked` header
+. Each item means new `chunk` send it to client
 
 ==== Kotlin Coroutines
 
