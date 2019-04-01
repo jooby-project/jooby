@@ -20,7 +20,7 @@ import io.jooby.Route;
 
 import javax.annotation.Nonnull;
 
-public class SendDirect implements NextHandler {
+public class SendDirect implements Route.Handler {
   private Route.Handler next;
 
   public SendDirect(Route.Handler next) {

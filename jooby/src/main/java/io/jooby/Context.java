@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -462,6 +463,8 @@ public interface Context {
   default @Nonnull Context sendBytes(@Nonnull ByteBuf data) {
     return sendBytes(data.nioBuffer());
   }
+
+  @Nonnull Context sendBytes(@Nonnull ReadableByteChannel channel);
 
   @Nonnull Context sendStream(@Nonnull InputStream input);
 

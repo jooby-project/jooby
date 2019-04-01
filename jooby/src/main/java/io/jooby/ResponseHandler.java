@@ -13,31 +13,13 @@
  *
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.handler;
+package io.jooby;
 
-import io.jooby.Context;
-import io.jooby.Route;
-import io.netty.buffer.ByteBuf;
+import java.lang.reflect.Type;
 
-import javax.annotation.Nonnull;
+public interface ResponseHandler {
 
-public class SendByteBuf implements Route.Handler {
-  private Route.Handler next;
+  boolean matches(Type type);
 
-  public SendByteBuf(Route.Handler next) {
-    this.next = next;
-  }
-
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
-    try {
-      ByteBuf result = (ByteBuf) next.apply(ctx);
-      return ctx.sendBytes(result);
-    } catch (Throwable x) {
-      return ctx.sendError(x);
-    }
-  }
-
-  @Override public Route.Handler next() {
-    return next;
-  }
+  Route.Handler create(Route.Handler next);
 }

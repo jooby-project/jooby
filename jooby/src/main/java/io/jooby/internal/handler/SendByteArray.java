@@ -20,7 +20,7 @@ import io.jooby.Route;
 
 import javax.annotation.Nonnull;
 
-public class SendByteArray implements NextHandler {
+public class SendByteArray implements Route.Handler {
   private Route.Handler next;
 
   public SendByteArray(Route.Handler next) {

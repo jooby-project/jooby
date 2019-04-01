@@ -21,7 +21,6 @@ import javax.annotation.Nonnull;
 import javax.inject.Provider;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -223,6 +222,8 @@ public interface Router {
   @Nonnull ErrorHandler getErrorHandler();
 
   @Nonnull Logger getLog();
+
+  @Nonnull Router responseHandler(ResponseHandler factory);
 
   static @Nonnull String normalizePath(@Nonnull String path, boolean caseSensitive,
       boolean ignoreTrailingSlash) {

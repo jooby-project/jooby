@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -20,6 +21,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class MockContext implements Context {
 
@@ -311,6 +314,12 @@ public class MockContext implements Context {
   @Nonnull @Override public Context sendStream(InputStream input) {
     responseStarted = true;
     result = input;
+    return this;
+  }
+
+  @Nonnull @Override public Context sendBytes(@Nonnull ReadableByteChannel channel) {
+    responseStarted = true;
+    result = channel;
     return this;
   }
 

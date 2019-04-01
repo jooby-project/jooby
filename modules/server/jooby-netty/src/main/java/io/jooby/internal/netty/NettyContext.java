@@ -27,6 +27,7 @@ import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
 import io.netty.handler.stream.ChunkedInput;
+import io.netty.handler.stream.ChunkedNioStream;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.ReferenceCounted;
@@ -42,6 +43,7 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -79,6 +81,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private MediaType responseType;
   private AttributeMap attributes = new AttributeMap();
+  private long contentLength = -1;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
       int bufferSize) {
@@ -243,6 +246,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
   }
 
   @Nonnull @Override public Context setContentLength(long length) {
+    contentLength = length;
     setHeaders.set(CONTENT_LENGTH, length);
     return this;
   }
@@ -286,6 +290,22 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     ctx.write(new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING))
         .addListener(this);
     ctx.executor().execute(this);
+    return this;
+  }
+
+  @Nonnull @Override public Context sendBytes(@Nonnull ReadableByteChannel channel) {
+    prepareChunked();
+    DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
+    responseStarted = true;
+    int bufferSize = contentLength > 0 ? (int) contentLength : this.bufferSize;
+    ctx.channel().eventLoop().execute(() -> {
+      // Headers
+      ctx.write(rsp);
+      // Body
+      ctx.write(new ChunkedNioStream(channel, bufferSize));
+      // Finish
+      ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
+    });
     return this;
   }
 

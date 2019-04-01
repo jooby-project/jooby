@@ -21,6 +21,7 @@ import io.jooby.ExecutionMode;
 import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.Route.Handler;
+import io.jooby.ResponseHandler;
 import io.jooby.internal.handler.KotlinJobHandler;
 import io.jooby.internal.handler.SendAttachment;
 import io.jooby.internal.handler.SendByteArray;
@@ -46,9 +47,11 @@ import io.netty.buffer.ByteBuf;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
@@ -56,8 +59,9 @@ import java.util.concurrent.Executor;
 public class Pipeline {
 
   public static Handler compute(ClassLoader loader, Route route, ExecutionMode mode,
-      Executor executor) {
-    Class<?> type = Reified.rawType(route.getReturnType());
+      Executor executor, List<ResponseHandler> responseHandler) {
+    Type returnType = route.getReturnType();
+    Class<?> type = Reified.rawType(returnType);
     if (CompletionStage.class.isAssignableFrom(type)) {
       return completableFuture(mode, route, executor);
     }
@@ -171,6 +175,14 @@ public class Pipeline {
       return next(mode, executor, new SendByteBuf(route.getPipeline()), true);
     }
 
+    if (responseHandler != null) {
+      return responseHandler.stream().filter(it -> it.matches(returnType))
+          .findFirst()
+          .map(factory ->
+              next(mode, executor, factory.create(route.getPipeline()), true)
+          )
+          .orElseGet(() -> next(mode, executor, new DefaultHandler(route.getPipeline()), true));
+    }
     return next(mode, executor, new DefaultHandler(route.getPipeline()), true);
   }
 

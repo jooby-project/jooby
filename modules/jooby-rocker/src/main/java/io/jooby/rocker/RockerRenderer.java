@@ -13,31 +13,25 @@
  *
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.handler;
+package io.jooby.rocker;
 
+import com.fizzed.rocker.RockerModel;
+import com.fizzed.rocker.runtime.ArrayOfByteArraysOutput;
 import io.jooby.Context;
-import io.jooby.Route;
+import io.jooby.MediaType;
+import io.jooby.Renderer;
 
 import javax.annotation.Nonnull;
-import java.nio.ByteBuffer;
 
-public class SendByteBuffer implements Route.Handler {
-  private Route.Handler next;
-
-  public SendByteBuffer(Route.Handler next) {
-    this.next = next;
-  }
-
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
-    try {
-      ByteBuffer result = (ByteBuffer) next.apply(ctx);
-      return ctx.sendBytes(result);
-    } catch (Throwable x) {
-      return ctx.sendError(x);
+class RockerRenderer implements Renderer {
+  @Override public byte[] render(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
+    if (value instanceof RockerModel) {
+      RockerModel template = (RockerModel) value;
+      ArrayOfByteArraysOutput output = template.render(ArrayOfByteArraysOutput.FACTORY);
+      ctx.setContentLength(output.getByteLength());
+      ctx.setDefaultContentType(MediaType.html);
+      return output.toByteArray();
     }
-  }
-
-  @Override public Route.Handler next() {
-    return next;
+    return null;
   }
 }

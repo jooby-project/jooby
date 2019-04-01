@@ -17,12 +17,11 @@ package io.jooby.internal.handler.reactive;
 
 import io.jooby.Context;
 import io.jooby.Route;
-import io.jooby.internal.handler.NextHandler;
 import org.reactivestreams.Publisher;
 
 import javax.annotation.Nonnull;
 
-public class ReactivePublisherHandler implements NextHandler {
+public class ReactivePublisherHandler implements Route.Handler {
 
   private final Route.Handler next;
 

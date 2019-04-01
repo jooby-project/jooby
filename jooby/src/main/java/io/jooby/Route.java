@@ -16,6 +16,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -60,6 +61,10 @@ public class Route {
   }
 
   public interface Handler extends Serializable {
+
+    default @Nullable Handler next() {
+      return null;
+    }
 
     @Nonnull Object apply(@Nonnull Context ctx) throws Exception;
 

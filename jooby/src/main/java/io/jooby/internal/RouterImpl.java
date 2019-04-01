@@ -28,6 +28,7 @@ import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.StatusCode;
 import io.jooby.Throwing;
+import io.jooby.ResponseHandler;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.mvc.MvcCompiler;
 import io.jooby.internal.mvc.MvcMetadata;
@@ -150,6 +151,8 @@ public class RouterImpl implements Router {
   private Map<String, Parser> parsers = new HashMap<>();
 
   private AttributeMap attributes = new AttributeMap(new ConcurrentHashMap<>());
+
+  private List<ResponseHandler> handlers = new ArrayList<>();
 
   private ClassSource source;
 
@@ -389,7 +392,7 @@ public class RouterImpl implements Router {
       if (route.getReturnType() == null) {
         route.setReturnType(analyzer.returnType(route.getHandle()));
       }
-      Route.Handler pipeline = Pipeline.compute(source.getLoader(), route, mode, executor);
+      Route.Handler pipeline = Pipeline.compute(source.getLoader(), route, mode, executor, handlers);
       route.setPipeline(pipeline);
     }
     // unwrap executor
@@ -465,6 +468,11 @@ public class RouterImpl implements Router {
       return StatusCode.NOT_FOUND;
     }
     return StatusCode.SERVER_ERROR;
+  }
+
+  @Nonnull @Override public Router responseHandler(ResponseHandler handler) {
+    handlers.add(handler);
+    return this;
   }
 
   @Override public String toString() {

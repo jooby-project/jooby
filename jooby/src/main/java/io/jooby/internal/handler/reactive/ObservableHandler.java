@@ -17,12 +17,11 @@ package io.jooby.internal.handler.reactive;
 
 import io.jooby.Context;
 import io.jooby.Route;
-import io.jooby.internal.handler.NextHandler;
 import io.reactivex.Observable;
 
 import javax.annotation.Nonnull;
 
-public class ObservableHandler implements NextHandler {
+public class ObservableHandler implements Route.Handler {
 
   private final Route.Handler next;
 

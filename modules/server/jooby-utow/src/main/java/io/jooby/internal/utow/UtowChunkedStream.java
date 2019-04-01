@@ -236,10 +236,6 @@ public class UtowChunkedStream implements IoCallback, Runnable {
     this.len = len;
   }
 
-  public UtowChunkedStream() {
-    this(-1);
-  }
-
   public void send(final ReadableByteChannel source, final HttpServerExchange exchange,
       final IoCallback callback) {
     this.source = source;

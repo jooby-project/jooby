@@ -40,8 +40,6 @@ public class Jackson implements Extension, Parser, Renderer {
 
   private static final byte[] ARRAY_END = {']'};
 
-  private static final byte[][] DELIMITERS = {ARRAY_START, ARRAY_SEPARATOR, ARRAY_END};
-
   private final ObjectMapper mapper;
 
   public Jackson(ObjectMapper mapper) {

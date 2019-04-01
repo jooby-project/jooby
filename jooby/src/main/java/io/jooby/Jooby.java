@@ -272,6 +272,11 @@ public class Jooby implements Router, Registry {
     return LoggerFactory.getLogger(getClass());
   }
 
+  @Nonnull @Override public Jooby responseHandler(ResponseHandler handler) {
+    router.responseHandler(handler);
+    return this;
+  }
+
   @Nonnull @Override public ErrorHandler getErrorHandler() {
     return router.getErrorHandler();
   }

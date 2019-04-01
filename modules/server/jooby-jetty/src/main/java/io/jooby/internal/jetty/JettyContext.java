@@ -42,6 +42,7 @@ import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -149,7 +150,8 @@ public class JettyContext implements Callback, Context {
       form = multipart;
 
       request.setAttribute(__MULTIPART_CONFIG_ELEMENT,
-          new MultipartConfigElement(router.getTmpdir().toString(), -1L, maxRequestSize, bufferSize));
+          new MultipartConfigElement(router.getTmpdir().toString(), -1L, maxRequestSize,
+              bufferSize));
 
       formParam(request, multipart);
 
@@ -157,7 +159,7 @@ public class JettyContext implements Callback, Context {
       String contentType = request.getContentType();
       if (contentType != null &&
           MimeTypes.Type.MULTIPART_FORM_DATA.is(
-              HttpFields.valueParameters(contentType,null))) {
+              HttpFields.valueParameters(contentType, null))) {
         try {
           Collection<Part> parts = request.getParts();
           for (Part part : parts) {
@@ -308,11 +310,26 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
+  @Nonnull @Override public Context sendBytes(@Nonnull ReadableByteChannel channel) {
+    ifSetChunked();
+    ifStartAsync();
+    HttpOutput sender = response.getHttpOutput();
+    sender.sendContent(channel, this);
+    return this;
+  }
+
   @Nonnull @Override public Context sendStream(@Nonnull InputStream in) {
-    if (in instanceof FileInputStream) {
-      // use channel
-      return sendFile(((FileInputStream) in).getChannel());
+    try {
+      if (in instanceof FileInputStream) {
+        response.setLongContentLength(((FileInputStream) in).getChannel().size());
+      }
+      return sendStreamInternal(in);
+    } catch (IOException x) {
+      throw Throwing.sneakyThrow(x);
     }
+  }
+
+  private Context sendStreamInternal(@Nonnull InputStream in) {
     try {
       ifStartAsync();
 
@@ -336,7 +353,7 @@ public class JettyContext implements Callback, Context {
   @Nonnull @Override public Context sendFile(@Nonnull FileChannel file) {
     try (FileChannel channel = file) {
       response.setLongContentLength(channel.size());
-      return sendStream(Channels.newInputStream(file));
+      return sendStreamInternal(Channels.newInputStream(file));
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
@@ -399,7 +416,7 @@ public class JettyContext implements Callback, Context {
   }
 
   private void ifSetChunked() {
-    if (response.getHeader(HttpHeader.CONTENT_LENGTH.name()) == null) {
+    if (response.getContentLength() <= 0) {
       response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
     }
   }

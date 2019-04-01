@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class CompletionStageHandler implements NextHandler {
+public class CompletionStageHandler implements Route.Handler {
 
   private final Route.Handler next;
 

@@ -34,6 +34,7 @@ import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -238,6 +239,12 @@ public class UtowContext implements Context, IoCallback {
     return sendBytes(ByteBuffer.wrap(data));
   }
 
+  @Nonnull @Override public Context sendBytes(@Nonnull ReadableByteChannel channel) {
+    ifSetChunked();
+    new UtowChunkedStream(exchange.getRequestContentLength()).send(channel, exchange, this);
+    return this;
+  }
+
   @Nonnull @Override public Context sendString(@Nonnull String data, @Nonnull Charset charset) {
     return sendBytes(ByteBuffer.wrap(data.getBytes(charset)));
   }
@@ -286,11 +293,10 @@ public class UtowContext implements Context, IoCallback {
           .apply(this, len);
       file.position(range.start);
       new UtowChunkedStream(range.end).send(file, exchange, this);
-
+      return this;
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
-    return this;
   }
 
   @Override public boolean isResponseStarted() {
@@ -311,9 +317,11 @@ public class UtowContext implements Context, IoCallback {
       if (cause != null) {
         Logger log = router.getLog();
         if (Server.connectionLost(cause)) {
-          log.debug("exception found while sending response {} {}", getMethod(), pathString(), cause);
+          log.debug("exception found while sending response {} {}", getMethod(), pathString(),
+              cause);
         } else {
-          log.error("exception found while sending response {} {}", getMethod(), pathString(), cause);
+          log.error("exception found while sending response {} {}", getMethod(), pathString(),
+              cause);
         }
       }
       this.router = null;

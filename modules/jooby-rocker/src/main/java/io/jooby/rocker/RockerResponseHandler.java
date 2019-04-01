@@ -13,31 +13,21 @@
  *
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.handler;
+package io.jooby.rocker;
 
-import io.jooby.Context;
+import com.fizzed.rocker.RockerModel;
+import io.jooby.Reified;
 import io.jooby.Route;
+import io.jooby.ResponseHandler;
 
-import javax.annotation.Nonnull;
-import java.nio.ByteBuffer;
+import java.lang.reflect.Type;
 
-public class SendByteBuffer implements Route.Handler {
-  private Route.Handler next;
-
-  public SendByteBuffer(Route.Handler next) {
-    this.next = next;
+class RockerResponseHandler implements ResponseHandler {
+  @Override public boolean matches(Type type) {
+    return RockerModel.class.isAssignableFrom(Reified.rawType(type));
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
-    try {
-      ByteBuffer result = (ByteBuffer) next.apply(ctx);
-      return ctx.sendBytes(result);
-    } catch (Throwable x) {
-      return ctx.sendError(x);
-    }
-  }
-
-  @Override public Route.Handler next() {
-    return next;
+  @Override public Route.Handler create(Route.Handler next) {
+    return new RockerHandler(next);
   }
 }

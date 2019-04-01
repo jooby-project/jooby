@@ -6,7 +6,6 @@ import io.jooby.Route;
 import io.jooby.internal.handler.SendCharSequence;
 import io.jooby.internal.handler.CompletionStageHandler;
 import io.jooby.internal.handler.DetachHandler;
-import io.jooby.internal.handler.NextHandler;
 import io.jooby.internal.handler.DispatchHandler;
 import io.jooby.internal.handler.reactive.ReactivePublisherHandler;
 import io.jooby.internal.handler.reactive.RxMaybeHandler;
@@ -31,7 +30,7 @@ public class PipelineTest {
   @Test
   public void eventLoopDoesNothingOnSimpleTypes() {
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(String.class, h), ExecutionMode.EVENT_LOOP);
+    Route.Handler pipeline = pipeline(route(String.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof SendCharSequence, pipeline.toString());
     assertTrue(pipeline.next() == h,
         "found: " + pipeline.next() + ", expected: " + h.getClass());
@@ -42,18 +41,18 @@ public class PipelineTest {
     Executor executor = task -> {
     };
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(String.class, h), ExecutionMode.EVENT_LOOP, executor);
+    Route.Handler pipeline = pipeline(route(String.class, h), ExecutionMode.EVENT_LOOP, executor);
     assertTrue(pipeline instanceof DispatchHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof SendCharSequence);
-    next = ((NextHandler) next).next();
+    next = next.next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
   @Test
   public void eventLoopDetachOnCompletableFutures() {
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(CompletableFuture.class, h), ExecutionMode.EVENT_LOOP);
+    Route.Handler pipeline = pipeline(route(CompletableFuture.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof CompletionStageHandler);
@@ -67,21 +66,21 @@ public class PipelineTest {
     Executor executor = task -> {
     };
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(CompletableFuture.class, h),
+    Route.Handler pipeline = pipeline(route(CompletableFuture.class, h),
         ExecutionMode.EVENT_LOOP, executor);
     assertTrue(pipeline instanceof DispatchHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next);
-    next = ((DetachHandler) next).next();
+    next = next.next();
     assertTrue(next instanceof CompletionStageHandler, "found: " + next);
-    next = ((CompletionStageHandler) next).next();
+    next = next.next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
   @Test
   public void eventLoopDetachOnRx2Single() {
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(Single.class, h), ExecutionMode.EVENT_LOOP);
+    Route.Handler pipeline = pipeline(route(Single.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof RxSingleHandler);
@@ -93,7 +92,7 @@ public class PipelineTest {
   @Test
   public void eventLoopDetachOnPublisher() {
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(Publisher.class, h), ExecutionMode.EVENT_LOOP);
+    Route.Handler pipeline = pipeline(route(Publisher.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof ReactivePublisherHandler, next.toString());
@@ -105,7 +104,7 @@ public class PipelineTest {
   @Test
   public void eventLoopDetachOnFlowable() {
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(Flowable.class, h), ExecutionMode.EVENT_LOOP);
+    Route.Handler pipeline = pipeline(route(Flowable.class, h), ExecutionMode.EVENT_LOOP);
     assertTrue(pipeline instanceof DetachHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof RxFlowableHandler);
@@ -117,63 +116,63 @@ public class PipelineTest {
   @Test
   public void workerDoesNothingOnSimpleTypes() {
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(String.class, h), ExecutionMode.WORKER);
+    Route.Handler pipeline = pipeline(route(String.class, h), ExecutionMode.WORKER);
     assertTrue(pipeline instanceof WorkerHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof SendCharSequence);
-    next = ((NextHandler) next).next();
+    next = next.next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
   @Test
   public void workerDetachOnCompletableFutures() {
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(CompletableFuture.class, h), ExecutionMode.WORKER);
+    Route.Handler pipeline = pipeline(route(CompletableFuture.class, h), ExecutionMode.WORKER);
     assertTrue(pipeline instanceof WorkerHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next.getClass());
-    next = ((DetachHandler) next).next();
+    next = next.next();
     assertTrue(next instanceof CompletionStageHandler, "found: " + next.getClass());
-    next = ((CompletionStageHandler) next).next();
+    next = next.next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
   @Test
   public void workerDetachOnCompletableRxSingle() {
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(Single.class, h), ExecutionMode.WORKER);
+    Route.Handler pipeline = pipeline(route(Single.class, h), ExecutionMode.WORKER);
     assertTrue(pipeline instanceof WorkerHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next.getClass());
-    next = ((DetachHandler) next).next();
+    next = next.next();
     assertTrue(next instanceof RxSingleHandler, "found: " + next.getClass());
-    next = ((RxSingleHandler) next).next();
+    next = next.next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
   @Test
   public void workerDetachOnCompletableRxMaybe() {
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(Maybe.class, h), ExecutionMode.WORKER);
+    Route.Handler pipeline = pipeline(route(Maybe.class, h), ExecutionMode.WORKER);
     assertTrue(pipeline instanceof WorkerHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next.getClass());
-    next = ((DetachHandler) next).next();
+    next = next.next();
     assertTrue(next instanceof RxMaybeHandler, "found: " + next.getClass());
-    next = ((RxMaybeHandler) next).next();
+    next = next.next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
   @Test
   public void workerDetachOnCompletableRxPublisher() {
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(Publisher.class, h), ExecutionMode.WORKER);
+    Route.Handler pipeline = pipeline(route(Publisher.class, h), ExecutionMode.WORKER);
     assertTrue(pipeline instanceof WorkerHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next.getClass());
-    next = ((DetachHandler) next).next();
+    next = next.next();
     assertTrue(next instanceof ReactivePublisherHandler, "found: " + next.getClass());
-    next = ((ReactivePublisherHandler) next).next();
+    next = next.next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
@@ -182,11 +181,11 @@ public class PipelineTest {
     Executor executor = task -> {
     };
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(String.class, h), ExecutionMode.WORKER, executor);
+    Route.Handler pipeline = pipeline(route(String.class, h), ExecutionMode.WORKER, executor);
     assertTrue(pipeline instanceof DispatchHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof SendCharSequence);
-    next = ((NextHandler) next).next();
+    next = next.next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
@@ -195,23 +194,23 @@ public class PipelineTest {
     Executor executor = task -> {
     };
     Route.Handler h = ctx -> "OK";
-    NextHandler pipeline = pipeline(route(CompletableFuture.class, h),
+    Route.Handler pipeline = pipeline(route(CompletableFuture.class, h),
         ExecutionMode.WORKER, executor);
     assertTrue(pipeline instanceof DispatchHandler, "found: " + pipeline);
     Route.Handler next = pipeline.next();
     assertTrue(next instanceof DetachHandler, "found: " + next);
-    next = ((DetachHandler) next).next();
+    next = next.next();
     assertTrue(next instanceof CompletionStageHandler, "found: " + next);
-    next = ((CompletionStageHandler) next).next();
+    next = next.next();
     assertTrue(next == h, "found: " + next + ", expected: " + h.getClass());
   }
 
-  private NextHandler pipeline(Route route, ExecutionMode mode) {
+  private Route.Handler pipeline(Route route, ExecutionMode mode) {
     return pipeline(route, mode, null);
   }
 
-  private NextHandler pipeline(Route route, ExecutionMode mode, Executor executor) {
-    return (NextHandler) Pipeline.compute(getClass().getClassLoader(), route, mode, executor);
+  private Route.Handler pipeline(Route route, ExecutionMode mode, Executor executor) {
+    return Pipeline.compute(getClass().getClassLoader(), route, mode, executor, null);
   }
 
   private Route route(Type returnType, Route.Handler handler) {

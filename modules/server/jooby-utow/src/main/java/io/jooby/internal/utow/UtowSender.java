@@ -15,7 +15,6 @@
  */
 package io.jooby.internal.utow;
 
-import io.jooby.Context;
 import io.jooby.Sender;
 import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;

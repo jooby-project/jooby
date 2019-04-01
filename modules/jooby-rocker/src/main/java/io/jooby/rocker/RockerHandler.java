@@ -13,46 +13,39 @@
  *
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.handler;
+package io.jooby.rocker;
 
+import com.fizzed.rocker.RockerModel;
+import com.fizzed.rocker.runtime.ArrayOfByteArraysOutput;
 import io.jooby.Context;
+import io.jooby.MediaType;
 import io.jooby.Route;
-import io.reactivex.Flowable;
-import kotlin.coroutines.Continuation;
-import kotlinx.coroutines.AbstractCoroutine;
-import kotlinx.coroutines.Deferred;
-import kotlinx.coroutines.Job;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class KotlinJobHandler implements Route.Handler {
+class RockerHandler implements Route.Handler {
   private final Route.Handler next;
 
-  public KotlinJobHandler(Route.Handler next) {
+  public RockerHandler(Route.Handler next) {
     this.next = next;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
     try {
-      Job result = (Job) next.apply(ctx);
-      result.invokeOnCompletion(x -> {
-        if (x != null) {
-          ctx.sendError(x);
-        } else {
-          if (result instanceof Deferred) {
-            ctx.render(((Deferred) result).getCompleted());
-          }
-        }
-        return null;
-      });
+      RockerModel template = (RockerModel) next.apply(ctx);
+      ArrayOfByteArraysOutput buff = template.render(ArrayOfByteArraysOutput.FACTORY);
+      ctx.setContentType(MediaType.html);
+      ctx.setContentLength(buff.getByteLength());
+      ctx.sendBytes(buff.asReadableByteChannel());
       return ctx;
     } catch (Throwable x) {
       ctx.sendError(x);
-      return Flowable.error(x);
+      return x;
     }
   }
 
-  @Override public Route.Handler next() {
+  @Nullable @Override public Route.Handler next() {
     return next;
   }
 }
