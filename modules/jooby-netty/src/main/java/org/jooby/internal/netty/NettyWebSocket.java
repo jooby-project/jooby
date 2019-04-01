@@ -208,11 +208,13 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import io.netty.handler.codec.http.websocketx.*;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.OnError;
 import org.jooby.WebSocket.SuccessCallback;
@@ -224,10 +226,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
@@ -258,6 +256,10 @@ public class NettyWebSocket implements NativeWebSocket {
   private Consumer<Throwable> onErrorCallback;
 
   private final CountDownLatch ready = new CountDownLatch(1);
+
+  private ByteBuf buffer = null;
+
+  private boolean bufferIsText = false;
 
   public NettyWebSocket(final ChannelHandlerContext ctx,
       final WebSocketServerHandshaker handshaker, final Consumer<NettyWebSocket> handshake) {
@@ -369,10 +371,8 @@ public class NettyWebSocket implements NativeWebSocket {
 
   public void handle(final Object msg) {
     ready();
-    if (msg instanceof TextWebSocketFrame) {
-      onTextCallback.accept(((TextWebSocketFrame) msg).text());
-    } else if (msg instanceof BinaryWebSocketFrame) {
-      onBinaryCallback.accept(((BinaryWebSocketFrame) msg).content().nioBuffer());
+    if (msg instanceof TextWebSocketFrame || msg instanceof BinaryWebSocketFrame || msg instanceof ContinuationWebSocketFrame){
+      handleWebsocketMessage((WebSocketFrame) msg);
     } else if (msg instanceof CloseWebSocketFrame) {
       CloseWebSocketFrame closeFrame = ((CloseWebSocketFrame) msg).retain();
       int statusCode = closeFrame.statusCode();
@@ -381,6 +381,40 @@ public class NettyWebSocket implements NativeWebSocket {
       handshaker.close(ctx.channel(), closeFrame).addListener(CLOSE);
     } else if (msg instanceof Throwable) {
       onErrorCallback.accept((Throwable) msg);
+    }
+  }
+
+  private void handleWebsocketMessage(WebSocketFrame webSocketMessage) {
+    if (!webSocketMessage.isFinalFragment()) {
+      if (this.buffer == null) {
+        if (webSocketMessage instanceof ContinuationWebSocketFrame){
+          throw new IllegalStateException("Received ContinuationWebSocketFrame as a first frame of a message.");
+        }
+        this.buffer = Unpooled.copiedBuffer(webSocketMessage.content());
+        this.bufferIsText = webSocketMessage instanceof TextWebSocketFrame;
+      } else {
+        this.buffer.writeBytes(webSocketMessage.content());
+      }
+    } else {
+      if (this.buffer != null) {
+        this.buffer.writeBytes(webSocketMessage.content());
+        try{
+          if (this.bufferIsText) {
+            onTextCallback.accept(this.buffer.toString(StandardCharsets.UTF_8));
+          } else {
+            onBinaryCallback.accept(this.buffer.nioBuffer());
+          }
+        } finally {
+          this.buffer = null;
+        }
+      } else {
+        // shortcut to avoid allocating unnecessary copiedBuffers
+        if (webSocketMessage instanceof TextWebSocketFrame) {
+          onTextCallback.accept(((TextWebSocketFrame) webSocketMessage).text());
+        } else if (webSocketMessage instanceof BinaryWebSocketFrame) {
+          onBinaryCallback.accept(webSocketMessage.content().nioBuffer());
+        }
+      }
     }
   }
 
