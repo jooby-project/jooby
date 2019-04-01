@@ -38,6 +38,6 @@ JSON support via [jackson](/doc/jackson).
 
 JSON support via [gson](/doc/gson).
 
-## yassom
+## yasson
 
 JSON support via [yasson](/doc/yasson).
