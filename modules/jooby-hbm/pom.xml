@@ -37,10 +37,16 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- CDI Api; https://hibernate.atlassian.net/browse/HHH-11370 -->
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+    </dependency>
+
     <!-- Hibernate -->
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-entitymanager</artifactId>
+      <artifactId>hibernate-core</artifactId>
     </dependency>
 
     <!-- Test dependencies -->

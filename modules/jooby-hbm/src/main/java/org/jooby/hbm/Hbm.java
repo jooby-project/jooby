@@ -222,7 +222,6 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
-import org.hibernate.jpa.event.spi.JpaIntegrator;
 import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
@@ -752,7 +751,6 @@ public class Hbm implements Jooby.Module {
         .orElseThrow(() -> new NoSuchElementException("DataSource missing: " + dskey));
 
     BootstrapServiceRegistryBuilder bsrb = new BootstrapServiceRegistryBuilder();
-    bsrb.applyIntegrator(new JpaIntegrator());
 
     this.bsrb.accept(bsrb, conf);
 
@@ -767,7 +765,10 @@ public class Hbm implements Jooby.Module {
     this.ssrb.accept(ssrb, conf);
 
     ssrb.applySetting(AvailableSettings.DATASOURCE, ds);
-    ssrb.applySetting(org.hibernate.jpa.AvailableSettings.DELAY_CDI_ACCESS, true);
+    ssrb.applySetting(org.hibernate.cfg.AvailableSettings.DELAY_CDI_ACCESS, true);
+
+    CompletableFuture<Registry> registry = new CompletableFuture<>();
+    ssrb.applySetting(org.hibernate.cfg.AvailableSettings.CDI_BEAN_MANAGER, GuiceBeanManager.beanManager(registry));
 
     StandardServiceRegistry serviceRegistry = ssrb.build();
 
@@ -789,9 +790,6 @@ public class Hbm implements Jooby.Module {
     SessionFactoryBuilder sfb = metadata.getSessionFactoryBuilder();
     this.sfb.accept(sfb, conf);
     sfb.applyName(name);
-
-    CompletableFuture<Registry> registry = new CompletableFuture<>();
-    sfb.applyBeanManager(GuiceBeanManager.beanManager(registry));
 
     SessionFactory sessionFactory = sfb.build();
     this.sf.accept(sessionFactory, conf);
