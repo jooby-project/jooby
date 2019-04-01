@@ -126,7 +126,7 @@ public class RouterImpl implements Router {
 
   private Map<String, StatusCode> errorCodes;
 
-  private boolean caseSensitive = false;
+  private boolean caseSensitive = true;
 
   private boolean ignoreTrailingSlash = true;
 

@@ -618,7 +618,7 @@ class $Chi implements RadixTree {
   }
 
   public $Chi() {
-    this(false, true);
+    this(true, true);
   }
 
   public void setCaseSensitive(boolean caseSensitive) {

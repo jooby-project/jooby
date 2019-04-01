@@ -40,6 +40,7 @@ import java.util.*;
 import java.util.concurrent.Executor;
 
 import static io.undertow.server.handlers.form.FormDataParser.FORM_DATA;
+import static io.undertow.util.Headers.CONTENT_TYPE;
 import static io.undertow.util.Headers.RANGE;
 
 public class UtowContext implements Context, IoCallback {
@@ -204,8 +205,13 @@ public class UtowContext implements Context, IoCallback {
   @Nonnull @Override
   public Context setContentType(@Nonnull MediaType contentType, @Nullable Charset charset) {
     this.responseType = contentType;
-    exchange.getResponseHeaders()
-        .put(Headers.CONTENT_TYPE, contentType.toContentTypeHeader(charset));
+    exchange.getResponseHeaders().put(CONTENT_TYPE, contentType.toContentTypeHeader(charset));
+    return this;
+  }
+
+  @Nonnull @Override public Context setContentType(@Nonnull String contentType) {
+    this.responseType = MediaType.valueOf(contentType);
+    exchange.getResponseHeaders().put(CONTENT_TYPE, contentType);
     return this;
   }
 

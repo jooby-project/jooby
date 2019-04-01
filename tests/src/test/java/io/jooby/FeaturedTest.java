@@ -1041,7 +1041,7 @@ public class FeaturedTest {
   public void routerCaseInsensitive() {
     new JoobyRunner(app -> {
       // This is on by default:
-      // app.caseSensitive(false);
+      app.caseSensitive(false);
       app.get("/foo", Context::pathString);
 
       app.get("/BAR", Context::pathString);

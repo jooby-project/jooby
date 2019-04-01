@@ -47,6 +47,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Executor;
 
+import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 
 public class JettyContext implements Callback, Context {
@@ -248,7 +249,13 @@ public class JettyContext implements Callback, Context {
   @Nonnull @Override
   public Context setContentType(@Nonnull MediaType contentType, @Nullable Charset charset) {
     this.responseType = contentType;
-    response.setHeader(HttpHeader.CONTENT_TYPE, contentType.toContentTypeHeader(charset));
+    response.setHeader(CONTENT_TYPE, contentType.toContentTypeHeader(charset));
+    return this;
+  }
+
+  @Nonnull @Override public Context setContentType(@Nonnull String contentType) {
+    this.responseType = MediaType.valueOf(contentType);
+    response.setHeader(CONTENT_TYPE, contentType);
     return this;
   }
 

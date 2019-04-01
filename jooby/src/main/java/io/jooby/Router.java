@@ -256,7 +256,7 @@ public interface Router {
       }
       prev = ch;
     }
-    if (buff.length() > 1 && buff.charAt(buff.length() - 1) == '/' && ignoreTrailingSlash) {
+    if (ignoreTrailingSlash && buff.length() > 1 && buff.charAt(buff.length() - 1) == '/') {
       buff.setLength(buff.length() - 1);
       modified = true;
     }

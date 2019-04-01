@@ -245,6 +245,12 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     return this;
   }
 
+  @Nonnull @Override public Context setContentType(@Nonnull String contentType) {
+    this.responseType = MediaType.valueOf(contentType);
+    setHeaders.set(CONTENT_TYPE, contentType);
+    return this;
+  }
+
   @Nonnull @Override public Context setContentLength(long length) {
     contentLength = length;
     setHeaders.set(CONTENT_LENGTH, length);

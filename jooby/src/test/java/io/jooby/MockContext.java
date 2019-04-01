@@ -218,6 +218,12 @@ public class MockContext implements Context {
     return length;
   }
 
+  @Nonnull @Override public Context setContentType(@Nonnull String contentType) {
+    this.responseType = MediaType.valueOf(contentType);
+    this.responseCharset = this.responseType.getCharset();
+    return this;
+  }
+
   @Nonnull @Override
   public MockContext setContentType(@Nonnull MediaType contentType, @Nullable Charset charset) {
     this.responseType = contentType;

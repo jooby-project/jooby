@@ -353,21 +353,15 @@ public interface Context {
 
   @Nonnull Context setContentLength(long length);
 
-  @Nonnull default Context setContentType(@Nonnull String contentType) {
-    return setContentType(MediaType.valueOf(contentType));
-  }
+  @Nonnull Context setContentType(@Nonnull String contentType);
 
   @Nonnull default Context setContentType(@Nonnull MediaType contentType) {
     return setContentType(contentType, contentType.getCharset());
   }
 
-  @Nonnull default Context setDefaultContentType(@Nonnull String contentType) {
-    return setDefaultContentType(MediaType.valueOf(contentType));
-  }
+  @Nonnull Context setContentType(@Nonnull MediaType contentType, @Nullable Charset charset);
 
   @Nonnull Context setDefaultContentType(@Nonnull MediaType contentType);
-
-  @Nonnull Context setContentType(@Nonnull MediaType contentType, @Nullable Charset charset);
 
   @Nonnull MediaType getResponseContentType();
 
