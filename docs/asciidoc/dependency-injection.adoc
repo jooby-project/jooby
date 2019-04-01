@@ -8,7 +8,7 @@ dependency injection of your choice.
 
 === Dagger
 
-1) Add Dagger 2 to your project
+1) Add Dagger to your project
 
 [dependency, groupId="com.google.dagger", artifactId="dagger", version="2.20"]
 .
@@ -57,19 +57,21 @@ dependencies {
 ----
 import static io.jooby.Jooby.runApp;
 
-public class App {
+public class App extends Jooby {
+
+  {
+     /** Dagger: */
+     AppComponent dagger = DaggerAppComponent.builder()      <1>
+         .build();
+      
+     get("/", ctx -> {
+       MyService service = dagger.getMyService();            <2>
+       return service.doSomething();
+     });
+  }
 
   public static void main(String[] args) {
-    runApp(args, app -> {
-      /** Dagger: */
-      AppComponent dagger = DaggerAppComponent.builder()      <1>
-          .build();
-      
-      get("/", ctx -> {
-        MyService service = dagger.getMyService();            <2>
-        return service.doSomething();
-      });
-    });
+    runApp(args, App::new);
   }
 }
 ----
@@ -106,16 +108,18 @@ Integration of MVC routes with Dagger is as simple as:
 
 import static io.jooby.Jooby.runApp;
 
-public class App {
+public class App extends Jooby {
+
+  {
+    /** Dagger: */
+    AppComponent dagger = DaggerAppComponent.builder()  <1>
+        .build();
+    
+    mvc(dagger.myController());                         <2>
+  }
 
   public static void main(String[] args) {
-    runApp(args, app -> {
-      /** Dagger: */
-      AppComponent dagger = DaggerAppComponent.builder()  <1>
-          .build();
-      
-      mvc(dagger.myController());                         <2>
-    });
+    runApp(args, App::new);
   }
 }
 ----
@@ -147,16 +151,18 @@ version of the `mvc` method:
 ----
 import static io.jooby.Jooby.runApp;
 
-public class App {
+public class App extends Jooby {
+
+  {
+    /** Dagger: */
+    AppComponent dagger = DaggerAppComponent.builder()      <1>
+        .build();
+    
+    mvc(MyController.class, dagger.myController());         <2>
+  }
 
   public static void main(String[] args) {
-    runApp(args, app -> {
-      /** Dagger: */
-      AppComponent dagger = DaggerAppComponent.builder()      <1>
-          .build();
-      
-      mvc(MyController.class, dagger.myController());         <2>
-    });
+    runApp(args, App::new);
   }
 }
 ----
@@ -195,17 +201,19 @@ fun main(args: Array<String>) {
 import io.jooby.di.Guiceby;
 import io.jooby.runApp;
 
-public class App {
+public class App extends Jooby {
+
+  {
+    install(new Guiceby());                         <1>
+        
+    get("/", ctx -> {
+      MyService service = require(MyService.class); <2>
+      return service.doSomething();
+    });
+}
 
   public static void main(String[] args) {
-    runApp(args, app -> {
-      install(new Guiceby());                         <1>
-      
-      get("/", ctx -> {
-        MyService service = require(MyService.class); <2>
-        return service.doSomething();
-      });
-    });
+    runApp(args, App::new);
   }
 }
 ----
@@ -244,12 +252,14 @@ import io.jooby.runApp
 
 public class App extends Jooby {
 
+  {
+    install(new Guiceby());    <1>
+          
+    mvc(MyController.class);   <2>
+  }
+
   public static void main(String[] args) {
-    runApp(args, app -> {
-      install(new Guiceby());    <1>
-      
-      mvc(MyController.class);   <2>
-    });
+    runApp(args, App::new);
   }
 }
 ----
@@ -289,22 +299,24 @@ The lifecycle of `MyController` is now managed by Guice. Also:
 .Installing Spring
 [source, java, role = "primary"]
 ----
-package myapp;                                        <1>
+package myapp;                                      <1>
 
 import static io.jooby.Jooby.runApp;
 import io.jooby.di.Spring;
 
-public class App {
+public class App extends Jooby {
+
+  {
+    install(new Spring());                           <2>
+      
+    get("/", ctx -> {
+      MyService service = require(MyService.class);  <3>
+      return service.doSomething();
+    });
+  }
 
   public static void main(String[] args) {
-    runApp(args, app -> {
-      app.install(new Spring());                       <2>
-  
-      app.get("/", ctx -> {
-        MyService service = require(MyService.class);  <3>
-        return service.doSomething();
-      });
-    });
+    runApp(args, App::new);
   }
 }
 ----
@@ -395,17 +407,19 @@ class Hello {
 import io.jooby.di.Weldby;
 import static io.jooby.Jooby.runApp;
 
-public class App {
+public class App extends Jooby {
+
+  {
+    install(new Weldby());                          <1>
+      
+    get ("/", ctx -> {
+      MyService service = require(MyService.class); <2>
+      service.doSomething();
+    });
+  }
 
   public static void main(String[] args) {
-    runApp(args, app -> {
-      install(new Weldby());                          <1>
-  
-      get ("/", ctx -> {
-        MyService service = require(MyService.class); <2>
-        service.doSomething();
-      });
-    });
+    runApp(args, App::new);
   }
 }
 ----

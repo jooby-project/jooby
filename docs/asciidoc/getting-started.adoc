@@ -20,14 +20,14 @@ Jooby is a multi-server web framework. You are free to choose between: Jetty, Ne
 ----
 import io.jooby.Jooby;
 
-public class App {
+public class App extends Jooby {
+
+  {
+    get("/", ctx -> "Hello World!");
+  }
 
   public static void main(String[] args) {
-    runApp(args, app -> {
-
-       app.get("/", ctx -> "Hello World!");
-
-    });
+    runApp(args, App::new);
   }
 }
 ----
@@ -74,3 +74,26 @@ listening on:
 ----
 
 Ready {love}!
+
+=== Code snippets
+
+For simplicity and brevity we are going to skip the `runApp` function and extending `Jooby`.
+A code example will looks like:
+
+.Snippet
+[source, java, role = "primary"]
+----
+{
+  get("/", ctx -> "Snippet");
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+{
+  get("/") { ctx -> "Snippet" }
+}
+----
+
+The use of `runApp` will be included only when is strictly necessary.

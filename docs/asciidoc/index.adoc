@@ -23,19 +23,22 @@ Style guidelines:
 
 == Introduction
 
-Jooby is a modern, performant and easy to use web framework for Java and Kotlin built on top of your favorite web server.
+Jooby is a modern, performant and easy to use web framework for Java and Kotlin built on top of your
+favorite web server.
 
 .Welcome!!
 [source,java,role="primary"]
 ----
-import static io.jooby.Jooby.runApp;
+import io.jooby.Jooby;
 
-public class App {
+public class App extends Jooby {
+
+  {
+    get("/", ctx -> "Welcome to Jooby!"); 
+  }
 
   public static void main(String[] args) {
-    runApp(args, app -> {
-      app.get("/", ctx -> "Welcome to Jooby!");
-    });
+    runApp(args, App::new);
   }
 }
 ----
@@ -65,19 +68,15 @@ Not ready yet? Try https://jooby.org[Jooby 1.x]
 Thank you {love}
 ====
 
-=== Micro and Fullstack
+=== Key Features
 
-Jooby is a modular micro framework. At his core:
-  
-- Reflection and annotation free
-- Only HTTP Routing
-- https://github.com/lightbend/config[Configuration] and https://www.slf4j.org[SLF4J]
+- Script/Lambda routes. Reflection and annotation free
+- MVC routes. Annotation and byte code generation. Similar to Spring and JAX-RS
+- Reactive responses: Completable futures, RxJava, Reactor and Kotlin coroutines
+- Configuration using https://github.com/lightbend/config[config] library
+- https://www.slf4j.org[slf4j] logging
 - Multi Server: https://https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty], http://undertow.io[Undertow]
-
-and more:
-
-- MVC programming model (similar to JAX-RS)
-- Module extension system
+- Extension system for commons technical tasks: connection pool, json, template engine, etc...
 
 === Script API
 
@@ -119,7 +118,10 @@ fun main(args: Array<String>) {
 }
 ----
 
-This is not strictly necessary (of course), you may create a `Jooby` application without subclass:
+For Java applications we favor extending `Jooby` because DSL looks better. For example, no need
+prefix the `get` method with a variable.
+
+This is not strictly necessary (of course), you may prefer to do it without extending `Jooby`:
 
 .Script without subclass:
 [source,java,role="primary"]
@@ -152,10 +154,14 @@ fun main(args: Array<String>) {
 }
 ----
 
+In case of Kotlin, it doesn't matter which one you choose. DSL looks great with or without extending
+`Kooby`.
+
 [#introduction-mvc-api]
 === MVC API
 
-The MVC API (a.k.a mvc routes) uses annotation to define routes and byte code generation to execute them.
+The MVC API (a.k.a mvc routes) uses annotation to define routes and byte code generation to execute
+them.
 
 .MVC API:
 [source,java,role="primary"]

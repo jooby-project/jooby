@@ -193,7 +193,7 @@ The javadoc:Value[Value API] provides a way to traverse and parse structured dat
 [source, java, role="primary"]
 ----
 {
-  get{"/", ctx -> {
+  get("/", ctx -> {
     Value user = ctx.query("user");                  // <1>
     String name  = user.get("name").value();         // <2>
     String pass  = user.get("pass").value();         // <3>
@@ -207,7 +207,7 @@ The javadoc:Value[Value API] provides a way to traverse and parse structured dat
 [source, kotlin, role="secondary"]
 ----
 {
-  get{"/") { ctx ->
+  get("/") { ctx ->
     val user = ctx.query("user")              // <1>
     val name  = user["name"].value()          // <2>
     val pass  = user["pass"].value()          // <3>

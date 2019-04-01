@@ -252,7 +252,7 @@ public class App extends Jooby {
   }
 
   public static void main(String[] args) {
-    runApp(App::new, args);
+    runApp(args, App::new);
   }
 }
 ----
@@ -282,7 +282,7 @@ public class App extends Jooby {
   }
 
   public static void main(String[] args) {
-    runApp(App::new, args);
+    runApp(args, App::new);
   }
 }
 ----
@@ -321,7 +321,7 @@ public class App extends Jooby {
   }
 
   public static void main(String[] args) {
-    runApp(App::new, args);
+    runApp(args, App::new);
   }
 }
 ----

@@ -721,7 +721,6 @@ one or more routes under a common path pattern.
 }
 ----
 
-
 <1> Set common prefix `/api/user`
 <2> `GET /api/user/{id}`
 <3> `GET /api/user`

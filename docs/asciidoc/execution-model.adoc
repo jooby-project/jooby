@@ -24,12 +24,14 @@ The javadoc:ExecutionMode[EVENT_LOOP] mode allows us to run a route handler from
 import static io.jooby.ExecutionMode.EVENT_LOOP;
 import static io.jooby.Jooby.runApp;
 
-public class App {
+public class App extends Jooby {
+
+  {
+    get("/", ctx -> "I'm non-blocking!" );
+  }
 
   public static void main(String[] args) {
-    runApp(EVENT_LOOP, args, app -> {
-      app.get("/", ctx -> "I'm non-blocking!" );
-    }
+    runApp(EVENT_LOOP, args, App::new);
   }
 }
 ----
@@ -61,31 +63,32 @@ allows to do *blocking calls*:
 import static io.jooby.ExecutionMode.EVENT_LOOP;
 import static io.jooby.Jooby.runApp;
 
-public class App {
+public class App extends Jooby {
+
+  {
+    get("/", ctx -> {
+      return "I'm non-blocking!";
+    });
+  
+    dispatch(() -> {
+      // All the routes defined here are allowed to block:
+
+      get("/db-list", ctx -> {
+        /** Safe to block! */
+        Object result = ...; // Remote service, db call, etc..
+        return result;
+      });
+  
+    });
+  }
 
   public static void main(String[] args) {
-    runApp(EVENT_LOOP, args, app -> {
-
-      app.get("/", ctx -> {
-        return "I'm non-blocking!";
-      });
-    
-      app.dispatch(() -> {
-        // All the routes defined here are allowed to block:
-
-        app.get("/db-list", ctx -> {
-          /** Safe to block! */
-          Object result = ...; // Remote service, db call, etc..
-          return result;
-        });
-    
-      });
-    });
+    runApp(EVENT_LOOP, args, App::new);
   }
 }
 ----
 
-.Koltin
+.Kotlin
 [source,kotlin,role="secondary"]
 ----
 import io.jooby.ExecutionMode.EVENT_LOOP
@@ -123,25 +126,26 @@ You can provide your own *worker executor* at application level or at dispatch l
 import static io.jooby.ExecutionMode.EVENT_LOOP;
 import static io.jooby.Jooby.runApp;
 
-public class App {
+public class App extends Jooby {
+
+  {
+    // Application level executor
+    worker(Executors.newCachedThreadPool());
+  
+    // Dispatch to application level executor which is cached thread pool
+    dispatch(() -> {
+      ...
+    });
+    
+    // Dispatch to a explicit executor
+    Executor cpuIntensive = Executors.newSingleThreadExecutor();
+    dispatch(cpuIntesive, () -> {
+      ...
+    });
+  }
 
   public static void main(String[] args) {
-    runApp(EVENT_LOOP, args, app -> {
-  
-      // Application level executor
-      app.worker(Executors.newCachedThreadPool());
-    
-      // Dispatch to application level executor which is cached thread pool
-      app.dispatch(() -> {
-        ...
-      });
-      
-      // Dispatch to a explicit executor
-      Executor cpuIntensive = Executors.newSingleThreadExecutor();
-      app.dispatch(cpuIntesive, () -> {
-        ...
-      });
-    });
+    runApp(EVENT_LOOP, args, App:new);
   }
 }
 ----
@@ -183,17 +187,18 @@ You just write code without worrying about blocking calls.
 import static io.jooby.ExecutionMode.WORKER;
 import static io.jooby.Jooby.runApp;
 
-public class App {
+public class App extends Jooby {
+
+  {
+    get("/", ctx -> {
+      /** Safe to block! */
+      Object result = // Remote service, db call, etc..
+      return result;
+    });
+  }
 
   public static void main(String[] args) {
-    runApp(WORKER, args, app -> {
-  
-      app.get("/", ctx -> {
-        /** Safe to block! */
-        Object result = // Remote service, db call, etc..
-        return result;
-      });
-    });
+    runApp(WORKER, args, App::new);
   }
 }
 ----
@@ -224,19 +229,20 @@ Like with javadoc:ExecutionMode[EVENT_LOOP] mode, you can provide your own worke
 import static io.jooby.ExecutionMode.WORKER;
 import static io.jooby.Jooby.runApp;
 
-public class App {
+public class App extends Jooby {
+
+  {
+    worker(Executors.newCachedThreadPool());
+        
+    get("/", ctx -> {
+      /** Safe to block from cached thread pool! */
+      Object result = // Remote service, db call, etc..
+      return result;
+    });
+  }
 
   public static void main(String[] args) {
-    runApp(WORKER, args, app -> {
-
-      app.worker(Executors.newCachedThreadPool());
-    
-      app.get("/", ctx -> {
-        /** Safe to block from cached thread pool! */
-        Object result = // Remote service, db call, etc..
-        return result;
-      });
-    });
+    runApp(WORKER, args, App::new);
   }
 }
 ----
@@ -289,19 +295,21 @@ A response type is considered *non-blocking* when route handler produces:
 ----
 import static io.jooby.Jooby.runApp;
 
-public class App {
+public class App extends Jooby {
+
+  {
+    get("/non-blocking", ctx -> {
+      return CompletableFuture
+          .supplyAsync(() -> "I'm non-blocking!")  // <1>    
+    });
+  
+    get("/blocking", ctx -> {
+      return "I'm blocking";                       // <2>
+    });
+  }
 
   public static void main(String[] args) {
-    runApp(args, app -> {
-      get("/non-blocking", ctx -> {
-        return CompletableFuture
-            .supplyAsync(() -> "I'm non-blocking!")  // <1>    
-      });
-    
-      get("/blocking", ctx -> {
-        return "I'm blocking";                       // <2>
-      });
-    });
+    runApp(args, App::new);
   }
 }
 ----
