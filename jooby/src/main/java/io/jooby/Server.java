@@ -64,19 +64,11 @@ public interface Server {
 
   int _10MB = 20971520;
 
-  int port();
+  @Nonnull Server setOptions(@Nonnull ServerOptions options);
 
-  @Nonnull Server port(int port);
-
-  @Nonnull Server maxRequestSize(long maxRequestSize);
-
-  @Nonnull Server bufferSize(int bufferSize);
-
-  @Nonnull Server defaultHeaders(boolean value);
+  @Nonnull ServerOptions getOptions();
 
   @Nonnull Server start(Jooby application);
-
-  Server workerThreads(int workerThreads);
 
   @Nonnull default void join() {
     try {
@@ -87,8 +79,6 @@ public interface Server {
   }
 
   @Nonnull Server stop();
-
-  @Nonnull Server gzip(boolean enabled);
 
   static boolean connectionLost(Throwable cause) {
     if (cause instanceof IOException) {

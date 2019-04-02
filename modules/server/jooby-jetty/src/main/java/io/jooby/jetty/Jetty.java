@@ -17,6 +17,7 @@ package io.jooby.jetty;
 
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
+import io.jooby.ServerOptions;
 import io.jooby.internal.jetty.JettyHandler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -34,65 +35,35 @@ import java.util.List;
 
 public class Jetty extends io.jooby.Server.Base {
 
-  private int port = 8080;
+  private static final int THREADS = 200;
 
   private Server server;
 
-  private boolean gzip;
-
   private List<Jooby> applications = new ArrayList<>();
 
-  private long maxRequestSize = _10MB;
-
-  private int bufferSize = _16KB;
-
-  private int workerThreads = 200;
-
-  private boolean defaultHeaders = true;
+  private ServerOptions options = new ServerOptions()
+      .setServer("jetty")
+      .setWorkerThreads(THREADS);
 
   static {
     System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.Slf4jLog");
   }
 
-  @Override public io.jooby.Server port(int port) {
-    this.port = port;
+  @Nonnull @Override public Jetty setOptions(ServerOptions options) {
+    this.options = options
+        .setWorkerThreads(options.getWorkerThreads(THREADS));
     return this;
   }
 
-  @Override public int port() {
-    return port;
-  }
-
-  @Nonnull @Override public io.jooby.Server maxRequestSize(long maxRequestSize) {
-    this.maxRequestSize = maxRequestSize;
-    return this;
-  }
-
-  @Nonnull @Override public io.jooby.Server defaultHeaders(boolean value) {
-    this.defaultHeaders = value;
-    return this;
-  }
-
-  @Nonnull @Override public io.jooby.Server bufferSize(int bufferSize) {
-    this.bufferSize = bufferSize;
-    return this;
-  }
-
-  public io.jooby.Server gzip(boolean enabled) {
-    this.gzip = enabled;
-    return this;
-  }
-
-  @Override public io.jooby.Server workerThreads(int workerThreads) {
-    this.workerThreads = workerThreads;
-    return this;
+  @Nonnull @Override public ServerOptions getOptions() {
+    return options;
   }
 
   @Nonnull @Override public io.jooby.Server start(Jooby application) {
     System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
     /** Set max request size attribute: */
     System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize",
-        Long.toString(maxRequestSize));
+        Long.toString(options.getMaxRequestSize()));
 
     /** Jetty only support worker executor: */
     application.setExecutionMode(ExecutionMode.WORKER);
@@ -100,8 +71,8 @@ public class Jetty extends io.jooby.Server.Base {
 
     addShutdownHook();
 
-    QueuedThreadPool executor = new QueuedThreadPool(workerThreads);
-    executor.setName("jetty-worker");
+    QueuedThreadPool executor = new QueuedThreadPool(options.getWorkerThreads());
+    executor.setName("application");
 
     fireStart(applications, executor);
 
@@ -109,22 +80,23 @@ public class Jetty extends io.jooby.Server.Base {
     server.setStopAtShutdown(false);
 
     HttpConfiguration httpConf = new HttpConfiguration();
-    httpConf.setOutputBufferSize(bufferSize);
-    httpConf.setOutputAggregationSize(bufferSize);
+    httpConf.setOutputBufferSize(options.getBufferSize());
+    httpConf.setOutputAggregationSize(options.getBufferSize());
     httpConf.setSendXPoweredBy(false);
-    httpConf.setSendDateHeader(defaultHeaders);
+    httpConf.setSendDateHeader(options.isDefaultHeaders());
     httpConf.setSendServerVersion(false);
     httpConf.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
     ServerConnector connector = new ServerConnector(server);
     connector.addConnectionFactory(new HttpConnectionFactory(httpConf));
-    connector.setPort(port);
+    connector.setPort(options.getPort());
     connector.setHost("0.0.0.0");
 
     server.addConnector(connector);
 
-    AbstractHandler handler = new JettyHandler(applications.get(0), bufferSize, maxRequestSize, defaultHeaders);
+    AbstractHandler handler = new JettyHandler(applications.get(0), options.getBufferSize(),
+        options.getMaxRequestSize(), options.isDefaultHeaders());
 
-    if (gzip) {
+    if (options.isGzip()) {
       GzipHandler gzipHandler = new GzipHandler();
       gzipHandler.setHandler(handler);
       handler = gzipHandler;

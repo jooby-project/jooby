@@ -17,6 +17,7 @@ package io.jooby.netty;
 
 import io.jooby.Jooby;
 import io.jooby.Server;
+import io.jooby.ServerOptions;
 import io.jooby.internal.netty.DefaultHeaders;
 import io.jooby.internal.netty.NettyNative;
 import io.jooby.internal.netty.NettyPipeline;
@@ -43,7 +44,8 @@ import java.util.function.Consumer;
 public class Netty extends Server.Base {
 
   static {
-    System.setProperty("io.netty.leakDetection.level", System.getProperty("io.netty.leakDetection.level", "disabled"));
+    System.setProperty("io.netty.leakDetection.level",
+        System.getProperty("io.netty.leakDetection.level", "disabled"));
   }
 
   private List<Jooby> applications = new ArrayList<>();
@@ -52,58 +54,23 @@ public class Netty extends Server.Base {
 
   private EventLoopGroup ioLoop;
 
-  private int port = 8080;
-
-  private boolean gzip;
-
-  private long maxRequestSize = _10MB;
-
   private DefaultEventExecutorGroup worker;
 
-  private int bufferSize = _16KB;
+  private ServerOptions options = new ServerOptions()
+      .setSingleLoop(false)
+      .setIoThreads(ServerOptions.IO_THREADS)
+      .setServer("netty");
 
-  private int processors = Math.max(Runtime.getRuntime().availableProcessors(), 1);
-
-  private int acceptorThreads = processors;
-
-  private int ioThreads = processors + (processors / 2);
-
-  private int workerThreads = processors * 8;
-
-  private boolean defaultHeaders = true;
-
-  @Override public Server port(int port) {
-    this.port = port;
+  @Override public Netty setOptions(@Nonnull ServerOptions options) {
+    Boolean singleLoop = options.getSingleLoop();
+    this.options = options
+        .setSingleLoop(singleLoop == null ? false : singleLoop.booleanValue())
+        .setIoThreads(options.getIoThreads());
     return this;
   }
 
-  @Nonnull @Override public Server defaultHeaders(boolean value) {
-    defaultHeaders = value;
-    return this;
-  }
-
-  @Nonnull @Override public Server maxRequestSize(long maxRequestSize) {
-    this.maxRequestSize = maxRequestSize;
-    return this;
-  }
-
-  @Nonnull @Override public Server bufferSize(int bufferSize) {
-    this.bufferSize = bufferSize;
-    return this;
-  }
-
-  public Server gzip(boolean enabled) {
-    this.gzip = enabled;
-    return this;
-  }
-
-  @Override public int port() {
-    return port;
-  }
-
-  @Override public Server workerThreads(int workerThreads) {
-    this.workerThreads = workerThreads;
-    return this;
+  @Nonnull @Override public ServerOptions getOptions() {
+    return options;
   }
 
   @Nonnull @Override public Server start(Jooby application) {
@@ -113,48 +80,49 @@ public class Netty extends Server.Base {
       addShutdownHook();
 
       /** Worker: Application blocking code */
-      worker = new DefaultEventExecutorGroup(workerThreads,
-          new DefaultThreadFactory("netty-worker"));
+      worker = new DefaultEventExecutorGroup(options.getWorkerThreads(),
+          new DefaultThreadFactory("application"));
       fireStart(applications, worker);
 
       /** Disk attributes: */
-      if (applications.size() == 1) {
-        String tmpdir = applications.get(0).getTmpdir().toString();
-        DiskFileUpload.baseDirectory = tmpdir;
-        DiskAttribute.baseDirectory = tmpdir;
-      } else {
-        DiskFileUpload.baseDirectory = null; // system temp directory
-        DiskAttribute.baseDirectory = null; // system temp directory
-      }
+      String tmpdir = applications.get(0).getTmpdir().toString();
+      DiskFileUpload.baseDirectory = tmpdir;
+      DiskAttribute.baseDirectory = tmpdir;
 
       NettyNative provider = NettyNative.get(getClass().getClassLoader());
-      /** Acceptor: Accepts connections */
-      this.acceptor = provider.group("netty-acceptor", acceptorThreads);
 
-      /** IO: processing connections, parsing messages and doing engine's internal work */
-      this.ioLoop = provider.group("netty", ioThreads);
+      /** Acceptor: Accepts connections */
+      this.acceptor = provider.group("netty-acceptor", options.getIoThreads());
+
+      if (options.getSingleLoop().booleanValue()) {
+        this.ioLoop = this.acceptor;
+      } else {
+        /** IO: processing connections, parsing messages and doing engine's internal work */
+        this.ioLoop = provider.group("netty-io", options.getIoThreads());
+      }
 
       /** File data factory: */
-      HttpDataFactory factory = new DefaultHttpDataFactory(bufferSize);
+      HttpDataFactory factory = new DefaultHttpDataFactory(options.getBufferSize());
 
       /** Bootstrap: */
       ServerBootstrap bootstrap = new ServerBootstrap();
       bootstrap.option(ChannelOption.SO_BACKLOG, 8192);
       bootstrap.option(ChannelOption.SO_REUSEADDR, true);
 
-      Consumer<HttpHeaders> defaultHeaders = this.defaultHeaders
+      Consumer<HttpHeaders> defaultHeaders = options.isDefaultHeaders()
           ? defaultHeaders(acceptor.next())
           : defaultResponseType();
 
       bootstrap.group(acceptor, ioLoop)
           .channel(provider.channel())
           .childHandler(
-              new NettyPipeline(applications.get(0), factory, defaultHeaders, gzip, bufferSize,
-                  maxRequestSize))
+              new NettyPipeline(applications.get(0), factory, defaultHeaders, options.isGzip(),
+                  options.getBufferSize(),
+                  options.getMaxRequestSize()))
           .childOption(ChannelOption.SO_REUSEADDR, true)
           .childOption(ChannelOption.TCP_NODELAY, true);
 
-      bootstrap.bind(port).sync();
+      bootstrap.bind(options.getPort()).sync();
     } catch (InterruptedException x) {
       Thread.currentThread().interrupt();
     }
@@ -167,13 +135,13 @@ public class Netty extends Server.Base {
   public Server stop() {
     fireStop(applications);
     applications = null;
-    if (ioLoop != null) {
-      ioLoop.shutdownGracefully();
-      ioLoop = null;
-    }
     if (acceptor != null) {
       acceptor.shutdownGracefully();
       acceptor = null;
+    }
+    if (!options.getSingleLoop().booleanValue() && ioLoop != null) {
+      ioLoop.shutdownGracefully();
+      ioLoop = null;
     }
     if (worker != null) {
       worker.shutdownGracefully();

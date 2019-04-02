@@ -21,8 +21,6 @@ public class JoobyRunner {
 
   private final List<ExecutionMode> modes = new ArrayList<>();
 
-  private Consumer<Server> serverConfigurer;
-
   public JoobyRunner(Consumer<Jooby> provider) {
     this.provider = () -> {
       Jooby app = new Jooby();
@@ -44,11 +42,6 @@ public class JoobyRunner {
 
   public JoobyRunner mode(ExecutionMode... mode) {
     modes.addAll(Arrays.asList(mode));
-    return this;
-  }
-
-  public JoobyRunner configureServer(Consumer<Server> configurer) {
-    this.serverConfigurer = configurer;
     return this;
   }
 
@@ -76,12 +69,13 @@ public class JoobyRunner {
       for (Supplier<Server> serverFactory : serverList) {
         Server server = serverFactory.get();
         try {
-          if (serverConfigurer != null) {
-            serverConfigurer.accept(server);
-          }
           Jooby app = this.provider.get().setExecutionMode(mode);
-          server.port(9999)
-              .start(app);
+          ServerOptions serverOptions = app.getServerOptions();
+          if (serverOptions != null) {
+            server.setOptions(serverOptions);
+          }
+          server.getOptions().setPort(9999);
+          server.start(app);
 
           onReady.accept(new WebClient(9999));
         } finally {

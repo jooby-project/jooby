@@ -295,13 +295,8 @@ public class FeaturedTest {
             + "felis a ligula. Pellentesque lorem erat, fringilla at ipsum a, scelerisque hendrerit "
             + "lorem. Sed interdum nibh at ante consequat, vitae fermentum augue luctus.";
     new JoobyRunner(app -> {
-
+      app.setServerOptions(new ServerOptions().setGzip(true));
       app.get("/gzip", ctx -> text);
-
-    }).configureServer(server -> {
-
-      server.gzip(true);
-
     }).ready(client -> {
       client.get("/gzip").prepare(req -> {
         req.addHeader("Accept-Encoding", "gzip");
@@ -1092,12 +1087,12 @@ public class FeaturedTest {
   @Test
   public void maxRequestSize() {
     new JoobyRunner(app -> {
+      app.setServerOptions(new ServerOptions()
+          .setBufferSize(Server._16KB / 2)
+          .setMaxRequestSize(Server._16KB));
       app.post("/request-size", ctx -> ctx.body().value());
 
       app.get("/request-size", ctx -> ctx.body().value());
-    }).configureServer(server -> {
-      server.bufferSize(Server._16KB / 2);
-      server.maxRequestSize(Server._16KB);
     }).ready(client -> {
       // Exceeds
       client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), _19kb), rsp -> {

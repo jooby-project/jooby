@@ -346,3 +346,28 @@ fun main(args: Array<String>) {
 The javadoc:Jooby[mvc, javax.inject.Provider] does the same job, might or might not delegate
 instantiation to a dependency injection framework but most important let you control lifecycle of
 MVC routes (Singleton vs Non-Singleton routes). 
+
+=== Suspend functions
+
+For Kotlin users MVC routes are allowed to use suspend functions
+
+.Kotlin Coroutines
+[source, kotlin]
+----
+class SuspendMvc {
+  @GET
+  @Path("/delay")
+  suspend fun delayed(ctx: Context): String {
+    delay(100)
+    return ctx.pathString()
+  }
+}
+
+fun main(args: Array<String>) {
+  runApp(args) {
+    use(SuspendMvc())
+  }
+}
+----
+
+{love}

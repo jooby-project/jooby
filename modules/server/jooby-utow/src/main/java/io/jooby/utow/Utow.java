@@ -17,6 +17,7 @@ package io.jooby.utow;
 
 import io.jooby.Jooby;
 import io.jooby.Server;
+import io.jooby.ServerOptions;
 import io.jooby.internal.utow.UtowHandler;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
@@ -33,52 +34,20 @@ public class Utow extends Server.Base {
 
   private Undertow server;
 
-  private int port = 8080;
-
-  private boolean gzip;
-
-  private long maxRequestSize = _10MB;
-
-  private int bufferSize = _16KB;
-
-  private int workerThreads = Math.max(Runtime.getRuntime().availableProcessors(), 2) * 8;
-
   private List<Jooby> applications = new ArrayList<>();
 
-  private boolean defaultHeaders = true;
+  private ServerOptions options = new ServerOptions()
+      .setIoThreads(ServerOptions.IO_THREADS)
+      .setServer("utow");
 
-  @Override public Server port(int port) {
-    this.port = port;
+  @Nonnull @Override public Utow setOptions(ServerOptions options) {
+    this.options = options
+        .setIoThreads(options.getIoThreads());
     return this;
   }
 
-  public Server gzip(boolean enabled) {
-    this.gzip = enabled;
-    return this;
-  }
-
-  @Override public int port() {
-    return port;
-  }
-
-  @Nonnull @Override public Server maxRequestSize(long maxRequestSize) {
-    this.maxRequestSize = maxRequestSize;
-    return this;
-  }
-
-  @Nonnull @Override public Server bufferSize(int bufferSize) {
-    this.bufferSize = bufferSize;
-    return this;
-  }
-
-  @Override public Server workerThreads(int workerThreads) {
-    this.workerThreads = workerThreads;
-    return this;
-  }
-
-  @Nonnull @Override public Server defaultHeaders(boolean value) {
-    this.defaultHeaders = value;
-    return this;
+  @Nonnull @Override public ServerOptions getOptions() {
+    return options;
   }
 
   @Override public Server start(Jooby application) {
@@ -87,27 +56,29 @@ public class Utow extends Server.Base {
 
     addShutdownHook();
 
-    HttpHandler handler = new UtowHandler(applications.get(0), bufferSize, maxRequestSize,
-        defaultHeaders);
+    HttpHandler handler = new UtowHandler(applications.get(0), options.getBufferSize(),
+        options.getMaxRequestSize(),
+        options.isDefaultHeaders());
 
-    if (gzip) {
+    if (options.isGzip()) {
       handler = new EncodingHandler.Builder().build(null).wrap(handler);
     }
 
     server = Undertow.builder()
-        .addHttpListener(port, "0.0.0.0")
-        .setBufferSize(bufferSize)
+        .addHttpListener(options.getPort(), "0.0.0.0")
+        .setBufferSize(options.getBufferSize())
         /** Socket : */
         .setSocketOption(Options.BACKLOG, 8192)
         /** Server: */
         // HTTP/1.1 is keep-alive by default, turn this option off
         .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
-        .setServerOption(UndertowOptions.ALWAYS_SET_DATE, defaultHeaders)
+        .setServerOption(UndertowOptions.ALWAYS_SET_DATE, options.isDefaultHeaders())
         .setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, false)
         .setServerOption(UndertowOptions.DECODE_URL, false)
         /** Worker: */
-        .setWorkerOption(Options.WORKER_NAME, "utow")
-        .setWorkerThreads(workerThreads)
+        .setIoThreads(options.getIoThreads())
+        .setWorkerOption(Options.WORKER_NAME, "application")
+        .setWorkerThreads(options.getWorkerThreads())
         .setHandler(handler)
         .build();
 

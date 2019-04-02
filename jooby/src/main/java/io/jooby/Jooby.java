@@ -53,8 +53,6 @@ public class Jooby implements Router, Registry {
 
   private ExecutionMode mode;
 
-  private Consumer<Server> serverConfigurer;
-
   private Path tmpdir;
 
   private List<Throwing.Runnable> startCallbacks;
@@ -67,8 +65,19 @@ public class Jooby implements Router, Registry {
 
   private Registry registry;
 
+  private ServerOptions serverOptions;
+
   public Jooby() {
     router = new RouterImpl(getClass().getClassLoader());
+  }
+
+  public @Nullable ServerOptions getServerOptions() {
+    return serverOptions;
+  }
+
+  public @Nonnull Jooby setServerOptions(@Nonnull ServerOptions serverOptions) {
+    this.serverOptions = serverOptions;
+    return this;
   }
 
   public @Nonnull Env getEnvironment() {
@@ -356,8 +365,9 @@ public class Jooby implements Router, Registry {
       getLog().warn("Multiple servers found {}. Using: {}", names, names.get(0));
     }
     Server server = servers.get(0);
-    if (serverConfigurer != null) {
-      serverConfigurer.accept(server);
+    if (serverOptions != null) {
+      serverOptions.setServer(server.getClass().getSimpleName().toLowerCase());
+      server.setOptions(serverOptions);
     }
     return server.start(this);
   }
@@ -389,19 +399,18 @@ public class Jooby implements Router, Registry {
     log.info("{} started with:", getClass().getSimpleName());
 
     log.info("    PID: {}", System.getProperty("PID"));
-    log.info("    port: {}", server.port());
-    log.info("    server: {}", server.getClass().getSimpleName().toLowerCase());
+    log.info("    {}", server.getOptions());
     if (log.isDebugEnabled()) {
       log.debug("    env: {}", env);
     } else {
       log.info("    env: {}", env.getName());
     }
-    log.info("    thread mode: {}", mode.name().toLowerCase());
+    log.info("    execution model: {}", mode.name().toLowerCase());
     log.info("    user: {}", System.getProperty("user.name"));
     log.info("    app dir: {}", System.getProperty("user.dir"));
     log.info("    tmp dir: {}", tmpdir);
 
-    log.info("routes: \n\n{}\n\nlistening on:\n  http://localhost:{}{}\n", router, server.port(),
+    log.info("routes: \n\n{}\n\nlistening on:\n  http://localhost:{}{}\n", router, server.getOptions().getPort(),
         router.getContextPath());
     return this;
   }
@@ -413,11 +422,6 @@ public class Jooby implements Router, Registry {
     }
 
     fireStop();
-    return this;
-  }
-
-  public @Nonnull Jooby configureServer(@Nonnull Consumer<Server> configurer) {
-    this.serverConfigurer = configurer;
     return this;
   }
 
