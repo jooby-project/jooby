@@ -157,7 +157,6 @@ fun main(args: Array<String>) {
 In case of Kotlin, it doesn't matter which one you choose. DSL looks great with or without extending
 `Kooby`.
 
-[#introduction-mvc-api]
 === MVC API
 
 The MVC API (a.k.a mvc routes) uses annotation to define routes and byte code generation to execute

@@ -97,7 +97,7 @@ fun main(args: Array<String>) {
 <1> Bootstrap dagger component
 <2> Use dagger provided objects
 
-[id=dagger-mvc-routes]
+[discrete]
 ==== MVC routes
 
 Integration of MVC routes with Dagger is as simple as:
@@ -239,7 +239,7 @@ fun main(args: Array<String>) {
 <1> Install Guice extension
 <2> The javadoc:Jooby[require, java.lang.Class] call is now resolved by Guice
 
-[id=guice-mvc-routes]
+[discrete]
 ==== MVC routes
 
 Guice will also provisioning MVC routes
@@ -352,7 +352,7 @@ Spring uses the application package and sub-packages to scan. If you need extra 
 install(new Spring("foo", "bar"));
 ----
 
-[id=spring-mvc-routes]
+[discrete]
 ==== MVC routes
 
 The Spring extension does a bit more in relation to MVC routes:
@@ -445,7 +445,7 @@ fun main(args: Array<String>) {
 <1> Install Weld
 <2> The javadoc:Jooby[require, java.lang.Class] call is now resolved by Weld
 
-[id=weld-mvc-routes]
+[discrete]
 ==== MVC routes
 
 The Weld extension does a bit more in relation to MVC routes:

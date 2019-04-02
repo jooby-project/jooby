@@ -58,7 +58,6 @@ fun main(args: Array<String>) {
 
 Run `App`:
 
-[source]
 ----
 INFO App started with:
 INFO     PID: 21661

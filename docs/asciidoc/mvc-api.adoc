@@ -19,10 +19,15 @@ public class MyController {
   }
 }
 
-App.java
+public class App extends Jooby {
 
-{
-  use(new MyController());     // <3>
+  {
+    use(new MyController());   // <3>
+  }
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
 }
 ----
 
@@ -176,7 +181,6 @@ class MyController {
 }
 ----
 
-[id=mvc-form]
 ==== Formdata/Multipart
 
 For formdata/multipart parameters the javadoc:annotations.FormParam[] annotation is required:
@@ -207,7 +211,6 @@ class MyController {
 }
 ----
 
-[id=mvc-body]
 ==== Body
 
 Body parameter doesn't require an annotation:
