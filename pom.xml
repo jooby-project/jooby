@@ -6,12 +6,12 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.jooby</groupId>
   <artifactId>jooby-project</artifactId>
-  <version>2.0.0.M1</version>
+  <version>2.0.0.M2</version>
   <packaging>pom</packaging>
 
   <name>jooby-project</name>
 
-  <description>The modular microframework for Java and Kotlin</description>
+  <description>The modular web framework for Java and Kotlin</description>
 
   <url>https://github.com/jooby-project/jooby</url>
 

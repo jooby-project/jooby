@@ -46,8 +46,8 @@ public class DocGenerator {
     Asciidoctor asciidoctor = Asciidoctor.Factory.create();
 
     Attributes attributes = new Attributes();
-
-    attributes.setAttribute("joobyVersion", version());
+    String version = version();
+    attributes.setAttribute("joobyVersion", version);
     attributes.setAttribute("love", "&#9825;");
 
     attributes.setAttribute("docinfo", "shared");
@@ -119,7 +119,7 @@ public class DocGenerator {
       FileUtils.deleteQuietly(website.resolve("index.html").toFile());
 
       FileUtils.copyDirectory(outdir.toFile(), website.toFile());
-      git.commit("Sync documentation");
+      git.commit(version);
     }
   }
 

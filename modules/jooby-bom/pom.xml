@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
-  <version>2.0.0.M1</version>
+  <version>2.0.0.M2</version>
   <packaging>pom</packaging>
   <name>jooby-bom</name>
   <description>Jooby (Bill of Materials)</description>
@@ -13,8 +13,8 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.0.0.M1</jooby.version>
-  <HikariCP.version>3.2.0</HikariCP.version>
+  <jooby.version>2.0.0.M2</jooby.version>
+  <HikariCP.version>3.3.1</HikariCP.version>
   <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
   <archetype-packaging.version>2.2</archetype-packaging.version>
   <asm.version>7.0</asm.version>
@@ -23,6 +23,7 @@
   <capsule-maven-plugin.version>1.0.4</capsule-maven-plugin.version>
   <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
   <commons-io.version>2.6</commons-io.version>
+  <config.version>1.3.3</config.version>
   <coveralls-maven-plugin.version>3.1.0</coveralls-maven-plugin.version>
   <depencency-check-maven.version>2.1.1</depencency-check-maven.version>
   <docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
@@ -36,17 +37,17 @@
   <guice.version>4.2.2</guice.version>
   <h2.version>1.4.197</h2.version>
   <handlebars.version>4.1.2</handlebars.version>
-  <jackson.version>2.9.6</jackson.version>
+  <jackson.version>2.9.8</jackson.version>
   <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
   <jacoco.version>0.8.2</jacoco.version>
   <javassist.version>3.22.0-GA</javassist.version>
   <javax.inject.version>1</javax.inject.version>
-  <jetty.version>9.4.14.v20181114</jetty.version>
-  <jooby-maven-plugin.version>2.0.0.M1</jooby-maven-plugin.version>
-  <jooby.version>2.0.0.M1</jooby.version>
+  <jetty.version>9.4.15.v20190215</jetty.version>
+  <jooby-maven-plugin.version>2.0.0.M2</jooby-maven-plugin.version>
+  <jooby.version>2.0.0.M2</jooby.version>
   <jsr305.version>3.0.2</jsr305.version>
   <junit.version>5.3.2</junit.version>
-  <kotlin.version>1.3.20</kotlin.version>
+  <kotlin.version>1.3.21</kotlin.version>
   <kotlinx-coroutines-core.version>1.1.1</kotlinx-coroutines-core.version>
   <license-maven-plugin.version>3.0</license-maven-plugin.version>
   <log4jdbc.version>1.2</log4jdbc.version>
@@ -76,17 +77,20 @@
   <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
   <mojo-executor.version>2.3.0</mojo-executor.version>
   <mysql-connector-java.version>8.0.13</mysql-connector-java.version>
-  <netty.version>4.1.33.Final</netty.version>
+  <netty.version>4.1.34.Final</netty.version>
   <nexus-staging-maven-plugin.version>1.6.5</nexus-staging-maven-plugin.version>
   <okhttp.version>3.11.0</okhttp.version>
   <plexus-utils.version>3.1.0</plexus-utils.version>
-  <reactor.version>3.2.5.RELEASE</reactor.version>
+  <reactor.version>3.2.8.RELEASE</reactor.version>
   <rest-assured.version>3.3.0</rest-assured.version>
-  <rxjava.version>2.2.5</rxjava.version>
+  <rocker.version>1.2.1</rocker.version>
+  <rxjava.version>2.2.8</rxjava.version>
   <slf4j.version>1.7.25</slf4j.version>
+  <spring.version>5.1.6.RELEASE</spring.version>
   <stork-maven-plugin.version>2.7.0</stork-maven-plugin.version>
-  <undertow.version>2.0.17.Final</undertow.version>
+  <undertow.version>2.0.19.Final</undertow.version>
   <versions-maven-plugin.version>2.1</versions-maven-plugin.version>
+  <weld.version>3.1.0.Final</weld.version>
 </properties>
 
   <dependencyManagement>
@@ -122,6 +126,31 @@
       <version>${jooby.version}</version>
     </dependency>
     <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-handlebars</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-rocker</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-spring</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-weld</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-guice</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
       <version>${asm.version}</version>
@@ -130,6 +159,21 @@
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm-util</artifactId>
       <version>${asm.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.weld.se</groupId>
+      <artifactId>weld-se-shaded</artifactId>
+      <version>${weld.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe</groupId>
+      <artifactId>config</artifactId>
+      <version>${config.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -325,6 +369,16 @@
       <groupId>org.jetbrains.kotlinx</groupId>
       <artifactId>kotlinx-coroutines-core</artifactId>
       <version>${kotlinx-coroutines-core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fizzed</groupId>
+      <artifactId>rocker-runtime</artifactId>
+      <version>${rocker.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fizzed</groupId>
+      <artifactId>rocker-compiler</artifactId>
+      <version>${rocker.version}</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
