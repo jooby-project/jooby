@@ -70,7 +70,7 @@ public class DependencyProcessor extends BlockProcessor {
 
   private String version(String artifactId) {
     if (artifactId.startsWith("jooby-")) {
-      return DocGenerator.VERSION;
+      return pom.selectFirst("version").text().trim();
     }
     String version = findArtifact(artifactId)
         .select("version").text().trim();

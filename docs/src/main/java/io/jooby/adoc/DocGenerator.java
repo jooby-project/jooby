@@ -37,8 +37,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DocGenerator {
-  public static final String VERSION = "2.0.0.M1";
-
   public static void main(String[] args) throws Exception {
     generate(basedir(), args.length > 0 && "publish".equals(args[0]));
   }
@@ -49,7 +47,7 @@ public class DocGenerator {
 
     Attributes attributes = new Attributes();
 
-    attributes.setAttribute("joobyVersion", VERSION);
+    attributes.setAttribute("joobyVersion", version());
     attributes.setAttribute("love", "&#9825;");
 
     attributes.setAttribute("docinfo", "shared");
@@ -218,6 +216,17 @@ public class DocGenerator {
       basedir = basedir.resolve("docs");
     }
     return basedir;
+  }
+
+  public static String version() {
+    try {
+      return Jsoup.parse(basedir().getParent().resolve("pom.xml").toFile(), "utf-8")
+          .selectFirst("version")
+          .text()
+          .trim();
+    } catch (IOException x) {
+      throw new IllegalStateException(x);
+    }
   }
 
   private static void copyFile(Path out, Path... dirs) throws IOException {
