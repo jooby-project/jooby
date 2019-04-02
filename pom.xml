@@ -217,6 +217,36 @@
         <version>${jooby.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-handlebars</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-rocker</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-spring</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-weld</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-guice</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
       <!-- ASM -->
       <dependency>
         <groupId>org.ow2.asm</groupId>
