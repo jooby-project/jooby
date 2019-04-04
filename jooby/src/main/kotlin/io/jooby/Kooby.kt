@@ -210,9 +210,16 @@ open class Kooby constructor() : Jooby() {
   }
 
   fun serverOptions(options: ServerOptions.() -> Unit): Kooby {
-    val serverOptions = ServerOptions()
-    options(serverOptions)
-    setServerOptions(serverOptions)
+    val options = ServerOptions()
+    options(options)
+    setServerOptions(options)
+    return this
+  }
+
+  fun routerOptions(options: RouterOptions.() -> Unit): Kooby {
+    val options = RouterOptions()
+    options(options)
+    this.routerOptions = options
     return this
   }
 

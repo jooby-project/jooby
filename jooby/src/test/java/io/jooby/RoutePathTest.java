@@ -22,6 +22,8 @@ public class RoutePathTest {
 
     assertEquals("/foo", Router.normalizePath("foo", false, true));
 
+    assertEquals("/foo/", Router.normalizePath("foo/", false, false));
+
     assertEquals("/foo/bar", Router.normalizePath("/foo/bar", false, true));
 
     assertEquals("/fOo/bAr", Router.normalizePath("/fOo/bAr", true, true));

@@ -75,6 +75,15 @@ public class Jooby implements Router, Registry {
     return serverOptions;
   }
 
+  @Nonnull @Override public RouterOptions getRouterOptions() {
+    return router.getRouterOptions();
+  }
+
+  @Nonnull @Override public Jooby setRouterOptions(@Nonnull RouterOptions options) {
+    router.setRouterOptions(options);
+    return this;
+  }
+
   public @Nonnull Jooby setServerOptions(@Nonnull ServerOptions serverOptions) {
     this.serverOptions = serverOptions;
     return this;
@@ -89,16 +98,6 @@ public class Jooby implements Router, Registry {
 
   public @Nonnull Jooby setEnvironment(@Nonnull Env environment) {
     this.env = environment;
-    return this;
-  }
-
-  @Nonnull @Override public Jooby caseSensitive(boolean caseSensitive) {
-    this.router.caseSensitive(caseSensitive);
-    return this;
-  }
-
-  @Nonnull @Override public Jooby ignoreTrailingSlash(boolean ignoreTrailingSlash) {
-    this.router.ignoreTrailingSlash(ignoreTrailingSlash);
     return this;
   }
 

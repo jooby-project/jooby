@@ -1036,7 +1036,7 @@ public class FeaturedTest {
   public void routerCaseInsensitive() {
     new JoobyRunner(app -> {
       // This is on by default:
-      app.caseSensitive(false);
+      app.getRouterOptions().setCaseSensitive(false);
       app.get("/foo", Context::pathString);
 
       app.get("/BAR", Context::pathString);
@@ -1062,7 +1062,7 @@ public class FeaturedTest {
     /** Now do it case sensitive: */
     new JoobyRunner(app -> {
 
-      app.caseSensitive(true);
+      app.getRouterOptions().setCaseSensitive(true);
 
       app.get("/foo", Context::pathString);
 
@@ -1139,7 +1139,7 @@ public class FeaturedTest {
     });
 
     new JoobyRunner(app -> {
-      app.ignoreTrailingSlash(false);
+      app.getRouterOptions().setIgnoreTrailingSlash(false);
       app.get("/foo/", ctx -> "trailing slash");
 
       app.get("/foo", ctx -> "no trailing slash");

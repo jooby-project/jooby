@@ -59,10 +59,6 @@ public interface Router {
 
   @Nonnull AttributeMap getAttributes();
 
-  @Nonnull Router caseSensitive(boolean caseSensitive);
-
-  @Nonnull Router ignoreTrailingSlash(boolean ignoreTrailingSlash);
-
   @Nonnull Router setContextPath(@Nonnull String contextPath);
 
   @Nonnull String getContextPath();
@@ -87,7 +83,6 @@ public interface Router {
   @Nonnull <T> Router mvc(@Nonnull Class<T> router, @Nonnull Provider<T> provider);
 
   @Nonnull Router mvc(@Nonnull Object router);
-
 
   @Nonnull List<Route> getRoutes();
 
@@ -225,46 +220,53 @@ public interface Router {
 
   @Nonnull Router responseHandler(ResponseHandler factory);
 
+  @Nonnull RouterOptions getRouterOptions();
+
+  @Nonnull Router setRouterOptions(@Nonnull RouterOptions options);
+
   static @Nonnull String normalizePath(@Nonnull String path, boolean caseSensitive,
       boolean ignoreTrailingSlash) {
-    if (path == null || path.length() == 0 || path.equals("/")) {
+    if (path == null) {
       return "/";
     }
+    int len = path.length();
+    if (len == 0) {
+      return "/";
+    } else if (len == 1 && path.charAt(0) == '/') {
+      return path;
+    }
     boolean modified = false;
-    StringBuilder buff = new StringBuilder(path.length());
+    int p = 0;
+    char[] buff = new char[len + 1];
     if (path.charAt(0) != '/') {
-      buff.append('/');
+      buff[p++] = '/';
       modified = true;
     }
-    char prev = Character.MIN_VALUE;
     for (int i = 0; i < path.length(); i++) {
       char ch = path.charAt(i);
       if (ch != '/') {
         if (caseSensitive) {
-          buff.append(ch);
+          buff[p++] = ch;
         } else {
           char low = Character.toLowerCase(ch);
           if (low != ch) {
             modified = true;
           }
-          buff.append(low);
+          buff[p++] = low;
         }
-      } else if (prev != '/') {
-        buff.append(ch);
+      } else if (i == 0 || path.charAt(i - 1) != '/') {
+        buff[p++] = ch;
       } else {
+        // double slash
         modified = true;
       }
-      prev = ch;
     }
-    if (ignoreTrailingSlash && buff.length() > 1 && buff.charAt(buff.length() - 1) == '/') {
-      buff.setLength(buff.length() - 1);
+    if (ignoreTrailingSlash && p > 1 && buff[p - 1] == '/') {
+      p -= 1;
       modified = true;
     }
     // creates string?
-    if (modified) {
-      return buff.toString();
-    }
-    return path;
+    return modified ? new String(buff, 0, p) : path;
   }
 
   static @Nonnull List<String> pathKeys(@Nonnull String pattern) {

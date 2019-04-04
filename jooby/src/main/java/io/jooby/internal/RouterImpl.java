@@ -26,6 +26,7 @@ import io.jooby.Parser;
 import io.jooby.Renderer;
 import io.jooby.Route;
 import io.jooby.Router;
+import io.jooby.RouterOptions;
 import io.jooby.StatusCode;
 import io.jooby.Throwing;
 import io.jooby.ResponseHandler;
@@ -126,11 +127,9 @@ public class RouterImpl implements Router {
 
   private Map<String, StatusCode> errorCodes;
 
-  private boolean caseSensitive = true;
+  private RouterOptions options = new RouterOptions();
 
-  private boolean ignoreTrailingSlash = true;
-
-  private $Chi chi = new $Chi(caseSensitive, ignoreTrailingSlash);
+  private $Chi chi = new $Chi(options.isCaseSensitive(), options.isIgnoreTrailingSlash());
 
   private LinkedList<Stack> stack = new LinkedList<>();
 
@@ -172,23 +171,22 @@ public class RouterImpl implements Router {
     return attributes;
   }
 
-  @Nonnull @Override public Router caseSensitive(boolean caseSensitive) {
-    this.caseSensitive = caseSensitive;
-    chi.setCaseSensitive(caseSensitive);
+  @Nonnull @Override public Router setRouterOptions(@Nonnull RouterOptions options) {
+    this.options = options;
+    chi.setCaseSensitive(options.isCaseSensitive());
+    chi.setIgnoreTrailingSlash(options.isIgnoreTrailingSlash());
     return this;
   }
 
-  @Nonnull @Override public Router ignoreTrailingSlash(boolean ignoreTrailingSlash) {
-    this.ignoreTrailingSlash = ignoreTrailingSlash;
-    chi.setIgnoreTrailingSlash(ignoreTrailingSlash);
-    return this;
+  @Nonnull @Override public RouterOptions getRouterOptions() {
+    return options;
   }
 
   @Nonnull @Override public Router setContextPath(@Nonnull String basePath) {
     if (routes.size() > 0) {
       throw new IllegalStateException("Base path must be set before adding any routes.");
     }
-    this.basePath = normalizePath(basePath, caseSensitive, true);
+    this.basePath = normalizePath(basePath, options.isCaseSensitive(), true);
     return this;
   }
 
@@ -206,7 +204,8 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override
   public Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
-    RadixTree tree = new $Chi(caseSensitive, ignoreTrailingSlash).with(predicate);
+    RadixTree tree = new $Chi(options.isCaseSensitive(), options.isIgnoreTrailingSlash())
+        .with(predicate);
     if (trees == null) {
       trees = new ArrayList<>();
     }
@@ -218,7 +217,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router use(@Nonnull String path, @Nonnull Router router) {
-    String prefix = normalizePath(path, caseSensitive, true);
+    String prefix = normalizePath(path, options.isCaseSensitive(), true);
     if (prefix.equals("/")) {
       prefix = "";
     }
@@ -325,6 +324,10 @@ public class RouterImpl implements Router {
 
   private Route route(@Nonnull String method, @Nonnull String pattern,
       @Nonnull Route.Handler handler, RadixTree tree) {
+    /** Make sure router options are in sync: */
+    chi.setCaseSensitive(options.isCaseSensitive());
+    chi.setIgnoreTrailingSlash(options.isIgnoreTrailingSlash());
+
     /** Pattern: */
     StringBuilder pat = new StringBuilder();
     stack.stream().filter(it -> it.pattern != null).forEach(it -> pat.append(it.pattern));
@@ -354,16 +357,16 @@ public class RouterImpl implements Router {
     }
 
     /** Route: */
-    String safePattern = normalizePath(pat.toString(), caseSensitive, ignoreTrailingSlash);
+    String safePattern = normalizePath(pat.toString(), options.isCaseSensitive(),
+        options.isIgnoreTrailingSlash());
     Route route = new Route(method, safePattern, null, handler, pipeline, renderer, parsers);
     Stack stack = this.stack.peekLast();
     if (stack.executor != null) {
       routeExecutor.put(route, stack.executor);
     }
     String routePattern = normalizePath(basePath == null
-            ? safePattern
-            : basePath + safePattern,
-        caseSensitive, ignoreTrailingSlash);
+        ? safePattern
+        : basePath + safePattern, options.isCaseSensitive(), options.isIgnoreTrailingSlash());
     if (method.equals("*")) {
       METHODS.forEach(m -> tree.insert(m, routePattern, route));
     } else {
@@ -392,7 +395,8 @@ public class RouterImpl implements Router {
       if (route.getReturnType() == null) {
         route.setReturnType(analyzer.returnType(route.getHandle()));
       }
-      Route.Handler pipeline = Pipeline.compute(source.getLoader(), route, mode, executor, handlers);
+      Route.Handler pipeline = Pipeline
+          .compute(source.getLoader(), route, mode, executor, handlers);
       route.setPipeline(pipeline);
     }
     // unwrap executor
@@ -483,7 +487,8 @@ public class RouterImpl implements Router {
         .orElse(0);
 
     routes.forEach(
-        r -> buff.append(String.format("\n  %-" + size + "s", r.getMethod())).append(r.getPattern()));
+        r -> buff.append(String.format("\n  %-" + size + "s", r.getMethod()))
+            .append(r.getPattern()));
     return buff.length() > 0 ? buff.substring(1) : "";
   }
 
@@ -497,7 +502,7 @@ public class RouterImpl implements Router {
   }
 
   private Stack push(String pattern) {
-    Stack stack = new Stack(normalizePath(pattern, caseSensitive, true));
+    Stack stack = new Stack(normalizePath(pattern, options.isCaseSensitive(), true));
     if (this.stack.size() > 0) {
       Stack parent = this.stack.getLast();
       stack.executor = parent.executor;
