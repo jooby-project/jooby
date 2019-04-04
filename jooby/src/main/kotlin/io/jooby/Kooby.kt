@@ -229,26 +229,25 @@ open class Kooby constructor() : Jooby() {
 }
 
 @RouterDsl
-fun runApp(mode: ExecutionMode, args: Array<String>, init: Kooby.() -> Unit) {
+fun runApp(args: Array<String>, mode: ExecutionMode, init: Kooby.() -> Unit) {
   configurePackage(init)
-  Jooby.runApp(mode, args, fun() = Kooby(init))
+  Jooby.runApp(args, mode, fun() = Kooby(init))
 }
 
 @RouterDsl
 fun runApp(args: Array<String>, init: Kooby.() -> Unit) {
   configurePackage(init)
-  Jooby.runApp(ExecutionMode.DEFAULT, args, fun() = Kooby(init))
+  Jooby.runApp(args, ExecutionMode.DEFAULT, fun() = Kooby(init))
 }
 
-// ::App
 @RouterDsl
 fun <T : Jooby> runApp(args: Array<String>, application: KClass<T>) {
-  runApp(ExecutionMode.DEFAULT, args, application)
+  runApp(args, ExecutionMode.DEFAULT, application)
 }
 
 @RouterDsl
-fun <T : Jooby> runApp(mode: ExecutionMode, args: Array<String>, application: KClass<T>) {
-  Jooby.runApp(mode, args, application.java)
+fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, application: KClass<T>) {
+  Jooby.runApp(args, mode, application.java)
 }
 
 internal fun configurePackage(value: Any) {

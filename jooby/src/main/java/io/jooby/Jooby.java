@@ -430,13 +430,13 @@ public class Jooby implements Router, Registry {
   }
 
   public static void runApp(String[] args, @Nonnull Class<? extends Jooby> applicationType) {
-    runApp(ExecutionMode.DEFAULT, args, applicationType);
+    runApp(args, ExecutionMode.DEFAULT, applicationType);
   }
 
-  public static void runApp(ExecutionMode executionMode, String[] args,
+  public static void runApp(String[] args, ExecutionMode executionMode,
       @Nonnull Class<? extends Jooby> applicationType) {
     configurePackage(applicationType);
-    runApp(executionMode, args, () ->
+    runApp(args, executionMode, () ->
         (Jooby) Stream.of(applicationType.getDeclaredConstructors())
             .filter(it -> it.getParameterCount() == 0)
             .findFirst()
@@ -447,19 +447,19 @@ public class Jooby implements Router, Registry {
   }
 
   public static void runApp(String[] args, @Nonnull Supplier<Jooby> provider) {
-    runApp(ExecutionMode.DEFAULT, args, provider);
+    runApp(args, ExecutionMode.DEFAULT, provider);
   }
 
   public static void runApp(String[] args, @Nonnull Consumer<Jooby> consumer) {
-    runApp(ExecutionMode.DEFAULT, args, toProvider(consumer));
+    runApp(args, ExecutionMode.DEFAULT, toProvider(consumer));
   }
 
-  public static void runApp(@Nonnull ExecutionMode mode, @Nonnull String[] args,
+  public static void runApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
       @Nonnull Consumer<Jooby> consumer) {
-    runApp(mode, args, toProvider(consumer));
+    runApp(args, executionMode, toProvider(consumer));
   }
 
-  public static void runApp(@Nonnull ExecutionMode mode, @Nonnull String[] args,
+  public static void runApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
       @Nonnull Supplier<Jooby> provider) {
 
     configurePackage(provider);
@@ -475,7 +475,7 @@ public class Jooby implements Router, Registry {
 
     Jooby app = provider.get();
     if (app.mode == null) {
-      app.mode = mode;
+      app.mode = executionMode;
     }
     Server server = app.start();
     server.join();

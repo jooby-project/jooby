@@ -4,7 +4,7 @@ import io.jooby.runApp
 data class SearchQuery(val q: String)
 
 fun main(args: Array<String>) {
-  runApp(ExecutionMode.EVENT_LOOP, args) {
+  runApp(args, ExecutionMode.EVENT_LOOP) {
     serverOptions {
       singleLoop = true
       ioThreads = 5
