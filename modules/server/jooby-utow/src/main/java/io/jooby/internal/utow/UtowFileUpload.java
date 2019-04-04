@@ -16,7 +16,7 @@
 package io.jooby.internal.utow;
 
 import io.jooby.FileUpload;
-import io.jooby.Server;
+import io.jooby.ServerOptions;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.Headers;
 import io.jooby.Throwing;
@@ -39,8 +39,8 @@ public class UtowFileUpload implements FileUpload {
 
   @Override public byte[] bytes() {
     try (InputStream in = stream()) {
-      ByteArrayOutputStream buffer = new ByteArrayOutputStream(Server._16KB);
-      byte[] data = new byte[Server._16KB];
+      ByteArrayOutputStream buffer = new ByteArrayOutputStream(ServerOptions._16KB);
+      byte[] data = new byte[ServerOptions._16KB];
       int nRead;
       while ((nRead = in.read(data, 0, data.length)) != -1) {
         buffer.write(data, 0, nRead);

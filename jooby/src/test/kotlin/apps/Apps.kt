@@ -27,12 +27,12 @@ class App : Kooby({
 
 /** run class: */
 fun runClass(args: Array<String>) {
-  runApp(::App, args)
+  runApp(args, App::class)
 }
 
 /** run class with mode: */
 fun runWithMode(args: Array<String>) {
-  runApp(ExecutionMode.DEFAULT, args, ::App)
+  runApp(ExecutionMode.DEFAULT, args, App::class)
 }
 
 /** run inline: */

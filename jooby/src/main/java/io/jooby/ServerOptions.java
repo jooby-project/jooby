@@ -22,6 +22,17 @@ import java.net.ServerSocket;
 
 public class ServerOptions {
 
+  public static final int _4KB = 4096;
+
+  public static final int _8KB = 8192;
+
+  /** 16KB constant. */
+  public static final int _16KB = 16384;
+
+  public static final int _10MB = 20971520;
+
+  private int bufferSize = _16KB;
+
   public static final int IO_THREADS = Math.max(Runtime.getRuntime().availableProcessors(), 2);
 
   public static final int WORKER_THREADS = IO_THREADS * 8;
@@ -40,9 +51,7 @@ public class ServerOptions {
 
   private String server;
 
-  private int bufferSize = Server._16KB;
-
-  private int maxRequestSize = Server._10MB;
+  private int maxRequestSize = _10MB;
 
   @Override public String toString() {
     StringBuilder buff = new StringBuilder();
@@ -52,7 +61,7 @@ public class ServerOptions {
       buff.append(", ioThreads: ").append(ioThreads);
     }
     buff.append(", workerThreads: ").append(getWorkerThreads());
-    if ("netty".equals(server) && singleLoop != null) {
+    if ("netty".equals(server)) {
       buff.append(", singleLoop: ").append(singleLoop);
     }
     buff.append(", bufferSize: ").append(bufferSize);
@@ -145,8 +154,12 @@ public class ServerOptions {
     return this;
   }
 
-  public @Nullable Boolean getSingleLoop() {
-    return singleLoop;
+  public boolean getSingleLoop() {
+    return getSingleLoop(true);
+  }
+
+  public boolean getSingleLoop(boolean defaultValue) {
+    return singleLoop == null ? defaultValue : singleLoop.booleanValue();
   }
 
   public @Nonnull ServerOptions setSingleLoop(boolean singleLoop) {

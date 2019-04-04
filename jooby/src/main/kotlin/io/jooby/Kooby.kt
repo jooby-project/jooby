@@ -10,6 +10,7 @@ import java.util.function.Consumer
 import java.util.function.Supplier
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
+import kotlin.reflect.full.primaryConstructor
 
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
@@ -75,7 +76,7 @@ open class Kooby constructor() : Jooby() {
     this.init()
   }
 
-  fun <T:Any> mvc(router: KClass<T>): Kooby {
+  fun <T : Any> mvc(router: KClass<T>): Kooby {
     super.mvc(router.java)
     return this
   }
@@ -208,6 +209,13 @@ open class Kooby constructor() : Jooby() {
     return super.route(method, pattern, handler)
   }
 
+  fun serverOptions(options: ServerOptions.() -> Unit): Kooby {
+    val serverOptions = ServerOptions()
+    options(serverOptions)
+    setServerOptions(serverOptions)
+    return this
+  }
+
   companion object {
     private val ContextCoroutineName = CoroutineName("ctx")
   }
@@ -227,14 +235,13 @@ fun runApp(args: Array<String>, init: Kooby.() -> Unit) {
 
 // ::App
 @RouterDsl
-fun runApp(init: () -> Kooby, args: Array<String>) {
-  runApp(ExecutionMode.DEFAULT, args, init)
+fun <T : Jooby> runApp(args: Array<String>, application: KClass<T>) {
+  runApp(ExecutionMode.DEFAULT, args, application)
 }
 
 @RouterDsl
-fun runApp(mode: ExecutionMode, args: Array<String>, init: () -> Kooby) {
-  configurePackage(init)
-  Jooby.runApp( mode, args, init)
+fun <T : Jooby> runApp(mode: ExecutionMode, args: Array<String>, application: KClass<T>) {
+  Jooby.runApp(mode, args, application.java)
 }
 
 internal fun configurePackage(value: Any) {

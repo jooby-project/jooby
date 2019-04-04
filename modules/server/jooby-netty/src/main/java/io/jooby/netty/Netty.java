@@ -58,14 +58,11 @@ public class Netty extends Server.Base {
 
   private ServerOptions options = new ServerOptions()
       .setSingleLoop(false)
-      .setIoThreads(ServerOptions.IO_THREADS)
       .setServer("netty");
 
   @Override public Netty setOptions(@Nonnull ServerOptions options) {
-    Boolean singleLoop = options.getSingleLoop();
     this.options = options
-        .setSingleLoop(singleLoop == null ? false : singleLoop.booleanValue())
-        .setIoThreads(options.getIoThreads());
+        .setSingleLoop(options.getSingleLoop(false));
     return this;
   }
 
@@ -73,7 +70,7 @@ public class Netty extends Server.Base {
     return options;
   }
 
-  @Nonnull @Override public Server start(Jooby application) {
+  @Nonnull @Override public Server start(@Nonnull Jooby application) {
     try {
       applications.add(application);
 
@@ -94,7 +91,7 @@ public class Netty extends Server.Base {
       /** Acceptor: Accepts connections */
       this.acceptor = provider.group("netty-acceptor", options.getIoThreads());
 
-      if (options.getSingleLoop().booleanValue()) {
+      if (options.getSingleLoop()) {
         this.ioLoop = this.acceptor;
       } else {
         /** IO: processing connections, parsing messages and doing engine's internal work */
@@ -139,7 +136,7 @@ public class Netty extends Server.Base {
       acceptor.shutdownGracefully();
       acceptor = null;
     }
-    if (!options.getSingleLoop().booleanValue() && ioLoop != null) {
+    if (!options.getSingleLoop() && ioLoop != null) {
       ioLoop.shutdownGracefully();
       ioLoop = null;
     }

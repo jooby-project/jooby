@@ -202,7 +202,7 @@ public class Env {
     defaultMap.put("application.tmpdir", tmpdir.toString());
     defaultMap.put("application.env", "dev");
     defaultMap.put("application.charset", "UTF-8");
-    defaultMap.put("server.maxRequestSize", Integer.toString(Server._10MB));
+    defaultMap.put("server.maxRequestSize", Integer.toString(ServerOptions._10MB));
     String pid = pid();
     if (pid != null) {
       System.setProperty("PID", pid);

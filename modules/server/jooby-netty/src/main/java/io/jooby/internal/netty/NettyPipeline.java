@@ -19,19 +19,16 @@ import io.jooby.Router;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
-import io.netty.handler.flush.FlushConsolidationHandler;
-import io.netty.handler.stream.ChunkedWriteHandler;
 
 import java.util.function.Consumer;
 
-import static io.jooby.Server._4KB;
-import static io.jooby.Server._8KB;
+import static io.jooby.ServerOptions._4KB;
+import static io.jooby.ServerOptions._8KB;
 
 public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 

@@ -54,7 +54,7 @@ public class FeaturedTest {
   private static String _19kb = readText(
       userdir("src", "test", "resources", "files", "19kb.txt"));
 
-  private static String _16kb = _19kb.substring(0, Server._16KB);
+  private static String _16kb = _19kb.substring(0, ServerOptions._16KB);
 
   private static String _8kb = _16kb.substring(0, _16kb.length() / 2);
 
@@ -1088,8 +1088,8 @@ public class FeaturedTest {
   public void maxRequestSize() {
     new JoobyRunner(app -> {
       app.setServerOptions(new ServerOptions()
-          .setBufferSize(Server._16KB / 2)
-          .setMaxRequestSize(Server._16KB));
+          .setBufferSize(ServerOptions._16KB / 2)
+          .setMaxRequestSize(ServerOptions._16KB));
       app.post("/request-size", ctx -> ctx.body().value());
 
       app.get("/request-size", ctx -> ctx.body().value());
@@ -1678,9 +1678,9 @@ public class FeaturedTest {
 
   public long transfer(Reader reader, Writer out) throws IOException {
     long transferred = 0;
-    char[] buffer = new char[Server._16KB];
+    char[] buffer = new char[ServerOptions._16KB];
     int nRead;
-    while ((nRead = reader.read(buffer, 0, Server._16KB)) >= 0) {
+    while ((nRead = reader.read(buffer, 0, ServerOptions._16KB)) >= 0) {
       out.write(buffer, 0, nRead);
       transferred += nRead;
     }

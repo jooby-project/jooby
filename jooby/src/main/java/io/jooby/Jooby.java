@@ -410,7 +410,8 @@ public class Jooby implements Router, Registry {
     log.info("    app dir: {}", System.getProperty("user.dir"));
     log.info("    tmp dir: {}", tmpdir);
 
-    log.info("routes: \n\n{}\n\nlistening on:\n  http://localhost:{}{}\n", router, server.getOptions().getPort(),
+    log.info("routes: \n\n{}\n\nlistening on:\n  http://localhost:{}{}\n", router,
+        server.getOptions().getPort(),
         router.getContextPath());
     return this;
   }
@@ -427,6 +428,23 @@ public class Jooby implements Router, Registry {
 
   @Override public String toString() {
     return router.toString();
+  }
+
+  public static void runApp(String[] args, @Nonnull Class<? extends Jooby> applicationType) {
+    runApp(ExecutionMode.DEFAULT, args, applicationType);
+  }
+
+  public static void runApp(ExecutionMode executionMode, String[] args,
+      @Nonnull Class<? extends Jooby> applicationType) {
+    configurePackage(applicationType);
+    runApp(executionMode, args, () ->
+        (Jooby) Stream.of(applicationType.getDeclaredConstructors())
+            .filter(it -> it.getParameterCount() == 0)
+            .findFirst()
+            .map(Throwing.throwingFunction(c -> c.newInstance()))
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Default constructor for: " + applicationType.getName()))
+    );
   }
 
   public static void runApp(String[] args, @Nonnull Supplier<Jooby> provider) {
@@ -465,7 +483,10 @@ public class Jooby implements Router, Registry {
   }
 
   private static void configurePackage(@Nonnull Object provider) {
-    Class providerClass = provider.getClass();
+    configurePackage(provider.getClass());
+  }
+
+  private static void configurePackage(@Nonnull Class providerClass) {
     if (!providerClass.getName().contains("KoobyKt")) {
       System.setProperty(DEF_PCKG,
           System.getProperty(DEF_PCKG, providerClass.getPackage().getName()));

@@ -21,8 +21,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class MockContext implements Context {
 
@@ -255,7 +253,7 @@ public class MockContext implements Context {
 
   @Nonnull @Override public OutputStream responseStream() {
     responseStarted = true;
-    ByteArrayOutputStream out = new ByteArrayOutputStream(Server._16KB);
+    ByteArrayOutputStream out = new ByteArrayOutputStream(ServerOptions._16KB);
     result = out;
     return out;
   }

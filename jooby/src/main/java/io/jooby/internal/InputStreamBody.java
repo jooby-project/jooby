@@ -16,7 +16,7 @@
 package io.jooby.internal;
 
 import io.jooby.Body;
-import io.jooby.Server;
+import io.jooby.ServerOptions;
 import io.jooby.Throwing;
 import io.jooby.Value;
 
@@ -42,7 +42,7 @@ public class InputStreamBody implements Body {
 
   public byte[] bytes() {
     try (InputStream stream = in) {
-      int bufferSize = Server._16KB;
+      int bufferSize = ServerOptions._16KB;
       ByteArrayOutputStream out = new ByteArrayOutputStream(bufferSize);
       int len;
       byte[] buffer = new byte[bufferSize];
