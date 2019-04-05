@@ -18,10 +18,12 @@ package io.jooby.netty;
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
+import io.jooby.Throwing;
 import io.jooby.internal.netty.DefaultHeaders;
 import io.jooby.internal.netty.NettyNative;
 import io.jooby.internal.netty.NettyPipeline;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -33,10 +35,16 @@ import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import io.netty.util.concurrent.GenericFutureListener;
 
 import javax.annotation.Nonnull;
+import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -119,13 +127,18 @@ public class Netty extends Server.Base {
           .childOption(ChannelOption.SO_REUSEADDR, true)
           .childOption(ChannelOption.TCP_NODELAY, true);
 
-      bootstrap.bind(options.getPort()).sync();
+      bootstrap.bind("0.0.0.0", options.getPort()).get();
+
+      fireReady(applications);
     } catch (InterruptedException x) {
-      Thread.currentThread().interrupt();
+      throw Throwing.sneakyThrow(x);
+    } catch (ExecutionException x) {
+      Throwable cause = x.getCause();
+      if (cause instanceof BindException) {
+        cause = new BindException("Address already in use: " + options.getPort());
+      }
+      throw Throwing.sneakyThrow(cause);
     }
-
-    fireReady(applications);
-
     return this;
   }
 

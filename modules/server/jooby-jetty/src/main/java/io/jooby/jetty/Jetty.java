@@ -30,6 +30,7 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
+import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,57 +61,60 @@ public class Jetty extends io.jooby.Server.Base {
   }
 
   @Nonnull @Override public io.jooby.Server start(Jooby application) {
-    System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
-    /** Set max request size attribute: */
-    System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize",
-        Long.toString(options.getMaxRequestSize()));
-
-    /** Jetty only support worker executor: */
-    application.setExecutionMode(ExecutionMode.WORKER);
-    applications.add(application);
-
-    addShutdownHook();
-
-    QueuedThreadPool executor = new QueuedThreadPool(options.getWorkerThreads());
-    executor.setName("application");
-
-    fireStart(applications, executor);
-
-    this.server = new Server(executor);
-    server.setStopAtShutdown(false);
-
-    HttpConfiguration httpConf = new HttpConfiguration();
-    httpConf.setOutputBufferSize(options.getBufferSize());
-    httpConf.setOutputAggregationSize(options.getBufferSize());
-    httpConf.setSendXPoweredBy(false);
-    httpConf.setSendDateHeader(options.isDefaultHeaders());
-    httpConf.setSendServerVersion(false);
-    httpConf.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
-    ServerConnector connector = new ServerConnector(server);
-    connector.addConnectionFactory(new HttpConnectionFactory(httpConf));
-    connector.setPort(options.getPort());
-    connector.setHost("0.0.0.0");
-
-    server.addConnector(connector);
-
-    AbstractHandler handler = new JettyHandler(applications.get(0), options.getBufferSize(),
-        options.getMaxRequestSize(), options.isDefaultHeaders());
-
-    if (options.isGzip()) {
-      GzipHandler gzipHandler = new GzipHandler();
-      gzipHandler.setHandler(handler);
-      handler = gzipHandler;
-    }
-
-    server.setHandler(handler);
-
     try {
+      System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset", "utf-8");
+      /** Set max request size attribute: */
+      System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize",
+          Long.toString(options.getMaxRequestSize()));
+
+      /** Jetty only support worker executor: */
+      application.setExecutionMode(ExecutionMode.WORKER);
+      applications.add(application);
+
+      addShutdownHook();
+
+      QueuedThreadPool executor = new QueuedThreadPool(options.getWorkerThreads());
+      executor.setName("application");
+
+      fireStart(applications, executor);
+
+      this.server = new Server(executor);
+      server.setStopAtShutdown(false);
+
+      HttpConfiguration httpConf = new HttpConfiguration();
+      httpConf.setOutputBufferSize(options.getBufferSize());
+      httpConf.setOutputAggregationSize(options.getBufferSize());
+      httpConf.setSendXPoweredBy(false);
+      httpConf.setSendDateHeader(options.isDefaultHeaders());
+      httpConf.setSendServerVersion(false);
+      httpConf.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
+      ServerConnector connector = new ServerConnector(server);
+      connector.addConnectionFactory(new HttpConnectionFactory(httpConf));
+      connector.setPort(options.getPort());
+      connector.setHost("0.0.0.0");
+
+      server.addConnector(connector);
+
+      AbstractHandler handler = new JettyHandler(applications.get(0), options.getBufferSize(),
+          options.getMaxRequestSize(), options.isDefaultHeaders());
+
+      if (options.isGzip()) {
+        GzipHandler gzipHandler = new GzipHandler();
+        gzipHandler.setHandler(handler);
+        handler = gzipHandler;
+      }
+
+      server.setHandler(handler);
+
       server.start();
+
+      fireReady(applications);
     } catch (Exception x) {
+      if (x.getCause() instanceof BindException) {
+        x = new BindException("Address already in use: " + options.getPort());
+      }
       throw Throwing.sneakyThrow(x);
     }
-
-    fireReady(applications);
 
     return this;
   }

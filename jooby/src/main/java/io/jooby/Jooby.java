@@ -28,9 +28,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.Spliterator;
@@ -364,11 +367,23 @@ public class Jooby implements Router, Registry {
       getLog().warn("Multiple servers found {}. Using: {}", names, names.get(0));
     }
     Server server = servers.get(0);
-    if (serverOptions != null) {
-      serverOptions.setServer(server.getClass().getSimpleName().toLowerCase());
-      server.setOptions(serverOptions);
+    try {
+      if (serverOptions != null) {
+        serverOptions.setServer(server.getClass().getSimpleName().toLowerCase());
+        server.setOptions(serverOptions);
+      }
+      return server.start(this);
+    } catch (Throwable x) {
+      Logger log = getLog();
+      log.error("Application startup resulted in exception", x);
+      try {
+        server.stop();
+      } catch (Throwable stopx) {
+        log.info("Server stop resulted in exception", stopx);
+      }
+      // rethrow
+      throw Throwing.sneakyThrow(x);
     }
-    return server.start(this);
   }
 
   public @Nonnull Jooby start(@Nonnull Server server) {
@@ -402,7 +417,7 @@ public class Jooby implements Router, Registry {
     if (log.isDebugEnabled()) {
       log.debug("    env: {}", env);
     } else {
-      log.info("    env: {}", env.getName());
+      log.info("    env: {}", env.getActiveNames());
     }
     log.info("    execution model: {}", mode.name().toLowerCase());
     log.info("    user: {}", System.getProperty("user.name"));
@@ -465,13 +480,14 @@ public class Jooby implements Router, Registry {
     configurePackage(provider);
 
     /** Dump command line as system properties. */
-    Env.parse(args).forEach(System::setProperty);
+    parseArguments(args).forEach(System::setProperty);
 
     /** Fin application.env: */
     String env = System.getProperty(Env.KEY, System.getenv().getOrDefault(Env.KEY, "dev"))
-        .toLowerCase();
+        .toLowerCase()
+        .split(",")[0];
 
-    logback(env);
+    logback(env.trim().toLowerCase());
 
     Jooby app = provider.get();
     if (app.mode == null) {
@@ -490,6 +506,23 @@ public class Jooby implements Router, Registry {
       System.setProperty(DEF_PCKG,
           System.getProperty(DEF_PCKG, providerClass.getPackage().getName()));
     }
+  }
+
+  static Map<String, String> parseArguments(String... args) {
+    if (args == null || args.length == 0) {
+      return Collections.emptyMap();
+    }
+    Map<String, String> conf = new LinkedHashMap<>();
+    for (String arg : args) {
+      int eq = arg.indexOf('=');
+      if (eq > 0) {
+        conf.put(arg.substring(0, eq).trim(), arg.substring(eq + 1).trim());
+      } else {
+        // must be the environment actives
+        conf.putIfAbsent("application.env", arg);
+      }
+    }
+    return conf;
   }
 
   public static void logback(@Nonnull String env) {
