@@ -208,12 +208,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URLDecoder;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import io.undertow.server.handlers.form.*;
 import org.jooby.Cookie;
@@ -352,6 +350,21 @@ public class UndertowRequest implements NativeRequest {
       });
     }
     return builder.build();
+  }
+
+  @Override
+  public List<NativeUpload> files() throws IOException {
+    FormData formData = parseForm();
+    Iterator<String> keyIterator = formData.iterator();
+    Iterable<String> iterableKeys = () -> keyIterator;
+    List<NativeUpload> retVal = StreamSupport.stream(iterableKeys.spliterator(), true)
+            .map(formData::get)
+            .filter(formValues -> formValues.peekFirst().isFileItem())
+            .flatMap(Collection::stream)
+            .map(UndertowUpload::new)
+            .collect(Collectors.toList());
+
+    return Collections.unmodifiableList(retVal);
   }
 
   @Override
