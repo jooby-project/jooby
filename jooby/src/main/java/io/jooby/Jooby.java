@@ -64,11 +64,14 @@ public class Jooby implements Router, Registry {
 
   private LinkedList<AutoCloseable> stopCallbacks;
 
-  private Env env;
+  private Environment env;
 
   private Registry registry;
 
   private ServerOptions serverOptions;
+
+  private EnvironmentOptions environmentOptions = new EnvironmentOptions()
+      .setClassLoader(getClass().getClassLoader());
 
   public Jooby() {
     router = new RouterImpl(getClass().getClassLoader());
@@ -92,16 +95,21 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  public @Nonnull Env getEnvironment() {
+  public @Nonnull Environment getEnvironment() {
     if (env == null) {
-      env = Env.defaultEnvironment(getClass().getClassLoader());
+      env = Environment.loadEnvironment(environmentOptions);
     }
     return env;
   }
 
-  public @Nonnull Jooby setEnvironment(@Nonnull Env environment) {
+  public @Nonnull Jooby setEnvironment(@Nonnull Environment environment) {
     this.env = environment;
     return this;
+  }
+
+  public @Nonnull Environment setEnvironmentOptions(@Nonnull EnvironmentOptions options) {
+    this.env = Environment.loadEnvironment(options.setClassLoader(options.getClassLoader(getClass().getClassLoader())));
+    return this.env;
   }
 
   public @Nonnull Jooby onStart(@Nonnull Throwing.Runnable task) {
@@ -387,7 +395,7 @@ public class Jooby implements Router, Registry {
   }
 
   public @Nonnull Jooby start(@Nonnull Server server) {
-    Env env = getEnvironment();
+    Environment env = getEnvironment();
     if (tmpdir == null) {
       tmpdir = Paths.get(env.getConfig().getString("application.tmpdir")).toAbsolutePath();
     }
@@ -483,7 +491,8 @@ public class Jooby implements Router, Registry {
     parseArguments(args).forEach(System::setProperty);
 
     /** Fin application.env: */
-    String env = System.getProperty(Env.KEY, System.getenv().getOrDefault(Env.KEY, "dev"))
+    String env = System.getProperty(
+        Environment.KEY, System.getenv().getOrDefault(Environment.KEY, "dev"))
         .toLowerCase()
         .split(",")[0];
 
@@ -536,7 +545,7 @@ public class Jooby implements Router, Registry {
       String logbackenv = "logback." + env + ".xml";
       String fallback = "logback.xml";
       Stream.of(
-          /** Env specific inside conf or userdir: */
+          /** Environment specific inside conf or userdir: */
           conf.resolve(logbackenv), userdir.resolve(logbackenv),
           /** Fallback inside conf or userdir: */
           conf.resolve(fallback), userdir.resolve(fallback)

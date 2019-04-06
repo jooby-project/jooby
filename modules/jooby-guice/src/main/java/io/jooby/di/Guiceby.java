@@ -19,7 +19,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Stage;
-import io.jooby.Env;
+import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 
@@ -40,8 +40,8 @@ public class Guiceby implements Extension {
 
   @Override public void install(@Nonnull Jooby application) {
     if (injector == null) {
-      Env env = application.getEnvironment();
-      Stage stage = env.getName().equals("dev") ? Stage.DEVELOPMENT : Stage.PRODUCTION;
+      Environment env = application.getEnvironment();
+      Stage stage = env.isActive("dev", "test") ? Stage.DEVELOPMENT : Stage.PRODUCTION;
       injector = Guice.createInjector(stage, modules);
     }
     application.registry(new GuiceRegistry(injector));

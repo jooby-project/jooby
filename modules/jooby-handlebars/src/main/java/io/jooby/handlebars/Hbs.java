@@ -24,8 +24,9 @@ import com.github.jknack.handlebars.cache.NullTemplateCache;
 import com.github.jknack.handlebars.cache.TemplateCache;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+import com.typesafe.config.ConfigFactory;
 import io.jooby.Context;
-import io.jooby.Env;
+import io.jooby.Environment;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
 
@@ -125,14 +126,14 @@ public class Hbs implements TemplateEngine {
     }
 
     public Hbs build() {
-      return build(Env.empty("dev"));
+      return build(new Environment(ConfigFactory.empty(),"dev"));
     }
 
-    public Hbs build(Env env) {
+    public Hbs build(Environment env) {
       handlebars.with(ofNullable(loader).orElseGet(this::defaultTemplateLoader));
 
       TemplateCache cache = ofNullable(this.cache).orElseGet(() ->
-          env.matches("dev", "test") ?
+          env.isActive("dev", "test") ?
               NullTemplateCache.INSTANCE :
               new HighConcurrencyTemplateCache()
       );

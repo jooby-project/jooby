@@ -16,6 +16,7 @@
 package io.jooby.freemarker;
 
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import freemarker.cache.CacheStorage;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.NullCacheStorage;
@@ -26,7 +27,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import io.jooby.Context;
-import io.jooby.Env;
+import io.jooby.Environment;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
 import io.jooby.Throwing;
@@ -71,10 +72,10 @@ public class Freemarker implements TemplateEngine {
     }
 
     public Freemarker build() {
-      return build(Env.empty("dev"));
+      return build(new Environment(ConfigFactory.empty(), "dev"));
     }
 
-    public Freemarker build(@Nonnull Env env) {
+    public Freemarker build(@Nonnull Environment env) {
       Configuration freemarker = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
       freemarker.setOutputFormat(outputFormat);
 
@@ -96,7 +97,7 @@ public class Freemarker implements TemplateEngine {
       freemarker.setTemplateLoader(ofNullable(loader).orElseGet(this::defaultTemplateLoader));
 
       CacheStorage cache = ofNullable(cacheStorage).orElseGet(() ->
-          env.matches("dev", "test") ? NullCacheStorage.INSTANCE : null
+          env.isActive("dev", "test") ? NullCacheStorage.INSTANCE : null
       );
       if (cache != null) {
         freemarker.setCacheStorage(cache);

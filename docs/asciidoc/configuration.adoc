@@ -1,0 +1,259 @@
+== Configuration
+Application configuration is based on https://github.com/lightbend/config[config] library. Configuration 
+can by default be provided in either Java properties, JSON, and https://github.com/lightbend/config/blob/master/HOCON.md[HOCON] files.
+
+Jooby allows overriding any property via system properties or environment variables.
+
+=== Environment
+
+The application environment is available via the javadoc:Env[Env] class, which allows specifying one 
+or many unique environment names.
+
+The active environment names serve the purpose of allowing loading different configuration files
+depending on the environment. Also, javadoc:Extension[] modules might configure application
+services differently depending on the environment too. For example: turn on/off caches, reload files, etc.
+
+.Initializing the Environment
+[source, java, role = "primary"]
+----
+{
+  Environment env = getEnvironment();
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+{
+  val env = environment
+}
+----
+
+The active environment names property is set in one of this way:
+
+- As program argument: `java -jar myapp.jar application.env=foo,bar`; or just `java -jar myapp.jar foo,bar`
+
+NOTE: This method works as long you start the application using one of the `runApp` methods
+
+- As system property: `java -Dapplication.env=foo,bar -jar myapp.jar`
+
+- As environment variable: `application.env=foo,bar`
+
+
+The javadoc:Jooby[getEnvironment] loads the default environment. 
+
+=== Default Environment
+
+The default environment is available via javadoc:Env[loadEnvironment, java.lang.ClassLoader] method.
+
+This method search for an `application.conf` file in three location (first-listed are higher priority):
+
+- `${user.dir}/conf`. This is a file system location, useful is you want to externalize configuration (outside of jar file)
+- `${user.dir}`. This is a file system location, useful is you want to externalize configuration (outside of jar file)
+- `classpath://` (root of classpath). No external configuration, configuration file lives inside the jar file
+
+NOTE: We use `$user.dir` to reference `System.getProperty("user.dir")`. This system property is set
+by the JVM at application startup time. It represent the current directory from where the JVM was
+launch it.
+ 
+.File system loading
+[source,bash]
+----
+└── conf
+    └── application.conf
+└── myapp.jar
+----
+
+A call to:
+
+[source]
+----
+  Environment env = getEnvironment();
+----
+
+Loads the `application.conf` from `conf` directory. You get the same thing if you 
+move the `application.conf` to `myapp.jar` directory.
+
+.Classpath loading
+[source,bash]
+----
+└── myapp.jar
+   └── application.conf (file inside jar)
+----
+
+WARNING: Jooby favors file system property loading over classpath property loading. So, if there 
+is a property file either in the current directory or conf directory it hides the same file
+available in the classpath.
+
+=== Overrides
+
+Property overrides is done in multiple ways (first-listed are higher priority):
+
+- Program arguments
+- System properties
+- Environment variables
+- Environment property file
+- Property file
+
+.application.conf
+[source, properties]
+----
+foo = foo
+----
+
+.Property access
+[source, java, role="primary"]
+----
+{
+  Environment env = getEnvironment();                <1>
+  Config conf = env.getConfig();             <2>
+  System.out.println(conf.getString("foo")); <3>
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  val env = environment          <1>
+  val conf = env.config          <2>
+  println(conf.getString("foo")) <3>
+}
+----
+
+<1> Get environment
+<2> Get configuration
+<3> Get `foo` property and prints `foo`
+
+At runtime you can override properties using:
+
+.Program argument
+[source, bash]
+----
+java -jar myapp.jar foo=argument
+----
+
+Example prints: `argument`
+
+.System property
+[source, bash]
+----
+java -Dfoo=sysprop -jar myapp.jar
+----
+
+Prints: `syspro`
+
+.Environment variable
+[source, bash]
+----
+foo=envar java -jar myapp.jar
+----
+
+Prints: `envar`
+
+If you have multiple properties to override, it is probably better to collect all them into a new file
+and use active environment name to select them.
+
+.Environment property file
+[source, bash]
+----
+└── application.conf
+└── application.prod.conf
+----
+
+.application.conf
+[source, properties]
+----
+foo = foo
+bar = devbar
+----
+
+.application.prod.conf
+[source, properties]
+----
+bar = prodbar
+----
+
+.Run with `prod` environment
+----
+java -jar my.app application.env=prod
+----
+
+Or just
+----
+java -jar my.app prod
+----
+
+TIP: You only need to override the properties that changes between environment not all the properties.
+
+The `application.conf` defines two properties : `foo` and `bar`, while the environment property file
+defines only `bar`.
+
+For Multiple environment activation you need to separate them with `,` (comma):
+
+.Run with `prod` and `cloud` environment
+----
+ java -jar my.app application.env=prod,cloud
+----
+
+=== Custom environment
+
+Custom configuration and environment are available too using:
+
+- The javadoc:EnvironmentOptions[] class, or
+- Direct instantiation of the javadoc:Environment[] class
+
+.Environment options
+[source,java,role="primary"]
+----
+{
+  Environment env = setEnvironmentOptions(new EnvOptions() <1>            
+    .setFilename("myapp.conf")
+  )
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  val env = environmentOptions {                   <1>
+    filename = "myapp.conf"
+  }
+}
+----
+
+<1> Load `myapp.conf` using the loading and precedence mechanism described before
+
+The javadoc:Jooby[setEnvironmentOptions, io.jooby.EnvironmentOptions] method loads, set and returns
+the environment.
+
+To skip/ignore Jooby loading and precedence mechanism, just instantiate and set the environment:
+
+.Direct instantiation
+[source,java,role="primary"]
+----
+{
+  Config conf = ConfigFatory.load("/path/to/myapp.conf");  <1>
+  Environment env = new Env(customConfig, "prod");                 <2>
+  setEnvironment(env);                                     <3>
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  val conf = ConfigFatory.load("/path/to/myapp.conf")      <1>
+  val env = new Env(conf, "prod")                          <2>    
+  environment = env                                        <3>
+}
+----
+
+<1> Loads and parses configuration
+<2> Create a new environment with configuration and (http://optionally[optionally]) active names
+<3> Set environment on Jooby instance
+
+IMPORTANT: Custom configuration is very flexible. You can reuse Jooby mechanism or provide your own.
+The only thing to keep in mind is that environment setting must be done at very early stage, before
+installing extensions.

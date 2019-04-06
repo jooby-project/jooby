@@ -24,20 +24,13 @@ public class JoobyRunner {
   public JoobyRunner(Consumer<Jooby> provider) {
     this.provider = () -> {
       Jooby app = new Jooby();
-      app.setEnvironment(Env.create().build(getClass().getClassLoader(), "test"));
       provider.accept(app);
       return app;
     };
   }
 
   public JoobyRunner(Supplier<Jooby> provider) {
-    this.provider = () -> {
-      Jooby app = provider.get();
-      if (app.getEnvironment() == null) {
-        app.setEnvironment(Env.create().build(app.getClass().getClassLoader(), "test"));
-      }
-      return app;
-    };
+    this.provider = provider;
   }
 
   public JoobyRunner mode(ExecutionMode... mode) {

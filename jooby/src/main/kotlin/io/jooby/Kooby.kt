@@ -6,11 +6,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
-import java.util.function.Consumer
-import java.util.function.Supplier
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
-import kotlin.reflect.full.primaryConstructor
 
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
@@ -221,6 +218,14 @@ open class Kooby constructor() : Jooby() {
     options(options)
     this.routerOptions = options
     return this
+  }
+
+  fun environmentOptions(options: EnvironmentOptions.() -> Unit): Environment {
+    val options = EnvironmentOptions()
+    options(options)
+    val env = Environment.loadEnvironment(options)
+    environment = env
+    return env
   }
 
   companion object {

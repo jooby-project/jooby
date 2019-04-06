@@ -16,7 +16,7 @@
 package io.jooby.rocker;
 
 import com.fizzed.rocker.runtime.RockerRuntime;
-import io.jooby.Env;
+import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
@@ -33,10 +33,10 @@ public class Rockerby implements Extension {
   }
 
   @Override public void install(@Nonnull Jooby application) throws Exception {
-    Env env = application.getEnvironment();
+    Environment env = application.getEnvironment();
     RockerRuntime runtime = RockerRuntime.getInstance();
     boolean reloading = this.reloading == null
-        ? (env.matches("dev") && runtime.isReloadingPossible())
+        ? (env.isActive("dev") && runtime.isReloadingPossible())
         : this.reloading.booleanValue();
     runtime.setReloading(reloading);
     // response handler

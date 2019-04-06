@@ -22,7 +22,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.jooby.AttributeKey;
 import io.jooby.AttributeMap;
-import io.jooby.Env;
+import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 
@@ -44,11 +44,11 @@ public class Hikari implements Extension {
 
   public static class Builder {
 
-    public HikariConfig build(Env env) {
+    public HikariConfig build(Environment env) {
       return build(env, "db");
     }
 
-    public HikariConfig build(Env env, String database) {
+    public HikariConfig build(Environment env, String database) {
       String dburl, dbkey;
       database = builtindb(env, database);
       if (database.startsWith("jdbc:")) {
@@ -67,7 +67,7 @@ public class Hikari implements Extension {
       return build(env, dbkey, builtindb(env, dburl));
     }
 
-    private String builtindb(Env env, String database) {
+    private String builtindb(Environment env, String database) {
       if ("mem".equals(database)) {
         return "jdbc:h2:mem:" + System.currentTimeMillis() + ";DB_CLOSE_DELAY=-1";
       } else if ("fs".equals(database)) {
@@ -79,7 +79,7 @@ public class Hikari implements Extension {
       return database;
     }
 
-    private HikariConfig build(Env env, String dbkey, String dburl) {
+    private HikariConfig build(Environment env, String dbkey, String dburl) {
       Properties properties = new Properties();
       String dbtype, dbname;
       if (dburl == null) {
@@ -131,7 +131,7 @@ public class Hikari implements Extension {
       return new HikariConfig(properties);
     }
 
-    private void props(Env env, BiConsumer<String, String> consumer, String... keys) {
+    private void props(Environment env, BiConsumer<String, String> consumer, String... keys) {
       for (String key : keys) {
         try {
           Config conf = env.getConfig();
@@ -244,7 +244,7 @@ public class Hikari implements Extension {
 
   ;
 
-  public static Map<String, Object> defaults(String database, Env env) {
+  public static Map<String, Object> defaults(String database, Environment env) {
     Map<String, Object> defaults = new HashMap<>();
     defaults.put("maximumPoolSize",
         Math.max(10, Runtime.getRuntime().availableProcessors() * 2 + 1));

@@ -336,7 +336,7 @@ interface Decorator {
 
 [NOTE]
 ====
-A `decorator` lacks of a `path pattern`. Sound strange? It is explained in the <<pipeline, pipeline>> section.
+A `decorator` lacks of a `path pattern`. Sound strange? It is explained in the <<router-pipeline, pipeline>> section.
 ====
 
 ==== Before Decorator

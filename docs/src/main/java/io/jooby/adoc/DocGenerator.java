@@ -128,11 +128,21 @@ public class DocGenerator {
     tocItems(doc);
     languageTab(doc);
     clipboard(doc);
+    externalLink(doc);
     Document.OutputSettings settings = new Document.OutputSettings();
     settings.prettyPrint(false);
     settings.indentAmount(0);
     settings.outline(false);
     return doc.outputSettings(settings).toString();
+  }
+
+  private static void externalLink(Document doc) {
+    for (Element a : doc.select("a")) {
+      String href = a.attr("href");
+      if (!href.startsWith("#")) {
+        a.attr("target", "_blank");
+      }
+    }
   }
 
   private static void languageTab(Document doc) {

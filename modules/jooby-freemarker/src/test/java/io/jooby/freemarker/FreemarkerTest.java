@@ -1,7 +1,8 @@
 package io.jooby.freemarker;
 
+import com.typesafe.config.ConfigFactory;
 import io.jooby.AttributeKey;
-import io.jooby.Env;
+import io.jooby.Environment;
 import io.jooby.MockContext;
 import io.jooby.ModelAndView;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ public class FreemarkerTest {
 
   @Test
   public void render() throws Exception {
-    Freemarker freemarker = Freemarker.builder().build(Env.empty("test"));
+    Freemarker freemarker = Freemarker.builder().build(new Environment(ConfigFactory.empty(), "test"));
     AttributeKey<String> local = new AttributeKey<>(String.class, "local");
     MockContext ctx = new MockContext();
     ctx.getAttributes().put(local, "var");
