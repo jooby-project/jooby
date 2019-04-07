@@ -87,14 +87,13 @@ public class MvcHandlerASM {
 //public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
     //      @PathParam long j, @PathParam double f, @PathParam boolean b) {
     Method handler = Poc.class.getDeclaredMethod("getIt", double.class);
-    MvcCompiler writer = new MvcCompiler();
-    Class runtime = writer.compileClass(mvc(handler));
+    Class runtime = MvcCompiler.compileClass(mvc(handler), new DefaultMvcAnnotation());
 
     System.out.println("Loaded: " + runtime);
     //    byte[] asm = writer.toByteCode(classname, handler);
 
     assertEquals(asmifier(new ClassReader(MvcHandlerImpl.class.getName())),
-        asmifier(new ClassReader(writer.compile(mvc(handler)))));
+        asmifier(new ClassReader(MvcCompiler.compile(mvc(handler), new DefaultMvcAnnotation()))));
 
   }
 

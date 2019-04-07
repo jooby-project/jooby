@@ -31,6 +31,7 @@ import io.jooby.StatusCode;
 import io.jooby.Throwing;
 import io.jooby.ResponseHandler;
 import io.jooby.internal.asm.ClassSource;
+import io.jooby.internal.mvc.MvcAnnotation;
 import io.jooby.internal.mvc.MvcCompiler;
 import io.jooby.internal.mvc.MvcMetadata;
 import io.jooby.internal.mvc.MvcMethod;
@@ -39,11 +40,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
-import javax.ws.rs.QueryParam;
 import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -115,15 +114,6 @@ public class RouterImpl implements Router {
     }
   }
 
-  private static final List<Class<? extends Annotation>> M_ANN = Arrays
-      .asList(io.jooby.annotations.GET.class,
-          io.jooby.annotations.POST.class,
-          io.jooby.annotations.PUT.class,
-          io.jooby.annotations.DELETE.class,
-          io.jooby.annotations.PATCH.class,
-          io.jooby.annotations.HEAD.class,
-          io.jooby.annotations.OPTIONS.class);
-
   private ErrorHandler err;
 
   private Map<String, StatusCode> errorCodes;
@@ -153,6 +143,8 @@ public class RouterImpl implements Router {
   private AttributeMap attributes = new AttributeMap(new ConcurrentHashMap<>());
 
   private List<ResponseHandler> handlers = new ArrayList<>();
+
+  private MvcAnnotation mvcAnnotations;
 
   private ClassSource source;
 
@@ -235,6 +227,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router mvc(@Nonnull Object router) {
+    checkMvcAnnotations();
     mvc(null, router.getClass(), () -> router);
     return this;
   }
@@ -245,6 +238,7 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override
   public <T> Router mvc(@Nonnull Class<T> router, @Nonnull Provider<T> provider) {
+    checkMvcAnnotations();
     mvc(null, router, provider);
     return this;
   }
@@ -525,7 +519,7 @@ public class RouterImpl implements Router {
   private void mvc(String prefix, Class type, Provider provider) {
     find(prefix, type, method -> {
 
-      Route.Handler instance = MvcCompiler.newHandler(source.getLoader(), method, provider);
+      Route.Handler instance = MvcCompiler.newHandler(source.getLoader(), method, provider, mvcAnnotations);
 
       route(method.getHttpMethod(), method.getPattern(), instance)
           .setReturnType(method.getReturnType(source.getLoader()));
@@ -540,7 +534,7 @@ public class RouterImpl implements Router {
     Stream.of(type.getDeclaredMethods())
         .forEach(method -> {
           if (Modifier.isPublic(method.getModifiers())) {
-            toHttpMethod(method).forEach(httpMethod -> {
+            mvcAnnotations.httpMethod(method).forEach(httpMethod -> {
               MvcMethod mvc = mvcMetadata.get(method);
               mvc.setPattern(classPath + "/" + path(method));
               mvc.setMethod(method);
@@ -554,24 +548,14 @@ public class RouterImpl implements Router {
     mvcMetadata.destroy();
   }
 
-  private List<String> toHttpMethod(Method method) {
-    List<String> result = new ArrayList<>();
-    for (Class<? extends Annotation> m : M_ANN) {
-      Annotation annotation = method.getAnnotation(m);
-      if (annotation != null) {
-        result.add(annotation.annotationType().getSimpleName());
-      }
-    }
-    if (result.size() == 0) {
-      if (method.getAnnotation(io.jooby.annotations.Path.class) != null) {
-        result.add("GET");
-      }
-    }
-    return result;
+  private String path(AnnotatedElement type) {
+    String path = mvcAnnotations.pathPattern(type);
+    return path == null ? "" : path;
   }
 
-  private String path(AnnotatedElement type) {
-    io.jooby.annotations.Path path = type.getAnnotation(io.jooby.annotations.Path.class);
-    return path == null ? "" : path.value()[0];
+  private void checkMvcAnnotations() {
+    if (mvcAnnotations == null) {
+      mvcAnnotations = MvcAnnotation.create(source.getLoader());
+    }
   }
 }

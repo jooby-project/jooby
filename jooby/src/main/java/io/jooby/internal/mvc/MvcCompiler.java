@@ -21,10 +21,6 @@ import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.Value;
-import io.jooby.annotations.FormParam;
-import io.jooby.annotations.HeaderParam;
-import io.jooby.annotations.PathParam;
-import io.jooby.annotations.QueryParam;
 import io.jooby.internal.ValueInjector;
 import io.jooby.internal.reflect.$Types;
 import org.objectweb.asm.ClassWriter;
@@ -138,9 +134,10 @@ public class MvcCompiler {
       Multipart.class
   ));
 
-  public static Class<? extends MvcHandler> compileClass(MvcMethod method)
+  public static Class<? extends MvcHandler> compileClass(MvcMethod method,
+      MvcAnnotation mvcAnnotation)
       throws ClassNotFoundException {
-    byte[] bytes = compile(method);
+    byte[] bytes = compile(method, mvcAnnotation);
     return (Class<? extends MvcHandler>) new ClassLoader() {
       @Override protected Class<?> findClass(String name) {
         return defineClass(name, bytes, 0, bytes.length);
@@ -148,7 +145,7 @@ public class MvcCompiler {
     }.loadClass(method.getHandlerName());
   }
 
-  public static byte[] compile(MvcMethod metadata) {
+  public static byte[] compile(MvcMethod metadata, MvcAnnotation mvcAnnotation) {
     Method method = metadata.getMethod();
     String descriptor = getMethodDescriptor(method);
     Type owner = getType(method.getDeclaringClass());
@@ -190,7 +187,7 @@ public class MvcCompiler {
     /** Param methods: */
     Parameter[] parameters = method.getParameters();
     for (int i = 0; i < parameters.length; i++) {
-      tryParam(metadata, writer, parameters[i], i);
+      tryParam(metadata, mvcAnnotation, writer, parameters[i], i);
     }
 
     /** Arguments: */
@@ -335,7 +332,8 @@ public class MvcCompiler {
         .getParameterizedType().getTypeName() + "'";
   }
 
-  private static void tryParam(MvcMethod metadata, ClassWriter writer, Parameter parameter,
+  private static void tryParam(MvcMethod metadata, MvcAnnotation mvcAnnotation, ClassWriter writer,
+      Parameter parameter,
       int index) {
     Class type = parameter.getType();
     MethodVisitor visitor = writer.visitMethod(ACC_PRIVATE, metadata.getParameterName(index),
@@ -356,7 +354,7 @@ public class MvcCompiler {
     visitor.visitTryCatchBlock(label0, label1, label3, "java/lang/Exception");
     visitor.visitLabel(label0);
 
-    tryParamBlock(metadata, visitor, parameter, index);
+    tryParamBlock(metadata, mvcAnnotation, visitor, parameter, index);
 
     visitor.visitLabel(label1);
     if (isIntType(type)) {
@@ -390,7 +388,8 @@ public class MvcCompiler {
     visitor.visitEnd();
   }
 
-  private static void tryParamBlock(MvcMethod method, MethodVisitor visitor, Parameter parameter,
+  private static void tryParamBlock(MvcMethod method, MvcAnnotation mvcAnnotation,
+      MethodVisitor visitor, Parameter parameter,
       int index) {
     Class<?> paramClass = parameter.getType();
     java.lang.reflect.Type paramType = parameter.getParameterizedType();
@@ -407,7 +406,7 @@ public class MvcCompiler {
               getMethodDescriptor(VALUE, STRING), true);
         }
         : NOOP;
-    String httpType = httpType(parameter, name, varaccess);
+    String httpType = httpType(mvcAnnotation, parameter, name, varaccess);
 
     Consumer<MethodVisitor> checkcast = checkCast(visitor, paramClass);
 
@@ -432,7 +431,8 @@ public class MvcCompiler {
         }
         String valueMethod = paramClass.getSimpleName() + "Value";
         String valueDescriptor = "()" + Type.getDescriptor(paramClass);
-        visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/" + source, valueMethod, valueDescriptor, true);
+        visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/" + source, valueMethod, valueDescriptor,
+            true);
       } else if (paramClass == QueryString.class) {
         visitor.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "query", "()Lio/jooby/QueryString;",
             true);
@@ -483,19 +483,19 @@ public class MvcCompiler {
     return null;
   }
 
-  private static String httpType(Parameter parameter, String name,
+  private static String httpType(MvcAnnotation mvcAnnotation, Parameter parameter, String name,
       BiConsumer<String, String> consumer) {
-    if (parameter.getAnnotation(PathParam.class) != null) {
-      consumer.accept(paramName(parameter.getAnnotation(PathParam.class), name), "path");
+    if (mvcAnnotation.isPathParam(parameter)) {
+      consumer.accept(paramName(mvcAnnotation, parameter, name), "path");
       return "path";
-    } else if (parameter.getAnnotation(QueryParam.class) != null) {
-      consumer.accept(paramName(parameter.getAnnotation(QueryParam.class), name), "query");
+    } else if (mvcAnnotation.isQueryParam(parameter)) {
+      consumer.accept(paramName(mvcAnnotation, parameter, name), "query");
       return "query";
-    } else if (parameter.getAnnotation(HeaderParam.class) != null) {
-      consumer.accept(paramName(parameter.getAnnotation(HeaderParam.class), name), "header");
+    } else if (mvcAnnotation.isHeaderParam(parameter)) {
+      consumer.accept(paramName(mvcAnnotation, parameter, name), "header");
       return "header";
-    } else if (parameter.getAnnotation(FormParam.class) != null) {
-      consumer.accept(paramName(parameter.getAnnotation(FormParam.class), name), "multipart");
+    } else if (mvcAnnotation.isFormParam(parameter)) {
+      consumer.accept(paramName(mvcAnnotation, parameter, name), "multipart");
       return "multipart";
     }
 
@@ -528,24 +528,9 @@ public class MvcCompiler {
         "(Ljava/lang/reflect/Type;[Ljava/lang/reflect/Type;)Lio/jooby/Reified;", false);
   }
 
-  private static String paramName(PathParam annotation, String defaults) {
-    String name = annotation.value().trim();
-    return name.length() > 0 ? name : defaults;
-  }
-
-  private static String paramName(QueryParam annotation, String defaults) {
-    String name = annotation.value().trim();
-    return name.length() > 0 ? name : defaults;
-  }
-
-  private static String paramName(HeaderParam annotation, String defaults) {
-    String name = annotation.value().trim();
-    return name.length() > 0 ? name : defaults;
-  }
-
-  private static String paramName(FormParam annotation, String defaults) {
-    String name = annotation.value().trim();
-    return name.length() > 0 ? name : defaults;
+  private static String paramName(MvcAnnotation annotation, Parameter parameter, String defaults) {
+    String name = annotation.paramName(parameter);
+    return name == null ? defaults : name;
   }
 
   private static String providerOf(Type owner) {
@@ -558,9 +543,10 @@ public class MvcCompiler {
     return type == int.class || type == boolean.class || type == byte.class || type == short.class;
   }
 
-  public static Route.Handler newHandler(ClassLoader loader, MvcMethod metadata, Provider provider)
+  public static Route.Handler newHandler(ClassLoader loader, MvcMethod metadata, Provider provider,
+      MvcAnnotation mvcAnnotation)
       throws Exception {
-    Class<? extends MvcHandler> handler = compileClass(metadata);
+    Class<? extends MvcHandler> handler = compileClass(metadata, mvcAnnotation);
     MvcHandler instance = handler.getDeclaredConstructor(Provider.class)
         .newInstance(provider);
     if (metadata.isSuspendFunction()) {

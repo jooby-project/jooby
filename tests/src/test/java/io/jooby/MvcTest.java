@@ -1,6 +1,7 @@
 package io.jooby;
 
 import io.jooby.internal.mvc.InstanceRouter;
+import io.jooby.internal.mvc.JAXRS;
 import io.jooby.internal.mvc.MvcBody;
 import io.jooby.internal.mvc.NoTopLevelPath;
 import io.jooby.internal.mvc.NullInjection;
@@ -38,6 +39,19 @@ public class MvcTest {
       client.get("/void", rsp -> {
         assertEquals("", rsp.body().string());
         assertEquals(204, rsp.code());
+      });
+    });
+  }
+
+  @Test
+  public void jaxrs() {
+    new JoobyRunner(app -> {
+
+      app.mvc(new JAXRS());
+
+    }).ready(client -> {
+      client.get("/jaxrs", rsp -> {
+        assertEquals("Got it!", rsp.body().string());
       });
     });
   }

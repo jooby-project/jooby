@@ -225,6 +225,13 @@
       <artifactId>config</artifactId>
     </dependency>
 
+    <!-- JAXRS -->
+    <dependency>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+      <optional>true</optional>
+    </dependency>
+
     <!-- kotlin -->
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
