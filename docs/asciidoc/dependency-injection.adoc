@@ -239,7 +239,41 @@ fun main(args: Array<String>) {
 <1> Install Guice extension
 <2> The javadoc:Jooby[require, java.lang.Class] call is now resolved by Guice
 
-[discrete]
+==== Property Injection
+
+Configuration properties can be injected using the `@Named` annotation:
+
+.application.conf
+[source, bash]
+----
+currency = USD
+----
+
+.Java
+[source,java,role="primary"]
+----
+
+import javax.injext.Named;
+import javax.injext.Inject;
+
+public class BillingService {
+
+  @Inject
+  public BillingService(@Named("currency") String currency) {
+    ...
+  }
+
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class BillingService @Inject constructor(@Named("currency") currency: String) {
+  ...
+}
+----
+
 ==== MVC routes
 
 Guice will also provisioning MVC routes
@@ -299,15 +333,15 @@ The lifecycle of `MyController` is now managed by Guice. Also:
 .Installing Spring
 [source, java, role = "primary"]
 ----
-package myapp;                                      <1>
+package myapp;                                       <1>
 
 import static io.jooby.Jooby.runApp;
-import io.jooby.di.Spring;
+import io.jooby.di.Springby;
 
 public class App extends Jooby {
 
   {
-    install(new Spring());                           <2>
+    install(new Springby());                         <2>
       
     get("/", ctx -> {
       MyService service = require(MyService.class);  <3>
@@ -327,12 +361,12 @@ public class App extends Jooby {
 package myapp                                        <1>
 
 import io.jooby.runApp
-import io.jooby.di.Spring
+import io.jooby.di.Springby
 
 fun main(args: Array<String>) {
   runApp(args) {
 
-    install(new Spring())                            <2>
+    install(new Springby())                          <2>
 
     get ("/") { ctx ->
       val service = require(MyService::class)        <3>
@@ -352,7 +386,43 @@ Spring uses the application package and sub-packages to scan. If you need extra 
 install(new Spring("foo", "bar"));
 ----
 
-[discrete]
+==== Property Injection
+
+Configuration properties can be injected using the `@Value` annotation:
+
+.application.conf
+[source, bash]
+----
+currency = USD
+----
+
+.Java
+[source,java,role="primary"]
+----
+import javax.injext.Inject;
+import org.springframework.beans.factory.annotation.Value;
+
+public class BillingService {
+
+  @Inject
+  public BillingService(@Value("currency") String currency) {
+    ...
+  }
+
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import javax.injext.Inject
+import org.springframework.beans.factory.annotation.Value
+
+class BillingService @Inject constructor(@Value("${currency}") currency: String) {
+  ...
+}
+----
+
 ==== MVC routes
 
 The Spring extension does a bit more in relation to MVC routes:
@@ -445,7 +515,43 @@ fun main(args: Array<String>) {
 <1> Install Weld
 <2> The javadoc:Jooby[require, java.lang.Class] call is now resolved by Weld
 
-[discrete]
+==== Property Injection
+
+Configuration properties can be injected using the `@Named` annotation:
+
+.application.conf
+[source, bash]
+----
+currency = USD
+----
+
+.Java
+[source,java,role="primary"]
+----
+import javax.injext.Inject;
+import javax.injext.Named;
+
+public class BillingService {
+
+  @Inject
+  public BillingService(@Named("currency") String currency) {
+    ...
+  }
+
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import javax.injext.Inject
+import javax.injext.Named
+
+class BillingService @Inject constructor(@Named("currency") currency: String) {
+  ...
+}
+----
+
 ==== MVC routes
 
 The Weld extension does a bit more in relation to MVC routes:

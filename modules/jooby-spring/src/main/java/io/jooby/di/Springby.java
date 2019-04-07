@@ -15,15 +15,20 @@
  */
 package io.jooby.di;
 
+import com.typesafe.config.Config;
+import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.Nonnull;
 
-public class Spring implements Extension {
+public class Springby implements Extension {
 
   private AnnotationConfigApplicationContext applicationContext;
 
@@ -33,25 +38,25 @@ public class Spring implements Extension {
 
   private String[] packages;
 
-  public Spring(@Nonnull AnnotationConfigApplicationContext applicationContext) {
+  public Springby(@Nonnull AnnotationConfigApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
   }
 
-  public Spring() {
+  public Springby() {
     this.applicationContext = null;
   }
 
-  public Spring(String... packages) {
+  public Springby(String... packages) {
     this.applicationContext = null;
     this.packages = packages;
   }
 
-  public Spring noRefresh() {
+  public Springby noRefresh() {
     this.refresh = false;
     return this;
   }
 
-  public Spring noMvcRoutes() {
+  public Springby noMvcRoutes() {
     this.registerMvcRoutes = false;
     return this;
   }
@@ -63,11 +68,26 @@ public class Spring implements Extension {
         String basePackage = application.getBasePackage();
         if (basePackage == null) {
           throw new IllegalArgumentException(
-              "Spring application context requires at least one package to scan.");
+              "Springby application context requires at least one package to scan.");
         }
         packages = new String[]{basePackage};
       }
+      Environment environment = application.getEnvironment();
+
       applicationContext = defaultApplicationContext(packages);
+
+      ConfigurableEnvironment configurableEnvironment = applicationContext.getEnvironment();
+      String[] profiles = environment.getActiveNames().toArray(new String[0]);
+      configurableEnvironment.setActiveProfiles(profiles);
+      configurableEnvironment.setDefaultProfiles(profiles);
+
+      Config config = environment.getConfig();
+      MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
+      propertySources.addFirst(new ConfigPropertySource("application", config));
+
+      ConfigurableListableBeanFactory beanFactory = applicationContext.getBeanFactory();
+      beanFactory.registerSingleton("config", config);
+      beanFactory.registerSingleton("environment", environment);
 
       application.onStop(applicationContext);
     }

@@ -24,23 +24,27 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class Guiceby implements Extension {
 
   private Injector injector;
-  private Module[] modules;
+  private List<Module> modules = new ArrayList<>();
 
   public Guiceby(@Nonnull Injector injector) {
     this.injector = injector;
   }
 
   public Guiceby(@Nonnull Module... modules) {
-    this.modules = modules;
+    Stream.of(modules).forEach(this.modules::add);
   }
 
   @Override public void install(@Nonnull Jooby application) {
     if (injector == null) {
       Environment env = application.getEnvironment();
+      modules.add(new GuiceEnvironment(env));
       Stage stage = env.isActive("dev", "test") ? Stage.DEVELOPMENT : Stage.PRODUCTION;
       injector = Guice.createInjector(stage, modules);
     }

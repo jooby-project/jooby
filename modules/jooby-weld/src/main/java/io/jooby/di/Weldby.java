@@ -15,6 +15,7 @@
  */
 package io.jooby.di;
 
+import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.annotations.Controller;
@@ -23,7 +24,11 @@ import org.jboss.weld.environment.se.WeldContainer;
 
 import javax.annotation.Nonnull;
 import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
+
+import static org.jboss.weld.environment.se.Weld.DEV_MODE_SYSTEM_PROPERTY;
+import static org.jboss.weld.environment.se.Weld.SHUTDOWN_HOOK_SYSTEM_PROPERTY;
 
 public class Weldby implements Extension {
 
@@ -52,16 +57,20 @@ public class Weldby implements Extension {
         }
         packages = new String[]{basePackage};
       }
+      Environment environment = application.getEnvironment();
       Weld weld = new Weld()
           .disableDiscovery()
-          .addPackages(true, toPackages(packages));
+          .addPackages(true, toPackages(packages))
+          .addProperty(SHUTDOWN_HOOK_SYSTEM_PROPERTY, false)
+          .addExtension(new WeldEnvironment(environment));
 
       application.onStop(weld::shutdown);
 
       container = weld.initialize();
     }
 
-    for (Bean<?> bean : container.getBeanManager().getBeans(Object.class, CONTROLLER)) {
+    BeanManager beanManager = container.getBeanManager();
+    for (Bean<?> bean : beanManager.getBeans(Object.class, CONTROLLER)) {
       application.mvc(bean.getBeanClass());
     }
 
