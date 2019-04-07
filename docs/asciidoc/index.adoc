@@ -74,7 +74,7 @@ Thank you {love}
 - MVC routes. Annotation and byte code generation. Similar to Spring and JAX-RS
 - Reactive responses: Completable futures, RxJava, Reactor and Kotlin coroutines
 - Configuration using https://github.com/lightbend/config[config] library
-- https://www.slf4j.org[slf4j] logging
+- https://www.slf4j.org[Slf4j] logging
 - Multi Server: https://https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty], http://undertow.io[Undertow]
 - Extension system for commons technical tasks: connection pool, json, template engine, etc...
 

@@ -15,8 +15,6 @@
  */
 package io.jooby;
 
-import org.jetbrains.annotations.NotNull;
-
 import javax.annotation.Nonnull;
 import java.nio.file.Files;
 import java.nio.file.Path;

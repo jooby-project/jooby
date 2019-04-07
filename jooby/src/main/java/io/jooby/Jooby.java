@@ -491,12 +491,7 @@ public class Jooby implements Router, Registry {
     parseArguments(args).forEach(System::setProperty);
 
     /** Fin application.env: */
-    String env = System.getProperty(
-        Environment.KEY, System.getenv().getOrDefault(Environment.KEY, "dev"))
-        .toLowerCase()
-        .split(",")[0];
-
-    logback(env.trim().toLowerCase());
+    LogConfigurer.configure(new EnvironmentOptions().getActiveNames());
 
     Jooby app = provider.get();
     if (app.mode == null) {
@@ -532,29 +527,6 @@ public class Jooby implements Router, Registry {
       }
     }
     return conf;
-  }
-
-  public static void logback(@Nonnull String env) {
-    String logfile = System
-        .getProperty("logback.configurationFile", System.getenv().get("logback.configurationFile"));
-    if (logfile != null) {
-      System.setProperty("logback.configurationFile", logfile);
-    } else {
-      Path userdir = Paths.get(System.getProperty("user.dir"));
-      Path conf = userdir.resolve("conf");
-      String logbackenv = "logback." + env + ".xml";
-      String fallback = "logback.xml";
-      Stream.of(
-          /** Environment specific inside conf or userdir: */
-          conf.resolve(logbackenv), userdir.resolve(logbackenv),
-          /** Fallback inside conf or userdir: */
-          conf.resolve(fallback), userdir.resolve(fallback)
-      ).filter(Files::exists)
-          .findFirst()
-          .map(Path::toAbsolutePath)
-          .ifPresent(
-              logback -> System.setProperty("logback.configurationFile", logback.toString()));
-    }
   }
 
   private static void ensureTmpdir(Path tmpdir) {

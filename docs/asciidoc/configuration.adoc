@@ -257,3 +257,117 @@ To skip/ignore Jooby loading and precedence mechanism, just instantiate and set 
 IMPORTANT: Custom configuration is very flexible. You can reuse Jooby mechanism or provide your own.
 The only thing to keep in mind is that environment setting must be done at very early stage, before
 installing extensions.
+
+=== Logging
+
+Jooby uses https://www.slf4j.org[Slf4j] for logging which give you some flexibility for choosing
+the logging framework.
+
+==== Logback
+
+The https://logback.qos.ch/manual/index.html[Logback] is probably the first alternative for 
+https://www.slf4j.org[Slf4j] due its natively implements the SLF4J API. Follow the next steps to use
+logback in your project:
+
+1) Add dependency
+
+[dependency, artifactId="logback-classic"]
+
+2) Creates a `logback.xml` file in the `conf` directory:
+
+.logback.xml
+[source, xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>
+----
+
+That's all! https://www.slf4j.org[Slf4j] is going to redirect log message to logback.
+
+==== Log4j2
+
+The https://logging.apache.org/log4j[Log4j2] project is another good alternative for logging. Follow
+the next steps to use logback in your project:
+
+1) Add dependencies
+
+[dependency, artifactId="log4j-slf4j-impl, log4j-core"]
+
+2) Creates a `log4j.xml` file in the `conf` directory:
+
+.log4j.xml
+[source, xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+  <Appenders>
+    <Console name="stdout">
+      <PatternLayout pattern="%d [%t] %-5level: %msg%n%throwable" />
+    </Console>
+  </Appenders>
+  <Loggers>
+    <Root level="INFO" additivity="true">
+      <AppenderRef ref="stdout" />
+    </Root>
+  </Loggers>
+</Configuration>
+----
+
+All these extensions are considered valid: `.xml`, `.propertines`, `.yaml` and `.json`. As well as `log4j2` for file name.
+
+==== Environment logging
+
+Logging is integrated with the environment names. So it is possible to have a file name:
+
+- `logback[.name].xml` (for loggback)
+- `log4j[.name].xml` (for log4j2)
+
+Jooby favors the environment specific logging configuration file over regular/normal logging configuration file.
+
+.Example
+[source, bash]
+----
+conf
+└── logback.conf
+└── logback.prod.conf
+----
+
+To use `logback.prod.conf`, start your application like:
+
+`java -jar myapp.jar application.env=prod`
+
+[IMPORTANT]
+====
+The logging configuration file per environment works as long you don't use *static* loggers
+before application has been start it. The next example won't work:
+
+[source, java]
+----
+public class App extends Jooby {
+  private static final Logger log = ...
+  
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+The `runApp` method is the one who configures the logging framework. Adding a static logger force
+the logging framework to configure without taking care the environment setup.
+
+There are a couple of solution is for this:
+
+- use an instance logger
+- use the getLog() method of Jooby
+====

@@ -180,13 +180,21 @@ public class DocGenerator {
   }
 
   private static void tocItems(Document doc) {
+    doc.select("#mvc-api-2").forEach(it -> it.attr("id", "#mvc-api"));
+    doc.select("a")
+        .forEach(it -> {
+          if (it.attr("href").equals("#mvc-api-2")) {
+            it.attr("href", "#mvc-api");
+          }
+        });
     int l = 3;
     while (l > 1) {
       Elements items = doc.body().select(".sectlevel" + l);
       for (Element it : items) {
         String parent = it.parent().select("a").first().attr("href").replace("#", "");
         for (Element e : it.select("li>a")) {
-          String key = e.attr("href").replace("#", "");
+          String key = e.attr("href").replace("#", "")
+              .replace("mvc-api-2", "mvc-api");
           String newkey = Stream.of((parent + "-" + key).split("-"))
               .distinct()
               .collect(Collectors.joining("-"));

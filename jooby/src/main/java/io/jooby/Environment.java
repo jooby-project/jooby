@@ -34,8 +34,6 @@ import java.util.stream.Stream;
 
 public class Environment {
 
-  public static final String KEY = "application.env";
-
   private final List<String> actives;
 
   private final Config conf;
