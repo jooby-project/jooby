@@ -71,7 +71,7 @@ public class AttachedFile {
     this(file.getFileName().toString(), file);
   }
 
-  public long getLength() {
+  public long getFileSize() {
     return length;
   }
 
@@ -79,7 +79,7 @@ public class AttachedFile {
     return contentType;
   }
 
-  public String getFilename() {
+  public String getFileName() {
     return filename;
   }
 
@@ -87,7 +87,7 @@ public class AttachedFile {
     return contentDisposition;
   }
 
-  public InputStream getContent() {
+  public InputStream stream() {
     return content;
   }
 

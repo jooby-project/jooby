@@ -45,18 +45,18 @@ public class AssetHandler implements Route.Handler, Route.Aware {
     // handle If-None-Match
     if (this.etag) {
       String ifnm = ctx.header("If-None-Match").value((String) null);
-      if (ifnm != null && ifnm.equals(asset.etag())) {
+      if (ifnm != null && ifnm.equals(asset.getEtag())) {
         ctx.sendStatusCode(StatusCode.NOT_MODIFIED);
         asset.release();
         return ctx;
       } else {
-        ctx.setHeader("ETag", asset.etag());
+        ctx.setHeader("ETag", asset.getEtag());
       }
     }
 
     // Handle If-Modified-Since
     if (this.lastModified) {
-      long lastModified = asset.lastModified();
+      long lastModified = asset.getLastModified();
       if (lastModified > 0) {
         long ifms = ctx.header("If-Modified-Since").longValue(-1);
         if (lastModified <= ifms) {
@@ -73,25 +73,25 @@ public class AssetHandler implements Route.Handler, Route.Aware {
       ctx.setHeader("Cache-Control", "max-age=" + maxAge);
     }
 
-    long length = asset.length();
+    long length = asset.getSize();
     if (length != -1) {
       ctx.setContentLength(length);
     }
-    ctx.setContentType(asset.type());
-    return ctx.sendStream(asset.content());
+    ctx.setContentType(asset.getContentType());
+    return ctx.sendStream(asset.stream());
   }
 
-  public AssetHandler etag(boolean etag) {
+  public AssetHandler setETag(boolean etag) {
     this.etag = etag;
     return this;
   }
 
-  public AssetHandler lastModified(boolean lastModified) {
+  public AssetHandler setLastModified(boolean lastModified) {
     this.lastModified = lastModified;
     return this;
   }
 
-  public AssetHandler maxAge(long maxAge) {
+  public AssetHandler setMaxAge(long maxAge) {
     this.maxAge = maxAge;
     return this;
   }

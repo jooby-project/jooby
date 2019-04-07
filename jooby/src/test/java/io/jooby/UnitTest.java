@@ -24,26 +24,26 @@ public class UnitTest {
       assertEquals("OK", router.get("/"));
 
       router.get("/", result -> {
-        assertEquals(StatusCode.OK, result.statusCode());
-        assertEquals("text/plain", result.type().getValue());
-        assertEquals(2, result.length());
-        assertEquals("OK", result.value());
+        assertEquals(StatusCode.OK, result.getStatusCode());
+        assertEquals("text/plain", result.getContentType().getValue());
+        assertEquals(2, result.getContentLength());
+        assertEquals("OK", result.getValue());
       });
 
       router.get("/123", result -> {
-        assertEquals(StatusCode.OK, result.statusCode());
-        assertEquals("text/plain", result.type().getValue());
-        assertEquals(3, result.length());
-        assertEquals(123, result.value());
+        assertEquals(StatusCode.OK, result.getStatusCode());
+        assertEquals("text/plain", result.getContentType().getValue());
+        assertEquals(3, result.getContentLength());
+        assertEquals(123, result.getValue());
       });
 
       router.delete("/123", result -> {
-        assertEquals(NO_CONTENT, result.statusCode());
+        assertEquals(NO_CONTENT, result.getStatusCode());
       });
 
       String body = "{\"message\":\"ok\"}";
       router.post("/", ctx -> ctx.setBody(body), result -> {
-        assertEquals(body, result.value());
+        assertEquals(body, result.getValue());
       });
     });
 

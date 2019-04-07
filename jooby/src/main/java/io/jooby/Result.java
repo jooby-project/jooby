@@ -53,49 +53,49 @@ public class Result {
 
   public @Nonnull Result header(@Nonnull String name, @Nonnull String value) {
     if ("content-type".equalsIgnoreCase(name)) {
-      type(MediaType.valueOf(value));
+      setContentType(MediaType.valueOf(value));
     } else if ("content-length".equalsIgnoreCase(name)) {
-      length(Long.parseLong(value));
+      setContentLength(Long.parseLong(value));
     } else {
       this.headers.put(name.toLowerCase(), value);
     }
     return this;
   }
 
-  public @Nullable MediaType type() {
+  public @Nullable MediaType getContentType() {
     return contentType == null ? MediaType.text : contentType;
   }
 
-  public @Nonnull Result type(@Nonnull MediaType contentType) {
-    return type(contentType, contentType.getCharset());
+  public @Nonnull Result setContentType(@Nonnull MediaType contentType) {
+    return setContentType(contentType, contentType.getCharset());
   }
 
-  public @Nonnull Result type(@Nonnull MediaType contentType, @Nullable Charset charset) {
+  public @Nonnull Result setContentType(@Nonnull MediaType contentType, @Nullable Charset charset) {
     this.contentType = contentType;
     this.charset = charset;
     headers.put("content-type", contentType.toContentTypeHeader(charset));
     return this;
   }
 
-  public @Nullable Charset charset() {
+  public @Nullable Charset getCharset() {
     return charset;
   }
 
-  public long length() {
+  public long getContentLength() {
     return length;
   }
 
-  public Result length(long length) {
+  public Result setContentLength(long length) {
     this.length = length;
     headers.put("content-length", Long.toString(length));
     return this;
   }
 
-  public StatusCode statusCode() {
+  public StatusCode getStatusCode() {
     return statusCode;
   }
 
-  public Object value() {
+  public Object getValue() {
     return value;
   }
 }

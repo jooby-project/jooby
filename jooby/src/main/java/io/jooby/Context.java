@@ -464,8 +464,8 @@ public interface Context {
 
   default @Nonnull Context sendAttachment(@Nonnull AttachedFile file) {
     setHeader("Content-Disposition", file.getContentDisposition());
-    InputStream content = file.getContent();
-    long length = file.getLength();
+    InputStream content = file.stream();
+    long length = file.getFileSize();
     if (length > 0) {
       setContentLength(length);
     }

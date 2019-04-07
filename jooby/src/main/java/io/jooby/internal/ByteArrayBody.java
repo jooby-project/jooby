@@ -37,7 +37,7 @@ public class ByteArrayBody implements Body {
     this.bytes = bytes;
   }
 
-  @Override public long getLength() {
+  @Override public long getSize() {
     return bytes.length;
   }
 

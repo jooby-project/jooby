@@ -36,7 +36,7 @@ public interface Asset {
       this.file = file;
     }
 
-    @Override public long length() {
+    @Override public long getSize() {
       try {
         return Files.size(file);
       } catch (IOException x) {
@@ -44,7 +44,7 @@ public interface Asset {
       }
     }
 
-    @Override public long lastModified() {
+    @Override public long getLastModified() {
       try {
         return Files.getLastModifiedTime(file).toMillis();
       } catch (IOException x) {
@@ -52,11 +52,11 @@ public interface Asset {
       }
     }
 
-    @Nonnull @Override public MediaType type() {
+    @Nonnull @Override public MediaType getContentType() {
       return MediaType.byFile(file);
     }
 
-    @Override public InputStream content() {
+    @Override public InputStream stream() {
       try {
         return new FileInputStream(file.toFile());
       } catch (IOException x) {
@@ -101,21 +101,21 @@ public interface Asset {
       this.path = path;
     }
 
-    @Override public long length() {
+    @Override public long getSize() {
       checkOpen();
       return len;
     }
 
-    @Override public long lastModified() {
+    @Override public long getLastModified() {
       checkOpen();
       return lastModified;
     }
 
-    @Nonnull @Override public MediaType type() {
+    @Nonnull @Override public MediaType getContentType() {
       return MediaType.byFile(path);
     }
 
-    @Override public InputStream content() {
+    @Override public InputStream stream() {
       checkOpen();
       return content;
     }
@@ -169,21 +169,21 @@ public interface Asset {
   /**
    * @return Asset size (in bytes) or <code>-1</code> if undefined.
    */
-  long length();
+  long getSize();
 
   /**
    * @return The last modified date if possible or -1 when isn't.
    */
-  long lastModified();
+  long getLastModified();
 
-  default String etag() {
+  default String getEtag() {
     StringBuilder b = new StringBuilder(32);
     b.append("W/\"");
 
     Base64.Encoder encoder = Base64.getEncoder();
     int hashCode = hashCode();
-    long lastModified = lastModified();
-    long length = length();
+    long lastModified = getLastModified();
+    long length = getSize();
     ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
 
     buffer.putLong(lastModified ^ hashCode);
@@ -201,9 +201,9 @@ public interface Asset {
    * @return Asset media type.
    */
   @Nonnull
-  MediaType type();
+  MediaType getContentType();
 
-  InputStream content();
+  InputStream stream();
 
   void release();
 }

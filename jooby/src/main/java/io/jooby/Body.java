@@ -36,7 +36,7 @@ public interface Body extends Value {
 
   boolean isInMemory();
 
-  long getLength();
+  long getSize();
 
   ReadableByteChannel channel();
 
@@ -51,8 +51,8 @@ public interface Body extends Value {
     return ByteArrayBody.EMPTY;
   }
 
-  static Body of(@Nonnull InputStream stream, long contentLength) {
-    return new InputStreamBody(stream, contentLength);
+  static Body of(@Nonnull InputStream stream, long size) {
+    return new InputStreamBody(stream, size);
   }
 
   static Body of(@Nonnull byte[] bytes) {

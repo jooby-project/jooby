@@ -47,7 +47,7 @@ public class NettyBody implements Body {
     return data.isInMemory();
   }
 
-  @Override public long getLength() {
+  @Override public long getSize() {
     return length;
   }
 
