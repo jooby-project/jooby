@@ -440,7 +440,13 @@ public interface Request extends Registry {
       return req.files(name);
     }
 
-    @Override
+      @Nonnull
+      @Override
+      public List<Upload> files() throws IOException {
+          return req.files();
+      }
+
+      @Override
     public Mutant header(final String name) {
       return req.header(name);
     }
@@ -1084,6 +1090,16 @@ public interface Request extends Registry {
    */
   @Nonnull
   List<Upload> files(final String name) throws IOException;
+
+  /**
+   * Get a list of files {@link Upload} that were uploaded in the request. The request must be a POST with
+   * <code>multipart/form-data</code> content-type.
+   *
+   * @return A list of {@link Upload}.
+   * @throws IOException
+   */
+  @Nonnull
+  List<Upload> files() throws IOException;
 
   /**
    * Get a HTTP header.

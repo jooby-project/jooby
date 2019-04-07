@@ -371,6 +371,12 @@ public class NettyRequest implements NativeRequest {
   }
 
   @Override
+  public List<NativeUpload> files() throws IOException {
+    decodeParams();
+    return ImmutableList.copyOf(this.files.values());
+  }
+
+  @Override
   public InputStream in() {
     ByteBuf content = ((HttpContent) req).content();
     return new ByteBufInputStream(content);

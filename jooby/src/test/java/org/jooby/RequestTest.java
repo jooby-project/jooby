@@ -22,6 +22,8 @@ import org.junit.Test;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
+import javax.annotation.Nonnull;
+
 public class RequestTest {
   public class RequestMock implements Request {
 
@@ -241,6 +243,11 @@ public class RequestTest {
       throw new UnsupportedOperationException();
     }
 
+    @Nonnull
+    @Override
+    public List<Upload> files() throws IOException {
+      throw new UnsupportedOperationException();
+    }
   }
 
   @Test

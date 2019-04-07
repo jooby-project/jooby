@@ -207,19 +207,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.typesafe.config.Config;
-import static java.util.Objects.requireNonNull;
-import org.jooby.Cookie;
-import org.jooby.Env;
-import org.jooby.Err;
-import org.jooby.MediaType;
-import org.jooby.Mutant;
-import org.jooby.Parser;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Session;
-import org.jooby.Status;
-import org.jooby.Upload;
+import org.jooby.*;
 import org.jooby.funzy.Try;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeRequest;
@@ -228,19 +216,14 @@ import org.jooby.spi.NativeUpload;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.Locale.LanguageRange;
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 public class RequestImpl implements Request {
 
@@ -399,6 +382,13 @@ public class RequestImpl implements Request {
     return uploads;
   }
 
+  public List<Upload> files() throws IOException {
+    return req.files()
+            .stream()
+            .map(upload -> new UploadImpl(injector, upload))
+            .collect(Collectors.toList());
+  }
+
   private Mutant _param(final String name, final Function<String, String> xss) {
     Mutant param = this.params.get(name);
     if (param == null) {
@@ -469,8 +459,7 @@ public class RequestImpl implements Request {
           Integer.toHexString(System.identityHashCode(this)));
       files.add(fbody);
       int bufferSize = conf.getBytes("server.http.RequestBufferSize").intValue();
-      Parser.BodyReference body = new BodyReferenceImpl(length, charset(), fbody, req.in(),
-          bufferSize);
+      Parser.BodyReference body = new BodyReferenceImpl(length, charset(), fbody, req.in(), bufferSize);
       return new MutantImpl(require(ParserExecutor.class), type, body);
     }
     return new MutantImpl(require(ParserExecutor.class), type, new EmptyBodyReference());
@@ -670,5 +659,4 @@ public class RequestImpl implements Request {
   private void destroySession() {
     this.reqSession = Optional.empty();
   }
-
 }

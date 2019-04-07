@@ -208,14 +208,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URLDecoder;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import io.undertow.server.handlers.form.FormDataParser;
+import io.undertow.server.handlers.form.*;
 import org.jooby.Cookie;
 import org.jooby.MediaType;
 import org.jooby.Router;
@@ -233,10 +231,7 @@ import com.typesafe.config.Config;
 
 import io.undertow.server.BlockingHttpExchange;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.form.FormData;
 import io.undertow.server.handlers.form.FormData.FormValue;
-import io.undertow.server.handlers.form.FormEncodedDataDefinition;
-import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.util.AttachmentKey;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
@@ -358,6 +353,21 @@ public class UndertowRequest implements NativeRequest {
   }
 
   @Override
+  public List<NativeUpload> files() throws IOException {
+    FormData formData = parseForm();
+    Iterator<String> keyIterator = formData.iterator();
+    Iterable<String> iterableKeys = () -> keyIterator;
+    List<NativeUpload> retVal = StreamSupport.stream(iterableKeys.spliterator(), true)
+            .map(formData::get)
+            .filter(formValues -> formValues.peekFirst().isFileItem())
+            .flatMap(Collection::stream)
+            .map(UndertowUpload::new)
+            .collect(Collectors.toList());
+
+    return Collections.unmodifiableList(retVal);
+  }
+
+  @Override
   public InputStream in() {
     blocking.get();
     return exchange.getInputStream();
@@ -410,25 +420,22 @@ public class UndertowRequest implements NativeRequest {
       try {
         String tmpdir = conf.getString("application.tmpdir");
         String charset = conf.getString("application.charset");
-        String value = exchange.getRequestHeaders().getFirst("Content-Type");
-        if (value != null) {
-          MediaType type = MediaType.valueOf(value);
-          if (MediaType.form.name().equals(type.name())) {
-            blocking.get();
-            form = new FormEncodedDataDefinition()
-                .setDefaultEncoding(charset)
-                .create(exchange)
-                .parseBlocking();
-          } else if (MediaType.multipart.name().equals(type.name())) {
-            blocking.get();
-            form = new MultiPartParserDefinition()
+
+        FormEncodedDataDefinition encodedParser = new FormEncodedDataDefinition().setDefaultEncoding(charset);
+        MultiPartParserDefinition multiPartParser = new MultiPartParserDefinition()
                 .setTempFileLocation(new File(tmpdir).toPath())
-                .setDefaultEncoding(charset)
-                .create(exchange)
-                .parseBlocking();
-          }
-        }
-      } catch (IOException x) {
+                .setDefaultEncoding(charset);
+        blocking.get();
+        FormDataParser parser = FormParserFactory
+                .builder(false)
+                .addParser(encodedParser)
+                .addParser(multiPartParser)
+                .build()
+                .createParser(exchange);
+
+        form = parser != null ? parser.parseBlocking() : NO_FORM;
+      } catch (IOException iox) {
+        throw new IllegalArgumentException("Bad Request...", iox);
       }
     }
     return form;

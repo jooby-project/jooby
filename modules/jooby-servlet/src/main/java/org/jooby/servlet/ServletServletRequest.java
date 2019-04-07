@@ -370,6 +370,20 @@ public class ServletServletRequest implements NativeRequest {
   }
 
   @Override
+  public List<NativeUpload> files() throws IOException {
+    try {
+      if (multipart) {
+        return req.getParts().stream()
+                .map(part -> new ServletUpload(part, tmpdir))
+                .collect(Collectors.toList());
+      }
+      return Collections.emptyList();
+    } catch (ServletException ex) {
+      throw new IOException("Unable to get files", ex);
+    }
+  }
+
+  @Override
   public InputStream in() throws IOException {
     return req.getInputStream();
   }

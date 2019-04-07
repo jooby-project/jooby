@@ -301,6 +301,14 @@ public interface NativeRequest {
   List<NativeUpload> files(String name) throws IOException;
 
   /**
+   * Get all the files or an empty list.
+   *
+   * @return All the files or an empty list.
+   * @throws IOException If file parsing fails.
+   */
+  List<NativeUpload> files() throws IOException;
+
+  /**
    * Input stream that represent the body.
    *
    * @return Body as an input stream.
