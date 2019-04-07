@@ -556,17 +556,18 @@ class BillingService @Inject constructor(@Named("currency") currency: String) {
 
 The Weld extension does a bit more in relation to MVC routes:
 
-- A MVC route annotated with the `io.jooby.annotations.Controller` annotation is
+- A MVC route annotated with the `io.jooby.annotations.Path` annotation is
 automatically registered. No need to register it manually
 
-- A MVC route provided by Weld is a singleton object by default. Singleton is the default scope in Weld
+- The default scope is `prototype` (creates a new instance per request). If you prefer a single 
+instance add the `javax.inject.Singleton` annotation
 
 .MVC route
 [source, java, role="primary"]
 ----
 import io.jooby.annotations.*;
 
-@Controller
+@Path("/")
 public class Hello {
 
    @GET
@@ -581,7 +582,7 @@ public class Hello {
 ----
 import io.jooby.annotations.*;
 
-@Controller
+@Path("/")
 class Hello {
 
    @GET

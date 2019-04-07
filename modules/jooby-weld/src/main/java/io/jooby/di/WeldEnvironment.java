@@ -18,15 +18,21 @@ package io.jooby.di;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
 import io.jooby.Environment;
+import io.jooby.Jooby;
 import io.jooby.Reified;
+import io.jooby.annotations.Controller;
+import io.jooby.annotations.Path;
 
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.literal.NamedLiteral;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.AnnotatedType;
 import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.BeforeBeanDiscovery;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.InjectionTarget;
+import javax.enterprise.inject.spi.ProcessAnnotatedType;
+import javax.enterprise.inject.spi.WithAnnotations;
 import javax.enterprise.inject.spi.configurator.BeanConfigurator;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,15 +41,21 @@ import java.util.List;
 import java.util.Map;
 
 public class WeldEnvironment implements Extension {
-  private Environment env;
+  private final Jooby app;
 
   @Inject
-  public WeldEnvironment(Environment env) {
-    this.env = env;
+  public WeldEnvironment(Jooby application) {
+    this.app = application;
   }
 
-  void afterBeanDiscovery(@Observes AfterBeanDiscovery abd, BeanManager bm) {
-    Config config = env.getConfig();
+  public void registerMvc(
+      @Observes @WithAnnotations(Path.class) ProcessAnnotatedType<?> controller) {
+    this.app.mvc(controller.getAnnotatedType().getJavaClass());
+  }
+
+  public void configureProperties(@Observes AfterBeanDiscovery beanDiscovery,
+      BeanManager beanManager) {
+    Config config = app.getEnvironment().getConfig();
 
     for (Map.Entry<String, ConfigValue> configEntry : config.entrySet()) {
       final String configKey = configEntry.getKey();
@@ -59,9 +71,9 @@ public class WeldEnvironment implements Extension {
         configType = boolean.class;
       }
       NamedLiteral literal = NamedLiteral.of(configKey);
-      AnnotatedType<?> annotatedType = bm.createAnnotatedType(configClass);
-      InjectionTarget<?> target = bm.createInjectionTarget(annotatedType);
-      abd.addBean()
+      AnnotatedType<?> annotatedType = beanManager.createAnnotatedType(configClass);
+      InjectionTarget<?> target = beanManager.createInjectionTarget(annotatedType);
+      beanDiscovery.addBean()
           .addQualifier(literal)
           .addTypes(configType, Object.class)
           .name(configKey)
