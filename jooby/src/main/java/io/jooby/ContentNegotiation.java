@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.jooby.MediaType.ALL;
+import static io.jooby.MediaType.MOST_SPECIFIC;
 
 public class ContentNegotiation {
 
@@ -43,16 +44,21 @@ public class ContentNegotiation {
 
   public Object render(String accept) {
     List<MediaType> types = MediaType.parse(accept);
-    int maxScore = Integer.MIN_VALUE;
+    MediaType highest = null;
     Throwing.Supplier<Object> result = fallback;
     for (Map.Entry<MediaType, Throwing.Supplier<Object>> entry : options.entrySet()) {
       MediaType contentType = entry.getKey();
       for (MediaType type : types) {
         if (contentType.matches(type)) {
-          int score = type.getScore();
-          if (score > maxScore) {
-            maxScore = score;
+          if (highest == null) {
+            highest = type;
             result = entry.getValue();
+          } else {
+            MediaType max = MOST_SPECIFIC.apply(highest, type);
+            if (max != highest) {
+              highest = max;
+              result = entry.getValue();
+            }
           }
         }
       }

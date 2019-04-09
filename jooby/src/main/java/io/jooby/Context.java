@@ -41,8 +41,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import static sun.security.krb5.internal.crypto.Nonce.value;
-
 /**
  * HTTP context allows you to interact with the HTTP Request and manipulate the HTTP Response.
  *
@@ -128,9 +126,9 @@ public interface Context {
    */
   @Nonnull default Value path(@Nonnull String name) {
     String value = pathMap().get(name);
-    return value == null ?
-        new Value.Missing(name) :
-        new Value.Simple(name, UrlParser.decodePath(value));
+    return value == null
+        ? new Value.Missing(name)
+        : new Value.Simple(name, UrlParser.decodePath(value));
   }
 
   /**
@@ -148,6 +146,7 @@ public interface Context {
    * Convert the {@link #pathMap()} to the given type.
    *
    * @param type Target type.
+   * @param <T> Target type.
    * @return Instance of target type.
    */
   @Nonnull default <T> T path(@Nonnull Class<T> type) {
@@ -253,7 +252,7 @@ public interface Context {
   }
 
   /**
-   * Query string as simple map:
+   * Query string as simple map.
    *
    * <pre>{@code/search?q=jooby&sort=name}</pre>
    *
@@ -268,7 +267,7 @@ public interface Context {
   }
 
   /**
-   * Query string as multi-value map:
+   * Query string as multi-value map.
    *
    * <pre>{@code/search?q=jooby&sort=name&sort=id}</pre>
    *
@@ -342,6 +341,17 @@ public interface Context {
   @Nullable default MediaType getContentType() {
     Value contentType = header("Content-Type");
     return contentType.isMissing() ? null : MediaType.valueOf(contentType.value());
+  }
+
+  /**
+   * Request <code>Content-Type</code> header or <code>null</code> when missing.
+   *
+   * @param defaults Default content type to use when the header is missing.
+   * @return Request <code>Content-Type</code> header or <code>null</code> when missing.
+   */
+  @Nonnull default MediaType getContentType(MediaType defaults) {
+    Value contentType = header("Content-Type");
+    return contentType.isMissing() ? defaults : MediaType.valueOf(contentType.value());
   }
 
   /**
@@ -599,17 +609,14 @@ public interface Context {
    * @return Instance of conversion type.
    */
   default @Nonnull <T> T body(@Nonnull Reified<T> type) {
-    MediaType contentType = getContentType();
-    if (contentType == null) {
-      return body(type, MediaType.text);
-    }
-    return body(type, contentType);
+    return body(type, getContentType(MediaType.text));
   }
 
   /**
    * Convert the HTTP body to the given type.
    *
    * @param type Reified type.
+   * @param contentType Body content type.
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
@@ -629,15 +636,14 @@ public interface Context {
    * @return Instance of conversion type.
    */
   default @Nonnull <T> T body(@Nonnull Class type) {
-    MediaType contentType = MediaType.valueOf(header("Content-Type")
-        .value("text/plain"));
-    return body(type, contentType);
+    return body(type, getContentType(MediaType.text));
   }
 
   /**
    * Convert the HTTP body to the given type.
    *
    * @param type Reified type.
+   * @param contentType Body content type.
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
@@ -907,6 +913,7 @@ public interface Context {
    * @param contentType Content type.
    * @param consumer Output stream consumer.
    * @return HTTP channel as output stream. Usually for chunked responses.
+   * @throws Exception Is something goes wrong.
    */
   default @Nonnull Context responseStream(@Nonnull MediaType contentType,
       @Nonnull Throwing.Consumer<OutputStream> consumer) throws Exception {
@@ -919,6 +926,7 @@ public interface Context {
    *
    * @param consumer Output stream consumer.
    * @return HTTP channel as output stream. Usually for chunked responses.
+   * @throws Exception Is something goes wrong.
    */
   default @Nonnull Context responseStream(@Nonnull Throwing.Consumer<OutputStream> consumer)
       throws Exception {
@@ -968,6 +976,7 @@ public interface Context {
    *
    * @param consumer Writer consumer.
    * @return This context.
+   * @throws Exception Is something goes wrong.
    */
   default @Nonnull Context responseWriter(@Nonnull Throwing.Consumer<PrintWriter> consumer)
       throws Exception {
@@ -980,10 +989,10 @@ public interface Context {
    * @param contentType Content type.
    * @param consumer Writer consumer.
    * @return This context.
+   * @throws Exception Is something goes wrong.
    */
   default @Nonnull Context responseWriter(@Nonnull MediaType contentType,
-      @Nonnull Throwing.Consumer<PrintWriter> consumer)
-      throws Exception {
+      @Nonnull Throwing.Consumer<PrintWriter> consumer) throws Exception {
     return responseWriter(contentType, contentType.getCharset(), consumer);
   }
 
@@ -994,6 +1003,7 @@ public interface Context {
    * @param charset Charset.
    * @param consumer Writer consumer.
    * @return This context.
+   * @throws Exception Is something goes wrong.
    */
   default @Nonnull Context responseWriter(@Nonnull MediaType contentType, @Nullable Charset charset,
       @Nonnull Throwing.Consumer<PrintWriter> consumer) throws Exception {
@@ -1131,6 +1141,12 @@ public interface Context {
    */
   @Nonnull Context sendFile(@Nonnull FileChannel file);
 
+  /**
+   * Send an empty response with the given status code.
+   *
+   * @param statusCode Status code.
+   * @return This context.
+   */
   @Nonnull default Context sendStatusCode(@Nonnull StatusCode statusCode) {
     return sendStatusCode(statusCode.value());
   }

@@ -26,7 +26,7 @@ import java.util.List;
  * @author edgar
  * @since 2.0.0
  */
-public class AssetHandler implements Route.Handler, Route.Aware {
+public class AssetHandler implements Route.Handler {
   private final AssetSource[] sources;
 
   private boolean etag = true;
@@ -147,11 +147,12 @@ public class AssetHandler implements Route.Handler, Route.Aware {
     return null;
   }
 
-  @Override public void setRoute(Route route) {
+  @Override public Route.Handler setRoute(Route route) {
     List<String> keys = route.getPathKeys();
     this.filekey = keys.size() == 0 ? "*" : keys.get(0);
 
     // NOTE: It send an inputstream we don't need a renderer
     route.setReturnType(Context.class);
+    return this;
   }
 }

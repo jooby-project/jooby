@@ -85,7 +85,7 @@ public interface Router {
   /** HTTP TRACE. */
   String TRACE = "TRACE";
 
-  /** HTTP Methods: */
+  /** HTTP Methods. */
   List<String> METHODS = unmodifiableList(
       asList(GET, POST, PUT, DELETE, PATCH, HEAD, CONNECT, OPTIONS, TRACE));
 
@@ -661,32 +661,23 @@ public interface Router {
     int len = pattern.length();
     for (int i = 0; i < len; i++) {
       char ch = pattern.charAt(i);
-      switch (ch) {
-        case '{': {
-          start = i + 1;
-          end = Integer.MAX_VALUE;
+      if (ch == '{') {
+        start = i + 1;
+        end = Integer.MAX_VALUE;
+      } else if (ch == ':') {
+        end = i;
+      } else if (ch == '}') {
+        String id = pattern.substring(start, Math.min(i, end));
+        result.add(id);
+        start = -1;
+        end = Integer.MAX_VALUE;
+      } else if (ch == '*') {
+        if (i == len - 1) {
+          result.add("*");
+        } else {
+          result.add(pattern.substring(i + 1));
         }
-        break;
-        case ':': {
-          end = i;
-        }
-        break;
-        case '}': {
-          String id = pattern.substring(start, Math.min(i, end));
-          result.add(id);
-          start = -1;
-          end = Integer.MAX_VALUE;
-        }
-        break;
-        case '*': {
-          if (i == len - 1) {
-            result.add("*");
-          } else {
-            result.add(pattern.substring(i + 1));
-          }
-          i = len;
-        }
-        break;
+        i = len;
       }
     }
     switch (result.size()) {

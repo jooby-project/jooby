@@ -16,7 +16,6 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.ServerSocket;
 
@@ -27,6 +26,9 @@ import java.net.ServerSocket;
  * @since 2.0.0
  */
 public class ServerOptions {
+
+  /** Default application port <code>8080</code> or the value of system property <code>application.port</code>. */
+  public static final int DEFAULT_PORT = Integer.parseInt(System.getProperty("application.port", "8080"));
 
   /** 4kb constant in bytes. */
   public static final int _4KB = 4096;
@@ -51,7 +53,7 @@ public class ServerOptions {
   public static final int WORKER_THREADS = IO_THREADS * 8;
 
   /** HTTP port. Default is <code>8080</code> or <code>0</code> for random port. */
-  private int port = 8080;
+  private int port = DEFAULT_PORT;
 
   /** Number of IO threads used by the server. Required by Netty and Undertow. */
   private Integer ioThreads;

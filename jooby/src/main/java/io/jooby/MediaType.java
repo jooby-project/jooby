@@ -23,49 +23,84 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BinaryOperator;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class MediaType implements Comparable<MediaType> {
+/**
+ * Implementation of media/content type.
+ *
+ * @since 2.0.0
+ */
+public final class MediaType implements Comparable<MediaType> {
 
+  /**
+   * Computes and returns the most specific media type of both.
+   */
+  public static final BinaryOperator<MediaType> MOST_SPECIFIC = (a, b) -> {
+    int aScore = a.getScore();
+    int bScore = b.getScore();
+    return aScore >= bScore ? a : b;
+  };
+
+  /** APPLICATION_JSON. */
   public static final String JSON = "application/json";
 
+  /** APPLICATION_XML. */
   public static final String XML = "application/xml";
 
+  /** TEXT_PLAIN. */
   public static final String TEXT = "text/plain";
 
+  /** TEXT_HTML. */
   public static final String HTML = "text/html";
 
+  /** APPLICATION_JAVASCRIPT. */
   public static final String JS = "application/javascript";
 
+  /** TEXT_CSS. */
   public static final String CSS = "text/css";
 
+  /** APPLICATION_OCTET_STREAM. */
   public static final String OCTET_STREAM = "application/octet-stream";
 
+  /** FORM_URLENCODED. */
   public static final String FORM_URLENCODED = "application/x-www-form-urlencoded";
 
+  /** MULTIPART_FORM_DATA. */
   public static final String MULTIPART_FORMDATA = "multipart/form-data";
 
+  /** ALL. */
   public static final String ALL = "*/*";
 
+  /** APPLICATION_JSON. */
   public static final MediaType json = new MediaType(JSON, UTF_8);
 
+  /** APPLICATION_XML. */
   public static final MediaType xml = new MediaType(XML, UTF_8);
 
+  /** TEXT_PLAIN. */
   public static final MediaType text = new MediaType(TEXT, UTF_8);
 
+  /** TEXT_HTML. */
   public static final MediaType html = new MediaType(HTML, UTF_8);
 
+  /** APPLICATION_JSON. */
   public static final MediaType js = new MediaType(JS, UTF_8);
 
+  /** TEXT_CSS. */
   public static final MediaType css = new MediaType(CSS, UTF_8);
 
+  /** APPLICATION_OCTET_STREAM. */
   public static final MediaType octetStream = new MediaType(OCTET_STREAM, null);
 
+  /** FORM_URLENCODED. */
   public static final MediaType formUrlencoded = new MediaType(FORM_URLENCODED, UTF_8);
 
+  /** MULTIPART_FORM_DATA. */
   public static final MediaType multipartFormdata = new MediaType(MULTIPART_FORMDATA, UTF_8);
 
+  /** ALL. */
   public static final MediaType all = new MediaType(ALL, null);
 
   private final String raw;
@@ -107,6 +142,12 @@ public class MediaType implements Comparable<MediaType> {
     return value.hashCode();
   }
 
+  /**
+   * Get a parameter that matches the given name or <code>null</code>.
+   *
+   * @param name Parameter name.
+   * @return Parameter value or <code>null</code>.
+   */
   public @Nullable String getParameter(@Nonnull String name) {
     int paramStart = subtypeEnd + 1;
     for (int i = subtypeEnd; i < raw.length(); i++) {
@@ -127,10 +168,21 @@ public class MediaType implements Comparable<MediaType> {
     return null;
   }
 
+  /**
+   * Media type value without parameters.
+   *
+   * @return Media type value.
+   */
   public @Nonnull String getValue() {
     return value;
   }
 
+  /**
+   * Render a content type header and add the charset parameter (when present).
+   *
+   * @param charset Charset.
+   * @return Content type header.
+   */
   public @Nonnull String toContentTypeHeader(@Nullable Charset charset) {
     if (charset == null) {
       Charset paramCharset = getCharset();
@@ -142,6 +194,11 @@ public class MediaType implements Comparable<MediaType> {
     return value + ";charset=" + charset.name();
   }
 
+  /**
+   * Value of <code>q</code> parameter.
+   *
+   * @return Value of <code>q</code> parameter.
+   */
   @Nonnull public float getQuality() {
     String q = getParameter("q");
     return q == null ? 1f : Float.parseFloat(q);
@@ -161,6 +218,10 @@ public class MediaType implements Comparable<MediaType> {
     return diff;
   }
 
+  /**
+   * Indicates whenever this is a textual mediatype.
+   * @return True for textual mediatype.
+   */
   public boolean isTextual() {
     if (getType().equals("text")) {
       return true;
@@ -169,41 +230,72 @@ public class MediaType implements Comparable<MediaType> {
     return subtype.endsWith("json") || subtype.endsWith("javascript") || subtype.endsWith("xml");
   }
 
+  /**
+   * Indicates whenever this is a json mediatype.
+   * @return True for json mediatype.
+   */
   public boolean isJson() {
     String subtype = getSubtype();
     return subtype.equals("json") || subtype.endsWith("+json");
   }
 
+  /**
+   * Charset or <code>null</code>.
+   *
+   * @return Charset or <code>null</code>.
+   */
   public @Nullable Charset getCharset() {
-    Charset charset = _charset(this.charset);
+    Charset charset = charset(this.charset);
     if (charset == null && isTextual()) {
       return UTF_8;
     }
     return charset;
   }
 
-  private Charset _charset(Charset charset) {
+  private Charset charset(Charset charset) {
     String charsetName = getParameter("charset");
     return charsetName == null ? charset : Charset.forName(charsetName);
   }
 
+  /**
+   * Type segment of mediatype (leading type).
+   *
+   * @return Type segment of mediatype (leading type).
+   */
   public @Nonnull String getType() {
     return raw.substring(0, subtypeStart).trim();
   }
 
+  /**
+   * Subtype segment of mediatype (trailing type).
+   *
+   * @return Subtype segment of mediatype (trailing type).
+   */
   public @Nonnull String getSubtype() {
     return raw.substring(subtypeStart + 1, subtypeEnd).trim();
   }
 
-  public boolean matches(@Nonnull String contentType) {
-    return matches(value, contentType);
+  /**
+   * True if this mediatype is compatible with the given content type.
+   *
+   * @param mediaType Media type to test.
+   * @return True if this mediatype is compatible with the given content type.
+   */
+  public boolean matches(@Nonnull String mediaType) {
+    return matches(value, mediaType);
   }
 
+  /**
+   * True if this mediatype is compatible with the given content type.
+   *
+   * @param type Media type to test.
+   * @return True if this mediatype is compatible with the given content type.
+   */
   public boolean matches(@Nonnull MediaType type) {
     return matches(value, type.value);
   }
 
-  public int getScore() {
+  private int getScore() {
     int precendence = 0;
     if (!getType().equals("*")) {
       precendence += 1;
@@ -214,7 +306,7 @@ public class MediaType implements Comparable<MediaType> {
     return precendence;
   }
 
-  public int getParameterCount() {
+  private int getParameterCount() {
     int p = 0;
     for (int i = subtypeEnd; i < raw.length(); i++) {
       char ch = raw.charAt(i);
@@ -225,6 +317,12 @@ public class MediaType implements Comparable<MediaType> {
     return p;
   }
 
+  /**
+   * Parse a string value into a media-type.
+   *
+   * @param value String media-type.
+   * @return Media type.
+   */
   public static @Nonnull MediaType valueOf(@Nonnull String value) {
     if (value == null || value.length() == 0 || value.equals("*")) {
       return all;
@@ -259,11 +357,17 @@ public class MediaType implements Comparable<MediaType> {
     return new MediaType(value, null);
   }
 
+  /**
+   * Parse one or more mediatype values. Mediatype must be separated by comma <code>,</code>.
+   *
+   * @param value Mediatype comma separated value.
+   * @return One or more mediatypes.
+   */
   public static @Nonnull List<MediaType> parse(@Nullable String value) {
     if (value == null || value.length() == 0) {
       return Collections.emptyList();
     }
-    List<MediaType> result = new ArrayList<>(5);
+    List<MediaType> result = new ArrayList<>(3);
     int typeStart = 0;
     int len = value.length();
     for (int i = 0; i < len; i++) {
@@ -281,7 +385,7 @@ public class MediaType implements Comparable<MediaType> {
     return result;
   }
 
-  public static boolean matches(@Nonnull String expected, @Nonnull String contentType) {
+  static boolean matches(@Nonnull String expected, @Nonnull String contentType) {
     int start = 0;
     int len1 = expected.length();
     int end = contentType.indexOf(',');
@@ -299,19 +403,43 @@ public class MediaType implements Comparable<MediaType> {
     return false;
   }
 
+  /**
+   * Mediatype by file extension.
+   *
+   * @param file File.
+   * @return Mediatype.
+   */
   public static @Nonnull MediaType byFile(@Nonnull File file) {
     return byFile(file.getName());
   }
 
+  /**
+   * Mediatype by file extension.
+   *
+   * @param file File.
+   * @return Mediatype.
+   */
   public static @Nonnull MediaType byFile(@Nonnull Path file) {
     return byFile(file.getFileName().toString());
   }
 
+  /**
+   * Mediatype by file extension.
+   *
+   * @param filename File.
+   * @return Mediatype.
+   */
   public static @Nonnull MediaType byFile(@Nonnull String filename) {
     int index = filename.lastIndexOf('.');
     return index > 0 ? byFileExtension(filename.substring(index + 1)) : octetStream;
   }
 
+  /**
+   * Mediatype by file extension.
+   *
+   * @param ext File extension.
+   * @return Mediatype.
+   */
   public static @Nonnull MediaType byFileExtension(@Nonnull String ext) {
     switch (ext) {
       case "spl":
@@ -706,8 +834,10 @@ public class MediaType implements Comparable<MediaType> {
         return new MediaType("application/x-cabinet", null);
       case "gif":
         return new MediaType("image/gif", null);
+      default:
+        return octetStream;
     }
-    return octetStream;
+
   }
 
   private static boolean matchOne(String expected, int len1, String contentType) {

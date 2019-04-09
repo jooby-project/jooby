@@ -116,12 +116,11 @@
     <!-- See http://checkstyle.sf.net/config_sizes.html -->
     <module name="LineLength">
       <property name="max" value="100"/>
-      <!-- Ignore length of javadoc or @Api annotations -->
-      <property name="ignorePattern" value="^ *(\* *[^ ]+$|@Api)"/>
+      <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://|^\\*"/>
     </module>
     <module name="MethodLength">
       <property name="tokens" value="METHOD_DEF"/>
-      <property name="max" value="150"/>
+      <property name="max" value="400"/>
       <property name="countEmpty" value="false"/>
     </module>
 

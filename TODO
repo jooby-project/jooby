@@ -1,3 +1,6 @@
+* Review decorator and responseHandler. Seems we kill decorator when a response handler is used it?
+* Remove Route.Handler.next find another way of doing it
+* Review and try to remove Route.Handler.execute
 * check sendBytes implementation and don't set content-length if there is one already
 
 * doc

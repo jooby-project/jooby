@@ -369,9 +369,7 @@ public class RouterImpl implements Router {
     }
     routes.add(route);
 
-    if (handler instanceof Route.Aware) {
-      ((Route.Aware) handler).setRoute(route);
-    }
+    handler.setRoute(route);
     return route;
   }
 
