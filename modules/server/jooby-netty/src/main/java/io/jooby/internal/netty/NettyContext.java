@@ -96,10 +96,6 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     return router;
   }
 
-  @Override public String getServerName() {
-    return "netty";
-  }
-
   /* **********************************************************************************************
    * Request methods:
    * **********************************************************************************************
@@ -188,6 +184,11 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
 
   @Nonnull @Override public String getProtocol() {
     return req.protocolVersion().text();
+  }
+
+  @Nonnull @Override public String getScheme() {
+    // TODO: review if we add websocket or https
+    return "http";
   }
 
   @Nonnull @Override public Value headers() {

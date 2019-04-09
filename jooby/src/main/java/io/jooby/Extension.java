@@ -17,7 +17,20 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 
+/**
+ * Simple extension contract for adding and reusing commons application infrastructure components
+ * and/or integrate with external libraries.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public interface Extension {
 
+  /**
+   * Install, configure additional features to a Jooby application.
+   *
+   * @param application Jooby application.
+   * @throws Exception If something goes wrong.
+   */
   void install(@Nonnull Jooby application) throws Exception;
 }

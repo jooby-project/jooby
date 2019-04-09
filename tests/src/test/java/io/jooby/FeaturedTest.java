@@ -1349,7 +1349,7 @@ public class FeaturedTest {
       );
       app.get("/attachment", ctx -> {
         Path file = userdir("src", "test", "resources", "files", "19kb.txt");
-        return new AttachedFile(ctx.query("name").value(file.getFileName().toString()), file);
+        return new AttachedFile(file, ctx.query("name").value(file.getFileName().toString()));
       });
     }).ready(client -> {
       client.get("/filechannel", rsp -> {
@@ -1499,7 +1499,7 @@ public class FeaturedTest {
     Consumer<Jooby> lifeCycle = app -> {
       app.onStart(() -> counter.incrementAndGet());
 
-      app.onStarted(() -> counter.incrementAndGet());
+      app.onStart(() -> counter.incrementAndGet());
 
       app.onStop(() -> {
         counter.decrementAndGet();

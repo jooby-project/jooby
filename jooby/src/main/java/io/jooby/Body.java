@@ -20,46 +20,110 @@ import io.jooby.internal.InputStreamBody;
 import io.jooby.internal.ByteArrayBody;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.io.InputStream;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
+/**
+ * HTTP body value. Allows to access HTTP body as string, byte[], stream, etc..
+ *
+ * HTTP body can be read it only once per request. Attempt to read more than one resulted in
+ * unexpected behaviour.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public interface Body extends Value {
 
-  default String value(Charset charset) {
+  /**
+   * HTTP body as string.
+   *
+   * @param charset Charset.
+   * @return Body as string.
+   */
+  default @Nonnull String value(@Nonnull Charset charset) {
     return new String(bytes(), charset);
   }
 
-  byte[] bytes();
+  /**
+   * HTTP body as byte array.
+   *
+   * @return Body as byte array.
+   */
+  @Nonnull byte[] bytes();
 
+  /**
+   * True if body is on memory. False, indicates body is on file system. Body larger than
+   * {@link ServerOptions#getMaxRequestSize()} will be dump to disk.
+   *
+   * @return True if body is on memory. False, indicates body is on file system.
+   */
   boolean isInMemory();
 
+  /**
+   * Size in bytes. This is the same as <code>Content-Length</code> header.
+   *
+   * @return Size in bytes. This is the same as <code>Content-Length</code> header.
+   */
   long getSize();
 
-  ReadableByteChannel channel();
+  /**
+   * Body as readable channel.
+   *
+   * @return Body as readable channel.
+   */
+  @Nonnull ReadableByteChannel channel();
 
-  InputStream stream();
+  /**
+   * Body as input stream.
+   *
+   * @return Body as input stream.
+   */
+  @Nonnull InputStream stream();
 
   /* **********************************************************************************************
    * Factory methods:
    * **********************************************************************************************
    */
 
+  /**
+   * Empty body.
+   *
+   * @return Empty body.
+   */
   static Body empty() {
     return ByteArrayBody.EMPTY;
   }
 
-  static Body of(@Nonnull InputStream stream, long size) {
+  /**
+   * Creates a HTTP body from input stream.
+   *
+   * @param stream Input stream.
+   * @param size Size in bytes or <code>-1</code>.
+   * @return A new body.
+   */
+  static @Nonnull Body of(@Nonnull InputStream stream, long size) {
     return new InputStreamBody(stream, size);
   }
 
-  static Body of(@Nonnull byte[] bytes) {
+  /**
+   * Creates a HTTP body from byte array.
+   *
+   * @param bytes byte array.
+   * @return A new body.
+   */
+  static @Nonnull Body of(@Nonnull byte[] bytes) {
     return new ByteArrayBody(bytes);
   }
 
-  static Body of(@Nonnull Path file) {
+  /**
+   * Creates a HTTP body from file.
+   *
+   * @param file File.
+   * @return A new body.
+   */
+  static @Nonnull Body of(@Nonnull Path file) {
     return new FileBody(file);
   }
 }

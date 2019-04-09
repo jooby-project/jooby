@@ -67,10 +67,6 @@ public class UtowContext implements Context, IoCallback {
     return router;
   }
 
-  @Override public String getServerName() {
-    return "utow";
-  }
-
   @Nonnull @Override public Body body() {
     return body == null ? Body.empty() : body;
   }
@@ -115,6 +111,11 @@ public class UtowContext implements Context, IoCallback {
 
   @Nonnull @Override public String getProtocol() {
     return exchange.getProtocol().toString();
+  }
+
+  @Nonnull @Override public String getScheme() {
+    String scheme = exchange.getRequestScheme();
+    return scheme == null ? "http" : scheme.toLowerCase();
   }
 
   @Nonnull @Override public Value header(@Nonnull String name) {

@@ -16,9 +16,16 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Handler for static resources represented by the {@link Asset} contract.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class AssetHandler implements Route.Handler, Route.Aware {
   private final AssetSource[] sources;
 
@@ -30,6 +37,11 @@ public class AssetHandler implements Route.Handler, Route.Aware {
 
   private String filekey;
 
+  /**
+   * Creates a new asset handler.
+   *
+   * @param sources Asset sources.
+   */
   public AssetHandler(AssetSource... sources) {
     this.sources = sources;
   }
@@ -81,18 +93,47 @@ public class AssetHandler implements Route.Handler, Route.Aware {
     return ctx.sendStream(asset.stream());
   }
 
+  /**
+   * Turn on/off e-tag support.
+   *
+   * @param etag True for turning on.
+   * @return This handler.
+   */
   public AssetHandler setETag(boolean etag) {
     this.etag = etag;
     return this;
   }
 
+  /**
+   * Turn on/off handling of <code>If-Modified-Since</code> header.
+   *
+   * @param lastModified True for turning on. Default is: true.
+   * @return This handler.
+   */
   public AssetHandler setLastModified(boolean lastModified) {
     this.lastModified = lastModified;
     return this;
   }
 
+  /**
+   * Set cache-control header with the given max-age value. If max-age is greater than 0.
+   *
+   * @param maxAge Max-age value in seconds.
+   * @return This handler.
+   */
   public AssetHandler setMaxAge(long maxAge) {
     this.maxAge = maxAge;
+    return this;
+  }
+
+  /**
+   * Set cache-control header with the given max-age value. If max-age is greater than 0.
+   *
+   * @param maxAge Max-age value in seconds.
+   * @return This handler.
+   */
+  public AssetHandler setMaxAge(Duration maxAge) {
+    this.maxAge = maxAge.getSeconds();
     return this;
   }
 

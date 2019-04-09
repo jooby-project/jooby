@@ -78,10 +78,6 @@ public class JettyContext implements Callback, Context {
     return attributes;
   }
 
-  @Override public String getServerName() {
-    return "jetty";
-  }
-
   @Nonnull @Override public Body body() {
     try {
       InputStream in = request.getInputStream();
@@ -199,6 +195,10 @@ public class JettyContext implements Callback, Context {
 
   @Nonnull @Override public String getProtocol() {
     return request.getProtocol();
+  }
+
+  @Nonnull @Override public String getScheme() {
+    return request.getScheme();
   }
 
   @Override public boolean isInIoThread() {

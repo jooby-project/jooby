@@ -295,8 +295,8 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Nonnull @Override public Router dispatch(@Nonnull Runnable action) {
-    return newStack(push().executor(worker), action);
+  @Nonnull @Override public Router dispatch(@Nonnull Runnable body) {
+    return newStack(push().executor(worker), body);
   }
 
   @Nonnull @Override public Router dispatch(@Nonnull Executor executor, @Nonnull Runnable action) {

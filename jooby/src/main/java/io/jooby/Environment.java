@@ -20,6 +20,7 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigParseOptions;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,13 +33,32 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Application environment contains configuration object and active environment names.
+ *
+ * The active environment names serve the purpose of allowing loading different configuration files
+ * depending on the environment. Also, {@link Extension} modules might configure application
+ * services differently depending on the environment too. For example: turn on/off caches,
+ * reload files, etc.
+ *
+ * The <code>application.env</code> property controls the active environment names.
+ *
+ * @since 2.0.0
+ * @author edgar
+ */
 public class Environment {
 
   private final List<String> actives;
 
   private final Config conf;
 
-  public Environment(@Nonnull final Config conf, @Nonnull final String... actives) {
+  /**
+   * Creates a new environment.
+   *
+   * @param conf Application configuration.
+   * @param actives Active environment names.
+   */
+  public Environment(@Nonnull Config conf, @Nonnull String... actives) {
     this.actives = Stream.of(actives)
         .map(String::trim)
         .map(String::toLowerCase)
@@ -46,14 +66,31 @@ public class Environment {
     this.conf = conf;
   }
 
+  /**
+   * Application configuration.
+   *
+   * @return Application configuration.
+   */
   public @Nonnull Config getConfig() {
     return conf;
   }
 
+  /**
+   * Active environment names.
+   *
+   * @return Active environment names.
+   */
   public @Nonnull List<String> getActiveNames() {
     return Collections.unmodifiableList(actives);
   }
 
+  /**
+   * Test is the given environment names are active.
+   *
+   * @param name Environment name.
+   * @param names Optional environment names.
+   * @return True if any of the given names is active.
+   */
   public boolean isActive(String name, String... names) {
     return this.actives.contains(name.toLowerCase())
         || Stream.of(names).map(String::toLowerCase).anyMatch(this.actives::contains);
@@ -86,15 +123,51 @@ public class Environment {
     return "";
   }
 
+  /**
+   * Creates a {@link Config} object from {@link System#getProperties()}.
+   *
+   * @return Configuration object.
+   */
   public static @Nonnull Config systemProperties() {
     return ConfigFactory.parseProperties(System.getProperties(),
         ConfigParseOptions.defaults().setOriginDescription("system properties"));
   }
 
+  /**
+   * Creates a {@link Config} object from {@link System#getenv()}.
+   *
+   * @return Configuration object.
+   */
   public static @Nonnull Config systemEnv() {
     return ConfigFactory.systemEnvironment();
   }
 
+  /**
+   * This method search for an application.conf file in three location
+   * (first-listed are higher priority):
+   *
+   * <ul>
+   *   <li>${user.dir}/conf: This is a file system location, useful is you want to externalize
+   *     configuration (outside of jar file).</li>
+   *   <li>${user.dir}: This is a file system location, useful is you want to externalize
+   *     configuration (outside of jar file)</li>
+   *   <li>classpath:// (root of classpath). No external configuration, configuration file lives
+   *     inside the jar file</li>
+   * </ul>
+   *
+   * Property overrides is done in the following order (first-listed are higher priority):
+   *
+   * <ul>
+   *   <li>Program arguments</li>
+   *   <li>System properties</li>
+   *   <li>Environment variables</li>
+   *   <li>Environment property file</li>
+   *   <li>Property file</li>
+   * </ul>
+   *
+   * @param options Options like basedir, filename, etc.
+   * @return A new environment.
+   */
   public static @Nonnull Environment loadEnvironment(@Nonnull EnvironmentOptions options) {
     Config sys = systemProperties()
         .withFallback(systemEnv());
@@ -146,12 +219,17 @@ public class Environment {
     return new Environment(result, actives);
   }
 
+  /**
+   * Creates a default configuration properties with some common values like: application.tmpdir,
+   * application.charset and pid (process ID).
+   *
+   * @return A configuration object.
+   */
   public static @Nonnull Config defaults() {
     Path tmpdir = Paths.get(System.getProperty("user.dir"), "tmp");
     Map<String, String> defaultMap = new HashMap<>();
     defaultMap.put("application.tmpdir", tmpdir.toString());
     defaultMap.put("application.charset", "UTF-8");
-    defaultMap.put("server.maxRequestSize", Integer.toString(ServerOptions._10MB));
     String pid = pid();
     if (pid != null) {
       System.setProperty("PID", pid);
@@ -161,7 +239,11 @@ public class Environment {
     return ConfigFactory.parseMap(defaultMap, "defaults");
   }
 
-  public static String pid() {
+  /**
+   * Find JVM process ID.
+   * @return JVM process ID or <code>null</code>.
+   */
+  public static @Nullable String pid() {
     String pid = System.getenv().getOrDefault("PID", System.getProperty("PID"));
     if (pid == null) {
       pid = ManagementFactory.getRuntimeMXBean().getName();

@@ -15,17 +15,41 @@
  */
 package io.jooby;
 
-import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+/**
+ * An asset source is a collection or provider of {@link Asset}. There are two implementations:
+ *
+ * <ul>
+ *   <li>File system: using {@link #create(Path)}.</li>
+ *   <li>Classpath/URL: using {@link #create(ClassLoader, String)}.</li>
+ * </ul>
+ */
 public interface AssetSource {
 
-  Asset resolve(String path);
+  /**
+   * Resolve an asset using the given path.
+   *
+   * @param path Path to look for.
+   * @return An asset or <code>null</code>.
+   */
+  @Nullable Asset resolve(@Nonnull String path);
 
-  static AssetSource create(@Nonnull ClassLoader loader, @Nonnull String location) {
+  /**
+   * Classpath/url-based asset source. Useful for resolving files from classpath
+   * (including jar files).
+   *
+   * @param loader Class loader.
+   * @param location Classpath location.
+   * @return An asset source.
+   */
+  static @Nonnull AssetSource create(@Nonnull ClassLoader loader, @Nonnull String location) {
     String safeloc = Router.normalizePath(location, true, true)
         .substring(1);
     String sep = safeloc.length() > 0 ? "/" : "";
@@ -39,7 +63,13 @@ public interface AssetSource {
     };
   }
 
-  static AssetSource create(@Nonnull Path location) {
+  /**
+   * Creates a source from given location. Assets are resolved from file system.
+   *
+   * @param location Asset directory.
+   * @return A new file system asset source.
+   */
+  static @Nonnull AssetSource create(@Nonnull Path location) {
     Path absoluteLocation = location.toAbsolutePath();
     if (Files.isDirectory(absoluteLocation)) {
       return path -> {
@@ -55,7 +85,7 @@ public interface AssetSource {
         return Asset.create(resource);
       };
     }
-    if (Files.isRegularFile(location )) {
+    if (Files.isRegularFile(location)) {
       Asset singleFile = Asset.create(absoluteLocation);
       return p -> singleFile;
     }

@@ -23,22 +23,47 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Function;
 
+/**
+ * Type-safe map for context attributes.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class AttributeMap {
 
+  /** Backed map. */
   private Map<AttributeKey, Object> map;
 
-  public AttributeMap(Map<AttributeKey, Object> map) {
+  /**
+   * Creates a new attribute map.
+   * @param map Attribute container.
+   */
+  public AttributeMap(@Nonnull Map<AttributeKey, Object> map) {
     this.map = map;
   }
 
+  /**
+   * Creates a new attribute map.
+   */
   public AttributeMap() {
     this(new HashMap<>());
   }
 
+  /**
+   * Returns <code>true</code> if the map contains the given key.
+   * @param key Attribute key.
+   * @return Returns <code>true</code> if the map contains the given key.
+   */
   public boolean contains(@Nonnull AttributeKey<?> key) {
     return map.containsKey(key);
   }
 
+  /**
+   * If the specified key is not already associated with a value (or is mapped to {@code null}),
+   * attempts to compute its value using the given mapping function and enters it into this map
+   * unless {@code null}.
+   * @return
+   */
   public @Nullable <V> V computeIfAbsent(@Nonnull AttributeKey<V> key,
       @Nonnull Throwing.Function<AttributeKey<V>, V> mappingFunction) {
     Function fn = mappingFunction;

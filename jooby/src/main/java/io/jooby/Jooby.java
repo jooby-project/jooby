@@ -48,6 +48,30 @@ import java.util.stream.Stream;
 import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
 
+/**
+ * <h1>Welcome to Jooby!</h1>
+ *
+ * <p>Hello World!</p>
+ * <pre>{@code
+ *
+ * public class App extends Jooby {
+ *
+ *   {
+ *     get("/", ctx -> "Hello World!");
+ *   }
+ *
+ *   public static void main(String[] args) {
+ *     runApp(args, App::new);
+ *   }
+ * }
+ *
+ * }</pre>
+ *
+ * More documentation at <a href="https://jooby.io">jooby.io</a>
+ *
+ * @since 2.0.0
+ * @author edgar
+ */
 public class Jooby implements Router, Registry {
 
   static final String DEF_PCKG = "___def_package__";
@@ -57,8 +81,6 @@ public class Jooby implements Router, Registry {
   private ExecutionMode mode;
 
   private Path tmpdir;
-
-  private List<Throwing.Runnable> startCallbacks;
 
   private List<Throwing.Runnable> readyCallbacks;
 
@@ -70,15 +92,35 @@ public class Jooby implements Router, Registry {
 
   private ServerOptions serverOptions;
 
-  private EnvironmentOptions environmentOptions = new EnvironmentOptions()
-      .setClassLoader(getClass().getClassLoader());
+  private EnvironmentOptions environmentOptions;
 
+  /**
+   * Creates a new Jooby instance.
+   */
   public Jooby() {
-    router = new RouterImpl(getClass().getClassLoader());
+    ClassLoader classLoader = getClass().getClassLoader();
+    environmentOptions = new EnvironmentOptions().setClassLoader(classLoader);
+    router = new RouterImpl(classLoader);
   }
 
+  /**
+   * Server options or <code>null</code>.
+   *
+   * @return Server options or <code>null</code>.
+   */
   public @Nullable ServerOptions getServerOptions() {
     return serverOptions;
+  }
+
+  /**
+   * Set server options.
+   *
+   * @param serverOptions Server options.
+   * @return This application.
+   */
+  public @Nonnull Jooby setServerOptions(@Nonnull ServerOptions serverOptions) {
+    this.serverOptions = serverOptions;
+    return this;
   }
 
   @Nonnull @Override public RouterOptions getRouterOptions() {
@@ -90,11 +132,12 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  public @Nonnull Jooby setServerOptions(@Nonnull ServerOptions serverOptions) {
-    this.serverOptions = serverOptions;
-    return this;
-  }
-
+  /**
+   * Application environment. If none was set, environment is initialized
+   * using {@link Environment#loadEnvironment(EnvironmentOptions)}.
+   *
+   * @return Application environment.
+   */
   public @Nonnull Environment getEnvironment() {
     if (env == null) {
       env = Environment.loadEnvironment(environmentOptions);
@@ -102,37 +145,57 @@ public class Jooby implements Router, Registry {
     return env;
   }
 
+  /**
+   * Set application environment.
+   *
+   * @param environment Application environment.
+   * @return This application.
+   */
   public @Nonnull Jooby setEnvironment(@Nonnull Environment environment) {
     this.env = environment;
     return this;
   }
 
+  /**
+   * Set environment options and initialize/overrides the environment.
+   *
+   * @param options Environment options.
+   * @return New environment.
+   */
   public @Nonnull Environment setEnvironmentOptions(@Nonnull EnvironmentOptions options) {
-    this.env = Environment.loadEnvironment(options.setClassLoader(options.getClassLoader(getClass().getClassLoader())));
+    this.environmentOptions = options;
+    this.env = Environment.loadEnvironment(
+        options.setClassLoader(options.getClassLoader(getClass().getClassLoader())));
     return this.env;
   }
 
-  public @Nonnull Jooby onStart(@Nonnull Throwing.Runnable task) {
-    if (startCallbacks == null) {
-      startCallbacks = new ArrayList<>();
-    }
-    startCallbacks.add(task);
-    return this;
-  }
-
-  public @Nonnull Jooby onStarted(@Nonnull Throwing.Runnable task) {
+  /**
+   * Start event is fire once all components has been initialized, for example router and web-server
+   * are up and running, extension installed, etc...
+   *
+   * @param body Start body.
+   * @return This application.
+   */
+  public @Nonnull Jooby onStart(@Nonnull Throwing.Runnable body) {
     if (readyCallbacks == null) {
       readyCallbacks = new ArrayList<>();
     }
-    readyCallbacks.add(task);
+    readyCallbacks.add(body);
     return this;
   }
 
-  public @Nonnull Jooby onStop(@Nonnull AutoCloseable task) {
+  /**
+   * Stop event is fire at application shutdown time. Useful to execute cleanup task, free
+   * resources, etc...
+   *
+   * @param body Stop body.
+   * @return This application.
+   */
+  public @Nonnull Jooby onStop(@Nonnull AutoCloseable body) {
     if (stopCallbacks == null) {
       stopCallbacks = new LinkedList<>();
     }
-    stopCallbacks.addFirst(task);
+    stopCallbacks.addFirst(body);
     return this;
   }
 
@@ -218,6 +281,12 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
+  /**
+   * Install extension module.
+   *
+   * @param extension Extension module.
+   * @return This application.
+   */
   @Nonnull public Jooby install(@Nonnull Extension extension) {
     try {
       extension.install(this);
@@ -227,8 +296,8 @@ public class Jooby implements Router, Registry {
     }
   }
 
-  @Nonnull @Override public Jooby dispatch(@Nonnull Runnable action) {
-    router.dispatch(action);
+  @Nonnull @Override public Jooby dispatch(@Nonnull Runnable body) {
+    router.dispatch(body);
     return this;
   }
 
@@ -257,7 +326,6 @@ public class Jooby implements Router, Registry {
     return router.match(ctx);
   }
 
-  /** Error handler: */
   @Nonnull @Override
   public Jooby errorCode(@Nonnull Class<? extends Throwable> type,
       @Nonnull StatusCode statusCode) {
@@ -286,8 +354,7 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  /** Log: */
-  public @Nonnull Logger getLog() {
+  @Nonnull @Override public Logger getLog() {
     return LoggerFactory.getLogger(getClass());
   }
 
@@ -300,19 +367,36 @@ public class Jooby implements Router, Registry {
     return router.getErrorHandler();
   }
 
-  public @Nonnull Path getTmpdir() {
+  @Nonnull @Override public Path getTmpdir() {
     return tmpdir;
   }
 
+  /**
+   * Set application temporary directory.
+   *
+   * @param tmpdir Temp directory.
+   * @return This application.
+   */
   public @Nonnull Jooby setTmpdir(@Nonnull Path tmpdir) {
     this.tmpdir = tmpdir;
     return this;
   }
 
+  /**
+   * Application execution mode.
+   *
+   * @return Application execution mode.
+   */
   public @Nonnull ExecutionMode getExecutionMode() {
     return mode == null ? ExecutionMode.DEFAULT : mode;
   }
 
+  /**
+   * Set application execution mode.
+   *
+   * @param mode Application execution mode.
+   * @return This application.
+   */
   public @Nonnull Jooby setExecutionMode(@Nonnull ExecutionMode mode) {
     this.mode = mode;
     return this;
@@ -322,15 +406,21 @@ public class Jooby implements Router, Registry {
     return router.getAttributes();
   }
 
-  public @Nonnull <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
+  @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
     return require(new AttributeKey<>(type, name));
   }
 
-  public @Nonnull <T> T require(@Nonnull Class<T> type) {
+  @Nonnull @Override public <T> T require(@Nonnull Class<T> type) {
     return require(new AttributeKey<>(type));
   }
 
-  public @Nonnull Jooby registry(@Nonnull Object registry) {
+  /**
+   * Set application registry.
+   *
+   * @param registry Application registry.
+   * @return This application.
+   */
+  @Nonnull public Jooby registry(@Nonnull Object registry) {
     this.registry = RegistryImpl.wrap(getClass().getClassLoader(), registry);
     return this;
   }
@@ -350,6 +440,12 @@ public class Jooby implements Router, Registry {
     throw new NoSuchElementException(key.toString());
   }
 
+  /**
+   * Get base application package. This is the package from where application was initialized
+   * or the package of a Jooby application sub-class.
+   *
+   * @return Base application package.
+   */
   public @Nullable String getBasePackage() {
     String classname = getClass().getName();
     if (classname.equals("io.jooby.Jooby") || classname.equals("io.jooby.Kooby")) {
@@ -358,6 +454,12 @@ public class Jooby implements Router, Registry {
     return getClass().getPackage().getName();
   }
 
+  /**
+   * Start application, find a web server, deploy application, start router, extension modules,
+   * etc..
+   *
+   * @return Server.
+   */
   public @Nonnull Server start() {
     List<Server> servers = stream(
         spliteratorUnknownSize(
@@ -394,6 +496,12 @@ public class Jooby implements Router, Registry {
     }
   }
 
+  /**
+   * Call back method that indicates application was deploy it in the given server.
+   *
+   * @param server Server.
+   * @return This application.
+   */
   public @Nonnull Jooby start(@Nonnull Server server) {
     Environment env = getEnvironment();
     if (tmpdir == null) {
@@ -408,11 +516,16 @@ public class Jooby implements Router, Registry {
     }
     router.start(this);
 
-    fireStart();
-
     return this;
   }
 
+  /**
+   * Callback method that indicates application was successfully started it and it is ready
+   * listening for connections.
+   *
+   * @param server Server.
+   * @return This application.
+   */
   public @Nonnull Jooby ready(@Nonnull Server server) {
     Logger log = getLog();
 
@@ -438,6 +551,11 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
+  /**
+   * Stop application, fire the stop event to cleanup resources.
+   *
+   * @return This application.
+   */
   public @Nonnull Jooby stop() {
     if (router != null) {
       router.destroy();
@@ -452,11 +570,25 @@ public class Jooby implements Router, Registry {
     return router.toString();
   }
 
-  public static void runApp(String[] args, @Nonnull Class<? extends Jooby> applicationType) {
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param applicationType Application type.
+   */
+  public static void runApp(@Nonnull String[] args,
+      @Nonnull Class<? extends Jooby> applicationType) {
     runApp(args, ExecutionMode.DEFAULT, applicationType);
   }
 
-  public static void runApp(String[] args, ExecutionMode executionMode,
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param executionMode Application execution mode.
+   * @param applicationType Application type.
+   */
+  public static void runApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
       @Nonnull Class<? extends Jooby> applicationType) {
     configurePackage(applicationType);
     runApp(args, executionMode, () ->
@@ -469,19 +601,45 @@ public class Jooby implements Router, Registry {
     );
   }
 
-  public static void runApp(String[] args, @Nonnull Supplier<Jooby> provider) {
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param provider Application provider.
+   */
+  public static void runApp(@Nonnull String[] args, @Nonnull Supplier<Jooby> provider) {
     runApp(args, ExecutionMode.DEFAULT, provider);
   }
 
-  public static void runApp(String[] args, @Nonnull Consumer<Jooby> consumer) {
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param consumer Application consumer.
+   */
+  public static void runApp(@Nonnull String[] args, @Nonnull Consumer<Jooby> consumer) {
     runApp(args, ExecutionMode.DEFAULT, toProvider(consumer));
   }
 
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param executionMode Application execution mode.
+   * @param consumer Application consumer.
+   */
   public static void runApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
       @Nonnull Consumer<Jooby> consumer) {
     runApp(args, executionMode, toProvider(consumer));
   }
 
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param executionMode Application execution mode.
+   * @param provider Application provider.
+   */
   public static void runApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
       @Nonnull Supplier<Jooby> provider) {
 
@@ -536,13 +694,6 @@ public class Jooby implements Router, Registry {
       }
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
-    }
-  }
-
-  private void fireStart() {
-    if (startCallbacks != null) {
-      fire(startCallbacks);
-      startCallbacks = null;
     }
   }
 

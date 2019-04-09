@@ -71,6 +71,7 @@
     <jacoco.version>0.8.2</jacoco.version>
     <junit.version>5.3.2</junit.version>
     <rest-assured.version>3.3.0</rest-assured.version>
+    <checkstyle.version>8.19</checkstyle.version>
 
     <!-- Gradle plugins -->
     <gradle-core.version>2.6</gradle-core.version>
@@ -101,7 +102,7 @@
     <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
     <maven-archetype-plugin.version>2.2</maven-archetype-plugin.version>
     <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
-    <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
+    <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
     <maven-core.version>3.5.4</maven-core.version>
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
@@ -653,12 +654,6 @@
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${maven-javadoc-plugin.version}</version>
-      </plugin>
-
-      <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <version>${maven-jar-plugin.version}</version>
         <configuration>
@@ -683,27 +678,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven-surefire-plugin.version}</version>
-      </plugin>
-
-      <!-- Checkstyle -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>${maven-checkstyle-plugin.version}</version>
-        <configuration>
-          <consoleOutput>true</consoleOutput>
-          <configLocation>checkstyle.xml</configLocation>
-          <failsOnError>true</failsOnError>
-        </configuration>
-        <executions>
-          <execution>
-            <id>checkstyle</id>
-            <phase>off</phase>
-            <goals>
-              <goal>checkstyle</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
       <!-- Deploy plugin -->
@@ -837,6 +811,46 @@
   </build>
 
   <profiles>
+    <!-- checkstyle -->
+    <profile>
+      <id>checkstyle</id>
+      <properties>
+        <checkstyle-file>
+          ${user.dir}${file.separator}etc${file.separator}source${file.separator}jooby-style.xml
+        </checkstyle-file>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>${maven-checkstyle-plugin.version}</version>
+            <configuration>
+              <consoleOutput>true</consoleOutput>
+              <configLocation>${checkstyle-file}</configLocation>
+              <failsOnError>true</failsOnError>
+              <excludes>**${file.separator}internal${file.separator}**${file.separator}*.*</excludes>
+            </configuration>
+            <executions>
+              <execution>
+                <id>checkstyle</id>
+                <goals>
+                  <goal>checkstyle</goal>
+                </goals>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>com.puppycrawl.tools</groupId>
+                <artifactId>checkstyle</artifactId>
+                <version>${checkstyle.version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <profile>
       <id>bom</id>
       <build>
@@ -981,6 +995,25 @@
                 <id>attach-sources</id>
                 <goals>
                   <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Javadoc -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven-javadoc-plugin.version}</version>
+            <configuration>
+              <excludePackageNames>${javadoc.excludes}</excludePackageNames>
+              <aggregate>true</aggregate>
+              <show>public</show>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
                 </goals>
               </execution>
             </executions>

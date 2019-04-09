@@ -280,6 +280,10 @@ public class MockContext implements Context {
     return "HTTP/1.1";
   }
 
+  @Nonnull @Override public String getScheme() {
+    return "http";
+  }
+
   @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
     responseStarted = true;
     setContentType(type, charset);
@@ -370,10 +374,6 @@ public class MockContext implements Context {
 
   @Override public boolean isResponseStarted() {
     return responseStarted;
-  }
-
-  @Override public String getServerName() {
-    return "mock";
   }
 
   @Nonnull @Override public Router getRouter() {

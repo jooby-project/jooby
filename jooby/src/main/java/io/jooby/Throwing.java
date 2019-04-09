@@ -18,8 +18,8 @@ package io.jooby;
 /**
  * Collection of throwable interfaces to simplify exception handling, specially on lambdas.
  *
- * We do provide throwable and 100% compatible implementation of {@link java.util.function.Function},
- * {@link java.util.function.Consumer}, {@link java.lang.Runnable},
+ * We do provide throwable and 100% compatible implementation of {@link java.util.function.Function}
+ * , {@link java.util.function.Consumer}, {@link java.lang.Runnable},
  * {@link java.util.function.Supplier}, {@link java.util.function.Predicate} and
  * {@link java.util.function.BiPredicate}.
  *
@@ -43,7 +43,14 @@ package io.jooby;
  *
  * @author edgar
  */
-public class Throwing {
+public final class Throwing {
+
+  /**
+   * Not allowed.
+   */
+  private Throwing() {
+  }
+
   /**
    * Throwable version of {@link Predicate}.
    *
@@ -292,7 +299,8 @@ public class Throwing {
     void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6) throws Exception;
 
     /**
-     * Performs this operation on the given arguments and throw any exception using {@link #sneakyThrow(Throwable)} method.
+     * Performs this operation on the given arguments and throw any exception using
+     * {@link #sneakyThrow(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -340,7 +348,8 @@ public class Throwing {
     void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7) throws Exception;
 
     /**
-     * Performs this operation on the given arguments and throw any exception using {@link #sneakyThrow(Throwable)} method.
+     * Performs this operation on the given arguments and throw any exception using
+     * {@link #sneakyThrow(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -391,7 +400,8 @@ public class Throwing {
     void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5, V6 v6, V7 v7, V8 v8) throws Exception;
 
     /**
-     * Performs this operation on the given arguments and throw any exception using {@link #sneakyThrow(Throwable)} method.
+     * Performs this operation on the given arguments and throw any exception using
+     * {@link #sneakyThrow(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
