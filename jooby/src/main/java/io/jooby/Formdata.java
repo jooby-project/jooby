@@ -15,5 +15,5 @@
  */
 package io.jooby;
 
-public class Formdata extends Value.Object {
+public class Formdata extends Value.Hash {
 }

@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -286,10 +287,7 @@ public class ValueTest {
     queryString("?a=1;a=2;a=1", queryString -> {
       assertEquals(Arrays.asList("1", "2", "1"), queryString.get("a").toList());
 
-      assertEquals(Arrays.asList(1, 2, 1), queryString.get("a").toList(Integer::parseInt));
-
-      assertEquals(new LinkedHashSet<>(Arrays.asList(1, 2)),
-          queryString.get("a").toSet(Integer::parseInt));
+      assertEquals(new LinkedHashSet<>(Arrays.asList("1", "2")), queryString.get("a").toSet());
     });
     queryString("?a=1", queryString -> {
       assertEquals(Arrays.asList("1"), queryString.get("a").toList());
@@ -312,7 +310,6 @@ public class ValueTest {
       assertMessage(Err.BadRequest.class, () -> queryString.get("a").toOptional(),
           "Cannot convert value: 'a', to: 'java.lang.String'");
       assertEquals(Optional.of("1"), queryString.get("a").get(0).toOptional());
-      assertEquals(Optional.of(1), queryString.get("a").get(0).toOptional(Integer::parseInt));
       assertEquals(Optional.empty(), queryString.get("a").get(2).toOptional());
     });
   }

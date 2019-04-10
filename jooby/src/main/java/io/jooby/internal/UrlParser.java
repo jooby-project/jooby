@@ -43,7 +43,7 @@ public final class UrlParser {
     return result;
   }
 
-  private static void parse(String source, int start, int length, Value.Object root) {
+  private static void parse(String source, int start, int length, Value.Hash root) {
     int nameStart = start;
     int nameEnd = length;
     // %00 size = 3
@@ -68,7 +68,7 @@ public final class UrlParser {
         decoderOutput, decoder);
   }
 
-  private static void newParam(Value.Object root, String source, int nameStart, int nameEnd,
+  private static void newParam(Value.Hash root, String source, int nameStart, int nameEnd,
       int valueStart, int valueEnd, StringBuilder decodedBuffer,
       ByteBuffer decoderInput, CharBuffer decoderOutput, CharsetDecoder decoder) {
     if (nameStart < valueEnd) {

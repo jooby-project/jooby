@@ -15,7 +15,7 @@
  */
 package io.jooby;
 
-public class QueryString extends Value.Object {
+public class QueryString extends Value.Hash {
   public static final QueryString EMPTY = new QueryString("");
 
   private final String queryString;

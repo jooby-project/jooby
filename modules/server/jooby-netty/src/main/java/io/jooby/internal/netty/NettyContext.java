@@ -77,7 +77,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
   private Formdata form;
   private Multipart multipart;
   private List<FileUpload> files;
-  private Value.Object headers;
+  private Value.Hash headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private MediaType responseType;
   private AttributeMap attributes = new AttributeMap();
@@ -447,7 +447,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     return upload;
   }
 
-  private void decodeForm(HttpRequest req, Value.Object form) {
+  private void decodeForm(HttpRequest req, Value.Hash form) {
     try {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();

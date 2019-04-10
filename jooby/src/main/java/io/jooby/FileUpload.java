@@ -16,6 +16,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -25,10 +26,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * File upload class, file upload are available when request body is encoded as
+ * {@link MediaType#MULTIPART_FORMDATA}. Example:
+ *
+ * <pre>{@code
+ * {
+ *
+ *   post("/submit", ctx -> {
+ *
+ *     FileUpload file = ctx.file("myfile");
+ *
+ *   });
+ *
+ * }
+ * }</pre>
+ *
+ * @since 2.0.0
+ * @author edgar
+ */
 public interface FileUpload extends Value {
-  String getFileName();
+  /**
+   * Name of file upload.
+   * @return Name of file upload.
+   */
+  @Nonnull String getFileName();
 
-  String getContentType();
+  /**
+   * Content type of file upload.
+   *
+   * @return Content type of file upload.
+   */
+  @Nullable String getContentType();
 
   @Override default Value get(@Nonnull int index) {
     return index == 0 ? this : get(Integer.toString(index));
@@ -46,27 +75,61 @@ public interface FileUpload extends Value {
     return value(StandardCharsets.UTF_8);
   }
 
-  default @Nonnull String value(Charset charset) {
+  /**
+   * File upload content as string.
+   *
+   * @param charset Charset.
+   * @return Content as string.
+   */
+  default @Nonnull String value(@Nonnull Charset charset) {
     return new String(bytes(), charset);
   }
 
-  @Override default Map<String, List<String>> toMultimap() {
+  /**
+   * Multi-value map with field name as key and file name as values.
+   *
+   * @return Multi-value map with field name as key and file name as values.
+   */
+  @Override default @Nonnull Map<String, List<String>> toMultimap() {
     Map<String, List<String>> result = new HashMap<>(1);
     result.put(name(), Collections.singletonList(getFileName()));
     return result;
   }
 
-  InputStream stream();
+  /**
+   * Content as input stream.
+   *
+   * @return Content as input stream.
+   */
+  @Nonnull InputStream stream();
 
-  byte[] bytes();
+  /**
+   * Content as byte array.
+   *
+   * @return Content as byte array.
+   */
+  @Nonnull byte[] bytes();
 
-  Path path();
+  /**
+   * File system path to access file content.
+   *
+   * @return File system path to access file content.
+   */
+  @Nonnull Path path();
 
+  /**
+   * File size.
+   *
+   * @return File size.
+   */
   long getFileSize();
 
   @Override default FileUpload fileUpload() {
     return this;
   }
 
+  /**
+   * Free resources, delete temporary file.
+   */
   void destroy();
 }

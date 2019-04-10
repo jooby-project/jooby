@@ -128,7 +128,7 @@ public interface Context {
     String value = pathMap().get(name);
     return value == null
         ? new Value.Missing(name)
-        : new Value.Simple(name, UrlParser.decodePath(value));
+        : new Value.Single(name, UrlParser.decodePath(value));
   }
 
   /**

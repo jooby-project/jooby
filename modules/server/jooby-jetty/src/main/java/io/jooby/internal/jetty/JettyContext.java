@@ -59,7 +59,7 @@ public class JettyContext implements Callback, Context {
   private Formdata form;
   private Multipart multipart;
   private List<FileUpload> files;
-  private Value.Object headers;
+  private Value.Hash headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private AttributeMap attributes = new AttributeMap();
   private Router router;

@@ -57,8 +57,21 @@ public final class Throwing {
    * @param <V> Input type.
    */
   public interface Predicate<V> extends java.util.function.Predicate<V> {
+    /**
+     * Apply the predicate.
+     *
+     * @param v Input value.
+     * @return True or false.
+     * @throws Exception If something goes wrong.
+     */
     boolean tryTest(V v) throws Exception;
 
+    /**
+     * Apply the predicate.
+     *
+     * @param v Input value.
+     * @return True or false.
+     */
     @Override default boolean test(V v) {
       try {
         return tryTest(v);
@@ -75,8 +88,23 @@ public final class Throwing {
    * @param <V2> Input type.
    */
   public interface Predicate2<V1, V2> extends java.util.function.BiPredicate<V1, V2> {
+    /**
+     * Apply the predicate.
+     *
+     * @param v1 Input value.
+     * @param v2 Input value.
+     * @return True or false.
+     * @throws Exception If something goes wrong.
+     */
     boolean tryTest(V1 v1, V2 v2) throws Exception;
 
+    /**
+     * Apply the predicate.
+     *
+     * @param v1 Input value.
+     * @param v2 Input value.
+     * @return True or false.
+     */
     @Override default boolean test(V1 v1, V2 v2) {
       try {
         return tryTest(v1, v2);
@@ -91,8 +119,16 @@ public final class Throwing {
    */
   @FunctionalInterface
   public interface Runnable extends java.lang.Runnable {
+    /**
+     * Run task.
+     *
+     * @throws Exception Is something goes wrong.
+     */
     void tryRun() throws Exception;
 
+    /**
+     * Run task.
+     */
     @Override default void run() {
       try {
         tryRun();
@@ -110,8 +146,19 @@ public final class Throwing {
   @FunctionalInterface
   public interface Supplier<V> extends java.util.function.Supplier<V> {
 
+    /**
+     * Computes/retrieves a value.
+     *
+     * @return A value.
+     * @throws Exception Is something goes wrong.
+     */
     V tryGet() throws Exception;
 
+    /**
+     * Computes/retrieves a value.
+     *
+     * @return A value.
+     */
     @Override default V get() {
       try {
         return tryGet();
@@ -166,6 +213,12 @@ public final class Throwing {
      */
     void tryAccept(V1 v1, V2 v2) throws Exception;
 
+    /**
+     * Performs this operation on the given argument.
+     *
+     * @param v1 Argument.
+     * @param v2 Argument.
+     */
     default void accept(V1 v1, V2 v2) {
       try {
         tryAccept(v1, v2);
@@ -196,6 +249,14 @@ public final class Throwing {
      */
     void tryAccept(V1 v1, V2 v2, V3 v3) throws Exception;
 
+    /**
+     * Performs this operation on the given arguments and throw any exception using
+     * {@link #sneakyThrow(Throwable)} method.
+     *
+     * @param v1 Argument.
+     * @param v2 Argument.
+     * @param v3 Argument.
+     */
     default void accept(V1 v1, V2 v2, V3 v3) {
       try {
         tryAccept(v1, v2, v3);
@@ -228,6 +289,15 @@ public final class Throwing {
      */
     void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4) throws Exception;
 
+    /**
+     * Performs this operation on the given arguments and throw any exception using
+     * {@link #sneakyThrow(Throwable)} method.
+     *
+     * @param v1 Argument.
+     * @param v2 Argument.
+     * @param v3 Argument.
+     * @param v4 Argument.
+     */
     default void accept(V1 v1, V2 v2, V3 v3, V4 v4) {
       try {
         tryAccept(v1, v2, v3, v4);
@@ -262,6 +332,16 @@ public final class Throwing {
      */
     void tryAccept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5) throws Exception;
 
+    /**
+     * Performs this operation on the given arguments and throw any exception using
+     * {@link #sneakyThrow(Throwable)} method.
+     *
+     * @param v1 Argument.
+     * @param v2 Argument.
+     * @param v3 Argument.
+     * @param v4 Argument.
+     * @param v5 Argument.
+     */
     default void accept(V1 v1, V2 v2, V3 v3, V4 v4, V5 v5) {
       try {
         tryAccept(v1, v2, v3, v4, v5);
@@ -777,12 +857,26 @@ public final class Throwing {
     }
   }
 
-  public final static <V> Predicate<V> throwingPredicate(Predicate<V> predicate) {
+  /**
+   * Factory method for predicate.
+   *
+   * @param predicate Predicate.
+   * @param <V> Type 1.
+   * @return A throwing predicate.
+   */
+  public static <V> Predicate<V> throwingPredicate(Predicate<V> predicate) {
     return predicate;
   }
 
-  public final static <V1, V2> Predicate2<V1, V2> throwingPredicate(
-      Predicate2<V1, V2> predicate) {
+  /**
+   * Factory method for predicate.
+   *
+   * @param predicate Predicate.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @return A throwing predicate.
+   */
+  public static <V1, V2> Predicate2<V1, V2> throwingPredicate(Predicate2<V1, V2> predicate) {
     return predicate;
   }
 
@@ -792,7 +886,7 @@ public final class Throwing {
    * @param action Runnable.
    * @return Same runnable.
    */
-  public final static Runnable throwingRunnable(Runnable action) {
+  public static Runnable throwingRunnable(Runnable action) {
     return action;
   }
 
@@ -803,7 +897,7 @@ public final class Throwing {
    * @param <V> Resulting value.
    * @return Same supplier.
    */
-  public final static <V> Supplier<V> throwingSupplier(Supplier<V> fn) {
+  public static <V> Supplier<V> throwingSupplier(Supplier<V> fn) {
     return fn;
   }
 
@@ -815,7 +909,7 @@ public final class Throwing {
    * @param <R> Result value.
    * @return Same supplier.
    */
-  public final static <V, R> Function<V, R> throwingFunction(Function<V, R> fn) {
+  public static <V, R> Function<V, R> throwingFunction(Function<V, R> fn) {
     return fn;
   }
 
@@ -828,74 +922,233 @@ public final class Throwing {
    * @param <R> Result value.
    * @return Same supplier.
    */
-  public final static <V1, V2, R> Function2<V1, V2, R> throwingFunction(Function2<V1, V2, R> fn) {
+  public static <V1, V2, R> Function2<V1, V2, R> throwingFunction(Function2<V1, V2, R> fn) {
     return fn;
   }
 
-  public final static <V1, V2, V3, R> Function3<V1, V2, V3, R> throwingFunction(
+  /**
+   * Factory method for throwing function.
+   *
+   * @param fn Throwing function.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @param <V3> Type 3.
+   * @param <R> Return type.
+   * @return Throwing function.
+   */
+  public static <V1, V2, V3, R> Function3<V1, V2, V3, R> throwingFunction(
       Function3<V1, V2, V3, R> fn) {
     return fn;
   }
 
-  public final static <V1, V2, V3, V4, R> Function4<V1, V2, V3, V4, R> throwingFunction(
+  /**
+   * Factory method for throwing function.
+   *
+   * @param fn Throwing function.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @param <V3> Type 3.
+   * @param <V4> Type 4.
+   * @param <R> Return type.
+   * @return Throwing function.
+   */
+  public static <V1, V2, V3, V4, R> Function4<V1, V2, V3, V4, R> throwingFunction(
       Function4<V1, V2, V3, V4, R> fn) {
     return fn;
   }
 
-  public final static <V1, V2, V3, V4, V5, R> Function5<V1, V2, V3, V4, V5, R> throwingFunction(
+  /**
+   * Factory method for throwing function.
+   *
+   * @param fn Throwing function.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @param <V3> Type 3.
+   * @param <V4> Type 4.
+   * @param <V5> Type 5.
+   * @param <R> Return type.
+   * @return Throwing function.
+   */
+  public static <V1, V2, V3, V4, V5, R> Function5<V1, V2, V3, V4, V5, R> throwingFunction(
       Function5<V1, V2, V3, V4, V5, R> fn) {
     return fn;
   }
 
-  public final static <V1, V2, V3, V4, V5, V6, R> Function6<V1, V2, V3, V4, V5, V6, R> throwingFunction(
+  /**
+   * Factory method for throwing function.
+   *
+   * @param fn Throwing function.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @param <V3> Type 3.
+   * @param <V4> Type 4.
+   * @param <V5> Type 5.
+   * @param <V6> Type 6.
+   * @param <R> Return type.
+   * @return Throwing function.
+   */
+  public static <V1, V2, V3, V4, V5, V6, R> Function6<V1, V2, V3, V4, V5, V6, R> throwingFunction(
       Function6<V1, V2, V3, V4, V5, V6, R> fn) {
     return fn;
   }
 
-  public final static <V1, V2, V3, V4, V5, V6, V7, R> Function7<V1, V2, V3, V4, V5, V6, V7, R> throwingFunction(
+  /**
+   * Factory method for throwing function.
+   *
+   * @param fn Throwing function.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @param <V3> Type 3.
+   * @param <V4> Type 4.
+   * @param <V5> Type 5.
+   * @param <V6> Type 6.
+   * @param <V7> Type 7.
+   * @param <R> Return type.
+   * @return Throwing function.
+   */
+  public static <V1, V2, V3, V4, V5, V6, V7, R> Function7<V1, V2, V3, V4, V5, V6, V7, R> throwingFunction(
       Function7<V1, V2, V3, V4, V5, V6, V7, R> fn) {
     return fn;
   }
 
-  public final static <V1, V2, V3, V4, V5, V6, V7, V8, R> Function8<V1, V2, V3, V4, V5, V6, V7, V8, R> throwingFunction(
+  /**
+   * Factory method for throwing function.
+   *
+   * @param fn Throwing function.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @param <V3> Type 3.
+   * @param <V4> Type 4.
+   * @param <V5> Type 5.
+   * @param <V6> Type 6.
+   * @param <V7> Type 7.
+   * @param <V8> Type 8.
+   * @param <R> Return type.
+   * @return Throwing function.
+   */
+  public static <V1, V2, V3, V4, V5, V6, V7, V8, R> Function8<V1, V2, V3, V4, V5, V6, V7, V8, R> throwingFunction(
       Function8<V1, V2, V3, V4, V5, V6, V7, V8, R> fn) {
     return fn;
   }
 
-  public final static <V> Consumer<V> throwingConsumer(Consumer<V> action) {
+  /**
+   * Factory method for throwing consumer.
+   *
+   * @param action Throwing consumer.
+   * @param <V> Type 1.
+   * @return Throwing consumer.
+   */
+  public static <V> Consumer<V> throwingConsumer(Consumer<V> action) {
     return action;
   }
 
-  public final static <V1, V2> Consumer2<V1, V2> throwingConsumer(Consumer2<V1, V2> action) {
+  /**
+   * Factory method for throwing consumer.
+   *
+   * @param action Throwing consumer.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @return Throwing consumer.
+   */
+  public static <V1, V2> Consumer2<V1, V2> throwingConsumer(Consumer2<V1, V2> action) {
     return action;
   }
 
-  public final static <V1, V2, V3> Consumer3<V1, V2, V3> throwingConsumer(
+  /**
+   * Factory method for throwing consumer.
+   *
+   * @param action Throwing consumer.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @param <V3> Type 3.
+   * @return Throwing consumer.
+   */
+  public static <V1, V2, V3> Consumer3<V1, V2, V3> throwingConsumer(
       Consumer3<V1, V2, V3> action) {
     return action;
   }
 
-  public final static <V1, V2, V3, V4> Consumer4<V1, V2, V3, V4> throwingConsumer(
+  /**
+   * Factory method for throwing consumer.
+   *
+   * @param action Throwing consumer.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @param <V3> Type 3.
+   * @param <V4> Type 4.
+   * @return Throwing consumer.
+   */
+  public static <V1, V2, V3, V4> Consumer4<V1, V2, V3, V4> throwingConsumer(
       Consumer4<V1, V2, V3, V4> action) {
     return action;
   }
 
-  public final static <V1, V2, V3, V4, V5> Consumer5<V1, V2, V3, V4, V5> throwingConsumer(
+  /**
+   * Factory method for throwing consumer.
+   *
+   * @param action Throwing consumer.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @param <V3> Type 3.
+   * @param <V4> Type 4.
+   * @param <V5> Type 5.
+   * @return Throwing consumer.
+   */
+  public static <V1, V2, V3, V4, V5> Consumer5<V1, V2, V3, V4, V5> throwingConsumer(
       Consumer5<V1, V2, V3, V4, V5> action) {
     return action;
   }
 
-  public final static <V1, V2, V3, V4, V5, V6> Consumer6<V1, V2, V3, V4, V5, V6> throwingConsumer(
+  /**
+   * Factory method for throwing consumer.
+   *
+   * @param action Throwing consumer.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @param <V3> Type 3.
+   * @param <V4> Type 4.
+   * @param <V5> Type 5.
+   * @param <V6> Type 6.
+   * @return Throwing consumer.
+   */
+  public static <V1, V2, V3, V4, V5, V6> Consumer6<V1, V2, V3, V4, V5, V6> throwingConsumer(
       Consumer6<V1, V2, V3, V4, V5, V6> action) {
     return action;
   }
 
-  public final static <V1, V2, V3, V4, V5, V6, V7> Consumer7<V1, V2, V3, V4, V5, V6, V7> throwingConsumer(
+  /**
+   * Factory method for throwing consumer.
+   *
+   * @param action Throwing consumer.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @param <V3> Type 3.
+   * @param <V4> Type 4.
+   * @param <V5> Type 5.
+   * @param <V6> Type 6.
+   * @param <V7> Type 7.
+   * @return Throwing consumer.
+   */
+  public static <V1, V2, V3, V4, V5, V6, V7> Consumer7<V1, V2, V3, V4, V5, V6, V7> throwingConsumer(
       Consumer7<V1, V2, V3, V4, V5, V6, V7> action) {
     return action;
   }
 
-  public final static <V1, V2, V3, V4, V5, V6, V7, V8> Consumer8<V1, V2, V3, V4, V5, V6, V7, V8> throwingConsumer(
+  /**
+   * Factory method for throwing consumer.
+   *
+   * @param action Throwing consumer.
+   * @param <V1> Type 1.
+   * @param <V2> Type 2.
+   * @param <V3> Type 3.
+   * @param <V4> Type 4.
+   * @param <V5> Type 5.
+   * @param <V6> Type 6.
+   * @param <V7> Type 7.
+   * @param <V8> Type 8.
+   * @return Throwing consumer.
+   */
+  public static <V1, V2, V3, V4, V5, V6, V7, V8> Consumer8<V1, V2, V3, V4, V5, V6, V7, V8> throwingConsumer(
       Consumer8<V1, V2, V3, V4, V5, V6, V7, V8> action) {
     return action;
   }
@@ -944,10 +1197,10 @@ public final class Throwing {
    *     {@link ThreadDeath}, {@link VirtualMachineError}.
    */
   public static boolean isFatal(Throwable x) {
-    return x instanceof InterruptedException ||
-        x instanceof LinkageError ||
-        x instanceof ThreadDeath ||
-        x instanceof VirtualMachineError;
+    return x instanceof InterruptedException
+        || x instanceof LinkageError
+        || x instanceof ThreadDeath
+        || x instanceof VirtualMachineError;
   }
 
   /**

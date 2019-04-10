@@ -52,7 +52,7 @@ public class UtowContext implements Context, IoCallback {
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
-  private Value.Object headers;
+  private Value.Hash headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private AttributeMap attributes = new AttributeMap();
   Body body;

@@ -20,7 +20,7 @@ public class ValueResolveTest {
 
   @Test
   public void resolveComplexWithoutRoot() {
-    Value value = Value.object(null)
+    Value value = new Value.Hash(null)
         .put("foo.bar", "baz");
     assertEquals("baz", value.resolve("${foo.bar}"));
     assertEquals("-baz-", value.resolve("-${foo.bar}-"));
@@ -28,7 +28,7 @@ public class ValueResolveTest {
 
   @Test
   public void resolveComplex() {
-    Value value = Value.object(null)
+    Value value = new Value.Hash(null)
         .put("firstname", "Pedro")
         .put("lastname", "Picapiedra");
     assertEquals("Hi Pedro Picapiedra!", value.resolve("Hi ${firstname} ${lastname}!"));
@@ -36,7 +36,7 @@ public class ValueResolveTest {
 
   @Test
   public void resolveComplexWithRoot() {
-    Value value = Value.object("foo")
+    Value value = new Value.Hash("foo")
         .put("bar", "baz");
     assertEquals("baz", value.resolve("${foo.bar}"));
     assertEquals("-baz-", value.resolve("-${foo.bar}-"));

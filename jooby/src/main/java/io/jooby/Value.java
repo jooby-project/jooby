@@ -20,14 +20,11 @@ import io.jooby.internal.UrlParser;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoField;
-import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,20 +40,41 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 
+/**
+ * Unified API for HTTP value. This API plays two role:
+ *
+ * - unify access to HTTP values, like query, path, form and header parameter
+ * - works as validation API, because it is able to check for required and type-safe values
+ *
+ * The value API is composed by three types:
+ *
+ * - Single value
+ * - Object value
+ * - Sequence of values (array)
+ *
+ * Single value are can be converted to string, int, boolean, enum like values.
+ * Object value is a key:value structure (like a hash).
+ * Sequence of values are index based structure.
+ *
+ * All these 3 types are modeled into a single Value class. At any time you can treat a value as
+ * 1) single, 2) hash or 3) array of them.
+ *
+ * @since 2.0.0
+ * @author edgar
+ */
 public interface Value extends Iterable<Value> {
 
-  class Array implements Value {
+  class Sequence implements Value {
     private final String name;
 
     private final List<Value> value = new ArrayList<>(5);
 
-    public Array(String name) {
+    public Sequence(String name) {
       this.name = name;
     }
 
@@ -64,13 +82,13 @@ public interface Value extends Iterable<Value> {
       return name;
     }
 
-    public Array add(Value value) {
+    public Sequence add(Value value) {
       this.value.add(value);
       return this;
     }
 
-    public Array add(String value) {
-      return this.add(new Simple(name, value));
+    public Sequence add(String value) {
+      return this.add(new Single(name, value));
     }
 
     @Override public Value get(@Nonnull int index) {
@@ -122,18 +140,18 @@ public interface Value extends Iterable<Value> {
     }
   }
 
-  class Object implements Value {
+  class Hash implements Value {
     private static final Map<String, Value> EMPTY = Collections.emptyMap();
 
     private Map<String, Value> hash = EMPTY;
 
     private final String name;
 
-    protected Object(@Nonnull String name) {
+    protected Hash(String name) {
       this.name = name;
     }
 
-    protected Object() {
+    protected Hash() {
       this.name = null;
     }
 
@@ -141,21 +159,21 @@ public interface Value extends Iterable<Value> {
       return name;
     }
 
-    public Object put(String path, String value) {
+    public Hash put(String path, String value) {
       return put(path, Collections.singletonList(value));
     }
 
-    public Object put(String path, FileUpload upload) {
+    public Hash put(String path, FileUpload upload) {
       put(path, (name, scope) -> {
         Value existing = scope.get(name);
         if (existing == null) {
           scope.put(name, upload);
         } else {
-          Array list;
-          if (existing instanceof Array) {
-            list = (Array) existing;
+          Sequence list;
+          if (existing instanceof Sequence) {
+            list = (Sequence) existing;
           } else {
-            list = new Array(name).add(existing);
+            list = new Sequence(name).add(existing);
             scope.put(name, list);
           }
           list.add(upload);
@@ -164,18 +182,18 @@ public interface Value extends Iterable<Value> {
       return this;
     }
 
-    public Object put(String path, Collection<String> values) {
+    public Hash put(String path, Collection<String> values) {
       put(path, (name, scope) -> {
         for (String value : values) {
           Value existing = scope.get(name);
           if (existing == null) {
-            scope.put(name, new Simple(name, value));
+            scope.put(name, new Single(name, value));
           } else {
-            Array list;
-            if (existing instanceof Array) {
-              list = (Array) existing;
+            Sequence list;
+            if (existing instanceof Sequence) {
+              list = (Sequence) existing;
             } else {
-              list = new Array(name).add(existing);
+              list = new Sequence(name).add(existing);
               scope.put(name, list);
             }
             list.add(value);
@@ -189,7 +207,7 @@ public interface Value extends Iterable<Value> {
       // Locate node:
       int nameStart = 0;
       int nameEnd = path.length();
-      Object target = this;
+      Hash target = this;
       for (int i = nameStart; i < nameEnd; i++) {
         char ch = path.charAt(i);
         if (ch == '.') {
@@ -246,8 +264,8 @@ public interface Value extends Iterable<Value> {
       return hash;
     }
 
-    /*package*/ Object getOrCreateScope(String name) {
-      return (Object) hash().computeIfAbsent(name, Object::new);
+    /*package*/ Hash getOrCreateScope(String name) {
+      return (Hash) hash().computeIfAbsent(name, Hash::new);
     }
 
     public Value get(@Nonnull String name) {
@@ -327,13 +345,13 @@ public interface Value extends Iterable<Value> {
     }
   }
 
-  class Simple implements Value {
+  class Single implements Value {
 
     private final String name;
 
     private final String value;
 
-    public Simple(String name, String value) {
+    public Single(String name, String value) {
       this.name = name;
       this.value = value;
     }
@@ -379,6 +397,11 @@ public interface Value extends Iterable<Value> {
     }
   }
 
+  /**
+   * Convert this value to long (if possible).
+   *
+   * @return Long value.
+   */
   default long longValue() {
     try {
       return Long.parseLong(value());
@@ -387,12 +410,18 @@ public interface Value extends Iterable<Value> {
         LocalDateTime date = LocalDateTime.parse(value(), Context.RFC1123);
         Instant instant = date.toInstant(ZoneOffset.UTC);
         return instant.toEpochMilli();
-      } catch (DateTimeParseException ignored) {
+      } catch (DateTimeParseException expected) {
       }
       throw new Err.TypeMismatch(name(), long.class, x);
     }
   }
 
+  /**
+   * Convert this value to long (if possible) or fallback to given value when missing.
+   *
+   * @param defaultValue Default value.
+   * @return Convert this value to long (if possible) or fallback to given value when missing.
+   */
   default long longValue(long defaultValue) {
     try {
       return longValue();
@@ -401,6 +430,11 @@ public interface Value extends Iterable<Value> {
     }
   }
 
+  /**
+   * Convert this value to int (if possible).
+   *
+   * @return Int value.
+   */
   default int intValue() {
     try {
       return Integer.parseInt(value());
@@ -409,6 +443,12 @@ public interface Value extends Iterable<Value> {
     }
   }
 
+  /**
+   * Convert this value to int (if possible) or fallback to given value when missing.
+   *
+   * @param defaultValue Default value.
+   * @return Convert this value to int (if possible) or fallback to given value when missing.
+   */
   default int intValue(int defaultValue) {
     try {
       return intValue();
@@ -417,6 +457,11 @@ public interface Value extends Iterable<Value> {
     }
   }
 
+  /**
+   * Convert this value to byte (if possible).
+   *
+   * @return Convert this value to byte (if possible).
+   */
   default byte byteValue() {
     try {
       return Byte.parseByte(value());
@@ -425,6 +470,12 @@ public interface Value extends Iterable<Value> {
     }
   }
 
+  /**
+   * Convert this value to byte (if possible) or fallback to given value when missing.
+   *
+   * @param defaultValue Default value.
+   * @return Convert this value to byte (if possible) or fallback to given value when missing.
+   */
   default byte byteValue(byte defaultValue) {
     try {
       return byteValue();
@@ -433,6 +484,11 @@ public interface Value extends Iterable<Value> {
     }
   }
 
+  /**
+   * Convert this value to float (if possible).
+   *
+   * @return Convert this value to float (if possible).
+   */
   default float floatValue() {
     try {
       return Float.parseFloat(value());
@@ -441,6 +497,12 @@ public interface Value extends Iterable<Value> {
     }
   }
 
+  /**
+   * Convert this value to float (if possible) or fallback to given value when missing.
+   *
+   * @param defaultValue Default value.
+   * @return Convert this value to float (if possible) or fallback to given value when missing.
+   */
   default float floatValue(float defaultValue) {
     try {
       return floatValue();
@@ -449,6 +511,11 @@ public interface Value extends Iterable<Value> {
     }
   }
 
+  /**
+   * Convert this value to double (if possible).
+   *
+   * @return Convert this value to double (if possible).
+   */
   default double doubleValue() {
     try {
       return Double.parseDouble(value());
@@ -457,6 +524,12 @@ public interface Value extends Iterable<Value> {
     }
   }
 
+  /**
+   * Convert this value to double (if possible) or fallback to given value when missing.
+   *
+   * @param defaultValue Default value.
+   * @return Convert this value to double (if possible) or fallback to given value when missing.
+   */
   default double doubleValue(double defaultValue) {
     try {
       return doubleValue();
@@ -465,10 +538,21 @@ public interface Value extends Iterable<Value> {
     }
   }
 
+  /**
+   * Convert this value to boolean (if possible).
+   *
+   * @return Convert this value to boolean (if possible).
+   */
   default boolean booleanValue() {
     return Boolean.parseBoolean(value());
   }
 
+  /**
+   * Convert this value to boolean (if possible) or fallback to given value when missing.
+   *
+   * @param defaultValue Default value.
+   * @return Convert this value to boolean (if possible) or fallback to given value when missing.
+   */
   default boolean booleanValue(boolean defaultValue) {
     try {
       return booleanValue();
@@ -477,6 +561,12 @@ public interface Value extends Iterable<Value> {
     }
   }
 
+  /**
+   * Convert this value to String (if possible) or fallback to given value when missing.
+   *
+   * @param defaultValue Default value.
+   * @return Convert this value to String (if possible) or fallback to given value when missing.
+   */
   @Nonnull default String value(@Nonnull String defaultValue) {
     try {
       return value();
@@ -485,62 +575,148 @@ public interface Value extends Iterable<Value> {
     }
   }
 
+  /**
+   * Convert this value to String (if possible) or <code>null</code> when missing.
+   *
+   * @return Convert this value to String (if possible) or <code>null</code> when missing.
+   */
+  @Nonnull default String valueOrNull() {
+    return value((String) null);
+  }
+
+  /**
+   * True if this value is an array/sequence (not single or hash).
+   *
+   * @return True if this value is an array/sequence.
+   */
   default boolean isArray() {
-    return this instanceof Array;
+    return this instanceof Sequence;
   }
 
-  default boolean isSimple() {
-    return this instanceof Simple;
+  /**
+   * True if this is a single value (not a hash or array).
+   *
+   * @return True if this is a single value (not a hash or array).
+   */
+  default boolean isSingle() {
+    return this instanceof Single;
   }
 
+  /**
+   * True if this is a hash/object value (not single or array).
+   *
+   * @return True if this is a hash/object value (not single or array).
+   */
   default boolean isObject() {
-    return this instanceof Object;
+    return this instanceof Hash;
   }
 
+  /**
+   * True if this is a file upload (not single, not array, not hash).
+   *
+   * @return True for file upload.
+   */
   default boolean isUpload() {
     return this instanceof FileUpload;
   }
 
+  /**
+   * True for missing values.
+   *
+   * @return True for missing values.
+   */
   default boolean isMissing() {
     return this instanceof Missing;
   }
 
-  default <T> T value(Throwing.Function<String, T> fn) {
+  /**
+   * Convert value using the given function.
+   *
+   * @param fn Function.
+   * @param <T> Target type.
+   * @return Converted value.
+   */
+  @Nonnull default <T> T value(@Nonnull Throwing.Function<String, T> fn) {
     return fn.apply(value());
   }
 
+  /**
+   * Get string value.
+   *
+   * @return String value.
+   */
   @Nonnull String value();
 
-  default List<String> toList() {
+  /**
+   * Get list of values.
+   *
+   * @return List of values.
+   */
+  @Nonnull default List<String> toList() {
     return Collections.emptyList();
   }
 
-  default Set<String> toSet() {
+  /**
+   * Get set of values.
+   *
+   * @return set of values.
+   */
+  @Nonnull default Set<String> toSet() {
     return Collections.emptySet();
   }
 
-  default <T> List<T> toList(Throwing.Function<String, T> fn) {
-    return toList().stream().map(fn).collect(Collectors.toList());
-  }
-
-  default <T> List<T> toList(Class<T> type) {
+  /**
+   * Get list of the given type.
+   *
+   * @param type Type to convert.
+   * @param <T> Item type.
+   * @return List of items.
+   */
+  @Nonnull default <T> List<T> toList(@Nonnull Class<T> type) {
     return to(Reified.list(type));
   }
 
-  default <T> Set<T> toSet(Throwing.Function<String, T> fn) {
-    return toSet().stream().map(fn).collect(Collectors.toSet());
+  /**
+   * Get set of the given type.
+   *
+   * @param type Type to convert.
+   * @param <T> Item type.
+   * @return Set of items.
+   */
+  @Nonnull default <T> Set<T> toSet(@Nonnull Class<T> type) {
+    return to(Reified.set(type));
   }
 
-  default <T extends Enum<T>> T toEnum(Throwing.Function<String, T> fn) {
+  /**
+   * Convert this value to an Enum.
+   *
+   * @param fn Mapping function.
+   * @param <T> Enum type.
+   * @return Enum.
+   */
+  @Nonnull default <T extends Enum<T>> T toEnum(@Nonnull Throwing.Function<String, T> fn) {
     return toEnum(fn, String::toUpperCase);
   }
 
-  default <T extends Enum<T>> T toEnum(Throwing.Function<String, T> fn,
-      Function<String, String> caseFormatter) {
-    return fn.apply(caseFormatter.apply(value()));
+  /**
+   * Convert this value to an Enum.
+   *
+   * @param fn Mapping function.
+   * @param nameProvider Enum name provider.
+   * @param <T> Enum type.
+   * @return Enum.
+   */
+  @Nonnull default <T extends Enum<T>> T toEnum(@Nonnull Throwing.Function<String, T> fn,
+      @Nonnull Function<String, String> nameProvider) {
+    return fn.apply(nameProvider.apply(value()));
   }
 
-  default Optional<String> toOptional() {
+  /**
+   * Get a value or empty optional.
+   *
+   * @return Value or empty optional.
+   */
+  @Nonnull default Optional<String> toOptional() {
     try {
       return Optional.of(value());
     } catch (Err.Missing x) {
@@ -548,14 +724,20 @@ public interface Value extends Iterable<Value> {
     }
   }
 
-  default <T> Optional<T> toOptional(Throwing.Function<String, T> fn) {
-    return toOptional().flatMap(v -> Optional.ofNullable(fn.apply(v)));
-  }
-
-  default <T> Optional<T> toOptional(Class<T> type) {
+  /**
+   * Get a value or empty optional.
+   *
+   * @return Value or empty optional.
+   */
+  @Nonnull default <T> Optional<T> toOptional(@Nonnull Class<T> type) {
     return to(Reified.optional(type));
   }
 
+  /**
+   * Get a file upload from this value.
+   *
+   * @return A file upload.
+   */
   default FileUpload fileUpload() {
     throw new Err.TypeMismatch(name(), FileUpload.class);
   }
@@ -564,63 +746,182 @@ public interface Value extends Iterable<Value> {
    * Node methods
    * ***********************************************************************************************
    */
+
+  /**
+   * Get a value at the given position.
+   *
+   * @param index Position.
+   * @return A value at the given position.
+   */
   @Nonnull Value get(@Nonnull int index);
 
+  /**
+   * Get a value that matches the given name.
+   *
+   * @param name Field name.
+   * @return Field value.
+   */
   @Nonnull Value get(@Nonnull String name);
 
+  /**
+   * The number of values this one has. For single values size is <code>0</code>.
+   *
+   * @return Number of values. Mainly for array and hash values.
+   */
   default int size() {
     return 0;
   }
 
-  default <T> T to(Class<T> type) {
-    ValueInjector injector = new ValueInjector();
-    return injector.inject(this, type, type);
+  /**
+   * Convert this value to the given type. Support values are single-value, array-value and
+   * object-value. Object-value can be converted to a JavaBean type.
+   *
+   * @param type Type to convert.
+   * @param <T> Element type.
+   * @return Instance of the type.
+   */
+  @Nonnull default <T> T to(@Nonnull Class<T> type) {
+    return new ValueInjector().inject(this, type, type);
   }
 
-  default <T> T to(Type type) {
+  /**
+   * Convert this value to the given type. Support values are single-value, array-value and
+   * object-value. Object-value can be converted to a JavaBean type.
+   *
+   * @param type Type to convert.
+   * @param <T> Element type.
+   * @return Instance of the type.
+   */
+  @Nonnull default <T> T to(@Nonnull Type type) {
     return new ValueInjector().inject(this, type, Reified.rawType(type));
   }
 
-  default <T> T to(Reified<T> type) {
+  /**
+   * Convert this value to the given type. Support values are single-value, array-value and
+   * object-value. Object-value can be converted to a JavaBean type.
+   *
+   * @param type Type to convert.
+   * @param <T> Element type.
+   * @return Instance of the type.
+   */
+  @Nonnull default <T> T to(@Nonnull Reified<T> type) {
     return new ValueInjector().inject(this, type.getType(), type.getRawType());
   }
 
-  default @Override Iterator<Value> iterator() {
+  /**
+   * Value iterator.
+   *
+   * @return Value iterator.
+   */
+  @Nonnull default @Override Iterator<Value> iterator() {
     return Collections.emptyIterator();
   }
 
-  String name();
+  /**
+   * Name of this value or <code>null</code>.
+   *
+   * @return Name of this value or <code>null</code>.
+   */
+  @Nullable String name();
 
-  Map<String, List<String>> toMultimap();
+  /**
+   * Value as multi-value map.
+   *
+   * @return Value as multi-value map.
+   */
+  @Nullable Map<String, List<String>> toMultimap();
 
+  /**
+   * Value as single-value map.
+   *
+   * @return Value as single-value map.
+   */
   default @Nonnull Map<String, String> toMap() {
     Map<String, String> map = new LinkedHashMap<>();
     toMultimap().forEach((k, v) -> map.put(k, v.get(0)));
     return map;
   }
 
-  default String resolve(@Nonnull String text) {
-    return resolve(text, "${", "}");
+  /**
+   * Process the given expression and resolve value references.
+   *
+   * <pre>{@code
+   *   Value value = Value.single("foo", "bar");
+   *
+   *   String output = value.resolve("${foo}");
+   *   System.out.println(output);
+   * }</pre>
+   *
+   * @param expression Text expression.
+   * @return Resolved text.
+   */
+  @Nonnull default String resolve(@Nonnull String expression) {
+    return resolve(expression, "${", "}");
   }
 
-  default String resolve(@Nonnull String text, boolean ignoreMissing) {
-    return resolve(text, "${", "}", ignoreMissing);
+  /**
+   * Process the given expression and resolve value references.
+   *
+   * <pre>{@code
+   *   Value value = Value.single("foo", "bar");
+   *
+   *   String output = value.resolve("${missing}", true);
+   *   System.out.println(output);
+   * }</pre>
+   *
+   * @param expression Text expression.
+   * @param ignoreMissing On missing values, keep the expression as it is.
+   * @return Resolved text.
+   */
+  @Nonnull default String resolve(@Nonnull String expression, boolean ignoreMissing) {
+    return resolve(expression, ignoreMissing, "${", "}");
   }
 
-  default String resolve(@Nonnull String text, @Nonnull String startDelim,
+  /**
+   * Process the given expression and resolve value references.
+   *
+   * <pre>{@code
+   *   Value value = Value.single("foo", "bar");
+   *
+   *   String output = value.resolve("<%missing%>", "<%", "%>");
+   *   System.out.println(output);
+   * }</pre>
+   *
+   * @param expression Text expression.
+   * @param startDelim Start delimiter.
+   * @param endDelim End delimiter.
+   * @return Resolved text.
+   */
+  @Nonnull default String resolve(@Nonnull String expression, @Nonnull String startDelim,
       @Nonnull String endDelim) {
-    return resolve(text, startDelim, endDelim, false);
+    return resolve(expression, false, startDelim, endDelim);
   }
 
-  default String resolve(@Nonnull String text, @Nonnull String startDelim, @Nonnull String endDelim,
-      boolean ignoreMissing) {
-    if (text.length() == 0) {
+  /**
+   * Process the given expression and resolve value references.
+   *
+   * <pre>{@code
+   *   Value value = Value.single("foo", "bar");
+   *
+   *   String output = value.resolve("<%missing%>", "<%", "%>");
+   *   System.out.println(output);
+   * }</pre>
+   *
+   * @param expression Text expression.
+   * @param ignoreMissing On missing values, keep the expression as it is.
+   * @param startDelim Start delimiter.
+   * @param endDelim End delimiter.
+   * @return Resolved text.
+   */
+  @Nonnull default String resolve(@Nonnull String expression, boolean ignoreMissing,
+      @Nonnull String startDelim, @Nonnull String endDelim) {
+    if (expression.length() == 0) {
       return "";
     }
 
     BiFunction<Integer, BiFunction<Integer, Integer, RuntimeException>, RuntimeException> err = (
         start, ex) -> {
-      String snapshot = text.substring(0, start);
+      String snapshot = expression.substring(0, start);
       int line = Math.max(1, (int) snapshot.chars().filter(ch -> ch == '\n').count());
       int column = start - snapshot.lastIndexOf('\n');
       return ex.apply(line, column);
@@ -628,16 +929,16 @@ public interface Value extends Iterable<Value> {
 
     StringBuilder buffer = new StringBuilder();
     int offset = 0;
-    int start = text.indexOf(startDelim);
+    int start = expression.indexOf(startDelim);
     while (start >= 0) {
-      int end = text.indexOf(endDelim, start + startDelim.length());
+      int end = expression.indexOf(endDelim, start + startDelim.length());
       if (end == -1) {
         throw err.apply(start, (line, column) -> new IllegalArgumentException(
             "found '" + startDelim + "' expecting '" + endDelim + "' at " + line + ":"
                 + column));
       }
-      buffer.append(text.substring(offset, start));
-      String key = text.substring(start + startDelim.length(), end);
+      buffer.append(expression.substring(offset, start));
+      String key = expression.substring(start + startDelim.length(), end);
       String value;
       try {
         // seek
@@ -649,7 +950,7 @@ public interface Value extends Iterable<Value> {
         value = src.value();
       } catch (Err.Missing x) {
         if (ignoreMissing) {
-          value = text.substring(start, end + endDelim.length());
+          value = expression.substring(start, end + endDelim.length());
         } else {
           throw err.apply(start, (line, column) -> new NoSuchElementException(
               "Missing " + startDelim + key + endDelim + " at " + line + ":" + column));
@@ -657,13 +958,13 @@ public interface Value extends Iterable<Value> {
       }
       buffer.append(value);
       offset = end + endDelim.length();
-      start = text.indexOf(startDelim, offset);
+      start = expression.indexOf(startDelim, offset);
     }
     if (buffer.length() == 0) {
-      return text;
+      return expression;
     }
-    if (offset < text.length()) {
-      buffer.append(text.substring(offset));
+    if (offset < expression.length()) {
+      buffer.append(expression.substring(offset));
     }
     return buffer.toString();
   }
@@ -672,42 +973,69 @@ public interface Value extends Iterable<Value> {
    * Factory methods
    * ***********************************************************************************************
    */
-  static Value missing(String name) {
+
+  /**
+   * Creates a missing value.
+   *
+   * @param name Name of missing value.
+   * @return Missing value.
+   */
+  static @Nonnull Value missing(@Nonnull String name) {
     return new Missing(name);
   }
 
-  static Value value(String name, String value) {
-    return new Simple(name, value);
+  /**
+   * Creates a single value.
+   *
+   * @param name Name of value.
+   * @param value Value.
+   * @return Single value.
+   */
+  static @Nonnull Value value(@Nonnull String name, @Nonnull String value) {
+    return new Single(name, value);
   }
 
-  static Array array(@Nonnull String name) {
-    return new Array(name);
+  /**
+   * Creates a sequence/array of values.
+   *
+   * @param name Name of array.
+   * @return Array value.
+   */
+  static @Nonnull Value array(@Nonnull String name) {
+    return new Sequence(name);
   }
 
-  static Value create(@Nonnull String name, @Nullable List<String> values) {
+  /**
+   * Creates a value that fits better with the given values.
+   *
+   * - For null/empty values. It produces a missing value.
+   * - For single element (size==1). It produces a single value
+   * - For multi-value elements (size&gt;1). It produces an array value.
+   *
+   * @param name Field name.
+   * @param values Field values.
+   * @return A value.
+   */
+  static @Nonnull Value create(@Nonnull String name, @Nullable List<String> values) {
     if (values == null || values.size() == 0) {
       return missing(name);
     }
     if (values.size() == 1) {
       return value(name, values.get(0));
     }
-    Array array = array(name);
+    Sequence array = new Sequence(name);
     for (String value : values) {
       array.add(value);
     }
     return array;
   }
 
-  static Value.Object object(@Nonnull String name) {
-    return new Object(name);
+  static Hash headers() {
+    return new Hash(null);
   }
 
-  static Value.Object headers() {
-    return new Object(null);
-  }
-
-  static Value.Object path(Map<String, String> params) {
-    Value.Object path = new Object(null);
+  static Hash path(Map<String, String> params) {
+    Hash path = new Hash(null);
     params.forEach(path::put);
     return path;
   }

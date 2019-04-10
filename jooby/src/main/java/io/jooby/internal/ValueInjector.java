@@ -150,7 +150,7 @@ public class ValueInjector {
   private Object resolve(Value scope, Class type)
       throws IllegalAccessException, InvocationTargetException, InstantiationException,
       NoSuchMethodException {
-    if (scope.isObject() || scope.isSimple()) {
+    if (scope.isObject() || scope.isSingle()) {
       return newInstance(type, scope);
     } else if (scope.isMissing()) {
       if (type.isPrimitive()) {
@@ -367,7 +367,7 @@ public class ValueInjector {
       if (scope.size() == 1) {
         // Edge cases when we want to use a list on single value objects:
         Value next = scope.iterator().next();
-        if (next.isSimple() || next.isArray()) {
+        if (next.isSingle() || next.isArray()) {
           values = Collections.singletonList(scope);
         }
       }

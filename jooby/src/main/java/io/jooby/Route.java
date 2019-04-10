@@ -147,8 +147,8 @@ public class Route {
   public interface Handler extends Serializable {
 
     /**
-     * Get the next handler available in the
-     * @return
+     * Get the next handler available in the pipeline or <code>null</code>.
+     * @return Next handler or <code>null</code>.
      */
     default @Nullable Handler next() {
       return null;
@@ -174,6 +174,12 @@ public class Route {
      */
     @Nonnull Object apply(@Nonnull Context ctx) throws Exception;
 
+    /**
+     * Execute this route and catch/renderer any error.
+     *
+     * @param ctx Web context.
+     * @return Success response or exception in case of failure.
+     */
     @Nonnull default Object execute(@Nonnull Context ctx) {
       try {
         return apply(ctx);
@@ -183,15 +189,30 @@ public class Route {
       }
     }
 
-    @Nonnull default Handler then(After next) {
+    /**
+     * Chain this after decorator with next and produces a new decorator.
+     *
+     * @param next Next decorator.
+     * @return A new handler.
+     */
+    @Nonnull default Handler then(@Nonnull After next) {
       return ctx -> next.apply(ctx, apply(ctx));
     }
   }
 
+  /**
+   * Handler for {@link StatusCode#NOT_FOUND} responses.
+   */
   public static final Handler NOT_FOUND = ctx -> ctx.sendError(new Err(StatusCode.NOT_FOUND));
 
+  /**
+   * Handler for {@link StatusCode#METHOD_NOT_ALLOWED} responses.
+   */
   public static final Handler METHOD_NOT_ALLOWED = ctx -> ctx.sendError(new Err(StatusCode.METHOD_NOT_ALLOWED));
 
+  /**
+   * Favicon handler as a silent 404 error.
+   */
   public static final Handler FAVICON = ctx -> ctx.sendStatusCode(StatusCode.NOT_FOUND);
 
   private final Map<String, Parser> parsers;
@@ -212,6 +233,18 @@ public class Route {
 
   private Object handle;
 
+  /**
+   * Creates a new route.
+   *
+   * @param method HTTP method.
+   * @param pattern Path pattern.
+   * @param pathKeys Path keys.
+   * @param returnType Return type.
+   * @param handler Route handler.
+   * @param pipeline Route pipeline.
+   * @param renderer Route renderer.
+   * @param parsers Route parsers.
+   */
   public Route(@Nonnull String method,
       @Nonnull String pattern,
       @Nonnull List<String> pathKeys,
@@ -231,6 +264,17 @@ public class Route {
     this.handle = handler;
   }
 
+  /**
+   * Creates a new route.
+   *
+   * @param method HTTP method.
+   * @param pattern Path pattern.
+   * @param returnType Return type.
+   * @param handler Route handler.
+   * @param pipeline Route pipeline.
+   * @param renderer Route renderer.
+   * @param parsers Route parsers.
+   */
   public Route(@Nonnull String method,
       @Nonnull String pattern,
       @Nonnull Type returnType,
@@ -241,54 +285,120 @@ public class Route {
     this(method, pattern, Router.pathKeys(pattern), returnType, handler, pipeline, renderer, parsers);
   }
 
+  /**
+   * Path pattern.
+   *
+   * @return Path pattern.
+   */
   public @Nonnull String getPattern() {
     return pattern;
   }
 
+  /**
+   * HTTP method.
+   *
+   * @return HTTP method.
+   */
   public  @Nonnull String getMethod() {
     return method;
   }
 
+  /**
+   * Path keys.
+   *
+   * @return Path keys.
+   */
   public @Nonnull List<String> getPathKeys() {
     return pathKeys;
   }
 
+  /**
+   * Route handler.
+   *
+   * @return Route handler.
+   */
   public @Nonnull Handler getHandler() {
     return handler;
   }
 
+  /**
+   * Route pipeline.
+   *
+   * @return Route pipeline.
+   */
   public @Nonnull Handler getPipeline() {
     return pipeline;
   }
 
-  public Object getHandle() {
+  /**
+   * Handler instance which might or might not be the same as {@link #getHandler()}.
+   *
+   * The handle is required to extract correct metadata.
+   *
+   * @return Handle.
+   */
+  public @Nonnull Object getHandle() {
     return handle;
   }
 
+  /**
+   * Set route handle instance, required when handle is different from {@link #getHandler()}.
+   *
+   * @param handle Handle instance.
+   * @return This route.
+   */
   public Route setHandle(@Nonnull Object handle) {
     this.handle = handle;
     return this;
   }
 
+  /**
+   * Set route pipeline. This method is part of public API but isn't intended to be used by public.
+   *
+   * @param pipeline Pipeline.
+   * @return This routes.
+   */
   public @Nonnull Route setPipeline(Route.Handler pipeline) {
     this.pipeline = pipeline;
     return this;
   }
 
+  /**
+   * Route renderer.
+   *
+   * @return Route renderer.
+   */
   public @Nonnull Renderer getRenderer() {
     return renderer;
   }
 
+  /**
+   * Return return type.
+   *
+   * @return Return type.
+   */
   public @Nonnull Type getReturnType() {
     return returnType;
   }
 
+  /**
+   * Set route return type.
+   *
+   * @param returnType Return type.
+   * @return This route.
+   */
   public @Nonnull Route setReturnType(@Nonnull Type returnType) {
     this.returnType = returnType;
     return this;
   }
 
-  public @Nonnull Parser parser(MediaType contentType) {
+  /**
+   * Parser for given media type.
+   *
+   * @param contentType Media type.
+   * @return Parser.
+   */
+  public @Nonnull Parser parser(@Nonnull MediaType contentType) {
     return parsers.getOrDefault(contentType.getValue(), Parser.UNSUPPORTED_MEDIA_TYPE);
   }
 

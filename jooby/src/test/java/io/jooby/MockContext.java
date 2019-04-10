@@ -36,7 +36,7 @@ public class MockContext implements Context {
 
   private String queryString;
 
-  private Value.Object headers = Value.headers();
+  private Value headers = Value.headers();
 
   private Formdata formdata = new Formdata();
 
@@ -113,7 +113,7 @@ public class MockContext implements Context {
     return headers;
   }
 
-  public MockContext setHeaders(Value.Object headers) {
+  public MockContext setHeaders(Value.Hash headers) {
     this.headers = headers;
     return this;
   }

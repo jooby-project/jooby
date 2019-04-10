@@ -15,5 +15,8 @@
  */
 package io.jooby;
 
+/**
+ * Multipart class, mainly for MVC parameter provisioning.
+ */
 public class Multipart extends Formdata {
 }
