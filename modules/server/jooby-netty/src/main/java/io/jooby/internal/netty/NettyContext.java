@@ -78,7 +78,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
   private Formdata form;
   private Multipart multipart;
   private List<FileUpload> files;
-  private HashValue headers;
+  private Value headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private MediaType responseType;
   private Map<String, Object> attributes = new HashMap<>();
@@ -194,12 +194,13 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
 
   @Nonnull @Override public Value headers() {
     if (headers == null) {
-      headers = Value.headers();
+      Map<String, Collection<String>> headerMap = new LinkedHashMap<>();
       HttpHeaders headers = req.headers();
       Set<String> names = headers.names();
       for (String name : names) {
-        this.headers.put(name, headers.getAll(name));
+        headerMap.put(name, headers.getAll(name));
       }
+      this.headers = Value.hash(headerMap);
     }
     return headers;
   }

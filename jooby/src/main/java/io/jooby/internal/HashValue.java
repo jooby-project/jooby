@@ -205,4 +205,11 @@ public class HashValue implements Value {
   @Override public String toString() {
     return hash.toString();
   }
+
+  public HashValue put(Map<String, Collection<String>> headers) {
+    for (Map.Entry<String, Collection<String>> entry : headers.entrySet()) {
+      put(entry.getKey(), entry.getValue());
+    }
+    return this;
+  }
 }

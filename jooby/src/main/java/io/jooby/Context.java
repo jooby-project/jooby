@@ -15,6 +15,7 @@
  */
 package io.jooby;
 
+import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
 import io.jooby.internal.UrlParser;
@@ -188,7 +189,11 @@ public interface Context {
    * @return A value object.
    */
   @Nonnull default Value path() {
-    return Value.path(pathMap());
+    HashValue path = new HashValue(null);
+    for (Map.Entry<String, String> entry : pathMap().entrySet()) {
+      path.put(entry.getKey(), entry.getValue());
+    }
+    return path;
   }
 
   /**

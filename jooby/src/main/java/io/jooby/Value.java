@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -666,10 +667,12 @@ public interface Value extends Iterable<Value> {
    * Creates a sequence/array of values.
    *
    * @param name Name of array.
+   * @param values Field values.
    * @return Array value.
    */
-  static @Nonnull Value array(@Nonnull String name) {
-    return new ArrayValue(name);
+  static @Nonnull Value array(@Nonnull String name, @Nonnull List<String> values) {
+    return new ArrayValue(name)
+        .add(values);
   }
 
   /**
@@ -690,23 +693,32 @@ public interface Value extends Iterable<Value> {
     if (values.size() == 1) {
       return value(name, values.get(0));
     }
-    ArrayValue array = new ArrayValue(name);
-    for (String value : values) {
-      array.add(value);
-    }
-    return array;
+    return new ArrayValue(name)
+        .add(values);
   }
 
-  static HashValue headers() {
-    return new HashValue(null);
+  /**
+   * Create a hash/object value using the map values.
+   *
+   * @param values Map values.
+   * @return A hash/object value.
+   */
+  static @Nonnull Value hash(@Nonnull Map<String, Collection<String>> values) {
+    return new HashValue(null).put(values);
   }
 
-  static HashValue path(Map<String, String> params) {
-    HashValue path = new HashValue(null);
-    params.forEach(path::put);
-    return path;
-  }
-
+  /**
+   * Query string hash value.
+   *
+   * <pre>{@code /path?q=foo&sort=name}</pre>
+   *
+   * Produces:
+   *
+   * <pre>{@code {q: foo, sort: name}}</pre>
+   *
+   * @param queryString Query string.
+   * @return A query string.
+   */
   static QueryString queryString(@Nonnull String queryString) {
     return UrlParser.queryString(queryString);
   }

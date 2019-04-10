@@ -1,6 +1,5 @@
 package io.jooby;
 
-import io.jooby.internal.HashValue;
 import io.jooby.internal.UrlParser;
 import io.netty.buffer.ByteBuf;
 
@@ -18,6 +17,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class MockContext implements Context {
 
   private String queryString;
 
-  private Value headers = Value.headers();
+  private Map<String, Collection<String>> headers = new HashMap<>();
 
   private Formdata formdata = new Formdata();
 
@@ -111,10 +111,10 @@ public class MockContext implements Context {
   }
 
   @Nonnull @Override public Value headers() {
-    return headers;
+    return Value.hash(headers);
   }
 
-  public MockContext setHeaders(HashValue headers) {
+  public MockContext setHeaders(Map<String, Collection<String>> headers) {
     this.headers = headers;
     return this;
   }

@@ -46,6 +46,13 @@ public class ArrayValue implements Value {
     return this;
   }
 
+  public ArrayValue add(List<String> values) {
+    for (String value : values) {
+      add(value);
+    }
+    return this;
+  }
+
   public ArrayValue add(String value) {
     return this.add(new SingleValue(name, value));
   }

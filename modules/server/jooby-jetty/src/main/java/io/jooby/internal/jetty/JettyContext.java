@@ -16,7 +16,6 @@
 package io.jooby.internal.jetty;
 
 import io.jooby.*;
-import io.jooby.internal.HashValue;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
@@ -60,7 +59,7 @@ public class JettyContext implements Callback, Context {
   private Formdata form;
   private Multipart multipart;
   private List<FileUpload> files;
-  private HashValue headers;
+  private Value headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private Map<String, Object> attributes = new HashMap<>();
   private Router router;
@@ -177,15 +176,13 @@ public class JettyContext implements Callback, Context {
 
   @Nonnull @Override public Value headers() {
     if (headers == null) {
-      headers = Value.headers();
       Enumeration<String> names = request.getHeaderNames();
+      Map<String, Collection<String>> headerMap = new LinkedHashMap<>();
       while (names.hasMoreElements()) {
         String name = names.nextElement();
-        Enumeration<String> values = request.getHeaders(name);
-        while (values.hasMoreElements()) {
-          headers.put(name, values.nextElement());
-        }
+        headerMap.put(name, Collections.list(request.getHeaders(name)));
       }
+      headers = Value.hash(headerMap);
     }
     return headers;
   }
