@@ -1,5 +1,6 @@
 package io.jooby;
 
+import io.jooby.internal.HashValue;
 import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
@@ -20,7 +21,7 @@ public class ValueResolveTest {
 
   @Test
   public void resolveComplexWithoutRoot() {
-    Value value = new Value.Hash(null)
+    Value value = new HashValue(null)
         .put("foo.bar", "baz");
     assertEquals("baz", value.resolve("${foo.bar}"));
     assertEquals("-baz-", value.resolve("-${foo.bar}-"));
@@ -28,7 +29,7 @@ public class ValueResolveTest {
 
   @Test
   public void resolveComplex() {
-    Value value = new Value.Hash(null)
+    Value value = new HashValue(null)
         .put("firstname", "Pedro")
         .put("lastname", "Picapiedra");
     assertEquals("Hi Pedro Picapiedra!", value.resolve("Hi ${firstname} ${lastname}!"));
@@ -36,7 +37,7 @@ public class ValueResolveTest {
 
   @Test
   public void resolveComplexWithRoot() {
-    Value value = new Value.Hash("foo")
+    Value value = new HashValue("foo")
         .put("bar", "baz");
     assertEquals("baz", value.resolve("${foo.bar}"));
     assertEquals("-baz-", value.resolve("-${foo.bar}-"));

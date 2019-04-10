@@ -15,6 +15,8 @@
  */
 package io.jooby;
 
+import io.jooby.internal.HashValue;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -23,7 +25,7 @@ import javax.annotation.Nonnull;
  * @author edgar
  * @since 2.0.0
  */
-public class QueryString extends Value.Hash {
+public class QueryString extends HashValue {
   /** Empty query string. */
   public static final QueryString EMPTY = new QueryString("");
 

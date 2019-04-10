@@ -17,6 +17,7 @@ package io.jooby.internal.netty;
 
 import io.jooby.*;
 import io.jooby.FileUpload;
+import io.jooby.internal.HashValue;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -77,7 +78,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
   private Formdata form;
   private Multipart multipart;
   private List<FileUpload> files;
-  private Value.Hash headers;
+  private HashValue headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private MediaType responseType;
   private Map<String, Object> attributes = new HashMap<>();
@@ -447,7 +448,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     return upload;
   }
 
-  private void decodeForm(HttpRequest req, Value.Hash form) {
+  private void decodeForm(HttpRequest req, HashValue form) {
     try {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();

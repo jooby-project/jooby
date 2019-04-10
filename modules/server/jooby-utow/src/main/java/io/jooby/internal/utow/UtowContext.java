@@ -17,6 +17,7 @@ package io.jooby.internal.utow;
 
 import io.jooby.*;
 import io.jooby.ByteRange;
+import io.jooby.internal.HashValue;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
@@ -52,7 +53,7 @@ public class UtowContext implements Context, IoCallback {
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
-  private Value.Hash headers;
+  private HashValue headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private Map<String, Object> attributes = new HashMap<>();
   Body body;

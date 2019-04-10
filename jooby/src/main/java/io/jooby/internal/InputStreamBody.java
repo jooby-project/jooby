@@ -80,7 +80,7 @@ public class InputStreamBody implements Body {
   }
 
   @Nonnull @Override public Value get(@Nonnull String name) {
-    return new Missing(name);
+    return new MissingValue(name);
   }
 
   @Override public String name() {

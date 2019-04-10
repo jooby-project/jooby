@@ -1,5 +1,6 @@
 package io.jooby;
 
+import io.jooby.internal.HashValue;
 import io.jooby.internal.UrlParser;
 import io.netty.buffer.ByteBuf;
 
@@ -113,7 +114,7 @@ public class MockContext implements Context {
     return headers;
   }
 
-  public MockContext setHeaders(Value.Hash headers) {
+  public MockContext setHeaders(HashValue headers) {
     this.headers = headers;
     return this;
   }

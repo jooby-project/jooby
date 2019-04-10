@@ -15,6 +15,8 @@
  */
 package io.jooby;
 
+import io.jooby.internal.MissingValue;
+import io.jooby.internal.SingleValue;
 import io.jooby.internal.UrlParser;
 import io.netty.buffer.ByteBuf;
 
@@ -155,8 +157,8 @@ public interface Context {
   @Nonnull default Value path(@Nonnull String name) {
     String value = pathMap().get(name);
     return value == null
-        ? new Value.Missing(name)
-        : new Value.Single(name, UrlParser.decodePath(value));
+        ? new MissingValue(name)
+        : new SingleValue(name, UrlParser.decodePath(value));
   }
 
   /**

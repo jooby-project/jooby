@@ -16,7 +16,6 @@
 package io.jooby.internal;
 
 import io.jooby.QueryString;
-import io.jooby.Value;
 import io.jooby.Throwing;
 
 import java.nio.ByteBuffer;
@@ -43,7 +42,7 @@ public final class UrlParser {
     return result;
   }
 
-  private static void parse(String source, int start, int length, Value.Hash root) {
+  private static void parse(String source, int start, int length, HashValue root) {
     int nameStart = start;
     int nameEnd = length;
     // %00 size = 3
@@ -68,7 +67,7 @@ public final class UrlParser {
         decoderOutput, decoder);
   }
 
-  private static void newParam(Value.Hash root, String source, int nameStart, int nameEnd,
+  private static void newParam(HashValue root, String source, int nameStart, int nameEnd,
       int valueStart, int valueEnd, StringBuilder decodedBuffer,
       ByteBuffer decoderInput, CharBuffer decoderOutput, CharsetDecoder decoder) {
     if (nameStart < valueEnd) {

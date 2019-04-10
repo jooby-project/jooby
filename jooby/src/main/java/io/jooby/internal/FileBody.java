@@ -20,9 +20,6 @@ import io.jooby.Throwing;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.ReadableByteChannel;
@@ -85,7 +82,7 @@ public class FileBody implements Body {
   }
 
   @Nonnull @Override public Value get(@Nonnull String name) {
-    return new Missing(name);
+    return new MissingValue(name);
   }
 
   @Override public String name() {

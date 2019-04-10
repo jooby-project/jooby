@@ -15,6 +15,10 @@
  */
 package io.jooby;
 
+import io.jooby.internal.ArrayValue;
+import io.jooby.internal.HashValue;
+import io.jooby.internal.MissingValue;
+import io.jooby.internal.SingleValue;
 import io.jooby.internal.ValueInjector;
 import io.jooby.internal.UrlParser;
 
@@ -25,25 +29,16 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import static java.util.Collections.singleton;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
 
 /**
  * Unified API for HTTP value. This API plays two role:
@@ -68,334 +63,6 @@ import static java.util.Collections.singletonMap;
  * @author edgar
  */
 public interface Value extends Iterable<Value> {
-
-  class Sequence implements Value {
-    private final String name;
-
-    private final List<Value> value = new ArrayList<>(5);
-
-    public Sequence(String name) {
-      this.name = name;
-    }
-
-    @Override public String name() {
-      return name;
-    }
-
-    public Sequence add(Value value) {
-      this.value.add(value);
-      return this;
-    }
-
-    public Sequence add(String value) {
-      return this.add(new Single(name, value));
-    }
-
-    @Override public Value get(@Nonnull int index) {
-      try {
-        return value.get(index);
-      } catch (IndexOutOfBoundsException x) {
-        return new Missing(name + "[" + index + "]");
-      }
-    }
-
-    @Override public Value get(@Nonnull String name) {
-      return new Missing(this.name + "." + name);
-    }
-
-    @Override public int size() {
-      return value.size();
-    }
-
-    @Override public String value() {
-      String name = name();
-      throw new Err.TypeMismatch(name == null ? getClass().getSimpleName() : name, String.class);
-    }
-
-    @Override public String toString() {
-      return value.toString();
-    }
-
-    @Override public Iterator<Value> iterator() {
-      return value.iterator();
-    }
-
-    @Override public Map<String, List<String>> toMultimap() {
-      List<String> values = new ArrayList<>();
-      value.stream().forEach(it -> it.toMultimap().values().forEach(values::addAll));
-      return Collections.singletonMap(name, values);
-    }
-
-    @Override public List<String> toList() {
-      return fill(new ArrayList<>());
-    }
-
-    @Override public Set<String> toSet() {
-      return fill(new LinkedHashSet<>());
-    }
-
-    private <C extends Collection<String>> C fill(C values) {
-      value.forEach(v -> values.addAll(v.toList()));
-      return values;
-    }
-  }
-
-  class Hash implements Value {
-    private static final Map<String, Value> EMPTY = Collections.emptyMap();
-
-    private Map<String, Value> hash = EMPTY;
-
-    private final String name;
-
-    protected Hash(String name) {
-      this.name = name;
-    }
-
-    protected Hash() {
-      this.name = null;
-    }
-
-    @Override public String name() {
-      return name;
-    }
-
-    public Hash put(String path, String value) {
-      return put(path, Collections.singletonList(value));
-    }
-
-    public Hash put(String path, FileUpload upload) {
-      put(path, (name, scope) -> {
-        Value existing = scope.get(name);
-        if (existing == null) {
-          scope.put(name, upload);
-        } else {
-          Sequence list;
-          if (existing instanceof Sequence) {
-            list = (Sequence) existing;
-          } else {
-            list = new Sequence(name).add(existing);
-            scope.put(name, list);
-          }
-          list.add(upload);
-        }
-      });
-      return this;
-    }
-
-    public Hash put(String path, Collection<String> values) {
-      put(path, (name, scope) -> {
-        for (String value : values) {
-          Value existing = scope.get(name);
-          if (existing == null) {
-            scope.put(name, new Single(name, value));
-          } else {
-            Sequence list;
-            if (existing instanceof Sequence) {
-              list = (Sequence) existing;
-            } else {
-              list = new Sequence(name).add(existing);
-              scope.put(name, list);
-            }
-            list.add(value);
-          }
-        }
-      });
-      return this;
-    }
-
-    private void put(String path, BiConsumer<String, Map<String, Value>> consumer) {
-      // Locate node:
-      int nameStart = 0;
-      int nameEnd = path.length();
-      Hash target = this;
-      for (int i = nameStart; i < nameEnd; i++) {
-        char ch = path.charAt(i);
-        if (ch == '.') {
-          String name = path.substring(nameStart, i);
-          nameStart = i + 1;
-          target = target.getOrCreateScope(name);
-        } else if (ch == '[') {
-          if (nameStart < i) {
-            String name = path.substring(nameStart, i);
-            target = target.getOrCreateScope(name);
-          }
-          nameStart = i + 1;
-        } else if (ch == ']') {
-          if (i + 1 < nameEnd) {
-            String name = path.substring(nameStart, i);
-            if (isNumber(name)) {
-              target.useIndexes();
-            }
-            nameStart = i + 1;
-            target = target.getOrCreateScope(name);
-          } else {
-            nameEnd = i;
-          }
-        }
-      }
-      String key = path.substring(nameStart, nameEnd);
-      if (isNumber(key)) {
-        target.useIndexes();
-      }
-      // Final node
-      consumer.accept(key, target.hash());
-    }
-
-    private void useIndexes() {
-      TreeMap<String, Value> ordered = new TreeMap<>();
-      ordered.putAll(hash);
-      hash.clear();
-      this.hash = ordered;
-    }
-
-    private boolean isNumber(String value) {
-      for (int i = 0; i < value.length(); i++) {
-        if (!Character.isDigit(value.charAt(i))) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    private Map<String, Value> hash() {
-      if (hash == EMPTY) {
-        hash = new LinkedHashMap<>();
-      }
-      return hash;
-    }
-
-    /*package*/ Hash getOrCreateScope(String name) {
-      return (Hash) hash().computeIfAbsent(name, Hash::new);
-    }
-
-    public Value get(@Nonnull String name) {
-      Value value = hash.get(name);
-      if (value == null) {
-        return new Missing(scope(name));
-      }
-      return value;
-    }
-
-    private String scope(String name) {
-      return this.name == null ? name : this.name + "." + name;
-    }
-
-    @Override public Value get(@Nonnull int index) {
-      return get(Integer.toString(index));
-    }
-
-    public int size() {
-      return hash.size();
-    }
-
-    @Override public String value() {
-      String name = name();
-      throw new Err.TypeMismatch(name == null ? getClass().getSimpleName() : name, String.class);
-    }
-
-    @Override public Iterator<Value> iterator() {
-      return hash.values().iterator();
-    }
-
-    @Override public Map<String, List<String>> toMultimap() {
-      Map<String, List<String>> result = new LinkedHashMap<>(hash.size());
-      Set<Map.Entry<String, Value>> entries = hash.entrySet();
-      String scope = name == null ? "" : name + ".";
-      for (Map.Entry<String, Value> entry : entries) {
-        Value value = entry.getValue();
-        if (!value.isUpload()) {
-          value.toMultimap().forEach((k, v) -> {
-            result.put(scope + k, v);
-          });
-        }
-      }
-      return result;
-    }
-
-    @Override public String toString() {
-      return hash.toString();
-    }
-  }
-
-  class Missing implements Value {
-    private String name;
-
-    public Missing(String name) {
-      this.name = name;
-    }
-
-    @Override public String name() {
-      return name;
-    }
-
-    @Override public Value get(@Nonnull String name) {
-      return this.name.equals(name) ? this : new Missing(this.name + "." + name);
-    }
-
-    @Override public Value get(@Nonnull int index) {
-      return new Missing(this.name + "[" + index + "]");
-    }
-
-    @Override public String value() {
-      throw new Err.Missing(name);
-    }
-
-    @Override public Map<String, List<String>> toMultimap() {
-      return Collections.emptyMap();
-    }
-  }
-
-  class Single implements Value {
-
-    private final String name;
-
-    private final String value;
-
-    public Single(String name, String value) {
-      this.name = name;
-      this.value = value;
-    }
-
-    @Override public String name() {
-      return name;
-    }
-
-    @Override public Value get(@Nonnull int index) {
-      return index == 0 ? this : get(Integer.toString(index));
-    }
-
-    @Override public Value get(@Nonnull String name) {
-      return new Missing(this.name + "." + name);
-    }
-
-    @Override public int size() {
-      return 1;
-    }
-
-    @Override public String value() {
-      return value;
-    }
-
-    @Override public String toString() {
-      return value;
-    }
-
-    @Override public Iterator<Value> iterator() {
-      return Collections.<Value>singletonList(this).iterator();
-    }
-
-    @Override public Map<String, List<String>> toMultimap() {
-      return singletonMap(name, singletonList(value));
-    }
-
-    @Override public List<String> toList() {
-      return singletonList(value);
-    }
-
-    @Override public Set<String> toSet() {
-      return singleton(value);
-    }
-  }
 
   /**
    * Convert this value to long (if possible).
@@ -590,7 +257,7 @@ public interface Value extends Iterable<Value> {
    * @return True if this value is an array/sequence.
    */
   default boolean isArray() {
-    return this instanceof Sequence;
+    return this instanceof ArrayValue;
   }
 
   /**
@@ -599,7 +266,7 @@ public interface Value extends Iterable<Value> {
    * @return True if this is a single value (not a hash or array).
    */
   default boolean isSingle() {
-    return this instanceof Single;
+    return this instanceof SingleValue;
   }
 
   /**
@@ -608,7 +275,7 @@ public interface Value extends Iterable<Value> {
    * @return True if this is a hash/object value (not single or array).
    */
   default boolean isObject() {
-    return this instanceof Hash;
+    return this instanceof HashValue;
   }
 
   /**
@@ -626,7 +293,7 @@ public interface Value extends Iterable<Value> {
    * @return True for missing values.
    */
   default boolean isMissing() {
-    return this instanceof Missing;
+    return this instanceof MissingValue;
   }
 
   /**
@@ -981,7 +648,7 @@ public interface Value extends Iterable<Value> {
    * @return Missing value.
    */
   static @Nonnull Value missing(@Nonnull String name) {
-    return new Missing(name);
+    return new MissingValue(name);
   }
 
   /**
@@ -992,7 +659,7 @@ public interface Value extends Iterable<Value> {
    * @return Single value.
    */
   static @Nonnull Value value(@Nonnull String name, @Nonnull String value) {
-    return new Single(name, value);
+    return new SingleValue(name, value);
   }
 
   /**
@@ -1002,7 +669,7 @@ public interface Value extends Iterable<Value> {
    * @return Array value.
    */
   static @Nonnull Value array(@Nonnull String name) {
-    return new Sequence(name);
+    return new ArrayValue(name);
   }
 
   /**
@@ -1023,19 +690,19 @@ public interface Value extends Iterable<Value> {
     if (values.size() == 1) {
       return value(name, values.get(0));
     }
-    Sequence array = new Sequence(name);
+    ArrayValue array = new ArrayValue(name);
     for (String value : values) {
       array.add(value);
     }
     return array;
   }
 
-  static Hash headers() {
-    return new Hash(null);
+  static HashValue headers() {
+    return new HashValue(null);
   }
 
-  static Hash path(Map<String, String> params) {
-    Hash path = new Hash(null);
+  static HashValue path(Map<String, String> params) {
+    HashValue path = new HashValue(null);
     params.forEach(path::put);
     return path;
   }

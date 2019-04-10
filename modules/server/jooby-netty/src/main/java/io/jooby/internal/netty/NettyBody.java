@@ -18,8 +18,8 @@ package io.jooby.internal.netty;
 import io.jooby.Body;
 import io.jooby.Throwing;
 import io.jooby.Value;
+import io.jooby.internal.MissingValue;
 import io.netty.handler.codec.http.multipart.HttpData;
-import io.netty.handler.codec.http.multipart.MixedAttribute;
 
 import javax.annotation.Nonnull;
 import java.io.ByteArrayInputStream;
@@ -86,7 +86,7 @@ public class NettyBody implements Body {
   }
 
   @Nonnull @Override public Value get(@Nonnull String name) {
-    return new Missing(name);
+    return new MissingValue(name);
   }
 
   @Override public String name() {

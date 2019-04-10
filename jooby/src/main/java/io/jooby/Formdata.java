@@ -15,10 +15,12 @@
  */
 package io.jooby;
 
+import io.jooby.internal.HashValue;
+
 /**
  * Formdata class for direct MVC parameter provisioning.
  *
  * HTTP request must be encoded as {@link MediaType#FORM_URLENCODED}.
  */
-public class Formdata extends Value.Hash {
+public class Formdata extends HashValue {
 }

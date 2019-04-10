@@ -15,6 +15,8 @@
  */
 package io.jooby;
 
+import io.jooby.internal.MissingValue;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -64,7 +66,7 @@ public interface FileUpload extends Value {
   }
 
   @Override default Value get(@Nonnull String name) {
-    return new Missing(name);
+    return new MissingValue(name);
   }
 
   @Override default int size() {
