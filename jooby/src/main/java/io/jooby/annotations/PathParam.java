@@ -33,5 +33,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface PathParam {
+  /**
+   * Path pattern. Default <code>/</code>.
+   *
+   * @return Path pattern. Default <code>/</code>.
+   */
   String value() default "";
 }

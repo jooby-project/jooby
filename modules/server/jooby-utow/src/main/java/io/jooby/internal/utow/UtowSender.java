@@ -32,7 +32,7 @@ public class UtowSender implements Sender {
     this.exchange = exchange;
   }
 
-  @Override public Sender sendBytes(@Nonnull byte[] data, @Nonnull Callback callback) {
+  @Override public Sender write(@Nonnull byte[] data, @Nonnull Callback callback) {
     exchange.getResponseSender().send(ByteBuffer.wrap(data), newIoCallback(ctx, callback));
     return this;
   }

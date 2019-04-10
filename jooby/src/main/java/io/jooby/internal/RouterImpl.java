@@ -375,8 +375,7 @@ public class RouterImpl implements Router {
 
   @Nonnull public Router start(@Nonnull Jooby owner) {
     if (err == null) {
-      err = ErrorHandler.log(owner.getLog(), StatusCode.NOT_FOUND)
-          .then(ErrorHandler.DEFAULT);
+      err = ErrorHandler.DEFAULT;
     }
     ExecutionMode mode = owner.getExecutionMode();
     for (Route route : routes) {

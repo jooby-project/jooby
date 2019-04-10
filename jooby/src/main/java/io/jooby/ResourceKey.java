@@ -37,10 +37,20 @@ public final class ResourceKey<T> {
     this.hashCode = Objects.hash(type, name);
   }
 
+  /**
+   * Resource type.
+   *
+   * @return Resource type.
+   */
   public @Nonnull Class<T> getType() {
     return type;
   }
 
+  /**
+   * Resource name or <code>null</code>.
+   *
+   * @return Resource name or <code>null</code>.
+   */
   public @Nullable String getName() {
     return name;
   }
@@ -64,11 +74,26 @@ public final class ResourceKey<T> {
     return type.getName() + "(" + name + ")";
   }
 
-  public static <T> ResourceKey<T> key(Class<T> type) {
+  /**
+   * Creates a resource key.
+   *
+   * @param type Resource type.
+   * @param <T> Type.
+   * @return A new resource key.
+   */
+  public static @Nonnull  <T> ResourceKey<T> key(@Nonnull Class<T> type) {
     return new ResourceKey<>(type, null);
   }
 
-  public static <T> ResourceKey<T> key(Class<T> type, String name) {
+  /**
+   * Creates a named resource key.
+   *
+   * @param type Resource type.
+   * @param name Resource name.
+   * @param <T> Type.
+   * @return A new resource key.
+   */
+  public static @Nonnull  <T> ResourceKey<T> key(@Nonnull Class<T> type, @Nonnull String name) {
     return new ResourceKey<>(type, name);
   }
 }

@@ -22,6 +22,9 @@ import java.util.Map;
 import static io.jooby.MediaType.ALL;
 import static io.jooby.MediaType.MOST_SPECIFIC;
 
+/**
+ * Utility class for doing content negotiation.
+ */
 public class ContentNegotiation {
 
   Map<MediaType, Throwing.Supplier<Object>> options = new LinkedHashMap<>();

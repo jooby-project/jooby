@@ -26,29 +26,30 @@ import java.util.Set;
 import static io.jooby.MediaType.html;
 import static io.jooby.MediaType.json;
 
+/**
+ * Catch and renderer application errors.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public interface ErrorHandler {
 
-  static ErrorHandler log(Logger log, StatusCode... quiet) {
-    Set<StatusCode> silent = new HashSet<>(Arrays.asList(quiet));
-    return (ctx, cause, statusCode) -> {
-      String msg = new StringBuilder()
-          .append(ctx.getMethod())
-          .append(" ")
-          .append(ctx.pathString())
-          .append(" ")
-          .append(statusCode.value())
-          .append(" ")
-          .append(statusCode.reason())
-          .toString();
-      if (silent.contains(statusCode)) {
-        log.debug(msg, cause);
-      } else {
-        log.error(msg, cause);
-      }
-    };
-  }
-
+  /**
+   * Default error handler with support for content-negotiation. It renders a html error page
+   * or json.
+   */
   ErrorHandler DEFAULT = (ctx, cause, statusCode) -> {
+    String msg = new StringBuilder()
+        .append(ctx.getMethod())
+        .append(" ")
+        .append(ctx.pathString())
+        .append(" ")
+        .append(statusCode.value())
+        .append(" ")
+        .append(statusCode.reason())
+        .toString();
+    ctx.getRouter().getLog().error(msg.toLowerCase(), cause);
+
     new ContentNegotiation()
         .accept(json, () -> {
           String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
@@ -98,6 +99,11 @@ public interface ErrorHandler {
   @Nonnull void apply(@Nonnull Context ctx, @Nonnull Throwable cause,
       @Nonnull StatusCode statusCode);
 
+  /**
+   * Chain this error handler with next and produces a new error handler.
+   * @param next
+   * @return
+   */
   @Nonnull default ErrorHandler then(@Nonnull ErrorHandler next) {
     return (ctx, cause, statusCode) -> {
       apply(ctx, cause, statusCode);

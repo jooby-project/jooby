@@ -36,5 +36,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface HeaderParam {
+
+  /**
+   * Parameter name.
+   *
+   * @return Parameter name.
+   */
   String value() default "";
 }

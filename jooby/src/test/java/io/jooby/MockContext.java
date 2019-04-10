@@ -260,7 +260,7 @@ public class MockContext implements Context {
 
   @Nonnull @Override public Sender responseSender() {
     return new Sender() {
-      @Override public Sender sendBytes(@Nonnull byte[] data, @Nonnull Callback callback) {
+      @Override public Sender write(@Nonnull byte[] data, @Nonnull Callback callback) {
         result = data;
         callback.onComplete(MockContext.this, null);
         return this;

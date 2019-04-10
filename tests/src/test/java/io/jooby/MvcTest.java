@@ -175,10 +175,11 @@ public class MvcTest {
 
       app.mvc(new NullInjection());
 
-      app.error(ErrorHandler.log(app.getLog()).then((ctx, cause, statusCode) -> {
+      app.error((ctx, cause, statusCode) -> {
+        app.getLog().error("{} {}", ctx.getMethod(), ctx.pathString(), cause);
         ctx.setStatusCode(statusCode)
             .sendString(cause.getMessage());
-      }));
+      });
 
     }).ready(client -> {
       client.get("/nonnull", rsp -> {
@@ -210,10 +211,11 @@ public class MvcTest {
 
       app.mvc(new MvcBody());
 
-      app.error(ErrorHandler.log(app.getLog()).then((ctx, cause, statusCode) -> {
+      app.error((ctx, cause, statusCode) -> {
+        app.getLog().error("{} {}", ctx.getMethod(), ctx.pathString(), cause);
         ctx.setStatusCode(statusCode)
             .sendString(cause.getMessage());
-      }));
+      });
 
     }).ready(client -> {
       client.header("Content-Type", "text/plain");

@@ -15,12 +15,26 @@
  */
 package io.jooby;
 
+import javax.annotation.Nonnull;
+
+/**
+ * Query string class for direct MVC parameter provisioning.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class QueryString extends Value.Hash {
+  /** Empty query string. */
   public static final QueryString EMPTY = new QueryString("");
 
   private final String queryString;
 
-  public QueryString(String queryString) {
+  /**
+   * Creates a query string object.
+   *
+   * @param queryString Raw string (no decoded it).
+   */
+  public QueryString(@Nonnull String queryString) {
     this.queryString = queryString;
   }
 

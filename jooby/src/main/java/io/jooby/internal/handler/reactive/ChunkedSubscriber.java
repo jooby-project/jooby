@@ -60,7 +60,7 @@ public class ChunkedSubscriber {
         }
       }
 
-      sender.sendBytes(data, (context, x) -> {
+      sender.write(data, (context, x) -> {
         if (x == null) {
           subscription.request(1);
         } else {
@@ -96,7 +96,7 @@ public class ChunkedSubscriber {
   public void onComplete() {
     if (responseType != null && responseType.isJson()) {
       responseType = null;
-      sender.sendBytes(JSON_RBRACKET, (ctx, x) -> {
+      sender.write(JSON_RBRACKET, (ctx, x) -> {
         if (x != null) {
           onError(x);
         }

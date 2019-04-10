@@ -25,12 +25,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.Arrays.asList;
-
+/**
+ * Utility class that initializes logback or log4j2 logging implementation.
+ *
+ * Initializes the <code>logback.configurationFile</code> system property when a
+ * <code>logback[.env].xml</code> file is found at <code>user.dir/conf</code> directory or
+ * <code>user.dir</code>.
+ *
+ * Initializes the <code>log4j.configurationFile</code> system property when a
+ * <code>log4j[.env].[ext]</code> file is found at <code>user.dir/conf</code> directory or
+ * <code>user.dir</code>. Extension can be one of: <code>.xml</code>, <code>.properties</code>,
+ * <code>.yaml</code> or <code>.json</code>.
+ *
+ * NOTE: This class must be call it before instantiating a logger instance. Otherwise, this setup
+ * is completely ignored.
+ *
+ * @since 2.0.0
+ * @author edgar
+ */
 public final class LogConfigurer {
   private LogConfigurer() {
   }
 
+  /**
+   * Initializes the <code>logback.configurationFile</code> system property when a
+   * <code>logback[.env].xml</code> file is found at <code>user.dir/conf</code> directory or
+   * <code>user.dir</code>.
+   *
+   * Initializes the <code>log4j.configurationFile</code> system property when a
+   * <code>log4j[.env].[ext]</code> file is found at <code>user.dir/conf</code> directory or
+   * <code>user.dir</code>. Extension can be one of: <code>.xml</code>, <code>.properties</code>,
+   * <code>.yaml</code> or <code>.json</code>.
+   *
+   * @param names Actives environment names. Useful for choosing an environment specific logging
+   *     configuration file.
+   */
   public static void configure(@Nonnull List<String> names) {
     String[] keys = {"logback.configurationFile", "log4j.configurationFile"};
     for (String key : keys) {

@@ -6,6 +6,7 @@
 * Review what to do with Result class
 * Review unit test and document it
 * Review integration test and document it.
+* Review content negation and render method and how to use it from MVC
 
 * doc
 * api doc

@@ -109,10 +109,11 @@ class FeaturedKotlinTest {
       Kooby {
         mvc(SuspendMvc())
 
-        error(ErrorHandler.log(getLog()).then { ctx, cause, statusCode ->
+        error { ctx, cause, statusCode ->
+          log.error("{} {}", ctx.method, ctx.pathString(), cause)
           ctx.setStatusCode(statusCode)
               .sendString(cause.message!!)
-        })
+        }
       }
     }.ready { client ->
       client.get("/") { rsp ->

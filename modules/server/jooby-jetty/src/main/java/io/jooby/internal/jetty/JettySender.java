@@ -33,7 +33,7 @@ public class JettySender implements Sender {
     this.sender = sender;
   }
 
-  @Override public Sender sendBytes(@Nonnull byte[] data, @Nonnull Callback callback) {
+  @Override public Sender write(@Nonnull byte[] data, @Nonnull Callback callback) {
     try {
       sender.write(data);
       sender.flush();

@@ -34,7 +34,7 @@ public class NettySender implements Sender {
     this.context = context;
   }
 
-  @Override public Sender sendBytes(@Nonnull byte[] data, @Nonnull Callback callback) {
+  @Override public Sender write(@Nonnull byte[] data, @Nonnull Callback callback) {
     context.writeAndFlush(new DefaultHttpContent(Unpooled.wrappedBuffer(data)))
         .addListener(newChannelFutureListener(ctx, callback));
     return this;
