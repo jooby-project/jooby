@@ -74,7 +74,35 @@ public interface Context {
    *
    * @return Context attributes.
    */
-  @Nonnull AttributeMap getAttributes();
+  @Nonnull Map<String, Object> getAttributes();
+
+  /**
+   * Get an attribute by his key. This is just an utility method around {@link #getAttributes()}.
+   * This method look first in current context and fallback to application attributes.
+   *
+   * @param key Attribute key.
+   * @param <T> Attribute type.
+   * @return Attribute value.
+   */
+  @Nonnull default <T> T attribute(@Nonnull String key) {
+    T attribute = (T) getAttributes().get(key);
+    if (attribute == null) {
+      attribute = getRouter().attribute(key);
+    }
+    return attribute;
+  }
+
+  /**
+   * Set an application attribute.
+   *
+   * @param key Attribute key.
+   * @param value Attribute value.
+   * @return This router.
+   */
+  @Nonnull default Context attribute(@Nonnull String key, Object value) {
+    getAttributes().put(key, value);
+    return this;
+  }
 
   /**
    * Get the HTTP router (usually this represent an instance of {@link Jooby}.

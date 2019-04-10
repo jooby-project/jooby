@@ -90,11 +90,75 @@ public interface Router {
       asList(GET, POST, PUT, DELETE, PATCH, HEAD, CONNECT, OPTIONS, TRACE));
 
   /**
-   * Application attributes.
+   * Mutable map of application attributes.
    *
-   * @return Application attributes.
+   * @return Mutable map of application attributes.
    */
-  @Nonnull AttributeMap getAttributes();
+  @Nonnull Map<String, Object> getAttributes();
+
+  /**
+   * Get an attribute by his key. This is just an utility method around {@link #getAttributes()}.
+   *
+   * @param key Attribute key.
+   * @param <T> Attribute type.
+   * @return Attribute value.
+   */
+  @Nonnull default <T> T attribute(@Nonnull String key) {
+    T attribute = (T) getAttributes().get(key);
+    if (attribute == null) {
+      throw new Err.Missing(key);
+    }
+    return attribute;
+  }
+
+  /**
+   * Set an application attribute.
+   *
+   * @param key Attribute key.
+   * @param value Attribute value.
+   * @return This router.
+   */
+  @Nonnull default Router attribute(@Nonnull String key, Object value) {
+    getAttributes().put(key, value);
+    return this;
+  }
+
+  /**
+   * Application resource registry. A resource must be initialized at application startup time
+   * and release it using {@link Jooby#onStop(AutoCloseable)} (if need it).
+   *
+   * @return Resource registry.
+   */
+  @Nonnull Map<ResourceKey, Object> getResources();
+
+  /**
+   * Get a resource under this key or throws a {@link IllegalStateException} exception.
+   *
+   * @param key Attribute key.
+   * @param <T> Attribute type.
+   * @return Attribute value.
+   * @throws IllegalStateException If there is no resource under this key.
+   */
+  default @Nonnull <T> T resource(@Nonnull ResourceKey<T> key) throws IllegalStateException {
+    Object resource = getResources().get(key);
+    if (resource == null) {
+      throw new IllegalStateException("Resource not found: " + key);
+    }
+    return (T) resource;
+  }
+
+  /**
+   * Put an application resource.
+   *
+   * @param key Resource key.
+   * @param resource Resource value.
+   * @param <R> Resource type.
+   * @return This router.
+   */
+  default @Nonnull <R> Router resource(@Nonnull ResourceKey<R> key, @Nonnull R resource) {
+    getResources().put(key, resource);
+    return this;
+  }
 
   /**
    * Set application context path. Context path is the base path for all routes. Default is:

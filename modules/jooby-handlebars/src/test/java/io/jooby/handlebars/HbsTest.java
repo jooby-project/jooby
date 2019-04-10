@@ -1,6 +1,5 @@
 package io.jooby.handlebars;
 
-import io.jooby.AttributeKey;
 import io.jooby.MockContext;
 import io.jooby.ModelAndView;
 import org.junit.jupiter.api.Test;
@@ -30,9 +29,8 @@ public class HbsTest {
   @Test
   public void render() throws Exception {
     Hbs engine = Hbs.builder().build();
-    AttributeKey<String> local = new AttributeKey<>(String.class, "local");
     MockContext ctx = new MockContext();
-    ctx.getAttributes().put(local, "var");
+    ctx.getAttributes().put("local", "var");
     String output = engine
         .apply(ctx, new ModelAndView("index.hbs")
             .put("user", new User("foo", "bar"))

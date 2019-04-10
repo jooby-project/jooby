@@ -20,8 +20,7 @@ import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigValueType;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.jooby.AttributeKey;
-import io.jooby.AttributeMap;
+import io.jooby.ResourceKey;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -160,7 +159,7 @@ public class Hikari implements Extension {
   private static final Set<String> SKIP_TOKENS = Stream.of("jdbc", "jtds")
       .collect(Collectors.toSet());
 
-  public static final AttributeKey<DataSource> KEY = new AttributeKey<>(DataSource.class);
+  public static final ResourceKey<DataSource> KEY = ResourceKey.key(DataSource.class);
 
   private HikariConfig hikari;
 
@@ -184,13 +183,14 @@ public class Hikari implements Extension {
       hikari = builder().build(application.getEnvironment(), database);
     }
     HikariDataSource dataSource = new HikariDataSource(hikari);
-    AttributeMap attributes = application.getAttributes();
-    AttributeKey<DataSource> key = new AttributeKey<>(DataSource.class, database);
+
+    Map<ResourceKey, Object> resources = application.getResources();
+    ResourceKey<DataSource> key = ResourceKey.key(DataSource.class, database);
     /** Global default database: */
-    attributes.putIfAbsent(KEY, dataSource);
+    resources.putIfAbsent(KEY, dataSource);
 
     /** Specific access: */
-    attributes.put(key, dataSource);
+    resources.put(key, dataSource);
 
     application.onStop(dataSource::close);
   }

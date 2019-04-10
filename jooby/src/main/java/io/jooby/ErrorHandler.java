@@ -25,7 +25,6 @@ import java.util.Set;
 
 import static io.jooby.MediaType.html;
 import static io.jooby.MediaType.json;
-import static java.lang.String.format;
 
 public interface ErrorHandler {
 

@@ -50,7 +50,7 @@ public class MockContext implements Context {
 
   private Map<String, Object> responseHeaders = new HashMap<>();
 
-  private AttributeMap attributes = new AttributeMap();
+  private Map<String, Object> attributes = new HashMap<>();
 
   private long length;
   private MediaType responseType;
@@ -183,7 +183,7 @@ public class MockContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public AttributeMap getAttributes() {
+  @Nonnull @Override public Map<String, Object> getAttributes() {
     return attributes;
   }
 

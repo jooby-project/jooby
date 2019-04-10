@@ -15,7 +15,6 @@
  */
 package io.jooby.internal;
 
-import io.jooby.AttributeMap;
 import io.jooby.ErrorHandler;
 import io.jooby.Jooby;
 import io.jooby.Context;
@@ -24,6 +23,7 @@ import io.jooby.ExecutionMode;
 import io.jooby.MediaType;
 import io.jooby.Parser;
 import io.jooby.Renderer;
+import io.jooby.ResourceKey;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.RouterOptions;
@@ -41,13 +41,11 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -140,9 +138,11 @@ public class RouterImpl implements Router {
 
   private Map<String, Parser> parsers = new HashMap<>();
 
-  private AttributeMap attributes = new AttributeMap(new ConcurrentHashMap<>());
+  private Map<String, Object> attributes = new ConcurrentHashMap<>();
 
   private List<ResponseHandler> handlers = new ArrayList<>();
+
+  private Map<ResourceKey, Object> resources = new HashMap<>();
 
   private MvcAnnotation mvcAnnotations;
 
@@ -160,7 +160,7 @@ public class RouterImpl implements Router {
     parsers.put(MediaType.text.getValue(), Parser.RAW);
   }
 
-  @Nonnull @Override public AttributeMap getAttributes() {
+  @Nonnull @Override public Map<String, Object> getAttributes() {
     return attributes;
   }
 
@@ -400,6 +400,8 @@ public class RouterImpl implements Router {
     routeExecutor = null;
     source.destroy();
     source = null;
+    resources.clear();
+    resources = null;
     return this;
   }
 
@@ -470,6 +472,10 @@ public class RouterImpl implements Router {
   @Nonnull @Override public Router responseHandler(ResponseHandler handler) {
     handlers.add(handler);
     return this;
+  }
+
+  @Nonnull @Override public Map<ResourceKey, Object> getResources() {
+    return resources;
   }
 
   @Override public String toString() {

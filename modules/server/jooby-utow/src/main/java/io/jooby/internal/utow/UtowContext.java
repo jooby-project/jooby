@@ -54,7 +54,7 @@ public class UtowContext implements Context, IoCallback {
   private Multipart multipart;
   private Value.Hash headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
-  private AttributeMap attributes = new AttributeMap();
+  private Map<String, Object> attributes = new HashMap<>();
   Body body;
   private MediaType responseType;
 
@@ -71,7 +71,7 @@ public class UtowContext implements Context, IoCallback {
     return body == null ? Body.empty() : body;
   }
 
-  @Nonnull @Override public AttributeMap getAttributes() {
+  @Nonnull @Override public Map<String, Object> getAttributes() {
     return attributes;
   }
 

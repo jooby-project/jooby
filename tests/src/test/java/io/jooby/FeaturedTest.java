@@ -616,13 +616,12 @@ public class FeaturedTest {
 
   @Test
   public void filter() {
-    AttributeKey<StringBuilder> BUFF = new AttributeKey<>(StringBuilder.class);
     new JoobyRunner(app -> {
 
       app.before(ctx -> {
         StringBuilder buff = new StringBuilder();
         buff.append("before1:" + ctx.isInIoThread()).append(";");
-        ctx.getAttributes().put(BUFF, buff);
+        ctx.attribute("buff", buff);
       });
 
       app.after((ctx, value) -> {
@@ -633,12 +632,12 @@ public class FeaturedTest {
 
       app.dispatch(() -> {
         app.before(ctx -> {
-          StringBuilder buff = ctx.getAttributes().get(BUFF);
+          StringBuilder buff = ctx.attribute("buff");
           buff.append("before2:" + ctx.isInIoThread()).append(";");
         });
 
         app.after((ctx, value) -> {
-          StringBuilder buff = ctx.getAttributes().get(BUFF);
+          StringBuilder buff = ctx.attribute("buff");
           buff.append(value).append(";");
           buff.append("after2:" + ctx.isInIoThread()).append(";");
           return buff;

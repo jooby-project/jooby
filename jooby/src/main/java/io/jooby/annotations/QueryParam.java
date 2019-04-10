@@ -20,6 +20,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Allow access to query parameter from MVC route method.
+ *
+ * <pre>{@code
+ *  public String search(&#64;QueryParam String q) {
+ *    ...
+ *  }
+ * }</pre>
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface QueryParam {

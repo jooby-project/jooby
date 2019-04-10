@@ -164,7 +164,9 @@
     <!-- <module name="HiddenField"/> -->
     <module name="IllegalInstantiation"/>
     <module name="InnerAssignment"/>
-    <module name="MagicNumber"/>
+    <module name="MagicNumber">
+      <property name="ignoreNumbers" value="-1, 0, 1, 2, 3, 4, 5" />
+    </module>
     <module name="MissingSwitchDefault"/>
     <module name="SimplifyBooleanExpression"/>
     <module name="SimplifyBooleanReturn"/>

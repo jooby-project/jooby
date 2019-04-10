@@ -15,6 +15,8 @@
  */
 package io.jooby;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
@@ -22,56 +24,138 @@ import java.lang.reflect.Type;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 
+/**
+ * Runtime exception with status code.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class Err extends RuntimeException {
 
+  /**
+   * Specific exception for bad request.
+   *
+   * @since 2.0.0
+   * @author edgar
+   */
   public static class BadRequest extends Err {
-    public BadRequest(String message) {
+
+    /**
+     * Creates a bad request exception.
+     *
+     * @param message Message.
+     */
+    public BadRequest(@Nonnull String message) {
       super(StatusCode.BAD_REQUEST, message);
     }
 
-    public BadRequest(String message, Throwable cause) {
+    /**
+     * Creates a bad request exception.
+     *
+     * @param message Message.
+     * @param cause Throwable.
+     */
+    public BadRequest(@Nonnull String message, @Nonnull Throwable cause) {
       super(StatusCode.BAD_REQUEST, message, cause);
     }
   }
 
+  /**
+   * Type mismatch exception. Used when a value can't be converted to the required type.
+   *
+   * @since 2.0.0
+   * @author edgar
+   */
   public static class TypeMismatch extends BadRequest {
-    private final String parameter;
+    private final String name;
 
-    public TypeMismatch(String name, Type type, Throwable cause) {
+    /**
+     * Creates a type mismatch error.
+     *
+     * @param name Parameter/attribute name.
+     * @param type Parameter/attribute type.
+     * @param cause Cause.
+     */
+    public TypeMismatch(@Nonnull String name, @Nonnull Type type, @Nonnull Throwable cause) {
       super("Cannot convert value: '" + name + "', to: '" + type.getTypeName() + "'", cause);
-      this.parameter = name;
+      this.name = name;
     }
 
-    public TypeMismatch(String name, Type type) {
+    /**
+     * Creates a type mismatch error.
+     *
+     * @param name Parameter/attribute name.
+     * @param type Parameter/attribute type.
+     */
+    public TypeMismatch(@Nonnull String name, @Nonnull Type type) {
       this(name, type, null);
     }
 
-    public String getParameter() {
-      return parameter;
+    /**
+     * Parameter/attribute name.
+     *
+     * @return Parameter/attribute name.
+     */
+    public @Nonnull String getName() {
+      return name;
     }
   }
 
+  /**
+   * Missing exception. Used when a required attribute is missing.
+   *
+   * @since 2.0.0
+   * @author edgar
+   */
   public static class Missing extends BadRequest {
-    private final String parameter;
+    private final String name;
 
-    public Missing(String name) {
+    /**
+     * Creates a missing exception.
+     *
+     * @param name Parameter/attribute name.
+     */
+    public Missing(@Nonnull String name) {
       super("Missing value: '" + name + "'");
-      this.parameter = name;
+      this.name = name;
     }
 
-    public String getParameter() {
-      return parameter;
+    /**
+     * Parameter/attribute name.
+     *
+     * @return Parameter/attribute name.
+     */
+    public String getName() {
+      return name;
     }
   }
 
+  /**
+   * Provisioning exception, throws by MVC routes when parameter binding fails.
+   *
+   * @since 2.0.0
+   * @author edgar
+   */
   public static class Provisioning extends BadRequest {
 
-    public Provisioning(Parameter parameter, Throwable cause) {
+    /**
+     * Creates a provisioning exception.
+     *
+     * @param parameter Failing parameter.
+     * @param cause Cause.
+     */
+    public Provisioning(@Nonnull Parameter parameter, @Nonnull Throwable cause) {
       this("Unable to provision parameter: '" + toString(parameter) + "', require by: " + toString(
           parameter.getDeclaringExecutable()), cause);
     }
 
-    public Provisioning(String message, Throwable cause) {
+    /**
+     * Creates a provisioning exception.
+     *
+     * @param message Error message.
+     * @param cause Cause.
+     */
+    public Provisioning(@Nonnull String message, @Nonnull Throwable cause) {
       super(message, cause);
     }
 
@@ -101,20 +185,43 @@ public class Err extends RuntimeException {
 
   private final StatusCode statusCode;
 
-  public Err(StatusCode status) {
-    this(status, status.toString());
+  /**
+   * Creates an error with the given status code.
+   *
+   * @param statusCode Status code.
+   */
+  public Err(@Nonnull StatusCode statusCode) {
+    this(statusCode, statusCode.toString());
   }
 
-  public Err(StatusCode status, String message) {
-    this(status, message, null);
+  /**
+   * Creates an error with the given status code.
+   *
+   * @param statusCode Status code.
+   * @param message Error message.
+   */
+  public Err(@Nonnull StatusCode statusCode, @Nonnull String message) {
+    this(statusCode, message, null);
   }
 
-  public Err(StatusCode status, String message, Throwable cause) {
+  /**
+   * Creates an error with the given status code.
+   *
+   * @param statusCode Status code.
+   * @param message Error message.
+   * @param cause Cause.
+   */
+  public Err(@Nonnull StatusCode statusCode, @Nonnull String message, @Nullable Throwable cause) {
     super(message, cause);
-    this.statusCode = status;
+    this.statusCode = statusCode;
   }
 
-  public StatusCode getStatusCode() {
+  /**
+   * Status code.
+   *
+   * @return Status code.
+   */
+  public @Nonnull StatusCode getStatusCode() {
     return statusCode;
   }
 }

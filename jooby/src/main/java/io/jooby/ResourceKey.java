@@ -19,53 +19,56 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public class AttributeKey<T> {
-
+/**
+ * Utility class which creates a String key from type and optionally a name.
+ *
+ * @param <T>
+ */
+public final class ResourceKey<T> {
   private final Class<T> type;
-  private final String name;
+
   private final int hashCode;
 
-  public AttributeKey(@Nonnull Class<T> type, @Nonnull String name) {
+  private final String name;
+
+  private ResourceKey(Class<T> type, String name) {
     this.type = type;
     this.name = name;
-    this.hashCode = type.hashCode() * 31 + name.hashCode();
-  }
-
-  public AttributeKey(@Nonnull Class<T> type) {
-    this.type = type;
-    this.name = null;
-    this.hashCode = type.hashCode();
-  }
-
-  public @Nullable String getName() {
-    return name;
+    this.hashCode = Objects.hash(type, name);
   }
 
   public @Nonnull Class<T> getType() {
     return type;
   }
 
-  @Override public int hashCode() {
-    return hashCode;
+  public @Nullable String getName() {
+    return name;
   }
 
   @Override public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj instanceof AttributeKey) {
-      AttributeKey that = (AttributeKey) obj;
-      return Objects.equals(name, that.name) && type.equals(that.type);
+    if (obj instanceof ResourceKey) {
+      ResourceKey that = (ResourceKey) obj;
+      return this.type == that.type && Objects.equals(this.name, that.name);
     }
     return false;
   }
 
+  @Override public int hashCode() {
+    return hashCode;
+  }
+
   @Override public String toString() {
-    StringBuilder string = new StringBuilder();
-    string.append(type.getTypeName());
-    if (name != null) {
-      string.append(".").append(name);
+    if (name == null) {
+      return type.getName();
     }
-    return string.toString();
+    return type.getName() + "(" + name + ")";
+  }
+
+  public static <T> ResourceKey<T> key(Class<T> type) {
+    return new ResourceKey<>(type, null);
+  }
+
+  public static <T> ResourceKey<T> key(Class<T> type, String name) {
+    return new ResourceKey<>(type, name);
   }
 }

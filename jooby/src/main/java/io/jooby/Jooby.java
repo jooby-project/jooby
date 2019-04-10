@@ -15,7 +15,6 @@
  */
 package io.jooby;
 
-import io.jooby.internal.RegistryImpl;
 import io.jooby.internal.RouterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.Spliterator;
 import java.util.concurrent.Executor;
@@ -402,16 +400,25 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public AttributeMap getAttributes() {
+  @Nonnull @Override public Map<String, Object> getAttributes() {
     return router.getAttributes();
   }
 
+  @Nonnull @Override public Jooby attribute(@Nonnull String key, Object value) {
+    router.attribute(key, value);
+    return this;
+  }
+
+  @Nonnull @Override public <T> T attribute(@Nonnull String key) {
+    return router.attribute(key);
+  }
+
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
-    return require(new AttributeKey<>(type, name));
+    return checkRegistry().require(type, name);
   }
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type) {
-    return require(new AttributeKey<>(type));
+    return checkRegistry().require(type);
   }
 
   /**
@@ -420,24 +427,30 @@ public class Jooby implements Router, Registry {
    * @param registry Application registry.
    * @return This application.
    */
-  @Nonnull public Jooby registry(@Nonnull Object registry) {
-    this.registry = RegistryImpl.wrap(getClass().getClassLoader(), registry);
+  @Nonnull public Jooby registry(@Nonnull Registry registry) {
+    this.registry = registry;
     return this;
   }
 
-  private <T> T require(AttributeKey<T> key) {
-    AttributeMap attributes = getAttributes();
-    if (attributes.contains(key)) {
-      return attributes.get(key);
+  @Nonnull @Override public Map<ResourceKey, Object> getResources() {
+    return this.router.getResources();
+  }
+
+  @Nonnull @Override public <R> Jooby resource(@Nonnull ResourceKey<R> key, @Nonnull R resource) {
+    this.router.resource(key, resource);
+    return this;
+  }
+
+  @Nonnull @Override public <T> T resource(@Nonnull ResourceKey<T> key)
+      throws IllegalStateException {
+    return this.router.resource(key);
+  }
+
+  private Registry checkRegistry() {
+    if (registry == null) {
+      throw new Usage("No registry");
     }
-    if (registry != null) {
-      String name = key.getName();
-      if (name == null) {
-        return registry.require(key.getType());
-      }
-      return registry.require(key.getType(), name);
-    }
-    throw new NoSuchElementException(key.toString());
+    return registry;
   }
 
   /**

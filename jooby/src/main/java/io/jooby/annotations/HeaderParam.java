@@ -20,6 +20,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Allow access to header value from MVC route method.
+ *
+ * <pre>{@code
+ *  public String header(&#64;HeaderParam String version) {
+ *    ...
+ *  }
+ *
+ *  public String form(&#64;HeaderParam("If-Modified-Since") long ifModifiedSince) {
+ *    ...
+ *  }
+ * }</pre>
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface HeaderParam {

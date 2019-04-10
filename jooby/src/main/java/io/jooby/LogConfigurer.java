@@ -31,7 +31,7 @@ public final class LogConfigurer {
   private LogConfigurer() {
   }
 
-  public static void configure(@Nonnull String... names) {
+  public static void configure(@Nonnull List<String> names) {
     String[] keys = {"logback.configurationFile", "log4j.configurationFile"};
     for (String key : keys) {
       String file = property(key);
@@ -56,11 +56,11 @@ public final class LogConfigurer {
     }
   }
 
-  private static List<Path> logbackFiles(Path basedir, String[] env) {
+  private static List<Path> logbackFiles(Path basedir, List<String> env) {
     return logFile(basedir, env, "logback", ".xml");
   }
 
-  private static List<Path> logFile(Path basedir, String[] names, String name, String ext) {
+  private static List<Path> logFile(Path basedir, List<String> names, String name, String ext) {
     Path confdir = basedir.resolve("conf");
     List<Path> result = new ArrayList<>();
     for (String env : names) {
@@ -74,7 +74,7 @@ public final class LogConfigurer {
     return result;
   }
 
-  private static List<Path> log4jFiles(Path basedir, String[] names) {
+  private static List<Path> log4jFiles(Path basedir, List<String> names) {
     List<Path> result = new ArrayList<>();
     String[] extensions = {".properties", ".xml", ".yaml", ".yml", ".json"};
     for (String extension : extensions) {

@@ -59,7 +59,17 @@ public class Environment {
    * @param actives Active environment names.
    */
   public Environment(@Nonnull Config conf, @Nonnull String... actives) {
-    this.actives = Stream.of(actives)
+    this(conf, Arrays.asList(actives));
+  }
+
+  /**
+   * Creates a new environment.
+   *
+   * @param conf Application configuration.
+   * @param actives Active environment names.
+   */
+  public Environment(@Nonnull Config conf, @Nonnull List<String> actives) {
+    this.actives = actives.stream()
         .map(String::trim)
         .map(String::toLowerCase)
         .collect(Collectors.toList());
@@ -172,7 +182,7 @@ public class Environment {
     Config sys = systemProperties()
         .withFallback(systemEnv());
 
-    String[] actives = options.getActiveNames();
+    List<String> actives = options.getActiveNames();
     String filename = options.getFilename();
     String extension;
     int ext = filename.lastIndexOf('.');
@@ -186,11 +196,11 @@ public class Environment {
     Path userdir = Paths.get(System.getProperty("user.dir"));
     /** Application file: */
     Config application = ConfigFactory.empty();
-    String[] names = new String[actives.length + 1];
-    for (int i = 0; i < actives.length; i++) {
-      names[i] = filename + "." + actives[i].trim().toLowerCase() + extension;
+    String[] names = new String[actives.size() + 1];
+    for (int i = 0; i < actives.size(); i++) {
+      names[i] = filename + "." + actives.get(i).trim().toLowerCase() + extension;
     }
-    names[actives.length] = filename + extension;
+    names[actives.size()] = filename + extension;
     Path fsroot = Paths.get(basedir).toAbsolutePath();
     String[] cproot = basedir.split("/");
     for (String name : names) {

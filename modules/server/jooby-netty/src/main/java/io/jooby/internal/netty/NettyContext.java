@@ -80,7 +80,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
   private Value.Hash headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private MediaType responseType;
-  private AttributeMap attributes = new AttributeMap();
+  private Map<String, Object> attributes = new HashMap<>();
   private long contentLength = -1;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
@@ -101,7 +101,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
    * **********************************************************************************************
    */
 
-  @Nonnull @Override public AttributeMap getAttributes() {
+  @Nonnull @Override public Map<String, Object> getAttributes() {
     return attributes;
   }
 

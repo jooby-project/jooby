@@ -16,7 +16,9 @@
 package io.jooby;
 
 /**
- * Multipart class, mainly for MVC parameter provisioning.
+ * Multipart class for direct MVC parameter provisioning.
+ *
+ * HTTP request must be encoded as {@link MediaType#MULTIPART_FORMDATA}.
  */
 public class Multipart extends Formdata {
 }
