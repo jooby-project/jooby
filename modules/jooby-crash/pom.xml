@@ -87,6 +87,11 @@
       <artifactId>crash.shell</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.crashub</groupId>
+      <artifactId>crash.cli</artifactId>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.jooby</groupId>
