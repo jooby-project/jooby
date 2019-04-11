@@ -156,7 +156,7 @@
   <coveralls-maven-plugin.version>3.1.0</coveralls-maven-plugin.version>
   <depencency-check-maven.version>2.1.1</depencency-check-maven.version>
   <docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
-  <dokka-maven-plugin.version>0.9.13</dokka-maven-plugin.version>
+  <dokka-maven-plugin.version>0.9.18</dokka-maven-plugin.version>
   <duplicate-finder-maven-plugin.version>1.2.1</duplicate-finder-maven-plugin.version>
   <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
   <jacoco-maven-plugin.version>${jacoco.version}</jacoco-maven-plugin.version>
