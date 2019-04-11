@@ -911,7 +911,7 @@
         <version>${gson.version}</version>
       </dependency>
 
-     <!-- yasson - Json-B -->
+      <!-- yasson - Json-B -->
       <dependency>
         <groupId>org.eclipse</groupId>
         <artifactId>yasson</artifactId>
@@ -1642,6 +1642,12 @@
             <artifactId>groovy-all</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.crashub</groupId>
+        <artifactId>crash.cli</artifactId>
+        <version>${crash.version}</version>
       </dependency>
 
       <dependency>
