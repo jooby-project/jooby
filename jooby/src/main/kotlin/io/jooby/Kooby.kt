@@ -206,23 +206,23 @@ open class Kooby constructor() : Jooby() {
     return super.route(method, pattern, handler)
   }
 
-  fun serverOptions(options: ServerOptions.() -> Unit): Kooby {
+  fun serverOptions(configurer: ServerOptions.() -> Unit): Kooby {
     val options = ServerOptions()
-    options(options)
+    configurer(options)
     setServerOptions(options)
     return this
   }
 
-  fun routerOptions(options: RouterOptions.() -> Unit): Kooby {
+  fun routerOptions(configurer: RouterOptions.() -> Unit): Kooby {
     val options = RouterOptions()
-    options(options)
+    configurer(options)
     this.routerOptions = options
     return this
   }
 
-  fun environmentOptions(options: EnvironmentOptions.() -> Unit): Environment {
+  fun environmentOptions(configurer: EnvironmentOptions.() -> Unit): Environment {
     val options = EnvironmentOptions()
-    options(options)
+    configurer(options)
     val env = Environment.loadEnvironment(options)
     environment = env
     return env

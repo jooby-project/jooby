@@ -19,84 +19,84 @@ public class ValueTest {
 
   @Test
   public void simpleQueryString() {
-    queryString("?&foo=bar", queryString -> {
+    queryString("&foo=bar", queryString -> {
       assertEquals("?&foo=bar", queryString.queryString());
       assertEquals("bar", queryString.get("foo").value());
       assertEquals(1, queryString.size());
     });
-    queryString("/path?foo=bar&", queryString -> {
+    queryString("foo=bar&", queryString -> {
       assertEquals("?foo=bar&", queryString.queryString());
       assertEquals("bar", queryString.get("foo").value());
       assertEquals(1, queryString.size());
     });
-    queryString("/path?foo=bar&&", queryString -> {
+    queryString("foo=bar&&", queryString -> {
       assertEquals("?foo=bar&&", queryString.queryString());
       assertEquals("bar", queryString.get("foo").value());
       assertEquals(1, queryString.size());
     });
 
-    queryString("?foo=bar", queryString -> {
+    queryString("foo=bar", queryString -> {
       assertEquals("?foo=bar", queryString.queryString());
       assertEquals("bar", queryString.get("foo").value());
       assertEquals(1, queryString.size());
     });
-    queryString("/path?foo=bar", queryString -> {
+    queryString("foo=bar", queryString -> {
       assertEquals("?foo=bar", queryString.queryString());
       assertEquals("bar", queryString.get("foo").value());
       assertEquals(1, queryString.size());
     });
-    queryString("/path?a=1&b=2", queryString -> {
+    queryString("a=1&b=2", queryString -> {
       assertEquals("?a=1&b=2", queryString.queryString());
       assertEquals(1, queryString.get("a").intValue());
       assertEquals(2, queryString.get("b").intValue());
       assertEquals(2, queryString.size());
     });
-    queryString("/path?a=1&b=2&", queryString -> {
+    queryString("a=1&b=2&", queryString -> {
       assertEquals("?a=1&b=2&", queryString.queryString());
       assertEquals(1, queryString.get("a").intValue());
       assertEquals(2, queryString.get("b").intValue());
       assertEquals(2, queryString.size());
     });
-    queryString("/path?a=1&&b=2&", queryString -> {
+    queryString("a=1&&b=2&", queryString -> {
       assertEquals("?a=1&&b=2&", queryString.queryString());
       assertEquals(1, queryString.get("a").intValue());
       assertEquals(2, queryString.get("b").intValue());
       assertEquals(2, queryString.size());
     });
-    queryString("/path?a=1&a=2", queryString -> {
+    queryString("a=1&a=2", queryString -> {
       assertEquals("?a=1&a=2", queryString.queryString());
       assertEquals(1, queryString.get("a").get(0).intValue());
       assertEquals(2, queryString.get("a").get(1).intValue());
       assertEquals(2, queryString.get("a").size());
       assertEquals(1, queryString.size());
     });
-    queryString("/path?a=1;a=2", queryString -> {
+    queryString("a=1;a=2", queryString -> {
       assertEquals("?a=1;a=2", queryString.queryString());
       assertEquals(1, queryString.get("a").get(0).intValue());
       assertEquals(2, queryString.get("a").get(1).intValue());
       assertEquals(2, queryString.get("a").size());
       assertEquals(1, queryString.size());
     });
-    queryString("/path?a=", queryString -> {
+    queryString("a=", queryString -> {
       assertEquals("?a=", queryString.queryString());
       assertEquals("", queryString.get("a").value());
       assertEquals(1, queryString.size());
     });
-    queryString("/path?a=&", queryString -> {
+    queryString("a=&", queryString -> {
       assertEquals("?a=&", queryString.queryString());
       assertEquals("", queryString.get("a").value());
       assertEquals(1, queryString.size());
     });
-    queryString("/path?a=&&", queryString -> {
+    queryString("a=&&", queryString -> {
       assertEquals("?a=&&", queryString.queryString());
       assertEquals("", queryString.get("a").value());
       assertEquals(1, queryString.size());
     });
-    queryString("/path?", queryString -> {
-      assertEquals("?", queryString.queryString());
+    queryString("", queryString -> {
+      assertEquals("", queryString.queryString());
       assertEquals(0, queryString.size());
     });
-    queryString("/path", queryString -> {
+    queryString(null, queryString -> {
       assertEquals("", queryString.queryString());
       assertEquals(0, queryString.size());
     });
@@ -104,7 +104,7 @@ public class ValueTest {
 
   @Test
   public void dotNotation() {
-    queryString("?user.name=root&user.pwd=pass", queryString -> {
+    queryString("user.name=root&user.pwd=pass", queryString -> {
       assertEquals("?user.name=root&user.pwd=pass", queryString.queryString());
       assertEquals(1, queryString.size());
       assertEquals(2, queryString.get("user").size());
@@ -112,7 +112,7 @@ public class ValueTest {
       assertEquals("pass", queryString.get("user").get("pwd").value());
     });
 
-    queryString("?user[name]=root&user[pwd]=pass", queryString -> {
+    queryString("user[name]=root&user[pwd]=pass", queryString -> {
       assertEquals("?user[name]=root&user[pwd]=pass", queryString.queryString());
       assertEquals(1, queryString.size());
       assertEquals(2, queryString.get("user").size());
@@ -120,7 +120,7 @@ public class ValueTest {
       assertEquals("pass", queryString.get("user").get("pwd").value());
     });
 
-    queryString("?0.name=root&0.pwd=pass", queryString -> {
+    queryString("0.name=root&0.pwd=pass", queryString -> {
       assertEquals("?0.name=root&0.pwd=pass", queryString.queryString());
       assertEquals(1, queryString.size());
       assertEquals(2, queryString.get(0).size());
@@ -129,7 +129,7 @@ public class ValueTest {
     });
 
     queryString(
-        "?user.name=edgar&user.address.street=Street&user.address.number=55&user.type=dev",
+        "user.name=edgar&user.address.street=Street&user.address.number=55&user.type=dev",
         queryString -> {
           assertEquals(
               "?user.name=edgar&user.address.street=Street&user.address.number=55&user.type=dev",
@@ -147,7 +147,7 @@ public class ValueTest {
 
   @Test
   public void bracketNotation() {
-    queryString("?a[b]=1&a[c]=2", queryString -> {
+    queryString("a[b]=1&a[c]=2", queryString -> {
       assertEquals("?a[b]=1&a[c]=2", queryString.queryString());
       assertEquals(1, queryString.size());
       assertEquals(1, queryString.get("a").get("b").intValue());
@@ -155,7 +155,7 @@ public class ValueTest {
     });
 
     queryString(
-        "?username=xyz&address[country][name]=AR&address[line1]=Line1&address[country][city]=BA",
+        "username=xyz&address[country][name]=AR&address[line1]=Line1&address[country][city]=BA",
         queryString -> {
           assertEquals(
               "?username=xyz&address[country][name]=AR&address[line1]=Line1&address[country][city]=BA",
@@ -184,7 +184,7 @@ public class ValueTest {
     assertEquals("1", Value.value("a", "1").value());
     assertEquals("1", Value.value("a", "1").get(0).value());
     assertEquals(1, Value.value("a", "1").size());
-    queryString("?a=1&a=2", queryString -> {
+    queryString("a=1&a=2", queryString -> {
       assertEquals("1", queryString.get("a").get(0).value());
       assertEquals("2", queryString.get("a").get(1).value());
     });
@@ -192,14 +192,14 @@ public class ValueTest {
 
   @Test
   public void valueToMap() {
-    queryString("?foo=bar", queryString -> {
+    queryString("foo=bar", queryString -> {
       assertEquals("{foo=[bar]}", queryString.toMultimap().toString());
     });
-    queryString("?a=1;a=2", queryString -> {
+    queryString("a=1;a=2", queryString -> {
       assertEquals("{a=[1, 2]}", queryString.toMultimap().toString());
     });
     queryString(
-        "?username=xyz&address[country][name]=AR&address[line1]=Line1&address[country][city]=BA",
+        "username=xyz&address[country][name]=AR&address[line1]=Line1&address[country][city]=BA",
         queryString -> {
           assertEquals(
               "{username=[xyz], address.country.name=[AR], address.country.city=[BA], address.line1=[Line1]}",
@@ -217,7 +217,7 @@ public class ValueTest {
   @Test
   public void verifyIllegalAccess() {
     /** Object: */
-    queryString("?foo=bar", queryString -> {
+    queryString("foo=bar", queryString -> {
       assertThrows(Err.BadRequest.class, () -> queryString.value());
       assertThrows(Err.BadRequest.class, () -> queryString.value(""));
       assertThrows(Err.Missing.class, () -> queryString.get("a").get("a").get("a").value());
@@ -228,7 +228,7 @@ public class ValueTest {
     });
 
     /** Array: */
-    queryString("?a=1;a=2", queryString -> {
+    queryString("a=1;a=2", queryString -> {
       assertThrows(Err.BadRequest.class, () -> queryString.get("a").value());
       assertEquals("1", queryString.get("a").get(0).value());
       assertEquals("2", queryString.get("a").get(1).value());
@@ -238,13 +238,13 @@ public class ValueTest {
     });
 
     /** Single Property: */
-    queryString("?foo=bar", queryString -> {
+    queryString("foo=bar", queryString -> {
       assertThrows(Err.Missing.class, () -> queryString.get("foo").get("missing").value());
       assertEquals("bar", queryString.get("foo").get(0).value());
     });
 
     /** Missing Property: */
-    queryString("?", queryString -> {
+    queryString("", queryString -> {
       assertThrows(Err.Missing.class, () -> queryString.get("foo").get("missing").value());
       assertThrows(Err.Missing.class, () -> queryString.get("foo").get(0).value());
     });
@@ -252,22 +252,22 @@ public class ValueTest {
 
   @Test
   public void decode() {
-    queryString("/?name=Pedro%20Picapiedra", queryString -> {
+    queryString("name=Pedro%20Picapiedra", queryString -> {
       assertEquals("Pedro Picapiedra", queryString.get("name").value());
     });
 
-    queryString("/?file=js%2Findex.js", queryString -> {
+    queryString("file=js%2Findex.js", queryString -> {
       assertEquals("js/index.js", queryString.get("file").value());
     });
 
-    queryString("/?25=%20%25", queryString -> {
+    queryString("25=%20%25", queryString -> {
       assertEquals(" %", queryString.get("25").value());
     });
 
-    queryString("/?plus=a+b", queryString -> {
+    queryString("plus=a+b", queryString -> {
       assertEquals("a b", queryString.get("plus").value());
     });
-    queryString("/?tail=a%20%2B", queryString -> {
+    queryString("tail=a%20%2B", queryString -> {
       assertEquals("a +", queryString.get("tail").value());
     });
 
@@ -284,15 +284,15 @@ public class ValueTest {
   @Test
   public void toCollection() {
     /** Array: */
-    queryString("?a=1;a=2;a=1", queryString -> {
+    queryString("a=1;a=2;a=1", queryString -> {
       assertEquals(Arrays.asList("1", "2", "1"), queryString.get("a").toList());
 
       assertEquals(new LinkedHashSet<>(Arrays.asList("1", "2")), queryString.get("a").toSet());
     });
-    queryString("?a=1", queryString -> {
+    queryString("a=1", queryString -> {
       assertEquals(Arrays.asList("1"), queryString.get("a").toList());
     });
-    queryString("?a.b=1;a.b=2", queryString -> {
+    queryString("a.b=1;a.b=2", queryString -> {
       assertEquals(Arrays.asList("1", "2"), queryString.get("a").get("b").toList());
     });
     /** Single: */
@@ -304,9 +304,9 @@ public class ValueTest {
   @Test
   public void toOptional() {
     /** Array: */
-    queryString("?a=1;a=2", queryString -> {
+    queryString("a=1;a=2", queryString -> {
       assertMessage(Err.BadRequest.class, () -> queryString.toOptional(),
-          "Cannot convert value: 'QueryString', to: 'java.lang.String'");
+          "Cannot convert value: 'queryString', to: 'java.lang.String'");
       assertMessage(Err.BadRequest.class, () -> queryString.get("a").toOptional(),
           "Cannot convert value: 'a', to: 'java.lang.String'");
       assertEquals(Optional.of("1"), queryString.get("a").get(0).toOptional());
@@ -321,7 +321,7 @@ public class ValueTest {
   @Test
   public void toEnum() {
     /** Array: */
-    queryString("?e=a&;e=B", queryString -> {
+    queryString("e=a&;e=B", queryString -> {
       assertEquals(Letter.A, queryString.get("e").get(0).toEnum(Letter::valueOf));
       assertEquals(Letter.B, queryString.get("e").get(1).toEnum(Letter::valueOf));
       assertMessage(Err.Missing.class,
@@ -333,9 +333,9 @@ public class ValueTest {
   @Test
   public void verifyExceptionMessage() {
     /** Object: */
-    queryString("?foo=bar", queryString -> {
+    queryString("foo=bar", queryString -> {
       assertMessage(Err.BadRequest.class, () -> queryString.value(),
-          "Cannot convert value: 'QueryString', to: 'java.lang.String'");
+          "Cannot convert value: 'queryString', to: 'java.lang.String'");
       assertMessage(Err.BadRequest.class, () -> queryString.get("foo").intValue(),
           "Cannot convert value: 'foo', to: 'int'");
       assertMessage(Err.BadRequest.class, () -> queryString.get("foo").intValue(0),
@@ -350,7 +350,7 @@ public class ValueTest {
     });
 
     /** Array: */
-    queryString("?a=b;a=c", queryString -> {
+    queryString("a=b;a=c", queryString -> {
       assertMessage(Err.BadRequest.class, () -> queryString.get("a").value(),
           "Cannot convert value: 'a', to: 'java.lang.String'");
       assertMessage(Err.BadRequest.class, () -> queryString.get("a").get(0).longValue(),

@@ -33,15 +33,15 @@ public class MockContext implements Context {
 
   private Map<String, String> pathMap;
 
-  private QueryString query = UrlParser.queryString("?");
+  private QueryString query = QueryString.create("");
 
   private String queryString;
 
   private Map<String, Collection<String>> headers = new HashMap<>();
 
-  private Formdata formdata = new Formdata();
+  private Formdata formdata = Formdata.create();
 
-  private Multipart multipart = new Multipart();
+  private Multipart multipart = Multipart.create();
 
   private Body body;
 

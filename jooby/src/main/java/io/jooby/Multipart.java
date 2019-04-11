@@ -15,10 +15,16 @@
  */
 package io.jooby;
 
+import io.jooby.internal.HashValue;
+
 /**
  * Multipart class for direct MVC parameter provisioning.
  *
  * HTTP request must be encoded as {@link MediaType#MULTIPART_FORMDATA}.
  */
-public class Multipart extends Formdata {
+public interface Multipart extends Formdata {
+
+  static Multipart create() {
+    return new HashValue(null).setObjectType("multipart");
+  }
 }

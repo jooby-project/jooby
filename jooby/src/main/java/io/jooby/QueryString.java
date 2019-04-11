@@ -15,9 +15,10 @@
  */
 package io.jooby;
 
-import io.jooby.internal.HashValue;
+import io.jooby.internal.UrlParser;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Query string class for direct MVC parameter provisioning.
@@ -25,27 +26,28 @@ import javax.annotation.Nonnull;
  * @author edgar
  * @since 2.0.0
  */
-public class QueryString extends HashValue {
-  /** Empty query string. */
-  public static final QueryString EMPTY = new QueryString("");
-
-  private final String queryString;
-
-  /**
-   * Creates a query string object.
-   *
-   * @param queryString Raw string (no decoded it).
-   */
-  public QueryString(@Nonnull String queryString) {
-    this.queryString = queryString;
-  }
+public interface QueryString extends Value {
 
   /**
    * Query string with the leading <code>?</code> or empty string.
    *
    * @return Query string with the leading <code>?</code> or empty string.
    */
-  public String queryString() {
-    return queryString;
+  @Nonnull String queryString();
+
+  /**
+   * Query string hash value.
+   *
+   * <pre>{@code q=foo&sort=name}</pre>
+   *
+   * Produces:
+   *
+   * <pre>{@code {q: foo, sort: name}}</pre>
+   *
+   * @param queryString Query string.
+   * @return A query string.
+   */
+  static @Nonnull QueryString create(@Nullable String queryString) {
+    return UrlParser.queryString(queryString);
   }
 }

@@ -706,20 +706,4 @@ public interface Value extends Iterable<Value> {
   static @Nonnull Value hash(@Nonnull Map<String, Collection<String>> values) {
     return new HashValue(null).put(values);
   }
-
-  /**
-   * Query string hash value.
-   *
-   * <pre>{@code /path?q=foo&sort=name}</pre>
-   *
-   * Produces:
-   *
-   * <pre>{@code {q: foo, sort: name}}</pre>
-   *
-   * @param queryString Query string.
-   * @return A query string.
-   */
-  static QueryString queryString(@Nonnull String queryString) {
-    return UrlParser.queryString(queryString);
-  }
 }

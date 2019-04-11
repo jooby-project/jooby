@@ -26,19 +26,15 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
 
 public final class UrlParser {
+  private static final QueryStringValue NO_QUERY_STRING = new QueryStringValue("");
   private static final char SPACE = 0x20;
 
-  public static QueryString queryString(String path) {
-    if (path == null) {
-      return QueryString.EMPTY;
+  public static QueryString queryString(String queryString) {
+    if (queryString == null || queryString.length() == 0) {
+      return NO_QUERY_STRING;
     }
-    int start = path.indexOf('?');
-    if (start < 0) {
-      return QueryString.EMPTY;
-    }
-    int len = path.length();
-    QueryString result = new QueryString(path.substring(start));
-    parse(path, start + 1, len, result);
+    QueryStringValue result = new QueryStringValue("?" + queryString);
+    parse(queryString, 0, queryString.length(), result);
     return result;
   }
 

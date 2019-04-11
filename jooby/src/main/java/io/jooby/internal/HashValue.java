@@ -17,6 +17,8 @@ package io.jooby.internal;
 
 import io.jooby.Err;
 import io.jooby.FileUpload;
+import io.jooby.Formdata;
+import io.jooby.Multipart;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
@@ -30,12 +32,14 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
-public class HashValue implements Value {
+public class HashValue implements Value, Multipart {
   private static final Map<String, Value> EMPTY = Collections.emptyMap();
 
   private Map<String, Value> hash = EMPTY;
 
   private final String name;
+
+  private String objectType;
 
   public HashValue(String name) {
     this.name = name;
@@ -49,11 +53,11 @@ public class HashValue implements Value {
     return name;
   }
 
-  public HashValue put(String path, String value) {
+  public Formdata put(String path, String value) {
     return put(path, Collections.singletonList(value));
   }
 
-  public HashValue put(String path, FileUpload upload) {
+  public HashValue put(String path, Value upload) {
     put(path, (name, scope) -> {
       Value existing = scope.get(name);
       if (existing == null) {
@@ -180,7 +184,12 @@ public class HashValue implements Value {
 
   @Override public String value() {
     String name = name();
-    throw new Err.TypeMismatch(name == null ? getClass().getSimpleName() : name, String.class);
+    throw new Err.TypeMismatch(name == null ? objectType : name, String.class);
+  }
+
+  public HashValue setObjectType(String type) {
+    this.objectType = type;
+    return this;
   }
 
   @Override public Iterator<Value> iterator() {

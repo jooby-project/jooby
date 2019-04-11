@@ -123,19 +123,14 @@ public class JettyContext implements Callback, Context {
 
   @Nonnull @Override public QueryString query() {
     if (query == null) {
-      String queryString = request.getQueryString();
-      if (queryString == null) {
-        query = QueryString.EMPTY;
-      } else {
-        query = Value.queryString('?' + queryString);
-      }
+      query = QueryString.create(request.getQueryString());
     }
     return query;
   }
 
   @Nonnull @Override public Formdata form() {
     if (form == null) {
-      form = new Formdata();
+      form = Formdata.create();
       formParam(request, form);
     }
     return form;
@@ -143,7 +138,7 @@ public class JettyContext implements Callback, Context {
 
   @Nonnull @Override public Multipart multipart() {
     if (multipart == null) {
-      multipart = new Multipart();
+      multipart = Multipart.create();
       form = multipart;
 
       request.setAttribute(__MULTIPART_CONFIG_ELEMENT,

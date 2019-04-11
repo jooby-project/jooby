@@ -152,14 +152,16 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
 
   @Nonnull @Override public QueryString query() {
     if (query == null) {
-      query = Value.queryString(req.uri());
+      String uri = req.uri();
+      int q = uri.indexOf('?');
+      query = QueryString.create(q >= 0 ? uri.substring(q + 1) : null);
     }
     return query;
   }
 
   @Nonnull @Override public Formdata form() {
     if (form == null) {
-      form = new Formdata();
+      form = Formdata.create();
       decodeForm(req, form);
     }
     return form;
@@ -167,7 +169,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
 
   @Nonnull @Override public Multipart multipart() {
     if (multipart == null) {
-      multipart = new Multipart();
+      multipart = Multipart.create();
       form = multipart;
       decodeForm(req, multipart);
     }
@@ -449,7 +451,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     return upload;
   }
 
-  private void decodeForm(HttpRequest req, HashValue form) {
+  private void decodeForm(HttpRequest req, Formdata form) {
     try {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();

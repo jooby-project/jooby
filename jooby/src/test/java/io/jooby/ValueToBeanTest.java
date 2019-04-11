@@ -317,17 +317,17 @@ public class ValueToBeanTest {
 
   @Test
   public void constructorInjection() {
-    queryString("?name=user&password=pass", queryString -> {
+    queryString("name=user&password=pass", queryString -> {
       assertEquals("user:pass", queryString.to(User.class).toString());
     });
 
-    queryString("?name=user", queryString -> {
+    queryString("name=user", queryString -> {
       assertEquals("user:null", queryString.to(User.class).toString());
 
       assertEquals("user:Optional.empty", queryString.to(UserOpt.class).toString());
     });
 
-    queryString("?name=Sherlock Holmes&age=42&address.street=Baker&address.number=221B",
+    queryString("name=Sherlock Holmes&age=42&address.street=Baker&address.number=221B",
         queryString -> {
           assertEquals("Sherlock Holmes; age: 42; street: 221B Baker",
               queryString.to(Person.class).toString());
@@ -337,113 +337,113 @@ public class ValueToBeanTest {
   @Test
   public void orderOfTabularData() {
     queryString(
-        "?members[1]firstname=A&members[1]lastname=1&members[0]firstname=B&members[0]lastname=2",
+        "members[1]firstname=A&members[1]lastname=1&members[0]firstname=B&members[0]lastname=2",
         queryString -> {
           assertEquals("[B:2, A:1]", queryString.to(Group.class).toString());
         });
-    queryString("?children[1]=1&children[2]=2&children[0]=0", queryString -> {
+    queryString("children[1]=1&children[2]=2&children[0]=0", queryString -> {
       assertEquals("[0, 1, 2]", queryString.to(ListOfStr.class).toString());
     });
   }
 
   @Test
   public void tabularData() {
-    queryString("?members[0][firstname]=Pedro&members[0][lastname]=PicaPiedra", queryString -> {
+    queryString("members[0][firstname]=Pedro&members[0][lastname]=PicaPiedra", queryString -> {
       assertEquals("[Pedro:PicaPiedra]", queryString.to(Group.class).toString());
     });
-    queryString("?[0][firstname]=Pedro&[0][lastname]=PicaPiedra", queryString -> {
+    queryString("[0][firstname]=Pedro&[0][lastname]=PicaPiedra", queryString -> {
       assertEquals("[Pedro:PicaPiedra]", queryString.toList(Member.class).toString());
     });
-    queryString("?name=A&children[0][name]=B", queryString -> {
+    queryString("name=A&children[0][name]=B", queryString -> {
       assertEquals("A[B[]]", queryString.to(Tree.class).toString());
     });
-    queryString("?name=A&children[0][name]=B&children[1][name]=C", queryString -> {
+    queryString("name=A&children[0][name]=B&children[1][name]=C", queryString -> {
       assertEquals("A[B[], C[]]", queryString.to(Tree.class).toString());
     });
   }
 
   @Test
   public void constructorSelection() {
-    queryString("?foo=foo&bar=bar", queryString -> {
+    queryString("foo=foo&bar=bar", queryString -> {
       assertEquals("foo:bar", queryString.to(MultiConstructor.class).toString());
     });
   }
 
   @Test
   public void awfulNames() {
-    queryString("?foo-1=foo&b:0=bar", queryString -> {
+    queryString("foo-1=foo&b:0=bar", queryString -> {
       assertEquals("foo:bar", queryString.to(AwfulNames.class).toString());
     });
   }
 
   @Test
   public void listOfSomething() {
-    queryString("?list=a&list=b", queryString -> {
+    queryString("list=a&list=b", queryString -> {
       assertEquals("[a, b]", queryString.to(ListOfSomething.class).toString());
     });
 
-    queryString("?list=1&list=2", queryString -> {
+    queryString("list=1&list=2", queryString -> {
       assertEquals("1", queryString.to(ListOfOne.class).toString());
       assertEquals("[1, 2]", queryString.to(ListOfTwo.class).toString());
     });
 
     queryString(
-        "?list[0]name=user1&list[0]password=pass1&list[1]name=user2&list[1]password=pass2",
+        "list[0]name=user1&list[0]password=pass1&list[1]name=user2&list[1]password=pass2",
         queryString -> {
           assertEquals("[user1:pass1, user2:pass2]",
               queryString.to(ListOfUser.class).toString());
         });
 
-    queryString("?[0]name=user1&[0]password=pass1&[1]name=user2&[1]password=pass2",
+    queryString("[0]name=user1&[0]password=pass1&[1]name=user2&[1]password=pass2",
         queryString -> {
           assertEquals("[user1:pass1, user2:pass2]",
               queryString.toList(User.class).toString());
         });
 
-    queryString("?[0]=a&[1]=b", queryString -> {
+    queryString("[0]=a&[1]=b", queryString -> {
       assertEquals("[a, b]", queryString.toList(String.class).toString());
     });
   }
 
   @Test
   public void valueOf() {
-    queryString("?letter=A&letter=B", queryString -> {
+    queryString("letter=A&letter=B", queryString -> {
       assertEquals("[A]", queryString.toList(Abc.class).toString());
     });
 
-    queryString("?letter=A", queryString -> {
+    queryString("letter=A", queryString -> {
       assertEquals("A", queryString.to(Abc.class).toString());
       assertEquals("[A]", queryString.toList(Abc.class).toString());
     });
 
-    queryString("?[0]letter=A&[1]letter=B", queryString -> {
+    queryString("[0]letter=A&[1]letter=B", queryString -> {
       assertEquals("[A, B]", queryString.toList(Abc.class).toString());
     });
 
-    queryString("?id=userId", queryString -> {
+    queryString("id=userId", queryString -> {
       assertEquals("valueOf:userId", queryString.to(UserId.class).toString());
     });
-    queryString("?id=userId", queryString -> {
+    queryString("id=userId", queryString -> {
       assertEquals("valueOf:userId", queryString.get("id").to(UserId.class).toString());
     });
   }
 
   @Test
   public void optional() {
-    queryString("?foo=bar", queryString -> {
+    queryString("foo=bar", queryString -> {
       assertEquals("Optional[bar]",
           queryString.get("foo").toOptional(String.class).toString());
     });
 
-    queryString("?", queryString -> {
+    queryString("", queryString -> {
       assertEquals("Optional.empty", queryString.toOptional(User.class).toString());
     });
 
-    queryString("?foo=1&foo=2", queryString -> {
+    queryString("foo=1&foo=2", queryString -> {
       assertEquals("Optional[1]", queryString.get("foo").toOptional(Long.class).toString());
     });
 
-    queryString("?letter=A", queryString -> {
+    queryString("letter=A", queryString -> {
       assertEquals("Optional[A]",
           queryString.get("letter").toOptional(Letter.class).toString());
     });
@@ -451,23 +451,23 @@ public class ValueToBeanTest {
 
   @Test
   public void construnctorAndMixed() {
-    queryString("?level=L1&children[0]level=L2", queryString -> {
+    queryString("level=L1&children[0]level=L2", queryString -> {
       assertEquals("L1:[L2:[]]", queryString.to(Recursive.class).toString());
     });
 
-    queryString("?foo=foo&bar=bar", queryString -> {
+    queryString("foo=foo&bar=bar", queryString -> {
       assertEquals("foo:bar:0:null", queryString.to(Mixed.class).toString());
     });
 
-    queryString("?foo=foo&bar=bar&number=5", queryString -> {
+    queryString("foo=foo&bar=bar&number=5", queryString -> {
       assertEquals("foo:bar:5:null", queryString.to(Mixed.class).toString());
     });
 
-    queryString("?foo=foo&bar=bar&values=v1&values=v2", queryString -> {
+    queryString("foo=foo&bar=bar&values=v1&values=v2", queryString -> {
       assertEquals("foo:bar:0:[v1, v2]", queryString.to(Mixed.class).toString());
     });
 
-    queryString("?id=userId", queryString -> {
+    queryString("id=userId", queryString -> {
       assertEquals("userId", queryString.to(UserCons.class).toString());
     });
   }

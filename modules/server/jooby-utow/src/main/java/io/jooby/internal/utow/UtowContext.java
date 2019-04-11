@@ -138,18 +138,14 @@ public class UtowContext implements Context, IoCallback {
 
   @Nonnull @Override public QueryString query() {
     if (query == null) {
-      String queryString = exchange.getQueryString();
-      if (queryString.length() == 0) {
-        return QueryString.EMPTY;
-      }
-      query = Value.queryString('?' + queryString);
+      query = QueryString.create(exchange.getQueryString());
     }
     return query;
   }
 
   @Nonnull @Override public Formdata form() {
     if (form == null) {
-      form = new Formdata();
+      form = Formdata.create();
       formData(form, exchange.getAttachment(FORM_DATA));
     }
     return form;
@@ -157,7 +153,7 @@ public class UtowContext implements Context, IoCallback {
 
   @Nonnull @Override public Multipart multipart() {
     if (multipart == null) {
-      multipart = new Multipart();
+      multipart = Multipart.create();
       form = multipart;
       formData(multipart, exchange.getAttachment(FORM_DATA));
     }

@@ -17,10 +17,22 @@ package io.jooby;
 
 import io.jooby.internal.HashValue;
 
+import java.util.Collection;
+
 /**
  * Formdata class for direct MVC parameter provisioning.
  *
  * HTTP request must be encoded as {@link MediaType#FORM_URLENCODED}.
  */
-public class Formdata extends HashValue {
+public interface Formdata extends Value {
+
+  Formdata put(String path, Value value);
+
+  Formdata put(String path, String value);
+
+  Formdata put(String path, Collection<String> values);
+
+  static Formdata create() {
+    return new HashValue(null).setObjectType("formdata");
+  }
 }
