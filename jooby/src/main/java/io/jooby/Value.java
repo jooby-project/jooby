@@ -20,7 +20,6 @@ import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
 import io.jooby.internal.ValueInjector;
-import io.jooby.internal.UrlParser;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -395,6 +394,8 @@ public interface Value extends Iterable<Value> {
   /**
    * Get a value or empty optional.
    *
+   * @param type Item type.
+   * @param <T> Item type.
    * @return Value or empty optional.
    */
   @Nonnull default <T> Optional<T> toOptional(@Nonnull Class<T> type) {

@@ -17,14 +17,24 @@ package io.jooby;
 
 import io.jooby.internal.HashValue;
 
+import javax.annotation.Nonnull;
+
 /**
  * Multipart class for direct MVC parameter provisioning.
  *
  * HTTP request must be encoded as {@link MediaType#MULTIPART_FORMDATA}.
+ *
+ * @author edgar
+ * @since 2.0.0
  */
 public interface Multipart extends Formdata {
 
-  static Multipart create() {
+  /**
+   * Creates a new multipart object.
+   *
+   * @return Multipart instance.
+   */
+  static @Nonnull Multipart create() {
     return new HashValue(null).setObjectType("multipart");
   }
 }

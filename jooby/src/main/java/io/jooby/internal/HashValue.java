@@ -16,7 +16,6 @@
 package io.jooby.internal;
 
 import io.jooby.Err;
-import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
 import io.jooby.Value;

@@ -15,13 +15,8 @@
  */
 package io.jooby;
 
-import org.slf4j.Logger;
-
 import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import static io.jooby.MediaType.html;
 import static io.jooby.MediaType.json;
@@ -96,13 +91,21 @@ public interface ErrorHandler {
         }).render(ctx);
   };
 
+  /**
+   * Produces an error response using the given exception and status code.
+   *
+   * @param ctx Web context.
+   * @param cause Application error.
+   * @param statusCode Status code.
+   */
   @Nonnull void apply(@Nonnull Context ctx, @Nonnull Throwable cause,
       @Nonnull StatusCode statusCode);
 
   /**
    * Chain this error handler with next and produces a new error handler.
-   * @param next
-   * @return
+   *
+   * @param next Next error handler.
+   * @return A new error handler.
    */
   @Nonnull default ErrorHandler then(@Nonnull ErrorHandler next) {
     return (ctx, cause, statusCode) -> {
