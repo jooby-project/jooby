@@ -29,8 +29,8 @@ public class ByteRangeInputStream extends FilterInputStream {
 
   public ByteRangeInputStream(@Nonnull InputStream in, ByteRange range) throws IOException {
     super(in);
-    in.skip(range.start);
-    left = range.end;
+    in.skip(range.getStart());
+    left = range.getEnd();
   }
 
   @Override

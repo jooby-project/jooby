@@ -1,108 +1,133 @@
-/**
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Copyright 2014 Edgar Espina
- */
 package io.jooby;
 
 public class ByteRange {
-
   private static final String BYTES_EQ = "bytes=";
 
-  public static final ByteRange NO_RANGE = new ByteRange(-1, -1) {
-    @Override public ByteRange apply(Context ctx, long contentLength) {
-      return new ByteRange(0, contentLength);
-    }
-  };
+  private String value;
 
-  public static final ByteRange NOT_SATISFIABLE = new ByteRange(-1, -1) {
-    @Override public ByteRange apply(Context ctx, long contentLength) {
-      throw new Err(StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE);
-    }
-  };
+  private long start;
 
-  public final long start;
+  private long end;
 
-  public final long end;
+  private long contentLength;
 
-  private ByteRange(long start, long end) {
+  private String contentRange;
+
+  private StatusCode statusCode;
+
+  private ByteRange(String value, long start, long end, long contentLength, String contentRange,
+      StatusCode statusCode) {
+    this.value = value;
     this.start = start;
     this.end = end;
+    this.contentLength = contentLength;
+    this.contentRange = contentRange;
+    this.statusCode = statusCode;
   }
 
-  public ByteRange apply(Context ctx, long contentLength) {
-    long start = this.start;
-    long end = this.end;
-    if (start == -1) {
-      start = contentLength - end;
-      end = contentLength - 1;
-    }
-    if (end == -1 || end > contentLength - 1) {
-      end = contentLength - 1;
-    }
-    if (start > end) {
-      return NOT_SATISFIABLE;
-    }
-    // offset
-    long limit = (end - start + 1);
-    ctx.setHeader("Accept-Ranges", "bytes");
-    ctx.setHeader("Content-Range", "bytes " + start + "-" + end + "/" + contentLength);
-    ctx.setHeader("Content-Length", limit);
-    ctx.setStatusCode(StatusCode.PARTIAL_CONTENT);
-    return new ByteRange(start, limit);
+  public long getStart() {
+    return start;
   }
 
-  public boolean valid() {
-    return this != NO_RANGE && this != NOT_SATISFIABLE;
+  public long getEnd() {
+    return end;
   }
 
-  public static ByteRange parse(String value) {
-    if (value == null) {
-      return NO_RANGE;
+  public long getContentLength() {
+    return contentLength;
+  }
+
+  public String getContentRange() {
+    return contentRange;
+  }
+
+  public StatusCode getStatusCode() {
+    return statusCode;
+  }
+
+  public boolean isPartial() {
+    return statusCode == StatusCode.PARTIAL_CONTENT;
+  }
+
+  public ByteRange apply(Context ctx) {
+    if (statusCode == StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE) {
+      // Is throwing the right choice? Probably better to just send the status code and skip error
+      throw new Err(statusCode, value);
+    } else if (statusCode == StatusCode.PARTIAL_CONTENT) {
+      ctx.setHeader("Accept-Ranges", "bytes");
+      ctx.setHeader("Content-Range", contentRange);
+      ctx.setContentLength(contentLength);
+      ctx.setStatusCode(statusCode);
     }
+    return this;
+  }
+
+  @Override public String toString() {
+    return value;
+  }
+
+  public static ByteRange parse(String value, long contentLength) {
+    if (contentLength <= 0 || value == null) {
+      // NOOP
+      return new ByteRange(value, 0, contentLength, contentLength, "bytes */" + contentLength,
+          StatusCode.OK);
+    }
+
     if (!value.startsWith(BYTES_EQ)) {
-      return NOT_SATISFIABLE;
+      return new ByteRange(value, 0, 0, contentLength, "bytes */" + contentLength,
+          StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE);
     }
+
     try {
       long[] range = {-1, -1};
       int r = 0;
       int len = value.length();
       int i = BYTES_EQ.length();
-      int start = i;
+      int offset = i;
       char ch;
       // Only Single Byte Range Requests:
       while (i < len && (ch = value.charAt(i)) != ',') {
         if (ch == '-') {
-          if (start < i) {
-            range[r] = Long.parseLong(value.substring(start, i).trim());
+          if (offset < i) {
+            range[r] = Long.parseLong(value.substring(offset, i).trim());
           }
-          start = i + 1;
+          offset = i + 1;
           r += 1;
         }
         i += 1;
       }
-      if (start < i) {
+      if (offset < i) {
         if (r == 0) {
-          return NOT_SATISFIABLE;
+          return new ByteRange(value, 0, 0, contentLength, "bytes */" + contentLength,
+              StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE);
         }
-        range[r++] = Long.parseLong(value.substring(start, i).trim());
+        range[r++] = Long.parseLong(value.substring(offset, i).trim());
       }
       if (r == 0 || (range[0] == -1 && range[1] == -1)) {
-        return NOT_SATISFIABLE;
+        return new ByteRange(value, 0, 0, contentLength, "bytes */" + contentLength,
+            StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE);
       }
-      return new ByteRange(range[0], range[1]);
-    } catch (NumberFormatException x) {
-      return NOT_SATISFIABLE;
+
+      long start = range[0];
+      long end = range[1];
+      if (start == -1) {
+        start = contentLength - end;
+        end = contentLength - 1;
+      }
+      if (end == -1 || end > contentLength - 1) {
+        end = contentLength - 1;
+      }
+      if (start > end) {
+        return new ByteRange(value, 0, 0, contentLength, "bytes */" + contentLength,
+            StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE);
+      }
+      // offset
+      long limit = (end - start + 1);
+      return new ByteRange(value, start, limit, limit,
+          "bytes " + start + "-" + end + "/" + contentLength, StatusCode.PARTIAL_CONTENT);
+    } catch (NumberFormatException expected) {
+      return new ByteRange(value, 0, 0, contentLength, "bytes */" + contentLength,
+          StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE);
     }
   }
 }

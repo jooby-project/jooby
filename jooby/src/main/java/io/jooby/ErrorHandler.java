@@ -43,7 +43,7 @@ public interface ErrorHandler {
         .append(" ")
         .append(statusCode.reason())
         .toString();
-    ctx.getRouter().getLog().error(msg.toLowerCase(), cause);
+    ctx.getRouter().getLog().error(msg, cause);
 
     new ContentNegotiation()
         .accept(json, () -> {

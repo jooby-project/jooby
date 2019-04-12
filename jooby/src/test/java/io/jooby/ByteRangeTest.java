@@ -4,72 +4,69 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
 
+import static io.jooby.StatusCode.PARTIAL_CONTENT;
+import static io.jooby.StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ByteRangeTest {
 
   @Test
   public void noByteRange() {
-    range("bytes=-", range -> {
-      assertEquals(ByteRange.NOT_SATISFIABLE, range);
-      assertEquals(false, range.valid());
+    range("bytes=-", 10, range -> {
+      assertEquals(REQUESTED_RANGE_NOT_SATISFIABLE, range.getStatusCode());
     });
-    range(null, range -> {
-      assertEquals(ByteRange.NO_RANGE, range);
-      assertEquals(false, range.valid());
+    range(null, 10, range -> {
+      assertEquals(StatusCode.OK, range.getStatusCode());
     });
-    range("foo", range -> {
-      assertEquals(ByteRange.NOT_SATISFIABLE, range);
-      assertEquals(false, range.valid());
+    range("foo", 100, range -> {
+      assertEquals(REQUESTED_RANGE_NOT_SATISFIABLE, range.getStatusCode());
     });
 
-    range("bytes=", range -> {
-      assertEquals(ByteRange.NOT_SATISFIABLE, range);
-      assertEquals(false, range.valid());
+    range("bytes=", 10, range -> {
+      assertEquals(REQUESTED_RANGE_NOT_SATISFIABLE, range.getStatusCode());
     });
-    range("bytes=z-", range -> {
-      assertEquals(ByteRange.NOT_SATISFIABLE, range);
-      assertEquals(false, range.valid());
+    range("bytes=z-", 10, range -> {
+      assertEquals(REQUESTED_RANGE_NOT_SATISFIABLE, range.getStatusCode());
     });
-    range("bytes=-z", range -> {
-      assertEquals(ByteRange.NOT_SATISFIABLE, range);
-      assertEquals(false, range.valid());
-    });
-    range("bytes=6", range -> {
-      assertEquals(ByteRange.NOT_SATISFIABLE, range);
-      assertEquals(false, range.valid());
+    range("bytes=-z", 10, range -> {
+      assertEquals(REQUESTED_RANGE_NOT_SATISFIABLE, range.getStatusCode());
     });
   }
 
   @Test
   public void byteRange() {
-    range("bytes=1-10", range -> {
-      assertEquals(true, range.valid());
-      assertEquals(1, range.start);
-      assertEquals(10, range.end);
+    range("bytes=1-10", 10, range -> {
+      assertEquals(PARTIAL_CONTENT, range.getStatusCode());
+      assertEquals(1, range.getStart());
+      assertEquals(9, range.getEnd());
+      assertEquals(9, range.getContentLength());
+      assertEquals("bytes 1-9/10", range.getContentRange());
     });
 
-    range("bytes=99-", range -> {
-      assertEquals(true, range.valid());
-      assertEquals(99, range.start);
-      assertEquals(-1, range.end);
+    range("bytes=99-", 110, range -> {
+      assertEquals(PARTIAL_CONTENT, range.getStatusCode());
+      assertEquals(99, range.getStart());
+      assertEquals(11, range.getEnd());
+      assertEquals("bytes 99-109/110", range.getContentRange());
     });
 
-    range("bytes=-99", range -> {
-      assertEquals(true, range.valid());
-      assertEquals(-1, range.start);
-      assertEquals(99, range.end);
+    range("bytes=-99", 200, range -> {
+      assertEquals(PARTIAL_CONTENT, range.getStatusCode());
+      assertEquals(101, range.getStart());
+      assertEquals(99, range.getEnd());
+      assertEquals("bytes 101-199/200", range.getContentRange());
     });
 
     // 100-150 is ignored.
-    range("bytes=0-50, 100-150", range -> {
-      assertEquals(true, range.valid());
-      assertEquals(0, range.start);
-      assertEquals(50, range.end);
+    range("bytes=0-50, 100-150", 200, range -> {
+      assertEquals(PARTIAL_CONTENT, range.getStatusCode());
+      assertEquals(0, range.getStart());
+      assertEquals(51, range.getEnd());
+      assertEquals("bytes 0-50/200", range.getContentRange());
     });
   }
 
-  private void range(String value, Consumer<ByteRange> consumer) {
-    consumer.accept(ByteRange.parse(value));
+  private void range(String value, long len, Consumer<ByteRange> consumer) {
+    consumer.accept(ByteRange.parse(value, len));
   }
 }

@@ -333,10 +333,12 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
       prepareChunked();
       long len = responseLength();
       ChunkedInput chunkedStream;
-      if (len > 0) {
-        ByteRange range = ByteRange.parse(req.headers().get(RANGE)).apply(this, len);
-        in.skip(range.start);
-        chunkedStream = new ChunkedLimitedStream(in, bufferSize, range.end);
+      ByteRange range = ByteRange.parse(req.headers().get(RANGE), len)
+          .apply(this);
+      if (range.isPartial()) {
+        range.apply(this);
+        in.skip(range.getStart());
+        chunkedStream = new ChunkedLimitedStream(in, bufferSize, range.getEnd());
       } else {
         chunkedStream = new ChunkedStream(in, bufferSize);
       }
@@ -362,7 +364,8 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
       long len = file.size();
       setHeaders.set(CONTENT_LENGTH, len);
 
-      ByteRange range = ByteRange.parse(req.headers().get(RANGE)).apply(this, len);
+      ByteRange range = ByteRange.parse(req.headers().get(RANGE), len)
+          .apply(this);
 
       DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
       responseStarted = true;
@@ -370,7 +373,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
         // Headers
         ctx.write(rsp);
         // Body
-        ctx.write(new DefaultFileRegion(file, range.start, range.end));
+        ctx.write(new DefaultFileRegion(file, range.getStart(), range.getEnd()));
         // Finish
         ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
       });
