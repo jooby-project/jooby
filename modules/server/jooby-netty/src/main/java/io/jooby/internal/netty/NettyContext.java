@@ -332,16 +332,9 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     try {
       prepareChunked();
       long len = responseLength();
-      ChunkedInput chunkedStream;
       ByteRange range = ByteRange.parse(req.headers().get(RANGE), len)
           .apply(this);
-      if (range.isPartial()) {
-        range.apply(this);
-        in.skip(range.getStart());
-        chunkedStream = new ChunkedLimitedStream(in, bufferSize, range.getEnd());
-      } else {
-        chunkedStream = new ChunkedStream(in, bufferSize);
-      }
+      ChunkedStream chunkedStream = new ChunkedStream(range.apply(in), bufferSize);
 
       DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
       responseStarted = true;

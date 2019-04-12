@@ -1,5 +1,10 @@
 package io.jooby;
 
+import org.apache.commons.io.input.BoundedInputStream;
+
+import java.io.IOException;
+import java.io.InputStream;
+
 public class ByteRange {
   private static final String BYTES_EQ = "bytes=";
 
@@ -60,6 +65,17 @@ public class ByteRange {
       ctx.setStatusCode(statusCode);
     }
     return this;
+  }
+
+  public InputStream apply(InputStream input) throws IOException  {
+    if (statusCode == StatusCode.OK) {
+      return input;
+    }
+    if (statusCode == StatusCode.PARTIAL_CONTENT) {
+      input.skip(start);
+      return new BoundedInputStream(input, end);
+    }
+    throw new Err(statusCode, value);
   }
 
   @Override public String toString() {

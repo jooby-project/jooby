@@ -274,15 +274,9 @@ public class UtowContext implements Context, IoCallback {
     try {
       ifSetChunked();
       long len = exchange.getResponseContentLength();
-      if (len > 0) {
-        ByteRange range = ByteRange.parse(exchange.getRequestHeaders().getFirst(RANGE), len)
-            .apply(this);
-        in.skip(range.getStart());
-        len = range.getEnd();
-      } else {
-        len = -1;
-      }
-      new UtowChunkedStream(len).send(Channels.newChannel(in), exchange, this);
+      ByteRange range = ByteRange.parse(exchange.getRequestHeaders().getFirst(RANGE), len)
+          .apply(this);
+      new UtowChunkedStream(len).send(Channels.newChannel(range.apply(in)), exchange, this);
       return this;
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
