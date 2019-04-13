@@ -79,41 +79,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>license</id>
-      <activation>
-        <file>
-          <exists>${user.dir}${file.separator}etc${file.separator}LICENSE</exists>
-        </file>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.mycila</groupId>
-            <artifactId>license-maven-plugin</artifactId>
-            <version>${license-maven-plugin.version}</version>
-            <configuration>
-              <header>${user.dir}${file.separator}etc${file.separator}LICENSE</header>
-              <strictCheck>true</strictCheck>
-              <skipExistingHeaders>true</skipExistingHeaders>
-              <includes>
-                <include>src/main/java/**/*.java</include>
-                <include>src/main/java/**/*.kt</include>
-              </includes>
-            </configuration>
-            <executions>
-              <execution>
-                <phase>verify</phase>
-                <goals>
-                  <goal>format</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
