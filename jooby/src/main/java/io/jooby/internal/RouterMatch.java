@@ -80,8 +80,11 @@ public class RouterMatch implements Router.Match {
   public void execute(Context context) {
     context.setPathMap(vars);
     context.setRoute(route);
-
-    route.getPipeline().execute(context);
+    try {
+      route.getPipeline().apply(context);
+    } catch (Throwable x) {
+      context.sendError(x);
+    }
   }
 
   public RouterMatch missing(String method, String path, Renderer renderer) {

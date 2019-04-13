@@ -28,7 +28,13 @@ public class DetachHandler implements LinkedHandler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
-    return ctx.detach(() -> next.execute(ctx));
+    return ctx.detach(() -> {
+      try {
+        next.apply(ctx);
+      } catch (Throwable x) {
+        ctx.sendError(x);
+      }
+    });
   }
 
   @Override public Route.Handler next() {

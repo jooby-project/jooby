@@ -105,22 +105,28 @@ public class MockRouter {
     Router.Match match = router.match(ctx);
     ctx.setPathMap(match.pathMap());
     ctx.setRoute(match.route());
-    Object value = match.route().getHandler().execute(ctx);
-    Result result = new Result(value, ctx.getStatusCode());
+    Object value;
+    try {
+      value = match.route().getHandler().apply(ctx);
+      Result result = new Result(value, ctx.getStatusCode());
+      /** Content-Type: */
+      result.header("Content-Type",
+          ctx.getResponseContentType().toContentTypeHeader(ctx.getResponseCharset()));
 
-    /** Content-Type: */
-    result.header("Content-Type",
-        ctx.getResponseContentType().toContentTypeHeader(ctx.getResponseCharset()));
-
-    /** Length: */
-    long responseLength = ctx.getResponseLength();
-    if (responseLength > 0) {
-      result.header("Content-Length", Long.toString(responseLength));
-    } else {
-      result.header("Content-Length", Long.toString(value.toString().length()));
+      /** Length: */
+      long responseLength = ctx.getResponseLength();
+      if (responseLength > 0) {
+        result.header("Content-Length", Long.toString(responseLength));
+      } else {
+        result.header("Content-Length", Long.toString(value.toString().length()));
+      }
+      consumer.accept(result);
+      return value;
+    } catch (Exception x) {
+      Result result = new Result(x, ctx.getStatusCode());
+      consumer.accept(result);
+      return x;
     }
-    consumer.accept(result);
-    return value;
   }
 
   public MockRouter apply(Consumer<MockRouter> consumer) {

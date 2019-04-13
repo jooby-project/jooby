@@ -28,7 +28,13 @@ public class WorkerHandler implements LinkedHandler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
-    return ctx.dispatch(() -> next.execute(ctx));
+    return ctx.dispatch(() -> {
+      try {
+        next.apply(ctx);
+      } catch (Throwable x) {
+        ctx.sendError(x);
+      }
+    });
   }
 
   @Override public Route.Handler next() {

@@ -167,21 +167,6 @@ public class Route {
     @Nonnull Object apply(@Nonnull Context ctx) throws Exception;
 
     /**
-     * Execute this route and catch/renderer any error.
-     *
-     * @param ctx Web context.
-     * @return Success response or exception in case of failure.
-     */
-    @Nonnull default Object execute(@Nonnull Context ctx) {
-      try {
-        return apply(ctx);
-      } catch (Throwable x) {
-        ctx.sendError(x);
-        return x;
-      }
-    }
-
-    /**
      * Chain this after decorator with next and produces a new decorator.
      *
      * @param next Next decorator.

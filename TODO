@@ -1,6 +1,3 @@
-* Review and try to remove Route.Handler.execute
-* Review Value API try to hide Headers/Multipart/QueryString/Formdata
-* check sendBytes implementation and don't set content-length if there is one already
 * Review what to do with Result class
 * Review unit test and document it
 * Review integration test and document it.

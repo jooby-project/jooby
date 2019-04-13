@@ -31,7 +31,13 @@ public class DispatchHandler implements LinkedHandler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
-    return ctx.dispatch(executor, () -> next.execute(ctx));
+    return ctx.dispatch(executor, () -> {
+      try {
+        next.apply(ctx);
+      } catch (Throwable x) {
+        ctx.sendError(x);
+      }
+    });
   }
 
   @Override public Route.Handler next() {
