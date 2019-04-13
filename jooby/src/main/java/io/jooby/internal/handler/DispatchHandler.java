@@ -21,7 +21,7 @@ import io.jooby.Route;
 import javax.annotation.Nonnull;
 import java.util.concurrent.Executor;
 
-public class DispatchHandler implements Route.Handler {
+public class DispatchHandler implements LinkedHandler {
   private final Route.Handler next;
   private final Executor executor;
 

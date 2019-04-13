@@ -27,7 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-public class SendFileChannel implements Route.Handler {
+public class SendFileChannel implements LinkedHandler {
   private Route.Handler next;
 
   public SendFileChannel(Route.Handler next) {

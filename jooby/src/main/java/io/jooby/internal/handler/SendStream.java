@@ -21,7 +21,7 @@ import io.jooby.Route;
 import javax.annotation.Nonnull;
 import java.io.InputStream;
 
-public class SendStream implements Route.Handler {
+public class SendStream implements LinkedHandler {
   private Route.Handler next;
 
   public SendStream(Route.Handler next) {

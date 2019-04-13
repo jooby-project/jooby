@@ -21,7 +21,7 @@ import io.jooby.Route;
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 
-public class SendByteBuffer implements Route.Handler {
+public class SendByteBuffer implements LinkedHandler {
   private Route.Handler next;
 
   public SendByteBuffer(Route.Handler next) {

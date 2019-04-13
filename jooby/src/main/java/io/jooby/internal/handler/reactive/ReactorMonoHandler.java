@@ -17,11 +17,12 @@ package io.jooby.internal.handler.reactive;
 
 import io.jooby.Context;
 import io.jooby.Route;
+import io.jooby.internal.handler.LinkedHandler;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Nonnull;
 
-public class ReactorMonoHandler implements Route.Handler {
+public class ReactorMonoHandler implements LinkedHandler {
 
   private final Route.Handler next;
 

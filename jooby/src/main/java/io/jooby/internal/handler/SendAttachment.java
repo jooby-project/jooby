@@ -21,7 +21,7 @@ import io.jooby.Route;
 
 import javax.annotation.Nonnull;
 
-public class SendAttachment implements Route.Handler {
+public class SendAttachment implements LinkedHandler {
   private Route.Handler next;
 
   public SendAttachment(Route.Handler next) {

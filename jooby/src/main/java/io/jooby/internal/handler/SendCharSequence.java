@@ -20,7 +20,7 @@ import io.jooby.Route;
 
 import javax.annotation.Nonnull;
 
-public class SendCharSequence implements Route.Handler {
+public class SendCharSequence implements LinkedHandler {
   private Route.Handler next;
 
   public SendCharSequence(Route.Handler next) {

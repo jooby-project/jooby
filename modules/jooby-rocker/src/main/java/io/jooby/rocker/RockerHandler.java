@@ -22,7 +22,6 @@ import io.jooby.MediaType;
 import io.jooby.Route;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 class RockerHandler implements Route.Handler {
   private final Route.Handler next;
@@ -43,9 +42,5 @@ class RockerHandler implements Route.Handler {
       ctx.sendError(x);
       return x;
     }
-  }
-
-  @Nullable @Override public Route.Handler next() {
-    return next;
   }
 }

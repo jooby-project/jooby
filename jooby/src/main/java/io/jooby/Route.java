@@ -147,14 +147,6 @@ public class Route {
   public interface Handler extends Serializable {
 
     /**
-     * Get the next handler available in the pipeline or <code>null</code>.
-     * @return Next handler or <code>null</code>.
-     */
-    default @Nullable Handler next() {
-      return null;
-    }
-
-    /**
      * Allows a handler to listen for route metadata.
      *
      * @param route Route metadata.

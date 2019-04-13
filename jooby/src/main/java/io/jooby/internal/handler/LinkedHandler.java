@@ -15,29 +15,8 @@
  */
 package io.jooby.internal.handler;
 
-import io.jooby.Context;
 import io.jooby.Route;
-import io.netty.buffer.ByteBuf;
 
-import javax.annotation.Nonnull;
-
-public class SendByteBuf implements LinkedHandler {
-  private Route.Handler next;
-
-  public SendByteBuf(Route.Handler next) {
-    this.next = next;
-  }
-
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
-    try {
-      ByteBuf result = (ByteBuf) next.apply(ctx);
-      return ctx.sendBytes(result);
-    } catch (Throwable x) {
-      return ctx.sendError(x);
-    }
-  }
-
-  @Override public Route.Handler next() {
-    return next;
-  }
+public interface LinkedHandler extends Route.Handler {
+  Route.Handler next();
 }

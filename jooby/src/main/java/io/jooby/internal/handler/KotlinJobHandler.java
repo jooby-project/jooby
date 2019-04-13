@@ -25,7 +25,7 @@ import kotlinx.coroutines.Job;
 
 import javax.annotation.Nonnull;
 
-public class KotlinJobHandler implements Route.Handler {
+public class KotlinJobHandler implements LinkedHandler {
   private final Route.Handler next;
 
   public KotlinJobHandler(Route.Handler next) {
