@@ -448,7 +448,7 @@ public class Jooby implements Router, Registry {
 
   private Registry checkRegistry() {
     if (registry == null) {
-      throw new Usage("No registry");
+      throw new IllegalStateException("No registry available");
     }
     return registry;
   }

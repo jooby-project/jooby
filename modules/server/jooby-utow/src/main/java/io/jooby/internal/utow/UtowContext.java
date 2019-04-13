@@ -274,7 +274,8 @@ public class UtowContext implements Context, IoCallback {
     try {
       ifSetChunked();
       long len = exchange.getResponseContentLength();
-      ByteRange range = ByteRange.parse(exchange.getRequestHeaders().getFirst(RANGE), len)
+      ByteRange range = ByteRange
+          .parse(exchange.getRequestHeaders().getFirst(RANGE), len)
           .apply(this);
       new UtowChunkedStream(len).send(Channels.newChannel(range.apply(in)), exchange, this);
       return this;
@@ -287,7 +288,8 @@ public class UtowContext implements Context, IoCallback {
     try {
       long len = file.size();
       exchange.setResponseContentLength(len);
-      ByteRange range = ByteRange.parse(exchange.getRequestHeaders().getFirst(RANGE), len)
+      ByteRange range = ByteRange
+          .parse(exchange.getRequestHeaders().getFirst(RANGE), len)
           .apply(this);
       file.position(range.getStart());
       new UtowChunkedStream(range.getEnd()).send(file, exchange, this);

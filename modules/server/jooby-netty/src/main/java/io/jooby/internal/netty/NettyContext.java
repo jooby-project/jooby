@@ -17,7 +17,6 @@ package io.jooby.internal.netty;
 
 import io.jooby.*;
 import io.jooby.FileUpload;
-import io.jooby.internal.HashValue;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -27,7 +26,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
-import io.netty.handler.stream.ChunkedInput;
 import io.netty.handler.stream.ChunkedNioStream;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;

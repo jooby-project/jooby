@@ -12,6 +12,9 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby</artifactId>
 
+  <properties>
+    <shaded.package>io.jooby.internal.\$shaded</shaded.package>
+  </properties>
   <build>
     <plugins>
       <plugin>
@@ -95,11 +98,11 @@
               <relocations>
                 <relocation>
                   <pattern>org.objectweb.asm</pattern>
-                  <shadedPattern>io.jooby.internal.lib.asm</shadedPattern>
+                  <shadedPattern>${shaded.package}.asm</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>org.apache.commons.io</pattern>
-                  <shadedPattern>io.jooby.internal.lib.commonsio</shadedPattern>
+                  <shadedPattern>${shaded.package}.commonsio</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
