@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -205,6 +206,16 @@ public class Route {
     }
   };
 
+  public static final Route.Before SUPPORT_MEDIA_TYPE = ctx -> {
+    MediaType contentType = ctx.getContentType();
+    if (contentType == null) {
+      throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE);
+    }
+    if (!ctx.getRoute().getConsumes().stream().anyMatch(contentType::matches)) {
+      throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE, contentType.getValue());
+    }
+  };
+
   private static final List<MediaType> EMPTY_LIST = Collections.emptyList();
 
   private final Map<String, Parser> parsers;
@@ -230,6 +241,8 @@ public class Route {
   private Object handle;
 
   private List<MediaType> produces = EMPTY_LIST;
+
+  private List<MediaType> consumes = EMPTY_LIST;
 
   /**
    * Creates a new route.
@@ -410,23 +423,35 @@ public class Route {
     return this;
   }
 
-  public List<MediaType> getProduces() {
+  public @Nonnull List<MediaType> getProduces() {
     return produces;
   }
 
-  public Route setProduces(MediaType... produces) {
-    if (this.produces == EMPTY_LIST) {
-      this.produces = new ArrayList<>();
-    }
-    Stream.of(produces).forEach(this.produces::add);
-    return this;
+  public @Nonnull Route produces(@Nonnull MediaType... produces) {
+    return setProduces(Arrays.asList(produces));
   }
 
-  public Route setProduces(Collection<MediaType> produces) {
+  public @Nonnull Route setProduces(@Nonnull Collection<MediaType> produces) {
     if (this.produces == EMPTY_LIST) {
       this.produces = new ArrayList<>();
     }
     produces.forEach(this.produces::add);
+    return this;
+  }
+
+  public @Nonnull List<MediaType> getConsumes() {
+    return consumes;
+  }
+
+  public @Nonnull Route consumes(@Nonnull MediaType... consumes) {
+    return setConsumes(Arrays.asList(consumes));
+  }
+
+  public @Nonnull Route setConsumes(@Nonnull Collection<MediaType> consumes) {
+    if (this.consumes == EMPTY_LIST) {
+      this.consumes = new ArrayList<>();
+    }
+    consumes.forEach(this.consumes::add);
     return this;
   }
 

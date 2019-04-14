@@ -64,6 +64,8 @@ public interface MvcAnnotation {
 
   Set<MediaType> produces(Method method);
 
+  Set<MediaType> consumes(Method method);
+
   default List<String> httpMethod(Method method) {
     List<String> result = new ArrayList<>();
     for (Class<? extends Annotation> m : methodAnnotations()) {
@@ -137,6 +139,13 @@ public interface MvcAnnotation {
           Set<MediaType> result = new LinkedHashSet<>();
           result.addAll(jaxrs.produces(method));
           result.addAll(def.produces(method));
+          return result;
+        }
+
+        @Override public Set<MediaType> consumes(Method method) {
+          Set<MediaType> result = new LinkedHashSet<>();
+          result.addAll(jaxrs.consumes(method));
+          result.addAll(def.consumes(method));
           return result;
         }
       };

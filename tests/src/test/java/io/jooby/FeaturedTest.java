@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+import java.lang.reflect.Type;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -749,8 +750,8 @@ public class FeaturedTest {
         return new Message();
       });
 
-      app.get("/produces", ctx ->  new Message())
-          .setProduces(io.jooby.MediaType.json, io.jooby.MediaType.xml);
+      app.get("/produces", ctx -> new Message())
+          .produces(io.jooby.MediaType.json, io.jooby.MediaType.xml);
 
     }).ready(client -> {
       client.header("Accept", "application/json");
@@ -806,6 +807,59 @@ public class FeaturedTest {
       client.header("Accept", "text/plain");
       client.get("/produces", rsp -> {
         assertEquals(406, rsp.code());
+      });
+    });
+  }
+
+  @Test
+  public void consumes() {
+    new JoobyRunner(app -> {
+      app.parser(io.jooby.MediaType.json, new Parser() {
+        @Nonnull @Override public String parse(@Nonnull Context ctx, @Nonnull Type type)
+            throws Exception {
+          return "{" + ctx.body().value() + "}";
+        }
+      });
+
+      app.parser(xml, new Parser() {
+        @Nonnull @Override public String parse(@Nonnull Context ctx, @Nonnull Type type)
+            throws Exception {
+          return "<" + ctx.body().value() + ">";
+        }
+      });
+
+      app.get("/defaults", ctx -> {
+        return ctx.body(String.class);
+      });
+
+      app.get("/consumes", ctx -> ctx.body(String.class))
+          .consumes(io.jooby.MediaType.json, io.jooby.MediaType.xml);
+
+    }).ready(client -> {
+      client.header("Content-Type", "application/json");
+      client.get("/defaults", rsp -> {
+        assertEquals("{}", rsp.body().string());
+      });
+      client.header("Content-Type", "application/xml");
+      client.get("/defaults", rsp -> {
+        assertEquals("<>", rsp.body().string());
+      });
+      client.header("Content-Type", "text/plain");
+      client.get("/defaults", rsp -> {
+        assertEquals("", rsp.body().string());
+      });
+
+      client.header("Content-Type", "application/json");
+      client.get("/consumes", rsp -> {
+        assertEquals("{}", rsp.body().string());
+      });
+      client.header("Content-Type", "application/xml");
+      client.get("/consumes", rsp -> {
+        assertEquals("<>", rsp.body().string());
+      });
+      client.header("Content-Type", "text/plain");
+      client.get("/consumes", rsp -> {
+        assertEquals(415, rsp.code());
       });
     });
   }

@@ -393,6 +393,9 @@ public class RouterImpl implements Router {
       if (route.getProduces().size() > 0) {
         before = before == null ? Route.ACCEPT : Route.ACCEPT.then(before);
       }
+      if (route.getConsumes().size() > 0) {
+        before = before == null ? Route.SUPPORT_MEDIA_TYPE : Route.SUPPORT_MEDIA_TYPE.then(before);
+      }
       Route.Handler pipeline = route.getHandler();
 
       if (before != null) {
@@ -548,6 +551,11 @@ public class RouterImpl implements Router {
       Set<MediaType> produces = mvcAnnotations.produces(method.getMethod());
       if (produces.size() > 0) {
         route.setProduces(produces);
+      }
+
+      Set<MediaType> consumes = mvcAnnotations.consumes(method.getMethod());
+      if (consumes.size() > 0) {
+        route.setConsumes(consumes);
       }
     });
   }

@@ -2,6 +2,7 @@ package io.jooby;
 
 import examples.InstanceRouter;
 import examples.JAXRS;
+import examples.Message;
 import examples.MvcBody;
 import examples.NoTopLevelPath;
 import examples.NullInjection;
@@ -14,8 +15,10 @@ import okhttp3.MultipartBody;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.Nonnull;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
+import static io.jooby.MediaType.xml;
 import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -59,22 +62,55 @@ public class MvcTest {
           ("<" + value.toString() + ">").getBytes(StandardCharsets.UTF_8)
       );
 
+      app.parser(io.jooby.MediaType.json, new Parser() {
+        @Nonnull @Override public Message parse(@Nonnull Context ctx, @Nonnull Type type)
+            throws Exception {
+          return new Message("{" + ctx.body().value() + "}");
+        }
+      });
+
+      app.parser(xml, new Parser() {
+        @Nonnull @Override public Message parse(@Nonnull Context ctx, @Nonnull Type type)
+            throws Exception {
+          return new Message("<" + ctx.body().value() + ">");
+        }
+      });
+
       app.mvc(new ProducesConsumes());
 
     }).ready(client -> {
       client.header("Accept", "application/json");
-      client.get("/", rsp -> {
+      client.get("/produces", rsp -> {
         assertEquals("{MVC}", rsp.body().string());
       });
 
       client.header("Accept", "application/xml");
-      client.get("/", rsp -> {
+      client.get("/produces", rsp -> {
         assertEquals("<MVC>", rsp.body().string());
       });
 
       client.header("Accept", "text/html");
-      client.get("/", rsp -> {
+      client.get("/produces", rsp -> {
         assertEquals(406, rsp.code());
+      });
+
+      client.header("Content-Type", "application/json");
+      client.get("/consumes", rsp -> {
+        assertEquals("{}", rsp.body().string());
+      });
+
+      client.header("Content-Type", "application/xml");
+      client.get("/consumes", rsp -> {
+        assertEquals("<>", rsp.body().string());
+      });
+
+      client.header("Content-Type", "text/plain");
+      client.get("/consumes", rsp -> {
+        assertEquals(415, rsp.code());
+      });
+
+      client.get("/consumes", rsp -> {
+        assertEquals(415, rsp.code());
       });
     });
   }
@@ -226,15 +262,15 @@ public class MvcTest {
       });
 
       client.get("/nullbean", rsp -> {
-        assertEquals("Unable to provision parameter: 'foo: int', require by: constructor io.jooby.internal.mvc.NullInjection.QParam(int, java.lang.Integer)", rsp.body().string());
+        assertEquals("Unable to provision parameter: 'foo: int', require by: constructor examples.NullInjection.QParam(int, java.lang.Integer)", rsp.body().string());
       });
 
       client.get("/nullbean?foo=foo", rsp -> {
-        assertEquals("Unable to provision parameter: 'foo: int', require by: constructor io.jooby.internal.mvc.NullInjection.QParam(int, java.lang.Integer)", rsp.body().string());
+        assertEquals("Unable to provision parameter: 'foo: int', require by: constructor examples.NullInjection.QParam(int, java.lang.Integer)", rsp.body().string());
       });
 
       client.get("/nullbean?foo=0&baz=baz", rsp -> {
-        assertEquals("Unable to provision parameter: 'baz: int', require by: method io.jooby.internal.mvc.NullInjection.QParam.setBaz(int)", rsp.body().string());
+        assertEquals("Unable to provision parameter: 'baz: int', require by: method examples.NullInjection.QParam.setBaz(int)", rsp.body().string());
       });
     });
   }

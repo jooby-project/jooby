@@ -86,4 +86,12 @@ public class JaxrsAnnotation implements MvcAnnotation {
         : Stream.of(produces.value()).map(MediaType::valueOf)
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
+
+  @Override public Set<MediaType> consumes(Method method) {
+    Consumes consumes = method.getAnnotation(Consumes.class);
+    return consumes == null
+        ? Collections.emptySet()
+        : Stream.of(consumes.value()).map(MediaType::valueOf)
+        .collect(Collectors.toCollection(LinkedHashSet::new));
+  }
 }
