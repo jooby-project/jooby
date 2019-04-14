@@ -1,4 +1,4 @@
-package io.jooby.internal.mvc;
+package examples;
 
 import io.jooby.annotations.GET;
 import io.jooby.annotations.POST;

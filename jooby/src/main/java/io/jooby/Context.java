@@ -369,6 +369,33 @@ public interface Context {
   }
 
   /**
+   * Check if the accept type list matches the given produces list and return the most
+   * specific media type from produces list.
+   *
+   * @param produceTypes Produced types.
+   * @return The most specific produces type.
+   */
+  default MediaType accept(@Nonnull List<MediaType> produceTypes) {
+    List<MediaType> acceptTypes = MediaType.parse(header(ACCEPT).valueOrNull());
+    MediaType result = null;
+    for (MediaType acceptType : acceptTypes) {
+      for (MediaType produceType : produceTypes) {
+        if (produceType.matches(acceptType)) {
+          if (result == null) {
+            result = produceType;
+          } else {
+            MediaType max = MediaType.MOST_SPECIFIC.apply(result, produceType);
+            if (max != result) {
+              result = max;
+            }
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
    * Request <code>Content-Type</code> header or <code>null</code> when missing.
    *
    * @return Request <code>Content-Type</code> header or <code>null</code> when missing.

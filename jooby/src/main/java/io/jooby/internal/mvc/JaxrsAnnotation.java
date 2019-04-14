@@ -15,13 +15,20 @@
  */
 package io.jooby.internal.mvc;
 
+import io.jooby.MediaType;
+
 import javax.ws.rs.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JaxrsAnnotation implements MvcAnnotation {
   private static final List<Class<? extends Annotation>> M_ANN = Arrays
@@ -70,5 +77,13 @@ public class JaxrsAnnotation implements MvcAnnotation {
 
   @Override public List<Class<? extends Annotation>> paramAnnotations() {
     return PARAM;
+  }
+
+  @Override public Set<MediaType> produces(Method method) {
+    Produces produces = method.getAnnotation(Produces.class);
+    return produces == null
+        ? Collections.emptySet()
+        : Stream.of(produces.value()).map(MediaType::valueOf)
+        .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 }

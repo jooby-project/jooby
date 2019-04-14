@@ -15,6 +15,7 @@
  */
 package io.jooby.internal.mvc;
 
+import io.jooby.MediaType;
 import io.jooby.Throwing;
 
 import java.lang.annotation.Annotation;
@@ -22,7 +23,9 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public interface MvcAnnotation {
 
@@ -59,6 +62,8 @@ public interface MvcAnnotation {
     }
   }
 
+  Set<MediaType> produces(Method method);
+
   default List<String> httpMethod(Method method) {
     List<String> result = new ArrayList<>();
     for (Class<? extends Annotation> m : methodAnnotations()) {
@@ -93,6 +98,7 @@ public interface MvcAnnotation {
       List<Class<? extends Annotation>> paramAnnotations = new ArrayList<>();
       paramAnnotations.addAll(jaxrs.paramAnnotations());
       paramAnnotations.addAll(def.paramAnnotations());
+
       return new MvcAnnotation() {
         @Override public List<Class<? extends Annotation>> methodAnnotations() {
           return methodAnnotations;
@@ -125,6 +131,13 @@ public interface MvcAnnotation {
 
         @Override public boolean isFormParam(Parameter parameter) {
           return jaxrs.isFormParam(parameter) || def.isFormParam(parameter);
+        }
+
+        @Override public Set<MediaType> produces(Method method) {
+          Set<MediaType> result = new LinkedHashSet<>();
+          result.addAll(jaxrs.produces(method));
+          result.addAll(def.produces(method));
+          return result;
         }
       };
     } catch (ClassNotFoundException x) {

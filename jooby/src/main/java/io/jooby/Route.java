@@ -19,8 +19,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Route contains information about the HTTP method, path pattern, which content types consumes and
@@ -185,12 +189,23 @@ public class Route {
   /**
    * Handler for {@link StatusCode#METHOD_NOT_ALLOWED} responses.
    */
-  public static final Handler METHOD_NOT_ALLOWED = ctx -> ctx.sendError(new Err(StatusCode.METHOD_NOT_ALLOWED));
+  public static final Handler METHOD_NOT_ALLOWED = ctx -> ctx
+      .sendError(new Err(StatusCode.METHOD_NOT_ALLOWED));
 
   /**
    * Favicon handler as a silent 404 error.
    */
   public static final Handler FAVICON = ctx -> ctx.sendStatusCode(StatusCode.NOT_FOUND);
+
+  public static final Route.Before ACCEPT = ctx -> {
+    List<MediaType> produceTypes = ctx.getRoute().getProduces();
+    MediaType contentType = ctx.accept(produceTypes);
+    if (contentType == null) {
+      throw new Err(StatusCode.NOT_ACCEPTABLE, ctx.header(Context.ACCEPT).value(""));
+    }
+  };
+
+  private static final List<MediaType> EMPTY_LIST = Collections.emptyList();
 
   private final Map<String, Parser> parsers;
 
@@ -200,7 +215,11 @@ public class Route {
 
   private List<String> pathKeys;
 
+  private Decorator before;
+
   private Handler handler;
+
+  private After after;
 
   private Handler pipeline;
 
@@ -210,6 +229,8 @@ public class Route {
 
   private Object handle;
 
+  private List<MediaType> produces = EMPTY_LIST;
+
   /**
    * Creates a new route.
    *
@@ -218,7 +239,8 @@ public class Route {
    * @param pathKeys Path keys.
    * @param returnType Return type.
    * @param handler Route handler.
-   * @param pipeline Route pipeline.
+   * @param before Before pipeline.
+   * @param after After pipeline.
    * @param renderer Route renderer.
    * @param parsers Route parsers.
    */
@@ -227,18 +249,28 @@ public class Route {
       @Nonnull List<String> pathKeys,
       @Nonnull Type returnType,
       @Nonnull Handler handler,
-      @Nonnull Handler pipeline,
+      @Nullable Decorator before,
+      @Nullable After after,
       @Nonnull Renderer renderer,
       @Nonnull Map<String, Parser> parsers) {
     this.method = method.toUpperCase();
     this.pattern = pattern;
     this.returnType = returnType;
     this.handler = handler;
-    this.pipeline = pipeline;
+    this.before = before;
+    this.after = after;
     this.renderer = renderer;
     this.pathKeys = pathKeys;
     this.parsers = parsers;
     this.handle = handler;
+
+    this.pipeline = handler;
+    if (before != null) {
+      this.pipeline = before.then(pipeline);
+    }
+    if (after != null) {
+      this.pipeline = this.pipeline.then(after);
+    }
   }
 
   /**
@@ -248,7 +280,6 @@ public class Route {
    * @param pattern Path pattern.
    * @param returnType Return type.
    * @param handler Route handler.
-   * @param pipeline Route pipeline.
    * @param renderer Route renderer.
    * @param parsers Route parsers.
    */
@@ -256,10 +287,12 @@ public class Route {
       @Nonnull String pattern,
       @Nonnull Type returnType,
       @Nonnull Handler handler,
-      @Nonnull Handler pipeline,
+      @Nullable Decorator before,
+      @Nullable After after,
       @Nonnull Renderer renderer,
       @Nonnull Map<String, Parser> parsers) {
-    this(method, pattern, Router.pathKeys(pattern), returnType, handler, pipeline, renderer, parsers);
+    this(method, pattern, Router.pathKeys(pattern), returnType, handler, before, after, renderer,
+        parsers);
   }
 
   /**
@@ -276,7 +309,7 @@ public class Route {
    *
    * @return HTTP method.
    */
-  public  @Nonnull String getMethod() {
+  public @Nonnull String getMethod() {
     return method;
   }
 
@@ -316,6 +349,14 @@ public class Route {
    */
   public @Nonnull Object getHandle() {
     return handle;
+  }
+
+  public @Nullable Decorator getBefore() {
+    return before;
+  }
+
+  public @Nullable After getAfter() {
+    return after;
   }
 
   /**
@@ -366,6 +407,26 @@ public class Route {
    */
   public @Nonnull Route setReturnType(@Nonnull Type returnType) {
     this.returnType = returnType;
+    return this;
+  }
+
+  public List<MediaType> getProduces() {
+    return produces;
+  }
+
+  public Route setProduces(MediaType... produces) {
+    if (this.produces == EMPTY_LIST) {
+      this.produces = new ArrayList<>();
+    }
+    Stream.of(produces).forEach(this.produces::add);
+    return this;
+  }
+
+  public Route setProduces(Collection<MediaType> produces) {
+    if (this.produces == EMPTY_LIST) {
+      this.produces = new ArrayList<>();
+    }
+    produces.forEach(this.produces::add);
     return this;
   }
 

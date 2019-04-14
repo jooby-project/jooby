@@ -1,4 +1,4 @@
-package io.jooby.internal.mvc;
+package examples;
 
 import io.jooby.Context;
 import io.jooby.Formdata;

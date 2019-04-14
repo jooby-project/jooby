@@ -1,16 +1,20 @@
 package io.jooby;
 
-import io.jooby.internal.mvc.InstanceRouter;
-import io.jooby.internal.mvc.JAXRS;
-import io.jooby.internal.mvc.MvcBody;
-import io.jooby.internal.mvc.NoTopLevelPath;
-import io.jooby.internal.mvc.NullInjection;
-import io.jooby.internal.mvc.Provisioning;
+import examples.InstanceRouter;
+import examples.JAXRS;
+import examples.MvcBody;
+import examples.NoTopLevelPath;
+import examples.NullInjection;
+import examples.ProducesConsumes;
+import examples.Provisioning;
 import io.jooby.json.Jackson;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import org.junit.jupiter.api.Test;
+
+import javax.annotation.Nonnull;
+import java.nio.charset.StandardCharsets;
 
 import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,6 +43,38 @@ public class MvcTest {
       client.get("/void", rsp -> {
         assertEquals("", rsp.body().string());
         assertEquals(204, rsp.code());
+      });
+    });
+  }
+
+  @Test
+  public void producesAndConsumes() {
+    new JoobyRunner(app -> {
+
+      app.renderer(io.jooby.MediaType.json, (@Nonnull Context ctx, @Nonnull Object value) ->
+          ("{" + value.toString() + "}").getBytes(StandardCharsets.UTF_8)
+      );
+
+      app.renderer(io.jooby.MediaType.xml, (@Nonnull Context ctx, @Nonnull Object value) ->
+          ("<" + value.toString() + ">").getBytes(StandardCharsets.UTF_8)
+      );
+
+      app.mvc(new ProducesConsumes());
+
+    }).ready(client -> {
+      client.header("Accept", "application/json");
+      client.get("/", rsp -> {
+        assertEquals("{MVC}", rsp.body().string());
+      });
+
+      client.header("Accept", "application/xml");
+      client.get("/", rsp -> {
+        assertEquals("<MVC>", rsp.body().string());
+      });
+
+      client.header("Accept", "text/html");
+      client.get("/", rsp -> {
+        assertEquals(406, rsp.code());
       });
     });
   }

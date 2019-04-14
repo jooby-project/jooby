@@ -1,4 +1,4 @@
-package io.jooby.internal.mvc;
+package examples;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

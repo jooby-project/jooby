@@ -53,6 +53,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
@@ -204,7 +205,7 @@ public class RouterImpl implements Router {
     }
     trees.add(tree);
     for (Route route : router.getRoutes()) {
-      route(route.getMethod(), route.getPattern(), route.getHandler(), tree);
+      defineRoute(route.getMethod(), route.getPattern(), route.getHandler(), tree);
     }
     return this;
   }
@@ -314,10 +315,10 @@ public class RouterImpl implements Router {
   @Override
   public Route route(@Nonnull String method, @Nonnull String pattern,
       @Nonnull Route.Handler handler) {
-    return route(method, pattern, handler, chi);
+    return defineRoute(method, pattern, handler, chi);
   }
 
-  private Route route(@Nonnull String method, @Nonnull String pattern,
+  private Route defineRoute(@Nonnull String method, @Nonnull String pattern,
       @Nonnull Route.Handler handler, RadixTree tree) {
     /** Make sure router options are in sync: */
     chi.setCaseSensitive(options.isCaseSensitive());
@@ -340,21 +341,21 @@ public class RouterImpl implements Router {
     }
 
     /** Pipeline: */
-    Route.Handler pipeline = before == null ? handler : before.then(handler);
+    //    Route.Handler pipeline = before == null ? handler : before.then(handler);
 
     /** After: */
     Route.After after = stack.stream()
         .flatMap(Stack::toAfter)
         .reduce(null, (it, next) -> it == null ? next : it.then(next));
 
-    if (after != null) {
-      pipeline = pipeline.then(after);
-    }
+    //    if (after != null) {
+    //      pipeline = pipeline.then(after);
+    //    }
 
     /** Route: */
     String safePattern = normalizePath(pat.toString(), options.isCaseSensitive(),
         options.isIgnoreTrailingSlash());
-    Route route = new Route(method, safePattern, null, handler, pipeline, renderer, parsers);
+    Route route = new Route(method, safePattern, null, handler, before, after, renderer, parsers);
     Stack stack = this.stack.peekLast();
     if (stack.executor != null) {
       routeExecutor.put(route, stack.executor);
@@ -387,7 +388,23 @@ public class RouterImpl implements Router {
       if (route.getReturnType() == null) {
         route.setReturnType(analyzer.returnType(route.getHandle()));
       }
-      Route.Handler pipeline = Pipeline
+      /** Pipeline: */
+      Route.Decorator before = route.getBefore();
+      if (route.getProduces().size() > 0) {
+        before = before == null ? Route.ACCEPT : Route.ACCEPT.then(before);
+      }
+      Route.Handler pipeline = route.getHandler();
+
+      if (before != null) {
+        pipeline = before.then(pipeline);
+      }
+      Route.After after = route.getAfter();
+      if (after != null) {
+        pipeline = pipeline.then(after);
+      }
+      route.setPipeline(pipeline);
+      /** Response handler: */
+      pipeline = Pipeline
           .compute(source.getLoader(), route, mode, executor, handlers);
       route.setPipeline(pipeline);
     }
@@ -522,10 +539,16 @@ public class RouterImpl implements Router {
   private void mvc(String prefix, Class type, Provider provider) {
     find(prefix, type, method -> {
 
-      Route.Handler instance = MvcCompiler.newHandler(source.getLoader(), method, provider, mvcAnnotations);
+      Route.Handler instance = MvcCompiler
+          .newHandler(source.getLoader(), method, provider, mvcAnnotations);
 
-      route(method.getHttpMethod(), method.getPattern(), instance)
+      Route route = route(method.getHttpMethod(), method.getPattern(), instance)
           .setReturnType(method.getReturnType(source.getLoader()));
+
+      Set<MediaType> produces = mvcAnnotations.produces(method.getMethod());
+      if (produces.size() > 0) {
+        route.setProduces(produces);
+      }
     });
   }
 

@@ -16,6 +16,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static io.jooby.MediaType.html;
@@ -45,50 +46,49 @@ public interface ErrorHandler {
         .toString();
     ctx.getRouter().getLog().error(msg, cause);
 
-    new ContentNegotiation()
-        .accept(json, () -> {
-          String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
-          return ctx.setContentType(json)
-              .setStatusCode(statusCode)
-              .sendString("{\"message\":\"" + message + "\",\"statusCode\":" + statusCode.value()
-                  + ",\"reason\":\"" + statusCode.reason() + "\"}");
-        })
-        .accept(html, () -> {
-          String message = cause.getMessage();
-          StringBuilder html = new StringBuilder("<!doctype html>\n")
-              .append("<html>\n")
-              .append("<head>\n")
-              .append("<meta charset=\"utf-8\">\n")
-              .append("<style>\n")
-              .append("body {font-family: \"open sans\",sans-serif; margin-left: 20px;}\n")
-              .append("h1 {font-weight: 300; line-height: 44px; margin: 25px 0 0 0;}\n")
-              .append("h2 {font-size: 16px;font-weight: 300; line-height: 44px; margin: 0;}\n")
-              .append("footer {font-weight: 300; line-height: 44px; margin-top: 10px;}\n")
-              .append("hr {background-color: #f7f7f9;}\n")
-              .append("div.trace {border:1px solid #e1e1e8; background-color: #f7f7f9;}\n")
-              .append("p {padding-left: 20px;}\n")
-              .append("p.tab {padding-left: 40px;}\n")
-              .append("</style>\n")
-              .append("<title>")
-              .append(statusCode)
-              .append("</title>\n")
-              .append("<body>\n")
-              .append("<h1>").append(statusCode.reason()).append("</h1>\n")
-              .append("<hr>\n");
+    MediaType type = ctx.accept(Arrays.asList(json, html));
+    if (type == null || type.equals(html)) {
+      String message = cause.getMessage();
+      StringBuilder html = new StringBuilder("<!doctype html>\n")
+          .append("<html>\n")
+          .append("<head>\n")
+          .append("<meta charset=\"utf-8\">\n")
+          .append("<style>\n")
+          .append("body {font-family: \"open sans\",sans-serif; margin-left: 20px;}\n")
+          .append("h1 {font-weight: 300; line-height: 44px; margin: 25px 0 0 0;}\n")
+          .append("h2 {font-size: 16px;font-weight: 300; line-height: 44px; margin: 0;}\n")
+          .append("footer {font-weight: 300; line-height: 44px; margin-top: 10px;}\n")
+          .append("hr {background-color: #f7f7f9;}\n")
+          .append("div.trace {border:1px solid #e1e1e8; background-color: #f7f7f9;}\n")
+          .append("p {padding-left: 20px;}\n")
+          .append("p.tab {padding-left: 40px;}\n")
+          .append("</style>\n")
+          .append("<title>")
+          .append(statusCode)
+          .append("</title>\n")
+          .append("<body>\n")
+          .append("<h1>").append(statusCode.reason()).append("</h1>\n")
+          .append("<hr>\n");
 
-          if (message != null && !message.equals(statusCode.toString())) {
-            html.append("<h2>message: ").append(message).append("</h2>\n");
-          }
-          html.append("<h2>status code: ").append(statusCode.value()).append("</h2>\n");
+      if (message != null && !message.equals(statusCode.toString())) {
+        html.append("<h2>message: ").append(message).append("</h2>\n");
+      }
+      html.append("<h2>status code: ").append(statusCode.value()).append("</h2>\n");
 
-          html.append("</body>\n")
-              .append("</html>");
+      html.append("</body>\n")
+          .append("</html>");
 
-          return ctx
-              .setContentType(MediaType.html)
-              .setStatusCode(statusCode)
-              .sendString(html.toString());
-        }).render(ctx);
+      ctx
+          .setContentType(MediaType.html)
+          .setStatusCode(statusCode)
+          .sendString(html.toString());
+    } else {
+      String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
+      ctx.setContentType(json)
+          .setStatusCode(statusCode)
+          .sendString("{\"message\":\"" + message + "\",\"statusCode\":" + statusCode.value()
+              + ",\"reason\":\"" + statusCode.reason() + "\"}");
+    }
   };
 
   /**

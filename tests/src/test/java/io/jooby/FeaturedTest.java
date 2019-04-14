@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Nonnull;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Reader;
@@ -42,6 +43,7 @@ import java.util.zip.GZIPInputStream;
 
 import static io.jooby.MediaType.html;
 import static io.jooby.MediaType.text;
+import static io.jooby.MediaType.xml;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -724,35 +726,86 @@ public class FeaturedTest {
   }
 
   @Test
-  public void renderVsTemplateEngine() {
+  public void defaultAndExplicitAcceptableResponses() {
+    class Message {
+      String value = "OK";
+
+      @Override public String toString() {
+        return value;
+      }
+    }
+
     new JoobyRunner(app -> {
-      app.renderer((TemplateEngine) (ctx, modelAndView) -> modelAndView.view + modelAndView.model);
-
-      app.get("/map", ctx -> mapOf("k", "v"));
-
-      app.get("/view", ctx ->
-          new ModelAndView("view", mapOf("k", "v"))
+      app.renderer(io.jooby.MediaType.json, (@Nonnull Context ctx, @Nonnull Object value) ->
+          ("{" + value.toString() + "}").getBytes(StandardCharsets.UTF_8)
       );
 
-      app.get("/", ctx ->
-          new ContentNegotiation()
-              .accept(io.jooby.MediaType.json, () -> mapOf("k", "v"))
-              .accept(html, () -> new ModelAndView("view", mapOf("k", "v")))
-              .render(ctx)
+      app.renderer(io.jooby.MediaType.xml, (@Nonnull Context ctx, @Nonnull Object value) ->
+          ("<" + value.toString() + ">").getBytes(StandardCharsets.UTF_8)
       );
+
+      app.get("/defaults", ctx -> {
+        ctx.query("type").toOptional().ifPresent(ctx::setContentType);
+        return new Message();
+      });
+
+      app.get("/produces", ctx ->  new Message())
+          .setProduces(io.jooby.MediaType.json, io.jooby.MediaType.xml);
+
     }).ready(client -> {
-      client.get("/map", rsp -> {
-        assertEquals("{k=v}", rsp.body().string());
-      });
-      client.get("/view", rsp -> {
-        assertEquals("view{k=v}", rsp.body().string());
-      });
-      client.get("/", rsp -> {
-        assertEquals("view{k=v}", rsp.body().string());
-      });
       client.header("Accept", "application/json");
-      client.get("/", rsp -> {
-        assertEquals("{k=v}", rsp.body().string());
+      client.get("/defaults", rsp -> {
+        assertEquals("{OK}", rsp.body().string());
+      });
+
+      client.header("Accept", "application/xml");
+      client.get("/defaults", rsp -> {
+        assertEquals("<OK>", rsp.body().string());
+      });
+
+      client.header("Accept", "text/plain");
+      client.get("/defaults", rsp -> {
+        assertEquals("OK", rsp.body().string());
+      });
+
+      client.header("Accept", "*/*");
+      client.get("/defaults", rsp -> {
+        assertEquals("<OK>", rsp.body().string());
+      });
+
+      client.header("Accept", "text/html");
+      client.get("/defaults", rsp -> {
+        assertEquals(406, rsp.code());
+      });
+
+      client.header("Accept", "text/html");
+      client.get("/defaults?type=text/html", rsp -> {
+        assertEquals("OK", rsp.body().string());
+      });
+
+      client.header("Accept", "application/json");
+      client.get("/produces", rsp -> {
+        assertEquals("{OK}", rsp.body().string());
+      });
+
+      client.header("Accept", "application/xml");
+      client.get("/produces", rsp -> {
+        assertEquals("<OK>", rsp.body().string());
+      });
+
+      client.header("Accept", "*/*");
+      client.get("/produces", rsp -> {
+        assertEquals("<OK>", rsp.body().string());
+      });
+
+      client.header("Accept", "text/html");
+      client.get("/produces", rsp -> {
+        assertEquals(406, rsp.code());
+      });
+
+      client.header("Accept", "text/plain");
+      client.get("/produces", rsp -> {
+        assertEquals(406, rsp.code());
       });
     });
   }

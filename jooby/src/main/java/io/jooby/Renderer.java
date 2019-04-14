@@ -27,7 +27,12 @@ import java.nio.charset.StandardCharsets;
 public interface Renderer {
 
   /** To string renderer. */
-  Renderer TO_STRING = (ctx, value) -> value.toString().getBytes(StandardCharsets.UTF_8);
+  Renderer TO_STRING = (ctx, value) -> {
+    if (ctx.accept(ctx.getResponseContentType())) {
+      return value.toString().getBytes(StandardCharsets.UTF_8);
+    }
+    throw new Err(StatusCode.NOT_ACCEPTABLE);
+  };
 
   /**
    * Renderer a value into a byte array or <code>null</code> if given object isn't supported it.
