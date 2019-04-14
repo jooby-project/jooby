@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * Route contains information about the HTTP method, path pattern, which content types consumes and
@@ -198,24 +197,6 @@ public class Route {
    */
   public static final Handler FAVICON = ctx -> ctx.sendStatusCode(StatusCode.NOT_FOUND);
 
-  public static final Route.Before ACCEPT = ctx -> {
-    List<MediaType> produceTypes = ctx.getRoute().getProduces();
-    MediaType contentType = ctx.accept(produceTypes);
-    if (contentType == null) {
-      throw new Err(StatusCode.NOT_ACCEPTABLE, ctx.header(Context.ACCEPT).value(""));
-    }
-  };
-
-  public static final Route.Before SUPPORT_MEDIA_TYPE = ctx -> {
-    MediaType contentType = ctx.getContentType();
-    if (contentType == null) {
-      throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE);
-    }
-    if (!ctx.getRoute().getConsumes().stream().anyMatch(contentType::matches)) {
-      throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE, contentType.getValue());
-    }
-  };
-
   private static final List<MediaType> EMPTY_LIST = Collections.emptyList();
 
   private final Map<String, Parser> parsers;
@@ -293,6 +274,8 @@ public class Route {
    * @param pattern Path pattern.
    * @param returnType Return type.
    * @param handler Route handler.
+   * @param before Before pipeline.
+   * @param after After pipeline.
    * @param renderer Route renderer.
    * @param parsers Route parsers.
    */
@@ -364,10 +347,20 @@ public class Route {
     return handle;
   }
 
+  /**
+   * Before pipeline or <code>null</code>.
+   *
+   * @return Before pipeline or <code>null</code>.
+   */
   public @Nullable Decorator getBefore() {
     return before;
   }
 
+  /**
+   * After decorator or <code>null</code>.
+   *
+   * @return After decorator or <code>null</code>.
+   */
   public @Nullable After getAfter() {
     return after;
   }
@@ -423,14 +416,33 @@ public class Route {
     return this;
   }
 
+  /**
+   * Response types (format) produces by this route. If set, we expect to find a match in the
+   * <code>Accept</code> header. If none matches, we send a {@link StatusCode#NOT_ACCEPTABLE}
+   * response.
+   *
+   * @return Immutable list of produce types.
+   */
   public @Nonnull List<MediaType> getProduces() {
     return produces;
   }
 
+  /**
+   * Add one or more response types (format) produces by this route.
+   *
+   * @param produces Produce types.
+   * @return This route.
+   */
   public @Nonnull Route produces(@Nonnull MediaType... produces) {
     return setProduces(Arrays.asList(produces));
   }
 
+  /**
+   * Add one or more response types (format) produces by this route.
+   *
+   * @param produces Produce types.
+   * @return This route.
+   */
   public @Nonnull Route setProduces(@Nonnull Collection<MediaType> produces) {
     if (this.produces == EMPTY_LIST) {
       this.produces = new ArrayList<>();
@@ -439,14 +451,33 @@ public class Route {
     return this;
   }
 
+  /**
+   * Request types (format) consumed by this route. If set the <code>Content-Type</code> header
+   * is checked against these values. If none matches we send a
+   * {@link StatusCode#UNSUPPORTED_MEDIA_TYPE} exception.
+   *
+   * @return Immutable list of consumed types.
+   */
   public @Nonnull List<MediaType> getConsumes() {
     return consumes;
   }
 
+  /**
+   * Add one or more request types (format) consumed by this route.
+   *
+   * @param consumes Consume types.
+   * @return This route.
+   */
   public @Nonnull Route consumes(@Nonnull MediaType... consumes) {
     return setConsumes(Arrays.asList(consumes));
   }
 
+  /**
+   * Add one or more request types (format) consumed by this route.
+   *
+   * @param consumes Consume types.
+   * @return This route.
+   */
   public @Nonnull Route setConsumes(@Nonnull Collection<MediaType> consumes) {
     if (this.consumes == EMPTY_LIST) {
       this.consumes = new ArrayList<>();

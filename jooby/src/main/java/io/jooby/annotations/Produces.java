@@ -44,5 +44,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Produces {
+  /**
+   * Produce types.
+   *
+   * @return Produce types.
+   */
   String[] value();
 }

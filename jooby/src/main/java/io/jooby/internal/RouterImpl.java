@@ -113,6 +113,25 @@ public class RouterImpl implements Router {
     }
   }
 
+  static final Route.Before ACCEPT = ctx -> {
+    List<MediaType> produceTypes = ctx.getRoute().getProduces();
+    MediaType contentType = ctx.accept(produceTypes);
+    if (contentType == null) {
+      throw new Err(StatusCode.NOT_ACCEPTABLE, ctx.header(Context.ACCEPT).value(""));
+    }
+  };
+
+  static final Route.Before SUPPORT_MEDIA_TYPE = ctx -> {
+    MediaType contentType = ctx.getContentType();
+    if (contentType == null) {
+      throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE);
+    }
+    if (!ctx.getRoute().getConsumes().stream().anyMatch(contentType::matches)) {
+      throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE, contentType.getValue());
+    }
+  };
+
+
   private ErrorHandler err;
 
   private Map<String, StatusCode> errorCodes;
@@ -391,10 +410,10 @@ public class RouterImpl implements Router {
       /** Pipeline: */
       Route.Decorator before = route.getBefore();
       if (route.getProduces().size() > 0) {
-        before = before == null ? Route.ACCEPT : Route.ACCEPT.then(before);
+        before = before == null ? ACCEPT : ACCEPT.then(before);
       }
       if (route.getConsumes().size() > 0) {
-        before = before == null ? Route.SUPPORT_MEDIA_TYPE : Route.SUPPORT_MEDIA_TYPE.then(before);
+        before = before == null ? SUPPORT_MEDIA_TYPE : SUPPORT_MEDIA_TYPE.then(before);
       }
       Route.Handler pipeline = route.getHandler();
 
