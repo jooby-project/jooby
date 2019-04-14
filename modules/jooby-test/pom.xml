@@ -10,7 +10,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-handlebars</artifactId>
+  <artifactId>jooby-test</artifactId>
 
   <dependencies>
     <dependency>
@@ -23,12 +23,6 @@
       <groupId>io.jooby</groupId>
       <artifactId>jooby</artifactId>
       <version>${jooby.version}</version>
-    </dependency>
-
-    <!-- Handlebars -->
-    <dependency>
-      <groupId>com.github.jknack</groupId>
-      <artifactId>handlebars</artifactId>
     </dependency>
 
     <!-- Test dependencies -->
@@ -48,12 +42,6 @@
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>io.jooby</groupId>
-      <artifactId>jooby-test</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

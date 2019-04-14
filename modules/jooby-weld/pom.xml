@@ -50,13 +50,5 @@
       <artifactId>okhttp</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>io.jooby</groupId>
-      <artifactId>jooby</artifactId>
-      <version>${jooby.version}</version>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 </project>

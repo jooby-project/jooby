@@ -72,10 +72,8 @@
     </dependency>
 
     <dependency>
-      <groupId>io.jooby</groupId>
-      <artifactId>jooby</artifactId>
-      <version>${jooby.version}</version>
-      <classifier>tests</classifier>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

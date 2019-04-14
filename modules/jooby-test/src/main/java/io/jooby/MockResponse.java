@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Result {
+public class MockResponse {
 
   private final Object value;
 
@@ -37,7 +37,7 @@ public class Result {
 
   private long length = -1;
 
-  public Result(Object value, StatusCode statusCode) {
+  public MockResponse(Object value, StatusCode statusCode) {
     this.value = value;
     this.statusCode = statusCode;
   }
@@ -46,12 +46,12 @@ public class Result {
     return headers == null ? Collections.emptyMap() : Collections.unmodifiableMap(headers);
   }
 
-  public @Nonnull Result headers(@Nonnull Map<String, String> headers) {
+  public @Nonnull MockResponse headers(@Nonnull Map<String, String> headers) {
     headers.forEach(this::header);
     return this;
   }
 
-  public @Nonnull Result header(@Nonnull String name, @Nonnull String value) {
+  public @Nonnull MockResponse header(@Nonnull String name, @Nonnull String value) {
     if ("content-type".equalsIgnoreCase(name)) {
       setContentType(MediaType.valueOf(value));
     } else if ("content-length".equalsIgnoreCase(name)) {
@@ -66,11 +66,11 @@ public class Result {
     return contentType == null ? MediaType.text : contentType;
   }
 
-  public @Nonnull Result setContentType(@Nonnull MediaType contentType) {
+  public @Nonnull MockResponse setContentType(@Nonnull MediaType contentType) {
     return setContentType(contentType, contentType.getCharset());
   }
 
-  public @Nonnull Result setContentType(@Nonnull MediaType contentType, @Nullable Charset charset) {
+  public @Nonnull MockResponse setContentType(@Nonnull MediaType contentType, @Nullable Charset charset) {
     this.contentType = contentType;
     this.charset = charset;
     headers.put("content-type", contentType.toContentTypeHeader(charset));
@@ -85,7 +85,7 @@ public class Result {
     return length;
   }
 
-  public Result setContentLength(long length) {
+  public MockResponse setContentLength(long length) {
     this.length = length;
     headers.put("content-length", Long.toString(length));
     return this;

@@ -53,9 +53,8 @@
 
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby</artifactId>
+      <artifactId>jooby-test</artifactId>
       <version>${jooby.version}</version>
-      <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
   </dependencies>

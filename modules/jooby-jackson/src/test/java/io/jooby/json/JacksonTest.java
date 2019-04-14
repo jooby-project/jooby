@@ -1,6 +1,8 @@
 package io.jooby.json;
 
-import io.jooby.MockContext;
+import io.jooby.Body;
+import io.jooby.Context;
+import io.jooby.MediaType;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -8,26 +10,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class JacksonTest {
 
   @Test
   public void render() throws Exception {
+    Context ctx = mock(Context.class);
+
     Jackson jackson = new Jackson();
-    MockContext ctx = new MockContext();
-    byte [] bytes = jackson.render(ctx, mapOf("k", "v"));
+
+    byte[] bytes = jackson.render(ctx, mapOf("k", "v"));
     assertEquals("{\"k\":\"v\"}", new String(bytes, StandardCharsets.UTF_8));
-    /** Type: */
-    assertEquals("application/json", ctx.getResponseContentType().getValue());
-    assertEquals("utf-8", ctx.getResponseCharset().name().toLowerCase());
+
+    verify(ctx).setDefaultContentType(MediaType.json);
   }
 
   @Test
   public void parse() throws Exception {
+    byte[] bytes = "{\"k\":\"v\"}".getBytes(StandardCharsets.UTF_8);
+    Body body = mock(Body.class);
+    when(body.isInMemory()).thenReturn(true);
+    when(body.bytes()).thenReturn(bytes);
+
+    Context ctx = mock(Context.class);
+    when(ctx.body()).thenReturn(body);
+
     Jackson jackson = new Jackson();
-    MockContext ctx = new MockContext();
-    ctx.setBody("{\"k\":\"v\"}".getBytes(StandardCharsets.UTF_8));
 
     Map<String, String> result = jackson.parse(ctx, Map.class);
     assertEquals(mapOf("k", "v"), result);

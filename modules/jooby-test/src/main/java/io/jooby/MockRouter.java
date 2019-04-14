@@ -1,3 +1,18 @@
+/**
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby;
 
 import javax.annotation.Nonnull;
@@ -35,12 +50,12 @@ public class MockRouter {
     return get(path, NOOP, NOOP);
   }
 
-  public Object get(@Nonnull String path, @Nonnull Consumer<Result> consumer) {
+  public Object get(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
     return get(path, NOOP, consumer);
   }
 
   public Object get(@Nonnull String path, @Nonnull Consumer<MockContext> prepare,
-      @Nonnull Consumer<Result> consumer) {
+      @Nonnull Consumer<MockResponse> consumer) {
     return route(Router.GET, path, prepare, consumer);
   }
 
@@ -52,12 +67,12 @@ public class MockRouter {
     return post(path, NOOP, NOOP);
   }
 
-  public Object post(@Nonnull String path, @Nonnull Consumer<Result> consumer) {
+  public Object post(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
     return post(path, NOOP, consumer);
   }
 
   public Object post(@Nonnull String path, @Nonnull Consumer<MockContext> prepare,
-      @Nonnull Consumer<Result> consumer) {
+      @Nonnull Consumer<MockResponse> consumer) {
     return route(Router.POST, path, prepare, consumer);
   }
 
@@ -70,12 +85,12 @@ public class MockRouter {
     return delete(path, NOOP, NOOP);
   }
 
-  public Object delete(@Nonnull String path, @Nonnull Consumer<Result> consumer) {
+  public Object delete(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
     return delete(path, NOOP, consumer);
   }
 
   public Object delete(@Nonnull String path, @Nonnull Consumer<MockContext> prepare,
-      @Nonnull Consumer<Result> consumer) {
+      @Nonnull Consumer<MockResponse> consumer) {
     return route(Router.DELETE, path, prepare, consumer);
   }
 
@@ -84,18 +99,18 @@ public class MockRouter {
    * **********************************************************************************************
    */
   public Object route(@Nonnull String method, @Nonnull String path,
-      @Nonnull Consumer<Result> consumer) {
+      @Nonnull Consumer<MockResponse> consumer) {
     return route(method, path, NOOP, consumer);
   }
 
   public Object route(@Nonnull String method, @Nonnull String path,
       @Nonnull Consumer<MockContext> prepare,
-      @Nonnull Consumer<Result> consumer) {
+      @Nonnull Consumer<MockResponse> consumer) {
     return route(supplier.get(), method, path, prepare, consumer);
   }
 
   private Object route(Jooby router, String method, String path, Consumer<MockContext> prepare,
-      Consumer<Result> consumer) {
+      Consumer<MockResponse> consumer) {
     MockContext ctx = new MockContext()
         .setMethod(method)
         .setPathString(path);
@@ -108,7 +123,7 @@ public class MockRouter {
     Object value;
     try {
       value = match.route().getHandler().apply(ctx);
-      Result result = new Result(value, ctx.getStatusCode());
+      MockResponse result = new MockResponse(value, ctx.getStatusCode());
       /** Content-Type: */
       result.header("Content-Type",
           ctx.getResponseContentType().toContentTypeHeader(ctx.getResponseCharset()));
@@ -123,7 +138,7 @@ public class MockRouter {
       consumer.accept(result);
       return value;
     } catch (Exception x) {
-      Result result = new Result(x, ctx.getStatusCode());
+      MockResponse result = new MockResponse(x, ctx.getStatusCode());
       consumer.accept(result);
       return x;
     }

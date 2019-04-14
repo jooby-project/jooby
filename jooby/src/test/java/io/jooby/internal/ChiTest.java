@@ -1,7 +1,8 @@
 package io.jooby.internal;
 
+import static org.mockito.Mockito.mock;
+
 import io.jooby.Context;
-import io.jooby.MockContext;
 import io.jooby.Renderer;
 import io.jooby.Route;
 import io.jooby.Throwing;
@@ -11,6 +12,7 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 public class ChiTest {
 
@@ -23,10 +25,17 @@ public class ChiTest {
     router.insert(bar);
 
     RouterMatch result = router
-        .find(new MockContext().setPathString("/abcd"), Renderer.TO_STRING,
+        .find(ctx("/abcd"), Renderer.TO_STRING,
             Collections.emptyList());
     assertTrue(result.matches);
     assertEquals(bar, result.route());
+  }
+
+  private Context ctx(String path) {
+    Context context = mock(Context.class);
+    when(context.pathString()).thenReturn(path);
+    when(context.getMethod()).thenReturn("GET");
+    return context;
   }
 
   @Test
@@ -39,7 +48,7 @@ public class ChiTest {
     router.insert(foos);
 
     RouterMatch result = router
-        .find(new MockContext().setPathString("/abcd/"), Renderer.TO_STRING,
+        .find(ctx("/abcd/"), Renderer.TO_STRING,
             Collections.emptyList());
     assertTrue(result.matches);
     assertEquals(foos, result.route());
@@ -73,8 +82,9 @@ public class ChiTest {
     });
   }
 
-  private void find($Chi router, String pattern, Throwing.Consumer2<Context, RouterMatch> consumer) {
-    Context rootctx = new MockContext().setPathString(pattern);
+  private void find($Chi router, String pattern,
+      Throwing.Consumer2<Context, RouterMatch> consumer) {
+    Context rootctx = ctx(pattern);
     RouterMatch result = router
         .find(rootctx, Renderer.TO_STRING, Collections.emptyList());
     consumer.accept(rootctx, result);
