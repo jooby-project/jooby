@@ -79,12 +79,12 @@ public interface ErrorHandler {
           .append("</html>");
 
       ctx
-          .setContentType(MediaType.html)
+          .setResponseType(MediaType.html)
           .setStatusCode(statusCode)
           .sendString(html.toString());
     } else {
       String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
-      ctx.setContentType(json)
+      ctx.setResponseType(json)
           .setStatusCode(statusCode)
           .sendString("{\"message\":\"" + message + "\",\"statusCode\":" + statusCode.value()
               + ",\"reason\":\"" + statusCode.reason() + "\"}");

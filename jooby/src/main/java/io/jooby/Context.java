@@ -400,7 +400,7 @@ public interface Context {
    *
    * @return Request <code>Content-Type</code> header or <code>null</code> when missing.
    */
-  @Nullable default MediaType getContentType() {
+  @Nullable default MediaType getRequestType() {
     Value contentType = header("Content-Type");
     return contentType.isMissing() ? null : MediaType.valueOf(contentType.value());
   }
@@ -411,7 +411,7 @@ public interface Context {
    * @param defaults Default content type to use when the header is missing.
    * @return Request <code>Content-Type</code> header or <code>null</code> when missing.
    */
-  @Nonnull default MediaType getContentType(MediaType defaults) {
+  @Nonnull default MediaType getRequestType(MediaType defaults) {
     Value contentType = header("Content-Type");
     return contentType.isMissing() ? defaults : MediaType.valueOf(contentType.value());
   }
@@ -421,7 +421,7 @@ public interface Context {
    *
    * @return Request <code>Content-Length</code> header or <code>-1</code> when missing.
    */
-  default long getContentLength() {
+  default long getRequestLength() {
     Value contentLength = header("Content-Length");
     return contentLength.isMissing() ? -1 : contentLength.longValue();
   }
@@ -671,7 +671,7 @@ public interface Context {
    * @return Instance of conversion type.
    */
   default @Nonnull <T> T body(@Nonnull Reified<T> type) {
-    return body(type, getContentType(MediaType.text));
+    return body(type, getRequestType(MediaType.text));
   }
 
   /**
@@ -698,7 +698,7 @@ public interface Context {
    * @return Instance of conversion type.
    */
   default @Nonnull <T> T body(@Nonnull Class type) {
-    return body(type, getContentType(MediaType.text));
+    return body(type, getRequestType(MediaType.text));
   }
 
   /**
@@ -863,7 +863,7 @@ public interface Context {
    * @param length Response length.
    * @return This context.
    */
-  @Nonnull Context setContentLength(long length);
+  @Nonnull Context setResponseLength(long length);
 
   /**
    * Set response content type header.
@@ -871,7 +871,7 @@ public interface Context {
    * @param contentType Content type.
    * @return This context.
    */
-  @Nonnull Context setContentType(@Nonnull String contentType);
+  @Nonnull Context setResponseType(@Nonnull String contentType);
 
   /**
    * Set response content type header.
@@ -879,8 +879,8 @@ public interface Context {
    * @param contentType Content type.
    * @return This context.
    */
-  @Nonnull default Context setContentType(@Nonnull MediaType contentType) {
-    return setContentType(contentType, contentType.getCharset());
+  @Nonnull default Context setResponseType(@Nonnull MediaType contentType) {
+    return setResponseType(contentType, contentType.getCharset());
   }
 
   /**
@@ -890,7 +890,7 @@ public interface Context {
    * @param charset Charset.
    * @return This context.
    */
-  @Nonnull Context setContentType(@Nonnull MediaType contentType, @Nullable Charset charset);
+  @Nonnull Context setResponseType(@Nonnull MediaType contentType, @Nullable Charset charset);
 
   /**
    * Set the default response content type header. It is used if the response content type header
@@ -899,14 +899,14 @@ public interface Context {
    * @param contentType Content type.
    * @return This context.
    */
-  @Nonnull Context setDefaultContentType(@Nonnull MediaType contentType);
+  @Nonnull Context setDefaultResponseType(@Nonnull MediaType contentType);
 
   /**
    * Get response content type.
    *
    * @return Response content type.
    */
-  @Nonnull MediaType getResponseContentType();
+  @Nonnull MediaType getResponseType();
 
   /**
    * Set response status code.
@@ -965,7 +965,7 @@ public interface Context {
    * @return HTTP channel as output stream. Usually for chunked responses.
    */
   default @Nonnull OutputStream responseStream(@Nonnull MediaType contentType) {
-    setContentType(contentType);
+    setResponseType(contentType);
     return responseStream();
   }
 
@@ -979,7 +979,7 @@ public interface Context {
    */
   default @Nonnull Context responseStream(@Nonnull MediaType contentType,
       @Nonnull Throwing.Consumer<OutputStream> consumer) throws Exception {
-    setContentType(contentType);
+    setResponseType(contentType);
     return responseStream(consumer);
   }
 
@@ -1169,9 +1169,9 @@ public interface Context {
     InputStream content = file.stream();
     long length = file.getFileSize();
     if (length > 0) {
-      setContentLength(length);
+      setResponseLength(length);
     }
-    setDefaultContentType(file.getContentType());
+    setDefaultResponseType(file.getContentType());
     if (content instanceof FileInputStream) {
       sendFile(((FileInputStream) content).getChannel());
     } else {
@@ -1188,7 +1188,7 @@ public interface Context {
    */
   default @Nonnull Context sendFile(@Nonnull Path file) {
     try {
-      setDefaultContentType(MediaType.byFile(file));
+      setDefaultResponseType(MediaType.byFile(file));
       return sendFile(FileChannel.open(file));
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);

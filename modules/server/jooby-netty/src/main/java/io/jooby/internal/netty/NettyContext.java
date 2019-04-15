@@ -231,37 +231,37 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     return this;
   }
 
-  @Nonnull @Override public MediaType getResponseContentType() {
+  @Nonnull @Override public MediaType getResponseType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
-  @Nonnull @Override public Context setDefaultContentType(@Nonnull MediaType contentType) {
+  @Nonnull @Override public Context setDefaultResponseType(@Nonnull MediaType contentType) {
     if (responseType == null) {
-      setContentType(contentType, contentType.getCharset());
+      setResponseType(contentType, contentType.getCharset());
     }
     return this;
   }
 
-  @Override public final Context setContentType(MediaType contentType, Charset charset) {
+  @Override public final Context setResponseType(MediaType contentType, Charset charset) {
     this.responseType = contentType;
     setHeaders.set(CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
   }
 
-  @Nonnull @Override public Context setContentType(@Nonnull String contentType) {
+  @Nonnull @Override public Context setResponseType(@Nonnull String contentType) {
     this.responseType = MediaType.valueOf(contentType);
     setHeaders.set(CONTENT_TYPE, contentType);
     return this;
   }
 
-  @Nonnull @Override public Context setContentLength(long length) {
+  @Nonnull @Override public Context setResponseLength(long length) {
     contentLength = length;
     setHeaders.set(CONTENT_LENGTH, length);
     return this;
   }
 
   @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
-    setContentType(type, charset);
+    setResponseType(type, charset);
 
     return new PrintWriter(new NettyWriter(newOutputStream(), charset));
   }

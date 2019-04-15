@@ -189,31 +189,31 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
-  @Nonnull @Override public MediaType getResponseContentType() {
+  @Nonnull @Override public MediaType getResponseType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
-  @Nonnull @Override public Context setDefaultContentType(@Nonnull MediaType contentType) {
+  @Nonnull @Override public Context setDefaultResponseType(@Nonnull MediaType contentType) {
     if (responseType == null) {
-      setContentType(contentType, contentType.getCharset());
+      setResponseType(contentType, contentType.getCharset());
     }
     return this;
   }
 
   @Nonnull @Override
-  public Context setContentType(@Nonnull MediaType contentType, @Nullable Charset charset) {
+  public Context setResponseType(@Nonnull MediaType contentType, @Nullable Charset charset) {
     this.responseType = contentType;
     exchange.getResponseHeaders().put(CONTENT_TYPE, contentType.toContentTypeHeader(charset));
     return this;
   }
 
-  @Nonnull @Override public Context setContentType(@Nonnull String contentType) {
+  @Nonnull @Override public Context setResponseType(@Nonnull String contentType) {
     this.responseType = MediaType.valueOf(contentType);
     exchange.getResponseHeaders().put(CONTENT_TYPE, contentType);
     return this;
   }
 
-  @Nonnull @Override public Context setContentLength(long length) {
+  @Nonnull @Override public Context setResponseLength(long length) {
     exchange.setResponseContentLength(length);
     return this;
   }
@@ -233,7 +233,7 @@ public class UtowContext implements Context, IoCallback {
   @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
     ifStartBlocking();
 
-    setContentType(type, charset);
+    setResponseType(type, charset);
     ifSetChunked();
 
     return new PrintWriter(new UtowWriter(exchange.getOutputStream(), charset));

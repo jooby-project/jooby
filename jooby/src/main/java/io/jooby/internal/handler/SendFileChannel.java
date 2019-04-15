@@ -42,7 +42,7 @@ public class SendFileChannel implements LinkedHandler {
       }
       if (file instanceof Path) {
         if (Files.exists((Path) file)) {
-          ctx.setDefaultContentType(MediaType.byFile((Path) file));
+          ctx.setDefaultResponseType(MediaType.byFile((Path) file));
           file = FileChannel.open((Path) file, StandardOpenOption.READ);
         } else {
           throw new FileNotFoundException(file.toString());

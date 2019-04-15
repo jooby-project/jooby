@@ -116,7 +116,7 @@ public class SingleByteRange implements ByteRange {
   @Override public @Nonnull ByteRange apply(@Nonnull Context ctx) {
     ctx.setHeader("Accept-Ranges", "bytes");
     ctx.setHeader("Content-Range", contentRange);
-    ctx.setContentLength(contentLength);
+    ctx.setResponseLength(contentLength);
     ctx.setStatusCode(StatusCode.PARTIAL_CONTENT);
     return this;
   }

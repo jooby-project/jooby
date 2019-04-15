@@ -67,7 +67,7 @@ public class Jackson implements Extension, Parser, Renderer {
   }
 
   @Override public byte[] render(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
-    ctx.setDefaultContentType(MediaType.json);
+    ctx.setDefaultResponseType(MediaType.json);
     return mapper.writeValueAsBytes(value);
   }
 

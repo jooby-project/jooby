@@ -87,9 +87,9 @@ public class AssetHandler implements Route.Handler {
 
     long length = asset.getSize();
     if (length != -1) {
-      ctx.setContentLength(length);
+      ctx.setResponseLength(length);
     }
-    ctx.setContentType(asset.getContentType());
+    ctx.setResponseType(asset.getContentType());
     return ctx.sendStream(asset.stream());
   }
 

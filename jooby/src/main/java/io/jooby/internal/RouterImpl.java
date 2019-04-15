@@ -122,7 +122,7 @@ public class RouterImpl implements Router {
   };
 
   static final Route.Before SUPPORT_MEDIA_TYPE = ctx -> {
-    MediaType contentType = ctx.getContentType();
+    MediaType contentType = ctx.getRequestType();
     if (contentType == null) {
       throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE);
     }

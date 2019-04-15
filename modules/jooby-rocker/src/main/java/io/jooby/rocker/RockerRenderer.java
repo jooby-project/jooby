@@ -28,8 +28,8 @@ class RockerRenderer implements Renderer {
     if (value instanceof RockerModel) {
       RockerModel template = (RockerModel) value;
       ArrayOfByteArraysOutput output = template.render(ArrayOfByteArraysOutput.FACTORY);
-      ctx.setContentLength(output.getByteLength());
-      ctx.setDefaultContentType(MediaType.html);
+      ctx.setResponseLength(output.getByteLength());
+      ctx.setDefaultResponseType(MediaType.html);
       return output.toByteArray();
     }
     return null;

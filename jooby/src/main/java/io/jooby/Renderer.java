@@ -28,7 +28,7 @@ public interface Renderer {
 
   /** To string renderer. */
   Renderer TO_STRING = (ctx, value) -> {
-    if (ctx.accept(ctx.getResponseContentType())) {
+    if (ctx.accept(ctx.getResponseType())) {
       return value.toString().getBytes(StandardCharsets.UTF_8);
     }
     throw new Err(StatusCode.NOT_ACCEPTABLE);

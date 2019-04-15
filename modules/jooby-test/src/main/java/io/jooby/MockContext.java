@@ -257,18 +257,18 @@ public class MockContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public MockContext setContentLength(long length) {
+  @Nonnull @Override public MockContext setResponseLength(long length) {
     response.setContentLength(length);
     return this;
   }
 
-  @Nonnull @Override public MockContext setContentType(@Nonnull String contentType) {
+  @Nonnull @Override public MockContext setResponseType(@Nonnull String contentType) {
     response.setContentType(MediaType.valueOf(contentType));
     return this;
   }
 
   @Nonnull @Override
-  public MockContext setContentType(@Nonnull MediaType contentType, @Nullable Charset charset) {
+  public MockContext setResponseType(@Nonnull MediaType contentType, @Nullable Charset charset) {
     response.setContentType(contentType);
     return this;
   }
@@ -386,12 +386,12 @@ public class MockContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public MockContext setDefaultContentType(@Nonnull MediaType contentType) {
+  @Nonnull @Override public MockContext setDefaultResponseType(@Nonnull MediaType contentType) {
     response.setContentType(contentType);
     return this;
   }
 
-  @Nonnull @Override public MediaType getResponseContentType() {
+  @Nonnull @Override public MediaType getResponseType() {
     return response.getContentType();
   }
 

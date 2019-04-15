@@ -25,7 +25,7 @@ public class JacksonTest {
     byte[] bytes = jackson.render(ctx, mapOf("k", "v"));
     assertEquals("{\"k\":\"v\"}", new String(bytes, StandardCharsets.UTF_8));
 
-    verify(ctx).setDefaultContentType(MediaType.json);
+    verify(ctx).setDefaultResponseType(MediaType.json);
   }
 
   @Test
