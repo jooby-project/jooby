@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Web server contract. Defines operations to start, join and stop a web server. Jooby comes
  * with three web server implementation: Jetty, Netty and Undertow.
  *
+ * To use a web server, just add the dependency to your project.
+ *
  * @author edgar
  * @since 2.0.0
  */

@@ -33,7 +33,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Web server implementation using <a href="http://undertow.io/">Undertow</a>.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class Utow extends Server.Base {
+
+  private static final int BACKLOG = 8192;
 
   private Undertow server;
 
@@ -43,7 +51,7 @@ public class Utow extends Server.Base {
       .setIoThreads(ServerOptions.IO_THREADS)
       .setServer("utow");
 
-  @Nonnull @Override public Utow setOptions(ServerOptions options) {
+  @Nonnull @Override public Utow setOptions(@Nonnull ServerOptions options) {
     this.options = options
         .setIoThreads(options.getIoThreads());
     return this;
@@ -53,7 +61,7 @@ public class Utow extends Server.Base {
     return options;
   }
 
-  @Override public Server start(Jooby application) {
+  @Override public Server start(@Nonnull Jooby application) {
     try {
       applications.add(application);
 
@@ -71,7 +79,7 @@ public class Utow extends Server.Base {
           .addHttpListener(options.getPort(), "0.0.0.0")
           .setBufferSize(options.getBufferSize())
           /** Socket : */
-          .setSocketOption(Options.BACKLOG, 8192)
+          .setSocketOption(Options.BACKLOG, BACKLOG)
           /** Server: */
           // HTTP/1.1 is keep-alive by default, turn this option off
           .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
@@ -101,7 +109,7 @@ public class Utow extends Server.Base {
     }
   }
 
-  @Override public Server stop() {
+  @Nonnull @Override public Server stop() {
     fireStop(applications);
     applications = null;
     if (server != null) {

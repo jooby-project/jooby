@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * Utility class which creates a String key from type and optionally a name.
  *
- * @param <T>
+ * @param <T> Resource type.
  */
 public final class ResourceKey<T> {
   private final Class<T> type;

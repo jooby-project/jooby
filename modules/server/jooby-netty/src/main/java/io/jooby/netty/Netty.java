@@ -23,7 +23,6 @@ import io.jooby.internal.netty.DefaultHeaders;
 import io.jooby.internal.netty.NettyNative;
 import io.jooby.internal.netty.NettyPipeline;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -35,19 +34,22 @@ import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import io.netty.util.concurrent.GenericFutureListener;
 
 import javax.annotation.Nonnull;
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+
+/**
+ * Web server implementation using <a href="https://netty.io/">Netty</a>.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 
 public class Netty extends Server.Base {
 
@@ -55,6 +57,10 @@ public class Netty extends Server.Base {
     System.setProperty("io.netty.leakDetection.level",
         System.getProperty("io.netty.leakDetection.level", "disabled"));
   }
+
+  private static final int DATE_INTERVAL = 1000;
+
+  private static final int BACKLOG = 8192;
 
   private List<Jooby> applications = new ArrayList<>();
 
@@ -111,7 +117,7 @@ public class Netty extends Server.Base {
 
       /** Bootstrap: */
       ServerBootstrap bootstrap = new ServerBootstrap();
-      bootstrap.option(ChannelOption.SO_BACKLOG, 8192);
+      bootstrap.option(ChannelOption.SO_BACKLOG, BACKLOG);
       bootstrap.option(ChannelOption.SO_REUSEADDR, true);
 
       Consumer<HttpHeaders> defaultHeaders = options.isDefaultHeaders()
@@ -142,7 +148,7 @@ public class Netty extends Server.Base {
     return this;
   }
 
-  public Server stop() {
+  @Nonnull @Override public Server stop() {
     fireStop(applications);
     applications = null;
     if (acceptor != null) {
@@ -162,7 +168,7 @@ public class Netty extends Server.Base {
 
   private static DefaultHeaders defaultHeaders(ScheduledExecutorService executor) {
     DefaultHeaders headers = new DefaultHeaders();
-    executor.scheduleWithFixedDelay(headers, 1000, 1000, TimeUnit.MILLISECONDS);
+    executor.scheduleWithFixedDelay(headers, DATE_INTERVAL, DATE_INTERVAL, TimeUnit.MILLISECONDS);
     return headers;
   }
 

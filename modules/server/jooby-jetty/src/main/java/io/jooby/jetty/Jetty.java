@@ -34,6 +34,12 @@ import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Web server implementation using <a href="https://www.eclipse.org/jetty/">Jetty</a>.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class Jetty extends io.jooby.Server.Base {
 
   private static final int THREADS = 200;
@@ -50,7 +56,7 @@ public class Jetty extends io.jooby.Server.Base {
     System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.Slf4jLog");
   }
 
-  @Nonnull @Override public Jetty setOptions(ServerOptions options) {
+  @Nonnull @Override public Jetty setOptions(@Nonnull ServerOptions options) {
     this.options = options
         .setWorkerThreads(options.getWorkerThreads(THREADS));
     return this;
@@ -119,7 +125,7 @@ public class Jetty extends io.jooby.Server.Base {
     return this;
   }
 
-  @Override public io.jooby.Server stop() {
+  @Nonnull @Override public io.jooby.Server stop() {
     fireStop(applications);
     if (server != null) {
       try {
