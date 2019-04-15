@@ -624,7 +624,7 @@ Jooby provides a family of `sendXXX()` methods that produces a response via side
 ----
 {
   get("/", ctx -> {
-    return ctx.sendString("Hello World!");
+    return ctx.send("Hello World!");
   });
 }
 ----
@@ -634,7 +634,7 @@ Jooby provides a family of `sendXXX()` methods that produces a response via side
 ----
 {
   get("/") { ctx ->
-    ctx.sendString("Hello World!")
+    ctx.send("Hello World!")
   }
 }
 ----
@@ -647,11 +647,11 @@ side effects ignoring the output of the route handler.
 
 Family of send methods include:
 
-- javadoc:Context[sendBytes, byte[]]
-- javadoc:Context[sendBytes, java.nio.Buffer]
-- javadoc:Context[sendString, java.lang.String]
-- javadoc:Context[sendFile, java.nio.file.Path]
-- javadoc:Context[sendFile, java.io.File]
-- javadoc:Context[sendFile, java.nio.channels.FileChannel]
-- javadoc:Context[sendAttachment, io.jooby.AttachedFile]
-- javadoc:Context[sendStatusCode, io.jooby.StatusCode]
+- javadoc:Context[send, byte[]]
+- javadoc:Context[send, java.nio.Buffer]
+- javadoc:Context[send, java.lang.String]
+- javadoc:Context[send, java.nio.file.Path]
+- javadoc:Context[send, java.io.File]
+- javadoc:Context[send, java.nio.channels.FileChannel]
+- javadoc:Context[send, io.jooby.AttachedFile]
+- javadoc:Context[send, io.jooby.StatusCode]

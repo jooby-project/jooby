@@ -277,23 +277,23 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     return newOutputStream();
   }
 
-  @Nonnull @Override public Context sendString(@Nonnull String data) {
-    return sendBytes(copiedBuffer(data, UTF_8));
+  @Nonnull @Override public Context send(@Nonnull String data) {
+    return send(copiedBuffer(data, UTF_8));
   }
 
-  @Override public final Context sendString(String data, Charset charset) {
-    return sendBytes(copiedBuffer(data, charset));
+  @Override public final Context send(String data, Charset charset) {
+    return send(copiedBuffer(data, charset));
   }
 
-  @Override public final Context sendBytes(byte[] data) {
-    return sendBytes(wrappedBuffer(data));
+  @Override public final Context send(byte[] data) {
+    return send(wrappedBuffer(data));
   }
 
-  @Override public final Context sendBytes(ByteBuffer data) {
-    return sendBytes(wrappedBuffer(data));
+  @Override public final Context send(ByteBuffer data) {
+    return send(wrappedBuffer(data));
   }
 
-  @Nonnull @Override public Context sendBytes(@Nonnull ByteBuf data) {
+  @Nonnull @Override public Context send(@Nonnull ByteBuf data) {
     responseStarted = true;
     setHeaders.set(CONTENT_LENGTH, data.readableBytes());
     ctx.write(new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING))
@@ -302,7 +302,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     return this;
   }
 
-  @Nonnull @Override public Context sendBytes(@Nonnull ReadableByteChannel channel) {
+  @Nonnull @Override public Context send(@Nonnull ReadableByteChannel channel) {
     prepareChunked();
     DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, setHeaders);
     responseStarted = true;
@@ -322,10 +322,10 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     ctx.flush();
   }
 
-  @Nonnull @Override public Context sendStream(@Nonnull InputStream in) {
+  @Nonnull @Override public Context send(@Nonnull InputStream in) {
     if (in instanceof FileInputStream) {
       // use channel
-      return sendFile(((FileInputStream) in).getChannel());
+      return send(((FileInputStream) in).getChannel());
     }
     try {
       prepareChunked();
@@ -350,7 +350,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     }
   }
 
-  @Nonnull @Override public Context sendFile(@Nonnull FileChannel file) {
+  @Nonnull @Override public Context send(@Nonnull FileChannel file) {
     try {
       long len = file.size();
       setHeaders.set(CONTENT_LENGTH, len);
@@ -378,11 +378,11 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     return responseStarted;
   }
 
-  @Nonnull @Override public Context sendStatusCode(int statusCode) {
+  @Nonnull @Override public Context send(StatusCode statusCode) {
     responseStarted = true;
     setHeaders.set(CONTENT_LENGTH, 0);
     DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HTTP_1_1,
-        HttpResponseStatus.valueOf(statusCode), Unpooled.EMPTY_BUFFER, setHeaders, NO_TRAILING);
+        HttpResponseStatus.valueOf(statusCode.value()), Unpooled.EMPTY_BUFFER, setHeaders, NO_TRAILING);
     ctx.writeAndFlush(rsp).addListener(this);
     return this;
   }

@@ -239,37 +239,37 @@ public class UtowContext implements Context, IoCallback {
     return new PrintWriter(new UtowWriter(exchange.getOutputStream(), charset));
   }
 
-  @Nonnull @Override public Context sendBytes(@Nonnull byte[] data) {
-    return sendBytes(ByteBuffer.wrap(data));
+  @Nonnull @Override public Context send(@Nonnull byte[] data) {
+    return send(ByteBuffer.wrap(data));
   }
 
-  @Nonnull @Override public Context sendBytes(@Nonnull ReadableByteChannel channel) {
+  @Nonnull @Override public Context send(@Nonnull ReadableByteChannel channel) {
     ifSetChunked();
     new UtowChunkedStream(exchange.getRequestContentLength()).send(channel, exchange, this);
     return this;
   }
 
-  @Nonnull @Override public Context sendString(@Nonnull String data, @Nonnull Charset charset) {
-    return sendBytes(ByteBuffer.wrap(data.getBytes(charset)));
+  @Nonnull @Override public Context send(@Nonnull String data, @Nonnull Charset charset) {
+    return send(ByteBuffer.wrap(data.getBytes(charset)));
   }
 
-  @Nonnull @Override public Context sendBytes(@Nonnull ByteBuffer data) {
+  @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
     exchange.setResponseContentLength(data.remaining());
     exchange.getResponseSender().send(data, this);
     return this;
   }
 
-  @Nonnull @Override public Context sendStatusCode(int statusCode) {
+  @Nonnull @Override public Context send(StatusCode statusCode) {
     exchange.setResponseContentLength(0);
-    exchange.setStatusCode(statusCode);
+    exchange.setStatusCode(statusCode.value());
     exchange.getResponseSender().send(EMPTY, this);
     return this;
   }
 
-  @Nonnull @Override public Context sendStream(@Nonnull InputStream in) {
+  @Nonnull @Override public Context send(@Nonnull InputStream in) {
     if (in instanceof FileInputStream) {
       // use channel
-      return sendFile(((FileInputStream) in).getChannel());
+      return send(((FileInputStream) in).getChannel());
     }
     try {
       ifSetChunked();
@@ -284,7 +284,7 @@ public class UtowContext implements Context, IoCallback {
     }
   }
 
-  @Nonnull @Override public Context sendFile(@Nonnull FileChannel file) {
+  @Nonnull @Override public Context send(@Nonnull FileChannel file) {
     try {
       long len = file.size();
       exchange.setResponseContentLength(len);

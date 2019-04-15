@@ -334,49 +334,49 @@ public class MockContext implements Context {
     return writer;
   }
 
-  @Nonnull @Override public MockContext sendString(@Nonnull String data, @Nonnull Charset charset) {
+  @Nonnull @Override public MockContext send(@Nonnull String data, @Nonnull Charset charset) {
     this.response.setResult(data)
         .setContentLength(data.length());
     return this;
   }
 
-  @Nonnull @Override public MockContext sendBytes(@Nonnull byte[] data) {
+  @Nonnull @Override public MockContext send(@Nonnull byte[] data) {
     this.response.setResult(data)
         .setContentLength(data.length);
     return this;
   }
 
-  @Nonnull @Override public MockContext sendBytes(@Nonnull ByteBuf data) {
+  @Nonnull @Override public MockContext send(@Nonnull ByteBuf data) {
     this.response.setResult(data)
         .setContentLength(data.readableBytes());
     return this;
   }
 
-  @Nonnull @Override public MockContext sendBytes(@Nonnull ByteBuffer data) {
+  @Nonnull @Override public MockContext send(@Nonnull ByteBuffer data) {
     this.response.setResult(data)
         .setContentLength(data.remaining());
     return this;
   }
 
-  @Nonnull @Override public MockContext sendStream(InputStream input) {
+  @Nonnull @Override public MockContext send(InputStream input) {
     this.response.setResult(input);
     return this;
   }
 
-  @Nonnull @Override public MockContext sendBytes(@Nonnull ReadableByteChannel channel) {
+  @Nonnull @Override public MockContext send(@Nonnull ReadableByteChannel channel) {
     this.response.setResult(channel);
     return this;
   }
 
-  @Nonnull @Override public MockContext sendFile(@Nonnull FileChannel file) {
+  @Nonnull @Override public MockContext send(@Nonnull FileChannel file) {
     this.response.setResult(file);
     return this;
   }
 
-  @Nonnull @Override public MockContext sendStatusCode(int statusCode) {
+  @Nonnull @Override public MockContext send(StatusCode statusCode) {
     this.response
         .setContentLength(0)
-        .setStatusCode(StatusCode.valueOf(statusCode));
+        .setStatusCode(statusCode);
     return this;
   }
 

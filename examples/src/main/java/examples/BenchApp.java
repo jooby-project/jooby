@@ -48,12 +48,12 @@ public class BenchApp extends Jooby {
 
   {
     get("/plaintext", ctx -> {
-      return ctx.sendBytes(MESSAGE_BYTE);
+      return ctx.send(MESSAGE_BYTE);
     });
 
     get("/", ctx -> {
       System.out.println(ctx.pathString());
-      return ctx.sendBytes(MESSAGE_BYTE);
+      return ctx.send(MESSAGE_BYTE);
     });
 
     get("/json", ctx -> Thread.currentThread().getName());

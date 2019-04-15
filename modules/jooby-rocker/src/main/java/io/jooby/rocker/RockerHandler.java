@@ -36,7 +36,7 @@ class RockerHandler implements Route.Handler {
       ArrayOfByteArraysOutput buff = template.render(ArrayOfByteArraysOutput.FACTORY);
       ctx.setResponseType(MediaType.html);
       ctx.setResponseLength(buff.getByteLength());
-      ctx.sendBytes(buff.asReadableByteChannel());
+      ctx.send(buff.asReadableByteChannel());
       return ctx;
     } catch (Throwable x) {
       ctx.sendError(x);

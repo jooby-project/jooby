@@ -29,7 +29,7 @@ public class Provisioning {
   @GET
   @Path("/sendStatusCode")
   public Context sendStatusCode(Context ctx) {
-    return ctx.sendStatusCode(StatusCode.CREATED);
+    return ctx.send(StatusCode.CREATED);
   }
 
   @GET

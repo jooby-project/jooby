@@ -50,7 +50,7 @@ public class AssetHandler implements Route.Handler {
     String filepath = ctx.pathMap().get(filekey);
     Asset asset = resolve(filepath);
     if (asset == null) {
-      ctx.sendStatusCode(StatusCode.NOT_FOUND);
+      ctx.send(StatusCode.NOT_FOUND);
       return ctx;
     }
 
@@ -58,7 +58,7 @@ public class AssetHandler implements Route.Handler {
     if (this.etag) {
       String ifnm = ctx.header("If-None-Match").value((String) null);
       if (ifnm != null && ifnm.equals(asset.getEtag())) {
-        ctx.sendStatusCode(StatusCode.NOT_MODIFIED);
+        ctx.send(StatusCode.NOT_MODIFIED);
         asset.release();
         return ctx;
       } else {
@@ -72,7 +72,7 @@ public class AssetHandler implements Route.Handler {
       if (lastModified > 0) {
         long ifms = ctx.header("If-Modified-Since").longValue(-1);
         if (lastModified <= ifms) {
-          ctx.sendStatusCode(StatusCode.NOT_MODIFIED);
+          ctx.send(StatusCode.NOT_MODIFIED);
           asset.release();
           return ctx;
         }
@@ -90,7 +90,7 @@ public class AssetHandler implements Route.Handler {
       ctx.setResponseLength(length);
     }
     ctx.setResponseType(asset.getContentType());
-    return ctx.sendStream(asset.stream());
+    return ctx.send(asset.stream());
   }
 
   /**

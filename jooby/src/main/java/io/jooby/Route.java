@@ -195,7 +195,7 @@ public class Route {
   /**
    * Favicon handler as a silent 404 error.
    */
-  public static final Handler FAVICON = ctx -> ctx.sendStatusCode(StatusCode.NOT_FOUND);
+  public static final Handler FAVICON = ctx -> ctx.send(StatusCode.NOT_FOUND);
 
   private static final List<MediaType> EMPTY_LIST = Collections.emptyList();
 

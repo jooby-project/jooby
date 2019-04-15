@@ -47,7 +47,7 @@ public class RxSubscriber implements MaybeObserver<Object>, SingleObserver<Objec
   @Override public void onComplete() {
     if (!context.isResponseStarted()) {
       // assume it is a maybe response:
-      context.sendStatusCode(StatusCode.NOT_FOUND);
+      context.send(StatusCode.NOT_FOUND);
     }
     subscription.dispose();
   }

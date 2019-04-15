@@ -288,29 +288,29 @@ public class JettyContext implements Callback, Context {
     }
   }
 
-  @Nonnull @Override public Context sendStatusCode(int statusCode) {
+  @Nonnull @Override public Context send(StatusCode statusCode) {
     response.setHeader(HttpHeader.TRANSFER_ENCODING, null);
     response.setLongContentLength(0);
-    response.setStatus(statusCode);
-    sendBytes(ByteBuffer.wrap(new byte[0]));
+    response.setStatus(statusCode.value());
+    send(ByteBuffer.wrap(new byte[0]));
     return this;
   }
 
-  @Nonnull @Override public Context sendBytes(@Nonnull byte[] data) {
-    return sendBytes(ByteBuffer.wrap(data));
+  @Nonnull @Override public Context send(@Nonnull byte[] data) {
+    return send(ByteBuffer.wrap(data));
   }
 
-  @Nonnull @Override public Context sendString(@Nonnull String data, @Nonnull Charset charset) {
-    return sendBytes(ByteBuffer.wrap(data.getBytes(charset)));
+  @Nonnull @Override public Context send(@Nonnull String data, @Nonnull Charset charset) {
+    return send(ByteBuffer.wrap(data.getBytes(charset)));
   }
 
-  @Nonnull @Override public Context sendBytes(@Nonnull ByteBuffer data) {
+  @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
     HttpOutput sender = response.getHttpOutput();
     sender.sendContent(data, this);
     return this;
   }
 
-  @Nonnull @Override public Context sendBytes(@Nonnull ReadableByteChannel channel) {
+  @Nonnull @Override public Context send(@Nonnull ReadableByteChannel channel) {
     ifSetChunked();
     ifStartAsync();
     HttpOutput sender = response.getHttpOutput();
@@ -318,7 +318,7 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
-  @Nonnull @Override public Context sendStream(@Nonnull InputStream in) {
+  @Nonnull @Override public Context send(@Nonnull InputStream in) {
     try {
       if (in instanceof FileInputStream) {
         response.setLongContentLength(((FileInputStream) in).getChannel().size());
@@ -350,7 +350,7 @@ public class JettyContext implements Callback, Context {
     }
   }
 
-  @Nonnull @Override public Context sendFile(@Nonnull FileChannel file) {
+  @Nonnull @Override public Context send(@Nonnull FileChannel file) {
     try (FileChannel channel = file) {
       response.setLongContentLength(channel.size());
       return sendStreamInternal(Channels.newInputStream(file));

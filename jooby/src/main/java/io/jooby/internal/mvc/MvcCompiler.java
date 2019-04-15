@@ -237,7 +237,7 @@ public class MvcCompiler {
 
       apply.visitFieldInsn(GETSTATIC, "io/jooby/StatusCode", "NO_CONTENT",
           "Lio/jooby/StatusCode;");
-      apply.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "sendStatusCode",
+      apply.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "send",
           "(Lio/jooby/StatusCode;)Lio/jooby/Context;", true);
       apply.visitInsn(Opcodes.POP);
       apply.visitVarInsn(ALOAD, 1);

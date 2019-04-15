@@ -30,7 +30,7 @@ public class SendByteArray implements LinkedHandler {
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
       byte[] result = (byte[]) next.apply(ctx);
-      return ctx.sendBytes(result);
+      return ctx.send(result);
     } catch (Throwable x) {
       return ctx.sendError(x);
     }

@@ -48,7 +48,7 @@ public class SendFileChannel implements LinkedHandler {
           throw new FileNotFoundException(file.toString());
         }
       }
-      return ctx.sendFile((FileChannel) file);
+      return ctx.send((FileChannel) file);
     } catch (Throwable x) {
       return ctx.sendError(x);
     }

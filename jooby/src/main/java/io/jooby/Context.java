@@ -944,7 +944,7 @@ public interface Context {
       Route route = getRoute();
       Renderer renderer = route.getRenderer();
       byte[] bytes = renderer.render(this, value);
-      sendBytes(bytes);
+      send(bytes);
       return this;
     } catch (Exception x) {
       throw Throwing.sneakyThrow(x);
@@ -1094,7 +1094,7 @@ public interface Context {
    */
   default @Nonnull Context sendRedirect(@Nonnull StatusCode redirect, @Nonnull String location) {
     setHeader("location", location);
-    return sendStatusCode(redirect);
+    return send(redirect);
   }
 
   /**
@@ -1103,8 +1103,8 @@ public interface Context {
    * @param data Response. Use UTF-8 charset.
    * @return This context.
    */
-  default @Nonnull Context sendString(@Nonnull String data) {
-    return sendString(data, StandardCharsets.UTF_8);
+  default @Nonnull Context send(@Nonnull String data) {
+    return send(data, StandardCharsets.UTF_8);
   }
 
   /**
@@ -1114,7 +1114,7 @@ public interface Context {
    * @param charset Charset.
    * @return This context.
    */
-  @Nonnull Context sendString(@Nonnull String data, @Nonnull Charset charset);
+  @Nonnull Context send(@Nonnull String data, @Nonnull Charset charset);
 
   /**
    * Send response data.
@@ -1122,7 +1122,7 @@ public interface Context {
    * @param data Response.
    * @return This context.
    */
-  @Nonnull Context sendBytes(@Nonnull byte[] data);
+  @Nonnull Context send(@Nonnull byte[] data);
 
   /**
    * Send response data.
@@ -1130,7 +1130,7 @@ public interface Context {
    * @param data Response.
    * @return This context.
    */
-  @Nonnull Context sendBytes(@Nonnull ByteBuffer data);
+  @Nonnull Context send(@Nonnull ByteBuffer data);
 
   /**
    * Send response data.
@@ -1138,8 +1138,8 @@ public interface Context {
    * @param data Response.
    * @return This context.
    */
-  default @Nonnull Context sendBytes(@Nonnull ByteBuf data) {
-    return sendBytes(data.nioBuffer());
+  default @Nonnull Context send(@Nonnull ByteBuf data) {
+    return send(data.nioBuffer());
   }
 
   /**
@@ -1148,7 +1148,7 @@ public interface Context {
    * @param channel Response input.
    * @return This context.
    */
-  @Nonnull Context sendBytes(@Nonnull ReadableByteChannel channel);
+  @Nonnull Context send(@Nonnull ReadableByteChannel channel);
 
   /**
    * Send response data.
@@ -1156,7 +1156,7 @@ public interface Context {
    * @param input Response.
    * @return This context.
    */
-  @Nonnull Context sendStream(@Nonnull InputStream input);
+  @Nonnull Context send(@Nonnull InputStream input);
 
   /**
    * Send a file attached response.
@@ -1164,7 +1164,7 @@ public interface Context {
    * @param file Attached file.
    * @return This context.
    */
-  default @Nonnull Context sendAttachment(@Nonnull AttachedFile file) {
+  default @Nonnull Context send(@Nonnull AttachedFile file) {
     setHeader("Content-Disposition", file.getContentDisposition());
     InputStream content = file.stream();
     long length = file.getFileSize();
@@ -1173,9 +1173,9 @@ public interface Context {
     }
     setDefaultResponseType(file.getContentType());
     if (content instanceof FileInputStream) {
-      sendFile(((FileInputStream) content).getChannel());
+      send(((FileInputStream) content).getChannel());
     } else {
-      sendStream(content);
+      send(content);
     }
     return this;
   }
@@ -1186,10 +1186,10 @@ public interface Context {
    * @param file File response.
    * @return This context.
    */
-  default @Nonnull Context sendFile(@Nonnull Path file) {
+  default @Nonnull Context send(@Nonnull Path file) {
     try {
       setDefaultResponseType(MediaType.byFile(file));
-      return sendFile(FileChannel.open(file));
+      return send(FileChannel.open(file));
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
@@ -1201,7 +1201,7 @@ public interface Context {
    * @param file File response.
    * @return This context.
    */
-  @Nonnull Context sendFile(@Nonnull FileChannel file);
+  @Nonnull Context send(@Nonnull FileChannel file);
 
   /**
    * Send an empty response with the given status code.
@@ -1209,17 +1209,7 @@ public interface Context {
    * @param statusCode Status code.
    * @return This context.
    */
-  @Nonnull default Context sendStatusCode(@Nonnull StatusCode statusCode) {
-    return sendStatusCode(statusCode.value());
-  }
-
-  /**
-   * Send an empty response with the given status code.
-   *
-   * @param statusCode Status code.
-   * @return This context.
-   */
-  @Nonnull Context sendStatusCode(int statusCode);
+  @Nonnull Context send(@Nonnull StatusCode statusCode);
 
   /**
    * Send an error response. Status code is computed via {@link Router#errorCode(Throwable)}.

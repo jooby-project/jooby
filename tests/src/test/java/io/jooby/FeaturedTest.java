@@ -1295,7 +1295,7 @@ public class FeaturedTest {
   @Test
   public void setContentType() {
     new JoobyRunner(app -> {
-      app.get("/plain", ctx -> ctx.setResponseType(text).sendString("Text"));
+      app.get("/plain", ctx -> ctx.setResponseType(text).send("Text"));
     }).ready(client -> {
       client.get("/plain", rsp -> {
         assertEquals("text/plain;charset=utf-8",
@@ -1310,7 +1310,7 @@ public class FeaturedTest {
     String value = "...";
     new JoobyRunner(app -> {
       app.get("/len",
-          ctx -> ctx.setResponseType(text).setResponseLength(value.length()).sendString(value));
+          ctx -> ctx.setResponseType(text).setResponseLength(value.length()).send(value));
     }).ready(client -> {
       client.get("/len", rsp -> {
         assertEquals("text/plain;charset=utf-8",
@@ -1324,7 +1324,7 @@ public class FeaturedTest {
   @Test
   public void sendStatusCode() {
     new JoobyRunner(app -> {
-      app.get("/statuscode", ctx -> ctx.sendStatusCode(StatusCode.OK));
+      app.get("/statuscode", ctx -> ctx.send(StatusCode.OK));
     }).ready(client -> {
       client.get("/statuscode", rsp -> {
         assertEquals("", rsp.body().string());
@@ -1391,7 +1391,7 @@ public class FeaturedTest {
     new JoobyRunner(app -> {
       app.get("/range", ctx -> {
         ctx.setResponseLength(_19kb.length());
-        return ctx.sendStream(new ByteArrayInputStream(_19kb.getBytes(StandardCharsets.UTF_8)));
+        return ctx.send(new ByteArrayInputStream(_19kb.getBytes(StandardCharsets.UTF_8)));
       });
     }).ready(client -> {
       client.header("Range", "bytes=-");
@@ -1510,7 +1510,7 @@ public class FeaturedTest {
       app.get("/file-range", ctx -> {
         ctx.setResponseLength(_19kb.length());
         return ctx
-            .sendFile(FileChannel.open(userdir("src", "test", "resources", "files", "19kb.txt")));
+            .send(FileChannel.open(userdir("src", "test", "resources", "files", "19kb.txt")));
       });
     }).ready(client -> {
       client.header("Range", "bytes=0-99");

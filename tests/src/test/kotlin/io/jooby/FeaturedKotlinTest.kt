@@ -112,7 +112,7 @@ class FeaturedKotlinTest {
         error { ctx, cause, statusCode ->
           log.error("{} {}", ctx.method, ctx.pathString(), cause)
           ctx.setStatusCode(statusCode)
-              .sendString(cause.message!!)
+              .send(cause.message!!)
         }
       }
     }.ready { client ->

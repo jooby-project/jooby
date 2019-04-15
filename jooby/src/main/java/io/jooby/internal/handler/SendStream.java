@@ -31,7 +31,7 @@ public class SendStream implements LinkedHandler {
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
     try {
       InputStream stream = (InputStream) next.apply(ctx);
-      ctx.sendStream(stream);
+      ctx.send(stream);
     } catch (Throwable x) {
       ctx.sendError(x);
     }

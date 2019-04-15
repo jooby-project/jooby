@@ -49,7 +49,7 @@ public class HelloApp extends Jooby {
   {
     setExecutionMode(ExecutionMode.EVENT_LOOP);
 
-    get("/", ctx -> ctx.sendString(MESSAGE));
+    get("/", ctx -> ctx.send(MESSAGE));
 
 //    get("/{foo}", ctx -> ctx.sendText("Hello World!"));
 

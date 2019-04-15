@@ -250,7 +250,7 @@ public class MvcTest {
       app.error((ctx, cause, statusCode) -> {
         app.getLog().error("{} {}", ctx.getMethod(), ctx.pathString(), cause);
         ctx.setStatusCode(statusCode)
-            .sendString(cause.getMessage());
+            .send(cause.getMessage());
       });
 
     }).ready(client -> {
@@ -286,7 +286,7 @@ public class MvcTest {
       app.error((ctx, cause, statusCode) -> {
         app.getLog().error("{} {}", ctx.getMethod(), ctx.pathString(), cause);
         ctx.setStatusCode(statusCode)
-            .sendString(cause.getMessage());
+            .send(cause.getMessage());
       });
 
     }).ready(client -> {
