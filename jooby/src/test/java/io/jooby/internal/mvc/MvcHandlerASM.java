@@ -2,15 +2,10 @@ package io.jooby.internal.mvc;
 
 import io.jooby.Context;
 import io.jooby.Err;
-import io.jooby.QueryString;
-import io.jooby.Reified;
-import io.jooby.Route;
-import io.jooby.Value;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
-import io.jooby.annotations.QueryParam;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.util.ASMifier;
@@ -23,11 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

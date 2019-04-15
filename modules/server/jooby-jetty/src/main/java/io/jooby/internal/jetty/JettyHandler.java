@@ -15,10 +15,8 @@
  */
 package io.jooby.internal.jetty;
 
-import io.jooby.MediaType;
 import io.jooby.Router;
 import org.eclipse.jetty.http.HttpHeader;
-import org.eclipse.jetty.http.HttpHeaderValue;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 

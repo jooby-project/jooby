@@ -15,9 +15,9 @@
  */
 package io.jooby;
 
+import io.jooby.internal.ByteArrayBody;
 import io.jooby.internal.FileBody;
 import io.jooby.internal.InputStreamBody;
-import io.jooby.internal.ByteArrayBody;
 
 import javax.annotation.Nonnull;
 import java.io.InputStream;

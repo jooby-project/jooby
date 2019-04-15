@@ -15,21 +15,21 @@
  */
 package io.jooby.internal;
 
-import io.jooby.ErrorHandler;
-import io.jooby.Jooby;
 import io.jooby.Context;
 import io.jooby.Err;
+import io.jooby.ErrorHandler;
 import io.jooby.ExecutionMode;
+import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.Parser;
 import io.jooby.Renderer;
 import io.jooby.ResourceKey;
+import io.jooby.ResponseHandler;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.RouterOptions;
 import io.jooby.StatusCode;
 import io.jooby.Throwing;
-import io.jooby.ResponseHandler;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.mvc.MvcAnnotation;
 import io.jooby.internal.mvc.MvcCompiler;

@@ -208,8 +208,6 @@ import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.ServerConnection;
-import io.undertow.util.HeaderMap;
-import io.undertow.util.Headers;
 import org.xnio.IoUtils;
 
 import java.io.IOException;

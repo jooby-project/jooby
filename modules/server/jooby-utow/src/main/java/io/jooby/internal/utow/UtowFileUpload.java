@@ -17,9 +17,9 @@ package io.jooby.internal.utow;
 
 import io.jooby.FileUpload;
 import io.jooby.ServerOptions;
+import io.jooby.Throwing;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.Headers;
-import io.jooby.Throwing;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

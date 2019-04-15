@@ -17,7 +17,6 @@ package io.jooby.internal.asm;
 
 import io.jooby.Throwing;
 
-import java.io.Serializable;
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Method;
 

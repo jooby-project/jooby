@@ -16,8 +16,8 @@
 package examples;
 
 import io.jooby.ExecutionMode;
-import io.jooby.Jooby;
 import io.jooby.FileUpload;
+import io.jooby.Jooby;
 import io.jooby.json.Jackson;
 
 public class HelloApp extends Jooby {

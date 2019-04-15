@@ -16,16 +16,15 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
+import io.jooby.Throwing;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.asm.Lambdas;
 import io.jooby.internal.asm.MethodFinder;
 import io.jooby.internal.asm.ReturnType;
 import io.jooby.internal.asm.TypeParser;
-import io.jooby.Throwing;
 import org.objectweb.asm.ClassReader;
 
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 

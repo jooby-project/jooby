@@ -1,7 +1,5 @@
 package io.jooby.internal;
 
-import static org.mockito.Mockito.mock;
-
 import io.jooby.Context;
 import io.jooby.Renderer;
 import io.jooby.Route;
@@ -12,6 +10,7 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ChiTest {

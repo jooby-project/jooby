@@ -17,8 +17,8 @@ package io.jooby.rocker;
 
 import com.fizzed.rocker.RockerModel;
 import io.jooby.Reified;
-import io.jooby.Route;
 import io.jooby.ResponseHandler;
+import io.jooby.Route;
 
 import java.lang.reflect.Type;
 

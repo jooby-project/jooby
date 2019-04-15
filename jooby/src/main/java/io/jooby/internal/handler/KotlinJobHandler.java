@@ -18,8 +18,6 @@ package io.jooby.internal.handler;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.reactivex.Flowable;
-import kotlin.coroutines.Continuation;
-import kotlinx.coroutines.AbstractCoroutine;
 import kotlinx.coroutines.Deferred;
 import kotlinx.coroutines.Job;
 

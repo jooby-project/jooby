@@ -17,10 +17,8 @@ package io.jooby.di;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
-import io.jooby.Environment;
 import io.jooby.Jooby;
 import io.jooby.Reified;
-import io.jooby.annotations.Controller;
 import io.jooby.annotations.Path;
 
 import javax.enterprise.event.Observes;
@@ -28,14 +26,11 @@ import javax.enterprise.inject.literal.NamedLiteral;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.AnnotatedType;
 import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.BeforeBeanDiscovery;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.InjectionTarget;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.enterprise.inject.spi.WithAnnotations;
-import javax.enterprise.inject.spi.configurator.BeanConfigurator;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;

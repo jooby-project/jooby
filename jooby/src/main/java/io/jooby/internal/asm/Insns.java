@@ -19,11 +19,8 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 
 import java.util.Iterator;
-import java.util.Objects;
 import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 

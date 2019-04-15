@@ -20,10 +20,10 @@ import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigValueType;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.jooby.ResourceKey;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
+import io.jooby.ResourceKey;
 
 import javax.annotation.Nonnull;
 import javax.sql.DataSource;

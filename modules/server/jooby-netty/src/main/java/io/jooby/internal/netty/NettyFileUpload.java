@@ -16,9 +16,9 @@
 package io.jooby.internal.netty;
 
 import io.jooby.FileUpload;
+import io.jooby.Throwing;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
-import io.jooby.Throwing;
 
 import java.io.IOException;
 import java.io.InputStream;

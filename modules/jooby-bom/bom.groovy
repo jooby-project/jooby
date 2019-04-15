@@ -1,5 +1,5 @@
-import groovy.xml.*
-import java.nio.file.*
+import java.nio.file.Files
+import java.nio.file.Paths
 
 def depsw = new StringWriter()
 def deps = new MarkupBuilder(depsw)

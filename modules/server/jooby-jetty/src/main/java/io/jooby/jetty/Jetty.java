@@ -18,6 +18,7 @@ package io.jooby.jetty;
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
 import io.jooby.ServerOptions;
+import io.jooby.Throwing;
 import io.jooby.internal.jetty.JettyHandler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -27,7 +28,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import io.jooby.Throwing;
 
 import javax.annotation.Nonnull;
 import java.net.BindException;

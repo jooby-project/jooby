@@ -15,13 +15,12 @@
  */
 package io.jooby;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * An asset source is a collection or provider of {@link Asset}. There are two implementations:

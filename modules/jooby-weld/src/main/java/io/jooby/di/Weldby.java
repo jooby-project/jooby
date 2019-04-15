@@ -15,15 +15,12 @@
  */
 package io.jooby.di;
 
-import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 
 import javax.annotation.Nonnull;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
 
 import static org.jboss.weld.environment.se.Weld.SHUTDOWN_HOOK_SYSTEM_PROPERTY;
 

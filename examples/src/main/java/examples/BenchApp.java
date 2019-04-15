@@ -15,8 +15,8 @@
  */
 package examples;
 
-import io.jooby.Jooby;
 import io.jooby.ExecutionMode;
+import io.jooby.Jooby;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;

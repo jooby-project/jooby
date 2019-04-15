@@ -16,7 +16,20 @@
 package io.jooby.internal.mvc;
 
 import io.jooby.MediaType;
-import io.jooby.annotations.*;
+import io.jooby.annotations.Consumes;
+import io.jooby.annotations.DELETE;
+import io.jooby.annotations.FormParam;
+import io.jooby.annotations.GET;
+import io.jooby.annotations.HEAD;
+import io.jooby.annotations.HeaderParam;
+import io.jooby.annotations.OPTIONS;
+import io.jooby.annotations.PATCH;
+import io.jooby.annotations.POST;
+import io.jooby.annotations.PUT;
+import io.jooby.annotations.Path;
+import io.jooby.annotations.PathParam;
+import io.jooby.annotations.Produces;
+import io.jooby.annotations.QueryParam;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
