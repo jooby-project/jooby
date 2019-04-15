@@ -9,43 +9,47 @@ public class UnitTest {
 
   @Test
   public void unitTests() {
-    new MockRouter(app -> {
+    Jooby app = new Jooby();
 
-      app.get("/", ctx -> "OK");
+    app.get("/", ctx -> "OK");
 
-      app.get("/{id}", ctx -> ctx.path("id").intValue());
+    app.get("/{id}", ctx -> ctx.path("id").intValue());
 
-      app.delete("/{id}", ctx -> ctx.setStatusCode(NO_CONTENT));
+    app.get("/search", ctx -> ctx.query("q").value("*:*"));
 
-      app.post("/", ctx -> ctx.body().value());
+    app.delete("/{id}", ctx -> ctx.setStatusCode(NO_CONTENT));
 
-    }).apply(router -> {
+    app.post("/", ctx -> ctx.body().value());
 
-      assertEquals("OK", router.get("/"));
+    MockRouter router = new MockRouter(app);
 
-      router.get("/", result -> {
-        assertEquals(StatusCode.OK, result.getStatusCode());
-        assertEquals("text/plain", result.getContentType().getValue());
-        assertEquals(2, result.getContentLength());
-        assertEquals("OK", result.getValue());
-      });
+    assertEquals("OK", router.get("/"));
 
-      router.get("/123", result -> {
-        assertEquals(StatusCode.OK, result.getStatusCode());
-        assertEquals("text/plain", result.getContentType().getValue());
-        assertEquals(3, result.getContentLength());
-        assertEquals(123, result.getValue());
-      });
+    assertEquals("*:*", router.get("/search"));
 
-      router.delete("/123", result -> {
-        assertEquals(NO_CONTENT, result.getStatusCode());
-      });
+    assertEquals("foo", router.get("/search?q=foo"));
 
-      String body = "{\"message\":\"ok\"}";
-      router.post("/", ctx -> ctx.setBody(body), result -> {
-        assertEquals(body, result.getValue());
-      });
+    router.get("/", result -> {
+      assertEquals(StatusCode.OK, result.getStatusCode());
+      assertEquals("text/plain", result.getContentType().getValue());
+      assertEquals(2, result.getContentLength());
+      assertEquals("OK", result.getResult());
     });
 
+    router.get("/123", result -> {
+      assertEquals(StatusCode.OK, result.getStatusCode());
+      assertEquals("text/plain", result.getContentType().getValue());
+      assertEquals(3, result.getContentLength());
+      assertEquals(123, result.getResult(Integer.class).intValue());
+    });
+
+    router.delete("/123", result -> {
+      assertEquals(NO_CONTENT, result.getStatusCode());
+    });
+
+    String body = "{\"message\":\"ok\"}";
+    router.post("/", new MockContext().setBody(body), result -> {
+      assertEquals(body, result.getResult());
+    });
   }
 }

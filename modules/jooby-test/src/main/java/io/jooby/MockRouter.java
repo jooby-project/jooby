@@ -19,6 +19,28 @@ import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * Utility class that allows us to execute routes using a {@link MockContext}.
+ *
+ * App.java
+ * <pre>{@code
+ * {
+ *
+ *   get("/", ctx -> "OK");
+ *
+ * }
+ * }</pre>
+ *
+ * UnitTest:
+ * <pre>{@code
+ *   MockRouter router = new MockRouter(new App());
+ *
+ *   assertEquals("OK", router.get("/"));
+ * }</pre>
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class MockRouter {
 
   private static final Consumer NOOP = value -> {
@@ -26,126 +48,249 @@ public class MockRouter {
 
   private Supplier<Jooby> supplier;
 
-  public MockRouter(Supplier<Jooby> supplier) {
-    this.supplier = supplier;
-  }
-
-  public MockRouter(Consumer<Jooby> consumer) {
-    this.supplier = () -> {
-      Jooby jooby = new Jooby();
-      Environment env = Environment.loadEnvironment(new EnvironmentOptions()
-          .setClassLoader(jooby.getClass().getClassLoader())
-          .setActiveNames("test"));
-      jooby.setEnvironment(env);
-      consumer.accept(jooby);
-      return jooby;
-    };
-  }
-
-  /* **********************************************************************************************
-   * GET
-   * **********************************************************************************************
+  /**
+   * Creates a new mock router.
+   *
+   * @param application Source application.
    */
-  public Object get(@Nonnull String path) {
-    return get(path, NOOP, NOOP);
+  public MockRouter(@Nonnull Jooby application) {
+    this.supplier = () -> application;
   }
 
+  /**
+   * Execute a GET request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @return Route response.
+   */
+  @Nonnull public Object get(@Nonnull String path) {
+    return get(path, NOOP);
+  }
+
+  /**
+   * Execute a GET request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @param consumer Response metadata callback.
+   * @return Route response.
+   */
   public Object get(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
-    return get(path, NOOP, consumer);
+    return get(path, new MockContext(), consumer);
   }
 
-  public Object get(@Nonnull String path, @Nonnull Consumer<MockContext> prepare,
+  /**
+   * Execute a GET request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @param context Context to use.
+   * @param consumer Response metadata callback.
+   * @return Route response.
+   */
+  public Object get(@Nonnull String path, @Nonnull MockContext context,
       @Nonnull Consumer<MockResponse> consumer) {
-    return route(Router.GET, path, prepare, consumer);
+    return call(Router.GET, path, context, consumer);
   }
 
-  /* **********************************************************************************************
-   * POST
-   * **********************************************************************************************
+  /**
+   * Execute a POST request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @return Route response.
    */
   public Object post(@Nonnull String path) {
-    return post(path, NOOP, NOOP);
+    return post(path, NOOP);
   }
 
+  /**
+   * Execute a POST request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @param consumer Response metadata callback.
+   * @return Route response.
+   */
   public Object post(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
-    return post(path, NOOP, consumer);
+    return post(path, new MockContext(), consumer);
   }
 
-  public Object post(@Nonnull String path, @Nonnull Consumer<MockContext> prepare,
-      @Nonnull Consumer<MockResponse> consumer) {
-    return route(Router.POST, path, prepare, consumer);
-  }
-
-  /* **********************************************************************************************
-   * DELETE
-   * **********************************************************************************************
+  /**
+   * Execute a POST request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @param context Context to use.
+   * @param consumer Response metadata callback.
+   * @return Route response.
    */
+  public Object post(@Nonnull String path, @Nonnull MockContext context,
+      @Nonnull Consumer<MockResponse> consumer) {
+    return call(Router.POST, path, context, consumer);
+  }
 
+  /**
+   * Execute a DELETE request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @return Route response.
+   */
   public Object delete(@Nonnull String path) {
-    return delete(path, NOOP, NOOP);
+    return delete(path, NOOP);
   }
 
-  public Object delete(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
-    return delete(path, NOOP, consumer);
-  }
-
-  public Object delete(@Nonnull String path, @Nonnull Consumer<MockContext> prepare,
-      @Nonnull Consumer<MockResponse> consumer) {
-    return route(Router.DELETE, path, prepare, consumer);
-  }
-
-  /* **********************************************************************************************
-   * Route:
-   * **********************************************************************************************
+  /**
+   * Execute a DELETE request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @param consumer Response metadata callback.
+   * @return Route response.
    */
-  public Object route(@Nonnull String method, @Nonnull String path,
-      @Nonnull Consumer<MockResponse> consumer) {
-    return route(method, path, NOOP, consumer);
+  public Object delete(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
+    return delete(path, new MockContext(), consumer);
   }
 
-  public Object route(@Nonnull String method, @Nonnull String path,
-      @Nonnull Consumer<MockContext> prepare,
+  /**
+   * Execute a DELETE request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @param context Context to use.
+   * @param consumer Response metadata callback.
+   * @return Route response.
+   */
+  public Object delete(@Nonnull String path, @Nonnull MockContext context,
       @Nonnull Consumer<MockResponse> consumer) {
-    return route(supplier.get(), method, path, prepare, consumer);
+    return call(Router.DELETE, path, context, consumer);
   }
 
-  private Object route(Jooby router, String method, String path, Consumer<MockContext> prepare,
+  /**
+   * Execute a PUT request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @return Route response.
+   */
+  public Object put(@Nonnull String path) {
+    return put(path, NOOP);
+  }
+
+  /**
+   * Execute a PUT request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @param consumer Response metadata callback.
+   * @return Route response.
+   */
+  public Object put(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
+    return put(path, new MockContext(), consumer);
+  }
+
+  /**
+   * Execute a PUT request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @param context Context to use.
+   * @param consumer Response metadata callback.
+   * @return Route response.
+   */
+  public Object put(@Nonnull String path, @Nonnull MockContext context,
+      @Nonnull Consumer<MockResponse> consumer) {
+    return call(Router.PUT, path, context, consumer);
+  }
+
+  /**
+   * Execute a PATCH request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @return Route response.
+   */
+  public Object patch(@Nonnull String path) {
+    return patch(path, NOOP);
+  }
+
+  /**
+   * Execute a PATCH request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @param consumer Response metadata callback.
+   * @return Route response.
+   */
+  public Object patch(@Nonnull String path, @Nonnull Consumer<MockResponse> consumer) {
+    return patch(path, new MockContext(), consumer);
+  }
+
+  /**
+   * Execute a PATCH request to the target application.
+   *
+   * @param path Path to match. Might includes the queryString.
+   * @param context Context to use.
+   * @param consumer Response metadata callback.
+   * @return Route response.
+   */
+  public Object patch(@Nonnull String path, @Nonnull MockContext context,
+      @Nonnull Consumer<MockResponse> consumer) {
+    return call(Router.PATCH, path, context, consumer);
+  }
+
+  /**
+   * Execute a PATCH request to the target application.
+   *
+   * @param method HTTP method.
+   * @param path Path to match. Might includes the queryString.
+   * @param consumer Response metadata callback.
+   * @return Route response.
+   */
+  public Object call(@Nonnull String method, @Nonnull String path,
+      @Nonnull Consumer<MockResponse> consumer) {
+    return call(method, path, new MockContext(), consumer);
+  }
+
+  /**
+   * Execute a PATCH request to the target application.
+   *
+   * @param method HTTP method.
+   * @param path Path to match. Might includes the queryString.
+   * @param ctx Context to use.
+   * @param consumer Response metadata callback.
+   * @return Route response.
+   */
+  public Object call(@Nonnull String method, @Nonnull String path, @Nonnull MockContext ctx,
+      @Nonnull Consumer<MockResponse> consumer) {
+    return call(supplier.get(), method, path, ctx, consumer);
+  }
+
+  private Object call(Jooby router, String method, String path, MockContext ctx,
       Consumer<MockResponse> consumer) {
-    MockContext ctx = new MockContext()
-        .setMethod(method)
-        .setPathString(path);
-    if (prepare != null) {
-      prepare.accept(ctx);
-    }
+    ctx.setMethod(method.toUpperCase());
+    ctx.setPathString(path);
+    ctx.setRouter(router);
+
     Router.Match match = router.match(ctx);
     ctx.setPathMap(match.pathMap());
     ctx.setRoute(match.route());
     Object value;
     try {
       value = match.route().getHandler().apply(ctx);
-      MockResponse result = new MockResponse(value, ctx.getStatusCode());
-      /** Content-Type: */
-      result.header("Content-Type",
-          ctx.getResponseContentType().toContentTypeHeader(ctx.getResponseCharset()));
-
-      /** Length: */
-      long responseLength = ctx.getResponseLength();
-      if (responseLength > 0) {
-        result.header("Content-Length", Long.toString(responseLength));
-      } else {
-        result.header("Content-Length", Long.toString(value.toString().length()));
+      MockResponse response = ctx.getResponse();
+      if (!(value instanceof Context)) {
+        response.setResult(value);
       }
-      consumer.accept(result);
+      if (response.getContentLength() <= 0) {
+        response.setContentLength(contentLength(value));
+      }
+      consumer.accept(response);
       return value;
     } catch (Exception x) {
-      MockResponse result = new MockResponse(x, ctx.getStatusCode());
+      MockResponse result = new MockResponse()
+          .setResult(x)
+          .setStatusCode(router.errorCode(x));
       consumer.accept(result);
       return x;
     }
   }
 
-  public MockRouter apply(Consumer<MockRouter> consumer) {
-    consumer.accept(this);
-    return this;
+  private long contentLength(Object value) {
+    if (value instanceof CharSequence || value instanceof Number || value instanceof Boolean) {
+      return value.toString().length();
+    }
+    if (value instanceof byte[]) {
+      return ((byte[]) value).length;
+    }
+    return -1;
   }
 }

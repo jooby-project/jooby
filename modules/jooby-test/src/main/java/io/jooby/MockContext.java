@@ -15,7 +15,6 @@
  */
 package io.jooby;
 
-import io.jooby.internal.UrlParser;
 import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
@@ -38,6 +37,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+/**
+ * Unit test friendly context implementation. Allows to set context properties.
+ */
 public class MockContext implements Context {
 
   private String method = Router.GET;
@@ -47,8 +49,6 @@ public class MockContext implements Context {
   private String pathString;
 
   private Map<String, String> pathMap;
-
-  private QueryString query = QueryString.create("");
 
   private String queryString;
 
@@ -62,24 +62,19 @@ public class MockContext implements Context {
 
   private Map<String, Parser> parsers = new HashMap<>();
 
-  private boolean ioThread;
-
   private Map<String, Object> responseHeaders = new HashMap<>();
 
   private Map<String, Object> attributes = new HashMap<>();
 
-  private long length;
-  private MediaType responseType;
-  private Charset responseCharset = StandardCharsets.UTF_8;
-  private StatusCode statusCode = StatusCode.OK;
-  private Object result;
-  private boolean responseStarted;
+  private MockResponse response = new MockResponse();
+
+  private Router router;
 
   @Nonnull @Override public String getMethod() {
     return method;
   }
 
-  public MockContext setMethod(String method) {
+  MockContext setMethod(@Nonnull String method) {
     this.method = method;
     return this;
   }
@@ -88,7 +83,7 @@ public class MockContext implements Context {
     return route;
   }
 
-  public MockContext setRoute(Route route) {
+  @Nonnull @Override public MockContext setRoute(@Nonnull Route route) {
     this.route = route;
     return this;
   }
@@ -97,8 +92,21 @@ public class MockContext implements Context {
     return pathString;
   }
 
-  public MockContext setPathString(String pathString) {
-    this.pathString = pathString;
+  /**
+   * Set pathString and queryString (if any).
+   *
+   * @param pathString Path string.
+   * @return This context.
+   */
+  MockContext setPathString(@Nonnull String pathString) {
+    int q = pathString.indexOf("?");
+    if (q > 0) {
+      this.pathString = pathString.substring(0, q);
+      this.queryString = pathString.substring(q + 1);
+    } else {
+      this.pathString = pathString;
+      this.queryString = null;
+    }
     return this;
   }
 
@@ -106,30 +114,30 @@ public class MockContext implements Context {
     return pathMap;
   }
 
-  public MockContext setPathMap(Map<String, String> pathMap) {
+  @Nonnull @Override public MockContext setPathMap(@Nonnull Map<String, String> pathMap) {
     this.pathMap = pathMap;
     return this;
   }
 
   @Nonnull @Override public QueryString query() {
-    return query;
+    return QueryString.create(queryString);
   }
 
   @Nonnull @Override public String queryString() {
     return queryString;
   }
 
-  public MockContext setQueryString(String queryString) {
-    this.queryString = queryString;
-    this.query = UrlParser.queryString("?" + queryString);
-    return this;
-  }
-
   @Nonnull @Override public Value headers() {
     return Value.hash(headers);
   }
 
-  public MockContext setHeaders(Map<String, Collection<String>> headers) {
+  /**
+   * Set request headers.
+   *
+   * @param headers Request headers.
+   * @return This context.
+   */
+  @Nonnull public MockContext setHeaders(@Nonnull Map<String, Collection<String>> headers) {
     this.headers = headers;
     return this;
   }
@@ -138,7 +146,13 @@ public class MockContext implements Context {
     return formdata;
   }
 
-  public MockContext setForm(Formdata formdata) {
+  /**
+   * Set formdata.
+   *
+   * @param formdata Formdata.
+   * @return This context.
+   */
+  @Nonnull public MockContext setForm(@Nonnull Formdata formdata) {
     this.formdata = formdata;
     return this;
   }
@@ -147,25 +161,50 @@ public class MockContext implements Context {
     return multipart;
   }
 
-  public void setMultipart(Multipart multipart) {
+  /**
+   * Set multipart.
+   *
+   * @param multipart Multipart.
+   * @return This context.
+   */
+  @Nonnull public MockContext setMultipart(@Nonnull Multipart multipart) {
     this.multipart = multipart;
+    return this;
   }
 
   @Nonnull @Override public Body body() {
     return body;
   }
 
-  public MockContext setBody(Body body) {
+  /**
+   * Set request body.
+   *
+   * @param body Request body.
+   * @return This context.
+   */
+  @Nonnull public MockContext setBody(@Nonnull Body body) {
     this.body = body;
     return this;
   }
 
-  public MockContext setBody(String body) {
+  /**
+   * Set request body.
+   *
+   * @param body Request body.
+   * @return This context.
+   */
+  @Nonnull public MockContext setBody(@Nonnull String body) {
     byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
     return setBody(bytes);
   }
 
-  public MockContext setBody(byte[] body) {
+  /**
+   * Set request body.
+   *
+   * @param body Request body.
+   * @return This context.
+   */
+  @Nonnull public MockContext setBody(@Nonnull byte[] body) {
     this.body = Body.of(new ByteArrayInputStream(body), body.length);
     return this;
   }
@@ -175,12 +214,7 @@ public class MockContext implements Context {
   }
 
   @Override public boolean isInIoThread() {
-    return ioThread;
-  }
-
-  public MockContext setIoThread(boolean ioThread) {
-    this.ioThread = ioThread;
-    return this;
+    return false;
   }
 
   @Nonnull @Override public MockContext dispatch(@Nonnull Runnable action) {
@@ -224,66 +258,59 @@ public class MockContext implements Context {
   }
 
   @Nonnull @Override public MockContext setContentLength(long length) {
-    this.length = length;
+    response.setContentLength(length);
     return this;
   }
 
-  public long getResponseLength() {
-    return length;
-  }
-
-  @Nonnull @Override public Context setContentType(@Nonnull String contentType) {
-    this.responseType = MediaType.valueOf(contentType);
-    this.responseCharset = this.responseType.getCharset();
+  @Nonnull @Override public MockContext setContentType(@Nonnull String contentType) {
+    response.setContentType(MediaType.valueOf(contentType));
     return this;
   }
 
   @Nonnull @Override
   public MockContext setContentType(@Nonnull MediaType contentType, @Nullable Charset charset) {
-    this.responseType = contentType;
-    this.responseCharset = charset;
+    response.setContentType(contentType);
     return this;
   }
 
   @Nonnull @Override public MockContext setStatusCode(int statusCode) {
-    this.statusCode = StatusCode.valueOf(statusCode);
+    response.setStatusCode(StatusCode.valueOf(statusCode));
     return this;
   }
 
   @Nonnull @Override public StatusCode getStatusCode() {
-    return statusCode;
+    return response.getStatusCode();
   }
 
   @Nonnull @Override public MockContext render(@Nonnull Object result) {
-    this.result = result;
+    this.response.setResult(result);
     return this;
   }
 
-  public Object getResult() {
-    return result;
-  }
-
-  public String getResultText() {
-    return (String) result;
+  /**
+   * Mock response generated from route execution.
+   *
+   * @return Mock response.
+   */
+  @Nonnull public MockResponse getResponse() {
+    return response;
   }
 
   @Nonnull @Override public OutputStream responseStream() {
-    responseStarted = true;
     ByteArrayOutputStream out = new ByteArrayOutputStream(ServerOptions._16KB);
-    result = out;
+    this.response.setResult(out);
     return out;
   }
 
   @Nonnull @Override public Sender responseSender() {
     return new Sender() {
       @Override public Sender write(@Nonnull byte[] data, @Nonnull Callback callback) {
-        result = data;
+        response.setResult(data);
         callback.onComplete(MockContext.this, null);
         return this;
       }
 
       @Override public void close() {
-
       }
     };
   }
@@ -301,98 +328,83 @@ public class MockContext implements Context {
   }
 
   @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
-    responseStarted = true;
-    setContentType(type, charset);
     PrintWriter writer = new PrintWriter(new StringWriter());
-    result = writer;
+    this.response.setResult(writer)
+        .setContentType(type);
     return writer;
   }
 
   @Nonnull @Override public MockContext sendString(@Nonnull String data, @Nonnull Charset charset) {
-    responseStarted = true;
-    result = data;
-    length = data.getBytes(charset).length;
+    this.response.setResult(data)
+        .setContentLength(data.length());
     return this;
   }
 
   @Nonnull @Override public MockContext sendBytes(@Nonnull byte[] data) {
-    responseStarted = true;
-    result = data;
-    length = data.length;
+    this.response.setResult(data)
+        .setContentLength(data.length);
     return this;
   }
 
-  @Nonnull @Override public Context sendBytes(@Nonnull ByteBuf data) {
-    responseStarted = true;
-    result = data;
-    length = data.readableBytes();
+  @Nonnull @Override public MockContext sendBytes(@Nonnull ByteBuf data) {
+    this.response.setResult(data)
+        .setContentLength(data.readableBytes());
     return this;
   }
 
   @Nonnull @Override public MockContext sendBytes(@Nonnull ByteBuffer data) {
-    result = data;
-    length = data.remaining();
+    this.response.setResult(data)
+        .setContentLength(data.remaining());
     return this;
   }
 
-  @Nonnull @Override public Context sendStream(InputStream input) {
-    responseStarted = true;
-    result = input;
+  @Nonnull @Override public MockContext sendStream(InputStream input) {
+    this.response.setResult(input);
     return this;
   }
 
-  @Nonnull @Override public Context sendBytes(@Nonnull ReadableByteChannel channel) {
-    responseStarted = true;
-    result = channel;
+  @Nonnull @Override public MockContext sendBytes(@Nonnull ReadableByteChannel channel) {
+    this.response.setResult(channel);
     return this;
   }
 
-  @Nonnull @Override public Context sendFile(@Nonnull FileChannel file) {
-    responseStarted = true;
-    result = file;
+  @Nonnull @Override public MockContext sendFile(@Nonnull FileChannel file) {
+    this.response.setResult(file);
     return this;
   }
 
   @Nonnull @Override public MockContext sendStatusCode(int statusCode) {
-    responseStarted = true;
-    result = statusCode;
-    this.statusCode = StatusCode.valueOf(statusCode);
-    length = 0;
+    this.response
+        .setContentLength(0)
+        .setStatusCode(StatusCode.valueOf(statusCode));
     return this;
   }
 
   @Nonnull @Override public MockContext sendError(@Nonnull Throwable cause) {
-    responseStarted = true;
-    result = cause;
-    length = -1;
+    this.response.setResult(cause)
+        .setStatusCode(router.errorCode(cause));
     return this;
   }
 
-  @Nonnull @Override public Context setDefaultContentType(@Nonnull MediaType contentType) {
-    if (responseType == null) {
-      responseType = contentType;
-      responseCharset = contentType.getCharset();
-    }
+  @Nonnull @Override public MockContext setDefaultContentType(@Nonnull MediaType contentType) {
+    response.setContentType(contentType);
     return this;
   }
 
   @Nonnull @Override public MediaType getResponseContentType() {
-    return responseType == null ? MediaType.text : responseType;
-  }
-
-  public Map<String, Object> getResponseHeaders() {
-    return responseHeaders;
-  }
-
-  public Charset getResponseCharset() {
-    return responseCharset;
+    return response.getContentType();
   }
 
   @Override public boolean isResponseStarted() {
-    return responseStarted;
+    return response != null;
   }
 
   @Nonnull @Override public Router getRouter() {
-    throw new UnsupportedOperationException();
+    return router;
+  }
+
+  @Nonnull MockContext setRouter(@Nonnull Router router) {
+    this.router = router;
+    return this;
   }
 }
