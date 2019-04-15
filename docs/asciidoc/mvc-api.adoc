@@ -371,3 +371,46 @@ fun main(args: Array<String>) {
 ----
 
 {love}
+
+=== JAX-RS Annotations
+
+Alternative you can use JAX-RS annotations to define MVC routes.
+
+.Resource
+[source, java, role="primary"]
+----
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
+@Path("/jaxrs")
+public class Resource {
+
+  @GET
+  public String getIt() {
+    return "Got it!";
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+import javax.ws.rs.GET
+import javax.ws.rs.Path
+
+@Path("/jaxrs")
+class Resource {
+
+  @GET
+  fun getIt() : String {
+    return "Got it!"
+  }
+}
+----
+
+Annotations work exactly like the Jooby MVC annotations, but keep in mind we don't implement the
+JAX-RS specification and there is no immediate plan to do it.
+
+The main reason to support JAX-RS annotations is to let you plug-in third-party tools that rely
+on them (mostly annotations processors).
