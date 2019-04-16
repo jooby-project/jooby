@@ -71,6 +71,9 @@ public class JoobyRunner {
           server.start(app);
 
           onReady.accept(new WebClient(9999));
+        } catch (Throwable x) {
+          x.printStackTrace();
+          throw Throwing.sneakyThrow(x);
         } finally {
           server.stop();
         }
