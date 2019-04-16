@@ -17,8 +17,10 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Handler for static resources represented by the {@link Asset} contract.
@@ -36,6 +38,8 @@ public class AssetHandler implements Route.Handler {
   private long maxAge = -1;
 
   private String filekey;
+
+  private static final int ONE_SEC = 1000;
 
   /**
    * Creates a new asset handler.
@@ -71,12 +75,12 @@ public class AssetHandler implements Route.Handler {
       long lastModified = asset.getLastModified();
       if (lastModified > 0) {
         long ifms = ctx.header("If-Modified-Since").longValue(-1);
-        if (lastModified <= ifms) {
+        if (lastModified / ONE_SEC <= ifms / ONE_SEC) {
           ctx.send(StatusCode.NOT_MODIFIED);
           asset.release();
           return ctx;
         }
-        ctx.setHeader("Last-Modified", new Date(lastModified));
+        ctx.setHeader("Last-Modified", Instant.ofEpochMilli(lastModified));
       }
     }
 
