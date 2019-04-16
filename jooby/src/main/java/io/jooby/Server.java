@@ -39,6 +39,9 @@ public interface Server {
    */
   abstract class Base implements Server {
 
+    private static final boolean useShutdownHook = Boolean
+        .parseBoolean(System.getProperty("jooby.useShutdownHook", "true"));
+
     private AtomicBoolean stopping = new AtomicBoolean();
 
     protected void fireStart(List<Jooby> applications, Executor defaultWorker) {
@@ -64,7 +67,9 @@ public interface Server {
     }
 
     protected void addShutdownHook() {
-      Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
+      if (useShutdownHook) {
+        Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
+      }
     }
   }
 

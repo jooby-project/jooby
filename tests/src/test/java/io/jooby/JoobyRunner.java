@@ -7,6 +7,7 @@ import java.util.ServiceLoader;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
@@ -15,11 +16,14 @@ public class JoobyRunner {
 
   static {
     System.setProperty("io.netty.leakDetection.level", "PARANOID");
+    System.setProperty("jooby.useShutdownHook", "false");
   }
 
   private final Supplier<Jooby> provider;
 
   private final List<ExecutionMode> modes = new ArrayList<>();
+
+  private final String testName;
 
   public JoobyRunner(Consumer<Jooby> provider) {
     this.provider = () -> {
@@ -27,10 +31,25 @@ public class JoobyRunner {
       provider.accept(app);
       return app;
     };
+    this.testName = testName(new Exception());
   }
 
   public JoobyRunner(Supplier<Jooby> provider) {
     this.provider = provider;
+    this.testName = testName(new Exception());
+  }
+
+  private String testName(Exception x) {
+    StackTraceElement caller = Stream.of(x.getStackTrace())
+        .skip(1)
+        .findFirst()
+        .get();
+    String className = caller.getClassName();
+    int i = className.lastIndexOf('.');
+    if (i > 0) {
+      className = className.substring(i + 1);
+    }
+    return className + "#" + caller.getMethodName();
   }
 
   public JoobyRunner mode(ExecutionMode... mode) {
@@ -62,6 +81,7 @@ public class JoobyRunner {
       for (Supplier<Server> serverFactory : serverList) {
         Server server = serverFactory.get();
         try {
+          System.setProperty(Jooby.APP_NAME, testName);
           Jooby app = this.provider.get().setExecutionMode(mode);
           ServerOptions serverOptions = app.getServerOptions();
           if (serverOptions != null) {

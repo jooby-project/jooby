@@ -74,6 +74,8 @@ public class Jooby implements Router, Registry {
 
   static final String DEF_PCKG = "___def_package__";
 
+  static final String APP_NAME = "___app_name__";
+
   private RouterImpl router;
 
   private ExecutionMode mode;
@@ -544,7 +546,7 @@ public class Jooby implements Router, Registry {
 
     fireStarted();
 
-    log.info("{} started with:", getClass().getSimpleName());
+    log.info("{} started with:", System.getProperty(APP_NAME, getClass().getSimpleName()));
 
     log.info("    PID: {}", System.getProperty("PID"));
     log.info("    {}", server.getOptions());
@@ -570,12 +572,16 @@ public class Jooby implements Router, Registry {
    * @return This application.
    */
   public @Nonnull Jooby stop() {
+    Logger log = getLog();
+    log.info("Stopping {}", System.getProperty(APP_NAME, getClass().getSimpleName()));
     if (router != null) {
       router.destroy();
       router = null;
     }
 
     fireStop();
+
+    log.info("Stopped {}", System.getProperty(APP_NAME, getClass().getSimpleName()));
     return this;
   }
 
