@@ -87,10 +87,11 @@ public class JoobyRunner {
           if (serverOptions != null) {
             server.setOptions(serverOptions);
           }
-          server.getOptions().setPort(9999);
+          ServerOptions options = server.getOptions();
+          options.setPort(Integer.parseInt(System.getenv().getOrDefault("BUILD_PORT", "9999")));
           server.start(app);
 
-          onReady.accept(new WebClient(9999));
+          onReady.accept(new WebClient(options.getPort()));
         } catch (Throwable x) {
           x.printStackTrace();
           throw Throwing.sneakyThrow(x);

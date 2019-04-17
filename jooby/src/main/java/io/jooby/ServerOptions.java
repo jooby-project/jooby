@@ -328,7 +328,7 @@ public class ServerOptions {
   }
 
   private int randomPort() {
-    try (ServerSocket socket = new ServerSocket()) {
+    try (ServerSocket socket = new ServerSocket(0)) {
       return socket.getLocalPort();
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
