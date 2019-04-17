@@ -53,8 +53,8 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   @Override
   public void initChannel(SocketChannel ch) {
     ChannelPipeline p = ch.pipeline();
-    p.addLast("decoder", new HttpRequestDecoder(_4KB, _8KB, bufferSize, false));
     p.addLast("encoder", new HttpResponseEncoder());
+    p.addLast("decoder", new HttpRequestDecoder(_4KB, _8KB, bufferSize, false));
     if (gzip) {
       p.addLast("gzip", new HttpContentCompressor());
     }

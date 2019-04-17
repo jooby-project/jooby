@@ -109,6 +109,12 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     }
   }
 
+  @Override public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+    if (context != null) {
+      context.flush();
+    }
+  }
+
   private long contentLength(HttpRequest req) {
     String value = req.headers().get(HttpHeaderNames.CONTENT_LENGTH);
     if (value == null) {

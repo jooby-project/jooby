@@ -88,7 +88,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class NettyContext implements Context, ChannelFutureListener, Runnable {
+public class NettyContext implements Context, ChannelFutureListener {
 
   private static final HttpHeaders NO_TRAILING = new DefaultHttpHeaders(false);
   final DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(false);
@@ -110,6 +110,7 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
   private MediaType responseType;
   private Map<String, Object> attributes = new HashMap<>();
   private long contentLength = -1;
+  private boolean needsFlush;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
       int bufferSize) {
@@ -319,16 +320,32 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
   }
 
   @Override public final Context send(ByteBuffer data) {
-    return send(wrappedBuffer(data));
+    if (data.hasArray()) {
+      return send(wrappedBuffer(data.array()));
+    } else {
+      return send(wrappedBuffer(data));
+    }
   }
 
   @Nonnull @Override public Context send(@Nonnull ByteBuf data) {
     responseStarted = true;
     setHeaders.set(CONTENT_LENGTH, data.readableBytes());
-    ctx.write(new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING))
-        .addListener(this);
-    ctx.executor().execute(this);
+    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status,
+        data, setHeaders, NO_TRAILING);
+    if (ctx.channel().eventLoop().inEventLoop()) {
+      needsFlush = true;
+      ctx.write(response).addListener(this);
+    } else {
+      ctx.writeAndFlush(response).addListener(this);
+    }
     return this;
+  }
+
+  public void flush() {
+    if (needsFlush) {
+      needsFlush = false;
+      ctx.flush();
+    }
   }
 
   @Nonnull @Override public Context send(@Nonnull ReadableByteChannel channel) {
@@ -338,17 +355,13 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     int bufferSize = contentLength > 0 ? (int) contentLength : this.bufferSize;
     ctx.channel().eventLoop().execute(() -> {
       // Headers
-      ctx.write(rsp);
+      ctx.write(rsp, ctx.voidPromise());
       // Body
-      ctx.write(new ChunkedNioStream(channel, bufferSize));
+      ctx.write(new ChunkedNioStream(channel, bufferSize), ctx.voidPromise());
       // Finish
       ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
     });
     return this;
-  }
-
-  @Override public void run() {
-    ctx.flush();
   }
 
   @Nonnull @Override public Context send(@Nonnull InputStream in) {
@@ -367,9 +380,9 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
       responseStarted = true;
       ctx.channel().eventLoop().execute(() -> {
         // Headers
-        ctx.write(rsp);
+        ctx.write(rsp, ctx.voidPromise());
         // Body
-        ctx.write(chunkedStream);
+        ctx.write(chunkedStream, ctx.voidPromise());
         // Finish
         ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
       });
@@ -391,9 +404,9 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
       responseStarted = true;
       ctx.channel().eventLoop().execute(() -> {
         // Headers
-        ctx.write(rsp);
+        ctx.write(rsp, ctx.voidPromise());
         // Body
-        ctx.write(new DefaultFileRegion(file, range.getStart(), range.getEnd()));
+        ctx.write(new DefaultFileRegion(file, range.getStart(), range.getEnd()), ctx.voidPromise());
         // Finish
         ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
       });
@@ -411,7 +424,8 @@ public class NettyContext implements Context, ChannelFutureListener, Runnable {
     responseStarted = true;
     setHeaders.set(CONTENT_LENGTH, 0);
     DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HTTP_1_1,
-        HttpResponseStatus.valueOf(statusCode.value()), Unpooled.EMPTY_BUFFER, setHeaders, NO_TRAILING);
+        HttpResponseStatus.valueOf(statusCode.value()), Unpooled.EMPTY_BUFFER, setHeaders,
+        NO_TRAILING);
     ctx.writeAndFlush(rsp).addListener(this);
     return this;
   }

@@ -573,7 +573,7 @@ public class Jooby implements Router, Registry {
    */
   public @Nonnull Jooby stop() {
     Logger log = getLog();
-    log.info("Stopping {}", System.getProperty(APP_NAME, getClass().getSimpleName()));
+    log.debug("Stopping {}", System.getProperty(APP_NAME, getClass().getSimpleName()));
     if (router != null) {
       router.destroy();
       router = null;
