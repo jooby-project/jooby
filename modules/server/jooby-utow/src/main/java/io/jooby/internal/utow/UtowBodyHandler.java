@@ -25,6 +25,7 @@ import io.undertow.server.HttpServerExchange;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,7 +46,8 @@ public class UtowBodyHandler
   private long chunkSize;
   private List chunks;
   private Path file;
-  private FileChannel channel;
+  private AsynchronousFileChannel channel;
+  private long position;
 
   public UtowBodyHandler(Router.Match route, UtowContext context, int bufferSize,
       long maxRequestSize) {
@@ -92,17 +94,20 @@ public class UtowBodyHandler
           // overflow
           if (file == null) {
             file = context.getRouter().getTmpdir().resolve("undertow" + System.nanoTime() + "body");
-            channel = FileChannel.open(file, CREATE, WRITE);
+            channel = AsynchronousFileChannel.open(file, CREATE, WRITE);
           }
           if (chunks != null) {
             List source = chunks;
             chunks = null;
             for (Object s : source) {
-              channel.write(ByteBuffer.wrap((byte[]) s));
+              byte[] bytes = (byte[]) s;
+              channel.write(ByteBuffer.wrap(bytes), position);
+              position += bytes.length;
             }
             source.clear();
           }
-          channel.write(ByteBuffer.wrap(chunk));
+          channel.write(ByteBuffer.wrap(chunk), position);
+          position += chunk.length;
         }
       }
       if (last) {
