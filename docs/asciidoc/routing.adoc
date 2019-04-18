@@ -22,7 +22,7 @@ A javadoc:Route[] consists of three part:
 
   // Get example with path variable
   get("/foo/{id}", ctx -> {
-    return ctx.param("id").value();
+    return ctx.path("id").value();
   });
   
   // Post example
@@ -44,7 +44,7 @@ A javadoc:Route[] consists of three part:
 
   // Get example with path variable
   get("/foo/{id}") { ctx ->
-    ctx.param("id").value()
+    ctx.path("id").value()
   }
   
   // Post example
@@ -89,7 +89,7 @@ to the client.
 {
   // <1>
   get("/user/{id}", ctx -> {
-    int id = ctx.param("id").intValue(); // <2>
+    int id = ctx.path("id").intValue(); // <2>
     return id;
   });
 }
@@ -101,7 +101,7 @@ to the client.
 {
   // <1>
   get("/user/{id}") { ctx ->
-    val id = ctx.param("id").intValue() // <2>
+    val id = ctx.path("id").intValue() // <2>
     id
   }
 }
@@ -116,8 +116,8 @@ to the client.
 {
   // <1>
   get("/file/{file}.{ext}", ctx -> {
-    String filename = ctx.param("file").value(); // <2>
-    String ext = ctx.param("ext").value();   // <3>
+    String filename = ctx.path("file").value(); // <2>
+    String ext = ctx.path("ext").value();   // <3>
     return filename + "." + ext;
   });
 }
@@ -129,8 +129,8 @@ to the client.
 {
   // <1>
   get("/file/{file}.{ext}") { ctx ->
-    val filename = ctx.param("file").value() // <2>
-    val ext = ctx.param("ext").value()       // <3>
+    val filename = ctx.path("file").value() // <2>
+    val ext = ctx.path("ext").value()       // <3>
     filename + "." + ext
   }
 }
@@ -148,7 +148,7 @@ to the client.
 {
   // <1>
   get("/user/{id:[0-9]+}", ctx -> {
-    int id = ctx.param("id").intValue(); // <2>
+    int id = ctx.path("id").intValue(); // <2>
     return id;
   });
 }
@@ -160,7 +160,7 @@ to the client.
 {
   // <1>
   get("/user/{id:[0-9]+}") { ctx ->
-    val id = ctx.param("id").intValue() // <2>
+    val id = ctx.path("id").intValue() // <2>
     id
   }
 }`
@@ -177,12 +177,12 @@ to the client.
 {
   // <1>
   get("/articles/*", ctx -> {
-    String catchall = ctx.param("*").value(); // <2>
+    String catchall = ctx.path("*").value(); // <2>
     return catchall;
   });
   
   get("/articles/*path", ctx -> {
-    String path = ctx.param("path").value(); // <3>
+    String path = ctx.path("path").value(); // <3>
     return path;
   });
 }
@@ -194,12 +194,12 @@ to the client.
 {
   // <1>
   get("/articles/*") { ctx ->
-    val catchall = ctx.param("*").value() // <2>
+    val catchall = ctx.path("*").value() // <2>
     catchall
   }
   
   get("/articles/*path") { ctx ->
-    val path = ctx.param("path").value()  // <3>
+    val path = ctx.path("path").value()  // <3>
     path
   }
 }
@@ -234,7 +234,7 @@ response.
 [source,java,role="primary"]
 ----
 {
-  get("/user/{id}", ctx -> ctx.param("id").value()); // <1>
+  get("/user/{id}", ctx -> ctx.path("id").value());  // <1>
   
   get("/user/me", ctx -> "my profile");              // <2>
   
@@ -248,7 +248,7 @@ response.
 [source,kotlin,role="secondary"]
 ----
 {
-  get("/user/{id}") { ctx -> ctx.param("id").value() } // <1>
+  get("/user/{id}") { ctx -> ctx.path("id").value() }  // <1>
   
   get("/user/me") { ctx -> "my profile" }              // <2>
   
