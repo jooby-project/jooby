@@ -52,4 +52,18 @@ public class UnitTest {
       assertEquals(body, result.getResult());
     });
   }
+
+  @Test
+  public void pipeline() {
+    Jooby app = new Jooby();
+
+    app.before(ctx -> ctx.attribute("prefix", "<"));
+    app.after((ctx, result) -> result + ">");
+    app.get("/", ctx -> ctx.attribute("prefix") + "OK");
+
+    MockRouter router = new MockRouter(app)
+        .setFullExecution(true);
+
+    assertEquals("<OK>", router.get("/"));
+  }
 }

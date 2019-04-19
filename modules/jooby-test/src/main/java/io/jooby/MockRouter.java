@@ -48,6 +48,8 @@ public class MockRouter {
 
   private Supplier<Jooby> supplier;
 
+  private boolean fullExection;
+
   /**
    * Creates a new mock router.
    *
@@ -254,6 +256,18 @@ public class MockRouter {
     return call(supplier.get(), method, path, ctx, consumer);
   }
 
+  /**
+   * Set whenever to execute the entire pipeline (decorators + handler) or just the handler.
+   * This flag is off by default, so only the handlers is executed.
+   *
+   * @param enabled True for enabled the entire pipeline.
+   * @return This mock router.
+   */
+  public MockRouter setFullExecution(boolean enabled) {
+    this.fullExection = enabled;
+    return this;
+  }
+
   private Object call(Jooby router, String method, String path, MockContext ctx,
       Consumer<MockResponse> consumer) {
     ctx.setMethod(method.toUpperCase());
@@ -261,11 +275,13 @@ public class MockRouter {
     ctx.setRouter(router);
 
     Router.Match match = router.match(ctx);
+    Route route = match.route();
     ctx.setPathMap(match.pathMap());
-    ctx.setRoute(match.route());
+    ctx.setRoute(route);
     Object value;
     try {
-      value = match.route().getHandler().apply(ctx);
+      Route.Handler handler = fullExection ? route.getPipeline() : route.getHandler();
+      value = handler.apply(ctx);
       MockResponse response = ctx.getResponse();
       if (!(value instanceof Context)) {
         response.setResult(value);

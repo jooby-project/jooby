@@ -610,14 +610,21 @@ public class Jooby implements Router, Registry {
   public static void runApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
       @Nonnull Class<? extends Jooby> applicationType) {
     configurePackage(applicationType);
-    runApp(args, executionMode, () ->
-        (Jooby) Stream.of(applicationType.getDeclaredConstructors())
-            .filter(it -> it.getParameterCount() == 0)
-            .findFirst()
-            .map(Throwing.throwingFunction(c -> c.newInstance()))
-            .orElseThrow(() -> new IllegalArgumentException(
-                "Default constructor for: " + applicationType.getName()))
-    );
+    runApp(args, executionMode, reflectionProvider(applicationType));
+  }
+
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param executionMode Application execution mode.
+   * @param applicationType Application type.
+   * @return Application.
+   */
+  public static Jooby createApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
+      @Nonnull Class<? extends Jooby> applicationType) {
+    configurePackage(applicationType);
+    return createApp(args, executionMode, reflectionProvider(applicationType));
   }
 
   /**
@@ -637,7 +644,7 @@ public class Jooby implements Router, Registry {
    * @param consumer Application consumer.
    */
   public static void runApp(@Nonnull String[] args, @Nonnull Consumer<Jooby> consumer) {
-    runApp(args, ExecutionMode.DEFAULT, toProvider(consumer));
+    runApp(args, ExecutionMode.DEFAULT, consumerProvider(consumer));
   }
 
   /**
@@ -649,7 +656,7 @@ public class Jooby implements Router, Registry {
    */
   public static void runApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
       @Nonnull Consumer<Jooby> consumer) {
-    runApp(args, executionMode, toProvider(consumer));
+    runApp(args, executionMode, consumerProvider(consumer));
   }
 
   /**
@@ -660,6 +667,21 @@ public class Jooby implements Router, Registry {
    * @param provider Application provider.
    */
   public static void runApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
+      @Nonnull Supplier<Jooby> provider) {
+    Jooby app = createApp(args, executionMode, provider);
+    Server server = app.start();
+    server.join();
+  }
+
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
+   * @param args Application arguments.
+   * @param executionMode Application execution mode.
+   * @param provider Application provider.
+   * @return Application.
+   */
+  public static Jooby createApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
       @Nonnull Supplier<Jooby> provider) {
 
     configurePackage(provider);
@@ -674,8 +696,7 @@ public class Jooby implements Router, Registry {
     if (app.mode == null) {
       app.mode = executionMode;
     }
-    Server server = app.start();
-    server.join();
+    return app;
   }
 
   private static void configurePackage(@Nonnull Object provider) {
@@ -749,7 +770,7 @@ public class Jooby implements Router, Registry {
     }
   }
 
-  private static Supplier<Jooby> toProvider(Consumer<Jooby> consumer) {
+  private static Supplier<Jooby> consumerProvider(Consumer<Jooby> consumer) {
     configurePackage(consumer);
     return () -> {
       Jooby app = new Jooby();
@@ -758,4 +779,14 @@ public class Jooby implements Router, Registry {
     };
   }
 
+  private static Supplier<Jooby> reflectionProvider(
+      @Nonnull Class<? extends Jooby> applicationType) {
+    return () ->
+        (Jooby) Stream.of(applicationType.getDeclaredConstructors())
+            .filter(it -> it.getParameterCount() == 0)
+            .findFirst()
+            .map(Throwing.throwingFunction(c -> c.newInstance()))
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Default constructor for: " + applicationType.getName()));
+  }
 }
