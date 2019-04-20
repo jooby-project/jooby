@@ -249,7 +249,7 @@ public class MvcTest {
 
       app.error((ctx, cause, statusCode) -> {
         app.getLog().error("{} {}", ctx.getMethod(), ctx.pathString(), cause);
-        ctx.setStatusCode(statusCode)
+        ctx.setResponseCode(statusCode)
             .send(cause.getMessage());
       });
 
@@ -285,7 +285,7 @@ public class MvcTest {
 
       app.error((ctx, cause, statusCode) -> {
         app.getLog().error("{} {}", ctx.getMethod(), ctx.pathString(), cause);
-        ctx.setStatusCode(statusCode)
+        ctx.setResponseCode(statusCode)
             .send(cause.getMessage());
       });
 

@@ -237,22 +237,22 @@ public class MockContext implements Context {
     return attributes;
   }
 
-  @Nonnull @Override public MockContext setHeader(@Nonnull String name, @Nonnull Date value) {
-    Context.super.setHeader(name, value);
+  @Nonnull @Override public MockContext setResponseHeader(@Nonnull String name, @Nonnull Date value) {
+    Context.super.setResponseHeader(name, value);
     return this;
   }
 
-  @Nonnull @Override public MockContext setHeader(@Nonnull String name, @Nonnull Instant value) {
-    Context.super.setHeader(name, value);
+  @Nonnull @Override public MockContext setResponseHeader(@Nonnull String name, @Nonnull Instant value) {
+    Context.super.setResponseHeader(name, value);
     return this;
   }
 
-  @Nonnull @Override public MockContext setHeader(@Nonnull String name, @Nonnull Object value) {
-    Context.super.setHeader(name, value);
+  @Nonnull @Override public MockContext setResponseHeader(@Nonnull String name, @Nonnull Object value) {
+    Context.super.setResponseHeader(name, value);
     return this;
   }
 
-  @Nonnull @Override public MockContext setHeader(@Nonnull String name, @Nonnull String value) {
+  @Nonnull @Override public MockContext setResponseHeader(@Nonnull String name, @Nonnull String value) {
     responseHeaders.put(name, value);
     return this;
   }
@@ -273,12 +273,12 @@ public class MockContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public MockContext setStatusCode(int statusCode) {
+  @Nonnull @Override public MockContext setResponseCode(int statusCode) {
     response.setStatusCode(StatusCode.valueOf(statusCode));
     return this;
   }
 
-  @Nonnull @Override public StatusCode getStatusCode() {
+  @Nonnull @Override public StatusCode getResponseCode() {
     return response.getStatusCode();
   }
 

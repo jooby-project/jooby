@@ -77,7 +77,7 @@ access and check response metadata:
 public class App extends Jooby {
   {
     get("/", ctx -> ctx
-        .setStatusCode(StatusCode.OK)
+        .setResponseCode(StatusCode.OK)
         .send("Easy unit testing")
     );
   }
@@ -89,7 +89,7 @@ public class App extends Jooby {
 ----
 class App: Kooby({
   get("/") { ctx ->
-      ctx.statusCode = StatusCode.OK
+      ctx.responseCode = StatusCode.OK
 
       ctx.send("Easy unit testing")
   })

@@ -239,11 +239,11 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
-  @Nonnull @Override public StatusCode getStatusCode() {
+  @Nonnull @Override public StatusCode getResponseCode() {
     return StatusCode.valueOf(response.getStatus());
   }
 
-  @Nonnull @Override public Context setStatusCode(int statusCode) {
+  @Nonnull @Override public Context setResponseCode(int statusCode) {
     response.setStatus(statusCode);
     return this;
   }
@@ -272,7 +272,7 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
-  @Nonnull @Override public Context setHeader(@Nonnull String name, @Nonnull String value) {
+  @Nonnull @Override public Context setResponseHeader(@Nonnull String name, @Nonnull String value) {
     response.setHeader(name, value);
     return this;
   }

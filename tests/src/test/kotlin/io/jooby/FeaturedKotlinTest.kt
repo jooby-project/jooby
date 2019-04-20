@@ -111,7 +111,7 @@ class FeaturedKotlinTest {
 
         error { ctx, cause, statusCode ->
           log.error("{} {}", ctx.method, ctx.pathString(), cause)
-          ctx.setStatusCode(statusCode)
+          ctx.setResponseCode(statusCode)
               .send(cause.message!!)
         }
       }

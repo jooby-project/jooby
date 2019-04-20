@@ -128,13 +128,13 @@ Response body is generated from `handler` function:
 ----
 {
   get("/", ctx -> {
-    ctx.setStatusCode(200);              // <1>
+    ctx.setResponseConde(200);                  // <1>
 
-    ctx.setContentType(MediaType.text);  // <2>
+    ctx.setResponseType(MediaType.text);        // <2>
 
-    ctx.setHeader("Date", new Date());   // <3>
+    ctx.setResponseHeader("Date", new Date());  // <3>
 
-    return "Response";                   // <4>
+    return "Response";                          // <4>
   });
 }
 ----
@@ -144,13 +144,13 @@ Response body is generated from `handler` function:
 ----
 {
   get("/") { ctx ->
-    ctx.statusCode = 200                 // <1>
+    ctx.responseCode = 200                 // <1>
 
-    ctx.contentType = MediaType.text     // <2>
+    ctx.responseType = MediaType.text      // <2>
 
-    ctx.setHeader("Date", Date())        // <3>
+    ctx.setResponseHeader("Date", Date())  // <3>
 
-    "Response"                           // <4>
+    "Response"                             // <4>
   }
 }
 ----
@@ -235,4 +235,3 @@ Jooby comes with a `json` renderer built on top of https://github.com/FasterXML/
 .
 
 ====
-

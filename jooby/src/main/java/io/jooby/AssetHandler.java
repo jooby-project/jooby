@@ -64,7 +64,7 @@ public class AssetHandler implements Route.Handler {
         asset.release();
         return ctx;
       } else {
-        ctx.setHeader("ETag", asset.getEtag());
+        ctx.setResponseHeader("ETag", asset.getEtag());
       }
     }
 
@@ -78,13 +78,13 @@ public class AssetHandler implements Route.Handler {
           asset.release();
           return ctx;
         }
-        ctx.setHeader("Last-Modified", Instant.ofEpochMilli(lastModified));
+        ctx.setResponseHeader("Last-Modified", Instant.ofEpochMilli(lastModified));
       }
     }
 
     // cache max-age
     if (maxAge > 0) {
-      ctx.setHeader("Cache-Control", "max-age=" + maxAge);
+      ctx.setResponseHeader("Cache-Control", "max-age=" + maxAge);
     }
 
     long length = asset.getSize();

@@ -247,16 +247,16 @@ public class NettyContext implements Context, ChannelFutureListener {
    * **********************************************************************************************
    */
 
-  @Nonnull @Override public StatusCode getStatusCode() {
+  @Nonnull @Override public StatusCode getResponseCode() {
     return StatusCode.valueOf(this.status.code());
   }
 
-  @Nonnull @Override public Context setStatusCode(int statusCode) {
+  @Nonnull @Override public Context setResponseCode(int statusCode) {
     this.status = HttpResponseStatus.valueOf(statusCode);
     return this;
   }
 
-  @Nonnull @Override public Context setHeader(@Nonnull String name, @Nonnull String value) {
+  @Nonnull @Override public Context setResponseHeader(@Nonnull String name, @Nonnull String value) {
     setHeaders.set(name, value);
     return this;
   }

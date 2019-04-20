@@ -816,8 +816,8 @@ public interface Context {
    * @param value Header value.
    * @return This context.
    */
-  @Nonnull default Context setHeader(@Nonnull String name, @Nonnull Date value) {
-    return setHeader(name, RFC1123.format(Instant.ofEpochMilli(value.getTime())));
+  @Nonnull default Context setResponseHeader(@Nonnull String name, @Nonnull Date value) {
+    return setResponseHeader(name, RFC1123.format(Instant.ofEpochMilli(value.getTime())));
   }
 
   /**
@@ -827,8 +827,8 @@ public interface Context {
    * @param value Header value.
    * @return This context.
    */
-  @Nonnull default Context setHeader(@Nonnull String name, @Nonnull Instant value) {
-    return setHeader(name, RFC1123.format(value));
+  @Nonnull default Context setResponseHeader(@Nonnull String name, @Nonnull Instant value) {
+    return setResponseHeader(name, RFC1123.format(value));
   }
 
   /**
@@ -838,14 +838,14 @@ public interface Context {
    * @param value Header value.
    * @return This context.
    */
-  @Nonnull default Context setHeader(@Nonnull String name, @Nonnull Object value) {
+  @Nonnull default Context setResponseHeader(@Nonnull String name, @Nonnull Object value) {
     if (value instanceof Date) {
-      return setHeader(name, (Date) value);
+      return setResponseHeader(name, (Date) value);
     }
     if (value instanceof Instant) {
-      return setHeader(name, (Instant) value);
+      return setResponseHeader(name, (Instant) value);
     }
-    return setHeader(name, value.toString());
+    return setResponseHeader(name, value.toString());
   }
 
   /**
@@ -855,7 +855,7 @@ public interface Context {
    * @param value Header value.
    * @return This context.
    */
-  @Nonnull Context setHeader(@Nonnull String name, @Nonnull String value);
+  @Nonnull Context setResponseHeader(@Nonnull String name, @Nonnull String value);
 
   /**
    * Set response content length header.
@@ -914,8 +914,8 @@ public interface Context {
    * @param statusCode Status code.
    * @return This context.
    */
-  @Nonnull default Context setStatusCode(@Nonnull StatusCode statusCode) {
-    return setStatusCode(statusCode.value());
+  @Nonnull default Context setResponseCode(@Nonnull StatusCode statusCode) {
+    return setResponseCode(statusCode.value());
   }
 
   /**
@@ -924,14 +924,14 @@ public interface Context {
    * @param statusCode Status code.
    * @return This context.
    */
-  @Nonnull Context setStatusCode(int statusCode);
+  @Nonnull Context setResponseCode(int statusCode);
 
   /**
    * Get response status code.
    *
    * @return Response status code.
    */
-  @Nonnull StatusCode getStatusCode();
+  @Nonnull StatusCode getResponseCode();
 
   /**
    * Render a value and send the response to client.
@@ -1093,7 +1093,7 @@ public interface Context {
    * @return This context.
    */
   default @Nonnull Context sendRedirect(@Nonnull StatusCode redirect, @Nonnull String location) {
-    setHeader("location", location);
+    setResponseHeader("location", location);
     return send(redirect);
   }
 
@@ -1165,7 +1165,7 @@ public interface Context {
    * @return This context.
    */
   default @Nonnull Context send(@Nonnull AttachedFile file) {
-    setHeader("Content-Disposition", file.getContentDisposition());
+    setResponseHeader("Content-Disposition", file.getContentDisposition());
     InputStream content = file.stream();
     long length = file.getFileSize();
     if (length > 0) {

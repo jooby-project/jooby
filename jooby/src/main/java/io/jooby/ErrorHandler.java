@@ -80,12 +80,12 @@ public interface ErrorHandler {
 
       ctx
           .setResponseType(MediaType.html)
-          .setStatusCode(statusCode)
+          .setResponseCode(statusCode)
           .send(html.toString());
     } else {
       String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
       ctx.setResponseType(json)
-          .setStatusCode(statusCode)
+          .setResponseCode(statusCode)
           .send("{\"message\":\"" + message + "\",\"statusCode\":" + statusCode.value()
               + ",\"reason\":\"" + statusCode.reason() + "\"}");
     }

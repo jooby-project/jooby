@@ -196,16 +196,16 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
-  @Nonnull @Override public StatusCode getStatusCode() {
+  @Nonnull @Override public StatusCode getResponseCode() {
     return StatusCode.valueOf(exchange.getStatusCode());
   }
 
-  @Nonnull @Override public Context setStatusCode(int statusCode) {
+  @Nonnull @Override public Context setResponseCode(int statusCode) {
     exchange.setStatusCode(statusCode);
     return this;
   }
 
-  @Nonnull @Override public Context setHeader(@Nonnull String name, @Nonnull String value) {
+  @Nonnull @Override public Context setResponseHeader(@Nonnull String name, @Nonnull String value) {
     exchange.getResponseHeaders().put(HttpString.tryFromString(name), value);
     return this;
   }

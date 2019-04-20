@@ -20,7 +20,7 @@ public class UnitTest {
 
     app.get("/search", ctx -> ctx.query("q").value("*:*"));
 
-    app.delete("/{id}", ctx -> ctx.setStatusCode(NO_CONTENT));
+    app.delete("/{id}", ctx -> ctx.setResponseCode(NO_CONTENT));
 
     app.post("/", ctx -> ctx.body().value());
 
