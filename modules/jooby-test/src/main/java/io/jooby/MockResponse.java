@@ -48,7 +48,7 @@ import java.util.TreeMap;
  * @author edgar
  * @since 2.0.0
  */
-public class MockResponse {
+public class MockResponse implements MockValue {
 
   private Object result;
 
@@ -160,24 +160,8 @@ public class MockResponse {
     return this;
   }
 
-  /**
-   * Route response value.
-   *
-   * @return Route response value.
-   */
-  public Object getResult() {
+  @Nonnull @Override public Object value() {
     return result;
-  }
-
-  /**
-   * Route response value.
-   *
-   * @param type For type casting.
-   * @param <T> Target type.
-   * @return Route response value.
-   */
-  public <T> T getResult(Class<T> type) {
-    return type.cast(result);
   }
 
   /**

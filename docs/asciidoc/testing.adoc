@@ -1,0 +1,395 @@
+== Testing
+
+This section will show you how to run unit and integration tests with Jooby.
+
+=== Unit Testing
+
+1) Add Jooby test dependency:
+
+[dependency, artifactId="jooby-test"]
+.
+
+2) Write your application:
+
+.App
+[source,java,role="primary"]
+----
+public class App extends Jooby {
+  {
+    get("/", ctx -> "Easy unit testing!");
+  }
+}
+----
+
+.Kotlin
+[source,java,role="kotlin"]
+----
+class App: Kooby({
+
+  get("/") { ctx ->
+    "Easy unit testing!"
+  }
+
+})
+----
+
+3) Write your test:
+
+.TestApp
+[source,java,role="primary"]
+----
+
+import io.jooby.MockRouter;
+
+public class TestApp {
+  
+  @Test
+  public void test() {
+    MockRouter router = new MockRouter(new App());
+    assertEquals("OK", router.get("/").value());
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.MockRouter
+
+class TestApp {
+  
+  @Test
+  fun test() {
+    val router = MockRouter(App())
+    assertEquals("OK", router.get("/").value())
+  }
+}
+----
+
+Simple and easy {love}!
+
+The javadoc:MockRouter[] returns the value produced by the route handler. It is possible to get
+access and check response metadata:
+
+.App
+[source,java,role="primary"]
+----
+public class App extends Jooby {
+  {
+    get("/", ctx -> ctx
+        .setStatusCode(StatusCode.OK)
+        .send("Easy unit testing")
+    );
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class App: Kooby({
+  get("/") { ctx ->
+      ctx.statusCode = StatusCode.OK
+
+      ctx.send("Easy unit testing")
+  })
+})
+----
+
+.Checking response metadata
+[source,java,role="primary"]
+----
+public class TestApp {
+
+  @Test
+  public void test() {
+    MockRouter router = new MockRouter(new App());
+    router.get("/", response -> {
+      assertEquals(StatusCode.OK, response.getStatusCode());
+      assertEquals("Easy unit testing", response.value(String.class));
+    });
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class TestApp {
+
+  @Test
+  fun test() {
+    val router = MockRouter(App())
+    router.get("/") { response ->
+      assertEquals(StatusCode.OK, response.statusCode)
+      assertEquals("Easy unit testing", response.value(String::class))
+    }
+  }
+}
+----
+
+For more complex route context interaction or responses, you can pass in a javadoc:MockContext[]:
+
+.App
+[source,java,role="primary"]
+----
+public class App extends Jooby {
+  {
+    post("/", ctx -> {
+      String name = ctx.form("name").value();
+      return name;
+    });
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class App: Kooby({
+  get("/") { ctx ->
+    val name = ctx.form("name").value()
+    name
+  })
+})
+----
+
+.Using mock context
+[source,java,role="primary"]
+----
+public class TestApp {
+
+  @Test
+  public void test() {
+    MockRouter router = new MockRouter(new App());
+    MockContext context = new MockContext()
+        .setForm(Formdata.create()
+            .put("name", "Test!")
+        );
+    assertEquals("Test!", router.post("/", context).value());
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class TestApp {
+
+  @Test
+  fun test() {
+    MockRouter router = MockRouter(App())
+    MockContext context = MockContext().apply {
+      form = Formdata.create().apply {
+        put("name", "Test!")
+      }
+    }
+    assertEquals("Test!", router.post("/", context).value())
+  }
+}
+----
+
+Alternative you can provide your own mock context:
+
+.Mockito Context
+[source,java,role="primary"]
+----
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class TestApp {
+
+  @Test
+  public void test() {
+    Value name = mock(Value.class);
+    when(name.value()).thenReturn("Test!");
+    
+    Context context = mock(Context.class);
+    when(context.form("name")).thenReturn(name);
+
+    MockRouter router = new MockRouter(new App());
+
+    assertEquals("Test!", router.post("/", context).value());
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.when
+
+class TestApp {
+
+  @Test
+  fun test() {
+    val name = mock(Value::class.java)
+    when(name.value()).thenReturn("Test!")
+    
+    val context = mock(Context::class.java)
+    when(context.form("name")).thenReturn(name)
+    
+    MockRouter router = MockRouter(App())
+
+    assertEquals("Test!", router.post("/", context).value())
+  }
+}
+----
+
+{love} {love}!
+
+For MVC routes you might prefer to write a unit test using a mock library. No need to use 
+`MockRouter`, but it is possible too.
+
+By default the javadoc:MockRouter[] class execute the route handler. For executing the entire
+pipeline use: javadoc:MockRouter[setFullExecution].
+
+Unit testing is simple and easy in Jooby. The javadoc:MockRouter[] let you to execute route function,
+while the javadoc:MockContext[] allows you to create an light-weight and mutable context where
+you can set HTTP parameters, body, headers, etc.
+
+=== Integration Testing
+
+Integration tests are supported via JUnit 5 extension mechanism.
+
+1) Add Jooby test dependency:
+
+[dependency, artifactId="jooby-test"]
+.
+
+2) Write your application:
+
+.App
+[source,java,role="primary"]
+----
+public class App extends Jooby {
+  {
+    get("/", ctx -> "Easy testing!");
+  }
+}
+----
+
+.Kotlin
+[source,java,role="kotlin"]
+----
+class App: Kooby({
+
+  get("/") { ctx ->
+    "Easy testing!"
+  }
+
+})
+----
+
+3) Write your test:
+
+.TestApp
+[source,java,role="primary"]
+----
+
+import io.jooby.JoobyTest;
+
+@JoobyTest(App.class)
+public class TestApp {
+  
+  static OkHttpClient client = new OkHttpClient();
+
+  @Test
+  public void test() {
+    Request request = new Request.Builder()
+        .url("http://localhost:8911")
+        .build();
+
+    try (Response response = client.newCall(request).execute()) {
+      assertEquals("Easy testing!", response.body().string());
+    }
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.JoobyTest
+
+@JoobyTest(App.class)
+class TestApp {
+  
+  companion object {
+    const client = OkHttpClient()
+  }
+  
+  @Test
+  fun test() {
+    val request = Request.Builder()
+        .url("http://localhost:8911")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+      assertEquals("Easy testing!", response.body().string())
+    }
+  }
+}
+----
+
+The example uses https://square.github.io/okhttp/[OkHttp] client, but you are free to use any other HTTP client.
+
+Simple and easy {love}!
+
+The javadoc:JoobyTest[] takes care of start and stop the application.
+
+Adding the annotation at class-level starts a single application before running tests and stop it 
+after all them. The default port at class level is: `8911`.
+
+Adding the annotation at method-level starts an application before running the test and stop it
+once it finish. The default port at method level is `random`.
+
+Default application port can be configured directly using the javadoc:JoobyTest[port] method:
+
+`@JoobyTest(value = App.class, port = 9999)`
+
+If port is set to zero(0) a random port is selected. You can inject the server port in your test like:
+
+.Server port injection
+[source,java]
+----
+@JoobyTest(App.class)
+public void test(int serverPort) {
+  
+}
+
+@JoobyTest(App.class)
+public void anotherTest(int serverPort) {
+  
+}
+----
+
+The parameter name must be `serverPort` and be of type `int`. This injection let you access to the
+random port used for the method-level application test.
+
+There is a `serverPath` value too, which is the entire path to the server:
+
+.Server path injection
+[source,java]
+----
+@JoobyTest(App.class)
+public void test(String serverPath) { <1>
+  
+}
+----
+
+The `serverPath` variable contains the entire path: `http://localhost:port/contextPath`.
+
+Here is the list of available injectable values:
+
+* `int serverPort`: Give you the port where the application is listening. This is named type injection (name and type are required).
+* `String serverPath`: Give you the entire server path where the application is listening. This is named type injection (name and type are required).
+* `io.jooby.Environment`: Give you access to the application environment. This is a type injection (name no matter).
+* `com.typesafe.config.Config`: Give you access to the application environment. This is a type injection (name no matter).
+* `io.jooby.Jooby`: Give you access to the application. This is a type injection (name no matter).
+
+These values can be injected via parameter or instance fields.
+
+The javadoc:JoobyTest[] annotation starts the application using the `test` environment name. You can
+creates a `conf/application.test.conf` file to override any other values for testing purpose.

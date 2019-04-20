@@ -225,3 +225,5 @@ include::mvc-api.adoc[]
 include::configuration.adoc[]
 
 include::dependency-injection.adoc[]
+
+include::testing.adoc[]

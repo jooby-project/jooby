@@ -1,9 +1,12 @@
 package io.jooby;
 
+import io.reactivex.Single;
 import org.junit.jupiter.api.Test;
 
 import static io.jooby.StatusCode.NO_CONTENT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class UnitTest {
 
@@ -23,24 +26,24 @@ public class UnitTest {
 
     MockRouter router = new MockRouter(app);
 
-    assertEquals("OK", router.get("/"));
+    assertEquals("OK", router.get("/").value());
 
-    assertEquals("*:*", router.get("/search"));
+    assertEquals("*:*", router.get("/search").value());
 
-    assertEquals("foo", router.get("/search?q=foo"));
+    assertEquals("foo", router.get("/search?q=foo").value());
 
     router.get("/", result -> {
       assertEquals(StatusCode.OK, result.getStatusCode());
       assertEquals("text/plain", result.getContentType().getValue());
       assertEquals(2, result.getContentLength());
-      assertEquals("OK", result.getResult());
+      assertEquals("OK", result.value());
     });
 
     router.get("/123", result -> {
       assertEquals(StatusCode.OK, result.getStatusCode());
       assertEquals("text/plain", result.getContentType().getValue());
       assertEquals(3, result.getContentLength());
-      assertEquals(123, result.getResult(Integer.class).intValue());
+      assertEquals(123, result.value(Integer.class).intValue());
     });
 
     router.delete("/123", result -> {
@@ -49,7 +52,7 @@ public class UnitTest {
 
     String body = "{\"message\":\"ok\"}";
     router.post("/", new MockContext().setBody(body), result -> {
-      assertEquals(body, result.getResult());
+      assertEquals(body, result.value());
     });
   }
 
@@ -64,6 +67,53 @@ public class UnitTest {
     MockRouter router = new MockRouter(app)
         .setFullExecution(true);
 
-    assertEquals("<OK>", router.get("/"));
+    assertEquals("<OK>", router.get("/").value());
+  }
+
+  @Test
+  public void formdata() {
+    Jooby app = new Jooby();
+
+    app.post("/", ctx -> ctx.form("name").value());
+
+    MockRouter router = new MockRouter(app);
+    MockContext context = new MockContext()
+        .setForm(Formdata.create().put("name", "Easy Unit"));
+
+    assertEquals("Easy Unit", router.post("/", context).value());
+  }
+
+  @Test
+  public void formdataMock() {
+    Jooby app = new Jooby();
+
+    app.post("/", ctx -> ctx.form("name").value());
+
+    Value name = mock(Value.class);
+    when(name.value()).thenReturn("Easy Unit");
+
+    Context context = mock(Context.class);
+    when(context.form("name")).thenReturn(name);
+
+    MockRouter router = new MockRouter(app);
+
+    assertEquals("Easy Unit", router.post("/", context).value());
+  }
+
+  @Test
+  public void rx() {
+    Jooby app = new Jooby();
+
+    app.get("/", ctx -> Single.fromCallable(() -> "rx"));
+
+    MockRouter router = new MockRouter(app);
+
+    assertEquals("rx", router.get("/").value(Single.class).blockingGet());
+  }
+
+  @Test
+  public void mvcApp() {
+    MockRouter router = new MockRouter(new MvcApp());
+    assertEquals("/mvc", router.get("/mvc").value());
   }
 }
