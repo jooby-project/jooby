@@ -235,7 +235,7 @@ To skip/ignore Jooby loading and precedence mechanism, just instantiate and set 
 ----
 {
   Config conf = ConfigFatory.load("/path/to/myapp.conf");  <1>
-  Environment env = new Env(customConfig, "prod");                 <2>
+  Environment env = new Env(customConfig, "prod");         <2>
   setEnvironment(env);                                     <3>
 }
 ----
@@ -256,7 +256,7 @@ To skip/ignore Jooby loading and precedence mechanism, just instantiate and set 
 
 IMPORTANT: Custom configuration is very flexible. You can reuse Jooby mechanism or provide your own.
 The only thing to keep in mind is that environment setting must be done at very early stage, before
-installing extensions.
+starting the application.
 
 === Logging
 

@@ -1,8 +1,6 @@
-* Review unit test and document it
-* Review integration test and document it.
-
 * tests and coverage
 
 * cookie (request and response)
-*
+* rename application.port and server related properties to server.port
+* allow to configure context path and port + server properties from configuration file.
 * websockets
