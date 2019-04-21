@@ -18,6 +18,7 @@ package io.jooby;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -655,6 +656,10 @@ public interface Router {
    * @return This router.
    */
   @Nonnull Router setRouterOptions(@Nonnull RouterOptions options);
+
+  @Nonnull SessionOptions getSessionOptions();
+
+  @Nonnull Router setSessionOptions(@Nonnull SessionOptions options);
 
   /**
    * Normalize a path by removing consecutives <code>/</code>(slashes), make it lower case and

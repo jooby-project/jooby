@@ -28,6 +28,7 @@ import io.jooby.ResponseHandler;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.RouterOptions;
+import io.jooby.SessionOptions;
 import io.jooby.StatusCode;
 import io.jooby.Throwing;
 import io.jooby.internal.asm.ClassSource;
@@ -39,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
 import java.lang.reflect.AnnotatedElement;
@@ -167,6 +169,8 @@ public class RouterImpl implements Router {
   private MvcAnnotation mvcAnnotations;
 
   private ClassSource source;
+
+  private SessionOptions sessionOptions = new SessionOptions();
 
   public RouterImpl(ClassLoader loader) {
     this.source = new ClassSource(loader);
@@ -329,6 +333,15 @@ public class RouterImpl implements Router {
 
   @Override @Nonnull public Router path(@Nonnull String pattern, @Nonnull Runnable action) {
     return newStack(pattern, action);
+  }
+
+  @Nonnull @Override public SessionOptions getSessionOptions() {
+    return sessionOptions;
+  }
+
+  @Nonnull @Override public Router setSessionOptions(SessionOptions sessionOptions) {
+    this.sessionOptions = sessionOptions;
+    return this;
   }
 
   @Override

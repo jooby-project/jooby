@@ -54,6 +54,20 @@ public class Cookie {
     this(name, null);
   }
 
+  public Cookie(@Nonnull Cookie cookie) {
+    this.domain = cookie.domain;
+    this.value = cookie.value;
+    this.name = cookie.name;
+    this.maxAge = cookie.maxAge;
+    this.path = cookie.path;
+    this.secure = cookie.secure;
+    this.httpOnly = cookie.httpOnly;
+  }
+
+  public Cookie clone() {
+    return new Cookie(this);
+  }
+
   public @Nonnull String getName() {
     return name;
   }

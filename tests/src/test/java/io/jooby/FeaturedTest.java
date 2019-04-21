@@ -13,7 +13,9 @@ import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -42,6 +44,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -1646,6 +1649,91 @@ public class FeaturedTest {
     }, Jetty::new);
 
     assertEquals(0, counter.get());
+  }
+
+  @Test
+  public void session() {
+    new JoobyRunner(app -> {
+
+      app.get("/findSession", ctx -> Optional.ofNullable(ctx.sessionOrNull()).isPresent());
+      app.get("/getSession", ctx -> ctx.session().get("foo").value("none"));
+      app.get("/putSession", ctx -> ctx.session().put("foo", "bar").get("foo").value());
+      app.get("/destroySession", ctx -> {
+        Session session = ctx.session();
+        session.destroy();
+
+        return Optional.ofNullable(ctx.sessionOrNull()).isPresent();
+      });
+
+    }).ready(client -> {
+      client.get("/findSession", rsp -> {
+        assertEquals("[]", rsp.headers("Set-Cookie").toString());
+        assertEquals("false", rsp.body().string());
+      });
+      client.header("Cookie", "jooby.sid=1234missing");
+      client.get("/findSession", rsp -> {
+        assertEquals("[]", rsp.headers("Set-Cookie").toString());
+        assertEquals("false", rsp.body().string());
+      });
+
+      client.get("/getSession", rsp -> {
+        assertEquals("none", rsp.body().string());
+        String sid = sid(rsp, "jooby.sid=");
+
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.get("/findSession", findSession -> {
+          assertEquals("[]", findSession.headers("Set-Cookie").toString());
+          assertEquals("true", findSession.body().string());
+        });
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.get("/putSession", putSession -> {
+          assertEquals("[]", putSession.headers("Set-Cookie").toString());
+          assertEquals("bar", putSession.body().string());
+        });
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.get("/getSession", putSession -> {
+          assertEquals("[]", putSession.headers("Set-Cookie").toString());
+          assertEquals("bar", putSession.body().string());
+        });
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.get("/destroySession", putSession -> {
+          assertEquals(
+              "[jooby.sid=;Path=/;HttpOnly;Max-Age=0;Expires=Thu, 01-Jan-1970 00:00:00 GMT]",
+              putSession.headers("Set-Cookie").toString());
+          assertEquals("false", putSession.body().string());
+        });
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.get("/findSession", putSession -> {
+          assertEquals("[]", putSession.headers("Set-Cookie").toString());
+          assertEquals("false", putSession.body().string());
+        });
+      });
+    });
+
+    /**********************************************************************************************/
+    // Max Age
+    /**********************************************************************************************/
+    new JoobyRunner(app -> {
+      app.setSessionOptions(
+          new SessionOptions()
+              .setCookie(new Cookie("my.sid").setMaxAge(1L))
+      );
+      app.get("/session", ctx -> ctx.session().toMap());
+      app.get("/sessionMaxAge", ctx -> Optional.ofNullable(ctx.sessionOrNull()).isPresent());
+    }).ready(client -> {
+      client.get("/session", rsp -> {
+        String setCookie = rsp.header("Set-Cookie");
+        assertTrue(setCookie.startsWith("my.sid"));
+        assertTrue(setCookie.contains(";Max-Age=1;"));
+      });
+    });
+  }
+
+  private String sid(Response rsp, String prefix) {
+    String setCookie = rsp.header("Set-Cookie");
+    assertNotNull(setCookie);
+    assertTrue(setCookie.startsWith(prefix));
+    return setCookie.substring(prefix.length(), setCookie.indexOf(";"));
   }
 
   @Test

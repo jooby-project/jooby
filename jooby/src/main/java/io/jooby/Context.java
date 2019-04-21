@@ -17,6 +17,7 @@ package io.jooby;
 
 import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
+import io.jooby.internal.SessionImpl;
 import io.jooby.internal.SingleValue;
 import io.jooby.internal.UrlParser;
 import io.netty.buffer.ByteBuf;
@@ -119,6 +120,46 @@ public interface Context {
    * **** Request methods *************************************************************************
    * **********************************************************************************************
    */
+
+  default @Nonnull Session session() {
+    Session session = sessionOrNull();
+    if (session == null) {
+      Router router = getRouter();
+      SessionOptions sessionOptions = router.getSessionOptions();
+      SessionStore store = sessionOptions.getStore();
+
+      Session newSession = store.newSession(sessionOptions.generateId(this));
+      store.save(newSession);
+
+      // write cookie
+      setResponseCookie(sessionOptions.getCookie().setValue(newSession.getId()));
+
+      session = Session.create(this, newSession);
+    }
+    return session;
+  }
+
+  default @Nullable Session sessionOrNull() {
+    Router router = getRouter();
+    SessionOptions options = router.getSessionOptions();
+    Cookie cookie = options.getCookie();
+    String name = cookie.getName();
+    String id = cookieMap().get(name);
+    if (id == null) {
+      return null;
+    }
+    SessionOptions sessionOptions = router.getSessionOptions();
+    SessionStore store = sessionOptions.getStore();
+    Session session = store.findSession(id);
+    if (session == null) {
+      return null;
+    }
+    if (cookie.getMaxAge() > 0) {
+      // Touch session
+      setResponseCookie(cookie.setValue(id));
+    }
+    return Session.create(this, session);
+  }
 
   default @Nonnull Value cookie(@Nonnull String name) {
     String value = cookieMap().get(name);

@@ -469,6 +469,15 @@ public class Jooby implements Router, Registry {
     return getClass().getPackage().getName();
   }
 
+  @Nonnull @Override public SessionOptions getSessionOptions() {
+    return router.getSessionOptions();
+  }
+
+  @Nonnull @Override public Jooby setSessionOptions(@Nonnull SessionOptions options) {
+    router.setSessionOptions(options);
+    return this;
+  }
+
   /**
    * Start application, find a web server, deploy application, start router, extension modules,
    * etc..
