@@ -32,6 +32,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -180,37 +182,36 @@ public class DocGenerator {
   }
 
   private static void tocItems(Document doc) {
-    doc.select("#mvc-api-2").forEach(it -> it.attr("id", "#mvc-api"));
-    doc.select("a")
-        .forEach(it -> {
-          if (it.attr("href").equals("#mvc-api-2")) {
-            it.attr("href", "#mvc-api");
+    tocItems(doc, 2);
+    tocItems(doc, 3);
+    tocItems(doc, 4);
+  }
+
+  private static void tocItems(Document doc, int level) {
+    doc.select("h" + level).forEach(h -> {
+      if (!h.hasClass("discrete")) {
+        String id = h.attr("id");
+        LinkedHashSet<String> name = new LinkedHashSet<>();
+        int parent = level - 1;
+        Element p = h.parents().select("h" + parent).first();
+        if (!p.hasClass("discrete")) {
+          String parentId = p.attr("id");
+          if (parentId != null && parentId.length() > 0) {
+            name.add(parentId);
           }
-        });
-    int l = 3;
-    while (l > 1) {
-      Elements items = doc.body().select(".sectlevel" + l);
-      for (Element it : items) {
-        String parent = it.parent().select("a").first().attr("href").replace("#", "");
-        for (Element e : it.select("li>a")) {
-          String key = e.attr("href").replace("#", "")
-              .replace("mvc-api-2", "mvc-api");
-          String newkey = Stream.of((parent + "-" + key).split("-"))
-              .distinct()
-              .collect(Collectors.joining("-"));
-          Element title = doc.select("#" + key).first();
-
-          title.select("a").forEach(a -> a.attr("href", "#" + newkey));
-          title.attr("id", newkey);
-          e.attr("href", "#" + newkey);
         }
-
+        name.add(id.replaceAll("([a-zA-Z-]+)-\\d+", "$1"));
+        String newId = name.stream().collect(Collectors.joining("-"));
+        if (!id.equals(newId)) {
+          h.attr("id", newId);
+          doc.select("a").forEach(a -> {
+            if (a.attr("href").equals("#" + id)) {
+              a.attr("href", "#" + newId);
+            }
+          });
+        }
       }
-      l -= 1;
-    }
-    Document.OutputSettings settings = doc.outputSettings();
-    settings.indentAmount(2);
-    settings.prettyPrint(true);
+    });
   }
 
   private static void clipboard(Document doc) {
