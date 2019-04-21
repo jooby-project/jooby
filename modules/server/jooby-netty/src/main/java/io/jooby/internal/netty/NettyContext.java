@@ -18,6 +18,7 @@ package io.jooby.internal.netty;
 import io.jooby.Body;
 import io.jooby.ByteRange;
 import io.jooby.Context;
+import io.jooby.Cookie;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.MediaType;
@@ -40,11 +41,13 @@ import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
@@ -81,6 +84,7 @@ import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaderNames.RANGE;
+import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
 import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
 import static io.netty.handler.codec.http.HttpHeaderValues.CHUNKED;
 import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
@@ -111,6 +115,7 @@ public class NettyContext implements Context, ChannelFutureListener {
   private Map<String, Object> attributes = new HashMap<>();
   private long contentLength = -1;
   private boolean needsFlush;
+  private Map<String, String> cookies;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
       int bufferSize) {
@@ -242,6 +247,24 @@ public class NettyContext implements Context, ChannelFutureListener {
     return Body.empty();
   }
 
+  @Override public @Nonnull Map<String, String> cookieMap() {
+    if (this.cookies == null) {
+      this.cookies = Collections.emptyMap();
+      String cookieString = req.headers().get(HttpHeaderNames.COOKIE);
+      if (cookieString != null) {
+        Set<io.netty.handler.codec.http.cookie.Cookie> cookies = ServerCookieDecoder.STRICT
+            .decode(cookieString);
+        if (cookies.size() > 0) {
+          this.cookies = new LinkedHashMap<>(cookies.size());
+          for (io.netty.handler.codec.http.cookie.Cookie it : cookies) {
+            this.cookies.put(it.name(), it.value());
+          }
+        }
+      }
+    }
+    return this.cookies;
+  }
+
   /* **********************************************************************************************
    * Response methods:
    * **********************************************************************************************
@@ -287,6 +310,12 @@ public class NettyContext implements Context, ChannelFutureListener {
   @Nonnull @Override public Context setResponseLength(long length) {
     contentLength = length;
     setHeaders.set(CONTENT_LENGTH, length);
+    return this;
+  }
+
+  @Nonnull public Context setResponseCookie(@Nonnull Cookie cookie) {
+    cookie.setPath(cookie.getPath(getContextPath()));
+    setHeaders.add(SET_COOKIE, cookie.toCookieString());
     return this;
   }
 

@@ -4,13 +4,12 @@ A javadoc:Context[Context] allows you to interact with the HTTP Request and mani
 
 === Parameters
 
-There are four parameter types: `path`, `query`, `form` and `multipart`. All them share an 
-unified/type-safe API for accessing and manipulating their values.
+There are several parameter types: `header`, `cookie`, `path`, `query`, `form` and `multipart`.
+All them share an unified/type-safe API for accessing and manipulating their values.
 
 We are going to describe them briefly in the next sections, then go into specific features of the
 <<Value API>>.
 
-[id=http-header]
 ==== Header
 
 HTTP headers allow the client and the server to pass additional information with the request or the
@@ -51,6 +50,42 @@ response.
 <1> Header variable `token`
 <2> All headers as javadoc:Value[]
 <3> All headers as map
+
+==== Cookie
+
+Request cookies are send to the server using the `Cookie` header, but we do provide a simple
+`key/value` access to them:
+
+.Cookies
+[source, java, role="primary"]
+----
+{
+  get("/", ctx -> {
+    String token = ctx.cookie("token").value();      // <1>
+
+    Map<String, String> cookieMap = ctx.cookieMap(); // <2>
+    ...
+  });
+  
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  get("/") { ctx ->
+    val token = ctx.cookie("token").value() // <1>
+
+    val = ctx.cookieMap();                  // <2>
+    ...
+  });
+  
+}
+----
+
+<1> Cookie variable `token`
+<2> All cookies as map
 
 ==== Path
 

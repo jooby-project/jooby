@@ -30,10 +30,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
@@ -1651,6 +1656,83 @@ public class FeaturedTest {
     }).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("/foo", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
+  public void cookies() {
+    DateTimeFormatter fmt = DateTimeFormatter
+        .ofPattern("EEE, dd-MMM-yyyy HH:mm:ss z", Locale.US)
+        .withZone(ZoneId.of("GMT"));
+
+    new JoobyRunner(app -> {
+      app.get("/cookies", ctx -> ctx.cookieMap());
+
+      app.get("/set-cookie", ctx -> {
+        ctx.queryMap().entrySet().stream()
+            .map(e -> new Cookie(e.getKey(), e.getValue()))
+            .forEach(ctx::setResponseCookie);
+        return ctx.send(StatusCode.OK);
+      });
+
+      app.get("/max-age", ctx -> {
+        Cookie cookie = new Cookie("foo", "bar")
+            .setMaxAge(ctx.query("maxAge").longValue(0));
+        return ctx
+            .setResponseCookie(cookie)
+            .send(StatusCode.OK);
+      });
+    }).ready(client -> {
+      client.get("/cookies", response -> {
+        assertEquals("{}", response.body().string());
+      });
+      client.header("Cookie", "foo=bar");
+      client.get("/cookies", response -> {
+        assertEquals("{foo=bar}", response.body().string());
+      });
+      client.header("Cookie", "foo=bar; x=y");
+      client.get("/cookies", response -> {
+        assertEquals("{foo=bar, x=y}", response.body().string());
+      });
+      client.header("Cookie", "$Version=1; X=x; $Path=/set;");
+      client.get("/cookies", response -> {
+        assertEquals("{X=x}", response.body().string());
+      });
+      // response cookies
+      client.get("/set-cookie", response -> {
+        assertEquals(null, response.header("Set-Cookie"));
+      });
+      client.get("/set-cookie?foo=bar", response -> {
+        assertEquals("foo=bar;Path=/", response.header("Set-Cookie"));
+      });
+      client.get("/set-cookie?foo=bar&x=y", response -> {
+        assertEquals("[foo=bar;Path=/, x=y;Path=/]", response.headers("Set-Cookie").toString());
+      });
+      // max-age
+      client.get("/max-age", response -> {
+        // expires
+        assertEquals("[foo=bar;Path=/;Max-Age=0;Expires=Thu, 01-Jan-1970 00:00:00 GMT]",
+            response.headers("Set-Cookie").toString());
+      });
+      client.get("/max-age?maxAge=-1", response -> {
+        // browser session
+        assertEquals("[foo=bar;Path=/]", response.headers("Set-Cookie").toString());
+      });
+      Instant date = Instant.now();
+      client.get("/max-age?maxAge=" + Duration.ofMinutes(30).getSeconds(), response -> {
+        // Expire in 30 minutes from now on
+        String setCookie = response.header("Set-Cookie");
+        String prefix = "foo=bar;Path=/;";
+        assertTrue(setCookie.startsWith(prefix));
+        setCookie = setCookie.substring(prefix.length());
+        String maxAge = "Max-Age=1800;Expires=";
+        assertTrue(setCookie.startsWith(maxAge));
+        setCookie = setCookie.substring(maxAge.length());
+        Instant expires = Instant.from(fmt.parse(setCookie));
+        long minutes = Duration.between(date, expires).toMinutes();
+        // Give it -/+5
+        assertTrue(minutes >= 25 && minutes <= 35);
       });
     });
   }

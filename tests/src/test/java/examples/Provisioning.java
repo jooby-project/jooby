@@ -5,6 +5,7 @@ import io.jooby.Formdata;
 import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.StatusCode;
+import io.jooby.annotations.CookieParam;
 import io.jooby.annotations.FormParam;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.HeaderParam;
@@ -133,5 +134,11 @@ public class Provisioning {
   @Path("/multipart")
   public Multipart multipart(Multipart data) {
     return data;
+  }
+
+  @GET
+  @Path("/cookie")
+  public String cookie(@CookieParam String foo) {
+    return foo;
   }
 }

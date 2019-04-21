@@ -18,6 +18,7 @@ package io.jooby.internal.mvc;
 import io.jooby.MediaType;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -74,6 +75,10 @@ public class JaxrsAnnotation implements MvcAnnotation {
 
   @Override public boolean isPathParam(Parameter parameter) {
     return parameter.getAnnotation(PathParam.class) != null;
+  }
+
+  @Override public boolean isCookieParam(Parameter parameter) {
+    return parameter.getAnnotation(CookieParam.class) != null;
   }
 
   @Override public boolean isQueryParam(Parameter parameter) {

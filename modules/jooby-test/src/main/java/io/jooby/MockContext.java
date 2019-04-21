@@ -31,9 +31,12 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -68,6 +71,8 @@ public class MockContext implements Context {
 
   private MockResponse response = new MockResponse();
 
+  private Map<String, String> cookies = new LinkedHashMap<>();
+
   private Router router;
 
   @Nonnull @Override public String getMethod() {
@@ -76,6 +81,15 @@ public class MockContext implements Context {
 
   MockContext setMethod(@Nonnull String method) {
     this.method = method;
+    return this;
+  }
+
+  @Nonnull @Override public Map<String, String> cookieMap() {
+    return cookies;
+  }
+
+  @Nonnull public MockContext setCookieMap(@Nonnull Map<String, String> cookies) {
+    this.cookies = cookies;
     return this;
   }
 
@@ -237,22 +251,26 @@ public class MockContext implements Context {
     return attributes;
   }
 
-  @Nonnull @Override public MockContext setResponseHeader(@Nonnull String name, @Nonnull Date value) {
+  @Nonnull @Override
+  public MockContext setResponseHeader(@Nonnull String name, @Nonnull Date value) {
     Context.super.setResponseHeader(name, value);
     return this;
   }
 
-  @Nonnull @Override public MockContext setResponseHeader(@Nonnull String name, @Nonnull Instant value) {
+  @Nonnull @Override
+  public MockContext setResponseHeader(@Nonnull String name, @Nonnull Instant value) {
     Context.super.setResponseHeader(name, value);
     return this;
   }
 
-  @Nonnull @Override public MockContext setResponseHeader(@Nonnull String name, @Nonnull Object value) {
+  @Nonnull @Override
+  public MockContext setResponseHeader(@Nonnull String name, @Nonnull Object value) {
     Context.super.setResponseHeader(name, value);
     return this;
   }
 
-  @Nonnull @Override public MockContext setResponseHeader(@Nonnull String name, @Nonnull String value) {
+  @Nonnull @Override
+  public MockContext setResponseHeader(@Nonnull String name, @Nonnull String value) {
     responseHeaders.put(name, value);
     return this;
   }
@@ -391,6 +409,17 @@ public class MockContext implements Context {
     return this;
   }
 
+  @Nonnull @Override public MockContext setResponseCookie(@Nonnull Cookie cookie) {
+    String setCookie = response.getHeaders().get("Set-Cookie");
+    if (setCookie == null) {
+      setCookie = cookie.toCookieString();
+    } else {
+      setCookie += ";" + cookie.toCookieString();
+    }
+    response.setHeader("Set-Cookie", setCookie);
+    return this;
+  }
+
   @Nonnull @Override public MediaType getResponseType() {
     return response.getContentType();
   }
@@ -407,4 +436,5 @@ public class MockContext implements Context {
     this.router = router;
     return this;
   }
+
 }

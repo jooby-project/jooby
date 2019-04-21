@@ -41,6 +41,8 @@ public interface MvcAnnotation {
 
   boolean isHeaderParam(Parameter parameter);
 
+  boolean isCookieParam(Parameter parameter);
+
   boolean isFormParam(Parameter parameter);
 
   String pathPattern(AnnotatedElement type);
@@ -121,6 +123,10 @@ public interface MvcAnnotation {
 
         @Override public boolean isPathParam(Parameter parameter) {
           return jaxrs.isPathParam(parameter) || def.isPathParam(parameter);
+        }
+
+        @Override public boolean isCookieParam(Parameter parameter) {
+          return jaxrs.isCookieParam(parameter) || def.isCookieParam(parameter);
         }
 
         @Override public boolean isQueryParam(Parameter parameter) {

@@ -18,6 +18,7 @@ package io.jooby.internal.utow;
 import io.jooby.Body;
 import io.jooby.ByteRange;
 import io.jooby.Context;
+import io.jooby.Cookie;
 import io.jooby.Formdata;
 import io.jooby.MediaType;
 import io.jooby.Multipart;
@@ -63,6 +64,7 @@ import java.util.concurrent.Executor;
 import static io.undertow.server.handlers.form.FormDataParser.FORM_DATA;
 import static io.undertow.util.Headers.CONTENT_TYPE;
 import static io.undertow.util.Headers.RANGE;
+import static io.undertow.util.Headers.SET_COOKIE;
 
 public class UtowContext implements Context, IoCallback {
 
@@ -78,6 +80,7 @@ public class UtowContext implements Context, IoCallback {
   private Map<String, Object> attributes = new HashMap<>();
   Body body;
   private MediaType responseType;
+  private Map<String, String> cookies;
 
   public UtowContext(HttpServerExchange exchange, Router router) {
     this.exchange = exchange;
@@ -90,6 +93,22 @@ public class UtowContext implements Context, IoCallback {
 
   @Nonnull @Override public Body body() {
     return body == null ? Body.empty() : body;
+  }
+
+  @Override public @Nonnull Map<String, String> cookieMap() {
+  if (this.cookies == null) {
+      Collection<io.undertow.server.handlers.Cookie> cookies = exchange.getRequestCookies()
+          .values();
+      if (cookies.size() > 0) {
+        this.cookies = new LinkedHashMap<>(cookies.size());
+        for (io.undertow.server.handlers.Cookie it : cookies) {
+          this.cookies.put(it.getName(), it.getValue());
+        }
+      } else {
+        this.cookies = Collections.emptyMap();
+      }
+    }
+    return cookies;
   }
 
   @Nonnull @Override public Map<String, Object> getAttributes() {
@@ -236,6 +255,12 @@ public class UtowContext implements Context, IoCallback {
 
   @Nonnull @Override public Context setResponseLength(long length) {
     exchange.setResponseContentLength(length);
+    return this;
+  }
+
+  @Nonnull public Context setResponseCookie(@Nonnull Cookie cookie) {
+    cookie.setPath(cookie.getPath(getContextPath()));
+    exchange.getResponseHeaders().add(SET_COOKIE, cookie.toCookieString());
     return this;
   }
 

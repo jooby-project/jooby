@@ -238,6 +238,11 @@ public class MvcTest {
               .build(), rsp -> {
             assertEquals("...", rsp.body().string());
           });
+
+      client.header("Cookie", "foo=bar");
+      client.get("/args/cookie", rsp -> {
+            assertEquals("bar", rsp.body().string());
+          });
     });
   }
 

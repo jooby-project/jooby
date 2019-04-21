@@ -17,6 +17,7 @@ package io.jooby.internal.mvc;
 
 import io.jooby.MediaType;
 import io.jooby.annotations.Consumes;
+import io.jooby.annotations.CookieParam;
 import io.jooby.annotations.DELETE;
 import io.jooby.annotations.FormParam;
 import io.jooby.annotations.GET;
@@ -74,6 +75,10 @@ public class DefaultMvcAnnotation implements MvcAnnotation {
 
   @Override public boolean isQueryParam(Parameter parameter) {
     return parameter.getAnnotation(QueryParam.class) != null;
+  }
+
+  @Override public boolean isCookieParam(Parameter parameter) {
+    return parameter.getAnnotation(CookieParam.class) != null;
   }
 
   @Override public boolean isPathParam(Parameter parameter) {

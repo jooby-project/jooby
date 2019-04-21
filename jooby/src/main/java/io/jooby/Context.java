@@ -120,6 +120,18 @@ public interface Context {
    * **********************************************************************************************
    */
 
+  default @Nonnull Value cookie(@Nonnull String name) {
+    String value = cookieMap().get(name);
+    return value == null ? Value.missing(name) : Value.value(name, value);
+  }
+
+  /**
+   * Request cookies.
+   *
+   * @return Request cookies.
+   */
+  @Nonnull Map<String, String> cookieMap();
+
   /**
    * HTTP method in upper-case form.
    *
@@ -141,6 +153,15 @@ public interface Context {
    * @return This context.
    */
   @Nonnull Context setRoute(@Nonnull Route route);
+
+  /**
+   * Get application context path (a.k.a as base path).
+   *
+   * @return Application context path (a.k.a as base path).
+   */
+  default @Nonnull String getContextPath() {
+    return getRouter().getContextPath();
+  }
 
   /**
    * Request path without decoding (a.k.a raw Path) without query string.
@@ -864,6 +885,8 @@ public interface Context {
    * @return This context.
    */
   @Nonnull Context setResponseLength(long length);
+
+  @Nonnull Context setResponseCookie(@Nonnull Cookie cookie);
 
   /**
    * Set response content type header.

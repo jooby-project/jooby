@@ -18,6 +18,7 @@ package io.jooby.internal.jetty;
 import io.jooby.Body;
 import io.jooby.ByteRange;
 import io.jooby.Context;
+import io.jooby.Cookie;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.MediaType;
@@ -58,6 +59,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -65,9 +67,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
+import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
 import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 
 public class JettyContext implements Callback, Context {
@@ -85,6 +90,7 @@ public class JettyContext implements Callback, Context {
   private Router router;
   private Route route;
   private MediaType responseType;
+  private Map<String, String> cookies;
 
   public JettyContext(Request request, Router router, int bufferSize, long maxRequestSize) {
     this.request = request;
@@ -96,6 +102,20 @@ public class JettyContext implements Callback, Context {
 
   @Nonnull @Override public Map<String, Object> getAttributes() {
     return attributes;
+  }
+
+  @Override public @Nonnull Map<String, String> cookieMap() {
+    if (this.cookies == null) {
+      this.cookies = Collections.emptyMap();
+      javax.servlet.http.Cookie[] cookies = request.getCookies();
+      if (cookies != null) {
+        this.cookies = new LinkedHashMap<>(cookies.length);
+        for (javax.servlet.http.Cookie it : cookies) {
+          this.cookies.put(it.getName(), it.getValue());
+        }
+      }
+    }
+    return cookies;
   }
 
   @Nonnull @Override public Body body() {
@@ -279,6 +299,12 @@ public class JettyContext implements Callback, Context {
 
   @Nonnull @Override public Context setResponseLength(long length) {
     response.setContentLengthLong(length);
+    return this;
+  }
+
+  @Nonnull public Context setResponseCookie(@Nonnull Cookie cookie) {
+    cookie.setPath(cookie.getPath(getContextPath()));
+    response.addHeader(SET_COOKIE.asString(), cookie.toCookieString());
     return this;
   }
 

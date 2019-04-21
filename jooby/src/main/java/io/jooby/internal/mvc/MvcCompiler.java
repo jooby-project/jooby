@@ -497,6 +497,9 @@ public class MvcCompiler {
     } else if (mvcAnnotation.isFormParam(parameter)) {
       consumer.accept(paramName(mvcAnnotation, parameter, name), "multipart");
       return "multipart";
+    } else if (mvcAnnotation.isCookieParam(parameter)) {
+      consumer.accept(paramName(mvcAnnotation, parameter, name), "cookie");
+      return "cookie";
     }
 
     return null;
