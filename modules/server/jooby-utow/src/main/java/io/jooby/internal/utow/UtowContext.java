@@ -26,6 +26,8 @@ import io.jooby.QueryString;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.Server;
+import io.jooby.Session;
+import io.jooby.SessionStore;
 import io.jooby.StatusCode;
 import io.jooby.Throwing;
 import io.jooby.Value;
@@ -350,12 +352,21 @@ public class UtowContext implements Context, IoCallback {
   }
 
   @Override public void onComplete(HttpServerExchange exchange, Sender sender) {
+    ifSaveSession();
     destroy(null);
   }
 
   @Override
   public void onException(HttpServerExchange exchange, Sender sender, IOException exception) {
     destroy(exception);
+  }
+
+  private void ifSaveSession() {
+    Session session = sessionOrNull();
+    if (session != null && (session.isNew() || session.isModify())) {
+      SessionStore store = getRouter().getSessionOptions().getStore();
+      store.save(session);
+    }
   }
 
   void destroy(Exception cause) {

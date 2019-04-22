@@ -28,6 +28,8 @@ import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.Sender;
 import io.jooby.Server;
+import io.jooby.Session;
+import io.jooby.SessionStore;
 import io.jooby.StatusCode;
 import io.jooby.Throwing;
 import io.jooby.Value;
@@ -462,11 +464,20 @@ public class NettyContext implements Context, ChannelFutureListener {
   @Override public void operationComplete(ChannelFuture future) {
     boolean keepAlive = isKeepAlive(req);
     try {
+      ifSaveSession();
       destroy(future.cause());
     } finally {
       if (!keepAlive) {
         future.channel().close();
       }
+    }
+  }
+
+  private void ifSaveSession() {
+    Session session = sessionOrNull();
+    if (session != null && (session.isNew() || session.isModify())) {
+      SessionStore store = getRouter().getSessionOptions().getStore();
+      store.save(session);
     }
   }
 

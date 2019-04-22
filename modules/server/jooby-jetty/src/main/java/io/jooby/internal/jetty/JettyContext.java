@@ -28,6 +28,8 @@ import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.Sender;
 import io.jooby.Server;
+import io.jooby.Session;
+import io.jooby.SessionStore;
 import io.jooby.StatusCode;
 import io.jooby.Throwing;
 import io.jooby.Value;
@@ -36,6 +38,7 @@ import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.http.MultiPartFormInputStream;
+import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
@@ -59,7 +62,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -67,15 +69,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
 import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 
-public class JettyContext implements Callback, Context {
+public class JettyContext implements Callback, Context, HttpChannel.Listener {
   private final int bufferSize;
   private final long maxRequestSize;
   private Request request;
@@ -98,6 +98,7 @@ public class JettyContext implements Callback, Context {
     this.router = router;
     this.bufferSize = bufferSize;
     this.maxRequestSize = maxRequestSize;
+    request.getHttpChannel().addListener(this);
   }
 
   @Nonnull @Override public Map<String, Object> getAttributes() {
@@ -317,8 +318,7 @@ public class JettyContext implements Callback, Context {
   @Nonnull @Override public OutputStream responseStream() {
     try {
       ifSetChunked();
-      OutputStream outputStream = response.getOutputStream();
-      return outputStream;
+      return response.getOutputStream();
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
     }
@@ -410,18 +410,22 @@ public class JettyContext implements Callback, Context {
   }
 
   @Override public void succeeded() {
-    destroy(null);
+    complete(null);
   }
 
   @Override public void failed(Throwable x) {
-    destroy(x);
+    complete(x);
   }
 
   @Override public InvocationType getInvocationType() {
     return InvocationType.NON_BLOCKING;
   }
 
-  void destroy(Throwable x) {
+  @Override public void onResponseCommit(Request request) {
+    ifSaveSession();
+  }
+
+  void complete(Throwable x) {
     Logger log = router.getLog();
     if (x != null) {
       if (Server.connectionLost(x)) {
@@ -453,6 +457,14 @@ public class JettyContext implements Callback, Context {
     this.router = null;
     this.request = null;
     this.response = null;
+  }
+
+  private void ifSaveSession() {
+    Session session = sessionOrNull();
+    if (session != null && (session.isNew() || session.isModify())) {
+      SessionStore store = getRouter().getSessionOptions().getStore();
+      store.save(session);
+    }
   }
 
   private void ifStartAsync() {

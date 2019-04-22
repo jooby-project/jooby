@@ -35,16 +35,26 @@ public interface Session {
 
   @Nonnull Instant getCreationTime();
 
+  @Nonnull Session setCreationTime(@Nonnull Instant creationTime);
+
   @Nonnull Instant getLastAccessedTime();
 
   @Nonnull Duration getMaxInactiveInterval();
 
   @Nonnull Session setLastAccessedTime(@Nonnull Instant lastAccessedTime);
 
+  boolean isNew();
+
+  @Nonnull Session setNew(boolean isNew);
+
+  boolean isModify();
+
+  @Nonnull Session setModify(boolean modify);
+
   void destroy();
 
   static Session create(String id) {
-    return new SessionImpl(id, Instant.now());
+    return new SessionImpl(id);
   }
 
   static Session create(Context context, Session session) {

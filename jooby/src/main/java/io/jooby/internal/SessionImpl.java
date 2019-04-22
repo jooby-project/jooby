@@ -12,6 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SessionImpl implements Session {
 
+  private boolean isNew;
+
   private String id;
 
   private ConcurrentHashMap<String, String> attributes = new ConcurrentHashMap<>();
@@ -20,10 +22,28 @@ public class SessionImpl implements Session {
 
   private Instant lastAccessedTime;
 
-  public SessionImpl(String id, Instant creationTime) {
+  private boolean modify;
+
+  public SessionImpl(String id) {
     this.id = id;
-    this.creationTime = creationTime;
-    this.lastAccessedTime = creationTime;
+  }
+
+  @Override public boolean isNew() {
+    return isNew;
+  }
+
+  @Nonnull @Override public Session setNew(boolean aNew) {
+    this.isNew = aNew;
+    return this;
+  }
+
+  @Override public boolean isModify() {
+    return modify;
+  }
+
+  @Nonnull @Override public Session setModify(boolean modify) {
+    this.modify = modify;
+    return this;
   }
 
   @Override public @Nonnull String getId() {
@@ -37,46 +57,55 @@ public class SessionImpl implements Session {
 
   @Override public @Nonnull Session put(@Nonnull String name, int value) {
     attributes.put(name, Integer.toString(value));
+    updateFlags();
     return this;
   }
 
   @Override public @Nonnull Session put(@Nonnull String name, long value) {
     attributes.put(name, Long.toString(value));
+    updateFlags();
     return this;
   }
 
   @Override public @Nonnull Session put(@Nonnull String name, CharSequence value) {
     attributes.put(name, value.toString());
+    updateFlags();
     return this;
   }
 
   @Override public @Nonnull Session put(@Nonnull String name, String value) {
     attributes.put(name, value);
+    updateFlags();
     return this;
   }
 
   @Override public @Nonnull Session put(@Nonnull String name, float value) {
     attributes.put(name, Float.toString(value));
+    updateFlags();
     return this;
   }
 
   @Override public @Nonnull Session put(@Nonnull String name, double value) {
     attributes.put(name, Double.toString(value));
+    updateFlags();
     return this;
   }
 
   @Override public @Nonnull Session put(@Nonnull String name, boolean value) {
     attributes.put(name, Boolean.toString(value));
+    updateFlags();
     return this;
   }
 
   @Override public @Nonnull Session put(@Nonnull String name, Number value) {
     attributes.put(name, value.toString());
+    updateFlags();
     return this;
   }
 
   @Override public @Nonnull Value remove(@Nonnull String name) {
     String value = attributes.remove(name);
+    updateFlags();
     return value == null ? Value.missing(name) : Value.value(name, value);
   }
 
@@ -86,6 +115,11 @@ public class SessionImpl implements Session {
 
   @Override public @Nonnull Instant getCreationTime() {
     return creationTime;
+  }
+
+  @Nonnull @Override public Session setCreationTime(Instant creationTime) {
+    this.creationTime = creationTime;
+    return this;
   }
 
   @Override public @Nonnull Instant getLastAccessedTime() {
@@ -103,5 +137,10 @@ public class SessionImpl implements Session {
 
   @Override public void destroy() {
     attributes.clear();
+  }
+
+  private void updateFlags() {
+    modify = true;
+    lastAccessedTime = Instant.now();
   }
 }

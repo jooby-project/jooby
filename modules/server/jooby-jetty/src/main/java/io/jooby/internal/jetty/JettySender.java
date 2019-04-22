@@ -42,7 +42,7 @@ public class JettySender implements Sender {
   }
 
   @Override public void close() {
-    ctx.destroy(null);
+    ctx.complete(null);
   }
 
 }

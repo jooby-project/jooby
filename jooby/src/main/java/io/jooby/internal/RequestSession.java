@@ -80,6 +80,11 @@ public class RequestSession implements Session {
     return session.getCreationTime();
   }
 
+  @Nonnull @Override public Session setCreationTime(@Nonnull Instant creationTime) {
+    session.setCreationTime(creationTime);
+    return this;
+  }
+
   @Nonnull @Override public Instant getLastAccessedTime() {
     return session.getLastAccessedTime();
   }
@@ -93,13 +98,37 @@ public class RequestSession implements Session {
     return this;
   }
 
+  @Override public boolean isModify() {
+    return session.isModify();
+  }
+
+  @Nonnull @Override public Session setModify(boolean modify) {
+    session.setModify(modify);
+    return this;
+  }
+
+  @Override public boolean isNew() {
+    return session.isNew();
+  }
+
+  @Nonnull @Override public Session setNew(boolean isNew) {
+    session.setNew(isNew);
+    return this;
+  }
+
+  public Session getSession() {
+    return session;
+  }
+
   public void destroy() {
     if (context != null) {
       try {
+        context.getAttributes().remove("session");
         SessionOptions options = context.getRouter().getSessionOptions();
         context.setResponseCookie(options.getCookie().setMaxAge(0));
         options.getStore().deleteSession(session.getId());
       } finally {
+        session.destroy();
         context = null;
         session = null;
       }

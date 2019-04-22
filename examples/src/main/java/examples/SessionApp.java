@@ -15,7 +15,6 @@
  */
 package examples;
 
-import io.jooby.Cookie;
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
 import io.jooby.Session;
@@ -24,7 +23,7 @@ import io.jooby.SessionOptions;
 public class SessionApp extends Jooby {
 
   {
-    setSessionOptions(new SessionOptions().setCookie(new Cookie("sessionId").setMaxAge(5L)));
+    setSessionOptions(new SessionOptions());
     get("/exists", ctx -> ctx.sessionOrNull() != null);
 
     get("/create", ctx -> {

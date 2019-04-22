@@ -17,6 +17,7 @@ package io.jooby;
 
 import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
+import io.jooby.internal.RequestSessionStore;
 import io.jooby.internal.SessionImpl;
 import io.jooby.internal.SingleValue;
 import io.jooby.internal.UrlParser;
@@ -129,36 +130,41 @@ public interface Context {
       SessionStore store = sessionOptions.getStore();
 
       Session newSession = store.newSession(sessionOptions.generateId(this));
-      store.save(newSession);
 
       // write cookie
       setResponseCookie(sessionOptions.getCookie().setValue(newSession.getId()));
 
       session = Session.create(this, newSession);
+
+      attribute("session", session);
     }
     return session;
   }
 
   default @Nullable Session sessionOrNull() {
-    Router router = getRouter();
-    SessionOptions options = router.getSessionOptions();
-    Cookie cookie = options.getCookie();
-    String name = cookie.getName();
-    String id = cookieMap().get(name);
-    if (id == null) {
-      return null;
-    }
-    SessionOptions sessionOptions = router.getSessionOptions();
-    SessionStore store = sessionOptions.getStore();
-    Session session = store.findSession(id);
+    Session session = (Session) getAttributes().get("session");
     if (session == null) {
-      return null;
+      Router router = getRouter();
+      SessionOptions options = router.getSessionOptions();
+      Cookie cookie = options.getCookie();
+      String name = cookie.getName();
+      String id = cookieMap().get(name);
+      if (id == null) {
+        return null;
+      }
+      SessionStore store = options.getStore();
+      session = store.findSession(id);
+      if (session == null) {
+        return null;
+      }
+      if (cookie.getMaxAge() > 0) {
+        // Touch session
+        setResponseCookie(cookie.setValue(id));
+      }
+      session = Session.create(this, session);
+      attribute("session", session);
     }
-    if (cookie.getMaxAge() > 0) {
-      // Touch session
-      setResponseCookie(cookie.setValue(id));
-    }
-    return Session.create(this, session);
+    return session;
   }
 
   default @Nonnull Value cookie(@Nonnull String name) {

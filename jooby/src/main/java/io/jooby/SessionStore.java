@@ -1,6 +1,5 @@
 package io.jooby;
 
-
 public interface SessionStore {
 
   Session newSession(String id);

@@ -1,5 +1,8 @@
 package io.jooby;
 
+import io.jooby.internal.InMemorySessionStore;
+import io.jooby.internal.RequestSessionStore;
+
 import javax.annotation.Nonnull;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -9,8 +12,6 @@ public class SessionOptions {
   private static final SecureRandom secure = new SecureRandom();
 
   private Function<Context, String> idGenerator = SessionOptions::defaultIdGenerator;
-
-  private String secret;
 
   private Cookie cookie = new Cookie("jooby.sid")
       .setMaxAge(-1)
@@ -28,17 +29,8 @@ public class SessionOptions {
     return this;
   }
 
-  public @Nonnull String getSecret() {
-    return secret;
-  }
-
-  public @Nonnull SessionOptions setSecret(@Nonnull String secret) {
-    this.secret = secret;
-    return this;
-  }
-
   public SessionStore getStore() {
-    return store;
+    return new RequestSessionStore(store);
   }
 
   public void setStore(SessionStore store) {
