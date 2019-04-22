@@ -15,7 +15,6 @@ public class InMemorySessionStore implements SessionStore {
         .setCreationTime(now)
         .setLastAccessedTime(now)
         .setNew(true);
-    sessions.put(id, session);
     return session;
   }
 

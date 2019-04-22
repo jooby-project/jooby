@@ -17,8 +17,6 @@ package io.jooby;
 
 import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
-import io.jooby.internal.RequestSessionStore;
-import io.jooby.internal.SessionImpl;
 import io.jooby.internal.SingleValue;
 import io.jooby.internal.UrlParser;
 import io.netty.buffer.ByteBuf;
@@ -122,6 +120,11 @@ public interface Context {
    * **********************************************************************************************
    */
 
+  /**
+   * Find a session or creates a new session.
+   *
+   * @return Session.
+   */
   default @Nonnull Session session() {
     Session session = sessionOrNull();
     if (session == null) {
@@ -135,12 +138,15 @@ public interface Context {
       setResponseCookie(sessionOptions.getCookie().setValue(newSession.getId()));
 
       session = Session.create(this, newSession);
-
-      attribute("session", session);
     }
     return session;
   }
 
+  /**
+   * Find an existing session.
+   *
+   * @return Exsiting session or <code>null</code>.
+   */
   default @Nullable Session sessionOrNull() {
     Session session = (Session) getAttributes().get("session");
     if (session == null) {
@@ -162,11 +168,16 @@ public interface Context {
         setResponseCookie(cookie.setValue(id));
       }
       session = Session.create(this, session);
-      attribute("session", session);
     }
     return session;
   }
 
+  /**
+   * Get a cookie matching the given name.
+   *
+   * @param name Cookie's name.
+   * @return Cookie value.
+   */
   default @Nonnull Value cookie(@Nonnull String name) {
     String value = cookieMap().get(name);
     return value == null ? Value.missing(name) : Value.value(name, value);
@@ -933,6 +944,12 @@ public interface Context {
    */
   @Nonnull Context setResponseLength(long length);
 
+  /**
+   * Set/add a cookie to response.
+   *
+   * @param cookie Cookie to add.
+   * @return This context.
+   */
   @Nonnull Context setResponseCookie(@Nonnull Cookie cookie);
 
   /**

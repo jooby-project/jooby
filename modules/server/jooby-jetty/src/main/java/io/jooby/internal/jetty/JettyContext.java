@@ -75,7 +75,7 @@ import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
 import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 
-public class JettyContext implements Callback, Context, HttpChannel.Listener {
+public class JettyContext implements Callback, Context {
   private final int bufferSize;
   private final long maxRequestSize;
   private Request request;
@@ -98,7 +98,6 @@ public class JettyContext implements Callback, Context, HttpChannel.Listener {
     this.router = router;
     this.bufferSize = bufferSize;
     this.maxRequestSize = maxRequestSize;
-    request.getHttpChannel().addListener(this);
   }
 
   @Nonnull @Override public Map<String, Object> getAttributes() {
@@ -318,6 +317,8 @@ public class JettyContext implements Callback, Context, HttpChannel.Listener {
   @Nonnull @Override public OutputStream responseStream() {
     try {
       ifSetChunked();
+      // TODO: session should be safe after response, find a better way
+      ifSaveSession();
       return response.getOutputStream();
     } catch (IOException x) {
       throw Throwing.sneakyThrow(x);
@@ -327,6 +328,8 @@ public class JettyContext implements Callback, Context, HttpChannel.Listener {
   @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
     try {
       ifSetChunked();
+      // TODO: session should be safe after response, find a better way
+      ifSaveSession();
       setResponseType(type, charset);
       return response.getWriter();
     } catch (IOException x) {
@@ -421,11 +424,9 @@ public class JettyContext implements Callback, Context, HttpChannel.Listener {
     return InvocationType.NON_BLOCKING;
   }
 
-  @Override public void onResponseCommit(Request request) {
-    ifSaveSession();
-  }
-
   void complete(Throwable x) {
+    ifSaveSession();
+
     Logger log = router.getLog();
     if (x != null) {
       if (Server.connectionLost(x)) {

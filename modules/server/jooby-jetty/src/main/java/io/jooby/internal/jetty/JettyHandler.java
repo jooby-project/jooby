@@ -38,6 +38,7 @@ public class JettyHandler extends AbstractHandler {
 
   @Override public void handle(String target, Request request, HttpServletRequest servletRequest,
       HttpServletResponse response) {
+    request.setHandled(true);
     response.setContentType("text/plain");
     if (defaultHeaders) {
       response.setHeader(HttpHeader.SERVER.asString(), "jetty");

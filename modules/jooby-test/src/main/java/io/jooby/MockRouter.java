@@ -46,7 +46,7 @@ public class MockRouter {
   private static class SingleMockValue implements MockValue {
     private final Object value;
 
-    public SingleMockValue(Object value) {
+    SingleMockValue(Object value) {
       this.value = value;
     }
 
@@ -301,6 +301,7 @@ public class MockRouter {
    *
    * @param method HTTP method.
    * @param path Path to match. Might includes the queryString.
+   * @param context Web context.
    * @return Route response.
    */
   public MockValue call(@Nonnull String method, @Nonnull String path,

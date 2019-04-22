@@ -18,7 +18,6 @@ package io.jooby;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -657,8 +656,19 @@ public interface Router {
    */
   @Nonnull Router setRouterOptions(@Nonnull RouterOptions options);
 
+  /**
+   * Get session options. Session store defines how HTTP session is managed it.
+   *
+   * @return Session options.
+   */
   @Nonnull SessionOptions getSessionOptions();
 
+  /**
+   * Set session options.
+   *
+   * @param options Session options.
+   * @return This router.
+   */
   @Nonnull Router setSessionOptions(@Nonnull SessionOptions options);
 
   /**

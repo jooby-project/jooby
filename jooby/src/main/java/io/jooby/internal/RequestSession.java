@@ -6,7 +6,6 @@ import io.jooby.SessionOptions;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
@@ -19,6 +18,7 @@ public class RequestSession implements Session {
   public RequestSession(Context context, Session session) {
     this.context = context;
     this.session = session;
+    context.attribute("session", this);
   }
 
   @Nonnull @Override public String getId() {
@@ -87,10 +87,6 @@ public class RequestSession implements Session {
 
   @Nonnull @Override public Instant getLastAccessedTime() {
     return session.getLastAccessedTime();
-  }
-
-  @Nonnull @Override public Duration getMaxInactiveInterval() {
-    return session.getMaxInactiveInterval();
   }
 
   @Nonnull @Override public Session setLastAccessedTime(@Nonnull Instant lastAccessedTime) {

@@ -31,12 +31,10 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -88,6 +86,12 @@ public class MockContext implements Context {
     return cookies;
   }
 
+  /**
+   * Set cookie map.
+   *
+   * @param cookies Cookie map.
+   * @return This context.
+   */
   @Nonnull public MockContext setCookieMap(@Nonnull Map<String, String> cookies) {
     this.cookies = cookies;
     return this;

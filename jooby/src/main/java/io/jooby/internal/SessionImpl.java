@@ -126,10 +126,6 @@ public class SessionImpl implements Session {
     return lastAccessedTime;
   }
 
-  @Override public @Nonnull Duration getMaxInactiveInterval() {
-    return Duration.between(creationTime, lastAccessedTime);
-  }
-
   @Override public @Nonnull Session setLastAccessedTime(@Nonnull Instant lastAccessedTime) {
     this.lastAccessedTime = lastAccessedTime;
     return this;
