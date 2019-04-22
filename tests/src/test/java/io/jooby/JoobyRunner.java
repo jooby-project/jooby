@@ -61,7 +61,15 @@ public class JoobyRunner {
     ready(onReady, new Supplier[0]);
   }
 
+  public void ready(Throwing.Consumer2<WebClient, Server> onReady) {
+    ready(onReady, new Supplier[0]);
+  }
+
   public void ready(Throwing.Consumer<WebClient> onReady, Supplier<Server>... servers) {
+    ready((client, server) -> onReady.accept(client), servers);
+  }
+
+  public void ready(Throwing.Consumer2<WebClient, Server> onReady, Supplier<Server>... servers) {
     if (modes.size() == 0) {
       modes.add(ExecutionMode.DEFAULT);
     }
@@ -91,7 +99,7 @@ public class JoobyRunner {
           options.setPort(Integer.parseInt(System.getenv().getOrDefault("BUILD_PORT", "9999")));
           server.start(app);
 
-          onReady.accept(new WebClient(options.getPort()));
+          onReady.accept(new WebClient(options.getPort()), server);
         } catch (Throwable x) {
           x.printStackTrace();
           throw Throwing.sneakyThrow(x);

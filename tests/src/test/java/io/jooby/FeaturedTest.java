@@ -1206,30 +1206,30 @@ public class FeaturedTest {
       app.post("/request-size", ctx -> ctx.body().value());
 
       app.get("/request-size", ctx -> ctx.body().value());
-    }).ready(client -> {
+    }).ready((client, server) -> {
       // Exceeds
       client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), _19kb), rsp -> {
-        assertEquals(413, rsp.code());
+        assertEquals(413, rsp.code(), server.getClass().getSimpleName());
       });
       // Chunk by chunk
       client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), _16kb), rsp -> {
         assertEquals(200, rsp.code());
-        assertEquals(_16kb, rsp.body().string());
+        assertEquals(_16kb, rsp.body().string(), server.getClass().getSimpleName());
       });
       // Single read
       client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), _8kb), rsp -> {
         assertEquals(200, rsp.code());
-        assertEquals(_8kb, rsp.body().string());
+        assertEquals(_8kb, rsp.body().string(), server.getClass().getSimpleName());
       });
       // Empty
       client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), ""), rsp -> {
         assertEquals(200, rsp.code());
-        assertEquals("", rsp.body().string());
+        assertEquals("", rsp.body().string(), server.getClass().getSimpleName());
       });
       // No body
       client.get("/request-size", rsp -> {
         assertEquals(200, rsp.code());
-        assertEquals("", rsp.body().string());
+        assertEquals("", rsp.body().string(), server.getClass().getSimpleName());
       });
     });
   }
