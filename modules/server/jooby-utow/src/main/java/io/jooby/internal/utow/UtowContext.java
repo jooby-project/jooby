@@ -98,7 +98,7 @@ public class UtowContext implements Context, IoCallback {
   }
 
   @Override public @Nonnull Map<String, String> cookieMap() {
-  if (this.cookies == null) {
+    if (this.cookies == null) {
       Collection<io.undertow.server.handlers.Cookie> cookies = exchange.getRequestCookies()
           .values();
       if (cookies.size() > 0) {
@@ -352,6 +352,7 @@ public class UtowContext implements Context, IoCallback {
   }
 
   @Override public void onComplete(HttpServerExchange exchange, Sender sender) {
+
     ifSaveSession();
     destroy(null);
   }
