@@ -675,7 +675,7 @@ public class FeaturedTest {
       });
 
       app.post("/str", ctx -> ctx.body().value());
-    }).ready(client -> {
+    }).ready((client, server) -> {
       client.header("Content-Type", "application/json");
       client.post("/map", create(json, "{\"foo\": \"bar\"}"), rsp -> {
         assertEquals("{\"foo\":\"bar\"}", rsp.body().string());
@@ -687,7 +687,8 @@ public class FeaturedTest {
       });
 
       client.post("/str", create(textplain, _19kb), rsp -> {
-        assertEquals(_19kb, rsp.body().string());
+        String value = rsp.body().string();
+        assertEquals(_19kb, value, server.getClass().getSimpleName() + " expected: " + _19kb.length() + ", got: " + value.length());
       });
     });
   }
