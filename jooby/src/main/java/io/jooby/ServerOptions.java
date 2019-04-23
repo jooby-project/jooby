@@ -46,7 +46,7 @@ public class ServerOptions {
   private int bufferSize = _16KB;
 
   /** Number of available threads, but never smaller than <code>2</code>. */
-  public static final int IO_THREADS = Math.max(Runtime.getRuntime().availableProcessors(), 2);
+  public static final int IO_THREADS = Runtime.getRuntime().availableProcessors() * 2;
 
   /** Number of worker (a.k.a application) threads. It is the number of processors multiply by
    * <code>8</code>. */
