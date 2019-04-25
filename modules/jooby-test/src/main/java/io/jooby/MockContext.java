@@ -261,6 +261,11 @@ public class MockContext implements Context {
     return this;
   }
 
+  @Nonnull @Override public MockContext removeResponseHeader(@Nonnull String name) {
+    responseHeaders.remove(name);
+    return this;
+  }
+
   @Nonnull @Override
   public MockContext setResponseHeader(@Nonnull String name, @Nonnull Instant value) {
     Context.super.setResponseHeader(name, value);

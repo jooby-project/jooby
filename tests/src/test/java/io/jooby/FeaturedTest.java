@@ -688,7 +688,9 @@ public class FeaturedTest {
 
       client.post("/str", create(textplain, _19kb), rsp -> {
         String value = rsp.body().string();
-        assertEquals(_19kb, value, server.getClass().getSimpleName() + " expected: " + _19kb.length() + ", got: " + value.length());
+        assertEquals(_19kb, value,
+            server.getClass().getSimpleName() + " expected: " + _19kb.length() + ", got: " + value
+                .length());
       });
     });
   }
@@ -1651,7 +1653,7 @@ public class FeaturedTest {
   }
 
   @Test
-  public void session() {
+  public void sessionCookie() {
     new JoobyRunner(app -> {
 
       app.get("/findSession", ctx -> Optional.ofNullable(ctx.sessionOrNull()).isPresent());
@@ -1714,8 +1716,7 @@ public class FeaturedTest {
     /**********************************************************************************************/
     new JoobyRunner(app -> {
       app.setSessionOptions(
-          new SessionOptions()
-              .setCookie(new Cookie("my.sid").setMaxAge(1L))
+          new SessionOptions(SessionId.cookie(new Cookie("my.sid").setMaxAge(1L)))
       );
       app.get("/session", ctx -> ctx.session().toMap());
       app.get("/sessionMaxAge", ctx -> Optional.ofNullable(ctx.sessionOrNull()).isPresent());
@@ -1724,6 +1725,66 @@ public class FeaturedTest {
         String setCookie = rsp.header("Set-Cookie");
         assertTrue(setCookie.startsWith("my.sid"));
         assertTrue(setCookie.contains(";Max-Age=1;"));
+      });
+    });
+  }
+
+  @Test
+  public void sessionHeader() {
+    new JoobyRunner(app -> {
+
+      app.setSessionOptions(new SessionOptions(SessionId.header("jooby.sid")));
+
+      app.get("/findSession", ctx -> Optional.ofNullable(ctx.sessionOrNull()).isPresent());
+      app.get("/getSession", ctx -> ctx.session().get("foo").value("none"));
+      app.get("/putSession", ctx -> ctx.session().put("foo", "bar").get("foo").value());
+      app.get("/destroySession", ctx -> {
+        Session session = ctx.session();
+        session.destroy();
+
+        return Optional.ofNullable(ctx.sessionOrNull()).isPresent();
+      });
+
+    }).ready(client -> {
+      client.get("/findSession", rsp -> {
+        assertEquals(null, rsp.header("jooby.sid"));
+        assertEquals("false", rsp.body().string());
+      });
+      client.header("jooby.sid", "1234missing");
+      client.get("/findSession", rsp -> {
+        assertEquals(null, rsp.header("jooby.sid"));
+        assertEquals("false", rsp.body().string());
+      });
+
+      client.get("/getSession", rsp -> {
+        assertEquals("none", rsp.body().string());
+        String sid = rsp.header("jooby.sid");
+
+        client.header("jooby.sid", sid);
+        client.get("/findSession", findSession -> {
+          assertEquals(sid, findSession.header("jooby.sid"));
+          assertEquals("true", findSession.body().string());
+        });
+        client.header("jooby.sid", sid);
+        client.get("/putSession", putSession -> {
+          assertEquals(sid, putSession.header("jooby.sid"));
+          assertEquals("bar", putSession.body().string());
+        });
+        client.header("jooby.sid", sid);
+        client.get("/getSession", putSession -> {
+          assertEquals(sid, putSession.header("jooby.sid"));
+          assertEquals("bar", putSession.body().string());
+        });
+        client.header("jooby.sid", sid);
+        client.get("/destroySession", putSession -> {
+          assertEquals(null, putSession.header("jooby.sid"));
+          assertEquals("false", putSession.body().string());
+        });
+        client.header("jooby.sid", sid);
+        client.get("/findSession", putSession -> {
+          assertEquals(null, putSession.header("jooby.sid"));
+          assertEquals("false", putSession.body().string());
+        });
       });
     });
   }

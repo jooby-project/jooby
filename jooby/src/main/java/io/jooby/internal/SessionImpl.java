@@ -146,6 +146,11 @@ public class SessionImpl implements Session {
     return this;
   }
 
+  @Override public Session clear() {
+    attributes.clear();
+    return this;
+  }
+
   @Override public void destroy() {
     attributes.clear();
   }

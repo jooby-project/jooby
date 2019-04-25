@@ -129,15 +129,14 @@ public interface Context {
     Session session = sessionOrNull();
     if (session == null) {
       Router router = getRouter();
-      SessionOptions sessionOptions = router.getSessionOptions();
-      SessionStore store = sessionOptions.getStore();
+      SessionOptions options = router.getSessionOptions();
 
-      Session newSession = store.newSession(sessionOptions.generateId(this));
+      String sessionId = options.generateId();
+      session = Session.create(this, options.getStore().newSession(sessionId));
 
-      // write cookie
-      setResponseCookie(sessionOptions.getCookie().setValue(newSession.getId()));
-
-      session = Session.create(this, newSession);
+      for (SessionId strategy : options.getSessionId()) {
+        strategy.saveSessionId(this, sessionId);
+      }
     }
     return session;
   }
@@ -152,22 +151,25 @@ public interface Context {
     if (session == null) {
       Router router = getRouter();
       SessionOptions options = router.getSessionOptions();
-      Cookie cookie = options.getCookie();
-      String name = cookie.getName();
-      String id = cookieMap().get(name);
-      if (id == null) {
+      SessionId[] strategies = options.getSessionId();
+      SessionId strategy = null;
+      String sessionId = null;
+      for (SessionId it : strategies) {
+        sessionId = it.findSessionId(this);
+        if (sessionId != null) {
+          strategy = it;
+          break;
+        }
+      }
+      if (sessionId == null) {
         return null;
       }
-      SessionStore store = options.getStore();
-      session = store.findSession(id);
+      session = options.getStore().findSession(sessionId);
       if (session == null) {
         return null;
       }
-      if (cookie.getMaxAge() > 0) {
-        // Touch session
-        setResponseCookie(cookie.setValue(id));
-      }
       session = Session.create(this, session);
+      strategy.saveSessionId(this, sessionId);
     }
     return session;
   }
@@ -935,6 +937,8 @@ public interface Context {
    * @return This context.
    */
   @Nonnull Context setResponseHeader(@Nonnull String name, @Nonnull String value);
+
+  @Nonnull Context removeResponseHeader(@Nonnull String name);
 
   /**
    * Set response content length header.

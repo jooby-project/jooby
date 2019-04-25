@@ -286,6 +286,11 @@ public class NettyContext implements Context, ChannelFutureListener {
     return this;
   }
 
+  @Nonnull @Override public Context removeResponseHeader(@Nonnull String name) {
+    setHeaders.remove(name);
+    return this;
+  }
+
   @Nonnull @Override public MediaType getResponseType() {
     return responseType == null ? MediaType.text : responseType;
   }

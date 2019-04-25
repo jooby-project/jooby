@@ -22,7 +22,6 @@ import javax.annotation.Nonnull;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.Base64;
-import java.util.function.Function;
 
 /**
  * Options for HTTP session. Allows provides a session ID generator, session store and configure
@@ -35,37 +34,32 @@ import java.util.function.Function;
  * @since 2.0.0
  */
 public class SessionOptions {
-  private static final int ID_SIZE = 30;
-
-  private static final SecureRandom secure = new SecureRandom();
-
-  private Function<Context, String> idGenerator;
-
-  private Cookie cookie = new Cookie("jooby.sid")
+  private static final Cookie DEFAULT_COOKIE = new Cookie("jooby.sid")
       .setMaxAge(Duration.ofSeconds(-1))
       .setHttpOnly(true)
       .setPath("/");
 
+  private static final int ID_SIZE = 30;
+
+  private static final SecureRandom secure = new SecureRandom();
+
   private SessionStore store = new InMemorySessionStore();
 
-  /**
-   * Cookie configuration. This method returns a copy of the existing configuration.
-   *
-   * @return Cookie configuration. This method returns a copy of the existing configuration.
-   */
-  public @Nonnull Cookie getCookie() {
-    return cookie.clone();
-  }
+  private SessionId[] sessionId;
 
   /**
-   * Set/changes cookie configuration.
+   * Creates a session options.
    *
-   * @param cookie Cookie configuration.
-   * @return This options.
+   * @param sessionId session ID.
    */
-  public @Nonnull SessionOptions setCookie(@Nonnull Cookie cookie) {
-    this.cookie = cookie;
-    return this;
+  public SessionOptions(@Nonnull SessionId... sessionId) {
+    this.sessionId = sessionId.length == 0
+        ? new SessionId[]{SessionId.cookie(DEFAULT_COOKIE)}
+        : sessionId;
+  }
+
+  public SessionId[] getSessionId() {
+    return sessionId;
   }
 
   /**
@@ -89,29 +83,14 @@ public class SessionOptions {
   }
 
   /**
-   * Set custom session ID generator.
-   *
-   * @param idGenerator ID generator.
-   * @return This options.
-   */
-  public SessionOptions setIdGenerator(@Nonnull Function<Context, String> idGenerator) {
-    this.idGenerator = idGenerator;
-    return this;
-  }
-
-  /**
    * Generates a Session ID.
    *
-   * @param ctx Web Context.
    * @return Session ID.
    */
-  public @Nonnull String generateId(@Nonnull Context ctx) {
-    if (idGenerator == null) {
-      byte[] bytes = new byte[ID_SIZE];
-      secure.nextBytes(bytes);
-      return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-    }
-    return idGenerator.apply(ctx);
+  public @Nonnull String generateId() {
+    byte[] bytes = new byte[ID_SIZE];
+    secure.nextBytes(bytes);
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
   }
 
 }

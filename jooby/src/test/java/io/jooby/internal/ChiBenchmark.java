@@ -218,6 +218,10 @@ public class ChiBenchmark {
         return null;
       }
 
+      @Nonnull @Override public Context removeResponseHeader(@Nonnull String name) {
+        return null;
+      }
+
       @Nonnull @Override public Context send(@Nonnull byte[] data) {
         return null;
       }

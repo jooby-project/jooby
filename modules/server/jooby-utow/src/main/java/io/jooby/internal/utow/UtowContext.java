@@ -231,6 +231,11 @@ public class UtowContext implements Context, IoCallback {
     return this;
   }
 
+  @Nonnull @Override public Context removeResponseHeader(@Nonnull String name) {
+    exchange.getResponseHeaders().remove(name);
+    return this;
+  }
+
   @Nonnull @Override public MediaType getResponseType() {
     return responseType == null ? MediaType.text : responseType;
   }

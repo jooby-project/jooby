@@ -192,6 +192,11 @@ public interface Session {
   @Nonnull Session setModify(boolean modify);
 
   /**
+   * Remove all attributes.
+   */
+  Session clear();
+
+  /**
    * Destroy/invalidates this session.
    */
   void destroy();

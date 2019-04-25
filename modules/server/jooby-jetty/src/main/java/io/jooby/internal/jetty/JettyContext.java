@@ -297,6 +297,11 @@ public class JettyContext implements Callback, Context {
     return this;
   }
 
+  @Nonnull @Override public Context removeResponseHeader(@Nonnull String name) {
+    response.setHeader(name, null);
+    return this;
+  }
+
   @Nonnull @Override public Context setResponseLength(long length) {
     response.setContentLengthLong(length);
     return this;

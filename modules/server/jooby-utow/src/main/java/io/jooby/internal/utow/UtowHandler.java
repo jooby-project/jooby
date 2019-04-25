@@ -58,12 +58,12 @@ public class UtowHandler implements HttpHandler {
 
       HeaderMap headers = exchange.getRequestHeaders();
       long len = parseLen(headers.getFirst(Headers.CONTENT_LENGTH));
-      if (len > maxRequestSize) {
-        context.sendError(new Err(StatusCode.REQUEST_ENTITY_TOO_LARGE));
-        return;
-      }
-      String chunked = exchange.getRequestHeaders().getFirst(Headers.TRANSFER_ENCODING);
-      if (len > 0 || (chunked != null && "chunked".equalsIgnoreCase(chunked))) {
+      String chunked = headers.getFirst(Headers.TRANSFER_ENCODING);
+      if (len > 0 || chunked != null) {
+        if (len > maxRequestSize) {
+          context.sendError(new Err(StatusCode.REQUEST_ENTITY_TOO_LARGE));
+          return;
+        }
         /** Eager body parsing: */
         FormDataParser parser = FormParserFactory.builder(false)
             .addParser(new MultiPartParserDefinition(router.getTmpdir())
@@ -82,15 +82,6 @@ public class UtowHandler implements HttpHandler {
             receiver.receivePartialBytes(reader);
           }
         } else {
-          //          exchange.addExchangeCompleteListener((xchange, next) -> {
-          //            try {
-          //              parser.close();
-          //            } catch (IOException x) {
-          //              router.log().debug("exception found while closing resource", x);
-          //            } finally {
-          //              next.proceed();
-          //            }
-          //          });
           try {
             parser.parse(execute(route, context));
           } catch (Exception x) {

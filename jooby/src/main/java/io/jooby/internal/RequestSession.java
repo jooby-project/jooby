@@ -17,6 +17,7 @@ package io.jooby.internal;
 
 import io.jooby.Context;
 import io.jooby.Session;
+import io.jooby.SessionId;
 import io.jooby.SessionOptions;
 import io.jooby.Value;
 
@@ -131,13 +132,21 @@ public class RequestSession implements Session {
     return session;
   }
 
+  @Override public Session clear() {
+    session.clear();
+    return this;
+  }
+
   public void destroy() {
     if (context != null) {
       try {
         context.getAttributes().remove("session");
         SessionOptions options = context.getRouter().getSessionOptions();
-        context.setResponseCookie(options.getCookie().setMaxAge(0));
-        options.getStore().deleteSession(session.getId());
+        String sessionId = session.getId();
+        for (SessionId strategy : options.getSessionId()) {
+          strategy.deleteSessionId(context, sessionId);
+        }
+        options.getStore().deleteSession(sessionId);
       } finally {
         session.destroy();
         context = null;
