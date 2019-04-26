@@ -1730,6 +1730,66 @@ public class FeaturedTest {
   }
 
   @Test
+  public void signSession() {
+    new JoobyRunner(app -> {
+      app.setSessionOptions(new SessionOptions("987654345!$009P"));
+      app.get("/findSession", ctx -> Optional.ofNullable(ctx.sessionOrNull()).isPresent());
+      app.get("/getSession", ctx -> ctx.session().get("foo").value("none"));
+      app.get("/putSession", ctx -> ctx.session().put("foo", "bar").get("foo").value());
+      app.get("/destroySession", ctx -> {
+        Session session = ctx.session();
+        session.destroy();
+
+        return Optional.ofNullable(ctx.sessionOrNull()).isPresent();
+      });
+
+    }).ready(client -> {
+      client.get("/findSession", rsp -> {
+        assertEquals("[]", rsp.headers("Set-Cookie").toString());
+        assertEquals("false", rsp.body().string());
+      });
+      client.header("Cookie", "jooby.sid=1234missing");
+      client.get("/findSession", rsp -> {
+        assertEquals("[]", rsp.headers("Set-Cookie").toString());
+        assertEquals("false", rsp.body().string());
+      });
+
+      client.get("/getSession", rsp -> {
+        assertEquals("none", rsp.body().string());
+        String sid = sid(rsp, "jooby.sid=");
+
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.get("/findSession", findSession -> {
+          assertEquals("[]", findSession.headers("Set-Cookie").toString());
+          assertEquals("true", findSession.body().string());
+        });
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.get("/putSession", putSession -> {
+          assertEquals("[]", putSession.headers("Set-Cookie").toString());
+          assertEquals("bar", putSession.body().string());
+        });
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.get("/getSession", putSession -> {
+          assertEquals("[]", putSession.headers("Set-Cookie").toString());
+          assertEquals("bar", putSession.body().string());
+        });
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.get("/destroySession", putSession -> {
+          assertEquals(
+              "[jooby.sid=;Path=/;HttpOnly;Max-Age=0;Expires=Thu, 01-Jan-1970 00:00:00 GMT]",
+              putSession.headers("Set-Cookie").toString());
+          assertEquals("false", putSession.body().string());
+        });
+        client.header("Cookie", "jooby.sid=" + sid);
+        client.get("/findSession", putSession -> {
+          assertEquals("[]", putSession.headers("Set-Cookie").toString());
+          assertEquals("false", putSession.body().string());
+        });
+      });
+    });
+  }
+
+  @Test
   public void sessionHeader() {
     new JoobyRunner(app -> {
 

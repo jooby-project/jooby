@@ -133,10 +133,7 @@ public interface Context {
 
       String sessionId = options.generateId();
       session = Session.create(this, options.getStore().newSession(sessionId));
-
-      for (SessionId strategy : options.getSessionId()) {
-        strategy.saveSessionId(this, sessionId);
-      }
+      options.getSessionId().saveSessionId(this, sessionId);
     }
     return session;
   }
@@ -151,16 +148,8 @@ public interface Context {
     if (session == null) {
       Router router = getRouter();
       SessionOptions options = router.getSessionOptions();
-      SessionId[] strategies = options.getSessionId();
-      SessionId strategy = null;
-      String sessionId = null;
-      for (SessionId it : strategies) {
-        sessionId = it.findSessionId(this);
-        if (sessionId != null) {
-          strategy = it;
-          break;
-        }
-      }
+      SessionId strategy = options.getSessionId();
+      String sessionId = strategy.findSessionId(this);
       if (sessionId == null) {
         return null;
       }

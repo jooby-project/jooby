@@ -17,12 +17,29 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Response cookie implementation. Response are send it back to client using
@@ -32,6 +49,10 @@ import java.util.concurrent.TimeUnit;
  * @since 2.0.0
  */
 public class Cookie {
+
+  /** Algorithm name. */
+  public static final String HMAC_SHA256 = "HmacSHA256";
+
   private static final DateTimeFormatter fmt = DateTimeFormatter
       .ofPattern("EEE, dd-MMM-yyyy HH:mm:ss z", Locale.US)
       .withZone(ZoneId.of("GMT"));
@@ -350,6 +371,108 @@ public class Cookie {
     }
 
     return sb.toString();
+  }
+
+  /**
+   * Sign a value using a secret key. A value and secret key are required. Sign is done with
+   * {@link #HMAC_SHA256}.
+   * Signed value looks like:
+   *
+   * <pre>
+   *   [signed value] '|' [raw value]
+   * </pre>
+   *
+   * @param value A value to sign.
+   * @param secret A secret key.
+   * @return A signed value.
+   */
+  public static @Nonnull String sign(final @Nonnull String value, final @Nonnull String secret) {
+    try {
+      Mac mac = Mac.getInstance(HMAC_SHA256);
+      mac.init(new SecretKeySpec(secret.getBytes(), HMAC_SHA256));
+      byte[] bytes = mac.doFinal(value.getBytes());
+      return Base64.getEncoder().withoutPadding().encodeToString(bytes) + "|" + value;
+    } catch (Exception x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  /**
+   * Un-sign a value, previously signed with {@link #sign(String, String)}.
+   * Produces a nonnull value or <code>null</code> for invalid.
+   *
+   * @param value A signed value.
+   * @param secret A secret key.
+   * @return A new signed value or null.
+   */
+  public static @Nullable String unsign(final @Nonnull String value, final @Nonnull String secret) {
+    int sep = value.indexOf("|");
+    if (sep <= 0) {
+      return null;
+    }
+    String str = value.substring(sep + 1);
+    return sign(str, secret).equals(value) ? str : null;
+  }
+
+  /**
+   * Encode a hash into cookie value, like: <code>k1=v1&amp;...&amp;kn=vn</code>. Also,
+   * <code>key</code> and <code>value</code> are encoded using {@link URLEncoder}.
+   */
+  public static String encode(Map<String, String> attributes) {
+    if (attributes.size() == 0) {
+      return "";
+    }
+    try {
+      StringBuilder joiner = new StringBuilder();
+      String enc = StandardCharsets.UTF_8.name();
+      for (Map.Entry<String, String> attribute : attributes.entrySet()) {
+        joiner.append(URLEncoder.encode(attribute.getKey(), enc))
+            .append('=')
+            .append(URLEncoder.encode(attribute.getValue(), enc))
+            .append('&');
+      }
+      if (joiner.length() > 0) {
+        joiner.setLength(joiner.length() - 1);
+      }
+      return joiner.toString();
+    } catch (UnsupportedEncodingException x) {
+      throw Throwing.sneakyThrow(x);
+    }
+  }
+
+  /**
+   * Decode a cookie value using, like: <code>k=v</code>, multiple <code>k=v</code> pair are
+   * separated by <code>&amp;</code>. Also, <code>k</code> and <code>v</code> are decoded using
+   * {@link URLDecoder}.
+   */
+  public static Map<String, String> decode(String value) {
+    if (value == null || value.length() == 0) {
+      return Collections.emptyMap();
+    }
+    try {
+      Map<String, String> attributes = new HashMap<>();
+      String enc = StandardCharsets.UTF_8.name();
+      int start = 0;
+      int len = value.length();
+      do {
+        int end = value.indexOf('&', start + 1);
+        if (end < 0) {
+          end = len;
+        }
+        // parse attribute
+        int eq = value.indexOf('=', start);
+        if (eq > 0 && eq < len - 1) {
+          attributes.put(URLDecoder.decode(value.substring(start, eq), enc),
+              URLDecoder.decode(value.substring(eq + 1, end), enc));
+        }
+
+        start = end + 1;
+      } while (start < len);
+
+      return attributes.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(attributes);
+    } catch (UnsupportedEncodingException x) {
+      throw Throwing.sneakyThrow(x);
+    }
   }
 
   private void append(StringBuilder sb, String str) {

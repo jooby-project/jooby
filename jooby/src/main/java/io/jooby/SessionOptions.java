@@ -16,7 +16,9 @@
 package io.jooby;
 
 import io.jooby.internal.InMemorySessionStore;
+import io.jooby.internal.MultipleSessionId;
 import io.jooby.internal.RequestSessionStore;
+import io.jooby.internal.SecretSessionId;
 
 import javax.annotation.Nonnull;
 import java.security.SecureRandom;
@@ -45,7 +47,16 @@ public class SessionOptions {
 
   private SessionStore store = new InMemorySessionStore();
 
-  private SessionId[] sessionId;
+  private final SessionId sessionId;
+
+  /**
+   * Creates a session options.
+   *
+   * @param sessionId session ID.
+   */
+  public SessionOptions(@Nonnull String secret, @Nonnull SessionId... sessionId) {
+    this.sessionId = new SecretSessionId(createSessionId(sessionId), secret);
+  }
 
   /**
    * Creates a session options.
@@ -53,12 +64,10 @@ public class SessionOptions {
    * @param sessionId session ID.
    */
   public SessionOptions(@Nonnull SessionId... sessionId) {
-    this.sessionId = sessionId.length == 0
-        ? new SessionId[]{SessionId.cookie(DEFAULT_COOKIE)}
-        : sessionId;
+    this.sessionId = createSessionId(sessionId);
   }
 
-  public SessionId[] getSessionId() {
+  public SessionId getSessionId() {
     return sessionId;
   }
 
@@ -93,4 +102,13 @@ public class SessionOptions {
     return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
   }
 
+  private static SessionId createSessionId(@Nonnull SessionId[] sessionId) {
+    if (sessionId.length == 0) {
+      return SessionId.cookie(DEFAULT_COOKIE);
+    } else if (sessionId.length == 1) {
+      return sessionId[0];
+    } else {
+      return new MultipleSessionId(sessionId);
+    }
+  }
 }

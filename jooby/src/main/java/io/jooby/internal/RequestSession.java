@@ -143,9 +143,7 @@ public class RequestSession implements Session {
         context.getAttributes().remove("session");
         SessionOptions options = context.getRouter().getSessionOptions();
         String sessionId = session.getId();
-        for (SessionId strategy : options.getSessionId()) {
-          strategy.deleteSessionId(context, sessionId);
-        }
+        options.getSessionId().deleteSessionId(context, sessionId);
         options.getStore().deleteSession(sessionId);
       } finally {
         session.destroy();

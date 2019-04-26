@@ -73,6 +73,7 @@
     <rest-assured.version>3.3.0</rest-assured.version>
     <checkstyle.version>8.19</checkstyle.version>
     <mockito.version>2.27.0</mockito.version>
+    <guava.version>27.1-jre</guava.version>
 
     <!-- Gradle plugins -->
     <gradle-core.version>2.6</gradle-core.version>
@@ -607,6 +608,14 @@
         <artifactId>mockito-junit-jupiter</artifactId>
         <version>${mockito.version}</version>
       </dependency>
+
+      <!-- Guava -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+
 
       <!-- Maven -->
       <dependency>
