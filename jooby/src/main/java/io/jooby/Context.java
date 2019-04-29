@@ -141,7 +141,7 @@ public interface Context {
   /**
    * Find an existing session.
    *
-   * @return Exsiting session or <code>null</code>.
+   * @return Existing session or <code>null</code>.
    */
   default @Nullable Session sessionOrNull() {
     Session session = (Session) getAttributes().get("session");
