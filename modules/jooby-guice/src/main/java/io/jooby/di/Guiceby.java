@@ -45,6 +45,7 @@ public class Guiceby implements Extension {
     if (injector == null) {
       Environment env = application.getEnvironment();
       modules.add(new GuiceEnvironment(env));
+      modules.add(new ResourceModule(application));
       Stage stage = env.isActive("dev", "test") ? Stage.DEVELOPMENT : Stage.PRODUCTION;
       injector = Guice.createInjector(stage, modules);
     }
