@@ -35,6 +35,19 @@ Bean validation via [Hibernate Validator](hibernate.org/validator).
   });
 }
 ```
+### in combination with JSON parser
+Jooby does not have a validation API or a validation API for HTTP bodies. Instead, this validator _wraps_ existing body parsers as they simply return the first deserialized object. Consequently, this module must be imported _before_ you import any parser!
+If you were to use the [Jackson JSON parser module](../jackson/jackson.md) it would look like this:
+
+```java
+{
+  // must be imported before any body parser
+  use(new Hbv());
+  use(new Jackson());
+
+  // routes go here
+}
+```
 
 ## automatic validations of HTTP params and body
 
