@@ -18,13 +18,19 @@ package examples;
 import io.jooby.Jooby;
 import io.jooby.RouterOptions;
 
+import java.util.stream.Stream;
+
 public class HelloApp extends Jooby {
 
   {
+    Stream.of(getClass(), Jooby.class, getLog().getClass())
+        .forEach(clazz -> {
+          System.out.println(clazz.getName() + " loaded by: " + clazz.getClassLoader());
+        });
     setRouterOptions(new RouterOptions().setCaseSensitive(false).setIgnoreTrailingSlash(false));
 
     get("/foo/bar", ctx -> {
-      return ctx.pathString();
+      return ctx.pathString() + "oo";
     });
 
     get("/foo/{bar}", ctx -> {

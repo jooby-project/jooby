@@ -685,6 +685,16 @@ public class Jooby implements Router, Registry {
   /**
    * Setup default environment, logging (logback or log4j2) and run application.
    *
+   * @param applicationType Application type.
+   * @return Application.
+   */
+  public static Jooby createApp(@Nonnull Class<? extends Jooby> applicationType) {
+    return createApp(new String[0], ExecutionMode.DEFAULT, reflectionProvider(applicationType));
+  }
+
+  /**
+   * Setup default environment, logging (logback or log4j2) and run application.
+   *
    * @param args Application arguments.
    * @param executionMode Application execution mode.
    * @param provider Application provider.
