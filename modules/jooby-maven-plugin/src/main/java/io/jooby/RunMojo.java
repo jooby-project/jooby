@@ -64,6 +64,9 @@ public class RunMojo extends AbstractMojo {
   @Parameter(defaultValue = "${application.class}")
   private String mainClass;
 
+  @Parameter(defaultValue = "${application.mode}")
+  private String executionMode;
+
   @Parameter(defaultValue = "conf,properties,class")
   private List<String> restartExtensions;
 
@@ -90,9 +93,13 @@ public class RunMojo extends AbstractMojo {
             .map(it -> it.getProperties().getProperty(APP_CLASS))
             .orElseThrow(() -> new MojoExecutionException("Application class not found"));
       }
+      if (executionMode == null) {
+        executionMode = "DEFAULT";
+      }
       getLog().debug("Found `" + APP_CLASS + "`: " + mainClass);
 
-      HotSwap hotSwap = new HotSwap(session.getCurrentProject().getArtifactId(), mainClass);
+      HotSwap hotSwap = new HotSwap(session.getCurrentProject().getArtifactId(), mainClass,
+          executionMode);
 
       Runtime.getRuntime().addShutdownHook(new Thread(hotSwap::shutdown));
 

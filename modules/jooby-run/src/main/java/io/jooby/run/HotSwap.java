@@ -84,16 +84,18 @@ public class HotSwap {
     private final ExtModuleLoader loader;
     private final String projectName;
     private final String mainClass;
+    private final String executionMode;
     private Module module;
     private Server server;
     private ClassLoader contextClassLoader;
 
     public AppModule(Logger logger, ExtModuleLoader loader, String projectName, String mainClass,
-        ClassLoader contextClassLoader) {
+        String executionMode, ClassLoader contextClassLoader) {
       this.logger = logger;
       this.loader = loader;
       this.projectName = projectName;
       this.mainClass = mainClass;
+      this.executionMode = executionMode;
       this.contextClassLoader = contextClassLoader;
     }
 
@@ -105,10 +107,13 @@ public class HotSwap {
         Thread.currentThread().setContextClassLoader(classLoader);
 
         Class joobyClass = classLoader.loadClass("io.jooby.Jooby");
-        Method createApp = joobyClass.getDeclaredMethod("createApp", Class.class);
+        Class executionModeClass = classLoader.loadClass("io.jooby.ExecutionMode");
+        Method createApp = joobyClass
+            .getDeclaredMethod("createApp", String[].class, executionModeClass, Class.class);
 
         Class appClass = classLoader.loadClass(mainClass);
-        App app = new App(createApp.invoke(null, appClass));
+        Enum executionModeValue = Enum.valueOf(executionModeClass, executionMode.toUpperCase());
+        App app = new App(createApp.invoke(null, new String[0], executionModeValue, appClass));
         server = app.start();
       } catch (Exception x) {
         logger.error("Unable to start: {}", mainClass, x);
@@ -158,6 +163,8 @@ public class HotSwap {
 
   private final String mainClass;
 
+  private final String executionMode;
+
   private final Set<Path> resources = new LinkedHashSet<>();
 
   private final Set<Path> dependencies = new LinkedHashSet<>();
@@ -168,9 +175,10 @@ public class HotSwap {
 
   private AppModule module;
 
-  public HotSwap(String projectName, String mainClass) {
+  public HotSwap(String projectName, String mainClass, String executionMode) {
     this.projectName = projectName;
     this.mainClass = mainClass;
+    this.executionMode = executionMode;
   }
 
   public void addResource(Path path) {
@@ -197,7 +205,7 @@ public class HotSwap {
       ModuleFinder[] finders = finders(false);
 
       ExtModuleLoader loader = new ExtModuleLoader(finders);
-      module = new AppModule(logger, loader, projectName, mainClass,
+      module = new AppModule(logger, loader, projectName, mainClass, executionMode,
           Thread.currentThread().getContextClassLoader());
       module.start();
       watcher.watch();
