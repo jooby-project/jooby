@@ -24,6 +24,8 @@
     <module>jooby-guice</module>
     <module>jooby-spring</module>
     <module>jooby-weld</module>
+    <module>jooby-run</module>
+    <module>jooby-maven-plugin</module>
   </modules>
 
 </project>

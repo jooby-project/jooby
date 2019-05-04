@@ -45,11 +45,11 @@ public class Lambdas {
   }
 
   // getting the synthetic static lambda method
-  public static Method getLambdaMethod(Object function) throws Exception {
+  public static Method getLambdaMethod(ClassLoader loader, Object function) throws Exception {
     SerializedLambda lambda = getSerializedLambda(function);
     if (lambda != null) {
       String implClassName = lambda.getImplClass().replace('/', '.');
-      Class<?> implClass = Class.forName(implClassName);
+      Class<?> implClass = loader.loadClass(implClassName);//Class.forName(implClassName);
 
       String lambdaName = lambda.getImplMethodName();
 

@@ -70,7 +70,7 @@ public class RouteAnalyzer {
   }
 
   private Method methodHandler(Object handler) throws Exception {
-    Method result = Lambdas.getLambdaMethod(handler);
+    Method result = Lambdas.getLambdaMethod(this.source.getLoader(), handler);
     if (result == null) {
       // Kotlin?
       Method[] methods = handler.getClass().getDeclaredMethods();
