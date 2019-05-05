@@ -13,7 +13,7 @@
  *
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.run;
+package io.jooby.gradle;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

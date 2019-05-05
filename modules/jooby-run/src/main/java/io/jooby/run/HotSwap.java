@@ -192,28 +192,32 @@ public class HotSwap {
     this.executionMode = executionMode;
   }
 
-  public void addResource(Path path) {
-    if (Files.exists(path)) {
-      resources.add(path);
+  public boolean addResource(Path path, BiConsumer<String, Path> callback) {
+    if (addResource(path)) {
+      if (Files.isDirectory(path)) {
+        watchDirs.put(path, callback);
+      }
+      return true;
     }
+    return false;
   }
 
-  public void addDependency(Path dependency) {
-    if (Files.exists(dependency) && dependency.toString().endsWith(".jar")) {
-      dependencies.add(dependency);
-    }
-  }
-
-  public void addWatch(Path path, BiConsumer<String, Path> callback) {
+  public boolean addResource(Path path) {
     if (Files.exists(path)) {
-      watchDirs.put(path, callback);
+      if (path.toString().endsWith(".jar")) {
+        dependencies.add(path);
+      } else {
+        resources.add(path);
+      }
+      return true;
     }
+    return false;
   }
 
   public void start() throws Exception {
     this.watcher = newWatcher();
     try {
-      logger.info("project: {}", toString());
+      logger.debug("project: {}", toString());
 
       ModuleFinder[] finders = finders(false);
 

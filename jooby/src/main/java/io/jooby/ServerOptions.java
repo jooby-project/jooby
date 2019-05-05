@@ -136,10 +136,10 @@ public class ServerOptions {
 
   @Override public String toString() {
     StringBuilder buff = new StringBuilder();
-    buff.append(server).append(" {");
+    buff.append(Optional.ofNullable(server).orElse("server")).append(" {");
     buff.append("port: ").append(port);
-    if (!"jetty".equals(server) && ioThreads != null) {
-      buff.append(", ioThreads: ").append(ioThreads);
+    if (!"jetty".equals(server)) {
+      buff.append(", ioThreads: ").append(Optional.ofNullable(ioThreads).orElse(IO_THREADS));
     }
     buff.append(", workerThreads: ").append(getWorkerThreads());
     if ("netty".equals(server)) {

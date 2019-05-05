@@ -13,7 +13,7 @@
  *
  * Copyright 2014 Edgar Espina
  */
-package io.jooby;
+package io.jooby.maven;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import io.jooby.run.HotSwap;
@@ -129,14 +129,10 @@ public class JoobyRun extends AbstractMojo {
         resourceList.stream()
             .map(Resource::getDirectory)
             .map(Paths::get)
-            .forEach(file -> {
-              hotSwap.addResource(file);
-              hotSwap.addWatch(file, onFileChanged);
-            });
+            .forEach(file -> hotSwap.addResource(file, onFileChanged));
         // conf directory
         Path conf = project.getBasedir().toPath().resolve("conf");
-        hotSwap.addResource(conf);
-        hotSwap.addWatch(conf, onFileChanged);
+        hotSwap.addResource(conf, onFileChanged);
 
         // target/classes
         hotSwap.addResource(Paths.get(project.getBuild().getOutputDirectory()));
@@ -144,12 +140,12 @@ public class JoobyRun extends AbstractMojo {
         Set<Path> src = sourceDirectories(project);
         if (src.isEmpty()) {
           getLog().debug("Compiler is off in favor of Eclipse compiler.");
-          binDirectories(project).forEach(path -> hotSwap.addWatch(path, onFileChanged));
+          binDirectories(project).forEach(path -> hotSwap.addResource(path, onFileChanged));
         } else {
-          src.forEach(path -> hotSwap.addWatch(path, onFileChanged));
+          src.forEach(path -> hotSwap.addResource(path, onFileChanged));
         }
 
-        artifacts(project).forEach(hotSwap::addDependency);
+        artifacts(project).forEach(hotSwap::addResource);
       }
 
       // Block current thread.

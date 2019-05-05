@@ -13,16 +13,22 @@
  *
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.run;
+package io.jooby.gradle;
 
+import io.jooby.run.HotSwap;
+import org.gradle.StartParameter;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
+import org.gradle.tooling.ResultHandler;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -43,8 +49,6 @@ public class JoobyRun extends DefaultTask {
     System.setProperty("jooby.useShutdownHook", "false");
   }
 
-  private String mainClass;
-
   private String executionMode = "DEFAULT";
 
   private List<String> restartExtensions = Arrays.asList("conf", "properties", "class");
@@ -58,14 +62,12 @@ public class JoobyRun extends DefaultTask {
     Project current = getProject();
     List<Project> projects = Arrays.asList(current);
 
-    if (mainClass == null) {
-      mainClass = projects.stream()
-          .filter(it -> it.getProperties().containsKey("mainClassName"))
-          .map(it -> it.getProperties().get("mainClassName").toString())
-          .findFirst()
-          .orElseThrow(() -> new IllegalArgumentException(
-              "Application class not found. Did you forget to set `mainClassName`?"));
-    }
+    String mainClass = projects.stream()
+        .filter(it -> it.getProperties().containsKey("mainClassName"))
+        .map(it -> it.getProperties().get("mainClassName").toString())
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException(
+            "Application class not found. Did you forget to set `mainClassName`?"));
 
     HotSwap hotSwap = new HotSwap(current.getName(), mainClass, executionMode);
 
@@ -74,18 +76,28 @@ public class JoobyRun extends DefaultTask {
         .forProjectDirectory(current.getRootDir())
         .connect();
 
-    Runtime.getRuntime().addShutdownHook(new Thread(hotSwap::shutdown));
+    BuildLauncher compiler = connection.newBuild()
+        .setStandardError(System.err)
+        .setStandardOutput(System.out)
+        .forTasks("classes");
+
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      hotSwap.shutdown();
+      connection.close();
+    }));
 
     BiConsumer<String, Path> onFileChanged = (event, path) -> {
       if (isCompileExtension(path)) {
-        connection.newBuild()
-            .setStandardError(System.err)
-            .setStandardOutput(System.out)
-            .forTasks("classes")
-            .run();
-        getLogger().debug("compilation done");
-        getLogger().debug("Restarting application on file change: " + path);
-        hotSwap.restart();
+        compiler.run(new ResultHandler<Void>() {
+          @Override public void onComplete(Void result) {
+            getLogger().debug("Restarting application on file change: " + path);
+            hotSwap.restart();
+          }
+
+          @Override public void onFailure(GradleConnectionException failure) {
+            getLogger().debug("Compilation error found: " + path);
+          }
+        });
       } else if (isRestartExtension(path)) {
         getLogger().debug("Restarting application on file change: " + path);
         hotSwap.restart();
@@ -101,14 +113,10 @@ public class JoobyRun extends DefaultTask {
       // main/resources
       sourceSet.getResources().getSrcDirs().stream()
           .map(File::toPath)
-          .forEach(file -> {
-            hotSwap.addResource(file);
-            hotSwap.addWatch(file, onFileChanged);
-          });
+          .forEach(file -> hotSwap.addResource(file, onFileChanged));
       // conf directory
       Path conf = project.getProjectDir().toPath().resolve("conf");
-      hotSwap.addResource(conf);
-      hotSwap.addWatch(conf, onFileChanged);
+      hotSwap.addResource(conf, onFileChanged);
 
       // build classes
       binDirectories(project, sourceSet).forEach(hotSwap::addResource);
@@ -116,12 +124,12 @@ public class JoobyRun extends DefaultTask {
       Set<Path> src = sourceDirectories(project, sourceSet);
       if (src.isEmpty()) {
         getLogger().debug("Compiler is off in favor of Eclipse compiler.");
-        binDirectories(project, sourceSet).forEach(path -> hotSwap.addWatch(path, onFileChanged));
+        binDirectories(project, sourceSet).forEach(path -> hotSwap.addResource(path, onFileChanged));
       } else {
-        src.forEach(path -> hotSwap.addWatch(path, onFileChanged));
+        src.forEach(path -> hotSwap.addResource(path, onFileChanged));
       }
 
-      dependencies(project, sourceSet).forEach(hotSwap::addDependency);
+      dependencies(project, sourceSet).forEach(hotSwap::addResource);
     }
 
     // Block current thread.
@@ -185,14 +193,6 @@ public class JoobyRun extends DefaultTask {
   private boolean containsExtension(List<String> extensions, Path path) {
     String filename = path.getFileName().toString();
     return extensions.stream().anyMatch(ext -> filename.endsWith("." + ext));
-  }
-
-  public String getMainClass() {
-    return mainClass;
-  }
-
-  public void setMainClass(String mainClass) {
-    this.mainClass = mainClass;
   }
 
   public String getExecutionMode() {
