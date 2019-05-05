@@ -125,10 +125,6 @@ public class Hbs implements TemplateEngine {
       return this;
     }
 
-    public Hbs build() {
-      return build(new Environment(ConfigFactory.empty(),"dev"));
-    }
-
     public Hbs build(Environment env) {
       handlebars.with(ofNullable(loader).orElseGet(this::defaultTemplateLoader));
 

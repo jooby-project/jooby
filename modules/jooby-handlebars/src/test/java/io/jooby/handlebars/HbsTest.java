@@ -1,5 +1,7 @@
 package io.jooby.handlebars;
 
+import com.typesafe.config.ConfigFactory;
+import io.jooby.Environment;
 import io.jooby.MockContext;
 import io.jooby.ModelAndView;
 import org.junit.jupiter.api.Test;
@@ -28,7 +30,7 @@ public class HbsTest {
 
   @Test
   public void render() throws Exception {
-    Hbs engine = Hbs.builder().build();
+    Hbs engine = Hbs.builder().build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     String output = engine

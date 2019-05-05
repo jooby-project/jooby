@@ -86,7 +86,7 @@ public class EnvironmentTest {
   @Test
   public void objectLookup() {
 
-    Environment env = new Environment(ConfigFactory.parseMap(mapOf("h.pool", "1", "h.db.pool", "2")), "test");
+    Environment env = new Environment(getClass().getClassLoader(), ConfigFactory.parseMap(mapOf("h.pool", "1", "h.db.pool", "2")), "test");
 
     assertEquals("1", env.getConfig().getString("h.pool"));
     assertEquals("2", env.getConfig().getString("h.db.pool"));

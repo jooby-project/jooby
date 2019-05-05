@@ -52,23 +52,28 @@ public class Environment {
 
   private final Config conf;
 
+  private final ClassLoader classLoader;
+
   /**
    * Creates a new environment.
    *
+   * @param classLoader Class loader.
    * @param conf Application configuration.
    * @param actives Active environment names.
    */
-  public Environment(@Nonnull Config conf, @Nonnull String... actives) {
-    this(conf, Arrays.asList(actives));
+  public Environment(@Nonnull ClassLoader classLoader, @Nonnull Config conf, @Nonnull String... actives) {
+    this(classLoader, conf, Arrays.asList(actives));
   }
 
   /**
    * Creates a new environment.
    *
+   * @param classLoader Class loader.
    * @param conf Application configuration.
    * @param actives Active environment names.
    */
-  public Environment(@Nonnull Config conf, @Nonnull List<String> actives) {
+  public Environment(@Nonnull ClassLoader classLoader, @Nonnull Config conf, @Nonnull List<String> actives) {
+    this.classLoader = classLoader;
     this.actives = actives.stream()
         .map(String::trim)
         .map(String::toLowerCase)
@@ -104,6 +109,15 @@ public class Environment {
   public boolean isActive(String name, String... names) {
     return this.actives.contains(name.toLowerCase())
         || Stream.of(names).map(String::toLowerCase).anyMatch(this.actives::contains);
+  }
+
+  /**
+   * Application class loader.
+   *
+   * @return Application class loader.
+   */
+  public ClassLoader getClassLoader() {
+    return classLoader;
   }
 
   @Override public String toString() {
@@ -226,7 +240,7 @@ public class Environment {
         .withFallback(defaults())
         .resolve();
 
-    return new Environment(result, actives);
+    return new Environment(options.getClassLoader(), result, actives);
   }
 
   /**

@@ -1,6 +1,7 @@
 package io.jooby.freemarker;
 
 import com.typesafe.config.ConfigFactory;
+import freemarker.template.Configuration;
 import io.jooby.Environment;
 import io.jooby.MockContext;
 import io.jooby.ModelAndView;
@@ -8,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FreemarkerTest {
+public class FreemarkerbyTest {
 
   public static class User {
     private String firstname;
@@ -31,10 +32,12 @@ public class FreemarkerTest {
 
   @Test
   public void render() throws Exception {
-    Freemarker freemarker = Freemarker.builder().build(new Environment(ConfigFactory.empty(), "test"));
+    Configuration freemarker = Freemarkerby.create()
+        .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "test"));
+    FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker);
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
-    String output = freemarker
+    String output = engine
         .apply(ctx, new ModelAndView("index.ftl")
             .put("user", new User("foo", "bar"))
             .put("sign", "!"));

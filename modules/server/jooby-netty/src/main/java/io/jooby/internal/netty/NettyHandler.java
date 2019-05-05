@@ -73,8 +73,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       /** Don't check/parse body if there is no match: */
       if (result.matches()) {
         contentLength = contentLength(req);
-        boolean chunked = HttpUtil.isTransferEncodingChunked(req);
-        if (contentLength > 0 || chunked) {
+        if (contentLength > 0 || HttpUtil.isTransferEncodingChunked(req)) {
           decoder = newDecoder(req, factory);
         } else {
           result.execute(context);
@@ -184,14 +183,8 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   }
 
   static String pathOnly(String uri) {
-    int len = uri.length();
-    for (int i = 0; i < len; i++) {
-      char c = uri.charAt(i);
-      if (c == '?') {
-        return uri.substring(0, i);
-      }
-    }
-    return uri;
+    int len = uri.indexOf('?');
+    return len > 0 ? uri.substring(0, len) : uri;
   }
 }
 
