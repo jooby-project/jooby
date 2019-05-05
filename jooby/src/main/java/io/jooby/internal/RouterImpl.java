@@ -622,7 +622,7 @@ public class RouterImpl implements Router {
     String[] root = mvcAnnotations.pathPattern(m.getDeclaringClass());
     if (root == null) {
       if (path == null) {
-        return new String[] {"/"};
+        return new String[]{"/"};
       }
       return path;
     }
@@ -631,6 +631,7 @@ public class RouterImpl implements Router {
     }
     String[] result = new String[root.length * path.length];
     int k = 0;
+
     for (String base : root) {
       for (String element : path) {
         result[k] = base + "/" + element;
