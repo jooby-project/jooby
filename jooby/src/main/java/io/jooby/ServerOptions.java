@@ -15,9 +15,13 @@
  */
 package io.jooby;
 
+import com.typesafe.config.Config;
+
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Optional;
 
 /**
  * Available server options.
@@ -27,8 +31,9 @@ import java.net.ServerSocket;
  */
 public class ServerOptions {
 
-  /** Default application port <code>8080</code> or the value of system property <code>application.port</code>. */
-  public static final int DEFAULT_PORT = Integer.parseInt(System.getProperty("application.port", "8080"));
+  /** Default application port <code>8080</code> or the value of system property <code>server.port</code>. */
+  public static final int DEFAULT_PORT = Integer
+      .parseInt(System.getProperty("server.port", "8080"));
 
   /** 4kb constant in bytes. */
   public static final int _4KB = 4096;
@@ -83,6 +88,51 @@ public class ServerOptions {
    * {@link io.jooby.StatusCode#REQUEST_ENTITY_TOO_LARGE} response. Default is <code>10mb</code>.
    */
   private int maxRequestSize = _10MB;
+
+  /**
+   * Creates server options from config object. The configuration options must provided entries
+   * like: <code>server.port</code>, <code>server.ioThreads</code>, etc...
+   *
+   * @param conf Configuration object.
+   * @return Server options.
+   */
+  public static @Nonnull Optional<ServerOptions> from(@Nonnull Config conf) {
+    if (conf.hasPath("server")) {
+      ServerOptions options = new ServerOptions();
+      if (conf.hasPath("server.port")) {
+        options.setPort(conf.getInt("server.port"));
+      }
+      if (conf.hasPath("server.singleLoop")) {
+        options.setSingleLoop(conf.getBoolean("server.singleLoop"));
+      }
+      if (conf.hasPath("server.ioThreads")) {
+        options.setIoThreads(conf.getInt("server.ioThreads"));
+      }
+      if (conf.hasPath("server.name")) {
+        options.setServer(conf.getString("server.name"));
+      }
+      if (conf.hasPath("server.bufferSize")) {
+        options.setBufferSize(conf.getInt("server.bufferSize"));
+      }
+      if (conf.hasPath("server.defaultHeaders")) {
+        options.setDefaultHeaders(conf.getBoolean("server.defaultHeaders"));
+      }
+      if (conf.hasPath("server.gzip")) {
+        options.setGzip(conf.getBoolean("server.gzip"));
+      }
+      if (conf.hasPath("server.defaultHeaders")) {
+        options.setDefaultHeaders(conf.getBoolean("server.defaultHeaders"));
+      }
+      if (conf.hasPath("server.maxRequestSize")) {
+        options.setMaxRequestSize((int) conf.getMemorySize("server.maxRequestSize").toBytes());
+      }
+      if (conf.hasPath("server.workerThreads")) {
+        options.setWorkerThreads(conf.getInt("server.workerThreads"));
+      }
+      return Optional.of(options);
+    }
+    return Optional.empty();
+  }
 
   @Override public String toString() {
     StringBuilder buff = new StringBuilder();
@@ -285,9 +335,9 @@ public class ServerOptions {
   }
 
   /**
-   * Set max request size.
+   * Set max request size in bytes.
    *
-   * @param maxRequestSize Max request size.
+   * @param maxRequestSize Max request size in bytes.
    * @return This options.
    */
   public @Nonnull ServerOptions setMaxRequestSize(int maxRequestSize) {

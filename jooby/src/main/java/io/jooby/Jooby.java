@@ -16,6 +16,8 @@
 package io.jooby;
 
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import io.jooby.internal.RouterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,6 +146,15 @@ public class Jooby implements Router, Registry {
       env = Environment.loadEnvironment(environmentOptions);
     }
     return env;
+  }
+
+  /**
+   * Application configuration. It is a shortcut for {@link Environment#getConfig()}.
+   *
+   * @return Application config.
+   */
+  public @Nonnull Config getConfig() {
+    return getEnvironment().getConfig();
   }
 
   /**
@@ -503,6 +514,9 @@ public class Jooby implements Router, Registry {
     }
     Server server = servers.get(0);
     try {
+      if (serverOptions == null) {
+        serverOptions = ServerOptions.from(getEnvironment().getConfig()).orElse(null);
+      }
       if (serverOptions != null) {
         serverOptions.setServer(server.getClass().getSimpleName().toLowerCase());
         server.setOptions(serverOptions);

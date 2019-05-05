@@ -1,5 +1,3 @@
 * tests and coverage
 
-* rename application.port and server related properties to server.port
-* allow to configure context pa./javath and port + server properties from configuration file.
 * websockets
