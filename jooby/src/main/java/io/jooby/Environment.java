@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -106,7 +107,7 @@ public class Environment {
    * @param names Optional environment names.
    * @return True if any of the given names is active.
    */
-  public boolean isActive(String name, String... names) {
+  public boolean isActive(@Nonnull String name, String... names) {
     return this.actives.contains(name.toLowerCase())
         || Stream.of(names).map(String::toLowerCase).anyMatch(this.actives::contains);
   }
@@ -116,8 +117,20 @@ public class Environment {
    *
    * @return Application class loader.
    */
-  public ClassLoader getClassLoader() {
+  public @Nonnull ClassLoader getClassLoader() {
     return classLoader;
+  }
+
+  public @Nonnull Optional<Class> loadClass(@Nonnull String className) {
+    try {
+      return Optional.of(classLoader.loadClass(className));
+    } catch (ClassNotFoundException x) {
+      return Optional.empty();
+    }
+  }
+
+  public boolean isClassPresent(String className) {
+    return loadClass(className).isPresent();
   }
 
   @Override public String toString() {

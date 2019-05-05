@@ -56,7 +56,8 @@ public class Hikari implements Extension {
       } else {
         Config conf = env.getConfig();
         dburl = Stream.of(database + ".url", database)
-            .filter(key -> conf.hasPath(key) && conf.getValue(key).valueType() == ConfigValueType.STRING)
+            .filter(key -> conf.hasPath(key)
+                && conf.getValue(key).valueType() == ConfigValueType.STRING)
             .findFirst()
             .map(conf::getString)
             .orElse(null);
@@ -138,12 +139,10 @@ public class Hikari implements Extension {
             conf.getConfig(key).root().unwrapped().forEach((k, v) -> {
               if (v instanceof String) {
                 consumer.accept(k, (String) v);
-              } else {
-                System.out.println(k);
               }
             });
           }
-        } catch (ConfigException.BadPath ignored) {
+        } catch (ConfigException.BadPath | ConfigException.BugOrBroken expected) {
           // do nothing
         }
       }
@@ -180,7 +179,7 @@ public class Hikari implements Extension {
 
   @Override public void install(@Nonnull Jooby application) {
     if (hikari == null) {
-      hikari = builder().build(application.getEnvironment(), database);
+      hikari = create().build(application.getEnvironment(), database);
     }
     HikariDataSource dataSource = new HikariDataSource(hikari);
 
@@ -195,7 +194,7 @@ public class Hikari implements Extension {
     application.onStop(dataSource::close);
   }
 
-  public static Builder builder() {
+  public static Builder create() {
     return new Builder();
   }
 
@@ -282,18 +281,19 @@ public class Hikari implements Extension {
       case "mysql": {
         // url jdbc:mysql://<host>:<port>/<database>?<key1>=<value1>&<key2>=<value2>...
         // 6.x
-        dataSourceClass("com.mysql.cj.jdbc.MysqlDataSource", name -> {
-          defaults.put("dataSourceClassName", name);
-        });
+        env.loadClass("com.mysql.cj.jdbc.MysqlDataSource")
+            .ifPresent(klass -> defaults.put("dataSourceClassName", klass.getName()));
         // 5.x
-        dataSourceClass("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", name -> {
-          defaults.put("dataSourceClassName", name);
-          defaults.put("dataSource.encoding", env.getConfig().getString("application.charset"));
-          defaults.put("dataSource.cachePrepStmts", true);
-          defaults.put("dataSource.prepStmtCacheSize", 250);
-          defaults.put("dataSource.prepStmtCacheSqlLimit", 2048);
-          defaults.put("dataSource.useServerPrepStmts", true);
-        });
+        if (!defaults.containsKey("dataSourceClassName")) {
+          env.loadClass("com.mysql.jdbc.jdbc2.optional.MysqlDataSource").ifPresent(klass -> {
+            defaults.put("dataSourceClassName", klass.getName());
+            defaults.put("dataSource.encoding", env.getConfig().getString("application.charset"));
+            defaults.put("dataSource.cachePrepStmts", true);
+            defaults.put("dataSource.prepStmtCacheSize", 250);
+            defaults.put("dataSource.prepStmtCacheSqlLimit", 2048);
+            defaults.put("dataSource.useServerPrepStmts", true);
+          });
+        }
         return defaults;
       }
       case "sqlserver": {
@@ -339,14 +339,6 @@ public class Hikari implements Extension {
       default: {
         return defaults;
       }
-    }
-  }
-
-  private static void dataSourceClass(String name, Consumer<String> consumer) {
-    try {
-      consumer.accept(Hikari.class.getClassLoader().loadClass(name).getName());
-    } catch (ClassNotFoundException e) {
-      // ignore
     }
   }
 }
