@@ -23,26 +23,31 @@ import com.github.jknack.handlebars.cache.HighConcurrencyTemplateCache;
 import com.github.jknack.handlebars.cache.NullTemplateCache;
 import com.github.jknack.handlebars.cache.TemplateCache;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
+import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
-import com.typesafe.config.ConfigFactory;
 import io.jooby.Context;
 import io.jooby.Environment;
+import io.jooby.Extension;
+import io.jooby.Jooby;
+import io.jooby.MediaType;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static java.util.Optional.ofNullable;
 
-public class Hbs implements TemplateEngine {
+public class Hbs implements Extension {
 
   public static class Builder {
 
@@ -52,115 +57,130 @@ public class Hbs implements TemplateEngine {
 
     private TemplateCache cache;
 
+    private String templatePath = "views";
+
     public Builder() {
       handlebars = new Handlebars();
       handlebars.setCharset(StandardCharsets.UTF_8);
     }
 
-    public Builder cache(TemplateCache cache) {
+    public @Nonnull Builder setTemplateCache(@Nonnull TemplateCache cache) {
       this.cache = cache;
       return this;
     }
 
-    public Builder loader(TemplateLoader loader) {
+    public @Nonnull Builder setTemplatePath(@Nonnull String templatePath) {
+      this.templatePath = templatePath.startsWith("/") ? templatePath.substring(1) : templatePath;
+      return this;
+    }
+
+    public @Nonnull Builder setTemplateLoader(@Nonnull TemplateLoader loader) {
       this.loader = loader;
       return this;
     }
 
-    public <H> Builder registerHelper(String name, Helper<H> helper) {
+    public @Nonnull <H> Builder registerHelper(@Nonnull String name, @Nonnull Helper<H> helper) {
       handlebars.registerHelper(name, helper);
       return this;
     }
 
-    public <H> Builder registerHelperMissing(Helper<H> helper) {
+    public @Nonnull <H> Builder registerHelperMissing(@Nonnull Helper<H> helper) {
       handlebars.registerHelperMissing(helper);
       return this;
     }
 
-    public Builder registerHelpers(Object helperSource) {
+    public @Nonnull Builder registerHelpers(@Nonnull Object helperSource) {
       handlebars.registerHelpers(helperSource);
       return this;
     }
 
-    public Builder registerHelpers(Class<?> helperSource) {
+    public @Nonnull Builder registerHelpers(@Nonnull Class<?> helperSource) {
       handlebars.registerHelpers(helperSource);
       return this;
     }
 
-    public Builder registerHelpers(URI location) throws Exception {
+    public @Nonnull Builder registerHelpers(@Nonnull URI location) throws Exception {
       handlebars.registerHelpers(location);
       return this;
     }
 
-    public Builder registerHelpers(File input) throws Exception {
+    public @Nonnull Builder registerHelpers(@Nonnull File input) throws Exception {
       handlebars.registerHelpers(input);
       return this;
     }
 
-    public Builder registerHelpers(String filename, Reader source)
+    public @Nonnull Builder registerHelpers(@Nonnull String filename, @Nonnull Reader source)
         throws Exception {
       handlebars.registerHelpers(filename, source);
       return this;
     }
 
-    public Builder registerHelpers(String filename, InputStream source)
+    public @Nonnull Builder registerHelpers(@Nonnull String filename, @Nonnull InputStream source)
         throws Exception {
       handlebars.registerHelpers(filename, source);
       return this;
     }
 
-    public Builder registerHelpers(String filename, String source)
+    public @Nonnull Builder registerHelpers(@Nonnull String filename, @Nonnull String source)
         throws IOException {
       handlebars.registerHelpers(filename, source);
       return this;
     }
 
-    public Builder registerDecorator(String name, Decorator decorator) {
+    public @Nonnull Builder registerDecorator(@Nonnull String name, @Nonnull Decorator decorator) {
       handlebars.registerDecorator(name, decorator);
       return this;
     }
 
-    public Builder charset(Charset charset) {
-      handlebars.setCharset(charset);
-      return this;
-    }
+    public @Nonnull Handlebars build(@Nonnull Environment env) {
+      if (loader == null) {
+        loader = defaultTemplateLoader(env, templatePath);
+      }
+      handlebars.with(loader);
 
-    public Hbs build(Environment env) {
-      handlebars.with(ofNullable(loader).orElseGet(this::defaultTemplateLoader));
-
-      TemplateCache cache = ofNullable(this.cache).orElseGet(() ->
-          env.isActive("dev", "test") ?
-              NullTemplateCache.INSTANCE :
-              new HighConcurrencyTemplateCache()
-      );
+      if (cache == null) {
+        cache = env.isActive("dev", "test")
+            ? NullTemplateCache.INSTANCE
+            : new HighConcurrencyTemplateCache();
+      }
       handlebars.with(cache);
 
-      Hbs result = new Hbs(handlebars);
       this.loader = null;
-      this.handlebars = null;
       this.cache = null;
-      return result;
+      return handlebars;
     }
 
-    private TemplateLoader defaultTemplateLoader() {
-      return new ClassPathTemplateLoader("/views", "");
+    private static TemplateLoader defaultTemplateLoader(Environment env, String templatePath) {
+      Path dir = Paths.get(System.getProperty("user.dir"), templatePath);
+      if (Files.exists(dir)) {
+        return new FileTemplateLoader(dir.toFile(), "");
+      }
+      ClassLoader classLoader = env.getClassLoader();
+      return new ClassPathTemplateLoader(templatePath, "") {
+        @Override protected URL getResource(String location) {
+          return classLoader.getResource(location);
+        }
+      };
     }
   }
 
   private Handlebars handlebars;
 
-  public Hbs(Handlebars handlebars) {
+  public Hbs(@Nonnull Handlebars handlebars) {
     this.handlebars = handlebars;
   }
 
-  @Override public String apply(Context ctx, ModelAndView modelAndView) throws Exception {
-    Template template = handlebars.compile(modelAndView.view);
-    Map<String, Object> model = new HashMap<>(ctx.getAttributes());
-    model.putAll(modelAndView.model);
-    return template.apply(model);
+  public Hbs() {
   }
 
-  public static Hbs.Builder builder() {
+  @Override public void install(@Nonnull Jooby application) throws Exception {
+    if (handlebars == null) {
+      handlebars = create().build(application.getEnvironment());
+    }
+    application.renderer(MediaType.html, new HbsTemplateEngine(handlebars));
+  }
+
+  public static Hbs.Builder create() {
     return new Hbs.Builder();
   }
 }

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FreemarkerbyTest {
+public class FreemarkerTest {
 
   public static class User {
     private String firstname;
@@ -32,7 +32,7 @@ public class FreemarkerbyTest {
 
   @Test
   public void render() throws Exception {
-    Configuration freemarker = Freemarkerby.create()
+    Configuration freemarker = Freemarker.create()
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "test"));
     FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker);
     MockContext ctx = new MockContext();

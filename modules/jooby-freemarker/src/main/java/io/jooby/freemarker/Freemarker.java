@@ -40,7 +40,7 @@ import java.util.Map;
 
 import static io.jooby.Throwing.throwingConsumer;
 
-public class Freemarkerby implements Extension {
+public class Freemarker implements Extension {
 
   public static class Builder {
 
@@ -133,11 +133,11 @@ public class Freemarkerby implements Extension {
 
   private Configuration freemarker;
 
-  public Freemarkerby(@Nonnull Configuration freemarker) {
+  public Freemarker(@Nonnull Configuration freemarker) {
     this.freemarker = freemarker;
   }
 
-  public Freemarkerby() {
+  public Freemarker() {
   }
 
   @Override public void install(@Nonnull Jooby application) {
@@ -147,7 +147,7 @@ public class Freemarkerby implements Extension {
     application.renderer(MediaType.html, new FreemarkerTemplateEngine(freemarker));
   }
 
-  public static Freemarkerby.Builder create() {
-    return new Freemarkerby.Builder();
+  public static Freemarker.Builder create() {
+    return new Freemarker.Builder();
   }
 }

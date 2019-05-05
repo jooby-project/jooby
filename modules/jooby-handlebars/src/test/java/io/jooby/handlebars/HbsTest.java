@@ -1,10 +1,13 @@
 package io.jooby.handlebars;
 
+import com.github.jknack.handlebars.Handlebars;
 import com.typesafe.config.ConfigFactory;
 import io.jooby.Environment;
 import io.jooby.MockContext;
 import io.jooby.ModelAndView;
 import org.junit.jupiter.api.Test;
+
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,7 +33,24 @@ public class HbsTest {
 
   @Test
   public void render() throws Exception {
-    Hbs engine = Hbs.builder().build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
+    Handlebars handlebars = Hbs.create()
+        .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
+    HbsTemplateEngine engine = new HbsTemplateEngine(handlebars);
+    MockContext ctx = new MockContext();
+    ctx.getAttributes().put("local", "var");
+    String output = engine
+        .apply(ctx, new ModelAndView("index.hbs")
+            .put("user", new User("foo", "bar"))
+            .put("sign", "!"));
+    assertEquals("Hello foo bar var!\n", output);
+  }
+
+  @Test
+  public void renderFileSystem() throws Exception {
+    Handlebars handlebars = Hbs.create()
+        .setTemplatePath(Paths.get("src", "test", "resources", "views").toString())
+        .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
+    HbsTemplateEngine engine = new HbsTemplateEngine(handlebars);
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     String output = engine
