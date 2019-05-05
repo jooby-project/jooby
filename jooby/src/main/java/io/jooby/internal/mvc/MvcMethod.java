@@ -29,11 +29,11 @@ public class MvcMethod {
 
   private List<String> parameters;
 
+  private MvcAnnotation model;
+
   Method method;
 
   String source;
-
-  private String httpMethod;
 
   private String pattern;
 
@@ -47,10 +47,6 @@ public class MvcMethod {
 
   public Method getMethod() {
     return method;
-  }
-
-  public String getPattern() {
-    return pattern;
   }
 
   public String getParameterName(int index) {
@@ -73,34 +69,41 @@ public class MvcMethod {
   }
 
   public String getHandlerName() {
-    return method.getDeclaringClass().getName() + "$" + httpMethod + "$" + method.getName();
+    return method.getDeclaringClass().getName() + "$" + model.getMethod() + "$" + method.getName();
   }
 
   public void setMethod(Method method) {
     this.method = method;
   }
 
+  public MvcAnnotation getModel() {
+    return model;
+  }
+
   public String getHttpMethod() {
-    return httpMethod;
+    return model.getMethod();
   }
 
-  public void setHttpMethod(String httpMethod) {
-    this.httpMethod = httpMethod;
+  public void setModel(MvcAnnotation model) {
+    this.model = model;
   }
 
-  public MvcMethod copy() {
-    MvcMethod result = new MvcMethod();
-    result.httpMethod = httpMethod;
-    result.method = method;
-    result.parameters = parameters;
-    result.source = source;
-    result.line = line;
-    result.pattern = pattern;
-    return result;
+  public String getPattern() {
+    return pattern;
   }
 
   public void setPattern(String pattern) {
     this.pattern = pattern;
+  }
+
+  public MvcMethod copy() {
+    MvcMethod result = new MvcMethod();
+    result.model = model;
+    result.method = method;
+    result.parameters = parameters;
+    result.source = source;
+    result.line = line;
+    return result;
   }
 
   public boolean isSuspendFunction() {

@@ -1,5 +1,6 @@
 package examples;
 
+import io.jooby.annotations.GET;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.QueryParam;
 
@@ -24,17 +25,17 @@ public class NullInjection {
     }
   }
 
-  @Path("/nonnull")
+  @GET("/nonnull")
   public Object nonnulArg(@QueryParam int v) {
     return v;
   }
 
-  @Path("/nullok")
+  @GET("/nullok")
   public Object nonnulArg(@QueryParam Integer v) {
     return String.valueOf(v);
   }
 
-  @Path("/nullbean")
+  @GET("/nullbean")
   public Object nonnulArg(@QueryParam QParam bean) {
     return bean;
   }

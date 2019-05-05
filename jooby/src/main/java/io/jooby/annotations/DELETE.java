@@ -225,4 +225,33 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface DELETE {
+  /**
+   * Path pattern. This is a shortcut for {@link #path()}.
+   *
+   * @return Path pattern.
+   */
+  String[] value() default {};
+
+  /**
+   * Path pattern.
+   *
+   * @return Path pattern.
+   */
+  String[] path() default {};
+
+  /**
+   * Produce types. Check the <code>Accept</code> header against this value or send a
+   * "406 Not Acceptable" response.
+   *
+   * @return Produce types.
+   */
+  String[] produces() default {};
+
+  /**
+   * Consume types. Check the <code>Content-Type</code> header against this value or send a
+   * "415 Unsupported Media Type" response.
+   *
+   * @return Consume types.
+   */
+  String[] consumes() default {};
 }

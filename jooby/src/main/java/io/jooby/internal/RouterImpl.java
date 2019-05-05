@@ -32,19 +32,17 @@ import io.jooby.SessionOptions;
 import io.jooby.StatusCode;
 import io.jooby.Throwing;
 import io.jooby.internal.asm.ClassSource;
-import io.jooby.internal.mvc.MvcAnnotation;
+import io.jooby.internal.mvc.MvcAnnotationParser;
 import io.jooby.internal.mvc.MvcCompiler;
 import io.jooby.internal.mvc.MvcMetadata;
 import io.jooby.internal.mvc.MvcMethod;
+import io.jooby.internal.mvc.MvcAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -56,7 +54,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
@@ -156,7 +153,7 @@ public class RouterImpl implements Router {
 
   private Map<ResourceKey, Object> resources = new HashMap<>();
 
-  private MvcAnnotation mvcAnnotations;
+  private MvcAnnotationParser annotationParser;
 
   private ClassSource source;
 
@@ -565,17 +562,18 @@ public class RouterImpl implements Router {
     find(prefix, type, method -> {
 
       Route.Handler instance = MvcCompiler
-          .newHandler(source.getLoader(), method, provider, mvcAnnotations);
+          .newHandler(source.getLoader(), method, provider);
 
       Route route = route(method.getHttpMethod(), method.getPattern(), instance)
           .setReturnType(method.getReturnType(source.getLoader()));
 
-      Set<MediaType> produces = mvcAnnotations.produces(method.getMethod());
+      MvcAnnotation model = method.getModel();
+      List<MediaType> produces = model.getProduces();
       if (produces.size() > 0) {
         route.setProduces(produces);
       }
 
-      Set<MediaType> consumes = mvcAnnotations.consumes(method.getMethod());
+      List<MediaType> consumes = model.getConsumes();
       if (consumes.size() > 0) {
         route.setConsumes(consumes);
       }
@@ -589,13 +587,13 @@ public class RouterImpl implements Router {
     Stream.of(type.getDeclaredMethods())
         .forEach(method -> {
           if (Modifier.isPublic(method.getModifiers())) {
-            mvcAnnotations.httpMethod(method).forEach(httpMethod -> {
-              String[] paths = pathPrefix(prefix, path(method));
+            annotationParser.parse(method).forEach(model -> {
+              String[] paths = pathPrefix(prefix, model.getPath());
               for (String path : paths) {
                 MvcMethod mvc = mvcMetadata.create(method);
                 mvc.setPattern(path);
+                mvc.setModel(model);
                 mvc.setMethod(method);
-                mvc.setHttpMethod(httpMethod);
                 routes.add(mvc);
               }
             });
@@ -617,33 +615,9 @@ public class RouterImpl implements Router {
     return result;
   }
 
-  private String[] path(Method m) {
-    String[] path = mvcAnnotations.pathPattern(m);
-    String[] root = mvcAnnotations.pathPattern(m.getDeclaringClass());
-    if (root == null) {
-      if (path == null) {
-        return new String[]{"/"};
-      }
-      return path;
-    }
-    if (path == null) {
-      return root;
-    }
-    String[] result = new String[root.length * path.length];
-    int k = 0;
-
-    for (String base : root) {
-      for (String element : path) {
-        result[k] = base + "/" + element;
-        k += 1;
-      }
-    }
-    return result;
-  }
-
   private void checkMvcAnnotations() {
-    if (mvcAnnotations == null) {
-      mvcAnnotations = MvcAnnotation.create(source.getLoader());
+    if (annotationParser == null) {
+      annotationParser = MvcAnnotationParser.create(source.getLoader());
     }
   }
 }

@@ -134,10 +134,9 @@ public class MvcCompiler {
       Multipart.class
   ));
 
-  public static Class<? extends MvcHandler> compileClass(MvcMethod method,
-      MvcAnnotation mvcAnnotation)
+  public static Class<? extends MvcHandler> compileClass(MvcMethod method)
       throws ClassNotFoundException {
-    byte[] bytes = compile(method, mvcAnnotation);
+    byte[] bytes = compile(method);
     return (Class<? extends MvcHandler>) new ClassLoader() {
       @Override protected Class<?> findClass(String name) {
         return defineClass(name, bytes, 0, bytes.length);
@@ -145,7 +144,7 @@ public class MvcCompiler {
     }.loadClass(method.getHandlerName());
   }
 
-  public static byte[] compile(MvcMethod metadata, MvcAnnotation mvcAnnotation) {
+  public static byte[] compile(MvcMethod metadata) {
     Method method = metadata.getMethod();
     String descriptor = getMethodDescriptor(method);
     Type owner = getType(method.getDeclaringClass());
@@ -187,7 +186,7 @@ public class MvcCompiler {
     /** Param methods: */
     Parameter[] parameters = method.getParameters();
     for (int i = 0; i < parameters.length; i++) {
-      tryParam(metadata, mvcAnnotation, writer, parameters[i], i);
+      tryParam(metadata, writer, parameters[i], i);
     }
 
     /** Arguments: */
@@ -332,8 +331,7 @@ public class MvcCompiler {
         .getParameterizedType().getTypeName() + "'";
   }
 
-  private static void tryParam(MvcMethod metadata, MvcAnnotation mvcAnnotation, ClassWriter writer,
-      Parameter parameter,
+  private static void tryParam(MvcMethod metadata, ClassWriter writer, Parameter parameter,
       int index) {
     Class type = parameter.getType();
     MethodVisitor visitor = writer.visitMethod(ACC_PRIVATE, metadata.getParameterName(index),
@@ -354,7 +352,7 @@ public class MvcCompiler {
     visitor.visitTryCatchBlock(label0, label1, label3, "java/lang/Exception");
     visitor.visitLabel(label0);
 
-    tryParamBlock(metadata, mvcAnnotation, visitor, parameter, index);
+    tryParamBlock(metadata, visitor, parameter, index);
 
     visitor.visitLabel(label1);
     if (isIntType(type)) {
@@ -388,8 +386,7 @@ public class MvcCompiler {
     visitor.visitEnd();
   }
 
-  private static void tryParamBlock(MvcMethod method, MvcAnnotation mvcAnnotation,
-      MethodVisitor visitor, Parameter parameter,
+  private static void tryParamBlock(MvcMethod method, MethodVisitor visitor, Parameter parameter,
       int index) {
     Class<?> paramClass = parameter.getType();
     java.lang.reflect.Type paramType = parameter.getParameterizedType();
@@ -406,7 +403,7 @@ public class MvcCompiler {
               getMethodDescriptor(VALUE, STRING), true);
         }
         : NOOP;
-    String httpType = httpType(mvcAnnotation, parameter, name, varaccess);
+    String httpType = httpType(method.getModel(), parameter, name, varaccess);
 
     Consumer<MethodVisitor> checkcast = checkCast(visitor, paramClass);
 
@@ -483,22 +480,22 @@ public class MvcCompiler {
     return null;
   }
 
-  private static String httpType(MvcAnnotation mvcAnnotation, Parameter parameter, String name,
+  private static String httpType(MvcAnnotation model, Parameter parameter, String name,
       BiConsumer<String, String> consumer) {
-    if (mvcAnnotation.isPathParam(parameter)) {
-      consumer.accept(paramName(mvcAnnotation, parameter, name), "path");
+    if (model.isPathParam(parameter)) {
+      consumer.accept(paramName(model, parameter, name), "path");
       return "path";
-    } else if (mvcAnnotation.isQueryParam(parameter)) {
-      consumer.accept(paramName(mvcAnnotation, parameter, name), "query");
+    } else if (model.isQueryParam(parameter)) {
+      consumer.accept(paramName(model, parameter, name), "query");
       return "query";
-    } else if (mvcAnnotation.isHeaderParam(parameter)) {
-      consumer.accept(paramName(mvcAnnotation, parameter, name), "header");
+    } else if (model.isHeaderParam(parameter)) {
+      consumer.accept(paramName(model, parameter, name), "header");
       return "header";
-    } else if (mvcAnnotation.isFormParam(parameter)) {
-      consumer.accept(paramName(mvcAnnotation, parameter, name), "multipart");
+    } else if (model.isFormParam(parameter)) {
+      consumer.accept(paramName(model, parameter, name), "multipart");
       return "multipart";
-    } else if (mvcAnnotation.isCookieParam(parameter)) {
-      consumer.accept(paramName(mvcAnnotation, parameter, name), "cookie");
+    } else if (model.isCookieParam(parameter)) {
+      consumer.accept(paramName(model, parameter, name), "cookie");
       return "cookie";
     }
 
@@ -532,7 +529,7 @@ public class MvcCompiler {
   }
 
   private static String paramName(MvcAnnotation annotation, Parameter parameter, String defaults) {
-    String name = annotation.paramName(parameter);
+    String name = annotation.getName(parameter);
     return name == null ? defaults : name;
   }
 
@@ -546,10 +543,9 @@ public class MvcCompiler {
     return type == int.class || type == boolean.class || type == byte.class || type == short.class;
   }
 
-  public static Route.Handler newHandler(ClassLoader loader, MvcMethod metadata, Provider provider,
-      MvcAnnotation mvcAnnotation)
+  public static Route.Handler newHandler(ClassLoader loader, MvcMethod metadata, Provider provider)
       throws Exception {
-    Class<? extends MvcHandler> handler = compileClass(metadata, mvcAnnotation);
+    Class<? extends MvcHandler> handler = compileClass(metadata);
     MvcHandler instance = handler.getDeclaredConstructor(Provider.class)
         .newInstance(provider);
     if (metadata.isSuspendFunction()) {

@@ -1,58 +1,114 @@
-/**
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Copyright 2014 Edgar Espina
- */
 package io.jooby.internal.mvc;
 
 import io.jooby.MediaType;
 import io.jooby.Throwing;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public interface MvcAnnotation {
+public class MvcAnnotation {
+  private String method;
 
-  List<Class<? extends Annotation>> methodAnnotations();
+  private String[] path;
 
-  List<Class<? extends Annotation>> pathAnnotation();
+  private List<MediaType> produces;
 
-  List<Class<? extends Annotation>> paramAnnotations();
+  private List<MediaType> consumes;
 
-  boolean isPathParam(Parameter parameter);
+  private Class<? extends Annotation> headerParam;
 
-  boolean isQueryParam(Parameter parameter);
+  private Class<? extends Annotation> cookieParam;
 
-  boolean isHeaderParam(Parameter parameter);
+  private Class<? extends Annotation> pathParam;
 
-  boolean isCookieParam(Parameter parameter);
+  private Class<? extends Annotation> queryParam;
 
-  boolean isFormParam(Parameter parameter);
+  private Class<? extends Annotation> formParam;
 
-  String[] pathPattern(AnnotatedElement type);
+  public MvcAnnotation(String method, String[] path, String[] produces, String[] consumes) {
+    this.method = method;
+    this.path = path;
+    this.produces = types(produces);
+    this.consumes = types(consumes);
+  }
 
-  default String paramName(AnnotatedElement type) {
+  private List<MediaType> types(String[] values) {
+    if (values == null || values.length == 0) {
+      return Collections.emptyList();
+    }
+    return Stream.of(values)
+        .map(MediaType::valueOf)
+        .collect(Collectors.toList());
+  }
+
+  public String getMethod() {
+    return method;
+  }
+
+  public String[] getPath() {
+    return path;
+  }
+
+  public List<MediaType> getProduces() {
+    return produces;
+  }
+
+  public List<MediaType> getConsumes() {
+    return consumes;
+  }
+
+  public boolean isPathParam(Parameter parameter) {
+    return parameter.getAnnotation(pathParam) != null;
+  }
+
+  public boolean isQueryParam(Parameter parameter) {
+    return parameter.getAnnotation(queryParam) != null;
+  }
+
+  public boolean isHeaderParam(Parameter parameter) {
+    return parameter.getAnnotation(headerParam) != null;
+  }
+
+  public boolean isCookieParam(Parameter parameter) {
+    return parameter.getAnnotation(cookieParam) != null;
+  }
+
+  public boolean isFormParam(Parameter parameter) {
+    return parameter.getAnnotation(formParam) != null;
+  }
+
+  public void setHeaderParam(Class<? extends Annotation> headerParam) {
+    this.headerParam = headerParam;
+  }
+
+  public void setCookieParam(Class<? extends Annotation> cookieParam) {
+    this.cookieParam = cookieParam;
+  }
+
+  public void setPathParam(Class<? extends Annotation> pathParam) {
+    this.pathParam = pathParam;
+  }
+
+  public void setQueryParam(Class<? extends Annotation> queryParam) {
+    this.queryParam = queryParam;
+  }
+
+  public void setFormParam(Class<? extends Annotation> formParam) {
+    this.formParam = formParam;
+  }
+
+  public String getName(Parameter parameter) {
     try {
-      for (Class<? extends Annotation> annotationType : paramAnnotations()) {
-        Annotation annotation = type.getAnnotation(annotationType);
+      Class[] annotations = {headerParam, cookieParam, pathParam, queryParam, formParam};
+      for (Class<? extends Annotation> annotationType : annotations) {
+        Annotation annotation = parameter.getAnnotation(annotationType);
         if (annotation != null) {
-          String name = ((String) annotationType.getDeclaredMethod("value").invoke(annotation)).trim();
+          String name = ((String) annotationType.getDeclaredMethod("value").invoke(annotation))
+              .trim();
           if (name.length() > 0) {
             return name;
           }
@@ -63,101 +119,4 @@ public interface MvcAnnotation {
       throw Throwing.sneakyThrow(x);
     }
   }
-
-  Set<MediaType> produces(Method method);
-
-  Set<MediaType> consumes(Method method);
-
-  default List<String> httpMethod(Method method) {
-    List<String> result = new ArrayList<>();
-    for (Class<? extends Annotation> m : methodAnnotations()) {
-      Annotation annotation = method.getAnnotation(m);
-      if (annotation != null) {
-        result.add(annotation.annotationType().getSimpleName());
-      }
-    }
-    if (result.size() == 0) {
-      for (Class<? extends Annotation> pathAnnotation : pathAnnotation()) {
-        if (method.getAnnotation(pathAnnotation) != null) {
-          result.add("GET");
-        }
-      }
-    }
-    return result;
-  }
-
-  static MvcAnnotation create(ClassLoader loader) {
-    try {
-      loader.loadClass("javax.ws.rs.GET");
-      JaxrsAnnotation jaxrs = new JaxrsAnnotation();
-      DefaultMvcAnnotation def = new DefaultMvcAnnotation();
-      List<Class<? extends Annotation>> methodAnnotations = new ArrayList<>();
-      methodAnnotations.addAll(jaxrs.methodAnnotations());
-      methodAnnotations.addAll(def.methodAnnotations());
-
-      List<Class<? extends Annotation>> pathAnnotation = new ArrayList<>();
-      pathAnnotation.addAll(jaxrs.pathAnnotation());
-      pathAnnotation.addAll(def.pathAnnotation());
-
-      List<Class<? extends Annotation>> paramAnnotations = new ArrayList<>();
-      paramAnnotations.addAll(jaxrs.paramAnnotations());
-      paramAnnotations.addAll(def.paramAnnotations());
-
-      return new MvcAnnotation() {
-        @Override public List<Class<? extends Annotation>> methodAnnotations() {
-          return methodAnnotations;
-        }
-
-        @Override public String[] pathPattern(AnnotatedElement type) {
-          String[] path = jaxrs.pathPattern(type);
-          return path == null ? def.pathPattern(type) : path;
-        }
-
-        @Override public List<Class<? extends Annotation>> pathAnnotation() {
-          return pathAnnotation;
-        }
-
-        @Override public List<Class<? extends Annotation>> paramAnnotations() {
-          return paramAnnotations;
-        }
-
-        @Override public boolean isPathParam(Parameter parameter) {
-          return jaxrs.isPathParam(parameter) || def.isPathParam(parameter);
-        }
-
-        @Override public boolean isCookieParam(Parameter parameter) {
-          return jaxrs.isCookieParam(parameter) || def.isCookieParam(parameter);
-        }
-
-        @Override public boolean isQueryParam(Parameter parameter) {
-          return jaxrs.isQueryParam(parameter) || def.isQueryParam(parameter);
-        }
-
-        @Override public boolean isHeaderParam(Parameter parameter) {
-          return jaxrs.isHeaderParam(parameter) || def.isHeaderParam(parameter);
-        }
-
-        @Override public boolean isFormParam(Parameter parameter) {
-          return jaxrs.isFormParam(parameter) || def.isFormParam(parameter);
-        }
-
-        @Override public Set<MediaType> produces(Method method) {
-          Set<MediaType> result = new LinkedHashSet<>();
-          result.addAll(jaxrs.produces(method));
-          result.addAll(def.produces(method));
-          return result;
-        }
-
-        @Override public Set<MediaType> consumes(Method method) {
-          Set<MediaType> result = new LinkedHashSet<>();
-          result.addAll(jaxrs.consumes(method));
-          result.addAll(def.consumes(method));
-          return result;
-        }
-      };
-    } catch (ClassNotFoundException x) {
-      return new DefaultMvcAnnotation();
-    }
-  }
-
 }
