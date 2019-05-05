@@ -26,6 +26,7 @@
     <module>jooby-weld</module>
     <module>jooby-run</module>
     <module>jooby-maven-plugin</module>
+    <module>jooby-gradle-plugin</module>
   </modules>
 
 </project>

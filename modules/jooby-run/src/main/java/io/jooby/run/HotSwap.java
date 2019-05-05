@@ -83,7 +83,7 @@ public class HotSwap {
     private final Logger logger;
     private final ExtModuleLoader loader;
     private final String projectName;
-    private final String mainClass;
+    private String mainClass;
     private final String executionMode;
     private Module module;
     private Server server;
@@ -116,7 +116,13 @@ public class HotSwap {
         App app = new App(createApp.invoke(null, new String[0], executionModeValue, appClass));
         server = app.start();
       } catch (Exception x) {
-        logger.error("Unable to start: {}", mainClass, x);
+        Throwable cause;
+        if (x instanceof InvocationTargetException) {
+          cause = x.getCause();
+        } else {
+          cause = x;
+        }
+        logger.error("Unable to start: {}", mainClass, cause);
       } finally {
         Thread.currentThread().setContextClassLoader(contextClassLoader);
       }
@@ -177,7 +183,12 @@ public class HotSwap {
 
   public HotSwap(String projectName, String mainClass, String executionMode) {
     this.projectName = projectName;
-    this.mainClass = mainClass;
+    if (mainClass.endsWith("Kt")) {
+      // Assume it is a kotlin class.
+      this.mainClass = mainClass.substring(0, mainClass.length() - 2);
+    } else {
+      this.mainClass = mainClass;
+    }
     this.executionMode = executionMode;
   }
 
@@ -194,13 +205,15 @@ public class HotSwap {
   }
 
   public void addWatch(Path path, BiConsumer<String, Path> callback) {
-    watchDirs.put(path, callback);
+    if (Files.exists(path)) {
+      watchDirs.put(path, callback);
+    }
   }
 
   public void start() throws Exception {
     this.watcher = newWatcher();
     try {
-      logger.debug("project: {}", toString());
+      logger.info("project: {}", toString());
 
       ModuleFinder[] finders = finders(false);
 

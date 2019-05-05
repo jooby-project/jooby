@@ -15,6 +15,7 @@
  */
 package io.jooby;
 
+import com.typesafe.config.Config;
 import io.jooby.internal.RouterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 
 @Mojo(name = "run", threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
 @Execute(phase = LifecyclePhase.TEST)
-public class RunMojo extends AbstractMojo {
+public class JoobyRun extends AbstractMojo {
 
   static {
     System.setProperty("jooby.useShutdownHook", "false");
@@ -124,13 +124,19 @@ public class RunMojo extends AbstractMojo {
       for (MavenProject project : projects) {
         getLog().debug("Adding project: " + project.getArtifactId());
 
-        // public / conf, etc..
+        // main/resources, etc..
         List<Resource> resourceList = project.getResources();
         resourceList.stream()
             .map(Resource::getDirectory)
             .map(Paths::get)
-            .filter(Files::exists)
-            .forEach(hotSwap::addResource);
+            .forEach(file -> {
+              hotSwap.addResource(file);
+              hotSwap.addWatch(file, onFileChanged);
+            });
+        // conf directory
+        Path conf = project.getBasedir().toPath().resolve("conf");
+        hotSwap.addResource(conf);
+        hotSwap.addWatch(conf, onFileChanged);
 
         // target/classes
         hotSwap.addResource(Paths.get(project.getBuild().getOutputDirectory()));
@@ -268,16 +274,7 @@ public class RunMojo extends AbstractMojo {
       // let eclipse to do the incremental compilation
       return Collections.emptySet();
     }
-    Set<Path> result = new LinkedHashSet<>();
-    result.add(Paths.get(project.getBuild().getSourceDirectory()));
-    List<Resource> resourceList = project.getResources();
-    resourceList.stream()
-        .map(Resource::getDirectory)
-        .map(Paths::get)
-        .forEach(result::add);
-    // conf directory
-    result.add(project.getBasedir().toPath().resolve("conf"));
-    return result;
+    return Collections.singleton(Paths.get(project.getBuild().getSourceDirectory()));
   }
 
   private Set<Path> binDirectories(final MavenProject project) {
