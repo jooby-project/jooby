@@ -45,7 +45,7 @@ public interface MvcAnnotation {
 
   boolean isFormParam(Parameter parameter);
 
-  String pathPattern(AnnotatedElement type);
+  String[] pathPattern(AnnotatedElement type);
 
   default String paramName(AnnotatedElement type) {
     try {
@@ -108,8 +108,8 @@ public interface MvcAnnotation {
           return methodAnnotations;
         }
 
-        @Override public String pathPattern(AnnotatedElement type) {
-          String path = jaxrs.pathPattern(type);
+        @Override public String[] pathPattern(AnnotatedElement type) {
+          String[] path = jaxrs.pathPattern(type);
           return path == null ? def.pathPattern(type) : path;
         }
 

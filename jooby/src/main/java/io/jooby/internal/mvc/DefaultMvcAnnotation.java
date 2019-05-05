@@ -68,9 +68,9 @@ public class DefaultMvcAnnotation implements MvcAnnotation {
     return Collections.singletonList(Path.class);
   }
 
-  @Override public String pathPattern(AnnotatedElement type) {
+  @Override public String[] pathPattern(AnnotatedElement type) {
     Path path = type.getAnnotation(Path.class);
-    return path == null ? null : path.value()[0];
+    return path == null ? null : path.value();
   }
 
   @Override public boolean isQueryParam(Parameter parameter) {

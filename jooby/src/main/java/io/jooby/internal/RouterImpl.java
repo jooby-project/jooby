@@ -44,6 +44,7 @@ import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -71,15 +72,10 @@ public class RouterImpl implements Router {
     private String pattern;
     private Executor executor;
     private List<Route.Decorator> filters = new ArrayList<>();
-    private List<Renderer> renderers = new ArrayList<>();
     private List<Route.After> afters = new ArrayList<>();
 
     public Stack(String pattern) {
       this.pattern = pattern;
-    }
-
-    public void then(Renderer renderer) {
-      renderers.add(renderer);
     }
 
     public void then(Route.Decorator filter) {
@@ -98,13 +94,8 @@ public class RouterImpl implements Router {
       return afters.stream();
     }
 
-    public Stream<Renderer> toRenderer() {
-      return renderers.stream();
-    }
-
     public void clear() {
       this.filters.clear();
-      this.renderers.clear();
       this.afters.clear();
       executor = null;
     }
@@ -132,7 +123,6 @@ public class RouterImpl implements Router {
       throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE, contentType.getValue());
     }
   };
-
 
   private ErrorHandler err;
 
@@ -593,7 +583,6 @@ public class RouterImpl implements Router {
   }
 
   private void find(String prefix, Class type, Throwing.Consumer<MvcMethod> consumer) {
-    String classPath = prefix == null ? path(type) : prefix + "/" + path(type);
     MvcMetadata mvcMetadata = new MvcMetadata(source);
     mvcMetadata.parse(type);
     List<MvcMethod> routes = new ArrayList<>();
@@ -601,11 +590,14 @@ public class RouterImpl implements Router {
         .forEach(method -> {
           if (Modifier.isPublic(method.getModifiers())) {
             mvcAnnotations.httpMethod(method).forEach(httpMethod -> {
-              MvcMethod mvc = mvcMetadata.get(method);
-              mvc.setPattern(classPath + "/" + path(method));
-              mvc.setMethod(method);
-              mvc.setHttpMethod(httpMethod);
-              routes.add(mvc);
+              String[] paths = pathPrefix(prefix, path(method));
+              for (String path : paths) {
+                MvcMethod mvc = mvcMetadata.create(method);
+                mvc.setPattern(path);
+                mvc.setMethod(method);
+                mvc.setHttpMethod(httpMethod);
+                routes.add(mvc);
+              }
             });
           }
         });
@@ -614,9 +606,38 @@ public class RouterImpl implements Router {
     mvcMetadata.destroy();
   }
 
-  private String path(AnnotatedElement type) {
-    String path = mvcAnnotations.pathPattern(type);
-    return path == null ? "" : path;
+  private String[] pathPrefix(String prefix, String[] path) {
+    if (prefix == null) {
+      return path;
+    }
+    String[] result = new String[path.length];
+    for (int i = 0; i < path.length; i++) {
+      result[i] = prefix + "/" + path[i];
+    }
+    return result;
+  }
+
+  private String[] path(Method m) {
+    String[] path = mvcAnnotations.pathPattern(m);
+    String[] root = mvcAnnotations.pathPattern(m.getDeclaringClass());
+    if (root == null) {
+      if (path == null) {
+        return new String[] {"/"};
+      }
+      return path;
+    }
+    if (path == null) {
+      return root;
+    }
+    String[] result = new String[root.length * path.length];
+    int k = 0;
+    for (String base : root) {
+      for (String element : path) {
+        result[k] = base + "/" + element;
+        k += 1;
+      }
+    }
+    return result;
   }
 
   private void checkMvcAnnotations() {

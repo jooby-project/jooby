@@ -64,9 +64,9 @@ public class JaxrsAnnotation implements MvcAnnotation {
     return M_ANN;
   }
 
-  @Override public String pathPattern(AnnotatedElement type) {
+  @Override public String[] pathPattern(AnnotatedElement type) {
     Path path = type.getAnnotation(Path.class);
-    return path == null ? null : path.value();
+    return path == null ? null : new String[]{path.value()};
   }
 
   @Override public List<Class<? extends Annotation>> pathAnnotation() {

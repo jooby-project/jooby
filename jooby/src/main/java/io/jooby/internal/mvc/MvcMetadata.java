@@ -43,7 +43,7 @@ public class MvcMetadata {
     reader.accept(visitor(metadata), 0);
   }
 
-  public MvcMethod get(Method method) {
+  public MvcMethod create(Method method) {
     String key =
         Type.getType(method.getDeclaringClass()).getInternalName() + "." + method.getName() + Type
             .getMethodDescriptor(method);
