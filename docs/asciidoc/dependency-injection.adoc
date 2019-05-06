@@ -336,7 +336,7 @@ The lifecycle of `MyController` is now managed by Guice. Also:
 package myapp;                                       <1>
 
 import static io.jooby.Jooby.runApp;
-import io.jooby.di.Springby;
+import io.jooby.di.Spring;
 
 public class App extends Jooby {
 
@@ -361,7 +361,7 @@ public class App extends Jooby {
 package myapp                                        <1>
 
 import io.jooby.runApp
-import io.jooby.di.Springby
+import io.jooby.di.Spring
 
 fun main(args: Array<String>) {
   runApp(args) {

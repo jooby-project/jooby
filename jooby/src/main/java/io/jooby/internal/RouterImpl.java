@@ -438,8 +438,6 @@ public class RouterImpl implements Router {
     routeExecutor = null;
     source.destroy();
     source = null;
-    resources.clear();
-    resources = null;
     return this;
   }
 

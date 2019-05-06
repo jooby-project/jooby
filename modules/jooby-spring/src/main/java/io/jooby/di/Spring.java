@@ -27,8 +27,9 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
-public class Springby implements Extension {
+public class Spring implements Extension {
 
   private AnnotationConfigApplicationContext applicationContext;
 
@@ -38,25 +39,25 @@ public class Springby implements Extension {
 
   private String[] packages;
 
-  public Springby(@Nonnull AnnotationConfigApplicationContext applicationContext) {
+  public Spring(@Nonnull AnnotationConfigApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
   }
 
-  public Springby() {
+  public Spring() {
     this.applicationContext = null;
   }
 
-  public Springby(String... packages) {
+  public Spring(String... packages) {
     this.applicationContext = null;
     this.packages = packages;
   }
 
-  public Springby noRefresh() {
+  public Spring noRefresh() {
     this.refresh = false;
     return this;
   }
 
-  public Springby noMvcRoutes() {
+  public Spring noMvcRoutes() {
     this.registerMvcRoutes = false;
     return this;
   }
@@ -68,7 +69,7 @@ public class Springby implements Extension {
         String basePackage = application.getBasePackage();
         if (basePackage == null) {
           throw new IllegalArgumentException(
-              "Springby application context requires at least one package to scan.");
+              "Spring application context requires at least one package to scan.");
         }
         packages = new String[]{basePackage};
       }
@@ -88,6 +89,15 @@ public class Springby implements Extension {
       ConfigurableListableBeanFactory beanFactory = applicationContext.getBeanFactory();
       beanFactory.registerSingleton("config", config);
       beanFactory.registerSingleton("environment", environment);
+
+      application.onStart(() -> {
+        // Add resources:
+        application.getResources().forEach((key, resource) -> {
+          String name = Optional.ofNullable(key.getName())
+              .orElseGet(() -> beanName(key.getType()));
+          beanFactory.registerSingleton(name, resource);
+        });
+      });
 
       application.onStop(applicationContext);
     }
@@ -115,5 +125,11 @@ public class Springby implements Extension {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.scan(packages);
     return context;
+  }
+
+  private String beanName(Class type) {
+    StringBuilder name = new StringBuilder(type.getSimpleName());
+    name.setCharAt(0, Character.toLowerCase(name.charAt(0)));
+    return name.toString();
   }
 }
