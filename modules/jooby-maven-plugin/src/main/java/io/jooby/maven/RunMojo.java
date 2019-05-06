@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 
 @Mojo(name = "run", threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
 @Execute(phase = LifecyclePhase.TEST)
-public class JoobyRun extends AbstractMojo {
+public class RunMojo extends AbstractMojo {
 
   static {
     System.setProperty("jooby.useShutdownHook", "false");
@@ -66,13 +66,16 @@ public class JoobyRun extends AbstractMojo {
   private String mainClass;
 
   @Parameter(defaultValue = "${application.mode}")
-  private String executionMode;
+  private String executionMode = "DEFAULT";
 
   @Parameter(defaultValue = "conf,properties,class")
   private List<String> restartExtensions;
 
   @Parameter(defaultValue = "java,kt")
   private List<String> compileExtensions;
+
+  @Parameter(defaultValue = "${server.port}")
+  private int port = 8080;
 
   @Parameter(defaultValue = "${session}", required = true, readonly = true)
   private MavenSession session;
@@ -95,13 +98,11 @@ public class JoobyRun extends AbstractMojo {
             .orElseThrow(() -> new MojoExecutionException(
                 "Application class not found. Did you forget to set `application.class`?"));
       }
-      if (executionMode == null) {
-        executionMode = "DEFAULT";
-      }
       getLog().debug("Found `" + APP_CLASS + "`: " + mainClass);
 
       HotSwap hotSwap = new HotSwap(session.getCurrentProject().getArtifactId(), mainClass,
           executionMode);
+      hotSwap.setPort(port);
 
       Runtime.getRuntime().addShutdownHook(new Thread(hotSwap::shutdown));
 
@@ -155,13 +156,7 @@ public class JoobyRun extends AbstractMojo {
     } catch (MojoExecutionException | MojoFailureException x) {
       throw x;
     } catch (Exception x) {
-      Throwable cause;
-      if (x instanceof InvocationTargetException) {
-        cause = x.getCause();
-      } else {
-        cause = x;
-      }
-      throw new MojoFailureException("jooby-run resulted in exception", cause);
+      throw new MojoFailureException("jooby-run resulted in exception", x);
     }
   }
 

@@ -16,10 +16,8 @@
 package io.jooby.gradle;
 
 import io.jooby.run.HotSwap;
-import org.gradle.StartParameter;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
@@ -44,17 +42,11 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class JoobyRun extends DefaultTask {
+public class RunTask extends DefaultTask {
 
   static {
     System.setProperty("jooby.useShutdownHook", "false");
   }
-
-  private String executionMode = "DEFAULT";
-
-  private List<String> restartExtensions = Arrays.asList("conf", "properties", "class");
-
-  private List<String> compileExtensions = Arrays.asList("java", "kt");
 
   private ProjectConnection connection;
 
@@ -62,6 +54,7 @@ public class JoobyRun extends DefaultTask {
   public void run() throws Throwable {
     try {
       Project current = getProject();
+      RunTaskConfig config = current.getExtensions().getByType(RunTaskConfig.class);
       List<Project> projects = Arrays.asList(current);
 
       String mainClass = projects.stream()
@@ -71,7 +64,8 @@ public class JoobyRun extends DefaultTask {
           .orElseThrow(() -> new IllegalArgumentException(
               "Application class not found. Did you forget to set `mainClassName`?"));
 
-      HotSwap hotSwap = new HotSwap(current.getName(), mainClass, executionMode);
+      HotSwap hotSwap = new HotSwap(current.getName(), mainClass, config.getExecutionMode());
+      hotSwap.setPort(config.getPort());
 
       connection = GradleConnector.newConnector()
           .useInstallation(current.getGradle().getGradleHomeDir())
@@ -89,7 +83,7 @@ public class JoobyRun extends DefaultTask {
       }));
 
       BiConsumer<String, Path> onFileChanged = (event, path) -> {
-        if (isCompileExtension(path)) {
+        if (config.isCompileExtension(path)) {
           compiler.run(new ResultHandler<Void>() {
             @Override public void onComplete(Void result) {
               getLogger().debug("Restarting application on file change: " + path);
@@ -100,7 +94,7 @@ public class JoobyRun extends DefaultTask {
               getLogger().debug("Compilation error found: " + path);
             }
           });
-        } else if (isRestartExtension(path)) {
+        } else if (config.isRestartExtension(path)) {
           getLogger().debug("Restarting application on file change: " + path);
           hotSwap.restart();
         } else {
@@ -186,42 +180,5 @@ public class JoobyRun extends DefaultTask {
 
   public JavaPluginConvention getJavaConvention(final Project project) {
     return project.getConvention().getPlugin(JavaPluginConvention.class);
-  }
-
-  private boolean isCompileExtension(Path path) {
-    return containsExtension(compileExtensions, path);
-  }
-
-  private boolean isRestartExtension(Path path) {
-    return containsExtension(restartExtensions, path);
-  }
-
-  private boolean containsExtension(List<String> extensions, Path path) {
-    String filename = path.getFileName().toString();
-    return extensions.stream().anyMatch(ext -> filename.endsWith("." + ext));
-  }
-
-  public String getExecutionMode() {
-    return executionMode;
-  }
-
-  public void setExecutionMode(String executionMode) {
-    this.executionMode = executionMode;
-  }
-
-  public List<String> getRestartExtensions() {
-    return restartExtensions;
-  }
-
-  public void setRestartExtensions(List<String> restartExtensions) {
-    this.restartExtensions = restartExtensions;
-  }
-
-  public List<String> getCompileExtensions() {
-    return compileExtensions;
-  }
-
-  public void setCompileExtensions(List<String> compileExtensions) {
-    this.compileExtensions = compileExtensions;
   }
 }

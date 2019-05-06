@@ -88,13 +88,15 @@ public class HotSwap {
     private Module module;
     private Server server;
     private ClassLoader contextClassLoader;
+    private int port;
 
     public AppModule(Logger logger, ExtModuleLoader loader, String projectName, String mainClass,
-        String executionMode, ClassLoader contextClassLoader) {
+        int port, String executionMode, ClassLoader contextClassLoader) {
       this.logger = logger;
       this.loader = loader;
       this.projectName = projectName;
       this.mainClass = mainClass;
+      this.port = port;
       this.executionMode = executionMode;
       this.contextClassLoader = contextClassLoader;
     }
@@ -113,10 +115,11 @@ public class HotSwap {
 
         Class appClass = classLoader.loadClass(mainClass);
         Enum executionModeValue = Enum.valueOf(executionModeClass, executionMode.toUpperCase());
-        App app = new App(createApp.invoke(null, new String[0], executionModeValue, appClass));
+        App app = new App(createApp
+            .invoke(null, new String[]{"server.port=" + port}, executionModeValue, appClass));
         server = app.start();
       } catch (Exception x) {
-        logger.error("Unable to start: {}", mainClass, withoutReflection(x));
+        logger.error("execution of {} resulted in exception", mainClass, withoutReflection(x));
       } finally {
         Thread.currentThread().setContextClassLoader(contextClassLoader);
       }
@@ -133,11 +136,12 @@ public class HotSwap {
     }
 
     private Throwable withoutReflection(Throwable cause) {
-      while(cause instanceof ReflectiveOperationException) {
+      while (cause instanceof ReflectiveOperationException) {
         cause = cause.getCause();
       }
       return cause;
     }
+
     private void unloadModule() {
       try {
         if (module != null) {
@@ -181,6 +185,8 @@ public class HotSwap {
 
   private AppModule module;
 
+  private int port = 8080;
+
   public HotSwap(String projectName, String mainClass, String executionMode) {
     this.projectName = projectName;
     if (mainClass.endsWith("Kt")) {
@@ -222,13 +228,21 @@ public class HotSwap {
       ModuleFinder[] finders = {new FlattenClasspath(projectName, resources, dependencies)};
 
       ExtModuleLoader loader = new ExtModuleLoader(finders);
-      module = new AppModule(logger, loader, projectName, mainClass, executionMode,
+      module = new AppModule(logger, loader, projectName, mainClass, port, executionMode,
           Thread.currentThread().getContextClassLoader());
       module.start();
       watcher.watch();
     } catch (ClosedWatchServiceException expected) {
       logger.trace("Watcher.close resulted in exception", expected);
     }
+  }
+
+  public int getPort() {
+    return port;
+  }
+
+  public void setPort(int port) {
+    this.port = port;
   }
 
   public void restart() {
