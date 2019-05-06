@@ -42,6 +42,7 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.graph.Dependency;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -91,7 +92,8 @@ public class JoobyRun extends AbstractMojo {
             .filter(it -> it.getProperties().containsKey(APP_CLASS))
             .findFirst()
             .map(it -> it.getProperties().getProperty(APP_CLASS))
-            .orElseThrow(() -> new MojoExecutionException("Application class not found"));
+            .orElseThrow(() -> new MojoExecutionException(
+                "Application class not found. Did you forget to set `application.class`?"));
       }
       if (executionMode == null) {
         executionMode = "DEFAULT";
@@ -153,7 +155,13 @@ public class JoobyRun extends AbstractMojo {
     } catch (MojoExecutionException | MojoFailureException x) {
       throw x;
     } catch (Exception x) {
-      throw new MojoFailureException("jooby-run resulted in exception", x);
+      Throwable cause;
+      if (x instanceof InvocationTargetException) {
+        cause = x.getCause();
+      } else {
+        cause = x;
+      }
+      throw new MojoFailureException("jooby-run resulted in exception", cause);
     }
   }
 

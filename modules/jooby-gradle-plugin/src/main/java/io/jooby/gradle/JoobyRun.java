@@ -31,6 +31,7 @@ import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.ResultHandler;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -58,82 +59,87 @@ public class JoobyRun extends DefaultTask {
   private ProjectConnection connection;
 
   @TaskAction
-  public void run() throws Exception {
-    Project current = getProject();
-    List<Project> projects = Arrays.asList(current);
+  public void run() throws Throwable {
+    try {
+      Project current = getProject();
+      List<Project> projects = Arrays.asList(current);
 
-    String mainClass = projects.stream()
-        .filter(it -> it.getProperties().containsKey("mainClassName"))
-        .map(it -> it.getProperties().get("mainClassName").toString())
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException(
-            "Application class not found. Did you forget to set `mainClassName`?"));
+      String mainClass = projects.stream()
+          .filter(it -> it.getProperties().containsKey("mainClassName"))
+          .map(it -> it.getProperties().get("mainClassName").toString())
+          .findFirst()
+          .orElseThrow(() -> new IllegalArgumentException(
+              "Application class not found. Did you forget to set `mainClassName`?"));
 
-    HotSwap hotSwap = new HotSwap(current.getName(), mainClass, executionMode);
+      HotSwap hotSwap = new HotSwap(current.getName(), mainClass, executionMode);
 
-    connection = GradleConnector.newConnector()
-        .useInstallation(current.getGradle().getGradleHomeDir())
-        .forProjectDirectory(current.getRootDir())
-        .connect();
+      connection = GradleConnector.newConnector()
+          .useInstallation(current.getGradle().getGradleHomeDir())
+          .forProjectDirectory(current.getRootDir())
+          .connect();
 
-    BuildLauncher compiler = connection.newBuild()
-        .setStandardError(System.err)
-        .setStandardOutput(System.out)
-        .forTasks("classes");
+      BuildLauncher compiler = connection.newBuild()
+          .setStandardError(System.err)
+          .setStandardOutput(System.out)
+          .forTasks("classes");
 
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      hotSwap.shutdown();
-      connection.close();
-    }));
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        hotSwap.shutdown();
+        connection.close();
+      }));
 
-    BiConsumer<String, Path> onFileChanged = (event, path) -> {
-      if (isCompileExtension(path)) {
-        compiler.run(new ResultHandler<Void>() {
-          @Override public void onComplete(Void result) {
-            getLogger().debug("Restarting application on file change: " + path);
-            hotSwap.restart();
-          }
+      BiConsumer<String, Path> onFileChanged = (event, path) -> {
+        if (isCompileExtension(path)) {
+          compiler.run(new ResultHandler<Void>() {
+            @Override public void onComplete(Void result) {
+              getLogger().debug("Restarting application on file change: " + path);
+              hotSwap.restart();
+            }
 
-          @Override public void onFailure(GradleConnectionException failure) {
-            getLogger().debug("Compilation error found: " + path);
-          }
-        });
-      } else if (isRestartExtension(path)) {
-        getLogger().debug("Restarting application on file change: " + path);
-        hotSwap.restart();
-      } else {
-        getLogger().debug("Ignoring file change: " + path);
+            @Override public void onFailure(GradleConnectionException failure) {
+              getLogger().debug("Compilation error found: " + path);
+            }
+          });
+        } else if (isRestartExtension(path)) {
+          getLogger().debug("Restarting application on file change: " + path);
+          hotSwap.restart();
+        } else {
+          getLogger().debug("Ignoring file change: " + path);
+        }
+      };
+
+      for (Project project : projects) {
+        getLogger().debug("Adding project: " + project.getName());
+
+        SourceSet sourceSet = sourceSet(project);
+        // main/resources
+        sourceSet.getResources().getSrcDirs().stream()
+            .map(File::toPath)
+            .forEach(file -> hotSwap.addResource(file, onFileChanged));
+        // conf directory
+        Path conf = project.getProjectDir().toPath().resolve("conf");
+        hotSwap.addResource(conf, onFileChanged);
+
+        // build classes
+        binDirectories(project, sourceSet).forEach(hotSwap::addResource);
+
+        Set<Path> src = sourceDirectories(project, sourceSet);
+        if (src.isEmpty()) {
+          getLogger().debug("Compiler is off in favor of Eclipse compiler.");
+          binDirectories(project, sourceSet)
+              .forEach(path -> hotSwap.addResource(path, onFileChanged));
+        } else {
+          src.forEach(path -> hotSwap.addResource(path, onFileChanged));
+        }
+
+        dependencies(project, sourceSet).forEach(hotSwap::addResource);
       }
-    };
 
-    for (Project project : projects) {
-      getLogger().debug("Adding project: " + project.getName());
-
-      SourceSet sourceSet = sourceSet(project);
-      // main/resources
-      sourceSet.getResources().getSrcDirs().stream()
-          .map(File::toPath)
-          .forEach(file -> hotSwap.addResource(file, onFileChanged));
-      // conf directory
-      Path conf = project.getProjectDir().toPath().resolve("conf");
-      hotSwap.addResource(conf, onFileChanged);
-
-      // build classes
-      binDirectories(project, sourceSet).forEach(hotSwap::addResource);
-
-      Set<Path> src = sourceDirectories(project, sourceSet);
-      if (src.isEmpty()) {
-        getLogger().debug("Compiler is off in favor of Eclipse compiler.");
-        binDirectories(project, sourceSet).forEach(path -> hotSwap.addResource(path, onFileChanged));
-      } else {
-        src.forEach(path -> hotSwap.addResource(path, onFileChanged));
-      }
-
-      dependencies(project, sourceSet).forEach(hotSwap::addResource);
+      // Block current thread.
+      hotSwap.start();
+    } catch (InvocationTargetException x) {
+      throw x.getCause();
     }
-
-    // Block current thread.
-    hotSwap.start();
   }
 
   private Set<Path> binDirectories(Project project, SourceSet sourceSet) {

@@ -116,13 +116,7 @@ public class HotSwap {
         App app = new App(createApp.invoke(null, new String[0], executionModeValue, appClass));
         server = app.start();
       } catch (Exception x) {
-        Throwable cause;
-        if (x instanceof InvocationTargetException) {
-          cause = x.getCause();
-        } else {
-          cause = x;
-        }
-        logger.error("Unable to start: {}", mainClass, cause);
+        logger.error("Unable to start: {}", mainClass, withoutReflection(x));
       } finally {
         Thread.currentThread().setContextClassLoader(contextClassLoader);
       }
@@ -138,6 +132,12 @@ public class HotSwap {
       closeServer();
     }
 
+    private Throwable withoutReflection(Throwable cause) {
+      while(cause instanceof ReflectiveOperationException) {
+        cause = cause.getCause();
+      }
+      return cause;
+    }
     private void unloadModule() {
       try {
         if (module != null) {
@@ -219,7 +219,7 @@ public class HotSwap {
     try {
       logger.debug("project: {}", toString());
 
-      ModuleFinder[] finders = finders(false);
+      ModuleFinder[] finders = {new FlattenClasspath(projectName, resources, dependencies)};
 
       ExtModuleLoader loader = new ExtModuleLoader(finders);
       module = new AppModule(logger, loader, projectName, mainClass, executionMode,
@@ -259,13 +259,6 @@ public class HotSwap {
         .paths(paths)
         .listener(event -> onFileChange(event.eventType(), event.path()))
         .build();
-  }
-
-  private ModuleFinder[] finders(boolean flatten) {
-    if (flatten) {
-      return new ModuleFinder[]{new FlattenClasspath(projectName, resources, dependencies)};
-    }
-    return new ModuleFinder[]{new ProjectClasspath(projectName, resources, dependencies)};
   }
 
   @Override public String toString() {

@@ -16,6 +16,8 @@
 package io.jooby.run;
 
 import org.jboss.modules.DependencySpec;
+import org.jboss.modules.Module;
+import org.jboss.modules.ModuleDependencySpec;
 import org.jboss.modules.ModuleDependencySpecBuilder;
 import org.jboss.modules.ModuleLoadException;
 import org.jboss.modules.ModuleSpec;
@@ -26,8 +28,10 @@ import org.jboss.modules.filter.PathFilters;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.jar.JarFile;
 
 import static org.jboss.modules.ResourceLoaderSpec.createResourceLoaderSpec;
@@ -45,28 +49,29 @@ public class Specs {
         .build();
   }
 
-  public static ModuleSpec spec(String name, Set<Path> resources, Set<String> dependencies) throws ModuleLoadException {
+  public static ModuleSpec spec(String name, Set<Path> resources, Set<String> dependencies)
+      throws ModuleLoadException {
     try {
-      ModuleSpec.Builder bld = ModuleSpec.build(name);
-      for (Path path : new LinkedHashSet<>(resources)) {
+      ModuleSpec.Builder builder = ModuleSpec.build(name);
+      for (Path path : resources) {
         if (Files.isDirectory(path)) {
-          bld.addResourceRoot(ResourceLoaderSpec
+          builder.addResourceRoot(ResourceLoaderSpec
               .createResourceLoaderSpec(createPathResourceLoader(path)));
         } else {
-          bld.addResourceRoot(
+          builder.addResourceRoot(
               createResourceLoaderSpec(createJarResourceLoader(new JarFile(path.toFile()))));
         }
       }
 
       //needed, so that the module can load classes from the resource root
-      bld.addDependency(DependencySpec.createLocalDependencySpec());
+      builder.addDependency(DependencySpec.createLocalDependencySpec());
       //add dependency on the JDK paths
-      bld.addDependency(DependencySpec.createSystemDependencySpec(PathUtils.getPathSet(null)));
+      builder.addDependency(DependencySpec.createSystemDependencySpec(PathUtils.getPathSet(null)));
       // dependencies
-      for (String dependency : new LinkedHashSet<>(dependencies)) {
-        bld.addDependency(Specs.metaInf(dependency));
+      for (String dependency : dependencies) {
+        builder.addDependency(Specs.metaInf(dependency));
       }
-      return bld.create();
+      return builder.create();
     } catch (IOException x) {
       throw new ModuleLoadException(name, x);
     }

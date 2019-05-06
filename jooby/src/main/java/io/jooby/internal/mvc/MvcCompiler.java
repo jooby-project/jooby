@@ -20,6 +20,7 @@ import io.jooby.Formdata;
 import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Route;
+import io.jooby.Throwing;
 import io.jooby.Value;
 import io.jooby.internal.ValueInjector;
 import io.jooby.internal.reflect.$Types;
@@ -30,15 +31,22 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import javax.inject.Provider;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
+import static java.util.Arrays.sort;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
@@ -137,11 +145,16 @@ public class MvcCompiler {
   public static Class<? extends MvcHandler> compileClass(MvcMethod method)
       throws ClassNotFoundException {
     byte[] bytes = compile(method);
-    return (Class<? extends MvcHandler>) new ClassLoader() {
-      @Override protected Class<?> findClass(String name) {
-        return defineClass(name, bytes, 0, bytes.length);
+    String handlername = method.getHandlerName();
+    ClassLoader parent = method.getClass().getClassLoader();
+    return (Class<? extends MvcHandler>) new ClassLoader(parent) {
+      @Override protected Class<?> findClass(String name) throws ClassNotFoundException {
+        if (handlername.equals(name)) {
+          return defineClass(name, bytes, 0, bytes.length);
+        }
+        return super.findClass(name);
       }
-    }.loadClass(method.getHandlerName());
+    }.loadClass(handlername);
   }
 
   public static byte[] compile(MvcMethod metadata) {
