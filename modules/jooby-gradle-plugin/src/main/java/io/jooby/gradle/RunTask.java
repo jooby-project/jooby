@@ -64,7 +64,7 @@ public class RunTask extends DefaultTask {
           .orElseThrow(() -> new IllegalArgumentException(
               "Application class not found. Did you forget to set `mainClassName`?"));
 
-      HotSwap hotSwap = new HotSwap(current.getName(), mainClass, config.getExecutionMode());
+      HotSwap hotSwap = new HotSwap(current.getName(), mainClass);
       hotSwap.setPort(config.getPort());
 
       connection = GradleConnector.newConnector()

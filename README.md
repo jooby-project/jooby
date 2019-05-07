@@ -40,7 +40,7 @@ fun main(args: Array<String>) {
 
 ```
 
-Lof more at [https://jooby.io](https://jooby.io)
+More at website  [https://jooby.io](https://jooby.io)
 
 author
 =====

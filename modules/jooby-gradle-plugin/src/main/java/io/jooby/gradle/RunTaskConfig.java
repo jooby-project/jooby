@@ -21,8 +21,6 @@ import java.util.List;
 
 public class RunTaskConfig {
 
-  private String executionMode = "DEFAULT";
-
   private List<String> restartExtensions = Arrays.asList("conf", "properties", "class");
 
   private List<String> compileExtensions = Arrays.asList("java", "kt");
@@ -35,14 +33,6 @@ public class RunTaskConfig {
 
   public void setPort(int port) {
     this.port = port;
-  }
-
-  public String getExecutionMode() {
-    return executionMode;
-  }
-
-  public void setExecutionMode(String executionMode) {
-    this.executionMode = executionMode;
   }
 
   public List<String> getRestartExtensions() {

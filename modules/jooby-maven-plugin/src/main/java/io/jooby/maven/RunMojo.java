@@ -65,9 +65,6 @@ public class RunMojo extends AbstractMojo {
   @Parameter(defaultValue = "${application.class}")
   private String mainClass;
 
-  @Parameter(defaultValue = "${application.mode}")
-  private String executionMode = "DEFAULT";
-
   @Parameter(defaultValue = "conf,properties,class")
   private List<String> restartExtensions;
 
@@ -100,8 +97,7 @@ public class RunMojo extends AbstractMojo {
       }
       getLog().debug("Found `" + APP_CLASS + "`: " + mainClass);
 
-      HotSwap hotSwap = new HotSwap(session.getCurrentProject().getArtifactId(), mainClass,
-          executionMode);
+      HotSwap hotSwap = new HotSwap(session.getCurrentProject().getArtifactId(), mainClass);
       hotSwap.setPort(port);
 
       Runtime.getRuntime().addShutdownHook(new Thread(hotSwap::shutdown));

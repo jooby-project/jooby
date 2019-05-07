@@ -17,6 +17,7 @@ package io.jooby;
 
 import com.typesafe.config.Config;
 import io.jooby.internal.RouterImpl;
+import jdk.nashorn.internal.scripts.JO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Spliterator;
 import java.util.concurrent.Executor;
@@ -76,6 +78,8 @@ public class Jooby implements Router, Registry {
   static final String DEF_PCKG = "___def_package__";
 
   static final String APP_NAME = "___app_name__";
+
+  private static final String JOOBY_RUN_HOOK = "___jooby_run_hook__";
 
   private RouterImpl router;
 
@@ -576,6 +580,8 @@ public class Jooby implements Router, Registry {
       mode = ExecutionMode.DEFAULT;
     }
 
+    joobyRunHook(getClass().getClassLoader(), server);
+
     this.startingCallbacks = fire(this.startingCallbacks);
 
     router.start(this);
@@ -719,7 +725,11 @@ public class Jooby implements Router, Registry {
       @Nonnull Supplier<Jooby> provider) {
     Jooby app = createApp(args, executionMode, provider);
     Server server = app.start();
-    server.join();
+    Config conf = app.getConfig();
+    boolean join = conf.hasPath("server.join") ? conf.getBoolean("server.join") : true;
+    if (join) {
+      server.join();
+    }
   }
 
   /**
@@ -833,5 +843,26 @@ public class Jooby implements Router, Registry {
             .map(Throwing.throwingFunction(c -> c.newInstance()))
             .orElseThrow(() -> new IllegalArgumentException(
                 "Default constructor for: " + applicationType.getName()));
+  }
+
+  /**
+   * Check if we are running from joobyRun and invoke a hook class passing the web server.
+   * JoobyRun intercept the server and use it for doing hotswap.
+   */
+  private void joobyRunHook(ClassLoader loader, Server server) {
+    if (loader.getClass().getName().equals("org.jboss.modules.ModuleClassLoader")) {
+      String hookClassname = System.getProperty(JOOBY_RUN_HOOK);
+      System.setProperty(JOOBY_RUN_HOOK, "");
+      if (hookClassname != null && hookClassname.length() > 0) {
+        try {
+          // Skip jooby-run classloader
+          ClassLoader parent = loader.getParent();
+          Consumer consumer = (Consumer) parent.loadClass(hookClassname).newInstance();
+          consumer.accept(server);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException x) {
+          throw Throwing.sneakyThrow(x);
+        }
+      }
+    }
   }
 }

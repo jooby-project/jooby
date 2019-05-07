@@ -25,8 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,34 +37,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 public class HotSwap {
-
-  private static class Server {
-    private Object server;
-
-    public Server(Object server) {
-      this.server = server;
-    }
-
-    public void stop()
-        throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-      Method stop = server.getClass().getDeclaredMethod("stop");
-      stop.invoke(server);
-    }
-  }
-
-  private static class App {
-    private Object app;
-
-    public App(Object app) {
-      this.app = app;
-    }
-
-    private Server start()
-        throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-      Method start = app.getClass().getMethod("start");
-      return new Server(start.invoke(app));
-    }
-  }
 
   private static class ExtModuleLoader extends ModuleLoader {
 
@@ -84,40 +54,30 @@ public class HotSwap {
     private final ExtModuleLoader loader;
     private final String projectName;
     private String mainClass;
-    private final String executionMode;
     private Module module;
-    private Server server;
     private ClassLoader contextClassLoader;
     private int port;
 
     public AppModule(Logger logger, ExtModuleLoader loader, String projectName, String mainClass,
-        int port, String executionMode, ClassLoader contextClassLoader) {
+        int port, ClassLoader contextClassLoader) {
       this.logger = logger;
       this.loader = loader;
       this.projectName = projectName;
       this.mainClass = mainClass;
       this.port = port;
-      this.executionMode = executionMode;
       this.contextClassLoader = contextClassLoader;
     }
 
     public void start() {
       try {
-        module = loader.loadModule(projectName);
+        System.setProperty("___jooby_run_hook__", ServerRef.class.getName());
 
+        module = loader.loadModule(projectName);
         ModuleClassLoader classLoader = module.getClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
 
-        Class joobyClass = classLoader.loadClass("io.jooby.Jooby");
-        Class executionModeClass = classLoader.loadClass("io.jooby.ExecutionMode");
-        Method createApp = joobyClass
-            .getDeclaredMethod("createApp", String[].class, executionModeClass, Class.class);
+        module.run(mainClass, new String[]{"server.port=" + port, "server.join=false"});
 
-        Class appClass = classLoader.loadClass(mainClass);
-        Enum executionModeValue = Enum.valueOf(executionModeClass, executionMode.toUpperCase());
-        App app = new App(createApp
-            .invoke(null, new String[]{"server.port=" + port}, executionModeValue, appClass));
-        server = app.start();
       } catch (Exception x) {
         logger.error("execution of {} resulted in exception", mainClass, withoutReflection(x));
       } finally {
@@ -156,13 +116,9 @@ public class HotSwap {
 
     private void closeServer() {
       try {
-        if (server != null) {
-          server.stop();
-        }
+        ServerRef.stopServer();
       } catch (Exception x) {
-        logger.error("Application shutdown resulted in exception", x);
-      } finally {
-        server = null;
+        logger.error("Application shutdown resulted in exception", withoutReflection(x));
       }
     }
   }
@@ -172,8 +128,6 @@ public class HotSwap {
   private final String projectName;
 
   private final String mainClass;
-
-  private final String executionMode;
 
   private final Set<Path> resources = new LinkedHashSet<>();
 
@@ -187,15 +141,9 @@ public class HotSwap {
 
   private int port = 8080;
 
-  public HotSwap(String projectName, String mainClass, String executionMode) {
+  public HotSwap(String projectName, String mainClass) {
     this.projectName = projectName;
-    if (mainClass.endsWith("Kt")) {
-      // Assume it is a kotlin class.
-      this.mainClass = mainClass.substring(0, mainClass.length() - 2);
-    } else {
-      this.mainClass = mainClass;
-    }
-    this.executionMode = executionMode;
+    this.mainClass = mainClass;
   }
 
   public boolean addResource(Path path, BiConsumer<String, Path> callback) {
@@ -228,7 +176,7 @@ public class HotSwap {
       ModuleFinder[] finders = {new FlattenClasspath(projectName, resources, dependencies)};
 
       ExtModuleLoader loader = new ExtModuleLoader(finders);
-      module = new AppModule(logger, loader, projectName, mainClass, port, executionMode,
+      module = new AppModule(logger, loader, projectName, mainClass, port,
           Thread.currentThread().getContextClassLoader());
       module.start();
       watcher.watch();
