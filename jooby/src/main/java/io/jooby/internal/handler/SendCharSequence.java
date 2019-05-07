@@ -29,7 +29,7 @@ public class SendCharSequence implements LinkedHandler {
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      CharSequence result = (CharSequence) next.apply(ctx);
+      Object result = next.apply(ctx);
       return ctx.send(result.toString());
     } catch (Throwable x) {
       return ctx.sendError(x);
