@@ -31,7 +31,7 @@ public interface Parser {
    */
   Parser UNSUPPORTED_MEDIA_TYPE = new Parser() {
     @Override public <T> T parse(Context ctx, Type type) {
-      throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE);
+      throw new StatusCodeException(StatusCode.UNSUPPORTED_MEDIA_TYPE);
     }
   };
   /**

@@ -17,7 +17,7 @@ package io.jooby.internal;
 
 import io.jooby.ByteRange;
 import io.jooby.Context;
-import io.jooby.Err;
+import io.jooby.StatusCodeException;
 import io.jooby.StatusCode;
 
 import javax.annotation.Nonnull;
@@ -54,10 +54,10 @@ public class NotSatisfiableByteRange implements ByteRange {
   }
 
   @Nonnull @Override public ByteRange apply(@Nonnull Context ctx) {
-    throw new Err(StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE, value);
+    throw new StatusCodeException(StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE, value);
   }
 
   @Nonnull @Override public InputStream apply(@Nonnull InputStream input) throws IOException {
-    throw new Err(StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE, value);
+    throw new StatusCodeException(StatusCode.REQUESTED_RANGE_NOT_SATISFIABLE, value);
   }
 }

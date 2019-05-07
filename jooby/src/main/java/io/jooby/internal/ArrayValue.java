@@ -15,7 +15,7 @@
  */
 package io.jooby.internal;
 
-import io.jooby.Err;
+import io.jooby.TypeMismatchException;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
@@ -75,7 +75,7 @@ public class ArrayValue implements Value {
 
   @Override public String value() {
     String name = name();
-    throw new Err.TypeMismatch(name == null ? getClass().getSimpleName() : name, String.class);
+    throw new TypeMismatchException(name == null ? getClass().getSimpleName() : name, String.class);
   }
 
   @Override public String toString() {

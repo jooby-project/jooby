@@ -18,9 +18,9 @@ package io.jooby.internal.mvc;
 import io.jooby.Context;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
+import io.jooby.ProvisioningException;
 import io.jooby.QueryString;
 import io.jooby.Route;
-import io.jooby.Throwing;
 import io.jooby.Value;
 import io.jooby.internal.ValueInjector;
 import io.jooby.internal.reflect.$Types;
@@ -31,22 +31,15 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import javax.inject.Provider;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
-import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
-import static java.util.Arrays.sort;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
@@ -124,6 +117,8 @@ public class MvcCompiler {
 
   private static final String APPLY_DESCRIPTOR = getMethodDescriptor(OBJ, CTX);
   private static final String[] APPLY_THROWS = new String[]{getInternalName(Exception.class)};
+
+  private static final String PROVISIONING = getInternalName(ProvisioningException.class);
 
   private static final String[] HANDLER_IMPLEMENTS = new String[]{
       getInternalName(MvcHandler.class)};
@@ -360,7 +355,7 @@ public class MvcCompiler {
     Label label0 = new Label();
     Label label1 = new Label();
     Label label2 = new Label();
-    visitor.visitTryCatchBlock(label0, label1, label2, "io/jooby/Err$Provisioning");
+    visitor.visitTryCatchBlock(label0, label1, label2, PROVISIONING);
     Label label3 = new Label();
     visitor.visitTryCatchBlock(label0, label1, label3, "java/lang/Exception");
     visitor.visitLabel(label0);
@@ -381,18 +376,18 @@ public class MvcCompiler {
     }
     visitor.visitLabel(label2);
     visitor
-        .visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"io/jooby/Err$Provisioning"});
+        .visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{PROVISIONING});
     visitor.visitVarInsn(ASTORE, 3);
     visitor.visitVarInsn(ALOAD, 3);
     visitor.visitInsn(ATHROW);
     visitor.visitLabel(label3);
     visitor.visitFrame(F_SAME1, 0, null, 1, new Object[]{"java/lang/Exception"});
     visitor.visitVarInsn(ASTORE, 3);
-    visitor.visitTypeInsn(NEW, "io/jooby/Err$Provisioning");
+    visitor.visitTypeInsn(NEW, PROVISIONING);
     visitor.visitInsn(DUP);
     visitor.visitVarInsn(ALOAD, 2);
     visitor.visitVarInsn(ALOAD, 3);
-    visitor.visitMethodInsn(INVOKESPECIAL, "io/jooby/Err$Provisioning", "<init>",
+    visitor.visitMethodInsn(INVOKESPECIAL, PROVISIONING, "<init>",
         "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
     visitor.visitInsn(ATHROW);
     visitor.visitMaxs(0, 0);

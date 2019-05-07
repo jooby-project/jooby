@@ -79,7 +79,7 @@ public interface Value extends Iterable<Value> {
         return instant.toEpochMilli();
       } catch (DateTimeParseException expected) {
       }
-      throw new Err.TypeMismatch(name(), long.class, x);
+      throw new TypeMismatchException(name(), long.class, x);
     }
   }
 
@@ -92,7 +92,7 @@ public interface Value extends Iterable<Value> {
   default long longValue(long defaultValue) {
     try {
       return longValue();
-    } catch (Err.Missing x) {
+    } catch (MissingValueException x) {
       return defaultValue;
     }
   }
@@ -106,7 +106,7 @@ public interface Value extends Iterable<Value> {
     try {
       return Integer.parseInt(value());
     } catch (NumberFormatException x) {
-      throw new Err.TypeMismatch(name(), int.class, x);
+      throw new TypeMismatchException(name(), int.class, x);
     }
   }
 
@@ -119,7 +119,7 @@ public interface Value extends Iterable<Value> {
   default int intValue(int defaultValue) {
     try {
       return intValue();
-    } catch (Err.Missing x) {
+    } catch (MissingValueException x) {
       return defaultValue;
     }
   }
@@ -133,7 +133,7 @@ public interface Value extends Iterable<Value> {
     try {
       return Byte.parseByte(value());
     } catch (NumberFormatException x) {
-      throw new Err.TypeMismatch(name(), byte.class, x);
+      throw new TypeMismatchException(name(), byte.class, x);
     }
   }
 
@@ -146,7 +146,7 @@ public interface Value extends Iterable<Value> {
   default byte byteValue(byte defaultValue) {
     try {
       return byteValue();
-    } catch (Err.Missing x) {
+    } catch (MissingValueException x) {
       return defaultValue;
     }
   }
@@ -160,7 +160,7 @@ public interface Value extends Iterable<Value> {
     try {
       return Float.parseFloat(value());
     } catch (NumberFormatException x) {
-      throw new Err.TypeMismatch(name(), float.class, x);
+      throw new TypeMismatchException(name(), float.class, x);
     }
   }
 
@@ -173,7 +173,7 @@ public interface Value extends Iterable<Value> {
   default float floatValue(float defaultValue) {
     try {
       return floatValue();
-    } catch (Err.Missing x) {
+    } catch (MissingValueException x) {
       return defaultValue;
     }
   }
@@ -187,7 +187,7 @@ public interface Value extends Iterable<Value> {
     try {
       return Double.parseDouble(value());
     } catch (NumberFormatException x) {
-      throw new Err.TypeMismatch(name(), double.class, x);
+      throw new TypeMismatchException(name(), double.class, x);
     }
   }
 
@@ -200,7 +200,7 @@ public interface Value extends Iterable<Value> {
   default double doubleValue(double defaultValue) {
     try {
       return doubleValue();
-    } catch (Err.Missing x) {
+    } catch (MissingValueException x) {
       return defaultValue;
     }
   }
@@ -223,7 +223,7 @@ public interface Value extends Iterable<Value> {
   default boolean booleanValue(boolean defaultValue) {
     try {
       return booleanValue();
-    } catch (Err.Missing x) {
+    } catch (MissingValueException x) {
       return defaultValue;
     }
   }
@@ -237,7 +237,7 @@ public interface Value extends Iterable<Value> {
   @Nonnull default String value(@Nonnull String defaultValue) {
     try {
       return value();
-    } catch (Err.Missing x) {
+    } catch (MissingValueException x) {
       return defaultValue;
     }
   }
@@ -386,7 +386,7 @@ public interface Value extends Iterable<Value> {
   @Nonnull default Optional<String> toOptional() {
     try {
       return Optional.of(value());
-    } catch (Err.Missing x) {
+    } catch (MissingValueException x) {
       return Optional.empty();
     }
   }
@@ -408,7 +408,7 @@ public interface Value extends Iterable<Value> {
    * @return A file upload.
    */
   default FileUpload fileUpload() {
-    throw new Err.TypeMismatch(name(), FileUpload.class);
+    throw new TypeMismatchException(name(), FileUpload.class);
   }
 
   /* ***********************************************************************************************
@@ -617,7 +617,7 @@ public interface Value extends Iterable<Value> {
           src = src.get(path[i]);
         }
         value = src.value();
-      } catch (Err.Missing x) {
+      } catch (MissingValueException x) {
         if (ignoreMissing) {
           value = expression.substring(start, end + endDelim.length());
         } else {

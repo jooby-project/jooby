@@ -17,12 +17,31 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 
-public class RegistryException extends StatusCodeException {
-  public RegistryException(@Nonnull String message, Throwable cause) {
-    super(StatusCode.SERVER_ERROR, message, cause);
+/**
+ * Missing exception. Used when a required attribute/value is missing.
+ *
+ * @since 2.0.0
+ * @author edgar
+ */
+public class MissingValueException extends BadRequestException {
+  private final String name;
+
+  /**
+   * Creates a missing exception.
+   *
+   * @param name Parameter/attribute name.
+   */
+  public MissingValueException(@Nonnull String name) {
+    super("Missing value: '" + name + "'");
+    this.name = name;
   }
 
-  public RegistryException(@Nonnull String message) {
-    super(StatusCode.SERVER_ERROR, message);
+  /**
+   * Parameter/attribute name.
+   *
+   * @return Parameter/attribute name.
+   */
+  public String getName() {
+    return name;
   }
 }

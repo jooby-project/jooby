@@ -31,7 +31,7 @@ public interface Renderer {
     if (ctx.accept(ctx.getResponseType())) {
       return value.toString().getBytes(StandardCharsets.UTF_8);
     }
-    throw new Err(StatusCode.NOT_ACCEPTABLE);
+    throw new StatusCodeException(StatusCode.NOT_ACCEPTABLE);
   };
 
   /**

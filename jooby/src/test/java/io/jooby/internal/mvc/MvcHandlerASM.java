@@ -1,7 +1,7 @@
 package io.jooby.internal.mvc;
 
 import io.jooby.Context;
-import io.jooby.Err;
+import io.jooby.ProvisioningException;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
@@ -52,10 +52,10 @@ class MvcHandlerImpl implements MvcHandler {
   private double tryParam0(Context ctx, String desc) {
     try {
       return ctx.path("l").doubleValue();
-    } catch (Err.Provisioning x) {
+    } catch (ProvisioningException x) {
       throw x;
     } catch (Exception x) {
-      throw new Err.Provisioning(desc, x);
+      throw new ProvisioningException(desc, x);
     }
   }
 

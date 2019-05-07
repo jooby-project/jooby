@@ -15,7 +15,7 @@
  */
 package io.jooby.internal.netty;
 
-import io.jooby.Err;
+import io.jooby.StatusCodeException;
 import io.jooby.MediaType;
 import io.jooby.Router;
 import io.jooby.Server;
@@ -87,7 +87,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       if (chunkSize > maxRequestSize) {
         resetDecoderState(true);
         chunk.release();
-        context.sendError(new Err(StatusCode.REQUEST_ENTITY_TOO_LARGE));
+        context.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
         return;
       }
 

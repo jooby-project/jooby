@@ -15,7 +15,7 @@
  */
 package io.jooby.internal.jetty;
 
-import io.jooby.Err;
+import io.jooby.StatusCodeException;
 import io.jooby.StatusCode;
 
 import java.io.FilterInputStream;
@@ -49,7 +49,7 @@ public class LimitedInputStream extends FilterInputStream {
    */
   private void checkLimit() {
     if (count > maxSize) {
-      throw new Err(StatusCode.REQUEST_ENTITY_TOO_LARGE);
+      throw new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE);
     }
   }
 

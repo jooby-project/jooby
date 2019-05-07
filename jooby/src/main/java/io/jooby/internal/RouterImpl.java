@@ -16,7 +16,7 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.Err;
+import io.jooby.StatusCodeException;
 import io.jooby.ErrorHandler;
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
@@ -107,17 +107,17 @@ public class RouterImpl implements Router {
     List<MediaType> produceTypes = ctx.getRoute().getProduces();
     MediaType contentType = ctx.accept(produceTypes);
     if (contentType == null) {
-      throw new Err(StatusCode.NOT_ACCEPTABLE, ctx.header(Context.ACCEPT).value(""));
+      throw new StatusCodeException(StatusCode.NOT_ACCEPTABLE, ctx.header(Context.ACCEPT).value(""));
     }
   };
 
   static final Route.Before SUPPORT_MEDIA_TYPE = ctx -> {
     MediaType contentType = ctx.getRequestType();
     if (contentType == null) {
-      throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE);
+      throw new StatusCodeException(StatusCode.UNSUPPORTED_MEDIA_TYPE);
     }
     if (!ctx.getRoute().getConsumes().stream().anyMatch(contentType::matches)) {
-      throw new Err(StatusCode.UNSUPPORTED_MEDIA_TYPE, contentType.getValue());
+      throw new StatusCodeException(StatusCode.UNSUPPORTED_MEDIA_TYPE, contentType.getValue());
     }
   };
 
@@ -480,8 +480,8 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public StatusCode errorCode(@Nonnull Throwable x) {
-    if (x instanceof Err) {
-      return ((Err) x).getStatusCode();
+    if (x instanceof StatusCodeException) {
+      return ((StatusCodeException) x).getStatusCode();
     }
     if (errorCodes != null) {
       Class type = x.getClass();

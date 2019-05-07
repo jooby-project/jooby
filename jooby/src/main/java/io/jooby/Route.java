@@ -184,13 +184,13 @@ public class Route {
   /**
    * Handler for {@link StatusCode#NOT_FOUND} responses.
    */
-  public static final Handler NOT_FOUND = ctx -> ctx.sendError(new Err(StatusCode.NOT_FOUND));
+  public static final Handler NOT_FOUND = ctx -> ctx.sendError(new StatusCodeException(StatusCode.NOT_FOUND));
 
   /**
    * Handler for {@link StatusCode#METHOD_NOT_ALLOWED} responses.
    */
   public static final Handler METHOD_NOT_ALLOWED = ctx -> ctx
-      .sendError(new Err(StatusCode.METHOD_NOT_ALLOWED));
+      .sendError(new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED));
 
   /**
    * Favicon handler as a silent 404 error.

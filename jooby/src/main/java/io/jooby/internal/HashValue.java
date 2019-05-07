@@ -15,9 +15,9 @@
  */
 package io.jooby.internal;
 
-import io.jooby.Err;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
+import io.jooby.TypeMismatchException;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
@@ -183,7 +183,7 @@ public class HashValue implements Value, Multipart {
 
   @Override public String value() {
     String name = name();
-    throw new Err.TypeMismatch(name == null ? objectType : name, String.class);
+    throw new TypeMismatchException(name == null ? objectType : name, String.class);
   }
 
   public HashValue setObjectType(String type) {

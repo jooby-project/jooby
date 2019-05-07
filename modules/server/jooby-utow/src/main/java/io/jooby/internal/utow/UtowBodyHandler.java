@@ -16,7 +16,7 @@
 package io.jooby.internal.utow;
 
 import io.jooby.Body;
-import io.jooby.Err;
+import io.jooby.StatusCodeException;
 import io.jooby.Router;
 import io.jooby.StatusCode;
 import io.undertow.io.Receiver;
@@ -77,7 +77,7 @@ public class UtowBodyHandler
         chunkSize += chunk.length;
         if (chunkSize > maxRequestSize) {
           try {
-            context.sendError(new Err(StatusCode.REQUEST_ENTITY_TOO_LARGE));
+            context.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
           } finally {
             closeChannel();
             channel = null;

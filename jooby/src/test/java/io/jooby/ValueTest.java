@@ -217,35 +217,35 @@ public class ValueTest {
   public void verifyIllegalAccess() {
     /** Object: */
     queryString("foo=bar", queryString -> {
-      assertThrows(Err.BadRequest.class, () -> queryString.value());
-      assertThrows(Err.BadRequest.class, () -> queryString.value(""));
-      assertThrows(Err.Missing.class, () -> queryString.get("a").get("a").get("a").value());
-      assertThrows(Err.Missing.class, () -> queryString.get("missing").value());
-      assertThrows(Err.Missing.class, () -> queryString.get(0).value());
+      assertThrows(BadRequestException.class, () -> queryString.value());
+      assertThrows(BadRequestException.class, () -> queryString.value(""));
+      assertThrows(MissingValueException.class, () -> queryString.get("a").get("a").get("a").value());
+      assertThrows(MissingValueException.class, () -> queryString.get("missing").value());
+      assertThrows(MissingValueException.class, () -> queryString.get(0).value());
       assertEquals("missing", queryString.get("missing").value("missing"));
       assertEquals("a", queryString.get("a").get("a").get("a").value("a"));
     });
 
     /** Array: */
     queryString("a=1;a=2", queryString -> {
-      assertThrows(Err.BadRequest.class, () -> queryString.get("a").value());
+      assertThrows(BadRequestException.class, () -> queryString.get("a").value());
       assertEquals("1", queryString.get("a").get(0).value());
       assertEquals("2", queryString.get("a").get(1).value());
-      assertThrows(Err.Missing.class, () -> queryString.get("a").get("b").value());
-      assertThrows(Err.Missing.class, () -> queryString.get("a").get(3).value());
+      assertThrows(MissingValueException.class, () -> queryString.get("a").get("b").value());
+      assertThrows(MissingValueException.class, () -> queryString.get("a").get(3).value());
       assertEquals("missing", queryString.get("a").get(3).value("missing"));
     });
 
     /** Single Property: */
     queryString("foo=bar", queryString -> {
-      assertThrows(Err.Missing.class, () -> queryString.get("foo").get("missing").value());
+      assertThrows(MissingValueException.class, () -> queryString.get("foo").get("missing").value());
       assertEquals("bar", queryString.get("foo").get(0).value());
     });
 
     /** Missing Property: */
     queryString("", queryString -> {
-      assertThrows(Err.Missing.class, () -> queryString.get("foo").get("missing").value());
-      assertThrows(Err.Missing.class, () -> queryString.get("foo").get(0).value());
+      assertThrows(MissingValueException.class, () -> queryString.get("foo").get("missing").value());
+      assertThrows(MissingValueException.class, () -> queryString.get("foo").get(0).value());
     });
   }
 
@@ -304,9 +304,9 @@ public class ValueTest {
   public void toOptional() {
     /** Array: */
     queryString("a=1;a=2", queryString -> {
-      assertMessage(Err.BadRequest.class, () -> queryString.toOptional(),
+      assertMessage(BadRequestException.class, () -> queryString.toOptional(),
           "Cannot convert value: 'queryString', to: 'java.lang.String'");
-      assertMessage(Err.BadRequest.class, () -> queryString.get("a").toOptional(),
+      assertMessage(BadRequestException.class, () -> queryString.get("a").toOptional(),
           "Cannot convert value: 'a', to: 'java.lang.String'");
       assertEquals(Optional.of("1"), queryString.get("a").get(0).toOptional());
       assertEquals(Optional.empty(), queryString.get("a").get(2).toOptional());
@@ -323,7 +323,7 @@ public class ValueTest {
     queryString("e=a&;e=B", queryString -> {
       assertEquals(Letter.A, queryString.get("e").get(0).toEnum(Letter::valueOf));
       assertEquals(Letter.B, queryString.get("e").get(1).toEnum(Letter::valueOf));
-      assertMessage(Err.Missing.class,
+      assertMessage(MissingValueException.class,
           () -> queryString.get("e").get(2).toEnum(Letter::valueOf),
           "Missing value: 'e[2]'");
     });
@@ -333,43 +333,43 @@ public class ValueTest {
   public void verifyExceptionMessage() {
     /** Object: */
     queryString("foo=bar", queryString -> {
-      assertMessage(Err.BadRequest.class, () -> queryString.value(),
+      assertMessage(BadRequestException.class, () -> queryString.value(),
           "Cannot convert value: 'queryString', to: 'java.lang.String'");
-      assertMessage(Err.BadRequest.class, () -> queryString.get("foo").intValue(),
+      assertMessage(BadRequestException.class, () -> queryString.get("foo").intValue(),
           "Cannot convert value: 'foo', to: 'int'");
-      assertMessage(Err.BadRequest.class, () -> queryString.get("foo").intValue(0),
+      assertMessage(BadRequestException.class, () -> queryString.get("foo").intValue(0),
           "Cannot convert value: 'foo', to: 'int'");
-      assertMessage(Err.Missing.class, () -> queryString.get("foo").get("bar").value(),
+      assertMessage(MissingValueException.class, () -> queryString.get("foo").get("bar").value(),
           "Missing value: 'foo.bar'");
-      assertMessage(Err.Missing.class, () -> queryString.get("foo").get(1).value(),
+      assertMessage(MissingValueException.class, () -> queryString.get("foo").get(1).value(),
           "Missing value: 'foo.1'");
-      assertMessage(Err.Missing.class, () -> queryString.get("r").longValue(),
+      assertMessage(MissingValueException.class, () -> queryString.get("r").longValue(),
           "Missing value: 'r'");
       assertEquals(1, queryString.get("a").intValue(1));
     });
 
     /** Array: */
     queryString("a=b;a=c", queryString -> {
-      assertMessage(Err.BadRequest.class, () -> queryString.get("a").value(),
+      assertMessage(BadRequestException.class, () -> queryString.get("a").value(),
           "Cannot convert value: 'a', to: 'java.lang.String'");
-      assertMessage(Err.BadRequest.class, () -> queryString.get("a").get(0).longValue(),
+      assertMessage(BadRequestException.class, () -> queryString.get("a").get(0).longValue(),
           "Cannot convert value: 'a', to: 'long'");
-      assertMessage(Err.Missing.class, () -> queryString.get("a").get(3).longValue(),
+      assertMessage(MissingValueException.class, () -> queryString.get("a").get(3).longValue(),
           "Missing value: 'a[3]'");
-      assertMessage(Err.Missing.class, () -> queryString.get("a").get("b").value(),
+      assertMessage(MissingValueException.class, () -> queryString.get("a").get("b").value(),
           "Missing value: 'a.b'");
-      assertMessage(Err.Missing.class, () -> queryString.get("a").get("b").get(3).longValue(),
+      assertMessage(MissingValueException.class, () -> queryString.get("a").get("b").get(3).longValue(),
           "Missing value: 'a.b[3]'");
     });
 
     /** Single: */
-    assertMessage(Err.BadRequest.class, () -> Value.value("foo", "bar").intValue(),
+    assertMessage(BadRequestException.class, () -> Value.value("foo", "bar").intValue(),
         "Cannot convert value: 'foo', to: 'int'");
 
-    assertMessage(Err.Missing.class, () -> Value.value("foo", "bar").get("foo").value(),
+    assertMessage(MissingValueException.class, () -> Value.value("foo", "bar").get("foo").value(),
         "Missing value: 'foo.foo'");
 
-    assertMessage(Err.Missing.class, () -> Value.value("foo", "bar").get(1).value(),
+    assertMessage(MissingValueException.class, () -> Value.value("foo", "bar").get(1).value(),
         "Missing value: 'foo.1'");
   }
 

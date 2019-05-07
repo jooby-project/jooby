@@ -17,12 +17,30 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 
-public class RegistryException extends StatusCodeException {
-  public RegistryException(@Nonnull String message, Throwable cause) {
-    super(StatusCode.SERVER_ERROR, message, cause);
+/**
+ * Specific exception for bad request.
+ *
+ * @since 2.0.0
+ * @author edgar
+ */
+public class BadRequestException extends StatusCodeException {
+
+  /**
+   * Creates a bad request exception.
+   *
+   * @param message Message.
+   */
+  public BadRequestException(@Nonnull String message) {
+    super(StatusCode.BAD_REQUEST, message);
   }
 
-  public RegistryException(@Nonnull String message) {
-    super(StatusCode.SERVER_ERROR, message);
+  /**
+   * Creates a bad request exception.
+   *
+   * @param message Message.
+   * @param cause Throwable.
+   */
+  public BadRequestException(@Nonnull String message, @Nonnull Throwable cause) {
+    super(StatusCode.BAD_REQUEST, message, cause);
   }
 }

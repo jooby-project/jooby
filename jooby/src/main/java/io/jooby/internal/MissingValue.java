@@ -15,7 +15,7 @@
  */
 package io.jooby.internal;
 
-import io.jooby.Err;
+import io.jooby.MissingValueException;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
@@ -43,7 +43,7 @@ public class MissingValue implements Value {
   }
 
   @Override public String value() {
-    throw new Err.Missing(name);
+    throw new MissingValueException(name);
   }
 
   @Override public Map<String, List<String>> toMultimap() {

@@ -106,7 +106,7 @@ public interface Router {
   @Nonnull default <T> T attribute(@Nonnull String key) {
     T attribute = (T) getAttributes().get(key);
     if (attribute == null) {
-      throw new Err.Missing(key);
+      throw new MissingValueException(key);
     }
     return attribute;
   }

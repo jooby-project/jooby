@@ -16,7 +16,7 @@
 package io.jooby.internal.utow;
 
 import io.jooby.Context;
-import io.jooby.Err;
+import io.jooby.StatusCodeException;
 import io.jooby.Router;
 import io.jooby.StatusCode;
 import io.undertow.io.Receiver;
@@ -61,7 +61,7 @@ public class UtowHandler implements HttpHandler {
       String chunked = headers.getFirst(Headers.TRANSFER_ENCODING);
       if (len > 0 || chunked != null) {
         if (len > maxRequestSize) {
-          context.sendError(new Err(StatusCode.REQUEST_ENTITY_TOO_LARGE));
+          context.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
           return;
         }
         /** Eager body parsing: */

@@ -15,8 +15,11 @@
  */
 package io.jooby.internal;
 
-import io.jooby.Err;
+import io.jooby.BadRequestException;
 import io.jooby.FileUpload;
+import io.jooby.MissingValueException;
+import io.jooby.ProvisioningException;
+import io.jooby.TypeMismatchException;
 import io.jooby.Value;
 import io.jooby.internal.reflect.$Types;
 
@@ -130,7 +133,7 @@ public class ValueInjector {
                 parameter.getParameterizedType());
             method.invoke(newInstance, arg);
           } catch (Exception x) {
-            throw new Err.Provisioning(parameter, x);
+            throw new ProvisioningException(parameter, x);
           }
         }
       }
@@ -159,7 +162,7 @@ public class ValueInjector {
       }
       return null;
     } else {
-      throw new Err.TypeMismatch(scope.name(), type);
+      throw new TypeMismatchException(scope.name(), type);
     }
   }
 
@@ -178,10 +181,10 @@ public class ValueInjector {
       state.accept(value);
       try {
         args[i] = value(value, parameter.getType(), parameter.getParameterizedType());
-      } catch (Err.Missing x) {
-        throw new Err.Provisioning(parameter, x);
-      } catch (Err.BadRequest x) {
-        throw new Err.Provisioning(parameter, x);
+      } catch (MissingValueException x) {
+        throw new ProvisioningException(parameter, x);
+      } catch (BadRequestException x) {
+        throw new ProvisioningException(parameter, x);
       }
     }
     return args;
@@ -310,7 +313,7 @@ public class ValueInjector {
       try {
         Class itemType = $Types.parameterizedType0(type);
         return Optional.ofNullable(value(value.get(0), itemType, itemType));
-      } catch (Err.Missing x) {
+      } catch (MissingValueException x) {
         return Optional.empty();
       }
     }
@@ -331,13 +334,13 @@ public class ValueInjector {
         FileUpload upload = (FileUpload) value.get(0);
         return upload.path();
       }
-      throw new Err.TypeMismatch(value.name(), Path.class);
+      throw new TypeMismatchException(value.name(), Path.class);
     }
     if (FileUpload.class == rawType) {
       if (value.get(0).isUpload()) {
         return value.get(0);
       }
-      throw new Err.TypeMismatch(value.name(), FileUpload.class);
+      throw new TypeMismatchException(value.name(), FileUpload.class);
     }
     /**********************************************************************************************
      * Static method: valueOf
