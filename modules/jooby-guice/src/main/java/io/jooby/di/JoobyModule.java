@@ -15,6 +15,7 @@
  */
 package io.jooby.di;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.Module;
@@ -24,6 +25,8 @@ import com.google.inject.util.Types;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
 import io.jooby.Environment;
+import io.jooby.Jooby;
+import io.jooby.ResourceKey;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
@@ -31,16 +34,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class GuiceEnvironment implements Module {
-  private Environment env;
+public class JoobyModule extends AbstractModule {
+  private Jooby application;
 
-  public GuiceEnvironment(@Nonnull Environment env) {
-    this.env = env;
+  public JoobyModule(@Nonnull Jooby application) {
+    this.application = application;
   }
 
-  @Override public void configure(Binder binder) {
+  @Override protected void configure() {
+    configureEnv(application.getEnvironment());
+    configureResources(application.getResources());
+  }
+
+  private void configureResources(Map<ResourceKey, Object> resources) {
+    // bind the available resources as well, supporting the name annotations that may be set
+    for (Map.Entry<ResourceKey, Object> entry : resources.entrySet()) {
+      ResourceKey key = entry.getKey();
+      if (key.getName() != null) {
+        bind(key.getType()).annotatedWith(Names.named(key.getName())).toInstance(entry.getValue());
+      } else {
+        bind(key.getType()).toInstance(entry.getValue());
+      }
+    }
+  }
+
+  private void configureEnv(Environment env) {
     Config config = env.getConfig();
-    // terminal nodes
+    bind(Config.class).toInstance(config);
+    bind(Environment.class).toInstance(env);
+
+    // configuration properties
     for (Map.Entry<String, ConfigValue> entry : config.entrySet()) {
       String name = entry.getKey();
       Named named = Names.named(name);
@@ -49,12 +72,10 @@ public class GuiceEnvironment implements Module {
         List values = (List) value;
         Type listType = Types.listOf(values.iterator().next().getClass());
         Key key = Key.get(listType, Names.named(name));
-        binder.bind(key).toInstance(values);
+        bind(key).toInstance(values);
         value = values.stream().map(Object::toString).collect(Collectors.joining(","));
       }
-      binder.bindConstant().annotatedWith(named).to(value.toString());
+      bindConstant().annotatedWith(named).to(value.toString());
     }
-    binder.bind(Config.class).toInstance(config);
-    binder.bind(Environment.class).toInstance(env);
   }
 }

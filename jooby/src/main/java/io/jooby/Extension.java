@@ -26,6 +26,10 @@ import javax.annotation.Nonnull;
  */
 public interface Extension {
 
+  default boolean lateinit() {
+    return false;
+  }
+
   /**
    * Install, configure additional features to a Jooby application.
    *

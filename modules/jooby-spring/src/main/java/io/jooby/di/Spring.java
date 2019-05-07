@@ -62,6 +62,10 @@ public class Spring implements Extension {
     return this;
   }
 
+  @Override public boolean lateinit() {
+    return true;
+  }
+
   @Override public void install(@Nonnull Jooby application) throws Exception {
     if (applicationContext == null) {
       String[] packages = this.packages;
@@ -90,13 +94,11 @@ public class Spring implements Extension {
       beanFactory.registerSingleton("config", config);
       beanFactory.registerSingleton("environment", environment);
 
-      application.onStart(() -> {
-        // Add resources:
-        application.getResources().forEach((key, resource) -> {
-          String name = Optional.ofNullable(key.getName())
-              .orElseGet(() -> beanName(key.getType()));
-          beanFactory.registerSingleton(name, resource);
-        });
+      // Add resources:
+      application.getResources().forEach((key, resource) -> {
+        String name = Optional.ofNullable(key.getName())
+            .orElseGet(() -> beanName(key.getType()));
+        beanFactory.registerSingleton(name, resource);
       });
 
       application.onStop(applicationContext);

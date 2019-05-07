@@ -17,11 +17,15 @@ package io.jooby.di;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
+import io.jooby.Environment;
 import io.jooby.Jooby;
 import io.jooby.Reified;
+import io.jooby.ResourceKey;
 import io.jooby.annotations.Path;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.literal.NamedLiteral;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.AnnotatedType;
@@ -30,16 +34,19 @@ import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.InjectionTarget;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.enterprise.inject.spi.WithAnnotations;
+import javax.enterprise.inject.spi.configurator.BeanConfigurator;
 import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
-public class WeldEnvironment implements Extension {
+public class JoobyExtension implements Extension {
   private final Jooby app;
 
   @Inject
-  public WeldEnvironment(Jooby application) {
+  public JoobyExtension(Jooby application) {
     this.app = application;
   }
 
@@ -48,9 +55,22 @@ public class WeldEnvironment implements Extension {
     this.app.mvc(controller.getAnnotatedType().getJavaClass());
   }
 
-  public void configureProperties(@Observes AfterBeanDiscovery beanDiscovery,
+  public void configureServices(@Observes AfterBeanDiscovery beanDiscovery,
       BeanManager beanManager) {
-    Config config = app.getEnvironment().getConfig();
+    for (Map.Entry<ResourceKey, Object> services : app.getResources().entrySet()) {
+      ResourceKey key = services.getKey();
+      registerSingleton(beanDiscovery, beanManager, key.getType(), key.getName(),
+          services.getValue());
+    }
+  }
+
+  public void configureEnv(@Observes AfterBeanDiscovery beanDiscovery,
+      BeanManager beanManager) {
+    Environment environment = app.getEnvironment();
+    Config config = environment.getConfig();
+
+    registerSingleton(beanDiscovery, beanManager, Config.class, null, config);
+    registerSingleton(beanDiscovery, beanManager, Environment.class, null, environment);
 
     for (Map.Entry<String, ConfigValue> configEntry : config.entrySet()) {
       final String configKey = configEntry.getKey();
@@ -74,6 +94,28 @@ public class WeldEnvironment implements Extension {
           .name(configKey)
           .addInjectionPoints(target.getInjectionPoints())
           .createWith(c -> configValue);
+    }
+  }
+
+  private <T> void registerSingleton(AfterBeanDiscovery beanDiscovery, BeanManager beanManager,
+      Class<T> type, String name, T instance) {
+    BeanConfigurator<Object> configurator = beanDiscovery.addBean();
+    if (name != null) {
+      configurator.addQualifier(NamedLiteral.of(name)).name(name);
+    }
+    if (type.isPrimitive() || type == String.class || Number.class.isAssignableFrom(type)) {
+      AnnotatedType<?> annotatedType = beanManager.createAnnotatedType(type);
+      InjectionTarget<?> target = beanManager.createInjectionTarget(annotatedType);
+      configurator
+          .addTypes(type)
+          .addInjectionPoints(target.getInjectionPoints())
+          .createWith(c -> instance);
+    } else {
+      configurator
+          .addType(type)
+          .scope(ApplicationScoped.class)
+          .beanClass(type)
+          .createWith(c -> instance);
     }
   }
 }

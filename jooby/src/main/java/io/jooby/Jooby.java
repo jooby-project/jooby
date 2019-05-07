@@ -87,6 +87,8 @@ public class Jooby implements Router, Registry {
 
   private List<Throwing.Runnable> readyCallbacks;
 
+  private List<Throwing.Runnable> startingCallbacks;
+
   private LinkedList<AutoCloseable> stopCallbacks;
 
   private Environment env;
@@ -182,13 +184,28 @@ public class Jooby implements Router, Registry {
   }
 
   /**
-   * Start event is fire once all components has been initialized, for example router and web-server
+   * Event fired before starting router and web-server. Non-lateinit extension are installed at
+   * this stage.
+   *
+   * @param body Start body.
+   * @return This application.
+   */
+  public @Nonnull Jooby onStarting(@Nonnull Throwing.Runnable body) {
+    if (startingCallbacks == null) {
+      startingCallbacks = new ArrayList<>();
+    }
+    startingCallbacks.add(body);
+    return this;
+  }
+
+  /**
+   * Event is fire once all components has been initialized, for example router and web-server
    * are up and running, extension installed, etc...
    *
    * @param body Start body.
    * @return This application.
    */
-  public @Nonnull Jooby onStart(@Nonnull Throwing.Runnable body) {
+  public @Nonnull Jooby onStarted(@Nonnull Throwing.Runnable body) {
     if (readyCallbacks == null) {
       readyCallbacks = new ArrayList<>();
     }
@@ -300,12 +317,16 @@ public class Jooby implements Router, Registry {
    * @return This application.
    */
   @Nonnull public Jooby install(@Nonnull Extension extension) {
-    try {
-      extension.install(this);
-      return this;
-    } catch (Exception x) {
-      throw Throwing.sneakyThrow(x);
+    if (extension.lateinit()) {
+      onStarting(() -> extension.install(this));
+    } else {
+      try {
+        extension.install(this);
+      } catch (Exception x) {
+        throw Throwing.sneakyThrow(x);
+      }
     }
+    return this;
   }
 
   @Nonnull @Override public Jooby dispatch(@Nonnull Runnable body) {
@@ -553,6 +574,9 @@ public class Jooby implements Router, Registry {
     if (mode == null) {
       mode = ExecutionMode.DEFAULT;
     }
+
+    this.startingCallbacks = fire(this.startingCallbacks);
+
     router.start(this);
 
     return this;
@@ -568,7 +592,7 @@ public class Jooby implements Router, Registry {
   public @Nonnull Jooby ready(@Nonnull Server server) {
     Logger log = getLog();
 
-    fireStarted();
+    this.readyCallbacks = fire(this.readyCallbacks);
 
     log.info("{} started with:", System.getProperty(APP_NAME, getClass().getSimpleName()));
 
@@ -761,20 +785,16 @@ public class Jooby implements Router, Registry {
     }
   }
 
-  private void fireStarted() {
-    if (readyCallbacks != null) {
-      fire(readyCallbacks);
-      readyCallbacks = null;
+  private List<Throwing.Runnable> fire(List<Throwing.Runnable> tasks) {
+    if (tasks != null) {
+      Iterator<Throwing.Runnable> iterator = tasks.iterator();
+      while (iterator.hasNext()) {
+        Throwing.Runnable task = iterator.next();
+        task.run();
+        iterator.remove();
+      }
     }
-  }
-
-  private void fire(List<Throwing.Runnable> tasks) {
-    Iterator<Throwing.Runnable> iterator = tasks.iterator();
-    while (iterator.hasNext()) {
-      Throwing.Runnable task = iterator.next();
-      task.run();
-      iterator.remove();
-    }
+    return null;
   }
 
   private void fireStop() {

@@ -1611,9 +1611,9 @@ public class FeaturedTest {
     AtomicInteger counter = new AtomicInteger();
 
     Consumer<Jooby> lifeCycle = app -> {
-      app.onStart(() -> counter.incrementAndGet());
+      app.onStarting(() -> counter.incrementAndGet());
 
-      app.onStart(() -> counter.incrementAndGet());
+      app.onStarting(() -> counter.incrementAndGet());
 
       app.onStop(() -> {
         counter.decrementAndGet();

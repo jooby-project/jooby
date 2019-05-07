@@ -30,7 +30,7 @@ public class DocServer {
 
     DocGenerator.generate(basedir, false);
 
-    Process process = new ProcessBuilder("open", basedir.resolve("out").resolve("index.html").toUri().toString())
+    Process process = new ProcessBuilder("open", basedir.resolve("asciidoc").resolve("site").resolve("index.html").toUri().toString())
         .start();
     process.waitFor();
     process.destroy();

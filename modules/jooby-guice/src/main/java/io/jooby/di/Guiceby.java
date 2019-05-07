@@ -41,11 +41,14 @@ public class Guiceby implements Extension {
     Stream.of(modules).forEach(this.modules::add);
   }
 
+  @Override public boolean lateinit() {
+    return true;
+  }
+
   @Override public void install(@Nonnull Jooby application) {
     if (injector == null) {
       Environment env = application.getEnvironment();
-      modules.add(new GuiceEnvironment(env));
-      modules.add(new ResourceModule(application));
+      modules.add(new JoobyModule(application));
       Stage stage = env.isActive("dev", "test") ? Stage.DEVELOPMENT : Stage.PRODUCTION;
       injector = Guice.createInjector(stage, modules);
     }

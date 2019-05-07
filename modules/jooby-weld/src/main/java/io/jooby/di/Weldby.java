@@ -39,6 +39,10 @@ public class Weldby implements Extension {
     this.container = null;
   }
 
+  @Override public boolean lateinit() {
+    return true;
+  }
+
   @Override public void install(@Nonnull Jooby application) {
     if (container == null) {
       if (packages == null || packages.length == 0) {
@@ -52,7 +56,7 @@ public class Weldby implements Extension {
           .disableDiscovery()
           .addPackages(true, toPackages(packages))
           .addProperty(SHUTDOWN_HOOK_SYSTEM_PROPERTY, false)
-          .addExtension(new WeldEnvironment(application));
+          .addExtension(new JoobyExtension(application));
 
       application.onStop(weld::shutdown);
 
