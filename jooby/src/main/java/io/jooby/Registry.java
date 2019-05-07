@@ -22,6 +22,7 @@ import javax.annotation.Nonnull;
  *
  * @since 2.0.0
  * @author edgar
+ * @see ServiceRegistry
  */
 public interface Registry {
   /**
@@ -30,8 +31,9 @@ public interface Registry {
    * @param type Object type.
    * @param <T> Object type.
    * @return Instance of this type.
+   * @throws RegistryException If there was a runtime failure while providing an instance.
    */
-  @Nonnull <T> T require(@Nonnull Class<T> type);
+  @Nonnull <T> T require(@Nonnull Class<T> type) throws RegistryException;
 
   /**
    * Provides an instance of the given type where name matches it.
@@ -40,6 +42,7 @@ public interface Registry {
    * @param name Object name.
    * @param <T> Object type.
    * @return Instance of this type.
+   * @throws RegistryException If there was a runtime failure while providing an instance.
    */
-  @Nonnull <T> T require(@Nonnull Class<T> type, @Nonnull String name);
+  @Nonnull <T> T require(@Nonnull Class<T> type, @Nonnull String name) throws RegistryException;
 }

@@ -16,6 +16,8 @@
 package io.jooby.di;
 
 import io.jooby.Registry;
+import io.jooby.RegistryException;
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
 import javax.annotation.Nonnull;
@@ -28,10 +30,20 @@ public class SpringRegistry implements Registry {
   }
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type) {
-    return ctx.getBean(type);
+    try {
+      return ctx.getBean(type);
+    } catch (BeansException cause) {
+      throw new RegistryException("Provisioning of `" + type.getName() + "` resulted in exception",
+          cause);
+    }
   }
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
-    return ctx.getBean(name, type);
+    try {
+      return ctx.getBean(name, type);
+    } catch (BeansException cause) {
+      throw new RegistryException(
+          "Provisioning of `" + type.getName() + "(" + name + ")" + "` resulted in exception", cause);
+    }
   }
 }

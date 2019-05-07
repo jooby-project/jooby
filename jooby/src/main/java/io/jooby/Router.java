@@ -124,41 +124,14 @@ public interface Router {
   }
 
   /**
-   * Application resource registry. A resource must be initialized at application startup time
-   * and release it using {@link Jooby#onStop(AutoCloseable)} (if need it).
+   * Application service registry. Services are accessible via this registry or
+   * {@link Jooby#require(Class)} calls.
    *
-   * @return Resource registry.
-   */
-  @Nonnull Map<ResourceKey, Object> getResources();
-
-  /**
-   * Get a resource under this key or throws a {@link IllegalStateException} exception.
+   * This method returns a mutable registry. You are free to modify/alter the registry.
    *
-   * @param key Attribute key.
-   * @param <T> Attribute type.
-   * @return Attribute value.
-   * @throws IllegalStateException If there is no resource under this key.
+   * @return Service registry.
    */
-  default @Nonnull <T> T resource(@Nonnull ResourceKey<T> key) throws IllegalStateException {
-    Object resource = getResources().get(key);
-    if (resource == null) {
-      throw new IllegalStateException("Resource not found: " + key);
-    }
-    return (T) resource;
-  }
-
-  /**
-   * Put an application resource.
-   *
-   * @param key Resource key.
-   * @param resource Resource value.
-   * @param <R> Resource type.
-   * @return This router.
-   */
-  default @Nonnull <R> Router resource(@Nonnull ResourceKey<R> key, @Nonnull R resource) {
-    getResources().put(key, resource);
-    return this;
-  }
+  @Nonnull ServiceRegistry getServices();
 
   /**
    * Set application context path. Context path is the base path for all routes. Default is:

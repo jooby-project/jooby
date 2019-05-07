@@ -20,12 +20,12 @@ import com.typesafe.config.ConfigValue;
 import io.jooby.Environment;
 import io.jooby.Jooby;
 import io.jooby.Reified;
-import io.jooby.ResourceKey;
+import io.jooby.ServiceKey;
+import io.jooby.ServiceRegistry;
 import io.jooby.annotations.Path;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Default;
 import javax.enterprise.inject.literal.NamedLiteral;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.AnnotatedType;
@@ -36,8 +36,6 @@ import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.enterprise.inject.spi.WithAnnotations;
 import javax.enterprise.inject.spi.configurator.BeanConfigurator;
 import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -57,10 +55,10 @@ public class JoobyExtension implements Extension {
 
   public void configureServices(@Observes AfterBeanDiscovery beanDiscovery,
       BeanManager beanManager) {
-    for (Map.Entry<ResourceKey, Object> services : app.getResources().entrySet()) {
-      ResourceKey key = services.getKey();
+    ServiceRegistry registry = app.getServices();
+    for (ServiceKey key : registry.keySet()) {
       registerSingleton(beanDiscovery, beanManager, key.getType(), key.getName(),
-          services.getValue());
+          registry.get(key));
     }
   }
 

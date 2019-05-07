@@ -16,10 +16,14 @@
 package io.jooby.di;
 
 import io.jooby.Registry;
+import io.jooby.RegistryException;
+import io.jooby.ServiceKey;
 import org.jboss.weld.environment.se.WeldContainer;
 
 import javax.annotation.Nonnull;
 import javax.enterprise.inject.literal.NamedLiteral;
+
+import java.lang.annotation.Annotation;
 
 import static javax.enterprise.inject.Any.Literal.INSTANCE;
 
@@ -32,11 +36,23 @@ public class WeldRegistry implements Registry {
   }
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type) {
-
-    return container.select(type, INSTANCE).get();
+    return require(ServiceKey.key(type));
   }
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
-    return container.select(type, NamedLiteral.of(name)).get();
+    return require(ServiceKey.key(type, name));
+  }
+
+  private <T> T require(ServiceKey<T> key) {
+    try {
+      return container.select(key.getType(), literal(key)).get();
+    } catch (Exception cause) {
+      throw new RegistryException("Provisioning of `" + key + "` resulted in exception", cause);
+    }
+  }
+
+  private Annotation literal(ServiceKey key) {
+    String name = key.getName();
+    return name == null ? INSTANCE : NamedLiteral.of(name);
   }
 }

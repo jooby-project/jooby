@@ -19,6 +19,8 @@ import com.typesafe.config.Config;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
+import io.jooby.ServiceKey;
+import io.jooby.ServiceRegistry;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -95,11 +97,12 @@ public class Spring implements Extension {
       beanFactory.registerSingleton("environment", environment);
 
       // Add resources:
-      application.getResources().forEach((key, resource) -> {
+      ServiceRegistry registry = application.getServices();
+      for (ServiceKey key : registry.keySet()) {
         String name = Optional.ofNullable(key.getName())
             .orElseGet(() -> beanName(key.getType()));
-        beanFactory.registerSingleton(name, resource);
-      });
+        beanFactory.registerSingleton(name, registry.get(key));
+      }
 
       application.onStop(applicationContext);
     }

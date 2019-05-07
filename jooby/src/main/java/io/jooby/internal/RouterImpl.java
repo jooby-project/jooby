@@ -23,11 +23,11 @@ import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.Parser;
 import io.jooby.Renderer;
-import io.jooby.ResourceKey;
 import io.jooby.ResponseHandler;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.RouterOptions;
+import io.jooby.ServiceRegistry;
 import io.jooby.SessionOptions;
 import io.jooby.StatusCode;
 import io.jooby.Throwing;
@@ -151,7 +151,7 @@ public class RouterImpl implements Router {
 
   private List<ResponseHandler> handlers = new ArrayList<>();
 
-  private Map<ResourceKey, Object> resources = new HashMap<>();
+  private ServiceRegistry services = new ServiceRegistryImpl();
 
   private MvcAnnotationParser annotationParser;
 
@@ -510,8 +510,8 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Nonnull @Override public Map<ResourceKey, Object> getResources() {
-    return resources;
+  @Nonnull @Override public ServiceRegistry getServices() {
+    return services;
   }
 
   @Override public String toString() {

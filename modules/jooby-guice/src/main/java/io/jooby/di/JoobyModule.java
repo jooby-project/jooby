@@ -16,9 +16,7 @@
 package io.jooby.di;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Binder;
 import com.google.inject.Key;
-import com.google.inject.Module;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.google.inject.util.Types;
@@ -26,7 +24,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
 import io.jooby.Environment;
 import io.jooby.Jooby;
-import io.jooby.ResourceKey;
+import io.jooby.ServiceKey;
+import io.jooby.ServiceRegistry;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
@@ -43,17 +42,17 @@ public class JoobyModule extends AbstractModule {
 
   @Override protected void configure() {
     configureEnv(application.getEnvironment());
-    configureResources(application.getResources());
+    configureResources(application.getServices());
   }
 
-  private void configureResources(Map<ResourceKey, Object> resources) {
+  private void configureResources(ServiceRegistry registry) {
     // bind the available resources as well, supporting the name annotations that may be set
-    for (Map.Entry<ResourceKey, Object> entry : resources.entrySet()) {
-      ResourceKey key = entry.getKey();
+    for (ServiceKey key: registry.keySet()) {
+      Object instance = registry.get(key);
       if (key.getName() != null) {
-        bind(key.getType()).annotatedWith(Names.named(key.getName())).toInstance(entry.getValue());
+        bind(key.getType()).annotatedWith(Names.named(key.getName())).toInstance(instance);
       } else {
-        bind(key.getType()).toInstance(entry.getValue());
+        bind(key.getType()).toInstance(instance);
       }
     }
   }

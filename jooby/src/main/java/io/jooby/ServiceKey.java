@@ -20,18 +20,18 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
- * Utility class which creates a String key from type and optionally a name.
+ * Utility class to access application services.
  *
- * @param <T> Resource type.
+ * @param <T> Service type.
  */
-public final class ResourceKey<T> {
+public final class ServiceKey<T> {
   private final Class<T> type;
 
   private final int hashCode;
 
   private final String name;
 
-  private ResourceKey(Class<T> type, String name) {
+  private ServiceKey(Class<T> type, String name) {
     this.type = type;
     this.name = name;
     this.hashCode = Objects.hash(type, name);
@@ -56,8 +56,8 @@ public final class ResourceKey<T> {
   }
 
   @Override public boolean equals(Object obj) {
-    if (obj instanceof ResourceKey) {
-      ResourceKey that = (ResourceKey) obj;
+    if (obj instanceof ServiceKey) {
+      ServiceKey that = (ServiceKey) obj;
       return this.type == that.type && Objects.equals(this.name, that.name);
     }
     return false;
@@ -81,8 +81,8 @@ public final class ResourceKey<T> {
    * @param <T> Type.
    * @return A new resource key.
    */
-  public static @Nonnull  <T> ResourceKey<T> key(@Nonnull Class<T> type) {
-    return new ResourceKey<>(type, null);
+  public static @Nonnull  <T> ServiceKey<T> key(@Nonnull Class<T> type) {
+    return new ServiceKey<>(type, null);
   }
 
   /**
@@ -93,7 +93,7 @@ public final class ResourceKey<T> {
    * @param <T> Type.
    * @return A new resource key.
    */
-  public static @Nonnull  <T> ResourceKey<T> key(@Nonnull Class<T> type, @Nonnull String name) {
-    return new ResourceKey<>(type, name);
+  public static @Nonnull  <T> ServiceKey<T> key(@Nonnull Class<T> type, @Nonnull String name) {
+    return new ServiceKey<>(type, name);
   }
 }

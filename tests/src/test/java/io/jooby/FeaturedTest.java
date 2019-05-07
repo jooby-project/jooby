@@ -2055,6 +2055,21 @@ public class FeaturedTest {
     });
   }
 
+  @Test
+  public void services() {
+    new JoobyRunner(app -> {
+      ServiceRegistry services = app.getServices();
+      services.put(ServiceKey.key(String.class, "x"), "value");
+
+      app.get("/services", ctx -> app.require(String.class, "x"));
+    }).ready(client -> {
+      client.get("/services", rsp -> {
+        assertEquals("value", rsp.body().string());
+      });
+    });
+
+  }
+
   private static String readText(Path file) {
     try {
       return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);

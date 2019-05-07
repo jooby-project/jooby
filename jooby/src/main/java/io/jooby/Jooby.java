@@ -16,8 +16,6 @@
 package io.jooby;
 
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
 import io.jooby.internal.RouterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -449,11 +447,24 @@ public class Jooby implements Router, Registry {
   }
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
-    return checkRegistry().require(type, name);
+    return require(ServiceKey.key(type, name));
   }
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type) {
-    return checkRegistry().require(type);
+    return require(ServiceKey.key(type));
+  }
+
+  private @Nonnull <T> T require(@Nonnull ServiceKey<T> key) {
+    ServiceRegistry services = getServices();
+    T service = services.getOrNull(key);
+    if (service == null) {
+      if (registry == null) {
+        throw new RegistryException("Service not found: " + key);
+      }
+      String name = key.getName();
+      return name == null ? registry.require(key.getType()) : registry.require(key.getType(), name);
+    }
+    return service;
   }
 
   /**
@@ -467,18 +478,8 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public Map<ResourceKey, Object> getResources() {
-    return this.router.getResources();
-  }
-
-  @Nonnull @Override public <R> Jooby resource(@Nonnull ResourceKey<R> key, @Nonnull R resource) {
-    this.router.resource(key, resource);
-    return this;
-  }
-
-  @Nonnull @Override public <T> T resource(@Nonnull ResourceKey<T> key)
-      throws IllegalStateException {
-    return this.router.resource(key);
+  @Nonnull @Override public ServiceRegistry getServices() {
+    return this.router.getServices();
   }
 
   private Registry checkRegistry() {

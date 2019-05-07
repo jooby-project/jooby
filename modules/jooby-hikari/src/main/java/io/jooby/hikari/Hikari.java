@@ -23,7 +23,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
-import io.jooby.ResourceKey;
+import io.jooby.ServiceKey;
+import io.jooby.ServiceRegistry;
 
 import javax.annotation.Nonnull;
 import javax.sql.DataSource;
@@ -35,7 +36,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -158,7 +158,7 @@ public class Hikari implements Extension {
   private static final Set<String> SKIP_TOKENS = Stream.of("jdbc", "jtds")
       .collect(Collectors.toSet());
 
-  public static final ResourceKey<DataSource> KEY = ResourceKey.key(DataSource.class);
+  public static final ServiceKey<DataSource> KEY = ServiceKey.key(DataSource.class);
 
   private HikariConfig hikari;
 
@@ -183,13 +183,13 @@ public class Hikari implements Extension {
     }
     HikariDataSource dataSource = new HikariDataSource(hikari);
 
-    Map<ResourceKey, Object> resources = application.getResources();
-    ResourceKey<DataSource> key = ResourceKey.key(DataSource.class, database);
+    ServiceRegistry registry = application.getServices();
+    ServiceKey<DataSource> key = ServiceKey.key(DataSource.class, database);
     /** Global default database: */
-    resources.putIfAbsent(KEY, dataSource);
+    registry.putIfAbsent(KEY, dataSource);
 
     /** Specific access: */
-    resources.put(key, dataSource);
+    registry.put(key, dataSource);
 
     application.onStop(dataSource::close);
   }
