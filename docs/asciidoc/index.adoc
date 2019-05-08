@@ -227,3 +227,5 @@ include::configuration.adoc[]
 include::dependency-injection.adoc[]
 
 include::testing.adoc[]
+
+include::dev-tools.adoc[]

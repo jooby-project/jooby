@@ -32,7 +32,6 @@ public class App extends Jooby {
 }
 ----
 
-[id="getting-started-kotlin"]
 === Kotlin
 
 1) Add Kotlin dependencies:

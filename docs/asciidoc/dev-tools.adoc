@@ -1,0 +1,149 @@
+== Development Tools
+
+Jooby includes an additional set of tools that can make the application development experience more
+pleasant.
+
+=== jooby run
+
+The `jooby run` tool allows to restart your application on code changes without exiting the JVM.
+
+This feature is also known as hot reload/swap. Makes you feel like coding against a script 
+language where you modify your code and they are visible immediately.
+  
+The tool uses the https://jboss-modules.github.io/jboss-modules/manual[JBoss Modules] library
+that effectively reload application classes.
+
+For now `jooby run` is available as Maven and Gradle plugins.
+
+==== Usage
+
+1) Add build plugin:
+
+.pom.xml
+[source, xml, role = "primary"]
+----
+<plugins>
+  ...
+  <plugin>
+    <groupId>io.jooby</groupId>
+    <artifactId>jooby-maven-plugin</artifactId>
+    <version>${version}</version>
+  </plugin>
+  ...
+</plugins>
+----
+
+.build.gradle
+[source, groovy, role = "secondary"]
+----
+buildscript {
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath "io.jooby:jooby-gradle-plugin:${version}"
+  }
+}
+
+apply plugin: "application"
+apply plugin: "jooby"
+----
+
+2) Set main class
+
+.pom.xml
+[source, xml, role = "primary"]
+----
+<properties>
+  <application.class>myapp.App</application.class>
+</properties>
+----
+
+.build.gradle
+[source, groovy, role = "secondary"]
+----
+mainClassName = "starter.gradle.App"
+----
+
+3) Run application
+
+.Maven
+[source, bash, role = "primary"]
+----
+mvn jooby:run
+----
+
+.Gradle
+[source, bash, role = "secondary"]
+----
+./gradlew joobyRun
+----
+
+==== Compilation & Reload
+
+Changing a `java` or `kotlin` file triggers a compilation request. Compilation is executed by 
+Maven/Gradle using an incremental build process.
+
+If compilation succeed, application is restarted.
+
+Compilation errors are printed to the console by Maven/Gradle.
+
+Changing a `.conf`, `.properties` file triggers just an application restart request. They don't trigger
+a compilation request.
+
+==== Options
+
+The next example shows all the available options with their default values:
+
+.pom.xml
+[source, xml, role = "primary"]
+----
+<plugins>
+  ...
+  <plugin>
+    <groupId>io.jooby</groupId>
+    <artifactId>jooby-maven-plugin</artifactId>
+    <version>${version}</version>
+    <configuration>
+      <mainClass>${application.class}</mainClass>                  <1>
+      <restartExtensions>conf,properties,class</restartExtensions> <2>
+      <sourceExtensions>java,kt</sourceExtension>                  <3>
+      <port>8080</port>                                            <4>
+    </configuration>
+  </plugin>
+  ...
+</plugins>
+----
+
+.build.gradle
+[source, groovy, role = "secondary"]
+----
+buildscript {
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath "io.jooby:jooby-gradle-plugin:${version}"
+  }
+}
+
+apply plugin: "application"
+apply plugin: "jooby"
+
+joobyRun {
+  mainClass = "${mainClassName}"                                   <1>
+  restartExtensions = ["conf", "properties", "class"]              <2>
+  sourceExtensions =  ["java", "kt"]                               <3>
+  port = 8080                                                      <4>
+}
+----
+
+<1> Application main class
+<2> Restart extensions. A change on these files trigger a restart request.
+<3> Source extensions. A change on these files trigger a compilation request, followed by a restart request.
+<4> Application port
+
