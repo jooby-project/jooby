@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-public class HotSwap {
+public class JoobyRun {
 
   private static class ExtModuleLoader extends ModuleLoader {
 
@@ -52,19 +52,15 @@ public class HotSwap {
   private static class AppModule {
     private final Logger logger;
     private final ExtModuleLoader loader;
-    private final String projectName;
-    private String mainClass;
+    private final JoobyRunConf conf;
     private Module module;
     private ClassLoader contextClassLoader;
-    private int port;
 
-    public AppModule(Logger logger, ExtModuleLoader loader, String projectName, String mainClass,
-        int port, ClassLoader contextClassLoader) {
+    public AppModule(Logger logger, ExtModuleLoader loader, ClassLoader contextClassLoader,
+        JoobyRunConf conf) {
       this.logger = logger;
       this.loader = loader;
-      this.projectName = projectName;
-      this.mainClass = mainClass;
-      this.port = port;
+      this.conf = conf;
       this.contextClassLoader = contextClassLoader;
     }
 
@@ -72,14 +68,16 @@ public class HotSwap {
       try {
         System.setProperty("___jooby_run_hook__", ServerRef.class.getName());
 
-        module = loader.loadModule(projectName);
+        module = loader.loadModule(conf.getProjectName());
         ModuleClassLoader classLoader = module.getClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
 
-        module.run(mainClass, new String[]{"server.port=" + port, "server.join=false"});
+        module.run(conf.getMainClass(),
+            new String[]{"server.port=" + conf.getPort(), "server.join=false"});
 
       } catch (Exception x) {
-        logger.error("execution of {} resulted in exception", mainClass, withoutReflection(x));
+        logger.error("execution of {} resulted in exception", conf.getMainClass(),
+            withoutReflection(x));
       } finally {
         Thread.currentThread().setContextClassLoader(contextClassLoader);
       }
@@ -105,7 +103,7 @@ public class HotSwap {
     private void unloadModule() {
       try {
         if (module != null) {
-          loader.unload(projectName, module);
+          loader.unload(conf.getProjectName(), module);
         }
       } catch (Exception x) {
         logger.debug("unload module resulted in exception", x);
@@ -125,9 +123,7 @@ public class HotSwap {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final String projectName;
-
-  private final String mainClass;
+  private final JoobyRunConf conf;
 
   private final Set<Path> resources = new LinkedHashSet<>();
 
@@ -139,11 +135,8 @@ public class HotSwap {
 
   private AppModule module;
 
-  private int port = 8080;
-
-  public HotSwap(String projectName, String mainClass) {
-    this.projectName = projectName;
-    this.mainClass = mainClass;
+  public JoobyRun(JoobyRunConf conf) {
+    this.conf = conf;
   }
 
   public boolean addResource(Path path, BiConsumer<String, Path> callback) {
@@ -173,24 +166,16 @@ public class HotSwap {
     try {
       logger.debug("project: {}", toString());
 
-      ModuleFinder[] finders = {new FlattenClasspath(projectName, resources, dependencies)};
+      ModuleFinder[] finders = {
+          new FlattenClasspath(conf.getProjectName(), resources, dependencies)};
 
       ExtModuleLoader loader = new ExtModuleLoader(finders);
-      module = new AppModule(logger, loader, projectName, mainClass, port,
-          Thread.currentThread().getContextClassLoader());
+      module = new AppModule(logger, loader, Thread.currentThread().getContextClassLoader(), conf);
       module.start();
       watcher.watch();
     } catch (ClosedWatchServiceException expected) {
       logger.trace("Watcher.close resulted in exception", expected);
     }
-  }
-
-  public int getPort() {
-    return port;
-  }
-
-  public void setPort(int port) {
-    this.port = port;
   }
 
   public void restart() {
@@ -225,7 +210,7 @@ public class HotSwap {
 
   @Override public String toString() {
     StringBuilder buff = new StringBuilder();
-    buff.append(projectName).append("\n");
+    buff.append(conf.getProjectName()).append("\n");
     buff.append("  watch-dirs: ").append("\n");
     watchDirs.forEach(
         (path, callback) -> buff.append("    ").append(path.toAbsolutePath()).append("\n"));

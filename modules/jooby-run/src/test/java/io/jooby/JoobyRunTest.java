@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class HotSwapTest {
+public class JoobyRunTest {
   @Test
   @DisplayName("Make sure of module class loader name. It is required from Jooby when loading joobyRun hook")
   public void modularClassLoaderName() {

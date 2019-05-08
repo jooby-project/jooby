@@ -15,6 +15,7 @@
  */
 package io.jooby.gradle;
 
+import io.jooby.run.JoobyRunConf;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -24,7 +25,7 @@ import java.util.Map;
 
 public class JoobyPlugin implements Plugin<Project> {
   @Override public void apply(Project project) {
-    project.getExtensions().create("joobyRun", RunTaskConfig.class);
+    project.getExtensions().create("joobyRun", JoobyRunConf.class);
 
     Map<String, Object> options = new HashMap<>();
     options.put(Task.TASK_TYPE, RunTask.class);

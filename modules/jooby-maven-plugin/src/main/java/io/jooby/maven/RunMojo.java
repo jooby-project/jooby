@@ -16,7 +16,8 @@
 package io.jooby.maven;
 
 import edu.emory.mathcs.backport.java.util.Collections;
-import io.jooby.run.HotSwap;
+import io.jooby.run.JoobyRun;
+import io.jooby.run.JoobyRunConf;
 import org.apache.maven.Maven;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
@@ -42,7 +43,6 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.graph.Dependency;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -97,10 +97,9 @@ public class RunMojo extends AbstractMojo {
       }
       getLog().debug("Found `" + APP_CLASS + "`: " + mainClass);
 
-      HotSwap hotSwap = new HotSwap(session.getCurrentProject().getArtifactId(), mainClass);
-      hotSwap.setPort(port);
+      JoobyRun joobyRun = new JoobyRun(createOptions());
 
-      Runtime.getRuntime().addShutdownHook(new Thread(hotSwap::shutdown));
+      Runtime.getRuntime().addShutdownHook(new Thread(joobyRun::shutdown));
 
       BiConsumer<String, Path> onFileChanged = (event, path) -> {
         if (isCompileExtension(path)) {
@@ -110,11 +109,11 @@ public class RunMojo extends AbstractMojo {
             getLog().debug("Compilation error found: " + path);
           } else {
             getLog().debug("Restarting application on file change: " + path);
-            hotSwap.restart();
+            joobyRun.restart();
           }
         } else if (isRestartExtension(path)) {
           getLog().debug("Restarting application on file change: " + path);
-          hotSwap.restart();
+          joobyRun.restart();
         } else {
           getLog().debug("Ignoring file change: " + path);
         }
@@ -128,32 +127,42 @@ public class RunMojo extends AbstractMojo {
         resourceList.stream()
             .map(Resource::getDirectory)
             .map(Paths::get)
-            .forEach(file -> hotSwap.addResource(file, onFileChanged));
+            .forEach(file -> joobyRun.addResource(file, onFileChanged));
         // conf directory
         Path conf = project.getBasedir().toPath().resolve("conf");
-        hotSwap.addResource(conf, onFileChanged);
+        joobyRun.addResource(conf, onFileChanged);
 
         // target/classes
-        hotSwap.addResource(Paths.get(project.getBuild().getOutputDirectory()));
+        joobyRun.addResource(Paths.get(project.getBuild().getOutputDirectory()));
 
         Set<Path> src = sourceDirectories(project);
         if (src.isEmpty()) {
           getLog().debug("Compiler is off in favor of Eclipse compiler.");
-          binDirectories(project).forEach(path -> hotSwap.addResource(path, onFileChanged));
+          binDirectories(project).forEach(path -> joobyRun.addResource(path, onFileChanged));
         } else {
-          src.forEach(path -> hotSwap.addResource(path, onFileChanged));
+          src.forEach(path -> joobyRun.addResource(path, onFileChanged));
         }
 
-        artifacts(project).forEach(hotSwap::addResource);
+        artifacts(project).forEach(joobyRun::addResource);
       }
 
       // Block current thread.
-      hotSwap.start();
+      joobyRun.start();
     } catch (MojoExecutionException | MojoFailureException x) {
       throw x;
     } catch (Exception x) {
       throw new MojoFailureException("jooby-run resulted in exception", x);
     }
+  }
+
+  private JoobyRunConf createOptions() {
+    JoobyRunConf options = new JoobyRunConf();
+    options.setMainClass(mainClass);
+    options.setCompileExtensions(compileExtensions);
+    options.setPort(port);
+    options.setProjectName(session.getCurrentProject().getArtifactId());
+    options.setRestartExtensions(restartExtensions);
+    return options;
   }
 
   public List<String> getCompileExtensions() {

@@ -15,7 +15,8 @@
  */
 package io.jooby.gradle;
 
-import io.jooby.run.HotSwap;
+import io.jooby.run.JoobyRun;
+import io.jooby.run.JoobyRunConf;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -54,18 +55,20 @@ public class RunTask extends DefaultTask {
   public void run() throws Throwable {
     try {
       Project current = getProject();
-      RunTaskConfig config = current.getExtensions().getByType(RunTaskConfig.class);
+      JoobyRunConf config = current.getExtensions().getByType(JoobyRunConf.class);
       List<Project> projects = Arrays.asList(current);
 
-      String mainClass = projects.stream()
-          .filter(it -> it.getProperties().containsKey("mainClassName"))
-          .map(it -> it.getProperties().get("mainClassName").toString())
-          .findFirst()
-          .orElseThrow(() -> new IllegalArgumentException(
-              "Application class not found. Did you forget to set `mainClassName`?"));
-
-      HotSwap hotSwap = new HotSwap(current.getName(), mainClass);
-      hotSwap.setPort(config.getPort());
+      if (config.getMainClass() == null) {
+        String mainClass = projects.stream()
+            .filter(it -> it.getProperties().containsKey("mainClassName"))
+            .map(it -> it.getProperties().get("mainClassName").toString())
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Application class not found. Did you forget to set `mainClassName`?"));
+        config.setMainClass(mainClass);
+      }
+      config.setProjectName(current.getName());
+      JoobyRun joobyRun = new JoobyRun(config);
 
       connection = GradleConnector.newConnector()
           .useInstallation(current.getGradle().getGradleHomeDir())
@@ -78,7 +81,7 @@ public class RunTask extends DefaultTask {
           .forTasks("classes");
 
       Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-        hotSwap.shutdown();
+        joobyRun.shutdown();
         connection.close();
       }));
 
@@ -87,7 +90,7 @@ public class RunTask extends DefaultTask {
           compiler.run(new ResultHandler<Void>() {
             @Override public void onComplete(Void result) {
               getLogger().debug("Restarting application on file change: " + path);
-              hotSwap.restart();
+              joobyRun.restart();
             }
 
             @Override public void onFailure(GradleConnectionException failure) {
@@ -96,7 +99,7 @@ public class RunTask extends DefaultTask {
           });
         } else if (config.isRestartExtension(path)) {
           getLogger().debug("Restarting application on file change: " + path);
-          hotSwap.restart();
+          joobyRun.restart();
         } else {
           getLogger().debug("Ignoring file change: " + path);
         }
@@ -109,28 +112,28 @@ public class RunTask extends DefaultTask {
         // main/resources
         sourceSet.getResources().getSrcDirs().stream()
             .map(File::toPath)
-            .forEach(file -> hotSwap.addResource(file, onFileChanged));
+            .forEach(file -> joobyRun.addResource(file, onFileChanged));
         // conf directory
         Path conf = project.getProjectDir().toPath().resolve("conf");
-        hotSwap.addResource(conf, onFileChanged);
+        joobyRun.addResource(conf, onFileChanged);
 
         // build classes
-        binDirectories(project, sourceSet).forEach(hotSwap::addResource);
+        binDirectories(project, sourceSet).forEach(joobyRun::addResource);
 
         Set<Path> src = sourceDirectories(project, sourceSet);
         if (src.isEmpty()) {
           getLogger().debug("Compiler is off in favor of Eclipse compiler.");
           binDirectories(project, sourceSet)
-              .forEach(path -> hotSwap.addResource(path, onFileChanged));
+              .forEach(path -> joobyRun.addResource(path, onFileChanged));
         } else {
-          src.forEach(path -> hotSwap.addResource(path, onFileChanged));
+          src.forEach(path -> joobyRun.addResource(path, onFileChanged));
         }
 
-        dependencies(project, sourceSet).forEach(hotSwap::addResource);
+        dependencies(project, sourceSet).forEach(joobyRun::addResource);
       }
 
       // Block current thread.
-      hotSwap.start();
+      joobyRun.start();
     } catch (InvocationTargetException x) {
       throw x.getCause();
     }

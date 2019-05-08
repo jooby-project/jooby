@@ -16,8 +16,6 @@
 package io.jooby.run;
 
 import org.jboss.modules.DependencySpec;
-import org.jboss.modules.Module;
-import org.jboss.modules.ModuleDependencySpec;
 import org.jboss.modules.ModuleDependencySpecBuilder;
 import org.jboss.modules.ModuleLoadException;
 import org.jboss.modules.ModuleSpec;
@@ -28,17 +26,14 @@ import org.jboss.modules.filter.PathFilters;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.jar.JarFile;
 
 import static org.jboss.modules.ResourceLoaderSpec.createResourceLoaderSpec;
 import static org.jboss.modules.ResourceLoaders.createJarResourceLoader;
 import static org.jboss.modules.ResourceLoaders.createPathResourceLoader;
 
-public class Specs {
+class Specs {
 
   static DependencySpec metaInf(String moduleName) {
     return new ModuleDependencySpecBuilder()

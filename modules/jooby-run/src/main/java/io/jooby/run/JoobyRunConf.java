@@ -13,19 +13,39 @@
  *
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.gradle;
+package io.jooby.run;
 
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
-public class RunTaskConfig {
+public class JoobyRunConf {
+
+  private String projectName;
+
+  private String mainClass;
 
   private List<String> restartExtensions = Arrays.asList("conf", "properties", "class");
 
   private List<String> compileExtensions = Arrays.asList("java", "kt");
 
   private int port = 8080;
+
+  public String getProjectName() {
+    return projectName;
+  }
+
+  public void setProjectName(String projectName) {
+    this.projectName = projectName;
+  }
+
+  public String getMainClass() {
+    return mainClass;
+  }
+
+  public void setMainClass(String mainClass) {
+    this.mainClass = mainClass;
+  }
 
   public int getPort() {
     return port;
