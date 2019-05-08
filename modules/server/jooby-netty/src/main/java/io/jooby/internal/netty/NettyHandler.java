@@ -103,8 +103,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         resetDecoderState(false);
         result.execute(context);
       }
-    } else {
-      ctx.fireChannelRead(msg);
     }
   }
 

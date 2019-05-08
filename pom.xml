@@ -61,7 +61,7 @@
     <!-- Misc -->
     <okhttp.version>3.14.1</okhttp.version>
 
-    <javassist.version>3.22.0-GA</javassist.version>
+    <javassist.version>3.25.0-GA</javassist.version>
     <javax.inject.version>1</javax.inject.version>
     <jsr305.version>3.0.2</jsr305.version>
     <jakarta.ws.rs-api.version>2.1.5</jakarta.ws.rs-api.version>
