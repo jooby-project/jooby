@@ -1,40 +1,35 @@
-== Development Tools
-
-Jooby includes an additional set of tools that can make the application development experience more
-pleasant.
-
-=== jooby run
+== Hot Reload
 
 The `jooby run` tool allows to restart your application on code changes without exiting the JVM.
 
 This feature is also known as hot reload/swap. Makes you feel like coding against a script 
-language where you modify your code and they are visible immediately.
+language where you modify your code and changes are visible immediately.
   
 The tool uses the https://jboss-modules.github.io/jboss-modules/manual[JBoss Modules] library
 that effectively reload application classes.
 
 For now `jooby run` is available as Maven and Gradle plugins.
 
-==== Usage
+=== Usage
 
 1) Add build plugin:
 
 .pom.xml
-[source, xml, role = "primary"]
+[source, xml, role = "primary", subs="verbatim,attributes"]
 ----
 <plugins>
   ...
   <plugin>
     <groupId>io.jooby</groupId>
     <artifactId>jooby-maven-plugin</artifactId>
-    <version>${version}</version>
+    <version>{joobyVersion}</version>
   </plugin>
   ...
 </plugins>
 ----
 
 .build.gradle
-[source, groovy, role = "secondary"]
+[source, groovy, role = "secondary", subs="verbatim,attributes"]
 ----
 buildscript {
 
@@ -43,7 +38,7 @@ buildscript {
   }
 
   dependencies {
-    classpath "io.jooby:jooby-gradle-plugin:${version}"
+    classpath "io.jooby:jooby-gradle-plugin:{joobyVersion}"
   }
 }
 
@@ -81,7 +76,7 @@ mvn jooby:run
 ./gradlew joobyRun
 ----
 
-==== Compilation & Reload
+=== Compilation & Restart
 
 Changing a `java` or `kotlin` file triggers a compilation request. Compilation is executed by 
 Maven/Gradle using an incremental build process.
@@ -93,19 +88,22 @@ Compilation errors are printed to the console by Maven/Gradle.
 Changing a `.conf`, `.properties` file triggers just an application restart request. They don't trigger
 a compilation request.
 
-==== Options
+Compiler is enabled by default, except for Eclipse users. Plugin checks for `.classpath` file in
+project directory, when found plugin compiler is OFF and let Eclipse compiles the code. 
+
+=== Options
 
 The next example shows all the available options with their default values:
 
 .pom.xml
-[source, xml, role = "primary"]
+[source, xml, role = "primary", subs="verbatim,attributes"]
 ----
 <plugins>
   ...
   <plugin>
     <groupId>io.jooby</groupId>
     <artifactId>jooby-maven-plugin</artifactId>
-    <version>${version}</version>
+    <version>{joobyVersion}</version>
     <configuration>
       <mainClass>${application.class}</mainClass>                  <1>
       <restartExtensions>conf,properties,class</restartExtensions> <2>
@@ -118,16 +116,16 @@ The next example shows all the available options with their default values:
 ----
 
 .build.gradle
-[source, groovy, role = "secondary"]
+[source, groovy, role = "secondary", subs="verbatim,attributes"]
 ----
 buildscript {
-
+  
   repositories {
     mavenCentral()
   }
 
   dependencies {
-    classpath "io.jooby:jooby-gradle-plugin:${version}"
+    classpath "io.jooby:jooby-gradle-plugin:{joobyVersion}"
   }
 }
 

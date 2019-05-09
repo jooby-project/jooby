@@ -1,0 +1,135 @@
+=== Guice
+
+1) Add Guice dependency to your project:
+
+[dependency, artifactId="jooby-guice"]
+.
+
+2) Install Guice:
+
+.Installing Guice
+[source, java, role = "primary"]
+----
+
+import io.jooby.di.Guiceby;
+import io.jooby.runApp;
+
+public class App extends Jooby {
+
+  {
+    install(new Guiceby());                         <1>
+        
+    get("/", ctx -> {
+      MyService service = require(MyService.class); <2>
+      return service.doSomething();
+    });
+}
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.di.Guiceby
+import io.jooby.runApp
+
+fun main(args: Array<String>) {
+  runApp(args) {
+    install(Guiceby())                        <1>
+    
+    get ("/") { ctx ->
+      val service = require(MyService::class) <2>
+      service.doSomething()
+    }
+  }
+}
+----
+
+<1> Install Guice extension
+<2> The javadoc:Jooby[require, java.lang.Class] call is now resolved by Guice
+
+==== Property Injection
+
+Configuration properties can be injected using the `@Named` annotation:
+
+.application.conf
+[source, bash]
+----
+currency = USD
+----
+
+.Java
+[source,java,role="primary"]
+----
+
+import javax.injext.Named;
+import javax.injext.Inject;
+
+public class BillingService {
+
+  @Inject
+  public BillingService(@Named("currency") String currency) {
+    ...
+  }
+
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class BillingService @Inject constructor(@Named("currency") currency: String) {
+  ...
+}
+----
+
+==== MVC routes
+
+Guice will also provisioning MVC routes
+
+.MVC and Guice
+[source, java, role = "primary"]
+----
+import io.jooby.di.Guiceby;
+import io.jooby.runApp
+
+public class App extends Jooby {
+
+  {
+    install(new Guiceby());    <1>
+          
+    mvc(MyController.class);   <2>
+  }
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.di.Guiceby
+import io.jooby.runApp
+
+fun main(args: Array<String>) {
+  runApp(args) {
+    install(Guiceby())         <1>
+
+    mvc(MyController::class)   <2>
+  }
+}
+----
+
+<1> Install Guice extension
+<2> Register a MVC route
+
+The lifecycle of `MyController` is now managed by Guice. Also:
+
+- In Guice, the default scope is `prototype` (creates a new instance per request)
+- If you prefer a single instance add the `javax.inject.Singleton` annotation

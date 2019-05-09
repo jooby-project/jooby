@@ -1,0 +1,177 @@
+=== Dagger
+
+1) Add Dagger to your project
+
+[dependency, groupId="com.google.dagger", artifactId="dagger", version="2.20"]
+.
+
+2) Configure annotation processor
+
+.Maven
+[source, xml, role = "primary"]
+----
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>...</version>
+      <configuration>
+        <annotationProcessorPaths>
+          <path>
+            <groupId>com.google.dagger</groupId>
+            <artifactId>dagger-compiler</artifactId>
+            <version>2.20</version>
+          </path>
+        </annotationProcessorPaths>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+----
+
+.Gradle
+[source, kotlin, role = "secondary"]
+----
+plugins {
+  id "net.ltgt.apt" version "0.21"
+}
+
+dependencies {
+  apt 'com.google.dagger:dagger-compiler:2.20'
+}
+----
+
+3) Bootstrap Dagger from application:
+
+.Dagger
+[source, java, role = "primary"]
+----
+import static io.jooby.Jooby.runApp;
+
+public class App extends Jooby {
+
+  {
+     /** Dagger: */
+     AppComponent dagger = DaggerAppComponent.builder()      <1>
+         .build();
+      
+     get("/", ctx -> {
+       MyService service = dagger.getMyService();            <2>
+       return service.doSomething();
+     });
+  }
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.runApp
+
+fun main(args: Array<String>) {
+  runApp(args) {
+    val dagger = DaggerAppComponent.builder() <1>
+        .build()
+    
+    get("/") { ctx ->
+      val service = dagger.getMyService()     <2>
+      service.doSomething()
+    }
+  }
+}
+----
+
+<1> Bootstrap dagger component
+<2> Use dagger provided objects
+
+==== MVC routes
+
+Integration of MVC routes with Dagger is as simple as:
+
+.MVC and Dagger
+[source, java, role = "primary"]
+----
+
+import static io.jooby.Jooby.runApp;
+
+public class App extends Jooby {
+
+  {
+    /** Dagger: */
+    AppComponent dagger = DaggerAppComponent.builder()  <1>
+        .build();
+    
+    mvc(dagger.myController());                         <2>
+  }
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.runApp
+
+fun main(args: Array<String>) {
+  runApp(args) {
+    val dagger = DaggerAppComponent.builder() <1>
+        .build()
+    
+    mvc(dagger.myController())                <2>
+  }
+}
+----
+
+<1> Bootstrap dagger component
+<2> Register MVC route provided by Dagger
+
+Due the static nature of Dagger mvc integration identical to normal usage. For custom scopes/lifecycles
+Dagger generate a `javax.inject.Provider` on such use cases you need to switch and use the provider
+version of the `mvc` method:
+
+.MVC and Dagger provider
+[source, java, role = "primary"]
+----
+import static io.jooby.Jooby.runApp;
+
+public class App extends Jooby {
+
+  {
+    /** Dagger: */
+    AppComponent dagger = DaggerAppComponent.builder()      <1>
+        .build();
+    
+    mvc(MyController.class, dagger.myController());         <2>
+  }
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.runApp
+
+fun main(args: Array<String>) {
+  runApp(args) {
+    val dagger = DaggerAppComponent.builder()        <1>
+        .build()
+    
+    mvc(MyController::class, dagger.myController())  <2>
+  }
+}
+----
+
+<1> Bootstrap dagger component
+<2> Register MVC route using a Dagger provider

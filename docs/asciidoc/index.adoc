@@ -70,13 +70,13 @@ Thank you {love}
 
 === Key Features
 
-- Script/Lambda routes. Reflection and annotation free
-- MVC routes. Annotation and byte code generation. Similar to Spring and JAX-RS
-- Reactive responses: Completable futures, RxJava, Reactor and Kotlin coroutines
-- Configuration using https://github.com/lightbend/config[config] library
-- https://www.slf4j.org[Slf4j] logging
-- Multi Server: https://https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty], http://undertow.io[Undertow]
-- Extension system for commons technical tasks: connection pool, json, template engine, etc...
+* Fast startup time
+* Hot-Reload for development (Save + Compile + Restart)
+* Script/lambda routes
+* MVC/JAX-RS routes
+* Event Loop and blocking execution modes
+* Reactive responses (Completable Futures, RxJava and Reactor types and Kotlin Coroutines)
+* Multi-server: https://https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty] and http://undertow.io[Undertow]
 
 === Script API
 
@@ -224,8 +224,8 @@ include::mvc-api.adoc[]
 
 include::configuration.adoc[]
 
-include::dependency-injection.adoc[]
-
 include::testing.adoc[]
 
 include::dev-tools.adoc[]
+
+include::dependency-injection.adoc[]

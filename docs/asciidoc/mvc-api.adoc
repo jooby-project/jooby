@@ -65,7 +65,7 @@ HTTP parameter provision is available via `*Param` annotations.
 
 ==== Header
 
-Provision of headers is available via javadoc:annotations.HeaderParam[] annotation:
+Provisioning of headers is available via javadoc:annotations.HeaderParam[] annotation:
 
 .Headers
 [source, java, role = "primary"]
@@ -123,7 +123,7 @@ class MyController {
 
 ==== Cookie
 
-Provision of cookies is available via javadoc:annotations.CookieParam[] annotation:
+Provisioning of cookies is available via javadoc:annotations.CookieParam[] annotation:
 
 .Cookies
 [source, java, role = "primary"]
@@ -161,7 +161,7 @@ non valid Java names:
 public class MyController {
 
   @GET
-  public Object provisioning(@HeaderParam("token-id") String tokenId) {
+  public Object provisioning(@CookieParam("token-id") String tokenId) {
     ...
   }
 }
@@ -173,7 +173,7 @@ public class MyController {
 class MyController {
 
   @GET
-  fun provisioning(@HeaderParam("token-id") tokenId: String) : Any {
+  fun provisioning(@CookieParam("token-id") tokenId: String) : Any {
     ...
   }
 }
