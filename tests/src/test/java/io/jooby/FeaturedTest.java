@@ -2074,7 +2074,7 @@ public class FeaturedTest {
     try {
       return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 

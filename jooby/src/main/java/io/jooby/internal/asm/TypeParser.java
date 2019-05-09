@@ -16,7 +16,7 @@
 package io.jooby.internal.asm;
 
 import io.jooby.Reified;
-import io.jooby.Throwing;
+import io.jooby.Sneaky;
 
 import java.lang.reflect.Type;
 import java.util.Iterator;
@@ -121,7 +121,7 @@ public class TypeParser {
           return result;
       }
     } catch (Exception x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 

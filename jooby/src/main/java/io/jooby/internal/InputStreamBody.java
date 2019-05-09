@@ -17,7 +17,7 @@ package io.jooby.internal;
 
 import io.jooby.Body;
 import io.jooby.ServerOptions;
-import io.jooby.Throwing;
+import io.jooby.Sneaky;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
@@ -51,7 +51,7 @@ public class InputStreamBody implements Body {
       }
       return out.toByteArray();
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 

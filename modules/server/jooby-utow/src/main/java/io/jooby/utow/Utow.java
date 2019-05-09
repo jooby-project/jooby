@@ -18,7 +18,7 @@ package io.jooby.utow;
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
-import io.jooby.Throwing;
+import io.jooby.Sneaky;
 import io.jooby.internal.utow.UtowHandler;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
@@ -105,7 +105,7 @@ public class Utow extends Server.Base {
       if (cause instanceof BindException) {
         cause = new BindException("Address already in use: " + options.getPort());
       }
-      throw Throwing.sneakyThrow(cause);
+      throw Sneaky.propagate(cause);
     }
   }
 

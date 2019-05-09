@@ -756,7 +756,7 @@ public interface Context {
     try {
       return parser(contentType).parse(this, type.getType());
     } catch (Exception x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -783,7 +783,7 @@ public interface Context {
     try {
       return parser(contentType).parse(this, type);
     } catch (Exception x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -1027,7 +1027,7 @@ public interface Context {
       send(bytes);
       return this;
     } catch (Exception x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -1058,7 +1058,7 @@ public interface Context {
    * @throws Exception Is something goes wrong.
    */
   default @Nonnull Context responseStream(@Nonnull MediaType contentType,
-      @Nonnull Throwing.Consumer<OutputStream> consumer) throws Exception {
+      @Nonnull Sneaky.Consumer<OutputStream> consumer) throws Exception {
     setResponseType(contentType);
     return responseStream(consumer);
   }
@@ -1070,7 +1070,7 @@ public interface Context {
    * @return HTTP channel as output stream. Usually for chunked responses.
    * @throws Exception Is something goes wrong.
    */
-  default @Nonnull Context responseStream(@Nonnull Throwing.Consumer<OutputStream> consumer)
+  default @Nonnull Context responseStream(@Nonnull Sneaky.Consumer<OutputStream> consumer)
       throws Exception {
     try (OutputStream out = responseStream()) {
       consumer.accept(out);
@@ -1120,7 +1120,7 @@ public interface Context {
    * @return This context.
    * @throws Exception Is something goes wrong.
    */
-  default @Nonnull Context responseWriter(@Nonnull Throwing.Consumer<PrintWriter> consumer)
+  default @Nonnull Context responseWriter(@Nonnull Sneaky.Consumer<PrintWriter> consumer)
       throws Exception {
     return responseWriter(MediaType.text, consumer);
   }
@@ -1134,7 +1134,7 @@ public interface Context {
    * @throws Exception Is something goes wrong.
    */
   default @Nonnull Context responseWriter(@Nonnull MediaType contentType,
-      @Nonnull Throwing.Consumer<PrintWriter> consumer) throws Exception {
+      @Nonnull Sneaky.Consumer<PrintWriter> consumer) throws Exception {
     return responseWriter(contentType, contentType.getCharset(), consumer);
   }
 
@@ -1148,7 +1148,7 @@ public interface Context {
    * @throws Exception Is something goes wrong.
    */
   default @Nonnull Context responseWriter(@Nonnull MediaType contentType, @Nullable Charset charset,
-      @Nonnull Throwing.Consumer<PrintWriter> consumer) throws Exception {
+      @Nonnull Sneaky.Consumer<PrintWriter> consumer) throws Exception {
     try (PrintWriter writer = responseWriter(contentType, charset)) {
       consumer.accept(writer);
     }
@@ -1271,7 +1271,7 @@ public interface Context {
       setDefaultResponseType(MediaType.byFile(file));
       return send(FileChannel.open(file));
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -1318,8 +1318,8 @@ public interface Context {
           .error("error handler resulted in exception {} {}", getMethod(), pathString(), x);
     }
     /** rethrow fatal exceptions: */
-    if (Throwing.isFatal(cause)) {
-      throw Throwing.sneakyThrow(cause);
+    if (Sneaky.isFatal(cause)) {
+      throw Sneaky.propagate(cause);
     }
     return this;
   }

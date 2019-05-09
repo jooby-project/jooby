@@ -375,7 +375,7 @@ public class MockRouter {
       }
       return new SingleMockValue(value);
     } catch (Exception x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 

@@ -275,7 +275,7 @@ public class ValueTest {
   @Test
   public void customMapper() {
     assertEquals(new BigDecimal("3.14"), Value.value("n", "3.14").value(BigDecimal::new));
-    Throwing.Function<String, BigDecimal> toBigDecimal = BigDecimal::new;
+    Sneaky.Function<String, BigDecimal> toBigDecimal = BigDecimal::new;
     assertMessage(NumberFormatException.class,
         () -> Value.value("n", "x").value(toBigDecimal), null);
   }

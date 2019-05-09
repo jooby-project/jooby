@@ -30,7 +30,7 @@ import io.jooby.RouterOptions;
 import io.jooby.ServiceRegistry;
 import io.jooby.SessionOptions;
 import io.jooby.StatusCode;
-import io.jooby.Throwing;
+import io.jooby.Sneaky;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.mvc.MvcAnnotationParser;
 import io.jooby.internal.mvc.MvcCompiler;
@@ -578,7 +578,7 @@ public class RouterImpl implements Router {
     });
   }
 
-  private void find(String prefix, Class type, Throwing.Consumer<MvcMethod> consumer) {
+  private void find(String prefix, Class type, Sneaky.Consumer<MvcMethod> consumer) {
     MvcMetadata mvcMetadata = new MvcMetadata(source);
     mvcMetadata.parse(type);
     List<MvcMethod> routes = new ArrayList<>();

@@ -16,7 +16,7 @@
 package io.jooby.internal;
 
 import io.jooby.Body;
-import io.jooby.Throwing;
+import io.jooby.Sneaky;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
@@ -41,7 +41,7 @@ public class FileBody implements Body {
     try {
     return Files.size(file);
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -53,7 +53,7 @@ public class FileBody implements Body {
     try {
       return Files.newByteChannel(file);
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -61,7 +61,7 @@ public class FileBody implements Body {
     try {
       return Files.newInputStream(file);
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -69,7 +69,7 @@ public class FileBody implements Body {
     try {
       return Files.readAllBytes(file);
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 

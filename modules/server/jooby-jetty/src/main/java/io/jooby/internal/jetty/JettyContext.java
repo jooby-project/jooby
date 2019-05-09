@@ -30,15 +30,14 @@ import io.jooby.Sender;
 import io.jooby.Server;
 import io.jooby.Session;
 import io.jooby.SessionStore;
+import io.jooby.Sneaky;
 import io.jooby.StatusCode;
-import io.jooby.Throwing;
 import io.jooby.Value;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.http.MultiPartFormInputStream;
-import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
@@ -127,7 +126,7 @@ public class JettyContext implements Callback, Context {
       }
       return Body.of(in, len);
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -202,7 +201,7 @@ public class JettyContext implements Callback, Context {
             }
           }
         } catch (IOException | ServletException x) {
-          throw Throwing.sneakyThrow(x);
+          throw Sneaky.propagate(x);
         }
       }
     }
@@ -326,7 +325,7 @@ public class JettyContext implements Callback, Context {
       ifSaveSession();
       return response.getOutputStream();
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -338,7 +337,7 @@ public class JettyContext implements Callback, Context {
       setResponseType(type, charset);
       return response.getWriter();
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -379,7 +378,7 @@ public class JettyContext implements Callback, Context {
       }
       return sendStreamInternal(in);
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -400,7 +399,7 @@ public class JettyContext implements Callback, Context {
       response.getHttpOutput().sendContent(stream, this);
       return this;
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -409,7 +408,7 @@ public class JettyContext implements Callback, Context {
       response.setLongContentLength(channel.size());
       return sendStreamInternal(Channels.newInputStream(file));
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 

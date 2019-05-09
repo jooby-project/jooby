@@ -30,14 +30,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
-import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -393,7 +388,7 @@ public class Cookie {
       byte[] bytes = mac.doFinal(value.getBytes());
       return Base64.getEncoder().withoutPadding().encodeToString(bytes) + "|" + value;
     } catch (Exception x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -436,7 +431,7 @@ public class Cookie {
       }
       return joiner.toString();
     } catch (UnsupportedEncodingException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -471,7 +466,7 @@ public class Cookie {
 
       return attributes.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(attributes);
     } catch (UnsupportedEncodingException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 

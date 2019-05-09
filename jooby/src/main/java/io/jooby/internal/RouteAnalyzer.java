@@ -16,7 +16,7 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.Throwing;
+import io.jooby.Sneaky;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.asm.Lambdas;
 import io.jooby.internal.asm.MethodFinder;
@@ -65,7 +65,7 @@ public class RouteAnalyzer {
 
       return returnTypeVisitor.returnType();
     } catch (Exception x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 

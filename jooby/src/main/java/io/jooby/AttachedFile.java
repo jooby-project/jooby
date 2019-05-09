@@ -70,7 +70,7 @@ public class AttachedFile {
       this.content = content;
       this.fileSize = fileSize;
     } catch (UnsupportedEncodingException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 

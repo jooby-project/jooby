@@ -18,7 +18,7 @@ package io.jooby.netty;
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
-import io.jooby.Throwing;
+import io.jooby.Sneaky;
 import io.jooby.internal.netty.DefaultHeaders;
 import io.jooby.internal.netty.NettyNative;
 import io.jooby.internal.netty.NettyPipeline;
@@ -137,13 +137,13 @@ public class Netty extends Server.Base {
 
       fireReady(applications);
     } catch (InterruptedException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     } catch (ExecutionException x) {
       Throwable cause = x.getCause();
       if (cause instanceof BindException) {
         cause = new BindException("Address already in use: " + options.getPort());
       }
-      throw Throwing.sneakyThrow(cause);
+      throw Sneaky.propagate(cause);
     }
     return this;
   }

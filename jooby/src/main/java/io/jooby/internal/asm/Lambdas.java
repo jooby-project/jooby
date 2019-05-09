@@ -15,7 +15,7 @@
  */
 package io.jooby.internal.asm;
 
-import io.jooby.Throwing;
+import io.jooby.Sneaky;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Method;
@@ -37,7 +37,7 @@ public class Lambdas {
       } catch (NoSuchMethodException e) {
         // fall through the loop and try the next class
       } catch (Exception t) {
-        throw Throwing.sneakyThrow(t);
+        throw Sneaky.propagate(t);
       }
     }
 

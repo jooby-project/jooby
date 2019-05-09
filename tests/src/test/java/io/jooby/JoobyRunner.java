@@ -57,19 +57,19 @@ public class JoobyRunner {
     return this;
   }
 
-  public void ready(Throwing.Consumer<WebClient> onReady) {
+  public void ready(Sneaky.Consumer<WebClient> onReady) {
     ready(onReady, new Supplier[0]);
   }
 
-  public void ready(Throwing.Consumer2<WebClient, Server> onReady) {
+  public void ready(Sneaky.Consumer2<WebClient, Server> onReady) {
     ready(onReady, new Supplier[0]);
   }
 
-  public void ready(Throwing.Consumer<WebClient> onReady, Supplier<Server>... servers) {
+  public void ready(Sneaky.Consumer<WebClient> onReady, Supplier<Server>... servers) {
     ready((client, server) -> onReady.accept(client), servers);
   }
 
-  public void ready(Throwing.Consumer2<WebClient, Server> onReady, Supplier<Server>... servers) {
+  public void ready(Sneaky.Consumer2<WebClient, Server> onReady, Supplier<Server>... servers) {
     if (modes.size() == 0) {
       modes.add(ExecutionMode.DEFAULT);
     }
@@ -81,7 +81,7 @@ public class JoobyRunner {
               Spliterator.ORDERED),
           false)
           .map(Server::getClass)
-          .forEach(server -> serverList.add(Throwing.throwingSupplier(server::newInstance)));
+          .forEach(server -> serverList.add(Sneaky.throwingSupplier(server::newInstance)));
     } else {
       serverList.addAll(Arrays.asList(servers));
     }
@@ -102,7 +102,7 @@ public class JoobyRunner {
           onReady.accept(new WebClient(options.getPort()), server);
         } catch (Throwable x) {
           x.printStackTrace();
-          throw Throwing.sneakyThrow(x);
+          throw Sneaky.propagate(x);
         } finally {
           server.stop();
         }

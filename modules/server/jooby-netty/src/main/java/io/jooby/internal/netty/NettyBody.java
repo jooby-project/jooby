@@ -16,7 +16,7 @@
 package io.jooby.internal.netty;
 
 import io.jooby.Body;
-import io.jooby.Throwing;
+import io.jooby.Sneaky;
 import io.jooby.Value;
 import io.jooby.internal.MissingValue;
 import io.netty.handler.codec.http.multipart.HttpData;
@@ -58,7 +58,7 @@ public class NettyBody implements Body {
       }
       return new FileInputStream(data.getFile());
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -73,7 +73,7 @@ public class NettyBody implements Body {
       }
       return Files.readAllBytes(data.getFile().toPath());
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 

@@ -16,7 +16,7 @@
 package io.jooby;
 
 /**
- * Collection of throwable interfaces to simplify exception handling, specially on lambdas.
+ * Collection of throwable interfaces to simplify exception handling on lambdas.
  *
  * We do provide throwable and 100% compatible implementation of {@link java.util.function.Function}
  * , {@link java.util.function.Consumer}, {@link java.lang.Runnable},
@@ -43,12 +43,12 @@ package io.jooby;
  *
  * @author edgar
  */
-public final class Throwing {
+public final class Sneaky {
 
   /**
    * Not allowed.
    */
-  private Throwing() {
+  private Sneaky() {
   }
 
   /**
@@ -76,7 +76,7 @@ public final class Throwing {
       try {
         return tryTest(v);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -109,7 +109,7 @@ public final class Throwing {
       try {
         return tryTest(v1, v2);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -133,7 +133,7 @@ public final class Throwing {
       try {
         tryRun();
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -163,7 +163,7 @@ public final class Throwing {
       try {
         return tryGet();
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -171,7 +171,7 @@ public final class Throwing {
   /**
    * Throwable version of {@link java.util.function.Consumer}.
    *
-   * This class rethrow any exception using the {@link #sneakyThrow(Throwable)} technique.
+   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V> Input type.
    */
@@ -189,7 +189,7 @@ public final class Throwing {
       try {
         tryAccept(v);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -197,7 +197,7 @@ public final class Throwing {
   /**
    * Two argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #sneakyThrow(Throwable)} technique.
+   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -223,7 +223,7 @@ public final class Throwing {
       try {
         tryAccept(v1, v2);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -231,7 +231,7 @@ public final class Throwing {
   /**
    * Three argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #sneakyThrow(Throwable)} technique.
+   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -251,7 +251,7 @@ public final class Throwing {
 
     /**
      * Performs this operation on the given arguments and throw any exception using
-     * {@link #sneakyThrow(Throwable)} method.
+     * {@link #propagate(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -261,7 +261,7 @@ public final class Throwing {
       try {
         tryAccept(v1, v2, v3);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -269,7 +269,7 @@ public final class Throwing {
   /**
    * Four argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #sneakyThrow(Throwable)} technique.
+   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -291,7 +291,7 @@ public final class Throwing {
 
     /**
      * Performs this operation on the given arguments and throw any exception using
-     * {@link #sneakyThrow(Throwable)} method.
+     * {@link #propagate(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -302,7 +302,7 @@ public final class Throwing {
       try {
         tryAccept(v1, v2, v3, v4);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -310,7 +310,7 @@ public final class Throwing {
   /**
    * Five argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #sneakyThrow(Throwable)} technique.
+   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -334,7 +334,7 @@ public final class Throwing {
 
     /**
      * Performs this operation on the given arguments and throw any exception using
-     * {@link #sneakyThrow(Throwable)} method.
+     * {@link #propagate(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -346,7 +346,7 @@ public final class Throwing {
       try {
         tryAccept(v1, v2, v3, v4, v5);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -354,7 +354,7 @@ public final class Throwing {
   /**
    * Six argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #sneakyThrow(Throwable)} technique.
+   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -380,7 +380,7 @@ public final class Throwing {
 
     /**
      * Performs this operation on the given arguments and throw any exception using
-     * {@link #sneakyThrow(Throwable)} method.
+     * {@link #propagate(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -393,7 +393,7 @@ public final class Throwing {
       try {
         tryAccept(v1, v2, v3, v4, v5, v6);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -401,7 +401,7 @@ public final class Throwing {
   /**
    * Seven argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #sneakyThrow(Throwable)} technique.
+   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -429,7 +429,7 @@ public final class Throwing {
 
     /**
      * Performs this operation on the given arguments and throw any exception using
-     * {@link #sneakyThrow(Throwable)} method.
+     * {@link #propagate(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -443,7 +443,7 @@ public final class Throwing {
       try {
         tryAccept(v1, v2, v3, v4, v5, v6, v7);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -451,7 +451,7 @@ public final class Throwing {
   /**
    * Seven argument version of {@link Consumer}.
    *
-   * This class rethrow any exception using the {@link #sneakyThrow(Throwable)} technique.
+   * This class rethrow any exception using the {@link #propagate(Throwable)} technique.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -481,7 +481,7 @@ public final class Throwing {
 
     /**
      * Performs this operation on the given arguments and throw any exception using
-     * {@link #sneakyThrow(Throwable)} method.
+     * {@link #propagate(Throwable)} method.
      *
      * @param v1 Argument.
      * @param v2 Argument.
@@ -496,7 +496,7 @@ public final class Throwing {
       try {
         tryAccept(v1, v2, v3, v4, v5, v6, v7, v8);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -504,7 +504,7 @@ public final class Throwing {
   /**
    * Throwable version of {@link java.util.function.Function}.
    *
-   * The {@link #apply(Object)} method throws checked exceptions using {@link #sneakyThrow(Throwable)} method.
+   * The {@link #apply(Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
    *
    * @param <V> Input type.
    * @param <R> Output type.
@@ -530,7 +530,7 @@ public final class Throwing {
       try {
         return tryApply(v);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -538,7 +538,7 @@ public final class Throwing {
   /**
    * Throwable version of {@link java.util.function.BiFunction}.
    *
-   * The {@link #apply(Object, Object)} method throws checked exceptions using {@link #sneakyThrow(Throwable)} method.
+   * The {@link #apply(Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -567,7 +567,7 @@ public final class Throwing {
       try {
         return tryApply(v1, v2);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -575,7 +575,7 @@ public final class Throwing {
   /**
    * Function with three arguments.
    *
-   * The {@link #apply(Object, Object, Object)} method throws checked exceptions using {@link #sneakyThrow(Throwable)} method.
+   * The {@link #apply(Object, Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -607,7 +607,7 @@ public final class Throwing {
       try {
         return tryApply(v1, v2, v3);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -615,7 +615,7 @@ public final class Throwing {
   /**
    * Function with four arguments.
    *
-   * The {@link #apply(Object, Object, Object, Object)} method throws checked exceptions using {@link #sneakyThrow(Throwable)} method.
+   * The {@link #apply(Object, Object, Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -650,7 +650,7 @@ public final class Throwing {
       try {
         return tryApply(v1, v2, v3, v4);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -658,7 +658,7 @@ public final class Throwing {
   /**
    * Function with five arguments.
    *
-   * The {@link #apply(Object, Object, Object, Object, Object)} method throws checked exceptions using {@link #sneakyThrow(Throwable)} method.
+   * The {@link #apply(Object, Object, Object, Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -696,7 +696,7 @@ public final class Throwing {
       try {
         return tryApply(v1, v2, v3, v4, v5);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -704,7 +704,7 @@ public final class Throwing {
   /**
    * Function with six arguments.
    *
-   * The {@link #apply(Object, Object, Object, Object, Object, Object)} method throws checked exceptions using {@link #sneakyThrow(Throwable)} method.
+   * The {@link #apply(Object, Object, Object, Object, Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -745,7 +745,7 @@ public final class Throwing {
       try {
         return tryApply(v1, v2, v3, v4, v5, v6);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -753,7 +753,7 @@ public final class Throwing {
   /**
    * Function with seven arguments.
    *
-   * The {@link #apply(Object, Object, Object, Object, Object, Object, Object)} method throws checked exceptions using {@link #sneakyThrow(Throwable)} method.
+   * The {@link #apply(Object, Object, Object, Object, Object, Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -797,7 +797,7 @@ public final class Throwing {
       try {
         return tryApply(v1, v2, v3, v4, v5, v6, v7);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -805,7 +805,7 @@ public final class Throwing {
   /**
    * Function with seven arguments.
    *
-   * The {@link #apply(Object, Object, Object, Object, Object, Object, Object, Object)} method throws checked exceptions using {@link #sneakyThrow(Throwable)} method.
+   * The {@link #apply(Object, Object, Object, Object, Object, Object, Object, Object)} method throws checked exceptions using {@link #propagate(Throwable)} method.
    *
    * @param <V1> Input type.
    * @param <V2> Input type.
@@ -852,7 +852,7 @@ public final class Throwing {
       try {
         return tryApply(v1, v2, v3, v4, v5, v6, v7, v8);
       } catch (Exception x) {
-        throw sneakyThrow(x);
+        throw propagate(x);
       }
     }
   }
@@ -929,12 +929,12 @@ public final class Throwing {
   /**
    * Factory method for throwing function.
    *
-   * @param fn Throwing function.
+   * @param fn Sneaky function.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
    * @param <R> Return type.
-   * @return Throwing function.
+   * @return Sneaky function.
    */
   public static <V1, V2, V3, R> Function3<V1, V2, V3, R> throwingFunction(
       Function3<V1, V2, V3, R> fn) {
@@ -944,13 +944,13 @@ public final class Throwing {
   /**
    * Factory method for throwing function.
    *
-   * @param fn Throwing function.
+   * @param fn Sneaky function.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
    * @param <V4> Type 4.
    * @param <R> Return type.
-   * @return Throwing function.
+   * @return Sneaky function.
    */
   public static <V1, V2, V3, V4, R> Function4<V1, V2, V3, V4, R> throwingFunction(
       Function4<V1, V2, V3, V4, R> fn) {
@@ -960,14 +960,14 @@ public final class Throwing {
   /**
    * Factory method for throwing function.
    *
-   * @param fn Throwing function.
+   * @param fn Sneaky function.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
    * @param <V4> Type 4.
    * @param <V5> Type 5.
    * @param <R> Return type.
-   * @return Throwing function.
+   * @return Sneaky function.
    */
   public static <V1, V2, V3, V4, V5, R> Function5<V1, V2, V3, V4, V5, R> throwingFunction(
       Function5<V1, V2, V3, V4, V5, R> fn) {
@@ -977,7 +977,7 @@ public final class Throwing {
   /**
    * Factory method for throwing function.
    *
-   * @param fn Throwing function.
+   * @param fn Sneaky function.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
@@ -985,7 +985,7 @@ public final class Throwing {
    * @param <V5> Type 5.
    * @param <V6> Type 6.
    * @param <R> Return type.
-   * @return Throwing function.
+   * @return Sneaky function.
    */
   public static <V1, V2, V3, V4, V5, V6, R> Function6<V1, V2, V3, V4, V5, V6, R> throwingFunction(
       Function6<V1, V2, V3, V4, V5, V6, R> fn) {
@@ -995,7 +995,7 @@ public final class Throwing {
   /**
    * Factory method for throwing function.
    *
-   * @param fn Throwing function.
+   * @param fn Sneaky function.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
@@ -1004,7 +1004,7 @@ public final class Throwing {
    * @param <V6> Type 6.
    * @param <V7> Type 7.
    * @param <R> Return type.
-   * @return Throwing function.
+   * @return Sneaky function.
    */
   public static <V1, V2, V3, V4, V5, V6, V7, R> Function7<V1, V2, V3, V4, V5, V6, V7, R> throwingFunction(
       Function7<V1, V2, V3, V4, V5, V6, V7, R> fn) {
@@ -1014,7 +1014,7 @@ public final class Throwing {
   /**
    * Factory method for throwing function.
    *
-   * @param fn Throwing function.
+   * @param fn Sneaky function.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
@@ -1024,7 +1024,7 @@ public final class Throwing {
    * @param <V7> Type 7.
    * @param <V8> Type 8.
    * @param <R> Return type.
-   * @return Throwing function.
+   * @return Sneaky function.
    */
   public static <V1, V2, V3, V4, V5, V6, V7, V8, R> Function8<V1, V2, V3, V4, V5, V6, V7, V8, R> throwingFunction(
       Function8<V1, V2, V3, V4, V5, V6, V7, V8, R> fn) {
@@ -1034,9 +1034,9 @@ public final class Throwing {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Throwing consumer.
+   * @param action Sneaky consumer.
    * @param <V> Type 1.
-   * @return Throwing consumer.
+   * @return Sneaky consumer.
    */
   public static <V> Consumer<V> throwingConsumer(Consumer<V> action) {
     return action;
@@ -1045,10 +1045,10 @@ public final class Throwing {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Throwing consumer.
+   * @param action Sneaky consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
-   * @return Throwing consumer.
+   * @return Sneaky consumer.
    */
   public static <V1, V2> Consumer2<V1, V2> throwingConsumer(Consumer2<V1, V2> action) {
     return action;
@@ -1057,11 +1057,11 @@ public final class Throwing {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Throwing consumer.
+   * @param action Sneaky consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
-   * @return Throwing consumer.
+   * @return Sneaky consumer.
    */
   public static <V1, V2, V3> Consumer3<V1, V2, V3> throwingConsumer(
       Consumer3<V1, V2, V3> action) {
@@ -1071,12 +1071,12 @@ public final class Throwing {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Throwing consumer.
+   * @param action Sneaky consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
    * @param <V4> Type 4.
-   * @return Throwing consumer.
+   * @return Sneaky consumer.
    */
   public static <V1, V2, V3, V4> Consumer4<V1, V2, V3, V4> throwingConsumer(
       Consumer4<V1, V2, V3, V4> action) {
@@ -1086,13 +1086,13 @@ public final class Throwing {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Throwing consumer.
+   * @param action Sneaky consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
    * @param <V4> Type 4.
    * @param <V5> Type 5.
-   * @return Throwing consumer.
+   * @return Sneaky consumer.
    */
   public static <V1, V2, V3, V4, V5> Consumer5<V1, V2, V3, V4, V5> throwingConsumer(
       Consumer5<V1, V2, V3, V4, V5> action) {
@@ -1102,14 +1102,14 @@ public final class Throwing {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Throwing consumer.
+   * @param action Sneaky consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
    * @param <V4> Type 4.
    * @param <V5> Type 5.
    * @param <V6> Type 6.
-   * @return Throwing consumer.
+   * @return Sneaky consumer.
    */
   public static <V1, V2, V3, V4, V5, V6> Consumer6<V1, V2, V3, V4, V5, V6> throwingConsumer(
       Consumer6<V1, V2, V3, V4, V5, V6> action) {
@@ -1119,7 +1119,7 @@ public final class Throwing {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Throwing consumer.
+   * @param action Sneaky consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
@@ -1127,7 +1127,7 @@ public final class Throwing {
    * @param <V5> Type 5.
    * @param <V6> Type 6.
    * @param <V7> Type 7.
-   * @return Throwing consumer.
+   * @return Sneaky consumer.
    */
   public static <V1, V2, V3, V4, V5, V6, V7> Consumer7<V1, V2, V3, V4, V5, V6, V7> throwingConsumer(
       Consumer7<V1, V2, V3, V4, V5, V6, V7> action) {
@@ -1137,7 +1137,7 @@ public final class Throwing {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Throwing consumer.
+   * @param action Sneaky consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
@@ -1146,7 +1146,7 @@ public final class Throwing {
    * @param <V6> Type 6.
    * @param <V7> Type 7.
    * @param <V8> Type 8.
-   * @return Throwing consumer.
+   * @return Sneaky consumer.
    */
   public static <V1, V2, V3, V4, V5, V6, V7, V8> Consumer8<V1, V2, V3, V4, V5, V6, V7, V8> throwingConsumer(
       Consumer8<V1, V2, V3, V4, V5, V6, V7, V8> action) {
@@ -1179,7 +1179,7 @@ public final class Throwing {
    * @return A dummy RuntimeException; this method never returns normally, it <em>always</em> throws
    *         an exception!
    */
-  public static RuntimeException sneakyThrow(final Throwable x) {
+  public static RuntimeException propagate(final Throwable x) {
     if (x == null) {
       throw new NullPointerException("x");
     }

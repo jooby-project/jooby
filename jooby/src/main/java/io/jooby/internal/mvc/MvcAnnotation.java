@@ -16,7 +16,7 @@
 package io.jooby.internal.mvc;
 
 import io.jooby.MediaType;
-import io.jooby.Throwing;
+import io.jooby.Sneaky;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
@@ -131,7 +131,7 @@ public class MvcAnnotation {
       }
       return null;
     } catch (Exception x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 }

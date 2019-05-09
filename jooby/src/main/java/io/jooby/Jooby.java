@@ -17,7 +17,6 @@ package io.jooby;
 
 import com.typesafe.config.Config;
 import io.jooby.internal.RouterImpl;
-import jdk.nashorn.internal.scripts.JO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Spliterator;
 import java.util.concurrent.Executor;
@@ -87,9 +85,9 @@ public class Jooby implements Router, Registry {
 
   private Path tmpdir;
 
-  private List<Throwing.Runnable> readyCallbacks;
+  private List<Sneaky.Runnable> readyCallbacks;
 
-  private List<Throwing.Runnable> startingCallbacks;
+  private List<Sneaky.Runnable> startingCallbacks;
 
   private LinkedList<AutoCloseable> stopCallbacks;
 
@@ -192,7 +190,7 @@ public class Jooby implements Router, Registry {
    * @param body Start body.
    * @return This application.
    */
-  public @Nonnull Jooby onStarting(@Nonnull Throwing.Runnable body) {
+  public @Nonnull Jooby onStarting(@Nonnull Sneaky.Runnable body) {
     if (startingCallbacks == null) {
       startingCallbacks = new ArrayList<>();
     }
@@ -207,7 +205,7 @@ public class Jooby implements Router, Registry {
    * @param body Start body.
    * @return This application.
    */
-  public @Nonnull Jooby onStarted(@Nonnull Throwing.Runnable body) {
+  public @Nonnull Jooby onStarted(@Nonnull Sneaky.Runnable body) {
     if (readyCallbacks == null) {
       readyCallbacks = new ArrayList<>();
     }
@@ -325,7 +323,7 @@ public class Jooby implements Router, Registry {
       try {
         extension.install(this);
       } catch (Exception x) {
-        throw Throwing.sneakyThrow(x);
+        throw Sneaky.propagate(x);
       }
     }
     return this;
@@ -557,7 +555,7 @@ public class Jooby implements Router, Registry {
         log.info("Server stop resulted in exception", stopx);
       }
       // rethrow
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
@@ -792,15 +790,15 @@ public class Jooby implements Router, Registry {
         Files.createDirectories(tmpdir);
       }
     } catch (IOException x) {
-      throw Throwing.sneakyThrow(x);
+      throw Sneaky.propagate(x);
     }
   }
 
-  private List<Throwing.Runnable> fire(List<Throwing.Runnable> tasks) {
+  private List<Sneaky.Runnable> fire(List<Sneaky.Runnable> tasks) {
     if (tasks != null) {
-      Iterator<Throwing.Runnable> iterator = tasks.iterator();
+      Iterator<Sneaky.Runnable> iterator = tasks.iterator();
       while (iterator.hasNext()) {
-        Throwing.Runnable task = iterator.next();
+        Sneaky.Runnable task = iterator.next();
         task.run();
         iterator.remove();
       }
@@ -840,7 +838,7 @@ public class Jooby implements Router, Registry {
         (Jooby) Stream.of(applicationType.getDeclaredConstructors())
             .filter(it -> it.getParameterCount() == 0)
             .findFirst()
-            .map(Throwing.throwingFunction(c -> c.newInstance()))
+            .map(Sneaky.throwingFunction(c -> c.newInstance()))
             .orElseThrow(() -> new IllegalArgumentException(
                 "Default constructor for: " + applicationType.getName()));
   }
@@ -860,7 +858,7 @@ public class Jooby implements Router, Registry {
           Consumer consumer = (Consumer) parent.loadClass(hookClassname).newInstance();
           consumer.accept(server);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException x) {
-          throw Throwing.sneakyThrow(x);
+          throw Sneaky.propagate(x);
         }
       }
     }

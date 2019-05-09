@@ -49,7 +49,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import static io.jooby.Throwing.sneakyThrow;
+import static io.jooby.Sneaky.propagate;
 
 public class ValueInjector {
 
@@ -68,9 +68,9 @@ public class ValueInjector {
       Object result = value(scope, rawType, type);
       return (T) result;
     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException x) {
-      throw sneakyThrow(x);
+      throw propagate(x);
     } catch (InvocationTargetException x) {
-      throw sneakyThrow(x.getCause());
+      throw propagate(x.getCause());
     }
   }
 

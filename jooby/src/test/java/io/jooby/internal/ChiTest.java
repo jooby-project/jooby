@@ -3,7 +3,7 @@ package io.jooby.internal;
 import io.jooby.Context;
 import io.jooby.Renderer;
 import io.jooby.Route;
-import io.jooby.Throwing;
+import io.jooby.Sneaky;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -82,7 +82,7 @@ public class ChiTest {
   }
 
   private void find($Chi router, String pattern,
-      Throwing.Consumer2<Context, RouterMatch> consumer) {
+      Sneaky.Consumer2<Context, RouterMatch> consumer) {
     Context rootctx = ctx(pattern);
     RouterMatch result = router
         .find(rootctx, Renderer.TO_STRING, Collections.emptyList());

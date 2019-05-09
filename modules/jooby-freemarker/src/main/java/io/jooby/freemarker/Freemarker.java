@@ -29,7 +29,7 @@ import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
-import io.jooby.Throwing;
+import io.jooby.Sneaky;
 
 import javax.annotation.Nonnull;
 import java.nio.file.Files;
@@ -38,7 +38,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.jooby.Throwing.throwingConsumer;
+import static io.jooby.Sneaky.throwingConsumer;
 
 public class Freemarker implements Extension {
 
@@ -126,7 +126,7 @@ public class Freemarker implements Extension {
         }
         return new ClassTemplateLoader(env.getClassLoader(), "/" + templatePath);
       } catch (Exception x) {
-        throw Throwing.sneakyThrow(x);
+        throw Sneaky.propagate(x);
       }
     }
   }

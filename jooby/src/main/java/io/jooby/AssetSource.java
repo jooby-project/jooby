@@ -88,6 +88,6 @@ public interface AssetSource {
       Asset singleFile = Asset.create(absoluteLocation);
       return p -> singleFile;
     }
-    throw Throwing.sneakyThrow(new FileNotFoundException(location.toAbsolutePath().toString()));
+    throw Sneaky.propagate(new FileNotFoundException(location.toAbsolutePath().toString()));
   }
 }

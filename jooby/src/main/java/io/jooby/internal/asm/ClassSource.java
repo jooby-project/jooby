@@ -15,7 +15,7 @@
  */
 package io.jooby.internal.asm;
 
-import io.jooby.Throwing;
+import io.jooby.Sneaky;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class ClassSource {
       try (InputStream in = loader.getResourceAsStream(k.replace(".", "/") + ".class")) {
         return IOUtils.toByteArray(in);
       } catch (IOException x) {
-        throw Throwing.sneakyThrow(x);
+        throw Sneaky.propagate(x);
       }
     });
   }

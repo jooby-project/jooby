@@ -20,21 +20,21 @@ public class WebClient {
       this.req = req;
     }
 
-    public Request prepare(Throwing.Consumer<okhttp3.Request.Builder> configurer) {
+    public Request prepare(Sneaky.Consumer<okhttp3.Request.Builder> configurer) {
       configurer.accept(req);
       return this;
     }
 
-    public void execute(Throwing.Consumer<Response> callback) {
+    public void execute(Sneaky.Consumer<Response> callback) {
       okhttp3.Request r = req.build();
       try (Response rsp = client.newCall(r).execute()) {
         callback.accept(rsp);
       } catch (SocketTimeoutException x) {
         SocketTimeoutException timeout = new SocketTimeoutException(r.toString());
         timeout.addSuppressed(x);
-        throw Throwing.sneakyThrow(timeout);
+        throw Sneaky.propagate(timeout);
       } catch (IOException x) {
-        throw Throwing.sneakyThrow(x);
+        throw Sneaky.propagate(x);
       }
     }
   }
@@ -82,7 +82,7 @@ public class WebClient {
     return invoke("GET", path, null);
   }
 
-  public void get(String path, Throwing.Consumer<Response> callback) {
+  public void get(String path, Sneaky.Consumer<Response> callback) {
     get(path).execute(callback);
   }
 
@@ -90,7 +90,7 @@ public class WebClient {
     return post(path, EMPTY_BODY);
   }
 
-  public void post(String path, Throwing.Consumer<Response> callback) {
+  public void post(String path, Sneaky.Consumer<Response> callback) {
     post(path).execute(callback);
   }
 
@@ -98,7 +98,7 @@ public class WebClient {
     return invoke("POST", path, body);
   }
 
-  public void post(String path, RequestBody form, Throwing.Consumer<Response> callback) {
+  public void post(String path, RequestBody form, Sneaky.Consumer<Response> callback) {
     post(path, form).execute(callback);
   }
 
@@ -106,7 +106,7 @@ public class WebClient {
     return invoke("put", path, EMPTY_BODY);
   }
 
-  public void put(String path, Throwing.Consumer<Response> callback) {
+  public void put(String path, Sneaky.Consumer<Response> callback) {
     put(path).execute(callback);
   }
 
@@ -114,7 +114,7 @@ public class WebClient {
     return invoke("delete", path, EMPTY_BODY);
   }
 
-  public void delete(String path, Throwing.Consumer<Response> callback) {
+  public void delete(String path, Sneaky.Consumer<Response> callback) {
     delete(path).execute(callback);
   }
 
@@ -122,7 +122,7 @@ public class WebClient {
     return invoke("patch", path, EMPTY_BODY);
   }
 
-  public void patch(String path, Throwing.Consumer<Response> callback) {
+  public void patch(String path, Sneaky.Consumer<Response> callback) {
     patch(path).execute(callback);
   }
 }
