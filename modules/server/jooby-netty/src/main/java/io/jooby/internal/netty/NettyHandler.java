@@ -70,14 +70,10 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       defaultHeaders.accept(context.setHeaders);
 
       result = router.match(context);
-      /** Don't check/parse body if there is no match: */
-      if (result.matches()) {
-        contentLength = contentLength(req);
-        if (contentLength > 0 || HttpUtil.isTransferEncodingChunked(req)) {
-          decoder = newDecoder(req, factory);
-        } else {
-          result.execute(context);
-        }
+
+      contentLength = contentLength(req);
+      if (contentLength > 0 || HttpUtil.isTransferEncodingChunked(req)) {
+        decoder = newDecoder(req, factory);
       } else {
         result.execute(context);
       }
@@ -109,18 +105,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   @Override public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
     if (context != null) {
       context.flush();
-    }
-  }
-
-  private long contentLength(HttpRequest req) {
-    String value = req.headers().get(HttpHeaderNames.CONTENT_LENGTH);
-    if (value == null) {
-      return -1;
-    }
-    try {
-      return Long.parseLong(value);
-    } catch (NumberFormatException x) {
-      return -1;
     }
   }
 
@@ -167,7 +151,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     decoder = null;
   }
 
-  private InterfaceHttpPostRequestDecoder newDecoder(HttpRequest request, HttpDataFactory factory) {
+  private static InterfaceHttpPostRequestDecoder newDecoder(HttpRequest request, HttpDataFactory factory) {
     String contentType = request.headers().get(HttpHeaderNames.CONTENT_TYPE);
     if (contentType != null) {
       String lowerContentType = contentType.toLowerCase();
@@ -183,6 +167,18 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   static String pathOnly(String uri) {
     int len = uri.indexOf('?');
     return len > 0 ? uri.substring(0, len) : uri;
+  }
+
+  private static long contentLength(HttpRequest req) {
+    String value = req.headers().get(HttpHeaderNames.CONTENT_LENGTH);
+    if (value == null) {
+      return -1;
+    }
+    try {
+      return Long.parseLong(value);
+    } catch (NumberFormatException x) {
+      return -1;
+    }
   }
 }
 

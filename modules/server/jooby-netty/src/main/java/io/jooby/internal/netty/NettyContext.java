@@ -43,6 +43,7 @@ import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
@@ -96,7 +97,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class NettyContext implements Context, ChannelFutureListener {
 
-  private static final HttpHeaders NO_TRAILING = new DefaultHttpHeaders(false);
+  private static final HttpHeaders NO_TRAILING = EmptyHttpHeaders.INSTANCE;
   final DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(false);
   private final int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
@@ -316,7 +317,7 @@ public class NettyContext implements Context, ChannelFutureListener {
 
   @Nonnull @Override public Context setResponseLength(long length) {
     contentLength = length;
-    setHeaders.set(CONTENT_LENGTH, length);
+    setHeaders.set(CONTENT_LENGTH, Long.toString(length));
     return this;
   }
 
@@ -365,7 +366,7 @@ public class NettyContext implements Context, ChannelFutureListener {
 
   @Nonnull @Override public Context send(@Nonnull ByteBuf data) {
     responseStarted = true;
-    setHeaders.set(CONTENT_LENGTH, data.readableBytes());
+    setHeaders.set(CONTENT_LENGTH, Long.toString(data.readableBytes()));
     DefaultFullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status,
         data, setHeaders, NO_TRAILING);
     if (ctx.channel().eventLoop().inEventLoop()) {
@@ -431,7 +432,7 @@ public class NettyContext implements Context, ChannelFutureListener {
   @Nonnull @Override public Context send(@Nonnull FileChannel file) {
     try {
       long len = file.size();
-      setHeaders.set(CONTENT_LENGTH, len);
+      setHeaders.set(CONTENT_LENGTH, Long.toString(len));
 
       ByteRange range = ByteRange.parse(req.headers().get(RANGE), len)
           .apply(this);
