@@ -93,8 +93,9 @@ public class Spring implements Extension {
       propertySources.addFirst(new ConfigPropertySource("application", config));
 
       ConfigurableListableBeanFactory beanFactory = applicationContext.getBeanFactory();
-      beanFactory.registerSingleton("config", config);
-      beanFactory.registerSingleton("environment", environment);
+      beanFactory.registerSingleton("conf", config);
+      beanFactory.registerSingleton("env", environment);
+      beanFactory.registerSingleton("environment", configurableEnvironment);
 
       // Add resources:
       ServiceRegistry registry = application.getServices();

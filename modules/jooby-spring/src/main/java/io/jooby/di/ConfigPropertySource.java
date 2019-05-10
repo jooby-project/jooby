@@ -16,6 +16,7 @@
 package io.jooby.di;
 
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import org.springframework.core.env.PropertySource;
 
 public class ConfigPropertySource extends PropertySource<Config> {
@@ -23,10 +24,15 @@ public class ConfigPropertySource extends PropertySource<Config> {
     super(name, source);
   }
 
-  @Override public Object getProperty(String key) {
-    if (source.hasPath(key)) {
-      return source.getAnyRef(key);
+  @Override public boolean containsProperty(String key) {
+    try {
+      return source.hasPath(key);
+    } catch (ConfigException x) {
+      return false;
     }
-    return null;
+  }
+
+  @Override public Object getProperty(String key) {
+    return containsProperty(key) ? source.getAnyRef(key) : null;
   }
 }
