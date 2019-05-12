@@ -73,7 +73,7 @@ public interface AssetSource {
     if (Files.isDirectory(absoluteLocation)) {
       return path -> {
         Path resource = absoluteLocation.resolve(path).normalize().toAbsolutePath();
-        if (path.length() == 0) {
+        if (resource.toString().length() == 0 || Files.isDirectory(resource)) {
           resource = resource.resolve("index.html");
         }
         if (!Files.exists(resource)
