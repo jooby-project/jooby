@@ -69,14 +69,28 @@ public class Hikari implements Extension {
 
     private String builtindb(Environment env, String database) {
       if ("mem".equals(database)) {
-        return "jdbc:h2:mem:" + System.currentTimeMillis() + ";DB_CLOSE_DELAY=-1";
-      } else if ("fs".equals(database)) {
-        Path path = Paths
-            .get(env.getConfig().getString("application.tmpdir"),
-                env.getConfig().getString("application.name"));
+        return "jdbc:h2:mem:@" + memname() + ";DB_CLOSE_DELAY=-1";
+      } else if ("fs".equals(database) || "tmp".equals(database)) {
+        Config conf = env.getConfig();
+        String name;
+        Path basedir;
+        if ("fs".equals(database)) {
+          name = conf.hasPath("application.package")
+              ? conf.getString("application.package")
+              : "db";
+          basedir = Paths.get(System.getProperty("user.dir"));
+        } else {
+          name = "tmp" + memname();
+          basedir = Paths.get(conf.getString("application.tmpdir"));
+        }
+        Path path = basedir.resolve(name);
         return "jdbc:h2:" + path.toAbsolutePath();
       }
       return database;
+    }
+
+    private String memname() {
+      return Long.toHexString(System.identityHashCode(this));
     }
 
     private HikariConfig build(Environment env, String dbkey, String dburl) {

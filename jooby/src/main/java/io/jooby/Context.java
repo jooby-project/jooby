@@ -50,7 +50,7 @@ import java.util.concurrent.Executor;
  * @author edgar
  * @since 2.0.0
  */
-public interface Context {
+public interface Context extends Registry {
 
   /** Constant for <code>Accept</code> header. */
   String ACCEPT = "Accept";
@@ -71,6 +71,15 @@ public interface Context {
    * **** Native methods *************************************************************************
    * **********************************************************************************************
    */
+
+  @Nonnull @Override default <T> T require(@Nonnull Class<T> type, @Nonnull String name)
+      throws RegistryException {
+    return getRouter().require(type, name);
+  }
+
+  @Nonnull @Override default <T> T require(@Nonnull Class<T> type) throws RegistryException {
+    return getRouter().require(type);
+  }
 
   /**
    * Context attributes (a.k.a request attributes).

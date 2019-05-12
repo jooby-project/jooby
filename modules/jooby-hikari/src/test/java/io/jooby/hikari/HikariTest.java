@@ -37,7 +37,7 @@ public class HikariTest {
   public void fs() {
     HikariConfig conf = Hikari.create()
         .build(new Environment(getClass().getClassLoader(), 
-            mapOf("db", "fs", "application.name", "foo", "application.tmpdir", "target"), "test"));
+            mapOf("db", "fs", "application.package", "foo", "application.tmpdir", "target"), "test"));
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals("org.h2.jdbcx.JdbcDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());

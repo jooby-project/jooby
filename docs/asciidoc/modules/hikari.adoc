@@ -1,0 +1,198 @@
+== Hikari
+
+https://github.com/brettwooldridge/HikariCP[HikariCP] is a high-performance JDBC connection pool.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-hikary"]
+.
+
+2) Add database driver (mySQL here):
+
+[dependency, artifactId="mysql-connector-java"]
+.
+
+3) Set database properties
+
+.application.conf
+[source, properties]
+----
+db.url = "jdbc:mysql://localhost/mydb"
+db.user = myuser
+db.password = mypass
+----
+
+
+4) Install and use the connection pool
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.hikari.Hikary;
+
+{
+  install(new Hikari());
+
+  get("/", ctx -> {
+    DataSource ds = require(DataSource.class);
+    // work with data source
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.Hikary
+
+{
+  install(Hikari())
+  
+  get("/") { ctx ->
+    val ds = require(DataSource::class)
+    // work with data source
+  }
+}
+----
+
+=== Database configuration
+
+By default the javadoc:hikari.Hikari[] module expects to find database properties as application
+configuration properties under the `db` key prefix. The next example shows how to overrides the
+database prefix:
+
+.Custom database prefix
+[source, java, role="primary"]
+----
+import io.jooby.hikari.Hikary;
+
+{
+  install(new Hikari("mydb"));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.Hikary
+
+{
+  install(Hikari("mydb"))
+}
+----
+
+Configuration properties are optionally if the database driver support them from jdbc url:
+
+.No properties
+[source, java, role="primary"]
+----
+import io.jooby.hikari.Hikary;
+
+{
+  install(new Hikari("jdbc:mysql://localhost/mydb"));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.Hikary
+
+{
+  install(Hikari("jdbc:mysql://localhost/mydb"))
+}
+----
+
+=== Special databases
+
+Modules comes with 3 special databases provided by https://github.com/h2database/h2database[H2 database]:
+
+- `mem`: setup an in-memory database
+- `fs` : a file system database at `System.getProperty("user.dir")`
+- `tmp`: a tmp file system database at `System.getProperty("user.dir") + "/tmp"` directory
+
+=== Multiple databases
+
+Multiple database is supported using jdbc url or database configuration keys.
+
+.application.conf
+[source, properties]
+----
+maindb.url = "jdbc:mysql://localhost/main"
+maindb.user = myuser
+maindb.password = mypass
+
+auditdb.url = "jdbc:mysql://localhost/audit"
+auditdb.user = myuser
+auditdb.password = mypass
+----
+
+.Multiple data sources
+[source, java, role="primary"]
+----
+import io.jooby.hikari.Hikary;
+
+{
+  install(new Hikari("maindb"));
+  
+  install(new Hikari("auditdb"));
+
+
+  get("/", ctx -> {
+    DataSource maindb  = require(DataSource.class, "maindb");
+    DataSource auditdb = require(DataSource.class, "auditdb");
+    // ...
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.Hikary
+
+{
+  install(Hikari("maindb"))
+ 
+  install(Hikari("auditdb"))
+
+  get("/") { ctx ->
+    val maindb  = require(DataSource::class, "maindb")
+    val auditdb = require(DataSource::class, "auditdb")
+    // ...
+  }
+}
+----
+
+=== Advanced options
+
+Advanced Hikari configuration is supported from application configuration properties.
+
+.Maximum Pool Size
+[source, properties]
+----
+db.url = "jdbc:mysql://localhost/main"
+db.user = myuser
+
+hikari.maximumPoolSize = 10 
+----
+
+Different configuration per database is available by adding the database key:
+
+.Maximum Pool Size
+[source, properties]
+----
+maindb.url = "jdbc:mysql://localhost/main"
+maindb.user = myuser
+maindb.password = mypass
+
+hikari.maindb.maximumPoolSize = 10
+
+auditdb.url = "jdbc:mysql://localhost/audit"
+auditdb.user = myuser
+auditdb.password = mypass
+
+hikari.auditdb.maximumPoolSize = 15
+----

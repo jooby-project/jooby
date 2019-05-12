@@ -55,6 +55,7 @@ public class JoobyRun {
     private final JoobyRunConf conf;
     private Module module;
     private ClassLoader contextClassLoader;
+    private int counter;
 
     public AppModule(Logger logger, ExtModuleLoader loader, ClassLoader contextClassLoader,
         JoobyRunConf conf) {
@@ -67,6 +68,8 @@ public class JoobyRun {
     public void start() {
       try {
         System.setProperty("___jooby_run_hook__", ServerRef.class.getName());
+        // Track the number of restarts
+        System.setProperty("joobyRun.counter", Integer.toString(counter++));
 
         module = loader.loadModule(conf.getProjectName());
         ModuleClassLoader classLoader = module.getClassLoader();

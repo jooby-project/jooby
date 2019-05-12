@@ -13,6 +13,27 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
 annotation class RouterDsl
 
+/** Registry: */
+fun <T:Any> Registry.require(klass: KClass<T>): T {
+  return this.require(klass.java)
+}
+
+fun <T:Any> Registry.require(klass: KClass<T>, name: String): T {
+  return this.require(klass.java, name)
+}
+
+fun <T:Any> ServiceRegistry.get(klass: KClass<T>): T {
+  return this.get(klass.java)
+}
+
+fun <T:Any> ServiceRegistry.put(klass: KClass<T>, service: T): T? {
+  return this.put(klass.java, service)
+}
+
+fun <T:Any> ServiceRegistry.putIfAbsent(klass: KClass<T>, service: T): T? {
+  return this.putIfAbsent(klass.java, service)
+}
+
 /** Value: */
 operator fun Value.get(name: String): Value {
   return this.get(name)
@@ -256,5 +277,5 @@ fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, application: KC
 }
 
 internal fun configurePackage(value: Any) {
-  value::class.java.`package`?.let { System.setProperty(Jooby.DEF_PCKG, it.name) }
+  value::class.java.`package`?.let { System.setProperty(Jooby.BASE_PACKAGE, it.name) }
 }

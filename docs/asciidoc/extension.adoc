@@ -1,0 +1,97 @@
+== Extensions and Services
+
+Jooby comes with a simple extension mechanism. The javadoc:Extension[] API allows to configure
+, extend an application by adding shared/single services, infrastructure/technical concerns like 
+dependency injection, database connection pools, cron-job, etc.
+
+Services are shared/singleton objects, usually with a clear lifecycle for starting and stopping them.
+
+=== Writing Custom Extension
+
+We are going to develop a custom extension that configure a `DataSource` service.
+
+.Java
+[source, java, role = "primary"]
+----
+import io.jooby.Extension;
+
+public class MyExtension implements Extension {
+   
+   public void install(Jooby application) {
+      DataSource dataSource = createDataSource();           <1>
+
+      ServiceRegistry registry = application.getServices(); <2>
+      registry.put(DataSource.class, dataSource);           <3>
+
+      application.onStop(dataSource::close)                 <4>
+   }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Extension
+
+class MyExtension: Extension {
+  override fun install(application: Jooby) {
+    val dataSource = createDataSource()                     <1>
+
+    val registry = application.services                     <2>
+    registry.put(DataSource::class, dataSource)             <3>
+    application.onStop(dataSource::close)                   <4>
+  }
+}
+----
+
+<1> Create the service
+<2> Access to service registry
+<3> Add it to the service registry
+<4> Close/release service on application stop
+
+Let's install the extension and use the service!!
+
+ 
+.Java
+[source, java, role = "primary"]
+----
+public class App extends Jooby {
+   
+   {
+     install(new MyExtension());                      <1>
+     
+     get("/", ctx -> {
+       MyDataSource ds = require(MyDataSource.class); <2>
+       // ...
+     });
+   }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Extension
+
+class App: Kooby({
+
+  install(MyExtension())                              <1>
+
+  get("/") {ctx -> 
+    val ds = require(MyDataSource::class)             <2>
+  }
+})
+----
+ 
+<1> Install the extension
+<2> Use the service
+
+Services are accessible via javadoc:Registry[require, java.lang.Class].
+
+In addition to services, an extension module may provides infrastructure routes, body decoder/encoder,
+template engines, etc.
+
+The extension mechanism is a simple way of reusing code and decoupling technical features from
+business logic. 
+
+More advanced techniques are describe in the <<Dependency Injection>> section.

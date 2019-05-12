@@ -36,7 +36,7 @@ import static java.util.Collections.unmodifiableList;
  * @since 2.0.0
  * @author edgar
  */
-public interface Router {
+public interface Router extends Registry {
 
   /**
    * Find route result.

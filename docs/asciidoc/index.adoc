@@ -228,4 +228,8 @@ include::testing.adoc[]
 
 include::dev-tools.adoc[]
 
+include::extension.adoc[]
+
 include::dependency-injection.adoc[]
+
+include::modules.adoc[]

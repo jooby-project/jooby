@@ -16,6 +16,7 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
+import io.jooby.RegistryException;
 import io.jooby.StatusCodeException;
 import io.jooby.ErrorHandler;
 import io.jooby.ExecutionMode;
@@ -512,6 +513,15 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override public ServiceRegistry getServices() {
     return services;
+  }
+
+  @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name)
+      throws RegistryException {
+    return services.require(type, name);
+  }
+
+  @Nonnull @Override public <T> T require(@Nonnull Class<T> type) throws RegistryException {
+    return services.require(type);
   }
 
   @Override public String toString() {

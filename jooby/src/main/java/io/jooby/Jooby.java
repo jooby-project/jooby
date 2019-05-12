@@ -34,10 +34,13 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Spliterator;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -73,7 +76,7 @@ import static java.util.stream.StreamSupport.stream;
  */
 public class Jooby implements Router, Registry {
 
-  static final String DEF_PCKG = "___def_package__";
+  static final String BASE_PACKAGE = "application.package";
 
   static final String APP_NAME = "___app_name__";
 
@@ -498,11 +501,7 @@ public class Jooby implements Router, Registry {
    * @return Base application package.
    */
   public @Nullable String getBasePackage() {
-    String classname = getClass().getName();
-    if (classname.equals("io.jooby.Jooby") || classname.equals("io.jooby.Kooby")) {
-      return System.getProperty(DEF_PCKG);
-    }
-    return getClass().getPackage().getName();
+    return System.getProperty(BASE_PACKAGE);
   }
 
   @Nonnull @Override public SessionOptions getSessionOptions() {
@@ -662,7 +661,7 @@ public class Jooby implements Router, Registry {
    */
   public static void runApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
       @Nonnull Class<? extends Jooby> applicationType) {
-    configurePackage(applicationType);
+    configurePackage(applicationType.getPackage());
     runApp(args, executionMode, reflectionProvider(applicationType));
   }
 
@@ -676,7 +675,7 @@ public class Jooby implements Router, Registry {
    */
   public static Jooby createApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
       @Nonnull Class<? extends Jooby> applicationType) {
-    configurePackage(applicationType);
+    configurePackage(applicationType.getPackage());
     return createApp(args, executionMode, reflectionProvider(applicationType));
   }
 
@@ -697,6 +696,7 @@ public class Jooby implements Router, Registry {
    * @param consumer Application consumer.
    */
   public static void runApp(@Nonnull String[] args, @Nonnull Consumer<Jooby> consumer) {
+    configurePackage(consumer.getClass().getPackage());
     runApp(args, ExecutionMode.DEFAULT, consumerProvider(consumer));
   }
 
@@ -709,6 +709,7 @@ public class Jooby implements Router, Registry {
    */
   public static void runApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
       @Nonnull Consumer<Jooby> consumer) {
+    configurePackage(consumer.getClass().getPackage());
     runApp(args, executionMode, consumerProvider(consumer));
   }
 
@@ -741,7 +742,7 @@ public class Jooby implements Router, Registry {
   public static Jooby createApp(@Nonnull String[] args, @Nonnull ExecutionMode executionMode,
       @Nonnull Supplier<Jooby> provider) {
 
-    configurePackage(provider);
+    configurePackage(provider.getClass().getPackage());
 
     /** Dump command line as system properties. */
     parseArguments(args).forEach(System::setProperty);
@@ -756,14 +757,29 @@ public class Jooby implements Router, Registry {
     return app;
   }
 
-  private static void configurePackage(@Nonnull Object provider) {
-    configurePackage(provider.getClass());
+  private static void configurePackage(Package pkg) {
+    if (pkg != null) {
+      configurePackage(pkg.getName());
+    }
   }
 
-  private static void configurePackage(@Nonnull Class providerClass) {
-    if (!providerClass.getName().contains("KoobyKt")) {
-      System.setProperty(DEF_PCKG,
-          System.getProperty(DEF_PCKG, providerClass.getPackage().getName()));
+  private static void configurePackage(Class owner) {
+    if (!owner.getName().equals("io.jooby.Jooby") && !owner.getName().equals("io.jooby.Kooby")) {
+      configurePackage(owner.getPackage());
+    }
+  }
+
+  private static void configurePackage(String packageName) {
+    if (!packageName.equals("io.jooby")) {
+      ifSystemProp(BASE_PACKAGE, (sys, key) -> {
+        sys.setProperty(key, packageName);
+      });
+    }
+  }
+
+  private static void ifSystemProp(String name, BiConsumer<Properties, String> consumer) {
+    if (System.getProperty(name) == null) {
+      consumer.accept(System.getProperties(), name);
     }
   }
 
@@ -824,7 +840,7 @@ public class Jooby implements Router, Registry {
   }
 
   private static Supplier<Jooby> consumerProvider(Consumer<Jooby> consumer) {
-    configurePackage(consumer);
+    configurePackage(consumer.getClass());
     return () -> {
       Jooby app = new Jooby();
       consumer.accept(app);
