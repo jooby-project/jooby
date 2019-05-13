@@ -1,6 +1,7 @@
 package io.jooby.freemarker;
 
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import freemarker.template.Configuration;
 import io.jooby.Environment;
 import io.jooby.MockContext;
@@ -10,6 +11,17 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FreemarkerTest {
+
+  public static class MyModel {
+    public String firstname;
+
+    public String lastname;
+
+    public MyModel(String firstname, String lastname) {
+      this.firstname = firstname;
+      this.lastname = lastname;
+    }
+  }
 
   public static class User {
     private String firstname;
@@ -42,5 +54,32 @@ public class FreemarkerTest {
             .put("user", new User("foo", "bar"))
             .put("sign", "!"));
     assertEquals("Hello foo bar var!\n", output);
+  }
+
+  @Test
+  public void publicField() throws Exception {
+    Configuration freemarker = Freemarker.create()
+        .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "test"));
+    FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker);
+    MockContext ctx = new MockContext();
+    ctx.getAttributes().put("local", "var");
+    String output = engine
+        .apply(ctx, new ModelAndView("index.ftl")
+            .put("user", new MyModel("foo", "bar"))
+            .put("sign", "!"));
+    assertEquals("Hello foo bar var!\n", output);
+  }
+
+  @Test
+  public void customTemplatePath() throws Exception {
+    Configuration freemarker = Freemarker.create()
+        .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty().withValue("freemarker.templatePath",
+            ConfigValueFactory.fromAnyRef("foo"))));
+    FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker);
+    MockContext ctx = new MockContext();
+    ctx.getAttributes().put("local", "var");
+    String output = engine
+        .apply(ctx, new ModelAndView("index.ftl"));
+    assertEquals("var\n", output);
   }
 }

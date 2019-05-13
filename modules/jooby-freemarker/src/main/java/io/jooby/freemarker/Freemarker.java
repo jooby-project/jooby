@@ -16,15 +16,16 @@
 package io.jooby.freemarker;
 
 import com.typesafe.config.Config;
-import freemarker.cache.CacheStorage;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
-import freemarker.cache.NullCacheStorage;
-import freemarker.cache.SoftCacheStorage;
 import freemarker.cache.TemplateLoader;
 import freemarker.core.HTMLOutputFormat;
 import freemarker.core.OutputFormat;
 import freemarker.template.Configuration;
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.DefaultObjectWrapperBuilder;
+import freemarker.template.TemplateException;
+import freemarker.template.Version;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -35,8 +36,8 @@ import javax.annotation.Nonnull;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 import static io.jooby.Sneaky.throwingConsumer;
 
@@ -46,13 +47,11 @@ public class Freemarker implements Extension {
 
     private TemplateLoader templateLoader;
 
-    private Map<String, String> settings = new HashMap<>();
-
-    private CacheStorage cacheStorage;
+    private Properties settings = new Properties();
 
     private OutputFormat outputFormat = HTMLOutputFormat.INSTANCE;
 
-    private String templatePath = "views";
+    private String templatePath;
 
     public @Nonnull Builder setTemplateLoader(@Nonnull TemplateLoader loader) {
       this.templateLoader = loader;
@@ -61,11 +60,6 @@ public class Freemarker implements Extension {
 
     public @Nonnull Builder setSetting(@Nonnull String name, @Nonnull String value) {
       this.settings.put(name, value);
-      return this;
-    }
-
-    public @Nonnull Builder setCache(@Nonnull CacheStorage cacheStorage) {
-      this.cacheStorage = cacheStorage;
       return this;
     }
 
@@ -84,38 +78,51 @@ public class Freemarker implements Extension {
     }
 
     public @Nonnull Configuration build(@Nonnull Environment env) {
-      Configuration freemarker = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
-      freemarker.setOutputFormat(outputFormat);
+      try {
+        Configuration freemarker = new Configuration(
+            Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+        freemarker.setOutputFormat(outputFormat);
 
-      /** Settings: */
-      Config conf = env.getConfig();
-      if (conf.hasPath("freemarker")) {
-        conf.getConfig("freemarker").root().unwrapped()
-            .forEach((k, v) -> settings.put(k, v.toString()));
+        /** Settings: */
+        Config conf = env.getConfig();
+        if (conf.hasPath("freemarker")) {
+          conf.getConfig("freemarker").root().unwrapped()
+              .forEach((k, v) -> settings.put(k, v.toString()));
+        }
+        String templatePath = Optional.ofNullable((String) settings.remove("templatePath"))
+            .orElse(Optional.ofNullable(this.templatePath).orElse("views"));
+
+        settings.putIfAbsent("defaultEncoding", "UTF-8");
+        /** Cache storage: */
+        String defaultCacheStorage = env.isActive("dev", "test")
+            ? "freemarker.cache.NullCacheStorage"
+            : "soft";
+        settings.putIfAbsent(Configuration.CACHE_STORAGE_KEY_CAMEL_CASE, defaultCacheStorage);
+
+        freemarker.setSettings(settings);
+
+        /** Template path: */
+        setTemplatePath(templatePath);
+
+        /** Template loader: */
+        if (templateLoader == null) {
+          templateLoader = defaultTemplateLoader(env);
+        }
+        freemarker.setTemplateLoader(templateLoader);
+
+        /** Object wrapper: */
+        DefaultObjectWrapperBuilder dowb = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_22);
+        dowb.setExposeFields(true);
+        freemarker.setObjectWrapper(dowb.build());
+
+        // clear
+        this.templateLoader = null;
+        this.settings.clear();
+        this.settings = null;
+        return freemarker;
+      } catch (TemplateException x) {
+        throw Sneaky.propagate(x);
       }
-      settings.putIfAbsent("defaultEncoding", "UTF-8");
-      settings.forEach(throwingConsumer(freemarker::setSetting));
-
-      /** Template loader: */
-      if (templateLoader == null) {
-        templateLoader = defaultTemplateLoader(env);
-      }
-      freemarker.setTemplateLoader(templateLoader);
-
-      /** Cache storage: */
-      if (this.cacheStorage == null) {
-        this.cacheStorage = env.isActive("dev", "test")
-            ? NullCacheStorage.INSTANCE
-            : new SoftCacheStorage();
-      }
-      freemarker.setCacheStorage(this.cacheStorage);
-
-      // clear
-      this.templateLoader = null;
-      this.settings.clear();
-      this.settings = null;
-      this.cacheStorage = null;
-      return freemarker;
     }
 
     private TemplateLoader defaultTemplateLoader(Environment env) {

@@ -1,0 +1,75 @@
+== Freemarker
+
+http://freemarker.org[Freemarker templates] for Jooby.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-freemarker"]
+.
+
+2) Write your templates inside the `views` folder
+
+.views/index.ftl
+[source, html]
+----
+<p> Hello ${name}! </p>
+----
+
+2) Install and use freemarker templates
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.freemarker.Freemarker;
+
+{
+  install(new Freemarker());
+
+  get("/", ctx -> {
+    return new ModelAndView("index.ftl")
+        .put("name", "Jooby");
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.freemarker.Freemarker
+
+{
+  install(Freemarker())
+  
+  get("/") { ctx ->
+    ModelAndView("index.ftl")
+        .put("name", "Jooby")
+  }
+}
+----
+
+=== Templates Location
+
+Template location is set to `views`. The `views` folder/location is expected to be at the current
+user directory or at root of classpath.
+
+You can override the default location by setting the `freemarker.templatePath` property.
+
+=== Template Cache
+
+The freemarker module turn off cache while running in `dev` or `test` environment. For any other
+environment it use a https://freemarker.apache.org/docs/pgui_config_templateloading.html#pgui_config_templateloading_caching[soft cache].
+
+To set a different template cache just set the `freemarker.cacheStorage` property.
+
+=== Freemarker Options
+
+Freemarker options can be set from application configuration properties by using the `freemarker` prefix:
+
+.application.conf
+[source, properties]
+----
+freemarker.cacheStorage = soft
+freemarker.strictSyntax = yes
+----
