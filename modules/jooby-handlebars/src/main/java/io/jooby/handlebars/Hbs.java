@@ -18,20 +18,17 @@ package io.jooby.handlebars;
 import com.github.jknack.handlebars.Decorator;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.cache.HighConcurrencyTemplateCache;
 import com.github.jknack.handlebars.cache.NullTemplateCache;
 import com.github.jknack.handlebars.cache.TemplateCache;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
-import io.jooby.Context;
+import com.typesafe.config.Config;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
-import io.jooby.ModelAndView;
-import io.jooby.TemplateEngine;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -44,8 +41,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static java.util.Optional.ofNullable;
+import java.util.Optional;
 
 public class Hbs implements Extension {
 
@@ -57,7 +53,7 @@ public class Hbs implements Extension {
 
     private TemplateCache cache;
 
-    private String templatePath = "views";
+    private String templatePath;
 
     public Builder() {
       handlebars = new Handlebars();
@@ -134,7 +130,14 @@ public class Hbs implements Extension {
 
     public @Nonnull Handlebars build(@Nonnull Environment env) {
       if (loader == null) {
-        loader = defaultTemplateLoader(env, templatePath);
+        Config config = env.getConfig();
+        String defaultTemplatePath = config.hasPath("handlebars.templatePath")
+            ? config.getString("handlebars.templatePath")
+            : "views";
+        String templatePath = Optional.ofNullable(this.templatePath)
+            .orElse(defaultTemplatePath);
+        setTemplatePath(templatePath);
+        loader = defaultTemplateLoader(env, this.templatePath);
       }
       handlebars.with(loader);
 

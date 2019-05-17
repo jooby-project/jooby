@@ -6,7 +6,7 @@ Modules (unlike in other frameworks) are thin and do a lot of work to bootstrap 
 external library, but they DO NOT provide a new level of abstraction nor [do] they provide a custom
 API to access functionality in that library. Instead they expose the library components as they are.
 
-Modules are shipped as separated jar/dependency and usually implement the javadoc:Extension[] API.
+Modules are distributed as separated jar/dependency and usually implement the javadoc:Extension[] API.
 
 In general they provide a `builder` class to create the and configure the external library from 
 configuration properties.
@@ -17,12 +17,16 @@ same name. To avoid name collisions we choose one of following convention:
 - An abbreviation of the name/library. For example: `Hibernate` -> `Hbm`, `Handlebars -> Hbs`, `Freemarker` -> `Ftl`.
 - Add a `by` suffix. For example: `Hibernate` -> `Hibernateby`, `Guice` -> `Guiceby`, `Handelbars` -> `Handlebarsby`
 
-=== Data
+Available modules are listed next.
 
-- link:modules/hikari[Hikari Connection Pool]: A high-performance JDBC connection pool.
+=== Data
+   * link:modules/hikari[HikariCP]: A high-performance JDBC connection pool.
+
+=== JSON
+   * link:modules/jackson[Jackson]: Jackson module for Jooby.
 
 === Template Engine
-
-- link:modules/freemarker[Freemarker Template Engine]: Freemarker templates for Jooby.
+   * link:modules/handlebars[Handlebars]: Handlebars templates for Jooby.
+   * link:modules/freemarker[Freemarker]: Freemarker templates for Jooby.
 
 .

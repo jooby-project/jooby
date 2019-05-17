@@ -14,6 +14,14 @@ import kotlin.reflect.KClass
 annotation class RouterDsl
 
 /** Registry: */
+inline fun <reified T> Registry.require(): T {
+  return this.require(T::class.java)
+}
+
+inline fun <reified T> Registry.require(name: String): T {
+  return this.require(T::class.java, name)
+}
+
 fun <T:Any> Registry.require(klass: KClass<T>): T {
   return this.require(klass.java)
 }
@@ -43,30 +51,26 @@ operator fun Value.get(index: Int): Value {
   return this.get(index)
 }
 
-inline fun <reified T : Any> Value.to(): T {
-  val reified = object : Reified<T>() {}
-  return this.to(reified)
+inline fun <reified T> Value.to(): T {
+  return this.to(object : Reified<T>() {})
 }
 
 /** Context: */
-inline fun <reified T : Any> Context.query(): T {
+inline fun <reified T> Context.query(): T {
   val reified = object : Reified<T>() {}
   return this.query(reified)
 }
 
-inline fun <reified T : Any> Context.form(): T {
-  val reified = object : Reified<T>() {}
-  return this.form(reified)
+inline fun <reified T> Context.form(): T {
+  return this.form(object : Reified<T>() {})
 }
 
-inline fun <reified T : Any> Context.multipart(): T {
-  val reified = object : Reified<T>() {}
-  return this.multipart(reified)
+inline fun <reified T> Context.multipart(): T {
+  return this.multipart(object : Reified<T>() {})
 }
 
-inline fun <reified T : Any> Context.body(): T {
-  val reified = object : Reified<T>() {}
-  return this.body(reified)
+inline fun <reified T> Context.body(): T {
+  return this.body(object : Reified<T>() {})
 }
 
 /** Handler context: */

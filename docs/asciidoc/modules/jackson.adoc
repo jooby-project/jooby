@@ -1,0 +1,86 @@
+== Jackson
+
+JSON support using https://github.com/FasterXML/jackson[Jackson] library.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-jackson"]
+.
+
+2) Install and encode/decode JSON
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.json.Jackson;
+
+{
+  install(new Jackson());                           <1>
+
+  get("/", ctx -> {
+    MyObject myObject = ...;
+    return myObject;                                <2>
+  });
+
+  post("/", ctx -> {
+    MyObject myObject = ctx.body(MyObject.class);   <3>
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.Jackson;
+
+{
+  install(Jackson())                                <1>
+
+  get("/") { ctx ->
+    val myObject = ...;
+    myObject                                        <2>
+  }
+
+  post("/") { ctx ->
+    val myObject = ctx.body<MyObject>()             <3>
+    ...
+  }
+}
+----
+
+<1> Install Jackson
+<2> Use Jackson to encode arbitrary object as JSON
+<2> Use Jackson to decode JSON to Java object
+
+=== Working with ObjectMapper
+
+Access to default object mapper is available via require call:
+
+.Default object mapper
+[source, java, role="primary"]
+----
+import io.jooby.json.Jackson;
+
+{
+  install(new Jackson());
+
+  ObjectMapper mapper = require(ObjectMapper.class);
+  
+  ...
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.Jackson;
+
+{
+  install(Jackson())
+
+  val mapper = require<ObjectMapper>()
+}
+----

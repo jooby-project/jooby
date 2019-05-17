@@ -28,18 +28,13 @@ import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.Parser;
 import io.jooby.Renderer;
+import io.jooby.ServiceRegistry;
 
 import javax.annotation.Nonnull;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 
 public class Jackson implements Extension, Parser, Renderer {
-  private static final byte[] ARRAY_START = {'['};
-
-  private static final byte[] ARRAY_SEPARATOR = {','};
-
-  private static final byte[] ARRAY_END = {']'};
-
   private final ObjectMapper mapper;
 
   public Jackson(ObjectMapper mapper) {
@@ -64,6 +59,9 @@ public class Jackson implements Extension, Parser, Renderer {
   @Override public void install(Jooby application) {
     application.parser(MediaType.json, this);
     application.renderer(MediaType.json, this);
+
+    ServiceRegistry services = application.getServices();
+    services.put(ObjectMapper.class, mapper);
   }
 
   @Override public byte[] render(@Nonnull Context ctx, @Nonnull Object value) throws Exception {

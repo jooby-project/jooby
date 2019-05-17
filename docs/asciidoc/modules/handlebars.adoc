@@ -1,0 +1,90 @@
+== Handlebars
+
+https://github.com/jknack/handlebars.java[Handlebars templates] for Jooby.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-handlebars"]
+.
+
+2) Write your templates inside the `views` folder
+
+.views/index.hbs
+[source, html]
+----
+<p> Hello {{name}}! </p>
+----
+
+2) Install and use freemarker templates
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.handlebars.Hbs;
+
+{
+  install(new Hbs());
+
+  get("/", ctx -> {
+    return new ModelAndView("index.hbs")
+        .put("name", "Jooby");
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.handlebars.Hbs
+
+{
+  install(Hbs())
+  
+  get("/") { ctx ->
+    ModelAndView("index.hbs")
+        .put("name", "Jooby")
+  }
+}
+----
+
+=== Templates Location
+
+Template location is set to `views`. The `views` folder/location is expected to be at the current
+user directory or at root of classpath.
+
+You can override the default location by setting the `handlebars.templatePath` property.
+
+=== Template Cache
+
+The handlebars module turn off cache while running in `dev` or `test` environment. For any other
+environment it use https://github.com/jknack/handlebars.java#the-cache-system[HighConcurrencyTemplateCache]
+
+=== Custom configuration
+
+Custom Handlebars object can be provided it programmatically:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.handlebars.hbs;
+
+{
+  Handlebars handlebars = new Handlebars();
+
+  install(new Hbs(handlebars));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.freemarker.Freemarker
+
+{
+  val handlebars = Handlebars();
+ 
+  install(Hbs(handlebars))
+}
+----
