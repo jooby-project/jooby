@@ -53,7 +53,7 @@ import io.jooby.json.Jackson;
 
 <1> Install Jackson
 <2> Use Jackson to encode arbitrary object as JSON
-<2> Use Jackson to decode JSON to Java object
+<3> Use Jackson to decode JSON to Java object
 
 === Working with ObjectMapper
 
@@ -76,7 +76,7 @@ import io.jooby.json.Jackson;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.Jackson;
+import io.jooby.json.Jackson
 
 {
   install(Jackson())
@@ -84,3 +84,55 @@ import io.jooby.json.Jackson;
   val mapper = require<ObjectMapper>()
 }
 ----
+
+You can provide your own `ObjectMapper`:
+
+.Custom ObjectMapper
+[source, java, role="primary"]
+----
+import io.jooby.json.Jackson;
+
+{
+  ObjectMapper mapper = new ObjectMapper();
+
+  install(new Jackson(mapper));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.Jackson
+
+{
+  val mapper = ObjectMapper()
+
+  install(Jackson(mapper))
+}
+----
+
+=== Provisioning Jackson Modules
+
+Jackson module can be provided by a link:/#dependency-injection[dependency injection] framework.
+
+.Provisioning Modules
+[source, java, role="primary"]
+----
+import io.jooby.json.Jackson;
+
+{
+  install(new Jackson().module(MyModule.class);
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.json.Jackson
+
+{
+  install(Jackson().module(MyModule::class.java)
+}
+----
+
+At startup time Jooby ask to the dependency injection framework to provide a `MyModule` instance.

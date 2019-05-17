@@ -21,6 +21,8 @@ import javax.annotation.Nonnull;
  * Simple extension contract for adding and reusing commons application infrastructure components
  * and/or integrate with external libraries.
  *
+ * Extensions are expected to work via side-effects.
+ *
  * @author edgar
  * @since 2.0.0
  */

@@ -63,7 +63,7 @@ environment it use a https://freemarker.apache.org/docs/pgui_config_templateload
 
 To set a different template cache just set the `freemarker.cacheStorage` property.
 
-=== Freemarker Options
+=== Freemarker Configuration
 
 Freemarker options can be set from application configuration properties by using the `freemarker` prefix:
 
@@ -72,4 +72,30 @@ Freemarker options can be set from application configuration properties by using
 ----
 freemarker.cacheStorage = soft
 freemarker.strictSyntax = yes
+----
+
+Custom Configuration object can be provided it programmatically:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.handlebars.hbs;
+
+{
+  Configuration freemarker = new Configuration();
+
+  install(new Freemarker(freemarker));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.freemarker.Freemarker
+
+{
+  val freemarker = Configuration()
+ 
+  install(Freemarker(freemarker))
+}
 ----

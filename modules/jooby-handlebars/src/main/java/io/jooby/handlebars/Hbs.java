@@ -29,6 +29,7 @@ import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
+import io.jooby.ServiceRegistry;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -181,6 +182,9 @@ public class Hbs implements Extension {
       handlebars = create().build(application.getEnvironment());
     }
     application.renderer(MediaType.html, new HbsTemplateEngine(handlebars));
+
+    ServiceRegistry services = application.getServices();
+    services.put(Handlebars.class, handlebars);
   }
 
   public static Hbs.Builder create() {

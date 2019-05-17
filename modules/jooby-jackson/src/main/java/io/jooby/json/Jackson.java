@@ -16,6 +16,7 @@
 package io.jooby.json;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -33,35 +34,43 @@ import io.jooby.ServiceRegistry;
 import javax.annotation.Nonnull;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Jackson implements Extension, Parser, Renderer {
   private final ObjectMapper mapper;
+
+  private final Set<Class<?extends Module>> modules = new HashSet<>();
 
   public Jackson(ObjectMapper mapper) {
     this.mapper = mapper;
   }
 
   public Jackson() {
-    this(defaultObjectMapper());
+    this(create());
   }
 
-  public static final ObjectMapper defaultObjectMapper() {
-    ObjectMapper objectMapper = new ObjectMapper();
-
-    objectMapper.registerModule(new Jdk8Module());
-    objectMapper.registerModule(new JavaTimeModule());
-    objectMapper.registerModule(new ParameterNamesModule());
-    objectMapper.registerModule(new AfterburnerModule());
-
-    return objectMapper;
+  public @Nonnull ObjectMapper getMapper() {
+    return mapper;
   }
 
-  @Override public void install(Jooby application) {
+  public @Nonnull Set<Class<? extends Module>> getModules() {
+    return modules;
+  }
+
+  @Override public void install(@Nonnull Jooby application) {
     application.parser(MediaType.json, this);
     application.renderer(MediaType.json, this);
 
     ServiceRegistry services = application.getServices();
     services.put(ObjectMapper.class, mapper);
+
+    application.onStarted(()-> {
+      for (Class<? extends Module> type : modules) {
+        Module module = application.require(type);
+        mapper.registerModule(module);
+      }
+    });
   }
 
   @Override public byte[] render(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
@@ -79,5 +88,16 @@ public class Jackson implements Extension, Parser, Renderer {
         return mapper.readValue(stream, javaType);
       }
     }
+  }
+
+  public static final @Nonnull ObjectMapper create() {
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    objectMapper.registerModule(new Jdk8Module());
+    objectMapper.registerModule(new JavaTimeModule());
+    objectMapper.registerModule(new ParameterNamesModule());
+    objectMapper.registerModule(new AfterburnerModule());
+
+    return objectMapper;
   }
 }

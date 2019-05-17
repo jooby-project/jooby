@@ -30,6 +30,7 @@ import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
+import io.jooby.ServiceRegistry;
 import io.jooby.Sneaky;
 
 import javax.annotation.Nonnull;
@@ -152,6 +153,9 @@ public class Freemarker implements Extension {
       freemarker = create().build(application.getEnvironment());
     }
     application.renderer(MediaType.html, new FreemarkerTemplateEngine(freemarker));
+
+    ServiceRegistry services = application.getServices();
+    services.put(Configuration.class, freemarker);
   }
 
   public static Freemarker.Builder create() {
