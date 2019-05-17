@@ -124,7 +124,8 @@ public class DocGenerator {
     }
   }
 
-  private static Options createOptions(Path basedir, Path outdir, String version, String title) {
+  private static Options createOptions(Path basedir, Path outdir, String version, String title)
+      throws IOException {
     Attributes attributes = new Attributes();
     attributes.setAttribute("joobyVersion", version);
     attributes.setAttribute("love", "&#9825;");
@@ -151,6 +152,12 @@ public class DocGenerator {
     attributes.setAttribute("highlightjs-theme", "agate");
     attributes.setAttribute("favicon", "images/favicon96.png");
 
+    // versions:
+    Document pom = Jsoup
+        .parse(DocGenerator.basedir().getParent().resolve("pom.xml").toFile(), "UTF-8");
+    pom.select("properties > *").stream()
+        .forEach(tag -> attributes.setAttribute(toJavaName(tag.tagName()), tag.text().trim()));
+
     Options options = new Options();
     options.setBackend("html");
 
@@ -162,6 +169,26 @@ public class DocGenerator {
     options.setDestinationDir("site");
     options.setSafe(SafeMode.UNSAFE);
     return options;
+  }
+
+  private static String toJavaName(String tagName) {
+    StringBuilder name = new StringBuilder();
+    name.append(tagName.charAt(0));
+    boolean up = false;
+    for (int i = 1; i < tagName.length(); i++) {
+      char ch = tagName.charAt(i);
+      if (Character.isJavaIdentifierPart(ch)) {
+        if (up) {
+          name.append(Character.toUpperCase(ch));
+          up = false;
+        } else {
+          name.append(ch);
+        }
+      } else {
+        up = true;
+      }
+    }
+    return name.toString();
   }
 
   private static String document(Path index) {

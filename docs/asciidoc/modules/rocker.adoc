@@ -1,0 +1,96 @@
+== Rocker
+
+https://github.com/fizzed/rocker[Rocker] is a Java 8 optimized, memory efficient, speedy template
+engine producing statically typed, plain java objects.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-rocker"]
+.
+
+2) Configure code generator
+
+.Maven
+[source,xml,role="primary",subs="verbatim,attributes"]
+----
+<plugin>
+    <groupId>com.fizzed</groupId>
+    <artifactId>rocker-maven-plugin</artifactId>
+    <version>{rockerVersion}</version>
+    <configuration>
+        <templateDirectory>src/rocker</templateDirectory>
+    </configuration>
+    <executions>
+        <execution>
+            <id>generate-rocker-templates</id>
+            <phase>generate-sources</phase>
+            <goals>
+                <goal>generate</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+----
+
+.Gradle
+[source,groovy,role="secondary",subs="verbatim,attributes"]
+----
+plugins {
+  id "com.fizzed.rocker" version "{rockerVersion}"
+}
+
+sourceSets {
+    main {
+        rocker {
+            srcDir('src/rocker')
+        }
+    }
+}
+----
+
+NOTE: Complete code generator options are https://github.com/fizzed/rocker#integrate-parsergenerator-in-build-tool[available here]
+
+3) Write your templates inside the `src/rocker/views` folder
+
+.src/rocker/views/index.rocker.html
+[source, html]
+----
+@args (String message)
+
+<p>Hello @message!</p>
+----
+
+4) Install and use rocker templates
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.rocker.Rockerby;
+
+{
+  install(new Rockerby());                  <1>
+
+  get("/", ctx -> {
+    return views.index.template("Rocker");  <2>
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.rocker.Rockerby
+
+{
+  install(Rockerby())                       <1>
+
+  get("/") { ctx ->
+    views.index.template("Rocker")          <2>
+  }
+}
+----
+
+<1> Install Rocker
+<2> Returns a rocker view

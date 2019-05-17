@@ -28,5 +28,6 @@ Available modules are listed next.
 === Template Engine
    * link:modules/handlebars[Handlebars]: Handlebars templates for Jooby.
    * link:modules/freemarker[Freemarker]: Freemarker templates for Jooby.
+   * link:modules/rocker[Rocker]: Rocker templates for Jooby.
 
 .
