@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-querydsl/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-querydsl/1.6.0)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-querydsl.svg)](https://javadoc.io/doc/org.jooby/jooby-querydsl/1.6.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-querydsl/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-querydsl/1.6.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-querydsl.svg)](https://javadoc.io/doc/org.jooby/jooby-querydsl/1.6.1)
 [![jooby-querydsl website](https://img.shields.io/badge/jooby-querydsl-brightgreen.svg)](http://jooby.org/doc/querydsl)
 # queryDSL
 
@@ -17,7 +17,7 @@ SQL abstraction provided by <a href="http://www.querydsl.com">QueryDSL</a> using
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-querydsl</artifactId>
- <version>1.6.0</version>
+ <version>1.6.1</version>
 </dependency>
 ```
 

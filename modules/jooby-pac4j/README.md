@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-pac4j/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-pac4j/1.6.0)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-pac4j.svg)](https://javadoc.io/doc/org.jooby/jooby-pac4j/1.6.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-pac4j/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-pac4j/1.6.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-pac4j.svg)](https://javadoc.io/doc/org.jooby/jooby-pac4j/1.6.1)
 [![jooby-pac4j website](https://img.shields.io/badge/jooby-pac4j-brightgreen.svg)](http://jooby.org/doc/pac4j)
 # pac4j
 
@@ -22,7 +22,7 @@ Authentication module via: [Pac4j 1.x](https://github.com/pac4j/pac4j).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-pac4j</artifactId>
-  <version>1.6.0</version>
+  <version>1.6.1</version>
 </dependency>
 ```
 

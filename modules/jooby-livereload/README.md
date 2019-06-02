@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-livereload/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-livereload/1.6.0)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-livereload.svg)](https://javadoc.io/doc/org.jooby/jooby-livereload/1.6.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-livereload/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-livereload/1.6.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-livereload.svg)](https://javadoc.io/doc/org.jooby/jooby-livereload/1.6.1)
 [![jooby-livereload website](https://img.shields.io/badge/jooby-livereload-brightgreen.svg)](http://jooby.org/doc/livereload)
 # liveReload
 
@@ -18,7 +18,7 @@ Even cooler, when you change a CSS file or an image, the browser is updated inst
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-livereload</artifactId>
- <version>1.6.0</version>
+ <version>1.6.1</version>
 </dependency>
 ```
 

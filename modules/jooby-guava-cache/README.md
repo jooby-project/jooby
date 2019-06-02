@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-guava-cache/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-guava-cache/1.6.0)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-guava-cache.svg)](https://javadoc.io/doc/org.jooby/jooby-guava-cache/1.6.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-guava-cache/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-guava-cache/1.6.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-guava-cache.svg)](https://javadoc.io/doc/org.jooby/jooby-guava-cache/1.6.1)
 [![jooby-guava-cache website](https://img.shields.io/badge/jooby-guava-cache-brightgreen.svg)](http://jooby.org/doc/guava-cache)
 # guava-cache
 
@@ -15,7 +15,7 @@ Provides cache solution and session storage via: <a href="https://github.com/goo
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-guava-cache</artifactId>
- <version>1.6.0</version>
+ <version>1.6.1</version>
 </dependency>
 ```
 
@@ -107,7 +107,7 @@ public MyService(Cache<Integer, String> cache) {
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-guava-cache</artifactId>
- <version>1.6.0</version>
+ <version>1.6.1</version>
 </dependency>
 ```
 

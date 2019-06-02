@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-elasticsearch/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-elasticsearch/1.6.0)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-elasticsearch.svg)](https://javadoc.io/doc/org.jooby/jooby-elasticsearch/1.6.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-elasticsearch/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-elasticsearch/1.6.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-elasticsearch.svg)](https://javadoc.io/doc/org.jooby/jooby-elasticsearch/1.6.1)
 [![jooby-elasticsearch website](https://img.shields.io/badge/jooby-elasticsearch-brightgreen.svg)](http://jooby.org/doc/elasticsearch)
 # elasticsearch
 
@@ -15,7 +15,7 @@ Open Source, Distributed, RESTful Search Engine via [Elastic Search](https://git
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-elasticsearch</artifactId>
-  <version>1.6.0</version>
+  <version>1.6.1</version>
 </dependency>
 ```
 
