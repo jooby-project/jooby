@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-jdbc/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-jdbc/1.6.0)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jdbc.svg)](https://javadoc.io/doc/org.jooby/jooby-jdbc/1.6.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-jdbc/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-jdbc/1.6.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jdbc.svg)](https://javadoc.io/doc/org.jooby/jooby-jdbc/1.6.1)
 [![jooby-jdbc website](https://img.shields.io/badge/jooby-jdbc-brightgreen.svg)](http://jooby.org/doc/jdbc)
 # jdbc
 
@@ -15,7 +15,7 @@ Production-ready jdbc data source, powered by the [HikariCP](https://github.com/
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbc</artifactId>
-  <version>1.6.0</version>
+  <version>1.6.1</version>
 </dependency>
 ```
 

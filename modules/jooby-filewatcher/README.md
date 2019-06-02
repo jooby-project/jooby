@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-filewatcher/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-filewatcher/1.6.0)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-filewatcher.svg)](https://javadoc.io/doc/org.jooby/jooby-filewatcher/1.6.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-filewatcher/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-filewatcher/1.6.1)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-filewatcher.svg)](https://javadoc.io/doc/org.jooby/jooby-filewatcher/1.6.1)
 [![jooby-filewatcher website](https://img.shields.io/badge/jooby-filewatcher-brightgreen.svg)](http://jooby.org/doc/filewatcher)
 # file watcher
 
@@ -11,7 +11,7 @@ Watches for file system changes or event. It uses a watch service to monitor a d
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-file watcher</artifactId>
- <version>1.6.0</version>
+ <version>1.6.1</version>
 </dependency>
 ```
 
