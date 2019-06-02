@@ -16,6 +16,12 @@ import java.nio.charset.StandardCharsets;
  */
 public interface TemplateEngine extends Renderer {
 
+  /** Name of application property that defines the template path. */
+  String TEMPLATE_PATH = "templates.path";
+
+  /** Default template path. */
+  String PATH = "views";
+
   /**
    * Render a model and view instance as String.
    *
@@ -30,5 +36,9 @@ public interface TemplateEngine extends Renderer {
     ctx.setDefaultResponseType(MediaType.html);
     String output = apply(ctx, (ModelAndView) value);
     return output.getBytes(StandardCharsets.UTF_8);
+  }
+
+  static @Nonnull String normalizePath(@Nonnull String templatesPath) {
+    return templatesPath.startsWith("/") ? templatesPath.substring(1) : templatesPath;
   }
 }

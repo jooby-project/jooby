@@ -54,7 +54,8 @@ import io.jooby.freemarker.Freemarker
 Template location is set to `views`. The `views` folder/location is expected to be at the current
 user directory or at root of classpath.
 
-You can override the default location by setting the `freemarker.templatePath` property.
+You can override the default location by setting the `templates.path` property in the application
+configuration file or programmatically at creation time.
 
 === Template Cache
 
@@ -79,7 +80,7 @@ Custom Configuration object can be provided it programmatically:
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.handlebars.hbs;
+import io.jooby.freemarker.Freemarker;
 
 {
   Configuration freemarker = new Configuration();

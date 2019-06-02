@@ -73,7 +73,7 @@ public class FreemarkerTest {
   @Test
   public void customTemplatePath() throws Exception {
     Configuration freemarker = Freemarker.create()
-        .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty().withValue("freemarker.templatePath",
+        .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty().withValue("templates.path",
             ConfigValueFactory.fromAnyRef("foo"))));
     FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker);
     MockContext ctx = new MockContext();

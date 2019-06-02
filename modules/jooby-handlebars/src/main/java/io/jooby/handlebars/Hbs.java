@@ -14,12 +14,12 @@ import com.github.jknack.handlebars.cache.TemplateCache;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
-import com.typesafe.config.Config;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.ServiceRegistry;
+import io.jooby.TemplateEngine;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -32,7 +32,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
+
+import static io.jooby.TemplateEngine.TEMPLATE_PATH;
+import static io.jooby.TemplateEngine.normalizePath;
 
 public class Hbs implements Extension {
 
@@ -44,7 +46,7 @@ public class Hbs implements Extension {
 
     private TemplateCache cache;
 
-    private String templatePath;
+    private String templatesPath = TemplateEngine.PATH;
 
     public Builder() {
       handlebars = new Handlebars();
@@ -56,8 +58,8 @@ public class Hbs implements Extension {
       return this;
     }
 
-    public @Nonnull Builder setTemplatePath(@Nonnull String templatePath) {
-      this.templatePath = templatePath.startsWith("/") ? templatePath.substring(1) : templatePath;
+    public @Nonnull Builder setTemplatesPath(@Nonnull String templatesPath) {
+      this.templatesPath = templatesPath;
       return this;
     }
 
@@ -121,14 +123,8 @@ public class Hbs implements Extension {
 
     public @Nonnull Handlebars build(@Nonnull Environment env) {
       if (loader == null) {
-        Config config = env.getConfig();
-        String defaultTemplatePath = config.hasPath("handlebars.templatePath")
-            ? config.getString("handlebars.templatePath")
-            : "views";
-        String templatePath = Optional.ofNullable(this.templatePath)
-            .orElse(defaultTemplatePath);
-        setTemplatePath(templatePath);
-        loader = defaultTemplateLoader(env, this.templatePath);
+        String templatesPath = normalizePath(env.getProperty(TEMPLATE_PATH, this.templatesPath));
+        loader = defaultTemplateLoader(env, templatesPath);
       }
       handlebars.with(loader);
 
@@ -160,16 +156,23 @@ public class Hbs implements Extension {
 
   private Handlebars handlebars;
 
+  private String templatesPath;
+
   public Hbs(@Nonnull Handlebars handlebars) {
     this.handlebars = handlebars;
   }
 
+  public Hbs(@Nonnull String templatesPath) {
+    this.templatesPath = templatesPath;
+  }
+
   public Hbs() {
+    this(TemplateEngine.PATH);
   }
 
   @Override public void install(@Nonnull Jooby application) throws Exception {
     if (handlebars == null) {
-      handlebars = create().build(application.getEnvironment());
+      handlebars = create().setTemplatesPath(templatesPath).build(application.getEnvironment());
     }
     application.renderer(MediaType.html, new HbsTemplateEngine(handlebars));
 

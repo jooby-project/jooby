@@ -54,7 +54,8 @@ import io.jooby.handlebars.Hbs
 Template location is set to `views`. The `views` folder/location is expected to be at the current
 user directory or at root of classpath.
 
-You can override the default location by setting the `handlebars.templatePath` property.
+You can override the default location by setting the `templates.path` property in the application
+configuration file or programmatically at creation time.
 
 === Template Cache
 
@@ -68,10 +69,12 @@ Custom Handlebars object can be provided it programmatically:
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.handlebars.hbs;
+import io.jooby.handlebars.Hbs;
 
 {
   Handlebars handlebars = new Handlebars();
+  
+  // Apply custom configuration
 
   install(new Hbs(handlebars));
 }
@@ -80,11 +83,13 @@ import io.jooby.handlebars.hbs;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.freemarker.Freemarker
+import io.jooby.handlebars.Hbs
 
 {
-  val handlebars = Handlebars();
+  val handlebars = Handlebars()
  
+  // Apply custom configuration
+
   install(Hbs(handlebars))
 }
 ----

@@ -12,25 +12,24 @@ import freemarker.cache.TemplateLoader;
 import freemarker.core.HTMLOutputFormat;
 import freemarker.core.OutputFormat;
 import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.DefaultObjectWrapperBuilder;
 import freemarker.template.TemplateException;
-import freemarker.template.Version;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.ServiceRegistry;
 import io.jooby.Sneaky;
+import io.jooby.TemplateEngine;
 
 import javax.annotation.Nonnull;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.Properties;
 
-import static io.jooby.Sneaky.throwingConsumer;
+import static io.jooby.TemplateEngine.TEMPLATE_PATH;
+import static io.jooby.TemplateEngine.normalizePath;
 
 public class Freemarker implements Extension {
 
@@ -42,7 +41,7 @@ public class Freemarker implements Extension {
 
     private OutputFormat outputFormat = HTMLOutputFormat.INSTANCE;
 
-    private String templatePath;
+    private String templatesPath = TemplateEngine.PATH;
 
     public @Nonnull Builder setTemplateLoader(@Nonnull TemplateLoader loader) {
       this.templateLoader = loader;
@@ -59,12 +58,8 @@ public class Freemarker implements Extension {
       return this;
     }
 
-    public @Nonnull Builder setTemplatePath(@Nonnull String templatePath) {
-      if (templatePath.startsWith("/")) {
-        this.templatePath = templatePath.substring(1);
-      } else {
-        this.templatePath = templatePath;
-      }
+    public @Nonnull Builder setTemplatesPath(@Nonnull String templatesPath) {
+        this.templatesPath = templatesPath;
       return this;
     }
 
@@ -80,8 +75,7 @@ public class Freemarker implements Extension {
           conf.getConfig("freemarker").root().unwrapped()
               .forEach((k, v) -> settings.put(k, v.toString()));
         }
-        String templatePath = Optional.ofNullable((String) settings.remove("templatePath"))
-            .orElse(Optional.ofNullable(this.templatePath).orElse("views"));
+        String templatesPath = normalizePath(env.getProperty(TEMPLATE_PATH, this.templatesPath));
 
         settings.putIfAbsent("defaultEncoding", "UTF-8");
         /** Cache storage: */
@@ -92,12 +86,9 @@ public class Freemarker implements Extension {
 
         freemarker.setSettings(settings);
 
-        /** Template path: */
-        setTemplatePath(templatePath);
-
         /** Template loader: */
         if (templateLoader == null) {
-          templateLoader = defaultTemplateLoader(env);
+          templateLoader = defaultTemplateLoader(env, templatesPath);
         }
         freemarker.setTemplateLoader(templateLoader);
 
@@ -116,13 +107,13 @@ public class Freemarker implements Extension {
       }
     }
 
-    private TemplateLoader defaultTemplateLoader(Environment env) {
+    private TemplateLoader defaultTemplateLoader(Environment env, String templatesPath) {
       try {
-        Path templateDir = Paths.get(System.getProperty("user.dir"), templatePath);
+        Path templateDir = Paths.get(System.getProperty("user.dir"), templatesPath);
         if (Files.exists(templateDir)) {
           return new FileTemplateLoader(templateDir.toFile());
         }
-        return new ClassTemplateLoader(env.getClassLoader(), "/" + templatePath);
+        return new ClassTemplateLoader(env.getClassLoader(), "/" + templatesPath);
       } catch (Exception x) {
         throw Sneaky.propagate(x);
       }
@@ -131,16 +122,23 @@ public class Freemarker implements Extension {
 
   private Configuration freemarker;
 
+  private String templatesPath;
+
   public Freemarker(@Nonnull Configuration freemarker) {
     this.freemarker = freemarker;
   }
 
+  public Freemarker(@Nonnull String templatesPath) {
+    this.templatesPath = templatesPath;
+  }
+
   public Freemarker() {
+    this(TemplateEngine.PATH);
   }
 
   @Override public void install(@Nonnull Jooby application) {
     if (freemarker == null) {
-      freemarker = create().build(application.getEnvironment());
+      freemarker = create().setTemplatesPath(templatesPath).build(application.getEnvironment());
     }
     application.renderer(MediaType.html, new FreemarkerTemplateEngine(freemarker));
 

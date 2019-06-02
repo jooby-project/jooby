@@ -48,7 +48,7 @@ public class HbsTest {
   @Test
   public void renderFileSystem() throws Exception {
     Handlebars handlebars = Hbs.create()
-        .setTemplatePath(Paths.get("src", "test", "resources", "views").toString())
+        .setTemplatesPath(Paths.get("src", "test", "resources", "views").toString())
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
     HbsTemplateEngine engine = new HbsTemplateEngine(handlebars);
     MockContext ctx = new MockContext();

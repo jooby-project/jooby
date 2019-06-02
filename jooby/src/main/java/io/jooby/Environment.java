@@ -72,6 +72,20 @@ public class Environment {
     this.conf = conf;
   }
 
+  public @Nonnull String getProperty(@Nonnull String key, @Nonnull String defaults) {
+    if (conf.hasPath(key)) {
+      return conf.getString(key);
+    }
+    return defaults;
+  }
+
+  public @Nullable String getProperty(@Nonnull String key) {
+    if (conf.hasPath(key)) {
+      return conf.getString(key);
+    }
+    return getProperty(key, null);
+  }
+
   /**
    * Application configuration.
    *
