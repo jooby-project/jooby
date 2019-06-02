@@ -219,6 +219,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -568,10 +570,10 @@ public class Assets implements Jooby.Module {
     return ConfigFactory.parseResources(getClass(), "assets.conf");
   }
 
-  private Config conf(final boolean dev, final ClassLoader loader, final Config conf) {
-    final Config[] confs;
+  private Config conf(final boolean dev, final ClassLoader loader, final Config conf) throws
+      IOException {
     if (!dev) {
-      confs = new Config[]{
+      Config[] confs = {
           ConfigFactory.parseResources(loader,
               "assets." + conf.getString("application.env").toLowerCase() + ".conf"),
           ConfigFactory.parseResources(loader, "assets.dist.conf"),
@@ -581,6 +583,9 @@ public class Assets implements Jooby.Module {
           return it.withFallback(conf).resolve();
         }
       }
+    }
+    if (loader.getResource("assets.conf") == null) {
+      throw new FileNotFoundException("assets.conf");
     }
     return ConfigFactory.parseResources(loader, "assets.conf").withFallback(conf).resolve();
   }
