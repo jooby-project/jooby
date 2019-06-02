@@ -865,7 +865,7 @@
               <skipExistingHeaders>true</skipExistingHeaders>
               <includes>
                 <include>src/main/java/**/*.java</include>
-                <include>src/main/java/**/*.kt</include>
+                <include>src/main/kotlin/**/*.kt</include>
               </includes>
             </configuration>
             <executions>
