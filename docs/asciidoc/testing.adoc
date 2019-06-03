@@ -242,10 +242,15 @@ class TestApp {
 For MVC routes you might prefer to write a unit test using a mock library. No need to use 
 `MockRouter`, but it is possible too.
 
-By default the javadoc:MockRouter[] class execute the route handler. For executing the entire
-pipeline use: javadoc:MockRouter[setFullExecution].
+==== Options
 
-Unit testing is simple and easy in Jooby. The javadoc:MockRouter[] let you to execute route function,
+- javadoc:MockRouter[setFullExecution]: the javadoc:MockRouter[] class ONLY execute the route
+handler. For executing the entire pipeline use: javadoc:MockRouter[setFullExecution].
+
+- javadoc:Jooby[setLateInit]: extension modules usually run at the time they are installed it. 
+This might not be ideally for unit tests. To delay extension initialization use the javadoc:Jooby[setLateInit] mode.
+
+Unit testing is simple and easy in Jooby. The javadoc:MockRouter[] let you execute the route function,
 while the javadoc:MockContext[] allows you to create an light-weight and mutable context where
 you can set HTTP parameters, body, headers, etc.
 

@@ -3,6 +3,8 @@ package io.jooby;
 import io.reactivex.Single;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import static io.jooby.StatusCode.NO_CONTENT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -116,4 +118,5 @@ public class UnitTest {
     MockRouter router = new MockRouter(new MvcApp());
     assertEquals("/mvc", router.get("/mvc").value());
   }
+
 }

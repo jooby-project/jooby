@@ -92,6 +92,8 @@ public class Jooby implements Router, Registry {
 
   private EnvironmentOptions environmentOptions;
 
+  private boolean lateInit;
+
   /**
    * Creates a new Jooby instance.
    */
@@ -310,7 +312,7 @@ public class Jooby implements Router, Registry {
    * @return This application.
    */
   @Nonnull public Jooby install(@Nonnull Extension extension) {
-    if (extension.lateinit()) {
+    if (lateInit || extension.lateinit()) {
       onStarting(() -> extension.install(this));
     } else {
       try {
@@ -477,13 +479,6 @@ public class Jooby implements Router, Registry {
     return this.router.getServices();
   }
 
-  private Registry checkRegistry() {
-    if (registry == null) {
-      throw new IllegalStateException("No registry available");
-    }
-    return registry;
-  }
-
   /**
    * Get base application package. This is the package from where application was initialized
    * or the package of a Jooby application sub-class.
@@ -624,6 +619,21 @@ public class Jooby implements Router, Registry {
     fireStop();
 
     log.info("Stopped {}", System.getProperty(APP_NAME, getClass().getSimpleName()));
+    return this;
+  }
+
+  /**
+   * Force all module to be initialized lazily at application startup time (not at
+   * creation/instantiation time).
+   *
+   * This option is present mostly for unit-test where you need to instantiated a Jooby instance
+   * without running extensions.
+   *
+   * @param lateInit True for late init.
+   * @return This application.
+   */
+  public Jooby setLateInit(boolean lateInit) {
+    this.lateInit = lateInit;
     return this;
   }
 
