@@ -30,6 +30,11 @@ public class DispatchApp extends Jooby {
     dispatch(() -> {
       get("/worker", ctx -> ctx.query("n").intValue(2));
     });
+
+    executor("single", Executors.newSingleThreadExecutor());
+    dispatch(() -> {
+      get("/worker", ctx -> ctx.query("n").intValue(2));
+    });
   }
 
   public static void main(String[] args) {

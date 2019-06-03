@@ -401,6 +401,175 @@ The javadoc:Jooby[mvc, javax.inject.Provider] does the same job, might or might 
 instantiation to a dependency injection framework but most important let you control lifecycle of
 MVC routes (Singleton vs Non-Singleton routes). 
 
+=== Execution model
+
+The MVC routes follows the execution model described in <<Execution Model>>. To run application
+logic in the javadoc:ExecutionMode[EVENT_LOOP]:
+
+.EventLoop MVC route
+[source, java, role = "primary"]
+----
+
+public class App extends Jooby {
+  {
+    mvc(new MyController());
+  }
+
+  public static void main(String[] args) {
+    runApp(args, EVENT_LOOP, App::new);  <1>
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.*
+
+fun main(args: Array<String>) {
+  runApp(args, EVENT_LOOP) {             <1>
+    mvc(MyController())
+  }
+}
+----
+
+<1> Start the application in the EVENT_LOOP execution mode
+
+Similarly, if you need to run all mvc routes in the javadoc:ExecutionMode[WORKER] execution mode:
+
+.Worker mode MVC route
+[source, java, role = "primary"]
+----
+
+public class App extends Jooby {
+  {
+    dispatch(() -> {
+      mvc(new MyBlockingController());  <1>
+    });
+  }
+
+  public static void main(String[] args) {
+    runApp(args, EVENT_LOOP, App::new);
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.*
+
+fun main(args: Array<String>) {
+  runApp(args, EVENT_LOOP) {
+    dispatch {
+      mvc(MyBlockingController())               <1>
+    }
+  }
+}
+----
+
+<1> Wrap the controller using the dispatch operator
+
+One drawback with this approach is that the entire controller is now going to be executed in the worker or custom executor.
+For more fine grain control use the javadoc:annotations.Dispatch[] annotation:
+
+.Dispatch annotation
+[source, java, role = "primary"]
+----
+
+public class MyController {
+  @GET("/nonblocking")
+  public String nonblocking() {  <1>
+    return "I'm nonblocking";
+  }
+
+  @GET("/blocking")
+  @Dispatch
+  public String blocking() {     <2>
+    return "I'm blocking";
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.annotations.*
+
+class MyController {
+
+  @GET("/nonblocking")
+  fun nonblocking() : String {   <1>
+    return "I'm nonblocking";
+  }
+
+  @GET("/blocking")
+  @Dispatch
+  fun blocking() : String {      <2>
+    return "I'm blocking";
+  }
+}
+----
+
+<1> MVC route run in EVENT_LOOP mode. Blocking is NOT allowed it.
+<2> MVC route run in WORKER mode. Blocking is allowed it.
+
+The javadoc:annotations.Dispatch[] annotation supports custom executor using an executor name.
+
+.Dispatch to custom executor
+[source, java, role = "primary"]
+----
+
+public class MyController {
+  @GET("/blocking")
+  @Dispatch("single")         <1>
+  public String blocking() {
+    return "I'm blocking";
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.annotations.*
+
+class MyController {
+
+  @GET("/blocking")
+  @Dispatch("single")         <1>
+  fun blocking() : String {
+    return "I'm blocking";
+  }
+}
+----
+
+<1> Dispatch to an executor named it `single`
+
+Executor must be registered using via services or executor utility method:
+
+.Custom executor registration
+[source, java, role = "primary"]
+----
+{
+  executor("single", Executors.newSingleThreadExecutor());
+
+  mvc(new MyController());
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+{
+  executor("single", Executors.newSingleThreadExecutor())
+
+  mvc(MyController())
+}
+----
+
+The executor must be registered before the MVC route/controller.
+
 === Suspend functions
 
 For Kotlin users MVC routes are allowed to use suspend functions

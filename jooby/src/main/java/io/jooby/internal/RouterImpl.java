@@ -7,6 +7,7 @@ package io.jooby.internal;
 
 import io.jooby.Context;
 import io.jooby.RegistryException;
+import io.jooby.ServiceKey;
 import io.jooby.StatusCodeException;
 import io.jooby.ErrorHandler;
 import io.jooby.ExecutionMode;
@@ -22,6 +23,7 @@ import io.jooby.ServiceRegistry;
 import io.jooby.SessionOptions;
 import io.jooby.StatusCode;
 import io.jooby.Sneaky;
+import io.jooby.annotations.Dispatch;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.mvc.MvcAnnotationParser;
 import io.jooby.internal.mvc.MvcCompiler;
@@ -34,6 +36,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -98,7 +102,8 @@ public class RouterImpl implements Router {
     List<MediaType> produceTypes = ctx.getRoute().getProduces();
     MediaType contentType = ctx.accept(produceTypes);
     if (contentType == null) {
-      throw new StatusCodeException(StatusCode.NOT_ACCEPTABLE, ctx.header(Context.ACCEPT).value(""));
+      throw new StatusCodeException(StatusCode.NOT_ACCEPTABLE,
+          ctx.header(Context.ACCEPT).value(""));
     }
   };
 
@@ -436,6 +441,11 @@ public class RouterImpl implements Router {
     return LoggerFactory.getLogger(getClass());
   }
 
+  @Nonnull @Override public Router executor(@Nonnull String name, @Nonnull Executor executor) {
+    services.put(ServiceKey.key(Executor.class, name), executor);
+    return this;
+  }
+
   public void destroy() {
     routes.clear();
     routes = null;
@@ -598,8 +608,38 @@ public class RouterImpl implements Router {
           }
         });
     Collections.sort(routes, Comparator.comparingInt(MvcMethod::getLine));
-    routes.forEach(consumer);
+    routes.forEach(mvc -> {
+      String executorKey = dispatchTo(mvc.getMethod());
+      if (executorKey != null) {
+        if (executorKey.length() == 0) {
+          dispatch(() -> consumer.accept(mvc));
+        } else {
+          Executor executor = services.getOrNull(ServiceKey.key(Executor.class, executorKey));
+          if (executor == null) {
+            // TODO: replace with usage exception
+            throw new IllegalArgumentException(
+                "Missing executor: " + executorKey + ", required by: " + mvc.getMethod().getDeclaringClass().getName() + "." + mvc.getMethod()
+                    .getName() + ", at line: " + mvc.getLine());
+          }
+          dispatch(executor, () -> consumer.accept(mvc));
+        }
+      } else {
+        consumer.accept(mvc);
+      }
+    });
     mvcMetadata.destroy();
+  }
+
+  private String dispatchTo(Method method) {
+    Dispatch dispatch = method.getAnnotation(Dispatch.class);
+    if (dispatch != null) {
+      return dispatch.value();
+    }
+    Dispatch parent = method.getDeclaringClass().getAnnotation(Dispatch.class);
+    if (parent != null) {
+      return parent.value();
+    }
+    return null;
   }
 
   private String[] pathPrefix(String prefix, String[] path) {

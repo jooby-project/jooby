@@ -24,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Spliterator;
@@ -495,6 +494,14 @@ public class Jooby implements Router, Registry {
 
   @Nonnull @Override public Jooby setSessionOptions(@Nonnull SessionOptions options) {
     router.setSessionOptions(options);
+    return this;
+  }
+
+  @Nonnull @Override public Jooby executor(@Nonnull String name, @Nonnull Executor executor) {
+    if (executor instanceof ExecutorService) {
+      onStop(((ExecutorService) executor)::shutdown);
+    }
+    router.executor(name, executor);
     return this;
   }
 

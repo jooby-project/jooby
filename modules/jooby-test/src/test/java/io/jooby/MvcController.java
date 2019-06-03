@@ -15,6 +15,7 @@
  */
 package io.jooby;
 
+import io.jooby.annotations.Dispatch;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.Path;
 
@@ -24,5 +25,11 @@ public class MvcController {
   @GET
   public String getIt(Context ctx) {
     return ctx.pathString();
+  }
+
+  @Dispatch("single")
+  @GET("/single")
+  public String single() {
+    return Thread.currentThread().getName();
   }
 }

@@ -2,25 +2,33 @@ package io.jooby;
 
 import examples.InstanceRouter;
 import examples.JAXRS;
+import examples.LoopDispatch;
 import examples.Message;
 import examples.MvcBody;
 import examples.NoTopLevelPath;
 import examples.NullInjection;
 import examples.ProducesConsumes;
 import examples.Provisioning;
+import examples.TopDispatch;
 import io.jooby.json.Jackson;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import static io.jooby.MediaType.xml;
 import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MvcTest {
 
@@ -320,4 +328,45 @@ public class MvcTest {
       });
     });
   }
+
+  @Test
+  public void mvcDispatch() {
+    new JoobyRunner(app -> {
+      app.executor("single", Executors.newSingleThreadExecutor(r ->
+          new Thread(r, "single")
+      ));
+
+      app.mvc(new TopDispatch());
+
+    }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
+      client.get("/", rsp -> {
+        String body = rsp.body().string();
+        assertTrue(body.startsWith("application"), body);
+      });
+
+      client.get("/method", rsp -> {
+        assertEquals("single", rsp.body().string());
+      });
+    });
+
+    LinkedList<String> names = new LinkedList<>(Arrays.asList("netty", "application I/O", "application-"));
+    new JoobyRunner(app -> {
+      app.executor("single", Executors.newSingleThreadExecutor(r ->
+          new Thread(r, "single")
+      ));
+
+      app.mvc(new LoopDispatch());
+
+    }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
+      client.get("/", rsp -> {
+        String body = rsp.body().string();
+        assertTrue(body.startsWith(names.removeFirst()), body);
+      });
+
+      client.get("/method", rsp -> {
+        assertEquals("single", rsp.body().string());
+      });
+    });
+  }
+
 }

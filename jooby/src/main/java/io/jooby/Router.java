@@ -634,6 +634,12 @@ public interface Router extends Registry {
    */
   @Nonnull Router setSessionOptions(@Nonnull SessionOptions options);
 
+  default @Nonnull Executor executor(@Nonnull String name) {
+    return require(Executor.class, name);
+  }
+
+  @Nonnull Router executor(@Nonnull String name, @Nonnull Executor executor);
+
   /**
    * Normalize a path by removing consecutives <code>/</code>(slashes), make it lower case and
    * removing trailing slash.

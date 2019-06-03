@@ -1,7 +1,5 @@
 * tests and coverage
 
-* get executor module from 1.x into 2.x core
-* dispatch on mvc route via @Dispatch, allow to dispatch annotation to use an executor by name
 * flash scope
 * make reset headers on error configurable
 
