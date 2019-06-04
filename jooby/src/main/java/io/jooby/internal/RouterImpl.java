@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;

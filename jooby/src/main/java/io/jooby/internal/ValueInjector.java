@@ -180,16 +180,6 @@ public class ValueInjector {
     return args;
   }
 
-  private String toString(Executable method) {
-    StringBuilder name = new StringBuilder(method.getDeclaringClass().getCanonicalName());
-    if (method instanceof Constructor) {
-      name.append("()");
-    } else {
-      name.append(".").append(method.getName()).append("()");
-    }
-    return name.toString();
-  }
-
   private String paramName(Parameter parameter) {
     String name = parameter.getName();
     Named named = parameter.getAnnotation(Named.class);
