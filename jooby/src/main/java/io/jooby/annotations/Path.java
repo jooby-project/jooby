@@ -17,8 +17,7 @@ import java.lang.annotation.Target;
  *   &#64;Path("/r")
  *   class Resources {
  *
- *     &#64;Path("/sub")
- *     &#64;Get
+ *     &#64;GET("/sub")
  *     public void method() {
  *     }
  *   }

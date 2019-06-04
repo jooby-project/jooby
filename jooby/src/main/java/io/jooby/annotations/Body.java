@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  *   &#64;Path("/r")
  *   class Resources {
  *
- *     &#64;Post
+ *     &#64;POST
  *     public void method(&#64;Body MyBean) {
  *     }
  *   }

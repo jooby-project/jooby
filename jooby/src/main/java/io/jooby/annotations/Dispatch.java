@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
  *   class Resources {
  *
  *     &#64;Dispatch
- *     &#64;Get
+ *     &#64;GET
  *     public ... dispatch() {
  *       // do blocking calls
  *     }
