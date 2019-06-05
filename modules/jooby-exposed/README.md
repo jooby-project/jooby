@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-exposed/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-exposed/1.6.1)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-exposed.svg)](https://javadoc.io/doc/org.jooby/jooby-exposed/1.6.1)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-exposed/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-exposed/1.6.2)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-exposed.svg)](https://javadoc.io/doc/org.jooby/jooby-exposed/1.6.2)
 [![jooby-exposed website](https://img.shields.io/badge/jooby-exposed-brightgreen.svg)](http://jooby.org/doc/exposed)
 # exposed
  

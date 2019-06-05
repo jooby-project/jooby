@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-frontend/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-frontend/1.6.1)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-frontend.svg)](https://javadoc.io/doc/org.jooby/jooby-frontend/1.6.1)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-frontend/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-frontend/1.6.2)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-frontend.svg)](https://javadoc.io/doc/org.jooby/jooby-frontend/1.6.2)
 [![jooby-frontend website](https://img.shields.io/badge/jooby-frontend-brightgreen.svg)](http://jooby.org/doc/frontend)
 # frontend
 
@@ -12,7 +12,7 @@ runs <a href="https://www.npmjs.com">npm</a>, <a href="https://webpack.js.org">w
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-frontend</artifactId>
- <version>1.6.1</version>
+ <version>1.6.2</version>
 </dependency>
 ```
 

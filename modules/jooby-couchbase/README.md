@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-couchbase/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-couchbase/1.6.1)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-couchbase.svg)](https://javadoc.io/doc/org.jooby/jooby-couchbase/1.6.1)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-couchbase/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-couchbase/1.6.2)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-couchbase.svg)](https://javadoc.io/doc/org.jooby/jooby-couchbase/1.6.2)
 [![jooby-couchbase website](https://img.shields.io/badge/jooby-couchbase-brightgreen.svg)](http://jooby.org/doc/couchbase)
 # couchbase
 
@@ -13,7 +13,7 @@ This module provides <a href="http://www.couchbase.com">couchbase</a> access via
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-couchbase</artifactId>
- <version>1.6.1</version>
+ <version>1.6.2</version>
 </dependency>
 ```
 
@@ -307,7 +307,7 @@ A [Session.Store](/apidocs/org/jooby/couchbase/CouchbaseSessionStore) powered by
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-couchbase</artifactId>
- <version>1.6.1</version>
+ <version>1.6.2</version>
 </dependency>
 ```
 

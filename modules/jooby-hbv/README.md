@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-hbv/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-hbv/1.6.1)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hbv.svg)](https://javadoc.io/doc/org.jooby/jooby-hbv/1.6.1)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-hbv/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-hbv/1.6.2)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hbv.svg)](https://javadoc.io/doc/org.jooby/jooby-hbv/1.6.2)
 [![jooby-hbv website](https://img.shields.io/badge/jooby-hbv-brightgreen.svg)](http://jooby.org/doc/hbv)
 # hibernate validator
 
@@ -17,7 +17,7 @@ Bean validation via [Hibernate Validator](hibernate.org/validator).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbv</artifactId>
-  <version>1.6.1</version>
+  <version>1.6.2</version>
 </dependency>
 ```
 
@@ -36,6 +36,19 @@ Bean validation via [Hibernate Validator](hibernate.org/validator).
      ...
    }
   });
+}
+```
+### in combination with JSON parser
+Jooby does not have a validation API or a validation API for HTTP bodies. Instead, this validator _wraps_ existing body parsers as they simply return the first deserialized object. Consequently, this module must be imported _before_ you import any parser!
+If you were to use the [Jackson JSON parser module](../jackson/jackson.md) it would look like this:
+
+```java
+{
+  // must be imported before any body parser
+  use(new Hbv());
+  use(new Jackson());
+
+  // routes go here
 }
 ```
 
