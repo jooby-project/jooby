@@ -78,7 +78,7 @@
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
-      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.6.1" target="_blank" title="API docs">API DOCS</a></li> 
+      <li><a href="https://javadoc.io/doc/org.jooby/jooby/1.6.2" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
     </nav> 
    </div> 
@@ -128,7 +128,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-hbv<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.6.1<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.6.2<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -149,6 +149,20 @@
      <span class="o">...</span>
    <span class="o">}</span>
   <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>### in combination with JSON parser Jooby does not have a validation API or a validation API for HTTP bodies. Instead, this validator <em>wraps</em> existing body parsers as they simply return the first deserialized object. Consequently, this module must be imported <em>before</em> you import any parser! If you were to use the <a href="../jackson/jackson.md">Jackson JSON parser module</a> it would look like this:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="c1">// must be imported before any body parser</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbv</span><span class="o">());</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">());</span>
+
+  <span class="c1">// routes go here</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
