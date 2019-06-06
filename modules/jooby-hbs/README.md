@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-hbs/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-hbs/1.6.0)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hbs.svg)](https://javadoc.io/doc/org.jooby/jooby-hbs/1.6.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-hbs/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-hbs/1.6.2)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-hbs.svg)](https://javadoc.io/doc/org.jooby/jooby-hbs/1.6.2)
 [![jooby-hbs website](https://img.shields.io/badge/jooby-hbs-brightgreen.svg)](http://jooby.org/doc/hbs)
 # handlebars
 
@@ -16,7 +16,7 @@ Logic-less and semantic templates via [Handlebars.java](https://github.com/jknac
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbs</artifactId>
-  <version>1.6.0</version>
+  <version>1.6.2</version>
 </dependency>
 ```
 

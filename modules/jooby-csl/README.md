@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-csl/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-csl/1.6.0)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-csl.svg)](https://javadoc.io/doc/org.jooby/jooby-csl/1.6.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-csl/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-csl/1.6.2)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-csl.svg)](https://javadoc.io/doc/org.jooby/jooby-csl/1.6.2)
 [![jooby-csl website](https://img.shields.io/badge/jooby-csl-brightgreen.svg)](http://jooby.org/doc/csl)
 # csl
 
@@ -11,7 +11,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-csl</artifactId>
- <version>1.6.0</version>
+ <version>1.6.2</version>
 </dependency>
 ```
 

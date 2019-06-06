@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-servlet/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-servlet/1.6.0)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-servlet.svg)](https://javadoc.io/doc/org.jooby/jooby-servlet/1.6.0)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-servlet/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-servlet/1.6.2)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-servlet.svg)](https://javadoc.io/doc/org.jooby/jooby-servlet/1.6.2)
 [![jooby-servlet website](https://img.shields.io/badge/jooby-servlet-brightgreen.svg)](http://jooby.org/doc/servlet)
 # servlets
 

@@ -244,14 +244,19 @@ class TypeJsonDeserializer extends JsonDeserializer<Type> {
         Type owner = BytecodeRouteParser.loadType(loader, singleType.toString());
         List<Type> parameters = parse(loader, type, i + 1);
         return Arrays.asList(
-            Types.newParameterizedType(owner, parameters.toArray(new Type[parameters.size()])));
+                Types.newParameterizedType(owner, parameters.toArray(new Type[parameters.size()])));
       } else if (ch == ',') {
         Type element = BytecodeRouteParser.loadType(loader, singleType.toString());
         types.add(element);
         singleType.setLength(0);
       } else if (ch == '>') {
         if (singleType.length() > 0) {
-          Type element = BytecodeRouteParser.loadType(loader, singleType.toString());
+          Type element;
+          if (singleType.charAt(0) == '?') {
+            element = parseWildcardType(singleType, loader);
+          } else {
+            element = BytecodeRouteParser.loadType(loader, singleType.toString());
+          }
           types.add(element);
           singleType.setLength(0);
         }
@@ -271,5 +276,30 @@ class TypeJsonDeserializer extends JsonDeserializer<Type> {
       types.add(element);
     }
     return types;
+  }
+
+  private static Type parseWildcardType(final StringBuilder singleType, final ClassLoader loader) {
+    if(singleType.length() == 1) {
+      // Collection<?>
+      return new MoreTypes.WildcardTypeImpl(new Type[]{Object.class}, MoreTypes.EMPTY_TYPE_ARRAY);
+    }
+
+    Type type;
+    String typeStr;
+    switch (singleType.charAt(1)) {
+      case 'e':
+        // Collection<? extends <Clazz>>
+        typeStr = singleType.substring(8);
+        type = Types.subtypeOf(BytecodeRouteParser.loadType(loader, typeStr));
+        break;
+      case 's':
+        // Collection<? super <Clazz>>
+        typeStr = singleType.substring(6);
+        type = Types.supertypeOf(BytecodeRouteParser.loadType(loader, typeStr));
+        break;
+      default:
+        throw new UnsupportedOperationException("Unsupported wildcard type");
+    }
+    return type;
   }
 }
