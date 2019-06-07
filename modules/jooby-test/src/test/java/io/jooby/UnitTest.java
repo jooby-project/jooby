@@ -60,14 +60,18 @@ public class UnitTest {
   public void pipeline() {
     Jooby app = new Jooby();
 
-    app.before(ctx -> ctx.attribute("prefix", "<"));
-    app.after((ctx, result) -> result + ">");
-    app.get("/", ctx -> ctx.attribute("prefix") + "OK");
+    app.before(ctx -> ctx.setResponseHeader("before", "<"));
+    app.after((ctx, result) -> ctx.setResponseHeader("after", ">"));
+    app.get("/", ctx -> "OK");
 
     MockRouter router = new MockRouter(app)
         .setFullExecution(true);
 
-    assertEquals("<OK>", router.get("/").value());
+    router.get("/", rsp -> {
+      assertEquals("OK", rsp.value());
+      assertEquals("<", rsp.getHeaders().get("before"));
+      assertEquals(">", rsp.getHeaders().get("after"));
+    });
   }
 
   @Test

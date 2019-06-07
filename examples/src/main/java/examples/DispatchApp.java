@@ -21,8 +21,6 @@ public class DispatchApp extends Jooby {
     });
 
     after((ctx, value) -> {
-      Number n = (Number) value;
-      return n.intValue() * 2;
     });
 
     get("/", ctx -> ctx.query("n").intValue(2));

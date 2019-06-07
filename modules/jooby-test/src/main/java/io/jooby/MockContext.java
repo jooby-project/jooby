@@ -310,6 +310,7 @@ public class MockContext implements Context {
    * @return Mock response.
    */
   @Nonnull public MockResponse getResponse() {
+    response.setHeaders(responseHeaders);
     return response;
   }
 
@@ -409,7 +410,7 @@ public class MockContext implements Context {
   }
 
   @Nonnull @Override public MockContext setResponseCookie(@Nonnull Cookie cookie) {
-    String setCookie = response.getHeaders().get("Set-Cookie");
+    String setCookie = (String) response.getHeaders().get("Set-Cookie");
     if (setCookie == null) {
       setCookie = cookie.toCookieString();
     } else {

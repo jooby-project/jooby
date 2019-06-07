@@ -44,7 +44,7 @@ public class MockResponse implements MockValue {
 
   private StatusCode statusCode = StatusCode.OK;
 
-  private Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+  private Map<String, Object> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
   private MediaType contentType;
 
@@ -55,7 +55,7 @@ public class MockResponse implements MockValue {
    *
    * @return Response headers.
    */
-  public @Nonnull Map<String, String> getHeaders() {
+  public @Nonnull Map<String, Object> getHeaders() {
     return headers == null ? Collections.emptyMap() : Collections.unmodifiableMap(headers);
   }
 
@@ -65,7 +65,7 @@ public class MockResponse implements MockValue {
    * @param headers Response headers.
    * @return This response.
    */
-  public @Nonnull MockResponse setHeaders(@Nonnull Map<String, String> headers) {
+  public @Nonnull MockResponse setHeaders(@Nonnull Map<String, Object> headers) {
     headers.forEach(this::setHeader);
     return this;
   }
@@ -86,6 +86,17 @@ public class MockResponse implements MockValue {
       this.headers.put(name, value);
     }
     return this;
+  }
+
+  /**
+   * Set response header.
+   *
+   * @param name Header name.
+   * @param value Header value.
+   * @return This response.
+   */
+  public @Nonnull MockResponse setHeader(@Nonnull String name, @Nonnull Object value) {
+    return setHeader(name, value.toString());
   }
 
   /**

@@ -635,7 +635,6 @@ public class FeaturedTest {
       app.after((ctx, value) -> {
         StringBuilder buff = (StringBuilder) value;
         buff.append("after1:" + ctx.isInIoThread()).append(";");
-        return buff;
       });
 
       app.dispatch(() -> {
@@ -646,12 +645,14 @@ public class FeaturedTest {
 
         app.after((ctx, value) -> {
           StringBuilder buff = ctx.attribute("buff");
-          buff.append(value).append(";");
           buff.append("after2:" + ctx.isInIoThread()).append(";");
-          return buff;
         });
 
-        app.get("/", ctx -> "result:" + ctx.isInIoThread());
+        app.get("/", ctx -> {
+          StringBuilder buff = ctx.attribute("buff");
+          buff.append("result:").append(ctx.isInIoThread()).append(";");
+          return buff;
+        });
       });
 
     }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {

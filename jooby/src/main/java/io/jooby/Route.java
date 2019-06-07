@@ -118,7 +118,10 @@ public class Route {
      * @return A new decorator.
      */
     @Nonnull default After then(@Nonnull After next) {
-      return (ctx, result) -> apply(ctx, next.apply(ctx, result));
+      return (ctx, result) -> {
+        next.apply(ctx, result);
+        apply(ctx, result);
+      };
     }
 
     /**
@@ -129,7 +132,7 @@ public class Route {
      * @return Response to send.
      * @throws Exception If something goes wrong.
      */
-    @Nonnull Object apply(@Nonnull Context ctx, Object result) throws Exception;
+    @Nonnull void apply(@Nonnull Context ctx, Object result) throws Exception;
   }
 
   /**
@@ -167,14 +170,19 @@ public class Route {
      * @return A new handler.
      */
     @Nonnull default Handler then(@Nonnull After next) {
-      return ctx -> next.apply(ctx, apply(ctx));
+      return ctx -> {
+        Object result = apply(ctx);
+        next.apply(ctx, result);
+        return result;
+      };
     }
   }
 
   /**
    * Handler for {@link StatusCode#NOT_FOUND} responses.
    */
-  public static final Handler NOT_FOUND = ctx -> ctx.sendError(new StatusCodeException(StatusCode.NOT_FOUND));
+  public static final Handler NOT_FOUND = ctx -> ctx
+      .sendError(new StatusCodeException(StatusCode.NOT_FOUND));
 
   /**
    * Handler for {@link StatusCode#METHOD_NOT_ALLOWED} responses.
