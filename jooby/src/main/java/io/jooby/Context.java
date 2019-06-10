@@ -119,6 +119,20 @@ public interface Context extends Registry {
    * **********************************************************************************************
    */
 
+  default @Nonnull FlashMap flashMap() {
+    return (FlashMap) getAttributes()
+        .computeIfAbsent(FlashMap.NAME, key -> FlashMap.create(this, FlashScope.cookie()));
+  }
+
+  default @Nonnull Value flash(@Nonnull String name) {
+    return Value.create(name, flashMap().get(name));
+  }
+
+  default @Nonnull Context flash(@Nonnull String name, @Nonnull String value) {
+    flashMap().put(name, value);
+    return this;
+  }
+
   /**
    * Find a session or creates a new session.
    *

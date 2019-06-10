@@ -80,6 +80,7 @@ public class JettyContext implements Callback, Context {
   private Route route;
   private MediaType responseType;
   private Map<String, String> cookies;
+  private HashMap<String, String> responseCookies;
 
   public JettyContext(Request request, Router router, int bufferSize, long maxRequestSize) {
     this.request = request;
@@ -297,8 +298,15 @@ public class JettyContext implements Callback, Context {
   }
 
   @Nonnull public Context setResponseCookie(@Nonnull Cookie cookie) {
+    if (responseCookies == null) {
+      responseCookies = new HashMap<>();
+    }
     cookie.setPath(cookie.getPath(getContextPath()));
-    response.addHeader(SET_COOKIE.asString(), cookie.toCookieString());
+    responseCookies.put(cookie.getName(), cookie.toCookieString());
+    response.setHeader(SET_COOKIE, null);
+    for (String cookieString : responseCookies.values()) {
+      response.addHeader(SET_COOKIE.asString(), cookieString);
+    }
     return this;
   }
 

@@ -25,6 +25,8 @@ public class JoobyRunner {
 
   private final String testName;
 
+  private boolean followRedirects = true;
+
   public JoobyRunner(Consumer<Jooby> provider) {
     this.provider = () -> {
       Jooby app = new Jooby();
@@ -54,6 +56,11 @@ public class JoobyRunner {
 
   public JoobyRunner mode(ExecutionMode... mode) {
     modes.addAll(Arrays.asList(mode));
+    return this;
+  }
+
+  public JoobyRunner dontFollowRedirects() {
+    followRedirects = false;
     return this;
   }
 
@@ -99,7 +106,7 @@ public class JoobyRunner {
           options.setPort(Integer.parseInt(System.getenv().getOrDefault("BUILD_PORT", "9999")));
           server.start(app);
 
-          onReady.accept(new WebClient(options.getPort()), server);
+          onReady.accept(new WebClient(options.getPort(), followRedirects), server);
         } catch (Throwable x) {
           x.printStackTrace();
           throw Sneaky.propagate(x);

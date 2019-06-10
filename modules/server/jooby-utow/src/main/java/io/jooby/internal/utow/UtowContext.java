@@ -73,6 +73,7 @@ public class UtowContext implements Context, IoCallback {
   Body body;
   private MediaType responseType;
   private Map<String, String> cookies;
+  private HashMap<String, String> responseCookies;
 
   public UtowContext(HttpServerExchange exchange, Router router) {
     this.exchange = exchange;
@@ -256,8 +257,16 @@ public class UtowContext implements Context, IoCallback {
   }
 
   @Nonnull public Context setResponseCookie(@Nonnull Cookie cookie) {
+    if (responseCookies == null) {
+      responseCookies = new HashMap<>();
+    }
     cookie.setPath(cookie.getPath(getContextPath()));
-    exchange.getResponseHeaders().add(SET_COOKIE, cookie.toCookieString());
+    responseCookies.put(cookie.getName(), cookie.toCookieString());
+    HeaderMap headers = exchange.getResponseHeaders();
+    headers.remove(SET_COOKIE);
+    for (String cookieString : responseCookies.values()) {
+      headers.add(SET_COOKIE, cookieString);
+    }
     return this;
   }
 

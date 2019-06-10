@@ -54,6 +54,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static reactor.core.scheduler.Schedulers.elastic;
 
@@ -2069,6 +2070,110 @@ public class FeaturedTest {
       });
     });
 
+  }
+
+  @Test
+  public void flashScope() {
+    new JoobyRunner(app -> {
+      app.get("/flash", req -> req.flashMap());
+
+      app.post("/flash", ctx -> {
+        ctx.flash("success", "Thank you!");
+        return ctx.sendRedirect("/flash");
+      });
+
+      app.post("/untouch", Context::pathString);
+
+      app.error((ctx, cause, statusCode) -> {
+        ctx.setResponseCode(statusCode).send(cause.getMessage());
+      });
+
+    }).dontFollowRedirects().ready(client -> {
+      client.post("/flash", rsp -> {
+        assertEquals(302, rsp.code());
+        String setCookie = rsp.header("Set-Cookie");
+        assertEquals("jooby.flash=success=Thank+you%21;Path=/;HttpOnly", setCookie);
+
+        client.header("Cookie", setCookie).get("/flash", next -> {
+          assertEquals(200, next.code());
+          assertEquals("{success=Thank you!}", next.body().string());
+          String clearCookie = next.header("Set-Cookie");
+          assertTrue(clearCookie.startsWith("jooby.flash=;Path=/;HttpOnly;Max-Age=0;"),
+              clearCookie);
+        });
+      });
+
+      client.get("/flash", rsp -> {
+        assertEquals("{}", rsp.body().string());
+        assertNull(rsp.header("Set-Cookie"));
+      });
+
+      client.get("/untouch", rsp ->
+          assertNull(rsp.header("Set-Cookie"))
+      );
+    });
+  }
+
+  @Test
+  public void customFlashScope() {
+    new JoobyRunner(app -> {
+      app.setContextPath("/custom");
+
+      app.install(new FlashScope(new Cookie("f")));
+
+      app.get("/flash", ctx -> {
+        ctx.flash("success", "Thank you!");
+        return ctx.flashMap();
+      });
+    }).ready(client -> {
+      client.get("/custom/flash", rsp -> {
+        assertEquals(200, rsp.code());
+        String setCookie = rsp.header("Set-Cookie");
+        assertEquals("f=success=Thank+you%21;Path=/custom", setCookie);
+      });
+    });
+  }
+
+  @Test
+  public void flashScopeKeep() {
+    new JoobyRunner(app -> {
+      app.get("/flash", ctx -> {
+        FlashMap flash = ctx.flashMap();
+        flash.put("foo", "bar");
+        return ctx.sendRedirect("/flash/1");
+      });
+
+      app.get("/flash/1", ctx -> {
+        FlashMap flash = ctx.flashMap();
+        flash.keep();
+        return ctx.sendRedirect("/flash/" + flash.get("foo"));
+      });
+
+      app.get("/flash/bar", ctx -> {
+        return ctx.flash("foo").value() + ctx.flashMap().size();
+      });
+      app.error((ctx, cause, statusCode) -> {
+        ctx.setResponseCode(statusCode).send(cause.getMessage());
+      });
+
+    }).dontFollowRedirects().ready(client -> {
+      client.get("/flash", rsp -> {
+        assertEquals(302, rsp.code());
+        client.header("Cookie", rsp.header("Set-Cookie")).get(rsp.header("Location"), r1 -> {
+          assertEquals(302, r1.code());
+          assertEquals("/flash/bar", r1.header("Location"));
+
+          client.header("Cookie", r1.header("Set-Cookie")).get(r1.header("Location"), r2 -> {
+            assertEquals(200, r2.code());
+            assertEquals("bar1", r2.body().string());
+
+            String clearCookie = r2.header("Set-Cookie");
+            assertTrue(clearCookie.startsWith("jooby.flash=;Path=/;HttpOnly;Max-Age=0;"),
+                clearCookie);
+          });
+        });
+      });
+    });
   }
 
   private static String readText(Path file) {

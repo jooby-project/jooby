@@ -128,7 +128,7 @@ Response body is generated from `handler` function:
 ----
 {
   get("/", ctx -> {
-    ctx.setResponseConde(200);                  // <1>
+    ctx.setResponseCode(200);                  // <1>
 
     ctx.setResponseType(MediaType.text);        // <2>
 

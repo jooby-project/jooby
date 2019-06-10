@@ -44,12 +44,13 @@ public class WebClient {
   private OkHttpClient client;
   private Map<String, String> headers;
 
-  public WebClient(int port) {
+  public WebClient(int port, boolean followRedirects) {
     this.port = port;
     client = new OkHttpClient.Builder()
         .connectTimeout(5, TimeUnit.MINUTES)
         .writeTimeout(5, TimeUnit.MINUTES)
         .readTimeout(5, TimeUnit.MINUTES)
+        .followRedirects(followRedirects)
         .build();
     header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
   }

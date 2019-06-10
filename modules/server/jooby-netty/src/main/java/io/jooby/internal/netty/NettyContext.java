@@ -109,6 +109,7 @@ public class NettyContext implements Context, ChannelFutureListener {
   private long contentLength = -1;
   private boolean needsFlush;
   private Map<String, String> cookies;
+  private Map<String, String> responseCookies;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
       int bufferSize) {
@@ -312,8 +313,15 @@ public class NettyContext implements Context, ChannelFutureListener {
   }
 
   @Nonnull public Context setResponseCookie(@Nonnull Cookie cookie) {
+    if (responseCookies == null) {
+      responseCookies = new HashMap<>();
+    }
     cookie.setPath(cookie.getPath(getContextPath()));
-    setHeaders.add(SET_COOKIE, cookie.toCookieString());
+    responseCookies.put(cookie.getName(), cookie.toCookieString());
+    setHeaders.remove(SET_COOKIE);
+    for (String cookieString : responseCookies.values()) {
+      setHeaders.add(SET_COOKIE, cookieString);
+    }
     return this;
   }
 

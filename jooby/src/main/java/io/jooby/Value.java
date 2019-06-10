@@ -689,6 +689,23 @@ public interface Value extends Iterable<Value> {
   }
 
   /**
+   * Creates a value that fits better with the given values.
+   *
+   * - For null/empty values. It produces a missing value.
+   * - For single element (size==1). It produces a single value
+   *
+   * @param name Field name.
+   * @param value Field values.
+   * @return A value.
+   */
+  static @Nonnull Value create(@Nonnull String name, @Nullable String value) {
+    if (value == null) {
+      return missing(name);
+    }
+    return value(name, value);
+  }
+
+  /**
    * Create a hash/object value using the map values.
    *
    * @param values Map values.

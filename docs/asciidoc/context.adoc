@@ -453,6 +453,57 @@ You may prefer to use one of the utility methods:
 
 ====
 
+==== Flash
+
+Flash parameters are designed to transport success/error messages between requests. It is similar to
+a javadoc:Session[] but the lifecycle is shorter: *data is kept for only one request*.
+
+.Java
+[source,java,role="primary"]
+----
+  get("/", ctx -> {
+    return ctx.flash("success").value("Welcome!"); <3>
+  });
+
+  post("/save", ctx -> {
+    ctx.flash("success", "Item created");          <1>
+    return ctx.sendRedirect("/");                  <2>
+  });
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+  get("/") {ctx ->
+    ctx.flash("success").value("Welcome!")         <3>
+  }
+  
+  post("/save") { ctx ->
+    ctx.flash("success", "Item created")           <1>
+    ctx.sendRedirect("/")                          <2>
+  }
+----
+
+<1> Set a flash attribute: `success`
+<2> Redirect to home page
+<3> Display an existing flash attribute `success` or shows `Welcome!`
+
+Flash attributes are implemented using an `HTTP Cookie`. To customize the cookie name
+(defaults to `jooby.flash`) use the javadoc:FlashScope extension:
+
+.Java
+[source,java,role="primary"]
+----
+  install(new FlashScope(new Cookie("myflash").setHttpOnly(true)));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+  install(FlashScope(Cookie("myflash").setHttpOnly(true)))
+----
+
+
 include::value-api.adoc[]
 
 include::body.adoc[]
