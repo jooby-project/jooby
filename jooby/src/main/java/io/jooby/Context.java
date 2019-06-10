@@ -121,7 +121,8 @@ public interface Context extends Registry {
 
   default @Nonnull FlashMap flashMap() {
     return (FlashMap) getAttributes()
-        .computeIfAbsent(FlashMap.NAME, key -> FlashMap.create(this, FlashScope.cookie()));
+        .computeIfAbsent(FlashMap.NAME, key -> FlashMap
+            .create(this, new Cookie(getRouter().getFlashCookie()).setHttpOnly(true)));
   }
 
   default @Nonnull Value flash(@Nonnull String name) {

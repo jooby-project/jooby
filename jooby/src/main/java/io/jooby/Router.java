@@ -641,6 +641,21 @@ public interface Router extends Registry {
   @Nonnull Router executor(@Nonnull String name, @Nonnull Executor executor);
 
   /**
+   * Name of the flash cookie. Defaults is: <code>jooby.flash</code>.
+   *
+   * @return Name of the flash cookie. Defaults is: <code>jooby.flash</code>.
+   */
+  @Nonnull String getFlashCookie();
+
+  /**
+   * Set flash cookie name.
+   *
+   * @param name Flash cookie name.
+   * @return This router.
+   */
+  @Nonnull Router setFlashCookie(@Nonnull String name);
+
+  /**
    * Normalize a path by removing consecutives <code>/</code>(slashes), make it lower case and
    * removing trailing slash.
    *

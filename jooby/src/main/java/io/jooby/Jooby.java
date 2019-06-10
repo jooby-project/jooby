@@ -505,6 +505,15 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
+  @Nonnull @Override public String getFlashCookie() {
+    return router.getFlashCookie();
+  }
+
+  @Nonnull @Override public Jooby setFlashCookie(@Nonnull String name) {
+    router.setFlashCookie(name);
+    return this;
+  }
+
   /**
    * Start application, find a web server, deploy application, start router, extension modules,
    * etc..

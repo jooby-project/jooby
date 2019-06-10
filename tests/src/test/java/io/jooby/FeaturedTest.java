@@ -2118,8 +2118,7 @@ public class FeaturedTest {
   public void customFlashScope() {
     new JoobyRunner(app -> {
       app.setContextPath("/custom");
-
-      app.install(new FlashScope(new Cookie("f")));
+      app.setFlashCookie("f");
 
       app.get("/flash", ctx -> {
         ctx.flash("success", "Thank you!");
@@ -2129,7 +2128,7 @@ public class FeaturedTest {
       client.get("/custom/flash", rsp -> {
         assertEquals(200, rsp.code());
         String setCookie = rsp.header("Set-Cookie");
-        assertEquals("f=success=Thank+you%21;Path=/custom", setCookie);
+        assertEquals("f=success=Thank+you%21;Path=/custom;HttpOnly", setCookie);
       });
     });
   }

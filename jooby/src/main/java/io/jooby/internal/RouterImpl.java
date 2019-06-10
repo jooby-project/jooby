@@ -154,6 +154,8 @@ public class RouterImpl implements Router {
 
   private SessionOptions sessionOptions = new SessionOptions();
 
+  private String flashName = "jooby.flash";
+
   public RouterImpl(ClassLoader loader) {
     this.source = new ClassSource(loader);
     this.analyzer = new RouteAnalyzer(source, false);
@@ -521,6 +523,15 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type) throws RegistryException {
     return services.require(type);
+  }
+
+  @Nonnull @Override public String getFlashCookie() {
+    return flashName;
+  }
+
+  @Nonnull @Override public Router setFlashCookie(@Nonnull String name) {
+    this.flashName = name;
+    return this;
   }
 
   @Override public String toString() {
