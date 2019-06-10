@@ -8,6 +8,7 @@ package io.jooby.internal.mvc;
 import io.jooby.Sneaky;
 import io.jooby.annotations.CookieParam;
 import io.jooby.annotations.DELETE;
+import io.jooby.annotations.FlashParam;
 import io.jooby.annotations.FormParam;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.HEAD;
@@ -51,6 +52,7 @@ public class JoobyAnnotationParser extends MvcAnnotationParserBase {
     result.setPathParam(PathParam.class);
     result.setQueryParam(QueryParam.class);
     result.setFormParam(FormParam.class);
+    result.setFlashParam(FlashParam.class);
     return result;
   }
 

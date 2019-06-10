@@ -6,6 +6,7 @@
 package io.jooby.internal.mvc;
 
 import io.jooby.Context;
+import io.jooby.FlashMap;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
 import io.jooby.ProvisioningException;
@@ -124,7 +125,8 @@ public class MvcCompiler {
       Context.class,
       QueryString.class,
       Formdata.class,
-      Multipart.class
+      Multipart.class,
+      FlashMap.class
   ));
 
   public static Class<? extends MvcHandler> compileClass(MvcMethod method)
@@ -438,6 +440,10 @@ public class MvcCompiler {
         visitor
             .visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "multipart", "()Lio/jooby/Multipart;",
                 true);
+      } else if (paramClass == FlashMap.class) {
+        visitor
+            .visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "flashMap", "()Lio/jooby/FlashMap;",
+                true);
       } else {
         String source;
         String convert;
@@ -495,6 +501,9 @@ public class MvcCompiler {
     } else if (model.isCookieParam(parameter)) {
       consumer.accept(paramName(model, parameter, name), "cookie");
       return "cookie";
+    } else if (model.isFlashParam(parameter)) {
+      consumer.accept(paramName(model, parameter, name), "flash");
+      return "flash";
     }
 
     return null;

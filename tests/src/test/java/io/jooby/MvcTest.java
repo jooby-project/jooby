@@ -164,6 +164,10 @@ public class MvcTest {
         assertEquals("/args/ctx", rsp.body().string());
       });
 
+      client.header("Cookie", "jooby.flash=success=OK").get("/args/flash", rsp -> {
+        assertEquals("{success=OK}OK", rsp.body().string());
+      });
+
       client.get("/args/sendStatusCode", rsp -> {
         assertEquals("", rsp.body().string());
         assertEquals(201, rsp.code());
@@ -249,8 +253,8 @@ public class MvcTest {
 
       client.header("Cookie", "foo=bar");
       client.get("/args/cookie", rsp -> {
-            assertEquals("bar", rsp.body().string());
-          });
+        assertEquals("bar", rsp.body().string());
+      });
     });
   }
 
@@ -275,15 +279,21 @@ public class MvcTest {
       });
 
       client.get("/nullbean", rsp -> {
-        assertEquals("Unable to provision parameter: 'foo: int', require by: constructor examples.NullInjection.QParam(int, java.lang.Integer)", rsp.body().string());
+        assertEquals(
+            "Unable to provision parameter: 'foo: int', require by: constructor examples.NullInjection.QParam(int, java.lang.Integer)",
+            rsp.body().string());
       });
 
       client.get("/nullbean?foo=foo", rsp -> {
-        assertEquals("Unable to provision parameter: 'foo: int', require by: constructor examples.NullInjection.QParam(int, java.lang.Integer)", rsp.body().string());
+        assertEquals(
+            "Unable to provision parameter: 'foo: int', require by: constructor examples.NullInjection.QParam(int, java.lang.Integer)",
+            rsp.body().string());
       });
 
       client.get("/nullbean?foo=0&baz=baz", rsp -> {
-        assertEquals("Unable to provision parameter: 'baz: int', require by: method examples.NullInjection.QParam.setBaz(int)", rsp.body().string());
+        assertEquals(
+            "Unable to provision parameter: 'baz: int', require by: method examples.NullInjection.QParam.setBaz(int)",
+            rsp.body().string());
       });
     });
   }
@@ -315,17 +325,22 @@ public class MvcTest {
         assertEquals("Unable to provision parameter: 'body: int'", rsp.body().string());
       });
       client.header("Content-Type", "application/json");
-      client.post("/body/json", create(MediaType.get("application/json"), "{\"foo\"= \"bar\"}"), rsp -> {
-        assertEquals("Unable to provision parameter: 'body: java.util.Map<java.lang.String, java.lang.Object>'", rsp.body().string());
-      });
+      client.post("/body/json", create(MediaType.get("application/json"), "{\"foo\"= \"bar\"}"),
+          rsp -> {
+            assertEquals(
+                "Unable to provision parameter: 'body: java.util.Map<java.lang.String, java.lang.Object>'",
+                rsp.body().string());
+          });
       client.header("Content-Type", "application/json");
-      client.post("/body/json", create(MediaType.get("application/json"), "{\"foo\": \"bar\"}"), rsp -> {
-        assertEquals("\"{foo=bar}null\"", rsp.body().string());
-      });
+      client.post("/body/json", create(MediaType.get("application/json"), "{\"foo\": \"bar\"}"),
+          rsp -> {
+            assertEquals("\"{foo=bar}null\"", rsp.body().string());
+          });
       client.header("Content-Type", "application/json");
-      client.post("/body/json?type=x", create(MediaType.get("application/json"), "{\"foo\": \"bar\"}"), rsp -> {
-        assertEquals("\"{foo=bar}x\"", rsp.body().string());
-      });
+      client.post("/body/json?type=x",
+          create(MediaType.get("application/json"), "{\"foo\": \"bar\"}"), rsp -> {
+            assertEquals("\"{foo=bar}x\"", rsp.body().string());
+          });
     });
   }
 
@@ -349,7 +364,8 @@ public class MvcTest {
       });
     });
 
-    LinkedList<String> names = new LinkedList<>(Arrays.asList("netty", "application I/O", "application-"));
+    LinkedList<String> names = new LinkedList<>(
+        Arrays.asList("netty", "application I/O", "application-"));
     new JoobyRunner(app -> {
       app.executor("single", Executors.newSingleThreadExecutor(r ->
           new Thread(r, "single")

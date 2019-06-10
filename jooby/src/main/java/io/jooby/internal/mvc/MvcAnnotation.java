@@ -34,6 +34,8 @@ public class MvcAnnotation {
 
   private Class<? extends Annotation> formParam;
 
+  private Class<? extends Annotation> flashParam;
+
   public MvcAnnotation(String method, String[] path, String[] produces, String[] consumes) {
     this.method = method;
     this.path = path;
@@ -86,6 +88,10 @@ public class MvcAnnotation {
     return parameter.getAnnotation(formParam) != null;
   }
 
+  public boolean isFlashParam(Parameter parameter) {
+    return flashParam != null && parameter.getAnnotation(flashParam) != null;
+  }
+
   public void setHeaderParam(Class<? extends Annotation> headerParam) {
     this.headerParam = headerParam;
   }
@@ -100,6 +106,10 @@ public class MvcAnnotation {
 
   public void setQueryParam(Class<? extends Annotation> queryParam) {
     this.queryParam = queryParam;
+  }
+
+  public void setFlashParam(Class<? extends Annotation> flashParam) {
+    this.flashParam = flashParam;
   }
 
   public void setFormParam(Class<? extends Annotation> formParam) {

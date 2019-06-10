@@ -1,11 +1,13 @@
 package examples;
 
 import io.jooby.Context;
+import io.jooby.FlashMap;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.StatusCode;
 import io.jooby.annotations.CookieParam;
+import io.jooby.annotations.FlashParam;
 import io.jooby.annotations.FormParam;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.HeaderParam;
@@ -25,6 +27,12 @@ public class Provisioning {
   @Path("/ctx")
   public String getIt(Context ctx) {
     return ctx.pathString();
+  }
+
+  @GET
+  @Path("/flash")
+  public String flash(@FlashParam String success, FlashMap flash) {
+    return flash + success;
   }
 
   @GET

@@ -295,6 +295,37 @@ class MyController {
 }
 ----
 
+==== Flash
+
+Provisioning of flash attribute is available via javadoc:annotations.FlashParam[] annotation:
+
+.Flash
+[source, java, role = "primary"]
+----
+public class MyController {
+
+  @GET
+  public Object provisioning(@FlashParam String success) {  // <1>
+    ...
+  }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class MyController {
+
+  @GET
+  fun provisioning(@FlashParam success: String) : Any {  // <1>
+    ...
+  }
+}
+----
+
+<1> Access to flash named `success`
+
+
 === Registration
 
 Mvc routes need to be registered (no classpath scanning). Registration is done from your application
