@@ -63,6 +63,7 @@ public class RouterImpl implements Router {
     private String pattern;
     private Executor executor;
     private List<Route.Decorator> filters = new ArrayList<>();
+    private List<Route.Before> beforeList = new ArrayList<>();
     private List<Route.After> afters = new ArrayList<>();
 
     public Stack(String pattern) {
@@ -77,6 +78,10 @@ public class RouterImpl implements Router {
       afters.add(after);
     }
 
+    public void then(Route.Before before) {
+      beforeList.add(before);
+    }
+
     public Stream<Route.Decorator> toFilter() {
       return filters.stream();
     }
@@ -85,9 +90,14 @@ public class RouterImpl implements Router {
       return afters.stream();
     }
 
+    public Stream<Route.Before> toBefore() {
+      return beforeList.stream();
+    }
+
     public void clear() {
       this.filters.clear();
       this.afters.clear();
+      this.beforeList.clear();
       executor = null;
     }
 
@@ -295,7 +305,8 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router before(@Nonnull Route.Before before) {
-    return decorator(before);
+    stack.peekLast().then(before);
+    return this;
   }
 
   @Nonnull @Override public Router error(@Nonnull ErrorHandler handler) {
@@ -351,10 +362,9 @@ public class RouterImpl implements Router {
         .collect(Collectors.toList());
 
     /** Before: */
-    Route.Decorator before = null;
-    for (Route.Decorator filter : filters) {
-      before = before == null ? filter : before.then(filter);
-    }
+    Route.Before before = stack.stream()
+        .flatMap(Stack::toBefore)
+        .reduce(null, (it, next) -> it == null ? next : it.then(next));
 
     /** Pipeline: */
     //    Route.Handler pipeline = before == null ? handler : before.then(handler);
@@ -405,7 +415,7 @@ public class RouterImpl implements Router {
         route.setReturnType(analyzer.returnType(route.getHandle()));
       }
       /** Pipeline: */
-      Route.Decorator before = route.getBefore();
+      Route.Before before = route.getBefore();
       if (route.getProduces().size() > 0) {
         before = before == null ? ACCEPT : ACCEPT.then(before);
       }

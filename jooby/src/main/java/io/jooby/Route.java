@@ -86,21 +86,40 @@ public class Route {
    * @author edgar
    * @since 2.0.0
    */
-  public interface Before extends Decorator {
-    @Nonnull @Override default Handler apply(@Nonnull Handler next) {
-      return ctx -> {
-        before(ctx);
-        return next.apply(ctx);
-      };
-    }
-
+  public interface Before {
     /**
      * Execute application code before next handler.
      *
      * @param ctx Web context.
      * @throws Exception If something goes wrong.
      */
-    void before(@Nonnull Context ctx) throws Exception;
+    void apply(@Nonnull Context ctx) throws Exception;
+
+    /**
+     * Chain this filter with next one and produces a new before filter.
+     *
+     * @param next Next decorator.
+     * @return A new decorator.
+     */
+    @Nonnull default Before then(@Nonnull Before next) {
+      return ctx -> {
+        apply(ctx);
+        next.apply(ctx);
+      };
+    }
+
+    /**
+     * Chain this decorator with a handler and produces a new handler.
+     *
+     * @param next Next handler.
+     * @return A new handler.
+     */
+    @Nonnull default Handler then(@Nonnull Handler next) {
+      return ctx -> {
+        apply(ctx);
+        return next.apply(ctx);
+      };
+    }
   }
 
   /**
@@ -205,7 +224,7 @@ public class Route {
 
   private List<String> pathKeys;
 
-  private Decorator before;
+  private Before before;
 
   private Handler handler;
 
@@ -241,7 +260,7 @@ public class Route {
       @Nonnull List<String> pathKeys,
       @Nonnull Type returnType,
       @Nonnull Handler handler,
-      @Nullable Decorator before,
+      @Nullable Before before,
       @Nullable After after,
       @Nonnull Renderer renderer,
       @Nonnull Map<String, Parser> parsers) {
@@ -281,7 +300,7 @@ public class Route {
       @Nonnull String pattern,
       @Nonnull Type returnType,
       @Nonnull Handler handler,
-      @Nullable Decorator before,
+      @Nullable Before before,
       @Nullable After after,
       @Nonnull Renderer renderer,
       @Nonnull Map<String, Parser> parsers) {
@@ -350,7 +369,7 @@ public class Route {
    *
    * @return Before pipeline or <code>null</code>.
    */
-  public @Nullable Decorator getBefore() {
+  public @Nullable Before getBefore() {
     return before;
   }
 
