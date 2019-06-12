@@ -9,7 +9,6 @@ import io.jooby.Session;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
@@ -56,54 +55,11 @@ public class SessionImpl implements Session {
   }
 
   @Override public @Nonnull Value get(@Nonnull String name) {
-    String value = attributes.get(name);
-    return value == null ? Value.missing(name) : Value.value(name, value);
-  }
-
-  @Override public @Nonnull Session put(@Nonnull String name, int value) {
-    attributes.put(name, Integer.toString(value));
-    updateFlags();
-    return this;
-  }
-
-  @Override public @Nonnull Session put(@Nonnull String name, long value) {
-    attributes.put(name, Long.toString(value));
-    updateFlags();
-    return this;
-  }
-
-  @Override public @Nonnull Session put(@Nonnull String name, CharSequence value) {
-    attributes.put(name, value.toString());
-    updateFlags();
-    return this;
+    return Value.create(name, attributes.get(name));
   }
 
   @Override public @Nonnull Session put(@Nonnull String name, String value) {
     attributes.put(name, value);
-    updateFlags();
-    return this;
-  }
-
-  @Override public @Nonnull Session put(@Nonnull String name, float value) {
-    attributes.put(name, Float.toString(value));
-    updateFlags();
-    return this;
-  }
-
-  @Override public @Nonnull Session put(@Nonnull String name, double value) {
-    attributes.put(name, Double.toString(value));
-    updateFlags();
-    return this;
-  }
-
-  @Override public @Nonnull Session put(@Nonnull String name, boolean value) {
-    attributes.put(name, Boolean.toString(value));
-    updateFlags();
-    return this;
-  }
-
-  @Override public @Nonnull Session put(@Nonnull String name, Number value) {
-    attributes.put(name, value.toString());
     updateFlags();
     return this;
   }
@@ -138,6 +94,7 @@ public class SessionImpl implements Session {
 
   @Override public Session clear() {
     attributes.clear();
+    updateFlags();
     return this;
   }
 

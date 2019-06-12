@@ -24,7 +24,7 @@ public class RequestSession implements Session {
   public RequestSession(Context context, Session session) {
     this.context = context;
     this.session = session;
-    context.attribute("session", this);
+    context.attribute(Session.NAME, this);
   }
 
   @Nonnull @Override public String getId() {
@@ -35,42 +35,9 @@ public class RequestSession implements Session {
     return session.get(name);
   }
 
-  @Nonnull @Override public Session put(@Nonnull String name, int value) {
-    session.put(name, value);
-    return this;
-  }
-
-  @Nonnull @Override public Session put(@Nonnull String name, long value) {
-    session.put(name, value);
-    return this;
-  }
-
-  @Nonnull @Override public Session put(@Nonnull String name, CharSequence value) {
-    session.put(name, value);
-    return this;
-  }
-
   @Nonnull @Override public Session put(@Nonnull String name, String value) {
     session.put(name, value);
-    return this;
-  }
 
-  @Nonnull @Override public Session put(@Nonnull String name, float value) {
-    session.put(name, value);
-    return this;
-  }
-
-  @Nonnull @Override public Session put(@Nonnull String name, double value) {
-    session.put(name, value);
-    return this;
-  }
-
-  @Nonnull @Override public Session put(@Nonnull String name, boolean value) {
-    return null;
-  }
-
-  @Nonnull @Override public Session put(@Nonnull String name, Number value) {
-    session.put(name, value);
     return this;
   }
 

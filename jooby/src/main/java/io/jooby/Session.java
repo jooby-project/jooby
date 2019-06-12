@@ -19,6 +19,9 @@ import java.util.Map;
  * @since 2.0.0
  */
 public interface Session {
+  /** Attribute's name. */
+  String NAME = "session";
+
   /**
    * Session ID.
    *
@@ -41,7 +44,9 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  @Nonnull Session put(@Nonnull String name, int value);
+  default @Nonnull Session put(@Nonnull String name, int value) {
+    return put(name, Integer.toString(value));
+  }
 
   /**
    * Put a session attribute.
@@ -50,7 +55,9 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  @Nonnull Session put(@Nonnull String name, long value);
+  default @Nonnull Session put(@Nonnull String name, long value) {
+    return put(name, Long.toString(value));
+  }
 
   /**
    * Put a session attribute.
@@ -59,7 +66,9 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  @Nonnull Session put(@Nonnull String name, CharSequence value);
+  default @Nonnull Session put(@Nonnull String name, @Nonnull CharSequence value) {
+    return put(name, value.toString());
+  }
 
   /**
    * Put a session attribute.
@@ -68,7 +77,7 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  @Nonnull Session put(@Nonnull String name, String value);
+  @Nonnull Session put(@Nonnull String name, @Nonnull String value);
 
   /**
    * Put a session attribute.
@@ -77,7 +86,9 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  @Nonnull Session put(@Nonnull String name, float value);
+  default @Nonnull Session put(@Nonnull String name, float value) {
+    return put(name, Float.toString(value));
+  }
 
   /**
    * Put a session attribute.
@@ -86,7 +97,9 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  @Nonnull Session put(@Nonnull String name, double value);
+  default @Nonnull Session put(@Nonnull String name, double value) {
+    return put(name, Double.toString(value));
+  }
 
   /**
    * Put a session attribute.
@@ -95,7 +108,9 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  @Nonnull Session put(@Nonnull String name, boolean value);
+  default @Nonnull Session put(@Nonnull String name, boolean value) {
+    return put(name, Boolean.toString(value));
+  }
 
   /**
    * Put a session attribute.
@@ -104,7 +119,9 @@ public interface Session {
    * @param value Attribute's value.
    * @return This session.
    */
-  @Nonnull Session put(@Nonnull String name, Number value);
+  default @Nonnull Session put(@Nonnull String name, @Nonnull Number value) {
+    return put(name, value.toString());
+  }
 
   /**
    * Remove a session attribute.

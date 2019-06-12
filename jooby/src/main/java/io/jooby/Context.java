@@ -158,7 +158,7 @@ public interface Context extends Registry {
    * @return Existing session or <code>null</code>.
    */
   default @Nullable Session sessionOrNull() {
-    Session session = (Session) getAttributes().get("session");
+    Session session = (Session) getAttributes().get(Session.NAME);
     if (session == null) {
       Router router = getRouter();
       SessionOptions options = router.getSessionOptions();

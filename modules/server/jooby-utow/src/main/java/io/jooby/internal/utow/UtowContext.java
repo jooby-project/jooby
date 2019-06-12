@@ -356,7 +356,6 @@ public class UtowContext implements Context, IoCallback {
   }
 
   @Override public void onComplete(HttpServerExchange exchange, Sender sender) {
-
     ifSaveSession();
     destroy(null);
   }
@@ -367,7 +366,7 @@ public class UtowContext implements Context, IoCallback {
   }
 
   private void ifSaveSession() {
-    Session session = sessionOrNull();
+    Session session = (Session) getAttributes().get(Session.NAME);
     if (session != null && (session.isNew() || session.isModify())) {
       SessionStore store = getRouter().getSessionOptions().getStore();
       store.save(session);
