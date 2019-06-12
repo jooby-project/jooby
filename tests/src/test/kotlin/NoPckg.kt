@@ -9,7 +9,7 @@ fun main(args: Array<String>) {
       singleLoop = true
       ioThreads = 5
     }
-    get {
+    get("/") {
       ":+1"
     }
   }

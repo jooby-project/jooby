@@ -38,17 +38,17 @@ A javadoc:Route[] consists of three part:
 {
   
   // <1> <2>
-  get("/foo") { ctx ->
+  get("/foo") {
     "foo" // <3>
   }
 
   // Get example with path variable
-  get("/foo/{id}") { ctx ->
+  get("/foo/{id}") {
     ctx.path("id").value()
   }
   
   // Post example
-  post("/") { ctx ->
+  post("/") {
     ctx.body().value()
   }
 }
@@ -77,7 +77,7 @@ to the client.
 [source, kotlin, role="secondary"]
 ----
 {
-  get("/foo") { ctx -> "Foo" }
+  get("/foo") { "Foo" }
 }
 ----
 
@@ -100,7 +100,7 @@ to the client.
 ----
 {
   // <1>
-  get("/user/{id}") { ctx ->
+  get("/user/{id}") {
     val id = ctx.path("id").intValue() // <2>
     id
   }
@@ -128,7 +128,7 @@ to the client.
 ----
 {
   // <1>
-  get("/file/{file}.{ext}") { ctx ->
+  get("/file/{file}.{ext}") {
     val filename = ctx.path("file").value() // <2>
     val ext = ctx.path("ext").value()       // <3>
     filename + "." + ext
@@ -159,7 +159,7 @@ to the client.
 ----
 {
   // <1>
-  get("/user/{id:[0-9]+}") { ctx ->
+  get("/user/{id:[0-9]+}") {
     val id = ctx.path("id").intValue() // <2>
     id
   }
@@ -193,12 +193,12 @@ to the client.
 ----
 {
   // <1>
-  get("/articles/*") { ctx ->
+  get("/articles/*") {
     val catchall = ctx.path("*").value() // <2>
     catchall
   }
   
-  get("/articles/*path") { ctx ->
+  get("/articles/*path") {
     val path = ctx.path("path").value()  // <3>
     path
   }
@@ -248,13 +248,13 @@ response.
 [source,kotlin,role="secondary"]
 ----
 {
-  get("/user/{id}") { ctx -> ctx.path("id").value() }  // <1>
+  get("/user/{id}") { ctx.path("id").value() }  // <1>
   
-  get("/user/me") { ctx -> "my profile" }              // <2>
+  get("/user/me") { "my profile" }              // <2>
   
-  get("/users") { ctx -> "users" }                     // <3>
+  get("/users") { "users" }                     // <3>
   
-  get("/users") { ctx -> "new users" }                 // <4>
+  get("/users") { "new users" }                 // <4>
 }
 ----
 
@@ -323,7 +323,7 @@ interface Decorator {
     response                                // <4>
   }
   
-  get("/") { ctx ->
+  get("/") {
     "decorator"
   }
 }
@@ -376,7 +376,7 @@ interface Before {
     ctx.setHeader("Server", "Jooby")
   }
 
-  get("/") { ctx ->
+  get("/") {
     "..."
   }
 }
@@ -419,7 +419,7 @@ interface After {
     "Hello $result"
   }
 
-  get("/") { ctx ->
+  get("/") {
     "Jooby"
   }
 }
@@ -467,9 +467,9 @@ Route pipeline (a.k.a route stack) is a composition of one or more decorator(s) 
     1 + n
   }
   
-  get("/1") { ctx -> 1 } // <1>
+  get("/1") { 1 } // <1>
   
-  get("/2") { ctx -> 2 } // <2>
+  get("/2") { 2 } // <2>
 }
 ----
 
@@ -579,7 +579,7 @@ Order follows the **what you see is what you get** approach. Routes are stacked 
     1 + n
   }
 
-  get("/2") { ctx -> 2 }                // <2>
+  get("/2") { 2 }                // <2>
 }
 ----
 
@@ -636,10 +636,10 @@ A `scoped decorator` looks like:
       1 + n
     }
     
-    get("/4") { ctx -> 4 }               // <2>
+    get("/4") { 4 }               // <2>
   });
   
-  get("/3") { ctx -> 3 }                 // <3>
+  get("/3") { 3 }                 // <3>
 }
 ----
 
@@ -674,7 +674,7 @@ and allows you to selectively apply one or more routes.
 {
   route {
 
-    get("/") { ctx ->
+    get("/") {
       "Hello"
     }
 
@@ -708,13 +708,13 @@ one or more routes under a common path pattern.
 [source,kotlin,role="secondary"]
 ----
 {
-   path("/api/user") {            // <1>
+   path("/api/user") {     // <1>
    
-     get("/{id}") { ctx -> ...}   // <2>
+     get("/{id}") { ...}   // <2>
    
-     get("/") { ctx -> ...}       // <3>
+     get("/") { ...}       // <3>
      
-     post("/") { ctx -> ...}      // <4>
+     post("/") { ...}      // <4>
      
      ...
    }); 
@@ -765,13 +765,13 @@ public class App extends Jooby {
 ----
 class Foo: Kooby({
    
-  get("/foo") { ctx -> ctx.pathString() }
+  get("/foo") { ctx.pathString() }
 
 })
 
 class Bar: Kooby({
   
-  get("/bar") { ctx -> ctx.pathString() }
+  get("/bar") { ctx.pathString() }
 
 })
 
@@ -780,7 +780,7 @@ class Bar: Kooby({
 
   use(Bar())                       // <2>
 
-  get("/app") { ctx -> ctx.pathString() } // <3>
+  get("/app") { ctx.pathString() } // <3>
 })
 ----
 
@@ -812,7 +812,7 @@ public class App extends Jooby {
 ----
 class Foo: Kooby({
    
-  get("/foo") { ctx -> ctx.pathString() }
+  get("/foo") { ctx.pathString() }
 
 })
 
@@ -869,13 +869,13 @@ public class App extends Jooby {
 ----
 class V1: Kooby({
   
-  get("/api") { ctx -> "v1" }
+  get("/api") { "v1" }
 
 })
 
 class V2: Kooby({
   
-  get("/api") { ctx -> "v2" }
+  get("/api") { "v2" }
 
 })
 

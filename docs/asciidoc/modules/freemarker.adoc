@@ -42,7 +42,7 @@ import io.jooby.freemarker.Freemarker
 {
   install(Freemarker())
   
-  get("/") { ctx ->
+  get("/") {
     ModelAndView("index.ftl")
         .put("name", "Jooby")
   }

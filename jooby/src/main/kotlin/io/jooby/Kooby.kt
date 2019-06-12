@@ -5,13 +5,7 @@
  */
 package io.jooby
 
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 
 @DslMarker
@@ -27,23 +21,23 @@ inline fun <reified T> Registry.require(name: String): T {
   return this.require(T::class.java, name)
 }
 
-fun <T:Any> Registry.require(klass: KClass<T>): T {
+fun <T : Any> Registry.require(klass: KClass<T>): T {
   return this.require(klass.java)
 }
 
-fun <T:Any> Registry.require(klass: KClass<T>, name: String): T {
+fun <T : Any> Registry.require(klass: KClass<T>, name: String): T {
   return this.require(klass.java, name)
 }
 
-fun <T:Any> ServiceRegistry.get(klass: KClass<T>): T {
+fun <T : Any> ServiceRegistry.get(klass: KClass<T>): T {
   return this.get(klass.java)
 }
 
-fun <T:Any> ServiceRegistry.put(klass: KClass<T>, service: T): T? {
+fun <T : Any> ServiceRegistry.put(klass: KClass<T>, service: T): T? {
   return this.put(klass.java, service)
 }
 
-fun <T:Any> ServiceRegistry.putIfAbsent(klass: KClass<T>, service: T): T? {
+fun <T : Any> ServiceRegistry.putIfAbsent(klass: KClass<T>, service: T): T? {
   return this.putIfAbsent(klass.java, service)
 }
 
@@ -78,26 +72,9 @@ inline fun <reified T> Context.body(): T {
   return this.body(object : Reified<T>() {})
 }
 
-/** Handler context: */
-class AfterContext(val ctx: Context, val result: Any)
-
-class HandlerContext(val ctx: Context)
-
-class DecoratorContext(val ctx: Context, val next: Route.Handler)
-
 /** Kooby: */
 
-internal class WorkerCoroutineScope(coroutineContext: CoroutineContext) : CoroutineScope {
-  override val coroutineContext = coroutineContext
-}
-
 open class Kooby constructor() : Jooby() {
-
-  var coroutineStart: CoroutineStart = CoroutineStart.DEFAULT
-
-  val coroutineScope: CoroutineScope by lazy {
-    WorkerCoroutineScope(getWorker().asCoroutineDispatcher())
-  }
 
   constructor(init: Kooby.() -> Unit) : this() {
     this.init()
@@ -105,6 +82,11 @@ open class Kooby constructor() : Jooby() {
 
   fun <T : Any> mvc(router: KClass<T>): Kooby {
     super.mvc(router.java)
+    return this
+  }
+
+  fun <T : Any> mvc(router: KClass<T>, provider: () -> T): Kooby {
+    super.mvc(router.java, provider)
     return this
   }
 
@@ -127,18 +109,13 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun get(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.GET, pattern, handler)
-  }
-
-  @RouterDsl
   override fun get(pattern: String, handler: Route.Handler): Route {
     return super.get(pattern, handler)
   }
 
   @RouterDsl
-  fun post(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.POST, pattern, handler)
+  fun get(pattern: String, handler: HandlerContext.() -> Any): Route {
+    return route(Router.GET, pattern, handler)
   }
 
   @RouterDsl
@@ -147,8 +124,8 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun put(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.PUT, pattern, handler)
+  fun post(pattern: String, handler: HandlerContext.() -> Any): Route {
+    return route(Router.POST, pattern, handler)
   }
 
   @RouterDsl
@@ -157,8 +134,8 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun delete(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.DELETE, pattern, handler)
+  fun put(pattern: String, handler: HandlerContext.() -> Any): Route {
+    return route(Router.PUT, pattern, handler)
   }
 
   @RouterDsl
@@ -167,8 +144,8 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun patch(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.PATCH, pattern, handler)
+  fun delete(pattern: String, handler: HandlerContext.() -> Any): Route {
+    return route(Router.DELETE, pattern, handler)
   }
 
   @RouterDsl
@@ -177,8 +154,8 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun head(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.HEAD, pattern, handler)
+  fun patch(pattern: String, handler: HandlerContext.() -> Any): Route {
+    return route(Router.PATCH, pattern, handler)
   }
 
   @RouterDsl
@@ -187,8 +164,8 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun trace(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.TRACE, pattern, handler)
+  fun head(pattern: String, handler: HandlerContext.() -> Any): Route {
+    return route(Router.HEAD, pattern, handler)
   }
 
   @RouterDsl
@@ -197,8 +174,8 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun options(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.OPTIONS, pattern, handler)
+  fun trace(pattern: String, handler: HandlerContext.() -> Any): Route {
+    return route(Router.TRACE, pattern, handler)
   }
 
   @RouterDsl
@@ -207,8 +184,8 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun connect(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.CONNECT, pattern, handler)
+  fun options(pattern: String, handler: HandlerContext.() -> Any): Route {
+    return route(Router.OPTIONS, pattern, handler)
   }
 
   @RouterDsl
@@ -217,23 +194,25 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  fun route(method: String, pattern: String, handler: suspend HandlerContext.() -> Any): Route {
-    return route(method, pattern) { ctx ->
-      val xhandler = CoroutineExceptionHandler { _, x ->
-        ctx.sendError(x)
-      }
-      coroutineScope.launch(ContextCoroutineName + xhandler, coroutineStart) {
-        val result = HandlerContext(ctx).handler()
-        if (result != ctx) {
-          ctx.render(result)
-        }
-      }
-    }.setHandle(handler)
+  fun connect(pattern: String, handler: HandlerContext.() -> Any): Route {
+    return route(Router.CONNECT, pattern, handler)
+  }
+
+  @RouterDsl
+  fun coroutine(coroutineStart: CoroutineStart = CoroutineStart.DEFAULT, block: CoroutineRouter.() -> Unit): CoroutineRouter {
+    val router = attributes.computeIfAbsent("coroutineRouter") { key -> CoroutineRouter(coroutineStart, this) } as CoroutineRouter
+    router.block()
+    return router
   }
 
   @RouterDsl
   override fun route(method: String, pattern: String, handler: Route.Handler): Route {
     return super.route(method, pattern, handler)
+  }
+
+  @RouterDsl
+  fun route(method: String, pattern: String, handler: HandlerContext.() -> Any): Route {
+    return super.route(method, pattern) { ctx -> handler(HandlerContext(ctx)) }.setHandle(handler)
   }
 
   fun serverOptions(configurer: ServerOptions.() -> Unit): Kooby {
@@ -246,7 +225,7 @@ open class Kooby constructor() : Jooby() {
   fun routerOptions(configurer: RouterOptions.() -> Unit): Kooby {
     val options = RouterOptions()
     configurer(options)
-    this.routerOptions = options
+    setRouterOptions(options)
     return this
   }
 
@@ -254,12 +233,8 @@ open class Kooby constructor() : Jooby() {
     val options = EnvironmentOptions()
     configurer(options)
     val env = Environment.loadEnvironment(options)
-    environment = env
+    setEnvironment(env)
     return env
-  }
-
-  companion object {
-    private val ContextCoroutineName = CoroutineName("ctx")
   }
 }
 

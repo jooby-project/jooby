@@ -42,7 +42,7 @@ import io.jooby.handlebars.Hbs
 {
   install(Hbs())
   
-  get("/") { ctx ->
+  get("/") {
     ModelAndView("index.hbs")
         .put("name", "Jooby")
   }

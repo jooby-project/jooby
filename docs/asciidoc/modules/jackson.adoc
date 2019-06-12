@@ -39,12 +39,12 @@ import io.jooby.json.Jackson;
 {
   install(Jackson())                                <1>
 
-  get("/") { ctx ->
+  get("/") {
     val myObject = ...;
     myObject                                        <2>
   }
 
-  post("/") { ctx ->
+  post("/") {
     val myObject = ctx.body<MyObject>()             <3>
     ...
   }

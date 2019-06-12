@@ -44,7 +44,7 @@ import io.jooby.Jooby.runApp
 
 fun main(args: Array<String>) {
   runApp(args, EVENT_LOOP) {
-    get("/") { ctx -> "I'm non-blocking!" }
+    get("/") { "I'm non-blocking!" }
   }
 }
 ----
@@ -97,14 +97,14 @@ import io.jooby.Jooby.runApp
 fun main(args: Array<String>) {
   runApp(args, EVENT_LOOP) {
 
-    get("/") { ctx ->
+    get("/") {
       "I'm non-blocking!"
     }
   
     dispatch {
       // All the routes defined here are allowed to block:
   
-      get("/db-list") { ctx ->
+      get("/db-list") {
         /** Safe to block! */
         val result = ...; // Remote service, db call, etc..
         result
@@ -212,7 +212,7 @@ import io.jooby.Jooby.runApp
 fun main(args: Array<String>) {
   runApp(args, WORKER) {
 
-    get("/") { ctx ->
+    get("/") {
       /** Safe to block! */
       val result = ...;// Remote service, db call, etc..
       result
@@ -258,7 +258,7 @@ fun main(args: Array<String>) {
 
     worker(Executors.newCachedThreadPool())
   
-    get("/") { ctx ->
+    get("/") {
       /** Safe to block from cached thread pool! */
       val result = ...;// Remote service, db call, etc..
       result
@@ -321,12 +321,12 @@ import io.jooby.Jooby.runApp
 
 fun main(args: Array<String>) {
   runApp(args) {
-    get("/non-blocking") { ctx ->
+    get("/non-blocking") {
       CompletableFuture
           .supplyAsync { "I'm non-blocking!" }  // <1>    
     }
   
-    get("/blocking") { ctx ->
+    get("/blocking") {
       "I'm blocking"                            // <2>
     }
   }

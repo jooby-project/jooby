@@ -77,7 +77,7 @@ class App: Kooby({
 
   install(MyExtension())                              <1>
 
-  get("/") {ctx -> 
+  get("/") {
     val ds = require(MyDataSource::class)             <2>
   }
 })

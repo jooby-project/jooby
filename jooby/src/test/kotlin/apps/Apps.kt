@@ -9,15 +9,17 @@ import kotlinx.coroutines.delay
 class App : Kooby({
 
 
-  get { "Hi Kotlin!" }
+  coroutine {
+    get { "Hi Kotlin!" }
 
-  get("/suspend") {
-    delay(100)
-    "Hi Coroutine"
-  }
+    get("/suspend") {
+      delay(100)
+      "Hi Coroutine"
+    }
 
-  get("/ctx-access") {
-    ctx.pathString()
+    get("/ctx-access") {
+      ctx.pathString()
+    }
   }
 
   get("/ctx-arg") { ctx ->
@@ -38,19 +40,21 @@ fun runWithMode(args: Array<String>) {
 /** run inline: */
 fun runInline(args: Array<String>) {
   runApp(args) {
-    get { "Hi Kotlin!" }
+    coroutine {
+      get { "Hi Kotlin!" }
 
-    get("/suspend") {
-      delay(100)
-      "Hi Coroutine"
-    }
+      get("/suspend") {
+        delay(100)
+        "Hi Coroutine"
+      }
 
-    get("/ctx-access") {
-      ctx.pathString()
-    }
+      get("/ctx-access") {
+        ctx.pathString()
+      }
 
-    get("/ctx-arg") { ctx ->
-      ctx.pathString()
+      get("/ctx-arg") { ctx ->
+        ctx.pathString()
+      }
     }
   }
 }

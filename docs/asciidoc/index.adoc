@@ -50,7 +50,7 @@ import io.jooby.runApp
 
 fun main(args: Array<String>) {
   runApp(args) {
-    get ("/") { ctx -> "Welcome to Jooby!" }
+    get ("/") { "Welcome to Jooby!" }
   }
 }
 ----
@@ -109,7 +109,7 @@ import io.jooby.runApp;
 
 class App : Kooby({
 
-  get("/") { ctx -> "Hello Jooby!" }
+  get("/") { "Hello Jooby!" }
 
 })
 
@@ -148,7 +148,7 @@ import io.jooby.runApp
 fun main(args: Array<String>) {
   runApp(args) {
 
-    get("/") { ctx -> "Hello Jooby!" }
+    get("/") { "Hello Jooby!" }
 
   }
 }

@@ -493,7 +493,7 @@ import io.jooby.*
 fun main(args: Array<String>) {
   runApp(args, EVENT_LOOP) {
     dispatch {
-      mvc(MyBlockingController())               <1>
+      mvc(MyBlockingController())        <1>
     }
   }
 }
@@ -568,7 +568,7 @@ import io.jooby.annotations.*
 class MyController {
 
   @GET("/blocking")
-  @Dispatch("single")         <1>
+  @Dispatch("single")          <1>
   fun blocking() : String {
     return "I'm blocking";
   }

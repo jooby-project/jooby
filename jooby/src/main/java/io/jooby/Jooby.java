@@ -433,7 +433,7 @@ public class Jooby implements Router, Registry {
     return router.getAttributes();
   }
 
-  @Nonnull @Override public Jooby attribute(@Nonnull String key, Object value) {
+  @Nonnull @Override public Jooby attribute(@Nonnull String key, @Nonnull Object value) {
     router.attribute(key, value);
     return this;
   }

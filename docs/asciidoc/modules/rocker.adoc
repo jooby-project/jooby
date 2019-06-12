@@ -86,7 +86,7 @@ import io.jooby.rocker.Rockerby
 {
   install(Rockerby())                       <1>
 
-  get("/") { ctx ->
+  get("/") {
     views.index.template("Rocker")          <2>
   }
 }

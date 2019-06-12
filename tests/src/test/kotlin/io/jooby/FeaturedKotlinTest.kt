@@ -1,8 +1,6 @@
 package io.jooby
 
-import com.fasterxml.jackson.databind.module.SimpleModule
 import io.jooby.internal.mvc.KotlinMvc
-import io.jooby.json.Jackson
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.delay
@@ -25,11 +23,28 @@ class FeaturedKotlinTest {
   }
 
   @Test
-  fun coroutineNoSuspend() {
+  fun implicitContext() {
     JoobyRunner { ->
       Kooby {
         get("/") {
-          ctx.pathString() + "coroutine"
+          ctx.send("Hello World!")
+        }
+      }
+    }.ready { client ->
+      client.get("/") { rsp ->
+        assertEquals("Hello World!", rsp.body()!!.string())
+      }
+    }
+  }
+
+  @Test
+  fun coroutineNoSuspend() {
+    JoobyRunner { ->
+      Kooby {
+        coroutine {
+          get {
+            ctx.pathString() + "coroutine"
+          }
         }
       }
     }.ready { client ->
@@ -43,9 +58,11 @@ class FeaturedKotlinTest {
   fun coroutineSuspend() {
     JoobyRunner { ->
       Kooby {
-        get("/") {
-          delay(100)
-          ctx.pathString() + "coroutine"
+        coroutine {
+          get("/") {
+            delay(100)
+            ctx.pathString() + "coroutine"
+          }
         }
       }
     }.ready { client ->
@@ -109,7 +126,9 @@ class FeaturedKotlinTest {
   fun suspendMvc() {
     JoobyRunner { ->
       Kooby {
-        mvc(SuspendMvc())
+        coroutine {
+          mvc(SuspendMvc())
+        }
 
         error { ctx, cause, statusCode ->
           log.error("{} {}", ctx.method, ctx.pathString(), cause)

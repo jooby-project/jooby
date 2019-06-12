@@ -43,9 +43,9 @@ import io.jooby.di.Spring
 fun main(args: Array<String>) {
   runApp(args) {
 
-    install(new Springby())                          <2>
+    install(Spring())                                <2>
 
-    get ("/") { ctx ->
+    get ("/") {
       val service = require(MyService::class)        <3>
       service.doSomething()
     }

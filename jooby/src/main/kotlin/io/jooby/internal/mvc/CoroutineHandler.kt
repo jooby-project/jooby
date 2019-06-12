@@ -6,6 +6,7 @@
 package io.jooby.internal.mvc
 
 import io.jooby.Context
+import io.jooby.CoroutineRouter
 import io.jooby.Kooby
 import io.jooby.Route
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -18,7 +19,7 @@ import kotlin.reflect.jvm.kotlinFunction
 
 class CoroutineHandler(val provider: Provider<Any>, val handler: Method, val argumentResolver: MvcHandler) : Route.Handler {
   override fun apply(ctx: Context): Any {
-    val router = ctx.getRouter() as Kooby
+    val router = ctx.getRouter().attribute<CoroutineRouter>("coroutineRouter")
     val xhandler = CoroutineExceptionHandler { _, x ->
       ctx.sendError(x)
     }

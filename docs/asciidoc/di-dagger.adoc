@@ -78,7 +78,7 @@ fun main(args: Array<String>) {
     val dagger = DaggerAppComponent.builder() <1>
         .build()
     
-    get("/") { ctx ->
+    get("/") {
       val service = dagger.getMyService()     <2>
       service.doSomething()
     }

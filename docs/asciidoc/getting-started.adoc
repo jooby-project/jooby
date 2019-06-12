@@ -90,7 +90,7 @@ A code example will looks like:
 [source, kotlin, role = "secondary"]
 ----
 {
-  get("/") { ctx -> "Snippet" }
+  get("/") { "Snippet" }
 }
 ----
 

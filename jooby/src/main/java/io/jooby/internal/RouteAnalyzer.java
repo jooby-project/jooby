@@ -102,7 +102,10 @@ public class RouteAnalyzer {
   private boolean isContextFunction(Method method, String name) {
     if (method.getName().equals(name)) {
       Parameter[] parameters = method.getParameters();
-      return parameters.length == 1 && parameters[0].getType() == Context.class;
+      if (parameters.length ==1) {
+        Parameter parameter = parameters[0];
+        return parameter.getType() == Context.class || parameter.getType().getName().equals("io.jooby.HandlerContext");
+      }
     }
     return false;
   }

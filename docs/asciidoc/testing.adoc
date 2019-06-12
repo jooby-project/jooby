@@ -88,7 +88,7 @@ public class App extends Jooby {
 [source,kotlin,role="secondary"]
 ----
 class App: Kooby({
-  get("/") { ctx ->
+  get("/") {
       ctx.responseCode = StatusCode.OK
 
       ctx.send("Easy unit testing")
@@ -147,7 +147,7 @@ public class App extends Jooby {
 [source,kotlin,role="secondary"]
 ----
 class App: Kooby({
-  get("/") { ctx ->
+  get("/") {
     val name = ctx.form("name").value()
     name
   })

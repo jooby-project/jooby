@@ -36,7 +36,7 @@ Single value is available via `value()` or `[type]Value()` functions:
 [source, kotlin, role="secondary"]
 ----
 {
-  get("/") { ctx ->
+  get("/") {
     val name = ctx.query("name").value()                     // <1>
 
     val score = ctx.query("score").floatValue()              // <2>
@@ -102,12 +102,12 @@ Default and optional value are available in two different ways:
 [source, kotlin,role="secondary"]
 ----
 {
-  get("/search") { ctx ->
+  get("/search") {
     val q = ctx.query("q").value("*:*")    // <1>
     q
   });
 
-  get("/search") { ctx ->
+  get("/search") {
     val q = ctx.query("q").toOptional();   // <2>
     q
   });
@@ -151,7 +151,7 @@ Multiple values are available via functions:
 [source, kotlin,role="secondary"]
 ----
 {
-  get("/") { ctx ->
+  get("/") {
     val q = ctx.query("q").toList()                     // <1>
 
     val n = ctx.query("n").toList(Integer.class)        // <2>
@@ -207,7 +207,7 @@ The javadoc:Value[Value API] provides a way to traverse and parse structured dat
 [source, kotlin, role="secondary"]
 ----
 {
-  get("/") { ctx ->
+  get("/") {
     val user = ctx.query("user")              // <1>
     val name  = user["name"].value()          // <2>
     val pass  = user["pass"].value()          // <3>
@@ -306,7 +306,7 @@ class Group (val id: String, val members: List<Member>)
 [source, kotlin,role="secondary"]
 ----
 {
-  get("/") { ctx ->
+  get("/") {
     val member = ctx.query<Member>()
     ...
   }
@@ -333,7 +333,7 @@ class Group (val id: String, val members: List<Member>)
 [source, kotlin,role="secondary"]
 ----
 {
-  get("/") { ctx ->
+  get("/") {
     val member = ctx.query("member").to<Member>()
     ...
   });
@@ -362,7 +362,7 @@ Tabular data uses the bracket array notation:
 [source, kotlin,role="secondary"]
 ----
 {
-  get("/") { ctx ->
+  get("/") {
     val members = ctx.query<List<Member>>()
     ...
   });
@@ -389,7 +389,7 @@ Tabular data uses the bracket array notation:
 [source, kotlin,role="secondary"]
 ----
 {
-  get("/") { ctx ->
+  get("/") {
     val group = ctx.query<Group>()
     ...
   });

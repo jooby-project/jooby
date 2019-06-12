@@ -27,17 +27,17 @@ Raw `request body` is available via javadoc:Context[body] method:
 [source,kotlin,role="secondary"]
 ----
 {
-  post("/string") { ctx ->
+  post("/string") {
     val body = ctx.body().value()   // <1>
     ...
   }
   
-  post("/bytes") ctx -> {
+  post("/bytes") {
     val body = ctx.body().bytes()   // <2>
     ...
   }
   
-  post("/stream") { ctx ->
+  post("/stream") {
     val body = ctx.body().stream()  // <3>
     ...
   }
@@ -97,7 +97,7 @@ and returns a single result of the given type.
     lib.fromJson(body, type)               // <4>
   }
 
-  post("/") { ctx ->
+  post("/") {
     val myObject = ctx.body<MyObject>()    // <5>
   }
 }
@@ -143,7 +143,7 @@ Response body is generated from `handler` function:
 [source, kotlin,role="secondary"]
 ----
 {
-  get("/") { ctx ->
+  get("/") {
     ctx.responseCode = 200                 // <1>
 
     ctx.responseType = MediaType.text      // <2>
@@ -212,7 +212,7 @@ produces a result.
     json                                           // <5>
   }
 
-  get("/item") { ctx ->
+  get("/item") {
     val myObject = ...;
     myObject                                       // <6>
   }

@@ -26,7 +26,7 @@ Raw responses are NOT processed by a <<renderer, Renderer>>. These response type
 [source,kotlin,role="secondary"]
 ----
 {
-  get("/json") { ctx ->
+  get("/json") {
     ctx.contentType = MediaType.json
     """
       "message": "Hello Raw Response"
@@ -70,7 +70,7 @@ All the three APIs have a `close` method. You must call it once you finish.
 [source,kotlin,role="secondary"]
 ----
 {
-  get("/chunk") { ctx ->
+  get("/chunk") {
     ctx.responseWriter().use {                  // <1>
       writer.write("chunk1")                    // <2>
       ...
@@ -106,7 +106,7 @@ automatically close the writer/stream:
 [source,kotlin,role="secondary"]
 ----
 {
-  get("/chunk") { ctx ->
+  get("/chunk") {
     ctx.responseWriter {                  // <1>
       writer.write("chunk1")              // <2>
       ...
@@ -141,12 +141,12 @@ The javadoc:AttachedFile[] is used to generate file downloads, i.e. responses wi
 [source,kotlin,role="secondary"]
 ----
 {
-  get("/download-file") { ctx ->
+  get("/download-file") {
     val source = Paths.get("logo.png")
     AttachedFile(source)                // <1>
   }
 
-  get("/download-stream") { ctx ->
+  get("/download-stream") {
     val source = ...
     AttachedFile("myfile.txt", source)  // <2>
   }
@@ -211,7 +211,6 @@ there is a non-blocking route handler.
 <4> Value is computed/produces from completable future context
 
 Running your `App` in *worker* mode works identically, except for we are able to do blocking calls:
-
 
 .In worker mode
 [source,java,role="primary"]
@@ -480,8 +479,10 @@ Probably one of most exciting new features of Jooby 2.x is the builtin integrati
 [source, kotlin, role="primary"]
 ----
 {
-  get("/") {         // <1>
-    ctx.pathString() 
+  coroutine {
+    get("/") {         // <1>
+      ctx.pathString() 
+    }
   }
 }
 ----
@@ -490,16 +491,14 @@ Probably one of most exciting new features of Jooby 2.x is the builtin integrati
 [source, kotlin, role="secondary"]
 ----
 {
-  get("/") { ctx ->  // <2>
+  get("/") {           // <2>
     ctx.pathString() 
   }
 }
 ----
 
-<1> Coroutine handler uses a implicit `Context` parameter: `ctx`
-
-<2> Normal handler has an explicit 'Context' parameter
-
+<1> Coroutine route
+<2> Normal route
 
 
 Also, if you try to call a suspending function from normal handler, Kotlin complains about:
@@ -508,7 +507,7 @@ Also, if you try to call a suspending function from normal handler, Kotlin compl
 [source, kotlin]
 ----
 {
-  get("/") { ctx ->
+  get("/") {
     delay(100)      // <1>
     "..."
   }
@@ -517,15 +516,17 @@ Also, if you try to call a suspending function from normal handler, Kotlin compl
 
 <1> Suspend function 'delay' should be called only from a coroutine or another suspend function
 
-Now, if we remove the explicit parameter we have our first coroutine handler:
+Now, if we wrap the route with the `coroutine` router:
 
 .Hello Coroutines
 [source, kotlin]
 ----
 {
-  get("/") {
-    delay(100)           // <1>
-    "Hello Coroutines!"  // <2>
+  coroutine {
+    get("/") {
+      delay(100)           // <1>
+      "Hello Coroutines!"  // <2>
+    }
   }
 }
 ----
@@ -533,25 +534,14 @@ Now, if we remove the explicit parameter we have our first coroutine handler:
 <1> Call a suspending function
 <2> Send response to client
 
-[NOTE]
-.Normal vs Coroutine handler
-====
-The difference between them is really small, just the presences/abscense of the `Context` parameter.
-We realize this might be confusion at first, but the reason why was done like this was to keep
-*DSL simple and natural*.
-
-For example we don't need an extra keyword or route names to write a
-coroutine handler.
-
-The existing `get`, `post`, ..., etc. DSL methods just works. 
-====
-
 .Here is another example with an extension and suspending function:
 [source, kotlin]
 ----
 {
-  get("/") {
-    ctx.doSomething()         // <1>
+  coroutine {
+    get("/") {
+      ctx.doSomething()         // <1>
+    }
   }
 }
 
@@ -578,10 +568,12 @@ this is provided by the web server implementation unless you provided your own.
 {
   worker(Executors.newCachedThreadPool())
 
-  get("/") {
-    val n = 5 * 5        // <1>
-    delay(100)           // <2>
-    "Hello Coroutines!"  // <3>
+  coroutine {
+    get("/") {
+      val n = 5 * 5        // <1>
+      delay(100)           // <2>
+      "Hello Coroutines!"  // <3>
+    }
   }
 }
 ----
@@ -599,12 +591,12 @@ Jooby allows you to use this experimental API by setting the `coroutineStart` op
 [source, kotlin]
 ----
 {
-  coroutineStart = CoroutineStart.UNDISPATCHED
-
-  get("/") {
-    val n = 5 * 5        // <1>
-    delay(100)           // <2>
-    "Hello Coroutines!"  // <3>
+  coroutine (CoroutineStart.UNDISPATCHED) {
+    get("/") {
+      val n = 5 * 5        // <1>
+      delay(100)           // <2>
+      "Hello Coroutines!"  // <3>
+    }
   }
 }
 ----
@@ -633,7 +625,7 @@ Jooby provides a family of `sendXXX()` methods that produces a response via side
 [source,kotlin,role="secondary"]
 ----
 {
-  get("/") { ctx ->
+  get("/") {
     ctx.send("Hello World!")
   }
 }
