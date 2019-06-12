@@ -35,9 +35,43 @@ public class RequestSession implements Session {
     return session.get(name);
   }
 
+  @Nonnull @Override public Session put(@Nonnull String name, int value) {
+    session.put(name, value);
+    return this;
+  }
+
+  @Nonnull @Override public Session put(@Nonnull String name, long value) {
+    session.put(name, value);
+    return this;
+  }
+
+  @Nonnull @Override public Session put(@Nonnull String name, float value) {
+    session.put(name, value);
+    return this;
+  }
+
+  @Nonnull @Override public Session put(@Nonnull String name, double value) {
+    session.put(name, value);
+    return this;
+  }
+
+  @Nonnull @Override public Session put(@Nonnull String name, @Nonnull Number value) {
+    session.put(name, value);
+    return this;
+  }
+
+  @Nonnull @Override public Session put(@Nonnull String name, boolean value) {
+    session.put(name, value);
+    return this;
+  }
+
+  @Nonnull @Override public Session put(@Nonnull String name, @Nonnull CharSequence value) {
+    session.put(name, value);
+    return this;
+  }
+
   @Nonnull @Override public Session put(@Nonnull String name, String value) {
     session.put(name, value);
-
     return this;
   }
 
