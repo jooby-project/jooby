@@ -18,7 +18,7 @@ public class App {
 
   public static void main(final String[] args) {
     runApp(args, app -> {
-      app.get("/", ctx -> "Hey Jooby!");
+      app.get("/", ctx -> "Welcome to Jooby!");
     });
   }
 }
@@ -32,7 +32,7 @@ import org.jooby.runApp
 
 fun main(args: Array<String>) {
   runApp(args) {
-    get ("/") { ctx ->
+    get ("/") {
       "Welcome to Jooby!"
     }
   }
