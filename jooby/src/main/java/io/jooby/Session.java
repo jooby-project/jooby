@@ -200,6 +200,8 @@ public interface Session {
 
   /**
    * Remove all attributes.
+   *
+   * @return This session.
    */
   Session clear();
 

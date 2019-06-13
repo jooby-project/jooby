@@ -42,6 +42,7 @@ public class SessionOptions {
   /**
    * Creates a session options.
    *
+   * @param secret Secret key. Used to signed the cookie.
    * @param sessionId session ID.
    */
   public SessionOptions(@Nonnull String secret, @Nonnull SessionId... sessionId) {
@@ -57,6 +58,11 @@ public class SessionOptions {
     this.sessionId = createSessionId(sessionId);
   }
 
+  /**
+   * Session ID strategy (cookie or header).
+   *
+   * @return Session ID strategy (cookie or header).
+   */
   public SessionId getSessionId() {
     return sessionId;
   }

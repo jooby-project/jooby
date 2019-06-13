@@ -119,16 +119,34 @@ public interface Context extends Registry {
    * **********************************************************************************************
    */
 
+  /**
+   * Flash map.
+   *
+   * @return Flash map.
+   */
   default @Nonnull FlashMap flashMap() {
     return (FlashMap) getAttributes()
         .computeIfAbsent(FlashMap.NAME, key -> FlashMap
             .create(this, new Cookie(getRouter().getFlashCookie()).setHttpOnly(true)));
   }
 
+  /**
+   * Get a flash attribute.
+   *
+   * @param name Attribute's name.
+   * @return Flash attribute.
+   */
   default @Nonnull Value flash(@Nonnull String name) {
     return Value.create(name, flashMap().get(name));
   }
 
+  /**
+   * Set a flash attribute.
+   *
+   * @param name Attribute's name.
+   * @param value Attribute's value.
+   * @return This context.
+   */
   default @Nonnull Context flash(@Nonnull String name, @Nonnull String value) {
     flashMap().put(name, value);
     return this;
@@ -941,6 +959,12 @@ public interface Context extends Registry {
    */
   @Nonnull Context setResponseHeader(@Nonnull String name, @Nonnull String value);
 
+  /**
+   * Remove a response header.
+   *
+   * @param name Header's name.
+   * @return This context.
+   */
   @Nonnull Context removeResponseHeader(@Nonnull String name);
 
   /**

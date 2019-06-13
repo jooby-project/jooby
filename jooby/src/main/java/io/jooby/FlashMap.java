@@ -8,34 +8,35 @@ package io.jooby;
 import io.jooby.internal.FlashMapImpl;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Flash scope.
+ * Flash map.
  *
  * @author edgar
  * @since 2.0.0
  */
 public interface FlashMap extends Map<String, String> {
 
+  /** Flash map attribute. */
   String NAME = "flash";
 
   /**
    * Creates a new flash-scope using the given cookie.
    *
-   * @param ctx
-   * @param template
-   * @return
+   * @param ctx Web context.
+   * @param template Cookie template.
+   * @return A new flash map.
    */
-  static @Nonnull FlashMap create(Context ctx, Cookie template) {
+  static @Nonnull FlashMap create(@Nonnull Context ctx, @Nonnull Cookie template) {
     return new FlashMapImpl(ctx, template);
   }
 
   /**
    * Keep flash cookie for next request.
+   *
+   * @return This flash map.
    */
-  FlashMap keep();
+  @Nonnull FlashMap keep();
 
 }

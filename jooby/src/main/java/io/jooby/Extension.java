@@ -18,6 +18,13 @@ import javax.annotation.Nonnull;
  */
 public interface Extension {
 
+  /**
+   * True when extension needs to run while starting the application. Defaults is false, starts
+   * immediately.
+   *
+   * @return True when extension needs to run while starting the application. Defaults is false,
+   *     starts immediately.
+   */
   default boolean lateinit() {
     return false;
   }

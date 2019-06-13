@@ -72,6 +72,13 @@ public class Environment {
     this.conf = conf;
   }
 
+  /**
+   * Get a property under the given key or use the given default value when missing.
+   *
+   * @param key Property key.
+   * @param defaults Default value.
+   * @return Property or default value.
+   */
   public @Nonnull String getProperty(@Nonnull String key, @Nonnull String defaults) {
     if (conf.hasPath(key)) {
       return conf.getString(key);
@@ -79,6 +86,12 @@ public class Environment {
     return defaults;
   }
 
+  /**
+   * Get a property under the given key or <code>null</code> when missing.
+   *
+   * @param key Property key.
+   * @return Property value or <code>null</code> when missing.
+   */
   public @Nullable String getProperty(@Nonnull String key) {
     if (conf.hasPath(key)) {
       return conf.getString(key);
@@ -125,16 +138,18 @@ public class Environment {
     return classLoader;
   }
 
+  /**
+   * Loaded class or empty.
+   *
+   * @param className Class name.
+   * @return Load a class or get an empty value.
+   */
   public @Nonnull Optional<Class> loadClass(@Nonnull String className) {
     try {
       return Optional.of(classLoader.loadClass(className));
     } catch (ClassNotFoundException x) {
       return Optional.empty();
     }
-  }
-
-  public boolean isClassPresent(String className) {
-    return loadClass(className).isPresent();
   }
 
   @Override public String toString() {

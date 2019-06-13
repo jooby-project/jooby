@@ -38,6 +38,12 @@ public interface TemplateEngine extends Renderer {
     return output.getBytes(StandardCharsets.UTF_8);
   }
 
+  /**
+   * Normalize a template path by removing the leading `/` when present.
+   *
+   * @param templatesPath Template path.
+   * @return Normalized path.
+   */
   static @Nonnull String normalizePath(@Nonnull String templatesPath) {
     return templatesPath.startsWith("/") ? templatesPath.substring(1) : templatesPath;
   }

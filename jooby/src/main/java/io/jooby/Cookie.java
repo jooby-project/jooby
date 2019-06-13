@@ -24,8 +24,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * Response cookie implementation. Response are send it back to client using
  * {@link Context#setResponseCookie(Cookie)}.
@@ -402,9 +400,12 @@ public class Cookie {
   /**
    * Encode a hash into cookie value, like: <code>k1=v1&amp;...&amp;kn=vn</code>. Also,
    * <code>key</code> and <code>value</code> are encoded using {@link URLEncoder}.
+   *
+   * @param attributes Map to encode.
+   * @return URL encoded from map attributes.
    */
-  public static String encode(Map<String, String> attributes) {
-    if (attributes.size() == 0) {
+  public static @Nonnull String encode(@Nullable Map<String, String> attributes) {
+    if (attributes == null || attributes.size() == 0) {
       return "";
     }
     try {
@@ -429,8 +430,11 @@ public class Cookie {
    * Decode a cookie value using, like: <code>k=v</code>, multiple <code>k=v</code> pair are
    * separated by <code>&amp;</code>. Also, <code>k</code> and <code>v</code> are decoded using
    * {@link URLDecoder}.
+   *
+   * @param value URL encoded value.
+   * @return Decoded as map.
    */
-  public static Map<String, String> decode(String value) {
+  public static @Nonnull Map<String, String> decode(@Nullable String value) {
     if (value == null || value.length() == 0) {
       return Collections.emptyMap();
     }

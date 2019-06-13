@@ -634,10 +634,23 @@ public interface Router extends Registry {
    */
   @Nonnull Router setSessionOptions(@Nonnull SessionOptions options);
 
+  /**
+   * Get an executor from application registry.
+   *
+   * @param name Executor name.
+   * @return Executor.
+   */
   default @Nonnull Executor executor(@Nonnull String name) {
     return require(Executor.class, name);
   }
 
+  /**
+   * Put an executor into the application registry.
+   *
+   * @param name Executor's name.
+   * @param executor Executor.
+   * @return This router.
+   */
   @Nonnull Router executor(@Nonnull String name, @Nonnull Executor executor);
 
   /**
