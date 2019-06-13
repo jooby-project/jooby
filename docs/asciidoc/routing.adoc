@@ -334,17 +334,11 @@ interface Decorator {
 <3> Compute and print latency
 <4> Returns a response
 
-[NOTE]
-====
-A `decorator` lacks of a `path pattern`. Sound strange? It is explained in the <<router-pipeline, pipeline>> section.
-====
+==== Before
 
-==== Before Decorator
+The javadoc:Route.Before[text=before] filter runs before a `handler` or `decorator`.
 
-The javadoc:Route.Before[text=before] decorator is a specialized decorator that runs before a 
-`handler`.
-
-A `before` decorator takes a `context` as argument and don't produces a response. It expected to operate
+A `before` filter takes a `context` as argument and don't produces a response. It expected to operates
 via side effects (usually modifying the HTTP response).
 
 [source,java]
@@ -382,18 +376,18 @@ interface Before {
 }
 ----
 
-==== After Decorator
+==== After
 
-The javadoc:Route.After[text=after] decorator is a specialized decorator that runs after a 
-`handler`.
+The javadoc:Route.After[text=after] filter runs after a `handler` or `decorator`.
 
-An `after` decorator takes two arguments. The first argument is the `HTTP context`, while the second
-argument is the result/response from a `handler`.  
+An `after` filter takes two arguments. The first argument is the `HTTP context`, while the second
+argument is the result/response from a `handler` and don't produces a response. It expected to operates
+via side effects (usually modifying the HTTP response).  
 
 [source,java]
 ----
 interface After {
-  Object apply(Context ctx, Object result);
+  void apply(Context ctx, Object result);
 }
 ----
 
@@ -402,7 +396,7 @@ interface After {
 ----
 {
   after((ctx, result) -> {
-    return "Hello " + result;
+    System.out.println(result);
   });
 
   get("/", ctx -> {
@@ -416,7 +410,7 @@ interface After {
 ----
 {
   after {
-    "Hello $result"
+    println("Hello $result")
   }
 
   get("/") {
@@ -526,7 +520,7 @@ sequentially one by one. The following `filter` is always executed in Jooby 1.x
 }
 ----
 
-Suppose there is bot trying to access and causing lot of `404` responses (path doesn't exist).
+Suppose there is a bot trying to access and causing lot of `404` responses (path doesn't exist).
 In Jooby 1.x the `filter` is executed for every single request sent by the bot just to realize 
 there is NO matching route and all we need is a `404`.
 
@@ -590,7 +584,7 @@ Output:
 
 ==== Scoped Decorator
 
-The javadoc:Router[route, java.lang.Runnable] and javadoc:Router[path, java.lang.Runnable] operators
+The javadoc:Router[route, java.lang.Runnable] and javadoc:Router[path, java.lang.String, java.lang.Runnable] operators
 are used to group one or more routes.
   
 A `scoped decorator` looks like:
@@ -684,7 +678,7 @@ and allows you to selectively apply one or more routes.
 
 Route operator is for grouping one or more routes and apply cross cutting concerns to all them.
 
-In similar fashin the javadoc:Router[path, java.lang.String, java.lang.Runnable] operator groups
+In similar fashion the javadoc:Router[path, java.lang.String, java.lang.Runnable] operator groups
 one or more routes under a common path pattern.
 
 .Routes with path prefix:

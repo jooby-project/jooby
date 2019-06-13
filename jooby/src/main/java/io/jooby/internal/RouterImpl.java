@@ -62,32 +62,32 @@ public class RouterImpl implements Router {
   private static class Stack {
     private String pattern;
     private Executor executor;
-    private List<Route.Decorator> filters = new ArrayList<>();
+    private List<Route.Decorator> decoratorList = new ArrayList<>();
     private List<Route.Before> beforeList = new ArrayList<>();
-    private List<Route.After> afters = new ArrayList<>();
+    private List<Route.After> afterList = new ArrayList<>();
 
     public Stack(String pattern) {
       this.pattern = pattern;
     }
 
     public void then(Route.Decorator filter) {
-      filters.add(filter);
+      decoratorList.add(filter);
     }
 
     public void then(Route.After after) {
-      afters.add(after);
+      afterList.add(after);
     }
 
     public void then(Route.Before before) {
       beforeList.add(before);
     }
 
-    public Stream<Route.Decorator> toFilter() {
-      return filters.stream();
+    public Stream<Route.Decorator> toDecorator() {
+      return decoratorList.stream();
     }
 
     public Stream<Route.After> toAfter() {
-      return afters.stream();
+      return afterList.stream();
     }
 
     public Stream<Route.Before> toBefore() {
@@ -95,8 +95,8 @@ public class RouterImpl implements Router {
     }
 
     public void clear() {
-      this.filters.clear();
-      this.afters.clear();
+      this.decoratorList.clear();
+      this.afterList.clear();
       this.beforeList.clear();
       executor = null;
     }
@@ -356,32 +356,26 @@ public class RouterImpl implements Router {
     stack.stream().filter(it -> it.pattern != null).forEach(it -> pat.append(it.pattern));
     pat.append(pattern);
 
-    /** Decorators: */
-    List<Route.Decorator> filters = stack.stream()
-        .flatMap(Stack::toFilter)
-        .collect(Collectors.toList());
-
     /** Before: */
     Route.Before before = stack.stream()
         .flatMap(Stack::toBefore)
         .reduce(null, (it, next) -> it == null ? next : it.then(next));
 
-    /** Pipeline: */
-    //    Route.Handler pipeline = before == null ? handler : before.then(handler);
+    /** Decorator: */
+    Route.Decorator decorator = stack.stream()
+        .flatMap(Stack::toDecorator)
+        .reduce(null, (it, next) -> it == null ? next : it.then(next));
 
     /** After: */
     Route.After after = stack.stream()
         .flatMap(Stack::toAfter)
         .reduce(null, (it, next) -> it == null ? next : it.then(next));
 
-    //    if (after != null) {
-    //      pipeline = pipeline.then(after);
-    //    }
-
     /** Route: */
     String safePattern = normalizePath(pat.toString(), options.isCaseSensitive(),
         options.isIgnoreTrailingSlash());
-    Route route = new Route(method, safePattern, null, handler, before, after, renderer, parsers);
+    Route route = new Route(method, safePattern, null, handler, before, decorator, after, renderer,
+        parsers);
     Stack stack = this.stack.peekLast();
     if (stack.executor != null) {
       routeExecutor.put(route, stack.executor);
@@ -422,11 +416,20 @@ public class RouterImpl implements Router {
       if (route.getConsumes().size() > 0) {
         before = before == null ? SUPPORT_MEDIA_TYPE : SUPPORT_MEDIA_TYPE.then(before);
       }
-      Route.Handler pipeline = route.getHandler();
+
+      Route.Decorator decorator = route.getDecorator();
+      Route.Handler handler = route.getHandler();
+      Route.Handler pipeline;
+      if (decorator == null) {
+        pipeline = handler;
+      } else {
+        pipeline = decorator.then(handler);
+      }
 
       if (before != null) {
         pipeline = before.then(pipeline);
       }
+
       Route.After after = route.getAfter();
       if (after != null) {
         pipeline = pipeline.then(after);
@@ -558,8 +561,8 @@ public class RouterImpl implements Router {
   }
 
   private Router newStack(@Nonnull String pattern, @Nonnull Runnable action,
-      Route.Decorator... filter) {
-    return newStack(push(pattern), action, filter);
+      Route.Decorator... decorator) {
+    return newStack(push(pattern), action, decorator);
   }
 
   private Stack push() {
@@ -638,7 +641,8 @@ public class RouterImpl implements Router {
           if (executor == null) {
             // TODO: replace with usage exception
             throw new IllegalArgumentException(
-                "Missing executor: " + executorKey + ", required by: " + mvc.getMethod().getDeclaringClass().getName() + "." + mvc.getMethod()
+                "Missing executor: " + executorKey + ", required by: " + mvc.getMethod()
+                    .getDeclaringClass().getName() + "." + mvc.getMethod()
                     .getName() + ", at line: " + mvc.getLine());
           }
           dispatch(executor, () -> consumer.accept(mvc));

@@ -624,7 +624,7 @@ public class FeaturedTest {
   }
 
   @Test
-  public void filter() {
+  public void beforeAfter() {
     new JoobyRunner(app -> {
 
       app.before(ctx -> {
@@ -662,6 +662,28 @@ public class FeaturedTest {
             rsp.body().string());
       });
     }, Netty::new, Utow::new /* No Jetty bc always use a worker thread */);
+  }
+
+  @Test
+  public void decorator() {
+    new JoobyRunner(app -> {
+
+      app.decorator(next -> ctx -> "{" + ctx.attribute("prefix") + next.apply(ctx) + "}");
+
+      app.before(ctx -> {
+        ctx.attribute("prefix", "%");
+      });
+
+      app.decorator(next -> ctx -> "<" + ctx.attribute("prefix") + next.apply(ctx) + ">");
+
+      app.get("/decorator", ctx -> ctx.attribute("prefix") + "OK" + "%");
+
+    }).ready(client -> {
+      client.get("/decorator", rsp -> {
+        assertEquals("{%<%%OK%>}",
+            rsp.body().string());
+      });
+    });
   }
 
   @Test

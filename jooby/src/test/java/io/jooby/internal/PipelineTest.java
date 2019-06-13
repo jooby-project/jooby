@@ -224,7 +224,7 @@ public class PipelineTest {
   }
 
   private Route route(Type returnType, Route.Handler handler) {
-    return new Route("GET", "/", returnType, handler, null, null,
+    return new Route("GET", "/", returnType, handler, null, null, null,
         Renderer.TO_STRING, Collections.emptyMap());
   }
 }

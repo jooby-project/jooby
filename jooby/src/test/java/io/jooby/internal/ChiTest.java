@@ -94,7 +94,7 @@ public class ChiTest {
   }
 
   private Route route(String method, String pattern, Route.Handler handler) {
-    return new Route(method, pattern, String.class, handler, null, null,
+    return new Route(method, pattern, String.class, handler, null, null, null,
         Renderer.TO_STRING, Collections.emptyMap());
   }
 

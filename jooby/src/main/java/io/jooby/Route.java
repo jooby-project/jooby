@@ -50,7 +50,7 @@ public class Route {
    * @author edgar
    * @since 2.0.0
    */
-  public interface Decorator {
+  public interface Decorator extends Serializable {
     /**
      * Chain the decorator within next handler.
      *
@@ -86,7 +86,7 @@ public class Route {
    * @author edgar
    * @since 2.0.0
    */
-  public interface Before {
+  public interface Before extends Serializable {
     /**
      * Execute application code before next handler.
      *
@@ -128,7 +128,7 @@ public class Route {
    * @author edgar
    * @since 2.0.0
    */
-  public interface After {
+  public interface After extends Serializable {
 
     /**
      * Chain this decorator with next one and produces a new after decorator.
@@ -226,6 +226,8 @@ public class Route {
 
   private Before before;
 
+  private Decorator decorator;
+
   private Handler handler;
 
   private After after;
@@ -261,6 +263,7 @@ public class Route {
       @Nonnull Type returnType,
       @Nonnull Handler handler,
       @Nullable Before before,
+      @Nullable Decorator decorator,
       @Nullable After after,
       @Nonnull Renderer renderer,
       @Nonnull Map<String, Parser> parsers) {
@@ -269,6 +272,7 @@ public class Route {
     this.returnType = returnType;
     this.handler = handler;
     this.before = before;
+    this.decorator = decorator;
     this.after = after;
     this.renderer = renderer;
     this.pathKeys = pathKeys;
@@ -276,6 +280,10 @@ public class Route {
     this.handle = handler;
 
     this.pipeline = handler;
+
+    if (decorator != null) {
+      this.pipeline = decorator.then(pipeline);
+    }
     if (before != null) {
       this.pipeline = before.then(pipeline);
     }
@@ -292,6 +300,7 @@ public class Route {
    * @param returnType Return type.
    * @param handler Route handler.
    * @param before Before pipeline.
+   * @param decorator Decorator pipeline.
    * @param after After pipeline.
    * @param renderer Route renderer.
    * @param parsers Route parsers.
@@ -301,10 +310,12 @@ public class Route {
       @Nonnull Type returnType,
       @Nonnull Handler handler,
       @Nullable Before before,
+      @Nullable Decorator decorator,
       @Nullable After after,
       @Nonnull Renderer renderer,
       @Nonnull Map<String, Parser> parsers) {
-    this(method, pattern, Router.pathKeys(pattern), returnType, handler, before, after, renderer,
+    this(method, pattern, Router.pathKeys(pattern), returnType, handler, before, decorator, after,
+        renderer,
         parsers);
   }
 
@@ -380,6 +391,10 @@ public class Route {
    */
   public @Nullable After getAfter() {
     return after;
+  }
+
+  public @Nullable Decorator getDecorator() {
+    return decorator;
   }
 
   /**

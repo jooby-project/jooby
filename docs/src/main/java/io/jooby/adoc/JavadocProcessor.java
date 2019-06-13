@@ -71,7 +71,7 @@ public class JavadocProcessor extends InlineMacroProcessor {
         index += 1;
 
         if (attributes.get(String.valueOf(index)) != null) {
-          link.append(",");
+          link.append("-");
           text.append(",");
         }
       }

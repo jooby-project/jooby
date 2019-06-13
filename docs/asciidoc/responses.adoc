@@ -609,9 +609,9 @@ Jooby allows you to use this experimental API by setting the `coroutineStart` op
 
 === Send methods
 
-Jooby provides a family of `sendXXX()` methods that produces a response via side effects.
+Jooby provides a family of `send()` methods that produces a response via side effects.
 
-.sendString example
+.send text
 [source,java,role="primary"]
 ----
 {

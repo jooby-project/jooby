@@ -1,6 +1,5 @@
 * tests and coverage
 
-* flash scope
 * make reset headers on error configurable
 
 * websockets
