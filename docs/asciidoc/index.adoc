@@ -216,6 +216,8 @@ include::routing.adoc[]
 
 include::context.adoc[]
 
+include::static-files.adoc[]
+
 include::execution-model.adoc[]
 
 include::responses.adoc[]

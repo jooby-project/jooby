@@ -57,7 +57,8 @@ public class ChiTest {
   public void wildOnRoot() throws Exception {
     $Chi router = new $Chi();
 
-    router.insert(route("GET", "/foo/*", stringHandler("foo")));
+    router.insert(route("GET", "/foo/?*", stringHandler("foo")));
+    router.insert(route("GET", "/bar/*", stringHandler("bar")));
     router.insert(route("GET", "/*", stringHandler("root")));
 
     find(router, "/", (ctx, result) -> {
@@ -67,17 +68,32 @@ public class ChiTest {
 
     find(router, "/foo", (ctx, result) -> {
       assertTrue(result.matches);
+      assertEquals("foo", result.route().getPipeline().apply(ctx));
+    });
+
+    find(router, "/bar", (ctx, result) -> {
+      assertTrue(result.matches);
+      assertEquals("root", result.route().getPipeline().apply(ctx));
+    });
+
+    find(router, "/foox", (ctx, result) -> {
+      assertTrue(result.matches);
       assertEquals("root", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/foo/", (ctx, result) -> {
       assertTrue(result.matches);
-      assertEquals("root", result.route().getPipeline().apply(ctx));
+      assertEquals("foo", result.route().getPipeline().apply(ctx));
     });
 
     find(router, "/foo/x", (ctx, result) -> {
       assertTrue(result.matches);
       assertEquals("foo", result.route().getPipeline().apply(ctx));
+    });
+
+    find(router, "/bar/x", (ctx, result) -> {
+      assertTrue(result.matches);
+      assertEquals("bar", result.route().getPipeline().apply(ctx));
     });
   }
 

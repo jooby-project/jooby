@@ -17,6 +17,8 @@ import java.util.List;
  * @since 2.0.0
  */
 public class AssetHandler implements Route.Handler {
+  private static final int ONE_SEC = 1000;
+
   private final AssetSource[] sources;
 
   private boolean etag = true;
@@ -26,8 +28,6 @@ public class AssetHandler implements Route.Handler {
   private long maxAge = -1;
 
   private String filekey;
-
-  private static final int ONE_SEC = 1000;
 
   /**
    * Creates a new asset handler.
@@ -40,6 +40,9 @@ public class AssetHandler implements Route.Handler {
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
     String filepath = ctx.pathMap().get(filekey);
+    if (filepath == null) {
+      filepath = "index.html";
+    }
     Asset asset = resolve(filepath);
     if (asset == null) {
       ctx.send(StatusCode.NOT_FOUND);
@@ -142,7 +145,6 @@ public class AssetHandler implements Route.Handler {
   @Override public Route.Handler setRoute(Route route) {
     List<String> keys = route.getPathKeys();
     this.filekey = keys.size() == 0 ? "*" : keys.get(0);
-
     // NOTE: It send an inputstream we don't need a renderer
     route.setReturnType(Context.class);
     return this;

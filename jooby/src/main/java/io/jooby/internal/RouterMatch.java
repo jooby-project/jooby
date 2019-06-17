@@ -29,7 +29,7 @@ public class RouterMatch implements Router.Match {
   private Route.Handler handler;
 
   public void key(List<String> keys) {
-    for (int i = 0; i < keys.size(); i++) {
+    for (int i = 0; i < Math.min(keys.size(), vars.size()); i++) {
       vars.put(keys.get(i), vars.remove(i));
     }
   }
@@ -84,7 +84,8 @@ public class RouterMatch implements Router.Match {
     } else {
       h = this.handler;
     }
-    this.route = new Route(method, path, emptyList(), String.class, h, null, null, null, renderer, emptyMap());
+    this.route = new Route(method, path, emptyList(), String.class, h, null, null, null, renderer,
+        emptyMap());
     return this;
   }
 }

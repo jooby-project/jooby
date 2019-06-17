@@ -396,7 +396,9 @@ class $Chi implements RadixTree {
           default:
             // catch-all nodes
             // rctx.routeParams.Values = append(rctx.routeParams.Values, search)
-            rctx.value(search);
+            if (search.length() > 0) {
+              rctx.value(search);
+            }
             xn = nds[0];
             xsearch = "";
         }
@@ -596,6 +598,8 @@ class $Chi implements RadixTree {
     }
   }
 
+  private static String BASE_CATCH_ALL = "/?*";
+
   private Node root = new Node();
 
   private boolean caseSensitive;
@@ -620,12 +624,29 @@ class $Chi implements RadixTree {
   }
 
   public void insert(String method, String pattern, Route route) {
+    String baseCatchAll = baseCatchAll(pattern);
+    if (baseCatchAll.length() > 1) {
+      // Add route pattern: /static/?* => /static
+      insert(method, baseCatchAll, route);
+      String tail = pattern.substring(baseCatchAll.length() + 2);
+      pattern = baseCatchAll + "/" + tail;
+    }
+    if (pattern.equals(BASE_CATCH_ALL)) {
+      pattern = "/*";
+    }
     root.insertRoute(method, pattern, route);
   }
 
+  private String baseCatchAll(String pattern) {
+    int i = pattern.indexOf(BASE_CATCH_ALL);
+    if (i > 0) {
+      return pattern.substring(0, i);
+    }
+    return "";
+  }
 
   public void insert(Route route) {
-    root.insertRoute(route.getMethod(), route.getPattern(), route);
+    insert(route.getMethod(), route.getPattern(), route);
   }
 
   @Override public void destroy() {

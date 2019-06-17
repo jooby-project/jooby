@@ -1,0 +1,151 @@
+== Static Files
+
+Static files are available via javadoc:Router[assets, java.lang.String] route. The `assets` route
+supports classpath and file-system resources.
+
+.Classpath resources:
+[source, java, role="primary"]
+----
+{
+  assets("/static/*"); <1>
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  assets("/static/*")  <1>
+}
+----
+
+<1> Map all the incoming request starting with `/static/` to the root of classpath
+
+- GET `/static/index.html`     => `/index.html`
+- GET `/static/js/file.js`     => `/js/file.js`
+- GET `/static/css/styles.css` => `/css/styles.css`
+
+.File system resources:
+[source, java, role="primary"]
+----
+{
+  assets("/static/*", Paths.get("static")); <1>
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  assets("/static/*", Paths.get("www"))  <1>
+}
+----
+
+<1> Map all the incoming request starting with `/static/` to a file system directory `www`
+
+- GET `/static/index.html`     => `www/index.html`
+- GET `/static/js/file.js`     => `www/js/file.js`
+- GET `/static/css/styles.css` => `www/css/styles.css`
+
+Individual file mapping is supported too:
+
+.Classpath:
+[source, role="primary"]
+----
+{
+  assets("/myfile.js", "/static/myfile.js");
+}
+----
+
+.File system
+[source, role="secondary"]
+----
+{
+  Path basedir = ...;
+  assets("/myfile.js", basedire.resolve("/myfile.js"));
+}
+----
+
+=== Static Site
+
+The `assets` route works for static sites too. Just need to use a special path mapping:
+ 
+.Classpath resources:
+[source, java, role="primary"]
+----
+{
+  Path docs = Paths.get("docs"); <1>
+  assets("/docs/?*");            <2>
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  val docs = Paths.get("docs")   <1>
+  assets("/docs/?*", docs)       <2>
+}
+----
+
+<1> Serve from `docs` directory
+<2> Use the `/?*` mapping
+
+The key difference is the `/?*` mapping. This mapping add support for base root mapping:
+
+- GET `/docs`            => `/docs/index.html`
+- GET `/docs/about.html` => `/docs/about.html`
+- GET `/docs/note`        => `/docs/index.html`
+
+=== Options
+
+The javadoc:AssetHandler[] automatically handle `E-Tag` and `Las-Modified` headers. You can turn
+control these headers programmatically:
+
+.Asset handler options:
+[source, java, role="primary"]
+----
+{
+  AssetSource www = AssetSource.create(Paths.get("www"));
+  assets("/static/*", new AssetHandler(www)
+    .setLastModified(false)
+    .setEtag(false)
+  );
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  val www = AssetSource.create(Paths.get("www"))
+  assets("/static/*", AssetHandler(www)
+    .setLastModified(false)
+    .setEtag(false)
+  );
+}
+----
+
+The `maxAge` option set a `Cache-Control` header:
+
+.Cache control:
+[source, java, role="primary"]
+----
+{
+  AssetSource www = AssetSource.create(Paths.get("www"));
+  assets("/static/*", new AssetHandler(www)
+    .setMaxAge(Duration.ofDays(365))
+  );
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  val www = AssetSource.create(Paths.get("www"))
+  assets("/static/*", AssetHandler(www)
+    .setMaxAge(Duration.ofDays(365))
+  );
+}
+----

@@ -1970,10 +1970,36 @@ public class FeaturedTest {
   }
 
   @Test
+  public void varOnCatchAll() {
+    new JoobyRunner(app -> {
+      app.get("/*", Context::pathMap);
+
+      app.get("/query/?*x", Context::pathMap);
+
+      app.get("/search/*q", Context::pathMap);
+    }).ready(client -> {
+      client.get("/", rsp -> {
+        assertEquals("{}", rsp.body().string());
+      });
+      client.get("/x", rsp -> {
+        assertEquals("{*=x}", rsp.body().string());
+      });
+      client.get("/search", rsp -> {
+        assertEquals("{*=search}", rsp.body().string());
+      });
+      client.get("/search/x", rsp -> {
+        assertEquals("{q=x}", rsp.body().string());
+      });
+      client.get("/query/y", rsp -> {
+        assertEquals("{x=y}", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
   public void assets() {
     new JoobyRunner(app -> {
-      app.assets("/static", userdir("src", "test", "www", "index.html"));
-      app.assets("/static/*", userdir("src", "test", "www"));
+      app.assets("/static/?*", userdir("src", "test", "www"));
       app.assets("/*", userdir("src", "test", "www"));
       app.assets("/cp/*", "/www");
       app.assets("/jar/*", "/META-INF/resources/webjars/vue/2.5.22");
@@ -1981,7 +2007,21 @@ public class FeaturedTest {
 
       app.assets("/m/*", AssetSource.create(userdir("src", "test", "www")),
           AssetSource.create(getClass().getClassLoader(), "/www"));
+
+      app.assets("/fsfile.js", userdir("src", "test", "www", "js", "index.js"));
+      app.assets("/cpfile.js", "/www/foo.js");
     }).ready(client -> {
+      client.get("/cpfile.js", rsp -> {
+        assertEquals("application/javascript;charset=utf-8",
+            rsp.header("Content-Type").toLowerCase());
+        assertEquals("41", rsp.header("Content-Length").toLowerCase());
+      });
+      // single file
+      client.get("/fsfile.js", rsp -> {
+        assertEquals("application/javascript;charset=utf-8",
+            rsp.header("Content-Type").toLowerCase());
+        assertEquals("23", rsp.header("Content-Length").toLowerCase());
+      });
       /** Multiple sources on same path: */
       client.get("/m/foo.js", rsp -> {
         assertEquals("application/javascript;charset=utf-8",
@@ -2032,6 +2072,14 @@ public class FeaturedTest {
       client.get("/static/index.html", rsp -> {
         assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
         assertEquals("155", rsp.header("Content-Length").toLowerCase());
+      });
+      client.get("/static/note", rsp -> {
+        assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+        assertEquals("note.html", rsp.body().string().trim());
+      });
+      client.get("/static/note/index.html", rsp -> {
+        assertEquals("text/html;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+        assertEquals("note.html", rsp.body().string().trim());
       });
       client.get("/static/js/index.js", rsp -> {
         assertEquals("application/javascript;charset=utf-8",

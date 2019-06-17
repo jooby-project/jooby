@@ -5,6 +5,9 @@
  */
 package io.jooby;
 
+import io.jooby.internal.FileDiskAssetSource;
+import io.jooby.internal.FolderDiskAssetSource;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.FileNotFoundException;
@@ -41,14 +44,24 @@ public interface AssetSource {
   static @Nonnull AssetSource create(@Nonnull ClassLoader loader, @Nonnull String location) {
     String safeloc = Router.normalizePath(location, true, true)
         .substring(1);
-    String sep = safeloc.length() > 0 ? "/" : "";
-    return path -> {
-      String absolutePath = safeloc + sep + path;
-      URL resource = loader.getResource(absolutePath);
-      if (resource == null) {
-        return null;
+    MediaType type = MediaType.byFile(location);
+    if (type != MediaType.octetStream) {
+      URL resource = loader
+          .getResource(location.startsWith("/") ? location.substring(1) : location);
+      if (resource != null) {
+        return path -> Asset.create(location, resource);
       }
-      return Asset.create(absolutePath, resource);
+    }
+    String prefix = safeloc + (safeloc.length() > 0 ? "/" : "");
+    return path -> {
+      String[] paths = {prefix + path + "/index.html", prefix + path};
+      for (String it : paths) {
+        URL resource = loader.getResource(it);
+        if (resource != null) {
+          return Asset.create(it, resource);
+        }
+      }
+      return null;
     };
   }
 
@@ -61,22 +74,9 @@ public interface AssetSource {
   static @Nonnull AssetSource create(@Nonnull Path location) {
     Path absoluteLocation = location.toAbsolutePath();
     if (Files.isDirectory(absoluteLocation)) {
-      return path -> {
-        Path resource = absoluteLocation.resolve(path).normalize().toAbsolutePath();
-        if (resource.toString().length() == 0 || Files.isDirectory(resource)) {
-          resource = resource.resolve("index.html");
-        }
-        if (!Files.exists(resource)
-            || Files.isDirectory(resource)
-            || !resource.startsWith(absoluteLocation)) {
-          return null;
-        }
-        return Asset.create(resource);
-      };
-    }
-    if (Files.isRegularFile(location)) {
-      Asset singleFile = Asset.create(absoluteLocation);
-      return p -> singleFile;
+      return new FolderDiskAssetSource(absoluteLocation);
+    } else if (Files.isRegularFile(location)) {
+      return new FileDiskAssetSource(location);
     }
     throw Sneaky.propagate(new FileNotFoundException(location.toAbsolutePath().toString()));
   }

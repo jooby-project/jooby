@@ -16,6 +16,9 @@ public class AssetsApp extends Jooby {
     Path www = Paths.get(System.getProperty("user.dir"), "examples", "www");
     assets("/*", www);
     assets("/static/*", www);
+    assets("/file.js", "/logback.xml");
+
+    assets("/cp/*");
   }
 
   public static void main(String[] args) {
