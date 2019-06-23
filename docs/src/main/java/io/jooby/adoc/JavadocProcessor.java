@@ -76,7 +76,13 @@ public class JavadocProcessor extends InlineMacroProcessor {
         }
       }
       link.append("-");
-      text.append(")");
+      String label = (String) attributes.get("text");
+      if (label != null) {
+        text.setLength(0);
+        text.append(label);
+      } else {
+        text.append(")");
+      }
     } else if (variable != null) {
       link.append("#").append(variable);
       text.append(attributes.getOrDefault("text", Optional.ofNullable(arg1).orElse(classname)));

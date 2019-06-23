@@ -39,7 +39,7 @@ public class Hikari implements Extension {
 
     public HikariConfig build(Environment env, String database) {
       String dburl, dbkey;
-      database = builtindb(env, database);
+      database = builtindb(env, env.getProperty(database, database));
       if (database.startsWith("jdbc:")) {
         dbkey = databaseName(database);
         dburl = database;
@@ -167,11 +167,6 @@ public class Hikari implements Extension {
   private HikariConfig hikari;
 
   private String database;
-
-  public Hikari(HikariConfig hikari) {
-    this.hikari = hikari;
-    this.database = hikari.getPoolName();
-  }
 
   public Hikari(@Nonnull String database) {
     this.database = database;

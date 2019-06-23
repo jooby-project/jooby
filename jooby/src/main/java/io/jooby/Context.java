@@ -71,6 +71,10 @@ public interface Context extends Registry {
     return getRouter().require(type);
   }
 
+  @Nonnull @Override default  <T> T require(@Nonnull ServiceKey<T> key) throws RegistryException {
+    return getRouter().require(key);
+  }
+
   /**
    * Context attributes (a.k.a request attributes).
    *

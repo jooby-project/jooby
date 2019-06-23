@@ -40,6 +40,11 @@
       <version>${jooby.version}</version>
     </dependency>
     <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-hibernate</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
     </dependency>

@@ -12,6 +12,7 @@ import com.google.inject.ProvisionException;
 import com.google.inject.name.Names;
 import io.jooby.Registry;
 import io.jooby.RegistryException;
+import io.jooby.ServiceKey;
 
 import javax.annotation.Nonnull;
 
@@ -28,6 +29,11 @@ public class GuiceRegistry implements Registry {
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
     return require(Key.get(type, Names.named(name)));
+  }
+
+  @Nonnull @Override public <T> T require(@Nonnull ServiceKey<T> key) throws RegistryException {
+    String name = key.getName();
+    return name == null ? require(key.getType()) : require(key.getType(), name);
   }
 
   @Nonnull private <T> T require(@Nonnull Key<T> key) {

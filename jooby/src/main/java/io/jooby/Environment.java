@@ -6,6 +6,7 @@
 package io.jooby;
 
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigParseOptions;
 
@@ -52,7 +53,8 @@ public class Environment {
    * @param conf Application configuration.
    * @param actives Active environment names.
    */
-  public Environment(@Nonnull ClassLoader classLoader, @Nonnull Config conf, @Nonnull String... actives) {
+  public Environment(@Nonnull ClassLoader classLoader, @Nonnull Config conf,
+      @Nonnull String... actives) {
     this(classLoader, conf, Arrays.asList(actives));
   }
 
@@ -63,7 +65,8 @@ public class Environment {
    * @param conf Application configuration.
    * @param actives Active environment names.
    */
-  public Environment(@Nonnull ClassLoader classLoader, @Nonnull Config conf, @Nonnull List<String> actives) {
+  public Environment(@Nonnull ClassLoader classLoader, @Nonnull Config conf,
+      @Nonnull List<String> actives) {
     this.classLoader = classLoader;
     this.actives = actives.stream()
         .map(String::trim)
@@ -80,10 +83,14 @@ public class Environment {
    * @return Property or default value.
    */
   public @Nonnull String getProperty(@Nonnull String key, @Nonnull String defaults) {
-    if (conf.hasPath(key)) {
-      return conf.getString(key);
+    try {
+      if (conf.hasPath(key)) {
+        return conf.getString(key);
+      }
+      return defaults;
+    } catch (ConfigException x) {
+      return defaults;
     }
-    return defaults;
   }
 
   /**
@@ -93,10 +100,14 @@ public class Environment {
    * @return Property value or <code>null</code> when missing.
    */
   public @Nullable String getProperty(@Nonnull String key) {
-    if (conf.hasPath(key)) {
-      return conf.getString(key);
+    try {
+      if (conf.hasPath(key)) {
+        return conf.getString(key);
+      }
+      return null;
+    } catch (ConfigException x) {
+      return null;
     }
-    return getProperty(key, null);
   }
 
   /**

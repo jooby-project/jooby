@@ -538,6 +538,10 @@ public class RouterImpl implements Router {
     return services.require(type);
   }
 
+  @Nonnull @Override public <T> T require(@Nonnull ServiceKey<T> key) throws RegistryException {
+    return services.require(key);
+  }
+
   @Nonnull @Override public String getFlashCookie() {
     return flashName;
   }

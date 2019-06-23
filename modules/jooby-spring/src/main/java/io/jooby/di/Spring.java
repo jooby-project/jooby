@@ -19,7 +19,11 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.Nonnull;
+import javax.inject.Provider;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
 
 public class Spring implements Extension {
 
@@ -87,12 +91,12 @@ public class Spring implements Extension {
       beanFactory.registerSingleton("env", environment);
       beanFactory.registerSingleton("environment", configurableEnvironment);
 
-      // Add resources:
+      // Add services:
       ServiceRegistry registry = application.getServices();
-      for (ServiceKey key : registry.keySet()) {
-        String name = Optional.ofNullable(key.getName())
-            .orElseGet(() -> beanName(key.getType()));
-        beanFactory.registerSingleton(name, registry.get(key));
+      for (Map.Entry<ServiceKey<?>, Provider<?>> entry : registry.entrySet()) {
+        ServiceKey key = entry.getKey();
+        Provider provider = entry.getValue();
+        applicationContext.registerBean(key.getName(), key.getType(), () -> provider.get());
       }
 
       application.onStop(applicationContext);
@@ -121,11 +125,5 @@ public class Spring implements Extension {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.scan(packages);
     return context;
-  }
-
-  private String beanName(Class type) {
-    StringBuilder name = new StringBuilder(type.getSimpleName());
-    name.setCharAt(0, Character.toLowerCase(name.charAt(0)));
-    return name.toString();
   }
 }

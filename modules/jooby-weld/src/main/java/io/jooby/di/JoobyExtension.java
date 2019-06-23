@@ -26,9 +26,12 @@ import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.enterprise.inject.spi.WithAnnotations;
 import javax.enterprise.inject.spi.configurator.BeanConfigurator;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 public class JoobyExtension implements Extension {
   private final Jooby app;
@@ -46,9 +49,10 @@ public class JoobyExtension implements Extension {
   public void configureServices(@Observes AfterBeanDiscovery beanDiscovery,
       BeanManager beanManager) {
     ServiceRegistry registry = app.getServices();
-    for (ServiceKey key : registry.keySet()) {
-      registerSingleton(beanDiscovery, beanManager, key.getType(), key.getName(),
-          registry.get(key));
+    Set<Map.Entry<ServiceKey<?>, Provider<?>>> entries = registry.entrySet();
+    for (Map.Entry<ServiceKey<?>, Provider<?>> entry : entries) {
+      registerSingleton(beanDiscovery, beanManager, entry.getKey().getType(),
+          entry.getKey().getName(), entry.getValue());
     }
   }
 
@@ -86,7 +90,7 @@ public class JoobyExtension implements Extension {
   }
 
   private <T> void registerSingleton(AfterBeanDiscovery beanDiscovery, BeanManager beanManager,
-      Class<T> type, String name, T instance) {
+      Class<T> type, String name, Object instance) {
     BeanConfigurator<Object> configurator = beanDiscovery.addBean();
     if (name != null) {
       configurator.addQualifier(NamedLiteral.of(name)).name(name);
@@ -97,13 +101,20 @@ public class JoobyExtension implements Extension {
       configurator
           .addTypes(type)
           .addInjectionPoints(target.getInjectionPoints())
-          .createWith(c -> instance);
+          .createWith(provider(instance));
     } else {
       configurator
           .addType(type)
           .scope(ApplicationScoped.class)
           .beanClass(type)
-          .createWith(c -> instance);
+          .createWith(provider(instance));
     }
+  }
+
+  private static Function provider(Object instance) {
+    if (instance instanceof Provider) {
+      return c -> ((Provider) instance).get();
+    }
+    return c -> instance;
   }
 }

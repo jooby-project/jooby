@@ -29,6 +29,9 @@
     <module>jooby-run</module>
     <module>jooby-maven-plugin</module>
     <module>jooby-gradle-plugin</module>
+
+    <!-- data -->
+    <module>jooby-hibernate</module>
   </modules>
 
 </project>

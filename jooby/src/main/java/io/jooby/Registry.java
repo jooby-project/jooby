@@ -35,4 +35,14 @@ public interface Registry {
    * @throws RegistryException If there was a runtime failure while providing an instance.
    */
   @Nonnull <T> T require(@Nonnull Class<T> type, @Nonnull String name) throws RegistryException;
+
+  /**
+   * Provides an instance of the given type.
+   *
+   * @param type Object type.
+   * @param <T> Object type.
+   * @return Instance of this type.
+   * @throws RegistryException If there was a runtime failure while providing an instance.
+   */
+  @Nonnull <T> T require(@Nonnull ServiceKey<T> key) throws RegistryException;
 }

@@ -7,6 +7,7 @@ package io.jooby.di;
 
 import io.jooby.Registry;
 import io.jooby.RegistryException;
+import io.jooby.ServiceKey;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
@@ -33,7 +34,13 @@ public class SpringRegistry implements Registry {
       return ctx.getBean(name, type);
     } catch (BeansException cause) {
       throw new RegistryException(
-          "Provisioning of `" + type.getName() + "(" + name + ")" + "` resulted in exception", cause);
+          "Provisioning of `" + type.getName() + "(" + name + ")" + "` resulted in exception",
+          cause);
     }
+  }
+
+  @Nonnull @Override public <T> T require(@Nonnull ServiceKey<T> key) throws RegistryException {
+    String name = key.getName();
+    return name == null ? require(key.getType()) : require(key.getType(), name);
   }
 }

@@ -21,6 +21,7 @@ Available modules are listed next.
 
 === Data
    * link:modules/hikari[HikariCP]: A high-performance JDBC connection pool.
+   * link:modules/hibernate[Hibernate]: Hibernate ORM module.
 
 === JSON
    * link:modules/jackson[Jackson]: Jackson module for Jooby.

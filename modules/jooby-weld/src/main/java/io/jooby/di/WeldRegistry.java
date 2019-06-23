@@ -33,7 +33,7 @@ public class WeldRegistry implements Registry {
     return require(ServiceKey.key(type, name));
   }
 
-  private <T> T require(ServiceKey<T> key) {
+  @Nonnull @Override public  <T> T require(ServiceKey<T> key) {
     try {
       return container.select(key.getType(), literal(key)).get();
     } catch (Exception cause) {

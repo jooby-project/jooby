@@ -1,0 +1,203 @@
+== Hibernate
+
+https://hibernate.org/orm/[Hibernate ORM] module.
+
+=== Usage
+
+1) Add the dependencies (hikari + hibernate):
+
+[dependency, artifactId="jooby-hikari:DataSource via HikariCP, jooby-hibernate:Hibernate Module"]
+.
+
+2) Add database driver (mySQL here):
+
+[dependency, artifactId="mysql-connector-java"]
+.
+
+3) Set database properties
+
+.application.conf
+[source, properties]
+----
+db.url = "jdbc:mysql://localhost/mydb"
+db.user = myuser
+db.password = mypass
+----
+
+
+4) Install and use Hibernate
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.hikari.Hikari;
+
+{
+  install(new Hikari());                              <1>
+
+  install(new Hibernate());                           <2>
+  
+  get("/", ctx -> {
+    EntityManager em = require(EntityManager.class);  <3>
+    Transaction trx = em.getTransaction();            <4>
+    try {
+      trx.begin();                                    <5>
+      
+      // work with EntityManager compute a result     <6>
+      
+      trx.commit();                                   <7>
+      
+      return result;
+    } catch(Exception x) {
+      trx.rollback();                                 <8>
+      throw x;
+    } finally {
+      em.close();                                     <9>
+    }
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.Hikari
+
+{
+  install(Hikari())                                   <1>
+  
+  install(new Hibernate())                            <2>
+  
+  get("/") {
+    val em = require(EntityManager::class)            <3>
+    val trx = em.getTransaction()                     <4>
+    try {
+      trx.begin()                                     <5>
+      
+      // work with EntityManager compute a result     <6>
+      
+      trx.commit()                                    <7>
+      
+      result
+    } catch(Exception x) {
+      trx.rollback()                                  <8>
+      throw x
+    } finally {
+      em.close()                                      <9>
+    }
+  }
+}
+----
+
+<1> Install and creates a `DataSource`
+<2> Install and initializes Hibernate. Entities are automatically detected
+<3> Get a new `EntityManager`
+<4> Creates a new transaction
+<5> Being the transaction
+<6> Work with EntityManager (read, write to dababase)
+<7> Commit the transaction
+<8> Rollback transaction in case of error
+<9> Close the `EntityManager` 
+
+=== Entity Discovering
+
+By default the javadoc:hibernate.Hbm[] module detects all the persistent entities under javadoc:Jooby[getBasePackage, text = "base/root package"]. The module provides two
+options for more explicit control:
+
+- List persistent classes at creation time:
+
+----
+  install(new Hbm(MyEntity1.class, MyEntity2.class));
+----
+
+- Explicit package scanning
+
+----
+  install(new Hbm().scan("mypackage"));
+----
+
+=== Transactional Request
+
+The javadoc:TransactionalRequest[] decorator takes care of a lifecycle of an `EntityManager` per HTTP request.
+The decorator creates, bind, begin/commit/rollback transaction and finally close it, so route handler
+doesn't have to deal with that boring lines of code.
+
+.TransactionalRequest
+[source, java, role = "primary"]
+----
+import io.jooby.hikari.Hikari;
+import io.jooby.hibernate.Hbm;
+import io.jooby.hibernate.TransactionalRequest;
+
+{
+  install(new Hikari());
+  
+  install(new Hbm());
+  
+  decorator(new TransactionalRequest());
+  
+  post("/create", ctx -> {
+    EntityManager em = require(EntityManager.class);
+    
+    MyEntity e = ...;
+    
+    em.persist(e);
+
+    return e;
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.Hikari
+import io.jooby.hibernate.Hbm
+import io.jooby.hibernate.TransactionalRequest
+
+{
+  install(Hikari())
+  
+  install(Hbm())
+  
+  decorator(TransactionalRequest())
+  
+  post("/create") { ctx ->
+    val em = require(EntityManager::class)
+    
+    val e = ...
+    
+    em.persist(e)
+
+    e
+  }
+}
+----
+
+The `EntityManager` is tied to the current HTTP request. Multiple `require`/`injection` calls produce
+the same `EntityManager`. It is a simple way of managed simple read/write operations.
+
+[NOTE]
+====
+The javadoc:TransactionalRequest[] doesn't extend session to the rendering phase (json, html, etc.).
+The route handler needs to make sure all the information required by the rendering phase is available.
+Otherwise, you are going to see `LazyInitializationException`.
+====
+
+=== Schema Creation
+
+Schema creation is controlled by the `hibernate.hbm2ddl.auto` property. The Hbm module configure this property using the following rules:
+
+- When the javadoc:flyway.Flywayby[] module is present the value of `hibernate.hbm2ddl.auto` is set to `none`
+- When running on `dev` or `test` mode the value of `hibernate.hbm2ddl.auto` is set to `update`
+- Otherwise is set to `none`
+
+=== Advanced Options
+
+Advanced Hibernate configuration is supported from application configuration properties.
+
+.application.conf
+[source, properties]
+----
+hibernate.hbm2ddl.auto = create
+----

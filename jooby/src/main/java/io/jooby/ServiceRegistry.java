@@ -7,6 +7,8 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Provider;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -16,12 +18,15 @@ import java.util.Set;
  * @since 2.0.0
  */
 public interface ServiceRegistry extends Registry {
+
   /**
    * Registered service keys.
    *
    * @return Service keys.
    */
   @Nonnull Set<ServiceKey<?>> keySet();
+
+  @Nonnull Set<Map.Entry<ServiceKey<?>, Provider<?>>> entrySet();
 
   /**
    * Retrieve a service/resource by key.
@@ -72,6 +77,18 @@ public interface ServiceRegistry extends Registry {
   }
 
   /**
+   * Put a service in this registry. This method overrides any previous registered service.
+   *
+   * @param type Service/resource key.
+   * @param service Service instance.
+   * @param <T> Service type.
+   * @return Previously registered service or <code>null</code>.
+   */
+  default @Nullable <T> T put(@Nonnull Class<T> type, Provider<T> service) {
+    return put(ServiceKey.key(type), service);
+  }
+
+  /**
    * Put a service in this registry.  This method overrides any previous registered service.
    *
    * @param key Service/resource key.
@@ -79,7 +96,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  @Nullable <T> T put(@Nonnull ServiceKey<T> key, T service);
+  @Nullable <T> T put(@Nonnull ServiceKey<T> key, Provider<T> service);
 
   /**
    * Put a service in this registry. This method overrides any previous registered service.
@@ -92,6 +109,16 @@ public interface ServiceRegistry extends Registry {
   default @Nullable <T> T put(@Nonnull Class<T> type, T service) {
     return put(ServiceKey.key(type), service);
   }
+
+  /**
+   * Put a service in this registry.  This method overrides any previous registered service.
+   *
+   * @param key Service/resource key.
+   * @param service Service instance.
+   * @param <T> Service type.
+   * @return Previously registered service or <code>null</code>.
+   */
+  @Nullable <T> T put(@Nonnull ServiceKey<T> key, T service);
 
   /**
    * Put/register a service in this registry if there isn't the same service already registered.
@@ -117,11 +144,39 @@ public interface ServiceRegistry extends Registry {
     return putIfAbsent(ServiceKey.key(type), service);
   }
 
+  /**
+   * Put/register a service in this registry if there isn't the same service already registered.
+   *
+   *
+   * @param key Service/resource key.
+   * @param service Service instance.
+   * @param <T> Service type.
+   * @return Previously registered service or <code>null</code>.
+   */
+  @Nullable <T> T putIfAbsent(@Nonnull ServiceKey<T> key, Provider<T> service);
+
+  /**
+   * Put/register a service in this registry if there isn't the same service already registered.
+   *
+   *
+   * @param type Service/resource key.
+   * @param service Service instance.
+   * @param <T> Service type.
+   * @return Previously registered service or <code>null</code>.
+   */
+  default @Nullable <T> T putIfAbsent(@Nonnull Class<T> type, Provider<T> service) {
+    return putIfAbsent(ServiceKey.key(type), service);
+  }
+
   default @Nonnull @Override <T> T require(@Nonnull Class<T> type) {
     return get(ServiceKey.key(type));
   }
 
   default @Nonnull @Override <T> T require(@Nonnull Class<T> type, @Nonnull String name) {
     return get(ServiceKey.key(type, name));
+  }
+
+  default @Nonnull @Override <T> T require(@Nonnull ServiceKey<T> key) throws RegistryException {
+    return get(key);
   }
 }

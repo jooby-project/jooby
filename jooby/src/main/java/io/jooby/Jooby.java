@@ -450,7 +450,7 @@ public class Jooby implements Router, Registry {
     return require(ServiceKey.key(type));
   }
 
-  private @Nonnull <T> T require(@Nonnull ServiceKey<T> key) {
+  public  @Nonnull <T> T require(@Nonnull ServiceKey<T> key) {
     ServiceRegistry services = getServices();
     T service = services.getOrNull(key);
     if (service == null) {

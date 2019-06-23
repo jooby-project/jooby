@@ -7,6 +7,8 @@ package io.jooby.di;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
+import com.google.inject.binder.AnnotatedBindingBuilder;
+import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.google.inject.util.Types;
@@ -18,9 +20,11 @@ import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 
 import javax.annotation.Nonnull;
+import javax.inject.Provider;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class JoobyModule extends AbstractModule {
@@ -37,13 +41,16 @@ public class JoobyModule extends AbstractModule {
 
   private void configureResources(ServiceRegistry registry) {
     // bind the available resources as well, supporting the name annotations that may be set
-    for (ServiceKey key: registry.keySet()) {
-      Object instance = registry.get(key);
+    for (Map.Entry<ServiceKey<?>, Provider<?>> entry : registry.entrySet()) {
+      ServiceKey<?> key = entry.getKey();
+      Provider provider = entry.getValue();
+      LinkedBindingBuilder<?> binding;
       if (key.getName() != null) {
-        bind(key.getType()).annotatedWith(Names.named(key.getName())).toInstance(instance);
+        binding = bind(key.getType()).annotatedWith(Names.named(key.getName()));
       } else {
-        bind(key.getType()).toInstance(instance);
+        binding = bind(key.getType());
       }
+      binding.toProvider(provider);
     }
   }
 
