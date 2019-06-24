@@ -22,10 +22,10 @@ https://github.com/jknack/handlebars.java[Handlebars templates] for Jooby.
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.handlebars.Hbs;
+import io.jooby.handlebars.HandlebarsModule;
 
 {
-  install(new Hbs());
+  install(new HandlebarsModule());
 
   get("/", ctx -> {
     return new ModelAndView("index.hbs")
@@ -37,10 +37,10 @@ import io.jooby.handlebars.Hbs;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.handlebars.Hbs
+import io.jooby.handlebars.HandlebarsModule
 
 {
-  install(Hbs())
+  install(HandlebarsModule())
   
   get("/") {
     ModelAndView("index.hbs")
@@ -69,27 +69,27 @@ Custom Handlebars object can be provided it programmatically:
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.handlebars.Hbs;
+import io.jooby.handlebars.HandlebarsModule;
 
 {
   Handlebars handlebars = new Handlebars();
   
   // Apply custom configuration
 
-  install(new Hbs(handlebars));
+  install(new HandlebarsModule(handlebars));
 }
 ----
 
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.handlebars.Hbs
+import io.jooby.handlebars.HandlebarsModule
 
 {
   val handlebars = Handlebars()
  
   // Apply custom configuration
 
-  install(Hbs(handlebars))
+  install(HandlebarsModule(handlebars))
 }
 ----

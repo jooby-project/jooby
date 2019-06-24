@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class HbsTest {
+public class HandlebarsModuleTest {
   public static class User {
     private String firstname;
 
@@ -33,7 +33,7 @@ public class HbsTest {
 
   @Test
   public void render() throws Exception {
-    Handlebars handlebars = Hbs.create()
+    Handlebars handlebars = HandlebarsModule.create()
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
     HbsTemplateEngine engine = new HbsTemplateEngine(handlebars);
     MockContext ctx = new MockContext();
@@ -47,7 +47,7 @@ public class HbsTest {
 
   @Test
   public void renderFileSystem() throws Exception {
-    Handlebars handlebars = Hbs.create()
+    Handlebars handlebars = HandlebarsModule.create()
         .setTemplatesPath(Paths.get("src", "test", "resources", "views").toString())
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
     HbsTemplateEngine engine = new HbsTemplateEngine(handlebars);

@@ -36,7 +36,7 @@ import java.nio.file.Paths;
 import static io.jooby.TemplateEngine.TEMPLATE_PATH;
 import static io.jooby.TemplateEngine.normalizePath;
 
-public class Hbs implements Extension {
+public class HandlebarsModule implements Extension {
 
   public static class Builder {
 
@@ -158,15 +158,15 @@ public class Hbs implements Extension {
 
   private String templatesPath;
 
-  public Hbs(@Nonnull Handlebars handlebars) {
+  public HandlebarsModule(@Nonnull Handlebars handlebars) {
     this.handlebars = handlebars;
   }
 
-  public Hbs(@Nonnull String templatesPath) {
+  public HandlebarsModule(@Nonnull String templatesPath) {
     this.templatesPath = templatesPath;
   }
 
-  public Hbs() {
+  public HandlebarsModule() {
     this(TemplateEngine.PATH);
   }
 
@@ -180,7 +180,7 @@ public class Hbs implements Extension {
     services.put(Handlebars.class, handlebars);
   }
 
-  public static Hbs.Builder create() {
-    return new Hbs.Builder();
+  public static HandlebarsModule.Builder create() {
+    return new HandlebarsModule.Builder();
   }
 }
