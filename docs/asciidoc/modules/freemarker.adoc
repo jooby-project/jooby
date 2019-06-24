@@ -22,10 +22,10 @@ http://freemarker.org[Freemarker templates] for Jooby.
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.freemarker.Freemarker;
+import io.jooby.freemarker.FreemarkerModule;
 
 {
-  install(new Freemarker());
+  install(new FreemarkerModule());
 
   get("/", ctx -> {
     return new ModelAndView("index.ftl")
@@ -37,10 +37,10 @@ import io.jooby.freemarker.Freemarker;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.freemarker.Freemarker
+import io.jooby.freemarker.FreemarkerModule
 
 {
-  install(Freemarker())
+  install(FreemarkerModule())
   
   get("/") {
     ModelAndView("index.ftl")
@@ -80,23 +80,23 @@ Custom Configuration object can be provided it programmatically:
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.freemarker.Freemarker;
+import io.jooby.freemarker.FreemarkerModule;
 
 {
   Configuration freemarker = new Configuration();
 
-  install(new Freemarker(freemarker));
+  install(new FreemarkerModule(freemarker));
 }
 ----
 
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.freemarker.Freemarker
+import io.jooby.freemarker.FreemarkerModule
 
 {
   val freemarker = Configuration()
  
-  install(Freemarker(freemarker))
+  install(FreemarkerModule(freemarker))
 }
 ----

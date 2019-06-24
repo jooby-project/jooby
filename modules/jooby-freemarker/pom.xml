@@ -25,7 +25,7 @@
       <version>${jooby.version}</version>
     </dependency>
 
-    <!-- Freemarker -->
+    <!-- FreemarkerModule -->
     <dependency>
       <groupId>org.freemarker</groupId>
       <artifactId>freemarker</artifactId>

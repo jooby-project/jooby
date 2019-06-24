@@ -31,7 +31,7 @@ import java.util.Properties;
 import static io.jooby.TemplateEngine.TEMPLATE_PATH;
 import static io.jooby.TemplateEngine.normalizePath;
 
-public class Freemarker implements Extension {
+public class FreemarkerModule implements Extension {
 
   public static class Builder {
 
@@ -124,15 +124,15 @@ public class Freemarker implements Extension {
 
   private String templatesPath;
 
-  public Freemarker(@Nonnull Configuration freemarker) {
+  public FreemarkerModule(@Nonnull Configuration freemarker) {
     this.freemarker = freemarker;
   }
 
-  public Freemarker(@Nonnull String templatesPath) {
+  public FreemarkerModule(@Nonnull String templatesPath) {
     this.templatesPath = templatesPath;
   }
 
-  public Freemarker() {
+  public FreemarkerModule() {
     this(TemplateEngine.PATH);
   }
 
@@ -146,7 +146,7 @@ public class Freemarker implements Extension {
     services.put(Configuration.class, freemarker);
   }
 
-  public static Freemarker.Builder create() {
-    return new Freemarker.Builder();
+  public static FreemarkerModule.Builder create() {
+    return new FreemarkerModule.Builder();
   }
 }

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FreemarkerTest {
+public class FreemarkerModuleTest {
 
   public static class MyModel {
     public String firstname;
@@ -44,7 +44,7 @@ public class FreemarkerTest {
 
   @Test
   public void render() throws Exception {
-    Configuration freemarker = Freemarker.create()
+    Configuration freemarker = FreemarkerModule.create()
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "test"));
     FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker);
     MockContext ctx = new MockContext();
@@ -58,7 +58,7 @@ public class FreemarkerTest {
 
   @Test
   public void publicField() throws Exception {
-    Configuration freemarker = Freemarker.create()
+    Configuration freemarker = FreemarkerModule.create()
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "test"));
     FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker);
     MockContext ctx = new MockContext();
@@ -72,7 +72,7 @@ public class FreemarkerTest {
 
   @Test
   public void customTemplatePath() throws Exception {
-    Configuration freemarker = Freemarker.create()
+    Configuration freemarker = FreemarkerModule.create()
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty().withValue("templates.path",
             ConfigValueFactory.fromAnyRef("foo"))));
     FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker);
