@@ -31,11 +31,11 @@ db.password = mypass
 [source, java, role="primary"]
 ----
 import io.jooby.hikari.Hikari;
-
+import io.jooby.hibernate.HibernateModule;
 {
   install(new Hikari());                              <1>
 
-  install(new Hibernate());                           <2>
+  install(new HibernateModule());                     <2>
   
   get("/", ctx -> {
     EntityManager em = require(EntityManager.class);  <3>
@@ -62,11 +62,12 @@ import io.jooby.hikari.Hikari;
 [source, kt, role="secondary"]
 ----
 import io.jooby.hikari.Hikari
+import io.jooby.hibernate.HibernateModule
 
 {
   install(Hikari())                                   <1>
   
-  install(new Hibernate())                            <2>
+  install(new HibernateModule())                            <2>
   
   get("/") {
     val em = require(EntityManager::class)            <3>
@@ -101,19 +102,19 @@ import io.jooby.hikari.Hikari
 
 === Entity Discovering
 
-By default the javadoc:hibernate.Hbm[] module detects all the persistent entities under javadoc:Jooby[getBasePackage, text = "base/root package"]. The module provides two
+By default the javadoc:hibernate.HibernateModule[] module detects all the persistent entities under javadoc:Jooby[getBasePackage, text = "base/root package"]. The module provides two
 options for more explicit control:
 
 - List persistent classes at creation time:
 
 ----
-  install(new Hbm(MyEntity1.class, MyEntity2.class));
+  install(new HibernateModule(MyEntity1.class, MyEntity2.class));
 ----
 
 - Explicit package scanning
 
 ----
-  install(new Hbm().scan("mypackage"));
+  install(new HibernateModule().scan("mypackage"));
 ----
 
 === Transactional Request
@@ -126,13 +127,13 @@ doesn't have to deal with that boring lines of code.
 [source, java, role = "primary"]
 ----
 import io.jooby.hikari.Hikari;
-import io.jooby.hibernate.Hbm;
+import io.jooby.hibernate.HibernateModule;
 import io.jooby.hibernate.TransactionalRequest;
 
 {
   install(new Hikari());
   
-  install(new Hbm());
+  install(new HibernateModule());
   
   decorator(new TransactionalRequest());
   
@@ -152,13 +153,13 @@ import io.jooby.hibernate.TransactionalRequest;
 [source, kt, role="secondary"]
 ----
 import io.jooby.hikari.Hikari
-import io.jooby.hibernate.Hbm
+import io.jooby.hibernate.HibernateModule
 import io.jooby.hibernate.TransactionalRequest
 
 {
   install(Hikari())
   
-  install(Hbm())
+  install(HibernateModule())
   
   decorator(TransactionalRequest())
   
@@ -186,7 +187,7 @@ Otherwise, you are going to see `LazyInitializationException`.
 
 === Schema Creation
 
-Schema creation is controlled by the `hibernate.hbm2ddl.auto` property. The Hbm module configure this property using the following rules:
+Schema creation is controlled by the `hibernate.hbm2ddl.auto` property. The Hibernate module configure this property using the following rules:
 
 - When the javadoc:flyway.Flywayby[] module is present the value of `hibernate.hbm2ddl.auto` is set to `none`
 - When running on `dev` or `test` mode the value of `hibernate.hbm2ddl.auto` is set to `update`

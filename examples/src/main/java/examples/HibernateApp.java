@@ -7,7 +7,7 @@ package examples;
 
 import examples.jpa.Person;
 import io.jooby.Jooby;
-import io.jooby.hibernate.Hbm;
+import io.jooby.hibernate.HibernateModule;
 import io.jooby.hibernate.TransactionalRequest;
 import io.jooby.hikari.Hikari;
 import io.jooby.json.Jackson;
@@ -18,7 +18,7 @@ import java.util.List;
 public class HibernateApp extends Jooby {
   {
     install(new Hikari("mem"));
-    install(new Hbm());
+    install(new HibernateModule());
     install(new Jackson());
 
     decorator(new TransactionalRequest());

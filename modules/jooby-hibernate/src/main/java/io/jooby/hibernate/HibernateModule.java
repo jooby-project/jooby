@@ -41,22 +41,22 @@ import java.util.stream.Stream;
 
 import static org.hibernate.cfg.AvailableSettings.*;
 
-public class Hbm implements Extension {
+public class HibernateModule implements Extension {
 
   private final String name;
   private List<String> packages = Collections.emptyList();
   private List<Class> classes;
 
-  public Hbm(@Nonnull String name, @Nonnull Class... classes) {
+  public HibernateModule(@Nonnull String name, @Nonnull Class... classes) {
     this.name = name;
     this.classes = Arrays.asList(classes);
   }
 
-  public Hbm(Class... classes) {
+  public HibernateModule(Class... classes) {
     this("db", classes);
   }
 
-  public Hbm scan(String... packages) {
+  public HibernateModule scan(String... packages) {
     this.packages = Arrays.asList(packages);
     return this;
   }
