@@ -6,7 +6,6 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.delay
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.nio.file.Paths
 
 class FeaturedKotlinTest {
 

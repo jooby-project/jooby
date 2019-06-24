@@ -28,6 +28,7 @@
     <log4jdbc.version>1.2</log4jdbc.version>
     <h2.version>1.4.197</h2.version>
     <hibernate.version>5.4.3.Final</hibernate.version>
+    <jdbi.version>3.3.0</jdbi.version>
 
     <config.version>1.3.4</config.version>
 
@@ -230,6 +231,12 @@
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby-hibernate</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-jdbi</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -454,6 +461,12 @@
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
         <version>${mysql-connector-java.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-core</artifactId>
+        <version>${jdbi.version}</version>
       </dependency>
 
       <!-- h2 -->

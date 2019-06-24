@@ -15,23 +15,28 @@
   <modules>
     <module>jooby-bom</module>
     <module>jooby-test</module>
+
     <module>jooby-jetty</module>
     <module>jooby-netty</module>
     <module>jooby-utow</module>
+
+    <!-- data -->
     <module>jooby-hikari</module>
+    <module>jooby-jdbi</module>
+    <module>jooby-hibernate</module>
+
     <module>jooby-jackson</module>
     <module>jooby-freemarker</module>
     <module>jooby-handlebars</module>
     <module>jooby-rocker</module>
+
     <module>jooby-guice</module>
     <module>jooby-spring</module>
     <module>jooby-weld</module>
+
     <module>jooby-run</module>
     <module>jooby-maven-plugin</module>
     <module>jooby-gradle-plugin</module>
-
-    <!-- data -->
-    <module>jooby-hibernate</module>
   </modules>
 
 </project>

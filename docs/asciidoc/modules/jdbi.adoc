@@ -1,0 +1,226 @@
+== Jdbi
+
+https://github.com/jdbi/jdbi[Jdbi] module.
+
+=== Usage
+
+1) Add the dependencies (hikari + jdbi):
+
+[dependency, artifactId="jooby-hikari:DataSource via HikariCP, jooby-hibernate:Jdbi Module"]
+.
+
+2) Add database driver (mySQL here):
+
+[dependency, artifactId="mysql-connector-java"]
+.
+
+3) Set database properties
+
+.application.conf
+[source, properties]
+----
+db.url = "jdbc:mysql://localhost/mydb"
+db.user = myuser
+db.password = mypass
+----
+
+
+4) Install and use Jdbi
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.hikari.Hikari;
+import io.jooby.jdbi.JdbiModule;
+
+{
+  install(new Hikari());                           <1>
+
+  install(new JdbiModule());                       <2>
+  
+  get("/", ctx -> {
+    try (Handle handle = require(Handle.class)) {  <3>
+      return handle.inTransaction(h -> {           <4>
+        // Work inside transaction                 <5>
+        return result;
+      });
+    }
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.Hikari
+import io.jooby.jdbi.JdbiModule
+
+{
+  install(Hikari())                                <1>
+  
+  install(JdbiModule())                            <2>
+    
+  get("/jdbi") {ctx ->
+    ctx.require(Handle::class).use { handle ->     <3>
+      handle.inTransaction<Any, Exception> {       <4>
+        // Work inside transaction                 <5>
+        result
+      }
+    }
+  }
+}
+----
+
+<1> Install and creates a `DataSource`
+<2> Install and initializes Jdbi
+<3> Get a new `Handle`
+<4> Creates a new transaction
+<5> Work with EntityManager (read, write to dababase)
+
+Handle must be explicitly closed, we did that with `try-with-resources` statement in Java and `use` in Kotlin.
+
+=== Transactional Request
+
+The javadoc:jdbi.TransactionalRequest[] decorator takes care of a lifecycle of a `Handle` per HTTP request.
+The decorator creates, bind, begin/commit/rollback transaction and finally close it, so route handler
+doesn't have to deal with that boring lines of code.
+
+.TransactionalRequest
+[source, java, role = "primary"]
+----
+import io.jooby.hikari.Hikari;
+import io.jooby.jdbi.JdbiModule;
+import io.jooby.jdbi.TransactionalRequest;
+
+{
+  install(new Hikari());
+  
+  install(new JdbiModule());
+  
+  decorator(new TransactionalRequest());
+  
+  post("/create", ctx -> {
+    Handle handle = require(Handle.class);
+    
+    handle.createUpdate("update something ...");
+
+    return result;
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.Hikari
+import io.jooby.jdbi.JdbiModule
+import io.jooby.jdbi.TransactionalRequest
+
+{
+  install(Hikari())
+  
+  install(JdbiModule())
+  
+  decorator(TransactionalRequest())
+  
+  post("/create") { ctx ->
+    val handle = require(Handle::class)
+    
+    handle.createUpdate("update something ...")
+    
+    result
+  }
+}
+----
+
+The `Handle` is tied to the current HTTP request. Multiple `require`/`injection` calls produce
+the same `Handle`. It is a simple way of managed simple read/write operations.
+
+The decorator takes care of closing the `Handle` and releasing the JDBC connection. 
+
+=== SQL Objects
+
+Provisioning of custom SQL objects is available javadoc:jdbi.JdbiMdule[sqlObjects, java.lang.Class] method.
+
+.SQLObjects
+[source, java, role = "primary"]
+----
+import io.jooby.hikari.Hikari;
+import io.jooby.jdbi.JdbiModule;
+import io.jooby.jdbi.TransactionalRequest;
+
+{
+  install(new Hikari());
+  
+  install(new JdbiModule().sqlObjects(UserDao.class));
+
+  post("/create", ctx -> {
+    UserDao dao = require(UserDao.class);
+    
+    User user = ...;
+    dao.create(user);
+
+    return user;
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.Hikari
+import io.jooby.jdbi.JdbiModule
+import io.jooby.jdbi.TransactionalRequest
+
+{
+  install(Hikari())
+  
+  install(JdbiModule().sqlObjects(UserDao.class))
+
+  post("/create") { ctx ->
+    val dao = require(UserDao::class)
+    
+    val user = User()
+    dao.create(user)
+    
+    user
+  }
+}
+----
+
+=== Advanced Options
+
+Advanced Jdbi configuration is supported via a custom Jdbi instance.
+
+.Custom Jdbi
+[source, java, role = "primary"]
+----
+import io.jooby.hikari.Hikari;
+import io.jooby.jdbi.JdbiModule;
+import io.jooby.jdbi.TransactionalRequest;
+
+{
+  install(new Hikari());
+  
+  install(new JdbiModule(dataSource -> {
+    Jdbi jdbi = Jdbi.create(dataSource);
+    return jdbi;
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.Hikari
+import io.jooby.jdbi.JdbiModule
+import io.jooby.jdbi.TransactionalRequest
+
+{
+  install(Hikari())
+  
+  install(JdbiModule { dataSource ->
+    Jdbi.create(dataSource)
+  })
+}
+----
