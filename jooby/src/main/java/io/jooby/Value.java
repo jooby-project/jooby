@@ -293,7 +293,7 @@ public interface Value extends Iterable<Value> {
    * @param <T> Target type.
    * @return Converted value.
    */
-  @Nonnull default <T> T value(@Nonnull Sneaky.Function<String, T> fn) {
+  @Nonnull default <T> T value(@Nonnull SneakyThrows.Function<String, T> fn) {
     return fn.apply(value());
   }
 
@@ -351,7 +351,7 @@ public interface Value extends Iterable<Value> {
    * @param <T> Enum type.
    * @return Enum.
    */
-  @Nonnull default <T extends Enum<T>> T toEnum(@Nonnull Sneaky.Function<String, T> fn) {
+  @Nonnull default <T extends Enum<T>> T toEnum(@Nonnull SneakyThrows.Function<String, T> fn) {
     return toEnum(fn, String::toUpperCase);
   }
 
@@ -363,7 +363,7 @@ public interface Value extends Iterable<Value> {
    * @param <T> Enum type.
    * @return Enum.
    */
-  @Nonnull default <T extends Enum<T>> T toEnum(@Nonnull Sneaky.Function<String, T> fn,
+  @Nonnull default <T extends Enum<T>> T toEnum(@Nonnull SneakyThrows.Function<String, T> fn,
       @Nonnull Function<String, String> nameProvider) {
     return fn.apply(nameProvider.apply(value()));
   }

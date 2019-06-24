@@ -792,7 +792,7 @@ public interface Context extends Registry {
     try {
       return parser(contentType).parse(this, type.getType());
     } catch (Exception x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -819,7 +819,7 @@ public interface Context extends Registry {
     try {
       return parser(contentType).parse(this, type);
     } catch (Exception x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -1069,7 +1069,7 @@ public interface Context extends Registry {
       send(bytes);
       return this;
     } catch (Exception x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -1100,7 +1100,7 @@ public interface Context extends Registry {
    * @throws Exception Is something goes wrong.
    */
   default @Nonnull Context responseStream(@Nonnull MediaType contentType,
-      @Nonnull Sneaky.Consumer<OutputStream> consumer) throws Exception {
+      @Nonnull SneakyThrows.Consumer<OutputStream> consumer) throws Exception {
     setResponseType(contentType);
     return responseStream(consumer);
   }
@@ -1112,7 +1112,7 @@ public interface Context extends Registry {
    * @return HTTP channel as output stream. Usually for chunked responses.
    * @throws Exception Is something goes wrong.
    */
-  default @Nonnull Context responseStream(@Nonnull Sneaky.Consumer<OutputStream> consumer)
+  default @Nonnull Context responseStream(@Nonnull SneakyThrows.Consumer<OutputStream> consumer)
       throws Exception {
     try (OutputStream out = responseStream()) {
       consumer.accept(out);
@@ -1162,7 +1162,7 @@ public interface Context extends Registry {
    * @return This context.
    * @throws Exception Is something goes wrong.
    */
-  default @Nonnull Context responseWriter(@Nonnull Sneaky.Consumer<PrintWriter> consumer)
+  default @Nonnull Context responseWriter(@Nonnull SneakyThrows.Consumer<PrintWriter> consumer)
       throws Exception {
     return responseWriter(MediaType.text, consumer);
   }
@@ -1176,7 +1176,7 @@ public interface Context extends Registry {
    * @throws Exception Is something goes wrong.
    */
   default @Nonnull Context responseWriter(@Nonnull MediaType contentType,
-      @Nonnull Sneaky.Consumer<PrintWriter> consumer) throws Exception {
+      @Nonnull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
     return responseWriter(contentType, contentType.getCharset(), consumer);
   }
 
@@ -1190,7 +1190,7 @@ public interface Context extends Registry {
    * @throws Exception Is something goes wrong.
    */
   default @Nonnull Context responseWriter(@Nonnull MediaType contentType, @Nullable Charset charset,
-      @Nonnull Sneaky.Consumer<PrintWriter> consumer) throws Exception {
+      @Nonnull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
     try (PrintWriter writer = responseWriter(contentType, charset)) {
       consumer.accept(writer);
     }
@@ -1313,7 +1313,7 @@ public interface Context extends Registry {
       setDefaultResponseType(MediaType.byFile(file));
       return send(FileChannel.open(file));
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -1360,8 +1360,8 @@ public interface Context extends Registry {
           .error("error handler resulted in exception {} {}", getMethod(), pathString(), x);
     }
     /** rethrow fatal exceptions: */
-    if (Sneaky.isFatal(cause)) {
-      throw Sneaky.propagate(cause);
+    if (SneakyThrows.isFatal(cause)) {
+      throw SneakyThrows.propagate(cause);
     }
     return this;
   }

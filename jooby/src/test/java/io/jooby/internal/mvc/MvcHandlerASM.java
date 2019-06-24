@@ -73,7 +73,7 @@ public class MvcHandlerASM {
 
   @Test
   public void compare() throws IOException, NoSuchMethodException, ClassNotFoundException {
-    // Lio/jooby/Sneaky$Supplier<Lio/jooby/mvc/NoTopLevelPath;>;
+    // Lio/jooby/SneakyThrows$Supplier<Lio/jooby/mvc/NoTopLevelPath;>;
     //    ASMifier.main(new String[] {"-debug",MvcHandler.class.getName()});
 //public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
     //      @PathParam long j, @PathParam double f, @PathParam boolean b) {

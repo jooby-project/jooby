@@ -376,7 +376,7 @@ public class Cookie {
       byte[] bytes = mac.doFinal(value.getBytes());
       return Base64.getEncoder().withoutPadding().encodeToString(bytes) + "|" + value;
     } catch (Exception x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -422,7 +422,7 @@ public class Cookie {
       }
       return joiner.toString();
     } catch (UnsupportedEncodingException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -460,7 +460,7 @@ public class Cookie {
 
       return attributes.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(attributes);
     } catch (UnsupportedEncodingException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 

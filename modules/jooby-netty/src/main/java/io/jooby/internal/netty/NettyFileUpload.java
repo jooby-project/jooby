@@ -6,7 +6,7 @@
 package io.jooby.internal.netty;
 
 import io.jooby.FileUpload;
-import io.jooby.Sneaky;
+import io.jooby.SneakyThrows;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 
@@ -40,7 +40,7 @@ public class NettyFileUpload implements FileUpload {
       }
       return Files.readAllBytes(path());
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -51,7 +51,7 @@ public class NettyFileUpload implements FileUpload {
       }
       return Files.newInputStream(path());
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -81,7 +81,7 @@ public class NettyFileUpload implements FileUpload {
       }
       return path;
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -95,7 +95,7 @@ public class NettyFileUpload implements FileUpload {
       }
 
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 

@@ -6,7 +6,7 @@
 package io.jooby.internal.jetty;
 
 import io.jooby.FileUpload;
-import io.jooby.Sneaky;
+import io.jooby.SneakyThrows;
 import org.eclipse.jetty.http.MultiPartFormInputStream;
 
 import java.io.IOException;
@@ -39,7 +39,7 @@ public class JettyFileUpload implements FileUpload {
       }
       return bytes;
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -47,7 +47,7 @@ public class JettyFileUpload implements FileUpload {
     try {
       return upload.getInputStream();
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -62,7 +62,7 @@ public class JettyFileUpload implements FileUpload {
       }
       return upload.getFile().toPath();
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -75,7 +75,7 @@ public class JettyFileUpload implements FileUpload {
       upload.cleanUp();
       upload.delete();
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 

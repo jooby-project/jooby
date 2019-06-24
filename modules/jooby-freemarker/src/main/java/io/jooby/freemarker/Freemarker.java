@@ -19,7 +19,7 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.ServiceRegistry;
-import io.jooby.Sneaky;
+import io.jooby.SneakyThrows;
 import io.jooby.TemplateEngine;
 
 import javax.annotation.Nonnull;
@@ -103,7 +103,7 @@ public class Freemarker implements Extension {
         this.settings = null;
         return freemarker;
       } catch (TemplateException x) {
-        throw Sneaky.propagate(x);
+        throw SneakyThrows.propagate(x);
       }
     }
 
@@ -115,7 +115,7 @@ public class Freemarker implements Extension {
         }
         return new ClassTemplateLoader(env.getClassLoader(), "/" + templatesPath);
       } catch (Exception x) {
-        throw Sneaky.propagate(x);
+        throw SneakyThrows.propagate(x);
       }
     }
   }

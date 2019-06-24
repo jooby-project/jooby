@@ -33,12 +33,12 @@ package io.jooby;
  *
  * @author edgar
  */
-public final class Sneaky {
+public final class SneakyThrows {
 
   /**
    * Not allowed.
    */
-  private Sneaky() {
+  private SneakyThrows() {
   }
 
   /**
@@ -919,12 +919,12 @@ public final class Sneaky {
   /**
    * Factory method for throwing function.
    *
-   * @param fn Sneaky function.
+   * @param fn SneakyThrows function.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
    * @param <R> Return type.
-   * @return Sneaky function.
+   * @return SneakyThrows function.
    */
   public static <V1, V2, V3, R> Function3<V1, V2, V3, R> throwingFunction(
       Function3<V1, V2, V3, R> fn) {
@@ -934,13 +934,13 @@ public final class Sneaky {
   /**
    * Factory method for throwing function.
    *
-   * @param fn Sneaky function.
+   * @param fn SneakyThrows function.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
    * @param <V4> Type 4.
    * @param <R> Return type.
-   * @return Sneaky function.
+   * @return SneakyThrows function.
    */
   public static <V1, V2, V3, V4, R> Function4<V1, V2, V3, V4, R> throwingFunction(
       Function4<V1, V2, V3, V4, R> fn) {
@@ -950,14 +950,14 @@ public final class Sneaky {
   /**
    * Factory method for throwing function.
    *
-   * @param fn Sneaky function.
+   * @param fn SneakyThrows function.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
    * @param <V4> Type 4.
    * @param <V5> Type 5.
    * @param <R> Return type.
-   * @return Sneaky function.
+   * @return SneakyThrows function.
    */
   public static <V1, V2, V3, V4, V5, R> Function5<V1, V2, V3, V4, V5, R> throwingFunction(
       Function5<V1, V2, V3, V4, V5, R> fn) {
@@ -967,7 +967,7 @@ public final class Sneaky {
   /**
    * Factory method for throwing function.
    *
-   * @param fn Sneaky function.
+   * @param fn SneakyThrows function.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
@@ -975,7 +975,7 @@ public final class Sneaky {
    * @param <V5> Type 5.
    * @param <V6> Type 6.
    * @param <R> Return type.
-   * @return Sneaky function.
+   * @return SneakyThrows function.
    */
   public static <V1, V2, V3, V4, V5, V6, R> Function6<V1, V2, V3, V4, V5, V6, R> throwingFunction(
       Function6<V1, V2, V3, V4, V5, V6, R> fn) {
@@ -985,7 +985,7 @@ public final class Sneaky {
   /**
    * Factory method for throwing function.
    *
-   * @param fn Sneaky function.
+   * @param fn SneakyThrows function.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
@@ -994,7 +994,7 @@ public final class Sneaky {
    * @param <V6> Type 6.
    * @param <V7> Type 7.
    * @param <R> Return type.
-   * @return Sneaky function.
+   * @return SneakyThrows function.
    */
   public static <V1, V2, V3, V4, V5, V6, V7, R> Function7<V1, V2, V3, V4, V5, V6, V7, R> throwingFunction(
       Function7<V1, V2, V3, V4, V5, V6, V7, R> fn) {
@@ -1004,7 +1004,7 @@ public final class Sneaky {
   /**
    * Factory method for throwing function.
    *
-   * @param fn Sneaky function.
+   * @param fn SneakyThrows function.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
@@ -1014,7 +1014,7 @@ public final class Sneaky {
    * @param <V7> Type 7.
    * @param <V8> Type 8.
    * @param <R> Return type.
-   * @return Sneaky function.
+   * @return SneakyThrows function.
    */
   public static <V1, V2, V3, V4, V5, V6, V7, V8, R> Function8<V1, V2, V3, V4, V5, V6, V7, V8, R> throwingFunction(
       Function8<V1, V2, V3, V4, V5, V6, V7, V8, R> fn) {
@@ -1024,9 +1024,9 @@ public final class Sneaky {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Sneaky consumer.
+   * @param action SneakyThrows consumer.
    * @param <V> Type 1.
-   * @return Sneaky consumer.
+   * @return SneakyThrows consumer.
    */
   public static <V> Consumer<V> throwingConsumer(Consumer<V> action) {
     return action;
@@ -1035,10 +1035,10 @@ public final class Sneaky {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Sneaky consumer.
+   * @param action SneakyThrows consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
-   * @return Sneaky consumer.
+   * @return SneakyThrows consumer.
    */
   public static <V1, V2> Consumer2<V1, V2> throwingConsumer(Consumer2<V1, V2> action) {
     return action;
@@ -1047,11 +1047,11 @@ public final class Sneaky {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Sneaky consumer.
+   * @param action SneakyThrows consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
-   * @return Sneaky consumer.
+   * @return SneakyThrows consumer.
    */
   public static <V1, V2, V3> Consumer3<V1, V2, V3> throwingConsumer(
       Consumer3<V1, V2, V3> action) {
@@ -1061,12 +1061,12 @@ public final class Sneaky {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Sneaky consumer.
+   * @param action SneakyThrows consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
    * @param <V4> Type 4.
-   * @return Sneaky consumer.
+   * @return SneakyThrows consumer.
    */
   public static <V1, V2, V3, V4> Consumer4<V1, V2, V3, V4> throwingConsumer(
       Consumer4<V1, V2, V3, V4> action) {
@@ -1076,13 +1076,13 @@ public final class Sneaky {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Sneaky consumer.
+   * @param action SneakyThrows consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
    * @param <V4> Type 4.
    * @param <V5> Type 5.
-   * @return Sneaky consumer.
+   * @return SneakyThrows consumer.
    */
   public static <V1, V2, V3, V4, V5> Consumer5<V1, V2, V3, V4, V5> throwingConsumer(
       Consumer5<V1, V2, V3, V4, V5> action) {
@@ -1092,14 +1092,14 @@ public final class Sneaky {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Sneaky consumer.
+   * @param action SneakyThrows consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
    * @param <V4> Type 4.
    * @param <V5> Type 5.
    * @param <V6> Type 6.
-   * @return Sneaky consumer.
+   * @return SneakyThrows consumer.
    */
   public static <V1, V2, V3, V4, V5, V6> Consumer6<V1, V2, V3, V4, V5, V6> throwingConsumer(
       Consumer6<V1, V2, V3, V4, V5, V6> action) {
@@ -1109,7 +1109,7 @@ public final class Sneaky {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Sneaky consumer.
+   * @param action SneakyThrows consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
@@ -1117,7 +1117,7 @@ public final class Sneaky {
    * @param <V5> Type 5.
    * @param <V6> Type 6.
    * @param <V7> Type 7.
-   * @return Sneaky consumer.
+   * @return SneakyThrows consumer.
    */
   public static <V1, V2, V3, V4, V5, V6, V7> Consumer7<V1, V2, V3, V4, V5, V6, V7> throwingConsumer(
       Consumer7<V1, V2, V3, V4, V5, V6, V7> action) {
@@ -1127,7 +1127,7 @@ public final class Sneaky {
   /**
    * Factory method for throwing consumer.
    *
-   * @param action Sneaky consumer.
+   * @param action SneakyThrows consumer.
    * @param <V1> Type 1.
    * @param <V2> Type 2.
    * @param <V3> Type 3.
@@ -1136,7 +1136,7 @@ public final class Sneaky {
    * @param <V6> Type 6.
    * @param <V7> Type 7.
    * @param <V8> Type 8.
-   * @return Sneaky consumer.
+   * @return SneakyThrows consumer.
    */
   public static <V1, V2, V3, V4, V5, V6, V7, V8> Consumer8<V1, V2, V3, V4, V5, V6, V7, V8> throwingConsumer(
       Consumer8<V1, V2, V3, V4, V5, V6, V7, V8> action) {

@@ -47,7 +47,7 @@ public interface Asset {
       try {
         return Files.size(file);
       } catch (IOException x) {
-        throw Sneaky.propagate(x);
+        throw SneakyThrows.propagate(x);
       }
     }
 
@@ -55,7 +55,7 @@ public interface Asset {
       try {
         return Files.getLastModifiedTime(file).toMillis();
       } catch (IOException x) {
-        throw Sneaky.propagate(x);
+        throw SneakyThrows.propagate(x);
       }
     }
 
@@ -67,7 +67,7 @@ public interface Asset {
       try {
         return new FileInputStream(file.toFile());
       } catch (IOException x) {
-        throw Sneaky.propagate(x);
+        throw SneakyThrows.propagate(x);
       }
     }
 
@@ -177,7 +177,7 @@ public interface Asset {
           content = connection.getInputStream();
         }
       } catch (IOException x) {
-        throw Sneaky.propagate(x);
+        throw SneakyThrows.propagate(x);
       }
     }
   }

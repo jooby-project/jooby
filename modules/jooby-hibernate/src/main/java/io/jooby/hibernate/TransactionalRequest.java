@@ -7,7 +7,7 @@ package io.jooby.hibernate;
 
 import io.jooby.Route;
 import io.jooby.ServiceKey;
-import io.jooby.Sneaky;
+import io.jooby.SneakyThrows;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -47,7 +47,7 @@ public class TransactionalRequest implements Route.Decorator {
         if (trx != null && trx.isActive()) {
           trx.rollback();
         }
-        throw Sneaky.propagate(x);
+        throw SneakyThrows.propagate(x);
       } finally {
         Session session = ManagedSessionContext.unbind(sessionFactory);
         if (session != null) {

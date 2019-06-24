@@ -39,7 +39,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import static io.jooby.Sneaky.propagate;
+import static io.jooby.SneakyThrows.propagate;
 
 public class ValueInjector {
 

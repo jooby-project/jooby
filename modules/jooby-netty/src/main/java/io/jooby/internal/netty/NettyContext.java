@@ -20,7 +20,7 @@ import io.jooby.Sender;
 import io.jooby.Server;
 import io.jooby.Session;
 import io.jooby.SessionStore;
-import io.jooby.Sneaky;
+import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
 import io.netty.buffer.ByteBuf;
@@ -423,7 +423,7 @@ public class NettyContext implements Context, ChannelFutureListener {
       });
       return this;
     } catch (Exception x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -446,7 +446,7 @@ public class NettyContext implements Context, ChannelFutureListener {
         ctx.writeAndFlush(EMPTY_LAST_CONTENT).addListener(this);
       });
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
     return this;
   }
@@ -547,7 +547,7 @@ public class NettyContext implements Context, ChannelFutureListener {
     } catch (HttpPostRequestDecoder.EndOfDataDecoderException x) {
       // ignore, silly netty
     } catch (Exception x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     } finally {
       release(req);
     }

@@ -6,7 +6,7 @@
 package io.jooby.internal;
 
 import io.jooby.QueryString;
-import io.jooby.Sneaky;
+import io.jooby.SneakyThrows;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -133,7 +133,7 @@ public final class UrlParser {
         result.throwException();
       }
     } catch (CharacterCodingException ex) {
-      throw Sneaky.propagate(ex);
+      throw SneakyThrows.propagate(ex);
     }
     return pos;
   }

@@ -22,7 +22,7 @@ import io.jooby.RouterOptions;
 import io.jooby.ServiceRegistry;
 import io.jooby.SessionOptions;
 import io.jooby.StatusCode;
-import io.jooby.Sneaky;
+import io.jooby.SneakyThrows;
 import io.jooby.annotations.Dispatch;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.mvc.MvcAnnotationParser;
@@ -51,7 +51,6 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -615,7 +614,7 @@ public class RouterImpl implements Router {
     });
   }
 
-  private void find(String prefix, Class type, Sneaky.Consumer<MvcMethod> consumer) {
+  private void find(String prefix, Class type, SneakyThrows.Consumer<MvcMethod> consumer) {
     MvcMetadata mvcMetadata = new MvcMetadata(source);
     mvcMetadata.parse(type);
     List<MvcMethod> routes = new ArrayList<>();

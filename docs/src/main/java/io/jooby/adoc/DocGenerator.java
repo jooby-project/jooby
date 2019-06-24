@@ -5,7 +5,7 @@
  */
 package io.jooby.adoc;
 
-import io.jooby.Sneaky;
+import io.jooby.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.Attributes;
@@ -16,9 +16,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
-import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -27,10 +24,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DocGenerator {
   public static void main(String[] args) throws Exception {
@@ -70,7 +65,7 @@ public class DocGenerator {
 
     // post process
     Files.walk(outdir).filter(it -> it.getFileName().toString().endsWith("index.html"))
-        .forEach(Sneaky.throwingConsumer(it -> {
+        .forEach(SneakyThrows.throwingConsumer(it -> {
           Files.write(it, document(it).getBytes(StandardCharsets.UTF_8));
         }));
 

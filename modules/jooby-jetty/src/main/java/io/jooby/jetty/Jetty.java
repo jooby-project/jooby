@@ -8,7 +8,7 @@ package io.jooby.jetty;
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
 import io.jooby.ServerOptions;
-import io.jooby.Sneaky;
+import io.jooby.SneakyThrows;
 import io.jooby.internal.jetty.JettyHandler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -109,7 +109,7 @@ public class Jetty extends io.jooby.Server.Base {
       if (x.getCause() instanceof BindException) {
         x = new BindException("Address already in use: " + options.getPort());
       }
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
 
     return this;
@@ -121,7 +121,7 @@ public class Jetty extends io.jooby.Server.Base {
       try {
         server.stop();
       } catch (Exception x) {
-        throw Sneaky.propagate(x);
+        throw SneakyThrows.propagate(x);
       }
       server = null;
     }

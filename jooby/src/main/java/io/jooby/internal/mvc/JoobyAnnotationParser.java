@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.mvc;
 
-import io.jooby.Sneaky;
+import io.jooby.SneakyThrows;
 import io.jooby.annotations.CookieParam;
 import io.jooby.annotations.DELETE;
 import io.jooby.annotations.FlashParam;
@@ -61,7 +61,7 @@ public class JoobyAnnotationParser extends MvcAnnotationParserBase {
       Method produces = httpMethod.getClass().getDeclaredMethod("produces");
       return (String[]) produces.invoke(httpMethod);
     } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -70,7 +70,7 @@ public class JoobyAnnotationParser extends MvcAnnotationParserBase {
       Method consumes = httpMethod.getClass().getDeclaredMethod("consumes");
       return (String[]) consumes.invoke(httpMethod);
     } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -102,7 +102,7 @@ public class JoobyAnnotationParser extends MvcAnnotationParserBase {
       }
       return result.length == 0 ? null : result;
     } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 }

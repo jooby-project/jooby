@@ -78,6 +78,6 @@ public interface AssetSource {
     } else if (Files.isRegularFile(location)) {
       return new FileDiskAssetSource(location);
     }
-    throw Sneaky.propagate(new FileNotFoundException(location.toAbsolutePath().toString()));
+    throw SneakyThrows.propagate(new FileNotFoundException(location.toAbsolutePath().toString()));
   }
 }

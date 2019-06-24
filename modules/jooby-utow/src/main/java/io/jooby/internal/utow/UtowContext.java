@@ -18,8 +18,8 @@ import io.jooby.Router;
 import io.jooby.Server;
 import io.jooby.Session;
 import io.jooby.SessionStore;
+import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
-import io.jooby.Sneaky;
 import io.jooby.Value;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
@@ -332,7 +332,7 @@ public class UtowContext implements Context, IoCallback {
       new UtowChunkedStream(len).send(Channels.newChannel(range.apply(in)), exchange, this);
       return this;
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -347,7 +347,7 @@ public class UtowContext implements Context, IoCallback {
       new UtowChunkedStream(range.getEnd()).send(file, exchange, this);
       return this;
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 

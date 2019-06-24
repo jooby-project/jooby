@@ -7,7 +7,7 @@ package io.jooby.internal.utow;
 
 import io.jooby.FileUpload;
 import io.jooby.ServerOptions;
-import io.jooby.Sneaky;
+import io.jooby.SneakyThrows;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.Headers;
 
@@ -37,7 +37,7 @@ public class UtowFileUpload implements FileUpload {
       }
       return buffer.toByteArray();
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -45,7 +45,7 @@ public class UtowFileUpload implements FileUpload {
     try {
       return upload.getFileItem().getInputStream();
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -69,7 +69,7 @@ public class UtowFileUpload implements FileUpload {
     try {
       upload.getFileItem().delete();
     } catch (IOException x) {
-      throw Sneaky.propagate(x);
+      throw SneakyThrows.propagate(x);
     }
   }
 
