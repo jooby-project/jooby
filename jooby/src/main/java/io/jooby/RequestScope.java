@@ -3,7 +3,7 @@ package io.jooby;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ThreadScope {
+public class RequestScope {
 
   private static final ThreadLocal<Map<Object, Object>> CONTEXT_TL = new ThreadLocal<>();
 

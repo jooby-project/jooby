@@ -1,6 +1,6 @@
 package io.jooby.internal.jdbi;
 
-import io.jooby.ThreadScope;
+import io.jooby.RequestScope;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
@@ -14,7 +14,7 @@ public class HandleProvider implements Provider<Handle> {
   }
 
   @Override public Handle get() {
-    Handle handle = ThreadScope.get(jdbi);
+    Handle handle = RequestScope.get(jdbi);
     if (handle == null) {
       handle = jdbi.open();
     }

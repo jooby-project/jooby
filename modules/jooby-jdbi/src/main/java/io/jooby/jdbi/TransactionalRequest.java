@@ -3,7 +3,7 @@ package io.jooby.jdbi;
 import io.jooby.Route;
 import io.jooby.Route.Decorator;
 import io.jooby.ServiceKey;
-import io.jooby.ThreadScope;
+import io.jooby.RequestScope;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
@@ -25,10 +25,10 @@ public class TransactionalRequest implements Decorator {
     return ctx -> {
       Jdbi jdbi = ctx.require(key);
       try(Handle handle = jdbi.open()) {
-        ThreadScope.bind(jdbi, handle);
+        RequestScope.bind(jdbi, handle);
         return handle.inTransaction(h -> next.apply(ctx));
       } finally {
-        ThreadScope.unbind(jdbi);
+        RequestScope.unbind(jdbi);
       }
     };
   }
