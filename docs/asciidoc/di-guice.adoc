@@ -11,13 +11,13 @@
 [source, java, role = "primary"]
 ----
 
-import io.jooby.di.Guiceby;
+import io.jooby.di.GuiceModule;
 import io.jooby.runApp;
 
 public class App extends Jooby {
 
   {
-    install(new Guiceby());                         <1>
+    install(new GuiceModule());                     <1>
         
     get("/", ctx -> {
       MyService service = require(MyService.class); <2>
@@ -34,12 +34,12 @@ public class App extends Jooby {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.di.Guiceby
+import io.jooby.di.GuiceModule
 import io.jooby.runApp
 
 fun main(args: Array<String>) {
   runApp(args) {
-    install(Guiceby())                        <1>
+    install(GuiceModule())                    <1>
     
     get ("/") {
       val service = require(MyService::class) <2>
@@ -49,7 +49,7 @@ fun main(args: Array<String>) {
 }
 ----
 
-<1> Install Guice extension
+<1> Install Guice module
 <2> The javadoc:Jooby[require, java.lang.Class] call is now resolved by Guice
 
 ==== Property Injection
@@ -94,15 +94,15 @@ Guice will also provisioning MVC routes
 .MVC and Guice
 [source, java, role = "primary"]
 ----
-import io.jooby.di.Guiceby;
+import io.jooby.di.GuiceModule;
 import io.jooby.runApp
 
 public class App extends Jooby {
 
   {
-    install(new Guiceby());    <1>
+    install(new GuiceModule());  <1>
           
-    mvc(MyController.class);   <2>
+    mvc(MyController.class);     <2>
   }
 
   public static void main(String[] args) {
@@ -114,19 +114,19 @@ public class App extends Jooby {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.di.Guiceby
+import io.jooby.di.GuiceModule
 import io.jooby.runApp
 
 fun main(args: Array<String>) {
   runApp(args) {
-    install(Guiceby())         <1>
+    install(GuiceModule())       <1>
 
-    mvc(MyController::class)   <2>
+    mvc(MyController::class)     <2>
   }
 }
 ----
 
-<1> Install Guice extension
+<1> Install Guice module
 <2> Register a MVC route
 
 The lifecycle of `MyController` is now managed by Guice. Also:

@@ -18,16 +18,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class Guiceby implements Extension {
+public class GuiceModule implements Extension {
 
   private Injector injector;
+
   private List<Module> modules = new ArrayList<>();
 
-  public Guiceby(@Nonnull Injector injector) {
+  public GuiceModule(@Nonnull Injector injector) {
     this.injector = injector;
   }
 
-  public Guiceby(@Nonnull Module... modules) {
+  public GuiceModule(@Nonnull Module... modules) {
     Stream.of(modules).forEach(this.modules::add);
   }
 
