@@ -13,12 +13,12 @@
 package myapp;                                       <1>
 
 import static io.jooby.Jooby.runApp;
-import io.jooby.di.Spring;
+import io.jooby.di.SpringModule;
 
 public class App extends Jooby {
 
   {
-    install(new Spring());                           <2>
+    install(new SpringModule());                           <2>
       
     get("/", ctx -> {
       MyService service = require(MyService.class);  <3>
@@ -38,12 +38,12 @@ public class App extends Jooby {
 package myapp                                        <1>
 
 import io.jooby.runApp
-import io.jooby.di.Spring
+import io.jooby.di.SpringModule
 
 fun main(args: Array<String>) {
   runApp(args) {
 
-    install(Spring())                                <2>
+    install(SpringModule())                                <2>
 
     get ("/") {
       val service = require(MyService::class)        <3>

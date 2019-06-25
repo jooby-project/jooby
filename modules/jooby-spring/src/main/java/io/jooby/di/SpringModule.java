@@ -21,11 +21,8 @@ import org.springframework.stereotype.Controller;
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
 
-public class Spring implements Extension {
+public class SpringModule implements Extension {
 
   private AnnotationConfigApplicationContext applicationContext;
 
@@ -35,25 +32,25 @@ public class Spring implements Extension {
 
   private String[] packages;
 
-  public Spring(@Nonnull AnnotationConfigApplicationContext applicationContext) {
+  public SpringModule(@Nonnull AnnotationConfigApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
   }
 
-  public Spring() {
+  public SpringModule() {
     this.applicationContext = null;
   }
 
-  public Spring(String... packages) {
+  public SpringModule(String... packages) {
     this.applicationContext = null;
     this.packages = packages;
   }
 
-  public Spring noRefresh() {
+  public SpringModule noRefresh() {
     this.refresh = false;
     return this;
   }
 
-  public Spring noMvcRoutes() {
+  public SpringModule noMvcRoutes() {
     this.registerMvcRoutes = false;
     return this;
   }
@@ -69,7 +66,7 @@ public class Spring implements Extension {
         String basePackage = application.getBasePackage();
         if (basePackage == null) {
           throw new IllegalArgumentException(
-              "Spring application context requires at least one package to scan.");
+              "SpringModule application context requires at least one package to scan.");
         }
         packages = new String[]{basePackage};
       }
