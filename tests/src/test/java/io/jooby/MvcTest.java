@@ -10,11 +10,10 @@ import examples.NullInjection;
 import examples.ProducesConsumes;
 import examples.Provisioning;
 import examples.TopDispatch;
-import io.jooby.json.Jackson;
+import io.jooby.json.JacksonModule;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.Nonnull;
@@ -23,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 import static io.jooby.MediaType.xml;
 import static okhttp3.RequestBody.create;
@@ -302,7 +300,7 @@ public class MvcTest {
   public void mvcBody() {
     new JoobyRunner(app -> {
 
-      app.install(new Jackson());
+      app.install(new JacksonModule());
 
       app.mvc(new MvcBody());
 

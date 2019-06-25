@@ -27,21 +27,17 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Jackson implements Extension, Parser, Renderer {
+public class JacksonModule implements Extension, Parser, Renderer {
   private final ObjectMapper mapper;
 
   private final Set<Class<?extends Module>> modules = new HashSet<>();
 
-  public Jackson(ObjectMapper mapper) {
+  public JacksonModule(ObjectMapper mapper) {
     this.mapper = mapper;
   }
 
-  public Jackson() {
+  public JacksonModule() {
     this(create());
-  }
-
-  public @Nonnull ObjectMapper getMapper() {
-    return mapper;
   }
 
   public @Nonnull Set<Class<? extends Module>> getModules() {

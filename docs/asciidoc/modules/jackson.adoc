@@ -14,10 +14,10 @@ JSON support using https://github.com/FasterXML/jackson[Jackson] library.
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.json.Jackson;
+import io.jooby.json.JacksonModule;
 
 {
-  install(new Jackson());                           <1>
+  install(new JacksonModule());                     <1>
 
   get("/", ctx -> {
     MyObject myObject = ...;
@@ -34,10 +34,10 @@ import io.jooby.json.Jackson;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.Jackson;
+import io.jooby.json.JacksonModule;
 
 {
-  install(Jackson())                                <1>
+  install(JacksonModule())                          <1>
 
   get("/") {
     val myObject = ...;
@@ -62,10 +62,10 @@ Access to default object mapper is available via require call:
 .Default object mapper
 [source, java, role="primary"]
 ----
-import io.jooby.json.Jackson;
+import io.jooby.json.JacksonModule;
 
 {
-  install(new Jackson());
+  install(new JacksonModule());
 
   ObjectMapper mapper = require(ObjectMapper.class);
   
@@ -76,10 +76,10 @@ import io.jooby.json.Jackson;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.Jackson
+import io.jooby.json.JacksonModule
 
 {
-  install(Jackson())
+  install(JacksonModule())
 
   val mapper = require<ObjectMapper>()
 }
@@ -90,24 +90,24 @@ You can provide your own `ObjectMapper`:
 .Custom ObjectMapper
 [source, java, role="primary"]
 ----
-import io.jooby.json.Jackson;
+import io.jooby.json.JacksonModule;
 
 {
   ObjectMapper mapper = new ObjectMapper();
 
-  install(new Jackson(mapper));
+  install(new JacksonModule(mapper));
 }
 ----
 
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.Jackson
+import io.jooby.json.JacksonModule
 
 {
   val mapper = ObjectMapper()
 
-  install(Jackson(mapper))
+  install(JacksonModule(mapper))
 }
 ----
 
@@ -118,20 +118,20 @@ Jackson module can be provided by a link:/#dependency-injection[dependency injec
 .Provisioning Modules
 [source, java, role="primary"]
 ----
-import io.jooby.json.Jackson;
+import io.jooby.json.JacksonModule;
 
 {
-  install(new Jackson().module(MyModule.class);
+  install(new JacksonModule().module(MyModule.class);
 }
 ----
 
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.Jackson
+import io.jooby.json.JacksonModule
 
 {
-  install(Jackson().module(MyModule::class.java)
+  install(JacksonModule().module(MyModule::class.java)
 }
 ----
 

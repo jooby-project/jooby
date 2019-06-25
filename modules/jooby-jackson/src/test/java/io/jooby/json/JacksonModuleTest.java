@@ -14,13 +14,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class JacksonTest {
+public class JacksonModuleTest {
 
   @Test
   public void render() throws Exception {
     Context ctx = mock(Context.class);
 
-    Jackson jackson = new Jackson();
+    JacksonModule jackson = new JacksonModule();
 
     byte[] bytes = jackson.render(ctx, mapOf("k", "v"));
     assertEquals("{\"k\":\"v\"}", new String(bytes, StandardCharsets.UTF_8));
@@ -38,7 +38,7 @@ public class JacksonTest {
     Context ctx = mock(Context.class);
     when(ctx.body()).thenReturn(body);
 
-    Jackson jackson = new Jackson();
+    JacksonModule jackson = new JacksonModule();
 
     Map<String, String> result = jackson.parse(ctx, Map.class);
     assertEquals(mapOf("k", "v"), result);

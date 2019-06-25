@@ -1,7 +1,7 @@
 package io.jooby;
 
 import io.jooby.jetty.Jetty;
-import io.jooby.json.Jackson;
+import io.jooby.json.JacksonModule;
 import io.jooby.netty.Netty;
 import io.jooby.utow.Utow;
 import io.reactivex.Flowable;
@@ -689,7 +689,7 @@ public class FeaturedTest {
   @Test
   public void parser() {
     new JoobyRunner(app -> {
-      app.install(new Jackson());
+      app.install(new JacksonModule());
 
       app.post("/map", ctx -> ctx.body(Map.class));
 
@@ -722,7 +722,7 @@ public class FeaturedTest {
   @Test
   public void jsonVsRawOutput() {
     new JoobyRunner(app -> {
-      app.install(new Jackson());
+      app.install(new JacksonModule());
 
       app.path("/api/pets", () -> {
 
@@ -899,7 +899,7 @@ public class FeaturedTest {
   @Test
   public void errorHandler() {
     new JoobyRunner(app -> {
-      app.install(new Jackson());
+      app.install(new JacksonModule());
 
       app.get("/", ctx -> {
         if (ctx.pathString().length() != 0) {

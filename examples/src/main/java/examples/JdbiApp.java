@@ -10,7 +10,7 @@ import io.jooby.Jooby;
 import io.jooby.hikari.HikariModule;
 import io.jooby.jdbi.JdbiModule;
 import io.jooby.jdbi.TransactionalRequest;
-import io.jooby.json.Jackson;
+import io.jooby.json.JacksonModule;
 import org.jdbi.v3.core.Jdbi;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public class JdbiApp extends Jooby {
   {
     install(new HikariModule("mem"));
     install(new JdbiModule().sqlObjects(PersonRepo.class));
-    install(new Jackson());
+    install(new JacksonModule());
 
     require(Jdbi.class).useHandle(h -> {
       h.useTransaction(hh -> {

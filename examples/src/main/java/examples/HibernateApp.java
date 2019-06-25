@@ -10,7 +10,7 @@ import io.jooby.Jooby;
 import io.jooby.hibernate.HibernateModule;
 import io.jooby.hibernate.TransactionalRequest;
 import io.jooby.hikari.HikariModule;
-import io.jooby.json.Jackson;
+import io.jooby.json.JacksonModule;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -19,7 +19,7 @@ public class HibernateApp extends Jooby {
   {
     install(new HikariModule("mem"));
     install(new HibernateModule());
-    install(new Jackson());
+    install(new JacksonModule());
 
     decorator(new TransactionalRequest());
 
