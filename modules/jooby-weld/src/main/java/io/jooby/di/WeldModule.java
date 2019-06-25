@@ -14,17 +14,17 @@ import javax.annotation.Nonnull;
 
 import static org.jboss.weld.environment.se.Weld.SHUTDOWN_HOOK_SYSTEM_PROPERTY;
 
-public class Weldby implements Extension {
+public class WeldModule implements Extension {
 
   private WeldContainer container;
 
   private String[] packages;
 
-  public Weldby(@Nonnull WeldContainer container) {
+  public WeldModule(@Nonnull WeldContainer container) {
     this.container = container;
   }
 
-  public Weldby(@Nonnull String... packages) {
+  public WeldModule(@Nonnull String... packages) {
     this.packages = packages;
     this.container = null;
   }
