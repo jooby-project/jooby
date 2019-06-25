@@ -14,13 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class HikariTest {
+public class HikariModuleTest {
 
   static int MAX_POOL_SIZE = Math.max(10, Runtime.getRuntime().availableProcessors() * 2 + 1);
 
   @Test
   public void mem() {
-    HikariConfig conf = Hikari.create()
+    HikariConfig conf = HikariModule.create()
         .build(new Environment(getClass().getClassLoader(), mapOf("db", "mem"), "test"));
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals("org.h2.jdbcx.JdbcDataSource", conf.getDataSourceClassName());
@@ -35,7 +35,7 @@ public class HikariTest {
 
   @Test
   public void fs() {
-    HikariConfig conf = Hikari.create()
+    HikariConfig conf = HikariModule.create()
         .build(new Environment(getClass().getClassLoader(), 
             mapOf("db", "fs", "application.package", "foo", "application.tmpdir", "target"), "test"));
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
@@ -51,7 +51,7 @@ public class HikariTest {
 
   @Test
   public void dbWithCredentials() {
-    HikariConfig conf = Hikari.create()
+    HikariConfig conf = HikariModule.create()
         .build(new Environment(getClass().getClassLoader(), 
             mapOf("db.url", "jdbc:mysql://localhost/db", "db.user", "root", "db.password", ""), "test"));
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
@@ -66,7 +66,7 @@ public class HikariTest {
 
   @Test
   public void connectionString() {
-    HikariConfig conf = Hikari.create()
+    HikariConfig conf = HikariModule.create()
         .build(new Environment(getClass().getClassLoader(), mapOf("mydb.user", "root", "mydb.password", ""), "test"),
             "jdbc:mysql://localhost/mydb");
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
@@ -81,7 +81,7 @@ public class HikariTest {
 
   @Test
   public void memConnectionString() {
-    HikariConfig conf = Hikari.create()
+    HikariConfig conf = HikariModule.create()
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "test"), "mem");
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals("org.h2.jdbcx.JdbcDataSource", conf.getDataSourceClassName());
@@ -103,7 +103,7 @@ public class HikariTest {
             "db.audit.password", "p2",
             "hikari.maximumPoolSize", "5",
             "hikari.audit.maximumPoolSize", "1"), "test");
-    HikariConfig db = Hikari.create().build(env, "db.main");
+    HikariConfig db = HikariModule.create().build(env, "db.main");
     assertEquals(5, db.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", db.getDataSourceClassName());
     assertEquals(null, db.getJdbcUrl());
@@ -113,7 +113,7 @@ public class HikariTest {
     assertEquals("p1", db.getDataSourceProperties().getProperty("password"));
     assertEquals("jdbc:mysql://localhost/main", db.getDataSourceProperties().getProperty("url"));
 
-    db = Hikari.create().build(env, "db.audit");
+    db = HikariModule.create().build(env, "db.audit");
     assertEquals(1, db.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", db.getDataSourceClassName());
     assertEquals(null, db.getJdbcUrl());
@@ -126,7 +126,7 @@ public class HikariTest {
 
   @Test
   public void dbUrlWithParams() {
-    HikariConfig conf = Hikari.create()
+    HikariConfig conf = HikariModule.create()
         .build(new Environment(getClass().getClassLoader(), 
             mapOf("db.url",
                 "jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8"), "test"));
@@ -143,7 +143,7 @@ public class HikariTest {
 
   @Test
   public void hikariOptions() {
-    HikariConfig conf = Hikari.create()
+    HikariConfig conf = HikariModule.create()
         .build(new Environment(getClass().getClassLoader(), 
             mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.db.maximumPoolSize", "5"), "test"));
     assertEquals(5, conf.getMaximumPoolSize());
@@ -158,7 +158,7 @@ public class HikariTest {
 
   @Test
   public void hikariDefaultOptions() {
-    HikariConfig conf = Hikari.create()
+    HikariConfig conf = HikariModule.create()
         .build(new Environment(getClass().getClassLoader(), 
             mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.maximumPoolSize", "5"), "test"));
     assertEquals(5, conf.getMaximumPoolSize());
@@ -173,7 +173,7 @@ public class HikariTest {
 
   @Test
   public void hikariOverrideOptions() {
-    HikariConfig conf = Hikari.create()
+    HikariConfig conf = HikariModule.create()
         .build(new Environment(getClass().getClassLoader(), 
             mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.maximumPoolSize", "5",
                 "hikari.db.maximumPoolSize", "7"), "test"));
@@ -189,7 +189,7 @@ public class HikariTest {
 
   @Test
   public void overrideDataSource() {
-    HikariConfig conf = Hikari.create()
+    HikariConfig conf = HikariModule.create()
         .build(new Environment(getClass().getClassLoader(), 
             mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.dataSourceClassName",
                 "test.MyDS"), "test"));
@@ -204,7 +204,7 @@ public class HikariTest {
 
   @Test
   public void noUrlProperty() {
-    HikariConfig conf = Hikari.create()
+    HikariConfig conf = HikariModule.create()
         .build(new Environment(getClass().getClassLoader(), 
             mapOf(
                 "db.host", "localhost",
@@ -224,7 +224,7 @@ public class HikariTest {
 
   @Test
   public void log4jdbc() {
-    HikariConfig conf = Hikari.create()
+    HikariConfig conf = HikariModule.create()
         .build(new Environment(getClass().getClassLoader(), 
             mapOf("db.url", "jdbc:log4jdbc:mysql://localhost/db"), "test"));
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
@@ -241,57 +241,57 @@ public class HikariTest {
 
   @Test
   public void databaseName() {
-    assertEquals("123", Hikari.databaseName("jdbc:h2:mem:123;DB_CLOSE_DELAY=-1"));
-    assertEquals("jdbctest", Hikari.databaseName("jdbc:h2:target/jdbctest"));
-    assertEquals("db", Hikari.databaseName("jdbc:mysql://localhost/db"));
-    assertEquals("testdb", Hikari.databaseName("jdbc:derby:testdb"));
-    assertEquals("SAMPLE", Hikari.databaseName("jdbc:db2://127.0.0.1:50000/SAMPLE"));
-    assertEquals("file", Hikari.databaseName("jdbc:hsqldb:file"));
-    assertEquals("dba", Hikari.databaseName("jdbc:mariadb://localhost/dba"));
-    assertEquals("dbb", Hikari.databaseName("jdbc:log4jdbc:mysql://localhost/dbb"));
+    assertEquals("123", HikariModule.databaseName("jdbc:h2:mem:123;DB_CLOSE_DELAY=-1"));
+    assertEquals("jdbctest", HikariModule.databaseName("jdbc:h2:target/jdbctest"));
+    assertEquals("db", HikariModule.databaseName("jdbc:mysql://localhost/db"));
+    assertEquals("testdb", HikariModule.databaseName("jdbc:derby:testdb"));
+    assertEquals("SAMPLE", HikariModule.databaseName("jdbc:db2://127.0.0.1:50000/SAMPLE"));
+    assertEquals("file", HikariModule.databaseName("jdbc:hsqldb:file"));
+    assertEquals("dba", HikariModule.databaseName("jdbc:mariadb://localhost/dba"));
+    assertEquals("dbb", HikariModule.databaseName("jdbc:log4jdbc:mysql://localhost/dbb"));
     assertEquals("dbc",
-        Hikari.databaseName("jdbc:mysql://localhost/dbc?useEncoding=true&characterEncoding=UTF-8"));
-    assertEquals("AdventureWorks", Hikari.databaseName(
+        HikariModule.databaseName("jdbc:mysql://localhost/dbc?useEncoding=true&characterEncoding=UTF-8"));
+    assertEquals("AdventureWorks", HikariModule.databaseName(
         "jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;integratedSecurity=true;"));
-    assertEquals("AdventureWorks", Hikari.databaseName(
+    assertEquals("AdventureWorks", HikariModule.databaseName(
         "jdbc:sqlserver://localhost:1433;database=AdventureWorks;integratedSecurity=true;"));
     assertEquals("AdventureWorks",
-        Hikari.databaseName("jdbc:sqlserver://localhost:1433;fpp;databaseName=AdventureWorks;;"));
-    assertEquals("orcl", Hikari.databaseName("jdbc:oracle:thin:@myhost:1521:orcl"));
-    assertEquals("database", Hikari.databaseName("jdbc:pgsql://server/database"));
-    assertEquals("database", Hikari.databaseName("jdbc:postgresql://server/database"));
-    assertEquals("database", Hikari.databaseName("jdbc:jtds:sybase://server/database"));
-    assertEquals("mydb", Hikari.databaseName("jdbc:firebirdsql:host:mydb"));
-    assertEquals("testdb", Hikari.databaseName("jdbc:sqlite:testdb"));
-    assertEquals("testdb", Hikari.databaseName("jdbc:unknown:testdb"));
+        HikariModule.databaseName("jdbc:sqlserver://localhost:1433;fpp;databaseName=AdventureWorks;;"));
+    assertEquals("orcl", HikariModule.databaseName("jdbc:oracle:thin:@myhost:1521:orcl"));
+    assertEquals("database", HikariModule.databaseName("jdbc:pgsql://server/database"));
+    assertEquals("database", HikariModule.databaseName("jdbc:postgresql://server/database"));
+    assertEquals("database", HikariModule.databaseName("jdbc:jtds:sybase://server/database"));
+    assertEquals("mydb", HikariModule.databaseName("jdbc:firebirdsql:host:mydb"));
+    assertEquals("testdb", HikariModule.databaseName("jdbc:sqlite:testdb"));
+    assertEquals("testdb", HikariModule.databaseName("jdbc:unknown:testdb"));
   }
 
   @Test
   public void databaseType() {
-    assertEquals("h2", Hikari.databaseType("jdbc:h2:mem:123;DB_CLOSE_DELAY=-1"));
-    assertEquals("h2", Hikari.databaseType("jdbc:h2:target/jdbctest"));
-    assertEquals("mysql", Hikari.databaseType("jdbc:mysql://localhost/db"));
-    assertEquals("derby", Hikari.databaseType("jdbc:derby:testdb"));
-    assertEquals("db2", Hikari.databaseType("jdbc:db2://127.0.0.1:50000/SAMPLE"));
-    assertEquals("hsqldb", Hikari.databaseType("jdbc:hsqldb:file"));
-    assertEquals("mariadb", Hikari.databaseType("jdbc:mariadb://localhost/dba"));
-    assertEquals("log4jdbc", Hikari.databaseType("jdbc:log4jdbc:mysql://localhost/dbb"));
+    assertEquals("h2", HikariModule.databaseType("jdbc:h2:mem:123;DB_CLOSE_DELAY=-1"));
+    assertEquals("h2", HikariModule.databaseType("jdbc:h2:target/jdbctest"));
+    assertEquals("mysql", HikariModule.databaseType("jdbc:mysql://localhost/db"));
+    assertEquals("derby", HikariModule.databaseType("jdbc:derby:testdb"));
+    assertEquals("db2", HikariModule.databaseType("jdbc:db2://127.0.0.1:50000/SAMPLE"));
+    assertEquals("hsqldb", HikariModule.databaseType("jdbc:hsqldb:file"));
+    assertEquals("mariadb", HikariModule.databaseType("jdbc:mariadb://localhost/dba"));
+    assertEquals("log4jdbc", HikariModule.databaseType("jdbc:log4jdbc:mysql://localhost/dbb"));
     assertEquals("mysql",
-        Hikari.databaseType("jdbc:mysql://localhost/dbc?useEncoding=true&characterEncoding=UTF-8"));
-    assertEquals("sqlserver", Hikari.databaseType(
+        HikariModule.databaseType("jdbc:mysql://localhost/dbc?useEncoding=true&characterEncoding=UTF-8"));
+    assertEquals("sqlserver", HikariModule.databaseType(
         "jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;integratedSecurity=true;"));
-    assertEquals("sqlserver", Hikari.databaseType(
+    assertEquals("sqlserver", HikariModule.databaseType(
         "jdbc:sqlserver://localhost:1433;database=AdventureWorks;integratedSecurity=true;"));
     assertEquals("sqlserver",
-        Hikari.databaseType("jdbc:sqlserver://localhost:1433;fpp;databaseName=AdventureWorks;;"));
-    assertEquals("oracle", Hikari.databaseType("jdbc:oracle:thin:@myhost:1521:orcl"));
-    assertEquals("pgsql", Hikari.databaseType("jdbc:pgsql://server/database"));
-    assertEquals("postgresql", Hikari.databaseType("jdbc:postgresql://server/database"));
-    assertEquals("sybase", Hikari.databaseType("jdbc:jtds:sybase://server/database"));
-    assertEquals("firebirdsql", Hikari.databaseType("jdbc:firebirdsql:host:mydb"));
-    assertEquals("sqlite", Hikari.databaseType("jdbc:sqlite:testdb"));
-    assertEquals("unknown", Hikari.databaseType("jdbc:unknown:testdb"));
-    assertEquals("foo", Hikari.databaseType("foo"));
+        HikariModule.databaseType("jdbc:sqlserver://localhost:1433;fpp;databaseName=AdventureWorks;;"));
+    assertEquals("oracle", HikariModule.databaseType("jdbc:oracle:thin:@myhost:1521:orcl"));
+    assertEquals("pgsql", HikariModule.databaseType("jdbc:pgsql://server/database"));
+    assertEquals("postgresql", HikariModule.databaseType("jdbc:postgresql://server/database"));
+    assertEquals("sybase", HikariModule.databaseType("jdbc:jtds:sybase://server/database"));
+    assertEquals("firebirdsql", HikariModule.databaseType("jdbc:firebirdsql:host:mydb"));
+    assertEquals("sqlite", HikariModule.databaseType("jdbc:sqlite:testdb"));
+    assertEquals("unknown", HikariModule.databaseType("jdbc:unknown:testdb"));
+    assertEquals("foo", HikariModule.databaseType("foo"));
   }
 
   private Config mapOf(String... values) {

@@ -30,7 +30,7 @@ db.password = mypass
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.hikari.Hikari;
+import io.jooby.hikari.HikariModule;
 
 {
   install(new Hikari());
@@ -45,7 +45,7 @@ import io.jooby.hikari.Hikari;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.hikari.Hikari
+import io.jooby.hikari.HikariModule
 
 {
   install(Hikari())
@@ -66,7 +66,7 @@ database prefix:
 .Custom database prefix
 [source, java, role="primary"]
 ----
-import io.jooby.hikari.Hikari;
+import io.jooby.hikari.HikariModule;
 
 {
   install(new Hikari("mydb"));
@@ -76,7 +76,7 @@ import io.jooby.hikari.Hikari;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.hikari.Hikari
+import io.jooby.hikari.HikariModule
 
 {
   install(Hikari("mydb"))
@@ -88,7 +88,7 @@ Configuration properties are optionally if the database driver support them from
 .No properties
 [source, java, role="primary"]
 ----
-import io.jooby.hikari.Hikari;
+import io.jooby.hikari.HikariModule;
 
 {
   install(new Hikari("jdbc:mysql://localhost/mydb"));
@@ -98,7 +98,7 @@ import io.jooby.hikari.Hikari;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.hikari.Hikari
+import io.jooby.hikari.HikariModule
 
 {
   install(Hikari("jdbc:mysql://localhost/mydb"))
@@ -132,7 +132,7 @@ auditdb.password = mypass
 .Multiple data sources
 [source, java, role="primary"]
 ----
-import io.jooby.hikari.Hikari;
+import io.jooby.hikari.HikariModule;
 
 {
   install(new Hikari("maindb"));
@@ -151,7 +151,7 @@ import io.jooby.hikari.Hikari;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.hikari.Hikari
+import io.jooby.hikari.HikariModule
 
 {
   install(Hikari("maindb"))

@@ -6,7 +6,7 @@
 package examples;
 
 import io.jooby.Jooby;
-import io.jooby.hikari.Hikari;
+import io.jooby.hikari.HikariModule;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -18,7 +18,7 @@ import java.util.List;
 public class HikariApp extends Jooby {
 
   {
-    install(new Hikari("jdbc:mysql://localhost/hello?user=root&password="));
+    install(new HikariModule("jdbc:mysql://localhost/hello?user=root&password="));
 
     get("/", ctx -> {
       try (Connection connection = require(DataSource.class).getConnection()) {

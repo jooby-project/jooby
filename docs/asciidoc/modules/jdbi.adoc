@@ -30,11 +30,11 @@ db.password = mypass
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.hikari.Hikari;
+import io.jooby.hikari.HikariModule;
 import io.jooby.jdbi.JdbiModule;
 
 {
-  install(new Hikari());                           <1>
+  install(new HikariModule());                     <1>
 
   install(new JdbiModule());                       <2>
   
@@ -52,11 +52,11 @@ import io.jooby.jdbi.JdbiModule;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.hikari.Hikari
+import io.jooby.hikari.HikariModule
 import io.jooby.jdbi.JdbiModule
 
 {
-  install(Hikari())                                <1>
+  install(HikariModule())                          <1>
   
   install(JdbiModule())                            <2>
     
@@ -88,12 +88,12 @@ doesn't have to deal with that boring lines of code.
 .TransactionalRequest
 [source, java, role = "primary"]
 ----
-import io.jooby.hikari.Hikari;
+import io.jooby.hikari.HikariModule;
 import io.jooby.jdbi.JdbiModule;
 import io.jooby.jdbi.TransactionalRequest;
 
 {
-  install(new Hikari());
+  install(new HikariModule());
   
   install(new JdbiModule());
   
@@ -112,12 +112,12 @@ import io.jooby.jdbi.TransactionalRequest;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.hikari.Hikari
+import io.jooby.hikari.HikariModule
 import io.jooby.jdbi.JdbiModule
 import io.jooby.jdbi.TransactionalRequest
 
 {
-  install(Hikari())
+  install(HikariModule())
   
   install(JdbiModule())
   
@@ -145,12 +145,12 @@ Provisioning of custom SQL objects is available javadoc:jdbi.JdbiMdule[sqlObject
 .SQLObjects
 [source, java, role = "primary"]
 ----
-import io.jooby.hikari.Hikari;
+import io.jooby.hikari.HikariModule;
 import io.jooby.jdbi.JdbiModule;
 import io.jooby.jdbi.TransactionalRequest;
 
 {
-  install(new Hikari());
+  install(new HikariModule());
   
   install(new JdbiModule().sqlObjects(UserDao.class));
 
@@ -168,12 +168,12 @@ import io.jooby.jdbi.TransactionalRequest;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.hikari.Hikari
+import io.jooby.hikari.HikariModule
 import io.jooby.jdbi.JdbiModule
 import io.jooby.jdbi.TransactionalRequest
 
 {
-  install(Hikari())
+  install(HikariModule())
   
   install(JdbiModule().sqlObjects(UserDao.class))
 
@@ -195,12 +195,12 @@ Advanced Jdbi configuration is supported via a custom Jdbi instance.
 .Custom Jdbi
 [source, java, role = "primary"]
 ----
-import io.jooby.hikari.Hikari;
+import io.jooby.hikari.HikariModule;
 import io.jooby.jdbi.JdbiModule;
 import io.jooby.jdbi.TransactionalRequest;
 
 {
-  install(new Hikari());
+  install(new HikariModule());
   
   install(new JdbiModule(dataSource -> {
     Jdbi jdbi = Jdbi.create(dataSource);
@@ -212,12 +212,12 @@ import io.jooby.jdbi.TransactionalRequest;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.hikari.Hikari
+import io.jooby.hikari.HikariModule
 import io.jooby.jdbi.JdbiModule
 import io.jooby.jdbi.TransactionalRequest
 
 {
-  install(Hikari())
+  install(HikariModule())
   
   install(JdbiModule { dataSource ->
     Jdbi.create(dataSource)

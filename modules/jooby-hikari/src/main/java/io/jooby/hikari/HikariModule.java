@@ -29,7 +29,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Hikari implements Extension {
+public class HikariModule implements Extension {
 
   public static class Builder {
 
@@ -106,7 +106,7 @@ public class Hikari implements Extension {
         }
       }, dbkey);
 
-      /** Hikari: */
+      /** HikariModule: */
       props(env, (prop, v) -> {
         properties.put(prop, v);
       }, "hikari", "hikari." + dbkey, "hikari." + dbname);
@@ -168,11 +168,11 @@ public class Hikari implements Extension {
 
   private String database;
 
-  public Hikari(@Nonnull String database) {
+  public HikariModule(@Nonnull String database) {
     this.database = database;
   }
 
-  public Hikari() {
+  public HikariModule() {
     this("db");
   }
 

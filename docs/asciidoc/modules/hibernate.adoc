@@ -30,10 +30,10 @@ db.password = mypass
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.hikari.Hikari;
+import io.jooby.hikari.HikariModule;
 import io.jooby.hibernate.HibernateModule;
 {
-  install(new Hikari());                              <1>
+  install(new HikariModule());                        <1>
 
   install(new HibernateModule());                     <2>
   
@@ -61,13 +61,13 @@ import io.jooby.hibernate.HibernateModule;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.hikari.Hikari
+import io.jooby.hikari.HikariModule
 import io.jooby.hibernate.HibernateModule
 
 {
-  install(Hikari())                                   <1>
+  install(HikariModule())                             <1>
   
-  install(new HibernateModule())                            <2>
+  install(new HibernateModule())                      <2>
   
   get("/") {
     val em = require(EntityManager::class)            <3>
@@ -126,12 +126,12 @@ doesn't have to deal with that boring lines of code.
 .TransactionalRequest
 [source, java, role = "primary"]
 ----
-import io.jooby.hikari.Hikari;
+import io.jooby.hikari.HikariModule;
 import io.jooby.hibernate.HibernateModule;
 import io.jooby.hibernate.TransactionalRequest;
 
 {
-  install(new Hikari());
+  install(new HikariModule());
   
   install(new HibernateModule());
   
@@ -152,12 +152,12 @@ import io.jooby.hibernate.TransactionalRequest;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.hikari.Hikari
+import io.jooby.hikari.HikariModule
 import io.jooby.hibernate.HibernateModule
 import io.jooby.hibernate.TransactionalRequest
 
 {
-  install(Hikari())
+  install(HikariModule())
   
   install(HibernateModule())
   
