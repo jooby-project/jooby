@@ -84,8 +84,9 @@ public class RouterMatch implements Router.Match {
     } else {
       h = this.handler;
     }
-    this.route = new Route(method, path, emptyList(), String.class, h, null, null, null, renderer,
-        emptyMap());
+    this.route = new Route(method, path, h);
+    this.route.setRenderer(renderer);
+    this.route.setReturnType(Context.class);
     return this;
   }
 }

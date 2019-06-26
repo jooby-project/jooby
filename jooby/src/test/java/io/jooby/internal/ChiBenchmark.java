@@ -63,7 +63,7 @@ public class ChiBenchmark {
   }
 
   private Route route(String method, String pattern) {
-    return new Route(method, pattern, String.class, null, null, null, null, null, null);
+    return new Route(method, pattern, ctx -> "").setReturnType(String.class);
   }
 
   @Benchmark

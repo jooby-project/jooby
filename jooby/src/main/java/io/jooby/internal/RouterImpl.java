@@ -106,25 +106,6 @@ public class RouterImpl implements Router {
     }
   }
 
-  static final Route.Before ACCEPT = ctx -> {
-    List<MediaType> produceTypes = ctx.getRoute().getProduces();
-    MediaType contentType = ctx.accept(produceTypes);
-    if (contentType == null) {
-      throw new StatusCodeException(StatusCode.NOT_ACCEPTABLE,
-          ctx.header(Context.ACCEPT).value(""));
-    }
-  };
-
-  static final Route.Before SUPPORT_MEDIA_TYPE = ctx -> {
-    MediaType contentType = ctx.getRequestType();
-    if (contentType == null) {
-      throw new StatusCodeException(StatusCode.UNSUPPORTED_MEDIA_TYPE);
-    }
-    if (!ctx.getRoute().getConsumes().stream().anyMatch(contentType::matches)) {
-      throw new StatusCodeException(StatusCode.UNSUPPORTED_MEDIA_TYPE, contentType.getValue());
-    }
-  };
-
   private ErrorHandler err;
 
   private Map<String, StatusCode> errorCodes;
@@ -373,8 +354,15 @@ public class RouterImpl implements Router {
     /** Route: */
     String safePattern = normalizePath(pat.toString(), options.isCaseSensitive(),
         options.isIgnoreTrailingSlash());
-    Route route = new Route(method, safePattern, null, handler, before, decorator, after, renderer,
-        parsers);
+    Route route = new Route(method, safePattern, handler);
+    route.setPathKeys(Router.pathKeys(safePattern));
+    route.setBefore(before);
+    route.setAfter(after);
+    route.setDecorator(decorator);
+    route.setRenderer(renderer);
+    route.setParsers(parsers);
+    //null, handler, before, decorator, after, renderer,
+        //parsers);
     Stack stack = this.stack.peekLast();
     if (stack.executor != null) {
       routeExecutor.put(route, stack.executor);
@@ -407,35 +395,9 @@ public class RouterImpl implements Router {
       if (route.getReturnType() == null) {
         route.setReturnType(analyzer.returnType(route.getHandle()));
       }
-      /** Pipeline: */
-      Route.Before before = route.getBefore();
-      if (route.getProduces().size() > 0) {
-        before = before == null ? ACCEPT : ACCEPT.then(before);
-      }
-      if (route.getConsumes().size() > 0) {
-        before = before == null ? SUPPORT_MEDIA_TYPE : SUPPORT_MEDIA_TYPE.then(before);
-      }
 
-      Route.Decorator decorator = route.getDecorator();
-      Route.Handler handler = route.getHandler();
-      Route.Handler pipeline;
-      if (decorator == null) {
-        pipeline = handler;
-      } else {
-        pipeline = decorator.then(handler);
-      }
-
-      if (before != null) {
-        pipeline = before.then(pipeline);
-      }
-
-      Route.After after = route.getAfter();
-      if (after != null) {
-        pipeline = pipeline.then(after);
-      }
-      route.setPipeline(pipeline);
       /** Response handler: */
-      pipeline = Pipeline
+      Route.Handler pipeline = Pipeline
           .compute(source.getLoader(), route, mode, executor, handlers);
       route.setPipeline(pipeline);
     }
