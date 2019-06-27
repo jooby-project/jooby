@@ -83,7 +83,12 @@ public class HibernateModule implements Extension {
     ssrb.applySetting(HBM2DDL_AUTO, ddl_auto);
     ssrb.applySetting(CURRENT_SESSION_CONTEXT_CLASS, "managed");
     // apply application.conf
-    ssrb.applySettings(env.getProperties("hibernate"));
+    Map<String, String> base = env.getProperties("hibernate");
+    Map<String, String> custom = env.getProperties(name + ".hibernate", "hibernate");
+    Map<String, String> settings = new HashMap<>();
+    settings.putAll(base);
+    settings.putAll(custom);
+    ssrb.applySettings(settings);
     ssrb.applySetting(DATASOURCE, dataSource);
     ssrb.applySetting(DELAY_CDI_ACCESS, true);
 
