@@ -1,0 +1,117 @@
+== Flyway
+
+https://flywaydb.org[Flyway] database migrations module.
+
+=== Usage
+
+1) Add the dependencies (hikari + flyway):
+
+[dependency, artifactId="jooby-hikari:DataSource via HikariCP, jooby-flyway:Flyway Module"]
+.
+
+2) Add database driver (mySQL here):
+
+[dependency, artifactId="mysql-connector-java"]
+.
+
+3) Set database properties
+
+.application.conf
+[source, properties]
+----
+db.url = "jdbc:mysql://localhost/mydb"
+db.user = myuser
+db.password = mypass
+----
+
+
+4) Install and use Flyway
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.hikari.HikariModule;
+import io.jooby.flyway.FlywayModule;
+
+{
+  install(new HikariModule());                     <1>
+
+  install(new FlywayModule());                     <2>
+
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.HikariModule
+import io.jooby.jdbi.JdbiModule
+
+{
+  install(HikariModule())                          <1>
+  
+  install(FlywayModule())                          <2>
+}
+----
+
+<1> Install and creates a `DataSource`
+<2> Install and run Flyway
+
+The flyway module runs a `migrate` command, you can override the default command by setting the `flyway.run`
+application configuration property:
+
+.application.conf
+----
+flyway.run = migrate
+----
+
+Multiple commands example:
+
+.application.conf
+----
+flyway.run = [clean, migrate]
+----
+
+Available commands: `migrate`, `clean`, `info`, `validate`, `undo`, `baseline` and `repair`.
+
+=== Multiple databases
+
+Multiple databases are supported too:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.hikari.HikariModule;
+import io.jooby.flyway.FlywayModule;
+
+{
+  install(new HikariModule("main"));
+  install(new FlywayModule("main"));
+
+  install(new HikariModule("audit"));
+  install(new FlywayModule("audit"));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.HikariModule
+import io.jooby.jdbi.JdbiModule
+
+{
+  install(HikariModule("main"))
+  install(FlywayModule("main"))
+
+  install(HikariModule("audit"))
+  install(FlywayModule("audit"))
+}
+----
+
+When using multiple database you need to specify the location of the migration scripts:
+
+.application.conf
+----
+main.flyway.locations = "classpath:db/main"
+audit.flyway.locations = "classpath:db/audit"
+----

@@ -83,7 +83,7 @@ public class HibernateModule implements Extension {
     ssrb.applySetting(HBM2DDL_AUTO, ddl_auto);
     ssrb.applySetting(CURRENT_SESSION_CONTEXT_CLASS, "managed");
     // apply application.conf
-    ssrb.applySettings(settings(application.getConfig()));
+    ssrb.applySettings(env.getProperties("hibernate"));
     ssrb.applySetting(DATASOURCE, dataSource);
     ssrb.applySetting(DELAY_CDI_ACCESS, true);
 
@@ -142,16 +142,5 @@ public class HibernateModule implements Extension {
       }
     }
     return false;
-  }
-
-  private static Map<Object, Object> settings(final Config config) {
-    if (config.hasPath("hibernate")) {
-      Map<Object, Object> settings = new HashMap<>();
-      config.getConfig("hibernate").entrySet().stream()
-          .filter(it -> !it.getKey().equals("packagesToScan"))
-          .forEach(e -> settings.put("hibernate." + e.getKey(), e.getValue().unwrapped()));
-      return settings;
-    }
-    return Collections.emptyMap();
   }
 }

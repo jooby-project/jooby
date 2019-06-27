@@ -83,14 +83,10 @@ public class Environment {
    * @return Property or default value.
    */
   public @Nonnull String getProperty(@Nonnull String key, @Nonnull String defaults) {
-    try {
-      if (conf.hasPath(key)) {
-        return conf.getString(key);
-      }
-      return defaults;
-    } catch (ConfigException x) {
-      return defaults;
+    if (hasPath(conf, key)) {
+      return conf.getString(key);
     }
+    return defaults;
   }
 
   /**
@@ -100,14 +96,33 @@ public class Environment {
    * @return Property value or <code>null</code> when missing.
    */
   public @Nullable String getProperty(@Nonnull String key) {
-    try {
-      if (conf.hasPath(key)) {
-        return conf.getString(key);
-      }
-      return null;
-    } catch (ConfigException x) {
-      return null;
+    if (hasPath(conf, key)) {
+      return conf.getString(key);
     }
+    return null;
+  }
+
+  public @Nonnull Map<String, String> getProperties(@Nonnull String key) {
+    return getProperties(key, key);
+  }
+
+  public @Nonnull Map<String, String> getProperties(@Nonnull String key, @Nonnull String prefix) {
+    if (hasPath(conf, key)) {
+      Map<String, String> settings = new HashMap<>();
+      conf.getConfig(key).entrySet().stream()
+          .forEach(e -> {
+            Object value = e.getValue().unwrapped();
+            if (value != null) {
+              if (value instanceof List) {
+                value = ((List) value).stream().collect(Collectors.joining(", "));
+              }
+              String k = prefix + "." + e.getKey();
+              settings.put(k, value.toString());
+            }
+          });
+      return settings;
+    }
+    return Collections.emptyMap();
   }
 
   /**
@@ -188,6 +203,14 @@ public class Environment {
           .toString();
     }
     return "";
+  }
+
+  private static boolean hasPath(Config config, String key) {
+    try {
+      return config.hasPath(key);
+    } catch (ConfigException x) {
+      return false;
+    }
   }
 
   /**

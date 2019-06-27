@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,7 +87,8 @@ public class EnvironmentTest {
   @Test
   public void objectLookup() {
 
-    Environment env = new Environment(getClass().getClassLoader(), ConfigFactory.parseMap(mapOf("h.pool", "1", "h.db.pool", "2")), "test");
+    Environment env = new Environment(getClass().getClassLoader(),
+        ConfigFactory.parseMap(mapOf("h.pool", "1", "h.db.pool", "2")), "test");
 
     assertEquals("1", env.getConfig().getString("h.pool"));
     assertEquals("2", env.getConfig().getString("h.db.pool"));
@@ -106,12 +108,21 @@ public class EnvironmentTest {
     env(dir, Collections.emptyMap(), consumer);
   }
 
-  private void env(String dir, Map<String, String> args, BiConsumer<Environment, Config> consumer) {
+  @Test
+  public void flattenProperties() {
+    Config config = ConfigFactory
+        .parseMap(mapOf("k", "v", "root", mapOf("map", mapOf("key1", 1, "key2", "2", "list",
+            Arrays.asList("a", "b")))));
+    Environment environment = new Environment(getClass().getClassLoader(), config);
+    assertEquals(mapOf("root.map.key1", "1", "root.map.key2", "2", "root.map.list", "a, b"), environment.getProperties("root"));
+  }
+
+  private void env(String dir, Map<String, Object> args, BiConsumer<Environment, Config> consumer) {
     Properties sysprops = new Properties();
     sysprops.putAll(System.getProperties());
     try {
-      String[] names = args.getOrDefault("application.env", "dev").split(",");
-      args.forEach((k, v) -> System.setProperty(k, v));
+      String[] names = args.getOrDefault("application.env", "dev").toString().split(",");
+      args.forEach((k, v) -> System.setProperty(k, v.toString()));
       Environment env = Environment.loadEnvironment(new EnvironmentOptions()
           .setBasedir("env/" + dir)
           .setActiveNames(names)
@@ -122,10 +133,10 @@ public class EnvironmentTest {
     }
   }
 
-  private Map<String, String> mapOf(String... values) {
-    Map<String, String> hash = new HashMap<>();
+  private Map<String, Object> mapOf(Object... values) {
+    Map<String, Object> hash = new HashMap<>();
     for (int i = 0; i < values.length; i += 2) {
-      hash.put(values[i], values[i + 1]);
+      hash.put(values[i].toString(), values[i + 1]);
     }
     return hash;
   }
