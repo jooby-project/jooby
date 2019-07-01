@@ -112,7 +112,7 @@ public class RouterImpl implements Router {
 
   private RouterOptions options = new RouterOptions();
 
-  private $Chi chi = new $Chi(options.isCaseSensitive(), options.isIgnoreTrailingSlash());
+  private RadixTree chi = new $Chi();
 
   private LinkedList<Stack> stack = new LinkedList<>();
 
@@ -164,8 +164,6 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override public Router setRouterOptions(@Nonnull RouterOptions options) {
     this.options = options;
-    chi.setCaseSensitive(options.isCaseSensitive());
-    chi.setIgnoreTrailingSlash(options.isIgnoreTrailingSlash());
     return this;
   }
 
@@ -177,7 +175,7 @@ public class RouterImpl implements Router {
     if (routes.size() > 0) {
       throw new IllegalStateException("Base path must be set before adding any routes.");
     }
-    this.basePath = normalizePath(basePath, options.isCaseSensitive(), true);
+    this.basePath = normalizePath(basePath, false, true);
     return this;
   }
 
@@ -195,8 +193,7 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override
   public Router use(@Nonnull Predicate<Context> predicate, @Nonnull Router router) {
-    RadixTree tree = new $Chi(options.isCaseSensitive(), options.isIgnoreTrailingSlash())
-        .with(predicate);
+    RadixTree tree = new $Chi().with(predicate);
     if (trees == null) {
       trees = new ArrayList<>();
     }
@@ -208,7 +205,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router use(@Nonnull String path, @Nonnull Router router) {
-    String prefix = normalizePath(path, options.isCaseSensitive(), true);
+    String prefix = normalizePath(path, false, true);
     if (prefix.equals("/")) {
       prefix = "";
     }
@@ -327,14 +324,10 @@ public class RouterImpl implements Router {
 
   private Route defineRoute(@Nonnull String method, @Nonnull String pattern,
       @Nonnull Route.Handler handler, RadixTree tree) {
-    /** Make sure router options are in sync: */
-    chi.setCaseSensitive(options.isCaseSensitive());
-    chi.setIgnoreTrailingSlash(options.isIgnoreTrailingSlash());
-
     /** Pattern: */
-    StringBuilder pat = new StringBuilder();
-    stack.stream().filter(it -> it.pattern != null).forEach(it -> pat.append(it.pattern));
-    pat.append(pattern);
+    StringBuilder patternBuff = new StringBuilder();
+    stack.stream().filter(it -> it.pattern != null).forEach(it -> patternBuff.append(it.pattern));
+    patternBuff.append(pattern);
 
     /** Before: */
     Route.Before before = stack.stream()
@@ -352,8 +345,7 @@ public class RouterImpl implements Router {
         .reduce(null, (it, next) -> it == null ? next : it.then(next));
 
     /** Route: */
-    String safePattern = normalizePath(pat.toString(), options.isCaseSensitive(),
-        options.isIgnoreTrailingSlash());
+    String safePattern = Router.normalizePath(patternBuff.toString(), false, true);
     Route route = new Route(method, safePattern, handler);
     route.setPathKeys(Router.pathKeys(safePattern));
     route.setBefore(before);
@@ -361,15 +353,14 @@ public class RouterImpl implements Router {
     route.setDecorator(decorator);
     route.setRenderer(renderer);
     route.setParsers(parsers);
-    //null, handler, before, decorator, after, renderer,
-        //parsers);
+
     Stack stack = this.stack.peekLast();
     if (stack.executor != null) {
       routeExecutor.put(route, stack.executor);
     }
     String routePattern = normalizePath(basePath == null
         ? safePattern
-        : basePath + safePattern, options.isCaseSensitive(), options.isIgnoreTrailingSlash());
+        : basePath + safePattern, false, true);
     if (method.equals("*")) {
       METHODS.forEach(m -> tree.insert(m, routePattern, route));
     } else {
@@ -400,6 +391,10 @@ public class RouterImpl implements Router {
       Route.Handler pipeline = Pipeline
           .compute(source.getLoader(), route, mode, executor, handlers);
       route.setPipeline(pipeline);
+    }
+    // router options
+    if (options.isIgnoreCase() || options.isIgnoreTrailingSlash()) {
+      chi = chi.options(options.isIgnoreCase(), options.isIgnoreTrailingSlash());
     }
     // unwrap executor
     worker = ((ForwardingExecutor) worker).executor;
@@ -535,7 +530,7 @@ public class RouterImpl implements Router {
   }
 
   private Stack push(String pattern) {
-    Stack stack = new Stack(normalizePath(pattern, options.isCaseSensitive(), true));
+    Stack stack = new Stack(normalizePath(pattern, false, true));
     if (this.stack.size() > 0) {
       Stack parent = this.stack.getLast();
       stack.executor = parent.executor;

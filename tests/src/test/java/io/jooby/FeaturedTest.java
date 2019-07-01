@@ -1173,11 +1173,12 @@ public class FeaturedTest {
   @Test
   public void routerCaseInsensitive() {
     new JoobyRunner(app -> {
-      // This is on by default:
-      app.getRouterOptions().setCaseSensitive(false);
+      app.getRouterOptions()
+          .setIgnoreCase(true)
+          .setIgnoreTrailingSlash(true);
       app.get("/foo", Context::pathString);
 
-      app.get("/BAR", Context::pathString);
+      app.get("/bar", Context::pathString);
     }).ready(client -> {
       client.get("/foo", rsp -> {
         assertEquals("/foo", rsp.body().string());
@@ -1200,7 +1201,7 @@ public class FeaturedTest {
     /** Now do it case sensitive: */
     new JoobyRunner(app -> {
 
-      app.getRouterOptions().setCaseSensitive(true);
+      app.getRouterOptions().setIgnoreCase(false);
 
       app.get("/foo", Context::pathString);
 
@@ -1260,10 +1261,9 @@ public class FeaturedTest {
   }
 
   @Test
-  public void routerGotOverrideWhenTrailingSlashOff() {
+  public void trailinSlashIsANewRoute() {
     new JoobyRunner(app -> {
-      // This is on by default:
-      // app.ignoreTrailingSlash(true);
+      app.setRouterOptions(new RouterOptions().setIgnoreTrailingSlash(true));
       app.get("/foo/", ctx -> "foo/");
 
       app.get("/foo", ctx -> "new foo");
@@ -1273,20 +1273,6 @@ public class FeaturedTest {
       });
       client.get("/foo/", rsp -> {
         assertEquals("new foo", rsp.body().string());
-      });
-    });
-
-    new JoobyRunner(app -> {
-      app.getRouterOptions().setIgnoreTrailingSlash(false);
-      app.get("/foo/", ctx -> "trailing slash");
-
-      app.get("/foo", ctx -> "no trailing slash");
-    }).ready(client -> {
-      client.get("/foo", rsp -> {
-        assertEquals("no trailing slash", rsp.body().string());
-      });
-      client.get("/foo/", rsp -> {
-        assertEquals("trailing slash", rsp.body().string());
       });
     });
   }

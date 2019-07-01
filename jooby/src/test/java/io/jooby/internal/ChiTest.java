@@ -40,7 +40,6 @@ public class ChiTest {
   @Test
   public void routeCase() {
     $Chi router = new $Chi();
-    router.setIgnoreTrailingSlash(false);
     Route foo = route("GET", "/abcd", stringHandler("foo"));
     Route foos = route("GET", "/abcd/", stringHandler("foo/"));
     router.insert(foo);

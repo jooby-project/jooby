@@ -602,27 +602,6 @@ class $Chi implements RadixTree {
 
   private Node root = new Node();
 
-  private boolean caseSensitive;
-
-  private boolean ignoreTrailingSlash;
-
-  public $Chi(boolean caseSensitive, boolean ignoreTrailingSlash) {
-    setCaseSensitive(caseSensitive);
-    setIgnoreTrailingSlash(ignoreTrailingSlash);
-  }
-
-  public $Chi() {
-    this(true, true);
-  }
-
-  public void setCaseSensitive(boolean caseSensitive) {
-    this.caseSensitive = caseSensitive;
-  }
-
-  public void setIgnoreTrailingSlash(boolean ignoreTrailingSlash) {
-    this.ignoreTrailingSlash = ignoreTrailingSlash;
-  }
-
   public void insert(String method, String pattern, Route route) {
     String baseCatchAll = baseCatchAll(pattern);
     if (baseCatchAll.length() > 1) {
@@ -653,9 +632,8 @@ class $Chi implements RadixTree {
     root.destroy();
   }
 
-  public RouterMatch find(Context context, Renderer renderer, List<RadixTree> more) {
+  public RouterMatch find(Context context, String path, Renderer renderer, List<RadixTree> more) {
     String method = context.getMethod();
-    String path = Router.normalizePath(context.pathString(), caseSensitive, ignoreTrailingSlash);
     RouterMatch result = new RouterMatch();
     Route route = root.findRoute(result, method, path);
     if (route != null) {
@@ -664,7 +642,7 @@ class $Chi implements RadixTree {
     if (more != null) {
       // expand search
       for (RadixTree tree : more) {
-        RouterMatch match = tree.find(context, renderer, null);
+        RouterMatch match = tree.find(context, path, renderer, null);
         if (match.matches) {
           return match;
         }

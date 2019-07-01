@@ -17,10 +17,17 @@ public class HelloApp extends Jooby {
         .forEach(clazz -> {
           System.out.println(clazz.getName() + " loaded by: " + clazz.getClassLoader());
         });
-    setRouterOptions(new RouterOptions().setCaseSensitive(false).setIgnoreTrailingSlash(false));
+    setRouterOptions(new RouterOptions().setIgnoreCase(false).setIgnoreTrailingSlash(true));
+
+    get("/", ctx -> {
+      return ctx.pathString() + "oo";
+    });
 
     get("/foo/bar", ctx -> {
       return ctx.pathString() + "oo";
+    });
+    get("/foo/bar/", ctx -> {
+      return ctx.pathString() + "oo/";
     });
 
     get("/foo/{bar}", ctx -> {

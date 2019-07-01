@@ -26,7 +26,7 @@ public class RoutePathTest {
 
     assertEquals("/foo/bar", Router.normalizePath("/foo/bar", false, true));
 
-    assertEquals("/fOo/bAr", Router.normalizePath("/fOo/bAr", true, true));
+    assertEquals("/foo/bar", Router.normalizePath("/fOo/bAr", true, true));
 
     assertEquals("/foo/bar", Router.normalizePath("/foo/bar/", false, true));
 
@@ -38,13 +38,13 @@ public class RoutePathTest {
 
     assertEquals("/foo/bar", Router.normalizePath("/foo//bar", false, true));
 
-    assertEquals("/foo/bar", Router.normalizePath("/foo/Bar", false, false));
+    assertEquals("/foo/Bar", Router.normalizePath("/foo/Bar", false, false));
 
-    assertEquals("/foo/Bar", Router.normalizePath("/foo/Bar/", true, true));
+    assertEquals("/foo/bar", Router.normalizePath("/foo/Bar/", true, true));
 
-    assertEquals("/foo/Bar/", Router.normalizePath("/foo/Bar/", true, false));
+    assertEquals("/foo/bar/", Router.normalizePath("/foo/Bar/", true, false));
 
-    assertEquals("/foo/bar/", Router.normalizePath("/foo/Bar///", false, false));
+    assertEquals("/foo/Bar/", Router.normalizePath("/foo/Bar///", false, false));
 
     assertEquals("/foo/bar", Router.normalizePath("/foo/bar", false, true));
   }

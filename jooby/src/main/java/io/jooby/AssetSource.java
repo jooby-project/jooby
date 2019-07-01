@@ -42,7 +42,7 @@ public interface AssetSource {
    * @return An asset source.
    */
   static @Nonnull AssetSource create(@Nonnull ClassLoader loader, @Nonnull String location) {
-    String safeloc = Router.normalizePath(location, true, true)
+    String safeloc = Router.normalizePath(location, false, true)
         .substring(1);
     MediaType type = MediaType.byFile(location);
     if (type != MediaType.octetStream) {

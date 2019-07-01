@@ -683,11 +683,11 @@ public interface Router extends Registry {
    * removing trailing slash.
    *
    * @param path Path to process.
-   * @param caseSensitive True to make it lower case.
+   * @param ignoreCase True to make it lower case.
    * @param ignoreTrailingSlash True to remove trailing slash.
    * @return Safe path pattern.
    */
-  static @Nonnull String normalizePath(@Nonnull String path, boolean caseSensitive,
+  static @Nonnull String normalizePath(@Nonnull String path, boolean ignoreCase,
       boolean ignoreTrailingSlash) {
     if (path == null) {
       return "/";
@@ -708,14 +708,14 @@ public interface Router extends Registry {
     for (int i = 0; i < path.length(); i++) {
       char ch = path.charAt(i);
       if (ch != '/') {
-        if (caseSensitive) {
-          buff[p++] = ch;
-        } else {
+        if (ignoreCase) {
           char low = Character.toLowerCase(ch);
           if (low != ch) {
             modified = true;
           }
           buff[p++] = low;
+        } else {
+          buff[p++] = ch;
         }
       } else if (i == 0 || path.charAt(i - 1) != '/') {
         buff[p++] = ch;
