@@ -28,4 +28,6 @@ TODO
 tmp
 checkstyle
 javadoc
-examples.mv.db
+*.mv.db
+versions
+out
