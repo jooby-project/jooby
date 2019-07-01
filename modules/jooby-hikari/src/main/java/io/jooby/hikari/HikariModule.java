@@ -7,6 +7,7 @@ package io.jooby.hikari;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
+import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueType;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -23,141 +24,24 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class HikariModule implements Extension {
 
-  public static class Builder {
-
-    public HikariConfig build(Environment env) {
-      return build(env, "db");
-    }
-
-    public HikariConfig build(Environment env, String database) {
-      String dburl, dbkey;
-      database = builtindb(env, env.getProperty(database, database));
-      if (database.startsWith("jdbc:")) {
-        dbkey = databaseName(database);
-        dburl = database;
-      } else {
-        Config conf = env.getConfig();
-        dburl = Stream.of(database + ".url", database)
-            .filter(key -> conf.hasPath(key)
-                && conf.getValue(key).valueType() == ConfigValueType.STRING)
-            .findFirst()
-            .map(conf::getString)
-            .orElse(null);
-        dbkey = database;
-      }
-
-      return build(env, dbkey, builtindb(env, dburl));
-    }
-
-    private String builtindb(Environment env, String database) {
-      if ("mem".equals(database)) {
-        return "jdbc:h2:mem:@" + memname() + ";DB_CLOSE_DELAY=-1";
-      } else if ("fs".equals(database) || "tmp".equals(database)) {
-        Config conf = env.getConfig();
-        String name;
-        Path basedir;
-        if ("fs".equals(database)) {
-          name = conf.hasPath("application.package")
-              ? conf.getString("application.package")
-              : "db";
-          basedir = Paths.get(System.getProperty("user.dir"));
-        } else {
-          name = "tmp" + memname();
-          basedir = Paths.get(conf.getString("application.tmpdir"));
-        }
-        Path path = basedir.resolve(name);
-        return "jdbc:h2:" + path.toAbsolutePath();
-      }
-      return database;
-    }
-
-    private String memname() {
-      return Long.toHexString(System.identityHashCode(this));
-    }
-
-    private HikariConfig build(Environment env, String dbkey, String dburl) {
-      Properties properties = new Properties();
-      String dbtype, dbname;
-      if (dburl == null) {
-        dbtype = null;
-        dbname = null;
-      } else {
-        properties.setProperty("dataSource.url", dburl);
-        dbtype = databaseType(dburl);
-        dbname = databaseName(dburl);
-      }
-
-      /** defaults: */
-      properties.putAll(defaults(dbtype, env));
-      /** db.* :*/
-      props(env, (prop, v) -> {
-        if (prop.endsWith(DATASOURCE_CLASS_NAME)) {
-          properties.put(DATASOURCE_CLASS_NAME, v);
-        } else {
-          properties.put("dataSource." + prop, v);
-        }
-      }, dbkey);
-
-      /** HikariModule: */
-      props(env, (prop, v) -> {
-        properties.put(prop, v);
-      }, "hikari", "hikari." + dbkey, "hikari." + dbname);
-
-      /** Rebuild database url, type and name. */
-      if (properties.containsKey("driverClassName")) {
-        properties.remove(DATASOURCE_CLASS_NAME);
-        properties.setProperty("jdbcUrl", dburl);
-      }
-      String poolname;
-      dburl = properties.getProperty("jdbcUrl", properties.getProperty("dataSource.url", dburl));
-      if (dburl == null) {
-        dbtype = properties
-            .getProperty(DATASOURCE_CLASS_NAME,
-                properties.getProperty("dataSource.database", "driverClassName"));
-        dbtype = dbtype.substring(dbtype.lastIndexOf('.') + 1)
-            .replace("DataSource", "")
-            .toLowerCase();
-        dbname = properties.getProperty("dataSource.database", dbtype);
-        poolname = dbtype + "." + dbname;
-      } else {
-        poolname = dbtype + "." + dbname;
-      }
-      properties.setProperty("poolName", poolname);
-
-      return new HikariConfig(properties);
-    }
-
-    private void props(Environment env, BiConsumer<String, String> consumer, String... keys) {
-      for (String key : keys) {
-        try {
-          Config conf = env.getConfig();
-          if (conf.hasPath(key) && conf.getValue(key).valueType() == ConfigValueType.OBJECT) {
-            conf.getConfig(key).root().unwrapped().forEach((k, v) -> {
-              if (v instanceof String) {
-                consumer.accept(k, (String) v);
-              }
-            });
-          }
-        } catch (ConfigException.BadPath | ConfigException.BugOrBroken expected) {
-          // do nothing
-        }
-      }
-    }
-  }
-
   static {
     System.setProperty("log4jdbc.auto.load.popular.drivers", "false");
   }
 
   private static final String DATASOURCE_CLASS_NAME = "dataSourceClassName";
+
+  private static final String DRIVER_CLASS_NAME = "driverClassName";
 
   private static final Set<String> SKIP_TOKENS = Stream.of("jdbc", "jtds")
       .collect(Collectors.toSet());
@@ -176,9 +60,14 @@ public class HikariModule implements Extension {
     this("db");
   }
 
+  public HikariModule(@Nonnull HikariConfig hikari) {
+    this(hikari.getPoolName());
+    this.hikari = hikari;
+  }
+
   @Override public void install(@Nonnull Jooby application) {
     if (hikari == null) {
-      hikari = create().build(application.getEnvironment(), database);
+      hikari = build(application.getEnvironment(), database);
     }
     HikariDataSource dataSource = new HikariDataSource(hikari);
 
@@ -191,10 +80,6 @@ public class HikariModule implements Extension {
     registry.put(key, dataSource);
 
     application.onStop(dataSource::close);
-  }
-
-  public static Builder create() {
-    return new Builder();
   }
 
   public static String databaseType(String url) {
@@ -239,8 +124,6 @@ public class HikariModule implements Extension {
     }
     return dbname;
   }
-
-  ;
 
   public static Map<String, Object> defaults(String database, Environment env) {
     Map<String, Object> defaults = new HashMap<>();
@@ -339,5 +222,164 @@ public class HikariModule implements Extension {
         return defaults;
       }
     }
+  }
+
+  static HikariConfig build(Environment env, String database) {
+    Properties properties;
+    Config config = env.getConfig();
+    /**
+     * database:
+     *  - key
+     *  - jdbc url
+     *  - special database
+     */
+    boolean isProperty = isProperty(config, database);
+    String dbkey = database;
+    if (isProperty) {
+      properties = properties(config, database);
+    } else {
+      properties = jdbcUrl(config, database);
+    }
+    String dburl = (String) properties.get("dataSource.url");
+    String dbtype;
+    String dbname;
+    if (dburl != null) {
+      dbtype = databaseType(dburl);
+      dbname = databaseName(dburl);
+    } else {
+      dbtype = null;
+      dbname = null;
+    }
+
+    if (dbname != null && !dbkey.equals(dbname)) {
+      dumpProperties(config, dbname, "dataSource.", properties::setProperty);
+    }
+
+    /** *.dataSource AND *.hikari */
+    Stream.of(dbkey, dbname)
+        .filter(Objects::nonNull)
+        .distinct()
+        .forEach(key ->
+            dumpProperties(config, "hikari", "", properties::setProperty)
+        );
+    Stream.of(dbkey, dbname)
+        .filter(Objects::nonNull)
+        .distinct()
+        .forEach(key -> {
+          dumpProperties(config, key + ".dataSource", "dataSource.", properties::setProperty);
+          dumpProperties(config, key + ".hikari", "", properties::setProperty);
+        });
+
+    Map<String, Object> defaults = defaults(dbtype, env);
+    Properties configuration = new Properties();
+    configuration.putAll(defaults);
+    configuration.putAll(properties);
+
+    if (configuration.containsKey(DRIVER_CLASS_NAME)) {
+      configuration.remove(DATASOURCE_CLASS_NAME);
+      configuration.remove("dataSource.url");
+      configuration.setProperty("jdbcUrl", dburl);
+    }
+
+    if (dbtype == null) {
+      String poolName = Stream.of(
+          configuration.getProperty(DATASOURCE_CLASS_NAME),
+          configuration.getProperty(DRIVER_CLASS_NAME),
+          configuration.getProperty("dataSource.database"),
+          configuration.getProperty("dataSource.databaseName")
+      )
+          .filter(Objects::nonNull)
+          .map(n -> n.replace("DataSource", "").replace("Driver", ""))
+          .map(n -> {
+            int i = n.lastIndexOf('.');
+            return i != -1 ? n.substring(i + 1).toLowerCase() : n;
+          })
+          .collect(Collectors.joining("."));
+      configuration.put("poolName", poolName);
+    } else {
+      configuration.put("poolName", dbtype + "." + dbname);
+    }
+
+    Optional.ofNullable(configuration.remove("dataSource.user"))
+        .ifPresent(user -> configuration.setProperty("username", user.toString()));
+    Optional.ofNullable(configuration.remove("dataSource.password"))
+        .ifPresent(password -> configuration.setProperty("password", password.toString()));
+    return new HikariConfig(configuration);
+  }
+
+  private static void dumpProperties(Config config, String key, String prefix,
+      BiConsumer<String, String> consumer) {
+    if (isProperty(config, key)) {
+      Object anyRef = config.getAnyRef(key);
+      if (anyRef instanceof Map) {
+        Set<Map.Entry> entries = ((Map) anyRef).entrySet();
+        for (Map.Entry e : entries) {
+          Object value = e.getValue();
+          if (!(value instanceof Map)) {
+            String k = prefix + e.getKey();
+            consumer.accept(k, value.toString());
+          }
+        }
+      }
+    }
+  }
+
+  private static Properties properties(Config config, String database) {
+    Properties hikari;
+
+    ConfigValue dbvalue = config.getValue(database);
+    if (dbvalue.valueType() == ConfigValueType.OBJECT) {
+      hikari = new Properties();
+      dumpProperties(config, database, "dataSource.", hikari::setProperty);
+    } else {
+      hikari = jdbcUrl(config, (String) dbvalue.unwrapped());
+    }
+
+    // Move dataSourceClassName/driverClassName
+    Stream.of(DATASOURCE_CLASS_NAME, DRIVER_CLASS_NAME).forEach(k -> {
+      String value = (String) hikari.remove("dataSource." + k);
+      if (value != null) {
+        hikari.setProperty(k, value);
+      }
+    });
+    return hikari;
+  }
+
+  private static boolean isProperty(Config config, String key) {
+    try {
+      return config.hasPath(key);
+    } catch (ConfigException x) {
+      return false;
+    }
+  }
+
+  private static Properties jdbcUrl(Config conf, String database) {
+    Properties hikari = new Properties();
+    if ("mem".equals(database)) {
+      hikari.setProperty("dataSource.url", "jdbc:h2:mem:@mem" + rnd() + ";DB_CLOSE_DELAY=-1");
+      hikari.setProperty("dataSource.user", "sa");
+      hikari.setProperty("dataSource.password", "");
+    } else if ("local".equals(database) || "tmp".equals(database)) {
+      String name;
+      Path basedir;
+      if ("local".equals(database)) {
+        basedir = Paths.get(System.getProperty("user.dir"));
+        name = basedir.getFileName().toString();
+      } else {
+        name = "tmp" + rnd();
+        basedir = Paths.get(conf.getString("application.tmpdir"));
+      }
+      Path path = basedir.resolve(name);
+      hikari.setProperty("dataSource.url", "jdbc:h2:" + path.toAbsolutePath());
+      hikari.setProperty("dataSource.user", "sa");
+      hikari.setProperty("dataSource.password", "");
+    } else {
+      hikari.setProperty("dataSource.url", database);
+    }
+    return hikari;
+  }
+
+  private static String rnd() {
+    return Long.toHexString(UUID.randomUUID().getMostSignificantBits());
   }
 }

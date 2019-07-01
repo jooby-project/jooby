@@ -115,7 +115,11 @@ public class EnvironmentTest {
             Arrays.asList("a", "b")))));
     Environment environment = new Environment(getClass().getClassLoader(), config);
     assertEquals(mapOf("root.map.key1", "1", "root.map.key2", "2", "root.map.list", "a, b"), environment.getProperties("root"));
+
+    assertEquals(mapOf("p.map.key1", "1", "p.map.key2", "2", "p.map.list", "a, b"), environment.getProperties("root", "p"));
   }
+
+
 
   private void env(String dir, Map<String, Object> args, BiConsumer<Environment, Config> consumer) {
     Properties sysprops = new Properties();

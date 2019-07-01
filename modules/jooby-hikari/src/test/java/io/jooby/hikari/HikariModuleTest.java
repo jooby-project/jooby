@@ -20,53 +20,53 @@ public class HikariModuleTest {
 
   @Test
   public void mem() {
-    HikariConfig conf = HikariModule.create()
-        .build(new Environment(getClass().getClassLoader(), mapOf("db", "mem"), "test"));
+    HikariConfig conf = HikariModule
+        .build(new Environment(getClass().getClassLoader(), mapOf("db", "mem"), "test"), "db");
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals("org.h2.jdbcx.JdbcDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
     assertTrue(Pattern.matches("h2\\..*", conf.getPoolName()));
     assertNotNull(conf.getDataSourceProperties());
-    assertEquals("sa", conf.getDataSourceProperties().getProperty("user"));
-    assertEquals("", conf.getDataSourceProperties().getProperty("password"));
+    assertEquals("sa", conf.getUsername());
+    assertEquals("", conf.getPassword());
     assertTrue(Pattern.matches("jdbc:h2:mem:.*;DB_CLOSE_DELAY=-1",
         conf.getDataSourceProperties().getProperty("url")));
   }
 
   @Test
-  public void fs() {
-    HikariConfig conf = HikariModule.create()
+  public void local() {
+    HikariConfig conf = HikariModule
         .build(new Environment(getClass().getClassLoader(), 
-            mapOf("db", "fs", "application.package", "foo", "application.tmpdir", "target"), "test"));
+            mapOf("db", "local", "application.package", "foo", "application.tmpdir", "target"), "test"), "db");
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals("org.h2.jdbcx.JdbcDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
     assertTrue(Pattern.matches("h2\\..*", conf.getPoolName()));
     assertNotNull(conf.getDataSourceProperties());
-    assertEquals("sa", conf.getDataSourceProperties().getProperty("user"));
-    assertEquals("", conf.getDataSourceProperties().getProperty("password"));
+    assertEquals("sa", conf.getUsername());
+    assertEquals("", conf.getPassword());
     assertTrue(Pattern.matches("jdbc:h2:.*", conf.getDataSourceProperties().getProperty("url")),
         conf.getDataSourceProperties().getProperty("url"));
   }
 
   @Test
   public void dbWithCredentials() {
-    HikariConfig conf = HikariModule.create()
+    HikariConfig conf = HikariModule
         .build(new Environment(getClass().getClassLoader(), 
-            mapOf("db.url", "jdbc:mysql://localhost/db", "db.user", "root", "db.password", ""), "test"));
+            mapOf("db.url", "jdbc:mysql://localhost/db", "db.user", "root", "db.password", ""), "test"), "db");
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
     assertEquals("mysql.db", conf.getPoolName());
     assertNotNull(conf.getDataSourceProperties());
-    assertEquals("root", conf.getDataSourceProperties().getProperty("user"));
-    assertEquals("", conf.getDataSourceProperties().getProperty("password"));
+    assertEquals("root", conf.getUsername());
+    assertEquals("", conf.getPassword());
     assertEquals("jdbc:mysql://localhost/db", conf.getDataSourceProperties().getProperty("url"));
   }
 
   @Test
   public void connectionString() {
-    HikariConfig conf = HikariModule.create()
+    HikariConfig conf = HikariModule
         .build(new Environment(getClass().getClassLoader(), mapOf("mydb.user", "root", "mydb.password", ""), "test"),
             "jdbc:mysql://localhost/mydb");
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
@@ -74,22 +74,22 @@ public class HikariModuleTest {
     assertEquals(null, conf.getJdbcUrl());
     assertEquals("mysql.mydb", conf.getPoolName());
     assertNotNull(conf.getDataSourceProperties());
-    assertEquals("root", conf.getDataSourceProperties().getProperty("user"));
-    assertEquals("", conf.getDataSourceProperties().getProperty("password"));
+    assertEquals("root", conf.getUsername());
+    assertEquals("", conf.getPassword());
     assertEquals("jdbc:mysql://localhost/mydb", conf.getDataSourceProperties().getProperty("url"));
   }
 
   @Test
   public void memConnectionString() {
-    HikariConfig conf = HikariModule.create()
+    HikariConfig conf = HikariModule
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "test"), "mem");
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals("org.h2.jdbcx.JdbcDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
     assertTrue(Pattern.matches("h2\\..*", conf.getPoolName()));
     assertNotNull(conf.getDataSourceProperties());
-    assertEquals("sa", conf.getDataSourceProperties().getProperty("user"));
-    assertEquals("", conf.getDataSourceProperties().getProperty("password"));
+    assertEquals("sa", conf.getUsername());
+    assertEquals("", conf.getPassword());
     assertTrue(Pattern.matches("jdbc:h2:.*", conf.getDataSourceProperties().getProperty("url")),
         conf.getDataSourceProperties().getProperty("url"));
   }
@@ -102,116 +102,116 @@ public class HikariModuleTest {
             "db.audit.url", "jdbc:mysql://localhost/audit", "db.audit.user", "a",
             "db.audit.password", "p2",
             "hikari.maximumPoolSize", "5",
-            "hikari.audit.maximumPoolSize", "1"), "test");
-    HikariConfig db = HikariModule.create().build(env, "db.main");
+            "db.audit.hikari.maximumPoolSize", "1"), "test");
+    HikariConfig db = HikariModule.build(env, "db.main");
     assertEquals(5, db.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", db.getDataSourceClassName());
     assertEquals(null, db.getJdbcUrl());
     assertEquals("mysql.main", db.getPoolName());
     assertNotNull(db.getDataSourceProperties());
-    assertEquals("m", db.getDataSourceProperties().getProperty("user"));
-    assertEquals("p1", db.getDataSourceProperties().getProperty("password"));
+    assertEquals("m", db.getUsername());
+    assertEquals("p1", db.getPassword());
     assertEquals("jdbc:mysql://localhost/main", db.getDataSourceProperties().getProperty("url"));
 
-    db = HikariModule.create().build(env, "db.audit");
+    db = HikariModule.build(env, "db.audit");
     assertEquals(1, db.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", db.getDataSourceClassName());
     assertEquals(null, db.getJdbcUrl());
     assertEquals("mysql.audit", db.getPoolName());
     assertNotNull(db.getDataSourceProperties());
-    assertEquals("a", db.getDataSourceProperties().getProperty("user"));
-    assertEquals("p2", db.getDataSourceProperties().getProperty("password"));
+    assertEquals("a", db.getUsername());
+    assertEquals("p2", db.getPassword());
     assertEquals("jdbc:mysql://localhost/audit", db.getDataSourceProperties().getProperty("url"));
   }
 
   @Test
   public void dbUrlWithParams() {
-    HikariConfig conf = HikariModule.create()
+    HikariConfig conf = HikariModule
         .build(new Environment(getClass().getClassLoader(), 
             mapOf("db.url",
-                "jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8"), "test"));
+                "jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8"), "test"), "db");
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
     assertEquals("mysql.db", conf.getPoolName());
     assertNotNull(conf.getDataSourceProperties());
-    assertEquals(null, conf.getDataSourceProperties().getProperty("user"));
-    assertEquals(null, conf.getDataSourceProperties().getProperty("password"));
+    assertEquals(null, conf.getUsername());
+    assertEquals(null, conf.getPassword());
     assertEquals("jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8",
         conf.getDataSourceProperties().getProperty("url"));
   }
 
   @Test
   public void hikariOptions() {
-    HikariConfig conf = HikariModule.create()
+    HikariConfig conf = HikariModule
         .build(new Environment(getClass().getClassLoader(), 
-            mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.db.maximumPoolSize", "5"), "test"));
+            mapOf("db.url", "jdbc:mysql://localhost/db", "db.hikari.maximumPoolSize", "5"), "test"), "db");
     assertEquals(5, conf.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
     assertEquals("mysql.db", conf.getPoolName());
     assertNotNull(conf.getDataSourceProperties());
-    assertEquals(null, conf.getDataSourceProperties().getProperty("user"));
-    assertEquals(null, conf.getDataSourceProperties().getProperty("password"));
+    assertEquals(null, conf.getUsername());
+    assertEquals(null, conf.getPassword());
     assertEquals("jdbc:mysql://localhost/db", conf.getDataSourceProperties().getProperty("url"));
   }
 
   @Test
   public void hikariDefaultOptions() {
-    HikariConfig conf = HikariModule.create()
+    HikariConfig conf = HikariModule
         .build(new Environment(getClass().getClassLoader(), 
-            mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.maximumPoolSize", "5"), "test"));
+            mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.maximumPoolSize", "5"), "test"), "db");
     assertEquals(5, conf.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
     assertEquals("mysql.db", conf.getPoolName());
     assertNotNull(conf.getDataSourceProperties());
-    assertEquals(null, conf.getDataSourceProperties().getProperty("user"));
-    assertEquals(null, conf.getDataSourceProperties().getProperty("password"));
+    assertEquals(null, conf.getUsername());
+    assertEquals(null, conf.getPassword());
     assertEquals("jdbc:mysql://localhost/db", conf.getDataSourceProperties().getProperty("url"));
   }
 
   @Test
   public void hikariOverrideOptions() {
-    HikariConfig conf = HikariModule.create()
+    HikariConfig conf = HikariModule
         .build(new Environment(getClass().getClassLoader(), 
             mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.maximumPoolSize", "5",
-                "hikari.db.maximumPoolSize", "7"), "test"));
+                "db.hikari.maximumPoolSize", "7"), "test"), "db");
     assertEquals(7, conf.getMaximumPoolSize());
     assertEquals("com.mysql.cj.jdbc.MysqlDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
     assertEquals("mysql.db", conf.getPoolName());
     assertNotNull(conf.getDataSourceProperties());
-    assertEquals(null, conf.getDataSourceProperties().getProperty("user"));
-    assertEquals(null, conf.getDataSourceProperties().getProperty("password"));
+    assertEquals(null, conf.getUsername());
+    assertEquals(null, conf.getPassword());
     assertEquals("jdbc:mysql://localhost/db", conf.getDataSourceProperties().getProperty("url"));
   }
 
   @Test
   public void overrideDataSource() {
-    HikariConfig conf = HikariModule.create()
+    HikariConfig conf = HikariModule
         .build(new Environment(getClass().getClassLoader(), 
             mapOf("db.url", "jdbc:mysql://localhost/db", "hikari.dataSourceClassName",
-                "test.MyDS"), "test"));
+                "test.MyDS"), "test"), "db");
     assertEquals("test.MyDS", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
     assertEquals("mysql.db", conf.getPoolName());
     assertNotNull(conf.getDataSourceProperties());
-    assertEquals(null, conf.getDataSourceProperties().getProperty("user"));
-    assertEquals(null, conf.getDataSourceProperties().getProperty("password"));
+    assertEquals(null, conf.getUsername());
+    assertEquals(null, conf.getPassword());
     assertEquals("jdbc:mysql://localhost/db", conf.getDataSourceProperties().getProperty("url"));
   }
 
   @Test
   public void noUrlProperty() {
-    HikariConfig conf = HikariModule.create()
+    HikariConfig conf = HikariModule
         .build(new Environment(getClass().getClassLoader(), 
             mapOf(
                 "db.host", "localhost",
                 "db.database", "foo",
                 "db.user", "root",
                 "db.port", "333",
-                "db.dataSourceClassName", "com.impossibl.postgres.jdbc.PGDataSource"), "test"));
+                "db.dataSourceClassName", "com.impossibl.postgres.jdbc.PGDataSource"), "test"), "db");
     assertEquals("com.impossibl.postgres.jdbc.PGDataSource", conf.getDataSourceClassName());
     assertEquals(null, conf.getJdbcUrl());
     assertEquals("pg.foo", conf.getPoolName());
@@ -219,24 +219,23 @@ public class HikariModuleTest {
     assertEquals("foo", conf.getDataSourceProperties().getProperty("database"));
     assertEquals("localhost", conf.getDataSourceProperties().getProperty("host"));
     assertEquals("333", conf.getDataSourceProperties().getProperty("port"));
-    assertEquals("root", conf.getDataSourceProperties().getProperty("user"));
+    assertEquals("root", conf.getUsername());
   }
 
   @Test
   public void log4jdbc() {
-    HikariConfig conf = HikariModule.create()
+    HikariConfig conf = HikariModule
         .build(new Environment(getClass().getClassLoader(), 
-            mapOf("db.url", "jdbc:log4jdbc:mysql://localhost/db"), "test"));
+            mapOf("db.url", "jdbc:log4jdbc:mysql://localhost/db"), "test"), "db");
     assertEquals(MAX_POOL_SIZE, conf.getMaximumPoolSize());
     assertEquals(null, conf.getDataSourceClassName());
     assertEquals("net.sf.log4jdbc.DriverSpy", conf.getDriverClassName());
-    assertEquals("jdbc:log4jdbc:mysql://localhost/db", conf.getJdbcUrl());
+    //assertEquals("jdbc:log4jdbc:mysql://localhost/db", conf.getDataSourceProperties().getProperty("url"));
     assertEquals("log4jdbc.db", conf.getPoolName());
     assertNotNull(conf.getDataSourceProperties());
-    assertEquals(null, conf.getDataSourceProperties().getProperty("user"));
-    assertEquals(null, conf.getDataSourceProperties().getProperty("password"));
-    assertEquals("jdbc:log4jdbc:mysql://localhost/db",
-        conf.getDataSourceProperties().getProperty("url"));
+    assertEquals(null, conf.getUsername());
+    assertEquals(null, conf.getPassword());
+    assertEquals("jdbc:log4jdbc:mysql://localhost/db", conf.getJdbcUrl());// conf.getDataSourceProperties().getProperty("url"));
   }
 
   @Test

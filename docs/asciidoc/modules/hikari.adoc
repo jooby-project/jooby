@@ -109,9 +109,9 @@ import io.jooby.hikari.HikariModule
 
 Modules comes with 3 special databases provided by https://github.com/h2database/h2database[H2 database]:
 
-- `mem`: setup an in-memory database
-- `fs` : a file system database at `System.getProperty("user.dir")`
-- `tmp`: a tmp file system database at `System.getProperty("user.dir") + "/tmp"` directory
+- `mem`  : setup an in-memory database
+- `local`: a file system database at `System.getProperty("user.dir")`
+- `tmp`  : a tmp file system database at `System.getProperty("user.dir") + "/tmp"` directory
 
 === Multiple databases
 
@@ -188,11 +188,11 @@ maindb.url = "jdbc:mysql://localhost/main"
 maindb.user = myuser
 maindb.password = mypass
 
-hikari.maindb.maximumPoolSize = 10
+maindb.hikari.maximumPoolSize = 10
 
 auditdb.url = "jdbc:mysql://localhost/audit"
 auditdb.user = myuser
 auditdb.password = mypass
 
-hikari.auditdb.maximumPoolSize = 15
+auditdb.hikari.maximumPoolSize = 15
 ----
