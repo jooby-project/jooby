@@ -1353,15 +1353,19 @@ public interface Context extends Registry {
    */
   @Nonnull default Context sendError(@Nonnull Throwable cause, @Nonnull StatusCode statusCode) {
     Router router = getRouter();
-    try {
-      router.getErrorHandler().apply(this, cause, statusCode);
-    } catch (Exception x) {
-      router.getLog()
-          .error("error handler resulted in exception {} {}", getMethod(), pathString(), x);
-    }
-    /** rethrow fatal exceptions: */
-    if (SneakyThrows.isFatal(cause)) {
-      throw SneakyThrows.propagate(cause);
+    if (isResponseStarted()) {
+      router.getLog().error(ErrorHandler.errorMessage(this, statusCode), cause);
+    } else {
+      try {
+        router.getErrorHandler().apply(this, cause, statusCode);
+      } catch (Exception x) {
+        router.getLog()
+            .error("error handler resulted in exception {} {}", getMethod(), pathString(), x);
+      }
+      /** rethrow fatal exceptions: */
+      if (SneakyThrows.isFatal(cause)) {
+        throw SneakyThrows.propagate(cause);
+      }
     }
     return this;
   }

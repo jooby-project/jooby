@@ -25,16 +25,7 @@ public interface ErrorHandler {
    * or json.
    */
   ErrorHandler DEFAULT = (ctx, cause, statusCode) -> {
-    String msg = new StringBuilder()
-        .append(ctx.getMethod())
-        .append(" ")
-        .append(ctx.pathString())
-        .append(" ")
-        .append(statusCode.value())
-        .append(" ")
-        .append(statusCode.reason())
-        .toString();
-    ctx.getRouter().getLog().error(msg, cause);
+    ctx.getRouter().getLog().error(errorMessage(ctx, statusCode), cause);
 
     MediaType type = ctx.accept(Arrays.asList(json, html));
     if (type == null || type.equals(html)) {
@@ -104,5 +95,17 @@ public interface ErrorHandler {
         next.apply(ctx, cause, statusCode);
       }
     };
+  }
+
+  static @Nonnull String errorMessage(@Nonnull Context ctx, @Nonnull StatusCode statusCode) {
+    return new StringBuilder()
+        .append(ctx.getMethod())
+        .append(" ")
+        .append(ctx.pathString())
+        .append(" ")
+        .append(statusCode.value())
+        .append(" ")
+        .append(statusCode.reason())
+        .toString();
   }
 }
