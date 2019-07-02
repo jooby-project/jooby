@@ -20,7 +20,7 @@ public interface MessageDecoder {
    * Resolve parsing as {@link StatusCode#UNSUPPORTED_MEDIA_TYPE}.
    */
   MessageDecoder UNSUPPORTED_MEDIA_TYPE = new MessageDecoder() {
-    @Override public <T> T parse(Context ctx, Type type) {
+    @Override public <T> T decode(Context ctx, Type type) {
       throw new StatusCodeException(StatusCode.UNSUPPORTED_MEDIA_TYPE);
     }
   };
@@ -28,7 +28,7 @@ public interface MessageDecoder {
    * Parse body to one of the <code>raw</code> types: String, byte[], etc.
    */
   MessageDecoder RAW = new MessageDecoder() {
-    @Override public <T> T parse(Context ctx, Type type) {
+    @Override public <T> T decode(Context ctx, Type type) {
       return ctx.body().to(type);
     }
   };
@@ -42,5 +42,5 @@ public interface MessageDecoder {
    * @return An instance of the target type.
    * @throws Exception Is something goes wrong.
    */
-  @Nonnull <T> T parse(@Nonnull Context ctx, @Nonnull Type type) throws Exception;
+  @Nonnull <T> T decode(@Nonnull Context ctx, @Nonnull Type type) throws Exception;
 }

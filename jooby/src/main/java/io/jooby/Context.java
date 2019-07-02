@@ -790,7 +790,7 @@ public interface Context extends Registry {
    */
   default @Nonnull <T> T body(@Nonnull Reified<T> type, @Nonnull MediaType contentType) {
     try {
-      return parser(contentType).parse(this, type.getType());
+      return parser(contentType).decode(this, type.getType());
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
@@ -817,7 +817,7 @@ public interface Context extends Registry {
    */
   default @Nonnull <T> T body(@Nonnull Class type, @Nonnull MediaType contentType) {
     try {
-      return parser(contentType).parse(this, type);
+      return parser(contentType).decode(this, type);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }

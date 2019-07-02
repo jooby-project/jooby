@@ -58,11 +58,11 @@ Request body parsing is achieved using the javadoc:MessageDecoder[] functional i
 ----
 public interface MessageDecoder {
 
-  <T> T parse(Context ctx, Type type) throws Exception;
+  <T> T decode(Context ctx, Type type) throws Exception;
 }
 ----
 
-javadoc:MessageDecoder[] has a single `parse` method that takes two input arguments: `(context, type)`
+javadoc:MessageDecoder[] has a single `decode` method that takes two input arguments: `(context, type)`
 and returns a single result of the given type.
 
 .JSON example:

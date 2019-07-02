@@ -64,7 +64,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     return mapper.writeValueAsBytes(value);
   }
 
-  @Override public <T> T parse(Context ctx, Type type) throws Exception {
+  @Override public <T> T decode(Context ctx, Type type) throws Exception {
     JavaType javaType = mapper.getTypeFactory().constructType(type);
     Body body = ctx.body();
     if (body.isInMemory()) {
