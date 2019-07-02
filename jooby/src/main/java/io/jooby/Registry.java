@@ -39,7 +39,7 @@ public interface Registry {
   /**
    * Provides an instance of the given type.
    *
-   * @param type Object type.
+   * @param key Object key.
    * @param <T> Object type.
    * @return Instance of this type.
    * @throws RegistryException If there was a runtime failure while providing an instance.

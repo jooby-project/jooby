@@ -5,15 +5,47 @@
  */
 package io.jooby;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+/**
+ * Find, save and delete a session ID (cookie or header) into/from the web {@link Context}.
+ *
+ * @author edgar
+ */
 public interface SessionId {
 
-  String findSessionId(Context ctx);
+  /**
+   * Find session ID.
+   *
+   * @param ctx Web context.
+   * @return Session ID or <code>null</code>.
+   */
+  @Nullable String findSessionId(@Nonnull Context ctx);
 
-  void saveSessionId(Context ctx, String sessionId);
+  /**
+   * Save session ID in the web context.
+   *
+   * @param ctx Web context.
+   * @param sessionId Session ID to save.
+   */
+  void saveSessionId(@Nonnull Context ctx, @Nonnull String sessionId);
 
-  void deleteSessionId(Context ctx, String sessionId);
+  /**
+   * Delete session ID in the web context.
+   *
+   * @param ctx Web context.
+   * @param sessionId Session ID to save.
+   */
+  void deleteSessionId(@Nonnull Context ctx, @Nonnull String sessionId);
 
-  static SessionId cookie(Cookie cookie) {
+  /**
+   * Create a cookie-based Session ID.
+   *
+   * @param cookie Cookie template.
+   * @return Session ID.
+   */
+  static @Nonnull SessionId cookie(@Nonnull Cookie cookie) {
     String name = cookie.getName();
     return new SessionId() {
       @Override public String findSessionId(Context ctx) {
@@ -34,7 +66,13 @@ public interface SessionId {
     };
   }
 
-  static SessionId header(String name) {
+  /**
+   * Create a header-based Session ID.
+   *
+   * @param name Header name.
+   * @return Session ID.
+   */
+  static @Nonnull SessionId header(@Nonnull String name) {
     return new SessionId() {
       @Override public String findSessionId(Context ctx) {
         return ctx.headerMap().get(name);

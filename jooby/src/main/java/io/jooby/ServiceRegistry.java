@@ -26,6 +26,11 @@ public interface ServiceRegistry extends Registry {
    */
   @Nonnull Set<ServiceKey<?>> keySet();
 
+  /**
+   * Registered service entries.
+   *
+   * @return Service entries.
+   */
   @Nonnull Set<Map.Entry<ServiceKey<?>, Provider<?>>> entrySet();
 
   /**

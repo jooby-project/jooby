@@ -208,6 +208,7 @@ public class Route {
   public static final Handler METHOD_NOT_ALLOWED = ctx -> ctx
       .sendError(new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED));
 
+  /** Handler for {@link StatusCode#NOT_ACCEPTABLE} responses. */
   public static final Route.Before ACCEPT = ctx -> {
     List<MediaType> produceTypes = ctx.getRoute().getProduces();
     MediaType contentType = ctx.accept(produceTypes);
@@ -217,6 +218,7 @@ public class Route {
     }
   };
 
+  /** Handler for {@link StatusCode#UNSUPPORTED_MEDIA_TYPE} responses. */
   public static final Route.Before SUPPORT_MEDIA_TYPE = ctx -> {
     MediaType contentType = ctx.getRequestType();
     if (contentType == null) {
@@ -305,7 +307,13 @@ public class Route {
     return pathKeys;
   }
 
-  public Route setPathKeys(@Nonnull List<String> pathKeys) {
+  /**
+   * Set path keys.
+   *
+   * @param pathKeys Path keys or empty list.
+   * @return This route.
+   */
+  public @Nonnull Route setPathKeys(@Nonnull List<String> pathKeys) {
     this.pathKeys = pathKeys;
     return this;
   }
@@ -351,6 +359,12 @@ public class Route {
     return before;
   }
 
+  /**
+   * Set before filter.
+   *
+   * @param before Before filter.
+   * @return This route.
+   */
   public @Nonnull Route setBefore(@Nullable Before before) {
     this.before = before;
     return this;
@@ -365,6 +379,12 @@ public class Route {
     return after;
   }
 
+  /**
+   * Set after filter.
+   *
+   * @param after After filter.
+   * @return This route.
+   */
   public @Nonnull Route setAfter(@Nonnull After after) {
     this.after = after;
     return this;
@@ -379,6 +399,12 @@ public class Route {
     return decorator;
   }
 
+  /**
+   * Set route decorator.
+   *
+   * @param decorator Decorator.
+   * @return This route.
+   */
   public @Nonnull Route setDecorator(@Nullable Decorator decorator) {
     this.decorator = decorator;
     return this;
@@ -415,6 +441,12 @@ public class Route {
     return renderer;
   }
 
+  /**
+   * Set renderer.
+   *
+   * @param renderer Renderer.
+   * @return This route.
+   */
   public @Nonnull Route setRenderer(@Nonnull Renderer renderer) {
     this.renderer = renderer;
     return this;
@@ -526,12 +558,23 @@ public class Route {
     return parsers.getOrDefault(contentType.getValue(), Parser.UNSUPPORTED_MEDIA_TYPE);
   }
 
+  /**
+   * Route message decoder.
+   *
+   * @return Message decoders.
+   */
   public @Nonnull Map<String, Parser> getParsers() {
     return parsers;
   }
 
-  public @Nonnull Route setParsers(@Nonnull Map<String, Parser> parsers) {
-    this.parsers = parsers;
+  /**
+   * Set message decoders. Map key is a mime-type.
+   *
+   * @param decoders message decoder.
+   * @return This route.
+   */
+  public @Nonnull Route setParsers(@Nonnull Map<String, Parser> decoders) {
+    this.parsers = decoders;
     return this;
   }
 

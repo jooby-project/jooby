@@ -13,7 +13,7 @@ import static io.jooby.MediaType.html;
 import static io.jooby.MediaType.json;
 
 /**
- * Catch and renderer application errors.
+ * Catch and encode application errors.
  *
  * @author edgar
  * @since 2.0.0
@@ -97,6 +97,15 @@ public interface ErrorHandler {
     };
   }
 
+  /**
+   * Build a line error message that describe the current web context and the status code.
+   *
+   * <pre>GET /path Status-Code Status-Reason</pre>
+   *
+   * @param ctx Web context.
+   * @param statusCode Status code.
+   * @return Single line message.
+   */
   static @Nonnull String errorMessage(@Nonnull Context ctx, @Nonnull StatusCode statusCode) {
     return new StringBuilder()
         .append(ctx.getMethod())

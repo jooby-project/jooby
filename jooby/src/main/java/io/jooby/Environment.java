@@ -102,23 +102,51 @@ public class Environment {
     return null;
   }
 
+  /**
+   * List all the properties under the given key. Example:
+   *
+   * <pre>
+   * user.name = "name"
+   * user.password = "pass"
+   * </pre>
+   *
+   * A call to <code>getProperties("user")</code> give you a map like:
+   * <code>{user.name: name, user.password: pass}</code>
+   *
+   * @param key Key.
+   * @return Properties under that key or empty map.
+   */
   public @Nonnull Map<String, String> getProperties(@Nonnull String key) {
     return getProperties(key, key);
   }
 
-  public @Nonnull Map<String, String> getProperties(@Nonnull String key, @Nonnull String prefix) {
+  /**
+   * List all the properties under the given key. Example:
+   *
+   * <pre>
+   * user.name = "name"
+   * user.password = "pass"
+   * </pre>
+   *
+   * A call to <code>getProperties("user", "u")</code> give you a map like:
+   * <code>{u.name: name, u.password: pass}</code>
+   *
+   * @param key Key.
+   * @param prefix Prefix to use or <code>null</code> for none.
+   * @return Properties under that key or empty map.
+   */
+  public @Nonnull Map<String, String> getProperties(@Nonnull String key, @Nullable String prefix) {
     if (hasPath(conf, key)) {
       Map<String, String> settings = new HashMap<>();
+      String p = prefix == null || prefix.length() == 0 ? "" : prefix + ".";
       conf.getConfig(key).entrySet().stream()
           .forEach(e -> {
             Object value = e.getValue().unwrapped();
-            if (value != null) {
-              if (value instanceof List) {
-                value = ((List) value).stream().collect(Collectors.joining(", "));
-              }
-              String k = prefix + "." + e.getKey();
-              settings.put(k, value.toString());
+            if (value instanceof List) {
+              value = ((List) value).stream().collect(Collectors.joining(", "));
             }
+            String k = p + e.getKey();
+            settings.put(k, value.toString());
           });
       return settings;
     }
