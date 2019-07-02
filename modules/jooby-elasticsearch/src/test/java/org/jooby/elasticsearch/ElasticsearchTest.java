@@ -7,6 +7,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import static org.easymock.EasyMock.expect;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.jooby.Env;
 import org.jooby.test.MockUnit;
 import org.jooby.funzy.Throwing;
@@ -32,16 +33,21 @@ public class ElasticsearchTest {
   private MockUnit.Block nb = unit -> {
     RestClient client = unit.mock(RestClient.class);
     unit.registerMock(RestClient.class, client);
+    RestHighLevelClient restHighLevelClient = unit.mock(RestHighLevelClient.class);
+    unit.registerMock(RestHighLevelClient.class, restHighLevelClient);
   };
 
   @SuppressWarnings("unchecked")
   private MockUnit.Block bindings = unit -> {
     AnnotatedBindingBuilder<RestClient> abbclient = unit.mock(AnnotatedBindingBuilder.class);
     abbclient.toInstance(unit.capture(RestClient.class));
-    //abbclient.toInstance(anyObject(RestClient.class));
+
+    AnnotatedBindingBuilder<RestHighLevelClient> defclient = unit.mock(AnnotatedBindingBuilder.class);
+    defclient.toInstance(unit.capture(RestHighLevelClient.class));
 
     Binder binder = unit.get(Binder.class);
     expect(binder.bind(RestClient.class)).andReturn(abbclient);
+    expect(binder.bind(RestHighLevelClient.class)).andReturn(defclient);
   };
 
   @Test
@@ -56,6 +62,9 @@ public class ElasticsearchTest {
         }, unit -> {
           List<RestClient> captured = unit.captured(RestClient.class);
           assert captured.size() == 1;
+
+          List<RestHighLevelClient> capturedHighLevelRestClient = unit.captured(RestHighLevelClient.class);
+          assert capturedHighLevelRestClient.size() == 1;
 
           List<Throwing.Runnable> callbacks = unit.captured(Throwing.Runnable.class);
           callbacks.get(0).run();
