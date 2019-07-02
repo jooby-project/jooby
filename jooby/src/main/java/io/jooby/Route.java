@@ -238,7 +238,7 @@ public class Route {
 
   private static final Map EMPTY_MAP = Collections.emptyMap();
 
-  private Map<String, Parser> parsers = EMPTY_MAP;
+  private Map<String, MessageDecoder> parsers = EMPTY_MAP;
 
   private final String pattern;
 
@@ -549,13 +549,13 @@ public class Route {
   }
 
   /**
-   * Parser for given media type.
+   * MessageDecoder for given media type.
    *
    * @param contentType Media type.
-   * @return Parser.
+   * @return MessageDecoder.
    */
-  public @Nonnull Parser parser(@Nonnull MediaType contentType) {
-    return parsers.getOrDefault(contentType.getValue(), Parser.UNSUPPORTED_MEDIA_TYPE);
+  public @Nonnull MessageDecoder parser(@Nonnull MediaType contentType) {
+    return parsers.getOrDefault(contentType.getValue(), MessageDecoder.UNSUPPORTED_MEDIA_TYPE);
   }
 
   /**
@@ -563,7 +563,7 @@ public class Route {
    *
    * @return Message decoders.
    */
-  public @Nonnull Map<String, Parser> getParsers() {
+  public @Nonnull Map<String, MessageDecoder> getParsers() {
     return parsers;
   }
 
@@ -573,7 +573,7 @@ public class Route {
    * @param decoders message decoder.
    * @return This route.
    */
-  public @Nonnull Route setParsers(@Nonnull Map<String, Parser> decoders) {
+  public @Nonnull Route setParsers(@Nonnull Map<String, MessageDecoder> decoders) {
     this.parsers = decoders;
     return this;
   }

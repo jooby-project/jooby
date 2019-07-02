@@ -13,7 +13,7 @@ import io.jooby.ErrorHandler;
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
-import io.jooby.Parser;
+import io.jooby.MessageDecoder;
 import io.jooby.Renderer;
 import io.jooby.ResponseHandler;
 import io.jooby.Route;
@@ -130,7 +130,7 @@ public class RouterImpl implements Router {
 
   private Map<Route, Executor> routeExecutor = new HashMap<>();
 
-  private Map<String, Parser> parsers = new HashMap<>();
+  private Map<String, MessageDecoder> parsers = new HashMap<>();
 
   private Map<String, Object> attributes = new ConcurrentHashMap<>();
 
@@ -155,7 +155,7 @@ public class RouterImpl implements Router {
   }
 
   private void defaultParser() {
-    parsers.put(MediaType.text.getValue(), Parser.RAW);
+    parsers.put(MediaType.text.getValue(), MessageDecoder.RAW);
   }
 
   @Nonnull @Override public Map<String, Object> getAttributes() {
@@ -248,8 +248,9 @@ public class RouterImpl implements Router {
     return renderer(renderer.accept(contentType));
   }
 
-  @Nonnull @Override public Router parser(@Nonnull MediaType contentType, @Nonnull Parser parser) {
-    parsers.put(contentType.getValue(), parser);
+  @Nonnull @Override public Router parser(@Nonnull MediaType contentType, @Nonnull
+      MessageDecoder decoder) {
+    parsers.put(contentType.getValue(), decoder);
     return this;
   }
 

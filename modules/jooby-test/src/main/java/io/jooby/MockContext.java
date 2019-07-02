@@ -51,7 +51,7 @@ public class MockContext implements Context {
 
   private Body body;
 
-  private Map<String, Parser> parsers = new HashMap<>();
+  private Map<String, MessageDecoder> parsers = new HashMap<>();
 
   private Map<String, Object> responseHeaders = new HashMap<>();
 
@@ -217,8 +217,8 @@ public class MockContext implements Context {
     return this;
   }
 
-  @Nonnull @Override public Parser parser(@Nonnull MediaType contentType) {
-    return parsers.getOrDefault(contentType, Parser.UNSUPPORTED_MEDIA_TYPE);
+  @Nonnull @Override public MessageDecoder parser(@Nonnull MediaType contentType) {
+    return parsers.getOrDefault(contentType, MessageDecoder.UNSUPPORTED_MEDIA_TYPE);
   }
 
   @Override public boolean isInIoThread() {

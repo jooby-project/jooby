@@ -247,13 +247,13 @@ public interface Router extends Registry {
   @Nonnull Path getTmpdir();
 
   /**
-   * Register a parser for the given content type.
+   * Register a decoder for the given content type.
    *
    * @param contentType Content type to match.
-   * @param parser Parser.
+   * @param decoder MessageDecoder.
    * @return This router.
    */
-  @Nonnull Router parser(@Nonnull MediaType contentType, @Nonnull Parser parser);
+  @Nonnull Router parser(@Nonnull MediaType contentType, @Nonnull MessageDecoder decoder);
 
   /**
    * Returns the worker thread pool. This thread pool is used to run application blocking code.

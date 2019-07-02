@@ -846,14 +846,14 @@ public class FeaturedTest {
   @Test
   public void consumes() {
     new JoobyRunner(app -> {
-      app.parser(io.jooby.MediaType.json, new Parser() {
+      app.parser(io.jooby.MediaType.json, new MessageDecoder() {
         @Nonnull @Override public String parse(@Nonnull Context ctx, @Nonnull Type type)
             throws Exception {
           return "{" + ctx.body().value() + "}";
         }
       });
 
-      app.parser(xml, new Parser() {
+      app.parser(xml, new MessageDecoder() {
         @Nonnull @Override public String parse(@Nonnull Context ctx, @Nonnull Type type)
             throws Exception {
           return "<" + ctx.body().value() + ">";

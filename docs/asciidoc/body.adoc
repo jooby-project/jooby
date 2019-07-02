@@ -50,19 +50,19 @@ Raw `request body` is available via javadoc:Context[body] method:
 
 This give us the `raw body`.
 
-==== Parser
+==== Message Decoder
 
-Request body parsing is achieved using the javadoc:Parser[] functional interface.
+Request body parsing is achieved using the javadoc:MessageDecoder[] functional interface.
 
 [source, java]
 ----
-public interface Parser {
+public interface MessageDecoder {
 
   <T> T parse(Context ctx, Type type) throws Exception;
 }
 ----
 
-javadoc:Parser[] has a single `parse` method that takes two input arguments: `(context, type)`
+javadoc:MessageDecoder[] has a single `parse` method that takes two input arguments: `(context, type)`
 and returns a single result of the given type.
 
 .JSON example:
@@ -71,7 +71,7 @@ and returns a single result of the given type.
 {
   FavoriteJson lib = new FavoriteJson();           // <1>
 
-  parser(MediaType.json, (ctx, type) -> {          // <2>
+  decoder(MediaType.json, (ctx, type) -> {          // <2>
 
     byte[] body = ctx.body().bytes();              // <3>
 
@@ -90,7 +90,7 @@ and returns a single result of the given type.
 {
   val lib = FavoriteJson()                 // <1>
 
-  parser(MediaType.json, { ctx, type ->    // <2>
+  decoder(MediaType.json, { ctx, type ->    // <2>
 
     val body = ctx.body().bytes()          // <3>
 
@@ -107,12 +107,12 @@ and returns a single result of the given type.
 <2> Check if the `Content-Type` header matches `application/json`
 <3> Ready the body as `byte[]`
 <4> Parse the `body` and use the requested type
-<5> Route handler now call the `body(Type)` function to trigger the parser function
+<5> Route handler now call the `body(Type)` function to trigger the decoder function
 
 [TIP]
 ====
 
-Jooby comes with a `json` parser built on top of https://github.com/FasterXML/jackson-databind[Jackson]:
+Jooby comes with a `json` decoder built on top of https://github.com/FasterXML/jackson-databind[Jackson]:
 
 [dependency, artifactId="jooby-jackson"]
 .

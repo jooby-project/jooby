@@ -227,7 +227,7 @@ value may or may not exists.
 
 ===== Syntax
 
-Structured data parser supports `dot` and `bracket` notation:
+Structured data decoder supports `dot` and `bracket` notation:
 
 .Dot notation
 ----
@@ -246,13 +246,13 @@ Structured data parser supports `dot` and `bracket` notation:
 
 ===== POJO
 
-Structured data parser is able to reconstruct a POJO (Plain Old Java Object) from:
+Structured data decoder is able to reconstruct a POJO (Plain Old Java Object) from:
 
 - <<query, Query>> encoded as https://tools.ietf.org/html/rfc3986#section-2[RFC 3986]
 - <<formdata, Formdata>> encoded as `application/x-www-form-urlencoded`
 - <<multipart, Multipart>> encoded as `multipart/form-data`
 
-We are going to use a `Group` and `Member` objects to demonstrate how the parser works:
+We are going to use a `Group` and `Member` objects to demonstrate how the decoder works:
 
 .Example
 [source, java, role="primary"]
@@ -403,7 +403,7 @@ The target `POJO` must follow one of these rules:
 - Has multiple constructors, but only one is annotated with 
 https://static.javadoc.io/javax.inject/javax.inject/1/javax/inject/Inject.html[Inject]
 
-The parser matches HTTP parameters in the following order:
+The decoder matches HTTP parameters in the following order:
 
 - As constructor arguments
 - As setter method

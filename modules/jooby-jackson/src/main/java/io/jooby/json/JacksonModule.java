@@ -17,7 +17,7 @@ import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
-import io.jooby.Parser;
+import io.jooby.MessageDecoder;
 import io.jooby.Renderer;
 import io.jooby.ServiceRegistry;
 
@@ -27,7 +27,7 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
-public class JacksonModule implements Extension, Parser, Renderer {
+public class JacksonModule implements Extension, MessageDecoder, Renderer {
   private final ObjectMapper mapper;
 
   private final Set<Class<?extends Module>> modules = new HashSet<>();

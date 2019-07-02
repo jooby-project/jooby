@@ -824,7 +824,7 @@ public interface Context extends Registry {
   }
 
   /* **********************************************************************************************
-   * Body Parser
+   * Body MessageDecoder
    * **********************************************************************************************
    */
 
@@ -832,9 +832,9 @@ public interface Context extends Registry {
    * Get a parser for the given content type or get an {@link StatusCode#UNSUPPORTED_MEDIA_TYPE}.
    *
    * @param contentType Content type.
-   * @return Parser.
+   * @return MessageDecoder.
    */
-  default @Nonnull Parser parser(@Nonnull MediaType contentType) {
+  default @Nonnull MessageDecoder parser(@Nonnull MediaType contentType) {
     return getRoute().parser(contentType);
   }
 
