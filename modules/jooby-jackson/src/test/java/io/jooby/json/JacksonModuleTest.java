@@ -22,7 +22,7 @@ public class JacksonModuleTest {
 
     JacksonModule jackson = new JacksonModule();
 
-    byte[] bytes = jackson.render(ctx, mapOf("k", "v"));
+    byte[] bytes = jackson.encode(ctx, mapOf("k", "v"));
     assertEquals("{\"k\":\"v\"}", new String(bytes, StandardCharsets.UTF_8));
 
     verify(ctx).setDefaultResponseType(MediaType.json);

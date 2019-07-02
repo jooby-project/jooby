@@ -39,7 +39,7 @@ public class HandlebarsModuleTest {
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     String output = engine
-        .apply(ctx, new ModelAndView("index.hbs")
+        .render(ctx, new ModelAndView("index.hbs")
             .put("user", new User("foo", "bar"))
             .put("sign", "!"));
     assertEquals("Hello foo bar var!\n", output);
@@ -54,7 +54,7 @@ public class HandlebarsModuleTest {
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     String output = engine
-        .apply(ctx, new ModelAndView("index.hbs")
+        .render(ctx, new ModelAndView("index.hbs")
             .put("user", new User("foo", "bar"))
             .put("sign", "!"));
     assertEquals("Hello foo bar var!\n", output);

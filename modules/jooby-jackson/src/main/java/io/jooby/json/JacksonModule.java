@@ -18,7 +18,7 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
-import io.jooby.Renderer;
+import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
 
 import javax.annotation.Nonnull;
@@ -27,7 +27,7 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
-public class JacksonModule implements Extension, MessageDecoder, Renderer {
+public class JacksonModule implements Extension, MessageDecoder, MessageEncoder {
   private final ObjectMapper mapper;
 
   private final Set<Class<?extends Module>> modules = new HashSet<>();
@@ -59,7 +59,7 @@ public class JacksonModule implements Extension, MessageDecoder, Renderer {
     });
   }
 
-  @Override public byte[] render(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
+  @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
     ctx.setDefaultResponseType(MediaType.json);
     return mapper.writeValueAsBytes(value);
   }

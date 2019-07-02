@@ -288,8 +288,8 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public Jooby renderer(@Nonnull Renderer renderer) {
-    router.renderer(renderer);
+  @Nonnull @Override public Jooby renderer(@Nonnull MessageEncoder encoder) {
+    router.renderer(encoder);
     return this;
   }
 
@@ -300,8 +300,8 @@ public class Jooby implements Router, Registry {
   }
 
   @Nonnull @Override
-  public Jooby renderer(@Nonnull MediaType contentType, @Nonnull Renderer renderer) {
-    router.renderer(contentType, renderer);
+  public Jooby renderer(@Nonnull MediaType contentType, @Nonnull MessageEncoder encoder) {
+    router.renderer(contentType, encoder);
     return this;
   }
 

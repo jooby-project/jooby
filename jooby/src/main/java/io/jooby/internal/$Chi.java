@@ -6,9 +6,8 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.Renderer;
+import io.jooby.MessageEncoder;
 import io.jooby.Route;
-import io.jooby.Router;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -632,7 +631,7 @@ class $Chi implements RadixTree {
     root.destroy();
   }
 
-  public RouterMatch find(Context context, String path, Renderer renderer, List<RadixTree> more) {
+  public RouterMatch find(Context context, String path, MessageEncoder encoder, List<RadixTree> more) {
     String method = context.getMethod();
     RouterMatch result = new RouterMatch();
     Route route = root.findRoute(result, method, path);
@@ -642,12 +641,12 @@ class $Chi implements RadixTree {
     if (more != null) {
       // expand search
       for (RadixTree tree : more) {
-        RouterMatch match = tree.find(context, path, renderer, null);
+        RouterMatch match = tree.find(context, path, encoder, null);
         if (match.matches) {
           return match;
         }
       }
     }
-    return result.missing(method, path, renderer);
+    return result.missing(method, path, encoder);
   }
 }

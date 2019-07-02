@@ -1064,8 +1064,8 @@ public interface Context extends Registry {
   default @Nonnull Context render(@Nonnull Object value) {
     try {
       Route route = getRoute();
-      Renderer renderer = route.getRenderer();
-      byte[] bytes = renderer.render(this, value);
+      MessageEncoder encoder = route.getEncoder();
+      byte[] bytes = encoder.encode(this, value);
       send(bytes);
       return this;
     } catch (Exception x) {

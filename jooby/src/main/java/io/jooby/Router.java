@@ -223,21 +223,21 @@ public interface Router extends Registry {
   @Nonnull List<Route> getRoutes();
 
   /**
-   * Register a route response renderer.
+   * Register a route response encoder.
    *
-   * @param renderer Renderer instance.
+   * @param encoder MessageEncoder instance.
    * @return This router.
    */
-  @Nonnull Router renderer(@Nonnull Renderer renderer);
+  @Nonnull Router renderer(@Nonnull MessageEncoder encoder);
 
   /**
-   * Register a route response renderer.
+   * Register a route response encoder.
    *
    * @param contentType Accept header should matches the content-type.
-   * @param renderer Renderer instance.
+   * @param encoder MessageEncoder instance.
    * @return This router.
    */
-  @Nonnull Router renderer(@Nonnull MediaType contentType, @Nonnull Renderer renderer);
+  @Nonnull Router renderer(@Nonnull MediaType contentType, @Nonnull MessageEncoder encoder);
 
   /**
    * Application temporary directory.

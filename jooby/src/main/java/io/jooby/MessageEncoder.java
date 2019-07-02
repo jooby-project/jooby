@@ -14,10 +14,10 @@ import java.nio.charset.StandardCharsets;
  * @author edgar
  * @since 2.0.0
  */
-public interface Renderer {
+public interface MessageEncoder {
 
   /** To string renderer. */
-  Renderer TO_STRING = (ctx, value) -> {
+  MessageEncoder TO_STRING = (ctx, value) -> {
     if (ctx.accept(ctx.getResponseType())) {
       return value.toString().getBytes(StandardCharsets.UTF_8);
     }
@@ -25,14 +25,14 @@ public interface Renderer {
   };
 
   /**
-   * Renderer a value into a byte array or <code>null</code> if given object isn't supported it.
+   * MessageEncoder a value into a byte array or <code>null</code> if given object isn't supported it.
    *
    * @param ctx Web context.
    * @param value Value to render.
    * @return Value as byte array or <code>null</code> if given object isn't supported it.
    * @throws Exception If something goes wrong.
    */
-  @Nonnull byte[] render(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
+  @Nonnull byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
 
   /**
    * Execute this renderer only if the <code>Accept</code> header matches the content-type
@@ -41,10 +41,10 @@ public interface Renderer {
    * @param contentType Mediatype to test.
    * @return A new renderer with accept header matching.
    */
-  @Nonnull default Renderer accept(@Nonnull MediaType contentType) {
+  @Nonnull default MessageEncoder accept(@Nonnull MediaType contentType) {
     return (ctx, value) -> {
       if (ctx.accept(contentType)) {
-        return render(ctx, value);
+        return encode(ctx, value);
       }
       return null;
     };

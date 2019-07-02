@@ -23,7 +23,7 @@ class FreemarkerTemplateEngine implements TemplateEngine {
     this.freemarker = freemarker;
   }
 
-  @Override public String apply(Context ctx, ModelAndView modelAndView) throws Exception {
+  @Override public String render(Context ctx, ModelAndView modelAndView) throws Exception {
     Template template = freemarker.getTemplate(modelAndView.view);
     StringWriter writer = new StringWriter();
     Map<String, Object> model = new HashMap<>(ctx.getAttributes());

@@ -9,12 +9,12 @@ import com.fizzed.rocker.RockerModel;
 import com.fizzed.rocker.runtime.ArrayOfByteArraysOutput;
 import io.jooby.Context;
 import io.jooby.MediaType;
-import io.jooby.Renderer;
+import io.jooby.MessageEncoder;
 
 import javax.annotation.Nonnull;
 
-class RockerRenderer implements Renderer {
-  @Override public byte[] render(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
+class RockerMessageEncoder implements MessageEncoder {
+  @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
     if (value instanceof RockerModel) {
       RockerModel template = (RockerModel) value;
       ArrayOfByteArraysOutput output = template.render(ArrayOfByteArraysOutput.FACTORY);

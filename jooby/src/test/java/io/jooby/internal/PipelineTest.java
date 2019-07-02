@@ -1,7 +1,7 @@
 package io.jooby.internal;
 
 import io.jooby.ExecutionMode;
-import io.jooby.Renderer;
+import io.jooby.MessageEncoder;
 import io.jooby.Route;
 import io.jooby.internal.handler.CompletionStageHandler;
 import io.jooby.internal.handler.DetachHandler;
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
 import java.lang.reflect.Type;
-import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -226,6 +225,6 @@ public class PipelineTest {
   private Route route(Type returnType, Route.Handler handler) {
     return new Route("GET", "/", handler)
         .setReturnType(returnType)
-        .setRenderer(Renderer.TO_STRING);
+        .setEncoder(MessageEncoder.TO_STRING);
   }
 }

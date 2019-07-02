@@ -6,7 +6,7 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.Renderer;
+import io.jooby.MessageEncoder;
 import io.jooby.Route;
 import io.jooby.Router;
 
@@ -14,9 +14,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 
 public class RouterMatch implements Router.Match {
 
@@ -77,7 +74,7 @@ public class RouterMatch implements Router.Match {
     }
   }
 
-  public RouterMatch missing(String method, String path, Renderer renderer) {
+  public RouterMatch missing(String method, String path, MessageEncoder encoder) {
     Route.Handler h;
     if (this.handler == null) {
       h = path.endsWith("/favicon.ico") ? Route.FAVICON : Route.NOT_FOUND;
@@ -85,7 +82,7 @@ public class RouterMatch implements Router.Match {
       h = this.handler;
     }
     this.route = new Route(method, path, h);
-    this.route.setRenderer(renderer);
+    this.route.setEncoder(encoder);
     this.route.setReturnType(Context.class);
     return this;
   }

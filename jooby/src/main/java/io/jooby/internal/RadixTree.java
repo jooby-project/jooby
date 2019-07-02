@@ -6,7 +6,7 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.Renderer;
+import io.jooby.MessageEncoder;
 import io.jooby.Route;
 import io.jooby.Router;
 
@@ -16,10 +16,10 @@ import java.util.function.Predicate;
 interface RadixTree {
   void insert(String method, String pattern, Route route);
 
-  RouterMatch find(Context context, String path, Renderer renderer, List<RadixTree> more);
+  RouterMatch find(Context context, String path, MessageEncoder encoder, List<RadixTree> more);
 
-  default RouterMatch find(Context context, Renderer renderer, List<RadixTree> more) {
-    return find(context, context.pathString(), renderer, more);
+  default RouterMatch find(Context context, MessageEncoder encoder, List<RadixTree> more) {
+    return find(context, context.pathString(), encoder, more);
   }
 
   default RadixTree with(Predicate<Context> predicate) {
@@ -29,13 +29,13 @@ interface RadixTree {
       }
 
       @Override
-      public RouterMatch find(Context context, String path, Renderer renderer,
+      public RouterMatch find(Context context, String path, MessageEncoder encoder,
           List<RadixTree> more) {
         if (!predicate.test(context)) {
           return new RouterMatch()
-              .missing(context.getMethod(), context.pathString(), renderer);
+              .missing(context.getMethod(), context.pathString(), encoder);
         }
-        return RadixTree.this.find(context, renderer, more);
+        return RadixTree.this.find(context, encoder, more);
       }
 
       @Override public void destroy() {
@@ -50,10 +50,10 @@ interface RadixTree {
         RadixTree.this.insert(method, pattern, route);
       }
 
-      @Override public RouterMatch find(Context context, String path, Renderer renderer,
+      @Override public RouterMatch find(Context context, String path, MessageEncoder encoder,
           List<RadixTree> more) {
         return RadixTree.this
-            .find(context, Router.normalizePath(path, ignoreCase, ignoreTrailingSlash), renderer,
+            .find(context, Router.normalizePath(path, ignoreCase, ignoreTrailingSlash), encoder,
                 more);
       }
 

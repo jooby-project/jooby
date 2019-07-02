@@ -14,7 +14,7 @@ import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
-import io.jooby.Renderer;
+import io.jooby.MessageEncoder;
 import io.jooby.ResponseHandler;
 import io.jooby.Route;
 import io.jooby.Router;
@@ -118,7 +118,7 @@ public class RouterImpl implements Router {
 
   private List<Route> routes = new ArrayList<>();
 
-  private CompositeRenderer renderer = new CompositeRenderer();
+  private CompositeMessageEncoder renderer = new CompositeMessageEncoder();
 
   private String basePath;
 
@@ -238,14 +238,14 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Nonnull @Override public Router renderer(@Nonnull Renderer renderer) {
-    this.renderer.add(renderer);
+  @Nonnull @Override public Router renderer(@Nonnull MessageEncoder encoder) {
+    this.renderer.add(encoder);
     return this;
   }
 
   @Nonnull @Override
-  public Router renderer(@Nonnull MediaType contentType, @Nonnull Renderer renderer) {
-    return renderer(renderer.accept(contentType));
+  public Router renderer(@Nonnull MediaType contentType, @Nonnull MessageEncoder encoder) {
+    return renderer(encoder.accept(contentType));
   }
 
   @Nonnull @Override public Router parser(@Nonnull MediaType contentType, @Nonnull
@@ -352,7 +352,7 @@ public class RouterImpl implements Router {
     route.setBefore(before);
     route.setAfter(after);
     route.setDecorator(decorator);
-    route.setRenderer(renderer);
+    route.setEncoder(renderer);
     route.setParsers(parsers);
 
     Stack stack = this.stack.peekLast();

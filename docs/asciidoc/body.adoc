@@ -160,19 +160,19 @@ Response body is generated from `handler` function:
 <3> Set the `date` header
 <4> Send a `Response` string to the client
 
-==== Renderer
+==== Message Encoder
 
-Response rendering is achieved using the javadoc:Renderer[] functional interface.
+Response enconding is achieved using the javadoc:MessageEncoder[] functional interface.
 
 [source, java]
 ----
-public interface Renderer {
+public interface MessageEncoder {
 
-  byte[] render(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
+  byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception;
 }
 ----
 
-Renderer has a single `render` method that accepts two input arguments: `(context, result)` and 
+MessageEncoder has a single `encode` method that accepts two input arguments: `(context, result)` and 
 produces a result.
 
 .JSON example:
@@ -181,7 +181,7 @@ produces a result.
 {
   FavoriteJson lib = new FavoriteJson();           // <1>
 
-  renderer(MediaType.json, (ctx, result) -> {      // <2>
+  encoder(MediaType.json, (ctx, result) -> {      // <2>
 
     String json = lib.toJson(result);              // <3>
 
@@ -203,7 +203,7 @@ produces a result.
 {
   val lib = FavoriteJson()                         // <1>
 
-  renderer(MediaType.json, { ctx, result ->        // <2>
+  encoder(MediaType.json, { ctx, result ->        // <2>
 
     val json = lib.toJson(result)                  // <3>
 
@@ -229,7 +229,7 @@ produces a result.
 [TIP]
 ====
 
-Jooby comes with a `json` renderer built on top of https://github.com/FasterXML/jackson-databind[Jackson]:
+Jooby comes with a `json` encoder built on top of https://github.com/FasterXML/jackson-databind[Jackson]:
 
 [dependency, artifactId="jooby-jackson"]
 .

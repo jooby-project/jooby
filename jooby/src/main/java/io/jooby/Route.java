@@ -256,7 +256,7 @@ public class Route {
 
   private Handler pipeline;
 
-  private Renderer renderer;
+  private MessageEncoder encoder;
 
   private Type returnType;
 
@@ -433,22 +433,22 @@ public class Route {
   }
 
   /**
-   * Route renderer.
+   * Route encoder.
    *
-   * @return Route renderer.
+   * @return Route encoder.
    */
-  public @Nonnull Renderer getRenderer() {
-    return renderer;
+  public @Nonnull MessageEncoder getEncoder() {
+    return encoder;
   }
 
   /**
-   * Set renderer.
+   * Set encoder.
    *
-   * @param renderer Renderer.
+   * @param encoder MessageEncoder.
    * @return This route.
    */
-  public @Nonnull Route setRenderer(@Nonnull Renderer renderer) {
-    this.renderer = renderer;
+  public @Nonnull Route setEncoder(@Nonnull MessageEncoder encoder) {
+    this.encoder = encoder;
     return this;
   }
 

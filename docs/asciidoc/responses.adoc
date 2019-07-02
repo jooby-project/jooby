@@ -4,7 +4,7 @@ This chapter covers some special response types, like `raw responses`, `streamin
 
 === Raw
 
-Raw responses are NOT processed by a <<renderer, Renderer>>. These response types are considered `raw`:
+Raw responses are NOT processed by a <<encoder, Renderer>>. These response types are considered `raw`:
 
 - String/CharSequence
 - byte[]
@@ -35,7 +35,7 @@ Raw responses are NOT processed by a <<renderer, Renderer>>. These response type
 }
 ----
 
-No matter if there is a JSON renderer installed, a raw response is always send directly to client.
+No matter if there is a JSON encoder installed, a raw response is always send directly to client.
 
 === Streaming / Chunked
 

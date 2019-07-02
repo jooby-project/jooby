@@ -1,7 +1,7 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.Renderer;
+import io.jooby.MessageEncoder;
 import io.jooby.Route;
 import io.jooby.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ public class ChiTest {
     router.insert(bar);
 
     RouterMatch result = router
-        .find(ctx("/abcd"), Renderer.TO_STRING,
+        .find(ctx("/abcd"), MessageEncoder.TO_STRING,
             Collections.emptyList());
     assertTrue(result.matches);
     assertEquals(bar, result.route());
@@ -46,7 +46,7 @@ public class ChiTest {
     router.insert(foos);
 
     RouterMatch result = router
-        .find(ctx("/abcd/"), Renderer.TO_STRING,
+        .find(ctx("/abcd/"), MessageEncoder.TO_STRING,
             Collections.emptyList());
     assertTrue(result.matches);
     assertEquals(foos, result.route());
@@ -100,7 +100,7 @@ public class ChiTest {
       SneakyThrows.Consumer2<Context, RouterMatch> consumer) {
     Context rootctx = ctx(pattern);
     RouterMatch result = router
-        .find(rootctx, Renderer.TO_STRING, Collections.emptyList());
+        .find(rootctx, MessageEncoder.TO_STRING, Collections.emptyList());
     consumer.accept(rootctx, result);
   }
 
@@ -110,7 +110,7 @@ public class ChiTest {
 
   private Route route(String method, String pattern, Route.Handler handler) {
     return new Route(method, pattern, handler)
-        .setRenderer(Renderer.TO_STRING);
+        .setEncoder(MessageEncoder.TO_STRING);
   }
 
 }

@@ -7,7 +7,7 @@ package io.jooby.internal.handler.reactive;
 
 import io.jooby.Context;
 import io.jooby.MediaType;
-import io.jooby.Renderer;
+import io.jooby.MessageEncoder;
 import io.jooby.Route;
 import io.jooby.Sender;
 import io.jooby.Server;
@@ -36,8 +36,8 @@ public class ChunkedSubscriber {
   public void onNext(Object item) {
     try {
       Route route = ctx.getRoute();
-      Renderer renderer = route.getRenderer();
-      byte[] data = renderer.render(ctx, item);
+      MessageEncoder encoder = route.getEncoder();
+      byte[] data = encoder.encode(ctx, item);
 
       if (responseType == null) {
         responseType = ctx.getResponseType();

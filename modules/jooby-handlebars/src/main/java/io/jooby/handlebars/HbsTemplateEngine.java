@@ -22,7 +22,7 @@ class HbsTemplateEngine implements TemplateEngine {
     this.handlebars = handlebars;
   }
 
-  @Override public String apply(Context ctx, ModelAndView modelAndView) throws Exception {
+  @Override public String render(Context ctx, ModelAndView modelAndView) throws Exception {
     Template template = handlebars.compile(modelAndView.view);
     Map<String, Object> model = new HashMap<>(ctx.getAttributes());
     model.putAll(modelAndView.model);
