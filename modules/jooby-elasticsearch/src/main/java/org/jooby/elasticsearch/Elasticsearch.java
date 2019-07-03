@@ -207,6 +207,7 @@ import java.util.Arrays;
 
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.jooby.Env;
 import org.jooby.Jooby;
 
@@ -219,7 +220,7 @@ import com.typesafe.config.ConfigFactory;
  * Full text search and analytics via <a href="https://github.com/elastic/elasticsearch">Elastic
  * Search</a>.
  * </p>
- * Provides a RESTFul client.
+ * Provides a high and low level Elasticsearch REST client.
  *
  * <h1>usage</h1>
  *
@@ -231,17 +232,20 @@ import com.typesafe.config.ConfigFactory;
 
  * <h1>client API</h1>
  * <p>
- * The module exposes a {@link RestClient} instance
+ * The module exposes a {@link RestHighLevelClient} and a low-level {@link RestClient} instance
  * </p>
  *
  * <pre>{@code
  *
  * put("/:id", req -> {
  *   // index a document
- *   RestClient client = req.require(RestClient.class);
- *   StringEntity data = new StringEntity("{\"foo\":\"bar\"}");
- *   return client.performRequest("PUT", "/twitter/tweet/" + req.param("id").value(), Collections.emptyMap(), data)
- *     .getEntity().getContent();
+ *   IndexRequest indexRequest = new IndexRequest("posts")
+ *     .id("1")
+ *     .source("user", "kimchy",
+ *         "postDate", new Date(),
+ *         "message", "trying out Elasticsearch");
+ *   RestHighLevelClient client = req.require(RestHighLevelClient .class);
+ *   return client.index(request, RequestOptions.DEFAULT).toString();
  * });
  *
  * }</pre>
@@ -264,10 +268,13 @@ public class Elasticsearch implements Jooby.Module {
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
     HttpHost[] httpHosts = Arrays.stream(hosts).map(HttpHost::create).toArray(HttpHost[]::new);
-    RestClient restClient = RestClient.builder(httpHosts).build();
-    binder.bind(RestClient.class).toInstance(restClient);
+    RestHighLevelClient restHighLevelClient = new RestHighLevelClient(RestClient.builder(httpHosts));
+    RestClient restClient = restHighLevelClient.getLowLevelClient();
 
-    env.onStop(restClient::close);
+    binder.bind(RestClient.class).toInstance(restClient);
+    binder.bind(RestHighLevelClient.class).toInstance(restHighLevelClient);
+
+    env.onStop(restHighLevelClient::close);
   }
 
   @Override
