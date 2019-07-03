@@ -17,22 +17,29 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class DocGenerator {
   public static void main(String[] args) throws Exception {
-    generate(basedir(), args.length > 0 && "publish".equals(args[0]));
+    List<String> options = Arrays.asList(args);
+    generate(basedir(), options.contains("publish"), options.contains("v1"));
   }
 
-  public static void generate(Path basedir, boolean publish) throws Exception {
+  public static void generate(Path basedir, boolean publish, boolean v1) throws Exception {
     String version = version();
 
     Path asciidoc = basedir.resolve("asciidoc");
@@ -70,8 +77,12 @@ public class DocGenerator {
         }));
 
     // LICENSE
-    Files.copy(basedir.getParent().resolve("LICENSE"),outdir.resolve("LICENSE.txt"),
+    Files.copy(basedir.getParent().resolve("LICENSE"), outdir.resolve("LICENSE.txt"),
         StandardCopyOption.REPLACE_EXISTING);
+
+    if (v1) {
+      v1doc(basedir, outdir);
+    }
 
     if (publish) {
       Path website = basedir.resolve("target")// Paths.get(System.getProperty("java.io.tmpdir"))
@@ -87,6 +98,35 @@ public class DocGenerator {
 
       FileUtils.copyDirectory(outdir.toFile(), website.toFile());
       git.commit(version);
+    }
+  }
+
+  private static void v1doc(Path basedir, Path output) throws Exception {
+    Path v1source = basedir.resolve("v1");
+    if (!Files.exists(v1source)) {
+      Files.createDirectories(v1source);
+
+      Git git = new Git("jooby-project", "jooby", v1source);
+      git.clone("--single-branch", "--branch", "gh-pages");
+    }
+    Path v1target = output.resolve("v1");
+    FileUtils.copyDirectory(v1source.toFile(), v1target.toFile());
+
+    Collection<File> files = FileUtils.listFiles(v1target.toFile(), new String[]{"html"}, true);
+    for (File index : files) {
+      String content = FileUtils.readFileToString(index, "UTF-8")
+          .replace("http://jooby.org", "https://jooby.org")
+          .replace("href=\"/resources", "href=\"/v1/resources")
+          .replace("src=\"/resources", "src=\"/v1/resources");
+      Document doc = Jsoup.parse(content);
+          doc.select("a").forEach(a -> {
+            String href = a.attr("href");
+            if (!href.startsWith("http") && !href.startsWith("#")) {
+              href = "/v1" + href;
+              a.attr("href", href);
+            }
+          });
+      FileUtils.writeStringToFile(index, doc.toString(), "UTF-8");
     }
   }
 

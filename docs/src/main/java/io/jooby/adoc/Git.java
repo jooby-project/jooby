@@ -15,13 +15,20 @@ import java.util.stream.Collectors;
 
 public class Git {
 
+  private final String branch;
+
   private String repo;
 
   private Path dir;
 
-  public Git(final String owner, final String project, final Path dir) {
+  public Git(final String owner, final String project, final String branch, final Path dir) {
     this.repo = "git@github.com:" + owner + "/" + project + ".git";
     this.dir = dir;
+    this.branch = branch;
+  }
+
+  public Git(final String owner, final String project, final Path dir) {
+    this(owner, project, "master", dir);
   }
 
   public void clone(final String... args) throws Exception {
@@ -39,7 +46,7 @@ public class Git {
   public void commit(String comment) throws Exception {
     execute(Arrays.asList("git", "add", "."));
     execute(Arrays.asList("git", "commit", "-m", "'" + comment + "'"));
-    execute(Arrays.asList("git", "push", "origin", "master"));
+    execute(Arrays.asList("git", "push", "origin", branch));
   }
 
   private void execute(final List<String> args) throws Exception {

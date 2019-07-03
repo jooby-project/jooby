@@ -33,7 +33,7 @@ public class DocApp extends Jooby {
 
     log.info("waiting for doc");
 
-    DocGenerator.generate(basedir, false);
+    DocGenerator.generate(basedir, false, Arrays.asList(args).contains("v1"));
 
     log.info("doc ready");
 
@@ -46,7 +46,7 @@ public class DocApp extends Jooby {
           Path file = event.path();
           if (file.toString().endsWith(".adoc")) {
             try {
-              DocGenerator.generate(basedir, false);
+              DocGenerator.generate(basedir, false, false);
 
               log.info("doc ready");
             } catch (Exception x) {
