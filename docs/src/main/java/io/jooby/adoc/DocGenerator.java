@@ -7,6 +7,11 @@ package io.jooby.adoc;
 
 import io.jooby.SneakyThrows;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.AndFileFilter;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.Attributes;
 import org.asciidoctor.Options;
@@ -117,7 +122,9 @@ public class DocGenerator {
       String content = FileUtils.readFileToString(index, "UTF-8")
           .replace("http://jooby.org", "https://jooby.org")
           .replace("href=\"/resources", "href=\"/v1/resources")
-          .replace("src=\"/resources", "src=\"/v1/resources");
+          .replace("src=\"/resources", "src=\"/v1/resources")
+          // remove/replace redirection
+          .replace("<meta http-equiv=\"refresh\" content=\"0; URL=https://jooby.io\" />", "");
       Document doc = Jsoup.parse(content);
           doc.select("a").forEach(a -> {
             String href = a.attr("href");
@@ -128,6 +135,9 @@ public class DocGenerator {
           });
       FileUtils.writeStringToFile(index, doc.toString(), "UTF-8");
     }
+    FileUtils.deleteQuietly(v1target.resolve(".git").toFile());
+    FileUtils.deleteQuietly(v1target.resolve(".gitignore").toFile());
+    FileUtils.deleteQuietly(v1target.resolve("CNAME").toFile());
   }
 
   private static void processModule(Asciidoctor asciidoctor, Path basedir, Path module, Path outdir,

@@ -6,7 +6,7 @@
 
 # &infin; do more, more easily
 
-[Jooby](https://jooby.io) is a modern, performant and easy to use web framework for Java and Kotlin built on top of your
+[Jooby 2.x](https://jooby.io) is a modern, performant and easy to use web framework for Java and Kotlin built on top of your
 favorite web server.
 
 Java:
@@ -40,7 +40,9 @@ fun main(args: Array<String>) {
 
 ```
 
-More at website  [https://jooby.io](https://jooby.io)
+Documentation for current version is available at [https://jooby.io](https://jooby.io)
+
+Documentation for previous version is available at [Jooby 1.x documentation](https://jooby.io/v1)
 
 author
 =====

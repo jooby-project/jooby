@@ -26,6 +26,11 @@ Style guidelines:
 Jooby is a modern, performant and easy to use web framework for Java and Kotlin built on top of your
 favorite web server.
 
+[TIP]
+====
+Looking for previous version? The link:v1[v1 documentation] is still available.
+====
+
 .Welcome!!
 [source,java,role="primary"]
 ----
@@ -54,19 +59,6 @@ fun main(args: Array<String>) {
   }
 }
 ----
-
-=== Status
-
-[IMPORTANT]
-====
-There is no stable release yet for `2.0.0`. API may change between milestone releases without warning.
-
-This is a **work-in-progress** document and contains documentation and examples of what is ready to use. If it is not documented here, it is not implemented.
-
-Not ready yet? Try https://jooby.org[Jooby 1.x] 
-
-Thank you {love}
-====
 
 === Key Features
 
@@ -131,11 +123,11 @@ import io.jooby.Jooby;
 public class App {
 
   public static void main(String[] args) {
-    runApp(app -> {
+    runApp(args, app -> {
 
       app.get("/", ctx -> "Hello Jooby!");
 
-    }, args);
+    });
   }
 }
 ----
