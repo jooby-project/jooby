@@ -213,7 +213,6 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 class TypeJsonDeserializer extends JsonDeserializer<Type> {
@@ -243,8 +242,8 @@ class TypeJsonDeserializer extends JsonDeserializer<Type> {
       if (ch == '<') {
         Type owner = BytecodeRouteParser.loadType(loader, singleType.toString());
         List<Type> parameters = parse(loader, type, i + 1);
-        return Arrays.asList(
-                Types.newParameterizedType(owner, parameters.toArray(new Type[parameters.size()])));
+        types.add(Types.newParameterizedType(owner, parameters.toArray(new Type[parameters.size()])));
+        return types;
       } else if (ch == ',') {
         Type element = BytecodeRouteParser.loadType(loader, singleType.toString());
         types.add(element);
