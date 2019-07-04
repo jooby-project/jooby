@@ -1,4 +1,5 @@
 * tests and coverage
+* server options from application.conf MUST override hardcoded settings
 
 * make reset headers on error configurable
 

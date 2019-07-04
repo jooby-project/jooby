@@ -1,0 +1,91 @@
+== Server
+
+Jooby comes with three server implementations:
+
+- javadoc:Jetty[]
+- javadoc:Netty[]
+- javadoc:Undertow[]
+
+Server are automatically registered based on their presence on the project classpath.
+
+To use Jetty, add the dependency:
+
+[dependency, artifactId="jooby-jetty"]
+.
+
+To use Netty, add the dependency:
+
+[dependency, artifactId="jooby-netty"]
+.
+
+To use Undertow, add the dependency:
+
+[dependency, artifactId="jooby-utow"]
+.
+
+[IMPORTANT]
+====
+Only one server dependency must be available on classpath.
+====
+
+=== Options
+
+Server options are available via javadoc:ServerOptions[] class:
+
+.Server Options
+[source,java,role="primary"]
+----
+{
+  setServerOptions(new ServerOptions()
+      .setBufferSize(16384)
+      .setPort(8080)
+      .setIoThreads(16)
+      .setWorkerThreads(64)
+      .setGzip(false)
+      .setSingleLoop(false)
+      .setDefaultHeaders(true)
+      .setMaxRequestSize(10485760)
+  ); 
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  serverOptions {
+    bufferSize = 16384
+    port = 8080
+    ioThreads = 16
+    workerThreads = 64
+    gzip = false
+    singleLoop = false
+    defaultHeaders = true
+    maxRequestSize = 10485760
+  }
+}
+----
+
+- bufferSize: Buffer size used by server for reading/writing data. Default is: `16k`.
+- port: Server HTTP port or `0` for random port. Default is: `8080`.
+- ioThreads: Number of IO threads used by the server. Used by Netty and Undertow. Default is: `Runtime.getRuntime().availableProcessors() * 2`
+- workerThreads: Number of worker (a.k.a application) threads. Default is: `ioThreads * 8`.
+- gzip: Gzip support. Default is: `false`.
+- singleLoop: Indicates if the web server should use a single loop/group for doing IO or not. **Netty only**.
+- defaultHeaders: Configure server to set the following headers: `Date`, `Content-Type` and `Server` headers.
+- maxRequestSize: Maximum request size in bytes. Request exceeding this value results in 413(REQUEST_ENTITY_TOO_LARGE) response. Default is `10mb`.
+
+Server options are available as application configuration properties too:
+
+.application.conf
+[source, properties]
+----
+server.bufferSize = 16384
+server.port = 8080
+server.ioThreads = 16
+server.workerThreads = 64
+server.gzip = false
+server.singleLoop = false
+server.defaultHeaders = true
+server.maxRequestSize = 10485760
+----

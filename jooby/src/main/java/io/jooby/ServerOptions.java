@@ -34,7 +34,7 @@ public class ServerOptions {
   public static final int _16KB = 16384;
 
   /** 10mb constant in bytes. */
-  public static final int _10MB = 20971520;
+  public static final int _10MB = 10485760;
 
   /** Buffer size used by server. Usually for reading/writing data. */
   private int bufferSize = _16KB;
@@ -49,7 +49,7 @@ public class ServerOptions {
   /** HTTP port. Default is <code>8080</code> or <code>0</code> for random port. */
   private int port = DEFAULT_PORT;
 
-  /** Number of IO threads used by the server. Required by Netty and Undertow. */
+  /** Number of IO threads used by the server. Used by Netty and Undertow. */
   private Integer ioThreads;
 
   /** Number of worker threads (a.k.a application) to use. */

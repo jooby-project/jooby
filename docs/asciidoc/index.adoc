@@ -63,11 +63,11 @@ fun main(args: Array<String>) {
 === Key Features
 
 * Fast startup time
-* Hot-Reload for development (Save + Compile + Restart)
+* <<hot-reload, Hot-Reload for development>> (Save + Compile + Restart)
 * Script/lambda routes
 * MVC/JAX-RS routes
-* Event Loop and blocking execution modes
-* Reactive responses (Completable Futures, RxJava and Reactor types and Kotlin Coroutines)
+* <<execution-model, Event Loop and blocking execution modes>>
+* <<responses, Reactive responses>> (Completable Futures, RxJava and Reactor types and Kotlin Coroutines)
 * Multi-server: https://https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty] and http://undertow.io[Undertow]
 
 === Script API
@@ -221,6 +221,8 @@ include::configuration.adoc[]
 include::testing.adoc[]
 
 include::dev-tools.adoc[]
+
+include::servers.adoc[]
 
 include::extension.adoc[]
 
