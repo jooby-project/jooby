@@ -60,15 +60,16 @@ fun main(args: Array<String>) {
 }
 ----
 
-=== Key Features
+=== Features
 
-* Fast startup time
-* <<hot-reload, Hot-Reload for development>> (Save + Compile + Restart)
-* Script/lambda routes
-* MVC/JAX-RS routes
+* Java and Kotlin API
+* Fast startup time and <<hot-reload, Hot-Reload for development>> using Maven or Gradle
+* Script/lambda routes using fluent API
+* <<mvc-api, MVC routes>> using Jooby and JAX-RS annotations
 * <<execution-model, Event Loop and blocking execution modes>>
 * <<responses, Reactive responses>> (Completable Futures, RxJava and Reactor types and Kotlin Coroutines)
-* Multi-server: https://https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty] and http://undertow.io[Undertow]
+* <<server, Multi-server>> including https://https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty] and http://undertow.io[Undertow]
+* Simple <<extensions-and-services, extension/plugin mechanism>> with a variety of <<modules, modules>>
 
 === Script API
 
@@ -201,6 +202,8 @@ fun main(args: Array<String>) {
   }
 }
 ----
+
+More about MVC and JAX-RS support in the <<mvc-api, MVC API>> chapter.
 
 include::getting-started.adoc[]
 

@@ -4,7 +4,7 @@ This chapter covers some special response types, like `raw responses`, `streamin
 
 === Raw
 
-Raw responses are NOT processed by a <<encoder, Renderer>>. These response types are considered `raw`:
+Raw responses are NOT processed by a <<context-response-body-message-encoder, message encoder>>. These response types are considered `raw`:
 
 - String/CharSequence
 - byte[]
@@ -161,9 +161,9 @@ The javadoc:AttachedFile[] is used to generate file downloads, i.e. responses wi
 Non-blocking responses are a new feature of Jooby 2.x.
 
 From user point of view there is nothing special about them, you just write your route handler as 
-usually due with blocking types.
+usually do with blocking types.
 
-In Jooby 1.x we are force to produces directly/indirectly a `Deferred` result. All that is gone now, 
+In Jooby 1.x we were forced to produces directly/indirectly a `Deferred` result. All that is gone now, 
 we don't need a custom type to do the integration.
 
 Before we jump to each of the supported types, we need to learn what occurs in the pipeline when
@@ -300,7 +300,7 @@ The *default* mode mimics the *event loop* mode execution when route produces a 
 
 ==== Limitations
 
-While writing non-blocking/reactive responses we should *avoid the use of Jooby filters*: <<decorator, decorator>>, <<before, before>> and <<after, after>>.
+While writing non-blocking/reactive responses we should *avoid the use of Jooby filters*: <<router-handler-before, before>> and <<router-handler-after, after>>.
 
 In most use cases they won't work, so it is preferred to avoid them while programming
 non-blocking/reactive responses.
@@ -312,7 +312,7 @@ execution of pipeline.
 [quote]
 If you have a non-blocking route handler, it is better to not have any type of filter in the pipeline
 
-The alternative options is to write cross-cutting concerns we usually put inside a filter using the
+The alternative option is to write cross-cutting concerns we usually put inside a filter using the
 non-blocking API.
 
 ==== CompletableFuture

@@ -127,13 +127,13 @@ public class DocGenerator {
           // remove/replace redirection
           .replace("<meta http-equiv=\"refresh\" content=\"0; URL=https://jooby.io\" />", "");
       Document doc = Jsoup.parse(content);
-          doc.select("a").forEach(a -> {
-            String href = a.attr("href");
-            if (!href.startsWith("http") && !href.startsWith("#")) {
-              href = "/v1" + href;
-              a.attr("href", href);
-            }
-          });
+      doc.select("a").forEach(a -> {
+        String href = a.attr("href");
+        if (!href.startsWith("http") && !href.startsWith("#")) {
+          href = "/v1" + href;
+          a.attr("href", href);
+        }
+      });
       FileUtils.writeStringToFile(index, doc.toString(), "UTF-8");
     }
     FileUtils.deleteQuietly(v1target.resolve(".git").toFile());
@@ -316,7 +316,7 @@ public class DocGenerator {
         if (!id.equals(newId)) {
           h.attr("id", newId);
           doc.select("a").forEach(a -> {
-            if (a.attr("href").equals("#" + id)) {
+            if (a.attr("href").equals("#" + id) && a.attr("class").length() > 0) {
               a.attr("href", "#" + newId);
             }
           });

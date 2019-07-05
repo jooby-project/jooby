@@ -11,12 +11,6 @@ Modules are distributed as separated jar/dependency and usually implement the ja
 In general they provide a `builder` class to create the and configure the external library from 
 configuration properties.
 
-The module name is usually the same as the library, except when library comes with a class with the
-same name. To avoid name collisions we choose one of following convention:
-
-- An abbreviation of the name/library. For example: `Hibernate` -> `Hbm`, `Handlebars -> Hbs`, `Freemarker` -> `Ftl`.
-- Add a `by` suffix. For example: `Hibernate` -> `Hibernateby`, `Guice` -> `Guiceby`, `Handelbars` -> `Handlebarsby`
-
 Available modules are listed next.
 
 === Data
