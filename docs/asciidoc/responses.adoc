@@ -639,7 +639,8 @@ side effects ignoring the output of the route handler.
 
 Family of send methods include:
 
-- javadoc:Context[send, byte[]]
+- javadoc:Context[send, byte[\]]
+- javadoc:Route[consumes, io.jooby.MediaType...]
 - javadoc:Context[send, java.nio.Buffer]
 - javadoc:Context[send, java.lang.String]
 - javadoc:Context[send, java.nio.file.Path]

@@ -219,6 +219,8 @@ include::responses.adoc[]
 
 include::mvc-api.adoc[]
 
+include::error-handler.adoc[]
+
 include::configuration.adoc[]
 
 include::testing.adoc[]

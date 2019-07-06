@@ -15,6 +15,10 @@ class FeaturedKotlinTest {
       app.get("/") { ctx ->
         "Hello World!"
       }
+
+      app.error { ctx, cause, statusCode ->
+
+      }
     }.ready { client ->
       client.get("/") { rsp ->
         assertEquals("Hello World!", rsp.body!!.string())

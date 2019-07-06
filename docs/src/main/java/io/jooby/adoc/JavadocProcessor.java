@@ -61,7 +61,10 @@ public class JavadocProcessor extends InlineMacroProcessor {
       int index = 2;
       while (attributes.get(String.valueOf(index)) != null) {
         String qualifiedType = attributes.get(String.valueOf(index)).toString();
-        link.append(qualifiedType);
+        link.append(qualifiedType
+            .replace("[]", ":A")
+            .replace("&#8230;&#8203;", "...")
+        );
 
         int start = qualifiedType.lastIndexOf('.');
         String simpleName = start > 0 ? qualifiedType.substring(start + 1) : qualifiedType;
