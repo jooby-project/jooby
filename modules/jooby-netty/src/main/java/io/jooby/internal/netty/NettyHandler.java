@@ -147,7 +147,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       String lowerContentType = contentType.toLowerCase();
       if (lowerContentType.startsWith(MediaType.MULTIPART_FORMDATA)) {
         return new HttpPostMultipartRequestDecoder(factory, request, StandardCharsets.UTF_8);
-      } else if (lowerContentType.equals(MediaType.FORM_URLENCODED)) {
+      } else if (lowerContentType.startsWith(MediaType.FORM_URLENCODED)) {
         return new HttpPostStandardRequestDecoder(factory, request, StandardCharsets.UTF_8);
       }
     }

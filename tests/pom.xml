@@ -101,6 +101,11 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+    </dependency>
+
     <!-- webjars tests: -->
     <dependency>
       <groupId>org.webjars.npm</groupId>
