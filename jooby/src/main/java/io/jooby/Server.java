@@ -17,7 +17,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Web server contract. Defines operations to start, join and stop a web server. Jooby comes
  * with three web server implementation: Jetty, Netty and Undertow.
  *
- * To use a web server, just add the dependency to your project.
+ * A web server is automatically discovered using the Java Service Loader API. All you need is to
+ * add the server dependency to your project classpath.
+ *
+ * When service loader is not an option or do you want to manually bootstrap a server:
+ *
+ * <pre>{@code
+ *
+ * Server server = new Netty(); // or Jetty or Utow
+ *
+ * App app = new App();
+ *
+ * server.start(app);
+ *
+ * ...
+ *
+ * server.stop();
+ *
+ * }</pre>
  *
  * @author edgar
  * @since 2.0.0
@@ -34,19 +51,19 @@ public interface Server {
 
     private AtomicBoolean stopping = new AtomicBoolean();
 
-    protected void fireStart(List<Jooby> applications, Executor defaultWorker) {
+    protected void fireStart(@Nonnull List<Jooby> applications, @Nonnull Executor defaultWorker) {
       for (Jooby app : applications) {
         app.setDefaultWorker(defaultWorker).start(this);
       }
     }
 
-    protected void fireReady(List<Jooby> applications) {
+    protected void fireReady(@Nonnull List<Jooby> applications) {
       for (Jooby app : applications) {
         app.ready(this);
       }
     }
 
-    protected void fireStop(List<Jooby> applications) {
+    protected void fireStop(@Nonnull List<Jooby> applications) {
       if (stopping.compareAndSet(false, true)) {
         if (applications != null) {
           for (Jooby app : applications) {
@@ -84,7 +101,7 @@ public interface Server {
    * @param application Application to start.
    * @return This server.
    */
-  @Nonnull Server start(Jooby application);
+  @Nonnull Server start(@Nonnull Jooby application);
 
   /**
    * Block current thread so JVM doesn't exit.
