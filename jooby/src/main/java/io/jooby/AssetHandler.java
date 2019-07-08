@@ -45,7 +45,7 @@ public class AssetHandler implements Route.Handler {
     }
     Asset asset = resolve(filepath);
     if (asset == null) {
-      ctx.send(StatusCode.NOT_FOUND);
+      ctx.sendError(new StatusCodeException(StatusCode.NOT_FOUND));
       return ctx;
     }
 
