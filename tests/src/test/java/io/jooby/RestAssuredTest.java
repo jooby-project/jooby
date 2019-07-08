@@ -12,7 +12,7 @@ public class RestAssuredTest {
       app.post("/foo", ctx -> ctx.form("one").value());
     }).ready(client -> {
       given()
-          .port(9999)
+          .port(client.getPort())
           .param("one", "1")
           .when()
           .post("/foo")

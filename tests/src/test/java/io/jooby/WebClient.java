@@ -126,4 +126,8 @@ public class WebClient {
   public void patch(String path, SneakyThrows.Consumer<Response> callback) {
     patch(path).execute(callback);
   }
+
+  public int getPort() {
+    return port;
+  }
 }
