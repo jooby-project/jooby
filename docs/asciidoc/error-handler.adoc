@@ -4,14 +4,14 @@ Jooby catches application exception using the javadoc:ErrorHandler class. The
 javadoc:ErrorHandler[DEFAULT] error handler produces simple HTML page or JSON based on the value
 of the `ACCEPT` header and log the exception.
 
-.HTML output
+.HTML:
 ----
 Not Found
 message: Page not found
 status code: 404
 ----
 
-.JSON output
+.JSON:
 ----
 {
   "message": "Page not found",
@@ -20,7 +20,7 @@ status code: 404
 }
 ----
 
-.logging:
+.Log:
 ----
 GET /xx 404 Not Found
 io.jooby.StatusCodeException: Not found
