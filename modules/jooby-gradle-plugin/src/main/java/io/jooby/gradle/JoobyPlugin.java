@@ -13,7 +13,14 @@ import org.gradle.api.Task;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Configure Gradle plugins for Jooby.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class JoobyPlugin implements Plugin<Project> {
+
   @Override public void apply(Project project) {
     project.getExtensions().create("joobyRun", JoobyRunOptions.class);
 

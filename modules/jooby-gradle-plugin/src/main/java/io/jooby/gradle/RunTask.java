@@ -33,6 +33,12 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Gradle plugin for Jooby run.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class RunTask extends DefaultTask {
 
   static {
@@ -41,6 +47,11 @@ public class RunTask extends DefaultTask {
 
   private ProjectConnection connection;
 
+  /**
+   * Run task.
+   *
+   * @throws Throwable If something goes wrong.
+   */
   @TaskAction
   public void run() throws Throwable {
     try {
@@ -171,7 +182,7 @@ public class RunTask extends DefaultTask {
         .getByName(SourceSet.MAIN_SOURCE_SET_NAME);
   }
 
-  public JavaPluginConvention getJavaConvention(final Project project) {
+  private JavaPluginConvention getJavaConvention(final Project project) {
     return project.getConvention().getPlugin(JavaPluginConvention.class);
   }
 }
