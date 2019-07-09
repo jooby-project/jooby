@@ -13,10 +13,10 @@ import org.springframework.context.ApplicationContext;
 
 import javax.annotation.Nonnull;
 
-public class SpringRegistry implements Registry {
+class SpringRegistry implements Registry {
   private final ApplicationContext ctx;
 
-  public SpringRegistry(ApplicationContext ctx) {
+  SpringRegistry(ApplicationContext ctx) {
     this.ctx = ctx;
   }
 

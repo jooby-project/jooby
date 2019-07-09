@@ -9,9 +9,22 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import org.springframework.core.env.PropertySource;
 
+import javax.annotation.Nonnull;
+
+/**
+ * Property source backed by Jooby application configuration object.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class ConfigPropertySource extends PropertySource<Config> {
-  public ConfigPropertySource(String name, Config source) {
-    super(name, source);
+  /**
+   * Creates a new property source.
+   *
+   * @param source Application configuration.
+   */
+  public ConfigPropertySource(@Nonnull Config source) {
+    super("jooby", source);
   }
 
   @Override public boolean containsProperty(String key) {

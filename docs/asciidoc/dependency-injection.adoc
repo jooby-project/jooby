@@ -10,6 +10,6 @@ include::di-dagger.adoc[]
 
 include::modules/guice.adoc[]
 
-include::di-spring.adoc[]
+include::modules/spring.adoc[]
 
 include::di-weld.adoc[]

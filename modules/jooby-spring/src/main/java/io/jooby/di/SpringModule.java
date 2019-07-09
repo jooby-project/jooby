@@ -22,6 +22,30 @@ import javax.annotation.Nonnull;
 import javax.inject.Provider;
 import java.util.Map;
 
+/**
+ * Spring module: https://jooby.io/modules/spring.
+ *
+ * Jooby integrates the {@link io.jooby.ServiceRegistry} into the Spring Core framework.
+ *
+ * Usage:
+ *
+ * <pre>{@code
+ * {
+ *
+ *
+ *   install(new SpringModule());
+ *
+ * }
+ *
+ * }</pre>
+ *
+ * Require calls are going to be resolve by Spring now.
+ *
+ * Spring scan the {@link Jooby#getBasePackage()}, unless you specify them explicitly.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class SpringModule implements Extension {
 
   private AnnotationConfigApplicationContext applicationContext;
@@ -32,24 +56,46 @@ public class SpringModule implements Extension {
 
   private String[] packages;
 
+  /**
+   * Creates a new Spring module using the given application context.
+   *
+   * @param applicationContext Application context to use.
+   */
   public SpringModule(@Nonnull AnnotationConfigApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
   }
 
+  /**
+   * Creates a new Spring module, scan the default package: {@link Jooby#getBasePackage()}.
+   */
   public SpringModule() {
-    this.applicationContext = null;
   }
 
-  public SpringModule(String... packages) {
-    this.applicationContext = null;
+  /**
+   * Creates a new Spring module and scan the provided packages.
+   *
+   * @param packages Package to scan.
+   */
+  public SpringModule(@Nonnull String... packages) {
     this.packages = packages;
   }
 
+  /**
+   * Indicates the Spring application context should NOT be refreshed. Default is: true.
+   *
+   * @return This module.
+   */
   public SpringModule noRefresh() {
     this.refresh = false;
     return this;
   }
 
+  /**
+   * Turn off discovering/scanning of MVC routes. For Spring integration an MVC route must be
+   * annotated with {@link Controller}.
+   *
+   * @return This module.
+   */
   public SpringModule noMvcRoutes() {
     this.registerMvcRoutes = false;
     return this;
@@ -72,7 +118,8 @@ public class SpringModule implements Extension {
       }
       Environment environment = application.getEnvironment();
 
-      applicationContext = defaultApplicationContext(packages);
+      applicationContext = new AnnotationConfigApplicationContext();
+      applicationContext.scan(packages);
 
       ConfigurableEnvironment configurableEnvironment = applicationContext.getEnvironment();
       String[] profiles = environment.getActiveNames().toArray(new String[0]);
@@ -81,7 +128,7 @@ public class SpringModule implements Extension {
 
       Config config = environment.getConfig();
       MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
-      propertySources.addFirst(new ConfigPropertySource("application", config));
+      propertySources.addFirst(new ConfigPropertySource(config));
 
       ConfigurableListableBeanFactory beanFactory = applicationContext.getBeanFactory();
       beanFactory.registerSingleton("conf", config);
@@ -115,12 +162,5 @@ public class SpringModule implements Extension {
         application.mvc(mvcClass);
       }
     }
-  }
-
-  public static AnnotationConfigApplicationContext defaultApplicationContext(
-      @Nonnull String... packages) {
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.scan(packages);
-    return context;
   }
 }
