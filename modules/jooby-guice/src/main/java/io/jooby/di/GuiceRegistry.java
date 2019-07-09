@@ -16,10 +16,10 @@ import io.jooby.ServiceKey;
 
 import javax.annotation.Nonnull;
 
-public class GuiceRegistry implements Registry {
+class GuiceRegistry implements Registry {
   private Injector injector;
 
-  public GuiceRegistry(Injector injector) {
+  GuiceRegistry(Injector injector) {
     this.injector = injector;
   }
 

@@ -7,7 +7,6 @@ package io.jooby.di;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
-import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
@@ -24,12 +23,23 @@ import javax.inject.Provider;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Exposes Jooby objects to Guice. This module exposes {@link Environment}, {@link Config} and
+ * application services.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class JoobyModule extends AbstractModule {
   private Jooby application;
 
+  /**
+   * Creates a new Jooby Module.
+   *
+   * @param application Jooby application.
+   */
   public JoobyModule(@Nonnull Jooby application) {
     this.application = application;
   }

@@ -8,7 +8,7 @@ dependency injection of your choice.
 
 include::di-dagger.adoc[]
 
-include::di-guice.adoc[]
+include::modules/guice.adoc[]
 
 include::di-spring.adoc[]
 
