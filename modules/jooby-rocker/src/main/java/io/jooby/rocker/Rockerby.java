@@ -13,11 +13,24 @@ import io.jooby.MediaType;
 
 import javax.annotation.Nonnull;
 
+/**
+ * Rocker module. It requires some build configuration setup which are documented in the web site.
+ * Please refer to https://jooby.io/modules/rocker for more details.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class Rockerby implements Extension {
 
   private Boolean reloading;
 
-  public Rockerby reloading(boolean reloading) {
+  /**
+   * Turn on/off autoreloading of template for development.
+   *
+   * @param reloading True for turning on.
+   * @return This module.
+   */
+  public @Nonnull Rockerby reloading(boolean reloading) {
     this.reloading = reloading;
     return this;
   }

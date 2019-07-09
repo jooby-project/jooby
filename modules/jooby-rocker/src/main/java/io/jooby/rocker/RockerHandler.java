@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
 class RockerHandler implements Route.Handler {
   private final Route.Handler next;
 
-  public RockerHandler(Route.Handler next) {
+  RockerHandler(Route.Handler next) {
     this.next = next;
   }
 
