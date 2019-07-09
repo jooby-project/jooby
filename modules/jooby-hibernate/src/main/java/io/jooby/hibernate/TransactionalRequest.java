@@ -15,14 +15,55 @@ import org.hibernate.context.internal.ManagedSessionContext;
 
 import javax.annotation.Nonnull;
 
+/**
+ * Attach {@link Session} and {@link javax.persistence.EntityManager} to the current request.
+ * The route pipeline runs inside a transaction which is commit on success or rollback in case of
+ * exception.
+ *
+ * Once route pipeline is executed the session/entityManager is detached from current request and
+ * closed it.
+ *
+ * Usage:
+ *
+ * <pre>{@code
+ * {
+ *
+ *   install(new HikariModule());
+ *
+ *   install(new HibernateModule());
+ *
+ *   decorator(new TransactionalRequest());
+ *
+ *   get("/handle", ctx -> {
+ *     EntityManager handle = require(EntityManager.class);
+ *     // work with handle.
+ *   });
+ * }
+ * }</pre>
+ *
+ * NOTE: This is NOT the open session in view pattern. Persistent objects must be fully initialized
+ * to be encoded/rendered to the client. Otherwise, Hibernate results in
+ * LazyInitializationException.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class TransactionalRequest implements Route.Decorator {
 
   private ServiceKey<SessionFactory> key;
 
+  /**
+   * Creates a new transactional request and attach the to a named session factory.
+   *
+   * @param name Name of the session factory.
+   */
   public TransactionalRequest(@Nonnull String name) {
     key = ServiceKey.key(SessionFactory.class, name);
   }
 
+  /**
+   * Creates a new transactional request and attach to the default/first session factory registered.
+   */
   public TransactionalRequest() {
     key = ServiceKey.key(SessionFactory.class);
   }

@@ -5,7 +5,6 @@
  */
 package io.jooby.hibernate;
 
-import com.typesafe.config.Config;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -23,6 +22,7 @@ import org.hibernate.boot.registry.BootstrapServiceRegistry;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.AvailableSettings;
 
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
@@ -39,24 +39,146 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hibernate.cfg.AvailableSettings.*;
-
+/**
+ * Hibernate ORM module: https://jooby.io/modules/hibernate.
+ *
+ * Usage:
+ *
+ * - Add hikari and hibernate dependency
+ *
+ * - Install them
+ *
+ * <pre>{@code
+ * {
+ *   install(new HikariModule());
+ *
+ *   install(new HibernateModule());
+ * }
+ * }</pre>
+ *
+ * - Use it
+ *
+ * <pre>{code
+ * {
+ *
+ *   get("/", ctx -> {
+ *     EntityManagerFactory emf = require(EntityManagerFactory.class);
+ *     // do with emf
+ *   });
+ *
+ * }
+ * }</pre>
+ *
+ * Optionally, you can require/inject a {@link SessionFactory} too:
+ *
+ * <pre>{code
+ * {
+ *
+ *   get("/", ctx -> {
+ *     SessionFactory sf = require(SessionFactory.class);
+ *     // do with sf
+ *   });
+ *
+ * }
+ * }</pre>
+ *
+ * By default the hibernate module scan the {@link Jooby#getBasePackage()} to register all the
+ * persistent classes. To scan a different package use the {@link HibernateModule#scan(String...)}
+ * method.
+ *
+ * To turn it off you need to specify all the persistent classes at creation time, using the
+ * {@link HibernateModule#HibernateModule(Class[])} constructor.
+ *
+ * It is important to close either an {@link EntityManager} or {@link Session} created manually
+ * from {@link javax.persistence.EntityManagerFactory} and {@link SessionFactory}.
+ *
+ * So code around session/entityManager looks like:
+ *
+ * <pre>{@code
+ *   get("/", ctx -> {
+ *     EntityManager em = require(EntityManager.class);
+ *     Transaction trx = em.getTransaction();
+ *     try {
+ *       trx.begin();
+ *
+ *       // work with EntityManager compute a result
+ *
+ *       trx.commit();
+ *
+ *       return result;
+ *     } catch(Exception x) {
+ *       trx.rollback();
+ *       throw x;
+ *     } finally {
+ *       em.close();
+ *     }
+ *   });
+ * }</pre>
+ *
+ * To avoid all these lines of code we do provide a {@link TransactionalRequest} decorator so code
+ * looks more simple:
+ *
+ * <pre>{@code
+ *   decorator(new TransactionalRequest());
+ *
+ *   get("/", ctx -> {
+ *     EntityManager em = require(EntityManager.class);
+ *     // work with EntityManager compute a result
+ *     return result;
+ *   });
+ * }</pre>
+ *
+ * Transaction and lifecycle of session/entityManager is managed by {@link TransactionalRequest}.
+ *
+ * Complete documentation is available at: https://jooby.io/modules/hibernate.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class HibernateModule implements Extension {
 
   private final String name;
   private List<String> packages = Collections.emptyList();
   private List<Class> classes;
 
-  public HibernateModule(@Nonnull String name, @Nonnull Class... classes) {
+  /**
+   * Creates a Hibernate Module. The database parameter can be one of:
+   *
+   * - A property key defined in your application configuration file, like <code>db</code>.
+   * - A special h2 database: mem, local or tmp.
+   * - A jdbc connection string, like: <code>jdbc:mysql://localhost/db</code>
+   *
+   * @param name Database key, database type or jdbc url.
+   * @param classes Persistent classes.
+   */
+  public HibernateModule(@Nonnull String name, Class... classes) {
     this.name = name;
     this.classes = Arrays.asList(classes);
   }
 
+  /**
+   * Creates a new Hikari module using the <code>db</code> property key. This key must be
+   * present in the application configuration file, like:
+   *
+   * <pre>{@code
+   *  db.url = "jdbc:url"
+   *  db.user = dbuser
+   *  db.password = dbpass
+   * }</pre>
+   *
+   * @param classes Persistent classes.
+   */
   public HibernateModule(Class... classes) {
     this("db", classes);
   }
 
-  public HibernateModule scan(String... packages) {
+  /**
+   * Scan packages and look for persistent classes.
+   *
+   * @param packages Package names.
+   * @return This module.
+   */
+  public @Nonnull HibernateModule scan(@Nonnull String... packages) {
     this.packages = Arrays.asList(packages);
     return this;
   }
@@ -72,16 +194,16 @@ public class HibernateModule implements Extension {
       fallback = true;
     }
     BootstrapServiceRegistryBuilder bsrb = new BootstrapServiceRegistryBuilder();
-    boolean default_ddl_auto = env.isActive("dev", "test");
+    boolean defaultDdlAuto = env.isActive("dev", "test");
 
     boolean flyway = isFlywayPresent(env, registry, name, fallback);
-    String ddl_auto = flyway ? "none" : (default_ddl_auto ? "update" : "none");
+    String ddlAuto = flyway ? "none" : (defaultDdlAuto ? "update" : "none");
 
     BootstrapServiceRegistry bsr = bsrb.build();
     StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder(bsr);
 
-    ssrb.applySetting(HBM2DDL_AUTO, ddl_auto);
-    ssrb.applySetting(CURRENT_SESSION_CONTEXT_CLASS, "managed");
+    ssrb.applySetting(AvailableSettings.HBM2DDL_AUTO, ddlAuto);
+    ssrb.applySetting(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "managed");
     // apply application.conf
     Map<String, String> base = env.getProperties("hibernate");
     Map<String, String> custom = env.getProperties(name + ".hibernate", "hibernate");
@@ -89,8 +211,8 @@ public class HibernateModule implements Extension {
     settings.putAll(base);
     settings.putAll(custom);
     ssrb.applySettings(settings);
-    ssrb.applySetting(DATASOURCE, dataSource);
-    ssrb.applySetting(DELAY_CDI_ACCESS, true);
+    ssrb.applySetting(AvailableSettings.DATASOURCE, dataSource);
+    ssrb.applySetting(AvailableSettings.DELAY_CDI_ACCESS, true);
 
     StandardServiceRegistry serviceRegistry = ssrb.build();
     if (packages.isEmpty() && classes.isEmpty()) {
