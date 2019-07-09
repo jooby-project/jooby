@@ -19,7 +19,7 @@ class FreemarkerTemplateEngine implements TemplateEngine {
 
   private final Configuration freemarker;
 
-  public FreemarkerTemplateEngine(Configuration freemarker) {
+  FreemarkerTemplateEngine(Configuration freemarker) {
     this.freemarker = freemarker;
   }
 

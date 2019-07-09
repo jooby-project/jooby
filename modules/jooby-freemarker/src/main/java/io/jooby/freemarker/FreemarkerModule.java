@@ -31,8 +31,60 @@ import java.util.Properties;
 import static io.jooby.TemplateEngine.TEMPLATE_PATH;
 import static io.jooby.TemplateEngine.normalizePath;
 
+/**
+ * Freemarker module: https://jooby.io/modules/freemarker.
+ *
+ * Usage:
+ *
+ * <pre>{@code
+ * {
+ *
+ *   install(new FreemarkerModule());
+ *
+ *   get("/", ctx -> {
+ *     User user = ...;
+ *     return new ModelAndView("index.ftl")
+ *         .put("user", user);
+ *   });
+ * }
+ * }</pre>
+ *
+ * The template engine looks for a file-system directory: <code>views</code> in the current
+ * user directory. If the directory doesn't exist, it looks for the same directory in the project
+ * classpath.
+ *
+ * You can specify a different template location:
+ *
+ * <pre>{@code
+ * {
+ *
+ *    install(new FreemarkerModule("mypath"));
+ *
+ * }
+ * }</pre>
+ *
+ * The <code>mypath</code> location works in the same way: file-system or fallback to classpath.
+ *
+ * Direct access to {@link Configuration} is available via require call:
+ *
+ * <pre>{@code
+ * {
+ *
+ *   Configuration configuration = require(Configuration.class);
+ *
+ * }
+ * }</pre>
+ *
+ * Complete documentation is available at: https://jooby.io/modules/freemarker.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class FreemarkerModule implements Extension {
 
+  /**
+   * Utility class for creating {@link Configuration} instances.
+   */
   public static class Builder {
 
     private TemplateLoader templateLoader;
@@ -43,26 +95,57 @@ public class FreemarkerModule implements Extension {
 
     private String templatesPath = TemplateEngine.PATH;
 
+    /**
+     * Template loader to use.
+     *
+     * @param loader Template loader to use.
+     * @return This builder.
+     */
     public @Nonnull Builder setTemplateLoader(@Nonnull TemplateLoader loader) {
       this.templateLoader = loader;
       return this;
     }
 
+    /**
+     * Set a freemarker option/setting.
+     *
+     * @param name Option name.
+     * @param value Optiona value.
+     * @return This builder.
+     */
     public @Nonnull Builder setSetting(@Nonnull String name, @Nonnull String value) {
       this.settings.put(name, value);
       return this;
     }
 
+    /**
+     * Set output format.
+     *
+     * @param outputFormat Output format.
+     * @return This builder.
+     */
     public @Nonnull Builder setOutputFormat(@Nonnull OutputFormat outputFormat) {
       this.outputFormat = outputFormat;
       return this;
     }
 
+    /**
+     * Template path.
+     *
+     * @param templatesPath Set template path.
+     * @return This builder.
+     */
     public @Nonnull Builder setTemplatesPath(@Nonnull String templatesPath) {
         this.templatesPath = templatesPath;
       return this;
     }
 
+    /**
+     * Build method for creating a freemarker instance.
+     *
+     * @param env Application environment.
+     * @return A new freemarker instance.
+     */
     public @Nonnull Configuration build(@Nonnull Environment env) {
       try {
         Configuration freemarker = new Configuration(
@@ -124,14 +207,28 @@ public class FreemarkerModule implements Extension {
 
   private String templatesPath;
 
+  /**
+   * Creates a new freemarker module using a the given freemarker instance.
+   *
+   * @param freemarker Freemarker to use.
+   */
   public FreemarkerModule(@Nonnull Configuration freemarker) {
     this.freemarker = freemarker;
   }
 
+  /**
+   * Freemarker module which look at the given path. It first look at the file-system or fallback
+   * to classpath.
+   *
+   * @param templatesPath Template path.
+   */
   public FreemarkerModule(@Nonnull String templatesPath) {
     this.templatesPath = templatesPath;
   }
 
+  /**
+   * Creates a new freemarker module using the default template path: <code>views</code>.
+   */
   public FreemarkerModule() {
     this(TemplateEngine.PATH);
   }
@@ -146,7 +243,12 @@ public class FreemarkerModule implements Extension {
     services.put(Configuration.class, freemarker);
   }
 
-  public static FreemarkerModule.Builder create() {
+  /**
+   * Creates a new freemarker builder.
+   *
+   * @return A builder.
+   */
+  public static @Nonnull FreemarkerModule.Builder create() {
     return new FreemarkerModule.Builder();
   }
 }
