@@ -42,27 +42,46 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+/**
+ * Maven plugin for jooby run.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 @Mojo(name = "run", threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
 @Execute(phase = LifecyclePhase.TEST)
 public class RunMojo extends AbstractMojo {
 
   static {
+    /** Turn off shutdown hook on Server. */
     System.setProperty("jooby.useShutdownHook", "false");
   }
 
   private static final String APP_CLASS = "application.class";
 
+  /** Startup class (the one with the main method. */
   @Parameter(defaultValue = "${application.class}")
   private String mainClass;
 
-  @Parameter(defaultValue = "conf,properties,class")
+  /**
+   * List of file extensions that trigger an application restart. Default is: <code>conf</code>,
+   * <code>properties</code> and <code>class</code>.
+   */
+  @Parameter
   private List<String> restartExtensions;
 
-  @Parameter(defaultValue = "java,kt")
+  /**
+   * List of file extensions that trigger a compilation request. Default is: <code>java</code> and
+   * <code>kt</code>.
+   */
+  @Parameter
   private List<String> compileExtensions;
 
-  @Parameter(defaultValue = "${server.port}")
-  private int port = 8080;
+  /**
+   * Application port.
+   */
+  @Parameter
+  private int port = JoobyRunOptions.DEFAULT_PORT;
 
   @Parameter(defaultValue = "${session}", required = true, readonly = true)
   private MavenSession session;
@@ -87,12 +106,13 @@ public class RunMojo extends AbstractMojo {
       }
       getLog().debug("Found `" + APP_CLASS + "`: " + mainClass);
 
-      JoobyRun joobyRun = new JoobyRun(createOptions());
+      JoobyRunOptions options = createOptions();
+      JoobyRun joobyRun = new JoobyRun(options);
 
       Runtime.getRuntime().addShutdownHook(new Thread(joobyRun::shutdown));
 
       BiConsumer<String, Path> onFileChanged = (event, path) -> {
-        if (isCompileExtension(path)) {
+        if (options.isCompileExtension(path)) {
           MavenExecutionResult result = maven.execute(mavenRequest("process-classes"));
           // Success?
           if (result.hasExceptions()) {
@@ -101,7 +121,7 @@ public class RunMojo extends AbstractMojo {
             getLog().debug("Restarting application on file change: " + path);
             joobyRun.restart();
           }
-        } else if (isRestartExtension(path)) {
+        } else if (options.isRestartExtension(path)) {
           getLog().debug("Restarting application on file change: " + path);
           joobyRun.restart();
         } else {
@@ -148,73 +168,126 @@ public class RunMojo extends AbstractMojo {
   private JoobyRunOptions createOptions() {
     JoobyRunOptions options = new JoobyRunOptions();
     options.setMainClass(mainClass);
-    options.setCompileExtensions(compileExtensions);
+    if (compileExtensions != null) {
+      options.setCompileExtensions(compileExtensions);
+    }
     options.setPort(port);
     options.setProjectName(session.getCurrentProject().getArtifactId());
-    options.setRestartExtensions(restartExtensions);
+    if (restartExtensions != null) {
+      options.setRestartExtensions(restartExtensions);
+    }
     return options;
   }
 
+  /**
+   * List of file extensions that trigger a compilation request. Compilation is done via Maven or
+   * Gradle. Default is: <code>java</code> and <code>kt</code>.
+   *
+   * @return Compile extensions.
+   */
   public List<String> getCompileExtensions() {
     return compileExtensions;
   }
 
+  /**
+   * Set compile extensions. Extension is expected to be specify without <code>.</code> (dot).
+   *
+   * @param compileExtensions Compile extensions.
+   */
   public void setCompileExtensions(List<String> compileExtensions) {
     this.compileExtensions = compileExtensions;
   }
 
+  /**
+   * List of file extensions that trigger an application restart. Default is: <code>conf</code>,
+   * <code>properties</code> and <code>class</code>.
+   *
+   * @return Restart extensions.
+   */
   public List<String> getRestartExtensions() {
     return restartExtensions;
   }
 
+  /**
+   * Set restart extensions. Extension is expected to be specify without <code>.</code> (dot).
+   *
+   * @param restartExtensions Restart extensions.
+   */
   public void setRestartExtensions(List<String> restartExtensions) {
     this.restartExtensions = restartExtensions;
   }
 
+  /**
+   * Maven reference (available while running the plugin).
+   *
+   * @return Maven reference (available while running the plugin).
+   */
   public Maven getMaven() {
     return maven;
   }
 
+  /**
+   * Set maven instance (available while running the plugin).
+   *
+   * @param maven Maven instance Maven reference (available while running the plugin).
+   */
   public void setMaven(Maven maven) {
     this.maven = maven;
   }
 
+  /**
+   * Maven session reference (available while running the plugin).
+   *
+   * @return Maven reference (available while running the plugin).
+   */
   public MavenSession getSession() {
     return session;
   }
 
+  /**
+   * Set maven session instance (available while running the plugin).
+   *
+   * @param session Maven session instance Maven reference (available while running the plugin).
+   */
   public void setSession(MavenSession session) {
     this.session = session;
   }
 
+  /**
+   * Project dependencies resolver (available while running the plugin).
+   *
+   * @return Project dependencies resolver (available while running the plugin).
+   */
   public ProjectDependenciesResolver getDependenciesResolver() {
     return dependenciesResolver;
   }
 
+  /**
+   * Set project dependencies resolver.
+   *
+   * @param dependenciesResolver Project dependencies resolver.
+   */
   public void setDependenciesResolver(
       ProjectDependenciesResolver dependenciesResolver) {
     this.dependenciesResolver = dependenciesResolver;
   }
 
+  /**
+   * Application main class.
+   *
+   * @return Application main class.
+   */
   public String getMainClass() {
     return mainClass;
   }
 
+  /**
+   * Set application main class.
+   *
+   * @param mainClass Application main class.
+   */
   public void setMainClass(String mainClass) {
     this.mainClass = mainClass;
-  }
-
-  private boolean isCompileExtension(Path path) {
-    return containsExtension(compileExtensions, path);
-  }
-
-  private boolean isRestartExtension(Path path) {
-    return containsExtension(restartExtensions, path);
-  }
-
-  private boolean containsExtension(List<String> extensions, Path path) {
-    String filename = path.getFileName().toString();
-    return extensions.stream().anyMatch(ext -> filename.endsWith("." + ext));
   }
 
   private Set<Path> artifacts(MavenProject project) throws DependencyResolutionException {
