@@ -1,6 +1,6 @@
 package io.jooby.maven;
 
-import io.jooby.run.JoobyRunConf;
+import io.jooby.run.JoobyRunOptions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -12,7 +12,7 @@ public class RunMojoTest {
 
   @Test
   public void ensureConfigurationOptions() {
-    Stream.of(JoobyRunConf.class.getDeclaredFields())
+    Stream.of(JoobyRunOptions.class.getDeclaredFields())
         .filter(field -> !field.getName().equals("projectName"))
         .forEach(field -> {
           try {

@@ -7,7 +7,7 @@ package io.jooby.maven;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import io.jooby.run.JoobyRun;
-import io.jooby.run.JoobyRunConf;
+import io.jooby.run.JoobyRunOptions;
 import org.apache.maven.Maven;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
@@ -145,8 +145,8 @@ public class RunMojo extends AbstractMojo {
     }
   }
 
-  private JoobyRunConf createOptions() {
-    JoobyRunConf options = new JoobyRunConf();
+  private JoobyRunOptions createOptions() {
+    JoobyRunOptions options = new JoobyRunOptions();
     options.setMainClass(mainClass);
     options.setCompileExtensions(compileExtensions);
     options.setPort(port);

@@ -23,7 +23,10 @@ import static org.jboss.modules.ResourceLoaderSpec.createResourceLoaderSpec;
 import static org.jboss.modules.ResourceLoaders.createJarResourceLoader;
 import static org.jboss.modules.ResourceLoaders.createPathResourceLoader;
 
-class Specs {
+final class Specs {
+
+  private Specs() {
+  }
 
   static DependencySpec metaInf(String moduleName) {
     return new ModuleDependencySpecBuilder()

@@ -8,7 +8,7 @@ package io.jooby.run;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
-public class ServerRef implements Consumer<Object> {
+class ServerRef implements Consumer<Object> {
 
   private static volatile Object server;
 

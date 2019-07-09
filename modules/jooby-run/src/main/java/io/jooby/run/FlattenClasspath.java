@@ -20,7 +20,7 @@ class FlattenClasspath implements ModuleFinder {
   private final Set<Path> resources;
   private final String name;
 
-  public FlattenClasspath(String name, Set<Path> resources, Set<Path> dependencies) {
+  FlattenClasspath(String name, Set<Path> resources, Set<Path> dependencies) {
     this.name = name;
     this.resources = new LinkedHashSet<>(resources.size() + dependencies.size());
     this.resources.addAll(resources);

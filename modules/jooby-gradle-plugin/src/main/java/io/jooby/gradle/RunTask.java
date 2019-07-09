@@ -6,7 +6,7 @@
 package io.jooby.gradle;
 
 import io.jooby.run.JoobyRun;
-import io.jooby.run.JoobyRunConf;
+import io.jooby.run.JoobyRunOptions;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -45,7 +45,7 @@ public class RunTask extends DefaultTask {
   public void run() throws Throwable {
     try {
       Project current = getProject();
-      JoobyRunConf config = current.getExtensions().getByType(JoobyRunConf.class);
+      JoobyRunOptions config = current.getExtensions().getByType(JoobyRunOptions.class);
       List<Project> projects = Arrays.asList(current);
 
       if (config.getMainClass() == null) {

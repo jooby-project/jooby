@@ -26,11 +26,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
+/**
+ * Allow to restart an application on file changes. This lets client to listen for file changes
+ * and trigger a restart.
+ *
+ * This class doesn't compile source code. Instead, let a client (Maven/Gradle) to listen for
+ * changes, fire a compilation process and restart the application once compilation finished.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class JoobyRun {
 
   private static class ExtModuleLoader extends ModuleLoader {
 
-    public ExtModuleLoader(ModuleFinder... finders) {
+    ExtModuleLoader(ModuleFinder... finders) {
       super(finders);
     }
 
@@ -42,13 +52,13 @@ public class JoobyRun {
   private static class AppModule {
     private final Logger logger;
     private final ExtModuleLoader loader;
-    private final JoobyRunConf conf;
+    private final JoobyRunOptions conf;
     private Module module;
     private ClassLoader contextClassLoader;
     private int counter;
 
-    public AppModule(Logger logger, ExtModuleLoader loader, ClassLoader contextClassLoader,
-        JoobyRunConf conf) {
+    AppModule(Logger logger, ExtModuleLoader loader, ClassLoader contextClassLoader,
+        JoobyRunOptions conf) {
       this.logger = logger;
       this.loader = loader;
       this.conf = conf;
@@ -116,7 +126,7 @@ public class JoobyRun {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final JoobyRunConf conf;
+  private final JoobyRunOptions options;
 
   private final Set<Path> resources = new LinkedHashSet<>();
 
@@ -128,10 +138,24 @@ public class JoobyRun {
 
   private AppModule module;
 
-  public JoobyRun(JoobyRunConf conf) {
-    this.conf = conf;
+  /**
+   * Creates a new instances with the given options.
+   *
+   * @param options Run options.
+   */
+  public JoobyRun(JoobyRunOptions options) {
+    this.options = options;
   }
 
+  /**
+   * Add the given path to the project classpath. Path must be a jar or file system directory.
+   * File system directory are listen for changes on file changes this method invokes the given
+   * callback.
+   *
+   * @param path Path.
+   * @param callback Callback to listen for file changes.
+   * @return True if the path was added it to the classpath.
+   */
   public boolean addResource(Path path, BiConsumer<String, Path> callback) {
     if (addResource(path)) {
       if (Files.isDirectory(path)) {
@@ -142,6 +166,12 @@ public class JoobyRun {
     return false;
   }
 
+  /**
+   * Add the given path to the project classpath. Path must be a jar or file system directory.
+   *
+   * @param path Path.
+   * @return True if the path was added it to the classpath.
+   */
   public boolean addResource(Path path) {
     if (Files.exists(path)) {
       if (path.toString().endsWith(".jar")) {
@@ -154,16 +184,22 @@ public class JoobyRun {
     return false;
   }
 
+  /**
+   * Start the application.
+   *
+   * @throws Exception If something goes wrong.
+   */
   public void start() throws Exception {
     this.watcher = newWatcher();
     try {
       logger.debug("project: {}", toString());
 
       ModuleFinder[] finders = {
-          new FlattenClasspath(conf.getProjectName(), resources, dependencies)};
+          new FlattenClasspath(options.getProjectName(), resources, dependencies)};
 
       ExtModuleLoader loader = new ExtModuleLoader(finders);
-      module = new AppModule(logger, loader, Thread.currentThread().getContextClassLoader(), conf);
+      module = new AppModule(logger, loader, Thread.currentThread().getContextClassLoader(),
+          options);
       module.start();
       watcher.watch();
     } catch (ClosedWatchServiceException expected) {
@@ -171,10 +207,16 @@ public class JoobyRun {
     }
   }
 
+  /**
+   * Restart the application.
+   */
   public void restart() {
     module.restart();
   }
 
+  /**
+   * Stop and shutdown the application.
+   */
   public void shutdown() {
     if (module != null) {
       module.close();
@@ -203,7 +245,7 @@ public class JoobyRun {
 
   @Override public String toString() {
     StringBuilder buff = new StringBuilder();
-    buff.append(conf.getProjectName()).append("\n");
+    buff.append(options.getProjectName()).append("\n");
     buff.append("  watch-dirs: ").append("\n");
     watchDirs.forEach(
         (path, callback) -> buff.append("    ").append(path.toAbsolutePath()).append("\n"));
