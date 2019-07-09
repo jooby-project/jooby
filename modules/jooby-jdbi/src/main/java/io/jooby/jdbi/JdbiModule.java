@@ -96,13 +96,9 @@ public class JdbiModule implements Extension {
   }
 
   /**
-   * Creates a new Jdbi module. The database parameter can be one of:
+   * Creates a new Jdbi module.
    *
-   * - A property key defined in your application configuration file, like <code>db</code>.
-   * - A special h2 database: mem, local or tmp.
-   * - A jdbc connection string, like: <code>jdbc:mysql://localhost/db</code>
-   *
-   * @param name Database key, database type or connection string.
+   * @param name @param name The name/key of the data source to attach.
    */
   public JdbiModule(@Nonnull String name) {
     this.name = name;
@@ -110,8 +106,8 @@ public class JdbiModule implements Extension {
   }
 
   /**
-   * Creates a new Jdbi module using the given jdbi factory. The jdbi service is registered as
-   * <code>db</code>.
+   * Creates a new Jdbi module. Use the default/first datasource and register objects using
+   * the <code>db</code> key.
    *
    * @param factory Jdbi factory.
    */

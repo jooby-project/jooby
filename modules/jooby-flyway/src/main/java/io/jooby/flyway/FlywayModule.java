@@ -19,14 +19,52 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Flyway database migration module: https://jooby.io/modules/flyway.
+ *
+ * Usage:
+ *
+ * - Add hikari and flyway dependency
+ *
+ * - Install them
+ *
+ * <pre>{@code
+ * {
+ *   install(new HikariModule());
+ *
+ *   install(new FlywayModule());
+ * }
+ * }</pre>
+ *
+ * The default command is <code>migrate</code> which is controlled by the <code>flyway.run</code>
+ * application configuration property.
+ *
+ * You can specify multiple commands:
+ *
+ * <code>flyway.run = [clean, migrate]</code>
+ *
+ * Complete documentation is available at: https://jooby.io/modules/flyway.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class FlywayModule implements Extension {
 
   private final String name;
 
+  /**
+   * Creates a new Flyway module.
+   *
+   * @param name @param name The name/key of the data source to attach.
+   */
   public FlywayModule(@Nonnull String name) {
     this.name = name;
   }
 
+  /**
+   * Creates a new Flyway module.  Use the default/first datasource and register objects using
+   * the <code>db</code> key.
+   */
   public FlywayModule() {
     this("db");
   }

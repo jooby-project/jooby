@@ -142,13 +142,9 @@ public class HibernateModule implements Extension {
   private List<Class> classes;
 
   /**
-   * Creates a Hibernate Module. The database parameter can be one of:
+   * Creates a Hibernate module.
    *
-   * - A property key defined in your application configuration file, like <code>db</code>.
-   * - A special h2 database: mem, local or tmp.
-   * - A jdbc connection string, like: <code>jdbc:mysql://localhost/db</code>
-   *
-   * @param name Database key, database type or jdbc url.
+   * @param name The name/key of the data source to attach.
    * @param classes Persistent classes.
    */
   public HibernateModule(@Nonnull String name, Class... classes) {
@@ -157,14 +153,8 @@ public class HibernateModule implements Extension {
   }
 
   /**
-   * Creates a new Hikari module using the <code>db</code> property key. This key must be
-   * present in the application configuration file, like:
-   *
-   * <pre>{@code
-   *  db.url = "jdbc:url"
-   *  db.user = dbuser
-   *  db.password = dbpass
-   * }</pre>
+   * Creates a new Hibernate module. Use the default/first datasource and register objects using
+   * the <code>db</code> key.
    *
    * @param classes Persistent classes.
    */
