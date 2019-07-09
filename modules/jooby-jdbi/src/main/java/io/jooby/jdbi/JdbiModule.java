@@ -22,6 +22,57 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Jdbi module:  https://jooby.io/modules/hikari.
+ *
+ * Usage:
+ *
+ * - Add hikari and jdbi dependency
+ *
+ * - Install them
+ *
+ * <pre>{@code
+ * {
+ *   install(new HikariModule());
+ *
+ *   install(new JdbiModule());
+ * }
+ * }</pre>
+ *
+ * - Use it
+ *
+ * <pre>{code
+ * {
+ *
+ *   get("/", ctx -> {
+ *     Jdbi jdbi = require(Jdbi.class);
+ *     // do with jdbi
+ *   });
+ *
+ * }
+ * }</pre>
+ *
+ * Handle instances are also available:
+ *
+ * <pre>{code
+ * {
+ *
+ *   get("/", ctx -> {
+ *     try(Handle handle = require(Handle.class)) {
+ *       // do with handle
+ *     }
+ *   });
+ *
+ * }
+ * }</pre>
+ *
+ * The use of try-with-resources is required here. Handle must be closed once you finish.
+ *
+ * For automatic handle managment see the {@link TransactionalRequest} class.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class JdbiModule implements Extension {
 
   private String name;
@@ -30,26 +81,78 @@ public class JdbiModule implements Extension {
 
   private List<Class> sqlObjects = Collections.emptyList();
 
+  /**
+   * Creates a new Jdbi module using the <code>db</code> property key. This key must be
+   * present in the application configuration file, like:
+   *
+   * <pre>{@code
+   *  db.url = "jdbc:url"
+   *  db.user = dbuser
+   *  db.password = dbpass
+   * }</pre>
+   */
   public JdbiModule() {
     this("db");
   }
 
+  /**
+   * Creates a new Jdbi module. The database parameter can be one of:
+   *
+   * - A property key defined in your application configuration file, like <code>db</code>.
+   * - A special h2 database: mem, local or tmp.
+   * - A jdbc connection string, like: <code>jdbc:mysql://localhost/db</code>
+   *
+   * @param name Database key, database type or connection string.
+   */
   public JdbiModule(@Nonnull String name) {
     this.name = name;
     this.factory = null;
   }
 
-  public JdbiModule(Function<DataSource, Jdbi> factory) {
-    this();
-    this.factory = factory;
+  /**
+   * Creates a new Jdbi module using the given jdbi factory. The jdbi service is registered as
+   * <code>db</code>.
+   *
+   * @param factory Jdbi factory.
+   */
+  public JdbiModule(@Nonnull Function<DataSource, Jdbi> factory) {
+    this("db", factory);
   }
 
-  public JdbiModule(String name, Function<DataSource, Jdbi> factory) {
+  /**
+   * Creates a new Jdbi module using the given jdbi factory.
+   *
+   * @param name Name for registering the service.
+   * @param factory Jdbi factory.
+   */
+  public JdbiModule(@Nonnull String name, @Nonnull Function<DataSource, Jdbi> factory) {
     this(name);
     this.factory = factory;
   }
 
-  public JdbiModule sqlObjects(Class... sqlObjects) {
+  /**
+   * Attach SQL objects to a jdbi handle.
+   *
+   * This method simplify the injection or require of SQL objects. So, it is just a
+   * shortcut for {@link Handle#attach(Class)}. Due the SQL objects depends on a Handle this
+   * method is only available when the {@link TransactionalRequest} decorator is present.
+   *
+   * <pre>{@code
+   *   install(new JdbiModule()
+   *     .sqlObjects(UserDAO.class)
+   *   );
+   *
+   *   decorator(new TransactionalRequest());
+   *
+   *   get("/users", ctx -> {
+   *     UserDAO dao = require(UserDAO.class);
+   *   });
+   * }</pre>
+   *
+   * @param sqlObjects List of SQL object to register as services.
+   * @return This module.
+   */
+  public @Nonnull JdbiModule sqlObjects(@Nonnull Class... sqlObjects) {
     this.sqlObjects = Arrays.asList(sqlObjects);
     return this;
   }
@@ -73,7 +176,7 @@ public class JdbiModule implements Extension {
 
     /** SQLObjects: */
     for (Class<?> sqlObject : sqlObjects) {
-      registry.put(sqlObject, new SqlObjectProvider(provider, sqlObject));
+      registry.put(sqlObject, new SqlObjectProvider(jdbi, sqlObject));
     }
   }
 
