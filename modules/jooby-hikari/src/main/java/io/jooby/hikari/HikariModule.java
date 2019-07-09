@@ -62,8 +62,9 @@ import java.util.stream.Stream;
  *
  * To use any of these database you first need to add the h2 driver to your project and then:
  *
- * - define the `db` property in your application configuration file, like `db=mem` or
- * - pass the database type to the HikariModule. <code>`new HikariModule("mem")`</code>
+ * - define the <code>db</code> property in your application configuration file, like
+ *     <code>db=mem</code> or
+ * - pass the database type to the HikariModule. <code>new HikariModule("mem")</code>
  *
  * Alternative you can specify a jdbc connection string:
  *
@@ -74,6 +75,7 @@ import java.util.stream.Stream;
  * The module exposes a {@link DataSource} instance which can be retrieve it after installing:
  *
  * <pre>{@code
+ *
  *    install(new HikariModule("jdbc:mysql://localhost/mydb"));
  *
  *    DataSource dataSource = require(DataSource.class);
@@ -180,8 +182,8 @@ public class HikariModule implements Extension {
   /**
    * Get a database type from jdbc url. Examples:
    *
-   * - jdbc:mysql://localhost/mydb => mysql
-   * - jdbc:postgresql://server/database => postgresql
+   * - jdbc:mysql://localhost/mydb =&gt; mysql
+   * - jdbc:postgresql://server/database =&gt; postgresql
    *
    * @param url Jdbc connection string (a.k.a jdbc url)
    * @return Database type or given jdbc connection string for unknown or bad urls.
@@ -197,8 +199,8 @@ public class HikariModule implements Extension {
   /**
    * Get a database name from jdbc url. Examples:
    *
-   * - jdbc:mysql://localhost/mydb => mydb
-   * - jdbc:postgresql://server/database => database
+   * - jdbc:mysql://localhost/mydb =&gt; mydb
+   * - jdbc:postgresql://server/database =&gt; database
    *
    * @param url Jdbc connection string (a.k.a jdbc url)
    * @return Database name.

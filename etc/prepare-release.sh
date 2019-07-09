@@ -2,5 +2,6 @@
 
 DIR=$(cd "$(dirname "$0")"; pwd)
 
-sh $DIR/javadoc.sh
-sh $DIR/versions.sh
+if sh $DIR/javadoc.sh; then
+  sh $DIR/versions.sh
+fi

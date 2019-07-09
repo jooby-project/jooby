@@ -55,7 +55,7 @@ public class FlywayModule implements Extension {
   /**
    * Creates a new Flyway module.
    *
-   * @param name @param name The name/key of the data source to attach.
+   * @param name The name/key of the data source to attach.
    */
   public FlywayModule(@Nonnull String name) {
     this.name = name;

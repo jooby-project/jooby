@@ -41,7 +41,7 @@ import java.util.function.Function;
  *
  * - Use it
  *
- * <pre>{code
+ * <pre>{@code
  * {
  *
  *   get("/", ctx -> {
@@ -54,7 +54,7 @@ import java.util.function.Function;
  *
  * Handle instances are also available:
  *
- * <pre>{code
+ * <pre>{@code
  * {
  *
  *   get("/", ctx -> {
@@ -98,7 +98,7 @@ public class JdbiModule implements Extension {
   /**
    * Creates a new Jdbi module.
    *
-   * @param name @param name The name/key of the data source to attach.
+   * @param name The name/key of the data source to attach.
    */
   public JdbiModule(@Nonnull String name) {
     this.name = name;

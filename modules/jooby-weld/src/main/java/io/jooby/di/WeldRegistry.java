@@ -11,11 +11,10 @@ import io.jooby.ServiceKey;
 import org.jboss.weld.environment.se.WeldContainer;
 
 import javax.annotation.Nonnull;
+import javax.enterprise.inject.Any;
 import javax.enterprise.inject.literal.NamedLiteral;
 
 import java.lang.annotation.Annotation;
-
-import static javax.enterprise.inject.Any.Literal.INSTANCE;
 
 class WeldRegistry implements Registry {
 
@@ -43,6 +42,6 @@ class WeldRegistry implements Registry {
 
   private Annotation literal(ServiceKey key) {
     String name = key.getName();
-    return name == null ? INSTANCE : NamedLiteral.of(name);
+    return name == null ? Any.Literal.INSTANCE : NamedLiteral.of(name);
   }
 }

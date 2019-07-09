@@ -58,7 +58,7 @@ import java.util.stream.Stream;
  *
  * - Use it
  *
- * <pre>{code
+ * <pre>{@code
  * {
  *
  *   get("/", ctx -> {
@@ -71,7 +71,7 @@ import java.util.stream.Stream;
  *
  * Optionally, you can require/inject a {@link SessionFactory} too:
  *
- * <pre>{code
+ * <pre>{@code
  * {
  *
  *   get("/", ctx -> {
