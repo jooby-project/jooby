@@ -27,21 +27,80 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * JSON module using Jackson: https://jooby.io/modules/jackson.
+ *
+ * Usage:
+ *
+ * <pre>{@code
+ * {
+ *
+ *   install(new JacksonModule());
+ *
+ *   get("/", ctx -> {
+ *     MyObject myObject = ...;
+ *     // send json
+ *     return myObject;
+ *   });
+ *
+ *   post("/", ctx -> {
+ *     // read json
+ *     MyObject myObject = ctx.body(MyObject.class);
+ *     // send json
+ *     return myObject;
+ *   });
+ * }
+ * }</pre>
+ *
+ * For body decoding the client must specify the <code>Content-Type</code> header set to
+ * <code>application/json</code>.
+ *
+ * You can retrieve the {@link ObjectMapper} via require call:
+ *
+ * <pre>{@code
+ * {
+ *
+ *   ObjectMapper mapper = require(ObjectMapper.class);
+ *
+ * }
+ * }</pre>
+ *
+ * Complete documentation is available at: https://jooby.io/modules/jackson.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class JacksonModule implements Extension, MessageDecoder, MessageEncoder {
   private final ObjectMapper mapper;
 
-  private final Set<Class<?extends Module>> modules = new HashSet<>();
+  private final Set<Class<? extends Module>> modules = new HashSet<>();
 
-  public JacksonModule(ObjectMapper mapper) {
+  /**
+   * Creates a Jackson module.
+   *
+   * @param mapper Object mapper to use.
+   */
+  public JacksonModule(@Nonnull ObjectMapper mapper) {
     this.mapper = mapper;
   }
 
+  /**
+   * Creates a Jackson module using the default object mapper from {@link #create()}.
+   */
   public JacksonModule() {
     this(create());
   }
 
-  public @Nonnull Set<Class<? extends Module>> getModules() {
-    return modules;
+  /**
+   * Add a Jackson module to the object mapper. This method require a dependency injection
+   * framework which is responsible for provisioning a module instance.
+   *
+   * @param module Module type.
+   * @return This module.
+   */
+  public JacksonModule module(Class<? extends Module> module) {
+    modules.add(module);
+    return this;
   }
 
   @Override public void install(@Nonnull Jooby application) {
@@ -51,7 +110,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     ServiceRegistry services = application.getServices();
     services.put(ObjectMapper.class, mapper);
 
-    application.onStarted(()-> {
+    application.onStarted(() -> {
       for (Class<? extends Module> type : modules) {
         Module module = application.require(type);
         mapper.registerModule(module);
@@ -76,6 +135,12 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     }
   }
 
+  /**
+   * Default object mapper. Install {@link Jdk8Module}, {@link JavaTimeModule},
+   * {@link ParameterNamesModule} and {@link AfterburnerModule}.
+   *
+   * @return Object mapper instance.
+   */
   public static final @Nonnull ObjectMapper create() {
     ObjectMapper objectMapper = new ObjectMapper();
 

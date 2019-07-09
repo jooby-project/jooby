@@ -53,7 +53,7 @@ import io.jooby.json.JacksonModule;
 
 <1> Install Jackson
 <2> Use Jackson to encode arbitrary object as JSON
-<3> Use Jackson to decode JSON to Java object
+<3> Use Jackson to decode JSON to Java object. Client must specify the `Content-Type: application/json` header
 
 === Working with ObjectMapper
 
