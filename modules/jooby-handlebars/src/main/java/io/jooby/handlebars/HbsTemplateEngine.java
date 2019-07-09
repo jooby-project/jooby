@@ -18,7 +18,7 @@ class HbsTemplateEngine implements TemplateEngine {
 
   private Handlebars handlebars;
 
-  public HbsTemplateEngine(Handlebars handlebars) {
+  HbsTemplateEngine(Handlebars handlebars) {
     this.handlebars = handlebars;
   }
 

@@ -5,9 +5,7 @@
  */
 package io.jooby.handlebars;
 
-import com.github.jknack.handlebars.Decorator;
 import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.cache.HighConcurrencyTemplateCache;
 import com.github.jknack.handlebars.cache.NullTemplateCache;
 import com.github.jknack.handlebars.cache.TemplateCache;
@@ -22,11 +20,6 @@ import io.jooby.ServiceRegistry;
 import io.jooby.TemplateEngine;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -36,11 +29,64 @@ import java.nio.file.Paths;
 import static io.jooby.TemplateEngine.TEMPLATE_PATH;
 import static io.jooby.TemplateEngine.normalizePath;
 
+/**
+ * Handlebars module: https://jooby.io/modules/handlebars.
+ *
+ * Usage:
+ *
+ * <pre>{@code
+ * {
+ *
+ *   install(new HandlebarsModule());
+ *
+ *   get("/", ctx -> {
+ *     User user = ...;
+ *     return new ModelAndView("index.hbs")
+ *         .put("user", user);
+ *   });
+ * }
+ * }</pre>
+ *
+ * The template engine looks for a file-system directory: <code>views</code> in the current
+ * user directory. If the directory doesn't exist, it looks for the same directory in the project
+ * classpath.
+ *
+ * You can specify a different template location:
+ *
+ * <pre>{@code
+ * {
+ *
+ *    install(new HandlebarsModule("mypath"));
+ *
+ * }
+ * }</pre>
+ *
+ * The <code>mypath</code> location works in the same way: file-system or fallback to classpath.
+ *
+ * Direct access to {@link Handlebars} is available via require call:
+ *
+ * <pre>{@code
+ * {
+ *
+ *   Handlebars hbs = require(Handlebars.class);
+ *
+ * }
+ * }</pre>
+ *
+ * Complete documentation is available at: https://jooby.io/modules/handlebars.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class HandlebarsModule implements Extension {
 
+  /**
+   * Utility class for creating {@link Handlebars} instances.
+   */
   public static class Builder {
 
-    private Handlebars handlebars;
+    private Handlebars handlebars = new Handlebars()
+        .setCharset(StandardCharsets.UTF_8);
 
     private TemplateLoader loader;
 
@@ -48,79 +94,45 @@ public class HandlebarsModule implements Extension {
 
     private String templatesPath = TemplateEngine.PATH;
 
-    public Builder() {
-      handlebars = new Handlebars();
-      handlebars.setCharset(StandardCharsets.UTF_8);
-    }
-
+    /**
+     * Set template cache.
+     *
+     * @param cache Template cache.
+     * @return This builder.
+     */
     public @Nonnull Builder setTemplateCache(@Nonnull TemplateCache cache) {
       this.cache = cache;
       return this;
     }
 
+    /**
+     * Template path.
+     *
+     * @param templatesPath Set template path.
+     * @return This builder.
+     */
     public @Nonnull Builder setTemplatesPath(@Nonnull String templatesPath) {
       this.templatesPath = templatesPath;
       return this;
     }
 
+    /**
+     * Template loader to use.
+     *
+     * @param loader Template loader to use.
+     * @return This builder.
+     */
     public @Nonnull Builder setTemplateLoader(@Nonnull TemplateLoader loader) {
       this.loader = loader;
       return this;
     }
 
-    public @Nonnull <H> Builder registerHelper(@Nonnull String name, @Nonnull Helper<H> helper) {
-      handlebars.registerHelper(name, helper);
-      return this;
-    }
-
-    public @Nonnull <H> Builder registerHelperMissing(@Nonnull Helper<H> helper) {
-      handlebars.registerHelperMissing(helper);
-      return this;
-    }
-
-    public @Nonnull Builder registerHelpers(@Nonnull Object helperSource) {
-      handlebars.registerHelpers(helperSource);
-      return this;
-    }
-
-    public @Nonnull Builder registerHelpers(@Nonnull Class<?> helperSource) {
-      handlebars.registerHelpers(helperSource);
-      return this;
-    }
-
-    public @Nonnull Builder registerHelpers(@Nonnull URI location) throws Exception {
-      handlebars.registerHelpers(location);
-      return this;
-    }
-
-    public @Nonnull Builder registerHelpers(@Nonnull File input) throws Exception {
-      handlebars.registerHelpers(input);
-      return this;
-    }
-
-    public @Nonnull Builder registerHelpers(@Nonnull String filename, @Nonnull Reader source)
-        throws Exception {
-      handlebars.registerHelpers(filename, source);
-      return this;
-    }
-
-    public @Nonnull Builder registerHelpers(@Nonnull String filename, @Nonnull InputStream source)
-        throws Exception {
-      handlebars.registerHelpers(filename, source);
-      return this;
-    }
-
-    public @Nonnull Builder registerHelpers(@Nonnull String filename, @Nonnull String source)
-        throws IOException {
-      handlebars.registerHelpers(filename, source);
-      return this;
-    }
-
-    public @Nonnull Builder registerDecorator(@Nonnull String name, @Nonnull Decorator decorator) {
-      handlebars.registerDecorator(name, decorator);
-      return this;
-    }
-
+    /**
+     * Creates a handlebars instance.
+     *
+     * @param env Application environment.
+     * @return A new handlebars instance.
+     */
     public @Nonnull Handlebars build(@Nonnull Environment env) {
       if (loader == null) {
         String templatesPath = normalizePath(env.getProperty(TEMPLATE_PATH, this.templatesPath));
@@ -158,14 +170,28 @@ public class HandlebarsModule implements Extension {
 
   private String templatesPath;
 
+  /**
+   * Creates a new handlebars module.
+   *
+   * @param handlebars Handlebars instance to use.
+   */
   public HandlebarsModule(@Nonnull Handlebars handlebars) {
     this.handlebars = handlebars;
   }
 
+  /**
+   * Creates a new handlebars module.
+   *
+   * @param templatesPath Template location to use. First try to file-system or fallback to
+   *     classpath.
+   */
   public HandlebarsModule(@Nonnull String templatesPath) {
     this.templatesPath = templatesPath;
   }
 
+  /**
+   * Creates a new handlebars module using the default path: <code>views</code>.
+   */
   public HandlebarsModule() {
     this(TemplateEngine.PATH);
   }
@@ -180,7 +206,12 @@ public class HandlebarsModule implements Extension {
     services.put(Handlebars.class, handlebars);
   }
 
-  public static HandlebarsModule.Builder create() {
+  /**
+   * Creates a new freemarker builder.
+   *
+   * @return A builder.
+   */
+  public static @Nonnull HandlebarsModule.Builder create() {
     return new HandlebarsModule.Builder();
   }
 }
