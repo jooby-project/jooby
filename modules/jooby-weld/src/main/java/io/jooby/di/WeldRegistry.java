@@ -17,11 +17,11 @@ import java.lang.annotation.Annotation;
 
 import static javax.enterprise.inject.Any.Literal.INSTANCE;
 
-public class WeldRegistry implements Registry {
+class WeldRegistry implements Registry {
 
   private WeldContainer container;
 
-  public WeldRegistry(WeldContainer container) {
+  WeldRegistry(WeldContainer container) {
     this.container = container;
   }
 
@@ -33,7 +33,7 @@ public class WeldRegistry implements Registry {
     return require(ServiceKey.key(type, name));
   }
 
-  @Nonnull @Override public  <T> T require(ServiceKey<T> key) {
+  @Nonnull @Override public <T> T require(ServiceKey<T> key) {
     try {
       return container.select(key.getType(), literal(key)).get();
     } catch (Exception cause) {

@@ -14,6 +14,7 @@ import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 import io.jooby.annotations.Path;
 
+import javax.annotation.Nonnull;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.literal.NamedLiteral;
@@ -25,7 +26,6 @@ import javax.enterprise.inject.spi.InjectionTarget;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.enterprise.inject.spi.WithAnnotations;
 import javax.enterprise.inject.spi.configurator.BeanConfigurator;
-import javax.inject.Inject;
 import javax.inject.Provider;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -33,21 +33,44 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+/**
+ * Weld extension. Exposes {@link Environment}, {@link Config} and application services into weld
+ * container.
+ *
+ * Also, scan and register MVC routes annotated with {@link Path} annotation at top level class.
+ *
+ * @author edgar
+ * @since 2.0.0
+ */
 public class JoobyExtension implements Extension {
   private final Jooby app;
 
-  @Inject
-  public JoobyExtension(Jooby application) {
+  /**
+   * Creates a new Jooby extension.
+   *
+   * @param application Application.
+   */
+  public JoobyExtension(@Nonnull Jooby application) {
     this.app = application;
   }
 
-  public void registerMvc(
-      @Observes @WithAnnotations(Path.class) ProcessAnnotatedType<?> controller) {
-    this.app.mvc(controller.getAnnotatedType().getJavaClass());
+  /**
+   * Register MVC routes annotated with {@link Path}.
+   *
+   * @param c Weld callback.
+   */
+  public void registerMvc(@Observes @WithAnnotations(Path.class) ProcessAnnotatedType<?> c) {
+    this.app.mvc(c.getAnnotatedType().getJavaClass());
   }
 
-  public void configureServices(@Observes AfterBeanDiscovery beanDiscovery,
-      BeanManager beanManager) {
+  /**
+   * Configure application services into a weld container.
+   *
+   * @param beanDiscovery Bean discovery.
+   * @param beanManager Bean Manager.
+   */
+  public void configureServices(@Nonnull @Observes AfterBeanDiscovery beanDiscovery,
+      @Nonnull BeanManager beanManager) {
     ServiceRegistry registry = app.getServices();
     Set<Map.Entry<ServiceKey<?>, Provider<?>>> entries = registry.entrySet();
     for (Map.Entry<ServiceKey<?>, Provider<?>> entry : entries) {
@@ -56,13 +79,18 @@ public class JoobyExtension implements Extension {
     }
   }
 
-  public void configureEnv(@Observes AfterBeanDiscovery beanDiscovery,
-      BeanManager beanManager) {
+  /**
+   * Configure {@link Environment} and {@link Config} into a weld container.
+   *
+   * @param abd Bean discovery.
+   * @param bm Bean Manager.
+   */
+  public void configureEnv(@Observes AfterBeanDiscovery abd, BeanManager bm) {
     Environment environment = app.getEnvironment();
     Config config = environment.getConfig();
 
-    registerSingleton(beanDiscovery, beanManager, Config.class, null, config);
-    registerSingleton(beanDiscovery, beanManager, Environment.class, null, environment);
+    registerSingleton(abd, bm, Config.class, null, config);
+    registerSingleton(abd, bm, Environment.class, null, environment);
 
     for (Map.Entry<String, ConfigValue> configEntry : config.entrySet()) {
       final String configKey = configEntry.getKey();
@@ -78,9 +106,9 @@ public class JoobyExtension implements Extension {
         configType = boolean.class;
       }
       NamedLiteral literal = NamedLiteral.of(configKey);
-      AnnotatedType<?> annotatedType = beanManager.createAnnotatedType(configClass);
-      InjectionTarget<?> target = beanManager.createInjectionTarget(annotatedType);
-      beanDiscovery.addBean()
+      AnnotatedType<?> annotatedType = bm.createAnnotatedType(configClass);
+      InjectionTarget<?> target = bm.createInjectionTarget(annotatedType);
+      abd.addBean()
           .addQualifier(literal)
           .addTypes(configType, Object.class)
           .name(configKey)

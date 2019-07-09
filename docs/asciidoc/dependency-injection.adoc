@@ -12,4 +12,4 @@ include::modules/guice.adoc[]
 
 include::modules/spring.adoc[]
 
-include::di-weld.adoc[]
+include::modules/weld.adoc[]
