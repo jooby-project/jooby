@@ -1983,6 +1983,142 @@ public class FeaturedTest {
   }
 
   @Test
+  public void staticSiteFromCp() {
+   new JoobyRunner(app -> {
+
+     app.assets("/?*", "/www");
+
+   }).ready(client -> {
+     client.get("/", rsp -> {
+       assertEquals("index.html", rsp.body().string().trim());
+     });
+
+     client.get("/index.html", rsp -> {
+       assertEquals("index.html", rsp.body().string().trim());
+     });
+
+     client.get("/note", rsp -> {
+       assertEquals("note.html", rsp.body().string().trim());
+     });
+
+     client.get("/note/index.html", rsp -> {
+       assertEquals("note.html", rsp.body().string().trim());
+     });
+
+     client.get("/about.html", rsp -> {
+       assertEquals("about.html", rsp.body().string().trim());
+     });
+   });
+
+    new JoobyRunner(app -> {
+
+      app.assets("/?*");
+
+    }).ready(client -> {
+      client.get("/www", rsp -> {
+        assertEquals("index.html", rsp.body().string().trim());
+      });
+
+      client.get("/www/index.html", rsp -> {
+        assertEquals("index.html", rsp.body().string().trim());
+      });
+
+      client.get("/www/note", rsp -> {
+        assertEquals("note.html", rsp.body().string().trim());
+      });
+
+      client.get("/www/note/index.html", rsp -> {
+        assertEquals("note.html", rsp.body().string().trim());
+      });
+
+      client.get("/www/about.html", rsp -> {
+        assertEquals("about.html", rsp.body().string().trim());
+      });
+    });
+
+    new JoobyRunner(app -> {
+
+      app.assets("/static/?*", "/www");
+
+    }).ready(client -> {
+      client.get("/static", rsp -> {
+        assertEquals("index.html", rsp.body().string().trim());
+      });
+
+      client.get("/static/index.html", rsp -> {
+        assertEquals("index.html", rsp.body().string().trim());
+      });
+
+      client.get("/static/note", rsp -> {
+        assertEquals("note.html", rsp.body().string().trim());
+      });
+
+      client.get("/static/note/index.html", rsp -> {
+        assertEquals("note.html", rsp.body().string().trim());
+      });
+
+      client.get("/static/about.html", rsp -> {
+        assertEquals("about.html", rsp.body().string().trim());
+      });
+    });
+  }
+
+  @Test
+  public void staticSiteFromFs() {
+    new JoobyRunner(app -> {
+
+      app.assets("/?*", userdir("src", "test", "resources", "www"));
+
+    }).ready(client -> {
+      client.get("/", rsp -> {
+        assertEquals("index.html", rsp.body().string().trim());
+      });
+
+      client.get("/index.html", rsp -> {
+        assertEquals("index.html", rsp.body().string().trim());
+      });
+
+      client.get("/note", rsp -> {
+        assertEquals("note.html", rsp.body().string().trim());
+      });
+
+      client.get("/note/index.html", rsp -> {
+        assertEquals("note.html", rsp.body().string().trim());
+      });
+
+      client.get("/about.html", rsp -> {
+        assertEquals("about.html", rsp.body().string().trim());
+      });
+    });
+
+    new JoobyRunner(app -> {
+
+      app.assets("/static/?*", userdir("src", "test", "resources", "www"));
+
+    }).ready(client -> {
+      client.get("/static", rsp -> {
+        assertEquals("index.html", rsp.body().string().trim());
+      });
+
+      client.get("/static/index.html", rsp -> {
+        assertEquals("index.html", rsp.body().string().trim());
+      });
+
+      client.get("/static/note", rsp -> {
+        assertEquals("note.html", rsp.body().string().trim());
+      });
+
+      client.get("/static/note/index.html", rsp -> {
+        assertEquals("note.html", rsp.body().string().trim());
+      });
+
+      client.get("/static/about.html", rsp -> {
+        assertEquals("about.html", rsp.body().string().trim());
+      });
+    });
+  }
+
+  @Test
   public void assets() {
     new JoobyRunner(app -> {
       app.assets("/static/?*", userdir("src", "test", "www"));
@@ -2041,9 +2177,6 @@ public class FeaturedTest {
         assertEquals("41", rsp.header("Content-Length").toLowerCase());
       });
       client.get("/cp", rsp -> {
-        assertEquals(404, rsp.code());
-      });
-      client.get("/cp/", rsp -> {
         assertEquals(404, rsp.code());
       });
       /** File system: */
@@ -2126,7 +2259,6 @@ public class FeaturedTest {
         assertEquals("abcd", rsp.body().string().trim());
       });
     });
-
   }
 
   @Test

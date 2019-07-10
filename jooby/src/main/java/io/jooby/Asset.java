@@ -5,15 +5,20 @@
  */
 package io.jooby;
 
+import io.jooby.internal.JarAsset;
+import sun.net.www.protocol.jar.JarURLConnection;
+
 import javax.annotation.Nonnull;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Base64;
 
 /**
@@ -73,6 +78,10 @@ public interface Asset {
 
     @Override public void release() {
       // NOOP
+    }
+
+    @Override public boolean isDirectory() {
+      return Files.isDirectory(file);
     }
 
     @Override public boolean equals(Object obj) {
@@ -167,6 +176,10 @@ public interface Asset {
       return path;
     }
 
+    @Override public boolean isDirectory() {
+      return false;
+    }
+
     private void checkOpen() {
       try {
         if (content == null) {
@@ -199,7 +212,17 @@ public interface Asset {
    * @return URL asset.
    */
   static Asset create(@Nonnull String path, @Nonnull URL resource) {
-    return new URLAsset(resource, path);
+    try {
+      if ("jar".equals(resource.getProtocol())) {
+        return new JarAsset((JarURLConnection) resource.openConnection());
+      }
+      if ("file".equals(resource.getProtocol())) {
+        return new FileAsset(Paths.get(resource.toURI()));
+      }
+      return new URLAsset(resource, path);
+    } catch (IOException | URISyntaxException x) {
+      throw SneakyThrows.propagate(x);
+    }
   }
 
   /**
@@ -211,6 +234,8 @@ public interface Asset {
    * @return The last modified date if possible or -1 when isn't.
    */
   long getLastModified();
+
+  boolean isDirectory();
 
   /**
    * Computes a weak e-tag value from asset.

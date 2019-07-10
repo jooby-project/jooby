@@ -39,10 +39,17 @@ public class ClasspathAssetSource implements AssetSource {
       return null;
     }
     Asset asset = Asset.create(fullpath, resource);
-    if (asset.getSize() > 0) {
-      return asset;
+    if (asset.isDirectory()) {
+      // try index.html
+      fullpath += "/index.html";
+      resource = loader.getResource(fullpath);
+      if (resource != null) {
+        asset = Asset.create(fullpath, resource);
+      } else {
+        asset = null;
+      }
     }
-    return null;
+    return asset;
   }
 
   private String sourcePrefix(String path) {
