@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ClasspathAssetSourceTest {
+public class ClassPathAssetSourceTest {
 
   @Test
   public void checkclasspathFiles() {
@@ -51,7 +51,7 @@ public class ClasspathAssetSourceTest {
   }
 
   private void assetSource(String location, Consumer<AssetSource> consumer) {
-    AssetSource source = new ClasspathAssetSource(getClass().getClassLoader(), location);
+    AssetSource source = new ClassPathAssetSource(getClass().getClassLoader(), location);
     consumer.accept(source);
   }
 }

@@ -2,11 +2,9 @@ package io.jooby.internal;
 
 import io.jooby.Asset;
 import io.jooby.AssetSource;
-import io.jooby.SneakyThrows;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -15,7 +13,7 @@ import java.nio.file.Paths;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-public class ClasspathAssetSource implements AssetSource {
+public class ClassPathAssetSource implements AssetSource {
 
   private final ClassLoader loader;
 
@@ -25,7 +23,7 @@ public class ClasspathAssetSource implements AssetSource {
 
   private final String prefix;
 
-  public ClasspathAssetSource(ClassLoader loader, String source) {
+  public ClassPathAssetSource(ClassLoader loader, String source) {
     this.loader = loader;
     this.source = source.startsWith("/") ? source.substring(1) : source;
     this.prefix = sourcePrefix(this.source);

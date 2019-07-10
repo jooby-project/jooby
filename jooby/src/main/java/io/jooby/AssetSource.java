@@ -5,7 +5,7 @@
  */
 package io.jooby;
 
-import io.jooby.internal.ClasspathAssetSource;
+import io.jooby.internal.ClassPathAssetSource;
 import io.jooby.internal.FileDiskAssetSource;
 import io.jooby.internal.FolderDiskAssetSource;
 
@@ -42,7 +42,7 @@ public interface AssetSource {
    * @return An asset source.
    */
   static @Nonnull AssetSource create(@Nonnull ClassLoader loader, @Nonnull String location) {
-    return new ClasspathAssetSource(loader, location);
+    return new ClassPathAssetSource(loader, location);
   }
 
   /**

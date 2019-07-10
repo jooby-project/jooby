@@ -20,7 +20,7 @@ public class JarAsset implements Asset {
   public JarAsset(JarURLConnection connection) throws IOException {
     connection.setUseCaches(false);
     jar = connection.getJarFile();
-    this.entry = jar.getEntry(connection.getEntryName());
+    entry = jar.getEntry(connection.getEntryName());
   }
 
   @Override public boolean isDirectory() {
@@ -47,11 +47,10 @@ public class JarAsset implements Asset {
     }
   }
 
-  @Override public void release() {
+  @Override public void close() {
     try {
-      IOUtils.close();
       jar.close();
-    } catch (IOException x) {
+    } catch (Exception x) {
       // silence
     }
   }

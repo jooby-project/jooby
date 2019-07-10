@@ -38,7 +38,7 @@ public class AssetHandler implements Route.Handler {
     this.sources = sources;
   }
 
-  @Nonnull @Override public Object apply(@Nonnull Context ctx) {
+  @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
     String filepath = ctx.pathMap().getOrDefault(filekey, "index.html");
     Asset asset = resolve(filepath);
     if (asset == null) {
@@ -51,7 +51,7 @@ public class AssetHandler implements Route.Handler {
       String ifnm = ctx.header("If-None-Match").value((String) null);
       if (ifnm != null && ifnm.equals(asset.getEtag())) {
         ctx.send(StatusCode.NOT_MODIFIED);
-        asset.release();
+        asset.close();
         return ctx;
       } else {
         ctx.setResponseHeader("ETag", asset.getEtag());
@@ -65,7 +65,7 @@ public class AssetHandler implements Route.Handler {
         long ifms = ctx.header("If-Modified-Since").longValue(-1);
         if (lastModified / ONE_SEC <= ifms / ONE_SEC) {
           ctx.send(StatusCode.NOT_MODIFIED);
-          asset.release();
+          asset.close();
           return ctx;
         }
         ctx.setResponseHeader("Last-Modified", Instant.ofEpochMilli(lastModified));

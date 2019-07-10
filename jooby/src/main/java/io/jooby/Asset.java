@@ -5,18 +5,17 @@
  */
 package io.jooby;
 
+import io.jooby.internal.FileAsset;
 import io.jooby.internal.JarAsset;
+import io.jooby.internal.URLAsset;
 import sun.net.www.protocol.jar.JarURLConnection;
 
 import javax.annotation.Nonnull;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
@@ -27,173 +26,7 @@ import java.util.Base64;
  * @author edgar
  * @since 2.0.0
  */
-public interface Asset {
-
-  /**
-   * File system asset.
-   *
-   * @author edgar
-   * @since 2.0.0.
-   */
-  class FileAsset implements Asset {
-
-    /** File. */
-    private Path file;
-
-    /**
-     * Creates a new file asset.
-     * @param file Asset file.
-     */
-    public FileAsset(@Nonnull Path file) {
-      this.file = file;
-    }
-
-    @Override public long getSize() {
-      try {
-        return Files.size(file);
-      } catch (IOException x) {
-        throw SneakyThrows.propagate(x);
-      }
-    }
-
-    @Override public long getLastModified() {
-      try {
-        return Files.getLastModifiedTime(file).toMillis();
-      } catch (IOException x) {
-        throw SneakyThrows.propagate(x);
-      }
-    }
-
-    @Nonnull @Override public MediaType getContentType() {
-      return MediaType.byFile(file);
-    }
-
-    @Override public InputStream stream() {
-      try {
-        return new FileInputStream(file.toFile());
-      } catch (IOException x) {
-        throw SneakyThrows.propagate(x);
-      }
-    }
-
-    @Override public void release() {
-      // NOOP
-    }
-
-    @Override public boolean isDirectory() {
-      return Files.isDirectory(file);
-    }
-
-    @Override public boolean equals(Object obj) {
-      if (obj instanceof FileAsset) {
-        return file.equals(((FileAsset) obj).file);
-      }
-      return false;
-    }
-
-    @Override public int hashCode() {
-      return file.hashCode();
-    }
-
-    @Override public String toString() {
-      return file.toString();
-    }
-  }
-
-  /**
-   * URL asset. Mostly represent a classpath file resource.
-   *
-   * @author edgar
-   * @since 2.0.0
-   */
-  class URLAsset implements Asset {
-
-    /** URL. */
-    private final URL resource;
-
-    /** Path. */
-    private final String path;
-
-    /** File size. */
-    private long len;
-
-    /** Last modified since or <code>-1</code>. */
-    private long lastModified;
-
-    /** Asset content. */
-    private InputStream content;
-
-    /**
-     * Creates a new URL asset.
-     *
-     * @param resource Asset resource url.
-     * @param path Asset path.
-     */
-    private URLAsset(@Nonnull URL resource, @Nonnull String path) {
-      this.resource = resource;
-      this.path = path;
-    }
-
-    @Override public long getSize() {
-      checkOpen();
-      return len;
-    }
-
-    @Override public long getLastModified() {
-      checkOpen();
-      return lastModified;
-    }
-
-    @Nonnull @Override public MediaType getContentType() {
-      return MediaType.byFile(path);
-    }
-
-    @Override public InputStream stream() {
-      checkOpen();
-      return content;
-    }
-
-    @Override public void release() {
-      try {
-        content.close();
-      } catch (IOException | NullPointerException x) {
-        // NPE when content is a directory
-      }
-    }
-
-    @Override public boolean equals(Object obj) {
-      if (obj instanceof URLAsset) {
-        return path.equals(((URLAsset) obj).path);
-      }
-      return false;
-    }
-
-    @Override public int hashCode() {
-      return path.hashCode();
-    }
-
-    @Override public String toString() {
-      return path;
-    }
-
-    @Override public boolean isDirectory() {
-      return false;
-    }
-
-    private void checkOpen() {
-      try {
-        if (content == null) {
-          URLConnection connection = resource.openConnection();
-          connection.setUseCaches(false);
-          len = connection.getContentLengthLong();
-          lastModified = connection.getLastModified();
-          content = connection.getInputStream();
-        }
-      } catch (IOException x) {
-        throw SneakyThrows.propagate(x);
-      }
-    }
-  }
+public interface Asset extends AutoCloseable {
 
   /**
    * Creates a file system asset.
@@ -217,7 +50,7 @@ public interface Asset {
         return new JarAsset((JarURLConnection) resource.openConnection());
       }
       if ("file".equals(resource.getProtocol())) {
-        return new FileAsset(Paths.get(resource.toURI()));
+        return create(Paths.get(resource.toURI()));
       }
       return new URLAsset(resource, path);
     } catch (IOException | URISyntaxException x) {
@@ -273,9 +106,4 @@ public interface Asset {
    * @return Asset content.
    */
   InputStream stream();
-
-  /**
-   * Release this asset.
-   */
-  void release();
 }
