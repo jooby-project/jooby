@@ -8,11 +8,11 @@ package io.jooby;
 import io.jooby.internal.FileAsset;
 import io.jooby.internal.JarAsset;
 import io.jooby.internal.URLAsset;
-import sun.net.www.protocol.jar.JarURLConnection;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -68,6 +68,9 @@ public interface Asset extends AutoCloseable {
    */
   long getLastModified();
 
+  /**
+   * @return True if the asset is a directory (when possible).
+   */
   boolean isDirectory();
 
   /**

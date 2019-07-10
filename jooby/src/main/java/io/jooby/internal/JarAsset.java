@@ -3,12 +3,11 @@ package io.jooby.internal;
 import io.jooby.Asset;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
-import org.apache.commons.io.IOUtils;
-import sun.net.www.protocol.jar.JarURLConnection;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.JarURLConnection;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
