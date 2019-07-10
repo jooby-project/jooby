@@ -1,7 +1,6 @@
 * tests and coverage
 * server options from application.conf MUST override hardcoded settings
 * raw responses, sendXXX should not allow decorator
-* BUG: AssetHandler should do sendError not sendStatus(404)
 
 * make reset headers on error configurable
 

@@ -230,7 +230,7 @@ public class HikariModule implements Extension {
         String key = url.substring(pnameStart, pnameEnd).trim();
         if (key.equalsIgnoreCase("databaseName") || key.equalsIgnoreCase("database")) {
           dbname = url.substring(pnameEnd + 1, i).trim();
-
+          break;
         }
         pnameStart = i + 1;
       } else if (ch == '=') {

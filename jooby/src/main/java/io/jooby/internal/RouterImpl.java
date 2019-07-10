@@ -576,21 +576,20 @@ public class RouterImpl implements Router {
     MvcMetadata mvcMetadata = new MvcMetadata(source);
     mvcMetadata.parse(type);
     List<MvcMethod> routes = new ArrayList<>();
-    Stream.of(type.getDeclaredMethods())
-        .forEach(method -> {
-          if (Modifier.isPublic(method.getModifiers())) {
-            annotationParser.parse(method).forEach(model -> {
-              String[] paths = pathPrefix(prefix, model.getPath());
-              for (String path : paths) {
-                MvcMethod mvc = mvcMetadata.create(method);
-                mvc.setPattern(path);
-                mvc.setModel(model);
-                mvc.setMethod(method);
-                routes.add(mvc);
-              }
-            });
+    Stream.of(type.getDeclaredMethods()).forEach(method -> {
+      if (Modifier.isPublic(method.getModifiers())) {
+        annotationParser.parse(method).forEach(model -> {
+          String[] paths = pathPrefix(prefix, model.getPath());
+          for (String path : paths) {
+            MvcMethod mvc = mvcMetadata.create(method);
+            mvc.setPattern(path);
+            mvc.setModel(model);
+            mvc.setMethod(method);
+            routes.add(mvc);
           }
         });
+      }
+    });
     Collections.sort(routes, Comparator.comparingInt(MvcMethod::getLine));
     routes.forEach(mvc -> {
       String executorKey = dispatchTo(mvc.getMethod());

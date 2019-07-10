@@ -5,13 +5,13 @@
  */
 package io.jooby;
 
+import io.jooby.internal.ClasspathAssetSource;
 import io.jooby.internal.FileDiskAssetSource;
 import io.jooby.internal.FolderDiskAssetSource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.FileNotFoundException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -34,7 +34,7 @@ public interface AssetSource {
   @Nullable Asset resolve(@Nonnull String path);
 
   /**
-   * Classpath/url-based asset source. Useful for resolving files from classpath
+   * Classpath asset source. Useful for resolving files from classpath
    * (including jar files).
    *
    * @param loader Class loader.
@@ -42,27 +42,7 @@ public interface AssetSource {
    * @return An asset source.
    */
   static @Nonnull AssetSource create(@Nonnull ClassLoader loader, @Nonnull String location) {
-    String safeloc = Router.normalizePath(location, false, true)
-        .substring(1);
-    MediaType type = MediaType.byFile(location);
-    if (type != MediaType.octetStream) {
-      URL resource = loader
-          .getResource(location.startsWith("/") ? location.substring(1) : location);
-      if (resource != null) {
-        return path -> Asset.create(location, resource);
-      }
-    }
-    String prefix = safeloc + (safeloc.length() > 0 ? "/" : "");
-    return path -> {
-      String[] paths = {prefix + path + "/index.html", prefix + path};
-      for (String it : paths) {
-        URL resource = loader.getResource(it);
-        if (resource != null) {
-          return Asset.create(it, resource);
-        }
-      }
-      return null;
-    };
+    return new ClasspathAssetSource(loader, location);
   }
 
   /**

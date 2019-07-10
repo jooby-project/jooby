@@ -426,6 +426,10 @@ public class JettyContext implements Callback, Context {
     return InvocationType.NON_BLOCKING;
   }
 
+  @Override public String toString() {
+    return getMethod() + " " + pathString();
+  }
+
   void complete(Throwable x) {
     ifSaveSession();
 

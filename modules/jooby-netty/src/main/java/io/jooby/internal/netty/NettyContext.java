@@ -577,4 +577,8 @@ public class NettyContext implements Context, ChannelFutureListener {
       setHeaders.set(TRANSFER_ENCODING, CHUNKED);
     }
   }
+
+  @Override public String toString() {
+    return getMethod() + " " + pathString();
+  }
 }

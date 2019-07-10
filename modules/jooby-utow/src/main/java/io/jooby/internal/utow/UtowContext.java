@@ -365,6 +365,10 @@ public class UtowContext implements Context, IoCallback {
     destroy(exception);
   }
 
+  @Override public String toString() {
+    return getMethod() + " " + pathString();
+  }
+
   private void ifSaveSession() {
     Session session = (Session) getAttributes().get(Session.NAME);
     if (session != null && (session.isNew() || session.isModify())) {

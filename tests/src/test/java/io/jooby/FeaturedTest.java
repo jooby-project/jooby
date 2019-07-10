@@ -2114,6 +2114,22 @@ public class FeaturedTest {
   }
 
   @Test
+  public void assetSingleFile() {
+    new JoobyRunner(app -> {
+      app.assets("/asset/cp", "singleroot");
+      app.assets("/asset/fs", userdir("src", "test", "resources", "singleroot"));
+    }).ready(client -> {
+      client.get("/asset/cp", rsp -> {
+        assertEquals("abcd", rsp.body().string().trim());
+      });
+      client.get("/asset/fs", rsp -> {
+        assertEquals("abcd", rsp.body().string().trim());
+      });
+    });
+
+  }
+
+  @Test
   public void services() {
     new JoobyRunner(app -> {
       ServiceRegistry services = app.getServices();
@@ -2125,7 +2141,6 @@ public class FeaturedTest {
         assertEquals("value", rsp.body().string());
       });
     });
-
   }
 
   @Test
