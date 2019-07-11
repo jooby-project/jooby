@@ -200,7 +200,7 @@ open class Kooby constructor() : Jooby() {
 
   @RouterDsl
   fun coroutine(coroutineStart: CoroutineStart = CoroutineStart.DEFAULT, block: CoroutineRouter.() -> Unit): CoroutineRouter {
-    val router = attributes.computeIfAbsent("coroutineRouter") { key -> CoroutineRouter(coroutineStart, this) } as CoroutineRouter
+    val router = attributes.computeIfAbsent("coroutineRouter") { CoroutineRouter(coroutineStart, this) } as CoroutineRouter
     router.block()
     return router
   }
