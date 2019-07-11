@@ -398,15 +398,17 @@ public class UtowContext implements Context, IoCallback {
   }
 
   private void formData(Formdata form, FormData data) {
-    Iterator<String> it = data.iterator();
-    while (it.hasNext()) {
-      String path = it.next();
-      Deque<FormData.FormValue> values = data.get(path);
-      for (FormData.FormValue value : values) {
-        if (value.isFileItem()) {
-          form.put(path, new UtowFileUpload(path, value));
-        } else {
-          form.put(path, value.getValue());
+    if (data != null) {
+      Iterator<String> it = data.iterator();
+      while (it.hasNext()) {
+        String path = it.next();
+        Deque<FormData.FormValue> values = data.get(path);
+        for (FormData.FormValue value : values) {
+          if (value.isFileItem()) {
+            form.put(path, new UtowFileUpload(path, value));
+          } else {
+            form.put(path, value.getValue());
+          }
         }
       }
     }

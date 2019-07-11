@@ -533,6 +533,10 @@ public class NettyContext implements Context, ChannelFutureListener {
   }
 
   private void decodeForm(HttpRequest req, Formdata form) {
+    if (decoder == null) {
+      // empty/bad form
+      return;
+    }
     try {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();
