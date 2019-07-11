@@ -145,6 +145,15 @@ public class Jooby implements Router, Registry {
   }
 
   /**
+   * Application class loader.
+   *
+   * @return Application class loader.
+   */
+  public @Nonnull ClassLoader getClassLoader() {
+    return env == null ? environmentOptions.getClassLoader() : env.getClassLoader();
+  }
+
+  /**
    * Application configuration. It is a shortcut for {@link Environment#getConfig()}.
    *
    * @return Application config.
@@ -451,7 +460,7 @@ public class Jooby implements Router, Registry {
     return require(ServiceKey.key(type));
   }
 
-  @Override public  @Nonnull <T> T require(@Nonnull ServiceKey<T> key) {
+  @Override public @Nonnull <T> T require(@Nonnull ServiceKey<T> key) {
     ServiceRegistry services = getServices();
     T service = services.getOrNull(key);
     if (service == null) {

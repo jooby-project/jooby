@@ -94,8 +94,36 @@ The `assets` route works for static sites too. Just need to use a special path m
 The key difference is the `/?*` mapping. This mapping add support for base root mapping:
 
 - GET `/docs`            => `/docs/index.html`
+- GET `/docs/index.html` => `/docs/index.html`
 - GET `/docs/about.html` => `/docs/about.html`
-- GET `/docs/note`        => `/docs/index.html`
+- GET `/docs/note`        => `/docs/note/index.html`
+
+=== SPAs
+
+The `assets` route works for single page applications (SPAs) too. Just need to use a special path mapping plus a fallback asset:
+ 
+.Classpath resources:
+[source, java, role="primary"]
+----
+{
+  AssetSource docs = AssetSource.create(Paths.get("docs")); <1>
+  assets("/docs/?*", new AssetHandler("index.html", docs)); <2>
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  val docs = AssetSource.create(Paths.get("docs"))          <1>
+  assets("/docs/?*", AssetHandler("index.html", docs))      <2>
+}
+----
+
+<1> Serve from `docs` directory
+<2> Use the `/?*` mapping and uses `index.html` as fallback asset
+
+SPAs mode never generates a `NOT FOUND (404)` response, unresolved assets fallback to `index.html`
 
 === Options
 

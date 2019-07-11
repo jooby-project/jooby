@@ -13,6 +13,8 @@ import java.util.List;
 /**
  * Handler for static resources represented by the {@link Asset} contract.
  *
+ * It has built-in support for static-static as well as SPAs (single page applications).
+ *
  * @author edgar
  * @since 2.0.0
  */
@@ -29,6 +31,28 @@ public class AssetHandler implements Route.Handler {
 
   private String filekey;
 
+  private String fallback;
+
+  /**
+   * Creates a new asset handler that fallback to the given fallback asset when the asset
+   * is not found. Instead of produces a <code>404</code> its fallback to the given asset.
+   *
+   * <pre>{@code
+   * {
+   *    assets("/?*", new AssetHandler("index.html", AssetSource.create(Paths.get("...")));
+   * }
+   * }</pre>
+   *
+   * The fallback option makes the asset handler to work like a SPA (Single-Application-Page).
+   *
+   * @param fallback Fallback asset.
+   * @param sources Asset sources.
+   */
+  public AssetHandler(@Nonnull String fallback, AssetSource... sources) {
+    this.fallback = fallback;
+    this.sources = sources;
+  }
+
   /**
    * Creates a new asset handler.
    *
@@ -42,8 +66,14 @@ public class AssetHandler implements Route.Handler {
     String filepath = ctx.pathMap().getOrDefault(filekey, "index.html");
     Asset asset = resolve(filepath);
     if (asset == null) {
-      ctx.sendError(new StatusCodeException(StatusCode.NOT_FOUND));
-      return ctx;
+      if (fallback != null) {
+        asset = resolve(fallback);
+      }
+      // Still null?
+      if (asset == null) {
+        ctx.sendError(new StatusCodeException(StatusCode.NOT_FOUND));
+        return ctx;
+      }
     }
 
     // handle If-None-Match

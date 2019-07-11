@@ -1983,6 +1983,43 @@ public class FeaturedTest {
   }
 
   @Test
+  public void singlePageApp() {
+    new JoobyRunner(app -> {
+
+      app.assets("/?*", new AssetHandler("fallback.html", AssetSource.create(app.getClassLoader(), "/www")));
+
+    }).ready(client -> {
+      client.get("/docs", rsp -> {
+        assertEquals("fallback.html", rsp.body().string().trim());
+      });
+
+      client.get("/docs/index.html", rsp -> {
+        assertEquals("fallback.html", rsp.body().string().trim());
+      });
+
+      client.get("/docs/v1", rsp -> {
+        assertEquals("fallback.html", rsp.body().string().trim());
+      });
+
+      client.get("/", rsp -> {
+        assertEquals("index.html", rsp.body().string().trim());
+      });
+
+      client.get("/index.html", rsp -> {
+        assertEquals("index.html", rsp.body().string().trim());
+      });
+
+      client.get("/note", rsp -> {
+        assertEquals("note.html", rsp.body().string().trim());
+      });
+
+      client.get("/note/index.html", rsp -> {
+        assertEquals("note.html", rsp.body().string().trim());
+      });
+    });
+  }
+
+  @Test
   public void staticSiteFromCp() {
    new JoobyRunner(app -> {
 
