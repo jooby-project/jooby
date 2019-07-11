@@ -1,7 +1,7 @@
 * tests and coverage
 * server options from application.conf MUST override hardcoded settings
 * raw responses, sendXXX should not allow decorator
-
+* Add injection support for App instance. So we can annotated instance fields
 * make reset headers on error configurable
 
 * websockets

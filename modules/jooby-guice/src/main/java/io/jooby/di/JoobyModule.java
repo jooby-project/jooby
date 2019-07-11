@@ -64,7 +64,7 @@ public class JoobyModule extends AbstractModule {
     }
   }
 
-  private void configureEnv(Environment env) {
+  /*package*/ void configureEnv(Environment env) {
     Config config = env.getConfig();
     bind(Config.class).toInstance(config);
     bind(Environment.class).toInstance(env);
@@ -76,7 +76,9 @@ public class JoobyModule extends AbstractModule {
       Object value = entry.getValue().unwrapped();
       if (value instanceof List) {
         List values = (List) value;
-        Type listType = Types.listOf(values.iterator().next().getClass());
+        Type listType = values.size() == 0
+            ? Types.listOf(String.class)
+            : Types.listOf(values.get(0).getClass());
         Key key = Key.get(listType, Names.named(name));
         bind(key).toInstance(values);
         value = values.stream().map(Object::toString).collect(Collectors.joining(","));
