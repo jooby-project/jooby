@@ -353,7 +353,7 @@ public class RouterImpl implements Router {
     route.setAfter(after);
     route.setDecorator(decorator);
     route.setEncoder(renderer);
-    route.setParsers(parsers);
+    route.setDecoders(parsers);
 
     Stack stack = this.stack.peekLast();
     if (stack.executor != null) {

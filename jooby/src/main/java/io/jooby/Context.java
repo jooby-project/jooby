@@ -835,7 +835,7 @@ public interface Context extends Registry {
    * @return MessageDecoder.
    */
   default @Nonnull MessageDecoder parser(@Nonnull MediaType contentType) {
-    return getRoute().parser(contentType);
+    return getRoute().decoder(contentType);
   }
 
   /* **********************************************************************************************

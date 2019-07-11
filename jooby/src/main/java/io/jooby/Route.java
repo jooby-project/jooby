@@ -554,7 +554,7 @@ public class Route {
    * @param contentType Media type.
    * @return MessageDecoder.
    */
-  public @Nonnull MessageDecoder parser(@Nonnull MediaType contentType) {
+  public @Nonnull MessageDecoder decoder(@Nonnull MediaType contentType) {
     return parsers.getOrDefault(contentType.getValue(), MessageDecoder.UNSUPPORTED_MEDIA_TYPE);
   }
 
@@ -563,7 +563,7 @@ public class Route {
    *
    * @return Message decoders.
    */
-  public @Nonnull Map<String, MessageDecoder> getParsers() {
+  public @Nonnull Map<String, MessageDecoder> getDecoders() {
     return parsers;
   }
 
@@ -573,7 +573,7 @@ public class Route {
    * @param decoders message decoder.
    * @return This route.
    */
-  public @Nonnull Route setParsers(@Nonnull Map<String, MessageDecoder> decoders) {
+  public @Nonnull Route setDecoders(@Nonnull Map<String, MessageDecoder> decoders) {
     this.parsers = decoders;
     return this;
   }
