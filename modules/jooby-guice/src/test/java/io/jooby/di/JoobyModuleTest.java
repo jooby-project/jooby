@@ -57,6 +57,12 @@ public class JoobyModuleTest {
     LinkedBindingBuilder emptyListBinding = mock(LinkedBindingBuilder.class);
     emptyListBinding.toInstance(emptyList);
     when(binder.bind(Key.get(Types.listOf(String.class), Names.named("some")))).thenReturn(emptyListBinding);
+    when(binder.bind(Key.get(Types.listOf(Integer.class), Names.named("some")))).thenReturn(emptyListBinding);
+    when(binder.bind(Key.get(Types.listOf(Long.class), Names.named("some")))).thenReturn(emptyListBinding);
+    when(binder.bind(Key.get(Types.listOf(Float.class), Names.named("some")))).thenReturn(emptyListBinding);
+    when(binder.bind(Key.get(Types.listOf(Double.class), Names.named("some")))).thenReturn(emptyListBinding);
+    when(binder.bind(Key.get(Types.listOf(Boolean.class), Names.named("some")))).thenReturn(emptyListBinding);
+    when(binder.bind(Key.get(Types.listOf(Object.class), Names.named("some")))).thenReturn(emptyListBinding);
 
     ConstantBindingBuilder constantBindingBuilder = mock(ConstantBindingBuilder.class);
     constantBindingBuilder.to("");

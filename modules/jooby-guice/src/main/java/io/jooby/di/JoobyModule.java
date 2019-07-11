@@ -24,6 +24,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Exposes Jooby objects to Guice. This module exposes {@link Environment}, {@link Config} and
@@ -76,14 +77,23 @@ public class JoobyModule extends AbstractModule {
       Object value = entry.getValue().unwrapped();
       if (value instanceof List) {
         List values = (List) value;
-        Type listType = values.size() == 0
-            ? Types.listOf(String.class)
-            : Types.listOf(values.get(0).getClass());
-        Key key = Key.get(listType, Names.named(name));
-        bind(key).toInstance(values);
+        componentType(values).forEach(componentType -> {
+          Type listType = Types.listOf(componentType);
+          Key key = Key.get(listType, Names.named(name));
+          bind(key).toInstance(values);
+        });
         value = values.stream().map(Object::toString).collect(Collectors.joining(","));
       }
       bindConstant().annotatedWith(named).to(value.toString());
     }
+  }
+
+  private Stream<Class> componentType(List values) {
+    if (values.isEmpty()) {
+      // For empty list we generates a binding for primitive wrappers.
+      return Stream.of(String.class, Integer.class, Long.class, Float.class, Double.class,
+          Boolean.class, Object.class);
+    }
+    return Stream.of(values.get(0).getClass());
   }
 }
