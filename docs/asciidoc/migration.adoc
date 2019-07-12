@@ -1,0 +1,99 @@
+=== Upgrading from 1.x
+
+You will find here notes/tips about how to migrate from 1.x to 2.x.
+
+[NOTE]
+=====
+This is a **work in progress** document, if something is wrong or missing please https://github.com/jooby-project/jooby/issues/new[report to Github] or better https://github.com/jooby-project/jooby/edit/2.x/docs/asciidoc/migration.adoc[edit this file and fix it] 
+=====
+
+==== API
+
+API still similar/equivalent in 2.x. Except for the one listed below:
+
+.Classes
+|===
+|1.x|2.x
+|org.jooby.Module| io.jooby.Extension
+|org.jooby.Env| io.jooby.Environment
+|org.jooby.Mutant| io.jooby.Value
+|org.jooby.Render| io.jooby.MessageEncoder
+|org.jooby.Parser| io.jooby.MessageDecoder
+|org.jooby.Err| io.jooby.StatusCodeException
+|org.jooby.Results| - (removed)
+|org.jooby.Result | - (removed)
+|===
+
+==== Route Pipeline
+
+The concept of route pipeline still applies for 2.x but works different.
+
+In 1.x there is no difference between handler and filter (including before and after). The way to
+chain multiple handler/filter was like:
+
+.Pipeline in 1.x
+[source, java]
+----
+{
+  use("*", (req, rsp, chain) -> {
+    System.out.println("first");
+    // Moves execution to next handler: second
+    chain.next(req, rsp);
+  });
+  
+  use("*", (req, rsp, chain) -> {
+    System.out.println("second");
+    // Moves execution to next handler: third
+    chain.next(req, rsp);
+  });
+  
+  get("/handler", req -> {
+    return "third";
+  });
+}
+----
+
+A filter in 1.x requires a path pattern, here we use a wide matcher `*` for `first` and `second` filters.
+Both of this filters are going to be executed before the real `handler`.
+
+.Pipeline in 2.x
+[source, java]
+----
+{
+   decorator(next -> ctx -> {
+     System.out.println("first");
+     // Moves execution to next handler: second
+     return next.apply(ctx);
+   });
+   
+   decorator(next -> ctx -> {
+     System.out.println("second");
+     // Moves execution to next handler: third
+     return next.apply(ctx);
+   });
+   
+   get("/handler", ctx -> {
+     return "third";
+   });
+}
+----
+
+Execution is identical to 1.x. The `first` and `second` decorators are executed before the handler.
+Differences with 1.x are:
+
+- javadoc:Route.Decorator[] doesn't support a path pattern. In 1.x the path pattern is required for a filter.
+- Only the handler supports a path pattern and HTTP-method.
+- A handler might have zero or more decorator.
+- In 2.x we chain all the decorator defined before the handler.
+
+The routing matching algorithm in 2.x is more efficient and fast, because:
+
+- Matches a single path pattern (due decorator lacks of path pattern)
+- Uses a radix tree, not regular expression like in 1.x
+- It never executes a decorator if there isn't a matching handler
+
+More detailed explanation of route pipeline is available in the <<router-pipeline, router pipeline documentation>>.
+
+==== Route Before and After
+
+// TODO

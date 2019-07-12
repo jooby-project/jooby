@@ -234,3 +234,7 @@ include::extension.adoc[]
 include::dependency-injection.adoc[]
 
 include::modules.adoc[]
+
+== Appendix
+
+include::migration.adoc[]
