@@ -13,10 +13,6 @@ import java.util.stream.Stream;
 public class HelloApp extends Jooby {
 
   {
-    Stream.of(getClass(), Jooby.class, getLog().getClass())
-        .forEach(clazz -> {
-          System.out.println(clazz.getName() + " loaded by: " + clazz.getClassLoader());
-        });
     setRouterOptions(new RouterOptions().setIgnoreCase(false).setIgnoreTrailingSlash(true));
 
     get("/", ctx -> {

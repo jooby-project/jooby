@@ -67,7 +67,7 @@ public class JoobyRun {
 
     public void start() {
       try {
-        System.setProperty("___jooby_run_hook__", ServerRef.class.getName());
+        System.setProperty("___jooby_run_hook__", SERVER_REF);
         // Track the number of restarts
         System.setProperty("joobyRun.counter", Integer.toString(counter++));
 
@@ -117,12 +117,17 @@ public class JoobyRun {
 
     private void closeServer() {
       try {
-        ServerRef.stopServer();
+        Class ref = module.getClassLoader().loadClass(SERVER_REF);
+        ref.getDeclaredMethod(SERVER_REF_STOP).invoke(null);
       } catch (Exception x) {
         logger.error("Application shutdown resulted in exception", withoutReflection(x));
       }
     }
   }
+
+  static final String SERVER_REF = "io.jooby.run.ServerRef";
+
+  static final String SERVER_REF_STOP = "stop";
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 

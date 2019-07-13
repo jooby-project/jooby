@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -895,11 +896,11 @@ public class Jooby implements Router, Registry {
       System.setProperty(JOOBY_RUN_HOOK, "");
       if (hookClassname != null && hookClassname.length() > 0) {
         try {
-          // Skip jooby-run classloader
-          ClassLoader parent = loader.getParent();
-          Consumer consumer = (Consumer) parent.loadClass(hookClassname).newInstance();
+          Class serverRefClass = loader.loadClass(hookClassname);
+          Constructor constructor = serverRefClass.getDeclaredConstructor();
+          Consumer<Server> consumer = (Consumer<Server>) constructor.newInstance();
           consumer.accept(server);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException x) {
+        } catch (Exception x) {
           throw SneakyThrows.propagate(x);
         }
       }
