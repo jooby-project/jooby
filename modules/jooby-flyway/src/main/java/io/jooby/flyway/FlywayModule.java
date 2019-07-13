@@ -86,7 +86,7 @@ public class FlywayModule implements Extension {
     properties.putAll(defaults);
     properties.putAll(overrides);
 
-    String[] commandString = Optional.ofNullable(properties.remove("run")).orElse("migrate")
+    String[] commandString = Optional.ofNullable(properties.remove("flyway.run")).orElse("migrate")
         .split("\\s*,\\s*");
 
     configuration.configuration(properties);
