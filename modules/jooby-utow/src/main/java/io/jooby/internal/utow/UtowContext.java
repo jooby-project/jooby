@@ -9,6 +9,7 @@ import io.jooby.Body;
 import io.jooby.ByteRange;
 import io.jooby.Context;
 import io.jooby.Cookie;
+import io.jooby.DefaultContext;
 import io.jooby.Formdata;
 import io.jooby.MediaType;
 import io.jooby.Multipart;
@@ -58,7 +59,7 @@ import static io.undertow.util.Headers.CONTENT_TYPE;
 import static io.undertow.util.Headers.RANGE;
 import static io.undertow.util.Headers.SET_COOKIE;
 
-public class UtowContext implements Context, IoCallback {
+public class UtowContext implements DefaultContext, IoCallback {
 
   private static final ByteBuffer EMPTY = ByteBuffer.wrap(new byte[0]);
   private Route route;

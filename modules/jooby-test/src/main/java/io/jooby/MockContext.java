@@ -31,7 +31,7 @@ import java.util.concurrent.Executor;
 /**
  * Unit test friendly context implementation. Allows to set context properties.
  */
-public class MockContext implements Context {
+public class MockContext implements DefaultContext {
 
   private String method = Router.GET;
 
@@ -247,7 +247,7 @@ public class MockContext implements Context {
 
   @Nonnull @Override
   public MockContext setResponseHeader(@Nonnull String name, @Nonnull Date value) {
-    Context.super.setResponseHeader(name, value);
+    DefaultContext.super.setResponseHeader(name, value);
     return this;
   }
 
@@ -258,13 +258,13 @@ public class MockContext implements Context {
 
   @Nonnull @Override
   public MockContext setResponseHeader(@Nonnull String name, @Nonnull Instant value) {
-    Context.super.setResponseHeader(name, value);
+    DefaultContext.super.setResponseHeader(name, value);
     return this;
   }
 
   @Nonnull @Override
   public MockContext setResponseHeader(@Nonnull String name, @Nonnull Object value) {
-    Context.super.setResponseHeader(name, value);
+    DefaultContext.super.setResponseHeader(name, value);
     return this;
   }
 

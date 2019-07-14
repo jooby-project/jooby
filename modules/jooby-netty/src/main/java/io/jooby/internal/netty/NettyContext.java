@@ -9,6 +9,7 @@ import io.jooby.Body;
 import io.jooby.ByteRange;
 import io.jooby.Context;
 import io.jooby.Cookie;
+import io.jooby.DefaultContext;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.MediaType;
@@ -85,7 +86,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class NettyContext implements Context, ChannelFutureListener {
+public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   private static final HttpHeaders NO_TRAILING = EmptyHttpHeaders.INSTANCE;
   final DefaultHttpHeaders setHeaders = new DefaultHttpHeaders(false);

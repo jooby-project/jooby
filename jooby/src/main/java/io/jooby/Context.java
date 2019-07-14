@@ -5,16 +5,10 @@
  */
 package io.jooby;
 
-import io.jooby.internal.HashValue;
-import io.jooby.internal.MissingValue;
-import io.jooby.internal.SingleValue;
-import io.jooby.internal.UrlParser;
 import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -22,12 +16,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -62,19 +54,6 @@ public interface Context extends Registry {
    * **********************************************************************************************
    */
 
-  @Nonnull @Override default <T> T require(@Nonnull Class<T> type, @Nonnull String name)
-      throws RegistryException {
-    return getRouter().require(type, name);
-  }
-
-  @Nonnull @Override default <T> T require(@Nonnull Class<T> type) throws RegistryException {
-    return getRouter().require(type);
-  }
-
-  @Nonnull @Override default  <T> T require(@Nonnull ServiceKey<T> key) throws RegistryException {
-    return getRouter().require(key);
-  }
-
   /**
    * Context attributes (a.k.a request attributes).
    *
@@ -90,13 +69,7 @@ public interface Context extends Registry {
    * @param <T> Attribute type.
    * @return Attribute value.
    */
-  @Nonnull default <T> T attribute(@Nonnull String key) {
-    T attribute = (T) getAttributes().get(key);
-    if (attribute == null) {
-      attribute = getRouter().attribute(key);
-    }
-    return attribute;
-  }
+  @Nonnull <T> T attribute(@Nonnull String key);
 
   /**
    * Set an application attribute.
@@ -105,10 +78,7 @@ public interface Context extends Registry {
    * @param value Attribute value.
    * @return This router.
    */
-  @Nonnull default Context attribute(@Nonnull String key, Object value) {
-    getAttributes().put(key, value);
-    return this;
-  }
+  @Nonnull Context attribute(@Nonnull String key, Object value);
 
   /**
    * Get the HTTP router (usually this represent an instance of {@link Jooby}.
@@ -128,11 +98,7 @@ public interface Context extends Registry {
    *
    * @return Flash map.
    */
-  default @Nonnull FlashMap flashMap() {
-    return (FlashMap) getAttributes()
-        .computeIfAbsent(FlashMap.NAME, key -> FlashMap
-            .create(this, new Cookie(getRouter().getFlashCookie()).setHttpOnly(true)));
-  }
+  @Nonnull FlashMap flashMap();
 
   /**
    * Get a flash attribute.
@@ -140,9 +106,7 @@ public interface Context extends Registry {
    * @param name Attribute's name.
    * @return Flash attribute.
    */
-  default @Nonnull Value flash(@Nonnull String name) {
-    return Value.create(name, flashMap().get(name));
-  }
+  @Nonnull Value flash(@Nonnull String name);
 
   /**
    * Set a flash attribute.
@@ -151,53 +115,21 @@ public interface Context extends Registry {
    * @param value Attribute's value.
    * @return This context.
    */
-  default @Nonnull Context flash(@Nonnull String name, @Nonnull String value) {
-    flashMap().put(name, value);
-    return this;
-  }
+  @Nonnull Context flash(@Nonnull String name, @Nonnull String value);
 
   /**
    * Find a session or creates a new session.
    *
    * @return Session.
    */
-  default @Nonnull Session session() {
-    Session session = sessionOrNull();
-    if (session == null) {
-      Router router = getRouter();
-      SessionOptions options = router.getSessionOptions();
-
-      String sessionId = options.generateId();
-      session = Session.create(this, options.getStore().newSession(sessionId));
-      options.getSessionId().saveSessionId(this, sessionId);
-    }
-    return session;
-  }
+  @Nonnull Session session();
 
   /**
    * Find an existing session.
    *
    * @return Existing session or <code>null</code>.
    */
-  default @Nullable Session sessionOrNull() {
-    Session session = (Session) getAttributes().get(Session.NAME);
-    if (session == null) {
-      Router router = getRouter();
-      SessionOptions options = router.getSessionOptions();
-      SessionId strategy = options.getSessionId();
-      String sessionId = strategy.findSessionId(this);
-      if (sessionId == null) {
-        return null;
-      }
-      session = options.getStore().findSession(sessionId);
-      if (session == null) {
-        return null;
-      }
-      session = Session.create(this, session);
-      strategy.saveSessionId(this, sessionId);
-    }
-    return session;
-  }
+  @Nullable Session sessionOrNull();
 
   /**
    * Get a cookie matching the given name.
@@ -205,10 +137,7 @@ public interface Context extends Registry {
    * @param name Cookie's name.
    * @return Cookie value.
    */
-  default @Nonnull Value cookie(@Nonnull String name) {
-    String value = cookieMap().get(name);
-    return value == null ? Value.missing(name) : Value.value(name, value);
-  }
+  @Nonnull Value cookie(@Nonnull String name);
 
   /**
    * Request cookies.
@@ -261,12 +190,7 @@ public interface Context extends Registry {
    * @param name Path key.
    * @return Associated value or a missing value, but never a <code>null</code> reference.
    */
-  @Nonnull default Value path(@Nonnull String name) {
-    String value = pathMap().get(name);
-    return value == null
-        ? new MissingValue(name)
-        : new SingleValue(name, UrlParser.decodePath(value));
-  }
+  @Nonnull Value path(@Nonnull String name);
 
   /**
    * Convert the {@link #pathMap()} to the given type.
@@ -275,9 +199,7 @@ public interface Context extends Registry {
    * @param <T> Target type.
    * @return Instance of target type.
    */
-  @Nonnull default <T> T path(@Nonnull Reified<T> type) {
-    return path().to(type);
-  }
+  @Nonnull <T> T path(@Nonnull Reified<T> type);
 
   /**
    * Convert the {@link #pathMap()} to the given type.
@@ -286,21 +208,13 @@ public interface Context extends Registry {
    * @param <T> Target type.
    * @return Instance of target type.
    */
-  @Nonnull default <T> T path(@Nonnull Class<T> type) {
-    return path().to(type);
-  }
+  @Nonnull <T> T path(@Nonnull Class<T> type);
 
   /**
    * Convert {@link #pathMap()} to a {@link Value} object.
    * @return A value object.
    */
-  @Nonnull default Value path() {
-    HashValue path = new HashValue(null);
-    for (Map.Entry<String, String> entry : pathMap().entrySet()) {
-      path.put(entry.getKey(), entry.getValue());
-    }
-    return path;
-  }
+  @Nonnull Value path();
 
   /**
    * Path map represent all the path keys with their values.
@@ -355,9 +269,7 @@ public interface Context extends Registry {
    * @param name Parameter name.
    * @return A query value.
    */
-  @Nonnull default Value query(@Nonnull String name) {
-    return query().get(name);
-  }
+  @Nonnull Value query(@Nonnull String name);
 
   /**
    * Query string with the leading <code>?</code> or empty string. This is the raw query string,
@@ -366,9 +278,7 @@ public interface Context extends Registry {
    * @return Query string with the leading <code>?</code> or empty string. This is the raw query
    *    string, without decoding it.
    */
-  @Nonnull default String queryString() {
-    return query().queryString();
-  }
+  @Nonnull String queryString();
 
   /**
    * Convert the queryString to the given type.
@@ -377,9 +287,7 @@ public interface Context extends Registry {
    * @param <T> Target type.
    * @return Query string converted to target type.
    */
-  @Nonnull default <T> T query(@Nonnull Reified<T> type) {
-    return query().to(type);
-  }
+  @Nonnull <T> T query(@Nonnull Reified<T> type);
 
   /**
    * Convert the queryString to the given type.
@@ -388,9 +296,7 @@ public interface Context extends Registry {
    * @param <T> Target type.
    * @return Query string converted to target type.
    */
-  @Nonnull default <T> T query(@Nonnull Class<T> type) {
-    return query().to(type);
-  }
+  @Nonnull <T> T query(@Nonnull Class<T> type);
 
   /**
    * Query string as simple map.
@@ -403,9 +309,7 @@ public interface Context extends Registry {
    *
    * @return Query string as map.
    */
-  @Nonnull default Map<String, String> queryMap() {
-    return query().toMap();
-  }
+  @Nonnull Map<String, String> queryMap();
 
   /**
    * Query string as multi-value map.
@@ -418,9 +322,7 @@ public interface Context extends Registry {
    *
    * @return Query string as map.
    */
-  @Nonnull default Map<String, List<String>> queryMultimap() {
-    return query().toMultimap();
-  }
+  @Nonnull Map<String, List<String>> queryMultimap();
 
   /* **********************************************************************************************
    * Header API
@@ -440,27 +342,21 @@ public interface Context extends Registry {
    * @param name Header name. Case insensitive.
    * @return A header value or missing value, never a <code>null</code> reference.
    */
-  @Nonnull default Value header(@Nonnull String name) {
-    return headers().get(name);
-  }
+  @Nonnull Value header(@Nonnull String name);
 
   /**
    * Header as single-value map.
    *
    * @return Header as single-value map.
    */
-  @Nonnull default Map<String, String> headerMap() {
-    return headers().toMap();
-  }
+  @Nonnull Map<String, String> headerMap();
 
   /**
    * Header as multi-value map.
    *
    * @return Header as multi-value map.
    */
-  @Nonnull default Map<String, List<String>> headerMultimap() {
-    return headers().toMultimap();
-  }
+  @Nonnull Map<String, List<String>> headerMultimap();
 
   /**
    * True if the given type matches the `Accept` header. This method returns <code>true</code>
@@ -469,10 +365,7 @@ public interface Context extends Registry {
    * @param contentType Content type to match.
    * @return True for matching type or if content header is absent.
    */
-  default boolean accept(@Nonnull MediaType contentType) {
-    Value accept = header(ACCEPT);
-    return accept.isMissing() ? true : contentType.matches(accept.value());
-  }
+  boolean accept(@Nonnull MediaType contentType);
 
   /**
    * Check if the accept type list matches the given produces list and return the most
@@ -481,35 +374,14 @@ public interface Context extends Registry {
    * @param produceTypes Produced types.
    * @return The most specific produces type.
    */
-  default MediaType accept(@Nonnull List<MediaType> produceTypes) {
-    List<MediaType> acceptTypes = MediaType.parse(header(ACCEPT).valueOrNull());
-    MediaType result = null;
-    for (MediaType acceptType : acceptTypes) {
-      for (MediaType produceType : produceTypes) {
-        if (produceType.matches(acceptType)) {
-          if (result == null) {
-            result = produceType;
-          } else {
-            MediaType max = MediaType.MOST_SPECIFIC.apply(result, produceType);
-            if (max != result) {
-              result = max;
-            }
-          }
-        }
-      }
-    }
-    return result;
-  }
+  @Nullable MediaType accept(@Nonnull List<MediaType> produceTypes);
 
   /**
    * Request <code>Content-Type</code> header or <code>null</code> when missing.
    *
    * @return Request <code>Content-Type</code> header or <code>null</code> when missing.
    */
-  @Nullable default MediaType getRequestType() {
-    Value contentType = header("Content-Type");
-    return contentType.isMissing() ? null : MediaType.valueOf(contentType.value());
-  }
+  @Nullable MediaType getRequestType();
 
   /**
    * Request <code>Content-Type</code> header or <code>null</code> when missing.
@@ -517,20 +389,14 @@ public interface Context extends Registry {
    * @param defaults Default content type to use when the header is missing.
    * @return Request <code>Content-Type</code> header or <code>null</code> when missing.
    */
-  @Nonnull default MediaType getRequestType(MediaType defaults) {
-    Value contentType = header("Content-Type");
-    return contentType.isMissing() ? defaults : MediaType.valueOf(contentType.value());
-  }
+  @Nonnull MediaType getRequestType(MediaType defaults);
 
   /**
    * Request <code>Content-Length</code> header or <code>-1</code> when missing.
    *
    * @return Request <code>Content-Length</code> header or <code>-1</code> when missing.
    */
-  default long getRequestLength() {
-    Value contentLength = header("Content-Length");
-    return contentLength.isMissing() ? -1 : contentLength.longValue();
-  }
+  long getRequestLength();
 
   /**
    * The IP address of the client or last proxy that sent the request.
@@ -545,14 +411,7 @@ public interface Context extends Registry {
    *
    * @return The fully qualified name of the server.
    */
-  default @Nonnull String getHost() {
-    return header("host").toOptional()
-        .map(host -> {
-          int index = host.indexOf(':');
-          return index > 0 ? host.substring(0, index) : host;
-        })
-        .orElse(getRemoteAddress());
-  }
+  @Nonnull String getHost();
 
   /**
    * The name of the protocol the request. Always in lower-case.
@@ -588,9 +447,7 @@ public interface Context extends Registry {
    * @return Formdata as multi-value map. Only for <code>application/form-url-encoded</code>
    *     request.
    */
-  @Nonnull default Map<String, List<String>> formMultimap() {
-    return form().toMultimap();
-  }
+  @Nonnull Map<String, List<String>> formMultimap();
 
   /**
    * Formdata as single-value map. Only for <code>application/form-url-encoded</code> request.
@@ -598,9 +455,7 @@ public interface Context extends Registry {
    * @return Formdata as single-value map. Only for <code>application/form-url-encoded</code>
    *     request.
    */
-  @Nonnull default Map<String, String> formMap() {
-    return form().toMap();
-  }
+  @Nonnull Map<String, String> formMap();
 
   /**
    * Form field that matches the given name. Only for <code>application/form-url-encoded</code>
@@ -609,9 +464,7 @@ public interface Context extends Registry {
    * @param name Field name.
    * @return Form value.
    */
-  @Nonnull default Value form(@Nonnull String name) {
-    return form().get(name);
-  }
+  @Nonnull Value form(@Nonnull String name);
 
   /**
    * Convert formdata to the given type. Only for <code>application/form-url-encoded</code>
@@ -621,9 +474,7 @@ public interface Context extends Registry {
    * @param <T> Target type.
    * @return Formdata as requested type.
    */
-  @Nonnull default <T> T form(@Nonnull Reified<T> type) {
-    return form().to(type);
-  }
+  @Nonnull <T> T form(@Nonnull Reified<T> type);
 
   /**
    * Convert formdata to the given type. Only for <code>application/form-url-encoded</code>
@@ -633,9 +484,7 @@ public interface Context extends Registry {
    * @param <T> Target type.
    * @return Formdata as requested type.
    */
-  @Nonnull default <T> T form(@Nonnull Class<T> type) {
-    return form().to(type);
-  }
+  @Nonnull <T> T form(@Nonnull Class<T> type);
 
   /* **********************************************************************************************
    * Multipart API
@@ -660,9 +509,7 @@ public interface Context extends Registry {
    * @param name Field name.
    * @return Multipart value.
    */
-  @Nonnull default Value multipart(@Nonnull String name) {
-    return multipart().get(name);
-  }
+  @Nonnull Value multipart(@Nonnull String name);
 
   /**
    * Convert multipart data to the given type.
@@ -673,9 +520,7 @@ public interface Context extends Registry {
    * @param <T> Target type.
    * @return Target value.
    */
-  @Nonnull default <T> T multipart(@Nonnull Reified<T> type) {
-    return multipart().to(type);
-  }
+  @Nonnull <T> T multipart(@Nonnull Reified<T> type);
 
   /**
    * Convert multipart data to the given type.
@@ -686,9 +531,7 @@ public interface Context extends Registry {
    * @param <T> Target type.
    * @return Target value.
    */
-  @Nonnull default <T> T multipart(@Nonnull Class<T> type) {
-    return multipart().to(type);
-  }
+  @Nonnull <T> T multipart(@Nonnull Class<T> type);
 
   /**
    * Multipart data as multi-value map.
@@ -697,9 +540,7 @@ public interface Context extends Registry {
    *
    * @return Multi-value map.
    */
-  @Nonnull default Map<String, List<String>> multipartMultimap() {
-    return multipart().toMultimap();
-  }
+  @Nonnull Map<String, List<String>> multipartMultimap();
 
   /**
    * Multipart data as single-value map.
@@ -708,25 +549,14 @@ public interface Context extends Registry {
    *
    * @return Single-value map.
    */
-  @Nonnull default Map<String, String> multipartMap() {
-    return multipart().toMap();
-  }
+  @Nonnull Map<String, String> multipartMap();
 
   /**
    * All file uploads. Only for <code>multipart/form-data</code> request.
    *
    * @return All file uploads.
    */
-  @Nonnull default List<FileUpload> files() {
-    Value multipart = multipart();
-    List<FileUpload> result = new ArrayList<>();
-    for (Value value : multipart) {
-      if (value.isUpload()) {
-        result.add(value.fileUpload());
-      }
-    }
-    return result;
-  }
+  @Nonnull List<FileUpload> files();
 
   /**
    * All file uploads that matches the given field name.
@@ -736,14 +566,7 @@ public interface Context extends Registry {
    * @param name Field name. Please note this is the form field name, not the actual file name.
    * @return All file uploads.
    */
-  @Nonnull default List<FileUpload> files(@Nonnull String name) {
-    Value multipart = multipart(name);
-    List<FileUpload> result = new ArrayList<>();
-    for (Value value : multipart) {
-      result.add(value.fileUpload());
-    }
-    return result;
-  }
+  @Nonnull List<FileUpload> files(@Nonnull String name);
 
   /**
    * A file upload that matches the given field name.
@@ -753,9 +576,7 @@ public interface Context extends Registry {
    * @param name Field name. Please note this is the form field name, not the actual file name.
    * @return A file upload.
    */
-  @Nonnull default FileUpload file(@Nonnull String name) {
-    return multipart(name).fileUpload();
-  }
+  @Nonnull FileUpload file(@Nonnull String name);
 
   /* **********************************************************************************************
    * Request Body
@@ -776,9 +597,7 @@ public interface Context extends Registry {
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
-  default @Nonnull <T> T body(@Nonnull Reified<T> type) {
-    return body(type, getRequestType(MediaType.text));
-  }
+  @Nonnull <T> T body(@Nonnull Reified<T> type);
 
   /**
    * Convert the HTTP body to the given type.
@@ -788,13 +607,7 @@ public interface Context extends Registry {
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
-  default @Nonnull <T> T body(@Nonnull Reified<T> type, @Nonnull MediaType contentType) {
-    try {
-      return parser(contentType).decode(this, type.getType());
-    } catch (Exception x) {
-      throw SneakyThrows.propagate(x);
-    }
-  }
+  @Nonnull <T> T body(@Nonnull Reified<T> type, @Nonnull MediaType contentType);
 
   /**
    * Convert the HTTP body to the given type.
@@ -803,9 +616,7 @@ public interface Context extends Registry {
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
-  default @Nonnull <T> T body(@Nonnull Class type) {
-    return body(type, getRequestType(MediaType.text));
-  }
+  @Nonnull <T> T body(@Nonnull Class type);
 
   /**
    * Convert the HTTP body to the given type.
@@ -815,13 +626,7 @@ public interface Context extends Registry {
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
-  default @Nonnull <T> T body(@Nonnull Class type, @Nonnull MediaType contentType) {
-    try {
-      return parser(contentType).decode(this, type);
-    } catch (Exception x) {
-      throw SneakyThrows.propagate(x);
-    }
-  }
+  @Nonnull <T> T body(@Nonnull Class type, @Nonnull MediaType contentType);
 
   /* **********************************************************************************************
    * Body MessageDecoder
@@ -834,9 +639,7 @@ public interface Context extends Registry {
    * @param contentType Content type.
    * @return MessageDecoder.
    */
-  default @Nonnull MessageDecoder parser(@Nonnull MediaType contentType) {
-    return getRoute().decoder(contentType);
-  }
+  @Nonnull MessageDecoder parser(@Nonnull MediaType contentType);
 
   /* **********************************************************************************************
    * Dispatch methods
@@ -902,7 +705,7 @@ public interface Context extends Registry {
    * Tells context that response will be generated form a different thread. This operation is
    * similar to {@link #dispatch(Runnable)} except there is no thread dispatching here.
    *
-   * This operations integrates easily with third-party libraries liks rxJava or others.
+   * This operation integrates easily with third-party libraries like rxJava or others.
    *
    * @param action Application code.
    * @return This context.
@@ -922,9 +725,7 @@ public interface Context extends Registry {
    * @param value Header value.
    * @return This context.
    */
-  @Nonnull default Context setResponseHeader(@Nonnull String name, @Nonnull Date value) {
-    return setResponseHeader(name, RFC1123.format(Instant.ofEpochMilli(value.getTime())));
-  }
+  @Nonnull Context setResponseHeader(@Nonnull String name, @Nonnull Date value);
 
   /**
    * Set response header.
@@ -933,9 +734,7 @@ public interface Context extends Registry {
    * @param value Header value.
    * @return This context.
    */
-  @Nonnull default Context setResponseHeader(@Nonnull String name, @Nonnull Instant value) {
-    return setResponseHeader(name, RFC1123.format(value));
-  }
+  @Nonnull Context setResponseHeader(@Nonnull String name, @Nonnull Instant value);
 
   /**
    * Set response header.
@@ -944,15 +743,7 @@ public interface Context extends Registry {
    * @param value Header value.
    * @return This context.
    */
-  @Nonnull default Context setResponseHeader(@Nonnull String name, @Nonnull Object value) {
-    if (value instanceof Date) {
-      return setResponseHeader(name, (Date) value);
-    }
-    if (value instanceof Instant) {
-      return setResponseHeader(name, (Instant) value);
-    }
-    return setResponseHeader(name, value.toString());
-  }
+  @Nonnull Context setResponseHeader(@Nonnull String name, @Nonnull Object value);
 
   /**
    * Set response header.
@@ -1001,9 +792,7 @@ public interface Context extends Registry {
    * @param contentType Content type.
    * @return This context.
    */
-  @Nonnull default Context setResponseType(@Nonnull MediaType contentType) {
-    return setResponseType(contentType, contentType.getCharset());
-  }
+  @Nonnull Context setResponseType(@Nonnull MediaType contentType);
 
   /**
    * Set response content type header.
@@ -1036,9 +825,7 @@ public interface Context extends Registry {
    * @param statusCode Status code.
    * @return This context.
    */
-  @Nonnull default Context setResponseCode(@Nonnull StatusCode statusCode) {
-    return setResponseCode(statusCode.value());
-  }
+  @Nonnull Context setResponseCode(@Nonnull StatusCode statusCode);
 
   /**
    * Set response status code.
@@ -1061,17 +848,7 @@ public interface Context extends Registry {
    * @param value Object value.
    * @return This context.
    */
-  default @Nonnull Context render(@Nonnull Object value) {
-    try {
-      Route route = getRoute();
-      MessageEncoder encoder = route.getEncoder();
-      byte[] bytes = encoder.encode(this, value);
-      send(bytes);
-      return this;
-    } catch (Exception x) {
-      throw SneakyThrows.propagate(x);
-    }
-  }
+  @Nonnull Context render(@Nonnull Object value);
 
   /**
    * HTTP response channel as output stream. Usually for chunked responses.
@@ -1086,10 +863,7 @@ public interface Context extends Registry {
    * @param contentType Media type.
    * @return HTTP channel as output stream. Usually for chunked responses.
    */
-  default @Nonnull OutputStream responseStream(@Nonnull MediaType contentType) {
-    setResponseType(contentType);
-    return responseStream();
-  }
+  @Nonnull OutputStream responseStream(@Nonnull MediaType contentType);
 
   /**
    * HTTP response channel as output stream. Usually for chunked responses.
@@ -1099,11 +873,8 @@ public interface Context extends Registry {
    * @return HTTP channel as output stream. Usually for chunked responses.
    * @throws Exception Is something goes wrong.
    */
-  default @Nonnull Context responseStream(@Nonnull MediaType contentType,
-      @Nonnull SneakyThrows.Consumer<OutputStream> consumer) throws Exception {
-    setResponseType(contentType);
-    return responseStream(consumer);
-  }
+  @Nonnull Context responseStream(@Nonnull MediaType contentType,
+      @Nonnull SneakyThrows.Consumer<OutputStream> consumer) throws Exception;
 
   /**
    * HTTP response channel as output stream. Usually for chunked responses.
@@ -1112,13 +883,8 @@ public interface Context extends Registry {
    * @return HTTP channel as output stream. Usually for chunked responses.
    * @throws Exception Is something goes wrong.
    */
-  default @Nonnull Context responseStream(@Nonnull SneakyThrows.Consumer<OutputStream> consumer)
-      throws Exception {
-    try (OutputStream out = responseStream()) {
-      consumer.accept(out);
-    }
-    return this;
-  }
+  @Nonnull Context responseStream(@Nonnull SneakyThrows.Consumer<OutputStream> consumer)
+      throws Exception;
 
   /**
    * HTTP response channel as chunker.
@@ -1132,9 +898,7 @@ public interface Context extends Registry {
    *
    * @return HTTP channel as  response writer. Usually for chunked response.
    */
-  default @Nonnull PrintWriter responseWriter() {
-    return responseWriter(MediaType.text);
-  }
+  @Nonnull PrintWriter responseWriter();
 
   /**
    * HTTP response channel as response writer.
@@ -1142,9 +906,7 @@ public interface Context extends Registry {
    * @param contentType Content type.
    * @return HTTP channel as  response writer. Usually for chunked response.
    */
-  default @Nonnull PrintWriter responseWriter(@Nonnull MediaType contentType) {
-    return responseWriter(contentType, contentType.getCharset());
-  }
+  @Nonnull PrintWriter responseWriter(@Nonnull MediaType contentType);
 
   /**
    * HTTP response channel as response writer.
@@ -1162,10 +924,8 @@ public interface Context extends Registry {
    * @return This context.
    * @throws Exception Is something goes wrong.
    */
-  default @Nonnull Context responseWriter(@Nonnull SneakyThrows.Consumer<PrintWriter> consumer)
-      throws Exception {
-    return responseWriter(MediaType.text, consumer);
-  }
+  @Nonnull Context responseWriter(@Nonnull SneakyThrows.Consumer<PrintWriter> consumer)
+      throws Exception;
 
   /**
    * HTTP response channel as response writer.
@@ -1175,10 +935,8 @@ public interface Context extends Registry {
    * @return This context.
    * @throws Exception Is something goes wrong.
    */
-  default @Nonnull Context responseWriter(@Nonnull MediaType contentType,
-      @Nonnull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
-    return responseWriter(contentType, contentType.getCharset(), consumer);
-  }
+  @Nonnull Context responseWriter(@Nonnull MediaType contentType,
+      @Nonnull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception;
 
   /**
    * HTTP response channel as response writer.
@@ -1189,13 +947,8 @@ public interface Context extends Registry {
    * @return This context.
    * @throws Exception Is something goes wrong.
    */
-  default @Nonnull Context responseWriter(@Nonnull MediaType contentType, @Nullable Charset charset,
-      @Nonnull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
-    try (PrintWriter writer = responseWriter(contentType, charset)) {
-      consumer.accept(writer);
-    }
-    return this;
-  }
+  @Nonnull Context responseWriter(@Nonnull MediaType contentType, @Nullable Charset charset,
+      @Nonnull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception;
 
   /**
    * Send a <code>302</code> response.
@@ -1203,9 +956,7 @@ public interface Context extends Registry {
    * @param location Location.
    * @return This context.
    */
-  default @Nonnull Context sendRedirect(@Nonnull String location) {
-    return sendRedirect(StatusCode.FOUND, location);
-  }
+  @Nonnull Context sendRedirect(@Nonnull String location);
 
   /**
    * Send a redirect response.
@@ -1214,10 +965,7 @@ public interface Context extends Registry {
    * @param location Location.
    * @return This context.
    */
-  default @Nonnull Context sendRedirect(@Nonnull StatusCode redirect, @Nonnull String location) {
-    setResponseHeader("location", location);
-    return send(redirect);
-  }
+  @Nonnull Context sendRedirect(@Nonnull StatusCode redirect, @Nonnull String location);
 
   /**
    * Send response data.
@@ -1225,9 +973,7 @@ public interface Context extends Registry {
    * @param data Response. Use UTF-8 charset.
    * @return This context.
    */
-  default @Nonnull Context send(@Nonnull String data) {
-    return send(data, StandardCharsets.UTF_8);
-  }
+  @Nonnull Context send(@Nonnull String data);
 
   /**
    * Send response data.
@@ -1260,9 +1006,7 @@ public interface Context extends Registry {
    * @param data Response.
    * @return This context.
    */
-  default @Nonnull Context send(@Nonnull ByteBuf data) {
-    return send(data.nioBuffer());
-  }
+  @Nonnull Context send(@Nonnull ByteBuf data);
 
   /**
    * Send response data.
@@ -1286,21 +1030,7 @@ public interface Context extends Registry {
    * @param file Attached file.
    * @return This context.
    */
-  default @Nonnull Context send(@Nonnull AttachedFile file) {
-    setResponseHeader("Content-Disposition", file.getContentDisposition());
-    InputStream content = file.stream();
-    long length = file.getFileSize();
-    if (length > 0) {
-      setResponseLength(length);
-    }
-    setDefaultResponseType(file.getContentType());
-    if (content instanceof FileInputStream) {
-      send(((FileInputStream) content).getChannel());
-    } else {
-      send(content);
-    }
-    return this;
-  }
+  @Nonnull Context send(@Nonnull AttachedFile file);
 
   /**
    * Send a file response.
@@ -1308,14 +1038,7 @@ public interface Context extends Registry {
    * @param file File response.
    * @return This context.
    */
-  default @Nonnull Context send(@Nonnull Path file) {
-    try {
-      setDefaultResponseType(MediaType.byFile(file));
-      return send(FileChannel.open(file));
-    } catch (IOException x) {
-      throw SneakyThrows.propagate(x);
-    }
-  }
+  @Nonnull Context send(@Nonnull Path file);
 
   /**
    * Send a file response.
@@ -1339,10 +1062,7 @@ public interface Context extends Registry {
    * @param cause Error. If this is a fatal error it is going to be rethrow it.
    * @return This context.
    */
-  @Nonnull default Context sendError(@Nonnull Throwable cause) {
-    sendError(cause, getRouter().errorCode(cause));
-    return this;
-  }
+  @Nonnull Context sendError(@Nonnull Throwable cause);
 
   /**
    * Send an error response.
@@ -1351,24 +1071,7 @@ public interface Context extends Registry {
    * @param statusCode Status code.
    * @return This context.
    */
-  @Nonnull default Context sendError(@Nonnull Throwable cause, @Nonnull StatusCode statusCode) {
-    Router router = getRouter();
-    if (isResponseStarted()) {
-      router.getLog().error(ErrorHandler.errorMessage(this, statusCode), cause);
-    } else {
-      try {
-        router.getErrorHandler().apply(this, cause, statusCode);
-      } catch (Exception x) {
-        router.getLog()
-            .error("error handler resulted in exception {} {}", getMethod(), pathString(), x);
-      }
-      /** rethrow fatal exceptions: */
-      if (SneakyThrows.isFatal(cause)) {
-        throw SneakyThrows.propagate(cause);
-      }
-    }
-    return this;
-  }
+  @Nonnull Context sendError(@Nonnull Throwable cause, @Nonnull StatusCode statusCode);
 
   /**
    * True if response already started.

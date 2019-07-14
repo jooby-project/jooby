@@ -2313,20 +2313,6 @@ public class FeaturedTest {
   }
 
   @Test
-  public void afterWithSend() {
-    new JoobyRunner(app -> {
-      app.after((ctx, value) -> {
-        System.out.println(ctx.isResponseStarted());
-      });
-      app.get("/after", ctx -> ctx.responseWriter(writer -> writer.println("/after")));
-    }).mode(ExecutionMode.DEFAULT).ready(client -> {
-      client.get("/after", rsp -> {
-        assertEquals("/after", rsp.body().string().trim());
-      });
-    });
-  }
-
-  @Test
   public void flashScope() {
     new JoobyRunner(app -> {
       app.get("/flash", req -> req.flashMap());

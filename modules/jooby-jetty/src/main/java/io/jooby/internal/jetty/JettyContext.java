@@ -9,6 +9,7 @@ import io.jooby.Body;
 import io.jooby.ByteRange;
 import io.jooby.Context;
 import io.jooby.Cookie;
+import io.jooby.DefaultContext;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.MediaType;
@@ -64,7 +65,7 @@ import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
 import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 
-public class JettyContext implements Callback, Context {
+public class JettyContext implements Callback, DefaultContext {
   private final int bufferSize;
   private final long maxRequestSize;
   private Request request;
