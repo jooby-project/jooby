@@ -531,4 +531,8 @@ public class ForwardingContext implements Context {
   @Nonnull @Override public <T> T require(@Nonnull ServiceKey<T> key) throws RegistryException {
     return context.require(key);
   }
+
+  @Override public String toString() {
+    return context.toString();
+  }
 }

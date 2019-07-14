@@ -5,6 +5,8 @@
  */
 package io.jooby;
 
+import io.jooby.internal.ResponseStartedContext;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -226,13 +228,14 @@ public class Route {
     @Nonnull default Handler then(@Nonnull After next) {
       return ctx -> {
         Object result = apply(ctx);
-        if (result == ctx) {
-          // Mark response as side effect (no clear result was generated, either direct use of send
-          // or outputstream/writer)
-          result = null;
+        if (ctx.isResponseStarted()) {
+          Context fwd = new ResponseStartedContext(ctx);
+          next.apply(fwd, null);
+          return fwd;
+        } else {
+          next.apply(ctx, result);
+          return result;
         }
-        next.apply(ctx, result);
-        return result;
       };
     }
   }
