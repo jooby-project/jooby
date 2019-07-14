@@ -282,8 +282,8 @@ public class ForwardingContext implements Context {
     return context.body(type, contentType);
   }
 
-  @Nonnull @Override public MessageDecoder parser(@Nonnull MediaType contentType) {
-    return context.parser(contentType);
+  @Nonnull @Override public MessageDecoder decoder(@Nonnull MediaType contentType) {
+    return context.decoder(contentType);
   }
 
   @Override public boolean isInIoThread() {

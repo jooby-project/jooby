@@ -634,12 +634,12 @@ public interface Context extends Registry {
    */
 
   /**
-   * Get a parser for the given content type or get an {@link StatusCode#UNSUPPORTED_MEDIA_TYPE}.
+   * Get a decoder for the given content type or get an {@link StatusCode#UNSUPPORTED_MEDIA_TYPE}.
    *
    * @param contentType Content type.
    * @return MessageDecoder.
    */
-  @Nonnull MessageDecoder parser(@Nonnull MediaType contentType);
+  @Nonnull MessageDecoder decoder(@Nonnull MediaType contentType);
 
   /* **********************************************************************************************
    * Dispatch methods

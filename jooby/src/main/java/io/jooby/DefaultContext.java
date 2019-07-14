@@ -302,7 +302,7 @@ public interface DefaultContext extends Context {
 
   @Override default @Nonnull <T> T body(@Nonnull Reified<T> type, @Nonnull MediaType contentType) {
     try {
-      return parser(contentType).decode(this, type.getType());
+      return decoder(contentType).decode(this, type.getType());
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
@@ -314,13 +314,13 @@ public interface DefaultContext extends Context {
 
   @Override default @Nonnull <T> T body(@Nonnull Class type, @Nonnull MediaType contentType) {
     try {
-      return parser(contentType).decode(this, type);
+      return decoder(contentType).decode(this, type);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
   }
 
-  @Override default @Nonnull MessageDecoder parser(@Nonnull MediaType contentType) {
+  @Override default @Nonnull MessageDecoder decoder(@Nonnull MediaType contentType) {
     return getRoute().decoder(contentType);
   }
 

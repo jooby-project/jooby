@@ -217,7 +217,7 @@ public class MockContext implements DefaultContext {
     return this;
   }
 
-  @Nonnull @Override public MessageDecoder parser(@Nonnull MediaType contentType) {
+  @Nonnull @Override public MessageDecoder decoder(@Nonnull MediaType contentType) {
     return parsers.getOrDefault(contentType, MessageDecoder.UNSUPPORTED_MEDIA_TYPE);
   }
 
