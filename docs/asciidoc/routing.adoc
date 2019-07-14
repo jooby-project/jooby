@@ -271,9 +271,9 @@ result in the same path pattern, like `3` and `4`, last registered route hides/o
 ==== Decorator
 
 Cross cutting concerns such as response modification, verification, security, tracing, etc. is available
-via javadoc:Route.Decorator[] (a.k.a filter)
+via javadoc:Route.Decorator[].
 
-A `decorator` takes the `next` handler in the pipeline and returns a `new` handler:
+A `decorator` takes the `next` handler in the pipeline and produces a `new` handler:
 
 [source,java]
 ----
@@ -334,9 +334,14 @@ interface Decorator {
 <3> Compute and print latency
 <4> Returns a response
 
+[NOTE]
+====
+One or more decorator on top of a handler produces a new handler.
+====
+
 ==== Before
 
-The javadoc:Route.Before[text=before] filter runs before a `handler` or `decorator`.
+The javadoc:Route.Before[text=before] filter runs before a `handler`.
 
 A `before` filter takes a `context` as argument and don't produces a response. It expected to operates
 via side effects (usually modifying the HTTP response).
@@ -353,7 +358,7 @@ interface Before {
 ----
 {
   before(ctx -> {
-    ctx.setHeader("Server", "Jooby");
+    ctx.setResponseHeader("Server", "Jooby");
   });
 
   get("/", ctx -> {
@@ -367,7 +372,7 @@ interface Before {
 ----
 {
   before {
-    ctx.setHeader("Server", "Jooby")
+    ctx.setResponseHeader("Server", "Jooby")
   }
 
   get("/") {
@@ -378,11 +383,12 @@ interface Before {
 
 ==== After
 
-The javadoc:Route.After[text=after] filter runs after a `handler` or `decorator`.
+The javadoc:Route.After[text=after] filter runs after a `handler`.
 
 An `after` filter takes two arguments. The first argument is the `HTTP context`, while the second
-argument is the result/response from a `handler` and don't produces a response. It expected to operates
-via side effects (usually modifying the HTTP response).  
+argument is the result/response from a **functional handler** or `null` for **side-effects** handler.
+It expected to operates via side effects, usually modifying the HTTP response (if possible) or
+for cleaning/trace execution.  
 
 [source,java]
 ----
@@ -391,12 +397,13 @@ interface After {
 }
 ----
 
-.Example:
+.Functional Handler:
 [source,java,role="primary"]
 ----
 {
   after((ctx, result) -> {
-    System.out.println(result);
+    System.out.println(result);          <1>
+    ctx.setResponseHeader("foo", "bar"); <2>
   });
 
   get("/", ctx -> {
@@ -410,11 +417,86 @@ interface After {
 ----
 {
   after {
-    println("Hello $result")
+    println("Hello $result")             <1>
+    ctx.setResponseHeader("foo", "bar")  <2>
   }
 
   get("/") {
     "Jooby"
+  }
+}
+----
+
+<1> Prints `Jooby`
+<2> Add a response header (modifies the HTTP response)
+
+If the target handler is a **functional** handler modification of HTTP response is allowed it.
+
+For **side effects** handler the after filter is invoked with a `null` value and isn't allowed to modify the HTTP response.
+
+.Side-Effect Handler:
+[source,java,role="primary"]
+----
+{
+  after((ctx, result) -> {
+    System.out.println(result);          <1>
+    ctx.setResponseHeader("foo", "bar"); <2>
+  });
+
+  get("/", ctx -> {
+    return ctx.send("Jooby");
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  after {
+    println("Hello $result")             <1>
+    ctx.setResponseHeader("foo", "bar")  <2>
+  }
+
+  get("/") {
+    ctx.send("Jooby")
+  }
+}
+----
+
+<1> Prints `null` (no value)
+<2> Produces an error/exception
+
+Exception occurs because response was already started and its impossible to alter/modify it.
+
+Side-effects handler are all that make use of family of send methods, responseOutputStream and responseWriter.
+
+You can check whenever you can modify the response by checking the state of javadoc:Context[isResponseStarted]:
+
+.Safe After:
+[source,java,role="primary"]
+----
+{
+  after((ctx, result) -> {
+    if (ctx.isResponseStarted()) {
+      // Don't modify response
+    } else {
+      // Safe to modify response
+    }
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+  after {
+    if (ctx.responseStarted) {
+      // Don't modify response
+    } else {
+      // Safe to modify response
+    }
   }
 }
 ----

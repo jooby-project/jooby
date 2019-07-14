@@ -389,11 +389,8 @@ public class UtowContext implements Context, IoCallback {
               cause);
         }
       }
-      this.router = null;
-      this.route = null;
     } finally {
       this.exchange.endExchange();
-      this.exchange = null;
     }
   }
 

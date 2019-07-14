@@ -461,9 +461,6 @@ public class JettyContext implements Callback, Context {
     } catch (IOException e) {
       log.debug("exception found while closing resources {} {} {}", getMethod(), pathString(), e);
     }
-    this.router = null;
-    this.request = null;
-    this.response = null;
   }
 
   private void ifSaveSession() {

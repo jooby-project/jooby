@@ -326,6 +326,7 @@ public class NettyContext implements Context, ChannelFutureListener {
   }
 
   @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
+    responseStarted = true;
     setResponseType(type, charset);
 
     return new PrintWriter(new NettyWriter(newOutputStream(), charset));
@@ -519,9 +520,6 @@ public class NettyContext implements Context, ChannelFutureListener {
       decoder = null;
     }
     release(req);
-    this.route = null;
-    this.req = null;
-    this.router = null;
   }
 
   private FileUpload register(FileUpload upload) {
