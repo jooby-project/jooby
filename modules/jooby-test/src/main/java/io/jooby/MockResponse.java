@@ -135,7 +135,7 @@ public class MockResponse implements MockValue {
    * @param length Response content length.
    * @return This response.
    */
-  public MockResponse setContentLength(long length) {
+  public @Nonnull MockResponse setContentLength(long length) {
     this.length = length;
     headers.put("content-length", Long.toString(length));
     return this;
@@ -146,7 +146,7 @@ public class MockResponse implements MockValue {
    *
    * @return Response status code.
    */
-  public StatusCode getStatusCode() {
+  public @Nonnull StatusCode getStatusCode() {
     return statusCode;
   }
 
@@ -156,12 +156,12 @@ public class MockResponse implements MockValue {
    * @param statusCode Response status code.
    * @return This response.
    */
-  public MockResponse setStatusCode(@Nonnull StatusCode statusCode) {
+  public @Nonnull MockResponse setStatusCode(@Nonnull StatusCode statusCode) {
     this.statusCode = statusCode;
     return this;
   }
 
-  @Nonnull @Override public Object value() {
+  @Nullable @Override public Object value() {
     return result;
   }
 
@@ -170,7 +170,7 @@ public class MockResponse implements MockValue {
    * @param result Route response value.
    * @return This response.
    */
-  public MockResponse setResult(@Nonnull Object result) {
+  public @Nonnull MockResponse setResult(@Nullable Object result) {
     this.result = result;
     return this;
   }

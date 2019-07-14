@@ -2313,6 +2313,30 @@ public class FeaturedTest {
   }
 
   @Test
+  public void render() {
+    new JoobyRunner(app -> {
+      app.install(new JacksonModule());
+      app.get("/int", ctx -> ctx.render(1));
+      app.get("/bytes", ctx -> ctx.render("bytes".getBytes(StandardCharsets.UTF_8)));
+      app.get("/stream", ctx -> ctx.render(new ByteArrayInputStream( "bytes".getBytes(StandardCharsets.UTF_8))));
+      app.get("/complex", ctx -> ctx.render(mapOf("k", "v")));
+    }).ready(client -> {
+      client.get("/int", rsp -> {
+        assertEquals("1", rsp.body().string());
+      });
+      client.get("/bytes", rsp -> {
+        assertEquals("bytes", rsp.body().string());
+      });
+      client.get("/stream", rsp -> {
+        assertEquals("bytes", rsp.body().string());
+      });
+      client.get("/complex", rsp -> {
+        assertEquals("{\"k\":\"v\"}", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
   public void flashScope() {
     new JoobyRunner(app -> {
       app.get("/flash", req -> req.flashMap());

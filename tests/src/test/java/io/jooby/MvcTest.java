@@ -332,12 +332,12 @@ public class MvcTest {
       client.header("Content-Type", "application/json");
       client.post("/body/json", create(MediaType.get("application/json"), "{\"foo\": \"bar\"}"),
           rsp -> {
-            assertEquals("\"{foo=bar}null\"", rsp.body().string());
+            assertEquals("{foo=bar}null", rsp.body().string());
           });
       client.header("Content-Type", "application/json");
       client.post("/body/json?type=x",
           create(MediaType.get("application/json"), "{\"foo\": \"bar\"}"), rsp -> {
-            assertEquals("\"{foo=bar}x\"", rsp.body().string());
+            assertEquals("{foo=bar}x", rsp.body().string());
           });
     });
   }

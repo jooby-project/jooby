@@ -425,7 +425,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override public boolean isResponseStarted() {
-    return response != null;
+    return response.value() != null;
   }
 
   @Nonnull @Override public Router getRouter() {

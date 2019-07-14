@@ -6,6 +6,7 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Access to raw response value from {@link MockRouter} or cast response to something else.
@@ -19,7 +20,7 @@ public interface MockValue {
    *
    * @return Raw response value.
    */
-  @Nonnull Object value();
+  @Nullable Object value();
 
   /**
    * Cast response to given type.

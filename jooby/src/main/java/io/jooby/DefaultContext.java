@@ -360,7 +360,13 @@ public interface DefaultContext extends Context {
       Route route = getRoute();
       MessageEncoder encoder = route.getEncoder();
       byte[] bytes = encoder.encode(this, value);
-      send(bytes);
+      if (bytes == null) {
+        if (!isResponseStarted()) {
+          throw new IllegalStateException("The response was not encoded");
+        }
+      } else {
+        send(bytes);
+      }
       return this;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
