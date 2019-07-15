@@ -436,7 +436,7 @@ public class RequestImpl implements Request {
   public Mutant cookie(final String name) {
     List<String> values = req.cookies().stream().filter(c -> c.name().equalsIgnoreCase(name))
         .findFirst()
-        .map(cookie -> ImmutableList.of(cookie.value().get()))
+        .map(cookie -> ImmutableList.of(cookie.value().orElse("")))
         .orElse(ImmutableList.of());
 
     return new MutantImpl(require(ParserExecutor.class),
