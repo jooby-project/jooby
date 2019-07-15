@@ -64,7 +64,7 @@
     <jakarta.ws.rs-api.version>2.1.5</jakarta.ws.rs-api.version>
 
     <!-- Misc -->
-    <okhttp.version>4.0.0</okhttp.version>
+    <okhttp.version>4.0.1</okhttp.version>
 
     <commons-io.version>2.6</commons-io.version>
     <javassist.version>3.25.0-GA</javassist.version>
