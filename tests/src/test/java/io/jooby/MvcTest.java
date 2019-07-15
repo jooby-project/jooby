@@ -60,11 +60,11 @@ public class MvcTest {
   public void producesAndConsumes() {
     new JoobyRunner(app -> {
 
-      app.renderer(io.jooby.MediaType.json, (@Nonnull Context ctx, @Nonnull Object value) ->
+      app.encoder(io.jooby.MediaType.json, (@Nonnull Context ctx, @Nonnull Object value) ->
           ("{" + value.toString() + "}").getBytes(StandardCharsets.UTF_8)
       );
 
-      app.renderer(io.jooby.MediaType.xml, (@Nonnull Context ctx, @Nonnull Object value) ->
+      app.encoder(io.jooby.MediaType.xml, (@Nonnull Context ctx, @Nonnull Object value) ->
           ("<" + value.toString() + ">").getBytes(StandardCharsets.UTF_8)
       );
 

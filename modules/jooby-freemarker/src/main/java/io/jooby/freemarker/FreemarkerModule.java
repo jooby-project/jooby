@@ -237,7 +237,7 @@ public class FreemarkerModule implements Extension {
     if (freemarker == null) {
       freemarker = create().setTemplatesPath(templatesPath).build(application.getEnvironment());
     }
-    application.renderer(MediaType.html, new FreemarkerTemplateEngine(freemarker));
+    application.encoder(MediaType.html, new FreemarkerTemplateEngine(freemarker));
 
     ServiceRegistry services = application.getServices();
     services.put(Configuration.class, freemarker);

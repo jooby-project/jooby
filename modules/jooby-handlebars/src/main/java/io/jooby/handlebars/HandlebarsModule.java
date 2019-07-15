@@ -200,7 +200,7 @@ public class HandlebarsModule implements Extension {
     if (handlebars == null) {
       handlebars = create().setTemplatesPath(templatesPath).build(application.getEnvironment());
     }
-    application.renderer(MediaType.html, new HbsTemplateEngine(handlebars));
+    application.encoder(MediaType.html, new HbsTemplateEngine(handlebars));
 
     ServiceRegistry services = application.getServices();
     services.put(Handlebars.class, handlebars);

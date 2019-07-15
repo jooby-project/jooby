@@ -228,7 +228,7 @@ public interface Router extends Registry {
    * @param encoder MessageEncoder instance.
    * @return This router.
    */
-  @Nonnull Router renderer(@Nonnull MessageEncoder encoder);
+  @Nonnull Router encoder(@Nonnull MessageEncoder encoder);
 
   /**
    * Register a route response encoder.
@@ -237,7 +237,7 @@ public interface Router extends Registry {
    * @param encoder MessageEncoder instance.
    * @return This router.
    */
-  @Nonnull Router renderer(@Nonnull MediaType contentType, @Nonnull MessageEncoder encoder);
+  @Nonnull Router encoder(@Nonnull MediaType contentType, @Nonnull MessageEncoder encoder);
 
   /**
    * Application temporary directory.

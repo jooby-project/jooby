@@ -45,6 +45,6 @@ public class Rockerby implements Extension {
     // response handler
     application.responseHandler(new RockerResponseHandler());
     // renderer
-    application.renderer(MediaType.html, new RockerMessageEncoder());
+    application.encoder(MediaType.html, new RockerMessageEncoder());
   }
 }

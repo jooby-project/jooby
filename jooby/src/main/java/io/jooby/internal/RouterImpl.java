@@ -238,14 +238,14 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @Nonnull @Override public Router renderer(@Nonnull MessageEncoder encoder) {
+  @Nonnull @Override public Router encoder(@Nonnull MessageEncoder encoder) {
     this.renderer.add(encoder);
     return this;
   }
 
   @Nonnull @Override
-  public Router renderer(@Nonnull MediaType contentType, @Nonnull MessageEncoder encoder) {
-    return renderer(encoder.accept(contentType));
+  public Router encoder(@Nonnull MediaType contentType, @Nonnull MessageEncoder encoder) {
+    return encoder(encoder.accept(contentType));
   }
 
   @Nonnull @Override public Router parser(@Nonnull MediaType contentType, @Nonnull

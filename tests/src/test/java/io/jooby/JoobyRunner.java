@@ -16,6 +16,7 @@ public class JoobyRunner {
 
   static {
     System.setProperty("io.netty.leakDetection.level", "PARANOID");
+    System.setProperty("io.netty.leakDetection.targetRecords", "20");
     System.setProperty("jooby.useShutdownHook", "false");
   }
 
