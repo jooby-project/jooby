@@ -49,7 +49,7 @@ public interface TemplateEngine extends MessageEncoder {
    * @return True when view is supported.
    */
   default boolean supports(@Nonnull ModelAndView modelAndView) {
-    String view = modelAndView.view;
+    String view = modelAndView.getView();
     for (String extension : extensions()) {
       if (view.endsWith(extension)) {
         return true;

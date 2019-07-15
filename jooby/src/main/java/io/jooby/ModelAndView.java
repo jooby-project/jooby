@@ -18,15 +18,15 @@ import java.util.Map;
 public class ModelAndView {
 
   /** View name. */
-  public final String view;
+  private final String view;
 
   /** View data. */
-  public final Map<String, Object> model;
+  private final Map<String, Object> model;
 
   /**
    * Creates a new model and view.
    *
-   * @param view View name.
+   * @param view View name must include file extension.
    * @param model View model.
    */
   public ModelAndView(@Nonnull String view, @Nonnull Map<String, Object> model) {
@@ -37,7 +37,7 @@ public class ModelAndView {
   /**
    * Creates a new model and view.
    *
-   * @param view View name.
+   * @param view View name  must include file extension.
    */
   public ModelAndView(@Nonnull String view) {
     this(view, new HashMap<>());
@@ -64,6 +64,24 @@ public class ModelAndView {
   public ModelAndView put(@Nonnull Map<String, Object> attributes) {
     model.putAll(attributes);
     return this;
+  }
+
+  /**
+   * View data (a.k.a as model).
+   *
+   * @return View data (a.k.a as model).
+   */
+  public Map<String, Object> getModel() {
+    return model;
+  }
+
+  /**
+   * View name with file extension, like: <code>index.html</code>.
+   *
+   * @return View name with file extension, like: <code>index.html</code>.
+   */
+  public String getView() {
+    return view;
   }
 
   @Override public String toString() {

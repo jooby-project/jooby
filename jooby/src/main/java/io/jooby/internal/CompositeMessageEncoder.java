@@ -46,7 +46,7 @@ public class CompositeMessageEncoder implements MessageEncoder {
           return engine.encode(ctx, modelAndView);
         }
       }
-      throw new IllegalArgumentException("No template engine for: " + modelAndView.view);
+      throw new IllegalArgumentException("No template engine for: " + modelAndView.getView());
     }
     /** InputStream: */
     if (value instanceof InputStream) {

@@ -33,10 +33,10 @@ class FreemarkerTemplateEngine implements TemplateEngine {
   }
 
   @Override public String render(Context ctx, ModelAndView modelAndView) throws Exception {
-    Template template = freemarker.getTemplate(modelAndView.view);
+    Template template = freemarker.getTemplate(modelAndView.getView());
     StringWriter writer = new StringWriter();
     Map<String, Object> model = new HashMap<>(ctx.getAttributes());
-    model.putAll(modelAndView.model);
+    model.putAll(modelAndView.getModel());
     template.process(model, writer);
     return writer.toString();
   }

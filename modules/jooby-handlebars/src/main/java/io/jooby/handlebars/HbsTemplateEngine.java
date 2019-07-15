@@ -32,9 +32,9 @@ class HbsTemplateEngine implements TemplateEngine {
   }
 
   @Override public String render(Context ctx, ModelAndView modelAndView) throws Exception {
-    Template template = handlebars.compile(modelAndView.view);
+    Template template = handlebars.compile(modelAndView.getView());
     Map<String, Object> model = new HashMap<>(ctx.getAttributes());
-    model.putAll(modelAndView.model);
+    model.putAll(modelAndView.getModel());
     return template.apply(model);
   }
 }
