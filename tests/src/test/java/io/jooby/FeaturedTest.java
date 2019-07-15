@@ -564,7 +564,7 @@ public class FeaturedTest {
     }).ready(client -> {
       client.post("/large", new MultipartBody.Builder()
           .setType(MultipartBody.FORM)
-          .addFormDataPart("f", "19kb.txt", create(MediaType.parse("text/plain"), _19kb))
+          .addFormDataPart("f", "19kb.txt", create(_19kb, MediaType.parse("text/plain")))
           .build(), rsp -> {
         assertEquals(_19kb, rsp.body().string());
       });
@@ -573,8 +573,8 @@ public class FeaturedTest {
           .setType(MultipartBody.FORM)
           .addFormDataPart("user.name", "user")
           .addFormDataPart("f", "fileupload.js",
-              create(MediaType.parse("application/javascript"),
-                  userdir("src", "test", "resources", "files", "fileupload.js").toFile()))
+              create(userdir("src", "test", "resources", "files", "fileupload.js").toFile(),
+                  MediaType.parse("application/javascript")))
           .build(), rsp -> {
         assertEquals("fileupload.js(type=application/javascript;exists=true)",
             rsp.body().string());
@@ -583,10 +583,8 @@ public class FeaturedTest {
       client.post("/files", new MultipartBody.Builder()
           .setType(MultipartBody.FORM)
           .addFormDataPart("user.name", "user")
-          .addFormDataPart("f", "f1.txt",
-              create(MediaType.parse("text/plain"), "text1"))
-          .addFormDataPart("f", "f2.txt",
-              create(MediaType.parse("text/plain"), "text2"))
+          .addFormDataPart("f", "f1.txt", create("text1", MediaType.parse("text/plain")))
+          .addFormDataPart("f", "f2.txt", create("text2", MediaType.parse("text/plain")))
           .build(), rsp -> {
         assertEquals("[f1.txt=5, f2.txt=5]", rsp.body().string());
       });
@@ -595,9 +593,9 @@ public class FeaturedTest {
           .setType(MultipartBody.FORM)
           .addFormDataPart("user.name", "user")
           .addFormDataPart("f", "f1.txt",
-              create(MediaType.parse("text/plain"), "text1"))
+              create("text1", MediaType.parse("text/plain")))
           .addFormDataPart("f", "f2.txt",
-              create(MediaType.parse("text/plain"), "text2"))
+              create("text2", MediaType.parse("text/plain")))
           .build(), rsp -> {
         assertEquals("{user.name=[user], f=[f1.txt, f2.txt]}", rsp.body().string());
       });
@@ -606,8 +604,8 @@ public class FeaturedTest {
           .setType(MultipartBody.FORM)
           .addFormDataPart("name", "foo_report")
           .addFormDataPart("filename", "fileupload.js",
-              create(MediaType.parse("application/javascript"),
-                  userdir("src", "test", "resources", "files", "fileupload.js").toFile()))
+              create(userdir("src", "test", "resources", "files", "fileupload.js").toFile(),
+                  MediaType.parse("application/javascript")))
           .build(), rsp -> {
         assertEquals("foo_report=true", rsp.body().string());
       });
@@ -616,9 +614,9 @@ public class FeaturedTest {
           .setType(MultipartBody.FORM)
           .addFormDataPart("name", "foo_report")
           .addFormDataPart("filename", "f1.txt",
-              create(MediaType.parse("text/plain"), "text1"))
+              create("text1", MediaType.parse("text/plain")))
           .addFormDataPart("filename", "f2.txt",
-              create(MediaType.parse("text/plain"), "text2"))
+              create("text2", MediaType.parse("text/plain")))
           .build(), rsp -> {
         assertEquals("foo_report=[f1.txt, f2.txt]", rsp.body().string());
       });
@@ -703,16 +701,16 @@ public class FeaturedTest {
       app.post("/str", ctx -> ctx.body().value());
     }).ready((client, server) -> {
       client.header("Content-Type", "application/json");
-      client.post("/map", create(json, "{\"foo\": \"bar\"}"), rsp -> {
+      client.post("/map", create("{\"foo\": \"bar\"}", json), rsp -> {
         assertEquals("{\"foo\":\"bar\"}", rsp.body().string());
       });
 
       client.header("Content-Type", "application/json");
-      client.post("/ints", create(json, "[3, 4, 1]"), rsp -> {
+      client.post("/ints", create("[3, 4, 1]", json), rsp -> {
         assertEquals("[3,4,1]", rsp.body().string());
       });
 
-      client.post("/str", create(textplain, _19kb), rsp -> {
+      client.post("/str", create(_19kb,   textplain), rsp -> {
         String value = rsp.body().string();
         assertEquals(_19kb, value,
             server.getClass().getSimpleName() + " expected: " + _19kb.length() + ", got: " + value
@@ -1236,21 +1234,21 @@ public class FeaturedTest {
       app.get("/request-size", ctx -> ctx.body().value());
     }).ready((client, server) -> {
       // Exceeds
-      client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), _19kb), rsp -> {
+      client.post("/request-size", RequestBody.create(_19kb, MediaType.get("text/plain")), rsp -> {
         assertEquals(413, rsp.code(), server.getClass().getSimpleName());
       });
       // Chunk by chunk
-      client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), _16kb), rsp -> {
+      client.post("/request-size", RequestBody.create(_16kb, MediaType.get("text/plain")), rsp -> {
         assertEquals(200, rsp.code());
         assertEquals(_16kb, rsp.body().string(), server.getClass().getSimpleName());
       });
       // Single read
-      client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), _8kb), rsp -> {
+      client.post("/request-size", RequestBody.create(_8kb, MediaType.get("text/plain")), rsp -> {
         assertEquals(200, rsp.code());
         assertEquals(_8kb, rsp.body().string(), server.getClass().getSimpleName());
       });
       // Empty
-      client.post("/request-size", RequestBody.create(MediaType.get("text/plain"), ""), rsp -> {
+      client.post("/request-size", RequestBody.create("", MediaType.get("text/plain")), rsp -> {
         assertEquals(200, rsp.code());
         assertEquals("", rsp.body().string(), server.getClass().getSimpleName());
       });

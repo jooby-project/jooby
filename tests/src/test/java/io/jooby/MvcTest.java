@@ -312,31 +312,31 @@ public class MvcTest {
 
     }).ready(client -> {
       client.header("Content-Type", "text/plain");
-      client.post("/body/str", create(MediaType.get("text/plain"), "..."), rsp -> {
+      client.post("/body/str", create("...", MediaType.get("text/plain")), rsp -> {
         assertEquals("...", rsp.body().string());
       });
       client.header("Content-Type", "text/plain");
-      client.post("/body/int", create(MediaType.get("text/plain"), "8"), rsp -> {
+      client.post("/body/int", create("8", MediaType.get("text/plain")), rsp -> {
         assertEquals("8", rsp.body().string());
       });
-      client.post("/body/int", create(MediaType.get("text/plain"), "8x"), rsp -> {
+      client.post("/body/int", create("8x", MediaType.get("text/plain")), rsp -> {
         assertEquals("Unable to provision parameter: 'body: int'", rsp.body().string());
       });
       client.header("Content-Type", "application/json");
-      client.post("/body/json", create(MediaType.get("application/json"), "{\"foo\"= \"bar\"}"),
+      client.post("/body/json", create("{\"foo\"= \"bar\"}", MediaType.get("application/json")),
           rsp -> {
             assertEquals(
                 "Unable to provision parameter: 'body: java.util.Map<java.lang.String, java.lang.Object>'",
                 rsp.body().string());
           });
       client.header("Content-Type", "application/json");
-      client.post("/body/json", create(MediaType.get("application/json"), "{\"foo\": \"bar\"}"),
+      client.post("/body/json", create("{\"foo\": \"bar\"}", MediaType.get("application/json")),
           rsp -> {
             assertEquals("{foo=bar}null", rsp.body().string());
           });
       client.header("Content-Type", "application/json");
       client.post("/body/json?type=x",
-          create(MediaType.get("application/json"), "{\"foo\": \"bar\"}"), rsp -> {
+          create("{\"foo\": \"bar\"}", MediaType.get("application/json")), rsp -> {
             assertEquals("{foo=bar}x", rsp.body().string());
           });
     });

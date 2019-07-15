@@ -39,7 +39,7 @@ public class WebClient {
     }
   }
 
-  private static RequestBody EMPTY_BODY = RequestBody.create(null, new byte[0]);
+  private static RequestBody EMPTY_BODY = RequestBody.create(new byte[0], null);
   private final int port;
   private OkHttpClient client;
   private Map<String, String> headers;

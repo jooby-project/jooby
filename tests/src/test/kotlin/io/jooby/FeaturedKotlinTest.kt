@@ -12,12 +12,8 @@ class FeaturedKotlinTest {
   @Test
   fun explicitContext() {
     JoobyRunner { app ->
-      app.get("/") { ctx ->
+      app.get("/") {
         "Hello World!"
-      }
-
-      app.error { ctx, cause, statusCode ->
-
       }
     }.ready { client ->
       client.get("/") { rsp ->
