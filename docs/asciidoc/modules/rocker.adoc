@@ -67,10 +67,10 @@ NOTE: Complete code generator options are https://github.com/fizzed/rocker#integ
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.rocker.Rockerby;
+import io.jooby.rocker.RockerModule;
 
 {
-  install(new Rockerby());                  <1>
+  install(new RockerModule());              <1>
 
   get("/", ctx -> {
     return views.index.template("Rocker");  <2>
@@ -81,10 +81,10 @@ import io.jooby.rocker.Rockerby;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.rocker.Rockerby
+import io.jooby.rocker.RockerModule
 
 {
-  install(Rockerby())                       <1>
+  install(RockerModule())                   <1>
 
   get("/") {
     views.index.template("Rocker")          <2>

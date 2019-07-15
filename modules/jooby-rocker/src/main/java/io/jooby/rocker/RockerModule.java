@@ -19,7 +19,7 @@ import javax.annotation.Nonnull;
  * @author edgar
  * @since 2.0.0
  */
-public class Rockerby implements Extension {
+public class RockerModule implements Extension {
 
   private Boolean reloading;
 
@@ -29,7 +29,7 @@ public class Rockerby implements Extension {
    * @param reloading True for turning on.
    * @return This module.
    */
-  public @Nonnull Rockerby reloading(boolean reloading) {
+  public @Nonnull RockerModule reloading(boolean reloading) {
     this.reloading = reloading;
     return this;
   }
