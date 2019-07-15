@@ -1,0 +1,35 @@
+=== Support plans
+
+We offer yearly support plans that help to secure your investment in Jooby. If you subscribe to a
+plan we offer you guaranteed responses to your inquiries. No matter if you got questions about 
+development best practices, deployment options or possible bugs. If your plan offers priority
+bugfixes we guarantee that your reported bug will be fixed in the next release.
+
+====  Express
+ - Email support: yes
+ - Phone support: yes
+ - Maximum support time per month: 3h
+ - Response time - regular incidents: 24h
+ - Response time - critical tickets: 24h
+ - Priority bugfixes: no
+ - Price: USD 4000/year
+
+====  Standard
+ - Email support: yes
+ - Phone support: yes
+ - Maximum support time per month: 10h
+ - Response time - regular incidents: 18h
+ - Response time - critical tickets: 12h
+ - Priority bugfixes: yes
+ - Price: USD 6000/year
+
+==== Professional
+ - Email support: yes
+ - Phone support: yes
+ - Maximum support time per month: 20h
+ - Response time - regular incidents: 12h
+ - Response time - critical tickets: 8h
+ - Priority bugfixes: yes
+ - Price: USD 8000/year
+
+Please contact us for more: support@jooby.io

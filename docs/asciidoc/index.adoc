@@ -70,6 +70,7 @@ fun main(args: Array<String>) {
 * <<responses, Reactive responses>> (Completable Futures, RxJava and Reactor types and Kotlin Coroutines)
 * <<server, Multi-server>> including https://https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty] and http://undertow.io[Undertow]
 * Simple <<extensions-and-services, extension/plugin mechanism>> with a variety of <<modules, modules>>
+* <<support-plans, Commercial Support>>
 
 === Script API
 
@@ -204,6 +205,8 @@ fun main(args: Array<String>) {
 ----
 
 More about MVC and JAX-RS support in the <<mvc-api, MVC API>> chapter.
+
+include::support.adoc[]
 
 include::getting-started.adoc[]
 
