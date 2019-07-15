@@ -253,7 +253,7 @@ public interface Router extends Registry {
    * @param decoder MessageDecoder.
    * @return This router.
    */
-  @Nonnull Router parser(@Nonnull MediaType contentType, @Nonnull MessageDecoder decoder);
+  @Nonnull Router decoder(@Nonnull MediaType contentType, @Nonnull MessageDecoder decoder);
 
   /**
    * Returns the worker thread pool. This thread pool is used to run application blocking code.

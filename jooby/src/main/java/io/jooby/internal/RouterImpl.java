@@ -254,7 +254,7 @@ public class RouterImpl implements Router {
     return encoder(encoder.accept(contentType));
   }
 
-  @Nonnull @Override public Router parser(@Nonnull MediaType contentType, @Nonnull
+  @Nonnull @Override public Router decoder(@Nonnull MediaType contentType, @Nonnull
       MessageDecoder decoder) {
     parsers.put(contentType.getValue(), decoder);
     return this;

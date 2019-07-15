@@ -68,14 +68,14 @@ public class MvcTest {
           ("<" + value.toString() + ">").getBytes(StandardCharsets.UTF_8)
       );
 
-      app.parser(io.jooby.MediaType.json, new MessageDecoder() {
+      app.decoder(io.jooby.MediaType.json, new MessageDecoder() {
         @Nonnull @Override public Message decode(@Nonnull Context ctx, @Nonnull Type type)
             throws Exception {
           return new Message("{" + ctx.body().value() + "}");
         }
       });
 
-      app.parser(xml, new MessageDecoder() {
+      app.decoder(xml, new MessageDecoder() {
         @Nonnull @Override public Message decode(@Nonnull Context ctx, @Nonnull Type type)
             throws Exception {
           return new Message("<" + ctx.body().value() + ">");

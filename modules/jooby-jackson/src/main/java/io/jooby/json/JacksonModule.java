@@ -104,7 +104,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
   }
 
   @Override public void install(@Nonnull Jooby application) {
-    application.parser(MediaType.json, this);
+    application.decoder(MediaType.json, this);
     application.encoder(MediaType.json, this);
 
     ServiceRegistry services = application.getServices();

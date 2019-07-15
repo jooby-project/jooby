@@ -303,9 +303,9 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public Jooby parser(@Nonnull MediaType contentType, @Nonnull
+  @Nonnull @Override public Jooby decoder(@Nonnull MediaType contentType, @Nonnull
       MessageDecoder decoder) {
-    router.parser(contentType, decoder);
+    router.decoder(contentType, decoder);
     return this;
   }
 
