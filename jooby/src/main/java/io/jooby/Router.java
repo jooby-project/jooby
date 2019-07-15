@@ -9,13 +9,16 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
@@ -454,13 +457,21 @@ public interface Router extends Registry {
   }
 
   /**
-   * Add a static resource handler. Static resources are resolved from classpath.
+   * Add a static resource handler. Static resources are resolved from:
+   *
+   * - file-system if the source folder exists in the current user directory
+   * - or fallback to classpath when file-system folder doesn't exist.
    *
    * @param pattern Path pattern.
-   * @param source Classpath folder.
+   * @param source File-System folder when exists, or fallback to a classpath folder.
    * @return A route.
    */
   default @Nonnull Route assets(@Nonnull String pattern, @Nonnull String source) {
+    Path path = Stream.of(source.split("/"))
+        .reduce(Paths.get(System.getProperty("user.dir")), Path::resolve, Path::resolve);
+    if (Files.exists(path)) {
+      return assets(pattern, path);
+    }
     return assets(pattern, AssetSource.create(getClass().getClassLoader(), source));
   }
 
@@ -471,7 +482,7 @@ public interface Router extends Registry {
    * @return A route.
    */
   default @Nonnull Route assets(@Nonnull String pattern) {
-    return assets(pattern, "/");
+    return assets(pattern, AssetSource.create(getClass().getClassLoader(), "/"));
   }
 
   /**
