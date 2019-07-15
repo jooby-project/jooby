@@ -17,7 +17,6 @@ import freemarker.template.TemplateException;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
-import io.jooby.MediaType;
 import io.jooby.ServiceRegistry;
 import io.jooby.SneakyThrows;
 import io.jooby.TemplateEngine;
@@ -26,10 +25,12 @@ import javax.annotation.Nonnull;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Properties;
 
 import static io.jooby.TemplateEngine.TEMPLATE_PATH;
 import static io.jooby.TemplateEngine.normalizePath;
+import static java.util.Arrays.asList;
 
 /**
  * Freemarker module: https://jooby.io/modules/freemarker.
@@ -52,6 +53,9 @@ import static io.jooby.TemplateEngine.normalizePath;
  * The template engine looks for a file-system directory: <code>views</code> in the current
  * user directory. If the directory doesn't exist, it looks for the same directory in the project
  * classpath.
+ *
+ * Template engine supports the following file extensions: <code>.ftl</code>,
+ * <code>.ftl.html</code> and <code>.html</code>.
  *
  * You can specify a different template location:
  *
@@ -203,6 +207,8 @@ public class FreemarkerModule implements Extension {
     }
   }
 
+  private static final List<String> EXT = asList(".ftl", ".ftl.html", ".html");
+
   private Configuration freemarker;
 
   private String templatesPath;
@@ -237,11 +243,12 @@ public class FreemarkerModule implements Extension {
     if (freemarker == null) {
       freemarker = create().setTemplatesPath(templatesPath).build(application.getEnvironment());
     }
-    application.encoder(MediaType.html, new FreemarkerTemplateEngine(freemarker));
+    application.encoder(new FreemarkerTemplateEngine(freemarker, EXT));
 
     ServiceRegistry services = application.getServices();
     services.put(Configuration.class, freemarker);
   }
+
 
   /**
    * Creates a new freemarker builder.

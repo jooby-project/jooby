@@ -8,14 +8,20 @@ package examples;
 import io.jooby.Jooby;
 import io.jooby.ModelAndView;
 import io.jooby.freemarker.FreemarkerModule;
+import io.jooby.handlebars.HandlebarsModule;
 
 public class FreemarkerApp extends Jooby {
 
   {
     install(new FreemarkerModule());
+    install(new HandlebarsModule());
 
-    get("/", ctx -> {
+    get("/freemarker", ctx -> {
       return new ModelAndView("index.ftl").put("name", "Freemarker");
+    });
+
+    get("/handlebars", ctx -> {
+      return new ModelAndView("index.hbs").put("name", "Handlebars");
     });
   }
 

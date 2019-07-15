@@ -213,6 +213,8 @@ include::context.adoc[]
 
 include::static-files.adoc[]
 
+include::templates.adoc[]
+
 include::execution-model.adoc[]
 
 include::responses.adoc[]

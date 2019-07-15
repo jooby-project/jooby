@@ -7,9 +7,12 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Template engine renderer. This class renderer instances of {@link ModelAndView} objects.
+ * Template engine rendering is done by checking view name and supported file {@link #extensions()}.
  *
  * @since 2.0.0
  * @author edgar
@@ -36,6 +39,33 @@ public interface TemplateEngine extends MessageEncoder {
     ctx.setDefaultResponseType(MediaType.html);
     String output = render(ctx, (ModelAndView) value);
     return output.getBytes(StandardCharsets.UTF_8);
+  }
+
+  /**
+   * True if the template engine is able to render the given view. This method checks if the view
+   * name matches one of the {@link #extensions()}.
+   *
+   * @param modelAndView View to check.
+   * @return True when view is supported.
+   */
+  default boolean supports(@Nonnull ModelAndView modelAndView) {
+    String view = modelAndView.view;
+    for (String extension : extensions()) {
+      if (view.endsWith(extension)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Number of file extensions supported by the template engine. Default is <code>.html</code>.
+   *
+   * @return Number of file extensions supported by the template engine.
+   *     Default is <code>.html</code>.
+   */
+  default @Nonnull List<String> extensions() {
+    return Collections.singletonList(".html");
   }
 
   /**

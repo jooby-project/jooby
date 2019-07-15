@@ -49,6 +49,8 @@ import io.jooby.handlebars.HandlebarsModule
 }
 ----
 
+Template engine supports the following file extensions: `.hbs`, `.hbs.html` and `.html`.
+
 === Templates Location
 
 Template location is set to `views`. The `views` folder/location is expected to be at the current

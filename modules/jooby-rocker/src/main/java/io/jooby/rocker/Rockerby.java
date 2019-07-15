@@ -9,7 +9,6 @@ import com.fizzed.rocker.runtime.RockerRuntime;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
-import io.jooby.MediaType;
 
 import javax.annotation.Nonnull;
 
@@ -45,6 +44,6 @@ public class Rockerby implements Extension {
     // response handler
     application.responseHandler(new RockerResponseHandler());
     // renderer
-    application.encoder(MediaType.html, new RockerMessageEncoder());
+    application.encoder(new RockerMessageEncoder());
   }
 }

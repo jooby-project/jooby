@@ -1,0 +1,88 @@
+== Templates
+
+Templates are available via javadoc:ModelAndView[] and requires a javadoc:TemplateEngine[] implementation.
+
+.Java
+[source, java, role = "primary"]
+----
+{
+  install(new MyTemplateEngineModule());            <1>
+  
+  get("/", ctx -> {
+    Map<String, Object> model = ...;                <2>
+    return new ModelAndModel("index.html", model);  <3>
+  });
+}
+----
+
+.Kotlin
+[source, kt, role = "secondary"]
+----
+{
+  install(MyTemplateEngineModule())                 <1>
+  
+  get("/") { ctx ->
+    val model = mapOf(...)                          <2>
+    ModelAndModel("index.html", model)              <3>
+  }
+}
+----
+
+<1> Install a template engine
+<2> Build the view model
+<3> Returns a ModelAndView instance
+
+=== Template Engine
+
+Template engine does the view rendering/encoding. Template engine extends a javadoc:MessageEncoder[]
+by accepting a `ModelAndView` instance and produces a `String` result.
+
+The javadoc:TemplateEngine[extensions] method list the number of file extension that a template engine
+supports. Default file extension is: `.html`.
+
+The file extension is used to locate the template engine, when a file extension isn't supported
+an `IllegalArgumentException` is thrown.
+
+The file extension allow us to use/mix multiple template engines too:
+
+.Multiple template engines
+.Java
+[source, java, role = "primary"]
+----
+{
+  install(new HandlebarsModule());                 <1>
+  install(new FreemarkerModule());                 <2>
+  
+  get("/first", ctx -> {
+    return new ModelAndModel("index.hbs", model);  <3>
+  });
+  
+  get("/second", ctx -> {
+    return new ModelAndModel("index.ftl", model);  <4>
+  });
+}
+----
+
+.Kotlin
+[source, kt, role = "secondary"]
+----
+{
+  install(HandlebarsModule())                       <1>
+  install(FreemarkerModule())                       <2>
+  
+  get("/first") { ctx ->
+    ModelAndModel("index.hbs", model)               <3>
+  }
+  
+  get("/second") { ctx ->
+    ModelAndModel("index.ftl", model)               <4>
+  }
+}
+----
+
+<1> Install Handlebars
+<2> Install Freemarker
+<3> Render using Handlebars, `.hbs` extension
+<4> Render using Freemarker, `.ftl` extension
+
+Checkout all the available <<modules-template-engine, template engines>> provided by Jooby.

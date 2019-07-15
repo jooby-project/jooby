@@ -8,6 +8,7 @@ import io.jooby.ModelAndView;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -35,7 +36,7 @@ public class HandlebarsModuleTest {
   public void render() throws Exception {
     Handlebars handlebars = HandlebarsModule.create()
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
-    HbsTemplateEngine engine = new HbsTemplateEngine(handlebars);
+    HbsTemplateEngine engine = new HbsTemplateEngine(handlebars, Arrays.asList(".hbs"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     String output = engine
@@ -50,7 +51,7 @@ public class HandlebarsModuleTest {
     Handlebars handlebars = HandlebarsModule.create()
         .setTemplatesPath(Paths.get("src", "test", "resources", "views").toString())
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty()));
-    HbsTemplateEngine engine = new HbsTemplateEngine(handlebars);
+    HbsTemplateEngine engine = new HbsTemplateEngine(handlebars, Arrays.asList(".hbs"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     String output = engine

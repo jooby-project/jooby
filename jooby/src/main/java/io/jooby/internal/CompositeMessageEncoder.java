@@ -10,14 +10,6 @@ import io.jooby.Context;
 import io.jooby.MessageEncoder;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
-import io.jooby.internal.handler.SendAttachment;
-import io.jooby.internal.handler.SendByteArray;
-import io.jooby.internal.handler.SendByteBuf;
-import io.jooby.internal.handler.SendByteBuffer;
-import io.jooby.internal.handler.SendCharSequence;
-import io.jooby.internal.handler.SendDirect;
-import io.jooby.internal.handler.SendFileChannel;
-import io.jooby.internal.handler.SendStream;
 import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
@@ -27,45 +19,34 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.List;
 
 public class CompositeMessageEncoder implements MessageEncoder {
 
-  private LinkedList<MessageEncoder> list = new LinkedList<>();
+  private List<MessageEncoder> decoders = new ArrayList<>(2);
 
-  private MessageEncoder templateEngine;
-
-  public CompositeMessageEncoder() {
-    list.add(MessageEncoder.TO_STRING);
-  }
+  private List<TemplateEngine> templateEngine = new ArrayList<>(2);
 
   public CompositeMessageEncoder add(MessageEncoder encoder) {
     if (encoder instanceof TemplateEngine) {
-      templateEngine = computeRenderer(templateEngine, encoder);
+      templateEngine.add((TemplateEngine) encoder);
     } else {
-      list.addFirst(encoder);
+      decoders.add(encoder);
     }
     return this;
   }
 
-  private MessageEncoder computeRenderer(MessageEncoder it, MessageEncoder next) {
-    if (it == null) {
-      return next;
-    } else if (it instanceof CompositeMessageEncoder) {
-      ((CompositeMessageEncoder) it).list.addFirst(next);
-      return it;
-    } else {
-      CompositeMessageEncoder composite = new CompositeMessageEncoder();
-      composite.list.addFirst(it);
-      composite.list.addFirst(next);
-      return composite;
-    }
-  }
-
   @Override public byte[] encode(@Nonnull Context ctx, @Nonnull Object value) throws Exception {
     if (value instanceof ModelAndView) {
-      return templateEngine.encode(ctx, value);
+      ModelAndView modelAndView = (ModelAndView) value;
+      for (TemplateEngine engine : templateEngine) {
+        if (engine.supports(modelAndView)) {
+          return engine.encode(ctx, modelAndView);
+        }
+      }
+      throw new IllegalArgumentException("No template engine for: " + modelAndView.view);
     }
     /** InputStream: */
     if (value instanceof InputStream) {
@@ -109,8 +90,7 @@ public class CompositeMessageEncoder implements MessageEncoder {
       ctx.send((ByteBuf) value);
       return null;
     }
-    /** Fallback to more complex encoder: */
-    Iterator<MessageEncoder> iterator = list.iterator();
+    Iterator<MessageEncoder> iterator = decoders.iterator();
     /** NOTE: looks like an infinite loop but there is a default renderer at the end of iterator. */
     byte[] result = null;
     while (result == null) {

@@ -8,6 +8,8 @@ import io.jooby.MockContext;
 import io.jooby.ModelAndView;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FreemarkerModuleTest {
@@ -46,7 +48,8 @@ public class FreemarkerModuleTest {
   public void render() throws Exception {
     Configuration freemarker = FreemarkerModule.create()
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "test"));
-    FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker);
+    FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker,
+        Arrays.asList(".ftl"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     String output = engine
@@ -60,7 +63,8 @@ public class FreemarkerModuleTest {
   public void publicField() throws Exception {
     Configuration freemarker = FreemarkerModule.create()
         .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "test"));
-    FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker);
+    FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker,
+        Arrays.asList(".ftl"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     String output = engine
@@ -73,9 +77,11 @@ public class FreemarkerModuleTest {
   @Test
   public void customTemplatePath() throws Exception {
     Configuration freemarker = FreemarkerModule.create()
-        .build(new Environment(getClass().getClassLoader(), ConfigFactory.empty().withValue("templates.path",
-            ConfigValueFactory.fromAnyRef("foo"))));
-    FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker);
+        .build(new Environment(getClass().getClassLoader(),
+            ConfigFactory.empty().withValue("templates.path",
+                ConfigValueFactory.fromAnyRef("foo"))));
+    FreemarkerTemplateEngine engine = new FreemarkerTemplateEngine(freemarker,
+        Arrays.asList(".ftl"));
     MockContext ctx = new MockContext();
     ctx.getAttributes().put("local", "var");
     String output = engine

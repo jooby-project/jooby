@@ -1,5 +1,7 @@
 package io.jooby;
 
+import io.jooby.freemarker.FreemarkerModule;
+import io.jooby.handlebars.HandlebarsModule;
 import io.jooby.jetty.Jetty;
 import io.jooby.json.JacksonModule;
 import io.jooby.netty.Netty;
@@ -803,7 +805,7 @@ public class FeaturedTest {
 
       client.header("Accept", "*/*");
       client.get("/defaults", rsp -> {
-        assertEquals("<OK>", rsp.body().string());
+        assertEquals("{OK}", rsp.body().string());
       });
 
       client.header("Accept", "text/html");
@@ -828,7 +830,7 @@ public class FeaturedTest {
 
       client.header("Accept", "*/*");
       client.get("/produces", rsp -> {
-        assertEquals("<OK>", rsp.body().string());
+        assertEquals("{OK}", rsp.body().string());
       });
 
       client.header("Accept", "text/html");
@@ -1986,7 +1988,8 @@ public class FeaturedTest {
   public void singlePageApp() {
     new JoobyRunner(app -> {
 
-      app.assets("/?*", new AssetHandler("fallback.html", AssetSource.create(app.getClassLoader(), "/www")));
+      app.assets("/?*",
+          new AssetHandler("fallback.html", AssetSource.create(app.getClassLoader(), "/www")));
 
     }).ready(client -> {
       client.get("/docs", rsp -> {
@@ -2021,31 +2024,31 @@ public class FeaturedTest {
 
   @Test
   public void staticSiteFromCp() {
-   new JoobyRunner(app -> {
+    new JoobyRunner(app -> {
 
-     app.assets("/?*", "/www");
+      app.assets("/?*", "/www");
 
-   }).ready(client -> {
-     client.get("/", rsp -> {
-       assertEquals("index.html", rsp.body().string().trim());
-     });
+    }).ready(client -> {
+      client.get("/", rsp -> {
+        assertEquals("index.html", rsp.body().string().trim());
+      });
 
-     client.get("/index.html", rsp -> {
-       assertEquals("index.html", rsp.body().string().trim());
-     });
+      client.get("/index.html", rsp -> {
+        assertEquals("index.html", rsp.body().string().trim());
+      });
 
-     client.get("/note", rsp -> {
-       assertEquals("note.html", rsp.body().string().trim());
-     });
+      client.get("/note", rsp -> {
+        assertEquals("note.html", rsp.body().string().trim());
+      });
 
-     client.get("/note/index.html", rsp -> {
-       assertEquals("note.html", rsp.body().string().trim());
-     });
+      client.get("/note/index.html", rsp -> {
+        assertEquals("note.html", rsp.body().string().trim());
+      });
 
-     client.get("/about.html", rsp -> {
-       assertEquals("about.html", rsp.body().string().trim());
-     });
-   });
+      client.get("/about.html", rsp -> {
+        assertEquals("about.html", rsp.body().string().trim());
+      });
+    });
 
     new JoobyRunner(app -> {
 
@@ -2318,7 +2321,8 @@ public class FeaturedTest {
       app.install(new JacksonModule());
       app.get("/int", ctx -> ctx.render(1));
       app.get("/bytes", ctx -> ctx.render("bytes".getBytes(StandardCharsets.UTF_8)));
-      app.get("/stream", ctx -> ctx.render(new ByteArrayInputStream( "bytes".getBytes(StandardCharsets.UTF_8))));
+      app.get("/stream",
+          ctx -> ctx.render(new ByteArrayInputStream("bytes".getBytes(StandardCharsets.UTF_8))));
       app.get("/complex", ctx -> ctx.render(mapOf("k", "v")));
     }).ready(client -> {
       client.get("/int", rsp -> {
@@ -2435,6 +2439,24 @@ public class FeaturedTest {
                 clearCookie);
           });
         });
+      });
+    });
+  }
+
+  @Test
+  public void templateEngines() {
+    new JoobyRunner(app -> {
+      app.install(new HandlebarsModule());
+      app.install(new FreemarkerModule());
+
+      app.get("/1", ctx -> new ModelAndView("index.hbs").put("name", "Handlebars"));
+      app.get("/2", ctx -> new ModelAndView("index.ftl").put("name", "Freemarker"));
+    }).ready(client -> {
+      client.get("/1", rsp -> {
+        assertEquals("Hello Handlebars!", rsp.body().string().trim());
+      });
+      client.get("/2", rsp -> {
+        assertEquals("Hello Freemarker!", rsp.body().string().trim());
       });
     });
   }

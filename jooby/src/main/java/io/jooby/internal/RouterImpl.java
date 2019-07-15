@@ -23,6 +23,7 @@ import io.jooby.ServiceRegistry;
 import io.jooby.SessionOptions;
 import io.jooby.StatusCode;
 import io.jooby.SneakyThrows;
+import io.jooby.TemplateEngine;
 import io.jooby.annotations.Dispatch;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.internal.mvc.MvcAnnotationParser;
@@ -245,6 +246,11 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override
   public Router encoder(@Nonnull MediaType contentType, @Nonnull MessageEncoder encoder) {
+    if (encoder instanceof TemplateEngine) {
+      // Mime-Type is ignored for TemplateEngine due they depends on specific object type and file
+      // extension.
+      return encoder(encoder);
+    }
     return encoder(encoder.accept(contentType));
   }
 
@@ -377,6 +383,7 @@ public class RouterImpl implements Router {
     if (err == null) {
       err = ErrorHandler.DEFAULT;
     }
+    renderer.add(MessageEncoder.TO_STRING);
     ExecutionMode mode = owner.getExecutionMode();
     for (Route route : routes) {
       Executor executor = routeExecutor.get(route);
@@ -392,6 +399,8 @@ public class RouterImpl implements Router {
       Route.Handler pipeline = Pipeline
           .compute(source.getLoader(), route, mode, executor, handlers);
       route.setPipeline(pipeline);
+      /** Final render */
+      route.setEncoder(renderer);
     }
     // router options
     if (options.isIgnoreCase() || options.isIgnoreTrailingSlash()) {

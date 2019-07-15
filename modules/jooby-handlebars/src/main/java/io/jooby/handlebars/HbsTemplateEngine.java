@@ -11,15 +11,24 @@ import io.jooby.Context;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
 
+import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class HbsTemplateEngine implements TemplateEngine {
 
-  private Handlebars handlebars;
+  private final List<String> extensions;
+  private final Handlebars handlebars;
 
-  HbsTemplateEngine(Handlebars handlebars) {
+  HbsTemplateEngine(Handlebars handlebars, List<String> extensions) {
     this.handlebars = handlebars;
+    this.extensions = Collections.unmodifiableList(extensions);
+  }
+
+  @Nonnull @Override public List<String> extensions() {
+    return extensions;
   }
 
   @Override public String render(Context ctx, ModelAndView modelAndView) throws Exception {

@@ -15,7 +15,6 @@ import com.github.jknack.handlebars.io.TemplateLoader;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
-import io.jooby.MediaType;
 import io.jooby.ServiceRegistry;
 import io.jooby.TemplateEngine;
 
@@ -25,9 +24,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static io.jooby.TemplateEngine.TEMPLATE_PATH;
 import static io.jooby.TemplateEngine.normalizePath;
+import static java.util.Arrays.asList;
 
 /**
  * Handlebars module: https://jooby.io/modules/handlebars.
@@ -62,6 +63,9 @@ import static io.jooby.TemplateEngine.normalizePath;
  * }</pre>
  *
  * The <code>mypath</code> location works in the same way: file-system or fallback to classpath.
+ *
+ * Template engine supports the following file extensions: <code>.ftl</code>,
+ * <code>.ftl.html</code> and <code>.html</code>.
  *
  * Direct access to {@link Handlebars} is available via require call:
  *
@@ -166,6 +170,8 @@ public class HandlebarsModule implements Extension {
     }
   }
 
+  private static final List<String> EXT = asList(".hbs", ".hbs.html", ".html");
+
   private Handlebars handlebars;
 
   private String templatesPath;
@@ -200,7 +206,7 @@ public class HandlebarsModule implements Extension {
     if (handlebars == null) {
       handlebars = create().setTemplatesPath(templatesPath).build(application.getEnvironment());
     }
-    application.encoder(MediaType.html, new HbsTemplateEngine(handlebars));
+    application.encoder(new HbsTemplateEngine(handlebars, EXT));
 
     ServiceRegistry services = application.getServices();
     services.put(Handlebars.class, handlebars);

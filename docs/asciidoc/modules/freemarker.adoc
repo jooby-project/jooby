@@ -49,6 +49,8 @@ import io.jooby.freemarker.FreemarkerModule
 }
 ----
 
+Template engine supports the following file extensions: `.ftl`, `.ftl.html` and `.html`.
+
 === Templates Location
 
 Template location is set to `views`. The `views` folder/location is expected to be at the current
