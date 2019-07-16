@@ -41,7 +41,7 @@ public class JoobySuite extends Suite {
       filter = server::contains;
     }
     String[] servers = {"org.jooby.undertow.Undertow", "org.jooby.jetty.Jetty",
-         };
+        "org.jooby.netty.Netty" };
     for (String server : servers) {
       try {
         Class<?> serverClass = getClass().getClassLoader().loadClass(server);
