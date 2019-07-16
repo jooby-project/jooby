@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-jongo/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-jongo/1.6.2)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jongo.svg)](https://javadoc.io/doc/org.jooby/jooby-jongo/1.6.2)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-jongo/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-jongo/1.6.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-jongo.svg)](https://javadoc.io/doc/org.jooby/jooby-jongo/1.6.3)
 [![jooby-jongo website](https://img.shields.io/badge/jooby-jongo-brightgreen.svg)](http://jooby.org/doc/jongo)
 # jongo
 
@@ -17,7 +17,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jongo</artifactId>
-  <version>1.6.2</version>
+  <version>1.6.3</version>
 </dependency>
 ```
 

@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets-csslint/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets-csslint/1.6.2)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-csslint.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-csslint/1.6.2)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets-csslint/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets-csslint/1.6.3)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-csslint.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-csslint/1.6.3)
 [![jooby-assets-csslint website](https://img.shields.io/badge/jooby-assets-csslint-brightgreen.svg)](http://jooby.org/doc/assets-csslint)
 # csslint
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-csslint</artifactId>
-  <version>1.6.2</version>
+  <version>1.6.3</version>
   <scope>provided</scope>
 </dependency>
 ```
