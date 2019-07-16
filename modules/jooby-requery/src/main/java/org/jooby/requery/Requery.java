@@ -205,8 +205,10 @@ package org.jooby.requery;
 
 import com.google.inject.name.Names;
 import io.requery.sql.KotlinEntityDataStore;
+
 import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -215,6 +217,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Provider;
 import javax.sql.DataSource;
@@ -222,6 +225,7 @@ import javax.sql.DataSource;
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
 import org.jooby.Jooby.Module;
+import org.jooby.Registry;
 import org.jooby.jdbc.Jdbc;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
@@ -588,6 +592,28 @@ public class Requery implements Module {
     if (callback != null) {
       callback.accept(conf, builder);
     }
+    List<Consumer<Registry>> proxies = new ArrayList<>();
+    statements.stream()
+        .map(ProxyStatementListener::new)
+        .forEach(proxy -> {
+          builder.addStatementListener(proxy);
+          proxies.add(proxy);
+        });
+
+    states.stream()
+        .map(ProxyEntityStateListener::new)
+        .forEach(proxy -> {
+          builder.addEntityStateListener(proxy);
+          proxies.add(proxy);
+        });
+
+    transactions.stream()
+        .map(ProxyTransactionListener::new)
+        .forEach(proxy -> {
+          builder.addTransactionListenerFactory(() -> proxy);
+          proxies.add(proxy);
+        });
+
     Configuration configuration = builder.build();
     Object newStore = store.apply(configuration);
 
@@ -611,12 +637,7 @@ public class Requery implements Module {
 
     env.onStart(registry -> {
       schema(conf, schema, schema -> new SchemaModifier(dataSource, model).createTables(schema));
-      states
-          .forEach(t -> builder.addEntityStateListener((EntityStateListener) registry.require(t)));
-      statements
-          .forEach(t -> builder.addStatementListener((StatementListener) registry.require(t)));
-      transactions.forEach(t -> builder
-          .addTransactionListenerFactory(() -> (TransactionListener) registry.require(t)));
+      proxies.forEach(consumer -> consumer.accept(registry));
     });
   }
 

@@ -28,16 +28,21 @@ import io.requery.sql.SchemaModifier;
 import io.requery.sql.StatementListener;
 import io.requery.sql.TableCreationMode;
 import io.requery.util.function.Supplier;
+
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
+
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
 import org.jooby.Registry;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.jooby.funzy.Throwing;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -339,10 +344,8 @@ public class RequeryTest {
         .expect(eds)
         .expect(unit -> {
           ConfigurationBuilder builder = unit.get(ConfigurationBuilder.class);
-          expect(builder.addEntityStateListener(listener)).andReturn(builder);
-
-          Registry registry = unit.get(Registry.class);
-          expect(registry.require(MyListener.class)).andReturn(listener);
+          expect(builder.addEntityStateListener(isA(ProxyEntityStateListener.class)))
+              .andReturn(builder);
         })
         .run(unit -> {
           new Requery(unit.get(EntityModel.class))
@@ -396,10 +399,8 @@ public class RequeryTest {
         .expect(eds)
         .expect(unit -> {
           ConfigurationBuilder builder = unit.get(ConfigurationBuilder.class);
-          expect(builder.addStatementListener(listener)).andReturn(builder);
-
-          Registry registry = unit.get(Registry.class);
-          expect(registry.require(MyListener.class)).andReturn(listener);
+          expect(builder.addStatementListener(isA(ProxyStatementListener.class)))
+              .andReturn(builder);
         })
         .run(unit -> {
           new Requery(unit.get(EntityModel.class))
@@ -453,9 +454,6 @@ public class RequeryTest {
           ConfigurationBuilder builder = unit.get(ConfigurationBuilder.class);
           expect(builder.addTransactionListenerFactory(unit.capture(Supplier.class)))
               .andReturn(builder);
-
-          Registry registry = unit.get(Registry.class);
-          expect(registry.require(MyListener.class)).andReturn(listener);
         })
         .run(unit -> {
           new Requery(unit.get(EntityModel.class))
@@ -464,7 +462,8 @@ public class RequeryTest {
         }, unit -> {
           unit.captured(Throwing.Consumer.class).iterator().next()
               .accept(unit.get(Registry.class));
-          assertEquals(listener, unit.captured(Supplier.class).iterator().next().get());
+          assertTrue(unit.captured(Supplier.class).iterator().next()
+              .get() instanceof ProxyTransactionListener);
         });
   }
 
