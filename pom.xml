@@ -3160,7 +3160,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
     <aws-java-sdk.version>1.11.358</aws-java-sdk.version>
     <bootstrap.version>3.3.4</bootstrap.version>
-    <boringssl.version>2.0.20.Final</boringssl.version>
+    <boringssl.version>2.0.25.Final</boringssl.version>
     <bson4jackson.version>2.9.2</bson4jackson.version>
     <caffeine.version>2.6.2</caffeine.version>
     <cdi-api.version>1.1</cdi-api.version>

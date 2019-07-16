@@ -1168,6 +1168,12 @@
       <groupId>org.jooby</groupId>
       <artifactId>jooby-netty</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-tcnative-boringssl-static</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Pac4j -->
