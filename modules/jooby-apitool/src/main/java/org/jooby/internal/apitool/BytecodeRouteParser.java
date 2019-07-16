@@ -748,7 +748,25 @@ public class BytecodeRouteParser {
               .filter(and(is(MethodInsnNode.class), opcode(INVOKESPECIAL)))
               .findFirst()
               .map(MethodInsnNode.class::cast)
-              .ifPresent(n -> result.addAll(lambdas(loader, loadClass(n.owner))));
+              .ifPresent(n -> {
+                List<Object> rlist = lambdas(loader, loadClass(n.owner));
+                Insn.ldcFor(n).stream()
+                    .map(e -> e.cst.toString())
+                    .findFirst()
+                    .ifPresent(prefix -> {
+                      IntStream.range(0, rlist.size())
+                          .forEach(i -> {
+                            Object o = rlist.get(i);
+                            if (o instanceof Lambda) {
+                              rlist.set(i, ((Lambda) o).prefix(prefix));
+                            } else {
+                              RouteMethod r = (RouteMethod) o;
+                              r.pattern(prefix + r.pattern());
+                            }
+                          });
+                    });
+                result.addAll(rlist);
+              });
         })
         // path(String) {...}
         .on(path(loader, "org.jooby.Kooby"), it -> {
