@@ -106,7 +106,9 @@ public class Route {
     @Nonnull default Before then(@Nonnull Before next) {
       return ctx -> {
         apply(ctx);
-        next.apply(ctx);
+        if (!ctx.isResponseStarted()) {
+          next.apply(ctx);
+        }
       };
     }
 
@@ -119,7 +121,10 @@ public class Route {
     @Nonnull default Handler then(@Nonnull Handler next) {
       return ctx -> {
         apply(ctx);
-        return next.apply(ctx);
+        if (!ctx.isResponseStarted()) {
+          return next.apply(ctx);
+        }
+        return ctx;
       };
     }
   }
