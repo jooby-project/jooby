@@ -20,6 +20,7 @@
     <freemarker.version>2.3.28</freemarker.version>
     <handlebars.version>4.1.2</handlebars.version>
     <jackson.version>2.9.9</jackson.version>
+    <jackson-databind.version>2.9.9.1</jackson-databind.version>
     <rocker.version>1.2.1</rocker.version>
 
     <!-- data -->
@@ -346,7 +347,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
+        <version>${jackson-databind.version}</version>
       </dependency>
 
       <dependency>
