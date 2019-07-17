@@ -49,6 +49,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
@@ -200,7 +201,8 @@ public class RouterImpl implements Router {
     }
     trees.add(tree);
     for (Route route : router.getRoutes()) {
-      defineRoute(route.getMethod(), route.getPattern(), route.getHandler(), tree);
+      Route newRoute = defineRoute(route.getMethod(), route.getPattern(), route.getHandler(), tree);
+      copy(route, newRoute);
     }
     return this;
   }
@@ -212,7 +214,8 @@ public class RouterImpl implements Router {
     }
     for (Route route : router.getRoutes()) {
       String routePattern = prefix + route.getPattern();
-      route(route.getMethod(), routePattern, route.getHandler());
+      Route newRoute = defineRoute(route.getMethod(), routePattern, route.getHandler(), chi);
+      copy(route, newRoute);
     }
     return this;
   }
@@ -650,5 +653,27 @@ public class RouterImpl implements Router {
     if (annotationParser == null) {
       annotationParser = MvcAnnotationParser.create(source.getLoader());
     }
+  }
+
+  private void copy(Route src, Route it) {
+    Route.Before before = Optional.ofNullable(it.getBefore())
+        .map(filter -> Optional.ofNullable(src.getBefore()).map(filter::then).orElse(filter))
+        .orElseGet(src::getBefore);
+
+    Route.Decorator decorator = Optional.ofNullable(it.getDecorator())
+        .map(filter -> Optional.ofNullable(src.getDecorator()).map(filter::then).orElse(filter))
+        .orElseGet(src::getDecorator);
+
+    Route.After after = Optional.ofNullable(it.getAfter())
+        .map(filter -> Optional.ofNullable(src.getAfter()).map(filter::then).orElse(filter))
+        .orElseGet(src::getAfter);
+
+    it.setBefore(before);
+    it.setDecorator(decorator);
+    it.setAfter(after);
+
+    it.setConsumes(src.getConsumes());
+    it.setProduces(src.getProduces());
+    it.setHandle(src.getHandle());
   }
 }
