@@ -21,6 +21,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -103,7 +104,7 @@ public class MockContext implements DefaultContext {
     return this;
   }
 
-  @Nonnull @Override public FlashMap flashMap() {
+  @Nonnull @Override public FlashMap flash() {
     return flashMap;
   }
 
@@ -114,6 +115,18 @@ public class MockContext implements DefaultContext {
    */
   public MockContext setFlashMap(@Nonnull FlashMap flashMap) {
     this.flashMap = flashMap;
+    return this;
+  }
+
+  /**
+   * Set request flash attribute.
+   *
+   * @param name Flash name.
+   * @param value Flash value.
+   * @return This context.
+   */
+  @Nonnull public MockContext setFlashAttribute(@Nonnull String name, @Nonnull String value) {
+    flashMap.put(name, value);
     return this;
   }
 
@@ -136,7 +149,7 @@ public class MockContext implements DefaultContext {
    * @param pathString Path string.
    * @return This context.
    */
-  MockContext setPathString(@Nonnull String pathString) {
+  public MockContext setPathString(@Nonnull String pathString) {
     int q = pathString.indexOf("?");
     if (q > 0) {
       this.pathString = pathString.substring(0, q);
@@ -165,7 +178,7 @@ public class MockContext implements DefaultContext {
     return queryString;
   }
 
-  @Nonnull @Override public Value headers() {
+  @Nonnull @Override public Value header() {
     return Value.hash(headers);
   }
 
@@ -177,6 +190,19 @@ public class MockContext implements DefaultContext {
    */
   @Nonnull public MockContext setHeaders(@Nonnull Map<String, Collection<String>> headers) {
     this.headers = headers;
+    return this;
+  }
+
+  /**
+   * Set request headers.
+   *
+   * @param name Request header.
+   * @param value Request value.
+   * @return This context.
+   */
+  @Nonnull public MockContext setRequestHeader(@Nonnull String name, @Nonnull String value) {
+    Collection<String> values = this.headers.computeIfAbsent(name, k -> new ArrayList<>());
+    values.add(value);
     return this;
   }
 

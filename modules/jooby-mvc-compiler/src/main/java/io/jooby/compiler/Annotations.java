@@ -22,9 +22,25 @@ public interface Annotations {
 
   String PATH_PARAM = "io.jooby.annotations.PathParam";
 
+  String QUERY_PARAM = "io.jooby.annotations.QueryParam";
+
+  String COOKIE_PARAM = "io.jooby.annotations.CookieParam";
+
+  String HEADER_PARAM = "io.jooby.annotations.HeaderParam";
+
+  String FLASH_PARAM = "io.jooby.annotations.FlashParam";
+
+  String FORM_PARAM = "io.jooby.annotations.FormParam";
+
   Set<String> PATH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(PATH_PARAM)));
 
-  static boolean isPathParam(String type) {
-    return PATH_PARAMS.contains(type);
-  }
+  Set<String> QUERY_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(QUERY_PARAM)));
+
+  Set<String> COOKIE_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(COOKIE_PARAM)));
+
+  Set<String> HEADER_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(HEADER_PARAM)));
+
+  Set<String> FLASH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(FLASH_PARAM)));
+
+  Set<String> FORM_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(FORM_PARAM)));
 }

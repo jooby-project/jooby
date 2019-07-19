@@ -58,16 +58,12 @@ public class ForwardingContext implements Context {
     return context.getRouter();
   }
 
-  @Nonnull @Override public FlashMap flashMap() {
-    return context.flashMap();
+  @Nonnull @Override public FlashMap flash() {
+    return context.flash();
   }
 
   @Nonnull @Override public Value flash(@Nonnull String name) {
     return context.flash(name);
-  }
-
-  @Nonnull @Override public Context flash(@Nonnull String name, @Nonnull String value) {
-    return context.flash(name, value);
   }
 
   @Nonnull @Override public Session session() {
@@ -155,8 +151,8 @@ public class ForwardingContext implements Context {
     return context.queryMultimap();
   }
 
-  @Override @Nonnull public Value headers() {
-    return context.headers();
+  @Override @Nonnull public Value header() {
+    return context.header();
   }
 
   @Nonnull @Override public Value header(@Nonnull String name) {

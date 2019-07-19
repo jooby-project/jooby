@@ -70,7 +70,7 @@ public interface DefaultContext extends Context {
     return this;
   }
 
-  @Override default @Nonnull FlashMap flashMap() {
+  @Override default @Nonnull FlashMap flash() {
     return (FlashMap) getAttributes()
         .computeIfAbsent(FlashMap.NAME, key -> FlashMap
             .create(this, new Cookie(getRouter().getFlashCookie()).setHttpOnly(true)));
@@ -83,12 +83,7 @@ public interface DefaultContext extends Context {
    * @return Flash attribute.
    */
   @Override default @Nonnull Value flash(@Nonnull String name) {
-    return Value.create(name, flashMap().get(name));
-  }
-
-  @Override default @Nonnull Context flash(@Nonnull String name, @Nonnull String value) {
-    flashMap().put(name, value);
-    return this;
+    return Value.create(name, flash().get(name));
   }
 
   @Override default @Nonnull Session session() {
@@ -177,15 +172,15 @@ public interface DefaultContext extends Context {
   }
 
   @Override @Nonnull default Value header(@Nonnull String name) {
-    return headers().get(name);
+    return header().get(name);
   }
 
   @Override @Nonnull default Map<String, String> headerMap() {
-    return headers().toMap();
+    return header().toMap();
   }
 
   @Override @Nonnull default Map<String, List<String>> headerMultimap() {
-    return headers().toMultimap();
+    return header().toMultimap();
   }
 
   @Override default boolean accept(@Nonnull MediaType contentType) {

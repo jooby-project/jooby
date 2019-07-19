@@ -58,7 +58,7 @@ public class MvcProcessor implements Processor {
       Set<? extends Element> methods = roundEnvironment.getElementsAnnotatedWith(httpMethod);
       for (Element e : methods) {
         ExecutableElement method = (ExecutableElement) e;
-        MvcHandlerCompiler compiler = new MvcHandlerCompiler(processingEnvironment, method);
+        MvcHandlerCompiler compiler = new MvcHandlerCompiler(processingEnvironment, httpMethod.getSimpleName().toString(), method);
         String key = compiler.getKey();
         result.put(key, compiler);
       }

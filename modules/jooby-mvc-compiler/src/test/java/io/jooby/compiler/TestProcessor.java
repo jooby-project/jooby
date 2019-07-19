@@ -35,22 +35,32 @@ public class TestProcessor {
         .compilesWithoutError();
   }
 
-  public TestProcessor compile(String methodName, Class[] args,
+  public TestProcessor compile(String executableName, Class[] args,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
-    return compile(methodName, args, false, consumer);
+    return compile("GET", executableName, args, false, consumer);
   }
 
-  public TestProcessor compile(String methodName, Class[] args, boolean debug,
+  public TestProcessor compile(String httpMethod, String executableName, Class[] args,
+      SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
+    return compile(httpMethod, executableName, args, false, consumer);
+  }
+
+  public TestProcessor compile(String executableName, Class[] args, boolean debug,
+      SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
+    return compile("GET", executableName, args, debug, consumer);
+  }
+
+  public TestProcessor compile(String httpMethod, String executableName, Class[] args, boolean debug,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
     Class clazz = instance.getClass();
-    Method method = clazz.getMethod(methodName, args);
-    String key = clazz.getName() + "." + methodName + Type.getMethodDescriptor(method);
+    Method method = clazz.getMethod(executableName, args);
+    String key = clazz.getName() + "." + executableName + Type.getMethodDescriptor(method);
     MvcHandlerCompiler compiler = processor.compilerFor(key);
     assertNotNull("Compiler not found for: " + method, compiler);
     if (debug) {
       System.out.println(compiler);
     }
-    String handlerName = clazz.getName() + "$" + methodName;
+    String handlerName = clazz.getName() + "$" + httpMethod + "$" + executableName;
     Class<? extends Route.Handler> handleClass = compileClass(handlerName, compiler.compile());
     Constructor<? extends Route.Handler> constructor = handleClass
         .getDeclaredConstructor(Provider.class);

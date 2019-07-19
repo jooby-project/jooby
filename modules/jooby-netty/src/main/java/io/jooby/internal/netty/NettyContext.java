@@ -222,7 +222,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return "http";
   }
 
-  @Nonnull @Override public Value headers() {
+  @Nonnull @Override public Value header() {
     if (headers == null) {
       Map<String, Collection<String>> headerMap = new LinkedHashMap<>();
       HttpHeaders headers = req.headers();

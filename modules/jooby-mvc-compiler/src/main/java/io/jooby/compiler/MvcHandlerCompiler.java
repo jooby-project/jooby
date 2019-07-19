@@ -1,9 +1,12 @@
 package io.jooby.compiler;
 
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.TypeSpec;
 import io.jooby.Context;
 import io.jooby.FlashMap;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
+import io.jooby.ProvisioningException;
 import io.jooby.QueryString;
 import io.jooby.Reified;
 import io.jooby.Route;
@@ -34,6 +37,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -117,6 +121,17 @@ public class MvcHandlerCompiler {
     }
   }
 
+  private static final Map<String, Set<String>> PARAMS = new HashMap<>();
+
+  static {
+    PARAMS.put("path", Annotations.PATH_PARAMS);
+    PARAMS.put("query", Annotations.QUERY_PARAMS);
+    PARAMS.put("cookie", Annotations.COOKIE_PARAMS);
+    PARAMS.put("header", Annotations.HEADER_PARAMS);
+    PARAMS.put("flash", Annotations.FLASH_PARAMS);
+    PARAMS.put("multipart", Annotations.FORM_PARAMS);
+  }
+
   private static final Type OBJ = getType(Object.class);
   private static final Type HANDLER = getType(Route.Handler.class);
 
@@ -132,8 +147,11 @@ public class MvcHandlerCompiler {
   private final TypeElement owner;
   private final ExecutableElement executable;
   private final ProcessingEnvironment environment;
+  private final String httpMethod;
 
-  public MvcHandlerCompiler(ProcessingEnvironment environment, ExecutableElement executable) {
+  public MvcHandlerCompiler(ProcessingEnvironment environment, String httpMethod,
+      ExecutableElement executable) {
+    this.httpMethod = httpMethod.toLowerCase();
     this.environment = environment;
     this.executable = executable;
     this.owner = (TypeElement) executable.getEnclosingElement();
@@ -203,14 +221,16 @@ public class MvcHandlerCompiler {
           apply.visitMethodInsn(INVOKESTATIC, "java/util/Optional", "ofNullable",
               "(Ljava/lang/Object;)Ljava/util/Optional;", false);
         }
-      } else if (isPathParam(parameter)) {
-        String parameterName = parameterName(parameter, Annotations.PATH_PARAMS);
+      } else {
+        Map.Entry<String, Set<String>> strategy = paramStrategy(parameter);
+
+        String parameterName = parameterName(parameter, strategy.getValue());
 
         Method paramValue = paramValue(parameter, paramType);
         boolean dynamic =
             paramValue.getName().equals("to") && !isSimpleType(paramType.arg0(parameter.asType()));
         if (dynamic) {
-          Method pathParam = Context.class.getDeclaredMethod("path");
+          Method pathParam = Context.class.getDeclaredMethod(strategy.getKey());
           apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
               getMethodDescriptor(pathParam), true);
           apply.visitLdcInsn(asmType(rawType));
@@ -228,7 +248,7 @@ public class MvcHandlerCompiler {
         } else {
           apply.visitLdcInsn(parameterName);
 
-          Method pathParam = Context.class.getDeclaredMethod("path", String.class);
+          Method pathParam = Context.class.getDeclaredMethod(strategy.getKey(), String.class);
           apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
               getMethodDescriptor(pathParam), true);
           // to(Class)
@@ -257,6 +277,15 @@ public class MvcHandlerCompiler {
 
     apply.visitMaxs(0, 0);
     apply.visitEnd();
+  }
+
+  private Map.Entry<String, Set<String>> paramStrategy(VariableElement parameter) {
+    return PARAMS.entrySet().stream()
+        .filter(it -> isParam(parameter, it.getValue()))
+        .findFirst()
+        .orElseThrow(() -> new ProvisioningException(
+            "Unable to provision parameter: '" + parameter + ": " + parameter.asType() + "'",
+            null));
   }
 
   private ParamType paramType(VariableElement parameter) {
@@ -337,10 +366,10 @@ public class MvcHandlerCompiler {
   }
 
   private boolean isSimpleType(TypeMirror mirror) {
-    return eq(String.class, mirror) || mirror.getKind().isPrimitive() || isPrimitiveWrapper(mirror);
+    return eq(String.class, mirror) || mirror.getKind().isPrimitive() || isBasic(mirror);
   }
 
-  private boolean isPrimitiveWrapper(TypeMirror mirror) {
+  private boolean isBasic(TypeMirror mirror) {
     switch (rawType(mirror)) {
       case "java.lang.Byte":
       case "java.lang.Character":
@@ -349,6 +378,7 @@ public class MvcHandlerCompiler {
       case "java.lang.Long":
       case "java.lang.Float":
       case "java.lang.Double":
+      case "java.time.Instant":
         return true;
       default:
         return false;
@@ -410,12 +440,8 @@ public class MvcHandlerCompiler {
     return value;
   }
 
-  private boolean isPathParam(VariableElement parameter) {
-    return isPathParam(parameter.getAnnotationMirrors());
-  }
-
-  private boolean isPathParam(List<? extends AnnotationMirror> annotationMirrors) {
-    return annotations(annotationMirrors, Annotations.PATH_PARAMS).size() > 0;
+  private boolean isParam(VariableElement parameter, Set<String> annotations) {
+    return annotations(parameter.getAnnotationMirrors(), annotations).size() > 0;
   }
 
   private List<AnnotationMirror> annotations(List<? extends AnnotationMirror> annotationMirrors,
@@ -439,10 +465,10 @@ public class MvcHandlerCompiler {
       return Context.class.getDeclaredMethod("multipart");
     }
     if (FlashMap.class.getName().equals(rawType)) {
-      return Context.class.getDeclaredMethod("flashMap");
+      return Context.class.getDeclaredMethod("flash");
     }
     if (Session.class.getName().equals(rawType)) {
-      if (paramType == ParamType.OPTIONAL) {
+      if (paramType.isOptional()) {
         return Context.class.getDeclaredMethod("sessionOrNull");
       } else {
         return Context.class.getDeclaredMethod("session");
@@ -507,7 +533,7 @@ public class MvcHandlerCompiler {
   }
 
   public String getHandlerName() {
-    return getOwner() + "$" + executable.getSimpleName();
+    return getOwner() + "$" + httpMethod.toUpperCase() + "$" + executable.getSimpleName();
   }
 
   public String getHandlerInternal() {

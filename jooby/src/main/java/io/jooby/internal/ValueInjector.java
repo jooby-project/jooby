@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -105,9 +106,7 @@ public class ValueInjector {
     return result;
   }
 
-  private <T> T setters(T newInstance, Value object, Set<Value> skip)
-      throws IllegalAccessException, InstantiationException, InvocationTargetException,
-      NoSuchMethodException {
+  private <T> T setters(T newInstance, Value object, Set<Value> skip) {
     Method[] methods = newInstance.getClass().getMethods();
     for (Value value : object) {
       if (!skip.contains(value)) {
@@ -123,6 +122,8 @@ public class ValueInjector {
             Object arg = value(value, parameter.getType(),
                 parameter.getParameterizedType());
             method.invoke(newInstance, arg);
+          } catch (InvocationTargetException x) {
+            throw new ProvisioningException(parameter, x.getCause());
           } catch (Exception x) {
             throw new ProvisioningException(parameter, x);
           }
@@ -227,6 +228,9 @@ public class ValueInjector {
     if (UUID.class == rawType) {
       return true;
     }
+    if (Instant.class == rawType) {
+      return true;
+    }
     if (BigDecimal.class == rawType) {
       return true;
     }
@@ -300,6 +304,9 @@ public class ValueInjector {
     }
     if (UUID.class == rawType) {
       return UUID.fromString(value.get(0).value());
+    }
+    if (Instant.class == rawType) {
+      return Instant.ofEpochMilli(value.get(0).longValue());
     }
     if (BigDecimal.class == rawType) {
       return new BigDecimal(value.get(0).value());

@@ -12,6 +12,7 @@ import source.EnumParam;
 import source.JavaBeanParam;
 import source.Provisioning;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,56 @@ public class MvcProcessorTest {
         .compile("session", args(Session.class), handler -> {
           assertEquals("session", handler.apply(new MockContext()));
         });
+  }
+
+  @Test
+  public void queryParam() throws Exception {
+    new TestProcessor(new Provisioning())
+        .compile("queryParam", args(String.class), handler -> {
+          assertEquals("search", handler.apply(new MockContext().setPathString("/?q=search")));
+        })
+    ;
+  }
+
+  @Test
+  public void cookieParam() throws Exception {
+    new TestProcessor(new Provisioning())
+        .compile("cookieParam", args(String.class), handler -> {
+          assertEquals("cookie",
+              handler.apply(new MockContext().setCookieMap(mapOf("c", "cookie"))));
+        })
+    ;
+  }
+
+  @Test
+  public void headerParam() throws Exception {
+    long epoc = System.currentTimeMillis();
+    new TestProcessor(new Provisioning())
+        .compile("headerParam", args(Instant.class), handler -> {
+          assertEquals(String.valueOf(epoc),
+              handler.apply(new MockContext().setRequestHeader("instant", String.valueOf(epoc))));
+        })
+    ;
+  }
+
+  @Test
+  public void flashParam() throws Exception {
+    new TestProcessor(new Provisioning())
+        .compile("flashParam", args(String.class), handler -> {
+          assertEquals("hey", handler.apply(new MockContext().setFlashAttribute("message", "hey")));
+        })
+    ;
+  }
+
+  @Test
+  public void formParam() throws Exception {
+    Multipart formdata = Multipart.create();
+    formdata.put("name", "yo");
+    new TestProcessor(new Provisioning())
+        .compile("formParam", args(String.class), handler -> {
+          assertEquals("yo", handler.apply(new MockContext().setMultipart(formdata)));
+        })
+    ;
   }
 
   @Test
@@ -130,7 +181,7 @@ public class MvcProcessorTest {
         .compile("primitiveWrapper", args(Integer.class), handler -> {
           assertEquals("9", handler.apply(new MockContext().setPathMap(mapOf("value", "9"))));
         })
-        ;
+    ;
   }
 
   public static Class[] args(Class... args) {

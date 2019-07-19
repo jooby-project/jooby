@@ -200,7 +200,7 @@ public class JettyContext implements Callback, DefaultContext {
     return multipart;
   }
 
-  @Nonnull @Override public Value headers() {
+  @Nonnull @Override public Value header() {
     if (headers == null) {
       Enumeration<String> names = request.getHeaderNames();
       Map<String, Collection<String>> headerMap = new LinkedHashMap<>();

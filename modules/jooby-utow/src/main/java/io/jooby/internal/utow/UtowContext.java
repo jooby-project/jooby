@@ -156,7 +156,7 @@ public class UtowContext implements DefaultContext, IoCallback {
     return Value.create(name, exchange.getRequestHeaders().get(name));
   }
 
-  @Nonnull @Override public Value headers() {
+  @Nonnull @Override public Value header() {
     HeaderMap map = exchange.getRequestHeaders();
     if (headers == null) {
       Map<String, Collection<String>> headerMap = new LinkedHashMap<>();

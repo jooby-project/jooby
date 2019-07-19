@@ -98,7 +98,7 @@ public interface Context extends Registry {
    *
    * @return Flash map.
    */
-  @Nonnull FlashMap flashMap();
+  @Nonnull FlashMap flash();
 
   /**
    * Get a flash attribute.
@@ -107,15 +107,6 @@ public interface Context extends Registry {
    * @return Flash attribute.
    */
   @Nonnull Value flash(@Nonnull String name);
-
-  /**
-   * Set a flash attribute.
-   *
-   * @param name Attribute's name.
-   * @param value Attribute's value.
-   * @return This context.
-   */
-  @Nonnull Context flash(@Nonnull String name, @Nonnull String value);
 
   /**
    * Find a session or creates a new session.
@@ -334,7 +325,7 @@ public interface Context extends Registry {
    *
    * @return Request headers as {@link Value}.
    */
-  @Nonnull Value headers();
+  @Nonnull Value header();
 
   /**
    * Get a header that matches the given name.

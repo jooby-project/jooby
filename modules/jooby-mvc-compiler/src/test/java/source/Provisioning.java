@@ -6,12 +6,18 @@ import io.jooby.Formdata;
 import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Session;
+import io.jooby.annotations.CookieParam;
+import io.jooby.annotations.FlashParam;
+import io.jooby.annotations.FormParam;
 import io.jooby.annotations.GET;
-import io.jooby.annotations.POST;
+import io.jooby.annotations.HeaderParam;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
+import io.jooby.annotations.QueryParam;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -50,13 +56,13 @@ public class Provisioning {
     return "queryStringOptional:" + queryString.isPresent();
   }
 
-  @POST("/formdata")
+  @GET("/formdata")
   public String formdata(Formdata value) {
     assertTrue(value instanceof Formdata);
     return "formdata";
   }
 
-  @POST("/multipart")
+  @GET("/multipart")
   public String multipart(Multipart value) {
     assertTrue(value instanceof Multipart);
     return "multipart";
@@ -177,5 +183,30 @@ public class Provisioning {
   @GET
   public String primitiveWrapper(@PathParam Integer value) {
     return String.valueOf(value);
+  }
+
+  @GET
+  public String queryParam(@QueryParam String q) {
+    return q;
+  }
+
+  @GET
+  public String cookieParam(@CookieParam String c) {
+    return c;
+  }
+
+  @GET
+  public String headerParam(@HeaderParam Instant instant) {
+    return String.valueOf(instant.toEpochMilli());
+  }
+
+  @GET
+  public String flashParam(@FlashParam String message) {
+    return message;
+  }
+
+  @GET
+  public String formParam(@FormParam String name) {
+    return name;
   }
 }
