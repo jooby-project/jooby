@@ -33,7 +33,7 @@ class Poc {
 
   @POST
   @Path(("/body/json"))
-  public String getIt(@PathParam Optional<String> p1) {
+  public String getIt(@PathParam Integer p1) {
     return p1.toString();
   }
 
@@ -68,7 +68,7 @@ class MvcHandlerImpl implements MvcHandler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    return provider.get().getIt(ctx.path("p1").toOptional());
+    return provider.get().getIt(ctx.path("p1").to(Integer.class));
   }
 }
 
@@ -80,7 +80,7 @@ public class MvcHandlerASM {
     //    ASMifier.main(new String[] {"-debug",MvcHandler.class.getName()});
 //public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
     //      @PathParam long j, @PathParam double f, @PathParam boolean b) {
-    Method handler = Poc.class.getDeclaredMethod("getIt", Optional.class);
+    Method handler = Poc.class.getDeclaredMethod("getIt", Integer.class);
     Class runtime = MvcCompiler.compileClass(mvc(handler));
 
     System.out.println("Loaded: " + runtime);

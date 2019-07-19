@@ -39,7 +39,7 @@ public class MockContext implements DefaultContext {
 
   private String pathString;
 
-  private Map<String, String> pathMap;
+  private Map<String, String> pathMap = new HashMap<>();
 
   private String queryString;
 

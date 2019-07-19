@@ -193,7 +193,7 @@ public class MvcHandlerCompiler {
         String parameterName = parameterName(parameter, Annotations.PATH_PARAMS);
 
         Method paramValue = paramValue(parameter, paramType);
-        boolean dynamic = paramValue.getName().equals("to");
+        boolean dynamic = paramValue.getName().equals("to") && !isSimpleType(paramType.arg0(parameter.asType()));
         if (dynamic) {
           Method pathParam = Context.class.getDeclaredMethod("path");
           apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
@@ -225,11 +225,18 @@ public class MvcHandlerCompiler {
           Method pathParam = Context.class.getDeclaredMethod("path", String.class);
           apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
               getMethodDescriptor(pathParam), true);
-          if ((paramType.isOptional() || paramType.isList() || paramType.isSet()) && !eq(String.class, rawType)) {
+          // to(Class)
+          boolean toClass = paramValue.getName().equals("to");
+          // toOptional(Class) or toList(Class) or toSet(Class)
+          boolean toOptColClass = (paramType.isOptional() || paramType.isList() || paramType.isSet()) && !eq(String.class, rawType);
+          if (toOptColClass || toClass) {
             apply.visitLdcInsn(asmType(rawType));
           }
           apply.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", paramValue.getName(),
               getMethodDescriptor(paramValue), true);
+          if (toClass) {
+            apply.visitTypeInsn(CHECKCAST, asmType(rawType(parameter)).getInternalName());
+          }
         }
       }
     }

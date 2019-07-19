@@ -123,7 +123,14 @@ public class MvcProcessorTest {
         })
         .compile("listEnumParam", args(List.class), handler -> {
           assertEquals("[B]", handler.apply(new MockContext().setPathMap(mapOf("letter", "B"))));
-        });
+        })
+        .compile("primitiveWrapper", args(Integer.class), handler -> {
+          assertEquals("null", handler.apply(new MockContext()));
+        })
+        .compile("primitiveWrapper", args(Integer.class), handler -> {
+          assertEquals("9", handler.apply(new MockContext().setPathMap(mapOf("value", "9"))));
+        })
+        ;
   }
 
   public static Class[] args(Class... args) {

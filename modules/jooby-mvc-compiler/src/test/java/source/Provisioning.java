@@ -173,4 +173,9 @@ public class Provisioning {
   public String listEnumParam(@PathParam List<EnumParam> letter) {
     return letter.toString();
   }
+
+  @GET
+  public String primitiveWrapper(@PathParam Integer value) {
+    return String.valueOf(value);
+  }
 }
