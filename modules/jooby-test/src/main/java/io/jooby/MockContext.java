@@ -61,7 +61,12 @@ public class MockContext implements DefaultContext {
 
   private Map<String, String> cookies = new LinkedHashMap<>();
 
+  private FlashMap flashMap = FlashMap.create(this, new Cookie("jooby.sid").setHttpOnly(true));
+
+  private Session session;
+
   private Router router;
+
 
   @Nonnull @Override public String getMethod() {
     return method;
@@ -70,6 +75,17 @@ public class MockContext implements DefaultContext {
   MockContext setMethod(@Nonnull String method) {
     this.method = method;
     return this;
+  }
+
+  @Nonnull @Override public Session session() {
+    if (session == null) {
+      session = new MockSession();
+    }
+    return session;
+  }
+
+  @Nullable @Override public Session sessionOrNull() {
+    return session;
   }
 
   @Nonnull @Override public Map<String, String> cookieMap() {
@@ -84,6 +100,20 @@ public class MockContext implements DefaultContext {
    */
   @Nonnull public MockContext setCookieMap(@Nonnull Map<String, String> cookies) {
     this.cookies = cookies;
+    return this;
+  }
+
+  @Nonnull @Override public FlashMap flashMap() {
+    return flashMap;
+  }
+
+  /**
+   * Set flash map.
+   *
+   * @param flashMap Flash map.
+   */
+  public MockContext setFlashMap(@Nonnull FlashMap flashMap) {
+    this.flashMap = flashMap;
     return this;
   }
 
