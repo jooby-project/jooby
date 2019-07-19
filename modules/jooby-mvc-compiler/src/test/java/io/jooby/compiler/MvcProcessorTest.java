@@ -8,6 +8,7 @@ import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Session;
 import org.junit.jupiter.api.Test;
+import source.EnumParam;
 import source.JavaBeanParam;
 import source.Provisioning;
 
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -91,13 +93,36 @@ public class MvcProcessorTest {
           assertEquals("bar", handler.apply(new MockContext().setPathMap(mapOf("foo", "bar"))));
         })
         .compile("listStringPathParam", args(List.class), handler -> {
-          assertEquals("[bar]", handler.apply(new MockContext().setPathMap(mapOf("values", "bar"))));
+          assertEquals("[bar]",
+              handler.apply(new MockContext().setPathMap(mapOf("values", "bar"))));
         })
         .compile("listDoublePathParam", args(List.class), handler -> {
-          assertEquals("[6.7]", handler.apply(new MockContext().setPathMap(mapOf("values", "6.7"))));
+          assertEquals("[6.7]",
+              handler.apply(new MockContext().setPathMap(mapOf("values", "6.7"))));
         })
         .compile("listBeanPathParam", args(List.class), handler -> {
           assertEquals("[bar]", handler.apply(new MockContext().setPathMap(mapOf("foo", "bar"))));
+        })
+        .compile("setStringPathParam", args(Set.class), handler -> {
+          assertEquals("[bar]",
+              handler.apply(new MockContext().setPathMap(mapOf("values", "bar"))));
+        })
+        .compile("setDoublePathParam", args(Set.class), handler -> {
+          assertEquals("[6.7]",
+              handler.apply(new MockContext().setPathMap(mapOf("values", "6.7"))));
+        })
+        .compile("setBeanPathParam", args(Set.class), handler -> {
+          assertEquals("[bar]", handler.apply(new MockContext().setPathMap(mapOf("foo", "bar"))));
+        })
+        .compile("enumParam", args(EnumParam.class), handler -> {
+          assertEquals("A", handler.apply(new MockContext().setPathMap(mapOf("letter", "a"))));
+        })
+        .compile("optionalEnumParam", args(Optional.class), handler -> {
+          assertEquals("Optional[A]",
+              handler.apply(new MockContext().setPathMap(mapOf("letter", "a"))));
+        })
+        .compile("listEnumParam", args(List.class), handler -> {
+          assertEquals("[B]", handler.apply(new MockContext().setPathMap(mapOf("letter", "B"))));
         });
   }
 

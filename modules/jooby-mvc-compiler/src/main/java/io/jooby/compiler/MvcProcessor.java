@@ -136,6 +136,4 @@ public class MvcProcessor implements Processor {
       ExecutableElement member, String userText) {
     return Collections.emptyList();
   }
-  // https://github.com/square/javapoet
-  // https://medium.com/inloopx/weapons-for-boilerplate-destruction-pt-3-testing-the-annotation-processor-f486fb19f5b1
 }

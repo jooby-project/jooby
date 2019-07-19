@@ -9,6 +9,7 @@ import io.jooby.BadRequestException;
 import io.jooby.FileUpload;
 import io.jooby.MissingValueException;
 import io.jooby.ProvisioningException;
+import io.jooby.SneakyThrows;
 import io.jooby.TypeMismatchException;
 import io.jooby.Value;
 import io.jooby.internal.reflect.$Types;
@@ -292,7 +293,7 @@ public class ValueInjector {
     if (Optional.class.isAssignableFrom(rawType)) {
       try {
         Class itemType = $Types.parameterizedType0(type);
-        return Optional.ofNullable(value(value.get(0), itemType, itemType));
+        return Optional.ofNullable(value(value.isObject() && value.size() > 0 ? value : value.get(0), itemType, itemType));
       } catch (MissingValueException x) {
         return Optional.empty();
       }
@@ -329,7 +330,18 @@ public class ValueInjector {
     try {
       Method valueOf = rawType.getMethod("valueOf", String.class);
       if (Modifier.isStatic(valueOf.getModifiers())) {
-        return valueOf.invoke(null, value.iterator().next().value());
+        String enumKey = value.iterator().next().value();
+        try {
+          return valueOf.invoke(null, enumKey);
+        } catch (InvocationTargetException x) {
+          Throwable cause = x.getCause();
+          if (cause instanceof IllegalArgumentException) {
+            // fallback to upper case
+            return valueOf.invoke(null, enumKey.toUpperCase());
+          } else {
+            throw SneakyThrows.propagate(cause);
+          }
+        }
       }
     } catch (NoSuchMethodException x) {
       // Ignored

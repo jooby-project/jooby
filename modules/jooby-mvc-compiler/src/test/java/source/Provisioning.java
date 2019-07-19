@@ -13,6 +13,7 @@ import io.jooby.annotations.PathParam;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -141,5 +142,35 @@ public class Provisioning {
   @GET
   public String listBeanPathParam(@PathParam List<JavaBeanParam> bean) {
     return bean.toString();
+  }
+
+  @GET
+  public String setStringPathParam(@PathParam Set<String> values) {
+    return values.toString();
+  }
+
+  @GET
+  public String setDoublePathParam(@PathParam Set<Double> values) {
+    return values.toString();
+  }
+
+  @GET
+  public String setBeanPathParam(@PathParam Set<JavaBeanParam> bean) {
+    return bean.toString();
+  }
+
+  @GET
+  public String enumParam(@PathParam EnumParam letter) {
+    return letter.name();
+  }
+
+  @GET
+  public String optionalEnumParam(@PathParam Optional<EnumParam> letter) {
+    return letter.toString();
+  }
+
+  @GET
+  public String listEnumParam(@PathParam List<EnumParam> letter) {
+    return letter.toString();
   }
 }

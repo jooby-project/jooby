@@ -69,6 +69,7 @@ public class MvcHandlerCompiler {
   enum ParamType {
     OPTIONAL,
     LIST,
+    SET,
     SIMPLE,
     OBJECT;
 
@@ -78,6 +79,10 @@ public class MvcHandlerCompiler {
 
     public boolean isList() {
       return this == LIST;
+    }
+
+    public boolean isSet() {
+      return this == SET;
     }
 
     public boolean isSimple() {
@@ -204,7 +209,13 @@ public class MvcHandlerCompiler {
                 java.lang.reflect.Type.class);
             apply.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reifiedMethod.getName(),
                 getMethodDescriptor(reifiedMethod), false);
+          } else if (paramType.isSet()) {
+            Method reifiedMethod = Reified.class.getDeclaredMethod("set",
+                java.lang.reflect.Type.class);
+            apply.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reifiedMethod.getName(),
+                getMethodDescriptor(reifiedMethod), false);
           }
+
           apply.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", paramValue.getName(),
               getMethodDescriptor(paramValue), true);
           apply.visitTypeInsn(CHECKCAST, asmType(rawType(parameter)).getInternalName());
@@ -214,7 +225,7 @@ public class MvcHandlerCompiler {
           Method pathParam = Context.class.getDeclaredMethod("path", String.class);
           apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
               getMethodDescriptor(pathParam), true);
-          if ((paramType.isOptional() || paramType.isList()) && !eq(String.class, rawType)) {
+          if ((paramType.isOptional() || paramType.isList() || paramType.isSet()) && !eq(String.class, rawType)) {
             apply.visitLdcInsn(asmType(rawType));
           }
           apply.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", paramValue.getName(),
@@ -245,6 +256,9 @@ public class MvcHandlerCompiler {
     }
     if (eq(List.class, erasure)) {
       return ParamType.LIST;
+    }
+    if (eq(Set.class, erasure)) {
+      return ParamType.SET;
     }
     return ParamType.OBJECT;
   }
@@ -286,6 +300,14 @@ public class MvcHandlerCompiler {
         return Value.class.getDeclaredMethod("toList");
       } else if (isSimpleType(paramType.arg0(type))) {
         return Value.class.getDeclaredMethod("toList", Class.class);
+      } else {
+        return Value.class.getDeclaredMethod("to", Reified.class);
+      }
+    } else if (paramType.isSet()) {
+      if (eq(String.class, paramType.arg0(type))) {
+        return Value.class.getDeclaredMethod("toSet");
+      } else if (isSimpleType(paramType.arg0(type))) {
+        return Value.class.getDeclaredMethod("toSet", Class.class);
       } else {
         return Value.class.getDeclaredMethod("to", Reified.class);
       }
@@ -536,12 +558,6 @@ public class MvcHandlerCompiler {
     return Stream.of(types)
         .map(this::asmType)
         .toArray(Type[]::new);
-  }
-
-  private String[] rawTypes(TypeMirror... types) {
-    return Stream.of(types)
-        .map(this::rawType)
-        .toArray(String[]::new);
   }
 
   private static String providerOf(Type owner) {
