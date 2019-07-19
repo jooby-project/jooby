@@ -1,6 +1,5 @@
 package io.jooby.compiler;
 
-import com.sun.javafx.tools.packager.Param;
 import io.jooby.Context;
 import io.jooby.FlashMap;
 import io.jooby.Formdata;
@@ -67,14 +66,29 @@ import static org.objectweb.asm.Type.getType;
 public class MvcHandlerCompiler {
 
   enum ParamType {
-    OPTIONAL,
-    LIST,
-    SET,
+    OPTIONAL {
+      @Override public void withReified(SneakyThrows.Consumer<String> consumer) {
+        consumer.accept(name().toLowerCase());
+      }
+    },
+    LIST {
+      @Override public void withReified(SneakyThrows.Consumer<String> consumer) {
+        consumer.accept(name().toLowerCase());
+      }
+    },
+    SET {
+      @Override public void withReified(SneakyThrows.Consumer<String> consumer) {
+        consumer.accept(name().toLowerCase());
+      }
+    },
     SIMPLE,
     OBJECT;
 
     public boolean isOptional() {
       return this == OPTIONAL;
+    }
+
+    public void withReified(SneakyThrows.Consumer<String> consumer) {
     }
 
     public boolean isList() {
@@ -193,28 +207,20 @@ public class MvcHandlerCompiler {
         String parameterName = parameterName(parameter, Annotations.PATH_PARAMS);
 
         Method paramValue = paramValue(parameter, paramType);
-        boolean dynamic = paramValue.getName().equals("to") && !isSimpleType(paramType.arg0(parameter.asType()));
+        boolean dynamic =
+            paramValue.getName().equals("to") && !isSimpleType(paramType.arg0(parameter.asType()));
         if (dynamic) {
           Method pathParam = Context.class.getDeclaredMethod("path");
           apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
               getMethodDescriptor(pathParam), true);
           apply.visitLdcInsn(asmType(rawType));
-          if (paramType.isOptional()) {
-            Method reifiedMethod = Reified.class.getDeclaredMethod("optional",
-                java.lang.reflect.Type.class);
-            apply.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reifiedMethod.getName(),
-                getMethodDescriptor(reifiedMethod), false);
-          } else if (paramType.isList()) {
-            Method reifiedMethod = Reified.class.getDeclaredMethod("list",
-                java.lang.reflect.Type.class);
-            apply.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reifiedMethod.getName(),
-                getMethodDescriptor(reifiedMethod), false);
-          } else if (paramType.isSet()) {
-            Method reifiedMethod = Reified.class.getDeclaredMethod("set",
-                java.lang.reflect.Type.class);
-            apply.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reifiedMethod.getName(),
-                getMethodDescriptor(reifiedMethod), false);
-          }
+
+          /** to(Reified): */
+          paramType.withReified(name -> {
+            Method reified = Reified.class.getDeclaredMethod(name, java.lang.reflect.Type.class);
+            apply.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reified.getName(),
+                getMethodDescriptor(reified), false);
+          });
 
           apply.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", paramValue.getName(),
               getMethodDescriptor(paramValue), true);
@@ -228,7 +234,9 @@ public class MvcHandlerCompiler {
           // to(Class)
           boolean toClass = paramValue.getName().equals("to");
           // toOptional(Class) or toList(Class) or toSet(Class)
-          boolean toOptColClass = (paramType.isOptional() || paramType.isList() || paramType.isSet()) && !eq(String.class, rawType);
+          boolean toOptColClass =
+              (paramType.isOptional() || paramType.isList() || paramType.isSet()) && !eq(
+                  String.class, rawType);
           if (toOptColClass || toClass) {
             apply.visitLdcInsn(asmType(rawType));
           }
