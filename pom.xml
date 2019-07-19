@@ -82,6 +82,12 @@
     <mockito.version>3.0.0</mockito.version>
     <guava.version>28.0-jre</guava.version>
 
+    <auto-service.version>1.0-rc6</auto-service.version>
+    <compile-testing.version>0.18</compile-testing.version>
+    <truth.version>1.0</truth.version>
+    <javapoet.version>1.11.1</javapoet.version>
+    <javassist.version>3.25.0-GA</javassist.version>
+
     <!-- Gradle plugins -->
     <gradle-core.version>2.6</gradle-core.version>
     <gradle-plugins.version>0.9-rc-1</gradle-plugins.version>
@@ -628,7 +634,6 @@
         <version>${rocker.version}</version>
       </dependency>
 
-      <!-- for hot-reloading support only during development -->
       <dependency>
         <groupId>com.fizzed</groupId>
         <artifactId>rocker-compiler</artifactId>
@@ -640,6 +645,40 @@
         <groupId>org.jboss.modules</groupId>
         <artifactId>jboss-modules</artifactId>
         <version>${jboss-modules.version}</version>
+      </dependency>
+
+      <!-- auto-service -->
+      <dependency>
+        <groupId>com.google.auto.service</groupId>
+        <artifactId>auto-service</artifactId>
+        <version>${auto-service.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.testing.compile</groupId>
+        <artifactId>compile-testing</artifactId>
+        <version>${compile-testing.version}</version>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/com.google.truth/truth -->
+      <dependency>
+        <groupId>com.google.truth</groupId>
+        <artifactId>truth</artifactId>
+        <version>${truth.version}</version>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/com.squareup/javapoet -->
+      <dependency>
+        <groupId>com.squareup</groupId>
+        <artifactId>javapoet</artifactId>
+        <version>${javapoet.version}</version>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/org.javassist/javassist -->
+      <dependency>
+        <groupId>org.javassist</groupId>
+        <artifactId>javassist</artifactId>
+        <version>${javassist.version}</version>
       </dependency>
 
       <!-- Test dependencies -->

@@ -2,6 +2,9 @@ package io.jooby.internal.mvc;
 
 import io.jooby.Context;
 import io.jooby.ProvisioningException;
+import io.jooby.QueryString;
+import io.jooby.Reified;
+import io.jooby.Session;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
@@ -19,6 +22,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,8 +33,8 @@ class Poc {
 
   @POST
   @Path(("/body/json"))
-  public double getIt(@PathParam double l) {
-    return l;
+  public String getIt(@PathParam Optional<String> p1) {
+    return p1.toString();
   }
 
   @GET
@@ -49,23 +53,22 @@ class MvcHandlerImpl implements MvcHandler {
     this.provider = provider;
   }
 
-  private double tryParam0(Context ctx, String desc) {
-    try {
-      return ctx.path("l").doubleValue();
-    } catch (ProvisioningException x) {
-      throw x;
-    } catch (Exception x) {
-      throw new ProvisioningException(desc, x);
-    }
-  }
-
+//  private double tryParam0(Context ctx, String desc) {
+//    try {
+//      return ctx.path("l").doubleValue();
+//    } catch (ProvisioningException x) {
+//      throw x;
+//    } catch (Exception x) {
+//      throw new ProvisioningException(desc, x);
+//    }
+//  }
+//
   public final Object[] arguments(Context ctx) {
-    return new Object[]{tryParam0(ctx, "l: String")};
+    return null;
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    Poc target = provider.get();
-    return target.getIt(tryParam0(ctx, "l: String"));
+    return provider.get().getIt(ctx.path("p1").toOptional());
   }
 }
 
@@ -77,7 +80,7 @@ public class MvcHandlerASM {
     //    ASMifier.main(new String[] {"-debug",MvcHandler.class.getName()});
 //public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
     //      @PathParam long j, @PathParam double f, @PathParam boolean b) {
-    Method handler = Poc.class.getDeclaredMethod("getIt", double.class);
+    Method handler = Poc.class.getDeclaredMethod("getIt", Optional.class);
     Class runtime = MvcCompiler.compileClass(mvc(handler));
 
     System.out.println("Loaded: " + runtime);

@@ -16,6 +16,8 @@
     <module>jooby-bom</module>
     <module>jooby-test</module>
 
+    <module>jooby-mvc-compiler</module>
+
     <module>jooby-jetty</module>
     <module>jooby-netty</module>
     <module>jooby-utow</module>
