@@ -1,5 +1,6 @@
 package io.jooby.compiler;
 
+import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.FlashMap;
@@ -36,8 +37,10 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
@@ -95,6 +98,7 @@ public class MvcHandlerCompiler {
       }
     },
     FILE_UPLOAD,
+    BODY,
     SIMPLE,
     OBJECT;
 
@@ -115,6 +119,10 @@ public class MvcHandlerCompiler {
 
     public boolean isFileUpload() {
       return this == FILE_UPLOAD;
+    }
+
+    public boolean isBody() {
+      return this == BODY;
     }
   }
 
@@ -293,9 +301,10 @@ public class MvcHandlerCompiler {
        * Load context
        */
       visitor.visitVarInsn(ALOAD, 1);
-      ParamType paramType = paramType(parameter);
+
       String rawType = rawType(arg0(parameter.asType()));
       if (isTypeInjection(rawType)) {
+        ParamType paramType = paramType(parameter);
         if (!isContext(rawType)) {
           Method method = typeInjection(rawType, paramType);
           visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), method.getName(),
@@ -306,6 +315,7 @@ public class MvcHandlerCompiler {
               "(Ljava/lang/Object;)Ljava/util/Optional;", false);
         }
       } else {
+        ParamType paramType = paramType(parameter);
         if (paramType.isFileUpload()) {
           if (eq(List.class, rawType(parameter.asType()))) {
             additionalMethods.put(parameter.getSimpleName().toString(), this::files);
@@ -335,27 +345,58 @@ public class MvcHandlerCompiler {
           boolean dynamic =
               paramValue.getName().equals("to") && !isSimpleType(arg0(parameter.asType()));
           if (dynamic) {
-            Method pathParam = Context.class.getDeclaredMethod(strategy.getKey());
-            visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
-                getMethodDescriptor(pathParam), true);
-            visitor.visitLdcInsn(asmType(rawType));
+            Method paramMethod = Context.class.getDeclaredMethod(strategy.getKey());
+            visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
+                getMethodDescriptor(paramMethod), true);
 
-            /** to(Reified): */
-            paramType.withReified(name -> {
-              Method reified = Reified.class.getDeclaredMethod(name, java.lang.reflect.Type.class);
-              visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reified.getName(),
-                  getMethodDescriptor(reified), false);
-            });
+//            methodVisitor.visitVarInsn(ALOAD, 1);
+//            methodVisitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "body", "()Lio/jooby/Body;", true);
+//            methodVisitor.visitLdcInsn(Type.getType("Lio/jooby/internal/mvc/QPoint;"));
+//            methodVisitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Body", "to", "(Ljava/lang/Class;)Ljava/lang/Object;", true);
+//            methodVisitor.visitTypeInsn(CHECKCAST, "io/jooby/internal/mvc/QPoint");
+//            methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/internal/mvc/Poc", "getIt", "(Lio/jooby/internal/mvc/QPoint;)Ljava/lang/String;", false);
 
-            visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", paramValue.getName(),
-                getMethodDescriptor(paramValue), true);
-            visitor.visitTypeInsn(CHECKCAST, asmType(rawType(parameter)).getInternalName());
+            if (strategy.getKey().equals("body") && rawType.equals("byte[]")) {
+              Method bytes = Body.class.getDeclaredMethod("bytes");
+              visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Body", bytes.getName(),
+                  getMethodDescriptor(bytes), true);
+            } else if (strategy.getKey().equals("body") && eq(InputStream.class, rawType)) {
+              Method stream = Body.class.getDeclaredMethod("stream");
+              visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Body", stream.getName(),
+                  getMethodDescriptor(stream), true);
+            } else if (strategy.getKey().equals("body") && eq(ReadableByteChannel.class, rawType)) {
+              Method channel = Body.class.getDeclaredMethod("channel");
+              visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Body", channel.getName(),
+                  getMethodDescriptor(channel), true);
+            } else {
+              visitor.visitLdcInsn(asmType(rawType));
+
+              /** to(Reified): */
+              paramType.withReified(name -> {
+                Method reified = Reified.class
+                    .getDeclaredMethod(name, java.lang.reflect.Type.class);
+                visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reified.getName(),
+                    getMethodDescriptor(reified), false);
+              });
+
+              String valueOwner = strategy.getKey().equals("body") ? "io/jooby/Body" : "io/jooby/Value";
+              visitor.visitMethodInsn(INVOKEINTERFACE, valueOwner, paramValue.getName(),
+                  getMethodDescriptor(paramValue), true);
+              visitor.visitTypeInsn(CHECKCAST, asmType(rawType(parameter)).getInternalName());
+            }
           } else {
-            visitor.visitLdcInsn(parameterName);
-
-            Method pathParam = Context.class.getDeclaredMethod(strategy.getKey(), String.class);
-            visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
-                getMethodDescriptor(pathParam), true);
+            try {
+              /** param(String) vs body() */
+              Method paramMethod = Context.class.getDeclaredMethod(strategy.getKey(), String.class);
+              visitor.visitLdcInsn(parameterName);
+              visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
+                  getMethodDescriptor(paramMethod), true);
+            } catch (NoSuchMethodException x) {
+              /** must be: body() */
+              Method paramMethod = Context.class.getDeclaredMethod(strategy.getKey());
+              visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
+                  getMethodDescriptor(paramMethod), true);
+            }
             // to(Class)
             boolean toClass = paramValue.getName().equals("to");
             // toOptional(Class) or toList(Class) or toSet(Class)
@@ -431,13 +472,24 @@ public class MvcHandlerCompiler {
     return PARAMS.entrySet().stream()
         .filter(it -> isParam(parameter, it.getValue()))
         .findFirst()
-        .orElseThrow(() -> new ProvisioningException(
-            "Unable to provision parameter: '" + parameter + ": " + parameter.asType() + "'",
-            null));
+        .orElseGet(() -> new Map.Entry<String, Set<String>>() {
+          @Override public String getKey() {
+            return "body";
+          }
+
+          @Override public Set<String> getValue() {
+            return Collections.emptySet();
+          }
+
+          @Override public Set<String> setValue(Set<String> value) {
+            return null;
+          }
+        });
   }
 
   private ParamType paramType(VariableElement parameter) {
     TypeMirror typeMirror = parameter.asType();
+    paramStrategy(parameter);
     if (isSimpleType(typeMirror)) {
       return ParamType.SIMPLE;
     }
@@ -735,24 +787,48 @@ public class MvcHandlerCompiler {
     switch (type) {
       case "byte":
         return Type.BYTE_TYPE;
+      case "byte[]":
+        return Type.getType(byte[].class);
       case "int":
         return Type.INT_TYPE;
+      case "int[]":
+        return Type.getType(int[].class);
       case "long":
         return Type.LONG_TYPE;
+      case "long[]":
+        return Type.getType(long[].class);
       case "float":
         return Type.FLOAT_TYPE;
+      case "float[]":
+        return Type.getType(float[].class);
       case "double":
         return Type.DOUBLE_TYPE;
+      case "double[]":
+        return Type.getType(double[].class);
       case "boolean":
         return Type.BOOLEAN_TYPE;
+      case "boolean[]":
+        return Type.getType(boolean[].class);
       case "void":
         return Type.VOID_TYPE;
       case "short":
         return Type.SHORT_TYPE;
+      case "short[]":
+        return Type.getType(short[].class);
       case "char":
         return Type.CHAR_TYPE;
+      case "char[]":
+        return Type.getType(char[].class);
+      case "String":
+        return Type.getType(String.class);
+      case "String[]":
+        return Type.getType(String[].class);
       default:
-        return Type.getObjectType(type.replace(".", "/"));
+        String prefix = "";
+        if (type.endsWith("[]")) {
+          prefix = "[";
+        }
+        return Type.getObjectType(prefix + type.replace(".", "/"));
     }
   }
 

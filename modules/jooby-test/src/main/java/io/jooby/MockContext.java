@@ -237,6 +237,9 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public Body body() {
+    if (body == null) {
+      throw new IllegalStateException("No body was set, use setBody() to set one.");
+    }
     return body;
   }
 

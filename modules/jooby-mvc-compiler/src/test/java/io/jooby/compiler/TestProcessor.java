@@ -55,6 +55,7 @@ public class TestProcessor {
     Class clazz = instance.getClass();
     Method method = clazz.getMethod(executableName, args);
     String key = clazz.getName() + "." + executableName + Type.getMethodDescriptor(method);
+//    key = key.replace("[B", "Lbyte[];");
     MvcHandlerCompiler compiler = processor.compilerFor(key);
     assertNotNull("Compiler not found for: " + method, compiler);
     if (debug) {

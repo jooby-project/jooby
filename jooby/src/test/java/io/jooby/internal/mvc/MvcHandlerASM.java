@@ -35,8 +35,8 @@ class Poc {
 
   @POST
   @Path(("/body/json"))
-  public void getIt() {
-
+  public String getIt(QPoint body) {
+      return body.toString();
   }
 
   @GET
@@ -70,13 +70,7 @@ class MvcHandlerImpl implements MvcHandler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    provider.get().getIt();
-    return ctx.send(StatusCode.NO_CONTENT);
-  }
-
-  private static java.nio.file.Path path(Context ctx) {
-    FileUpload upload = ctx.file("xxx");
-    return upload.path();
+    return provider.get().getIt(ctx.body().to(QPoint.class));
   }
 }
 
@@ -88,7 +82,7 @@ public class MvcHandlerASM {
     //    ASMifier.main(new String[] {"-debug",MvcHandler.class.getName()});
     //public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
     //      @PathParam long j, @PathParam double f, @PathParam boolean b) {
-    Method handler = Poc.class.getDeclaredMethod("getIt");
+    Method handler = Poc.class.getDeclaredMethod("getIt", QPoint.class);
     Class runtime = MvcCompiler.compileClass(mvc(handler));
 
     System.out.println("Loaded: " + runtime);

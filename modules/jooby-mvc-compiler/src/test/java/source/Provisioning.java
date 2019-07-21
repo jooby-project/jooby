@@ -13,13 +13,17 @@ import io.jooby.annotations.FlashParam;
 import io.jooby.annotations.FormParam;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.HeaderParam;
+import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -313,5 +317,38 @@ public class Provisioning {
   @GET
   public void sideEffect(Context ctx) {
     ctx.send(StatusCode.CREATED);
+  }
+
+  @POST
+  @Path("/body/str")
+  public String bodyStringParam(String body) {
+    return body;
+  }
+
+  @POST
+  @Path("/body/bytes")
+  public String bodyBytesParam(byte[] body) {
+    return new String(body, StandardCharsets.UTF_8);
+  }
+
+
+  @POST
+  @Path("/body/stream")
+  public String bodyInputStreamParam(InputStream body) {
+    assertTrue(body instanceof InputStream);
+    return body.toString();
+  }
+
+  @POST
+  @Path("/body/channel")
+  public String bodyChannelParam(ReadableByteChannel body) {
+    assertTrue(body instanceof ReadableByteChannel);
+    return body.toString();
+  }
+
+  @POST
+  @Path("/body/bean")
+  public String bodyBeanParam(JavaBeanParam body) {
+    return body.toString();
   }
 }

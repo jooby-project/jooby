@@ -1,5 +1,6 @@
 package io.jooby.compiler;
 
+import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.FlashMap;
@@ -14,8 +15,10 @@ import source.EnumParam;
 import source.JavaBeanParam;
 import source.Provisioning;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -304,6 +307,35 @@ public class MvcProcessorTest {
           assertEquals(StatusCode.CREATED, ctx.getResponseCode());
         })
     ;
+  }
+
+  @Test
+  public void body() throws Exception {
+    new TestProcessor(new Provisioning())
+        .compile("POST","bodyStringParam", args(String.class), handler -> {
+          assertEquals("...", handler.apply(new MockContext().setBody("...")));
+        })
+        .compile("POST","bodyBytesParam", args(byte[].class), handler -> {
+          assertEquals("...", handler.apply(new MockContext().setBody("...".getBytes(StandardCharsets.UTF_8))));
+        })
+        .compile("POST","bodyInputStreamParam", args(InputStream.class), handler -> {
+          InputStream stream = mock(InputStream.class);
+          Body body = mock(Body.class);
+          when(body.stream()).thenReturn(stream);
+          assertEquals(stream.toString(), handler.apply(new MockContext().setBody(body)));
+        })
+        .compile("POST","bodyChannelParam", args(ReadableByteChannel.class), handler -> {
+          ReadableByteChannel channel = mock(ReadableByteChannel.class);
+          Body body = mock(Body.class);
+          when(body.channel()).thenReturn(channel);
+          assertEquals(channel.toString(), handler.apply(new MockContext().setBody(body)));
+        })
+        .compile("POST","bodyBeanParam", args(JavaBeanParam.class), handler -> {
+          JavaBeanParam bean = mock(JavaBeanParam.class);
+          Body body = mock(Body.class);
+          when(body.to(JavaBeanParam.class)).thenReturn(bean);
+          assertEquals(bean.toString(), handler.apply(new MockContext().setBody(body)));
+        });
   }
 
   public static Class[] args(Class... args) {
