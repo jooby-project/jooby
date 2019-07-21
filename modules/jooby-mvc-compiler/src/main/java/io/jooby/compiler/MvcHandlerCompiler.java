@@ -349,13 +349,6 @@ public class MvcHandlerCompiler {
             visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
                 getMethodDescriptor(paramMethod), true);
 
-//            methodVisitor.visitVarInsn(ALOAD, 1);
-//            methodVisitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "body", "()Lio/jooby/Body;", true);
-//            methodVisitor.visitLdcInsn(Type.getType("Lio/jooby/internal/mvc/QPoint;"));
-//            methodVisitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Body", "to", "(Ljava/lang/Class;)Ljava/lang/Object;", true);
-//            methodVisitor.visitTypeInsn(CHECKCAST, "io/jooby/internal/mvc/QPoint");
-//            methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/internal/mvc/Poc", "getIt", "(Lio/jooby/internal/mvc/QPoint;)Ljava/lang/String;", false);
-
             if (strategy.getKey().equals("body") && rawType.equals("byte[]")) {
               Method bytes = Body.class.getDeclaredMethod("bytes");
               visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Body", bytes.getName(),

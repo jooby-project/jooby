@@ -312,6 +312,10 @@ public class MvcProcessorTest {
   @Test
   public void body() throws Exception {
     new TestProcessor(new Provisioning())
+        .compile("POST","bodyMapParam", args(Map.class), true, handler -> {
+          Body body = mock(Body.class);
+          assertEquals(9, handler.apply(new MockContext().setBody(body)));
+        })
         .compile("POST","bodyStringParam", args(String.class), handler -> {
           assertEquals("...", handler.apply(new MockContext().setBody("...")));
         })
@@ -335,7 +339,13 @@ public class MvcProcessorTest {
           Body body = mock(Body.class);
           when(body.to(JavaBeanParam.class)).thenReturn(bean);
           assertEquals(bean.toString(), handler.apply(new MockContext().setBody(body)));
-        });
+        })
+        .compile("POST","bodyIntParam", args(int.class), handler -> {
+          Body body = mock(Body.class);
+          when(body.intValue()).thenReturn(9);
+          assertEquals(9, handler.apply(new MockContext().setBody(body)));
+        })
+        ;
   }
 
   public static Class[] args(Class... args) {

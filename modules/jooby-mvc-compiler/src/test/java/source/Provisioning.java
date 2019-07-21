@@ -351,4 +351,16 @@ public class Provisioning {
   public String bodyBeanParam(JavaBeanParam body) {
     return body.toString();
   }
+
+  @POST
+  @Path("/body/int")
+  public int bodyIntParam(int body) {
+    return body;
+  }
+
+  @POST
+  @Path("/body/int")
+  public Map<String, Object> bodyMapParam(Map<String, Object> json) {
+    return json;
+  }
 }
