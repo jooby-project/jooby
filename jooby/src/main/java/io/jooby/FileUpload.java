@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +62,11 @@ public interface FileUpload extends Value {
 
   @Override default int size() {
     return 1;
+  }
+
+  @Nonnull @Override default Iterator<Value> iterator() {
+    Iterator iterator = Collections.singletonList(this).iterator();
+    return iterator;
   }
 
   @Override default @Nonnull String value() {
@@ -115,10 +121,6 @@ public interface FileUpload extends Value {
    * @return File size.
    */
   long getFileSize();
-
-  @Override default FileUpload fileUpload() {
-    return this;
-  }
 
   /**
    * Free resources, delete temporary file.

@@ -442,7 +442,7 @@ public class MvcCompiler {
                 true);
       } else if (paramClass == FlashMap.class) {
         visitor
-            .visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "flashMap", "()Lio/jooby/FlashMap;",
+            .visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "flash", "()Lio/jooby/FlashMap;",
                 true);
       } else {
         String source;

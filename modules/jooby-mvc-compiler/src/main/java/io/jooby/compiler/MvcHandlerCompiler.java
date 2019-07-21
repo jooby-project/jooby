@@ -1,8 +1,7 @@
 package io.jooby.compiler;
 
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.TypeSpec;
 import io.jooby.Context;
+import io.jooby.FileUpload;
 import io.jooby.FlashMap;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
@@ -17,6 +16,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.util.ASMifier;
 import org.objectweb.asm.util.Printer;
@@ -36,16 +36,21 @@ import javax.lang.model.util.Types;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -54,8 +59,11 @@ import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -85,6 +93,7 @@ public class MvcHandlerCompiler {
         consumer.accept(name().toLowerCase());
       }
     },
+    FILE_UPLOAD,
     SIMPLE,
     OBJECT;
 
@@ -103,21 +112,8 @@ public class MvcHandlerCompiler {
       return this == SET;
     }
 
-    public boolean isSimple() {
-      return this == SIMPLE;
-    }
-
-    public boolean isObject() {
-      return this == OBJECT;
-    }
-
-    public TypeMirror arg0(TypeMirror mirror) {
-      if (mirror instanceof DeclaredType) {
-        DeclaredType declaredType = (DeclaredType) mirror;
-        List<? extends TypeMirror> args = declaredType.getTypeArguments();
-        return args.isEmpty() ? declaredType : arg0(args.get(0));
-      }
-      return mirror;
+    public boolean isFileUpload() {
+      return this == FILE_UPLOAD;
     }
   }
 
@@ -148,6 +144,7 @@ public class MvcHandlerCompiler {
   private final ExecutableElement executable;
   private final ProcessingEnvironment environment;
   private final String httpMethod;
+  private Map<String, SneakyThrows.Consumer2<String, ClassWriter>> additionalMethods = new LinkedHashMap<>();
 
   public MvcHandlerCompiler(ProcessingEnvironment environment, String httpMethod,
       ExecutableElement executable) {
@@ -177,6 +174,11 @@ public class MvcHandlerCompiler {
 
     /** Apply implementation: */
     apply(writer);
+
+    for (Map.Entry<String, SneakyThrows.Consumer2<String, ClassWriter>> additionalMethod : additionalMethods
+        .entrySet()) {
+      additionalMethod.getValue().accept(additionalMethod.getKey(), writer);
+    }
 
     writer.visitEnd();
     return writer.toByteArray();
@@ -210,7 +212,7 @@ public class MvcHandlerCompiler {
        */
       apply.visitVarInsn(ALOAD, 1);
       ParamType paramType = paramType(parameter);
-      String rawType = rawType(paramType.arg0(parameter.asType()));
+      String rawType = rawType(arg0(parameter.asType()));
       if (isTypeInjection(rawType)) {
         if (!isContext(rawType)) {
           Method method = typeInjection(rawType, paramType);
@@ -222,48 +224,70 @@ public class MvcHandlerCompiler {
               "(Ljava/lang/Object;)Ljava/util/Optional;", false);
         }
       } else {
-        Map.Entry<String, Set<String>> strategy = paramStrategy(parameter);
+        if (paramType.isFileUpload()) {
+          if (eq(List.class, rawType(parameter.asType()))) {
+            additionalMethods.put(parameter.getSimpleName().toString(), this::files);
+            apply.visitMethodInsn(INVOKESTATIC, getHandlerInternal(),
+                parameter.getSimpleName().toString(),
+                "(Lio/jooby/Context;)Ljava/util/List;", false);
+          } else {
+            apply.visitLdcInsn(parameter.getSimpleName().toString());
 
-        String parameterName = parameterName(parameter, strategy.getValue());
+            Method fileMethod = Context.class.getDeclaredMethod("file", String.class);
 
-        Method paramValue = paramValue(parameter, paramType);
-        boolean dynamic =
-            paramValue.getName().equals("to") && !isSimpleType(paramType.arg0(parameter.asType()));
-        if (dynamic) {
-          Method pathParam = Context.class.getDeclaredMethod(strategy.getKey());
-          apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
-              getMethodDescriptor(pathParam), true);
-          apply.visitLdcInsn(asmType(rawType));
+            apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), fileMethod.getName(),
+                getMethodDescriptor(fileMethod), true);
 
-          /** to(Reified): */
-          paramType.withReified(name -> {
-            Method reified = Reified.class.getDeclaredMethod(name, java.lang.reflect.Type.class);
-            apply.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reified.getName(),
-                getMethodDescriptor(reified), false);
-          });
-
-          apply.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", paramValue.getName(),
-              getMethodDescriptor(paramValue), true);
-          apply.visitTypeInsn(CHECKCAST, asmType(rawType(parameter)).getInternalName());
-        } else {
-          apply.visitLdcInsn(parameterName);
-
-          Method pathParam = Context.class.getDeclaredMethod(strategy.getKey(), String.class);
-          apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
-              getMethodDescriptor(pathParam), true);
-          // to(Class)
-          boolean toClass = paramValue.getName().equals("to");
-          // toOptional(Class) or toList(Class) or toSet(Class)
-          boolean toOptColClass =
-              (paramType.isOptional() || paramType.isList() || paramType.isSet()) && !eq(
-                  String.class, rawType);
-          if (toOptColClass || toClass) {
-            apply.visitLdcInsn(asmType(rawType));
+            if (eq(Path.class, rawType(parameter.asType()))) {
+              Method fileUpload = FileUpload.class.getDeclaredMethod("path");
+              apply.visitMethodInsn(INVOKEINTERFACE, "io/jooby/FileUpload", fileUpload.getName(),
+                  getMethodDescriptor(fileUpload), true);
+            }
           }
-          apply.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", paramValue.getName(),
-              getMethodDescriptor(paramValue), true);
-          if (toClass) {
+        } else {
+          Map.Entry<String, Set<String>> strategy = paramStrategy(parameter);
+
+          String parameterName = parameterName(parameter, strategy.getValue());
+
+          Method paramValue = paramValue(parameter, paramType);
+          boolean dynamic =
+              paramValue.getName().equals("to") && !isSimpleType(arg0(parameter.asType()));
+          if (dynamic) {
+            Method pathParam = Context.class.getDeclaredMethod(strategy.getKey());
+            apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
+                getMethodDescriptor(pathParam), true);
+            apply.visitLdcInsn(asmType(rawType));
+
+            /** to(Reified): */
+            paramType.withReified(name -> {
+              Method reified = Reified.class.getDeclaredMethod(name, java.lang.reflect.Type.class);
+              apply.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reified.getName(),
+                  getMethodDescriptor(reified), false);
+            });
+
+            apply.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", paramValue.getName(),
+                getMethodDescriptor(paramValue), true);
             apply.visitTypeInsn(CHECKCAST, asmType(rawType(parameter)).getInternalName());
+          } else {
+            apply.visitLdcInsn(parameterName);
+
+            Method pathParam = Context.class.getDeclaredMethod(strategy.getKey(), String.class);
+            apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
+                getMethodDescriptor(pathParam), true);
+            // to(Class)
+            boolean toClass = paramValue.getName().equals("to");
+            // toOptional(Class) or toList(Class) or toSet(Class)
+            boolean toOptColClass =
+                (paramType.isOptional() || paramType.isList() || paramType.isSet()) && !eq(
+                    String.class, rawType);
+            if (toOptColClass || toClass) {
+              apply.visitLdcInsn(asmType(rawType));
+            }
+            apply.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", paramValue.getName(),
+                getMethodDescriptor(paramValue), true);
+            if (toClass) {
+              apply.visitTypeInsn(CHECKCAST, asmType(rawType(parameter)).getInternalName());
+            }
           }
         }
       }
@@ -277,6 +301,57 @@ public class MvcHandlerCompiler {
 
     apply.visitMaxs(0, 0);
     apply.visitEnd();
+  }
+
+  /**
+   * Generate a files method like:
+   *
+   * <pre>{@code
+   *
+   *  List<FileUpload> [paramName](Context ctx) {
+   *     List<FileUpload> files = ctx.files("[paramName]");
+   *     return files.isEmpty() ? ctx.files() : files;
+   *  }
+   *
+   * }</pre>
+   *
+   *
+   * @param parameter
+   * @param writer
+   * @throws Exception
+   */
+  private void files(String parameter, ClassWriter writer) throws Exception {
+    MethodVisitor visitor = writer
+        .visitMethod(ACC_PRIVATE | ACC_FINAL | ACC_STATIC, parameter,
+            "(Lio/jooby/Context;)Ljava/util/List;",
+            "(Lio/jooby/Context;)Ljava/util/List<Lio/jooby/FileUpload;>;", null);
+    visitor.visitParameter("ctx", 0);
+    visitor.visitCode();
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitLdcInsn(parameter);
+    Method filesWithName = Context.class.getDeclaredMethod("files", String.class);
+    visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), filesWithName.getName(),
+        getMethodDescriptor(filesWithName), true);
+    visitor.visitVarInsn(ASTORE, 1);
+    visitor.visitVarInsn(ALOAD, 1);
+    visitor.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "isEmpty", "()Z", true);
+    Label label0 = new Label();
+    visitor.visitJumpInsn(IFEQ, label0);
+    visitor.visitVarInsn(ALOAD, 0);
+    Method allFiles = Context.class.getDeclaredMethod("files");
+    visitor
+        .visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), allFiles.getName(),
+            getMethodDescriptor(allFiles), true);
+    Label label1 = new Label();
+    visitor.visitJumpInsn(GOTO, label1);
+    visitor.visitLabel(label0);
+    visitor.visitFrame(Opcodes.F_APPEND, 1, new Object[]{"java/util/List"}, 0, null);
+    visitor.visitVarInsn(ALOAD, 1);
+    visitor.visitLabel(label1);
+    visitor.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"java/util/List"});
+    visitor.visitInsn(ARETURN);
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
   }
 
   private Map.Entry<String, Set<String>> paramStrategy(VariableElement parameter) {
@@ -297,6 +372,13 @@ public class MvcHandlerCompiler {
     TypeMirror erasure = types.erasure(typeMirror);
     if (eq(Optional.class, erasure)) {
       return ParamType.OPTIONAL;
+    }
+    if (eq(FileUpload.class, erasure) || (eq(List.class, erasure) && eq(FileUpload.class,
+        arg0(typeMirror)))) {
+      return ParamType.FILE_UPLOAD;
+    }
+    if (eq(Path.class, erasure)) {
+      return ParamType.FILE_UPLOAD;
     }
     if (eq(List.class, erasure)) {
       return ParamType.LIST;
@@ -332,31 +414,31 @@ public class MvcHandlerCompiler {
       return Value.class.getDeclaredMethod("booleanValue");
     }
     if (paramType.isOptional()) {
-      if (eq(String.class, paramType.arg0(type))) {
+      if (eq(String.class, arg0(type))) {
         return Value.class.getDeclaredMethod("toOptional");
-      } else if (isSimpleType(paramType.arg0(type))) {
+      } else if (isSimpleType(arg0(type))) {
         return Value.class.getDeclaredMethod("toOptional", Class.class);
       } else {
         return Value.class.getDeclaredMethod("to", Reified.class);
       }
     } else if (paramType.isList()) {
-      if (eq(String.class, paramType.arg0(type))) {
+      if (eq(String.class, arg0(type))) {
         return Value.class.getDeclaredMethod("toList");
-      } else if (isSimpleType(paramType.arg0(type))) {
+      } else if (isSimpleType(arg0(type))) {
         return Value.class.getDeclaredMethod("toList", Class.class);
       } else {
         return Value.class.getDeclaredMethod("to", Reified.class);
       }
     } else if (paramType.isSet()) {
-      if (eq(String.class, paramType.arg0(type))) {
+      if (eq(String.class, arg0(type))) {
         return Value.class.getDeclaredMethod("toSet");
-      } else if (isSimpleType(paramType.arg0(type))) {
+      } else if (isSimpleType(arg0(type))) {
         return Value.class.getDeclaredMethod("toSet", Class.class);
       } else {
         return Value.class.getDeclaredMethod("to", Reified.class);
       }
     } else {
-      if (isSimpleType(paramType.arg0(type))) {
+      if (isSimpleType(arg0(type))) {
         return Value.class.getDeclaredMethod("to", Class.class);
       } else {
         // TODO: check generic type
@@ -379,6 +461,11 @@ public class MvcHandlerCompiler {
       case "java.lang.Float":
       case "java.lang.Double":
       case "java.time.Instant":
+      case "java.util.UUID":
+      case "java.nio.File":
+      case "java.math.BigDecimal":
+      case "java.math.BigInteger":
+      case "java.nio.charset.Charset":
         return true;
       default:
         return false;
@@ -599,6 +686,15 @@ public class MvcHandlerCompiler {
     return Stream.of(types)
         .map(this::asmType)
         .toArray(Type[]::new);
+  }
+
+  private static TypeMirror arg0(TypeMirror mirror) {
+    if (mirror instanceof DeclaredType) {
+      DeclaredType declaredType = (DeclaredType) mirror;
+      List<? extends TypeMirror> args = declaredType.getTypeArguments();
+      return args.isEmpty() ? declaredType : arg0(args.get(0));
+    }
+    return mirror;
   }
 
   private static String providerOf(Type owner) {

@@ -1,6 +1,7 @@
 package io.jooby.compiler;
 
 import io.jooby.Context;
+import io.jooby.FileUpload;
 import io.jooby.FlashMap;
 import io.jooby.Formdata;
 import io.jooby.MockContext;
@@ -12,14 +13,23 @@ import source.EnumParam;
 import source.JavaBeanParam;
 import source.Provisioning;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MvcProcessorTest {
 
@@ -180,6 +190,70 @@ public class MvcProcessorTest {
         })
         .compile("primitiveWrapper", args(Integer.class), handler -> {
           assertEquals("9", handler.apply(new MockContext().setPathMap(mapOf("value", "9"))));
+        })
+    ;
+  }
+
+  @Test
+  public void multipleParameters() throws Exception {
+    new TestProcessor(new Provisioning())
+        .compile("parameters", args(String.class, Context.class, int.class, JavaBeanParam.class),
+            handler -> {
+              assertEquals("123GET /1x", handler.apply(
+                  new MockContext().setPathMap(mapOf("path", "123"))
+                      .setPathString("/?offset=1&foo=x")));
+            })
+    ;
+  }
+
+  @Test
+  public void fileParam() throws Exception {
+    FileUpload file = mock(FileUpload.class);
+    Multipart multipart = Multipart.create();
+    multipart.put("file", file);
+    new TestProcessor(new Provisioning())
+        .compile("fileParam", args(FileUpload.class), handler -> {
+          assertEquals(file.toString(), handler.apply(new MockContext().setMultipart(multipart)));
+        })
+        .compile("fileParams", args(List.class), handler -> {
+          assertEquals(Arrays.asList(file).toString(),
+              handler.apply(new MockContext().setMultipart(multipart)));
+        })
+    ;
+  }
+
+  @Test
+  public void specialParam() throws Exception {
+    UUID uuid = UUID.randomUUID();
+    BigDecimal bigDecimal = new BigDecimal("88.6");
+    BigInteger bigInteger = new BigInteger("888888");
+    Charset charset = StandardCharsets.UTF_8;
+
+    new TestProcessor(new Provisioning())
+        .compile("uuidParam", args(UUID.class), handler -> {
+          assertEquals(uuid.toString(),
+              handler.apply(new MockContext().setPathString("/?value=" + uuid.toString())));
+        })
+        .compile("bigDecimalParam", args(BigDecimal.class), handler -> {
+          assertEquals(bigDecimal.toString(),
+              handler.apply(new MockContext().setPathString("/?value=" + bigDecimal.toString())));
+        })
+        .compile("bigIntegerParam", args(BigInteger.class), handler -> {
+          assertEquals(bigInteger.toString(),
+              handler.apply(new MockContext().setPathString("/?value=" + bigInteger.toString())));
+        })
+        .compile("charsetParam", args(Charset.class), handler -> {
+          assertEquals(charset.toString(),
+              handler.apply(new MockContext().setPathString("/?value=" + charset.toString())));
+        })
+        .compile("pathParam", args(Path.class), true, handler -> {
+          Path path = mock(Path.class);
+          FileUpload file = mock(FileUpload.class);
+          when(file.path()).thenReturn(path);
+          Multipart multipart = Multipart.create();
+          multipart.put("file", file);
+          assertEquals(path.toString(),
+              handler.apply(new MockContext().setMultipart(multipart)));
         })
     ;
   }

@@ -1,6 +1,7 @@
 package io.jooby.internal.mvc;
 
 import io.jooby.Context;
+import io.jooby.FileUpload;
 import io.jooby.ProvisioningException;
 import io.jooby.QueryString;
 import io.jooby.Reified;
@@ -33,8 +34,8 @@ class Poc {
 
   @POST
   @Path(("/body/json"))
-  public String getIt(@PathParam Integer p1) {
-    return p1.toString();
+  public String getIt(java.nio.file.Path file) {
+    return file.toString();
   }
 
   @GET
@@ -53,22 +54,27 @@ class MvcHandlerImpl implements MvcHandler {
     this.provider = provider;
   }
 
-//  private double tryParam0(Context ctx, String desc) {
-//    try {
-//      return ctx.path("l").doubleValue();
-//    } catch (ProvisioningException x) {
-//      throw x;
-//    } catch (Exception x) {
-//      throw new ProvisioningException(desc, x);
-//    }
-//  }
-//
+  //  private double tryParam0(Context ctx, String desc) {
+  //    try {
+  //      return ctx.path("l").doubleValue();
+  //    } catch (ProvisioningException x) {
+  //      throw x;
+  //    } catch (Exception x) {
+  //      throw new ProvisioningException(desc, x);
+  //    }
+  //  }
+  //
   public final Object[] arguments(Context ctx) {
     return null;
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    return provider.get().getIt(ctx.path("p1").to(Integer.class));
+    return provider.get().getIt(ctx.file("xxx").path());
+  }
+
+  private static java.nio.file.Path path(Context ctx) {
+    FileUpload upload = ctx.file("xxx");
+    return upload.path();
   }
 }
 
@@ -78,9 +84,9 @@ public class MvcHandlerASM {
   public void compare() throws IOException, NoSuchMethodException, ClassNotFoundException {
     // Lio/jooby/SneakyThrows$Supplier<Lio/jooby/mvc/NoTopLevelPath;>;
     //    ASMifier.main(new String[] {"-debug",MvcHandler.class.getName()});
-//public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
+    //public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
     //      @PathParam long j, @PathParam double f, @PathParam boolean b) {
-    Method handler = Poc.class.getDeclaredMethod("getIt", Integer.class);
+    Method handler = Poc.class.getDeclaredMethod("getIt", java.nio.file.Path.class);
     Class runtime = MvcCompiler.compileClass(mvc(handler));
 
     System.out.println("Loaded: " + runtime);

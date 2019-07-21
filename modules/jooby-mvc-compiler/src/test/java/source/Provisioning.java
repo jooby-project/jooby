@@ -1,6 +1,7 @@
 package source;
 
 import io.jooby.Context;
+import io.jooby.FileUpload;
 import io.jooby.FlashMap;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
@@ -15,11 +16,15 @@ import io.jooby.annotations.Path;
 import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -208,5 +213,50 @@ public class Provisioning {
   @GET
   public String formParam(@FormParam String name) {
     return name;
+  }
+
+  @GET
+  public String parameters(@PathParam String path, Context ctx, @QueryParam int offset, @QueryParam JavaBeanParam javaBean) {
+    return path + ctx + offset + javaBean;
+  }
+
+  @GET
+  public String fileParam(FileUpload file) {
+    return file.toString();
+  }
+
+  @GET
+  public String fileParams(List<FileUpload> file) {
+    return file.toString();
+  }
+
+  @GET
+  public String uuidParam(@QueryParam UUID value) {
+    return value.toString();
+  }
+
+  @GET
+  public String bigDecimalParam(@QueryParam BigDecimal value) {
+    return value.toString();
+  }
+
+  @GET
+  public String bigIntegerParam(@QueryParam BigInteger value) {
+    return value.toString();
+  }
+
+  @GET
+  public String charsetParam(@QueryParam Charset value) {
+    return value.toString();
+  }
+
+  @GET
+  public String pathParam(@QueryParam Charset value) {
+    return value.toString();
+  }
+
+  @GET
+  public String pathParam(@FormParam java.nio.file.Path file) {
+    return file.toString();
   }
 }

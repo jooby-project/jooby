@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -277,7 +278,7 @@ public interface DefaultContext extends Context {
     List<FileUpload> result = new ArrayList<>();
     for (Value value : multipart) {
       if (value.isUpload()) {
-        result.add(value.fileUpload());
+        result.add((FileUpload) value);
       }
     }
     return result;
@@ -285,15 +286,26 @@ public interface DefaultContext extends Context {
 
   @Override @Nonnull default List<FileUpload> files(@Nonnull String name) {
     Value multipart = multipart(name);
+    if (multipart instanceof FileUpload) {
+      return Collections.singletonList((FileUpload) multipart);
+    }
     List<FileUpload> result = new ArrayList<>();
     for (Value value : multipart) {
-      result.add(value.fileUpload());
+      if (value instanceof FileUpload) {
+        result.add((FileUpload) value);
+      } else {
+        throw new TypeMismatchException(name, FileUpload.class);
+      }
     }
     return result;
   }
 
   @Override @Nonnull default FileUpload file(@Nonnull String name) {
-    return multipart(name).fileUpload();
+    Value value = multipart(name);
+    if (value instanceof FileUpload) {
+      return (FileUpload) value;
+    }
+    throw new TypeMismatchException(name, FileUpload.class);
   }
 
   @Override default @Nonnull <T> T body(@Nonnull Reified<T> type) {

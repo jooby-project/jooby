@@ -392,15 +392,6 @@ public interface Value extends Iterable<Value> {
     return to(Reified.optional(type));
   }
 
-  /**
-   * Get a file upload from this value.
-   *
-   * @return A file upload.
-   */
-  default FileUpload fileUpload() {
-    throw new TypeMismatchException(name(), FileUpload.class);
-  }
-
   /* ***********************************************************************************************
    * Node methods
    * ***********************************************************************************************

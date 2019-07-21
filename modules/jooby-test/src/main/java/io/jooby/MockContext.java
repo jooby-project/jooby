@@ -493,4 +493,7 @@ public class MockContext implements DefaultContext {
     return this;
   }
 
+  @Override public String toString() {
+    return method + " " + pathString;
+  }
 }

@@ -492,8 +492,7 @@ public interface Context extends Registry {
   /**
    * Get a multipart field that matches the given name.
    *
-   * File upload retrieval is available using {@link Value#fileUpload()} or consider using the
-   * {@link #file(String)} instead.
+   * File upload retrieval is available using {@link Context#file(String)}.
    *
    * Only for <code>multipart/form-data</code> request.
    *

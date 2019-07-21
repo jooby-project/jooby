@@ -2341,10 +2341,10 @@ public class FeaturedTest {
   @Test
   public void flashScope() {
     new JoobyRunner(app -> {
-      app.get("/flash", req -> req.flashMap());
+      app.get("/flash", req -> req.flash());
 
       app.post("/flash", ctx -> {
-        ctx.flash("success", "Thank you!");
+        ctx.flash().put("success", "Thank you!");
         return ctx.sendRedirect("/flash");
       });
 
@@ -2387,8 +2387,8 @@ public class FeaturedTest {
       app.setFlashCookie("f");
 
       app.get("/flash", ctx -> {
-        ctx.flash("success", "Thank you!");
-        return ctx.flashMap();
+        ctx.flash().put("success", "Thank you!");
+        return ctx.flash();
       });
     }).ready(client -> {
       client.get("/custom/flash", rsp -> {
@@ -2403,19 +2403,19 @@ public class FeaturedTest {
   public void flashScopeKeep() {
     new JoobyRunner(app -> {
       app.get("/flash", ctx -> {
-        FlashMap flash = ctx.flashMap();
+        FlashMap flash = ctx.flash();
         flash.put("foo", "bar");
         return ctx.sendRedirect("/flash/1");
       });
 
       app.get("/flash/1", ctx -> {
-        FlashMap flash = ctx.flashMap();
+        FlashMap flash = ctx.flash();
         flash.keep();
         return ctx.sendRedirect("/flash/" + flash.get("foo"));
       });
 
       app.get("/flash/bar", ctx -> {
-        return ctx.flash("foo").value() + ctx.flashMap().size();
+        return ctx.flash("foo").value() + ctx.flash().size();
       });
       app.error((ctx, cause, statusCode) -> {
         ctx.setResponseCode(statusCode).send(cause.getMessage());
