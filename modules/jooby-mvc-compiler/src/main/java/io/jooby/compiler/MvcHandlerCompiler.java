@@ -11,6 +11,7 @@ import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.Session;
 import io.jooby.SneakyThrows;
+import io.jooby.StatusCode;
 import io.jooby.Value;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -30,6 +31,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
@@ -44,8 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,6 +62,7 @@ import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
@@ -130,6 +131,7 @@ public class MvcHandlerCompiler {
 
   private static final Type OBJ = getType(Object.class);
   private static final Type HANDLER = getType(Route.Handler.class);
+  private static final Type STATUS_CODE = getType(StatusCode.class);
 
   private static final Type PROVIDER = getType(Provider.class);
   private static final String PROVIDER_VAR = "provider";
@@ -195,7 +197,6 @@ public class MvcHandlerCompiler {
 
     Label sourceStart = new Label();
     apply.visitLabel(sourceStart);
-    //apply.visitLineNumber(metadata.getLine(), sourceStart);
 
     /**
      * provider.get()
@@ -206,41 +207,122 @@ public class MvcHandlerCompiler {
         true);
     apply.visitTypeInsn(CHECKCAST, owner.getInternalName());
 
+    /** Arguments. */
+    processArguments(apply);
+
+    /** Invoke. */
+    apply.visitMethodInsn(INVOKEVIRTUAL, owner.getInternalName(), methodName, methodDescriptor,
+        false);
+
+    processReturnType(apply);
+
+    apply.visitEnd();
+  }
+
+  private void processReturnType(MethodVisitor visitor) throws Exception {
+    TypeKind kind = executable.getReturnType().getKind();
+    if (kind == TypeKind.VOID) {
+      visitor.visitVarInsn(ALOAD, 1);
+
+      // Make sure controller method doesn't inject Context.
+      boolean sideEffect = executable.getParameters().stream().map(VariableElement::asType)
+          .map(this::rawType)
+          .anyMatch(type -> type.equals(Context.class.getName()));
+
+      // It does inject. Assume response is generated via side effect (don't generate 204)
+      if (!sideEffect) {
+        visitor
+            .visitFieldInsn(GETSTATIC, STATUS_CODE.getInternalName(), "NO_CONTENT",
+                STATUS_CODE.getDescriptor());
+        Method sendStatusCode = Context.class.getDeclaredMethod("send", StatusCode.class);
+        visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), sendStatusCode.getName(),
+            getMethodDescriptor(sendStatusCode), true);
+      }
+    } else {
+
+      Method wrapper;
+      switch (kind) {
+        case CHAR:
+          wrapper = Character.class.getDeclaredMethod("valueOf", Character.TYPE);
+          break;
+        case BYTE:
+          wrapper = Byte.class.getDeclaredMethod("valueOf", Byte.TYPE);
+          break;
+        case SHORT:
+          wrapper = Short.class.getDeclaredMethod("valueOf", Short.TYPE);
+          break;
+        case INT:
+          wrapper = Integer.class.getDeclaredMethod("valueOf", Integer.TYPE);
+          break;
+        case LONG:
+          wrapper = Long.class.getDeclaredMethod("valueOf", Long.TYPE);
+          break;
+        case FLOAT:
+          wrapper = Float.class.getDeclaredMethod("valueOf", Float.TYPE);
+          break;
+        case DOUBLE:
+          wrapper = Double.class.getDeclaredMethod("valueOf", Double.TYPE);
+          break;
+        default:
+          wrapper = null;
+      }
+      if (wrapper == null) {
+        String rawType = rawType(executable.getReturnType());
+        if (eq(StatusCode.class, rawType)) {
+          visitor.visitVarInsn(ASTORE, 2);
+          visitor.visitVarInsn(ALOAD, 1);
+          visitor.visitVarInsn(ALOAD, 2);
+          Method send = Context.class.getDeclaredMethod("send", StatusCode.class);
+          visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), send.getName(),
+              getMethodDescriptor(send), true);
+        }
+      } else {
+        // Primitive wrapper
+        visitor.visitMethodInsn(INVOKESTATIC, Type.getInternalName(wrapper.getDeclaringClass()),
+            wrapper.getName(), getMethodDescriptor(wrapper), false);
+      }
+    }
+    visitor.visitInsn(ARETURN);
+
+    visitor.visitMaxs(0, 0);
+  }
+
+  private void processArguments(MethodVisitor visitor) throws Exception {
     for (VariableElement parameter : executable.getParameters()) {
       /**
        * Load context
        */
-      apply.visitVarInsn(ALOAD, 1);
+      visitor.visitVarInsn(ALOAD, 1);
       ParamType paramType = paramType(parameter);
       String rawType = rawType(arg0(parameter.asType()));
       if (isTypeInjection(rawType)) {
         if (!isContext(rawType)) {
           Method method = typeInjection(rawType, paramType);
-          apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), method.getName(),
+          visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), method.getName(),
               Type.getMethodDescriptor(method), true);
         }
         if (paramType.isOptional()) {
-          apply.visitMethodInsn(INVOKESTATIC, "java/util/Optional", "ofNullable",
+          visitor.visitMethodInsn(INVOKESTATIC, "java/util/Optional", "ofNullable",
               "(Ljava/lang/Object;)Ljava/util/Optional;", false);
         }
       } else {
         if (paramType.isFileUpload()) {
           if (eq(List.class, rawType(parameter.asType()))) {
             additionalMethods.put(parameter.getSimpleName().toString(), this::files);
-            apply.visitMethodInsn(INVOKESTATIC, getHandlerInternal(),
+            visitor.visitMethodInsn(INVOKESTATIC, getHandlerInternal(),
                 parameter.getSimpleName().toString(),
                 "(Lio/jooby/Context;)Ljava/util/List;", false);
           } else {
-            apply.visitLdcInsn(parameter.getSimpleName().toString());
+            visitor.visitLdcInsn(parameter.getSimpleName().toString());
 
             Method fileMethod = Context.class.getDeclaredMethod("file", String.class);
 
-            apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), fileMethod.getName(),
+            visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), fileMethod.getName(),
                 getMethodDescriptor(fileMethod), true);
 
             if (eq(Path.class, rawType(parameter.asType()))) {
               Method fileUpload = FileUpload.class.getDeclaredMethod("path");
-              apply.visitMethodInsn(INVOKEINTERFACE, "io/jooby/FileUpload", fileUpload.getName(),
+              visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/FileUpload", fileUpload.getName(),
                   getMethodDescriptor(fileUpload), true);
             }
           }
@@ -254,25 +336,25 @@ public class MvcHandlerCompiler {
               paramValue.getName().equals("to") && !isSimpleType(arg0(parameter.asType()));
           if (dynamic) {
             Method pathParam = Context.class.getDeclaredMethod(strategy.getKey());
-            apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
+            visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
                 getMethodDescriptor(pathParam), true);
-            apply.visitLdcInsn(asmType(rawType));
+            visitor.visitLdcInsn(asmType(rawType));
 
             /** to(Reified): */
             paramType.withReified(name -> {
               Method reified = Reified.class.getDeclaredMethod(name, java.lang.reflect.Type.class);
-              apply.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reified.getName(),
+              visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reified.getName(),
                   getMethodDescriptor(reified), false);
             });
 
-            apply.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", paramValue.getName(),
+            visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", paramValue.getName(),
                 getMethodDescriptor(paramValue), true);
-            apply.visitTypeInsn(CHECKCAST, asmType(rawType(parameter)).getInternalName());
+            visitor.visitTypeInsn(CHECKCAST, asmType(rawType(parameter)).getInternalName());
           } else {
-            apply.visitLdcInsn(parameterName);
+            visitor.visitLdcInsn(parameterName);
 
             Method pathParam = Context.class.getDeclaredMethod(strategy.getKey(), String.class);
-            apply.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
+            visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), pathParam.getName(),
                 getMethodDescriptor(pathParam), true);
             // to(Class)
             boolean toClass = paramValue.getName().equals("to");
@@ -281,26 +363,17 @@ public class MvcHandlerCompiler {
                 (paramType.isOptional() || paramType.isList() || paramType.isSet()) && !eq(
                     String.class, rawType);
             if (toOptColClass || toClass) {
-              apply.visitLdcInsn(asmType(rawType));
+              visitor.visitLdcInsn(asmType(rawType));
             }
-            apply.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", paramValue.getName(),
+            visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", paramValue.getName(),
                 getMethodDescriptor(paramValue), true);
             if (toClass) {
-              apply.visitTypeInsn(CHECKCAST, asmType(rawType(parameter)).getInternalName());
+              visitor.visitTypeInsn(CHECKCAST, asmType(rawType(parameter)).getInternalName());
             }
           }
         }
       }
     }
-
-    /** Invoke. */
-    apply.visitMethodInsn(INVOKEVIRTUAL, owner.getInternalName(), methodName, methodDescriptor,
-        false);
-
-    apply.visitInsn(ARETURN);
-
-    apply.visitMaxs(0, 0);
-    apply.visitEnd();
   }
 
   /**
@@ -466,6 +539,7 @@ public class MvcHandlerCompiler {
       case "java.math.BigDecimal":
       case "java.math.BigInteger":
       case "java.nio.charset.Charset":
+      case "io.jooby.StatusCode":
         return true;
       default:
         return false;

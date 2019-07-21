@@ -8,6 +8,7 @@ import io.jooby.MockContext;
 import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Session;
+import io.jooby.StatusCode;
 import org.junit.jupiter.api.Test;
 import source.EnumParam;
 import source.JavaBeanParam;
@@ -246,7 +247,7 @@ public class MvcProcessorTest {
           assertEquals(charset.toString(),
               handler.apply(new MockContext().setPathString("/?value=" + charset.toString())));
         })
-        .compile("pathParam", args(Path.class), true, handler -> {
+        .compile("pathParam", args(Path.class), handler -> {
           Path path = mock(Path.class);
           FileUpload file = mock(FileUpload.class);
           when(file.path()).thenReturn(path);
@@ -254,6 +255,53 @@ public class MvcProcessorTest {
           multipart.put("file", file);
           assertEquals(path.toString(),
               handler.apply(new MockContext().setMultipart(multipart)));
+        })
+    ;
+  }
+
+  @Test
+  public void returnTypes() throws Exception {
+    new TestProcessor(new Provisioning())
+        .compile("returnByte", args(), handler -> {
+          assertEquals(Byte.valueOf((byte) 8), handler.apply(new MockContext()));
+        })
+        .compile("returnShort", args(), handler -> {
+          assertEquals(Short.valueOf((short) 8), handler.apply(new MockContext()));
+        })
+        .compile("returnInteger", args(), handler -> {
+          assertEquals(Integer.valueOf(7), handler.apply(new MockContext()));
+        })
+        .compile("returnLong", args(), handler -> {
+          assertEquals(Long.valueOf(9), handler.apply(new MockContext()));
+        })
+        .compile("returnFloat", args(), handler -> {
+          assertEquals(Float.valueOf(7.9f), handler.apply(new MockContext()));
+        })
+        .compile("returnDouble", args(), handler -> {
+          assertEquals(Double.valueOf(8.9), handler.apply(new MockContext()));
+        })
+        .compile("returnChar", args(), handler -> {
+          assertEquals(Character.valueOf('c'), handler.apply(new MockContext()));
+        })
+        .compile("returnStatusCode", args(), handler -> {
+          MockContext ctx = new MockContext();
+          assertEquals(ctx, handler.apply(ctx));
+          assertEquals(StatusCode.NO_CONTENT, ctx.getResponseCode());
+        })
+        .compile("statusCode", args(StatusCode.class, String.class), handler -> {
+          MockContext ctx = new MockContext().setPathString("/?statusCode=200&q=*:*");
+          assertEquals(ctx, handler.apply(ctx));
+          assertEquals(StatusCode.OK, ctx.getResponseCode());
+        })
+        .compile("noContent", args(), handler -> {
+          MockContext ctx = new MockContext();
+          assertEquals(ctx, handler.apply(ctx));
+          assertEquals(StatusCode.NO_CONTENT, ctx.getResponseCode());
+        })
+        .compile("sideEffect", args(Context.class), handler -> {
+          MockContext ctx = new MockContext();
+          assertEquals(ctx, handler.apply(ctx));
+          assertEquals(StatusCode.CREATED, ctx.getResponseCode());
         })
     ;
   }

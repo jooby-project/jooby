@@ -10,6 +10,7 @@ import io.jooby.FileUpload;
 import io.jooby.MissingValueException;
 import io.jooby.ProvisioningException;
 import io.jooby.SneakyThrows;
+import io.jooby.StatusCode;
 import io.jooby.TypeMismatchException;
 import io.jooby.Value;
 import io.jooby.internal.reflect.$Types;
@@ -225,6 +226,9 @@ public class ValueInjector {
       Class type0 = $Types.parameterizedType0(type);
       return isSimple(type0, type0);
     }
+    if (StatusCode.class == rawType) {
+      return true;
+    }
     if (UUID.class == rawType) {
       return true;
     }
@@ -301,6 +305,9 @@ public class ValueInjector {
       } catch (MissingValueException x) {
         return Optional.empty();
       }
+    }
+    if (StatusCode.class == rawType) {
+      return StatusCode.valueOf(value.get(0).intValue());
     }
     if (UUID.class == rawType) {
       return UUID.fromString(value.get(0).value());

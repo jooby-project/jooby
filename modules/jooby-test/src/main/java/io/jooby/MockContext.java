@@ -38,7 +38,7 @@ public class MockContext implements DefaultContext {
 
   private Route route;
 
-  private String pathString;
+  private String pathString = "/";
 
   private Map<String, String> pathMap = new HashMap<>();
 

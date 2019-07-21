@@ -6,6 +6,7 @@ import io.jooby.ProvisioningException;
 import io.jooby.QueryString;
 import io.jooby.Reified;
 import io.jooby.Session;
+import io.jooby.StatusCode;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
@@ -34,8 +35,8 @@ class Poc {
 
   @POST
   @Path(("/body/json"))
-  public String getIt(java.nio.file.Path file) {
-    return file.toString();
+  public void getIt() {
+
   }
 
   @GET
@@ -69,7 +70,8 @@ class MvcHandlerImpl implements MvcHandler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    return provider.get().getIt(ctx.file("xxx").path());
+    provider.get().getIt();
+    return ctx.send(StatusCode.NO_CONTENT);
   }
 
   private static java.nio.file.Path path(Context ctx) {
@@ -86,7 +88,7 @@ public class MvcHandlerASM {
     //    ASMifier.main(new String[] {"-debug",MvcHandler.class.getName()});
     //public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
     //      @PathParam long j, @PathParam double f, @PathParam boolean b) {
-    Method handler = Poc.class.getDeclaredMethod("getIt", java.nio.file.Path.class);
+    Method handler = Poc.class.getDeclaredMethod("getIt");
     Class runtime = MvcCompiler.compileClass(mvc(handler));
 
     System.out.println("Loaded: " + runtime);

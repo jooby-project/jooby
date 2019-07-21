@@ -7,6 +7,7 @@ import io.jooby.Formdata;
 import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Session;
+import io.jooby.StatusCode;
 import io.jooby.annotations.CookieParam;
 import io.jooby.annotations.FlashParam;
 import io.jooby.annotations.FormParam;
@@ -258,5 +259,59 @@ public class Provisioning {
   @GET
   public String pathParam(@FormParam java.nio.file.Path file) {
     return file.toString();
+  }
+
+  @GET
+  public byte returnByte() {
+    return 8;
+  }
+
+  @GET
+  public short returnShort() {
+    return 8;
+  }
+
+  @GET
+  public int returnInteger() {
+    return 7;
+  }
+
+  @GET
+  public long returnLong() {
+    return 9;
+  }
+
+  @GET
+  public float returnFloat() {
+    return 7.9f;
+  }
+
+  @GET
+  public char returnChar() {
+    return 'c';
+  }
+
+  @GET
+  public double returnDouble() {
+    return 8.9;
+  }
+
+  @GET
+  public StatusCode returnStatusCode() {
+    return StatusCode.NO_CONTENT;
+  }
+
+  @GET
+  public StatusCode statusCode(@QueryParam StatusCode statusCode, @QueryParam String q) {
+    return statusCode;
+  }
+
+  @GET
+  public void noContent() {
+  }
+
+  @GET
+  public void sideEffect(Context ctx) {
+    ctx.send(StatusCode.CREATED);
   }
 }
