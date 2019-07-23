@@ -77,7 +77,7 @@ public class MvcProcessor implements Processor {
       }
     }
     Map<String, List<Map.Entry<String, MvcHandlerCompiler>>> classes = result.entrySet().stream()
-        .collect(Collectors.groupingBy(e -> e.getValue().getOwner()));
+        .collect(Collectors.groupingBy(e -> e.getValue().getOwner().getName()));
     for (Map.Entry<String, List<Map.Entry<String, MvcHandlerCompiler>>> entry : classes
         .entrySet()) {
       try {

@@ -104,7 +104,7 @@ public class MvcModuleCompiler {
       visitor.visitVarInsn(ASTORE, varIndex);
       visitor.visitVarInsn(ALOAD, varIndex);
       varIndex +=1;
-      visitor.visitLdcInsn(handler.getReturnByteCodeType());
+      visitor.visitLdcInsn(handler.getReturnType().toJvmType());
       visitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Route", "setReturnType", "(Ljava/lang/reflect/Type;)Lio/jooby/Route;", false);
       visitor.visitInsn(POP);
     }

@@ -7,6 +7,7 @@ import io.jooby.StatusCode;
 import io.jooby.internal.compiler.ConstructorWriter;
 import io.jooby.internal.compiler.ParamDefinition;
 import io.jooby.internal.compiler.ParamWriter;
+import io.jooby.internal.compiler.TypeDefinition;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -23,11 +24,13 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
@@ -65,18 +68,22 @@ public class MvcHandlerCompiler {
   private static final String APPLY_DESCRIPTOR = getMethodDescriptor(OBJ, CTX);
   private static final String[] APPLY_THROWS = new String[]{getInternalName(Exception.class)};
 
-  private final TypeElement owner;
+  private final TypeDefinition owner;
   private final ExecutableElement executable;
   private final ProcessingEnvironment environment;
   private final String httpMethod;
   private final String pattern;
+  private final Types typeUtils;
 
-  public MvcHandlerCompiler(ProcessingEnvironment environment, ExecutableElement executable, String method, String pattern) {
+  public MvcHandlerCompiler(ProcessingEnvironment environment, ExecutableElement executable,
+      String method, String pattern) {
     this.httpMethod = method.toLowerCase();
     this.pattern = pattern;
     this.environment = environment;
     this.executable = executable;
-    this.owner = (TypeElement) executable.getEnclosingElement();
+    this.typeUtils = environment.getTypeUtils();
+    this.owner = new TypeDefinition(typeUtils,
+        ((TypeElement) executable.getEnclosingElement()).asType());
   }
 
   public String getPattern() {
@@ -87,8 +94,8 @@ public class MvcHandlerCompiler {
     return httpMethod;
   }
 
-  public Type getReturnByteCodeType() {
-    return asmType(rawType(executable.getReturnType()));
+  public TypeDefinition getReturnType() {
+    return new TypeDefinition(typeUtils, executable.getReturnType());
   }
 
   public byte[] compile() throws Exception {
@@ -100,7 +107,7 @@ public class MvcHandlerCompiler {
             HANDLER.getInternalName()
         });
 
-    writer.visitSource(getSourceFileName(), null);
+    writer.visitSource(getOwner().getSimpleName() + ".java", null);
 
     writer.visitInnerClass(HANDLER.getInternalName(), getInternalName(Route.class),
         Route.Handler.class.getSimpleName(),
@@ -108,7 +115,7 @@ public class MvcHandlerCompiler {
 
     // Constructor(Provider<Controller> provider)
     new ConstructorWriter()
-        .build(getHandlerName(), getOwner(), writer);
+        .build(getHandlerName(), owner.getRawType().toString(), writer);
 
     /** Apply implementation: */
     apply(writer);
@@ -118,7 +125,7 @@ public class MvcHandlerCompiler {
   }
 
   private void apply(ClassWriter writer) throws Exception {
-    Type owner = asmType(getOwner());
+    Type owner = getOwner().toJvmType();
     String methodName = executable.getSimpleName().toString();
     String methodDescriptor = methodDescriptor();
     MethodVisitor apply = writer
@@ -165,9 +172,9 @@ public class MvcHandlerCompiler {
       visitor.visitVarInsn(ALOAD, 1);
 
       // Make sure controller method doesn't inject Context.
-      boolean sideEffect = executable.getParameters().stream().map(VariableElement::asType)
-          .map(this::rawType)
-          .anyMatch(type -> type.equals(Context.class.getName()));
+      boolean sideEffect = executable.getParameters().stream()
+          .map(var -> new TypeDefinition(typeUtils, var.asType()))
+          .anyMatch(type -> type.is(Context.class));
 
       // It does inject. Assume response is generated via side effect (don't generate 204)
       if (!sideEffect) {
@@ -210,8 +217,8 @@ public class MvcHandlerCompiler {
           wrapper = null;
       }
       if (wrapper == null) {
-        String rawType = rawType(executable.getReturnType());
-        if (eq(StatusCode.class, rawType)) {
+        TypeDefinition returnType = getReturnType();
+        if (returnType.is(StatusCode.class)) {
           visitor.visitVarInsn(ASTORE, 2);
           visitor.visitVarInsn(ALOAD, 1);
           visitor.visitVarInsn(ALOAD, 2);
@@ -246,99 +253,28 @@ public class MvcHandlerCompiler {
     }
   }
 
-  private boolean eq(Class type, String typeString) {
-    return type.getName().equals(typeString);
-  }
-
-  public String getSourceFileName() {
-    return owner.getSimpleName() + ".java";
-  }
-
   public String getHandlerName() {
-    return getOwner() + "$" + httpMethod.toUpperCase() + "$" + executable.getSimpleName();
+    return getOwner().getName() + "$" + httpMethod.toUpperCase() + "$" + executable.getSimpleName();
   }
 
   public String getHandlerInternal() {
     return getHandlerName().replace(".", "/");
   }
 
-  public String getOwner() {
-    return owner.getQualifiedName().toString();
+  public TypeDefinition getOwner() {
+    return owner;
   }
 
   public String getKey() {
-    return getOwner() + "." + executable.getSimpleName() + methodDescriptor();
+    return getOwner().getName() + "." + executable.getSimpleName() + methodDescriptor();
   }
 
   private String methodDescriptor() {
-    Type returnType = asmType(rawType(executable.getReturnType()));
-    Type[] args = asmTypes(rawTypes(executable.getParameters()));
-    return Type.getMethodDescriptor(returnType, args);
-  }
-
-  private String[] rawTypes(List<? extends VariableElement> parameters) {
-    return parameters.stream()
-        .map(VariableElement::asType)
-        .map(this::rawType)
-        .toArray(String[]::new);
-  }
-
-  private String rawType(TypeMirror type) {
-    return environment.getTypeUtils().erasure(type).toString();
-  }
-
-  private Type asmType(String type) {
-    switch (type) {
-      case "byte":
-        return Type.BYTE_TYPE;
-      case "byte[]":
-        return Type.getType(byte[].class);
-      case "int":
-        return Type.INT_TYPE;
-      case "int[]":
-        return Type.getType(int[].class);
-      case "long":
-        return Type.LONG_TYPE;
-      case "long[]":
-        return Type.getType(long[].class);
-      case "float":
-        return Type.FLOAT_TYPE;
-      case "float[]":
-        return Type.getType(float[].class);
-      case "double":
-        return Type.DOUBLE_TYPE;
-      case "double[]":
-        return Type.getType(double[].class);
-      case "boolean":
-        return Type.BOOLEAN_TYPE;
-      case "boolean[]":
-        return Type.getType(boolean[].class);
-      case "void":
-        return Type.VOID_TYPE;
-      case "short":
-        return Type.SHORT_TYPE;
-      case "short[]":
-        return Type.getType(short[].class);
-      case "char":
-        return Type.CHAR_TYPE;
-      case "char[]":
-        return Type.getType(char[].class);
-      case "String":
-        return Type.getType(String.class);
-      case "String[]":
-        return Type.getType(String[].class);
-      default:
-        String prefix = "";
-        if (type.endsWith("[]")) {
-          prefix = "[";
-        }
-        return Type.getObjectType(prefix + type.replace(".", "/"));
-    }
-  }
-
-  private Type[] asmTypes(String... types) {
-    return Stream.of(types)
-        .map(this::asmType)
+    Types typeUtils = environment.getTypeUtils();
+    Type returnType = new TypeDefinition(typeUtils, executable.getReturnType()).toJvmType();
+    Type[] arguments = executable.getParameters().stream()
+        .map(var -> new TypeDefinition(typeUtils, var.asType()).toJvmType())
         .toArray(Type[]::new);
+    return Type.getMethodDescriptor(returnType, arguments);
   }
 }

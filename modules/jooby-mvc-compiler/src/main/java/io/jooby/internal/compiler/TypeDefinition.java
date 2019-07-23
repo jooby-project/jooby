@@ -32,6 +32,16 @@ public class TypeDefinition {
     this.type = type;
   }
 
+  public String getSimpleName() {
+    String name = getName();
+    int i = name.lastIndexOf('.');
+    return i > 0 ? name.substring(i + 1) : name;
+  }
+
+  public String getName() {
+    return getRawType().toString();
+  }
+
   public TypeMirror getType() {
     return type;
   }
@@ -90,6 +100,10 @@ public class TypeDefinition {
 
   public boolean isRawType() {
     return type.toString().equals(getRawType().toString());
+  }
+
+  @Override public String toString() {
+    return type.toString();
   }
 
   private org.objectweb.asm.Type asmType(String type) {
