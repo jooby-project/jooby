@@ -146,7 +146,7 @@ public class MvcProcessorTest {
         .compile("intPathParam", args(int.class), handler -> {
           assertEquals("1", handler.apply(new MockContext().setPathMap(mapOf("p1", "1"))));
         })
-        .compile("optionalStringPathParam", args(Optional.class), true, handler -> {
+        .compile("optionalStringPathParam", args(Optional.class), handler -> {
           assertEquals("Optional[x]",
               handler.apply(new MockContext().setPathMap(mapOf("p1", "x"))));
         })
@@ -154,7 +154,7 @@ public class MvcProcessorTest {
           assertEquals("Optional[7]",
               handler.apply(new MockContext().setPathMap(mapOf("p1", "7"))));
         })
-        .compile("javaBeanPathParam", args(JavaBeanParam.class), true, handler -> {
+        .compile("javaBeanPathParam", args(JavaBeanParam.class), handler -> {
           assertEquals("bar", handler.apply(new MockContext().setPathMap(mapOf("foo", "bar"))));
         })
         .compile("listStringPathParam", args(List.class), handler -> {
