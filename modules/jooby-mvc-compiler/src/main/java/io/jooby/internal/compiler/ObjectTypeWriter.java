@@ -1,4 +1,4 @@
-package io.jooby.compiler;
+package io.jooby.internal.compiler;
 
 import io.jooby.Context;
 import org.objectweb.asm.ClassWriter;
@@ -10,11 +10,11 @@ import java.lang.reflect.Method;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
-public class TypeInjection implements ParamWriter {
-  @Override public void accept(ClassWriter writer, MethodVisitor visitor, ParamDefinition parameter)
+public class ObjectTypeWriter implements ParamWriter {
+  @Override public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor, ParamDefinition parameter)
       throws Exception {
     if (!parameter.is(Context.class)) {
-      Method method = ParamStrategy.forTypeInjection(parameter).valueObject(parameter);
+      Method method = ParamKind.forTypeInjection(parameter).valueObject(parameter);
       visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), method.getName(),
           Type.getMethodDescriptor(method), true);
     }

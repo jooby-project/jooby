@@ -1,4 +1,4 @@
-package io.jooby.compiler;
+package io.jooby.internal.compiler;
 
 import io.jooby.Context;
 import io.jooby.FileUpload;
@@ -30,21 +30,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class ParamDefinition {
+public class ParamDefinition {
 
   private final VariableElement parameter;
   private final TypeMirror type;
   private final TypeMirror rawType;
   private final Types typeUtils;
-  private final ParamStrategy kind;
-  private final MethodDefinition method;
+  private final ParamKind kind;
   private final String name;
   private final String httpName;
 
-  private ParamDefinition(ProcessingEnvironment environment, MethodDefinition owner,
-      VariableElement parameter) {
+  private ParamDefinition(ProcessingEnvironment environment, VariableElement parameter) {
     this.typeUtils = environment.getTypeUtils();
-    this.method = owner;
     this.parameter = parameter;
     this.name = parameter.getSimpleName().toString();
     this.type = parameter.asType();
@@ -60,10 +57,6 @@ class ParamDefinition {
       throw new UnsupportedOperationException(
           "No writer for: '" + toString() + "'; kind: " + getKind());
     }
-  }
-
-  public MethodDefinition getOwner() {
-    return method;
   }
 
   public String getHttpName() {
@@ -93,7 +86,7 @@ class ParamDefinition {
     throw new NoSuchElementException("No generic type: " + type);
   }
 
-  public ParamStrategy getKind() {
+  public ParamKind getKind() {
     return kind;
   }
 
@@ -312,31 +305,31 @@ class ParamDefinition {
     return Value.class.getMethod("to", Reified.class);
   }
 
-  public static ParamDefinition create(ProcessingEnvironment environment, MethodDefinition owner,
+  public static ParamDefinition create(ProcessingEnvironment environment,
       VariableElement parameter) {
-    ParamDefinition definition = new ParamDefinition(environment, owner, parameter);
+    ParamDefinition definition = new ParamDefinition(environment, parameter);
     return definition;
   }
 
-  private ParamStrategy computeKind() {
+  private ParamKind computeKind() {
     if (isTypeInjection()) {
-      return ParamStrategy.TYPE;
+      return ParamKind.TYPE;
     }
 
     if (is(FileUpload.class) ||
         is(List.class, FileUpload.class) ||
         is(Optional.class, FileUpload.class) ||
         is(Path.class)) {
-      return ParamStrategy.FILE_UPLOAD;
+      return ParamKind.FILE_UPLOAD;
     }
 
-    for (ParamStrategy strategy : ParamStrategy.values()) {
+    for (ParamKind strategy : ParamKind.values()) {
       if (isParam(parameter, strategy.annotations())) {
         return strategy;
       }
     }
 
-    return ParamStrategy.BODY_PARAM;
+    return ParamKind.BODY_PARAM;
   }
 
   private boolean isTypeInjection() {

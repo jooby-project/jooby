@@ -1,4 +1,4 @@
-package io.jooby.compiler;
+package io.jooby.internal.compiler;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -9,7 +9,7 @@ import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
 class AnnotationParamWriter extends ValueWriter {
-  @Override public void accept(ClassWriter writer, MethodVisitor visitor, ParamDefinition parameter)
+  @Override public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor, ParamDefinition parameter)
       throws Exception {
     String parameterName = parameter.getHttpName();
 
@@ -25,7 +25,7 @@ class AnnotationParamWriter extends ValueWriter {
           getMethodDescriptor(paramMethod), true);
     }
 
-    super.accept(writer, visitor, parameter);
+    super.accept(writer, handlerInternalName, visitor, parameter);
   }
 
   private boolean is(Method method, int index, Class type) {

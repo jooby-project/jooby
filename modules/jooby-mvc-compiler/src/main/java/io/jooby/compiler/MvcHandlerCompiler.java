@@ -4,6 +4,8 @@ import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
+import io.jooby.internal.compiler.ParamDefinition;
+import io.jooby.internal.compiler.ParamWriter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -138,12 +140,11 @@ public class MvcHandlerCompiler {
   }
 
   private void processArguments(ClassWriter classWriter, MethodVisitor visitor) throws Exception {
-    MethodDefinition methodDefinition = new MethodDefinition(owner, executable, httpMethod);
     for (VariableElement var : executable.getParameters()) {
       visitor.visitVarInsn(ALOAD, 1);
-      ParamDefinition param = ParamDefinition.create(environment, methodDefinition, var);
+      ParamDefinition param = ParamDefinition.create(environment, var);
       ParamWriter writer = param.newWriter();
-      writer.accept(classWriter, visitor, param);
+      writer.accept(classWriter, getHandlerInternal(), visitor, param);
     }
   }
 
@@ -170,6 +171,9 @@ public class MvcHandlerCompiler {
 
       Method wrapper;
       switch (kind) {
+        case BOOLEAN:
+          wrapper = Boolean.class.getDeclaredMethod("valueOf", Boolean.TYPE);
+          break;
         case CHAR:
           wrapper = Character.class.getDeclaredMethod("valueOf", Character.TYPE);
           break;

@@ -1,4 +1,4 @@
-package io.jooby.compiler;
+package io.jooby.internal.compiler;
 
 import io.jooby.Context;
 import org.objectweb.asm.ClassWriter;
@@ -7,8 +7,9 @@ import org.objectweb.asm.Type;
 
 import static org.objectweb.asm.Type.getType;
 
-interface ParamWriter {
+public interface ParamWriter {
   Type CTX = getType(Context.class);
 
-  void accept(ClassWriter writer, MethodVisitor visitor, ParamDefinition parameter) throws Exception;
+  void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
+      ParamDefinition parameter) throws Exception;
 }

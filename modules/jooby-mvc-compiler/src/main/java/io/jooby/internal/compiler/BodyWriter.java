@@ -1,4 +1,4 @@
-package io.jooby.compiler;
+package io.jooby.internal.compiler;
 
 import io.jooby.Body;
 import org.objectweb.asm.ClassWriter;
@@ -11,8 +11,10 @@ import java.nio.channels.ReadableByteChannel;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
-class BodyWriter extends ValueWriter {
-  @Override public void accept(ClassWriter writer, MethodVisitor visitor, ParamDefinition parameter)
+public class BodyWriter extends ValueWriter {
+  @Override
+  public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
+      ParamDefinition parameter)
       throws Exception {
     Method paramMethod = parameter.getObjectValue();
     visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
@@ -30,7 +32,7 @@ class BodyWriter extends ValueWriter {
       visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Body", channel.getName(),
           getMethodDescriptor(channel), true);
     } else {
-      super.accept(writer, visitor, parameter);
+      super.accept(writer, handlerInternalName, visitor, parameter);
     }
   }
 }

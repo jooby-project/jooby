@@ -1,4 +1,4 @@
-package io.jooby.compiler;
+package io.jooby.internal.compiler;
 
 import io.jooby.Context;
 import io.jooby.FileUpload;
@@ -23,12 +23,13 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
 class FileUploadWriter implements ParamWriter {
-  @Override public void accept(ClassWriter writer, MethodVisitor visitor, ParamDefinition parameter)
+  @Override
+  public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
+      ParamDefinition parameter)
       throws Exception {
     if (parameter.isList()) {
       files(parameter.getName(), writer);
-      visitor.visitMethodInsn(INVOKESTATIC, parameter.getOwner().getHandlerInternalName(),
-          parameter.getName(),
+      visitor.visitMethodInsn(INVOKESTATIC, handlerInternalName, parameter.getName(),
           "(Lio/jooby/Context;)Ljava/util/List;", false);
     } else {
       visitor.visitLdcInsn(parameter.getName());

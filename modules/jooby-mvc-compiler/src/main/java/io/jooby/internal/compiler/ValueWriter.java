@@ -1,4 +1,4 @@
-package io.jooby.compiler;
+package io.jooby.internal.compiler;
 
 import io.jooby.Reified;
 import org.objectweb.asm.ClassWriter;
@@ -15,7 +15,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
 abstract class ValueWriter implements ParamWriter {
-  @Override public void accept(ClassWriter writer, MethodVisitor visitor, ParamDefinition parameter)
+  @Override public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor, ParamDefinition parameter)
       throws Exception {
     Method convertMethod = parameter.getMethod();
     // to(Class)

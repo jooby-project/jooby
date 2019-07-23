@@ -1,23 +1,23 @@
-package io.jooby.compiler;
+package io.jooby.internal.compiler;
 
 import io.jooby.Context;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
+import io.jooby.compiler.Annotations;
 
 import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 
-enum ParamStrategy {
+public enum ParamKind {
   TYPE {
     @Override public Method valueObject(ParamDefinition param) {
       throw new UnsupportedOperationException(param.toString());
     }
 
     @Override public ParamWriter newWriter() {
-      return new TypeInjection();
+      return new ObjectTypeWriter();
     }
   },
 
@@ -170,10 +170,10 @@ enum ParamStrategy {
     throw new UnsupportedOperationException("No value method for: '" + param + "'");
   }
 
-  public static ParamStrategy forTypeInjection(ParamDefinition param) {
+  public static ParamKind forTypeInjection(ParamDefinition param) {
     TypeMirror type = param.isOptional() ? param.getTypeArgument(0) : param.getRawType();
     String rawType = type.toString().replace(Formdata.class.getName(), Multipart.class.getName());
-    for (ParamStrategy value : values()) {
+    for (ParamKind value : values()) {
       try {
         if (value.valueObject(param).getReturnType().getName().equals(rawType)) {
           return value;
