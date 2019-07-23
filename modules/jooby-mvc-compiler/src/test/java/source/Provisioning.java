@@ -36,11 +36,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Path("/controller")
 public class Provisioning {
 
-
-
   @GET
   public String noarg() {
-    throw new UnsupportedOperationException();
+    return "noarg";
   }
 
   @GET("/ctx")

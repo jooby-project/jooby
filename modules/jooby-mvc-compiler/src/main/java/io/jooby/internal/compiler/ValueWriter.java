@@ -23,19 +23,21 @@ abstract class ValueWriter implements ParamWriter {
     boolean toReified = is(convertMethod, 0, Reified.class);
     // toOptional(Class) or toList(Class) or toSet(Class)
     if (toClass) {
-      visitor.visitLdcInsn(parameter.isGenericType()
-          ? parameter.getByteCodeTypeArgument(0)
-          : parameter.getByteCodeType()
+      visitor.visitLdcInsn(parameter.getType().isParameterizedType()
+          ? parameter.getType().getArguments().get(0).toJvmType()
+          : parameter.getType().toJvmType()
       );
     } else if (toReified) {
       Method reified;
       if (parameter.is(Map.class)) {
-        visitor.visitLdcInsn(parameter.getByteCodeTypeArgument(0));
-        visitor.visitLdcInsn(parameter.getByteCodeTypeArgument(1));
+        visitor.visitLdcInsn(parameter.getType().getArguments().get(0).toJvmType());
+        visitor.visitLdcInsn(parameter.getType().getArguments().get(1).toJvmType());
         reified = Reified.class.getMethod("map", Type.class, Type.class);
       } else {
-        visitor.visitLdcInsn(parameter.getByteCodeType());
-        org.objectweb.asm.Type[] args = parameter.getByteCodeTypeArguments();
+        visitor.visitLdcInsn(parameter.getType().toJvmType());
+        org.objectweb.asm.Type[] args = parameter.getType().getArguments().stream()
+            .map(TypeDefinition::toJvmType)
+            .toArray(org.objectweb.asm.Type[]::new);
         visitor.visitInsn(Opcodes.ICONST_0 + args.length);
         visitor.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/reflect/Type");
         for (int i = 0; i < args.length; i++) {
@@ -55,7 +57,7 @@ abstract class ValueWriter implements ParamWriter {
         getMethodDescriptor(convertMethod), true);
 
     if (toClass || toReified) {
-      visitor.visitTypeInsn(CHECKCAST, parameter.getByteCodeType().getInternalName());
+      visitor.visitTypeInsn(CHECKCAST, parameter.getType().toJvmType().getInternalName());
     }
   }
 

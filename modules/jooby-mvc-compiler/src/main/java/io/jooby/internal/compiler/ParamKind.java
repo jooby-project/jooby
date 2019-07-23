@@ -171,7 +171,7 @@ public enum ParamKind {
   }
 
   public static ParamKind forTypeInjection(ParamDefinition param) {
-    TypeMirror type = param.isOptional() ? param.getTypeArgument(0) : param.getRawType();
+    TypeMirror type = param.isOptional() ? param.getType().getArguments().get(0).getRawType() : param.getType().getRawType();
     String rawType = type.toString().replace(Formdata.class.getName(), Multipart.class.getName());
     for (ParamKind value : values()) {
       try {

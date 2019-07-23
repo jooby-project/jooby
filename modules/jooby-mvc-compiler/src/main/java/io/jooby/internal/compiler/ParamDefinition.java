@@ -9,7 +9,6 @@ import io.jooby.QueryString;
 import io.jooby.Reified;
 import io.jooby.Session;
 import io.jooby.Value;
-import org.objectweb.asm.Type;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -17,26 +16,20 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.objectweb.asm.Type.*;
 
 public class ParamDefinition {
 
   private final VariableElement parameter;
-  private final TypeMirror type;
-  private final TypeMirror rawType;
+  private final TypeDefinition type;
   private final Types typeUtils;
   private final ParamKind kind;
   private final String name;
@@ -46,8 +39,7 @@ public class ParamDefinition {
     this.typeUtils = environment.getTypeUtils();
     this.parameter = parameter;
     this.name = parameter.getSimpleName().toString();
-    this.type = parameter.asType();
-    this.rawType = environment.getTypeUtils().erasure(type);
+    this.type =  new TypeDefinition(typeUtils, parameter.asType());
     this.kind = computeKind();
     this.httpName = parameterName(parameter, this.kind.annotations());
   }
@@ -69,23 +61,8 @@ public class ParamDefinition {
     return name;
   }
 
-  public TypeMirror getType() {
+  public TypeDefinition getType() {
     return type;
-  }
-
-  public TypeMirror getRawType() {
-    return rawType;
-  }
-
-  public TypeMirror getTypeArgument(int index) {
-    if (type instanceof DeclaredType) {
-      DeclaredType declaredType = (DeclaredType) type;
-      List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
-      if (index < typeArguments.size()) {
-        return typeUtils.erasure(typeArguments.get(index));
-      }
-    }
-    throw new NoSuchElementException("No generic type: " + type);
   }
 
   public ParamKind getKind() {
@@ -93,27 +70,7 @@ public class ParamDefinition {
   }
 
   public boolean is(Class type, Class... arguments) {
-    return is(typeName(type), Stream.of(arguments).map(this::typeName).toArray(String[]::new));
-  }
-
-  public boolean is(String type, String... arguments) {
-    boolean same = rawType.toString().equals(type);
-    if (!same) {
-      return false;
-    }
-    if (arguments.length > 0 && this.type instanceof DeclaredType) {
-      DeclaredType declaredType = (DeclaredType) this.type;
-      List<? extends TypeMirror> args = declaredType.getTypeArguments();
-      if (args.size() != arguments.length) {
-        return false;
-      }
-      for (int i = 0; i < arguments.length; i++) {
-        if (!arguments[i].equals(typeUtils.erasure(args.get(i)).toString())) {
-          return false;
-        }
-      }
-    }
-    return true;
+    return getType().is(type, arguments);
   }
 
   public boolean isOptional() {
@@ -178,85 +135,8 @@ public class ParamDefinition {
     };
   }
 
-  public org.objectweb.asm.Type getByteCodeType() {
-    return asmType(getRawType().toString());
-  }
-
-  public org.objectweb.asm.Type getByteCodeTypeArgument(int index) {
-    return asmType(getTypeArgument(index).toString());
-  }
-
-  public org.objectweb.asm.Type[] getByteCodeTypeArguments() {
-    if (type instanceof DeclaredType) {
-      DeclaredType declaredType = (DeclaredType) type;
-      List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
-      Type[] result = new Type[typeArguments.size()];
-      for (int i = 0; i < result.length; i++) {
-        result[i] = asmType(typeUtils.erasure(typeArguments.get(i)).toString());
-      }
-      return result;
-    }
-    return new Type[0];
-  }
-
-  public boolean isGenericType() {
-    if (type instanceof DeclaredType) {
-      return ((DeclaredType) type).getTypeArguments().size() > 0;
-    }
-    return false;
-  }
-
   @Override public String toString() {
     return parameter.getSimpleName() + ": " + parameter.asType();
-  }
-
-  private org.objectweb.asm.Type asmType(String type) {
-    switch (type) {
-      case "byte":
-        return BYTE_TYPE;
-      case "byte[]":
-        return org.objectweb.asm.Type.getType(byte[].class);
-      case "int":
-        return INT_TYPE;
-      case "int[]":
-        return org.objectweb.asm.Type.getType(int[].class);
-      case "long":
-        return LONG_TYPE;
-      case "long[]":
-        return org.objectweb.asm.Type.getType(long[].class);
-      case "float":
-        return FLOAT_TYPE;
-      case "float[]":
-        return org.objectweb.asm.Type.getType(float[].class);
-      case "double":
-        return DOUBLE_TYPE;
-      case "double[]":
-        return org.objectweb.asm.Type.getType(double[].class);
-      case "boolean":
-        return BOOLEAN_TYPE;
-      case "boolean[]":
-        return org.objectweb.asm.Type.getType(boolean[].class);
-      case "void":
-        return VOID_TYPE;
-      case "short":
-        return SHORT_TYPE;
-      case "short[]":
-        return org.objectweb.asm.Type.getType(short[].class);
-      case "char":
-        return CHAR_TYPE;
-      case "char[]":
-        return org.objectweb.asm.Type.getType(char[].class);
-      case "String":
-        return org.objectweb.asm.Type.getType(String.class);
-      case "String[]":
-        return org.objectweb.asm.Type.getType(String[].class);
-      default:
-        String prefix = "";
-        if (type.endsWith("[]")) {
-          prefix = "[";
-        }
-        return getObjectType(prefix + type.replace(".", "/"));
-    }
   }
 
   public Method getMethod() throws NoSuchMethodException {
@@ -300,7 +180,7 @@ public class ParamDefinition {
     if (is(Set.class)) {
       return Value.class.getMethod("toSet", Class.class);
     }
-    boolean useClass = getType().toString().equals(getRawType().toString());
+    boolean useClass = type.isRawType();
     if (useClass) {
       return Value.class.getMethod("to", Class.class);
     }
