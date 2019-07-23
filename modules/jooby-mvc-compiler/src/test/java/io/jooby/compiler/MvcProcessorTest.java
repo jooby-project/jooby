@@ -40,6 +40,9 @@ public class MvcProcessorTest {
   @Test
   public void typeInjection() throws Exception {
     new TestProcessor(new Provisioning())
+        .compile("sessionOrNull", args(Optional.class), handler -> {
+          assertEquals("session:false", handler.apply(new MockContext()));
+        })
         .compile("noarg", args(), handler -> {
           assertEquals("noarg", handler.apply(new MockContext()));
         })
@@ -48,9 +51,6 @@ public class MvcProcessorTest {
         })
         .compile("queryString", args(QueryString.class), handler -> {
           assertEquals("queryString", handler.apply(new MockContext()));
-        })
-        .compile("queryStringOptional", args(Optional.class), handler -> {
-          assertEquals("queryStringOptional:true", handler.apply(new MockContext()));
         })
         .compile("formdata", args(Formdata.class), handler -> {
           assertEquals("formdata", handler.apply(new MockContext()));
@@ -64,9 +64,7 @@ public class MvcProcessorTest {
         .compile("flashMap", args(FlashMap.class), handler -> {
           assertEquals("flashMap", handler.apply(new MockContext()));
         })
-        .compile("sessionOrNull", args(Optional.class), handler -> {
-          assertEquals("session:false", handler.apply(new MockContext()));
-        })
+
         .compile("session", args(Session.class), handler -> {
           assertEquals("session", handler.apply(new MockContext()));
         });
@@ -146,7 +144,7 @@ public class MvcProcessorTest {
         .compile("intPathParam", args(int.class), handler -> {
           assertEquals("1", handler.apply(new MockContext().setPathMap(mapOf("p1", "1"))));
         })
-        .compile("optionalStringPathParam", args(Optional.class), handler -> {
+        .compile("optionalStringPathParam", args(Optional.class), true, handler -> {
           assertEquals("Optional[x]",
               handler.apply(new MockContext().setPathMap(mapOf("p1", "x"))));
         })
@@ -154,7 +152,7 @@ public class MvcProcessorTest {
           assertEquals("Optional[7]",
               handler.apply(new MockContext().setPathMap(mapOf("p1", "7"))));
         })
-        .compile("javaBeanPathParam", args(JavaBeanParam.class), handler -> {
+        .compile("javaBeanPathParam", args(JavaBeanParam.class), true, handler -> {
           assertEquals("bar", handler.apply(new MockContext().setPathMap(mapOf("foo", "bar"))));
         })
         .compile("listStringPathParam", args(List.class), handler -> {
@@ -312,14 +310,14 @@ public class MvcProcessorTest {
   @Test
   public void body() throws Exception {
     new TestProcessor(new Provisioning())
-        .compile("POST","bodyMapParam", args(Map.class), true, handler -> {
-          Body body = mock(Body.class);
-          assertEquals(9, handler.apply(new MockContext().setBody(body)));
-        })
+//        .compile("POST","bodyMapParam", args(Map.class), true, handler -> {
+//          Body body = mock(Body.class);
+//          assertEquals(9, handler.apply(new MockContext().setBody(body)));
+//        })
         .compile("POST","bodyStringParam", args(String.class), handler -> {
           assertEquals("...", handler.apply(new MockContext().setBody("...")));
         })
-        .compile("POST","bodyBytesParam", args(byte[].class), handler -> {
+        .compile("POST","bodyBytesParam", args(byte[].class), true, handler -> {
           assertEquals("...", handler.apply(new MockContext().setBody("...".getBytes(StandardCharsets.UTF_8))));
         })
         .compile("POST","bodyInputStreamParam", args(InputStream.class), handler -> {
