@@ -4,10 +4,13 @@ import io.jooby.Body;
 import io.jooby.Reified;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
@@ -44,14 +47,25 @@ class BodyWriter implements ParamWriter {
             : parameter.getByteCodeType()
         );
       } else if (toReified) {
-        visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
-            getMethodDescriptor(paramMethod), true);
+        Method reified;
+        if (parameter.is(Map.class)) {
+          visitor.visitLdcInsn(parameter.getByteCodeTypeArgument(0));
+          visitor.visitLdcInsn(parameter.getByteCodeTypeArgument(1));
+          reified = Reified.class.getMethod("map", Type.class, Type.class);
+        } else {
+          visitor.visitLdcInsn(parameter.getByteCodeType());
+          org.objectweb.asm.Type[] args = parameter.getByteCodeTypeArguments();
+          visitor.visitInsn(Opcodes.ICONST_0 + args.length);
+          visitor.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/reflect/Type");
+          for (int i = 0; i < args.length; i++) {
+            visitor.visitInsn(Opcodes.DUP);
+            visitor.visitInsn(Opcodes.ICONST_0 + i);
+            visitor.visitLdcInsn(args[i]);
+            visitor.visitInsn(Opcodes.AASTORE);
+          }
+          reified = Reified.class.getMethod("getParameterized", Type.class, Type[].class);
+        }
 
-        visitor.visitLdcInsn(parameter.getByteCodeType());
-
-        /** to(Reified): */
-        Method reified = Reified.class
-            .getDeclaredMethod(convertMethod.getName(), java.lang.reflect.Type.class);
         visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reified.getName(),
             getMethodDescriptor(reified), false);
       }

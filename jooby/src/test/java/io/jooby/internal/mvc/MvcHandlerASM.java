@@ -23,7 +23,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,11 +33,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class QPoint {
 }
 
+class Gen<A, B, C> {
+}
+
 class Poc {
 
   @POST
   @Path(("/body/json"))
-  public String getIt(QPoint body) {
+  public String getIt(Gen<String, Integer, Void> body) {
       return body.toString();
   }
 
@@ -70,7 +75,8 @@ class MvcHandlerImpl implements MvcHandler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    return provider.get().getIt(ctx.body().to(QPoint.class));
+    return provider.get().getIt(ctx.body().to(
+        (Type) Reified.getParameterized(Gen.class, String.class, Integer.class, Void.class)));
   }
 }
 
@@ -82,7 +88,7 @@ public class MvcHandlerASM {
     //    ASMifier.main(new String[] {"-debug",MvcHandler.class.getName()});
     //public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
     //      @PathParam long j, @PathParam double f, @PathParam boolean b) {
-    Method handler = Poc.class.getDeclaredMethod("getIt", QPoint.class);
+    Method handler = Poc.class.getDeclaredMethod("getIt", Gen.class);
     Class runtime = MvcCompiler.compileClass(mvc(handler));
 
     System.out.println("Loaded: " + runtime);

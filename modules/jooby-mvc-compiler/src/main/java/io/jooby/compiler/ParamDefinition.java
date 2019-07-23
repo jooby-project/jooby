@@ -9,6 +9,7 @@ import io.jooby.QueryString;
 import io.jooby.Reified;
 import io.jooby.Session;
 import io.jooby.Value;
+import org.objectweb.asm.Type;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -86,7 +87,7 @@ class ParamDefinition {
       DeclaredType declaredType = (DeclaredType) type;
       List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
       if (index < typeArguments.size()) {
-        return typeArguments.get(index);
+        return typeUtils.erasure(typeArguments.get(index));
       }
     }
     throw new NoSuchElementException("No generic type: " + type);
@@ -188,6 +189,19 @@ class ParamDefinition {
 
   public org.objectweb.asm.Type getByteCodeTypeArgument(int index) {
     return asmType(getTypeArgument(index).toString());
+  }
+
+  public org.objectweb.asm.Type[] getByteCodeTypeArguments() {
+    if (type instanceof DeclaredType) {
+      DeclaredType declaredType = (DeclaredType) type;
+      List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+      Type[] result = new Type[typeArguments.size()];
+      for (int i = 0; i < result.length; i++) {
+        result[i] = asmType(typeUtils.erasure(typeArguments.get(i)).toString());
+      }
+      return result;
+    }
+    return new Type[0];
   }
 
   public boolean isGenericType() {

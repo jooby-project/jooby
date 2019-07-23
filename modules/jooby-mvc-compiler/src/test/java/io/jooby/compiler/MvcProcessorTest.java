@@ -8,9 +8,11 @@ import io.jooby.Formdata;
 import io.jooby.MockContext;
 import io.jooby.Multipart;
 import io.jooby.QueryString;
+import io.jooby.Reified;
 import io.jooby.Session;
 import io.jooby.StatusCode;
 import org.junit.jupiter.api.Test;
+import source.CustomGenericType;
 import source.EnumParam;
 import source.JavaBeanParam;
 import source.Provisioning;
@@ -310,40 +312,56 @@ public class MvcProcessorTest {
   @Test
   public void body() throws Exception {
     new TestProcessor(new Provisioning())
-//        .compile("POST","bodyMapParam", args(Map.class), true, handler -> {
-//          Body body = mock(Body.class);
-//          assertEquals(9, handler.apply(new MockContext().setBody(body)));
-//        })
-        .compile("POST","bodyStringParam", args(String.class), handler -> {
+        .compile("POST", "bodyMapParam", args(Map.class), handler -> {
+          Map map = mock(Map.class);
+          Body body = mock(Body.class);
+          when(body.to(Reified.map(String.class, Object.class))).thenReturn(map);
+          assertEquals(map, handler.apply(new MockContext().setBody(body)));
+        })
+        .compile("POST", "bodyStringParam", args(String.class), handler -> {
           assertEquals("...", handler.apply(new MockContext().setBody("...")));
         })
-        .compile("POST","bodyBytesParam", args(byte[].class), true, handler -> {
-          assertEquals("...", handler.apply(new MockContext().setBody("...".getBytes(StandardCharsets.UTF_8))));
+        .compile("POST", "bodyBytesParam", args(byte[].class), handler -> {
+          assertEquals("...",
+              handler.apply(new MockContext().setBody("...".getBytes(StandardCharsets.UTF_8))));
         })
-        .compile("POST","bodyInputStreamParam", args(InputStream.class), handler -> {
+        .compile("POST", "bodyInputStreamParam", args(InputStream.class), handler -> {
           InputStream stream = mock(InputStream.class);
           Body body = mock(Body.class);
           when(body.stream()).thenReturn(stream);
           assertEquals(stream.toString(), handler.apply(new MockContext().setBody(body)));
         })
-        .compile("POST","bodyChannelParam", args(ReadableByteChannel.class), handler -> {
+        .compile("POST", "bodyChannelParam", args(ReadableByteChannel.class), handler -> {
           ReadableByteChannel channel = mock(ReadableByteChannel.class);
           Body body = mock(Body.class);
           when(body.channel()).thenReturn(channel);
           assertEquals(channel.toString(), handler.apply(new MockContext().setBody(body)));
         })
-        .compile("POST","bodyBeanParam", args(JavaBeanParam.class), handler -> {
+        .compile("POST", "bodyBeanParam", args(JavaBeanParam.class), handler -> {
           JavaBeanParam bean = mock(JavaBeanParam.class);
           Body body = mock(Body.class);
           when(body.to(JavaBeanParam.class)).thenReturn(bean);
           assertEquals(bean.toString(), handler.apply(new MockContext().setBody(body)));
         })
-        .compile("POST","bodyIntParam", args(int.class), handler -> {
+        .compile("POST", "bodyIntParam", args(int.class), handler -> {
           Body body = mock(Body.class);
           when(body.intValue()).thenReturn(9);
           assertEquals(9, handler.apply(new MockContext().setBody(body)));
         })
-        ;
+        .compile("POST", "bodyOptionalIntParam", args(Optional.class), handler -> {
+          Body body = mock(Body.class);
+          when(body.toOptional(Integer.class)).thenReturn(Optional.of(9));
+          assertEquals(Optional.of(9), handler.apply(new MockContext().setBody(body)));
+        })
+        .compile("POST", "bodyCustomGenericParam", args(CustomGenericType.class), handler -> {
+          CustomGenericType generic = new CustomGenericType<>();
+          Body body = mock(Body.class);
+          Reified parameterized = Reified
+              .getParameterized(CustomGenericType.class, String.class);
+          when(body.to(parameterized)).thenReturn(generic);
+          assertEquals(generic, handler.apply(new MockContext().setBody(body)));
+        })
+    ;
   }
 
   public static Class[] args(Class... args) {

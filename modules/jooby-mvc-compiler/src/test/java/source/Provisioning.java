@@ -36,6 +36,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Path("/controller")
 public class Provisioning {
 
+
+
   @GET
   public String noarg() {
     return "noarg";
@@ -359,8 +361,20 @@ public class Provisioning {
   }
 
   @POST
+  @Path("/body/optint")
+  public Optional<Integer> bodyOptionalIntParam(Optional<Integer> body) {
+    return body;
+  }
+
+  @POST
   @Path("/body/int")
   public Map<String, Object> bodyMapParam(Map<String, Object> json) {
     return json;
+  }
+
+  @POST
+  @Path("/body/int")
+  public CustomGenericType<String> bodyCustomGenericParam(CustomGenericType<String> body) {
+    return body;
   }
 }
