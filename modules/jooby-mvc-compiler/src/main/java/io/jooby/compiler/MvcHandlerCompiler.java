@@ -4,6 +4,7 @@ import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
+import io.jooby.internal.compiler.ConstructorWriter;
 import io.jooby.internal.compiler.ParamDefinition;
 import io.jooby.internal.compiler.ParamWriter;
 import org.objectweb.asm.ClassReader;
@@ -31,7 +32,6 @@ import java.util.stream.Stream;
 
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
@@ -43,11 +43,8 @@ import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.PUTFIELD;
-import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.objectweb.asm.Type.getInternalName;
 import static org.objectweb.asm.Type.getMethodDescriptor;
@@ -72,13 +69,26 @@ public class MvcHandlerCompiler {
   private final ExecutableElement executable;
   private final ProcessingEnvironment environment;
   private final String httpMethod;
+  private final String pattern;
 
-  public MvcHandlerCompiler(ProcessingEnvironment environment, String httpMethod,
-      ExecutableElement executable) {
-    this.httpMethod = httpMethod.toLowerCase();
+  public MvcHandlerCompiler(ProcessingEnvironment environment, ExecutableElement executable, String method, String pattern) {
+    this.httpMethod = method.toLowerCase();
+    this.pattern = pattern;
     this.environment = environment;
     this.executable = executable;
     this.owner = (TypeElement) executable.getEnclosingElement();
+  }
+
+  public String getPattern() {
+    return pattern;
+  }
+
+  public String getHttpMethod() {
+    return httpMethod;
+  }
+
+  public Type getReturnByteCodeType() {
+    return asmType(rawType(executable.getReturnType()));
   }
 
   public byte[] compile() throws Exception {
@@ -97,7 +107,8 @@ public class MvcHandlerCompiler {
         ACC_PUBLIC | ACC_STATIC | ACC_ABSTRACT | ACC_INTERFACE);
 
     // Constructor(Provider<Controller> provider)
-    constructor(writer);
+    new ConstructorWriter()
+        .build(getHandlerName(), getOwner(), writer);
 
     /** Apply implementation: */
     apply(writer);
@@ -239,31 +250,6 @@ public class MvcHandlerCompiler {
     return type.getName().equals(typeString);
   }
 
-  private void constructor(ClassWriter writer) {
-    String provider = providerOf(asmType(getOwner()));
-
-    writer.visitField(ACC_PRIVATE, PROVIDER_VAR, PROVIDER.getDescriptor(), provider, null)
-        .visitEnd();
-
-    // Constructor:
-    MethodVisitor constructor = writer
-        .visitMethod(ACC_PUBLIC, "<init>",
-            getMethodDescriptor(Type.VOID_TYPE, PROVIDER),
-            getMethodDescriptor(Type.VOID_TYPE, getType(provider)),
-            null);
-    constructor.visitParameter(PROVIDER_VAR, 0);
-    constructor.visitCode();
-    constructor.visitVarInsn(ALOAD, 0);
-    constructor.visitMethodInsn(INVOKESPECIAL, OBJ.getInternalName(), "<init>", "()V", false);
-    constructor.visitVarInsn(ALOAD, 0);
-    constructor.visitVarInsn(ALOAD, 1);
-    constructor
-        .visitFieldInsn(PUTFIELD, getHandlerInternal(), PROVIDER_VAR, PROVIDER.getDescriptor());
-    constructor.visitInsn(RETURN);
-    constructor.visitMaxs(0, 0);
-    constructor.visitEnd();
-  }
-
   public String getSourceFileName() {
     return owner.getSimpleName() + ".java";
   }
@@ -282,7 +268,6 @@ public class MvcHandlerCompiler {
 
   public String getKey() {
     return getOwner() + "." + executable.getSimpleName() + methodDescriptor();
-
   }
 
   private String methodDescriptor() {
@@ -355,11 +340,5 @@ public class MvcHandlerCompiler {
     return Stream.of(types)
         .map(this::asmType)
         .toArray(Type[]::new);
-  }
-
-  private static String providerOf(Type owner) {
-    StringBuilder signature = new StringBuilder(PROVIDER.getDescriptor());
-    signature.insert(signature.length() - 1, "<" + owner.getDescriptor() + ">");
-    return signature.toString();
   }
 }

@@ -40,7 +40,7 @@ public class Provisioning {
 
   @GET
   public String noarg() {
-    return "noarg";
+    throw new UnsupportedOperationException();
   }
 
   @GET("/ctx")

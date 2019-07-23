@@ -1,10 +1,13 @@
 package io.jooby.internal.mvc;
 
 import io.jooby.Context;
+import io.jooby.Extension;
 import io.jooby.FileUpload;
+import io.jooby.Jooby;
 import io.jooby.ProvisioningException;
 import io.jooby.QueryString;
 import io.jooby.Reified;
+import io.jooby.Route;
 import io.jooby.Session;
 import io.jooby.StatusCode;
 import io.jooby.annotations.GET;
@@ -80,6 +83,20 @@ class MvcHandlerImpl implements MvcHandler {
   }
 }
 
+class MvcModule implements Extension {
+
+  private Provider<Poc> provider;
+
+  public MvcModule(Provider<Poc> provider) {
+    this.provider = provider;
+  }
+
+  @Override public void install(@Nonnull Jooby app) throws Exception {
+    Route route = app.get("/path", new MvcHandlerImpl(provider));
+    route.setReturnType(String.class);
+  }
+}
+
 public class MvcHandlerASM {
 
   @Test
@@ -94,7 +111,7 @@ public class MvcHandlerASM {
     System.out.println("Loaded: " + runtime);
     //    byte[] asm = writer.toByteCode(classname, handler);
 
-    assertEquals(asmifier(new ClassReader(MvcHandlerImpl.class.getName())),
+    assertEquals(asmifier(new ClassReader(MvcModule.class.getName())),
         asmifier(new ClassReader(MvcCompiler.compile(mvc(handler)))));
 
   }

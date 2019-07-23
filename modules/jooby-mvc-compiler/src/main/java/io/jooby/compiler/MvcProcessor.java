@@ -6,6 +6,12 @@
 package io.jooby.compiler;
 
 import com.google.auto.service.AutoService;
+import io.jooby.Extension;
+import io.jooby.SneakyThrows;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.util.ASMifier;
+import org.objectweb.asm.util.Printer;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 import javax.annotation.processing.Completion;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -17,6 +23,8 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +36,9 @@ import java.util.stream.Stream;
 @AutoService(Processor.class)
 public class MvcProcessor implements Processor {
 
-  private Map<String, MvcHandlerCompiler> result = new HashMap<>();
+  Map<String, MvcHandlerCompiler> result = new HashMap<>();
+
+  private Map<String, Object> modules = new HashMap<>();
 
   private ProcessingEnvironment processingEnvironment;
 
@@ -58,9 +68,27 @@ public class MvcProcessor implements Processor {
       Set<? extends Element> methods = roundEnvironment.getElementsAnnotatedWith(httpMethod);
       for (Element e : methods) {
         ExecutableElement method = (ExecutableElement) e;
-        MvcHandlerCompiler compiler = new MvcHandlerCompiler(processingEnvironment, httpMethod.getSimpleName().toString(), method);
-        String key = compiler.getKey();
-        result.put(key, compiler);
+        List<String> paths = path(httpMethod, method);
+        for (String path : paths) {
+          MvcHandlerCompiler compiler = new MvcHandlerCompiler(processingEnvironment, method,
+              httpMethod.getSimpleName().toString(), path);
+          result.put(compiler.getKey(), compiler);
+        }
+      }
+    }
+    Map<String, List<Map.Entry<String, MvcHandlerCompiler>>> classes = result.entrySet().stream()
+        .collect(Collectors.groupingBy(e -> e.getValue().getOwner()));
+    for (Map.Entry<String, List<Map.Entry<String, MvcHandlerCompiler>>> entry : classes
+        .entrySet()) {
+      try {
+        List<Map.Entry<String, MvcHandlerCompiler>> handlers = entry.getValue();
+        MvcModuleCompiler module = new MvcModuleCompiler(entry.getKey());
+        modules.put(entry.getKey() + "$Module", module.compile(handlers));
+        for (Map.Entry<String, MvcHandlerCompiler> handler : handlers) {
+          modules.put(handler.getValue().getHandlerName(), handler.getValue().compile());
+        }
+      } catch (Exception x) {
+        x.printStackTrace();
       }
     }
 
@@ -69,6 +97,37 @@ public class MvcProcessor implements Processor {
 
   /*package*/ MvcHandlerCompiler compilerFor(String methodDescriptor) {
     return result.get(methodDescriptor);
+  }
+
+  /*package*/ ClassLoader getModuleClassLoader(boolean debug) {
+    return new ClassLoader(getClass().getClassLoader()) {
+      @Override protected Class<?> findClass(String name) throws ClassNotFoundException {
+        byte[] bytes = (byte[]) modules.get(name);
+        if (bytes != null) {
+          if (debug) {
+            System.out.println(MvcProcessor.this.toString(bytes));
+          }
+          return defineClass(name, bytes, 0, bytes.length);
+        }
+        return super.findClass(name);
+      }
+    };
+  }
+
+  private String toString(byte[] bytes) {
+    try {
+      ClassReader reader = new ClassReader(bytes);
+      ByteArrayOutputStream buff = new ByteArrayOutputStream();
+      Printer printer = new ASMifier();
+      TraceClassVisitor traceClassVisitor =
+          new TraceClassVisitor(null, printer, new PrintWriter(buff));
+
+      reader.accept(traceClassVisitor, ClassReader.SKIP_DEBUG);
+
+      return new String(buff.toByteArray());
+    } catch (Exception x) {
+      throw SneakyThrows.propagate(x);
+    }
   }
 
   private List<String> path(TypeElement method, ExecutableElement exec) {

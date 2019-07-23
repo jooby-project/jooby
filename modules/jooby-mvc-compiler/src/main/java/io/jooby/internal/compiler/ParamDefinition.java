@@ -30,6 +30,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.objectweb.asm.Type.*;
+
 public class ParamDefinition {
 
   private final VariableElement parameter;
@@ -211,37 +213,37 @@ public class ParamDefinition {
   private org.objectweb.asm.Type asmType(String type) {
     switch (type) {
       case "byte":
-        return org.objectweb.asm.Type.BYTE_TYPE;
+        return BYTE_TYPE;
       case "byte[]":
         return org.objectweb.asm.Type.getType(byte[].class);
       case "int":
-        return org.objectweb.asm.Type.INT_TYPE;
+        return INT_TYPE;
       case "int[]":
         return org.objectweb.asm.Type.getType(int[].class);
       case "long":
-        return org.objectweb.asm.Type.LONG_TYPE;
+        return LONG_TYPE;
       case "long[]":
         return org.objectweb.asm.Type.getType(long[].class);
       case "float":
-        return org.objectweb.asm.Type.FLOAT_TYPE;
+        return FLOAT_TYPE;
       case "float[]":
         return org.objectweb.asm.Type.getType(float[].class);
       case "double":
-        return org.objectweb.asm.Type.DOUBLE_TYPE;
+        return DOUBLE_TYPE;
       case "double[]":
         return org.objectweb.asm.Type.getType(double[].class);
       case "boolean":
-        return org.objectweb.asm.Type.BOOLEAN_TYPE;
+        return BOOLEAN_TYPE;
       case "boolean[]":
         return org.objectweb.asm.Type.getType(boolean[].class);
       case "void":
-        return org.objectweb.asm.Type.VOID_TYPE;
+        return VOID_TYPE;
       case "short":
-        return org.objectweb.asm.Type.SHORT_TYPE;
+        return SHORT_TYPE;
       case "short[]":
         return org.objectweb.asm.Type.getType(short[].class);
       case "char":
-        return org.objectweb.asm.Type.CHAR_TYPE;
+        return CHAR_TYPE;
       case "char[]":
         return org.objectweb.asm.Type.getType(char[].class);
       case "String":
@@ -253,7 +255,7 @@ public class ParamDefinition {
         if (type.endsWith("[]")) {
           prefix = "[";
         }
-        return org.objectweb.asm.Type.getObjectType(prefix + type.replace(".", "/"));
+        return getObjectType(prefix + type.replace(".", "/"));
     }
   }
 

@@ -21,11 +21,11 @@ import java.util.List;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class TestProcessor {
+public class MvcHandlerCompilerRunner {
   private final MvcProcessor processor;
   private final Object instance;
 
-  public TestProcessor(Object instance) throws Exception {
+  public MvcHandlerCompilerRunner(Object instance) throws Exception {
     this.instance = instance;
     this.processor = new MvcProcessor();
     Truth.assert_()
@@ -35,22 +35,22 @@ public class TestProcessor {
         .compilesWithoutError();
   }
 
-  public TestProcessor compile(String executableName, Class[] args,
+  public MvcHandlerCompilerRunner compile(String executableName, Class[] args,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
     return compile("GET", executableName, args, false, consumer);
   }
 
-  public TestProcessor compile(String httpMethod, String executableName, Class[] args,
+  public MvcHandlerCompilerRunner compile(String httpMethod, String executableName, Class[] args,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
     return compile(httpMethod, executableName, args, false, consumer);
   }
 
-  public TestProcessor compile(String executableName, Class[] args, boolean debug,
+  public MvcHandlerCompilerRunner compile(String executableName, Class[] args, boolean debug,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
     return compile("GET", executableName, args, debug, consumer);
   }
 
-  public TestProcessor compile(String httpMethod, String executableName, Class[] args, boolean debug,
+  public MvcHandlerCompilerRunner compile(String httpMethod, String executableName, Class[] args, boolean debug,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
     Class clazz = instance.getClass();
     Method method = clazz.getMethod(executableName, args);

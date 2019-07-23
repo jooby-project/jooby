@@ -37,14 +37,11 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class MvcProcessorTest {
+public class MvcHandlerCompilerTest {
 
   @Test
   public void typeInjection() throws Exception {
-    new TestProcessor(new Provisioning())
-        .compile("sessionOrNull", args(Optional.class), handler -> {
-          assertEquals("session:false", handler.apply(new MockContext()));
-        })
+    new MvcHandlerCompilerRunner(new Provisioning())
         .compile("noarg", args(), handler -> {
           assertEquals("noarg", handler.apply(new MockContext()));
         })
@@ -66,7 +63,9 @@ public class MvcProcessorTest {
         .compile("flashMap", args(FlashMap.class), handler -> {
           assertEquals("flashMap", handler.apply(new MockContext()));
         })
-
+        .compile("sessionOrNull", args(Optional.class), handler -> {
+          assertEquals("session:false", handler.apply(new MockContext()));
+        })
         .compile("session", args(Session.class), handler -> {
           assertEquals("session", handler.apply(new MockContext()));
         });
@@ -74,7 +73,7 @@ public class MvcProcessorTest {
 
   @Test
   public void queryParam() throws Exception {
-    new TestProcessor(new Provisioning())
+    new MvcHandlerCompilerRunner(new Provisioning())
         .compile("queryParam", args(String.class), handler -> {
           assertEquals("search", handler.apply(new MockContext().setPathString("/?q=search")));
         })
@@ -83,7 +82,7 @@ public class MvcProcessorTest {
 
   @Test
   public void cookieParam() throws Exception {
-    new TestProcessor(new Provisioning())
+    new MvcHandlerCompilerRunner(new Provisioning())
         .compile("cookieParam", args(String.class), handler -> {
           assertEquals("cookie",
               handler.apply(new MockContext().setCookieMap(mapOf("c", "cookie"))));
@@ -94,7 +93,7 @@ public class MvcProcessorTest {
   @Test
   public void headerParam() throws Exception {
     long epoc = System.currentTimeMillis();
-    new TestProcessor(new Provisioning())
+    new MvcHandlerCompilerRunner(new Provisioning())
         .compile("headerParam", args(Instant.class), handler -> {
           assertEquals(String.valueOf(epoc),
               handler.apply(new MockContext().setRequestHeader("instant", String.valueOf(epoc))));
@@ -104,7 +103,7 @@ public class MvcProcessorTest {
 
   @Test
   public void flashParam() throws Exception {
-    new TestProcessor(new Provisioning())
+    new MvcHandlerCompilerRunner(new Provisioning())
         .compile("flashParam", args(String.class), handler -> {
           assertEquals("hey", handler.apply(new MockContext().setFlashAttribute("message", "hey")));
         })
@@ -115,7 +114,7 @@ public class MvcProcessorTest {
   public void formParam() throws Exception {
     Multipart formdata = Multipart.create();
     formdata.put("name", "yo");
-    new TestProcessor(new Provisioning())
+    new MvcHandlerCompilerRunner(new Provisioning())
         .compile("formParam", args(String.class), handler -> {
           assertEquals("yo", handler.apply(new MockContext().setMultipart(formdata)));
         })
@@ -124,7 +123,7 @@ public class MvcProcessorTest {
 
   @Test
   public void pathParam() throws Exception {
-    new TestProcessor(new Provisioning())
+    new MvcHandlerCompilerRunner(new Provisioning())
         .compile("pathParam", args(String.class), handler -> {
           assertEquals("v1", handler.apply(new MockContext().setPathMap(mapOf("p1", "v1"))));
         })
@@ -200,7 +199,7 @@ public class MvcProcessorTest {
 
   @Test
   public void multipleParameters() throws Exception {
-    new TestProcessor(new Provisioning())
+    new MvcHandlerCompilerRunner(new Provisioning())
         .compile("parameters", args(String.class, Context.class, int.class, JavaBeanParam.class),
             handler -> {
               assertEquals("123GET /1x", handler.apply(
@@ -215,7 +214,7 @@ public class MvcProcessorTest {
     FileUpload file = mock(FileUpload.class);
     Multipart multipart = Multipart.create();
     multipart.put("file", file);
-    new TestProcessor(new Provisioning())
+    new MvcHandlerCompilerRunner(new Provisioning())
         .compile("fileParam", args(FileUpload.class), handler -> {
           assertEquals(file.toString(), handler.apply(new MockContext().setMultipart(multipart)));
         })
@@ -233,7 +232,7 @@ public class MvcProcessorTest {
     BigInteger bigInteger = new BigInteger("888888");
     Charset charset = StandardCharsets.UTF_8;
 
-    new TestProcessor(new Provisioning())
+    new MvcHandlerCompilerRunner(new Provisioning())
         .compile("uuidParam", args(UUID.class), handler -> {
           assertEquals(uuid.toString(),
               handler.apply(new MockContext().setPathString("/?value=" + uuid.toString())));
@@ -264,7 +263,7 @@ public class MvcProcessorTest {
 
   @Test
   public void returnTypes() throws Exception {
-    new TestProcessor(new Provisioning())
+    new MvcHandlerCompilerRunner(new Provisioning())
         .compile("returnByte", args(), handler -> {
           assertEquals(Byte.valueOf((byte) 8), handler.apply(new MockContext()));
         })
@@ -311,7 +310,7 @@ public class MvcProcessorTest {
 
   @Test
   public void body() throws Exception {
-    new TestProcessor(new Provisioning())
+    new MvcHandlerCompilerRunner(new Provisioning())
         .compile("POST", "bodyMapParam", args(Map.class), handler -> {
           Map map = mock(Map.class);
           Body body = mock(Body.class);
