@@ -7,6 +7,7 @@ import org.objectweb.asm.Opcodes;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.CHECKCAST;
@@ -35,15 +36,13 @@ abstract class ValueWriter implements ParamWriter {
         reified = Reified.class.getMethod("map", Type.class, Type.class);
       } else {
         visitor.visitLdcInsn(parameter.getType().toJvmType());
-        org.objectweb.asm.Type[] args = parameter.getType().getArguments().stream()
-            .map(TypeDefinition::toJvmType)
-            .toArray(org.objectweb.asm.Type[]::new);
-        visitor.visitInsn(Opcodes.ICONST_0 + args.length);
+        List<TypeDefinition> args = parameter.getType().getArguments();
+        visitor.visitInsn(Opcodes.ICONST_0 + args.size());
         visitor.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/reflect/Type");
-        for (int i = 0; i < args.length; i++) {
+        for (int i = 0; i < args.size(); i++) {
           visitor.visitInsn(Opcodes.DUP);
           visitor.visitInsn(Opcodes.ICONST_0 + i);
-          visitor.visitLdcInsn(args[i]);
+          visitor.visitLdcInsn(args.get(i).toJvmType());
           visitor.visitInsn(Opcodes.AASTORE);
         }
         reified = Reified.class.getMethod("getParameterized", Type.class, Type[].class);

@@ -23,15 +23,11 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
@@ -101,13 +97,13 @@ public class MvcHandlerCompiler {
   public byte[] compile() throws Exception {
     ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     // public class Controller$methodName implements Route.Handler {
-    writer.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_SYNTHETIC, getHandlerInternal(), null,
+    writer.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_SYNTHETIC, getGeneratedInternalClass(), null,
         OBJ.getInternalName(),
         new String[]{
             HANDLER.getInternalName()
         });
 
-    writer.visitSource(getOwner().getSimpleName() + ".java", null);
+    writer.visitSource(getController().getSimpleName() + ".java", null);
 
     writer.visitInnerClass(HANDLER.getInternalName(), getInternalName(Route.class),
         Route.Handler.class.getSimpleName(),
@@ -115,7 +111,7 @@ public class MvcHandlerCompiler {
 
     // Constructor(Provider<Controller> provider)
     new ConstructorWriter()
-        .build(getHandlerName(), owner.getRawType().toString(), writer);
+        .build(getGeneratedClass(), owner.getRawType().toString(), writer);
 
     /** Apply implementation: */
     apply(writer);
@@ -125,7 +121,7 @@ public class MvcHandlerCompiler {
   }
 
   private void apply(ClassWriter writer) throws Exception {
-    Type owner = getOwner().toJvmType();
+    Type owner = getController().toJvmType();
     String methodName = executable.getSimpleName().toString();
     String methodDescriptor = methodDescriptor();
     MethodVisitor apply = writer
@@ -140,7 +136,7 @@ public class MvcHandlerCompiler {
      * provider.get()
      */
     apply.visitVarInsn(ALOAD, 0);
-    apply.visitFieldInsn(GETFIELD, getHandlerInternal(), PROVIDER_VAR, PROVIDER.getDescriptor());
+    apply.visitFieldInsn(GETFIELD, getGeneratedInternalClass(), PROVIDER_VAR, PROVIDER.getDescriptor());
     apply.visitMethodInsn(INVOKEINTERFACE, PROVIDER.getInternalName(), "get", PROVIDER_DESCRIPTOR,
         true);
     apply.visitTypeInsn(CHECKCAST, owner.getInternalName());
@@ -162,7 +158,7 @@ public class MvcHandlerCompiler {
       visitor.visitVarInsn(ALOAD, 1);
       ParamDefinition param = ParamDefinition.create(environment, var);
       ParamWriter writer = param.newWriter();
-      writer.accept(classWriter, getHandlerInternal(), visitor, param);
+      writer.accept(classWriter, getGeneratedInternalClass(), visitor, param);
     }
   }
 
@@ -253,20 +249,20 @@ public class MvcHandlerCompiler {
     }
   }
 
-  public String getHandlerName() {
-    return getOwner().getName() + "$" + httpMethod.toUpperCase() + "$" + executable.getSimpleName();
+  public String getGeneratedClass() {
+    return getController().getName() + "$" + httpMethod.toUpperCase() + "$" + executable.getSimpleName();
   }
 
-  public String getHandlerInternal() {
-    return getHandlerName().replace(".", "/");
+  public String getGeneratedInternalClass() {
+    return getGeneratedClass().replace(".", "/");
   }
 
-  public TypeDefinition getOwner() {
+  public TypeDefinition getController() {
     return owner;
   }
 
   public String getKey() {
-    return getOwner().getName() + "." + executable.getSimpleName() + methodDescriptor();
+    return getController().getName() + "." + executable.getSimpleName() + methodDescriptor();
   }
 
   private String methodDescriptor() {

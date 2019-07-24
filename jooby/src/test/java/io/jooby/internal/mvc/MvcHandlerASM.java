@@ -93,7 +93,7 @@ class MvcModule implements Extension {
 
   @Override public void install(@Nonnull Jooby app) throws Exception {
     Route route = app.get("/path", new MvcHandlerImpl(provider));
-    route.setReturnType(String.class);
+    route.setReturnType(Reified.getParameterized(List.class, String.class).getType());
   }
 }
 

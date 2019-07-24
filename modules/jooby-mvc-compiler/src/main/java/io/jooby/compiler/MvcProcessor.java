@@ -6,7 +6,6 @@
 package io.jooby.compiler;
 
 import com.google.auto.service.AutoService;
-import io.jooby.Extension;
 import io.jooby.SneakyThrows;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.util.ASMifier;
@@ -77,7 +76,7 @@ public class MvcProcessor implements Processor {
       }
     }
     Map<String, List<Map.Entry<String, MvcHandlerCompiler>>> classes = result.entrySet().stream()
-        .collect(Collectors.groupingBy(e -> e.getValue().getOwner().getName()));
+        .collect(Collectors.groupingBy(e -> e.getValue().getController().getName()));
     for (Map.Entry<String, List<Map.Entry<String, MvcHandlerCompiler>>> entry : classes
         .entrySet()) {
       try {
@@ -85,7 +84,7 @@ public class MvcProcessor implements Processor {
         MvcModuleCompiler module = new MvcModuleCompiler(entry.getKey());
         modules.put(entry.getKey() + "$Module", module.compile(handlers));
         for (Map.Entry<String, MvcHandlerCompiler> handler : handlers) {
-          modules.put(handler.getValue().getHandlerName(), handler.getValue().compile());
+          modules.put(handler.getValue().getGeneratedClass(), handler.getValue().compile());
         }
       } catch (Exception x) {
         x.printStackTrace();

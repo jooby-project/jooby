@@ -2,10 +2,13 @@ package io.jooby.compiler;
 
 import io.jooby.Extension;
 import io.jooby.Jooby;
+import io.jooby.Reified;
 import io.jooby.internal.compiler.ConstructorWriter;
+import io.jooby.internal.compiler.TypeDefinition;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -21,11 +24,13 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Type.getMethodDescriptor;
 import static org.objectweb.asm.Type.getType;
 
 public class MvcModuleCompiler {
@@ -92,20 +97,70 @@ public class MvcModuleCompiler {
     for (MvcHandlerCompiler handler : handlers) {
       visitor.visitVarInsn(ALOAD, 1);
       visitor.visitLdcInsn(handler.getPattern());
-      visitor.visitTypeInsn(NEW, handler.getHandlerInternal());
+      visitor.visitTypeInsn(NEW, handler.getGeneratedInternalClass());
       visitor.visitInsn(DUP);
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitFieldInsn(GETFIELD, moduleInternalName, "provider",
           "Ljavax/inject/Provider;");
-      visitor.visitMethodInsn(INVOKESPECIAL, handler.getHandlerInternal(), "<init>",
+      visitor.visitMethodInsn(INVOKESPECIAL, handler.getGeneratedInternalClass(), "<init>",
           "(Ljavax/inject/Provider;)V", false);
       visitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Jooby", handler.getHttpMethod(),
           "(Ljava/lang/String;Lio/jooby/Route$Handler;)Lio/jooby/Route;", false);
       visitor.visitVarInsn(ASTORE, varIndex);
       visitor.visitVarInsn(ALOAD, varIndex);
       varIndex +=1;
-      visitor.visitLdcInsn(handler.getReturnType().toJvmType());
-      visitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Route", "setReturnType", "(Ljava/lang/reflect/Type;)Lio/jooby/Route;", false);
+      TypeDefinition returnType = handler.getReturnType();
+      if (returnType.isRawType()) {
+        visitor.visitLdcInsn(handler.getReturnType().toJvmType());
+      } else {
+//        methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "install", "(Lio/jooby/Jooby;)V", null, new String[] { "java/lang/Exception" });
+//        methodVisitor.visitParameter("app", 0);
+//        methodVisitor.visitCode();
+//        methodVisitor.visitVarInsn(ALOAD, 1);
+//        methodVisitor.visitLdcInsn("/path");
+//        methodVisitor.visitTypeInsn(NEW, "io/jooby/internal/mvc/MvcHandlerImpl");
+//        methodVisitor.visitInsn(DUP);
+//        methodVisitor.visitVarInsn(ALOAD, 0);
+//        methodVisitor.visitFieldInsn(GETFIELD, "io/jooby/internal/mvc/MvcModule", "provider", "Ljavax/inject/Provider;");
+//        methodVisitor.visitMethodInsn(INVOKESPECIAL, "io/jooby/internal/mvc/MvcHandlerImpl", "<init>", "(Ljavax/inject/Provider;)V", false);
+//        methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Jooby", "get", "(Ljava/lang/String;Lio/jooby/Route$Handler;)Lio/jooby/Route;", false);
+//        methodVisitor.visitVarInsn(ASTORE, 2);
+//        methodVisitor.visitVarInsn(ALOAD, 2);
+//        methodVisitor.visitLdcInsn(Type.getType("Ljava/util/List;"));
+//        methodVisitor.visitInsn(ICONST_1);
+//        methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/reflect/Type");
+//        methodVisitor.visitInsn(DUP);
+//        methodVisitor.visitInsn(ICONST_0);
+//        methodVisitor.visitLdcInsn(Type.getType("Ljava/lang/String;"));
+//        methodVisitor.visitInsn(AASTORE);
+//        methodVisitor.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", "getParameterized", "(Ljava/lang/reflect/Type;[Ljava/lang/reflect/Type;)Lio/jooby/Reified;", false);
+//        methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Reified", "getType", "()Ljava/lang/reflect/Type;", false);
+//        methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Route", "setReturnType", "(Ljava/lang/reflect/Type;)Lio/jooby/Route;", false);
+//        methodVisitor.visitInsn(POP);
+//        methodVisitor.visitInsn(RETURN);
+//        methodVisitor.visitMaxs(6, 3);
+//        methodVisitor.visitEnd();
+        visitor.visitLdcInsn(returnType.toJvmType());
+
+        List<TypeDefinition> args = returnType.getArguments();
+        visitor.visitInsn(Opcodes.ICONST_0 + args.size());
+        visitor.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/reflect/Type");
+        for (int i = 0; i < args.size(); i++) {
+          visitor.visitInsn(Opcodes.DUP);
+          visitor.visitInsn(Opcodes.ICONST_0 + i);
+          visitor.visitLdcInsn(args.get(i).toJvmType());
+          visitor.visitInsn(Opcodes.AASTORE);
+        }
+        Method reified = Reified.class.getMethod("getParameterized", java.lang.reflect.Type.class,
+            java.lang.reflect.Type[].class);
+        visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reified.getName(),
+            getMethodDescriptor(reified), false);
+        Method reifiedToType = Reified.class.getDeclaredMethod("getType");
+        visitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Reified", reifiedToType.getName(),
+            getMethodDescriptor(reifiedToType), false);
+      }
+      visitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Route", "setReturnType",
+          "(Ljava/lang/reflect/Type;)Lio/jooby/Route;", false);
       visitor.visitInsn(POP);
     }
     visitor.visitInsn(RETURN);

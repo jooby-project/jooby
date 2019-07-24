@@ -1,4 +1,4 @@
-package io.jooby.compiler;
+package tests;
 
 import io.jooby.Body;
 import io.jooby.Context;
@@ -11,6 +11,7 @@ import io.jooby.QueryString;
 import io.jooby.Reified;
 import io.jooby.Session;
 import io.jooby.StatusCode;
+import io.jooby.compiler.MvcHandlerCompilerRunner;
 import org.junit.jupiter.api.Test;
 import source.CustomGenericType;
 import source.EnumParam;
@@ -37,7 +38,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class MvcHandlerCompilerTest {
+public class HandlerCompilerTest {
 
   @Test
   public void typeInjection() throws Exception {
