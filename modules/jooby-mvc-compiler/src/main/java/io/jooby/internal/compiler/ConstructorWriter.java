@@ -20,17 +20,13 @@ public class ConstructorWriter {
   private static final Type PROVIDER = getType(Provider.class);
   private static final String PROVIDER_VAR = "provider";
 
-  public void build(String ownerClass, String controllerClass, ClassWriter writer) {
-    String provider = providerOf(Type.getObjectType(controllerClass));
-
-    writer.visitField(ACC_PRIVATE, PROVIDER_VAR, PROVIDER.getDescriptor(), provider, null)
+  public void build(String ownerClass, ClassWriter writer) {
+    writer.visitField(ACC_PRIVATE, PROVIDER_VAR, PROVIDER.getDescriptor(), null, null)
         .visitEnd();
 
     // Constructor:
     MethodVisitor constructor = writer
-        .visitMethod(ACC_PUBLIC, "<init>",
-            getMethodDescriptor(Type.VOID_TYPE, PROVIDER),
-            getMethodDescriptor(Type.VOID_TYPE, getType(provider)),
+        .visitMethod(ACC_PUBLIC, "<init>", getMethodDescriptor(Type.VOID_TYPE, PROVIDER), null,
             null);
     constructor.visitParameter(PROVIDER_VAR, 0);
     constructor.visitCode();
@@ -43,11 +39,5 @@ public class ConstructorWriter {
     constructor.visitInsn(RETURN);
     constructor.visitMaxs(0, 0);
     constructor.visitEnd();
-  }
-
-  private static String providerOf(Type owner) {
-    StringBuilder signature = new StringBuilder(PROVIDER.getDescriptor());
-    signature.insert(signature.length() - 1, "<" + owner.getDescriptor() + ">");
-    return signature.toString();
   }
 }

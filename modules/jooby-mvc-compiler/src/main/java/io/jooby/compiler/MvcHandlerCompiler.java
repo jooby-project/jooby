@@ -111,7 +111,7 @@ public class MvcHandlerCompiler {
 
     // Constructor(Provider<Controller> provider)
     new ConstructorWriter()
-        .build(getGeneratedClass(), owner.getRawType().toString(), writer);
+        .build(getGeneratedClass(), writer);
 
     /** Apply implementation: */
     apply(writer);
@@ -136,7 +136,8 @@ public class MvcHandlerCompiler {
      * provider.get()
      */
     apply.visitVarInsn(ALOAD, 0);
-    apply.visitFieldInsn(GETFIELD, getGeneratedInternalClass(), PROVIDER_VAR, PROVIDER.getDescriptor());
+    apply.visitFieldInsn(GETFIELD, getGeneratedInternalClass(), PROVIDER_VAR,
+        PROVIDER.getDescriptor());
     apply.visitMethodInsn(INVOKEINTERFACE, PROVIDER.getInternalName(), "get", PROVIDER_DESCRIPTOR,
         true);
     apply.visitTypeInsn(CHECKCAST, owner.getInternalName());
@@ -250,7 +251,8 @@ public class MvcHandlerCompiler {
   }
 
   public String getGeneratedClass() {
-    return getController().getName() + "$" + httpMethod.toUpperCase() + "$" + executable.getSimpleName();
+    return getController().getName() + "$" + httpMethod.toUpperCase() + "$" + executable
+        .getSimpleName();
   }
 
   public String getGeneratedInternalClass() {
