@@ -10,12 +10,11 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 
-import java.util.function.Consumer;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static io.jooby.ServerOptions._4KB;
 import static io.jooby.ServerOptions._8KB;
@@ -27,11 +26,12 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private final boolean gzip;
   private final int bufferSize;
   private final long maxRequestSize;
-  private final Consumer<HttpHeaders> defaultHeaders;
+  private final boolean defaultHeaders;
+  private final ScheduledExecutorService service;
 
-  public NettyPipeline(Router router, HttpDataFactory factory, Consumer<HttpHeaders> defaultHeaders,
-      boolean gzip,
-      int bufferSize, long maxRequestSize) {
+  public NettyPipeline(ScheduledExecutorService service, Router router, HttpDataFactory factory,
+      boolean defaultHeaders, boolean gzip, int bufferSize, long maxRequestSize) {
+    this.service = service;
     this.router = router;
     this.factory = factory;
     this.defaultHeaders = defaultHeaders;
@@ -48,7 +48,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     if (gzip) {
       p.addLast("gzip", new HttpContentCompressor());
     }
-    p.addLast("handler", new NettyHandler(router, maxRequestSize, bufferSize, factory,
+    p.addLast("handler", new NettyHandler(service, router, maxRequestSize, bufferSize, factory,
         defaultHeaders));
   }
 }

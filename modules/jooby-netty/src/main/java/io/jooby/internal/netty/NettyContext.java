@@ -50,7 +50,6 @@ import io.netty.handler.stream.ChunkedNioStream;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.ReferenceCounted;
-import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.io.FileInputStream;
@@ -357,11 +356,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @Override public final Context send(ByteBuffer data) {
-    if (data.hasArray()) {
-      return send(wrappedBuffer(data.array()));
-    } else {
-      return send(wrappedBuffer(data));
-    }
+    return send(wrappedBuffer(data));
   }
 
   @Nonnull @Override public Context send(@Nonnull ByteBuf data) {
@@ -468,12 +463,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @Override public void operationComplete(ChannelFuture future) {
-    boolean keepAlive = isKeepAlive(req);
     try {
       ifSaveSession();
       destroy(future.cause());
     } finally {
-      if (!keepAlive) {
+      if (!isKeepAlive(req)) {
         future.channel().close();
       }
     }
@@ -494,12 +488,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   void destroy(Throwable cause) {
-    Logger log = router.getLog();
     if (cause != null) {
       if (Server.connectionLost(cause)) {
-        log.debug("exception found while sending response {} {}", getMethod(), pathString(), cause);
+        router.getLog().debug("exception found while sending response {} {}", getMethod(), pathString(), cause);
       } else {
-        log.error("exception found while sending response {} {}", getMethod(), pathString(), cause);
+        router.getLog().error("exception found while sending response {} {}", getMethod(), pathString(), cause);
       }
     }
     if (files != null) {
@@ -507,7 +500,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
         try {
           file.destroy();
         } catch (Exception x) {
-          log.debug("file upload destroy resulted in exception", x);
+          router.getLog().debug("file upload destroy resulted in exception", x);
         }
       }
       files = null;
@@ -516,7 +509,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       try {
         decoder.destroy();
       } catch (Exception x) {
-        log.debug("body decoder destroy resulted in exception", x);
+        router.getLog().debug("body decoder destroy resulted in exception", x);
       }
       decoder = null;
     }

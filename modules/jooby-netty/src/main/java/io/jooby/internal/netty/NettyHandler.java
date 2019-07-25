@@ -14,7 +14,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -23,15 +23,35 @@ import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import io.netty.util.AsciiString;
+import io.netty.util.concurrent.FastThreadLocal;
 import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class NettyHandler extends ChannelInboundHandlerAdapter {
+  private static final FastThreadLocal<DateFormat> FORMAT = new FastThreadLocal<DateFormat>() {
+    @Override
+    protected DateFormat initialValue() {
+      return new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
+    }
+  };
+
+  private static final AsciiString server = AsciiString.cached("N");
+
+  private volatile AsciiString date = new AsciiString(FORMAT.get().format(new Date()));
+
+  private static final int DATE_INTERVAL = 1000;
+
   private final Router router;
   private final int bufferSize;
-  private final Consumer<HttpHeaders> defaultHeaders;
+  private final boolean defaultHeaders;
   private NettyContext context;
   private Router.Match result;
 
@@ -42,13 +62,19 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   private long contentLength;
   private long chunkSize;
 
-  public NettyHandler(Router router, long maxRequestSize, int bufferSize, HttpDataFactory factory,
-      final Consumer<HttpHeaders> defaultHeaders) {
+  public NettyHandler(ScheduledExecutorService scheduler, Router router, long maxRequestSize,
+      int bufferSize, HttpDataFactory factory, boolean defaultHeaders) {
+    scheduler
+        .scheduleWithFixedDelay(dateSync(FORMAT.get()), DATE_INTERVAL, DATE_INTERVAL, MILLISECONDS);
     this.router = router;
     this.maxRequestSize = maxRequestSize;
     this.factory = factory;
     this.bufferSize = bufferSize;
     this.defaultHeaders = defaultHeaders;
+  }
+
+  private Runnable dateSync(DateFormat format) {
+    return () -> date = new AsciiString(format.format(new Date()));
   }
 
   @Override
@@ -57,7 +83,11 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       HttpRequest req = (HttpRequest) msg;
       context = new NettyContext(ctx, req, router, pathOnly(req.uri()), bufferSize);
 
-      defaultHeaders.accept(context.setHeaders);
+      if (defaultHeaders) {
+        context.setHeaders.set(HttpHeaderNames.DATE, date);
+        context.setHeaders.set(HttpHeaderNames.SERVER, server);
+      }
+      context.setHeaders.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
 
       result = router.match(context);
 
@@ -141,7 +171,8 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     decoder = null;
   }
 
-  private static InterfaceHttpPostRequestDecoder newDecoder(HttpRequest request, HttpDataFactory factory) {
+  private static InterfaceHttpPostRequestDecoder newDecoder(HttpRequest request,
+      HttpDataFactory factory) {
     String contentType = request.headers().get(HttpHeaderNames.CONTENT_TYPE);
     if (contentType != null) {
       String lowerContentType = contentType.toLowerCase();
