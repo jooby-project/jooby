@@ -65,7 +65,7 @@ public class Utow extends Server.Base {
         handler = new EncodingHandler.Builder().build(null).wrap(handler);
       }
 
-      server = Undertow.builder()
+      Undertow.Builder builder = Undertow.builder()
           .addHttpListener(options.getPort(), "0.0.0.0")
           .setBufferSize(options.getBufferSize())
           /** Socket : */
@@ -81,9 +81,11 @@ public class Utow extends Server.Base {
           .setIoThreads(options.getIoThreads())
           .setWorkerOption(Options.WORKER_NAME, "application")
           .setWorkerThreads(options.getWorkerThreads())
-          .setHandler(handler)
-          .build();
+          .setHandler(handler);
 
+      Optional.ofNullable(options.getDirectBuffers()).ifPresent(builder::setDirectBuffers);
+
+      server = builder.build();
       server.start();
       // NOT IDEAL, but we need to fire onStart after server.start to get access to Worker
       fireStart(applications, server.getWorker());

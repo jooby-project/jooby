@@ -79,6 +79,11 @@ public class ServerOptions {
   private int maxRequestSize = _10MB;
 
   /**
+   * Indicates when direct buffer is preferable over heap buffer. Undertow only.
+   */
+  private Boolean directBuffers;
+
+  /**
    * Creates server options from config object. The configuration options must provided entries
    * like: <code>server.port</code>, <code>server.ioThreads</code>, etc...
    *
@@ -117,6 +122,9 @@ public class ServerOptions {
       }
       if (conf.hasPath("server.workerThreads")) {
         options.setWorkerThreads(conf.getInt("server.workerThreads"));
+      }
+      if (conf.hasPath("server.directBuffers")) {
+        options.setDirectBuffers(conf.getBoolean("server.directBuffers"));
       }
       return Optional.of(options);
     }
@@ -352,6 +360,45 @@ public class ServerOptions {
    */
   public boolean getSingleLoop(boolean defaultValue) {
     return singleLoop == null ? defaultValue : singleLoop.booleanValue();
+  }
+
+  /**
+   * Indicates when direct buffer is preferable over heap buffer. Undertow only.
+   *
+   * @return True for direct buffers.
+   */
+  public boolean isDirectBuffers() {
+    return getDirectBuffers(false);
+  }
+
+  /**
+   * Indicates when direct buffer is preferable over heap buffer. Undertow only.
+   *
+   * @param defaultValue Default value if none is was set.
+   * @return True for direct buffers.
+   */
+  public boolean getDirectBuffers(boolean defaultValue) {
+    return directBuffers == null ? defaultValue : directBuffers.booleanValue();
+  }
+
+  /**
+   * Indicates when direct buffer is preferable over heap buffer. Undertow only.
+   *
+   * @return True for direct buffer.
+   */
+  public @Nonnull Boolean getDirectBuffers() {
+    return directBuffers;
+  }
+
+  /**
+   * Indicates when direct buffer is preferable over heap buffer. Undertow only.
+   *
+   * @param directBuffers True for direct buffers.
+   * @return This options.
+   */
+  public @Nonnull ServerOptions setDirectBuffers(boolean directBuffers) {
+    this.directBuffers = directBuffers;
+    return this;
   }
 
   /**
