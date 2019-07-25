@@ -1371,7 +1371,7 @@ public class FeaturedTest {
 
   @Test
   public void defaultHeaders() {
-    LinkedList<String> servers = new LinkedList<>(Arrays.asList("netty", "utow", "jetty"));
+    LinkedList<String> servers = new LinkedList<>(Arrays.asList("N", "U", "J"));
     new JoobyRunner(app -> {
       app.get("/", Context::pathString);
     }).ready(client -> {

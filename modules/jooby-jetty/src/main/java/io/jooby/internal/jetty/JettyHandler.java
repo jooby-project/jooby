@@ -31,7 +31,7 @@ public class JettyHandler extends AbstractHandler {
     request.setHandled(true);
     response.setContentType("text/plain");
     if (defaultHeaders) {
-      response.setHeader(HttpHeader.SERVER.asString(), "jetty");
+      response.setHeader(HttpHeader.SERVER.asString(), "J");
     }
     JettyContext context = new JettyContext(request, router, bufferSize, maxRequestSize);
     router.match(context).execute(context);

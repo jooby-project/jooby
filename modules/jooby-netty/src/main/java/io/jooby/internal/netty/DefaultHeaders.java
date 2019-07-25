@@ -19,7 +19,7 @@ public class DefaultHeaders implements Consumer<HttpHeaders>, Runnable {
 
   private static final DateTimeFormatter FORMATTER = Context.RFC1123;
 
-  private static final AsciiString server = AsciiString.cached("netty");
+  private static final AsciiString server = AsciiString.cached("N");
 
   private volatile AsciiString date = new AsciiString(FORMATTER.format(Instant.now()));
 

@@ -37,49 +37,49 @@ public class UtowHandler implements HttpHandler {
   @Override public void handleRequest(HttpServerExchange exchange) throws Exception {
     UtowContext context = new UtowContext(exchange, router);
     Router.Match route = router.match(context);
-    /** Don't check/parse for body if there is no match: */
-    if (route.matches()) {
-      /** default headers: */
-      HeaderMap responseHeaders = exchange.getResponseHeaders();
-      responseHeaders.put(Headers.CONTENT_TYPE, "text/plain");
-      if (defaultHeaders) {
-        responseHeaders.put(Headers.SERVER, "utow");
-      }
+    /** default headers: */
+    HeaderMap responseHeaders = exchange.getResponseHeaders();
+    responseHeaders.put(Headers.CONTENT_TYPE, "text/plain");
+    if (defaultHeaders) {
+      responseHeaders.put(Headers.SERVER, "U");
+    }
 
-      HeaderMap headers = exchange.getRequestHeaders();
-      long len = parseLen(headers.getFirst(Headers.CONTENT_LENGTH));
-      String chunked = headers.getFirst(Headers.TRANSFER_ENCODING);
-      if (len > 0 || chunked != null) {
-        if (len > maxRequestSize) {
-          context.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
-          return;
-        }
-        /** Eager body parsing: */
-        FormDataParser parser = FormParserFactory.builder(false)
-            .addParser(new MultiPartParserDefinition(router.getTmpdir())
-                .setDefaultEncoding(StandardCharsets.UTF_8.name()))
-            .addParser(new FormEncodedDataDefinition()
-                .setDefaultEncoding(StandardCharsets.UTF_8.name()))
-            .build()
-            .createParser(exchange);
-        if (parser == null) {
-          // Read raw body
-          Receiver receiver = exchange.getRequestReceiver();
-          UtowBodyHandler reader = new UtowBodyHandler(route, context, bufferSize, maxRequestSize);
-          if (len > 0 && len <= bufferSize) {
-            receiver.receiveFullBytes(reader);
-          } else {
-            receiver.receivePartialBytes(reader);
-          }
+    HeaderMap headers = exchange.getRequestHeaders();
+    long len = parseLen(headers.getFirst(Headers.CONTENT_LENGTH));
+    String chunked = headers.getFirst(Headers.TRANSFER_ENCODING);
+    if (len > 0 || chunked != null) {
+      if (len > maxRequestSize) {
+        context.sendError(new StatusCodeException(StatusCode.REQUEST_ENTITY_TOO_LARGE));
+        return;
+      }
+      /** Don't check/parse for body if there is no match: */
+      if (!route.matches()) {
+        route.execute(context);
+        return;
+      }
+      /** Eager body parsing: */
+      FormDataParser parser = FormParserFactory.builder(false)
+          .addParser(new MultiPartParserDefinition(router.getTmpdir())
+              .setDefaultEncoding(StandardCharsets.UTF_8.name()))
+          .addParser(new FormEncodedDataDefinition()
+              .setDefaultEncoding(StandardCharsets.UTF_8.name()))
+          .build()
+          .createParser(exchange);
+      if (parser == null) {
+        // Read raw body
+        Receiver receiver = exchange.getRequestReceiver();
+        UtowBodyHandler reader = new UtowBodyHandler(route, context, bufferSize, maxRequestSize);
+        if (len > 0 && len <= bufferSize) {
+          receiver.receiveFullBytes(reader);
         } else {
-          try {
-            parser.parse(execute(route, context));
-          } catch (Exception x) {
-            context.sendError(x, StatusCode.BAD_REQUEST);
-          }
+          receiver.receivePartialBytes(reader);
         }
       } else {
-        route.execute(context);
+        try {
+          parser.parse(execute(route, context));
+        } catch (Exception x) {
+          context.sendError(x, StatusCode.BAD_REQUEST);
+        }
       }
     } else {
       route.execute(context);
