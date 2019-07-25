@@ -75,10 +75,10 @@ public class MvcModuleCompilerRunner {
 
   private static Path basedir() {
     Path path = Paths.get(System.getProperty("user.dir"));
-    if (path.getFileName().toString().equals("jooby-mvc-compiler")) {
+    if (path.getFileName().toString().equals("jooby-apt")) {
       return path;
     }
-    return path.resolve("modules").resolve("jooby-mvc-compiler");
+    return path.resolve("modules").resolve("jooby-apt");
   }
 }
 
