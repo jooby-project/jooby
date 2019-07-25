@@ -5,8 +5,17 @@
  */
 package io.jooby.compiler;
 
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.ExecutableElement;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
@@ -43,4 +52,27 @@ public interface Annotations {
   Set<String> FLASH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(FLASH_PARAM)));
 
   Set<String> FORM_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(FORM_PARAM)));
+
+  static List<String> attribute(AnnotationMirror mirror, String name) {
+    Function<Object, String> cleanValue = arg -> ((AnnotationValue) arg).getValue().toString();
+
+    for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror
+        .getElementValues().entrySet()) {
+      if (entry.getKey().getSimpleName().toString().equals(name)) {
+        Object value = entry.getValue().getValue();
+        if (value instanceof List) {
+          List values = (List) value;
+          return (List<String>) values.stream()
+              .map(cleanValue)
+              .filter(Objects::nonNull)
+              .collect(Collectors.toList());
+        }
+        String singleValue = cleanValue.apply(value);
+        return singleValue == null
+            ? Collections.emptyList()
+            : Collections.singletonList(singleValue);
+      }
+    }
+    return Collections.emptyList();
+  }
 }

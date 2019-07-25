@@ -9,19 +9,15 @@ import io.jooby.QueryString;
 import io.jooby.Reified;
 import io.jooby.Session;
 import io.jooby.Value;
+import io.jooby.compiler.Annotations;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.util.Types;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,7 +35,7 @@ public class ParamDefinition {
     this.typeUtils = environment.getTypeUtils();
     this.parameter = parameter;
     this.name = parameter.getSimpleName().toString();
-    this.type =  new TypeDefinition(typeUtils, parameter.asType());
+    this.type = new TypeDefinition(typeUtils, parameter.asType());
     this.kind = computeKind();
     this.httpName = parameterName(parameter, this.kind.annotations());
   }
@@ -244,7 +240,9 @@ public class ParamDefinition {
       Set<String> annotations) {
     return annotationMirrors.stream()
         .filter(it -> {
-          String rawType = typeUtils.erasure(it.getAnnotationType()).toString();
+          String rawType = new TypeDefinition(typeUtils, it.getAnnotationType())
+              .getRawType()
+              .toString();
           return annotations.contains(rawType);
         })
         .collect(Collectors.toList());
@@ -252,32 +250,9 @@ public class ParamDefinition {
 
   private String parameterName(VariableElement parameter, Set<String> types) {
     return annotations(parameter.getAnnotationMirrors(), types).stream()
-        .flatMap(it -> annotationAttribute(it, "value").stream())
+        .flatMap(it -> Annotations.attribute(it, "value").stream())
         .findFirst()
         .orElse(parameter.getSimpleName().toString());
   }
 
-  private List<String> annotationAttribute(AnnotationMirror mirror, String name) {
-    for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror
-        .getElementValues().entrySet()) {
-      if (entry.getKey().getSimpleName().toString().equals(name)) {
-        Object value = entry.getValue().getValue();
-        if (value instanceof List) {
-          List values = (List) value;
-          return (List<String>) values.stream()
-              .map(it -> cleanString(it.toString()))
-              .collect(Collectors.toList());
-        }
-        return Collections.singletonList(cleanString(value.toString()));
-      }
-    }
-    return Collections.emptyList();
-  }
-
-  private String cleanString(String value) {
-    if (value.length() > 0 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"') {
-      return value.substring(1, value.length() - 1);
-    }
-    return value;
-  }
 }

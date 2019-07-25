@@ -2,8 +2,10 @@ package io.jooby.compiler;
 
 import io.jooby.Extension;
 import io.jooby.Jooby;
+import io.jooby.MediaType;
 import io.jooby.Reified;
 import io.jooby.Route;
+import io.jooby.internal.compiler.ArrayWriter;
 import io.jooby.internal.compiler.ConstructorWriter;
 import io.jooby.internal.compiler.TypeDefinition;
 import org.objectweb.asm.ClassWriter;
@@ -78,7 +80,6 @@ public class MvcModuleCompiler {
     Label sourceStart = new Label();
     visitor.visitLabel(sourceStart);
 
-    int varIndex = 2;
     for (MvcHandlerCompiler handler : handlers) {
       visitor.visitVarInsn(ALOAD, 1);
       visitor.visitLdcInsn(handler.getPattern());
@@ -91,9 +92,13 @@ public class MvcModuleCompiler {
           "(Ljavax/inject/Provider;)V", false);
       visitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Jooby", handler.getHttpMethod(),
           "(Ljava/lang/String;Lio/jooby/Route$Handler;)Lio/jooby/Route;", false);
-      visitor.visitVarInsn(ASTORE, varIndex);
-      visitor.visitVarInsn(ALOAD, varIndex);
-      varIndex += 1;
+      visitor.visitVarInsn(ASTORE, 2);
+      visitor.visitVarInsn(ALOAD, 2);
+      /**
+       * ******************************************************************************************
+       * Return Type:
+       * ******************************************************************************************
+       */
       TypeDefinition returnType = handler.getReturnType();
       if (returnType.isRawType()) {
         visitor.visitLdcInsn(handler.getReturnType().toJvmType());
@@ -101,14 +106,11 @@ public class MvcModuleCompiler {
         visitor.visitLdcInsn(returnType.toJvmType());
 
         List<TypeDefinition> args = returnType.getArguments();
-        visitor.visitInsn(Opcodes.ICONST_0 + args.size());
-        visitor.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/reflect/Type");
-        for (int i = 0; i < args.size(); i++) {
-          visitor.visitInsn(Opcodes.DUP);
-          visitor.visitInsn(Opcodes.ICONST_0 + i);
-          visitor.visitLdcInsn(args.get(i).toJvmType());
-          visitor.visitInsn(Opcodes.AASTORE);
-        }
+
+        ArrayWriter.write(visitor, java.lang.reflect.Type.class, args, type ->
+            visitor.visitLdcInsn(type.toJvmType())
+        );
+
         Method reified = Reified.class.getMethod("getParameterized", java.lang.reflect.Type.class,
             java.lang.reflect.Type[].class);
         visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reified.getName(),
@@ -122,9 +124,32 @@ public class MvcModuleCompiler {
       visitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Route", setReturnType.getName(),
           getMethodDescriptor(setReturnType), false);
       visitor.visitInsn(POP);
+      /**
+       * ******************************************************************************************
+       * Consumes and Produces
+       * ******************************************************************************************
+       */
+      setContentType(visitor, "setConsumes", handler.getConsumes());
+      setContentType(visitor, "setProduces", handler.getProduces());
     }
     visitor.visitInsn(RETURN);
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();
+  }
+
+  private void setContentType(MethodVisitor visitor, String methodName, List<String> mediaTypes) {
+    if (mediaTypes.size() > 0) {
+      visitor.visitVarInsn(ALOAD, 2);
+      ArrayWriter.write(visitor, MediaType.class, mediaTypes, mediaType -> {
+        visitor.visitLdcInsn(mediaType);
+        visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/MediaType", "valueOf",
+            "(Ljava/lang/String;)Lio/jooby/MediaType;", false);
+      });
+      visitor.visitMethodInsn(INVOKESTATIC, "java/util/Arrays", "asList",
+          "([Ljava/lang/Object;)Ljava/util/List;", false);
+      visitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Route", methodName,
+          "(Ljava/util/Collection;)Lio/jooby/Route;", false);
+      visitor.visitInsn(POP);
+    }
   }
 }

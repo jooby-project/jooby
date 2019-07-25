@@ -19,15 +19,20 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.inject.Provider;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
@@ -70,16 +75,17 @@ public class MvcHandlerCompiler {
   private final String httpMethod;
   private final String pattern;
   private final Types typeUtils;
+  private final TypeMirror annotation;
 
   public MvcHandlerCompiler(ProcessingEnvironment environment, ExecutableElement executable,
-      String method, String pattern) {
-    this.httpMethod = method.toLowerCase();
+      TypeElement httpMethod, String pattern) {
+    this.httpMethod = httpMethod.getSimpleName().toString().toLowerCase();
+    this.annotation = httpMethod.asType();
     this.pattern = pattern;
     this.environment = environment;
     this.executable = executable;
     this.typeUtils = environment.getTypeUtils();
-    this.owner = new TypeDefinition(typeUtils,
-        ((TypeElement) executable.getEnclosingElement()).asType());
+    this.owner = new TypeDefinition(typeUtils, executable.getEnclosingElement().asType());
   }
 
   public String getPattern() {
@@ -92,6 +98,24 @@ public class MvcHandlerCompiler {
 
   public TypeDefinition getReturnType() {
     return new TypeDefinition(typeUtils, executable.getReturnType());
+  }
+
+  public List<String> getConsumes() {
+    // TODO: consumes for JAXRS
+    return executable.getAnnotationMirrors().stream()
+        .filter(it -> it.getAnnotationType().equals(annotation))
+        .findFirst()
+        .map(it -> Annotations.attribute(it, "consumes"))
+        .orElse(Collections.emptyList());
+  }
+
+  public List<String> getProduces() {
+    // TODO: produces for JAXRS
+    return executable.getAnnotationMirrors().stream()
+        .filter(it -> it.getAnnotationType().equals(annotation))
+        .findFirst()
+        .map(it -> Annotations.attribute(it, "produces"))
+        .orElse(Collections.emptyList());
   }
 
   public byte[] compile() throws Exception {

@@ -4,6 +4,7 @@ import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.FileUpload;
 import io.jooby.Jooby;
+import io.jooby.MediaType;
 import io.jooby.ProvisioningException;
 import io.jooby.QueryString;
 import io.jooby.Reified;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -93,7 +95,8 @@ class MvcModule implements Extension {
 
   @Override public void install(@Nonnull Jooby app) throws Exception {
     Route route = app.get("/path", new MvcHandlerImpl(provider));
-    route.setReturnType(Reified.getParameterized(List.class, String.class).getType());
+    route.setReturnType(String.class);
+    route.setConsumes(Arrays.asList(MediaType.valueOf("application/json")));
   }
 }
 

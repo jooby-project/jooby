@@ -16,7 +16,9 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
 abstract class ValueWriter implements ParamWriter {
-  @Override public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor, ParamDefinition parameter)
+  @Override
+  public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
+      ParamDefinition parameter)
       throws Exception {
     Method convertMethod = parameter.getMethod();
     // to(Class)
@@ -36,15 +38,10 @@ abstract class ValueWriter implements ParamWriter {
         reified = Reified.class.getMethod("map", Type.class, Type.class);
       } else {
         visitor.visitLdcInsn(parameter.getType().toJvmType());
-        List<TypeDefinition> args = parameter.getType().getArguments();
-        visitor.visitInsn(Opcodes.ICONST_0 + args.size());
-        visitor.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/reflect/Type");
-        for (int i = 0; i < args.size(); i++) {
-          visitor.visitInsn(Opcodes.DUP);
-          visitor.visitInsn(Opcodes.ICONST_0 + i);
-          visitor.visitLdcInsn(args.get(i).toJvmType());
-          visitor.visitInsn(Opcodes.AASTORE);
-        }
+
+        ArrayWriter.write(visitor, Type.class, parameter.getType().getArguments(), type ->
+            visitor.visitLdcInsn(type.toJvmType())
+        );
         reified = Reified.class.getMethod("getParameterized", Type.class, Type[].class);
       }
 

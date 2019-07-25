@@ -5,6 +5,7 @@ import io.jooby.MockRouter;
 import io.jooby.compiler.MvcModuleCompilerRunner;
 import org.junit.jupiter.api.Test;
 import source.JavaBeanParam;
+import source.RouteWithMimeTypes;
 import source.Routes;
 
 import java.util.Arrays;
@@ -22,6 +23,18 @@ public class ModuleCompilerTest {
           assertEquals(Arrays.asList("/path/subpath"), router.get("/path/subpath").value());
           assertTrue(router.get("/path/object").value() instanceof Context);
           assertTrue(router.post("/path/post").value() instanceof JavaBeanParam);
+        });
+  }
+
+  @Test
+  public void routesWithMimeTypes() throws Exception {
+    new MvcModuleCompilerRunner(new RouteWithMimeTypes())
+        .module(app -> {
+          MockRouter router = new MockRouter(app);
+          assertEquals("/consumes", router.get("/consumes").value());
+          assertEquals("/consumes2", router.get("/consumes2").value());
+          assertEquals("/produces", router.get("/produces").value());
+          assertEquals("/consumes/produces", router.get("/consumes/produces").value());
         });
   }
 }

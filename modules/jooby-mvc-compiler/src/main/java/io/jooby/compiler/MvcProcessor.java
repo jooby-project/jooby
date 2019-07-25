@@ -70,7 +70,7 @@ public class MvcProcessor implements Processor {
         List<String> paths = path(httpMethod, method);
         for (String path : paths) {
           MvcHandlerCompiler compiler = new MvcHandlerCompiler(processingEnvironment, method,
-              httpMethod.getSimpleName().toString(), path);
+              httpMethod, path);
           result.put(compiler.getKey(), compiler);
         }
       }
@@ -158,36 +158,13 @@ public class MvcProcessor implements Processor {
         .flatMap(mirror -> {
           String type = mirror.getAnnotationType().toString();
           if (type.equals(Annotations.PATH) || type.equals(method)) {
-            return annotationAttribute(mirror, "value").stream();
+            return Annotations.attribute(mirror, "value").stream();
           }
           return Stream.empty();
         })
         .collect(Collectors.toList());
   }
 
-  private List<String> annotationAttribute(AnnotationMirror mirror, String name) {
-    for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror
-        .getElementValues().entrySet()) {
-      if (entry.getKey().getSimpleName().toString().equals(name)) {
-        Object value = entry.getValue().getValue();
-        if (value instanceof List) {
-          List values = (List) value;
-          return (List<String>) values.stream()
-              .map(it -> cleanString(it.toString()))
-              .collect(Collectors.toList());
-        }
-        return Collections.singletonList(cleanString(value.toString()));
-      }
-    }
-    return Collections.emptyList();
-  }
-
-  private String cleanString(String value) {
-    if (value.length() > 0 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"') {
-      return value.substring(1, value.length() - 1);
-    }
-    return value;
-  }
 
   @Override
   public Iterable<? extends Completion> getCompletions(Element element, AnnotationMirror annotation,
