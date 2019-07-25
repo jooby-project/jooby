@@ -385,6 +385,8 @@ public class RouterImpl implements Router {
   @Nonnull public Router start(@Nonnull Jooby owner) {
     if (err == null) {
       err = ErrorHandler.DEFAULT;
+    } else {
+      err = err.then(ErrorHandler.DEFAULT);
     }
     renderer.add(MessageEncoder.TO_STRING);
     ExecutionMode mode = owner.getExecutionMode();
