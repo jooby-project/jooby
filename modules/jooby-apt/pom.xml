@@ -25,12 +25,6 @@
       <artifactId>auto-service</artifactId>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/com.squareup/javapoet -->
-    <dependency>
-      <groupId>com.squareup</groupId>
-      <artifactId>javapoet</artifactId>
-    </dependency>
-
     <!-- ASM -->
     <dependency>
       <groupId>org.ow2.asm</groupId>
