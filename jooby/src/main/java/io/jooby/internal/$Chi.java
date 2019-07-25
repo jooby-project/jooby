@@ -8,11 +8,13 @@ package io.jooby.internal;
 import io.jooby.Context;
 import io.jooby.MessageEncoder;
 import io.jooby.Route;
+import io.jooby.Router;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 class $Chi implements RadixTree {
@@ -20,6 +22,30 @@ class $Chi implements RadixTree {
   private static final int ntRegexp = 1;                // /{id:[0-9]+}
   private static final int ntParam = 2;                // /{user}
   private static final int ntCatchAll = 3;               // /api/v1/*
+
+  private static class StaticKey {
+    private String method;
+    private String pattern;
+
+    public StaticKey(String method, String pattern) {
+      this.method = method;
+      this.pattern = pattern;
+    }
+
+    @Override public boolean equals(Object that) {
+      if (this == that) {
+        return true;
+      } else {
+        StaticKey staticKey = (StaticKey) that;
+        return method.equals(staticKey.method) &&
+            pattern.equals(staticKey.pattern);
+      }
+    }
+
+    @Override public int hashCode() {
+      return Objects.hash(method, pattern);
+    }
+  }
 
   static class Segment {
     int nodeType;
@@ -601,6 +627,9 @@ class $Chi implements RadixTree {
 
   private Node root = new Node();
 
+  /** Not need to use a concurrent map, due we don't allow to add routes after application started. */
+  private Map<StaticKey, Route> staticPaths = new HashMap<>();
+
   public void insert(String method, String pattern, Route route) {
     String baseCatchAll = baseCatchAll(pattern);
     if (baseCatchAll.length() > 1) {
@@ -611,6 +640,9 @@ class $Chi implements RadixTree {
     }
     if (pattern.equals(BASE_CATCH_ALL)) {
       pattern = "/*";
+    }
+    if (Router.pathKeys(pattern).isEmpty()) {
+      staticPaths.put(new StaticKey(method, pattern), route);
     }
     root.insertRoute(method, pattern, route);
   }
@@ -631,10 +663,16 @@ class $Chi implements RadixTree {
     root.destroy();
   }
 
-  public RouterMatch find(Context context, String path, MessageEncoder encoder, List<RadixTree> more) {
+  public RouterMatch find(Context context, String path, MessageEncoder encoder,
+      List<RadixTree> more) {
     String method = context.getMethod();
     RouterMatch result = new RouterMatch();
-    Route route = root.findRoute(result, method, path);
+    Route route = staticPaths.get(new StaticKey(method, path));
+    if (route != null) {
+      return result.found(route);
+    }
+    // use radix tree
+    route = root.findRoute(result, method, path);
     if (route != null) {
       return result.found(route);
     }
