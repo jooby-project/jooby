@@ -41,6 +41,10 @@ public interface Annotations {
 
   String FORM_PARAM = "io.jooby.annotations.FormParam";
 
+  String PRODUCES_PARAM = "io.jooby.annotations.Produces";
+
+  String CONSUMES_PARAM = "io.jooby.annotations.Consumes";
+
   Set<String> PATH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(PATH_PARAM)));
 
   Set<String> QUERY_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(QUERY_PARAM)));
@@ -52,6 +56,10 @@ public interface Annotations {
   Set<String> FLASH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(FLASH_PARAM)));
 
   Set<String> FORM_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(FORM_PARAM)));
+
+  Set<String> PRODUCES_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(PRODUCES_PARAM)));
+
+  Set<String> CONSUMES_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(CONSUMES_PARAM)));
 
   static List<String> attribute(AnnotationMirror mirror, String name) {
     Function<Object, String> cleanValue = arg -> ((AnnotationValue) arg).getValue().toString();

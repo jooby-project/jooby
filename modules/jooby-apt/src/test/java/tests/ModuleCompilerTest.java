@@ -35,6 +35,10 @@ public class ModuleCompilerTest {
           assertEquals("/consumes2", router.get("/consumes2").value());
           assertEquals("/produces", router.get("/produces").value());
           assertEquals("/consumes/produces", router.get("/consumes/produces").value());
+          assertEquals("/method/produces", router.get("/method/produces").value());
+          assertEquals("/class/produces", router.get("/class/produces").value());
+          assertEquals("/method/consumes", router.get("/method/consumes").value());
+          assertEquals("/class/consumes", router.get("/class/consumes").value());
         });
   }
 }

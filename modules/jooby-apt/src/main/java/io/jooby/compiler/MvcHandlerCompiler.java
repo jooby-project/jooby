@@ -24,7 +24,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.inject.Provider;
-import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -35,9 +35,9 @@ import javax.lang.model.util.Types;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
@@ -107,20 +107,12 @@ public class MvcHandlerCompiler {
 
   public List<String> getConsumes() {
     // TODO: consumes for JAXRS
-    return executable.getAnnotationMirrors().stream()
-        .filter(it -> it.getAnnotationType().equals(annotation))
-        .findFirst()
-        .map(it -> Annotations.attribute(it, "consumes"))
-        .orElse(Collections.emptyList());
+    return mediaType(executable, annotation, "consumes", Annotations.CONSUMES_PARAMS);
   }
 
   public List<String> getProduces() {
     // TODO: produces for JAXRS
-    return executable.getAnnotationMirrors().stream()
-        .filter(it -> it.getAnnotationType().equals(annotation))
-        .findFirst()
-        .map(it -> Annotations.attribute(it, "produces"))
-        .orElse(Collections.emptyList());
+    return mediaType(executable, annotation, "produces", Annotations.PRODUCES_PARAMS);
   }
 
   public byte[] compile() throws Exception {
@@ -303,5 +295,31 @@ public class MvcHandlerCompiler {
         .map(var -> new TypeDefinition(typeUtils, var.asType()).toJvmType())
         .toArray(Type[]::new);
     return Type.getMethodDescriptor(returnType, arguments);
+  }
+
+  private List<String> mediaType(ExecutableElement element, TypeMirror annotation, String property,
+      Set<String> types) {
+    List<String> result = element.getAnnotationMirrors().stream()
+        .filter(it -> it.getAnnotationType().equals(annotation))
+        .findFirst()
+        .map(it -> Annotations.attribute(it, property))
+        .orElse(Collections.emptyList());
+    if (result.size() == 0) {
+      return mediaType(element, types);
+    }
+    return result;
+  }
+
+  private List<String> mediaType(Element element, Set<String> types) {
+    return element.getAnnotationMirrors().stream()
+        .filter(it -> types.contains(it.getAnnotationType().toString()))
+        .findFirst()
+        .map(it -> Annotations.attribute(it, "value"))
+        .orElseGet(() -> {
+          if (element instanceof ExecutableElement) {
+            return mediaType(element.getEnclosingElement(), types);
+          }
+          return Collections.emptyList();
+        });
   }
 }
