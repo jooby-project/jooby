@@ -697,10 +697,10 @@ public interface Context extends Registry {
    *
    * This operation integrates easily with third-party libraries like rxJava or others.
    *
-   * @param action Application code.
+   * @param next Application code.
    * @return This context.
    */
-  @Nonnull Context detach(@Nonnull Runnable action);
+  @Nonnull Context detach(@Nonnull Route.Handler next) throws Exception;
 
   /*
    * **********************************************************************************************

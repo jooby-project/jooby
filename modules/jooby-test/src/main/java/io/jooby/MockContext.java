@@ -295,8 +295,8 @@ public class MockContext implements DefaultContext {
     return this;
   }
 
-  @Nonnull @Override public MockContext detach(@Nonnull Runnable action) {
-    action.run();
+  @Nonnull @Override public MockContext detach(@Nonnull Route.Handler next) throws Exception {
+    next.apply(this);
     return this;
   }
 

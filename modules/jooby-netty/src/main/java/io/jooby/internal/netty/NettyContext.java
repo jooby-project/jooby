@@ -172,8 +172,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
-  @Nonnull @Override public Context detach(@Nonnull Runnable action) {
-    action.run();
+  @Nonnull @Override public Context detach(@Nonnull Route.Handler next) throws Exception {
+    next.apply(this);
     return this;
   }
 

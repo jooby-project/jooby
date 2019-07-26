@@ -244,9 +244,9 @@ public class JettyContext implements Callback, DefaultContext {
     return this;
   }
 
-  @Nonnull @Override public Context detach(@Nonnull Runnable action) {
+  @Nonnull @Override public Context detach(@Nonnull Route.Handler next) throws Exception {
     ifStartAsync();
-    action.run();
+    next.apply(this);
     return this;
   }
 

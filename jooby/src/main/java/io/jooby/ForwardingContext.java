@@ -301,8 +301,8 @@ public class ForwardingContext implements Context {
     return this;
   }
 
-  @Override @Nonnull public Context detach(@Nonnull Runnable action) {
-    context.detach(action);
+  @Override @Nonnull public Context detach(@Nonnull Route.Handler next) throws Exception {
+    context.detach(next);
     return this;
   }
 

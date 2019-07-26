@@ -204,8 +204,14 @@ public class UtowContext implements DefaultContext, IoCallback {
     return this;
   }
 
-  @Nonnull @Override public Context detach(@Nonnull Runnable action) {
-    exchange.dispatch(SameThreadExecutor.INSTANCE, action);
+  @Nonnull @Override public Context detach(@Nonnull Route.Handler next) {
+    exchange.dispatch(SameThreadExecutor.INSTANCE, () -> {
+      try {
+        next.apply(this);
+      } catch (Throwable x) {
+        sendError(x);
+      }
+    });
     return this;
   }
 
