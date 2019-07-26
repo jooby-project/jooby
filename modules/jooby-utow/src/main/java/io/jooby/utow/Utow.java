@@ -102,12 +102,15 @@ public class Utow extends Server.Base {
     }
   }
 
-  @Nonnull @Override public Server stop() {
+  @Nonnull @Override public synchronized Server stop() {
     fireStop(applications);
     applications = null;
     if (server != null) {
-      server.stop();
-      server = null;
+      try {
+        server.stop();
+      } finally {
+        server = null;
+      }
     }
     return this;
   }

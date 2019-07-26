@@ -30,6 +30,7 @@ import java.util.ServiceLoader;
 import java.util.Spliterator;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -71,6 +72,8 @@ public class Jooby implements Router, Registry {
   static final String APP_NAME = "___app_name__";
 
   private static final String JOOBY_RUN_HOOK = "___jooby_run_hook__";
+
+  private final transient AtomicBoolean started = new AtomicBoolean(true);
 
   private RouterImpl router;
 
@@ -599,8 +602,8 @@ public class Jooby implements Router, Registry {
   }
 
   /**
-   * Callback method that indicates application was successfully started it and it is ready
-   * listening for connections.
+   * Callback method that indicates application was successfully started it and listening for
+   * connections.
    *
    * @param server Server.
    * @return This application.
@@ -633,19 +636,32 @@ public class Jooby implements Router, Registry {
   /**
    * Stop application, fire the stop event to cleanup resources.
    *
+   * This method is usually invoked by {@link Server#stop()} using a shutdown hook.
+   *
+   * The next example shows how to successfully stop the web server and application:
+   *
+   * <pre>{@code
+   *   Jooby app = new Jooby();
+   *
+   *   Server server = app.start();
+   *
+   *   ...
+   *
+   *   server.stop();
+   * }</pre>
+   *
    * @return This application.
    */
   public @Nonnull Jooby stop() {
-    Logger log = getLog();
-    log.debug("Stopping {}", System.getProperty(APP_NAME, getClass().getSimpleName()));
-    if (router != null) {
+    if (started.compareAndSet(true, false)) {
+      Logger log = getLog();
+      log.debug("Stopping {}", System.getProperty(APP_NAME, getClass().getSimpleName()));
       router.destroy();
-      router = null;
+
+      fireStop();
+
+      log.info("Stopped {}", System.getProperty(APP_NAME, getClass().getSimpleName()));
     }
-
-    fireStop();
-
-    log.info("Stopped {}", System.getProperty(APP_NAME, getClass().getSimpleName()));
     return this;
   }
 
@@ -665,7 +681,7 @@ public class Jooby implements Router, Registry {
   }
 
   @Override public String toString() {
-    return router.toString();
+    return getClass().getSimpleName();
   }
 
   /**

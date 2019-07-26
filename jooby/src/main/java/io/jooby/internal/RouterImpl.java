@@ -435,7 +435,6 @@ public class RouterImpl implements Router {
     routes.clear();
     routes = null;
     chi.destroy();
-    chi = null;
     if (errorCodes != null) {
       errorCodes.clear();
       errorCodes = null;
@@ -524,14 +523,16 @@ public class RouterImpl implements Router {
 
   @Override public String toString() {
     StringBuilder buff = new StringBuilder();
-    int size = IntStream.range(0, routes.size())
-        .map(i -> routes.get(i).getMethod().length() + 1)
-        .max()
-        .orElse(0);
+    if (routes != null) {
+      int size = IntStream.range(0, routes.size())
+          .map(i -> routes.get(i).getMethod().length() + 1)
+          .max()
+          .orElse(0);
 
-    routes.forEach(
-        r -> buff.append(String.format("\n  %-" + size + "s", r.getMethod()))
-            .append(r.getPattern()));
+      routes.forEach(
+          r -> buff.append(String.format("\n  %-" + size + "s", r.getMethod()))
+              .append(r.getPattern()));
+    }
     return buff.length() > 0 ? buff.substring(1) : "";
   }
 

@@ -115,15 +115,16 @@ public class Jetty extends io.jooby.Server.Base {
     return this;
   }
 
-  @Nonnull @Override public io.jooby.Server stop() {
+  @Nonnull @Override public synchronized io.jooby.Server stop() {
     fireStop(applications);
     if (server != null) {
       try {
         server.stop();
       } catch (Exception x) {
         throw SneakyThrows.propagate(x);
+      } finally {
+        server = null;
       }
-      server = null;
     }
     return this;
   }
