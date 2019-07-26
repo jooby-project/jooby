@@ -17,6 +17,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -45,6 +46,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -2455,6 +2457,23 @@ public class FeaturedTest {
       });
       client.get("/2", rsp -> {
         assertEquals("Hello Freemarker!", rsp.body().string().trim());
+      });
+    });
+  }
+
+  @Test
+  @DisplayName("Context detaches when running in event-loop and returns a Context")
+  public void detachOnEventLoop() {
+    new JoobyRunner(app -> {
+      app.get("/detach", ctx -> {
+        CompletableFuture.runAsync(() -> {
+          ctx.send(ctx.pathString());
+        });
+        return ctx;
+      });
+    }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
+      client.get("/detach", rsp -> {
+        assertEquals("/detach", rsp.body().string().trim());
       });
     });
   }

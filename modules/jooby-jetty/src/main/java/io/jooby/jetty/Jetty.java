@@ -5,7 +5,6 @@
  */
 package io.jooby.jetty;
 
-import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
@@ -63,8 +62,6 @@ public class Jetty extends io.jooby.Server.Base {
       System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize",
           Long.toString(options.getMaxRequestSize()));
 
-      /** Jetty only support worker executor: */
-      application.setExecutionMode(ExecutionMode.WORKER);
       applications.add(application);
 
       addShutdownHook();
