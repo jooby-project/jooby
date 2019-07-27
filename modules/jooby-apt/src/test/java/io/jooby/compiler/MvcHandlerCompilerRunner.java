@@ -53,7 +53,6 @@ public class MvcHandlerCompilerRunner {
   public MvcHandlerCompilerRunner compile(String method, String path, boolean debug,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
     String key = method.toUpperCase() + path;
-    //    key = key.replace("[B", "Lbyte[];");
     MvcHandlerCompiler compiler = processor.compilerFor(key);
     assertNotNull("Compiler not found for: " + key, compiler);
     if (debug) {

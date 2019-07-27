@@ -1,21 +1,16 @@
 package tests;
 
 import io.jooby.Body;
-import io.jooby.Context;
 import io.jooby.FileUpload;
-import io.jooby.FlashMap;
-import io.jooby.Formdata;
 import io.jooby.MockContext;
 import io.jooby.Multipart;
-import io.jooby.QueryString;
 import io.jooby.Reified;
-import io.jooby.Session;
 import io.jooby.StatusCode;
 import io.jooby.compiler.MvcHandlerCompilerRunner;
 import org.junit.jupiter.api.Test;
 import source.CustomGenericType;
-import source.EnumParam;
 import source.JavaBeanParam;
+import source.JaxrsController;
 import source.Provisioning;
 
 import java.io.InputStream;
@@ -25,13 +20,10 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -362,6 +354,20 @@ public class HandlerCompilerTest {
           assertEquals(generic, handler.apply(new MockContext().setBody(body)));
         })
     ;
+  }
+
+  @Test
+  public void jarxs() throws Exception {
+    new MvcHandlerCompilerRunner(new JaxrsController())
+        .compile("/jaxrs/query", handler -> {
+          assertEquals("v1", handler.apply(new MockContext().setPathString("/?q1=v1")));
+        })
+        .compile("/jaxrs", handler -> {
+          assertEquals("doGet", handler.apply(new MockContext()));
+        })
+        .compile("POST", "/jaxrs/post", handler -> {
+          assertEquals("doPost", handler.apply(new MockContext()));
+        });
   }
 
   private Map<String, String> mapOf(String... values) {

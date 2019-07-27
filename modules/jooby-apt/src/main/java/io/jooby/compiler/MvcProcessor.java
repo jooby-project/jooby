@@ -22,6 +22,7 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.util.Collections;
@@ -158,7 +159,7 @@ public class MvcProcessor implements Processor {
         .map(AnnotationMirror.class::cast)
         .flatMap(mirror -> {
           String type = mirror.getAnnotationType().toString();
-          if (type.equals(Annotations.PATH) || type.equals(method)) {
+          if (Annotations.PATH.contains(type) || type.equals(method)) {
             return Stream.concat(Annotations.attribute(mirror, "path").stream(),
                 Annotations.attribute(mirror, "value").stream());
           }

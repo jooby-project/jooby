@@ -7,6 +7,7 @@ package examples;
 
 import io.jooby.Jooby;
 import io.jooby.RouterOptions;
+import io.jooby.annotations.QueryParam;
 
 import java.util.stream.Stream;
 
