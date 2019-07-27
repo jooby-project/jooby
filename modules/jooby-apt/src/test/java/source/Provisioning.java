@@ -33,21 +33,21 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Path("/controller")
+@Path("/p")
 public class Provisioning {
 
-  @GET
+  @GET("/noarg")
   public String noarg() {
     return "noarg";
   }
 
-  @GET("/ctx")
+  @GET("/context")
   public String context(Context ctx) {
     assertTrue(ctx instanceof Context);
     return "ctx";
   }
 
-  @GET("/ctxfirst")
+  @GET("/contextFirst")
   public String contextFirst(Context ctx, QueryString queryString) {
     assertTrue(ctx instanceof Context);
     assertTrue(queryString instanceof QueryString);
@@ -90,288 +90,283 @@ public class Provisioning {
     return "session";
   }
 
-  @GET
+  @GET("/sessionOrNull")
   public String sessionOrNull(Optional<Session> session) {
     return "session:" + session.isPresent();
   }
 
-  @GET
+  @GET("/pathParam")
   public String pathParam(@PathParam String p1) {
     return p1;
   }
 
-  @GET
+  @GET("/bytePathParam")
   public String bytePathParam(@PathParam byte p1) {
     return Integer.toString(p1);
   }
 
-  @GET
+  @GET("/intPathParam")
   public String intPathParam(@PathParam int p1) {
     return Integer.toString(p1);
   }
 
-  @GET
+  @GET("/longPathParam")
   public String longPathParam(@PathParam long p1) {
     return Long.toString(p1);
   }
 
-  @GET
+  @GET("/floatPathParam")
   public String floatPathParam(@PathParam float p1) {
     return Float.toString(p1);
   }
 
-  @GET
+  @GET("/doublePathParam")
   public String doublePathParam(@PathParam double p1) {
     return Double.toString(p1);
   }
 
-  @GET
+  @GET("/booleanPathParam")
   public String booleanPathParam(@PathParam boolean p1) {
     return Boolean.toString(p1);
   }
 
-  @GET
+  @GET("/optionalStringPathParam")
   public String optionalStringPathParam(@PathParam Optional<String> p1) {
     return p1.toString();
   }
 
-  @GET
+  @GET("/optionalIntPathParam")
   public String optionalIntPathParam(@PathParam Optional<Integer> p1) {
     return p1.toString();
   }
 
-  @GET
+  @GET("/javaBeanPathParam")
   public String javaBeanPathParam(@PathParam JavaBeanParam param) {
     return param.toString();
   }
 
-  @GET
+  @GET("/listStringPathParam")
   public String listStringPathParam(@PathParam List<String> values) {
     return values.toString();
   }
 
-  @GET
+  @GET("/listDoublePathParam")
   public String listDoublePathParam(@PathParam List<Double> values) {
     return values.toString();
   }
 
-  @GET
+  @GET("/listBeanPathParam")
   public String listBeanPathParam(@PathParam List<JavaBeanParam> bean) {
     return bean.toString();
   }
 
-  @GET
+  @GET("/setStringPathParam")
   public String setStringPathParam(@PathParam Set<String> values) {
     return values.toString();
   }
 
-  @GET
+  @GET("/setDoublePathParam")
   public String setDoublePathParam(@PathParam Set<Double> values) {
     return values.toString();
   }
 
-  @GET
+  @GET("/setBeanPathParam")
   public String setBeanPathParam(@PathParam Set<JavaBeanParam> bean) {
     return bean.toString();
   }
 
-  @GET
+  @GET("/enumParam")
   public String enumParam(@PathParam EnumParam letter) {
     return letter.name();
   }
 
-  @GET
+  @GET("/optionalEnumParam")
   public String optionalEnumParam(@PathParam Optional<EnumParam> letter) {
     return letter.toString();
   }
 
-  @GET
+  @GET("/listEnumParam")
   public String listEnumParam(@PathParam List<EnumParam> letter) {
     return letter.toString();
   }
 
-  @GET
+  @GET("/primitiveWrapper")
   public String primitiveWrapper(@PathParam Integer value) {
     return String.valueOf(value);
   }
 
-  @GET
+  @GET("/queryParam")
   public String queryParam(@QueryParam String q) {
     return q;
   }
 
-  @GET
+  @GET("/cookieParam")
   public String cookieParam(@CookieParam String c) {
     return c;
   }
 
-  @GET
+  @GET("/headerParam")
   public String headerParam(@HeaderParam Instant instant) {
     return String.valueOf(instant.toEpochMilli());
   }
 
-  @GET
+  @GET("/flashParam")
   public String flashParam(@FlashParam String message) {
     return message;
   }
 
-  @GET
+  @GET("/formParam")
   public String formParam(@FormParam String name) {
     return name;
   }
 
-  @GET
+  @GET("/parameters")
   public String parameters(@PathParam String path, Context ctx, @QueryParam int offset, @QueryParam JavaBeanParam javaBean) {
     return path + ctx + offset + javaBean;
   }
 
-  @GET
+  @GET("/fileParam")
   public String fileParam(FileUpload file) {
     return file.toString();
   }
 
-  @GET
+  @GET("/fileParams")
   public String fileParams(List<FileUpload> file) {
     return file.toString();
   }
 
-  @GET
+  @GET("/uuidParam")
   public String uuidParam(@QueryParam UUID value) {
     return value.toString();
   }
 
-  @GET
+  @GET("/bigDecimalParam")
   public String bigDecimalParam(@QueryParam BigDecimal value) {
     return value.toString();
   }
 
-  @GET
+  @GET("/bigIntegerParam")
   public String bigIntegerParam(@QueryParam BigInteger value) {
     return value.toString();
   }
 
-  @GET
+  @GET("/charsetParam")
   public String charsetParam(@QueryParam Charset value) {
     return value.toString();
   }
 
-  @GET
-  public String pathParam(@QueryParam Charset value) {
-    return value.toString();
-  }
-
-  @GET
-  public String pathParam(@FormParam java.nio.file.Path file) {
+  @GET("/pathFormParam")
+  public String pathFormParam(@FormParam java.nio.file.Path file) {
     return file.toString();
   }
 
-  @GET
+  @GET("/returnByte")
   public byte returnByte() {
     return 8;
   }
 
-  @GET
+  @GET("/returnShort")
   public short returnShort() {
     return 8;
   }
 
-  @GET
+  @GET("/returnInteger")
   public int returnInteger() {
     return 7;
   }
 
-  @GET
+  @GET("/returnLong")
   public long returnLong() {
     return 9;
   }
 
-  @GET
+  @GET("/returnFloat")
   public float returnFloat() {
     return 7.9f;
   }
 
-  @GET
+  @GET("/returnChar")
   public char returnChar() {
     return 'c';
   }
 
-  @GET
+  @GET("/returnDouble")
   public double returnDouble() {
     return 8.9;
   }
 
-  @GET
+  @GET("/returnStatusCode")
   public StatusCode returnStatusCode() {
     return StatusCode.NO_CONTENT;
   }
 
-  @GET
+  @GET("/statusCode")
   public StatusCode statusCode(@QueryParam StatusCode statusCode, @QueryParam String q) {
     return statusCode;
   }
 
-  @GET
+  @GET("/noContent")
   public void noContent() {
   }
 
-  @GET
+  @GET("/sideEffect")
   public void sideEffect(Context ctx) {
     ctx.send(StatusCode.CREATED);
   }
 
   @POST
-  @Path("/body/str")
+  @Path("/bodyStringParam")
   public String bodyStringParam(String body) {
     return body;
   }
 
   @POST
-  @Path("/body/bytes")
+  @Path("/bodyBytesParam")
   public String bodyBytesParam(byte[] body) {
     return new String(body, StandardCharsets.UTF_8);
   }
 
 
   @POST
-  @Path("/body/stream")
+  @Path("/bodyInputStreamParam")
   public String bodyInputStreamParam(InputStream body) {
     assertTrue(body instanceof InputStream);
     return body.toString();
   }
 
   @POST
-  @Path("/body/channel")
+  @Path("/bodyChannelParam")
   public String bodyChannelParam(ReadableByteChannel body) {
     assertTrue(body instanceof ReadableByteChannel);
     return body.toString();
   }
 
   @POST
-  @Path("/body/bean")
+  @Path("/bodyBeanParam")
   public String bodyBeanParam(JavaBeanParam body) {
     return body.toString();
   }
 
   @POST
-  @Path("/body/int")
+  @Path("/bodyIntParam")
   public int bodyIntParam(int body) {
     return body;
   }
 
   @POST
-  @Path("/body/optint")
+  @Path("/bodyOptionalIntParam")
   public Optional<Integer> bodyOptionalIntParam(Optional<Integer> body) {
     return body;
   }
 
   @POST
-  @Path("/body/int")
+  @Path("/bodyMapParam")
   public Map<String, Object> bodyMapParam(Map<String, Object> json) {
     return json;
   }
 
   @POST
-  @Path("/body/int")
+  @Path("/bodyCustomGenericParam")
   public CustomGenericType<String> bodyCustomGenericParam(CustomGenericType<String> body) {
     return body;
   }

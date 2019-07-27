@@ -37,4 +37,14 @@ public class Routes {
     assertEquals(JavaBeanParam.class, ctx.getRoute().getReturnType());
     return new JavaBeanParam();
   }
+
+  @GET(path = "/pathAttributeWork")
+  public String pathAttributeWork(Context ctx) {
+    return ctx.pathString();
+  }
+
+  @GET(path = "/path", value = "/value")
+  public String pathvalue(Context ctx) {
+    return ctx.pathString();
+  }
 }

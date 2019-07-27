@@ -285,7 +285,7 @@ public class MvcHandlerCompiler {
   }
 
   public String getKey() {
-    return getController().getName() + "." + executable.getSimpleName() + methodDescriptor();
+    return httpMethod.toUpperCase() + pattern;
   }
 
   private String methodDescriptor() {

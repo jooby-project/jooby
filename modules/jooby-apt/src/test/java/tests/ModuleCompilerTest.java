@@ -23,6 +23,10 @@ public class ModuleCompilerTest {
           assertEquals(Arrays.asList("/path/subpath"), router.get("/path/subpath").value());
           assertTrue(router.get("/path/object").value() instanceof Context);
           assertTrue(router.post("/path/post").value() instanceof JavaBeanParam);
+
+          assertEquals("/path/pathAttributeWork", router.get("/path/pathAttributeWork").value());;
+          assertEquals("/path/path", router.get("/path/path").value());;
+          assertEquals("/path/value", router.get("/path/value").value());;
         });
   }
 

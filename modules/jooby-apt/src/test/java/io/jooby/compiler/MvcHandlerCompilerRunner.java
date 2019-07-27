@@ -35,33 +35,31 @@ public class MvcHandlerCompilerRunner {
         .compilesWithoutError();
   }
 
-  public MvcHandlerCompilerRunner compile(String executableName, Class[] args,
+  public MvcHandlerCompilerRunner compile(String path,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
-    return compile("GET", executableName, args, false, consumer);
+    return compile(path, false, consumer);
   }
 
-  public MvcHandlerCompilerRunner compile(String httpMethod, String executableName, Class[] args,
+  public MvcHandlerCompilerRunner compile(String path, boolean debug,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
-    return compile(httpMethod, executableName, args, false, consumer);
+    return compile("GET", path, debug, consumer);
   }
 
-  public MvcHandlerCompilerRunner compile(String executableName, Class[] args, boolean debug,
+  public MvcHandlerCompilerRunner compile(String method, String path,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
-    return compile("GET", executableName, args, debug, consumer);
+    return compile(method, path, false, consumer);
   }
 
-  public MvcHandlerCompilerRunner compile(String httpMethod, String executableName, Class[] args, boolean debug,
+  public MvcHandlerCompilerRunner compile(String method, String path, boolean debug,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
-    Class clazz = instance.getClass();
-    Method method = clazz.getMethod(executableName, args);
-    String key = clazz.getName() + "." + executableName + Type.getMethodDescriptor(method);
-//    key = key.replace("[B", "Lbyte[];");
+    String key = method.toUpperCase() + path;
+    //    key = key.replace("[B", "Lbyte[];");
     MvcHandlerCompiler compiler = processor.compilerFor(key);
-    assertNotNull("Compiler not found for: " + method, compiler);
+    assertNotNull("Compiler not found for: " + key, compiler);
     if (debug) {
       System.out.println(compiler);
     }
-    String handlerName = clazz.getName() + "$" + httpMethod + "$" + executableName;
+    String handlerName = compiler.getGeneratedClass();
     Class<? extends Route.Handler> handleClass = compileClass(handlerName, compiler.compile());
     Constructor<? extends Route.Handler> constructor = handleClass
         .getDeclaredConstructor(Provider.class);

@@ -43,31 +43,31 @@ public class HandlerCompilerTest {
   @Test
   public void typeInjection() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("noarg", args(), handler -> {
+        .compile("/p/noarg", handler -> {
           assertEquals("noarg", handler.apply(new MockContext()));
         })
-        .compile("context", args(Context.class), handler -> {
+        .compile("/p/context", handler -> {
           assertEquals("ctx", handler.apply(new MockContext()));
         })
-        .compile("queryString", args(QueryString.class), handler -> {
+        .compile("/p/queryString", handler -> {
           assertEquals("queryString", handler.apply(new MockContext()));
         })
-        .compile("formdata", args(Formdata.class), handler -> {
+        .compile("/p/formdata", handler -> {
           assertEquals("formdata", handler.apply(new MockContext()));
         })
-        .compile("multipart", args(Multipart.class), handler -> {
+        .compile("/p/multipart", handler -> {
           assertEquals("multipart", handler.apply(new MockContext()));
         })
-        .compile("contextFirst", args(Context.class, QueryString.class), handler -> {
+        .compile("/p/contextFirst", handler -> {
           assertEquals("ctxfirst", handler.apply(new MockContext()));
         })
-        .compile("flashMap", args(FlashMap.class), handler -> {
+        .compile("/p/flashMap", handler -> {
           assertEquals("flashMap", handler.apply(new MockContext()));
         })
-        .compile("sessionOrNull", args(Optional.class), handler -> {
+        .compile("/p/sessionOrNull", handler -> {
           assertEquals("session:false", handler.apply(new MockContext()));
         })
-        .compile("session", args(Session.class), handler -> {
+        .compile("/p/session", handler -> {
           assertEquals("session", handler.apply(new MockContext()));
         });
   }
@@ -75,7 +75,7 @@ public class HandlerCompilerTest {
   @Test
   public void queryParam() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("queryParam", args(String.class), handler -> {
+        .compile("/p/queryParam", handler -> {
           assertEquals("search", handler.apply(new MockContext().setPathString("/?q=search")));
         })
     ;
@@ -84,7 +84,7 @@ public class HandlerCompilerTest {
   @Test
   public void cookieParam() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("cookieParam", args(String.class), handler -> {
+        .compile("/p/cookieParam", handler -> {
           assertEquals("cookie",
               handler.apply(new MockContext().setCookieMap(mapOf("c", "cookie"))));
         })
@@ -95,7 +95,7 @@ public class HandlerCompilerTest {
   public void headerParam() throws Exception {
     long epoc = System.currentTimeMillis();
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("headerParam", args(Instant.class), handler -> {
+        .compile("/p/headerParam", handler -> {
           assertEquals(String.valueOf(epoc),
               handler.apply(new MockContext().setRequestHeader("instant", String.valueOf(epoc))));
         })
@@ -105,7 +105,7 @@ public class HandlerCompilerTest {
   @Test
   public void flashParam() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("flashParam", args(String.class), handler -> {
+        .compile("/p/flashParam", handler -> {
           assertEquals("hey", handler.apply(new MockContext().setFlashAttribute("message", "hey")));
         })
     ;
@@ -116,7 +116,7 @@ public class HandlerCompilerTest {
     Multipart formdata = Multipart.create();
     formdata.put("name", "yo");
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("formParam", args(String.class), handler -> {
+        .compile("/p/formParam", handler -> {
           assertEquals("yo", handler.apply(new MockContext().setMultipart(formdata)));
         })
     ;
@@ -125,74 +125,74 @@ public class HandlerCompilerTest {
   @Test
   public void pathParam() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("pathParam", args(String.class), handler -> {
+        .compile("/p/pathParam", handler -> {
           assertEquals("v1", handler.apply(new MockContext().setPathMap(mapOf("p1", "v1"))));
         })
-        .compile("bytePathParam", args(byte.class), handler -> {
+        .compile("/p/bytePathParam", handler -> {
           assertEquals("2", handler.apply(new MockContext().setPathMap(mapOf("p1", "2"))));
         })
-        .compile("longPathParam", args(long.class), handler -> {
+        .compile("/p/longPathParam", handler -> {
           assertEquals("3", handler.apply(new MockContext().setPathMap(mapOf("p1", "3"))));
         })
-        .compile("floatPathParam", args(float.class), handler -> {
+        .compile("/p/floatPathParam", handler -> {
           assertEquals("3.5", handler.apply(new MockContext().setPathMap(mapOf("p1", "3.5"))));
         })
-        .compile("doublePathParam", args(double.class), handler -> {
+        .compile("/p/doublePathParam", handler -> {
           assertEquals("3.55", handler.apply(new MockContext().setPathMap(mapOf("p1", "3.55"))));
         })
-        .compile("booleanPathParam", args(boolean.class), handler -> {
+        .compile("/p/booleanPathParam", handler -> {
           assertEquals("true", handler.apply(new MockContext().setPathMap(mapOf("p1", "true"))));
         })
-        .compile("intPathParam", args(int.class), handler -> {
+        .compile("/p/intPathParam", handler -> {
           assertEquals("1", handler.apply(new MockContext().setPathMap(mapOf("p1", "1"))));
         })
-        .compile("optionalStringPathParam", args(Optional.class), handler -> {
+        .compile("/p/optionalStringPathParam", handler -> {
           assertEquals("Optional[x]",
               handler.apply(new MockContext().setPathMap(mapOf("p1", "x"))));
         })
-        .compile("optionalIntPathParam", args(Optional.class), handler -> {
+        .compile("/p/optionalIntPathParam", handler -> {
           assertEquals("Optional[7]",
               handler.apply(new MockContext().setPathMap(mapOf("p1", "7"))));
         })
-        .compile("javaBeanPathParam", args(JavaBeanParam.class), handler -> {
+        .compile("/p/javaBeanPathParam", handler -> {
           assertEquals("bar", handler.apply(new MockContext().setPathMap(mapOf("foo", "bar"))));
         })
-        .compile("listStringPathParam", args(List.class), handler -> {
+        .compile("/p/listStringPathParam", handler -> {
           assertEquals("[bar]",
               handler.apply(new MockContext().setPathMap(mapOf("values", "bar"))));
         })
-        .compile("listDoublePathParam", args(List.class), handler -> {
+        .compile("/p/listDoublePathParam", handler -> {
           assertEquals("[6.7]",
               handler.apply(new MockContext().setPathMap(mapOf("values", "6.7"))));
         })
-        .compile("listBeanPathParam", args(List.class), handler -> {
+        .compile("/p/listBeanPathParam", handler -> {
           assertEquals("[bar]", handler.apply(new MockContext().setPathMap(mapOf("foo", "bar"))));
         })
-        .compile("setStringPathParam", args(Set.class), handler -> {
+        .compile("/p/setStringPathParam", handler -> {
           assertEquals("[bar]",
               handler.apply(new MockContext().setPathMap(mapOf("values", "bar"))));
         })
-        .compile("setDoublePathParam", args(Set.class), handler -> {
+        .compile("/p/setDoublePathParam", handler -> {
           assertEquals("[6.7]",
               handler.apply(new MockContext().setPathMap(mapOf("values", "6.7"))));
         })
-        .compile("setBeanPathParam", args(Set.class), handler -> {
+        .compile("/p/setBeanPathParam", handler -> {
           assertEquals("[bar]", handler.apply(new MockContext().setPathMap(mapOf("foo", "bar"))));
         })
-        .compile("enumParam", args(EnumParam.class), handler -> {
+        .compile("/p/enumParam", handler -> {
           assertEquals("A", handler.apply(new MockContext().setPathMap(mapOf("letter", "a"))));
         })
-        .compile("optionalEnumParam", args(Optional.class), handler -> {
+        .compile("/p/optionalEnumParam", handler -> {
           assertEquals("Optional[A]",
               handler.apply(new MockContext().setPathMap(mapOf("letter", "a"))));
         })
-        .compile("listEnumParam", args(List.class), handler -> {
+        .compile("/p/listEnumParam", handler -> {
           assertEquals("[B]", handler.apply(new MockContext().setPathMap(mapOf("letter", "B"))));
         })
-        .compile("primitiveWrapper", args(Integer.class), handler -> {
+        .compile("/p/primitiveWrapper", handler -> {
           assertEquals("null", handler.apply(new MockContext()));
         })
-        .compile("primitiveWrapper", args(Integer.class), handler -> {
+        .compile("/p/primitiveWrapper", handler -> {
           assertEquals("9", handler.apply(new MockContext().setPathMap(mapOf("value", "9"))));
         })
     ;
@@ -201,7 +201,7 @@ public class HandlerCompilerTest {
   @Test
   public void multipleParameters() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("parameters", args(String.class, Context.class, int.class, JavaBeanParam.class),
+        .compile("/p/parameters",
             handler -> {
               assertEquals("123GET /1x", handler.apply(
                   new MockContext().setPathMap(mapOf("path", "123"))
@@ -216,10 +216,10 @@ public class HandlerCompilerTest {
     Multipart multipart = Multipart.create();
     multipart.put("file", file);
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("fileParam", args(FileUpload.class), handler -> {
+        .compile("/p/fileParam", handler -> {
           assertEquals(file.toString(), handler.apply(new MockContext().setMultipart(multipart)));
         })
-        .compile("fileParams", args(List.class), handler -> {
+        .compile("/p/fileParams", handler -> {
           assertEquals(Arrays.asList(file).toString(),
               handler.apply(new MockContext().setMultipart(multipart)));
         })
@@ -234,23 +234,23 @@ public class HandlerCompilerTest {
     Charset charset = StandardCharsets.UTF_8;
 
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("uuidParam", args(UUID.class), handler -> {
+        .compile("/p/uuidParam", handler -> {
           assertEquals(uuid.toString(),
               handler.apply(new MockContext().setPathString("/?value=" + uuid.toString())));
         })
-        .compile("bigDecimalParam", args(BigDecimal.class), handler -> {
+        .compile("/p/bigDecimalParam", handler -> {
           assertEquals(bigDecimal.toString(),
               handler.apply(new MockContext().setPathString("/?value=" + bigDecimal.toString())));
         })
-        .compile("bigIntegerParam", args(BigInteger.class), handler -> {
+        .compile("/p/bigIntegerParam", handler -> {
           assertEquals(bigInteger.toString(),
               handler.apply(new MockContext().setPathString("/?value=" + bigInteger.toString())));
         })
-        .compile("charsetParam", args(Charset.class), handler -> {
+        .compile("/p/charsetParam", handler -> {
           assertEquals(charset.toString(),
               handler.apply(new MockContext().setPathString("/?value=" + charset.toString())));
         })
-        .compile("pathParam", args(Path.class), handler -> {
+        .compile("/p/pathFormParam", handler -> {
           Path path = mock(Path.class);
           FileUpload file = mock(FileUpload.class);
           when(file.path()).thenReturn(path);
@@ -265,43 +265,43 @@ public class HandlerCompilerTest {
   @Test
   public void returnTypes() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("returnByte", args(), handler -> {
+        .compile("/p/returnByte", handler -> {
           assertEquals(Byte.valueOf((byte) 8), handler.apply(new MockContext()));
         })
-        .compile("returnShort", args(), handler -> {
+        .compile("/p/returnShort", handler -> {
           assertEquals(Short.valueOf((short) 8), handler.apply(new MockContext()));
         })
-        .compile("returnInteger", args(), handler -> {
+        .compile("/p/returnInteger", handler -> {
           assertEquals(Integer.valueOf(7), handler.apply(new MockContext()));
         })
-        .compile("returnLong", args(), handler -> {
+        .compile("/p/returnLong", handler -> {
           assertEquals(Long.valueOf(9), handler.apply(new MockContext()));
         })
-        .compile("returnFloat", args(), handler -> {
+        .compile("/p/returnFloat", handler -> {
           assertEquals(Float.valueOf(7.9f), handler.apply(new MockContext()));
         })
-        .compile("returnDouble", args(), handler -> {
+        .compile("/p/returnDouble", handler -> {
           assertEquals(Double.valueOf(8.9), handler.apply(new MockContext()));
         })
-        .compile("returnChar", args(), handler -> {
+        .compile("/p/returnChar", handler -> {
           assertEquals(Character.valueOf('c'), handler.apply(new MockContext()));
         })
-        .compile("returnStatusCode", args(), handler -> {
+        .compile("/p/returnStatusCode", handler -> {
           MockContext ctx = new MockContext();
           assertEquals(ctx, handler.apply(ctx));
           assertEquals(StatusCode.NO_CONTENT, ctx.getResponseCode());
         })
-        .compile("statusCode", args(StatusCode.class, String.class), handler -> {
+        .compile("/p/statusCode", handler -> {
           MockContext ctx = new MockContext().setPathString("/?statusCode=200&q=*:*");
           assertEquals(ctx, handler.apply(ctx));
           assertEquals(StatusCode.OK, ctx.getResponseCode());
         })
-        .compile("noContent", args(), handler -> {
+        .compile("/p/noContent", handler -> {
           MockContext ctx = new MockContext();
           assertEquals(ctx, handler.apply(ctx));
           assertEquals(StatusCode.NO_CONTENT, ctx.getResponseCode());
         })
-        .compile("sideEffect", args(Context.class), handler -> {
+        .compile("/p/sideEffect", handler -> {
           MockContext ctx = new MockContext();
           assertEquals(ctx, handler.apply(ctx));
           assertEquals(StatusCode.CREATED, ctx.getResponseCode());
@@ -312,48 +312,48 @@ public class HandlerCompilerTest {
   @Test
   public void body() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("POST", "bodyMapParam", args(Map.class), handler -> {
+        .compile("POST", "/p/bodyMapParam", handler -> {
           Map map = mock(Map.class);
           Body body = mock(Body.class);
           when(body.to(Reified.map(String.class, Object.class))).thenReturn(map);
           assertEquals(map, handler.apply(new MockContext().setBody(body)));
         })
-        .compile("POST", "bodyStringParam", args(String.class), handler -> {
+        .compile("POST", "/p/bodyStringParam", handler -> {
           assertEquals("...", handler.apply(new MockContext().setBody("...")));
         })
-        .compile("POST", "bodyBytesParam", args(byte[].class), handler -> {
+        .compile("POST", "/p/bodyBytesParam", handler -> {
           assertEquals("...",
               handler.apply(new MockContext().setBody("...".getBytes(StandardCharsets.UTF_8))));
         })
-        .compile("POST", "bodyInputStreamParam", args(InputStream.class), handler -> {
+        .compile("POST", "/p/bodyInputStreamParam", handler -> {
           InputStream stream = mock(InputStream.class);
           Body body = mock(Body.class);
           when(body.stream()).thenReturn(stream);
           assertEquals(stream.toString(), handler.apply(new MockContext().setBody(body)));
         })
-        .compile("POST", "bodyChannelParam", args(ReadableByteChannel.class), handler -> {
+        .compile("POST", "/p/bodyChannelParam", handler -> {
           ReadableByteChannel channel = mock(ReadableByteChannel.class);
           Body body = mock(Body.class);
           when(body.channel()).thenReturn(channel);
           assertEquals(channel.toString(), handler.apply(new MockContext().setBody(body)));
         })
-        .compile("POST", "bodyBeanParam", args(JavaBeanParam.class), handler -> {
+        .compile("POST", "/p/bodyBeanParam", handler -> {
           JavaBeanParam bean = mock(JavaBeanParam.class);
           Body body = mock(Body.class);
           when(body.to(JavaBeanParam.class)).thenReturn(bean);
           assertEquals(bean.toString(), handler.apply(new MockContext().setBody(body)));
         })
-        .compile("POST", "bodyIntParam", args(int.class), handler -> {
+        .compile("POST", "/p/bodyIntParam", handler -> {
           Body body = mock(Body.class);
           when(body.intValue()).thenReturn(9);
           assertEquals(9, handler.apply(new MockContext().setBody(body)));
         })
-        .compile("POST", "bodyOptionalIntParam", args(Optional.class), handler -> {
+        .compile("POST", "/p/bodyOptionalIntParam", handler -> {
           Body body = mock(Body.class);
           when(body.toOptional(Integer.class)).thenReturn(Optional.of(9));
           assertEquals(Optional.of(9), handler.apply(new MockContext().setBody(body)));
         })
-        .compile("POST", "bodyCustomGenericParam", args(CustomGenericType.class), handler -> {
+        .compile("POST", "/p/bodyCustomGenericParam", handler -> {
           CustomGenericType generic = new CustomGenericType<>();
           Body body = mock(Body.class);
           Reified parameterized = Reified
@@ -362,10 +362,6 @@ public class HandlerCompilerTest {
           assertEquals(generic, handler.apply(new MockContext().setBody(body)));
         })
     ;
-  }
-
-  public static Class[] args(Class... args) {
-    return args;
   }
 
   private Map<String, String> mapOf(String... values) {

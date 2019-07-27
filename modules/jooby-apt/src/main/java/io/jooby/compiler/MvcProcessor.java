@@ -145,6 +145,7 @@ public class MvcProcessor implements Processor {
     }
     return prefix.stream()
         .flatMap(root -> methodPath.stream().map(p -> root + p))
+        .distinct()
         .collect(Collectors.toList());
   }
 
@@ -158,13 +159,14 @@ public class MvcProcessor implements Processor {
         .flatMap(mirror -> {
           String type = mirror.getAnnotationType().toString();
           if (type.equals(Annotations.PATH) || type.equals(method)) {
-            return Annotations.attribute(mirror, "value").stream();
+            return Stream.concat(Annotations.attribute(mirror, "path").stream(),
+                Annotations.attribute(mirror, "value").stream());
           }
           return Stream.empty();
         })
+        .distinct()
         .collect(Collectors.toList());
   }
-
 
   @Override
   public Iterable<? extends Completion> getCompletions(Element element, AnnotationMirror annotation,
