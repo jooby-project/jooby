@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -65,25 +66,73 @@ public class JoobyRun {
       this.contextClassLoader = contextClassLoader;
     }
 
-    public void start() {
+    public Exception start() {
       try {
-        System.setProperty("___jooby_run_hook__", SERVER_REF);
-        // Track the number of restarts
-        System.setProperty("joobyRun.counter", Integer.toString(counter++));
-
         module = loader.loadModule(conf.getProjectName());
         ModuleClassLoader classLoader = module.getClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
 
+        if (counter == 0) {
+          // main class must exists
+          module.getClassLoader().loadClass(conf.getMainClass());
+        }
+
+        System.setProperty("___jooby_run_hook__", SERVER_REF);
+        // Track the number of restarts
+        System.setProperty("joobyRun.counter", Integer.toString(counter++));
+
         module.run(conf.getMainClass(),
             new String[]{"server.port=" + conf.getPort(), "server.join=false"});
-
-      } catch (Exception x) {
-        logger.error("execution of {} resulted in exception", conf.getMainClass(),
-            withoutReflection(x));
+      } catch (ClassNotFoundException x) {
+        String message = x.getMessage();
+        if (message.trim().startsWith(conf.getMainClass())) {
+          logger.error(
+              "Application class: '{}' not found. Possible solutions:\n  1) Make sure class exists\n  2) Class name is correct (no typo)",
+              conf.getMainClass());
+          // We must exit the JVM, due it is impossible to guess the main application.
+          return new ClassNotFoundException(conf.getMainClass());
+        } else {
+          printErr(x);
+        }
+      } catch (Throwable x) {
+        printErr(x);
       } finally {
         Thread.currentThread().setContextClassLoader(contextClassLoader);
       }
+      // In theory: application started successfully, then something went wrong. Still, users
+      // can fix the problem and recompile.
+      return null;
+    }
+
+    private void printErr(Throwable source) {
+      Throwable cause = withoutReflection(source);
+      System.out.println("CAUSE " + cause);
+      StackTraceElement[] stackTrace = cause.getStackTrace();
+      int truncateAt = stackTrace.length;
+      for (int i = 0; i < stackTrace.length; i++) {
+        StackTraceElement it = stackTrace[i];
+        if (it.getClassName().equals("org.jboss.modules.Module")) {
+          truncateAt = i;
+        }
+      }
+      if (truncateAt != stackTrace.length) {
+        StackTraceElement[] cleanstack = new StackTraceElement[truncateAt];
+        System.arraycopy(stackTrace, 0, cleanstack, 0, truncateAt);
+        cause.setStackTrace(cleanstack);
+      }
+      logger.error("execution of {} resulted in exception", conf.getMainClass(), cause);
+
+      // is fatal?
+      if (isFatal(source) || isFatal(cause)) {
+        sneakyThrow0(source);
+      }
+    }
+
+    private boolean isFatal(Throwable cause) {
+      return cause instanceof InterruptedException
+          || cause instanceof LinkageError
+          || cause instanceof ThreadDeath
+          || cause instanceof VirtualMachineError;
     }
 
     public void restart() {
@@ -97,10 +146,13 @@ public class JoobyRun {
     }
 
     private Throwable withoutReflection(Throwable cause) {
-      while (cause instanceof ReflectiveOperationException) {
-        cause = cause.getCause();
+      Throwable it = cause;
+      Throwable prev = cause;
+      while (it instanceof InvocationTargetException) {
+        prev = it;
+        it = it.getCause();
       }
-      return cause;
+      return it == null ? prev : it;
     }
 
     private void unloadModule() {
@@ -192,9 +244,9 @@ public class JoobyRun {
   /**
    * Start the application.
    *
-   * @throws Exception If something goes wrong.
+   * @throws Throwable If something goes wrong.
    */
-  public void start() throws Exception {
+  public void start() throws Throwable {
     this.watcher = newWatcher();
     try {
       logger.debug("project: {}", toString());
@@ -205,8 +257,14 @@ public class JoobyRun {
       ExtModuleLoader loader = new ExtModuleLoader(finders);
       module = new AppModule(logger, loader, Thread.currentThread().getContextClassLoader(),
           options);
-      module.start();
-      watcher.watch();
+      Exception error = module.start();
+      if (error == null) {
+        watcher.watch();
+      } else {
+        // exit
+        shutdown();
+        throw error;
+      }
     } catch (ClosedWatchServiceException expected) {
       logger.trace("Watcher.close resulted in exception", expected);
     }
@@ -276,5 +334,10 @@ public class JoobyRun {
         entry.getValue().accept(kind.name(), path);
       }
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <E extends Throwable> void sneakyThrow0(final Throwable x) throws E {
+    throw (E) x;
   }
 }

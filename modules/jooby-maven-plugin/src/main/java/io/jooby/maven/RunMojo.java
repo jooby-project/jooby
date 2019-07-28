@@ -160,7 +160,7 @@ public class RunMojo extends AbstractMojo {
       joobyRun.start();
     } catch (MojoExecutionException | MojoFailureException x) {
       throw x;
-    } catch (Exception x) {
+    } catch (Throwable x) {
       throw new MojoFailureException("jooby-run resulted in exception", x);
     }
   }

@@ -16,6 +16,7 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby</artifactId>
+      <version>${jooby.version}</version>
       <!-- Scope MUST BE provided. See io.jooby.run.ServerRef -->
       <scope>provided</scope>
     </dependency>

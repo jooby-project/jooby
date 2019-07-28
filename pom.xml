@@ -289,6 +289,12 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
+        <artifactId>jooby-run</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
         <artifactId>jooby-gradle-plugin</artifactId>
         <version>${jooby.version}</version>
       </dependency>

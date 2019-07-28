@@ -128,7 +128,6 @@ public class Netty extends Server.Base {
   }
 
   @Nonnull @Override public synchronized Server stop() {
-    System.out.println("ssss");
     fireStop(applications);
     if (acceptor != null) {
       acceptor.shutdownGracefully();
