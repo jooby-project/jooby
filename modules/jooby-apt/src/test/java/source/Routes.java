@@ -47,4 +47,14 @@ public class Routes {
   public String pathvalue(Context ctx) {
     return ctx.pathString();
   }
+
+  @GET(value = {"/path1", "/path2"})
+  public String pathvalueArray(Context ctx) {
+    return ctx.pathString();
+  }
+
+  @POST(path = {"/path1", "/path2"})
+  public String pathArray(Context ctx) {
+    return ctx.pathString();
+  }
 }
