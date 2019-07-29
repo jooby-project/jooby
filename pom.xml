@@ -299,12 +299,6 @@
         <version>${jooby.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>io.jooby</groupId>
-        <artifactId>jooby-maven-plugin</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
       <!-- ASM -->
       <dependency>
         <groupId>org.ow2.asm</groupId>
@@ -815,6 +809,12 @@
 
     <pluginManagement>
       <plugins>
+        <!-- jooby maven plugin  -->
+        <plugin>
+          <groupId>io.jooby</groupId>
+          <artifactId>jooby-maven-plugin</artifactId>
+          <version>${jooby.version}</version>
+        </plugin>
         <!-- kotlin -->
         <plugin>
           <artifactId>kotlin-maven-plugin</artifactId>
