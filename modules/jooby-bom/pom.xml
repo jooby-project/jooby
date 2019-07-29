@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>2.0.3-SNAPSHOT</version>
+    <version>2.0.3</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -16,16 +16,18 @@
   <!-- THIS FILE IS AUTO GENERATED. DON'T EDIT -->
 
   <properties>
-  <jooby.version>2.0.2</jooby.version>
+  <jooby.version>2.0.3</jooby.version>
   <HikariCP.version>3.3.1</HikariCP.version>
   <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
   <archetype-packaging.version>2.2</archetype-packaging.version>
   <asm.version>7.1</asm.version>
+  <auto-service.version>1.0-rc6</auto-service.version>
   <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
   <capsule-maven-plugin.version>1.0.4</capsule-maven-plugin.version>
   <checkstyle.version>8.19</checkstyle.version>
   <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
   <commons-io.version>2.6</commons-io.version>
+  <compile-testing.version>0.18</compile-testing.version>
   <config.version>1.3.4</config.version>
   <coveralls-maven-plugin.version>3.1.0</coveralls-maven-plugin.version>
   <depencency-check-maven.version>2.1.1</depencency-check-maven.version>
@@ -43,19 +45,19 @@
   <h2.version>1.4.199</h2.version>
   <handlebars.version>4.1.2</handlebars.version>
   <hibernate.version>5.4.3.Final</hibernate.version>
+  <jackson-databind.version>2.9.9.1</jackson-databind.version>
   <jackson.version>2.9.9</jackson.version>
   <jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
   <jacoco.version>0.8.4</jacoco.version>
   <jakarta.ws.rs-api.version>2.1.5</jakarta.ws.rs-api.version>
-  <javassist.version>3.25.0-GA</javassist.version>
   <javax.inject.version>1</javax.inject.version>
   <jboss-modules.version>1.9.1.Final</jboss-modules.version>
-  <jdbi.version>3.8.2</jdbi.version>
+  <jdbi.version>3.9.0</jdbi.version>
   <jetty.version>9.4.19.v20190610</jetty.version>
-  <jooby-maven-plugin.version>2.0.2</jooby-maven-plugin.version>
-  <jooby.version>2.0.2</jooby.version>
+  <jooby-maven-plugin.version>2.0.3</jooby-maven-plugin.version>
+  <jooby.version>2.0.3</jooby.version>
   <jsr305.version>3.0.2</jsr305.version>
-  <junit.version>5.5.0</junit.version>
+  <junit.version>5.5.1</junit.version>
   <kotlin.version>1.3.41</kotlin.version>
   <kotlinx-coroutines-core.version>1.2.2</kotlinx-coroutines-core.version>
   <license-maven-plugin.version>3.0</license-maven-plugin.version>
@@ -87,8 +89,8 @@
   <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
   <mockito.version>3.0.0</mockito.version>
   <mojo-executor.version>2.3.0</mojo-executor.version>
-  <mysql-connector-java.version>8.0.16</mysql-connector-java.version>
-  <netty.version>4.1.37.Final</netty.version>
+  <mysql-connector-java.version>8.0.17</mysql-connector-java.version>
+  <netty.version>4.1.38.Final</netty.version>
   <nexus-staging-maven-plugin.version>1.6.5</nexus-staging-maven-plugin.version>
   <okhttp.version>4.0.1</okhttp.version>
   <plexus-utils.version>3.2.1</plexus-utils.version>
@@ -99,6 +101,7 @@
   <slf4j.version>1.7.26</slf4j.version>
   <spring.version>5.1.8.RELEASE</spring.version>
   <stork-maven-plugin.version>2.7.0</stork-maven-plugin.version>
+  <truth.version>1.0</truth.version>
   <undertow.version>2.0.22.Final</undertow.version>
   <versions-maven-plugin.version>2.1</versions-maven-plugin.version>
   <weld.version>3.1.1.Final</weld.version>
@@ -188,13 +191,13 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-gradle-plugin</artifactId>
+      <artifactId>jooby-run</artifactId>
       <version>${jooby.version}</version>
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-maven-plugin</artifactId>
-      <version>${jooby-maven-plugin.version}</version>
+      <artifactId>jooby-gradle-plugin</artifactId>
+      <version>${jooby.version}</version>
     </dependency>
     <dependency>
       <groupId>org.ow2.asm</groupId>
@@ -234,7 +237,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
+      <version>${jackson-databind.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -397,11 +400,6 @@
       <version>${netty.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.javassist</groupId>
-      <artifactId>javassist</artifactId>
-      <version>${javassist.version}</version>
-    </dependency>
-    <dependency>
       <groupId>io.reactivex.rxjava2</groupId>
       <artifactId>rxjava</artifactId>
       <version>${rxjava.version}</version>
@@ -460,6 +458,21 @@
       <groupId>org.jboss.modules</groupId>
       <artifactId>jboss-modules</artifactId>
       <version>${jboss-modules.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.auto.service</groupId>
+      <artifactId>auto-service</artifactId>
+      <version>${auto-service.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.testing.compile</groupId>
+      <artifactId>compile-testing</artifactId>
+      <version>${compile-testing.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <version>${truth.version}</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
