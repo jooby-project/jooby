@@ -232,5 +232,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Produces {
-    String[] value();
+  /**
+   * List of media types.
+   *
+   * @return Media types.
+   */
+  String[] value();
 }

@@ -112,6 +112,7 @@ public class MockContext implements DefaultContext {
    * Set flash map.
    *
    * @param flashMap Flash map.
+   * @return This context.
    */
   public MockContext setFlashMap(@Nonnull FlashMap flashMap) {
     this.flashMap = flashMap;

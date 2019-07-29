@@ -235,7 +235,9 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Consumes {
   /**
-   * @return Media types the route can consume.
+   * List of media types.
+   *
+   * @return Media types.
    */
   String[] value();
 }

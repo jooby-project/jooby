@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Mock session.
+ */
 public class MockSession implements Session {
   private String sessionId;
 
@@ -21,12 +24,20 @@ public class MockSession implements Session {
   private boolean isNew;
   private boolean modified;
 
-  public MockSession(String sessionId) {
+  /**
+   * Creates a mock session.
+   *
+   * @param sessionId Session ID.
+   */
+  public MockSession(@Nonnull String sessionId) {
     this.sessionId = sessionId;
     this.creationTime = Instant.now();
     this.lastAccessedTime = Instant.now();
   }
 
+  /**
+   * Mock session with a random ID.
+   */
   public MockSession() {
     this(UUID.randomUUID().toString());
   }

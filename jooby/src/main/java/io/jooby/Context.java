@@ -699,6 +699,7 @@ public interface Context extends Registry {
    *
    * @param next Application code.
    * @return This context.
+   * @throws Exception When detach operation fails.
    */
   @Nonnull Context detach(@Nonnull Route.Handler next) throws Exception;
 

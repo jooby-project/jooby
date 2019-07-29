@@ -9,7 +9,6 @@ import io.jooby.internal.HashValue;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Formdata class for direct MVC parameter provisioning.
