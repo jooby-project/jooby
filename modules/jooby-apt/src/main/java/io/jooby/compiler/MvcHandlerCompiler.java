@@ -272,8 +272,8 @@ public class MvcHandlerCompiler {
   }
 
   public String getGeneratedClass() {
-    return getController().getName() + "$" + httpMethod.toUpperCase() + "$" + executable
-        .getSimpleName();
+    return getController().getName() + "$" + httpMethod.toUpperCase() + pattern
+        .replace('/', '_');
   }
 
   public String getGeneratedInternalClass() {

@@ -13,6 +13,7 @@ import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import javax.annotation.processing.Completion;
+import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
@@ -23,7 +24,10 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.JavaFileObject;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.HashMap;
@@ -76,6 +80,7 @@ public class MvcProcessor implements Processor {
         }
       }
     }
+    Filer filer = processingEnvironment.getFiler();
     Map<String, List<Map.Entry<String, MvcHandlerCompiler>>> classes = result.entrySet().stream()
         .collect(Collectors.groupingBy(e -> e.getValue().getController().getName()));
     for (Map.Entry<String, List<Map.Entry<String, MvcHandlerCompiler>>> entry : classes
@@ -83,9 +88,15 @@ public class MvcProcessor implements Processor {
       try {
         List<Map.Entry<String, MvcHandlerCompiler>> handlers = entry.getValue();
         MvcModuleCompiler module = new MvcModuleCompiler(entry.getKey());
-        modules.put(entry.getKey() + "$Module", module.compile(handlers));
+        String moduleClass = entry.getKey() + "$Module";
+        byte[] moduleBin = module.compile(handlers);
+        writeClass(filer.createClassFile(moduleClass), moduleBin);
+        modules.put(moduleClass, moduleBin);
         for (Map.Entry<String, MvcHandlerCompiler> handler : handlers) {
-          modules.put(handler.getValue().getGeneratedClass(), handler.getValue().compile());
+          String handleClass = handler.getValue().getGeneratedClass();
+          byte[] handleBin = handler.getValue().compile();
+          writeClass(filer.createClassFile(handleClass), handleBin);
+          modules.put(handleClass, handleBin);
         }
       } catch (Exception x) {
         x.printStackTrace();
@@ -93,6 +104,12 @@ public class MvcProcessor implements Processor {
     }
 
     return true;
+  }
+
+  private void writeClass(JavaFileObject javaFileObject, byte[] bytecode) throws IOException {
+    try (OutputStream output = javaFileObject.openOutputStream()) {
+      output.write(bytecode);
+    }
   }
 
   /*package*/ MvcHandlerCompiler compilerFor(String methodDescriptor) {
