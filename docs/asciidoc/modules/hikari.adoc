@@ -9,7 +9,7 @@ https://github.com/brettwooldridge/HikariCP[HikariCP] is a high-performance JDBC
 [dependency, artifactId="jooby-hikari"]
 .
 
-2) Add database driver (mySQL here):
+2) Add database driver (MySQL here):
 
 [dependency, artifactId="mysql-connector-java"]
 .
@@ -33,7 +33,7 @@ db.password = mypass
 import io.jooby.hikari.HikariModule;
 
 {
-  install(new Hikari());
+  install(new HikariModule());
 
   get("/", ctx -> {
     DataSource ds = require(DataSource.class);
@@ -48,7 +48,7 @@ import io.jooby.hikari.HikariModule;
 import io.jooby.hikari.HikariModule
 
 {
-  install(Hikari())
+  install(HikariModule())
   
   get("/") {
     val ds = require(DataSource::class)
@@ -69,7 +69,7 @@ database prefix:
 import io.jooby.hikari.HikariModule;
 
 {
-  install(new Hikari("mydb"));
+  install(new HikariModule("mydb"));
 }
 ----
 
@@ -79,7 +79,7 @@ import io.jooby.hikari.HikariModule;
 import io.jooby.hikari.HikariModule
 
 {
-  install(Hikari("mydb"))
+  install(HikariModule("mydb"))
 }
 ----
 
@@ -91,7 +91,7 @@ Configuration properties are optionally if the database driver support them from
 import io.jooby.hikari.HikariModule;
 
 {
-  install(new Hikari("jdbc:mysql://localhost/mydb"));
+  install(new HikariModule("jdbc:mysql://localhost/mydb"));
 }
 ----
 
@@ -101,13 +101,13 @@ import io.jooby.hikari.HikariModule;
 import io.jooby.hikari.HikariModule
 
 {
-  install(Hikari("jdbc:mysql://localhost/mydb"))
+  install(HikariModule("jdbc:mysql://localhost/mydb"))
 }
 ----
 
 === Special databases
 
-Modules comes with 3 special databases provided by https://github.com/h2database/h2database[H2 database]:
+HikariModule comes with 3 special databases provided by https://github.com/h2database/h2database[H2 database]:
 
 - `mem`  : setup an in-memory database
 - `local`: a file system database at `System.getProperty("user.dir")`
@@ -135,9 +135,9 @@ auditdb.password = mypass
 import io.jooby.hikari.HikariModule;
 
 {
-  install(new Hikari("maindb"));
+  install(new HikariModule("maindb"));
   
-  install(new Hikari("auditdb"));
+  install(new HikariModule("auditdb"));
 
 
   get("/", ctx -> {
@@ -154,9 +154,9 @@ import io.jooby.hikari.HikariModule;
 import io.jooby.hikari.HikariModule
 
 {
-  install(Hikari("maindb"))
+  install(HikariModule("maindb"))
  
-  install(Hikari("auditdb"))
+  install(HikariModule("auditdb"))
 
   get("/") {
     val maindb  = require(DataSource::class, "maindb")
