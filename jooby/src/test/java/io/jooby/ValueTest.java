@@ -217,8 +217,6 @@ public class ValueTest {
   public void verifyIllegalAccess() {
     /** Object: */
     queryString("foo=bar", queryString -> {
-      assertThrows(BadRequestException.class, () -> queryString.value());
-      assertThrows(BadRequestException.class, () -> queryString.value(""));
       assertThrows(MissingValueException.class, () -> queryString.get("a").get("a").get("a").value());
       assertThrows(MissingValueException.class, () -> queryString.get("missing").value());
       assertThrows(MissingValueException.class, () -> queryString.get(0).value());
@@ -304,8 +302,6 @@ public class ValueTest {
   public void toOptional() {
     /** Array: */
     queryString("a=1;a=2", queryString -> {
-      assertMessage(BadRequestException.class, () -> queryString.toOptional(),
-          "Cannot convert value: 'queryString', to: 'java.lang.String'");
       assertMessage(BadRequestException.class, () -> queryString.get("a").toOptional(),
           "Cannot convert value: 'a', to: 'java.lang.String'");
       assertEquals(Optional.of("1"), queryString.get("a").get(0).toOptional());
@@ -333,8 +329,6 @@ public class ValueTest {
   public void verifyExceptionMessage() {
     /** Object: */
     queryString("foo=bar", queryString -> {
-      assertMessage(BadRequestException.class, () -> queryString.value(),
-          "Cannot convert value: 'queryString', to: 'java.lang.String'");
       assertMessage(BadRequestException.class, () -> queryString.get("foo").intValue(),
           "Cannot convert value: 'foo', to: 'int'");
       assertMessage(BadRequestException.class, () -> queryString.get("foo").intValue(0),

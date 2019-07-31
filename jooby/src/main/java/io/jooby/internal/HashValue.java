@@ -5,6 +5,7 @@
  */
 package io.jooby.internal;
 
+import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
 import io.jooby.TypeMismatchException;
@@ -172,8 +173,20 @@ public class HashValue implements Value, Multipart {
   }
 
   @Override public String value() {
-    String name = name();
-    throw new TypeMismatchException(name == null ? objectType : name, String.class);
+    StringBuilder buf = new StringBuilder();
+    String sep = "&";
+    hash.forEach((k, v) -> {
+      Iterator<Value> it = v.iterator();
+      while (it.hasNext()) {
+        Value value = it.next();
+        String str = value instanceof FileUpload ? ((FileUpload) value).getFileName() : value.toString();
+        buf.append(k).append("=").append(str).append(sep);
+      }
+    });
+    if (buf.length() > 0) {
+      buf.setLength(buf.length() - sep.length());
+    }
+    return buf.toString();
   }
 
   public HashValue setObjectType(String type) {

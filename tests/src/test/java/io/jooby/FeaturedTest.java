@@ -2478,6 +2478,43 @@ public class FeaturedTest {
     });
   }
 
+  @Test
+  public void rawValue() {
+    new JoobyRunner(app -> {
+      app.post("/body", ctx -> {
+        return ctx.body().value();
+      });
+
+      app.post("/form", ctx -> {
+        return ctx.form().value();
+      });
+
+      app.post("/multipart", ctx -> {
+        return ctx.multipart().value();
+      });
+    }).ready(client -> {
+      client.post("/body", rsp -> {
+        assertEquals("", rsp.body().string());
+      });
+
+      client.post("/body", create("{\"foo\": \"bar\"}", json), rsp -> {
+        assertEquals("{\"foo\": \"bar\"}", rsp.body().string());
+      });
+
+      client.post("/form", new FormBody.Builder().add("a", "a b").add("c", "d").add("c", "e").build(), rsp -> {
+        assertEquals("a=a b&c=d&c=e", rsp.body().string());
+      });
+
+      client.post("/multipart", new MultipartBody.Builder()
+          .setType(MultipartBody.FORM)
+          .addFormDataPart("a", "b")
+          .addFormDataPart("f", "19kb.txt", create(_19kb, MediaType.parse("text/plain")))
+          .build(), rsp -> {
+        assertEquals("a=b&f=19kb.txt", rsp.body().string());
+      });
+    });
+  }
+
   private static String readText(Path file) {
     try {
       return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);

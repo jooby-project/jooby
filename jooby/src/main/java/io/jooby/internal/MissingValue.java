@@ -39,4 +39,8 @@ public class MissingValue implements Value {
   @Override public Map<String, List<String>> toMultimap() {
     return Collections.emptyMap();
   }
+
+  @Override public String toString() {
+    return "<missing>";
+  }
 }

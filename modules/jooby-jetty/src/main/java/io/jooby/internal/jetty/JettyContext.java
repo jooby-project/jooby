@@ -498,7 +498,12 @@ public class JettyContext implements Callback, DefaultContext {
     while (names.hasMoreElements()) {
       String name = names.nextElement();
       if (query == null || !query.containsKey(name)) {
-        form.put(name, request.getParameter(name));
+        String[] values = request.getParameterValues(name);
+        if (values != null) {
+          for (String value : values) {
+            form.put(name, value);
+          }
+        }
       }
     }
   }
