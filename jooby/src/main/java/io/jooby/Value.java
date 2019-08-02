@@ -237,7 +237,7 @@ public interface Value extends Iterable<Value> {
    *
    * @return Convert this value to String (if possible) or <code>null</code> when missing.
    */
-  @Nonnull default String valueOrNull() {
+  @Nullable default String valueOrNull() {
     return value((String) null);
   }
 
