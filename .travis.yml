@@ -9,8 +9,8 @@ before_install:
   - export MAVEN_OPTS=-Xmx1024m
 
 jdk:
-  - oraclejdk8
-  - oraclejdk9
+  - openjdk8
+  - openjdk9
   - openjdk10
   - openjdk11
   - openjdk12
