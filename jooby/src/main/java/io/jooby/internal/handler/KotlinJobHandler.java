@@ -22,8 +22,11 @@ public class KotlinJobHandler implements LinkedHandler {
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      Job result = (Job) next.apply(ctx);
-      result.invokeOnCompletion(x -> {
+      Object result = next.apply(ctx);
+      if (ctx.isResponseStarted()) {
+        return result;
+      }
+      ((Job) result).invokeOnCompletion(x -> {
         if (x != null) {
           ctx.sendError(x);
         } else {

@@ -52,6 +52,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import static io.jooby.ExecutionMode.EVENT_LOOP;
+import static io.jooby.ExecutionMode.WORKER;
 import static io.jooby.MediaType.text;
 import static io.jooby.MediaType.xml;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -122,7 +124,7 @@ public class FeaturedTest {
       app.dispatch(() -> {
         app.get("/worker", ctx -> "Hello World!");
       });
-    }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
+    }).mode(EVENT_LOOP).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
@@ -175,7 +177,7 @@ public class FeaturedTest {
       app.dispatch(() -> {
         app.get("/worker", ctx -> "Hello World!");
       });
-    }).mode(ExecutionMode.WORKER).ready(client -> {
+    }).mode(WORKER).ready(client -> {
       client.get("/?foo=bar", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
         assertEquals(200, rsp.code());
@@ -517,7 +519,7 @@ public class FeaturedTest {
   public void form() {
     new JoobyRunner(app -> {
       app.post("/", ctx -> ctx.form());
-    }).mode(ExecutionMode.EVENT_LOOP, ExecutionMode.WORKER).ready(client -> {
+    }).mode(EVENT_LOOP, WORKER).ready(client -> {
       client.post("/", new FormBody.Builder()
           .add("q", "a b")
           .add("user.name", "user")
@@ -658,7 +660,7 @@ public class FeaturedTest {
         });
       });
 
-    }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
+    }).mode(EVENT_LOOP).ready(client -> {
       client.get("/", rsp -> {
         assertEquals("before1:false;before2:false;result:false;after2:false;after1:false;",
             rsp.body().string());
@@ -712,7 +714,7 @@ public class FeaturedTest {
         assertEquals("[3,4,1]", rsp.body().string());
       });
 
-      client.post("/str", create(_19kb,   textplain), rsp -> {
+      client.post("/str", create(_19kb, textplain), rsp -> {
         String value = rsp.body().string();
         assertEquals(_19kb, value,
             server.getClass().getSimpleName() + " expected: " + _19kb.length() + ", got: " + value
@@ -2471,7 +2473,7 @@ public class FeaturedTest {
         });
         return ctx;
       });
-    }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
+    }).mode(EVENT_LOOP).ready(client -> {
       client.get("/detach", rsp -> {
         assertEquals("/detach", rsp.body().string().trim());
       });
@@ -2501,9 +2503,11 @@ public class FeaturedTest {
         assertEquals("{\"foo\": \"bar\"}", rsp.body().string());
       });
 
-      client.post("/form", new FormBody.Builder().add("a", "a b").add("c", "d").add("c", "e").build(), rsp -> {
-        assertEquals("a=a b&c=d&c=e", rsp.body().string());
-      });
+      client
+          .post("/form", new FormBody.Builder().add("a", "a b").add("c", "d").add("c", "e").build(),
+              rsp -> {
+                assertEquals("a=a b&c=d&c=e", rsp.body().string());
+              });
 
       client.post("/multipart", new MultipartBody.Builder()
           .setType(MultipartBody.FORM)
@@ -2511,6 +2515,71 @@ public class FeaturedTest {
           .addFormDataPart("f", "19kb.txt", create(_19kb, MediaType.parse("text/plain")))
           .build(), rsp -> {
         assertEquals("a=b&f=19kb.txt", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
+  public void sendByteArray() {
+    new JoobyRunner(app -> {
+      app.get("/bytes", ctx -> {
+        return ctx.pathString().getBytes(StandardCharsets.UTF_8);
+      });
+      app.get("/inline", ctx -> {
+        return new byte[]{(byte) 'h', (byte) 'e'};
+      });
+    }).mode(EVENT_LOOP, WORKER).ready(client -> {
+      client.get("/bytes", rsp -> {
+        assertEquals("/bytes", rsp.body().string());
+      });
+      client.get("/inline", rsp -> {
+        assertEquals("he", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
+  public void sideEffectVsFunctional() {
+    new JoobyRunner(app -> {
+      app.get("/string", ctx -> {
+        ctx.send("side-effects");
+        return "ignored";
+      });
+
+      app.get("/bytes", ctx -> {
+        ctx.send("side-effects");
+        return new byte[]{1, 3, 4};
+      });
+
+      app.get("/code", ctx -> {
+        ctx.send(StatusCode.CREATED);
+        return "ignored";
+      });
+
+      app.before(ctx -> {
+        ctx.send(StatusCode.CREATED);
+      });
+
+      app.get("/filter", ctx -> {
+        throw new IllegalStateException("Should never gets here");
+      });
+    }).mode(EVENT_LOOP, WORKER).ready(client -> {
+      client.get("/string", rsp -> {
+        assertEquals("side-effects", rsp.body().string());
+      });
+
+      client.get("/bytes", rsp -> {
+        assertEquals("side-effects", rsp.body().string());
+      });
+
+      client.get("/code", rsp -> {
+        assertEquals("", rsp.body().string());
+        assertEquals(StatusCode.CREATED.value(), rsp.code());
+      });
+
+      client.get("/filter", rsp -> {
+        assertEquals("", rsp.body().string());
+        assertEquals(StatusCode.CREATED.value(), rsp.code());
       });
     });
   }

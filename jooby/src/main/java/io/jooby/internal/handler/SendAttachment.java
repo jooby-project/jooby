@@ -20,8 +20,11 @@ public class SendAttachment implements LinkedHandler {
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      AttachedFile file = (AttachedFile) next.apply(ctx);
-      return ctx.send(file);
+      Object result = next.apply(ctx);
+      if (ctx.isResponseStarted()) {
+        return result;
+      }
+      return ctx.send(((AttachedFile) result));
     } catch (Throwable x) {
       return ctx.sendError(x);
     }

@@ -30,6 +30,9 @@ public class TypeParser {
   }
 
   public Type commonAncestor(Set<Type> types) {
+    if (types.size() == 0) {
+      return Object.class;
+    }
     if (types.size() == 1) {
       return types.iterator().next();
     }

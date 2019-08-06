@@ -22,16 +22,19 @@ public class CompletionStageHandler implements LinkedHandler {
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      CompletionStage result = (CompletionStage) next.apply(ctx);
-      return result.whenComplete((value, x) -> {
+      Object result = next.apply(ctx);
+      if (ctx.isResponseStarted()) {
+        return result;
+      }
+      return ((CompletionStage) result).whenComplete((value, x) -> {
         try {
           if (x != null) {
             ctx.sendError((Throwable) x);
           } else {
             ctx.render(value);
           }
-        } catch (Throwable newx) {
-          ctx.sendError(newx);
+        } catch (Throwable cause) {
+          ctx.sendError(cause);
         }
       });
     } catch (Throwable x) {

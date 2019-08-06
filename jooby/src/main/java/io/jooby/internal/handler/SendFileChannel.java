@@ -26,19 +26,22 @@ public class SendFileChannel implements LinkedHandler {
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
-      Object file = next.apply(ctx);
-      if (file instanceof File) {
-        file = ((File) file).toPath();
+      Object result = next.apply(ctx);
+      if (ctx.isResponseStarted()) {
+        return result;
       }
-      if (file instanceof Path) {
-        if (Files.exists((Path) file)) {
-          ctx.setDefaultResponseType(MediaType.byFile((Path) file));
-          file = FileChannel.open((Path) file, StandardOpenOption.READ);
+      if (result instanceof File) {
+        result = ((File) result).toPath();
+      }
+      if (result instanceof Path) {
+        if (Files.exists((Path) result)) {
+          ctx.setDefaultResponseType(MediaType.byFile((Path) result));
+          result = FileChannel.open((Path) result, StandardOpenOption.READ);
         } else {
-          throw new FileNotFoundException(file.toString());
+          throw new FileNotFoundException(result.toString());
         }
       }
-      return ctx.send((FileChannel) file);
+      return ctx.send((FileChannel) result);
     } catch (Throwable x) {
       return ctx.sendError(x);
     }

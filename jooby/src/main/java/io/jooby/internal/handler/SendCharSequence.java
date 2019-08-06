@@ -20,6 +20,9 @@ public class SendCharSequence implements LinkedHandler {
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
       Object result = next.apply(ctx);
+      if (ctx.isResponseStarted()) {
+        return result;
+      }
       return ctx.send(result.toString());
     } catch (Throwable x) {
       return ctx.sendError(x);

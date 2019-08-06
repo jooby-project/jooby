@@ -21,6 +21,9 @@ public class DefaultHandler implements LinkedHandler {
   @Nonnull @Override public Object apply(@Nonnull Context ctx) {
     try {
       Object result = next.apply(ctx);
+      if (ctx.isResponseStarted()) {
+        return result;
+      }
       ctx.render(result);
       return result;
     } catch (Throwable x) {
