@@ -55,6 +55,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 import static io.undertow.server.handlers.form.FormDataParser.FORM_DATA;
+import static io.undertow.util.Headers.CONTENT_LENGTH;
 import static io.undertow.util.Headers.CONTENT_TYPE;
 import static io.undertow.util.Headers.RANGE;
 import static io.undertow.util.Headers.SET_COOKIE;
@@ -70,7 +71,7 @@ public class UtowContext implements DefaultContext, IoCallback {
   private Multipart multipart;
   private Value headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
-  private Map<String, Object> attributes = new HashMap<>();
+  private Map<String, Object> attributes;
   Body body;
   private MediaType responseType;
   private Map<String, String> cookies;
@@ -106,6 +107,9 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Nonnull @Override public Map<String, Object> getAttributes() {
+    if (attributes == null) {
+      attributes = new HashMap<>();
+    }
     return attributes;
   }
 
@@ -259,7 +263,7 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Nonnull @Override public Context setResponseLength(long length) {
-    exchange.setResponseContentLength(length);
+    exchange.getResponseHeaders().put(CONTENT_LENGTH, Long.toString(length));
     return this;
   }
 
@@ -313,8 +317,8 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
-    exchange.setResponseContentLength(data.remaining());
-    exchange.getResponseSender().send(new ByteBuffer[]{data}, this);
+    exchange.getResponseHeaders().put(Headers.CONTENT_LENGTH, Long.toString(data.remaining()));
+    exchange.getResponseSender().send(data, this);
     return this;
   }
 
@@ -377,10 +381,12 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   private void ifSaveSession() {
-    Session session = (Session) getAttributes().get(Session.NAME);
-    if (session != null && (session.isNew() || session.isModify())) {
-      SessionStore store = getRouter().getSessionOptions().getStore();
-      store.save(session);
+    if (attributes != null) {
+      Session session = (Session) attributes.get(Session.NAME);
+      if (session != null && (session.isNew() || session.isModify())) {
+        SessionStore store = getRouter().getSessionOptions().getStore();
+        store.save(session);
+      }
     }
   }
 

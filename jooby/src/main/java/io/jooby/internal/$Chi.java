@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 class $Chi implements RadixTree {
@@ -22,30 +21,6 @@ class $Chi implements RadixTree {
   private static final int ntRegexp = 1;                // /{id:[0-9]+}
   private static final int ntParam = 2;                // /{user}
   private static final int ntCatchAll = 3;               // /api/v1/*
-
-  private static class StaticKey {
-    private String method;
-    private String pattern;
-
-    public StaticKey(String method, String pattern) {
-      this.method = method;
-      this.pattern = pattern;
-    }
-
-    @Override public boolean equals(Object that) {
-      if (this == that) {
-        return true;
-      } else {
-        StaticKey staticKey = (StaticKey) that;
-        return method.equals(staticKey.method) &&
-            pattern.equals(staticKey.pattern);
-      }
-    }
-
-    @Override public int hashCode() {
-      return Objects.hash(method, pattern);
-    }
-  }
 
   static class Segment {
     int nodeType;
@@ -628,7 +603,7 @@ class $Chi implements RadixTree {
   private Node root = new Node();
 
   /** Not need to use a concurrent map, due we don't allow to add routes after application started. */
-  private Map<StaticKey, Route> staticPaths = new HashMap<>();
+  private Map<Object, Route> staticPaths = new HashMap<>();
 
   public void insert(String method, String pattern, Route route) {
     String baseCatchAll = baseCatchAll(pattern);
@@ -642,7 +617,7 @@ class $Chi implements RadixTree {
       pattern = "/*";
     }
     if (Router.pathKeys(pattern).isEmpty()) {
-      staticPaths.put(new StaticKey(method, pattern), route);
+      staticPaths.put(method + pattern, route);
     }
     root.insertRoute(method, pattern, route);
   }
@@ -663,28 +638,32 @@ class $Chi implements RadixTree {
     root.destroy();
   }
 
+  public RouterMatch find(Context context, MessageEncoder encoder,
+      List<RadixTree> more) {
+    return find(context, context.pathString(), encoder, more);
+  }
+
   public RouterMatch find(Context context, String path, MessageEncoder encoder,
       List<RadixTree> more) {
     String method = context.getMethod();
     RouterMatch result = new RouterMatch();
-    Route route = staticPaths.get(new StaticKey(method, path));
-    if (route != null) {
-      return result.found(route);
-    }
-    // use radix tree
-    route = root.findRoute(result, method, path);
-    if (route != null) {
-      return result.found(route);
-    }
-    if (more != null) {
-      // expand search
-      for (RadixTree tree : more) {
-        RouterMatch match = tree.find(context, path, encoder, null);
-        if (match.matches) {
-          return match;
+    Route route = staticPaths.get(method + path);
+    if (route == null) {
+      // use radix tree
+      route = root.findRoute(result, method, path);
+      if (route == null) {
+        if (more != null) {
+          // expand search
+          for (RadixTree tree : more) {
+            RouterMatch match = tree.find(context, path, encoder, null);
+            if (match.matches) {
+              return match;
+            }
+          }
         }
+        return result.missing(method, path, encoder);
       }
     }
-    return result.missing(method, path, encoder);
+    return result.found(route);
   }
 }

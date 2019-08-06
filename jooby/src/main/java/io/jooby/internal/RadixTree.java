@@ -18,10 +18,6 @@ interface RadixTree {
 
   RouterMatch find(Context context, String path, MessageEncoder encoder, List<RadixTree> more);
 
-  default RouterMatch find(Context context, MessageEncoder encoder, List<RadixTree> more) {
-    return find(context, context.pathString(), encoder, more);
-  }
-
   default RadixTree with(Predicate<Context> predicate) {
     return new RadixTree() {
       @Override public void insert(String method, String pattern, Route route) {
@@ -35,7 +31,7 @@ interface RadixTree {
           return new RouterMatch()
               .missing(context.getMethod(), context.pathString(), encoder);
         }
-        return RadixTree.this.find(context, encoder, more);
+        return RadixTree.this.find(context, path, encoder, more);
       }
 
       @Override public void destroy() {

@@ -452,7 +452,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Match match(@Nonnull Context ctx) {
-    return chi.find(ctx, renderer, trees);
+    return chi.find(ctx, ctx.pathString(), renderer, trees);
   }
 
   @Nonnull @Override public Router errorCode(@Nonnull Class<? extends Throwable> type,
