@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class RouterMatch implements Router.Match {
 
@@ -42,8 +44,13 @@ public class RouterMatch implements Router.Match {
     vars.remove(vars.size() - 1);
   }
 
-  public void methodNotAllowed() {
-    handler = Route.METHOD_NOT_ALLOWED;
+  public void methodNotAllowed(Set<String> allow) {
+    String allowString = allow.stream().collect(Collectors.joining(","));
+    Route.Decorator decorator = next -> ctx -> {
+      ctx.setResponseHeader("Allow", allowString);
+      return next.apply(ctx);
+    };
+    handler = decorator.then(Route.METHOD_NOT_ALLOWED);
   }
 
   @Override public boolean matches() {

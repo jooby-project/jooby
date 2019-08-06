@@ -419,7 +419,7 @@ class $Chi implements RadixTree {
 
             // flag that the routing context found a route, but not a corresponding
             // supported method
-            rctx.methodNotAllowed();
+            rctx.methodNotAllowed(xn.endpoints.keySet());
           }
         }
 

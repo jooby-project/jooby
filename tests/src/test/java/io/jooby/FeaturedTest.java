@@ -40,16 +40,20 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
 import static io.jooby.ExecutionMode.EVENT_LOOP;
@@ -1288,6 +1292,7 @@ public class FeaturedTest {
     }).ready(client -> {
       client.get("/method", rsp -> {
         assertEquals(StatusCode.METHOD_NOT_ALLOWED.value(), rsp.code());
+        assertEquals("POST", rsp.header("Allow"));
       });
     });
   }
@@ -2633,6 +2638,32 @@ public class FeaturedTest {
       //          .header("Access-Control-Allow-Credentials", true)
       //          .header("Access-Control-Max-Age", 1800);
 
+    });
+  }
+
+  @Test
+  public void options() {
+    new JoobyRunner(app -> {
+
+      app.get("/foo", Context::pathString);
+
+      app.post("/foo", Context::pathString);
+
+      app.get("/foo/{id}", Context::pathString);
+
+      app.patch("/foo/{id}", Context::pathString);
+    }).ready(client -> {
+      Function<String, Set<String>> toSet = value -> Stream.of(value.split("\\s*,\\s*")).collect(
+          Collectors.toSet());
+      client.options("/foo", rsp -> {
+        assertEquals(new HashSet<>(Arrays.asList("GET", "POST")),  toSet.apply(rsp.header("Allow")));
+        assertEquals(StatusCode.OK.value(), rsp.code());
+      });
+
+      client.options("/foo/1", rsp -> {
+        assertEquals(new HashSet<>(Arrays.asList("GET", "PATCH")),  toSet.apply(rsp.header("Allow")));
+        assertEquals(StatusCode.OK.value(), rsp.code());
+      });
     });
   }
 

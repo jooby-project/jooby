@@ -53,6 +53,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -345,8 +346,10 @@ public class RouterImpl implements Router {
         .reduce(null, (it, next) -> it == null ? next : it.then(next));
 
     /** Decorator: */
-    Route.Decorator decorator = stack.stream()
+    List<Route.Decorator> decoratorList = stack.stream()
         .flatMap(Stack::toDecorator)
+        .collect(Collectors.toList());
+    Route.Decorator decorator = decoratorList.stream()
         .reduce(null, (it, next) -> it == null ? next : it.then(next));
 
     /** After: */
@@ -364,6 +367,9 @@ public class RouterImpl implements Router {
     route.setEncoder(renderer);
     route.setDecoders(parsers);
 
+    decoratorList.forEach(it -> it.setRoute(route));
+    handler.setRoute(route);
+
     Stack stack = this.stack.peekLast();
     if (stack.executor != null) {
       routeExecutor.put(route, stack.executor);
@@ -371,14 +377,12 @@ public class RouterImpl implements Router {
     String routePattern = normalizePath(basePath == null
         ? safePattern
         : basePath + safePattern, false, true);
-    if (method.equals("*")) {
-      METHODS.forEach(m -> tree.insert(m, routePattern, route));
-    } else {
-      tree.insert(route.getMethod(), routePattern, route);
+    tree.insert(route.getMethod(), routePattern, route);
+    if (route.isHttpOptions()) {
+      tree.insert(Router.OPTIONS, routePattern, route);
     }
     routes.add(route);
 
-    handler.setRoute(route);
     return route;
   }
 
@@ -444,7 +448,6 @@ public class RouterImpl implements Router {
       this.trees.clear();
       this.trees = null;
     }
-    // NOOP
   }
 
   @Nonnull @Override public ErrorHandler getErrorHandler() {
