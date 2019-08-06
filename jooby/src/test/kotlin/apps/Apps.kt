@@ -8,7 +8,6 @@ import kotlinx.coroutines.delay
 /** Class version: */
 class App : Kooby({
 
-
   coroutine {
     get { "Hi Kotlin!" }
 

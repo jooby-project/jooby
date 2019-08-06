@@ -2,8 +2,7 @@ package io.jooby;
 
 import com.typesafe.config.Config;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +29,7 @@ import static java.util.Objects.requireNonNull;
  *
  * <pre>
  * {
- *   use("*", new CorsHandler(new Cors()));
+ *   before(new Cors());
  * }
  * </pre>
  *
@@ -39,7 +38,7 @@ import static java.util.Objects.requireNonNull;
  * </p>
  *
  * @author edgar
- * @since 0.8.0
+ * @since 2.0.4
  */
 public class Cors {
 
@@ -62,47 +61,22 @@ public class Cors {
       return predicate.test(value);
     }
 
+    @Override public String toString() {
+      return values.toString();
+    }
   }
-
-  private boolean enabled;
 
   private Matcher<String> origin;
 
   private boolean credentials;
 
-  private Matcher<String> requestMehods;
+  private Matcher<String> methods;
 
-  private Matcher<List<String>> requestHeaders;
+  private Matcher<List<String>> headers;
 
-  private int maxAge;
+  private Duration maxAge;
 
   private List<String> exposedHeaders;
-
-  /**
-   * Creates {@link Cors} options from {@link Config}:
-   *
-   * <pre>
-   *  origin: "*"
-   *  credentials: true
-   *  allowedMethods: [GET, POST]
-   *  allowedHeaders: [X-Requested-With, Content-Type, Accept, Origin]
-   *  exposedHeaders: []
-   * </pre>
-   *
-   * @param config Config to use.
-   */
-  public Cors(@Named("cors") final Config config) {
-    requireNonNull(config, "Config is required.");
-    this.enabled = config.hasPath("enabled") ? config.getBoolean("enabled") : true;
-    withOrigin(list(config.getAnyRef("origin")));
-    this.credentials = config.getBoolean("credentials");
-    withMethods(list(config.getAnyRef("allowedMethods")));
-    withHeaders(list(config.getAnyRef("allowedHeaders")));
-    withMaxAge((int) config.getDuration("maxAge", TimeUnit.SECONDS));
-    withExposedHeaders(config.hasPath("exposedHeaders")
-        ? list(config.getAnyRef("exposedHeaders"))
-        : Collections.emptyList());
-  }
 
   /**
    * Creates default {@link Cors}. Default options are:
@@ -112,55 +86,31 @@ public class Cors {
    *  credentials: true
    *  allowedMethods: [GET, POST]
    *  allowedHeaders: [X-Requested-With, Content-Type, Accept, Origin]
+   *  maxAge: 30m
    *  exposedHeaders: []
    * </pre>
    */
   public Cors() {
-    this.enabled = true;
-    withOrigin("*");
-    credentials = true;
-    withMethods("GET", "POST");
-    withHeaders("X-Requested-With", "Content-Type", "Accept", "Origin");
-    withMaxAge(1800);
-    withExposedHeaders();
+    setOrigin("*");
+    setUseCredentials(true);
+    setMethods("GET", "POST");
+    setHeaders("X-Requested-With", "Content-Type", "Accept", "Origin");
+    setMaxAge(Duration.ofMinutes(30));
+    setExposedHeaders();
   }
 
   /**
-   * Set {@link #credentials()} to false.
-   *
-   * @return This cors.
-   */
-  public Cors withoutCreds() {
-    this.credentials = false;
-    return this;
-  }
-
-  /**
-   * @return True, if cors is enabled. Controlled by: <code>cors.enabled</code> property. Default
-   *         is: <code>true</code>.
-   */
-  public boolean enabled() {
-    return enabled;
-  }
-
-  /**
-   * Disabled cors (enabled = false).
-   *
-   * @return This cors.
-   */
-  public Cors disabled() {
-    enabled = false;
-    return this;
-  }
-
-  /**
-   * If true, set the <code>Access-Control-Allow-Credentials</code> header. Controlled by:
-   * <code>cors.credentials</code> property. Default is: <code>true</code>
+   * If true, set the <code>Access-Control-Allow-Credentials</code> header.
    *
    * @return If the <code>Access-Control-Allow-Credentials</code> header must be set.
    */
-  public boolean credentials() {
+  public boolean getUseCredentials() {
     return this.credentials;
+  }
+
+  public Cors setUseCredentials(boolean credentials) {
+    this.credentials = credentials;
+    return this;
   }
 
   /**
@@ -176,7 +126,7 @@ public class Cors {
    *
    * @return List of valid origins: Default is: <code>*</code>
    */
-  public List<String> origin() {
+  public List<String> getOrigin() {
     return origin.values;
   }
 
@@ -197,8 +147,8 @@ public class Cors {
    * @param origin One ore more origin.
    * @return This cors.
    */
-  public Cors withOrigin(final String... origin) {
-    return withOrigin(Arrays.asList(origin));
+  public Cors setOrigin(final String... origin) {
+    return setOrigin(Arrays.asList(origin));
   }
 
   /**
@@ -208,7 +158,7 @@ public class Cors {
    * @param origin One ore more origin.
    * @return This cors.
    */
-  public Cors withOrigin(final List<String> origin) {
+  public Cors setOrigin(final List<String> origin) {
     this.origin = firstMatch(requireNonNull(origin, "Origins are required."));
     return this;
   }
@@ -220,14 +170,14 @@ public class Cors {
    * @return True if the method is allowed.
    */
   public boolean allowMethod(final String method) {
-    return this.requestMehods.test(method);
+    return this.methods.test(method);
   }
 
   /**
    * @return List of allowed methods.
    */
-  public List<String> allowedMethods() {
-    return requestMehods.values;
+  public List<String> getMethods() {
+    return methods.values;
   }
 
   /**
@@ -236,8 +186,8 @@ public class Cors {
    * @param methods One or more method.
    * @return This cors.
    */
-  public Cors withMethods(final String... methods) {
-    return withMethods(Arrays.asList(methods));
+  public Cors setMethods(final String... methods) {
+    return setMethods(Arrays.asList(methods));
   }
 
   /**
@@ -246,8 +196,8 @@ public class Cors {
    * @param methods One or more method.
    * @return This cors.
    */
-  public Cors withMethods(final List<String> methods) {
-    this.requestMehods = firstMatch(methods);
+  public Cors setMethods(final List<String> methods) {
+    this.methods = firstMatch(methods);
     return this;
   }
 
@@ -255,7 +205,7 @@ public class Cors {
    * @return True if any header is allowed: <code>*</code>.
    */
   public boolean anyHeader() {
-    return requestHeaders.wild;
+    return headers.wild;
   }
 
   /**
@@ -275,15 +225,15 @@ public class Cors {
    * @return True if all the headers are allowed.
    */
   public boolean allowHeaders(final List<String> headers) {
-    return this.requestHeaders.test(headers);
+    return this.headers.test(headers);
   }
 
   /**
    * @return List of allowed headers. Default are: <code>X-Requested-With</code>,
    *         <code>Content-Type</code>, <code>Accept</code> and <code>Origin</code>.
    */
-  public List<String> allowedHeaders() {
-    return requestHeaders.values;
+  public List<String> getHeaders() {
+    return headers.values;
   }
 
   /**
@@ -293,8 +243,8 @@ public class Cors {
    * @param headers Headers to set.
    * @return This cors.
    */
-  public Cors withHeaders(final String... headers) {
-    return withHeaders(Arrays.asList(headers));
+  public Cors setHeaders(final String... headers) {
+    return setHeaders(Arrays.asList(headers));
   }
 
   /**
@@ -304,15 +254,15 @@ public class Cors {
    * @param headers Headers to set.
    * @return This cors.
    */
-  public Cors withHeaders(final List<String> headers) {
-    this.requestHeaders = allMatch(headers);
+  public Cors setHeaders(final List<String> headers) {
+    this.headers = allMatch(headers);
     return this;
   }
 
   /**
    * @return List of exposed headers.
    */
-  public List<String> exposedHeaders() {
+  public List<String> getExposedHeaders() {
     return exposedHeaders;
   }
 
@@ -322,8 +272,8 @@ public class Cors {
    * @param exposedHeaders Headers to expose.
    * @return This cors.
    */
-  public Cors withExposedHeaders(final String... exposedHeaders) {
-    return withExposedHeaders(Arrays.asList(exposedHeaders));
+  public Cors setExposedHeaders(final String... exposedHeaders) {
+    return setExposedHeaders(Arrays.asList(exposedHeaders));
   }
 
   /**
@@ -332,7 +282,7 @@ public class Cors {
    * @param exposedHeaders Headers to expose.
    * @return This cors.
    */
-  public Cors withExposedHeaders(final List<String> exposedHeaders) {
+  public Cors setExposedHeaders(final List<String> exposedHeaders) {
     this.exposedHeaders = requireNonNull(exposedHeaders, "Exposed headers are required.");
     return this;
   }
@@ -340,7 +290,7 @@ public class Cors {
   /**
    * @return Preflight max age. How many seconds a client can cache a preflight request.
    */
-  public int maxAge() {
+  public Duration getMaxAge() {
     return maxAge;
   }
 
@@ -351,13 +301,37 @@ public class Cors {
    * @param preflightMaxAge Number of seconds or <code>-1</code> to turn this off.
    * @return This cors.
    */
-  public Cors withMaxAge(final int preflightMaxAge) {
+  public Cors setMaxAge(final Duration preflightMaxAge) {
     this.maxAge = preflightMaxAge;
     return this;
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
-  private List<String> list(final Object value) {
+  public static Cors from(Config conf) {
+    Config cors = conf.hasPath("cors") ? conf.getConfig("cors") : conf;
+    Cors options = new Cors();
+    if (cors.hasPath("origin")) {
+      options.setOrigin(list(cors.getAnyRef("origin")));
+    }
+    if (cors.hasPath("credentials")) {
+      options.setUseCredentials(cors.getBoolean("credentials"));
+    }
+    if (cors.hasPath("methods")) {
+      options.setMethods(list(cors.getAnyRef("methods")));
+    }
+    if (cors.hasPath("headers")) {
+      options.setHeaders(list(cors.getAnyRef("headers")));
+    }
+    if (cors.hasPath("maxAge")) {
+      options.setMaxAge(Duration.ofSeconds(cors.getDuration("maxAge", TimeUnit.SECONDS)));
+    }
+    if (cors.hasPath("exposedHeaders")) {
+      options.setExposedHeaders(list(cors.getAnyRef("exposedHeaders")));
+    }
+    return options;
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static List<String> list(final Object value) {
     return value instanceof List ? (List) value : Collections.singletonList(value.toString());
   }
 

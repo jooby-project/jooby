@@ -87,6 +87,16 @@ public class WebClient {
     get(path).execute(callback);
   }
 
+  public Request options(String path) {
+    return invoke("OPTIONS", path, null);
+  }
+
+  public void options(String path, SneakyThrows.Consumer<Response> callback) {
+    options(path).execute(callback);
+  }
+
+
+
   public Request post(String path) {
     return post(path, EMPTY_BODY);
   }

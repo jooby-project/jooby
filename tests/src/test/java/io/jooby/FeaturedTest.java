@@ -2584,6 +2584,58 @@ public class FeaturedTest {
     });
   }
 
+  @Test
+  public void cors() {
+    new JoobyRunner(app -> {
+      app.before(new CorsHandler());
+
+      app.get("/greeting", ctx -> "Hello " + ctx.query("name").value("World") + "!");
+    }).ready(client -> {
+      client.header("Origin", "http://foo.com").get("/greeting", rsp -> {
+        assertEquals("Hello World!", rsp.body().string());
+        assertEquals("http://foo.com", rsp.header("Access-Control-Allow-Origin"));
+        assertEquals("true", rsp.header("Access-Control-Allow-Credentials"));
+      });
+
+      client.get("/greeting", rsp -> {
+        assertEquals("Hello World!", rsp.body().string());
+        assertEquals(null, rsp.header("Access-Control-Allow-Origin"));
+        assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
+      });
+
+      /** null chrome local file: */
+      client.header("Origin", "null").get("/greeting", rsp -> {
+        assertEquals("Hello World!", rsp.body().string());
+        assertEquals("*", rsp.header("Access-Control-Allow-Origin"));
+        assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
+      });
+
+      // FIGURE IT OUT OPTIONS method:
+      client
+          .header("Origin", "http://foo.com")
+          .header("Access-Control-Request-Method", "GET")
+          .options("/greeting", rsp -> {
+            assertEquals("", rsp.body().string());
+            assertEquals(200, rsp.code());
+            assertEquals("*", rsp.header("Access-Control-Allow-Origin"));
+            assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
+          });
+
+      //      request()
+      //          .options("/greeting")
+      //          .header("Origin", "http://foo.com")
+      //          .header("Access-Control-Request-Method", "GET")
+      //          .expect("")
+      //          .expect(200)
+      //          .header("Access-Control-Allow-Origin", "http://foo.com")
+      //          .header("Access-Control-Allow-Methods", "GET,POST")
+      //          .header("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Accept,Origin")
+      //          .header("Access-Control-Allow-Credentials", true)
+      //          .header("Access-Control-Max-Age", 1800);
+
+    });
+  }
+
   private static String readText(Path file) {
     try {
       return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);

@@ -1,11 +1,8 @@
 package io.jooby;
 
-import static java.util.Objects.requireNonNull;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -45,44 +42,48 @@ public class CorsHandler implements Route.Before {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(Cors.class);
 
-  private final Cors cors;
+  private final Cors options;
 
   /**
    * Creates a new {@link CorsHandler}.
    *
-   * @param cors Cors options, or empty for using default options.
+   * @param options Cors options, or empty for using default options.
    */
-  public CorsHandler(@Nonnull final Cors cors) {
-    this.cors = cors;
+  public CorsHandler(@Nonnull final Cors options) {
+    this.options = options;
+  }
+
+  public CorsHandler() {
+    this(new Cors());
   }
 
   @Override public void apply(@Nonnull Context ctx) throws Exception {
-    Optional<String> origin = ctx.header("Origin").toOptional();
-    if (cors.enabled() && origin.isPresent()) {
-      cors(cors, ctx, origin.get());
+    Value origin = ctx.header("Origin");
+    if (!origin.isMissing()) {
+      cors(options, ctx, origin.value());
     }
   }
 
-  private void cors(final Cors cors, final Context ctx, final String origin) throws Exception {
-    if (cors.allowOrigin(origin)) {
+  private void cors(final Cors options, final Context ctx, final String origin) throws Exception {
+    if (options.allowOrigin(origin)) {
       log.debug("allowed origin: {}", origin);
       if (preflight(ctx)) {
         log.debug("handling preflight for: {}", origin);
-        preflight(cors, ctx, origin);
+        preflight(options, ctx, origin);
       } else {
-        log.debug("handling simple cors for: {}", origin);
+        log.debug("handling simple options for: {}", origin);
         if ("null".equals(origin)) {
           ctx.setResponseHeader(AC_ALLOW_ORIGIN, ANY_ORIGIN);
         } else {
           ctx.setResponseHeader(AC_ALLOW_ORIGIN, origin);
-          if (!cors.anyOrigin()) {
+          if (!options.anyHeader()) {
             ctx.setResponseHeader("Vary", ORIGIN);
           }
-          if (cors.credentials()) {
+          if (options.getUseCredentials()) {
             ctx.setResponseHeader(AC_ALLOW_CREDENTIALS, true);
           }
-          if (!cors.exposedHeaders().isEmpty()) {
-            ctx.setResponseHeader(AC_EXPOSE_HEADERS, cors.exposedHeaders().stream().collect(Collectors.joining()));
+          if (!options.getExposedHeaders().isEmpty()) {
+            ctx.setResponseHeader(AC_EXPOSE_HEADERS, options.getExposedHeaders().stream().collect(Collectors.joining()));
           }
         }
       }
@@ -94,12 +95,12 @@ public class CorsHandler implements Route.Before {
         .isMissing();
   }
 
-  private void preflight(final Cors cors, final Context ctx, final String origin) {
+  private void preflight(final Cors options, final Context ctx, final String origin) {
     /**
      * Allowed method
      */
     boolean allowMethod = ctx.header(AC_REQUEST_METHOD).toOptional()
-        .map(cors::allowMethod)
+        .map(options::allowMethod)
         .orElse(false);
     if (!allowMethod) {
       return;
@@ -111,7 +112,7 @@ public class CorsHandler implements Route.Before {
     List<String> headers = ctx.header(AC_REQUEST_HEADERS).toOptional().map(header ->
         Arrays.asList(header.split("\\s*,\\s*"))
     ).orElse(Collections.emptyList());
-    if (!cors.allowHeaders(headers)) {
+    if (!options.allowHeaders(headers)) {
       return;
     }
 
@@ -119,26 +120,27 @@ public class CorsHandler implements Route.Before {
      * Allowed methods
      */
     ctx.setResponseHeader(AC_ALLOW_METHODS,
-        cors.allowedMethods().stream().collect(Collectors.joining(",")));
+        options.getMethods().stream().collect(Collectors.joining(",")));
 
-    List<String> allowedHeaders = cors.anyHeader() ? headers : cors.allowedHeaders();
+    List<String> allowedHeaders = options.anyHeader() ? headers : options.getHeaders();
     ctx.setResponseHeader(AC_ALLOW_HEADERS,
         allowedHeaders.stream().collect(Collectors.joining(",")));
 
     /**
      * Allow credentials
      */
-    if (cors.credentials()) {
+    if (options.getUseCredentials()) {
       ctx.setResponseHeader(AC_ALLOW_CREDENTIALS, true);
     }
 
-    if (cors.maxAge() > 0) {
-      ctx.setResponseHeader(AC_MAX_AGE, cors.maxAge());
+    long maxAge = options.getMaxAge().getSeconds();
+    if (maxAge > 0) {
+      ctx.setResponseHeader(AC_MAX_AGE, maxAge);
     }
 
     ctx.setResponseHeader(AC_ALLOW_ORIGIN, origin);
 
-    if (!cors.anyOrigin()) {
+    if (!options.anyOrigin()) {
       ctx.setResponseHeader("Vary", ORIGIN);
     }
 
