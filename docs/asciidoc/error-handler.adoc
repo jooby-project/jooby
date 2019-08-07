@@ -163,7 +163,7 @@ import io.jooby.Medio.html
 
 In addition to the generic/global error handler you can catch specific status code:
 
-.Satus Code Error Handler
+.Status Code Error Handler
 [source, java, role = "primary"]
 ----
 import static io.jooby.StatusCode.NOT_FOUND;

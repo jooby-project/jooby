@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
  *
  * <pre>
  * {
- *   before(new Cors());
+ *   decorator(new CorsHandler());
  * }
  * </pre>
  *
@@ -76,7 +76,7 @@ public class Cors {
 
   private Duration maxAge;
 
-  private List<String> exposedHeaders;
+  private List<String> exposedHeaders = Collections.emptyList();
 
   /**
    * Creates default {@link Cors}. Default options are:
@@ -96,7 +96,6 @@ public class Cors {
     setMethods("GET", "POST");
     setHeaders("X-Requested-With", "Content-Type", "Accept", "Origin");
     setMaxAge(Duration.ofMinutes(30));
-    setExposedHeaders();
   }
 
   /**

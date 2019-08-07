@@ -1,0 +1,143 @@
+== CORS
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS[Cross-Origin Resource Sharing (CORS)] is a mechanism that uses additional HTTP headers to tell a 
+browser to let a web application running at one origin (domain) have permission to access selected
+resources from a server at a different origin. A web application executes a cross-origin HTTP 
+request when it requests a resource that has a different origin (domain, protocol, or port) than 
+its own origin.
+
+Jooby supports CORS out of the box. By default, **CORS requests will be rejected**.
+To enable processing of CORS requests, use the javadoc:CorsHandler[]:
+
+.CorsExample
+[source, java, role = "primary"]
+----
+import io.jooby.Jooby;
+import io.jooby.CorsHandler;
+...
+{
+  
+  decorator(new CorsHandler()); <1>
+  
+  path("/api", () -> {
+    // API methods
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Jooby
+import io.jooby.CorsHandler
+...
+{
+  decorator(CorsHandler())      <1>
+  
+  path("/api") {
+    // API methods
+  }
+}
+----
+
+<1> Install CorsHandler with defaults options
+
+Default options are:
+
+- origin: `*`
+- credentials: `true`
+- allowed methods: `GET`, `POST`
+- allowed headers: `X-Requested-With`, `Content-Type`, `Accept` and `Origin`
+- max age: `30m`;
+
+To customize default options use javadoc:Cors[]:
+
+.Cors options
+[source, java, role = "primary"]
+----
+import io.jooby.Jooby;
+import io.jooby.CorsHandler;
+...
+{
+  Cors cors = new Cors()
+     .setMethods("GET", "POST", "PUT");      <1>
+
+  decorator(new CorsHandler(cors));          <2>
+  
+  path("/api", () -> {
+    // API methods
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Jooby
+import io.jooby.CorsHandler
+import io.jooby.cors
+...
+{
+  val cors = cors {
+    methods = listOf("GET", "POST", "PUT")   <1>
+  }
+  decorator(CorsHandler(cors))               <2>
+  
+  path("/api") {
+    // API methods
+  }
+}
+----
+
+<1> Specify allowed methods
+<2> Pass cors options to cors handler
+
+Optionally cors options can be specified in the application configuration file:
+
+.application.conf
+[source,json]
+----
+cors {
+  origin: "*"
+  credentials: true
+  methods: [GET, POST],
+  headers: [Content-Type],
+  maxAge: 30m
+  exposedHeaders: [Custom-Header]
+}
+----
+
+.Loading options
+[source, java, role = "primary"]
+----
+import io.jooby.Jooby;
+import io.jooby.CorsHandler;
+...
+{
+  Cors cors = Cors.from(getConfig());  <1>
+
+  decorator(new CorsHandler(cors));
+  
+  path("/api", () -> {
+    // API methods
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Jooby
+import io.jooby.CorsHandler
+...
+{
+  val cors = Cors.from(config)         <1>
+  decorator(CorsHandler(cors))
+  
+  path("/api") {
+    // API methods
+  }
+}
+----
+
+<1> Load cors options from application configuration file

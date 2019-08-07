@@ -2592,15 +2592,17 @@ public class FeaturedTest {
   @Test
   public void cors() {
     new JoobyRunner(app -> {
-      app.before(new CorsHandler());
+      app.decorator(new CorsHandler());
 
       app.get("/greeting", ctx -> "Hello " + ctx.query("name").value("World") + "!");
     }).ready(client -> {
-      client.header("Origin", "http://foo.com").get("/greeting", rsp -> {
-        assertEquals("Hello World!", rsp.body().string());
-        assertEquals("http://foo.com", rsp.header("Access-Control-Allow-Origin"));
-        assertEquals("true", rsp.header("Access-Control-Allow-Credentials"));
-      });
+      client
+          .header("Origin", "http://foo.com")
+          .get("/greeting", rsp -> {
+            assertEquals("Hello World!", rsp.body().string());
+            assertEquals("http://foo.com", rsp.header("Access-Control-Allow-Origin"));
+            assertEquals("true", rsp.header("Access-Control-Allow-Credentials"));
+          });
 
       client.get("/greeting", rsp -> {
         assertEquals("Hello World!", rsp.body().string());
@@ -2615,29 +2617,60 @@ public class FeaturedTest {
         assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
       });
 
-      // FIGURE IT OUT OPTIONS method:
+      // preflight
       client
           .header("Origin", "http://foo.com")
           .header("Access-Control-Request-Method", "GET")
           .options("/greeting", rsp -> {
             assertEquals("", rsp.body().string());
             assertEquals(200, rsp.code());
-            assertEquals("*", rsp.header("Access-Control-Allow-Origin"));
-            assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
+            assertEquals("http://foo.com", rsp.header("Access-Control-Allow-Origin"));
+            assertEquals("true", rsp.header("Access-Control-Allow-Credentials"));
+            assertEquals("GET,POST", rsp.header("Access-Control-Allow-Methods"));
+            assertEquals("X-Requested-With,Content-Type,Accept,Origin",
+                rsp.header("Access-Control-Allow-Headers"));
+            assertEquals("1800", rsp.header("Access-Control-Max-Age"));
           });
 
-      //      request()
-      //          .options("/greeting")
-      //          .header("Origin", "http://foo.com")
-      //          .header("Access-Control-Request-Method", "GET")
-      //          .expect("")
-      //          .expect(200)
-      //          .header("Access-Control-Allow-Origin", "http://foo.com")
-      //          .header("Access-Control-Allow-Methods", "GET,POST")
-      //          .header("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Accept,Origin")
-      //          .header("Access-Control-Allow-Credentials", true)
-      //          .header("Access-Control-Max-Age", 1800);
+      // preflight without access-control-request-method => forbidden
+      client
+          .header("Origin", "http://foo.com")
+          .options("/greeting", rsp -> {
+            assertEquals("", rsp.body().string());
+            assertEquals(StatusCode.FORBIDDEN_CODE, rsp.code());
+            assertEquals(null, rsp.header("Access-Control-Allow-Origin"));
+            assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
+            assertEquals(null, rsp.header("Access-Control-Allow-Methods"));
+            assertEquals(null, rsp.header("Access-Control-Allow-Headers"));
+            assertEquals(null, rsp.header("Access-Control-Max-Age"));
+          });
 
+      client
+          .header("Origin", "http://foo.com")
+          .header("Access-Control-Request-Method", "PUT")
+          .options("/greeting", rsp -> {
+            assertEquals("", rsp.body().string());
+            assertEquals(StatusCode.FORBIDDEN_CODE, rsp.code());
+            assertEquals(null, rsp.header("Access-Control-Allow-Origin"));
+            assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
+            assertEquals(null, rsp.header("Access-Control-Allow-Methods"));
+            assertEquals(null, rsp.header("Access-Control-Allow-Headers"));
+            assertEquals(null, rsp.header("Access-Control-Max-Age"));
+          });
+
+      client
+          .header("Origin", "http://foo.com")
+          .header("Access-Control-Request-Method", "GET")
+          .header("Access-Control-Request-Headers", "Custom-Header")
+          .options("/greeting", rsp -> {
+            assertEquals("", rsp.body().string());
+            assertEquals(StatusCode.FORBIDDEN_CODE, rsp.code());
+            assertEquals(null, rsp.header("Access-Control-Allow-Origin"));
+            assertEquals(null, rsp.header("Access-Control-Allow-Credentials"));
+            assertEquals(null, rsp.header("Access-Control-Allow-Methods"));
+            assertEquals(null, rsp.header("Access-Control-Allow-Headers"));
+            assertEquals(null, rsp.header("Access-Control-Max-Age"));
+          });
     });
   }
 
@@ -2656,12 +2689,13 @@ public class FeaturedTest {
       Function<String, Set<String>> toSet = value -> Stream.of(value.split("\\s*,\\s*")).collect(
           Collectors.toSet());
       client.options("/foo", rsp -> {
-        assertEquals(new HashSet<>(Arrays.asList("GET", "POST")),  toSet.apply(rsp.header("Allow")));
+        assertEquals(new HashSet<>(Arrays.asList("GET", "POST")), toSet.apply(rsp.header("Allow")));
         assertEquals(StatusCode.OK.value(), rsp.code());
       });
 
       client.options("/foo/1", rsp -> {
-        assertEquals(new HashSet<>(Arrays.asList("GET", "PATCH")),  toSet.apply(rsp.header("Allow")));
+        assertEquals(new HashSet<>(Arrays.asList("GET", "PATCH")),
+            toSet.apply(rsp.header("Allow")));
         assertEquals(StatusCode.OK.value(), rsp.code());
       });
     });

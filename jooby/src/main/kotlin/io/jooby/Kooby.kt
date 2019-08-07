@@ -238,6 +238,14 @@ open class Kooby constructor() : Jooby() {
   }
 }
 
+/** cors: */
+fun cors(init: Cors.() -> Unit): Cors {
+  val cors = Cors()
+  cors.init()
+  return cors
+}
+
+/** runApp: */
 @RouterDsl
 fun runApp(args: Array<String>, mode: ExecutionMode, init: Kooby.() -> Unit) {
   configurePackage(init)

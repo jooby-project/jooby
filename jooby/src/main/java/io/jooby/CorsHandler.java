@@ -5,19 +5,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.annotation.Nonnull;
 
 /**
  * Handle preflight and simple CORS requests. CORS options are set via: {@link Cors}.
  *
  * @author edgar
- * @since 0.8.0
+ * @since 2.0.4
  * @see Cors
  */
-public class CorsHandler implements Route.Before {
+public class CorsHandler implements Route.Decorator {
 
   private static final String ORIGIN = "Origin";
 
@@ -39,9 +36,6 @@ public class CorsHandler implements Route.Before {
 
   private static final String AC_ALLOW_METHODS = "Access-Control-Allow-Methods";
 
-  /** The logging system. */
-  private final Logger log = LoggerFactory.getLogger(Cors.class);
-
   private final Cors options;
 
   /**
@@ -57,45 +51,60 @@ public class CorsHandler implements Route.Before {
     this(new Cors());
   }
 
-  @Override public void apply(@Nonnull Context ctx) throws Exception {
-    Value origin = ctx.header("Origin");
-    if (!origin.isMissing()) {
-      cors(options, ctx, origin.value());
-    }
+  @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
+    return ctx -> {
+      String origin = ctx.header("Origin").valueOrNull();
+      if (origin != null && options.allowOrigin(origin)) {
+        if (isPreflight(ctx)) {
+          if (preflight(ctx, options, origin)) {
+            return ctx;
+          } else {
+            return ctx.send(StatusCode.FORBIDDEN);
+          }
+        } else if (isSimple(ctx)) {
+          simple(ctx, options, origin);
+        } else {
+          return ctx.send(StatusCode.FORBIDDEN);
+        }
+      }
+      return next.apply(ctx);
+    };
   }
 
-  private void cors(final Cors options, final Context ctx, final String origin) throws Exception {
-    if (options.allowOrigin(origin)) {
-      log.debug("allowed origin: {}", origin);
-      if (preflight(ctx)) {
-        log.debug("handling preflight for: {}", origin);
-        preflight(options, ctx, origin);
-      } else {
-        log.debug("handling simple options for: {}", origin);
-        if ("null".equals(origin)) {
-          ctx.setResponseHeader(AC_ALLOW_ORIGIN, ANY_ORIGIN);
-        } else {
-          ctx.setResponseHeader(AC_ALLOW_ORIGIN, origin);
-          if (!options.anyHeader()) {
-            ctx.setResponseHeader("Vary", ORIGIN);
-          }
-          if (options.getUseCredentials()) {
-            ctx.setResponseHeader(AC_ALLOW_CREDENTIALS, true);
-          }
-          if (!options.getExposedHeaders().isEmpty()) {
-            ctx.setResponseHeader(AC_EXPOSE_HEADERS, options.getExposedHeaders().stream().collect(Collectors.joining()));
-          }
-        }
+  private boolean isSimple(Context ctx) {
+    return ctx.getMethod().equals(Router.GET)
+        || ctx.getMethod().equals(Router.POST)
+        || ctx.getMethod().equals(Router.HEAD);
+  }
+
+  private void simple(final Context ctx, final Cors options, final String origin) throws Exception {
+    if ("null".equals(origin)) {
+      ctx.setResponseHeader(AC_ALLOW_ORIGIN, ANY_ORIGIN);
+    } else {
+      ctx.setResponseHeader(AC_ALLOW_ORIGIN, origin);
+      if (!options.anyHeader()) {
+        ctx.setResponseHeader("Vary", ORIGIN);
+      }
+      if (options.getUseCredentials()) {
+        ctx.setResponseHeader(AC_ALLOW_CREDENTIALS, true);
+      }
+      if (!options.getExposedHeaders().isEmpty()) {
+        ctx.setResponseHeader(AC_EXPOSE_HEADERS,
+            options.getExposedHeaders().stream().collect(Collectors.joining()));
       }
     }
   }
 
-  private boolean preflight(final Context ctx) {
-    return ctx.getMethod().equalsIgnoreCase("OPTIONS") && !ctx.header(AC_REQUEST_METHOD)
-        .isMissing();
+  @Nonnull @Override public Route.Decorator setRoute(@Nonnull Route route) {
+    route.setHttpOptions(true);
+    return this;
   }
 
-  private void preflight(final Cors options, final Context ctx, final String origin) {
+  private boolean isPreflight(final Context ctx) {
+    return ctx.getMethod().equals(Router.OPTIONS) && !ctx.header(AC_REQUEST_METHOD).isMissing();
+  }
+
+  private boolean preflight(final Context ctx, final Cors options, final String origin) {
     /**
      * Allowed method
      */
@@ -103,7 +112,7 @@ public class CorsHandler implements Route.Before {
         .map(options::allowMethod)
         .orElse(false);
     if (!allowMethod) {
-      return;
+      return false;
     }
 
     /**
@@ -113,7 +122,7 @@ public class CorsHandler implements Route.Before {
         Arrays.asList(header.split("\\s*,\\s*"))
     ).orElse(Collections.emptyList());
     if (!options.allowHeaders(headers)) {
-      return;
+      return false;
     }
 
     /**
@@ -145,5 +154,6 @@ public class CorsHandler implements Route.Before {
     }
 
     ctx.send(StatusCode.OK);
+    return true;
   }
 }
