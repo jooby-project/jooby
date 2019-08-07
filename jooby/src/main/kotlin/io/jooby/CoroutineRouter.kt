@@ -63,11 +63,6 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
     return route(Router.OPTIONS, pattern, handler)
   }
 
-  @RouterDsl
-  fun connect(pattern: String = "/", handler: suspend HandlerContext.() -> Any): Route {
-    return route(Router.CONNECT, pattern, handler)
-  }
-
   fun route(method: String, pattern: String, handler: suspend HandlerContext.() -> Any): Route {
     return router.route(method, pattern) { ctx ->
       val xhandler = CoroutineExceptionHandler { _, x ->

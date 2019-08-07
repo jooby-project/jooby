@@ -72,8 +72,6 @@ public interface Router extends Registry {
   String PATCH = "PATCH";
   /** HTTP HEAD. */
   String HEAD = "HEAD";
-  /** HTTP CONNECT. */
-  String CONNECT = "CONNECT";
   /** HTTP OPTIONS. */
   String OPTIONS = "OPTIONS";
   /** HTTP TRACE. */
@@ -81,7 +79,7 @@ public interface Router extends Registry {
 
   /** HTTP Methods. */
   List<String> METHODS = unmodifiableList(
-      asList(GET, POST, PUT, DELETE, PATCH, HEAD, CONNECT, OPTIONS, TRACE));
+      asList(GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, TRACE));
 
   /**
    * Mutable map of application attributes.
@@ -411,17 +409,6 @@ public interface Router extends Registry {
    */
   @Nonnull default Route head(@Nonnull String pattern, @Nonnull Route.Handler handler) {
     return route(HEAD, pattern, handler);
-  }
-
-  /**
-   * Add a HTTP CONNECT handler.
-   *
-   * @param pattern Path pattern.
-   * @param handler Application code.
-   * @return A route.
-   */
-  @Nonnull default Route connect(@Nonnull String pattern, @Nonnull Route.Handler handler) {
-    return route(CONNECT, pattern, handler);
   }
 
   /**

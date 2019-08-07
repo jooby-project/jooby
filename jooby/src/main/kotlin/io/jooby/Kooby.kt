@@ -189,16 +189,6 @@ open class Kooby constructor() : Jooby() {
   }
 
   @RouterDsl
-  override fun connect(pattern: String, handler: Route.Handler): Route {
-    return super.connect(pattern, handler)
-  }
-
-  @RouterDsl
-  fun connect(pattern: String, handler: HandlerContext.() -> Any): Route {
-    return route(Router.CONNECT, pattern, handler)
-  }
-
-  @RouterDsl
   fun coroutine(coroutineStart: CoroutineStart = CoroutineStart.DEFAULT, block: CoroutineRouter.() -> Unit): CoroutineRouter {
     val router = attributes.computeIfAbsent("coroutineRouter") { CoroutineRouter(coroutineStart, this) } as CoroutineRouter
     router.block()
@@ -239,6 +229,7 @@ open class Kooby constructor() : Jooby() {
 }
 
 /** cors: */
+@RouterDsl
 fun cors(init: Cors.() -> Unit): Cors {
   val cors = Cors()
   cors.init()
