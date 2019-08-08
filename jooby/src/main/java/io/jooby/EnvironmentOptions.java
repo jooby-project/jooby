@@ -57,6 +57,17 @@ public class EnvironmentOptions {
     return this;
   }
 
+  /**
+   * Set active environment names.
+   *
+   * @param activeNames Active environment names.
+   * @return This options.
+   */
+  public @Nonnull EnvironmentOptions setActiveNames(@Nonnull List<String> activeNames) {
+    this.activeNames = activeNames.toArray(new String[activeNames.size()]);
+    return this;
+  }
+
   private static @Nonnull List<String> defaultEnvironmentNames() {
     return Arrays.asList(
         System.getProperty(ENV, System.getenv().getOrDefault(ENV, "dev")).split("\\s*,\\s*"));

@@ -78,7 +78,7 @@ public class Jetty extends io.jooby.Server.Base {
       httpConf.setOutputBufferSize(options.getBufferSize());
       httpConf.setOutputAggregationSize(options.getBufferSize());
       httpConf.setSendXPoweredBy(false);
-      httpConf.setSendDateHeader(options.isDefaultHeaders());
+      httpConf.setSendDateHeader(options.getDefaultHeaders());
       httpConf.setSendServerVersion(false);
       httpConf.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
       ServerConnector connector = new ServerConnector(server);
@@ -89,9 +89,9 @@ public class Jetty extends io.jooby.Server.Base {
       server.addConnector(connector);
 
       AbstractHandler handler = new JettyHandler(applications.get(0), options.getBufferSize(),
-          options.getMaxRequestSize(), options.isDefaultHeaders());
+          options.getMaxRequestSize(), options.getDefaultHeaders());
 
-      if (options.isGzip()) {
+      if (options.getGzip()) {
         GzipHandler gzipHandler = new GzipHandler();
         gzipHandler.setHandler(handler);
         handler = gzipHandler;

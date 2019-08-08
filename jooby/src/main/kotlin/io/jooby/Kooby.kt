@@ -7,10 +7,15 @@ package io.jooby
 
 import kotlinx.coroutines.CoroutineStart
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
 annotation class RouterDsl
+
+@DslMarker
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
+annotation class OptionsDsl
 
 /** Registry: */
 inline fun <reified T> Registry.require(): T {
@@ -33,6 +38,10 @@ fun <T : Any> ServiceRegistry.get(klass: KClass<T>): T {
   return this.get(klass.java)
 }
 
+fun <T : Any> ServiceRegistry.getOrNull(klass: KClass<T>): T? {
+  return this.getOrNull(klass.java)
+}
+
 fun <T : Any> ServiceRegistry.put(klass: KClass<T>, service: T): T? {
   return this.put(klass.java, service)
 }
@@ -42,6 +51,11 @@ fun <T : Any> ServiceRegistry.putIfAbsent(klass: KClass<T>, service: T): T? {
 }
 
 /** Value: */
+
+inline operator fun <reified T> Value.getValue(thisRef: Any?, property: KProperty<*>): T {
+  return this.get(property.name).to(object : Reified<T>() {})
+}
+
 operator fun Value.get(name: String): Value {
   return this.get(name)
 }
@@ -50,41 +64,57 @@ operator fun Value.get(index: Int): Value {
   return this.get(index)
 }
 
-inline fun <reified T> Value.to(): T {
+inline fun <reified T> Value.to(): T? {
   return this.to(object : Reified<T>() {})
 }
 
-/** Context: */
-inline fun <reified T> Context.query(): T {
-  val reified = object : Reified<T>() {}
-  return this.query(reified)
+infix fun <T : Any> Value.to(type: KClass<T>): T? {
+  return this.to(type.java)
 }
+
+/** Context: */
+val Context.query: QueryString
+  get() = this.query()
+
+inline fun <reified T> Context.query(): T {
+  return this.query(object : Reified<T>() {})
+}
+
+val Context.form: Formdata
+  get() = this.form()
 
 inline fun <reified T> Context.form(): T {
   return this.form(object : Reified<T>() {})
 }
 
+val Context.multipart: Multipart
+  get() = this.multipart()
+
 inline fun <reified T> Context.multipart(): T {
   return this.multipart(object : Reified<T>() {})
 }
+
+val Context.body: Body
+  get() = this.body()
 
 inline fun <reified T> Context.body(): T {
   return this.body(object : Reified<T>() {})
 }
 
 /** Kooby: */
-
 open class Kooby constructor() : Jooby() {
 
   constructor(init: Kooby.() -> Unit) : this() {
     this.init()
   }
 
+  @RouterDsl
   fun <T : Any> mvc(router: KClass<T>): Kooby {
     super.mvc(router.java)
     return this
   }
 
+  @RouterDsl
   fun <T : Any> mvc(router: KClass<T>, provider: () -> T): Kooby {
     super.mvc(router.java, provider)
     return this
@@ -205,6 +235,7 @@ open class Kooby constructor() : Jooby() {
     return super.route(method, pattern) { ctx -> handler(HandlerContext(ctx)) }.setHandle(handler)
   }
 
+  @OptionsDsl
   fun serverOptions(configurer: ServerOptions.() -> Unit): Kooby {
     val options = ServerOptions()
     configurer(options)
@@ -212,24 +243,26 @@ open class Kooby constructor() : Jooby() {
     return this
   }
 
+  @OptionsDsl
   fun routerOptions(configurer: RouterOptions.() -> Unit): Kooby {
     val options = RouterOptions()
     configurer(options)
-    setRouterOptions(options)
+    this.routerOptions  = options
     return this
   }
 
+  @OptionsDsl
   fun environmentOptions(configurer: EnvironmentOptions.() -> Unit): Environment {
     val options = EnvironmentOptions()
     configurer(options)
     val env = Environment.loadEnvironment(options)
-    setEnvironment(env)
+    this.environment = env
     return env
   }
 }
 
 /** cors: */
-@RouterDsl
+@OptionsDsl
 fun cors(init: Cors.() -> Unit): Cors {
   val cors = Cors()
   cors.init()
@@ -237,24 +270,20 @@ fun cors(init: Cors.() -> Unit): Cors {
 }
 
 /** runApp: */
-@RouterDsl
 fun runApp(args: Array<String>, mode: ExecutionMode, init: Kooby.() -> Unit) {
   configurePackage(init)
   Jooby.runApp(args, mode, fun() = Kooby(init))
 }
 
-@RouterDsl
 fun runApp(args: Array<String>, init: Kooby.() -> Unit) {
   configurePackage(init)
   Jooby.runApp(args, ExecutionMode.DEFAULT, fun() = Kooby(init))
 }
 
-@RouterDsl
 fun <T : Jooby> runApp(args: Array<String>, application: KClass<T>) {
   runApp(args, ExecutionMode.DEFAULT, application)
 }
 
-@RouterDsl
 fun <T : Jooby> runApp(args: Array<String>, mode: ExecutionMode, application: KClass<T>) {
   Jooby.runApp(args, mode, application.java)
 }

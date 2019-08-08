@@ -105,8 +105,8 @@ public class Netty extends Server.Base {
           .childHandler(new NettyPipeline(acceptor.next(),
               applications.get(0),
               factory,
-              options.isDefaultHeaders(),
-              options.isGzip(),
+              options.getDefaultHeaders(),
+              options.getGzip(),
               options.getBufferSize(),
               options.getMaxRequestSize()))
           .childOption(ChannelOption.SO_REUSEADDR, true)

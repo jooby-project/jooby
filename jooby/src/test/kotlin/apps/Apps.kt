@@ -1,18 +1,12 @@
 package apps
 
-import io.jooby.CorsHandler
 import io.jooby.ExecutionMode
 import io.jooby.Kooby
-import io.jooby.cors
 import io.jooby.runApp
 import kotlinx.coroutines.delay
 
 /** Class version: */
 class App : Kooby({
-
-  decorator(CorsHandler(cors {
-    methods = listOf("GET", "POST", "PUT")
-  }))
 
   coroutine {
     get { "Hi Kotlin!" }

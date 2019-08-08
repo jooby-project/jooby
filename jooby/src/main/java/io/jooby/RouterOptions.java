@@ -38,7 +38,7 @@ public class RouterOptions {
    *
    * @return Whenever do case-sensitive matching.
    */
-  public boolean isIgnoreCase() {
+  public boolean getIgnoreCase() {
     return ignoreCase;
   }
 
@@ -58,7 +58,7 @@ public class RouterOptions {
    *
    * @return Whenever trailing slash on path pattern is ignored.
    */
-  public boolean isIgnoreTrailingSlash() {
+  public boolean getIgnoreTrailingSlash() {
     return ignoreTrailingSlash;
   }
 

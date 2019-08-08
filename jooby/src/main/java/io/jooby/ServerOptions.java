@@ -262,7 +262,7 @@ public class ServerOptions {
    *
    * @return True if gzip is enabled.
    */
-  public boolean isGzip() {
+  public boolean getGzip() {
     return gzip;
   }
 
@@ -284,7 +284,7 @@ public class ServerOptions {
    * @return True if default headers: <code>Date</code>, <code>Content-Type</code> and
    * <code>Server</code> are enabled.
    */
-  public boolean isDefaultHeaders() {
+  public boolean getDefaultHeaders() {
     return defaultHeaders;
   }
 

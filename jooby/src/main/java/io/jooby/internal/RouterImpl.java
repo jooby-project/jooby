@@ -412,8 +412,8 @@ public class RouterImpl implements Router {
       route.setEncoder(renderer);
     }
     // router options
-    if (options.isIgnoreCase() || options.isIgnoreTrailingSlash()) {
-      chi = chi.options(options.isIgnoreCase(), options.isIgnoreTrailingSlash());
+    if (options.getIgnoreCase() || options.getIgnoreTrailingSlash()) {
+      chi = chi.options(options.getIgnoreCase(), options.getIgnoreTrailingSlash());
     }
     // unwrap executor
     worker = ((ForwardingExecutor) worker).executor;

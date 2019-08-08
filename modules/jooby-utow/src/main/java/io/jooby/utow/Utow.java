@@ -59,9 +59,9 @@ public class Utow extends Server.Base {
 
       HttpHandler handler = new UtowHandler(applications.get(0), options.getBufferSize(),
           options.getMaxRequestSize(),
-          options.isDefaultHeaders());
+          options.getDefaultHeaders());
 
-      if (options.isGzip()) {
+      if (options.getGzip()) {
         handler = new EncodingHandler.Builder().build(null).wrap(handler);
       }
 
@@ -74,7 +74,7 @@ public class Utow extends Server.Base {
           // HTTP/1.1 is keep-alive by default, turn this option off
           .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
           .setServerOption(UndertowOptions.ALLOW_EQUALS_IN_COOKIE_VALUE, true)
-          .setServerOption(UndertowOptions.ALWAYS_SET_DATE, options.isDefaultHeaders())
+          .setServerOption(UndertowOptions.ALWAYS_SET_DATE, options.getDefaultHeaders())
           .setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, false)
           .setServerOption(UndertowOptions.DECODE_URL, false)
           /** Worker: */
