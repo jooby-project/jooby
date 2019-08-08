@@ -64,11 +64,6 @@ public class ServerOptions {
    */
   private boolean defaultHeaders = true;
 
-  /**
-   * Indicates if the web server should use a single loop/group for doing IO or not. Netty only.
-   */
-  private Boolean singleLoop;
-
   /** Name of server: Jetty, Netty or Utow. */
   private String server;
 
@@ -77,11 +72,6 @@ public class ServerOptions {
    * {@link io.jooby.StatusCode#REQUEST_ENTITY_TOO_LARGE} response. Default is <code>10mb</code>.
    */
   private int maxRequestSize = _10MB;
-
-  /**
-   * Indicates when direct buffer is preferable over heap buffer. Undertow only.
-   */
-  private Boolean directBuffers;
 
   /**
    * Creates server options from config object. The configuration options must provided entries
@@ -95,9 +85,6 @@ public class ServerOptions {
       ServerOptions options = new ServerOptions();
       if (conf.hasPath("server.port")) {
         options.setPort(conf.getInt("server.port"));
-      }
-      if (conf.hasPath("server.singleLoop")) {
-        options.setSingleLoop(conf.getBoolean("server.singleLoop"));
       }
       if (conf.hasPath("server.ioThreads")) {
         options.setIoThreads(conf.getInt("server.ioThreads"));
@@ -114,17 +101,11 @@ public class ServerOptions {
       if (conf.hasPath("server.gzip")) {
         options.setGzip(conf.getBoolean("server.gzip"));
       }
-      if (conf.hasPath("server.defaultHeaders")) {
-        options.setDefaultHeaders(conf.getBoolean("server.defaultHeaders"));
-      }
       if (conf.hasPath("server.maxRequestSize")) {
         options.setMaxRequestSize((int) conf.getMemorySize("server.maxRequestSize").toBytes());
       }
       if (conf.hasPath("server.workerThreads")) {
         options.setWorkerThreads(conf.getInt("server.workerThreads"));
-      }
-      if (conf.hasPath("server.directBuffers")) {
-        options.setDirectBuffers(conf.getBoolean("server.directBuffers"));
       }
       return Optional.of(options);
     }
@@ -139,9 +120,6 @@ public class ServerOptions {
       buff.append(", ioThreads: ").append(Optional.ofNullable(ioThreads).orElse(IO_THREADS));
     }
     buff.append(", workerThreads: ").append(getWorkerThreads());
-    if ("netty".equals(server)) {
-      buff.append(", singleLoop: ").append(singleLoop);
-    }
     buff.append(", bufferSize: ").append(bufferSize);
     buff.append(", maxRequestSize: ").append(maxRequestSize);
     if (gzip) {
@@ -339,77 +317,6 @@ public class ServerOptions {
    */
   public @Nonnull ServerOptions setMaxRequestSize(int maxRequestSize) {
     this.maxRequestSize = maxRequestSize;
-    return this;
-  }
-
-  /**
-   * Whenever the underlying server uses a single loop/group for accepting and processing
-   * connections or not. Netty only.
-   * @return True for use a single loop group for accepting and processing connections.
-   */
-  public boolean getSingleLoop() {
-    return getSingleLoop(true);
-  }
-
-  /**
-   * Whenever the underlying server uses a single loop/group for accepting and processing
-   * connections or not. Netty only.
-   *
-   * @param defaultValue Default value if none is was set.
-   * @return True for use a single loop group for accepting and processing connections.
-   */
-  public boolean getSingleLoop(boolean defaultValue) {
-    return singleLoop == null ? defaultValue : singleLoop.booleanValue();
-  }
-
-  /**
-   * Indicates when direct buffer is preferable over heap buffer. Undertow only.
-   *
-   * @return True for direct buffers.
-   */
-  public boolean isDirectBuffers() {
-    return getDirectBuffers(false);
-  }
-
-  /**
-   * Indicates when direct buffer is preferable over heap buffer. Undertow only.
-   *
-   * @param defaultValue Default value if none is was set.
-   * @return True for direct buffers.
-   */
-  public boolean getDirectBuffers(boolean defaultValue) {
-    return directBuffers == null ? defaultValue : directBuffers.booleanValue();
-  }
-
-  /**
-   * Indicates when direct buffer is preferable over heap buffer. Undertow only.
-   *
-   * @return True for direct buffer.
-   */
-  public @Nonnull Boolean getDirectBuffers() {
-    return directBuffers;
-  }
-
-  /**
-   * Indicates when direct buffer is preferable over heap buffer. Undertow only.
-   *
-   * @param directBuffers True for direct buffers.
-   * @return This options.
-   */
-  public @Nonnull ServerOptions setDirectBuffers(boolean directBuffers) {
-    this.directBuffers = directBuffers;
-    return this;
-  }
-
-  /**
-   * Indicates if netty server uses a single loop for accepting and processing connections.
-   * Netty only, default is <code>false</code>.
-   *
-   * @param singleLoop True for single loop.
-   * @return This options.
-   */
-  public @Nonnull ServerOptions setSingleLoop(boolean singleLoop) {
-    this.singleLoop = singleLoop;
     return this;
   }
 

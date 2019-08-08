@@ -32,14 +32,12 @@ class Idioms : Kooby({
   /** Options: */
   serverOptions {
     bufferSize = 8194
-    directBuffers = true
     ioThreads = 8
     gzip = true
     defaultHeaders = false
     maxRequestSize = 8000
     port = 8080
     server = "server"
-    singleLoop = true
     workerThreads = 99
   }
 

@@ -26,6 +26,9 @@ import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Web server implementation using <a href="https://netty.io/">Netty</a>.
@@ -44,19 +47,17 @@ public class Netty extends Server.Base {
 
   private List<Jooby> applications = new ArrayList<>();
 
-  private EventLoopGroup acceptor;
+  private EventLoopGroup acceptorloop;
 
-  private EventLoopGroup ioLoop;
+  private EventLoopGroup eventloop;
 
-  private DefaultEventExecutorGroup worker;
+  private ExecutorService worker;
 
   private ServerOptions options = new ServerOptions()
-      .setSingleLoop(false)
       .setServer("netty");
 
   @Override public Netty setOptions(@Nonnull ServerOptions options) {
-    this.options = options
-        .setSingleLoop(options.getSingleLoop(false));
+    this.options = options;
     return this;
   }
 
@@ -71,8 +72,10 @@ public class Netty extends Server.Base {
       addShutdownHook();
 
       /** Worker: Application blocking code */
-      worker = new DefaultEventExecutorGroup(options.getWorkerThreads(),
-          new DefaultThreadFactory("application"));
+      worker = Executors.newFixedThreadPool(
+          options.getWorkerThreads(),
+          new DefaultThreadFactory("worker")
+      );
       fireStart(applications, worker);
 
       /** Disk attributes: */
@@ -82,15 +85,11 @@ public class Netty extends Server.Base {
 
       NettyNative provider = NettyNative.get(getClass().getClassLoader());
 
-      /** Acceptor: Accepts connections */
-      this.acceptor = provider.group("netty-acceptor", options.getIoThreads());
+      /** Acceptor event-loop */
+      this.acceptorloop = provider.group("acceptor", 1);
 
-      if (options.getSingleLoop()) {
-        this.ioLoop = this.acceptor;
-      } else {
-        /** IO: processing connections, parsing messages and doing engine's internal work */
-        this.ioLoop = provider.group("netty-io", options.getIoThreads());
-      }
+      /** Event loop: processing connections, parsing messages and doing engine's internal work */
+      this.eventloop = provider.group("eventloop", options.getIoThreads());
 
       /** File data factory: */
       HttpDataFactory factory = new DefaultHttpDataFactory(options.getBufferSize());
@@ -100,9 +99,9 @@ public class Netty extends Server.Base {
       bootstrap.option(ChannelOption.SO_BACKLOG, BACKLOG);
       bootstrap.option(ChannelOption.SO_REUSEADDR, true);
 
-      bootstrap.group(acceptor, ioLoop)
+      bootstrap.group(acceptorloop, eventloop)
           .channel(provider.channel())
-          .childHandler(new NettyPipeline(acceptor.next(),
+          .childHandler(new NettyPipeline(acceptorloop.next(),
               applications.get(0),
               factory,
               options.getDefaultHeaders(),
@@ -129,16 +128,16 @@ public class Netty extends Server.Base {
 
   @Nonnull @Override public synchronized Server stop() {
     fireStop(applications);
-    if (acceptor != null) {
-      acceptor.shutdownGracefully();
-      acceptor = null;
+    if (acceptorloop != null) {
+      acceptorloop.shutdownGracefully();
+      acceptorloop = null;
     }
-    if (!options.getSingleLoop() && ioLoop != null) {
-      ioLoop.shutdownGracefully();
-      ioLoop = null;
+    if (eventloop != null) {
+      eventloop.shutdownGracefully();
+      eventloop = null;
     }
     if (worker != null) {
-      worker.shutdownGracefully();
+      worker.shutdown();
       worker = null;
     }
     return this;

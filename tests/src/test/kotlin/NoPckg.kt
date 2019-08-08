@@ -6,7 +6,6 @@ data class SearchQuery(val q: String)
 fun main(args: Array<String>) {
   runApp(args, ExecutionMode.EVENT_LOOP) {
     serverOptions {
-      singleLoop = true
       ioThreads = 5
     }
     get("/") {

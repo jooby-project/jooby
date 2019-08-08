@@ -83,8 +83,6 @@ public class Utow extends Server.Base {
           .setWorkerThreads(options.getWorkerThreads())
           .setHandler(handler);
 
-      Optional.ofNullable(options.getDirectBuffers()).ifPresent(builder::setDirectBuffers);
-
       server = builder.build();
       server.start();
       // NOT IDEAL, but we need to fire onStart after server.start to get access to Worker
