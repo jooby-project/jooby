@@ -9,8 +9,8 @@ import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
-import io.jooby.internal.netty.NettyNative;
 import io.jooby.internal.netty.NettyPipeline;
+import io.jooby.internal.netty.NettyTransport;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -18,7 +18,6 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.DiskAttribute;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
-import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 import javax.annotation.Nonnull;
@@ -26,7 +25,6 @@ import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,8 +40,6 @@ public class Netty extends Server.Base {
     System.setProperty("io.netty.leakDetection.level",
         System.getProperty("io.netty.leakDetection.level", "disabled"));
   }
-
-  private static final int BACKLOG = 8192;
 
   private List<Jooby> applications = new ArrayList<>();
 
@@ -83,24 +79,19 @@ public class Netty extends Server.Base {
       DiskFileUpload.baseDirectory = tmpdir;
       DiskAttribute.baseDirectory = tmpdir;
 
-      NettyNative provider = NettyNative.get(getClass().getClassLoader());
+      NettyTransport transport = NettyTransport.transport(application.getClassLoader());
 
       /** Acceptor event-loop */
-      this.acceptorloop = provider.group("acceptor", 1);
+      this.acceptorloop = transport.createEventLoop(1, "acceptor", 50);
 
       /** Event loop: processing connections, parsing messages and doing engine's internal work */
-      this.eventloop = provider.group("eventloop", options.getIoThreads());
+      this.eventloop = transport.createEventLoop(options.getIoThreads(), "eventloop", 100);
 
       /** File data factory: */
       HttpDataFactory factory = new DefaultHttpDataFactory(options.getBufferSize());
 
       /** Bootstrap: */
-      ServerBootstrap bootstrap = new ServerBootstrap();
-      bootstrap.option(ChannelOption.SO_BACKLOG, BACKLOG);
-      bootstrap.option(ChannelOption.SO_REUSEADDR, true);
-
-      bootstrap.group(acceptorloop, eventloop)
-          .channel(provider.channel())
+      ServerBootstrap bootstrap = transport.configure(acceptorloop, eventloop)
           .childHandler(new NettyPipeline(acceptorloop.next(),
               applications.get(0),
               factory,

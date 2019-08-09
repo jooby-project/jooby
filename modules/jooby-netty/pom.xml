@@ -42,6 +42,13 @@
       <optional>true</optional>
     </dependency>
 
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-kqueue</artifactId>
+      <version>${netty.version}</version>
+      <optional>true</optional>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -96,6 +103,14 @@
           <family>mac</family>
         </os>
       </activation>
+      <dependencies>
+        <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-transport-native-kqueue</artifactId>
+          <version>${netty.version}</version>
+          <classifier>osx-x86_64</classifier>
+        </dependency>
+      </dependencies>
     </profile>
   </profiles>
 </project>

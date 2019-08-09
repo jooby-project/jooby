@@ -354,7 +354,7 @@ public class MvcTest {
     }).mode(ExecutionMode.EVENT_LOOP).ready(client -> {
       client.get("/", rsp -> {
         String body = rsp.body().string();
-        assertTrue(body.startsWith("application"), body);
+        assertTrue(body.startsWith("worker"), body);
       });
 
       client.get("/method", rsp -> {
@@ -363,7 +363,7 @@ public class MvcTest {
     });
 
     LinkedList<String> names = new LinkedList<>(
-        Arrays.asList("netty", "application I/O", "application-"));
+        Arrays.asList("eventloop", "worker I/O", "worker-"));
     new JoobyRunner(app -> {
       app.executor("single", Executors.newSingleThreadExecutor(r ->
           new Thread(r, "single")

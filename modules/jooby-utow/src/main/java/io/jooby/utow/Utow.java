@@ -79,7 +79,7 @@ public class Utow extends Server.Base {
           .setServerOption(UndertowOptions.DECODE_URL, false)
           /** Worker: */
           .setIoThreads(options.getIoThreads())
-          .setWorkerOption(Options.WORKER_NAME, "application")
+          .setWorkerOption(Options.WORKER_NAME, "worker")
           .setWorkerThreads(options.getWorkerThreads())
           .setHandler(handler);
 
