@@ -5,8 +5,6 @@
  */
 package io.jooby;
 
-import io.netty.buffer.ByteBuf;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -990,14 +988,6 @@ public interface Context extends Registry {
    * @return This context.
    */
   @Nonnull Context send(@Nonnull ByteBuffer data);
-
-  /**
-   * Send response data.
-   *
-   * @param data Response.
-   * @return This context.
-   */
-  @Nonnull Context send(@Nonnull ByteBuf data);
 
   /**
    * Send response data.

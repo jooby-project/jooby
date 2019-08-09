@@ -5,8 +5,6 @@
  */
 package io.jooby;
 
-import io.netty.buffer.ByteBuf;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
@@ -421,12 +419,6 @@ public class MockContext implements DefaultContext {
   @Nonnull @Override public MockContext send(@Nonnull byte[] data) {
     this.response.setResult(data)
         .setContentLength(data.length);
-    return this;
-  }
-
-  @Nonnull @Override public MockContext send(@Nonnull ByteBuf data) {
-    this.response.setResult(data)
-        .setContentLength(data.readableBytes());
     return this;
   }
 

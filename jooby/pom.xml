@@ -164,12 +164,6 @@
       <artifactId>javax.inject</artifactId>
     </dependency>
 
-    <!-- netty-buffer -->
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-buffer</artifactId>
-    </dependency>
-
     <!-- config -->
     <dependency>
       <groupId>com.typesafe</groupId>

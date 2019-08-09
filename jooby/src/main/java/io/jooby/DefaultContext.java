@@ -9,7 +9,6 @@ import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
 import io.jooby.internal.UrlParser;
-import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -436,10 +435,6 @@ public interface DefaultContext extends Context {
 
   @Override default @Nonnull Context send(@Nonnull String data) {
     return send(data, StandardCharsets.UTF_8);
-  }
-
-  @Override default @Nonnull Context send(@Nonnull ByteBuf data) {
-    return send(data.nioBuffer());
   }
 
   @Override default @Nonnull Context send(@Nonnull AttachedFile file) {

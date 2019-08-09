@@ -13,7 +13,6 @@ import io.jooby.MediaType;
 import io.jooby.Sender;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
-import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,10 +43,6 @@ public class ResponseStartedContext extends ForwardingContext {
   }
 
   @Nonnull @Override public Context send(@Nonnull String data) {
-    throw new IllegalStateException(MESSAGE);
-  }
-
-  @Nonnull @Override public Context send(@Nonnull ByteBuf data) {
     throw new IllegalStateException(MESSAGE);
   }
 

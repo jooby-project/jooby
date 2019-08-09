@@ -359,7 +359,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return send(wrappedBuffer(data));
   }
 
-  @Nonnull @Override public Context send(@Nonnull ByteBuf data) {
+  private Context send(@Nonnull ByteBuf data) {
     responseStarted = true;
     setHeaders.set(CONTENT_LENGTH, Long.toString(data.readableBytes()));
     DefaultFullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status,

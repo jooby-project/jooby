@@ -19,7 +19,6 @@ import io.jooby.internal.handler.DispatchHandler;
 import io.jooby.internal.handler.KotlinJobHandler;
 import io.jooby.internal.handler.SendAttachment;
 import io.jooby.internal.handler.SendByteArray;
-import io.jooby.internal.handler.SendByteBuf;
 import io.jooby.internal.handler.SendByteBuffer;
 import io.jooby.internal.handler.SendCharSequence;
 import io.jooby.internal.handler.SendDirect;
@@ -33,7 +32,6 @@ import io.jooby.internal.handler.reactive.ReactorMonoHandler;
 import io.jooby.internal.handler.reactive.RxFlowableHandler;
 import io.jooby.internal.handler.reactive.RxMaybeHandler;
 import io.jooby.internal.handler.reactive.RxSingleHandler;
-import io.netty.buffer.ByteBuf;
 
 import java.io.File;
 import java.io.InputStream;
@@ -163,9 +161,6 @@ public class Pipeline {
     }
     if (ByteBuffer.class.isAssignableFrom(type)) {
       return next(mode, executor, new SendByteBuffer(route.getPipeline()), true);
-    }
-    if (ByteBuf.class.isAssignableFrom(type)) {
-      return next(mode, executor, new SendByteBuf(route.getPipeline()), true);
     }
 
     if (responseHandler != null) {

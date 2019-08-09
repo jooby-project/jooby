@@ -5,8 +5,6 @@
  */
 package io.jooby;
 
-import io.netty.buffer.ByteBuf;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -466,11 +464,6 @@ public class ForwardingContext implements Context {
   }
 
   @Override @Nonnull public Context send(@Nonnull ByteBuffer data) {
-    context.send(data);
-    return this;
-  }
-
-  @Nonnull @Override public Context send(@Nonnull ByteBuf data) {
     context.send(data);
     return this;
   }

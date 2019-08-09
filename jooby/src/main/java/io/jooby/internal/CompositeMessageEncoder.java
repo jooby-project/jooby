@@ -10,7 +10,6 @@ import io.jooby.Context;
 import io.jooby.MessageEncoder;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
-import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -84,10 +83,6 @@ public class CompositeMessageEncoder implements MessageEncoder {
     }
     if (value instanceof ByteBuffer) {
       ctx.send((ByteBuffer) value);
-      return null;
-    }
-    if (value instanceof ByteBuf) {
-      ctx.send((ByteBuf) value);
       return null;
     }
     Iterator<MessageEncoder> iterator = decoders.iterator();
