@@ -18,14 +18,15 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 /**
  * Unit test friendly context implementation. Allows to set context properties.
@@ -50,7 +51,9 @@ public class MockContext implements DefaultContext {
 
   private Body body;
 
-  private Map<String, MessageDecoder> parsers = new HashMap<>();
+  private Object bodyObject;
+
+  private Map<String, MessageDecoder> decoders = new HashMap<>();
 
   private Map<String, Object> responseHeaders = new HashMap<>();
 
@@ -66,6 +69,7 @@ public class MockContext implements DefaultContext {
 
   private Router router;
 
+  private List<FileUpload> files = new ArrayList<>();
 
   @Nonnull @Override public String getMethod() {
     return method;
@@ -224,6 +228,24 @@ public class MockContext implements DefaultContext {
     return multipart;
   }
 
+  @Nonnull @Override public List<FileUpload> files() {
+    return files;
+  }
+
+  public MockContext setFiles(@Nonnull List<FileUpload> files) {
+    this.files = files;
+    return this;
+  }
+
+  @Nonnull @Override public List<FileUpload> files(@Nonnull String name) {
+    return files.stream().filter(it -> it.name().equals(name)).collect(Collectors.toList());
+  }
+
+  @Nonnull @Override public FileUpload file(@Nonnull String name) {
+    return files.stream().filter(it -> it.name().equals(name)).findFirst()
+        .orElseThrow(() -> new TypeMismatchException(name, FileUpload.class));
+  }
+
   /**
    * Set multipart.
    *
@@ -242,14 +264,52 @@ public class MockContext implements DefaultContext {
     return body;
   }
 
+  @Nonnull @Override public <T> T body(@Nonnull Reified<T> type) {
+    if (bodyObject == null) {
+      throw new IllegalStateException("No body was set, use setBody() to set one.");
+    }
+    if (!type.getRawType().isInstance(bodyObject)) {
+      throw new TypeMismatchException("body", FileUpload.class);
+    }
+    return body(type, MediaType.text);
+  }
+
+  @Nonnull @Override public <T> T body(@Nonnull Reified<T> type, @Nonnull MediaType contentType) {
+    if (bodyObject == null) {
+      throw new IllegalStateException("No body was set, use setBody() to set one.");
+    }
+    if (!type.getRawType().isInstance(bodyObject)) {
+      throw new TypeMismatchException("body", type.getType());
+    }
+    return (T) type.getRawType().cast(bodyObject);
+  }
+
+  @Nonnull @Override public <T> T body(@Nonnull Class<T> type) {
+    return body(type, MediaType.text);
+  }
+
+  @Nonnull @Override public <T> T body(@Nonnull Class<T> type, @Nonnull MediaType contentType) {
+    if (bodyObject == null) {
+      throw new IllegalStateException("No body was set, use setBody() to set one.");
+    }
+    if (!type.isInstance(bodyObject)) {
+      throw new TypeMismatchException("body", type);
+    }
+    return type.cast(bodyObject);
+  }
+
   /**
    * Set request body.
    *
    * @param body Request body.
    * @return This context.
    */
-  @Nonnull public MockContext setBody(@Nonnull Body body) {
-    this.body = body;
+  @Nonnull public MockContext setBody(@Nonnull Object body) {
+    if (body instanceof Body) {
+      this.body = (Body) body;
+    } else {
+      this.bodyObject = body;
+    }
     return this;
   }
 
@@ -276,7 +336,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public MessageDecoder decoder(@Nonnull MediaType contentType) {
-    return parsers.getOrDefault(contentType, MessageDecoder.UNSUPPORTED_MEDIA_TYPE);
+    return decoders.getOrDefault(contentType, MessageDecoder.UNSUPPORTED_MEDIA_TYPE);
   }
 
   @Override public boolean isInIoThread() {
@@ -303,26 +363,8 @@ public class MockContext implements DefaultContext {
     return attributes;
   }
 
-  @Nonnull @Override
-  public MockContext setResponseHeader(@Nonnull String name, @Nonnull Date value) {
-    DefaultContext.super.setResponseHeader(name, value);
-    return this;
-  }
-
   @Nonnull @Override public MockContext removeResponseHeader(@Nonnull String name) {
     responseHeaders.remove(name);
-    return this;
-  }
-
-  @Nonnull @Override
-  public MockContext setResponseHeader(@Nonnull String name, @Nonnull Instant value) {
-    DefaultContext.super.setResponseHeader(name, value);
-    return this;
-  }
-
-  @Nonnull @Override
-  public MockContext setResponseHeader(@Nonnull String name, @Nonnull Object value) {
-    DefaultContext.super.setResponseHeader(name, value);
     return this;
   }
 
@@ -433,6 +475,16 @@ public class MockContext implements DefaultContext {
     return this;
   }
 
+  @Nonnull @Override public Context send(@Nonnull AttachedFile file) {
+    this.response.setResult(file);
+    return this;
+  }
+
+  @Nonnull @Override public Context send(@Nonnull Path file) {
+    this.response.setResult(file);
+    return this;
+  }
+
   @Nonnull @Override public MockContext send(@Nonnull ReadableByteChannel channel) {
     this.response.setResult(channel);
     return this;
@@ -451,6 +503,11 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public MockContext sendError(@Nonnull Throwable cause) {
+    return sendError(cause, router.errorCode(cause));
+  }
+
+  @Nonnull @Override
+  public MockContext sendError(@Nonnull Throwable cause, @Nonnull StatusCode statusCode) {
     this.response.setResult(cause)
         .setStatusCode(router.errorCode(cause));
     return this;
@@ -474,6 +531,11 @@ public class MockContext implements DefaultContext {
 
   @Nonnull @Override public MediaType getResponseType() {
     return response.getContentType();
+  }
+
+  @Nonnull @Override public MockContext setResponseCode(@Nonnull StatusCode statusCode) {
+    response.setStatusCode(statusCode);
+    return this;
   }
 
   @Override public boolean isResponseStarted() {

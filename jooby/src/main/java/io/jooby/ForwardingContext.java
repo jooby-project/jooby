@@ -273,11 +273,11 @@ public class ForwardingContext implements Context {
     return context.body(type, contentType);
   }
 
-  @Nonnull @Override public <T> T body(@Nonnull Class type) {
+  @Nonnull @Override public <T> T body(@Nonnull Class<T> type) {
     return context.body(type);
   }
 
-  @Nonnull @Override public <T> T body(@Nonnull Class type, @Nonnull MediaType contentType) {
+  @Nonnull @Override public <T> T body(@Nonnull Class<T> type, @Nonnull MediaType contentType) {
     return context.body(type, contentType);
   }
 

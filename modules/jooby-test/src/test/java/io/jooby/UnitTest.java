@@ -24,6 +24,8 @@ public class UnitTest {
 
     app.post("/", ctx -> ctx.body().value());
 
+    app.post("/pojo", ctx -> ctx.body(PojoBody.class));
+
     MockRouter router = new MockRouter(app);
 
     assertEquals("OK", router.get("/").value());
@@ -53,6 +55,15 @@ public class UnitTest {
     String body = "{\"message\":\"ok\"}";
     router.post("/", new MockContext().setBody(body), result -> {
       assertEquals(body, result.value());
+    });
+
+    PojoBody pojo = new PojoBody();
+    router.post("/pojo", new MockContext().setBody(pojo), result -> {
+      assertEquals(pojo, result.value());
+    });
+
+    router.get("/x/notfound", new MockContext().setBody(pojo), result -> {
+      assertEquals(StatusCode.NOT_FOUND, result.getStatusCode());
     });
   }
 
@@ -119,6 +130,9 @@ public class UnitTest {
   public void mvcApp() {
     MockRouter router = new MockRouter(new MvcApp());
     assertEquals("/mvc", router.get("/mvc").value());
+
+    PojoBody body = new PojoBody();
+    assertEquals(body, router.post("/mvc", new MockContext().setBody(body)).value());
   }
 
 }

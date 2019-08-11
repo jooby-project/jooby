@@ -17,6 +17,7 @@ package io.jooby;
 
 import io.jooby.annotations.Dispatch;
 import io.jooby.annotations.GET;
+import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
 
 @Path("/mvc")
@@ -31,5 +32,10 @@ public class MvcController {
   @GET("/single")
   public String single() {
     return Thread.currentThread().getName();
+  }
+
+  @POST
+  public PojoBody post(PojoBody body) {
+    return body;
   }
 }

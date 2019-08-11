@@ -319,11 +319,11 @@ public interface DefaultContext extends Context {
     }
   }
 
-  @Override default @Nonnull <T> T body(@Nonnull Class type) {
+  @Override default @Nonnull <T> T body(@Nonnull Class<T> type) {
     return body(type, getRequestType(MediaType.text));
   }
 
-  @Override default @Nonnull <T> T body(@Nonnull Class type, @Nonnull MediaType contentType) {
+  @Override default @Nonnull <T> T body(@Nonnull Class<T> type, @Nonnull MediaType contentType) {
     try {
       return decoder(contentType).decode(this, type);
     } catch (Exception x) {

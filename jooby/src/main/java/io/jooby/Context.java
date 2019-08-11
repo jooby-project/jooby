@@ -604,7 +604,7 @@ public interface Context extends Registry {
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
-  @Nonnull <T> T body(@Nonnull Class type);
+  @Nonnull <T> T body(@Nonnull Class<T> type);
 
   /**
    * Convert the HTTP body to the given type.
@@ -614,7 +614,7 @@ public interface Context extends Registry {
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
-  @Nonnull <T> T body(@Nonnull Class type, @Nonnull MediaType contentType);
+  @Nonnull <T> T body(@Nonnull Class<T> type, @Nonnull MediaType contentType);
 
   /* **********************************************************************************************
    * Body MessageDecoder

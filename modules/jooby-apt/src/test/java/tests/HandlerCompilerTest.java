@@ -205,15 +205,14 @@ public class HandlerCompilerTest {
   @Test
   public void fileParam() throws Exception {
     FileUpload file = mock(FileUpload.class);
-    Multipart multipart = Multipart.create();
-    multipart.put("file", file);
+    when(file.name()).thenReturn("file");
     new MvcHandlerCompilerRunner(new Provisioning())
         .compile("/p/fileParam", handler -> {
-          assertEquals(file.toString(), handler.apply(new MockContext().setMultipart(multipart)));
+          assertEquals(file.toString(), handler.apply(new MockContext().setFiles(Arrays.asList(file))));
         })
         .compile("/p/fileParams", handler -> {
           assertEquals(Arrays.asList(file).toString(),
-              handler.apply(new MockContext().setMultipart(multipart)));
+              handler.apply(new MockContext().setFiles(Arrays.asList(file))));
         })
     ;
   }
@@ -246,10 +245,9 @@ public class HandlerCompilerTest {
           Path path = mock(Path.class);
           FileUpload file = mock(FileUpload.class);
           when(file.path()).thenReturn(path);
-          Multipart multipart = Multipart.create();
-          multipart.put("file", file);
+          when(file.name()).thenReturn("file");
           assertEquals(path.toString(),
-              handler.apply(new MockContext().setMultipart(multipart)));
+              handler.apply(new MockContext().setFiles(Arrays.asList(file))));
         })
     ;
   }
