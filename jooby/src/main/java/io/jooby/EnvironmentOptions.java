@@ -6,9 +6,8 @@
 package io.jooby;
 
 import javax.annotation.Nonnull;
-import java.nio.file.Files;
+import javax.annotation.Nullable;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,7 +31,6 @@ public class EnvironmentOptions {
    * Creates environment options. Default application file name is: <code>application.conf</code>.
    */
   public EnvironmentOptions() {
-    setBasedir(defaultDir());
     setFilename("application.conf");
   }
 
@@ -104,11 +102,11 @@ public class EnvironmentOptions {
   }
 
   /**
-   * Base directory.
+   * Base directory to use or <code>null</code> for default.
    *
-   * @return Base directory.
+   * @return Base directory to use or <code>null</code> for default.s
    */
-  public @Nonnull String getBasedir() {
+  public @Nullable String getBasedir() {
     return basedir;
   }
 
@@ -127,7 +125,7 @@ public class EnvironmentOptions {
    * @param basedir Base dir. Classpath folder or file system directory.
    * @return This options.
    */
-  public @Nonnull EnvironmentOptions setBasedir(@Nonnull String basedir) {
+  public @Nonnull EnvironmentOptions setBasedir(@Nullable String basedir) {
     this.basedir = basedir;
     return this;
   }
@@ -138,7 +136,7 @@ public class EnvironmentOptions {
    * @param basedir Base dir.
    * @return This options.
    */
-  public @Nonnull EnvironmentOptions setBasedir(@Nonnull Path basedir) {
+  public @Nonnull EnvironmentOptions setBasedir(@Nullable Path basedir) {
     this.basedir = basedir.toAbsolutePath().toString();
     return this;
   }
@@ -153,11 +151,5 @@ public class EnvironmentOptions {
   public @Nonnull EnvironmentOptions setFilename(@Nonnull String filename) {
     this.filename = filename;
     return this;
-  }
-
-  private static Path defaultDir() {
-    Path userdir = Paths.get(System.getProperty("user.dir"));
-    Path confdir = userdir.resolve("conf");
-    return Files.exists(confdir) ? confdir : userdir;
   }
 }

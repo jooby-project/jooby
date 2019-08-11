@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -300,7 +301,6 @@ public class Environment {
       extension = filename.substring(ext);
       filename = filename.substring(0, ext);
     }
-    String basedir = options.getBasedir();
     Path userdir = Paths.get(System.getProperty("user.dir"));
     /** Application file: */
     Config application = ConfigFactory.empty();
@@ -309,24 +309,28 @@ public class Environment {
       names[i] = filename + "." + actives.get(i).trim().toLowerCase() + extension;
     }
     names[actives.size()] = filename + extension;
-    Path fsroot = Paths.get(basedir).toAbsolutePath();
-    String[] cproot = basedir.split("/");
+
+    String basedir = options.getBasedir();
+
+    Path[] rootdirs;
+    String[] cpdirs;
+    if (basedir == null) {
+      rootdirs = new Path[]{userdir.resolve("conf"), userdir};
+      cpdirs = new String[]{"conf", ""};
+    } else {
+      rootdirs = new Path[]{Paths.get(basedir)};
+      cpdirs = new String[]{basedir};
+    }
+
     for (String name : names) {
-      Path fsfile = fsroot.resolve(name);
-      Config it;
-      if (Files.exists(fsfile)) {
-        String origin = fsfile.startsWith(userdir)
-            ? userdir.relativize(fsfile).toString()
-            : fsfile.toString();
-        it = ConfigFactory.parseFile(fsfile.toFile(),
-            ConfigParseOptions.defaults().setOriginDescription(origin));
-      } else {
-        String cpfile = Stream.concat(Stream.of(cproot), Stream.of(name))
-            .collect(Collectors.joining("/"));
-        it = ConfigFactory.parseResources(options.getClassLoader(), cpfile,
-            ConfigParseOptions.defaults().setOriginDescription("classpath://" + cpfile));
+      Config it = fileConfig(userdir, rootdirs, name);
+      if (it == null) {
+        // classpath
+        it = classpathConfig(options.getClassLoader(), cpdirs, name);
       }
-      application = application.withFallback(it);
+      if (it != null) {
+        application = application.withFallback(it);
+      }
     }
 
     Config result = sys
@@ -371,5 +375,34 @@ public class Environment {
       }
     }
     return pid;
+  }
+
+  private static Config fileConfig(Path userdir, Path[] basedirs, String name) {
+    for (Path basedir : basedirs) {
+      Path file = basedir.resolve(name);
+      if (Files.exists(file)) {
+        String origin = file.startsWith(userdir)
+            ? userdir.relativize(file).toString()
+            : file.toString();
+        return ConfigFactory.parseFile(file.toFile(),
+            ConfigParseOptions.defaults().setOriginDescription(origin));
+      }
+    }
+    return null;
+  }
+
+  private static Config classpathConfig(ClassLoader classLoader, String[] basedirs, String name) {
+    for (String basedir : basedirs) {
+      String file = basedir.isEmpty()
+          ? name
+          : Stream.concat(Stream.of(basedir.split("/")), Stream.of(name))
+          .collect(Collectors.joining("/"));
+      Config config = ConfigFactory.parseResources(classLoader, file,
+          ConfigParseOptions.defaults().setOriginDescription("classpath://" + file));
+      if (!config.isEmpty()) {
+        return config;
+      }
+    }
+    return null;
   }
 }
