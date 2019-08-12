@@ -232,6 +232,12 @@ public class MockContext implements DefaultContext {
     return files;
   }
 
+  /**
+   * Set mock files.
+   *
+   * @param files Mock files.
+   * @return This context.
+   */
   public MockContext setFiles(@Nonnull List<FileUpload> files) {
     this.files = files;
     return this;

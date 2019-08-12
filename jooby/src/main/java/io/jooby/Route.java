@@ -648,14 +648,30 @@ public class Route {
     return this;
   }
 
+  /**
+   * True if route support HTTP OPTIONS.
+   *
+   * @return True if route support HTTP OPTIONS.
+   */
   public boolean isHttpOptions() {
     return supportedMethod != null && supportedMethod.contains(Router.OPTIONS);
   }
 
+  /**
+   * True if route support HTTP TRACE.
+   *
+   * @return True if route support HTTP TRACE.
+   */
   public boolean isHttpTrace() {
     return supportedMethod != null && supportedMethod.contains(Router.TRACE);
   }
 
+  /**
+   * Enabled or disabled HTTP Options.
+   *
+   * @param enabled Enabled or disabled HTTP Options.
+   * @return  This route.
+   */
   public @Nonnull Route setHttpOptions(boolean enabled) {
     if (supportedMethod == null) {
       supportedMethod = new HashSet<>();
@@ -668,6 +684,12 @@ public class Route {
     return this;
   }
 
+  /**
+   * Enabled or disabled HTTP TRACE.
+   *
+   * @param enabled Enabled or disabled HTTP TRACE.
+   * @return  This route.
+   */
   public @Nonnull Route setHttpTrace(boolean enabled) {
     if (supportedMethod == null) {
       supportedMethod = new HashSet<>();

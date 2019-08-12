@@ -52,6 +52,9 @@ public class CorsHandler implements Route.Decorator {
     this.options = options;
   }
 
+  /**
+   * Creates a new {@link CorsHandler} with default options.
+   */
   public CorsHandler() {
     this(new Cors());
   }

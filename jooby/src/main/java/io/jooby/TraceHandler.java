@@ -10,12 +10,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * The TRACE method performs a message loop-back test along the path to the target resource.
+ *
+ * @author
+ * @since 2.0.4
+ */
 public class TraceHandler implements Route.Decorator {
+  private static final String CRLF = "\r\n";
+
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
     return ctx -> {
       if (ctx.getMethod().equals(Router.TRACE)) {
         // Handle trace
-        String CRLF = "\r\n";
         StringBuilder buffer = new StringBuilder(Router.TRACE).append(" ").append(ctx.pathString())
             .append(" ").append(ctx.getProtocol());
 

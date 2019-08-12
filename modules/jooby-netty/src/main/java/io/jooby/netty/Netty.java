@@ -41,6 +41,10 @@ public class Netty extends Server.Base {
         System.getProperty("io.netty.leakDetection.level", "disabled"));
   }
 
+  private static final int _50 = 50;
+
+  private static final int _100 = 100;
+
   private List<Jooby> applications = new ArrayList<>();
 
   private EventLoopGroup acceptorloop;
@@ -82,10 +86,10 @@ public class Netty extends Server.Base {
       NettyTransport transport = NettyTransport.transport(application.getClassLoader());
 
       /** Acceptor event-loop */
-      this.acceptorloop = transport.createEventLoop(1, "acceptor", 50);
+      this.acceptorloop = transport.createEventLoop(1, "acceptor", _50);
 
       /** Event loop: processing connections, parsing messages and doing engine's internal work */
-      this.eventloop = transport.createEventLoop(options.getIoThreads(), "eventloop", 100);
+      this.eventloop = transport.createEventLoop(options.getIoThreads(), "eventloop", _100);
 
       /** File data factory: */
       HttpDataFactory factory = new DefaultHttpDataFactory(options.getBufferSize());

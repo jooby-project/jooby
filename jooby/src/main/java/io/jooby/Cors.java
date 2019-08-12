@@ -7,6 +7,7 @@ package io.jooby;
 
 import com.typesafe.config.Config;
 
+import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,7 +56,7 @@ public class Cors {
 
     private boolean wild;
 
-    public Matcher(final List<String> values, final Predicate<T> predicate) {
+    Matcher(final List<String> values, final Predicate<T> predicate) {
       this.values = values;
       this.predicate = predicate;
       this.wild = values.contains("*");
@@ -70,6 +71,9 @@ public class Cors {
       return values.toString();
     }
   }
+
+  /** Default max-age in minutes. */
+  private static final int _30 = 30;
 
   private Matcher<String> origin;
 
@@ -100,7 +104,7 @@ public class Cors {
     setUseCredentials(true);
     setMethods("GET", "POST");
     setHeaders("X-Requested-With", "Content-Type", "Accept", "Origin");
-    setMaxAge(Duration.ofMinutes(30));
+    setMaxAge(Duration.ofMinutes(_30));
   }
 
   /**
@@ -112,6 +116,12 @@ public class Cors {
     return this.credentials;
   }
 
+  /**
+   * If true, set the <code>Access-Control-Allow-Credentials</code> header.
+   *
+   * @param credentials Credentials.
+   * @return This cors.
+   */
   public Cors setUseCredentials(boolean credentials) {
     this.credentials = credentials;
     return this;
@@ -310,7 +320,23 @@ public class Cors {
     return this;
   }
 
-  public static Cors from(Config conf) {
+  /**
+   * Get cors options from application configuration file.
+   *
+   * <pre>{@code
+   * cors {
+   *   origin: *
+   *   methods: [GET, POST]
+   *   headers: [Custom-Header]
+   *   maxAge: 30m
+   *   exposesHeaders: [Header]
+   * }
+   * }</pre>
+   *
+   * @param conf Configuration.
+   * @return Cors options.
+   */
+  public static @Nonnull Cors from(@Nonnull Config conf) {
     Config cors = conf.hasPath("cors") ? conf.getConfig("cors") : conf;
     Cors options = new Cors();
     if (cors.hasPath("origin")) {
