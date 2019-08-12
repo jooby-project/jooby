@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * Route contains information about the HTTP method, path pattern, which content types consumes and
@@ -307,7 +306,7 @@ public class Route {
 
   private static final Map EMPTY_MAP = Collections.emptyMap();
 
-  private Map<String, MessageDecoder> parsers = EMPTY_MAP;
+  private Map<String, MessageDecoder> decoders = EMPTY_MAP;
 
   private final String pattern;
 
@@ -626,7 +625,7 @@ public class Route {
    * @return MessageDecoder.
    */
   public @Nonnull MessageDecoder decoder(@Nonnull MediaType contentType) {
-    return parsers.getOrDefault(contentType.getValue(), MessageDecoder.UNSUPPORTED_MEDIA_TYPE);
+    return decoders.getOrDefault(contentType.getValue(), MessageDecoder.UNSUPPORTED_MEDIA_TYPE);
   }
 
   /**
@@ -635,7 +634,7 @@ public class Route {
    * @return Message decoders.
    */
   public @Nonnull Map<String, MessageDecoder> getDecoders() {
-    return parsers;
+    return decoders;
   }
 
   /**
@@ -645,7 +644,7 @@ public class Route {
    * @return This route.
    */
   public @Nonnull Route setDecoders(@Nonnull Map<String, MessageDecoder> decoders) {
-    this.parsers = decoders;
+    this.decoders = decoders;
     return this;
   }
 
@@ -653,12 +652,8 @@ public class Route {
     return supportedMethod != null && supportedMethod.contains(Router.OPTIONS);
   }
 
-  public @Nonnull Route setSupports(String... httpMethods) {
-    if (supportedMethod == null) {
-      supportedMethod = new HashSet<>();
-    }
-    Stream.of(httpMethods).forEach(m -> supportedMethod.add(m.toUpperCase()));
-    return this;
+  public boolean isHttpTrace() {
+    return supportedMethod != null && supportedMethod.contains(Router.TRACE);
   }
 
   public @Nonnull Route setHttpOptions(boolean enabled) {
@@ -669,6 +664,18 @@ public class Route {
       supportedMethod.add(Router.OPTIONS);
     } else {
       supportedMethod.remove(Router.OPTIONS);
+    }
+    return this;
+  }
+
+  public @Nonnull Route setHttpTrace(boolean enabled) {
+    if (supportedMethod == null) {
+      supportedMethod = new HashSet<>();
+    }
+    if (enabled) {
+      supportedMethod.add(Router.TRACE);
+    } else {
+      supportedMethod.remove(Router.TRACE);
     }
     return this;
   }

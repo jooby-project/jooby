@@ -95,7 +95,13 @@ public class WebClient {
     options(path).execute(callback);
   }
 
+  public Request trace(String path) {
+    return invoke("TRACE", path, null);
+  }
 
+  public void trace(String path, SneakyThrows.Consumer<Response> callback) {
+    trace(path).execute(callback);
+  }
 
   public Request post(String path) {
     return post(path, EMPTY_BODY);

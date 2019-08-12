@@ -380,6 +380,8 @@ public class RouterImpl implements Router {
     tree.insert(route.getMethod(), routePattern, route);
     if (route.isHttpOptions()) {
       tree.insert(Router.OPTIONS, routePattern, route);
+    } else if (route.isHttpTrace()) {
+      tree.insert(Router.TRACE, routePattern, route);
     }
     routes.add(route);
 

@@ -2701,6 +2701,26 @@ public class FeaturedTest {
     });
   }
 
+  @Test
+  public void trace() {
+    new JoobyRunner(app -> {
+      app.decorator(new TraceHandler());
+
+      app.get("/foo", Context::pathString);
+    }).ready(client -> {
+      client.trace("/foo", rsp -> {
+        assertEquals(StatusCode.OK.value(), rsp.code());
+        assertEquals("message/http", rsp.header("Content-Type"));
+        assertTrue(rsp.body().string().startsWith("TRACE /foo HTTP/1.1"));
+      });
+
+      client.get("/foo", rsp -> {
+        assertEquals(StatusCode.OK.value(), rsp.code());
+        assertEquals("/foo", rsp.body().string());
+      });
+    });
+  }
+
   private static String readText(Path file) {
     try {
       return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
