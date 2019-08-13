@@ -103,6 +103,14 @@ public class WebClient {
     trace(path).execute(callback);
   }
 
+  public Request head(String path) {
+    return invoke("HEAD", path, null);
+  }
+
+  public void head(String path, SneakyThrows.Consumer<Response> callback) {
+    head(path).execute(callback);
+  }
+
   public Request post(String path) {
     return post(path, EMPTY_BODY);
   }

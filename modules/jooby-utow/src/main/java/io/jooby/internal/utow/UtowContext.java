@@ -323,7 +323,6 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Nonnull @Override public Context send(StatusCode statusCode) {
-    exchange.setResponseContentLength(0);
     exchange.setStatusCode(statusCode.value());
     exchange.getResponseSender().send(EMPTY, this);
     return this;

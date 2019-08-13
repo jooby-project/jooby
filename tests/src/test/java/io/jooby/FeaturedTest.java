@@ -60,8 +60,10 @@ import static io.jooby.ExecutionMode.EVENT_LOOP;
 import static io.jooby.ExecutionMode.WORKER;
 import static io.jooby.MediaType.text;
 import static io.jooby.MediaType.xml;
+import static io.restassured.RestAssured.given;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static okhttp3.RequestBody.create;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -2717,6 +2719,46 @@ public class FeaturedTest {
       client.get("/foo", rsp -> {
         assertEquals(StatusCode.OK.value(), rsp.code());
         assertEquals("/foo", rsp.body().string());
+      });
+    });
+  }
+
+  @Test
+  public void head() {
+    new JoobyRunner(app -> {
+      app.install(new JacksonModule());
+      app.decorator(new HeadHandler());
+
+      app.get("/fn", ctx -> "string");
+
+      app.get("/side-effects", ctx -> ctx.send("side-effects"));
+
+      app.get("/json", ctx -> new HashMap<>());
+
+      app.get("/render", ctx -> ctx.render(new HashMap<>()));
+    }).ready(client -> {
+      client.head("/fn", rsp -> {
+        assertEquals("6", rsp.header("Content-Length"));
+        assertEquals("", rsp.body().string());
+        assertEquals(200, rsp.code());
+      });
+
+      client.head("/json", rsp -> {
+        assertEquals("2", rsp.header("Content-Length"));
+        assertEquals("", rsp.body().string());
+        assertEquals(200, rsp.code());
+      });
+
+      client.head("/side-effects", rsp -> {
+        assertEquals(Integer.toString("side-effects".length()), rsp.header("Content-Length"));
+        assertEquals("", rsp.body().string());
+        assertEquals(200, rsp.code());
+      });
+
+      client.head("/render", rsp -> {
+        assertEquals("2", rsp.header("Content-Length"));
+        assertEquals("", rsp.body().string());
+        assertEquals(200, rsp.code());
       });
     });
   }

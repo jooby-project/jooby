@@ -41,6 +41,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -454,7 +455,9 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Nonnull @Override public Context send(StatusCode statusCode) {
     responseStarted = true;
-    setHeaders.set(CONTENT_LENGTH, 0);
+    if (!setHeaders.contains(CONTENT_LENGTH)) {
+      setHeaders.set(CONTENT_LENGTH, "0");
+    }
     DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HTTP_1_1,
         HttpResponseStatus.valueOf(statusCode.value()), Unpooled.EMPTY_BUFFER, setHeaders,
         NO_TRAILING);

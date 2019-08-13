@@ -24,7 +24,7 @@ import java.util.List;
 
 public class CompositeMessageEncoder implements MessageEncoder {
 
-  private List<MessageEncoder> decoders = new ArrayList<>(2);
+  private List<MessageEncoder> encoder = new ArrayList<>(2);
 
   private List<TemplateEngine> templateEngine = new ArrayList<>(2);
 
@@ -32,7 +32,7 @@ public class CompositeMessageEncoder implements MessageEncoder {
     if (encoder instanceof TemplateEngine) {
       templateEngine.add((TemplateEngine) encoder);
     } else {
-      decoders.add(encoder);
+      this.encoder.add(encoder);
     }
     return this;
   }
@@ -85,7 +85,7 @@ public class CompositeMessageEncoder implements MessageEncoder {
       ctx.send((ByteBuffer) value);
       return null;
     }
-    Iterator<MessageEncoder> iterator = decoders.iterator();
+    Iterator<MessageEncoder> iterator = encoder.iterator();
     /** NOTE: looks like an infinite loop but there is a default renderer at the end of iterator. */
     byte[] result = null;
     while (result == null) {

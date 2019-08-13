@@ -341,8 +341,6 @@ public class JettyContext implements Callback, DefaultContext {
   }
 
   @Nonnull @Override public Context send(StatusCode statusCode) {
-    response.setHeader(HttpHeader.TRANSFER_ENCODING, null);
-    response.setLongContentLength(0);
     response.setStatus(statusCode.value());
     send(ByteBuffer.wrap(new byte[0]));
     return this;

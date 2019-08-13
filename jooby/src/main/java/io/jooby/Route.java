@@ -654,7 +654,7 @@ public class Route {
    * @return True if route support HTTP OPTIONS.
    */
   public boolean isHttpOptions() {
-    return supportedMethod != null && supportedMethod.contains(Router.OPTIONS);
+    return isHttpMethod(Router.OPTIONS);
   }
 
   /**
@@ -663,24 +663,26 @@ public class Route {
    * @return True if route support HTTP TRACE.
    */
   public boolean isHttpTrace() {
-    return supportedMethod != null && supportedMethod.contains(Router.TRACE);
+    return isHttpMethod(Router.TRACE);
+  }
+
+  /**
+   * True if route support HTTP HEAD.
+   *
+   * @return True if route support HTTP HEAD.
+   */
+  public boolean isHttpHead() {
+    return getMethod().equals(Router.GET) && isHttpMethod(Router.HEAD);
   }
 
   /**
    * Enabled or disabled HTTP Options.
    *
    * @param enabled Enabled or disabled HTTP Options.
-   * @return  This route.
+   * @return This route.
    */
   public @Nonnull Route setHttpOptions(boolean enabled) {
-    if (supportedMethod == null) {
-      supportedMethod = new HashSet<>();
-    }
-    if (enabled) {
-      supportedMethod.add(Router.OPTIONS);
-    } else {
-      supportedMethod.remove(Router.OPTIONS);
-    }
+    addHttpMethod(enabled, Router.OPTIONS);
     return this;
   }
 
@@ -688,22 +690,41 @@ public class Route {
    * Enabled or disabled HTTP TRACE.
    *
    * @param enabled Enabled or disabled HTTP TRACE.
-   * @return  This route.
+   * @return This route.
    */
   public @Nonnull Route setHttpTrace(boolean enabled) {
-    if (supportedMethod == null) {
-      supportedMethod = new HashSet<>();
-    }
-    if (enabled) {
-      supportedMethod.add(Router.TRACE);
-    } else {
-      supportedMethod.remove(Router.TRACE);
-    }
+    addHttpMethod(enabled, Router.TRACE);
+    return this;
+  }
+
+  /**
+   * Enabled or disabled HTTP HEAD.
+   *
+   * @param enabled Enabled or disabled HTTP HEAD.
+   * @return This route.
+   */
+  public @Nonnull Route setHttpHead(boolean enabled) {
+    addHttpMethod(enabled, Router.HEAD);
     return this;
   }
 
   @Override public String toString() {
     return method + " " + pattern;
+  }
+
+  private boolean isHttpMethod(String httpMethod) {
+    return supportedMethod != null && supportedMethod.contains(httpMethod);
+  }
+
+  private void addHttpMethod(boolean enabled, String httpMethod) {
+    if (supportedMethod == null) {
+      supportedMethod = new HashSet<>();
+    }
+    if (enabled) {
+      supportedMethod.add(httpMethod);
+    } else {
+      supportedMethod.remove(httpMethod);
+    }
   }
 
   private Route.Handler computePipeline() {

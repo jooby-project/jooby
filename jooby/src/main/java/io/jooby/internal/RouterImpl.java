@@ -6,6 +6,7 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
+import io.jooby.HeadHandler;
 import io.jooby.RegistryException;
 import io.jooby.ServiceKey;
 import io.jooby.StatusCodeException;
@@ -382,6 +383,8 @@ public class RouterImpl implements Router {
       tree.insert(Router.OPTIONS, routePattern, route);
     } else if (route.isHttpTrace()) {
       tree.insert(Router.TRACE, routePattern, route);
+    } else if (route.isHttpHead() && route.getMethod().equals(GET)) {
+      tree.insert(Router.HEAD, routePattern, route);
     }
     routes.add(route);
 
