@@ -47,7 +47,7 @@ public class MvcMetadata {
   }
 
   private static ClassVisitor visitor(final Map<String, MvcMethod> md) {
-    return new ClassVisitor(Opcodes.ASM5) {
+    return new ClassVisitor(Opcodes.ASM7) {
 
       private String classname;
 
