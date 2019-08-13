@@ -7,6 +7,19 @@ package io.jooby;
 
 import javax.annotation.Nonnull;
 
+/**
+ * Add support for HTTP Head requests.
+ *
+ * Usage:
+ * <pre>{@code
+ *   decorator(new HeadHandler());
+ *
+ *   get("/some", ctx -> "...");
+ *
+ * }</pre>
+ * @author edgar
+ * @since 2.0.4
+ */
 public class HeadHandler implements Route.Decorator {
   @Nonnull @Override public Route.Handler apply(@Nonnull Route.Handler next) {
     // NOOP, but we need it for marking the route as HTTP HEAD
