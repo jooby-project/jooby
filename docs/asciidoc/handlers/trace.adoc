@@ -1,0 +1,44 @@
+=== TraceHandler
+
+Jooby doesn't support `HTTP Trace` requests by default. To support them you have two options:
+
+- Use the built-in `TraceHandler`
+- Write your own trace handler
+
+The javadoc:TraceHandler[] supports `TRACE` requests over existing handlers.
+
+.Head Example
+[source, java, role = "primary"]
+----
+import io.jooby.Jooby;
+import io.jooby.TraceHandler;
+...
+{
+  
+  decorator(new TraceHandler()); <1>
+  
+  get("/", ctx -> {
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Jooby
+import io.jooby.TraceHandler
+...
+{
+  decorator(TraceHandler())      <1>
+  
+  get("/") {
+    ...
+  }
+}
+----
+
+<1> Install TraceHandler
+
+`TRACE /` performs a message loop-back test along the path to the target resource, providing a
+useful debugging mechanism.

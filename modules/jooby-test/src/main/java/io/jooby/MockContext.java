@@ -385,6 +385,10 @@ public class MockContext implements DefaultContext {
     return this;
   }
 
+  @Override public long getResponseLength() {
+    return response.getContentLength();
+  }
+
   @Nonnull @Override public MockContext setResponseType(@Nonnull String contentType) {
     response.setContentType(MediaType.valueOf(contentType));
     return this;

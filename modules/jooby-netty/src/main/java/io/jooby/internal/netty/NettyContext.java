@@ -313,6 +313,10 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return this;
   }
 
+  @Override public long getResponseLength() {
+    return contentLength;
+  }
+
   @Nonnull public Context setResponseCookie(@Nonnull Cookie cookie) {
     if (responseCookies == null) {
       responseCookies = new HashMap<>();

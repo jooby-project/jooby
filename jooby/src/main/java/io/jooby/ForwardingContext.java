@@ -330,6 +330,10 @@ public class ForwardingContext implements Context {
     return this;
   }
 
+  @Override public long getResponseLength() {
+    return ctx.getResponseLength();
+  }
+
   @Override @Nonnull public Context setResponseLength(long length) {
     ctx.setResponseLength(length);
     return this;

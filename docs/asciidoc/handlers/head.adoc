@@ -1,0 +1,46 @@
+=== HeadHandler
+
+Jooby doesn't support `HTTP HEAD` requests by default. To support them you have two options:
+
+- Use the built-in `HeadHandler`
+- Write your own head handler
+
+The javadoc:HeadHandler[] supports `HEAD` requests over existing `GET` handlers.
+
+.Head Example
+[source, java, role = "primary"]
+----
+import io.jooby.Jooby;
+import io.jooby.HeadHandler;
+...
+{
+  
+  decorator(new HeadHandler()); <1>
+  
+  get("/", ctx -> {
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Jooby
+import io.jooby.HeadHandler
+...
+{
+  decorator(HeadHandler())      <1>
+  
+  get("/") {
+    ...
+  }
+}
+----
+
+<1> Install HeadHandler
+
+`HEAD /` produces an empty response with a `Content-Length` header (when possible) and any other
+header produce it by the `GET` handler.
+
+The `GET` handler is executed but produces an empty response.

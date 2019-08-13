@@ -1,0 +1,9 @@
+== Handlers
+
+This section describes some built-in handler provided by Jooby.
+
+include::handlers/cors.adoc[]
+
+include::handlers/head.adoc[]
+
+include::handlers/trace.adoc[]

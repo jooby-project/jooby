@@ -760,6 +760,13 @@ public interface Context extends Registry {
   @Nonnull Context setResponseLength(long length);
 
   /**
+   * Get response content length or <code>-1</code> when none was set.
+   *
+   * @return Response content length or <code>-1</code> when none was set.
+   */
+  long getResponseLength();
+
+  /**
    * Set/add a cookie to response.
    *
    * @param cookie Cookie to add.

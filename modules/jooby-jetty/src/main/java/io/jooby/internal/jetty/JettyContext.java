@@ -298,6 +298,10 @@ public class JettyContext implements Callback, DefaultContext {
     return this;
   }
 
+  @Override public long getResponseLength() {
+    return response.getContentLength();
+  }
+
   @Nonnull public Context setResponseCookie(@Nonnull Cookie cookie) {
     if (responseCookies == null) {
       responseCookies = new HashMap<>();

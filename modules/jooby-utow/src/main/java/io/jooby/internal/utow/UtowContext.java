@@ -76,6 +76,7 @@ public class UtowContext implements DefaultContext, IoCallback {
   private MediaType responseType;
   private Map<String, String> cookies;
   private HashMap<String, String> responseCookies;
+  private long responseLength = -1;
 
   public UtowContext(HttpServerExchange exchange, Router router) {
     this.exchange = exchange;
@@ -263,8 +264,13 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Nonnull @Override public Context setResponseLength(long length) {
+    responseLength = length;
     exchange.getResponseHeaders().put(CONTENT_LENGTH, Long.toString(length));
     return this;
+  }
+
+  @Override public long getResponseLength() {
+    return responseLength;
   }
 
   @Nonnull public Context setResponseCookie(@Nonnull Cookie cookie) {

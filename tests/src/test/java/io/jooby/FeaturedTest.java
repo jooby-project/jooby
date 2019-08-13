@@ -2736,6 +2736,9 @@ public class FeaturedTest {
       app.get("/json", ctx -> new HashMap<>());
 
       app.get("/render", ctx -> ctx.render(new HashMap<>()));
+
+      app.assets("/?*",
+          new AssetHandler("fallback.html", AssetSource.create(app.getClassLoader(), "/www")));
     }).ready(client -> {
       client.head("/fn", rsp -> {
         assertEquals("6", rsp.header("Content-Length"));
@@ -2757,6 +2760,15 @@ public class FeaturedTest {
 
       client.head("/render", rsp -> {
         assertEquals("2", rsp.header("Content-Length"));
+        assertEquals("", rsp.body().string());
+        assertEquals(200, rsp.code());
+      });
+
+      client.head("/foo.js", rsp -> {
+        assertEquals("41", rsp.header("Content-Length"));
+        assertEquals("application/javascript;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+        assertNotNull(rsp.header("ETag"));
+        assertNotNull(rsp.header("Last-Modified"));
         assertEquals("", rsp.body().string());
         assertEquals(200, rsp.code());
       });

@@ -226,7 +226,7 @@ include::mvc-api.adoc[]
 
 include::error-handler.adoc[]
 
-include::cors.adoc[]
+include::handlers.adoc[]
 
 include::configuration.adoc[]
 
