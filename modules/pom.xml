@@ -41,6 +41,7 @@
     <module>jooby-archetype</module>
 
     <module>jooby-run</module>
+    <module>jooby-cli</module>
     <module>jooby-maven-plugin</module>
     <module>jooby-gradle-plugin</module>
   </modules>
