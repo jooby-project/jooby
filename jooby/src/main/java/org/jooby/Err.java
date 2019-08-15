@@ -203,10 +203,7 @@
  */
 package org.jooby;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -298,17 +295,14 @@ public class Err extends RuntimeException {
       Function<Object, String> xssFilter = env.xss("html").compose(Objects::toString);
       BiFunction<String, Object, String> escaper = (k, v) -> xssFilter.apply(v);
 
-      Supplier<Map<String, Object>> detailsProvider = () -> {
-        Map<String, Object> map = ex.toMap(stackstrace);
-        map.compute("message", escaper);
-        map.compute("reason", escaper);
-        return map;
-      };
+      Map<String, Object> details = ex.toMap(stackstrace);
+      details.compute("message", escaper);
+      details.compute("reason", escaper);
 
       rsp.send(
           Results
-              .when(MediaType.html, () -> Results.html(VIEW).put("err", detailsProvider.get()))
-              .when(MediaType.all, detailsProvider::get));
+              .when(MediaType.html, () -> Results.html(VIEW).put("err", details))
+              .when(MediaType.all, () -> details));
     }
 
   }

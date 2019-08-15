@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
@@ -148,11 +149,12 @@ public class DefaultErrHandlerTest {
 
   private void checkErr(final String[] stacktrace, final String message,
       final Map<String, Object> err) {
-    assertEquals(message, err.remove("message"));
-    assertEquals("Server Error", err.remove("reason"));
-    assertEquals(500, err.remove("status"));
-    assertArrayEquals(stacktrace, (String[]) err.remove("stacktrace"));
-    assertEquals(err.toString(), 0, err.size());
+    final Map<String, Object> copy = new LinkedHashMap<>(err);
+    assertEquals(message, copy.remove("message"));
+    assertEquals("Server Error", copy.remove("reason"));
+    assertEquals(500, copy.remove("status"));
+    assertArrayEquals(stacktrace, (String[]) copy.remove("stacktrace"));
+    assertEquals(copy.toString(), 0, copy.size());
   }
 
 }
