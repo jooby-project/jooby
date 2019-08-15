@@ -627,7 +627,7 @@ public class HttpHandlerImpl implements HttpHandler {
           // default /favicon.ico handler:
           rsp.status(Status.NOT_FOUND).end();
         } else {
-          throw new Err(Status.NOT_FOUND, req.path(true));
+          throw new Err(Status.NOT_FOUND, req.path());
         }
       }
     }, method, path, "err", accept));
