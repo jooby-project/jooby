@@ -168,9 +168,8 @@ public class DocGenerator {
   private static Options createOptions(Path basedir, Path outdir, String version, String title)
       throws IOException {
     Attributes attributes = new Attributes();
-    attributes.setAttribute("joobyVersion", version);
-    attributes.setAttribute("love", "&#9825;");
 
+    attributes.setAttribute("love", "&#9825;");
     attributes.setAttribute("docinfo", "shared");
     attributes.setTitle(title == null ? "jooby: do more! more easily!!" : "jooby: " + title);
     attributes.setTableOfContents(Placement.LEFT);
@@ -198,6 +197,8 @@ public class DocGenerator {
         .parse(DocGenerator.basedir().getParent().resolve("pom.xml").toFile(), "UTF-8");
     pom.select("properties > *").stream()
         .forEach(tag -> attributes.setAttribute(toJavaName(tag.tagName()), tag.text().trim()));
+
+    attributes.setAttribute("joobyVersion", version);
 
     Options options = new Options();
     options.setBackend("html");
@@ -350,10 +351,9 @@ public class DocGenerator {
 
   public static String version() {
     try {
-      return Jsoup.parse(basedir().getParent().resolve("pom.xml").toFile(), "utf-8")
-          .selectFirst("version")
-          .text()
-          .trim();
+      Document doc = Jsoup.parse(basedir().getParent().resolve("pom.xml").toFile(), "utf-8");
+      String version = doc.selectFirst("version").text().trim();
+      return version;
     } catch (IOException x) {
       throw new IllegalStateException(x);
     }

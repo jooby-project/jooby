@@ -73,7 +73,31 @@ listening on:
 
 Ready {love}!
 
-=== Code snippets
+=== Maven Archetype
+
+The Maven archetype creates a minimal Jooby application.
+
+.Interactive type
+[source, bash, subs="verbatim,attributes"]
+----
+mvn archetype:generate -B -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=io.jooby -DarchetypeVersion={joobyVersion}
+----
+
+You'll be ask for:
+
+- `groupId`: used for application package name
+- `artifactId`: used for application name
+- `version`: application version
+
+Alternative you can specify all these parameters inline:
+
+.Inline
+[source, bash, subs="verbatim,attributes"]
+----
+mvn archetype:generate -B -DgroupId=mypackage -DartifactId=my-app -Dversion=1.0.0 -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=io.jooby -DarchetypeVersion={joobyVersion}
+----
+
+=== Code Snippets
 
 For simplicity and brevity we are going to skip the `runApp` function and extending `Jooby`.
 A code example will looks like:
