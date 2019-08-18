@@ -135,7 +135,7 @@ public class JoobyExtension implements BeforeAllCallback, BeforeEachCallback, Af
     if (Config.class.isAssignableFrom(type)) {
       return () -> application(context).getEnvironment().getConfig();
     }
-    throw new IllegalArgumentException("Unsupported: " + type + " " + name);
+    return null;
   }
 
   private Jooby application(ExtensionContext context) {
