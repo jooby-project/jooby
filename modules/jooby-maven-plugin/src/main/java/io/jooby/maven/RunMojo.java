@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 @Mojo(name = "run", threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
-@Execute(phase = LifecyclePhase.TEST)
+@Execute(phase = LifecyclePhase.TEST_COMPILE)
 public class RunMojo extends AbstractMojo {
 
   static {
