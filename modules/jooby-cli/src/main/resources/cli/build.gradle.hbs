@@ -42,20 +42,24 @@ dependencyManagement {
 }
 
 dependencies {
-  compile "io.jooby:jooby-{{server}}"
-  compile "ch.qos.logback:logback-classic"
+{{#each dependencies}}
+  compile "{{this}}"
+{{/each}}
 
-  testImplementation "org.junit.jupiter:junit-jupiter-api"
-  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
-  testCompile "io.jooby:jooby-test"
-  testCompile "com.squareup.okhttp3:okhttp"
+{{#each testDependencies}}
+  testCompile "{{this}}"
+{{/each}}
 }
 
 test {
   useJUnitPlatform()
 }
 
-{{#if koltin}}
+{{#if kotlin}}
+/** Kotlin debug information: */
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+  kotlinOptions.javaParameters = true
+}
 {{else}}
 /** Java debug information: */
 tasks.withType(JavaCompile) {

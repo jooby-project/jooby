@@ -10,7 +10,11 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
 import org.jline.reader.LineReader;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class CommandContext {
 
@@ -30,5 +34,19 @@ public class CommandContext {
 
   public void exit(int code) {
     System.exit(code);
+  }
+
+  public void writeTemplate(String template, Object model, Path file) throws IOException {
+    Path parent = file.getParent();
+    if (!Files.exists(parent)) {
+      Files.createDirectories(parent);
+    }
+    try (PrintWriter writer = new PrintWriter(file.toFile())) {
+      writeTemplate(template, model, writer);
+    }
+  }
+
+  public void writeTemplate(String template, Object model, Writer writer) throws IOException {
+    templates.compile(template).apply(model, writer);
   }
 }
