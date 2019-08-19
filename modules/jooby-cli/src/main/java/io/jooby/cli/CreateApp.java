@@ -27,14 +27,17 @@ public class CreateApp extends Command implements Runnable {
   @CommandLine.Parameters
   private String name;
 
-  @CommandLine.Option(names = {"-g", "--gradle"})
+  @CommandLine.Option(names = {"-g", "--gradle"}, description = "Generates a gradle project")
   private boolean gradle;
 
-  @CommandLine.Option(names = {"-kt", "--kotlin"}, description = "Generate a Kotlin application")
+  @CommandLine.Option(names = {"-kt", "--kotlin"}, description = "Generates a Kotlin application")
   private boolean kotlin;
 
   @CommandLine.Option(names = {"-X"}, description = "Print debug information")
   private boolean debug;
+
+  @CommandLine.Option(names = {"-stork"}, description = "Generates a zip like distribution using stork (Maven only)")
+  private boolean stork;
 
   @Override public void run(CommandContext ctx) throws Exception {
     if (debug) {
@@ -51,6 +54,8 @@ public class CreateApp extends Command implements Runnable {
     String language = kotlin ? "kotlin" : "java";
     String extension = kotlin ? "kt" : "java";
 
+    boolean stork = !gradle && this.stork;
+
     Map<String, Object> model = new HashMap<>();
     model.put("package", packageName);
     model.put("groupId", packageName);
@@ -61,6 +66,8 @@ public class CreateApp extends Command implements Runnable {
     model.put("kotlin", kotlin);
     model.put("dependencies", dependencies("netty", kotlin));
     model.put("testDependencies", testDependencies(kotlin));
+    // Stork is available on maven only
+    model.put("stork", stork);
 
     ctx.writeTemplate(templateName, model, projectDir.resolve(buildFileName));
 
@@ -71,6 +78,10 @@ public class CreateApp extends Command implements Runnable {
 
     if (gradle) {
       gradleWrapper(ctx, projectDir, model);
+    }
+
+    if (stork) {
+      stork(ctx, projectDir, model);
     }
 
     /** Source directories: */
@@ -93,10 +104,14 @@ public class CreateApp extends Command implements Runnable {
         testPackagePath.resolve("IntegrationTest." + extension));
   }
 
+  private void stork(CommandContext ctx, Path projectDir, Map<String, Object> model)
+      throws IOException {
+    ctx.writeTemplate("stork.yml", model, projectDir.resolve("src").resolve("etc").resolve("stork.yml"));
+  }
+
   private void gradleWrapper(CommandContext ctx, Path projectDir, Map<String, Object> model)
       throws IOException {
     Path wrapperDir = projectDir.resolve("gradle").resolve("wrapper");
-    Files.createDirectories(wrapperDir);
 
     ctx.writeTemplate("gradle/settings.gradle", model, projectDir.resolve("settings.gradle"));
     copyResource("/cli/gradle/gradlew", projectDir.resolve("gradlew"),
