@@ -5,26 +5,22 @@
  */
 package io.jooby.cli;
 
-import io.jooby.SneakyThrows;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import static java.nio.file.attribute.PosixFilePermission.GROUP_EXECUTE;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
-import static java.util.Collections.singleton;
 
 @CommandLine.Command(name = "create", description = "Creates a new application")
 public class CreateApp extends Command implements Runnable {
@@ -63,17 +59,15 @@ public class CreateApp extends Command implements Runnable {
     model.put("joobyVersion", new VersionProvider().getVersion()[0]);
     model.put("server", "netty");
     model.put("kotlin", kotlin);
+    model.put("dependencies", dependencies("netty", kotlin));
+    model.put("testDependencies", testDependencies(kotlin));
 
-    withWriter(projectDir.resolve(buildFileName),
-        writer -> ctx.templates.compile(templateName).apply(model, writer));
+    ctx.writeTemplate(templateName, model, projectDir.resolve(buildFileName));
 
     // Copy conf
     Path confDir = projectDir.resolve("conf");
-    Files.createDirectory(confDir);
-    withInputStream("/cli/conf/application.conf",
-        in -> Files.copy(in, confDir.resolve("application.conf")));
-    withInputStream("/cli/conf/logback.xml",
-        in -> Files.copy(in, confDir.resolve("logback.xml")));
+    copyResource("/cli/conf/application.conf", confDir.resolve("application.conf"));
+    copyResource("/cli/conf/logback.xml", confDir.resolve("logback.xml"));
 
     if (gradle) {
       gradleWrapper(ctx, projectDir, model);
@@ -85,20 +79,18 @@ public class CreateApp extends Command implements Runnable {
     Path packagePath = Stream.of(packageName.split("\\."))
         .reduce(javaPath, Path::resolve, Path::resolve);
 
-    Files.createDirectories(packagePath);
-    withWriter(packagePath.resolve("App." + extension),
-        writer -> ctx.templates.compile("App." + extension).apply(model, writer));
+    ctx.writeTemplate("App." + extension, model, packagePath.resolve("App." + extension));
 
     /** Test directories: */
     Path testPath = projectDir.resolve("src").resolve("test");
     Path testJavaPath = testPath.resolve(language);
     Path testPackagePath = Stream.of(packageName.split("\\."))
         .reduce(testJavaPath, Path::resolve, Path::resolve);
-    Files.createDirectories(testPackagePath);
-    withWriter(testPackagePath.resolve("UnitTest." + extension),
-        writer -> ctx.templates.compile("UnitTest." + extension).apply(model, writer));
-    withWriter(testPackagePath.resolve("IntegrationTest." + extension),
-        writer -> ctx.templates.compile("IntegrationTest." + extension).apply(model, writer));
+
+    ctx.writeTemplate("UnitTest." + extension, model,
+        testPackagePath.resolve("UnitTest." + extension));
+    ctx.writeTemplate("IntegrationTest." + extension, model,
+        testPackagePath.resolve("IntegrationTest." + extension));
   }
 
   private void gradleWrapper(CommandContext ctx, Path projectDir, Map<String, Object> model)
@@ -106,21 +98,16 @@ public class CreateApp extends Command implements Runnable {
     Path wrapperDir = projectDir.resolve("gradle").resolve("wrapper");
     Files.createDirectories(wrapperDir);
 
-    withWriter(projectDir.resolve("settings.gradle"),
-        w -> ctx.templates.compile("gradle/settings.gradle").apply(model, w));
-    withInputStream("/cli/gradle/gradlew", in -> {
-      Path gradlew = projectDir.resolve("gradlew");
-      Files.copy(in, gradlew);
-      Set<PosixFilePermission> permissions  = EnumSet.allOf(PosixFilePermission.class);
-      Files.setPosixFilePermissions(gradlew, permissions);
-    });
-    withInputStream("/cli/gradle/gradlew.bat",
-        in -> Files.copy(in, projectDir.resolve("gradlew.bat")));
+    ctx.writeTemplate("gradle/settings.gradle", model, projectDir.resolve("settings.gradle"));
+    copyResource("/cli/gradle/gradlew", projectDir.resolve("gradlew"),
+        EnumSet.allOf(PosixFilePermission.class));
 
-    withInputStream("/cli/gradle/gradle/wrapper/gradle-wrapper.jar",
-        in -> Files.copy(in, wrapperDir.resolve("gradle-wrapper.jar")));
-    withInputStream("/cli/gradle/gradle/wrapper/gradle-wrapper.properties",
-        in -> Files.copy(in, wrapperDir.resolve("gradle-wrapper.properties")));
+    copyResource("/cli/gradle/gradlew.bat", projectDir.resolve("gradlew.bat"));
+
+    copyResource("/cli/gradle/gradle/wrapper/gradle-wrapper.jar",
+        wrapperDir.resolve("gradle-wrapper.jar"));
+    copyResource("/cli/gradle/gradle/wrapper/gradle-wrapper.properties",
+        wrapperDir.resolve("gradle-wrapper.properties"));
   }
 
   private void debug(CommandContext ctx) {
@@ -139,18 +126,41 @@ public class CreateApp extends Command implements Runnable {
     ctx.out.println(buffer.toString());
   }
 
-  private void withInputStream(String resource, SneakyThrows.Consumer<InputStream> consumer)
+  private void copyResource(String source, Path dest) throws IOException {
+    copyResource(source, dest, Collections.emptySet());
+  }
+
+  private void copyResource(String source, Path dest, Set<PosixFilePermission> permissions)
       throws IOException {
-    try (InputStream in = getClass().getResourceAsStream(resource)) {
-      consumer.accept(in);
+    Path parent = dest.getParent();
+    if (!Files.exists(parent)) {
+      Files.createDirectories(parent);
+    }
+    try (InputStream in = getClass().getResourceAsStream(source)) {
+      Files.copy(in, dest);
+    }
+
+    if (permissions.size() > 0) {
+      Files.setPosixFilePermissions(dest, permissions);
     }
   }
 
-  private void withWriter(Path file, SneakyThrows.Consumer<PrintWriter> consumer)
-      throws IOException {
-    try (PrintWriter writer = new PrintWriter(file.toFile(), "UTF-8")) {
-      consumer.accept(writer);
-      writer.flush();
+  private List<Dependency> dependencies(String server, boolean kotlin) {
+    List<Dependency> dependencies = new ArrayList<>();
+    dependencies.add(new Dependency("io.jooby", "jooby-" + server));
+    if (kotlin) {
+      dependencies.add(new Dependency("org.jetbrains.kotlin", "kotlin-stdlib-jdk8"));
     }
+    dependencies.add(new Dependency("ch.qos.logback", "logback-classic"));
+    return dependencies;
+  }
+
+  private List<Dependency> testDependencies(boolean kotlin) {
+    List<Dependency> dependencies = new ArrayList<>();
+    dependencies.add(new Dependency("org.junit.jupiter", "junit-jupiter-api"));
+    dependencies.add(new Dependency("org.junit.jupiter", "junit-jupiter-engine"));
+    dependencies.add(new Dependency("io.jooby", "jooby-test"));
+    dependencies.add(new Dependency("com.squareup.okhttp3", "okhttp"));
+    return dependencies;
   }
 }
