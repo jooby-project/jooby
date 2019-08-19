@@ -1,0 +1,65 @@
+buildscript {
+  ext {
+    kotlinVersion = "1.3.41"
+    joobyVersion = "{{joobyVersion}}"
+  }
+
+  repositories {
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath "com.google.gradle:osdetector-gradle-plugin:1.4.0"
+    classpath "io.spring.gradle:dependency-management-plugin:1.0.8.RELEASE"
+    {{#if kotlin}}classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"{{/if}}
+    classpath "io.jooby:jooby-gradle-plugin:$joobyVersion"
+  }
+}
+
+apply plugin: "io.spring.dependency-management"
+apply plugin: "com.google.osdetector"
+apply plugin: "application"
+{{#if kotlin}}apply plugin: "kotlin"{{/if}}
+apply plugin: "jooby"
+
+group "{{groupId}}"
+version "1.0"
+mainClassName = "{{package}}.App{{#if kotlin}}Kt{{/if}}"
+sourceCompatibility = 1.8
+
+repositories {
+  mavenLocal()
+  jcenter()
+  mavenCentral()
+}
+
+dependencyManagement {
+  imports {
+    mavenBom "io.jooby:jooby-bom:$joobyVersion"
+  }
+}
+
+dependencies {
+  compile "io.jooby:jooby-{{server}}"
+  compile "ch.qos.logback:logback-classic"
+
+  testImplementation "org.junit.jupiter:junit-jupiter-api"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+  testCompile "io.jooby:jooby-test"
+  testCompile "com.squareup.okhttp3:okhttp"
+}
+
+test {
+  useJUnitPlatform()
+}
+
+{{#if koltin}}
+{{else}}
+/** Java debug information: */
+tasks.withType(JavaCompile) {
+  options.compilerArgs << '-parameters'
+  options.debug = true
+}
+{{/if}}
