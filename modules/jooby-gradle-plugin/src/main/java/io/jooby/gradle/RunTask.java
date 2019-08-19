@@ -76,11 +76,6 @@ public class RunTask extends DefaultTask {
           .forProjectDirectory(current.getRootDir())
           .connect();
 
-      BuildLauncher compiler = connection.newBuild()
-          .setStandardError(System.err)
-          .setStandardOutput(System.out)
-          .forTasks("classes");
-
       Runtime.getRuntime().addShutdownHook(new Thread(() -> {
         joobyRun.shutdown();
         connection.close();
@@ -88,6 +83,11 @@ public class RunTask extends DefaultTask {
 
       BiConsumer<String, Path> onFileChanged = (event, path) -> {
         if (config.isCompileExtension(path)) {
+          BuildLauncher compiler = connection.newBuild()
+              .setStandardError(System.err)
+              .setStandardOutput(System.out)
+              .forTasks("classes");
+
           compiler.run(new ResultHandler<Void>() {
             @Override public void onComplete(Void result) {
               getLogger().debug("Restarting application on file change: " + path);
