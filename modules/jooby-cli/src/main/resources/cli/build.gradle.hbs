@@ -15,11 +15,13 @@ buildscript {
     classpath "io.spring.gradle:dependency-management-plugin:1.0.8.RELEASE"
     {{#if kotlin}}classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"{{/if}}
     classpath "io.jooby:jooby-gradle-plugin:$joobyVersion"
+    classpath "com.github.jengelman.gradle.plugins:shadow:5.1.0"
   }
 }
 
 apply plugin: "io.spring.dependency-management"
 apply plugin: "com.google.osdetector"
+apply plugin: "com.github.johnrengelman.shadow"
 apply plugin: "application"
 {{#if kotlin}}apply plugin: "kotlin"{{/if}}
 apply plugin: "jooby"
@@ -67,3 +69,7 @@ tasks.withType(JavaCompile) {
   options.debug = true
 }
 {{/if}}
+
+shadowJar {
+  mergeServiceFiles()
+}
