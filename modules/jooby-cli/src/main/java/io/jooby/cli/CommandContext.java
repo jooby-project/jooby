@@ -6,6 +6,8 @@
 package io.jooby.cli;
 
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
+import com.github.jknack.handlebars.io.TemplateLoader;
 import org.jline.reader.LineReader;
 
 import java.io.PrintWriter;
@@ -21,7 +23,8 @@ public class CommandContext {
   public CommandContext(LineReader reader) {
     this.reader = reader;
     this.out = reader.getTerminal().writer();
-    this.templates = new Handlebars();
+    TemplateLoader loader = new ClassPathTemplateLoader("/cli");
+    this.templates = new Handlebars(loader);
     this.templates.setPrettyPrint(true);
   }
 
