@@ -20,4 +20,4 @@ branches:
     - 2.x
 
 script:
-  - mvn clean package
+  - ./etc/build.sh
