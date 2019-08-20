@@ -145,7 +145,7 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Nonnull @Override public String getRemoteAddress() {
-    return exchange.getSourceAddress().getHostName();
+    return exchange.getSourceAddress().getHostString();
   }
 
   @Nonnull @Override public String getProtocol() {
