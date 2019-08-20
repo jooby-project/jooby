@@ -5,6 +5,9 @@
  */
 package io.jooby.cli;
 
+import io.jooby.internal.cli.CommandContextImpl;
+import io.jooby.internal.cli.JLineCompleter;
+import io.jooby.internal.cli.VersionProvider;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -42,7 +45,7 @@ public class Cli extends Command {
   @CommandLine.Spec CommandLine.Model.CommandSpec spec;
   @CommandLine.Unmatched List<String> args;
 
-  @Override public void run(CommandContext ctx) throws Exception {
+  @Override public void run(CommandContext ctx) {
     List<String> args = this.args.stream()
         .filter(Objects::nonNull)
         .map(String::trim)
@@ -51,12 +54,11 @@ public class Cli extends Command {
     if (args.size() > 0) {
       String arg = args.get(0);
       if ("-h".equals(arg) || "--help".equals(arg)) {
-        ctx.out.println(spec.commandLine().getUsageMessage());
+        ctx.println(spec.commandLine().getUsageMessage());
       } else if ("-V".equalsIgnoreCase(arg) || "--version".equals(arg)) {
-        ctx.out.println(VersionProvider.version());
+        ctx.println(VersionProvider.version());
       } else {
-        ctx.out.println(
-            "Unknown command or option(s): " + args.stream().collect(Collectors.joining(" ")));
+        ctx.println("Unknown command or option(s): " + args.stream().collect(Collectors.joining(" ")));
       }
     }
   }
@@ -75,7 +77,7 @@ public class Cli extends Command {
         .parser(new DefaultParser())
         .build();
 
-    CommandContext context = new CommandContext(reader);
+    CommandContextImpl context = new CommandContextImpl(reader);
     jooby.setContext(context);
     cmd.getSubcommands().values().stream()
         .map(CommandLine::getCommand)

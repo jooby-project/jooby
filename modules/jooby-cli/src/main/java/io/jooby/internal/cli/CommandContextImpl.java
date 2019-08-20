@@ -3,11 +3,12 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.cli;
+package io.jooby.internal.cli;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+import io.jooby.cli.CommandContext;
 import org.jline.reader.LineReader;
 
 import java.io.IOException;

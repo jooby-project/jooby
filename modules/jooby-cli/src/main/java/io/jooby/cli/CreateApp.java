@@ -5,21 +5,20 @@
  */
 package io.jooby.cli;
 
+import io.jooby.internal.cli.Dependency;
+import io.jooby.internal.cli.VersionProvider;
 import picocli.CommandLine;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -104,23 +103,23 @@ public class CreateApp extends Command {
     String server;
     boolean stork = !gradle && this.stork;
     if (interactive) {
-      gradle = yesNo(ctx.reader.readLine("Use Gradle (yes/No): "));
+      gradle = yesNo(ctx.readLine("Use Gradle (yes/No): "));
 
-      kotlin = yesNo(ctx.reader.readLine("Use Kotlin (yes/No): "));
+      kotlin = yesNo(ctx.readLine("Use Kotlin (yes/No): "));
 
-      packageName = ctx.reader.readLine("Enter a groupId/package: ");
+      packageName = ctx.readLine("Enter a groupId/package: ");
 
-      version = ctx.reader.readLine("Enter a version (1.0.0): ");
+      version = ctx.readLine("Enter a version (1.0.0): ");
       if (version == null || version.trim().length() == 0) {
         version = "1.0.0";
       }
 
-      mvc = yesNo(ctx.reader.readLine("Use MVC (yes/No): "));
+      mvc = yesNo(ctx.readLine("Use MVC (yes/No): "));
 
-      server = server(ctx.reader.readLine("Choose a server (jetty, netty or undertow): "));
+      server = server(ctx.readLine("Choose a server (jetty, netty or undertow): "));
 
       if (!gradle) {
-        stork = distribution(ctx.reader.readLine("Distribution (uber/fat jar or stork): "))
+        stork = distribution(ctx.readLine("Distribution (uber/fat jar or stork): "))
             .equals("stork");
       }
     } else {
@@ -176,8 +175,8 @@ public class CreateApp extends Command {
 
     // Copy conf
     Path confDir = projectDir.resolve("conf");
-    copyResource("/cli/conf/application.conf", confDir.resolve("application.conf"));
-    copyResource("/cli/conf/logback.xml", confDir.resolve("logback.xml"));
+    ctx.copyResource("/cli/conf/application.conf", confDir.resolve("application.conf"));
+    ctx.copyResource("/cli/conf/logback.xml", confDir.resolve("logback.xml"));
 
     if (gradle) {
       gradleWrapper(ctx, projectDir, model);
@@ -271,34 +270,15 @@ public class CreateApp extends Command {
     Path wrapperDir = projectDir.resolve("gradle").resolve("wrapper");
 
     ctx.writeTemplate("gradle/settings.gradle", model, projectDir.resolve("settings.gradle"));
-    copyResource("/cli/gradle/gradlew", projectDir.resolve("gradlew"),
+    ctx.copyResource("/cli/gradle/gradlew", projectDir.resolve("gradlew"),
         EnumSet.allOf(PosixFilePermission.class));
 
-    copyResource("/cli/gradle/gradlew.bat", projectDir.resolve("gradlew.bat"));
+    ctx.copyResource("/cli/gradle/gradlew.bat", projectDir.resolve("gradlew.bat"));
 
-    copyResource("/cli/gradle/gradle/wrapper/gradle-wrapper.jar",
+    ctx.copyResource("/cli/gradle/gradle/wrapper/gradle-wrapper.jar",
         wrapperDir.resolve("gradle-wrapper.jar"));
-    copyResource("/cli/gradle/gradle/wrapper/gradle-wrapper.properties",
+    ctx.copyResource("/cli/gradle/gradle/wrapper/gradle-wrapper.properties",
         wrapperDir.resolve("gradle-wrapper.properties"));
-  }
-
-  private void copyResource(String source, Path dest) throws IOException {
-    copyResource(source, dest, Collections.emptySet());
-  }
-
-  private void copyResource(String source, Path dest, Set<PosixFilePermission> permissions)
-      throws IOException {
-    Path parent = dest.getParent();
-    if (!Files.exists(parent)) {
-      Files.createDirectories(parent);
-    }
-    try (InputStream in = getClass().getResourceAsStream(source)) {
-      Files.copy(in, dest);
-    }
-
-    if (permissions.size() > 0) {
-      Files.setPosixFilePermissions(dest, permissions);
-    }
   }
 
   private List<Dependency> dependencies(String server, boolean kotlin) {
