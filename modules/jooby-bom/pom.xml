@@ -44,6 +44,7 @@
   <guice.version>4.2.2</guice.version>
   <h2.version>1.4.199</h2.version>
   <handlebars.version>4.1.2</handlebars.version>
+  <pebble.version>3.0.10</pebble.version>
   <hibernate.version>5.4.3.Final</hibernate.version>
   <jackson-databind.version>2.9.9.2</jackson-databind.version>
   <jackson.version>2.9.9</jackson.version>
@@ -278,6 +279,11 @@
       <groupId>com.github.jknack</groupId>
       <artifactId>handlebars</artifactId>
       <version>${handlebars.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.pebbletemplates</groupId>
+      <artifactId>pebble</artifactId>
+      <version>${pebble.version}</version>
     </dependency>
     <dependency>
       <groupId>com.googlecode.log4jdbc</groupId>
