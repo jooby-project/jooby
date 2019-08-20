@@ -7,9 +7,17 @@ package io.jooby.cli;
 
 import picocli.CommandLine;
 
+import javax.annotation.Nonnull;
+
+/**
+ * Exit console application.
+ *
+ * @since 2.0.6
+ */
 @CommandLine.Command(name = "exit", description = "Exit console")
 public class Exit extends Command {
-  @Override public void run(CommandContext ctx) {
+
+  @Override public void run(@Nonnull CommandContext ctx) {
     ctx.exit(0);
   }
 }

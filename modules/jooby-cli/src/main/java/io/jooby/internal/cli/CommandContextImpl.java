@@ -59,7 +59,7 @@ public class CommandContextImpl implements CommandContext {
     }
   }
 
-  @Override public void writeTemplate(String template, Object model, Writer writer)
+  private void writeTemplate(String template, Object model, Writer writer)
       throws IOException {
     templates.compile(template).apply(model, writer);
   }
