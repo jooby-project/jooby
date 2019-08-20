@@ -12,11 +12,14 @@ import java.util.Optional;
 
 public class VersionProvider implements CommandLine.IVersionProvider {
 
-  @Override public String[] getVersion() throws Exception {
-    String version = Optional.ofNullable(getClass().getPackage())
+  @Override public String[] getVersion() {
+    return new String[] {version()};
+  }
+
+  public static String version() {
+    return Optional.ofNullable(VersionProvider.class.getPackage())
         .map(Package::getImplementationVersion)
         .filter(Objects::nonNull)
         .orElse("0.0.0");
-    return new String[] {version};
   }
 }

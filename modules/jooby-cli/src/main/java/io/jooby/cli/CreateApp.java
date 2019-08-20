@@ -23,50 +23,106 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 @CommandLine.Command(name = "create", description = "Creates a new application")
-public class CreateApp extends Command implements Runnable {
-  @CommandLine.Parameters
+public class CreateApp extends Command {
+  @CommandLine.Parameters(
+      description = "Application name or coordinates (groupId:artifactId:version)"
+  )
   private String name;
 
-  @CommandLine.Option(names = {"-g", "--gradle"}, description = "Generates a gradle project")
+  @CommandLine.Option(
+      names = {"-g", "--gradle"},
+      description = "Generates a Gradle project"
+  )
   private boolean gradle;
 
-  @CommandLine.Option(names = {"-kt", "--kotlin"}, description = "Generates a Kotlin application")
+  @CommandLine.Option(
+      names = {"-kt", "--kotlin"},
+      description = "Generates a Kotlin application"
+  )
   private boolean kotlin;
 
-  @CommandLine.Option(names = {"-X"}, description = "Print debug information")
-  private boolean debug;
-
-  @CommandLine.Option(names = {"-stork"}, description = "Generates a zip like distribution using stork (Maven only)")
+  @CommandLine.Option(
+      names = {"-stork"},
+      description = "Add Stork Maven plugin to build (Maven only)"
+  )
   private boolean stork;
 
+  @CommandLine.Option(
+      names = {"-i"},
+      description = "Start interactive mode"
+  )
+  private boolean interactive;
+
+  @CommandLine.Option(
+      names = {"-s", "--server"},
+      description = "Choose one of the available servers: jetty, netty or undertow"
+  )
+  private String server;
+
   @Override public void run(CommandContext ctx) throws Exception {
-    if (debug) {
-      debug(ctx);
-    }
     Path projectDir = Paths.get(System.getProperty("user.dir"), name);
     if (Files.exists(projectDir)) {
       throw new IOException("Project directory already exists: " + projectDir);
     }
     Files.createDirectory(projectDir);
+    String packageName;
+    String version;
+    String server;
+    boolean stork = !gradle && this.stork;
+    if (interactive) {
+      String useGradle = ctx.reader.readLine("Use Gradle (yes/No):");
+      gradle = useGradle.equalsIgnoreCase("y") || useGradle.equals("yes");
+
+      String useKotlin = ctx.reader.readLine("Use Kotlin (yes/No):");
+      kotlin = useKotlin.equalsIgnoreCase("y") || useKotlin.equals("yes");
+
+      packageName = ctx.reader.readLine("Enter a groupId/package: ");
+
+      version = ctx.reader.readLine("Enter a version (1.0.0): ");
+      if (version == null || version.trim().length() == 0) {
+        version = "1.0.0";
+      }
+
+      server = server(ctx.reader.readLine("Choose a server (jetty, netty or undertow): "));
+
+      if (!gradle) {
+        stork = distribution(ctx.reader.readLine("Distribution (uber/fat jar or stork): "))
+            .equals("stork");
+      }
+    } else {
+      String[] parts = name.split(":");
+      switch (parts.length) {
+        case 3:
+          packageName = parts[0];
+          name = parts[1];
+          version = parts[2];
+          break;
+        case 2:
+          packageName = parts[0];
+          name = parts[1];
+          version = "1.0.0";
+          break;
+        default:
+          packageName = "app";
+          version = "1.0.0";
+      }
+      server = server(this.server);
+    }
     String templateName = gradle ? "build.gradle" : "maven";
     String buildFileName = gradle ? "build.gradle" : "pom.xml";
-    String packageName = "app";
     String language = kotlin ? "kotlin" : "java";
-    String extension = kotlin ? "kt" : "java";
-
-    boolean stork = !gradle && this.stork;
+    String extension = language.equalsIgnoreCase("kotlin") ? "kt" : "java";
 
     Map<String, Object> model = new HashMap<>();
     model.put("package", packageName);
     model.put("groupId", packageName);
     model.put("artifactId", name);
-    model.put("version", "1.0");
-    model.put("joobyVersion", new VersionProvider().getVersion()[0]);
-    model.put("server", "netty");
+    model.put("version", version);
+    model.put("joobyVersion", VersionProvider.version());
+    model.put("server", server);
     model.put("kotlin", kotlin);
-    model.put("dependencies", dependencies("netty", kotlin));
+    model.put("dependencies", dependencies(server, kotlin));
     model.put("testDependencies", testDependencies(kotlin));
-    // Stork is available on maven only
     model.put("stork", stork);
 
     ctx.writeTemplate(templateName, model, projectDir.resolve(buildFileName));
@@ -104,9 +160,45 @@ public class CreateApp extends Command implements Runnable {
         testPackagePath.resolve("IntegrationTest." + extension));
   }
 
+  private Object distribution(String value) {
+    if (value == null || value.trim().length() == 0) {
+      return "uber";
+    }
+    switch (value.toLowerCase()) {
+      case "fat":
+      case "uber":
+        return "uber";
+      case "stork":
+        return "stork";
+      default:
+        throw new IllegalArgumentException("Unknown distribution option: " + value);
+    }
+  }
+
+  private String server(String value) {
+    if (value == null || value.trim().length() == 0) {
+      return "netty";
+    }
+    switch (value.toLowerCase()) {
+      case "j":
+      case "jetty":
+        return "jetty";
+      case "n":
+      case "netty":
+        return "netty";
+      case "u":
+      case "utow":
+      case "undertow":
+        return "utow";
+      default:
+        throw new IllegalArgumentException("Unknown server option: " + value);
+    }
+  }
+
   private void stork(CommandContext ctx, Path projectDir, Map<String, Object> model)
       throws IOException {
-    ctx.writeTemplate("stork.yml", model, projectDir.resolve("src").resolve("etc").resolve("stork.yml"));
+    ctx.writeTemplate("stork.yml", model,
+        projectDir.resolve("src").resolve("etc").resolve("stork.yml"));
   }
 
   private void gradleWrapper(CommandContext ctx, Path projectDir, Map<String, Object> model)
@@ -123,22 +215,6 @@ public class CreateApp extends Command implements Runnable {
         wrapperDir.resolve("gradle-wrapper.jar"));
     copyResource("/cli/gradle/gradle/wrapper/gradle-wrapper.properties",
         wrapperDir.resolve("gradle-wrapper.properties"));
-  }
-
-  private void debug(CommandContext ctx) {
-    StringBuilder buffer = new StringBuilder();
-    buffer.append("name: ").append(name);
-    if (gradle) {
-      buffer.append(" --gradle");
-    } else {
-      buffer.append(" --maven");
-    }
-    if (kotlin) {
-      buffer.append(" --kotlin");
-    } else {
-      buffer.append(" --java");
-    }
-    ctx.out.println(buffer.toString());
   }
 
   private void copyResource(String source, Path dest) throws IOException {

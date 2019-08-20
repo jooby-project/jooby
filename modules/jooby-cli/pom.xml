@@ -19,12 +19,6 @@
       <scope>provided</scope>
     </dependency>
 
-    <dependency>
-      <groupId>io.jooby</groupId>
-      <artifactId>jooby</artifactId>
-      <version>${jooby.version}</version>
-    </dependency>
-
     <!-- https://mvnrepository.com/artifact/com.github.jknack/handlebars -->
     <dependency>
       <groupId>com.github.jknack</groupId>
@@ -39,14 +33,9 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.6</version>
-    </dependency>
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.jline/jline -->
@@ -89,25 +78,34 @@
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-shade-plugin</artifactId>
+        <groupId>com.fizzed</groupId>
+        <artifactId>stork-maven-plugin</artifactId>
+        <version>3.0.0</version>
         <executions>
           <execution>
-            <id>fat-jar</id>
+            <id>stork-launcher</id>
+            <goals>
+              <goal>launcher</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.1.1</version>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
             <phase>package</phase>
             <goals>
-              <goal>shade</goal>
+              <goal>single</goal>
             </goals>
             <configuration>
-              <minimizeJar>true</minimizeJar>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-              <transformers>
-                <transformer
-                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                <transformer
-                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>io.jooby.cli.Cli</mainClass>
-                </transformer>
-              </transformers>
+              <finalName>${project.artifactId}-${project.version}</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>src/assembly/cli.xml</descriptor>
+              </descriptors>
             </configuration>
           </execution>
         </executions>
