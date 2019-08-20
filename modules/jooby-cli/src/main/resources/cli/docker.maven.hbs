@@ -1,0 +1,21 @@
+FROM maven:3.6.1-jdk-8-slim as build
+WORKDIR /{{artifactId}}
+COPY pom.xml pom.xml
+COPY src src
+COPY conf conf
+RUN mvn package
+
+FROM openjdk:8-jdk-slim
+WORKDIR /{{artifactId}}
+{{#if stork}}
+COPY --from=build /{{artifactId}}/target/stork .
+{{else}}
+COPY --from=build /{{artifactId}}/target/{{finalArtifactId}} app.jar
+COPY conf conf
+{{/if}}
+EXPOSE 8080
+{{#if stork}}
+CMD ["bin/{{artifactId}}", "--run"]
+{{else}}
+CMD ["java", "-jar", "app.jar"]
+{{/if}}

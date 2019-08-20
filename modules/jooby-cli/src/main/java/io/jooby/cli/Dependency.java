@@ -1,6 +1,6 @@
 package io.jooby.cli;
 
-public class Dependency {
+class Dependency {
   private String groupId;
 
   private String artifactId;

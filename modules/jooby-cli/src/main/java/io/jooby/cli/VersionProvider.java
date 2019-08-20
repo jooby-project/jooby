@@ -10,7 +10,7 @@ import picocli.CommandLine;
 import java.util.Objects;
 import java.util.Optional;
 
-public class VersionProvider implements CommandLine.IVersionProvider {
+class VersionProvider implements CommandLine.IVersionProvider {
 
   @Override public String[] getVersion() {
     return new String[] {version()};

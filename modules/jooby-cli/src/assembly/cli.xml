@@ -19,13 +19,13 @@
         <include>**/*</include>
       </includes>
     </fileSet>
-  </fileSets>
-
-  <dependencySets>
-    <dependencySet>
+    <fileSet>
+      <directory>${project.build.directory}</directory>
       <outputDirectory>lib</outputDirectory>
-      <scope>runtime</scope>
-    </dependencySet>
-  </dependencySets>
-
+      <filtered>false</filtered>
+      <includes>
+        <include>${project.artifactId}-${project.version}.jar</include>
+      </includes>
+    </fileSet>
+  </fileSets>
 </assembly>

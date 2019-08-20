@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.lang.CharSequence;
 
-public class JLineCompleter implements Completer {
+class JLineCompleter implements Completer {
   private final CommandSpec spec;
 
   public JLineCompleter(CommandSpec spec) {
