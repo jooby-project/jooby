@@ -5,7 +5,11 @@ import io.jooby.Jooby;
 public class App extends Jooby {
 
   {
+    {{#if mvc}}
+    mvc(new Controller());
+    {{else}}
     get("/", ctx -> "Welcome to Jooby!");
+    {{/if}}
   }
 
   public static void main(final String[] args) {
