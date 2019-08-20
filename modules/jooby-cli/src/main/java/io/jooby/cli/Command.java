@@ -5,18 +5,25 @@
  */
 package io.jooby.cli;
 
-import io.jooby.SneakyThrows;
-
-public abstract class Command implements SneakyThrows.Runnable {
+public abstract class Command implements Runnable {
   private CommandContext context;
 
-  @Override public void tryRun() throws Exception {
-    run(context);
+  @Override public void run() {
+    try {
+      run(context);
+    } catch (Throwable x) {
+      sneakyThrow0(x);
+    }
   }
 
   public abstract void run(CommandContext context) throws Exception;
 
   public void setContext(CommandContext context) {
     this.context = context;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <E extends Throwable> void sneakyThrow0(final Throwable x) throws E {
+    throw (E) x;
   }
 }

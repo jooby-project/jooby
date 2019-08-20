@@ -17,6 +17,8 @@ import picocli.CommandLine;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @CommandLine.Command(
     name = "jooby",
@@ -28,8 +30,23 @@ public class Cli extends Command {
   @CommandLine.Spec CommandLine.Model.CommandSpec spec;
   @CommandLine.Unmatched List<String> args;
 
-  @Override public void run(CommandContext ctx) {
-    ctx.out.println(spec.commandLine().getUsageMessage());
+  @Override public void run(CommandContext ctx) throws Exception {
+    List<String> args = this.args.stream()
+        .filter(Objects::nonNull)
+        .map(String::trim)
+        .filter(it -> it.length() > 0)
+        .collect(Collectors.toList());
+    if (args.size() > 0) {
+      String arg = args.get(0);
+      if ("-h".equals(arg) || "--help".equals(arg)) {
+        ctx.out.println(spec.commandLine().getUsageMessage());
+      } else if ("-V".equalsIgnoreCase(arg) || "--version".equals(arg)) {
+        ctx.out.println(VersionProvider.version());
+      } else {
+        ctx.out.println(
+            "Unknown command or option(s): " + args.stream().collect(Collectors.joining(" ")));
+      }
+    }
   }
 
   public static void main(String[] args) throws IOException {
