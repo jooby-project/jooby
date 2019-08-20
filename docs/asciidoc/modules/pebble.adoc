@@ -1,0 +1,98 @@
+== Pebble
+
+https://pebbletemplates.io/[Pebble templates] for Jooby.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-pebble"]
+.
+
+2) Write your templates inside the `views` folder
+
+.views/index.peb
+[source, html]
+----
+<p> Hello {{name}}! </p>
+----
+
+3) Install and use pebble templates
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.pebble.PebbleModule;
+
+{
+  install(new PebbleModule());
+
+  get("/", ctx -> {
+    return new ModelAndView("index.peb")
+        .put("name", "Jooby");
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.pebble.PebbleModule
+
+{
+  install(PebbleModule())
+  
+  get("/") {
+    ModelAndView("index.peb")
+        .put("name", "Jooby")
+  }
+}
+----
+
+Template engine supports the following file extensions: `.peb`, `.pebble` and `.html`.
+
+=== Templates Location
+
+Default template location is set to `views`. The `views` folder/location is expected to be at the current
+user directory or at root of classpath.
+
+You can override the default location by setting the `templates.path` property in the application
+configuration file or programmatically at creation time.
+
+=== Template Cache
+
+The pebble module turn off cache while running in `dev` or `test` environment.
+
+=== Custom configuration
+
+Custom Pebble object can be provided it programmatically:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.pebble.PebbleModule;
+
+{
+  // Apply custom configuration via builder
+
+  PebbleEngine.Builder builder = PebbleModule.create()
+  .setTemplatesPath("template")
+  .build(getEnvironment());
+
+  install(new PebbleModule(builder));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.pebble.PebbleModule
+
+{
+  val builder = PebbleModule.create()
+      .setTemplatesPath("template")
+      .build(getEnvironment())
+ 
+  install(PebbleModule(builder))
+}
+----

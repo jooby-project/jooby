@@ -19,6 +19,7 @@
     <!-- Parser and Renderer -->
     <freemarker.version>2.3.28</freemarker.version>
     <handlebars.version>4.1.2</handlebars.version>
+    <pebble.version>3.0.10</pebble.version>
     <jackson.version>2.9.9</jackson.version>
     <jackson-databind.version>2.9.9.2</jackson-databind.version>
     <rocker.version>1.2.1</rocker.version>
@@ -259,6 +260,12 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
+        <artifactId>jooby-pebble</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
         <artifactId>jooby-rocker</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -401,6 +408,13 @@
         <groupId>com.github.jknack</groupId>
         <artifactId>handlebars</artifactId>
         <version>${handlebars.version}</version>
+      </dependency>
+
+      <!-- Pebble -->
+      <dependency>
+        <groupId>io.pebbletemplates</groupId>
+        <artifactId>pebble</artifactId>
+        <version>${pebble.version}</version>
       </dependency>
 
       <!-- log4jdbc -->
