@@ -4,9 +4,13 @@ import io.jooby.Kooby
 import io.jooby.runApp
 
 class App: Kooby({
+{{#if mvc}}
+  mvc(Controller())
+{{else}}
   get("/") {
     "Welcome to Jooby!"
   }
+{{/if}}
 })
 
 fun main(args: Array<String>) {

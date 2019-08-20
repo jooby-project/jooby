@@ -58,13 +58,13 @@ public class CreateApp extends Command {
   private boolean gradle;
 
   @CommandLine.Option(
-      names = {"-kt", "--kotlin"},
+      names = {"-k", "--kotlin"},
       description = "Generates a Kotlin application"
   )
   private boolean kotlin;
 
   @CommandLine.Option(
-      names = {"-stork"},
+      names = {"-s", "--stork"},
       description = "Add Stork Maven plugin to build (Maven only)"
   )
   private boolean stork;
@@ -76,7 +76,7 @@ public class CreateApp extends Command {
   private boolean interactive;
 
   @CommandLine.Option(
-      names = {"-s", "--server"},
+      names = {"--server"},
       description = "Choose one of the available servers: jetty, netty or undertow"
   )
   private String server;
@@ -86,6 +86,12 @@ public class CreateApp extends Command {
       description = "Generates a dockerfile"
   )
   private boolean docker;
+
+  @CommandLine.Option(
+      names = {"-m", "--mvc"},
+      description = "Generates a MVC application"
+  )
+  private boolean mvc;
 
   @Override public void run(CommandContext ctx) throws Exception {
     Path projectDir = Paths.get(System.getProperty("user.dir"), name);
@@ -98,11 +104,9 @@ public class CreateApp extends Command {
     String server;
     boolean stork = !gradle && this.stork;
     if (interactive) {
-      String useGradle = ctx.reader.readLine("Use Gradle (yes/No):");
-      gradle = useGradle.equalsIgnoreCase("y") || useGradle.equals("yes");
+      gradle = yesNo(ctx.reader.readLine("Use Gradle (yes/No): "));
 
-      String useKotlin = ctx.reader.readLine("Use Kotlin (yes/No):");
-      kotlin = useKotlin.equalsIgnoreCase("y") || useKotlin.equals("yes");
+      kotlin = yesNo(ctx.reader.readLine("Use Kotlin (yes/No): "));
 
       packageName = ctx.reader.readLine("Enter a groupId/package: ");
 
@@ -110,6 +114,8 @@ public class CreateApp extends Command {
       if (version == null || version.trim().length() == 0) {
         version = "1.0.0";
       }
+
+      mvc = yesNo(ctx.reader.readLine("Use MVC (yes/No): "));
 
       server = server(ctx.reader.readLine("Choose a server (jetty, netty or undertow): "));
 
@@ -163,6 +169,7 @@ public class CreateApp extends Command {
     model.put("gradle", gradle);
     model.put("maven", !gradle);
     model.put("docker", docker);
+    model.put("mvc", mvc);
     model.put("finalArtifactId", finalArtifactId);
 
     ctx.writeTemplate(templateName, model, projectDir.resolve(buildFileName));
@@ -191,6 +198,10 @@ public class CreateApp extends Command {
         .reduce(javaPath, Path::resolve, Path::resolve);
 
     ctx.writeTemplate("App." + extension, model, packagePath.resolve("App." + extension));
+    if (mvc) {
+      ctx.writeTemplate("Controller." + extension, model,
+          packagePath.resolve("Controller." + extension));
+    }
 
     /** Test directories: */
     Path testPath = projectDir.resolve("src").resolve("test");
@@ -202,6 +213,10 @@ public class CreateApp extends Command {
         testPackagePath.resolve("UnitTest." + extension));
     ctx.writeTemplate("IntegrationTest." + extension, model,
         testPackagePath.resolve("IntegrationTest." + extension));
+  }
+
+  private boolean yesNo(String value) {
+    return "y".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value);
   }
 
   private void docker(CommandContext ctx, Path dir, Map<String, Object> model) throws IOException {
