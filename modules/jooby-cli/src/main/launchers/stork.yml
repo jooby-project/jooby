@@ -54,4 +54,4 @@ min_java_version: "1.8"
 # Try to create a symbolic link to java executable in <app_home>/run with
 # the name of "<app_name>-java" so that commands like "ps" will make it
 # easier to find your app. Defaults to false.
-# symlink_java: true
+symlink_java: true

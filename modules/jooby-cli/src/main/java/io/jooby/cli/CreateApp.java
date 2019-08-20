@@ -22,6 +22,28 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+/**
+ * Create application command.
+ *
+ * Usage:
+ * <pre>{@code
+ * jooby> help create
+ * Missing required parameter: <name>
+ * Usage: jooby create [-dgi] [-kt] [-stork] [-s=<server>] <name>
+ * Creates a new application
+ *       <name>              Application name or coordinates (groupId:artifactId:
+ *                             version)
+ *   -d, --docker            Generates a dockerfile
+ *   -g, --gradle            Generates a Gradle project
+ *   -i                      Start interactive mode
+ *       -kt, --kotlin       Generates a Kotlin application
+ *   -s, --server=<server>   Choose one of the available servers: jetty, netty or
+ *                             undertow
+ *       -stork              Add Stork Maven plugin to build (Maven only)
+ * }</pre>
+ *
+ * @since 2.0.6
+ */
 @CommandLine.Command(name = "create", description = "Creates a new application")
 public class CreateApp extends Command {
   @CommandLine.Parameters(
@@ -58,6 +80,12 @@ public class CreateApp extends Command {
       description = "Choose one of the available servers: jetty, netty or undertow"
   )
   private String server;
+
+  @CommandLine.Option(
+      names = {"-d", "--docker"},
+      description = "Generates a dockerfile"
+  )
+  private boolean docker;
 
   @Override public void run(CommandContext ctx) throws Exception {
     Path projectDir = Paths.get(System.getProperty("user.dir"), name);
@@ -108,10 +136,18 @@ public class CreateApp extends Command {
       }
       server = server(this.server);
     }
-    String templateName = gradle ? "build.gradle" : "maven";
-    String buildFileName = gradle ? "build.gradle" : "pom.xml";
+    String templateName = gradle ? "build.gradle" : "pom.xml";
+    String buildFileName = templateName;
     String language = kotlin ? "kotlin" : "java";
     String extension = language.equalsIgnoreCase("kotlin") ? "kt" : "java";
+
+    String finalArtifactId;
+    if (gradle) {
+      finalArtifactId = Paths.get("build", "libs", name + "-" + version + "-all.jar")
+          .toString();
+    } else {
+      finalArtifactId = name + "-" + version + (stork ? ".zip" : ".jar");
+    }
 
     Map<String, Object> model = new HashMap<>();
     model.put("package", packageName);
@@ -124,6 +160,10 @@ public class CreateApp extends Command {
     model.put("dependencies", dependencies(server, kotlin));
     model.put("testDependencies", testDependencies(kotlin));
     model.put("stork", stork);
+    model.put("gradle", gradle);
+    model.put("maven", !gradle);
+    model.put("docker", docker);
+    model.put("finalArtifactId", finalArtifactId);
 
     ctx.writeTemplate(templateName, model, projectDir.resolve(buildFileName));
 
@@ -138,6 +178,10 @@ public class CreateApp extends Command {
 
     if (stork) {
       stork(ctx, projectDir, model);
+    }
+
+    if (docker) {
+      docker(ctx, projectDir, model);
     }
 
     /** Source directories: */
@@ -158,6 +202,12 @@ public class CreateApp extends Command {
         testPackagePath.resolve("UnitTest." + extension));
     ctx.writeTemplate("IntegrationTest." + extension, model,
         testPackagePath.resolve("IntegrationTest." + extension));
+  }
+
+  private void docker(CommandContext ctx, Path dir, Map<String, Object> model) throws IOException {
+    boolean gradle = (Boolean) model.get("gradle");
+    String dockerfile = gradle ? "docker.gradle" : "docker.maven";
+    ctx.writeTemplate(dockerfile, model, dir.resolve("Dockerfile"));
   }
 
   private Object distribution(String value) {

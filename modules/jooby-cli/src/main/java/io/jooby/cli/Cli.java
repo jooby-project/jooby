@@ -20,6 +20,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Usage:
+ * <pre>{@code
+ * jooby> --help
+ * Usage: jooby [-hV] [COMMAND]
+ *   -h, --help      Show this help message and exit.
+ *   -V, --version   Print version information and exit.
+ * Commands:
+ *   create  Creates a new application
+ *   exit    Exit console
+ * }</pre>
+ */
 @CommandLine.Command(
     name = "jooby",
     versionProvider = VersionProvider.class,
