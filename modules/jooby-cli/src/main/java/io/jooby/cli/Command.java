@@ -5,6 +5,13 @@
  */
 package io.jooby.cli;
 
+import javax.annotation.Nonnull;
+
+/**
+ * Base class for application commands.
+ *
+ * @since 2.0.5
+ */
 public abstract class Command implements Runnable {
   private CommandContext context;
 
@@ -16,9 +23,20 @@ public abstract class Command implements Runnable {
     }
   }
 
-  public abstract void run(CommandContext context) throws Exception;
+  /**
+   * Run a command.
+   *
+   * @param context Command context.
+   * @throws Exception If something goes wrong.
+   */
+  public abstract void run(@Nonnull CommandContext context) throws Exception;
 
-  public void setContext(CommandContext context) {
+  /**
+   * Set command context.
+   *
+   * @param context Command context.
+   */
+  public void setContext(@Nonnull CommandContext context) {
     this.context = context;
   }
 

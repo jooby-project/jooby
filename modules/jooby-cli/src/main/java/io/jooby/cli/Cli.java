@@ -18,12 +18,15 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import picocli.CommandLine;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
+ * Application console.
+ *
  * Usage:
  * <pre>{@code
  * jooby> --help
@@ -34,6 +37,8 @@ import java.util.stream.Collectors;
  *   create  Creates a new application
  *   exit    Exit console
  * }</pre>
+ *
+ * @since 2.0.6
  */
 @CommandLine.Command(
     name = "jooby",
@@ -42,10 +47,13 @@ import java.util.stream.Collectors;
     version = "Print version information"
 )
 public class Cli extends Command {
-  @CommandLine.Spec CommandLine.Model.CommandSpec spec;
-  @CommandLine.Unmatched List<String> args;
+  /** Command line specification.  */
+  private @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
-  @Override public void run(CommandContext ctx) {
+  /** Unmatched command line arguments. */
+  private @CommandLine.Unmatched List<String> args;
+
+  @Override public void run(@Nonnull CommandContext ctx) {
     List<String> args = this.args.stream()
         .filter(Objects::nonNull)
         .map(String::trim)
@@ -63,6 +71,12 @@ public class Cli extends Command {
     }
   }
 
+  /**
+   * Start a jooby console or execute given arguments and exits.
+   *
+   * @param args Command line arguments.
+   * @throws IOException If something goes wrong.
+   */
   public static void main(String[] args) throws IOException {
     // set up the completion
     Cli jooby = new Cli();

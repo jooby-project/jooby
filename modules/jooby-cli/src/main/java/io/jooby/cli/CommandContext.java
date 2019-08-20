@@ -1,24 +1,73 @@
+/**
+ * Jooby https://jooby.io
+ * Apache License Version 2.0 https://jooby.io/LICENSE.txt
+ * Copyright 2014 Edgar Espina
+ */
 package io.jooby.cli;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Set;
 
+/**
+ * Provides an execution context for application commands as well as utility methods for read and
+ * writing to the console.
+ *
+ * @since 2.0.6
+ */
 public interface CommandContext {
+  /**
+   * Exit application.
+   *
+   * @param code Exit code.
+   */
   void exit(int code);
 
-  void writeTemplate(String template, Object model, Path file) throws IOException;
-
-  void writeTemplate(String template, Object model, Writer writer) throws IOException;
-
-  void copyResource(String source, Path dest) throws IOException;
-
-  void copyResource(String source, Path dest, Set<PosixFilePermission> permissions)
+  /**
+   * Look for the given template and dump/write to the file.
+   *
+   * @param template Template name.
+   * @param model Template data.
+   * @param file Output file.
+   * @throws IOException If something goes wrong.
+   */
+  void writeTemplate(@Nonnull String template, @Nonnull Object model, @Nonnull Path file)
       throws IOException;
 
-  String readLine(String prompt);
+  /**
+   * Copy a classpath resource to a file.
+   *
+   * @param source Resource.
+   * @param dest Destination file.
+   * @throws IOException If something goes wrong.
+   */
+  void copyResource(@Nonnull String source, @Nonnull Path dest) throws IOException;
 
-  void println(String message);
+  /**
+   * Copy a classpath resource to a file.
+   *
+   * @param source Resource.
+   * @param dest Destination file.
+   * @param permissions File permissions.
+   * @throws IOException If something goes wrong.
+   */
+  void copyResource(@Nonnull String source, @Nonnull Path dest,
+      @Nonnull Set<PosixFilePermission> permissions) throws IOException;
+
+  /**
+   * Ask user for input.
+   *
+   * @param prompt User prompt.
+   * @return Input value.
+   */
+  @Nonnull String readLine(@Nonnull String prompt);
+
+  /**
+   * Write a message to console.
+   *
+   * @param message Message.
+   */
+  void println(@Nonnull String message);
 }

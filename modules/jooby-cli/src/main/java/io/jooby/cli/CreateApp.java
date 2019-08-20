@@ -9,6 +9,7 @@ import io.jooby.internal.cli.Dependency;
 import io.jooby.internal.cli.VersionProvider;
 import picocli.CommandLine;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -92,7 +93,7 @@ public class CreateApp extends Command {
   )
   private boolean mvc;
 
-  @Override public void run(CommandContext ctx) throws Exception {
+  @Override public void run(@Nonnull CommandContext ctx) throws Exception {
     Path projectDir = Paths.get(System.getProperty("user.dir"), name);
     if (Files.exists(projectDir)) {
       throw new IOException("Project directory already exists: " + projectDir);
