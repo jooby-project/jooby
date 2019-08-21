@@ -10,15 +10,9 @@ import io.jooby.internal.ResponseStartedContext;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Route contains information about the HTTP method, path pattern, which content types consumes and
@@ -334,6 +328,8 @@ public class Route {
 
   private List<MediaType> consumes = EMPTY_LIST;
 
+  private Map<Class<? extends Annotation>, Annotation> customAnnotations = EMPTY_MAP;
+
   private Set<String> supportedMethod;
 
   /**
@@ -614,6 +610,32 @@ public class Route {
       }
       consumes.forEach(this.consumes::add);
       before = before == null ? SUPPORT_MEDIA_TYPE : SUPPORT_MEDIA_TYPE.then(before);
+    }
+    return this;
+  }
+
+  /**
+   * For "business" purpose, an MVC route can have custom annotation that should be available on
+   * the Route object, to be use in a decorator for instance
+   *
+   * @return Map of custom annotation set to the route.
+   */
+  public @Nonnull Map<Class<? extends Annotation>, Annotation> getCustomAnnotations() {
+    return customAnnotations;
+  }
+
+  /**
+   * Add one or more custom annotation applied to this route.
+   *
+   * @param customAnnotations custom annotation.
+   * @return This route.
+   */
+  public @Nonnull Route setCustomAnnotations(@Nonnull Map<Class<? extends Annotation>, Annotation> customAnnotations) {
+    if (customAnnotations.size() > 0) {
+      if (this.customAnnotations == EMPTY_MAP) {
+        this.customAnnotations = new HashMap<>();
+      }
+      this.customAnnotations.putAll(customAnnotations);
     }
     return this;
   }

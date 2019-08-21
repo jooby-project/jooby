@@ -27,6 +27,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JoobyAnnotationParser extends MvcAnnotationParserBase {
 
@@ -45,8 +49,8 @@ public class JoobyAnnotationParser extends MvcAnnotationParserBase {
 
   @Override protected MvcAnnotation create(Method method, Annotation annotation) {
     MvcAnnotation result = new MvcAnnotation(annotation.annotationType().getSimpleName(),
-        path(method, annotation),
-        produces(annotation), consumes(annotation));
+        path(method, annotation), produces(annotation),
+        consumes(annotation), customAnnotations(method));
     result.setCookieParam(CookieParam.class);
     result.setHeaderParam(HeaderParam.class);
     result.setPathParam(PathParam.class);
