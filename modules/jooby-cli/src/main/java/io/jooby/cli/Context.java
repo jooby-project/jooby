@@ -6,6 +6,7 @@
 package io.jooby.cli;
 
 import javax.annotation.Nonnull;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
@@ -17,7 +18,7 @@ import java.util.Set;
  *
  * @since 2.0.6
  */
-public interface CommandContext {
+public interface Context {
   /**
    * Exit application.
    *
@@ -70,4 +71,25 @@ public interface CommandContext {
    * @param message Message.
    */
   void println(@Nonnull String message);
+
+  /**
+   * Jooby version to use.
+   *
+   * @return Jooby version to use.
+   */
+  @Nonnull String getVersion();
+
+  /**
+   * Working directory (where the projects are created).
+   *
+   * @return Working directory (where the projects are created).
+   */
+  @Nonnull Path getWorkspace();
+
+  /**
+   * Set workspace/working directory.
+   *
+   * @param workspace Workspace/working directory.
+   */
+  void setWorkspace(@Nonnull Path workspace) throws IOException;
 }

@@ -12,8 +12,8 @@ import javax.annotation.Nonnull;
  *
  * @since 2.0.5
  */
-public abstract class Command implements Runnable {
-  private CommandContext context;
+public abstract class Cmd implements Runnable {
+  private Context context;
 
   @Override public void run() {
     try {
@@ -29,14 +29,14 @@ public abstract class Command implements Runnable {
    * @param context Command context.
    * @throws Exception If something goes wrong.
    */
-  public abstract void run(@Nonnull CommandContext context) throws Exception;
+  public abstract void run(@Nonnull Context context) throws Exception;
 
   /**
    * Set command context.
    *
    * @param context Command context.
    */
-  public void setContext(@Nonnull CommandContext context) {
+  public void setContext(@Nonnull Context context) {
     this.context = context;
   }
 

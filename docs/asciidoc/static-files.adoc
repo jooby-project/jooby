@@ -127,7 +127,7 @@ SPAs mode never generates a `NOT FOUND (404)` response, unresolved assets fallba
 
 === Options
 
-The javadoc:AssetHandler[] automatically handle `E-Tag` and `Las-Modified` headers. You can turn
+The javadoc:AssetHandler[] automatically handles `E-Tag` and `Las-Modified` headers. You can turn
 control these headers programmatically:
 
 .Asset handler options:

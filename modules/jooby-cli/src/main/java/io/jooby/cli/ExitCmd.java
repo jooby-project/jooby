@@ -15,9 +15,9 @@ import javax.annotation.Nonnull;
  * @since 2.0.6
  */
 @CommandLine.Command(name = "exit", description = "Exit console")
-public class Exit extends Command {
+public class ExitCmd extends Cmd {
 
-  @Override public void run(@Nonnull CommandContext ctx) {
+  @Override public void run(@Nonnull Context ctx) {
     ctx.exit(0);
   }
 }

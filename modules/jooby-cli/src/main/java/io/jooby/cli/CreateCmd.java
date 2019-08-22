@@ -6,7 +6,6 @@
 package io.jooby.cli;
 
 import io.jooby.internal.cli.Dependency;
-import io.jooby.internal.cli.VersionProvider;
 import picocli.CommandLine;
 
 import javax.annotation.Nonnull;
@@ -45,7 +44,7 @@ import java.util.stream.Stream;
  * @since 2.0.6
  */
 @CommandLine.Command(name = "create", description = "Creates a new application")
-public class CreateApp extends Command {
+public class CreateCmd extends Cmd {
   @CommandLine.Parameters(
       description = "Application name or coordinates (groupId:artifactId:version)"
   )
@@ -83,7 +82,7 @@ public class CreateApp extends Command {
 
   @CommandLine.Option(
       names = {"-d", "--docker"},
-      description = "Generates a dockerfile"
+      description = "Generates a Dockerfile"
   )
   private boolean docker;
 
@@ -93,8 +92,8 @@ public class CreateApp extends Command {
   )
   private boolean mvc;
 
-  @Override public void run(@Nonnull CommandContext ctx) throws Exception {
-    Path projectDir = Paths.get(System.getProperty("user.dir"), name);
+  @Override public void run(@Nonnull Context ctx) throws Exception {
+    Path projectDir = ctx.getWorkspace().resolve(name);
     if (Files.exists(projectDir)) {
       throw new IOException("Project directory already exists: " + projectDir);
     }
@@ -123,6 +122,8 @@ public class CreateApp extends Command {
         stork = distribution(ctx.readLine("Distribution (uber/fat jar or stork): "))
             .equals("stork");
       }
+
+      docker = yesNo(ctx.readLine("Generates Dockerfile (yes/No): "));
     } else {
       String[] parts = name.split(":");
       switch (parts.length) {
@@ -160,7 +161,7 @@ public class CreateApp extends Command {
     model.put("groupId", packageName);
     model.put("artifactId", name);
     model.put("version", version);
-    model.put("joobyVersion", VersionProvider.version());
+    model.put("joobyVersion", ctx.getVersion());
     model.put("server", server);
     model.put("kotlin", kotlin);
     model.put("dependencies", dependencies(server, kotlin));
@@ -213,13 +214,17 @@ public class CreateApp extends Command {
         testPackagePath.resolve("UnitTest." + extension));
     ctx.writeTemplate("IntegrationTest." + extension, model,
         testPackagePath.resolve("IntegrationTest." + extension));
+
+    ctx.println("Try it! Open a terminal and type: ");
+    ctx.println("  cd " + projectDir.toAbsolutePath());
+    ctx.println("  " + (gradle ? "./gradlew joobyRun" : "mvn jooby:run"));
   }
 
   private boolean yesNo(String value) {
     return "y".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value);
   }
 
-  private void docker(CommandContext ctx, Path dir, Map<String, Object> model) throws IOException {
+  private void docker(Context ctx, Path dir, Map<String, Object> model) throws IOException {
     boolean gradle = (Boolean) model.get("gradle");
     String dockerfile = gradle ? "docker.gradle" : "docker.maven";
     ctx.writeTemplate(dockerfile, model, dir.resolve("Dockerfile"));
@@ -260,13 +265,13 @@ public class CreateApp extends Command {
     }
   }
 
-  private void stork(CommandContext ctx, Path projectDir, Map<String, Object> model)
+  private void stork(Context ctx, Path projectDir, Map<String, Object> model)
       throws IOException {
     ctx.writeTemplate("stork.yml", model,
         projectDir.resolve("src").resolve("etc").resolve("stork.yml"));
   }
 
-  private void gradleWrapper(CommandContext ctx, Path projectDir, Map<String, Object> model)
+  private void gradleWrapper(Context ctx, Path projectDir, Map<String, Object> model)
       throws IOException {
     Path wrapperDir = projectDir.resolve("gradle").resolve("wrapper");
 
