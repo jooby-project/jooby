@@ -45,6 +45,9 @@
     <log4j.version>2.12.1</log4j.version>
     <slf4j.version>1.7.27</slf4j.version>
 
+    <!-- util -->
+    <jfiglet.version>0.0.8</jfiglet.version>
+
     <!-- jboss modules -->
     <jboss-modules.version>1.9.1.Final</jboss-modules.version>
 
@@ -297,6 +300,12 @@
       <dependency>
         <groupId>io.jooby</groupId>
         <artifactId>jooby-run</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-banner</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -643,6 +652,13 @@
         <groupId>com.fizzed</groupId>
         <artifactId>rocker-compiler</artifactId>
         <version>${rocker.version}</version>
+      </dependency>
+
+      <!-- jfiglet -->
+      <dependency>
+        <groupId>com.github.lalyos</groupId>
+        <artifactId>jfiglet</artifactId>
+        <version>${jfiglet.version}</version>
       </dependency>
 
       <!-- jboss-modules -->

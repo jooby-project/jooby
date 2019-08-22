@@ -55,6 +55,7 @@
   <jboss-modules.version>1.9.1.Final</jboss-modules.version>
   <jdbi.version>3.9.1</jdbi.version>
   <jetty.version>9.4.19.v20190610</jetty.version>
+  <jfiglet.version>1.0.0</jfiglet.version>
   <jooby-maven-plugin.version>2.0.6-SNAPSHOT</jooby-maven-plugin.version>
   <jooby.version>2.0.6-SNAPSHOT</jooby.version>
   <jsr305.version>3.0.2</jsr305.version>
@@ -198,6 +199,11 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-run</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-banner</artifactId>
       <version>${jooby.version}</version>
     </dependency>
     <dependency>
@@ -464,6 +470,11 @@
       <groupId>com.fizzed</groupId>
       <artifactId>rocker-compiler</artifactId>
       <version>${rocker.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.dtmo.jfiglet</groupId>
+      <artifactId>jfiglet</artifactId>
+      <version>${jfiglet.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.modules</groupId>
