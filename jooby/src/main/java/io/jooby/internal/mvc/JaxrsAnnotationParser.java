@@ -44,7 +44,7 @@ public class JaxrsAnnotationParser extends MvcAnnotationParserBase {
   @Override protected MvcAnnotation create(Method method, Annotation annotation) {
     MvcAnnotation result = new MvcAnnotation(annotation.annotationType().getSimpleName(),
         path(method),
-        produces(method), consumes(method));
+        produces(method), consumes(method), attributes(method));
     result.setCookieParam(CookieParam.class);
     result.setHeaderParam(HeaderParam.class);
     result.setPathParam(PathParam.class);

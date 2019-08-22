@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
@@ -591,6 +592,11 @@ public class RouterImpl implements Router {
       List<MediaType> consumes = model.getConsumes();
       if (consumes.size() > 0) {
         route.setConsumes(consumes);
+      }
+
+      Map<String, Object> attributes = model.getAttributes();
+      if (attributes.size() > 0) {
+        route.setAttributes(attributes);
       }
     });
   }

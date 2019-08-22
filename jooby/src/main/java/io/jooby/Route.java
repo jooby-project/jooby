@@ -11,14 +11,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 
 /**
  * Route contains information about the HTTP method, path pattern, which content types consumes and
@@ -334,6 +336,8 @@ public class Route {
 
   private List<MediaType> consumes = EMPTY_LIST;
 
+  private Map<String, Object> attributes = EMPTY_MAP;
+
   private Set<String> supportedMethod;
 
   /**
@@ -615,6 +619,58 @@ public class Route {
       consumes.forEach(this.consumes::add);
       before = before == null ? SUPPORT_MEDIA_TYPE : SUPPORT_MEDIA_TYPE.then(before);
     }
+    return this;
+  }
+
+  /**
+   * Attributes set to this route.
+   *
+   * @return Map of attributes set to the route.
+   */
+  public @Nonnull Map<String, Object> getAttributes() {
+    return attributes;
+  }
+
+  /**
+   * Retrieve value of this specific Attribute set to this route.
+   *
+   * @param name of the attribute to retrieve.
+   * @return value of the specific attribute.
+   */
+  public Object attribute(String name) {
+    return attributes.get(name);
+  }
+
+  /**
+   * Add one or more attributes applied to this route.
+   *
+   * @param attributes .
+   * @return This route.
+   */
+  public @Nonnull Route setAttributes(@Nonnull Map<String, Object> attributes) {
+    if (attributes.size() > 0) {
+      if (this.attributes == EMPTY_MAP) {
+        this.attributes = new HashMap<>();
+      }
+      this.attributes.putAll(attributes);
+    }
+    return this;
+  }
+
+  /**
+   * Add one or more attributes applied to this route.
+   *
+   * @param name attribute name
+   * @param value attribute value
+   * @return This route.
+   */
+  public @Nonnull Route attribute(@Nonnull String name, @Nonnull Object value) {
+    if (this.attributes == EMPTY_MAP) {
+      this.attributes = new HashMap<>();
+    }
+
+    this.attributes.put(name, value);
+
     return this;
   }
 
