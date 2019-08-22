@@ -10,9 +10,16 @@ import io.jooby.internal.ResponseStartedContext;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Route contains information about the HTTP method, path pattern, which content types consumes and
@@ -615,7 +622,7 @@ public class Route {
   }
 
   /**
-   * Attributes set to this route
+   * Attributes set to this route.
    *
    * @return Map of attributes set to the route.
    */
@@ -624,7 +631,7 @@ public class Route {
   }
 
   /**
-   * Retrieve value of this specific Attribute set to this route
+   * Retrieve value of this specific Attribute set to this route.
    *
    * @param name of the attribute to retrieve.
    * @return value of the specific attribute.
