@@ -31,7 +31,7 @@ import static java.util.Objects.requireNonNull;
  * package com.myapp;
  *
  * {
- *   use(new Banner());
+ *   install(new BannerModule());
  * }
  * }</pre>
  *
@@ -44,7 +44,7 @@ import static java.util.Objects.requireNonNull;
  * package com.myapp;
  *
  * {
- *   use(new Banner("my awesome app"));
+ *   install(new BannerModule("my awesome app"));
  * }
  * }</pre>
  *
@@ -57,7 +57,7 @@ import static java.util.Objects.requireNonNull;
  * package com.myapp;
  *
  * {
- *   use(new Banner("my awesome app").font("slant"));
+ *   install(new BannerModule("my awesome app").font("slant"));
  * }
  * }</pre>
  *
