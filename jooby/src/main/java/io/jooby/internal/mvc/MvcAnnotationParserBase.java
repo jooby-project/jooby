@@ -5,12 +5,14 @@
  */
 package io.jooby.internal.mvc;
 
+import io.jooby.SneakyThrows;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,11 +57,44 @@ public abstract class MvcAnnotationParserBase implements MvcAnnotationParser {
     return result;
   }
 
-  protected Map<Class<? extends Annotation>, Annotation> customAnnotations(Method method) {
-    return Stream.of(method.getDeclaredAnnotations())
+  protected Map<String, Object> attributes(Method method) {
+    Map<String, Object> attributes = new LinkedHashMap<>();
+
+    List<Annotation> specificAttributes = Stream.of(method.getDeclaredAnnotations())
         .filter(annotation ->
             !"io.jooby.annotations".equals(annotation.annotationType().getPackage().getName())
                 && !"javax.ws.rs".equals(annotation.annotationType().getPackage().getName()))
-        .collect(Collectors.toMap(Annotation::annotationType, Function.identity()));
+        .collect(Collectors.toList());
+
+      specificAttributes.forEach(annotation -> attributes.putAll(extractAttributes(annotation)));
+
+      return attributes;
+  }
+
+  protected Map<String, Object> extractAttributes(Annotation annotation) {
+    Map<String, Object> annotationAttributes = new LinkedHashMap<>();
+
+    Method[] attributesMethod = annotation.annotationType().getDeclaredMethods();
+    for (Method attribute : attributesMethod) {
+      try {
+        Object value = attribute.invoke(annotation);
+        annotationAttributes.put(attributeName(attribute, annotation), value);
+      } catch (Exception x) {
+        throw SneakyThrows.propagate(x);
+      }
+    }
+
+    return annotationAttributes;
+  }
+
+  protected String attributeName(Method attr, Annotation annotation) {
+    String name = attr.getName();
+    String context = annotation.annotationType().getSimpleName();
+
+    if (name.equals("value")) {
+      return context;
+    }
+
+    return context + "." + name;
   }
 }

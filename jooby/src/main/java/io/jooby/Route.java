@@ -328,7 +328,7 @@ public class Route {
 
   private List<MediaType> consumes = EMPTY_LIST;
 
-  private Map<Class<? extends Annotation>, Annotation> customAnnotations = EMPTY_MAP;
+  private Map<String, Object> attributes = EMPTY_MAP;
 
   private Set<String> supportedMethod;
 
@@ -615,28 +615,54 @@ public class Route {
   }
 
   /**
-   * For "business" purpose, an MVC route can have custom annotation that should be available on
-   * the Route object, to be use in a decorator for instance
+   * Attributes set to this route
    *
-   * @return Map of custom annotation set to the route.
+   * @return Map of attributes set to the route.
    */
-  public @Nonnull Map<Class<? extends Annotation>, Annotation> getCustomAnnotations() {
-    return customAnnotations;
+  public @Nonnull Map<String, Object> getAttributes() {
+    return attributes;
   }
 
   /**
-   * Add one or more custom annotation applied to this route.
+   * Retrieve value of this specific Attribute set to this route
    *
-   * @param customAnnotations custom annotation.
+   * @param name of the attribute to retrieve.
+   * @return value of the specific attribute.
+   */
+  public Object attribute(String name) {
+    return attributes.get(name);
+  }
+
+  /**
+   * Add one or more attributes applied to this route.
+   *
+   * @param attributes .
    * @return This route.
    */
-  public @Nonnull Route setCustomAnnotations(@Nonnull Map<Class<? extends Annotation>, Annotation> customAnnotations) {
-    if (customAnnotations.size() > 0) {
-      if (this.customAnnotations == EMPTY_MAP) {
-        this.customAnnotations = new HashMap<>();
+  public @Nonnull Route setAttributes(@Nonnull Map<String, Object> attributes) {
+    if (attributes.size() > 0) {
+      if (this.attributes == EMPTY_MAP) {
+        this.attributes = new HashMap<>();
       }
-      this.customAnnotations.putAll(customAnnotations);
+      this.attributes.putAll(attributes);
     }
+    return this;
+  }
+
+  /**
+   * Add one or more attributes applied to this route.
+   *
+   * @param name attribute name
+   * @param value attribute value
+   * @return This route.
+   */
+  public @Nonnull Route attribute(@Nonnull String name, @Nonnull Object value) {
+    if (this.attributes == EMPTY_MAP) {
+      this.attributes = new HashMap<>();
+    }
+
+    this.attributes.put(name, value);
+
     return this;
   }
 

@@ -594,9 +594,9 @@ public class RouterImpl implements Router {
         route.setConsumes(consumes);
       }
 
-      Map<Class<? extends Annotation>, Annotation> customAnnotations = model.getCustomAnnotations();
-      if (customAnnotations.size() > 0) {
-        route.setCustomAnnotations(customAnnotations);
+      Map<String, Object> attributes = model.getAttributes();
+      if (attributes.size() > 0) {
+        route.setAttributes(attributes);
       }
     });
   }

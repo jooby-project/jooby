@@ -25,7 +25,7 @@ public class MvcAnnotation {
 
   private List<MediaType> consumes;
 
-  private Map<Class<? extends Annotation>, Annotation> customAnnotations;
+  private Map<String, Object> attributes;
 
   private Class<? extends Annotation> headerParam;
 
@@ -39,12 +39,12 @@ public class MvcAnnotation {
 
   private Class<? extends Annotation> flashParam;
 
-  public MvcAnnotation(String method, String[] path, String[] produces, String[] consumes, Map<Class<? extends Annotation>, Annotation> customAnnotations) {
+  public MvcAnnotation(String method, String[] path, String[] produces, String[] consumes, Map<String, Object> attributes) {
     this.method = method;
     this.path = path;
     this.produces = types(produces);
     this.consumes = types(consumes);
-    this.customAnnotations = customAnnotations;
+    this.attributes = attributes;
   }
 
   private List<MediaType> types(String[] values) {
@@ -72,8 +72,8 @@ public class MvcAnnotation {
     return consumes;
   }
 
-  public Map<Class<? extends Annotation>, Annotation> getCustomAnnotations() {
-    return customAnnotations;
+  public Map<String, Object> getAttributes() {
+    return attributes;
   }
 
   public boolean isPathParam(Parameter parameter) {
