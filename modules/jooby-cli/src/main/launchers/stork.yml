@@ -22,7 +22,7 @@ platforms: [ WINDOWS, LINUX, MAC_OSX ]
 # Working directory for app
 #  RETAIN will not change the working directory
 #  APP_HOME will change the working directory to the home of the app
-#    (where it was intalled) before running the main class
+#    (where it was installed) before running the main class
 working_dir_mode: RETAIN
 
 # Arguments for application (as though user typed them on command-line)
