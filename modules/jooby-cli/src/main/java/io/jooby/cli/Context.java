@@ -6,7 +6,6 @@
 package io.jooby.cli;
 
 import javax.annotation.Nonnull;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
@@ -90,6 +89,7 @@ public interface Context {
    * Set workspace/working directory.
    *
    * @param workspace Workspace/working directory.
+   * @throws IOException When directory doesn't exist.
    */
   void setWorkspace(@Nonnull Path workspace) throws IOException;
 }

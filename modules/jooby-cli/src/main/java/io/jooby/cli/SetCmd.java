@@ -10,6 +10,11 @@ import picocli.CommandLine;
 import javax.annotation.Nonnull;
 import java.nio.file.Path;
 
+/**
+ * Set/configure options used by the tool (for now is just for workspace).
+ *
+ * @since 2.0.6
+ */
 @CommandLine.Command(name = "set", description = "Set and save options in the ~/.jooby file")
 public class SetCmd extends Cmd {
   @CommandLine.Spec

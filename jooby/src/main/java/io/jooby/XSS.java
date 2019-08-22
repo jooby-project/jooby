@@ -17,7 +17,8 @@ import javax.annotation.Nullable;
  * Set of escaping routines for fixing cross-site scripting (XSS).
  */
 public final class XSS {
-  private XSS() {}
+  private XSS() {
+  }
 
   /**
    * <p>

@@ -7,7 +7,6 @@ package io.jooby.cli;
 
 import io.jooby.internal.cli.CommandContextImpl;
 import io.jooby.internal.cli.JLineCompleter;
-import io.jooby.internal.cli.VersionProvider;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -16,20 +15,12 @@ import org.jline.reader.UserInterruptException;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 import picocli.CommandLine;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -50,13 +41,11 @@ import java.util.stream.Collectors;
  */
 @CommandLine.Command(
     name = "jooby",
-    versionProvider = VersionProvider.class,
+    versionProvider = Version.class,
     mixinStandardHelpOptions = true,
     version = "Print version information"
 )
 public class Cli extends Cmd {
-  public static String version;
-
   /** Command line specification.  */
   private @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
@@ -76,7 +65,8 @@ public class Cli extends Cmd {
       } else if ("-V".equalsIgnoreCase(arg) || "--version".equals(arg)) {
         ctx.println(ctx.getVersion());
       } else {
-        ctx.println("Unknown command or option(s): " + args.stream().collect(Collectors.joining(" ")));
+        ctx.println(
+            "Unknown command or option(s): " + args.stream().collect(Collectors.joining(" ")));
       }
     }
   }
@@ -88,7 +78,6 @@ public class Cli extends Cmd {
    * @throws IOException If something goes wrong.
    */
   public static void main(String[] args) throws IOException {
-    version = checkVersion();
     // set up the completion
     Cli jooby = new Cli();
     CommandLine cmd = new CommandLine(jooby)
@@ -103,7 +92,7 @@ public class Cli extends Cmd {
         .parser(new DefaultParser())
         .build();
 
-    CommandContextImpl context = new CommandContextImpl(reader, version);
+    CommandContextImpl context = new CommandContextImpl(reader, Version.VERSION);
     jooby.setContext(context);
     cmd.getSubcommands().values().stream()
         .map(CommandLine::getCommand)
@@ -129,27 +118,6 @@ public class Cli extends Cmd {
           return;
         }
       }
-    }
-  }
-
-  private static String checkVersion() {
-    try {
-      URL url = URI
-          .create("http://search.maven.org/solrsearch/select?q=+g:io.jooby+a:jooby&start=0&rows=1")
-          .toURL();
-      URLConnection connection = url.openConnection();
-      try(InputStream in = connection.getInputStream()) {
-        JSONObject json = new JSONObject(new JSONTokener(in));
-        JSONObject response = json.getJSONObject("response");
-        JSONArray docs = response.getJSONArray("docs");
-        JSONObject jooby = docs.getJSONObject(0);
-        return jooby.getString("latestVersion");
-      }
-    } catch (Exception x) {
-      return Optional.ofNullable(VersionProvider.class.getPackage())
-          .map(Package::getImplementationVersion)
-          .filter(Objects::nonNull)
-          .orElse("2.0.5");
     }
   }
 }
