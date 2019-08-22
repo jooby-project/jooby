@@ -7,7 +7,9 @@ import org.junit.jupiter.api.function.Executable;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -217,7 +219,8 @@ public class ValueTest {
   public void verifyIllegalAccess() {
     /** Object: */
     queryString("foo=bar", queryString -> {
-      assertThrows(MissingValueException.class, () -> queryString.get("a").get("a").get("a").value());
+      assertThrows(MissingValueException.class,
+          () -> queryString.get("a").get("a").get("a").value());
       assertThrows(MissingValueException.class, () -> queryString.get("missing").value());
       assertThrows(MissingValueException.class, () -> queryString.get(0).value());
       assertEquals("missing", queryString.get("missing").value("missing"));
@@ -236,13 +239,15 @@ public class ValueTest {
 
     /** Single Property: */
     queryString("foo=bar", queryString -> {
-      assertThrows(MissingValueException.class, () -> queryString.get("foo").get("missing").value());
+      assertThrows(MissingValueException.class,
+          () -> queryString.get("foo").get("missing").value());
       assertEquals("bar", queryString.get("foo").get(0).value());
     });
 
     /** Missing Property: */
     queryString("", queryString -> {
-      assertThrows(MissingValueException.class, () -> queryString.get("foo").get("missing").value());
+      assertThrows(MissingValueException.class,
+          () -> queryString.get("foo").get("missing").value());
       assertThrows(MissingValueException.class, () -> queryString.get("foo").get(0).value());
     });
   }
@@ -267,7 +272,20 @@ public class ValueTest {
     queryString("tail=a%20%2B", queryString -> {
       assertEquals("a +", queryString.get("tail").value());
     });
+  }
 
+  @Test
+  public void empty() {
+    queryString("n&x=&&", queryString -> {
+      assertEquals("", queryString.get("n").value());
+      assertEquals("", queryString.get("x").value());
+      assertEquals(Collections.singletonList(""), queryString.get("n").toList());
+      assertEquals(Collections.singletonList(""), queryString.get("x").toList());
+      Map<String, String> map = new HashMap<>();
+      map.put("n", "");
+      map.put("x", "");
+      assertEquals(map, queryString.toMap());
+    });
   }
 
   @Test
@@ -281,11 +299,17 @@ public class ValueTest {
   @Test
   public void toCollection() {
     /** Array: */
+    queryString("a=1,2,1", queryString -> {
+      assertEquals(Arrays.asList("1", "2", "1"), queryString.get("a").toList());
+
+      assertEquals(new LinkedHashSet<>(Arrays.asList("1", "2")), queryString.get("a").toSet());
+    });
     queryString("a=1;a=2;a=1", queryString -> {
       assertEquals(Arrays.asList("1", "2", "1"), queryString.get("a").toList());
 
       assertEquals(new LinkedHashSet<>(Arrays.asList("1", "2")), queryString.get("a").toSet());
     });
+
     queryString("a=1", queryString -> {
       assertEquals(Arrays.asList("1"), queryString.get("a").toList());
     });
@@ -310,7 +334,7 @@ public class ValueTest {
   }
 
   enum Letter {
-    A, B;
+    A, B
   }
 
   @Test
@@ -352,7 +376,8 @@ public class ValueTest {
           "Missing value: 'a[3]'");
       assertMessage(MissingValueException.class, () -> queryString.get("a").get("b").value(),
           "Missing value: 'a.b'");
-      assertMessage(MissingValueException.class, () -> queryString.get("a").get("b").get(3).longValue(),
+      assertMessage(MissingValueException.class,
+          () -> queryString.get("a").get("b").get(3).longValue(),
           "Missing value: 'a.b[3]'");
     });
 

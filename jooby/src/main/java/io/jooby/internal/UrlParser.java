@@ -15,6 +15,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public final class UrlParser {
   private static final QueryStringValue NO_QUERY_STRING = new QueryStringValue("");
@@ -87,7 +88,12 @@ public final class UrlParser {
     }
     String name = decodeComponent(s, nameStart, valueStart - 1, charset, false);
     String value = decodeComponent(s, valueStart, valueEnd, charset, false);
-    root.put(name, value);
+    int comma = value.indexOf(',');
+    if (comma > 0) {
+      root.put(name, Arrays.asList(value.split(",")));
+    } else {
+      root.put(name, value);
+    }
     return true;
   }
 
