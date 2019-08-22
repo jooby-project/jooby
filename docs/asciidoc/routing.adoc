@@ -61,6 +61,77 @@ A javadoc:Route[] consists of three part:
 The javadoc:Route.Handler[text="handler"] function always produces a result, which is send it back
 to the client.
 
+==== Route attributes
+
+Attributes let you annotate a route at application bootstrap time. It functions like static metadata available at runtime:
+.Java
+[source, java, role="primary"]
+----
+{
+  get("/foo", ctx -> "Foo")
+    .attribute("foo", "bar");
+}
+----
+An attribute consist of a name and value. Values can be any object.
+Attributes can be accessed at runtime in a request/response cycle. For example, a security module might check for a role attribute.
+.Java
+[source, java, role="primary"]
+----
+{
+  decorator(next -> ctx -> {
+    User user = ...;
+    String role = ctx.getRoute().attribute("Role"); 
+    
+    if (user.hasRole(role)) {
+        return next.apply(ctx);
+    }      
+    
+    throw new StatusCodeException(StatusCode.FORBIDDEN);                              
+  });
+}
+----
+
+In MVC routes you can set attributes via annotations:
+.Java
+[source, java, role="primary"]
+----
+@Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Role {
+  String value();
+}
+
+@Path("/path")
+public class AdminResource {
+
+  @Role("admin")
+  public Object doSomething() {
+    ...
+  }
+
+}
+
+{
+  decorator(next -> ctx -> {
+    System.out.println(ctx.getRoute().attribute("Role"))
+  });
+}
+----
+The previous example will print: admin.
+You can retrieve all the attributes of the route by calling `ctx.getRoute().getAttributes()`.
+
+Any runtime annotation is automatically added as route attributes following these rules:
+- If the annotation has a value method, then we use the annotation’s name as the attribute name.
+- Otherwise, we use the method name as the attribute name.
+
+.request attributes vs route attributes
+[NOTE]
+====
+Route attributes are created at bootstrap. They are global, and once set, they won’t change.
+On the other hand, request attributes are created in a request/response cycle.
+====
+
+
 === Path Pattern
 
 ==== Static

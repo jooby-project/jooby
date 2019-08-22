@@ -12,6 +12,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,6 +24,8 @@ public class MvcAnnotation {
   private List<MediaType> produces;
 
   private List<MediaType> consumes;
+
+  private Map<String, Object> attributes;
 
   private Class<? extends Annotation> headerParam;
 
@@ -36,11 +39,12 @@ public class MvcAnnotation {
 
   private Class<? extends Annotation> flashParam;
 
-  public MvcAnnotation(String method, String[] path, String[] produces, String[] consumes) {
+  public MvcAnnotation(String method, String[] path, String[] produces, String[] consumes, Map<String, Object> attributes) {
     this.method = method;
     this.path = path;
     this.produces = types(produces);
     this.consumes = types(consumes);
+    this.attributes = attributes;
   }
 
   private List<MediaType> types(String[] values) {
@@ -66,6 +70,10 @@ public class MvcAnnotation {
 
   public List<MediaType> getConsumes() {
     return consumes;
+  }
+
+  public Map<String, Object> getAttributes() {
+    return attributes;
   }
 
   public boolean isPathParam(Parameter parameter) {
@@ -134,4 +142,5 @@ public class MvcAnnotation {
       throw SneakyThrows.propagate(x);
     }
   }
+
 }
