@@ -55,7 +55,7 @@
   <jboss-modules.version>1.9.1.Final</jboss-modules.version>
   <jdbi.version>3.9.1</jdbi.version>
   <jetty.version>9.4.19.v20190610</jetty.version>
-  <jfiglet.version>1.0.0</jfiglet.version>
+  <jfiglet.version>0.0.8</jfiglet.version>
   <jooby-maven-plugin.version>2.0.6-SNAPSHOT</jooby-maven-plugin.version>
   <jooby.version>2.0.6-SNAPSHOT</jooby.version>
   <jsr305.version>3.0.2</jsr305.version>
@@ -472,7 +472,7 @@
       <version>${rocker.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.github.dtmo.jfiglet</groupId>
+      <groupId>com.github.lalyos</groupId>
       <artifactId>jfiglet</artifactId>
       <version>${jfiglet.version}</version>
     </dependency>
