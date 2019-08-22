@@ -93,6 +93,7 @@
                 <includes>
                   <include>org.ow2.asm:*</include>
                   <include>commons-io:*</include>
+                  <include>org.unbescape:*</include>
                 </includes>
               </artifactSet>
               <relocations>
@@ -101,8 +102,12 @@
                   <shadedPattern>${shaded.package}.asm</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>org.apache.commons.io</pattern>
-                  <shadedPattern>${shaded.package}.commonsio</shadedPattern>
+                  <pattern>org.apache.commons</pattern>
+                  <shadedPattern>${shaded.package}</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.unbescape</pattern>
+                  <shadedPattern>${shaded.package}</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
@@ -157,6 +162,14 @@
       <artifactId>commons-io</artifactId>
       <optional>true</optional>
     </dependency>
+
+    <!-- unbescape -->
+    <dependency>
+      <groupId>org.unbescape</groupId>
+      <artifactId>unbescape</artifactId>
+      <optional>true</optional>
+    </dependency>
+
 
     <!-- javax.inject -->
     <dependency>

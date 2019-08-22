@@ -69,6 +69,7 @@
     <okhttp.version>4.1.0</okhttp.version>
 
     <commons-io.version>2.6</commons-io.version>
+    <unbescape.version>1.1.6.RELEASE</unbescape.version>
 
     <!-- Kotlin -->
     <kotlin.version>1.3.41</kotlin.version>
@@ -472,6 +473,13 @@
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>${commons-io.version}</version>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/org.unbescape/unbescape -->
+      <dependency>
+        <groupId>org.unbescape</groupId>
+        <artifactId>unbescape</artifactId>
+        <version>${unbescape.version}</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->

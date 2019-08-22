@@ -52,7 +52,7 @@ public interface ErrorHandler {
           .append("<hr>\n");
 
       if (message != null && !message.equals(statusCode.toString())) {
-        html.append("<h2>message: ").append(message).append("</h2>\n");
+        html.append("<h2>message: ").append(XSS.html(message)).append("</h2>\n");
       }
       html.append("<h2>status code: ").append(statusCode.value()).append("</h2>\n");
 
@@ -67,7 +67,7 @@ public interface ErrorHandler {
       String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
       ctx.setResponseType(json)
           .setResponseCode(statusCode)
-          .send("{\"message\":\"" + message + "\",\"statusCode\":" + statusCode.value()
+          .send("{\"message\":\"" + XSS.json(message) + "\",\"statusCode\":" + statusCode.value()
               + ",\"reason\":\"" + statusCode.reason() + "\"}");
     }
   };

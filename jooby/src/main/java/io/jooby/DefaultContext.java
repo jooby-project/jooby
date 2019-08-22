@@ -128,7 +128,7 @@ public interface DefaultContext extends Context {
     String value = pathMap().get(name);
     return value == null
         ? new MissingValue(name)
-        : new SingleValue(name, UrlParser.decodePath(value));
+        : new SingleValue(name, UrlParser.decodePathSegment(value));
   }
 
   @Override @Nonnull default <T> T path(@Nonnull Reified<T> type) {

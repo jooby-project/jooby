@@ -11,6 +11,7 @@ import io.jooby.SneakyThrows;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
@@ -24,118 +25,135 @@ public final class UrlParser {
       return NO_QUERY_STRING;
     }
     QueryStringValue result = new QueryStringValue("?" + queryString);
-    parse(queryString, 0, queryString.length(), result);
+    decodeParams(result, queryString, 0, StandardCharsets.UTF_8, 1024);
     return result;
   }
 
-  private static void parse(String source, int start, int length, HashValue root) {
-    int nameStart = start;
-    int nameEnd = length;
-    // %00 size = 3
-    int decodedSize = (length - start) / 3;
-    StringBuilder decodedBuffer = new StringBuilder(decodedSize);
-    ByteBuffer decoderInput = ByteBuffer.allocate(decodedSize);
-    CharBuffer decoderOutput = CharBuffer.allocate(decodedSize);
-    CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
-    for (int i = nameStart; i < length; i++) {
-      char ch = source.charAt(i);
-      if (ch == '=') {
-        // Parameter name ready
-        nameEnd = i;
-      } else if (ch == '&' || ch == ';') {
-        newParam(root, source, nameStart, nameEnd, nameEnd + 1, i, decodedBuffer,
-            decoderInput,
-            decoderOutput, decoder);
-        nameStart = i + 1;
-      }
+  public static String decodePathSegment(String value) {
+    if (value == null || value.length() == 0) {
+      return "";
     }
-    newParam(root, source, nameStart, nameEnd, nameEnd + 1, length, decodedBuffer, decoderInput,
-        decoderOutput, decoder);
+    return decodeComponent(value, 0, value.length(), StandardCharsets.UTF_8, true);
   }
 
-  private static void newParam(HashValue root, String source, int nameStart, int nameEnd,
-      int valueStart, int valueEnd, StringBuilder decodedBuffer,
-      ByteBuffer decoderInput, CharBuffer decoderOutput, CharsetDecoder decoder) {
-    if (nameStart < valueEnd) {
-      // returnType target
-      String name = decode(source, nameStart, nameEnd, decodedBuffer, decoderInput,
-          decoderOutput,
-          decoder);
-      String value = decode(source, valueStart, valueEnd, decodedBuffer, decoderInput,
-          decoderOutput, decoder);
-      root.put(name, value);
+  private static void decodeParams(HashValue root, String s, int from, Charset charset,
+      int paramsLimit) {
+    int len = s.length();
+    if (from >= len) {
+      return;
     }
-  }
-
-  public static String decodePath(String path) {
-    // %00 size = 3
-    int len = path.length();
-    int decodedSize = len / 3;
-    StringBuilder decodedBuffer = new StringBuilder(decodedSize);
-    ByteBuffer decoderInput = ByteBuffer.allocate(decodedSize);
-    CharBuffer decoderOutput = CharBuffer.allocate(decodedSize);
-    CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
-    return decode(path, 0, len, decodedBuffer, decoderInput, decoderOutput, decoder, false);
-  }
-
-  private static String decode(String source, int start, int len, StringBuilder decodedBuffer,
-      ByteBuffer decoderInput, CharBuffer decoderOutput, CharsetDecoder decoder) {
-    return decode(source, start, len, decodedBuffer, decoderInput, decoderOutput, decoder,
-        true);
-  }
-
-  private static String decode(String source, int start, int len, StringBuilder decodedBuffer,
-      ByteBuffer decoderInput, CharBuffer decoderOutput, CharsetDecoder decoder,
-      boolean encodePlus) {
-    decodedBuffer.setLength(0);
-    for (int i = start; i < len; i++) {
-      char ch = source.charAt(i);
-      if (ch == '%') {
-        decodedBuffer.append(source, start, i);
-        i = decodePercent(source, i, len, decoderInput, decoderOutput, decoder);
-        decodedBuffer.append(decoderOutput.flip().toString());
-        start = i + 1;
-      } else if (ch == '+' && encodePlus) {
-        decodedBuffer.append(source, start, i);
-        decodedBuffer.append(SPACE);
-        start = i + 1;
+    if (s.charAt(from) == '?') {
+      from++;
+    }
+    int nameStart = from;
+    int valueStart = -1;
+    int i;
+    loop:
+    for (i = from; i < len; i++) {
+      switch (s.charAt(i)) {
+        case '=':
+          if (nameStart == i) {
+            nameStart = i + 1;
+          } else if (valueStart < nameStart) {
+            valueStart = i + 1;
+          }
+          break;
+        case '&':
+        case ';':
+          if (addParam(root, s, nameStart, valueStart, i, charset)) {
+            paramsLimit--;
+            if (paramsLimit == 0) {
+              return;
+            }
+          }
+          nameStart = i + 1;
+          break;
+        case '#':
+          break loop;
+        default:
+          // continue
       }
     }
-    if (decodedBuffer.length() > 0) {
-      decodedBuffer.append(source, start, len);
-      return decodedBuffer.toString();
-    }
-    return source.substring(start, len);
+    addParam(root, s, nameStart, valueStart, i, charset);
   }
 
-  private static int decodePercent(String source, int pos, int len, ByteBuffer decoderInput,
-      CharBuffer decoderOutput, CharsetDecoder decoder) {
-    decoderOutput.clear();
-    decoderInput.clear();
-    do {
-      if (pos + 3 > len) {
-        throw new IllegalArgumentException(
-            "Unterminated escape sequence at index " + pos + " of: " + source);
-      }
-      decoderInput.put(decodeHexByte(source, pos + 1));
-      pos += 3;
-    } while (pos < len && source.charAt(pos) == '%');
-    pos--;
-    /** Decode using UTF-8: */
-    decoderInput.flip();
-    CoderResult result = decoder.decode(decoderInput, decoderOutput, true);
-    try {
-      if (!result.isUnderflow()) {
-        result.throwException();
-      }
-      result = decoder.flush(decoderOutput);
-      if (!result.isUnderflow()) {
-        result.throwException();
-      }
-    } catch (CharacterCodingException ex) {
-      throw SneakyThrows.propagate(ex);
+  private static boolean addParam(HashValue root, String s, int nameStart, int valueStart,
+      int valueEnd, Charset charset) {
+    if (nameStart >= valueEnd) {
+      return false;
     }
-    return pos;
+    if (valueStart <= nameStart) {
+      valueStart = valueEnd + 1;
+    }
+    String name = decodeComponent(s, nameStart, valueStart - 1, charset, false);
+    String value = decodeComponent(s, valueStart, valueEnd, charset, false);
+    root.put(name, value);
+    return true;
+  }
+
+  private static String decodeComponent(String s, int from, int toExcluded, Charset charset,
+      boolean isPath) {
+    int len = toExcluded - from;
+    if (len <= 0) {
+      return "";
+    }
+    int firstEscaped = -1;
+    for (int i = from; i < toExcluded; i++) {
+      char c = s.charAt(i);
+      if (c == '%' || c == '+' && !isPath) {
+        firstEscaped = i;
+        break;
+      }
+    }
+    if (firstEscaped == -1) {
+      return s.substring(from, toExcluded);
+    }
+
+    CharsetDecoder decoder = charset.newDecoder();
+
+    // Each encoded byte takes 3 characters (e.g. "%20")
+    int decodedCapacity = (toExcluded - firstEscaped) / 3;
+    ByteBuffer byteBuf = ByteBuffer.allocate(decodedCapacity);
+    CharBuffer charBuf = CharBuffer.allocate(decodedCapacity);
+
+    StringBuilder strBuf = new StringBuilder(len);
+    strBuf.append(s, from, firstEscaped);
+
+    for (int i = firstEscaped; i < toExcluded; i++) {
+      char c = s.charAt(i);
+      if (c != '%') {
+        strBuf.append(c != '+' || isPath ? c : SPACE);
+        continue;
+      }
+
+      byteBuf.clear();
+      do {
+        if (i + 3 > toExcluded) {
+          throw new IllegalArgumentException(
+              "unterminated escape sequence at index " + i + " of: " + s);
+        }
+        byteBuf.put(decodeHexByte(s, i + 1));
+        i += 3;
+      } while (i < toExcluded && s.charAt(i) == '%');
+      i--;
+
+      byteBuf.flip();
+      charBuf.clear();
+      CoderResult result = decoder.reset().decode(byteBuf, charBuf, true);
+      try {
+        if (!result.isUnderflow()) {
+          result.throwException();
+        }
+        result = decoder.flush(charBuf);
+        if (!result.isUnderflow()) {
+          result.throwException();
+        }
+      } catch (CharacterCodingException ex) {
+        throw SneakyThrows.propagate(ex);
+      }
+      strBuf.append(charBuf.flip());
+    }
+    return strBuf.toString();
   }
 
   /**
@@ -145,7 +163,7 @@ public final class UrlParser {
    * @return The hexadecimal value represented in the ASCII character
    * given, or {@code -1} if the character is invalid.
    */
-  public static int decodeHexNibble(final char c) {
+  private static int decodeHexNibble(final char c) {
     // Character.digit() is not used here, as it addresses a larger
     // set of characters (both ASCII and full-width latin letters).
     if (c >= '0' && c <= '9') {
@@ -163,7 +181,7 @@ public final class UrlParser {
   /**
    * Decode a 2-digit hex byte from within a string.
    */
-  public static byte decodeHexByte(CharSequence s, int pos) {
+  private static byte decodeHexByte(CharSequence s, int pos) {
     int hi = decodeHexNibble(s.charAt(pos));
     int lo = decodeHexNibble(s.charAt(pos + 1));
     if (hi == -1 || lo == -1) {
