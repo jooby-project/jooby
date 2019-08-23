@@ -77,6 +77,10 @@ class Idioms : Kooby({
     ctx
   }
 
+  get("/attributes") {
+    "some"
+  }.attribute("k", "v")
+
   /** Router DSL: */
   before {
     ctx.path()
