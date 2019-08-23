@@ -48,7 +48,7 @@ public class Version implements CommandLine.IVersionProvider {
       return Optional.ofNullable(Version.class.getPackage())
           .map(Package::getImplementationVersion)
           .filter(Objects::nonNull)
-          .orElse("2.0.5");
+          .orElse("2.0.6");
     }
   }
 }

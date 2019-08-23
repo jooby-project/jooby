@@ -80,7 +80,7 @@
             </path>
           </annotationProcessorPaths>
           <compilerArgs>
-            <arg>-Aproject=${groupId}/${artifactId}</arg>
+            <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
           </compilerArgs>
         </configuration>
       </plugin>

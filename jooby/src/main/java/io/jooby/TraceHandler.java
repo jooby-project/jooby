@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * The TRACE method performs a message loop-back test along the path to the target resource.
  *
- * @author
+ * @author edgar
  * @since 2.0.4
  */
 public class TraceHandler implements Route.Decorator {

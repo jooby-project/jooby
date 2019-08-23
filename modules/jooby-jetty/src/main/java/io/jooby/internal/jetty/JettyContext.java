@@ -63,7 +63,7 @@ import java.util.concurrent.Executor;
 
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
 import static org.eclipse.jetty.http.HttpHeader.SET_COOKIE;
-import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
+import static org.eclipse.jetty.server.Request.MULTIPART_CONFIG_ELEMENT;
 
 public class JettyContext implements Callback, DefaultContext {
   private final int bufferSize;
@@ -172,7 +172,7 @@ public class JettyContext implements Callback, DefaultContext {
       multipart = Multipart.create();
       form = multipart;
 
-      request.setAttribute(__MULTIPART_CONFIG_ELEMENT,
+      request.setAttribute(MULTIPART_CONFIG_ELEMENT,
           new MultipartConfigElement(router.getTmpdir().toString(), -1L, maxRequestSize,
               bufferSize));
 
