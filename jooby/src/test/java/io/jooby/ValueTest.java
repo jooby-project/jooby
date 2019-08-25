@@ -299,11 +299,6 @@ public class ValueTest {
   @Test
   public void toCollection() {
     /** Array: */
-    queryString("a=1,2,1", queryString -> {
-      assertEquals(Arrays.asList("1", "2", "1"), queryString.get("a").toList());
-
-      assertEquals(new LinkedHashSet<>(Arrays.asList("1", "2")), queryString.get("a").toSet());
-    });
     queryString("a=1;a=2;a=1", queryString -> {
       assertEquals(Arrays.asList("1", "2", "1"), queryString.get("a").toList());
 

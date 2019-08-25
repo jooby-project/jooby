@@ -88,12 +88,7 @@ public final class UrlParser {
     }
     String name = decodeComponent(s, nameStart, valueStart - 1, charset, false);
     String value = decodeComponent(s, valueStart, valueEnd, charset, false);
-    int comma = value.indexOf(',');
-    if (comma > 0) {
-      root.put(name, Arrays.asList(value.split(",")));
-    } else {
-      root.put(name, value);
-    }
+    root.put(name, value);
     return true;
   }
 
