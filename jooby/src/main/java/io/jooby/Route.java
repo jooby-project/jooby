@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
-
+import java.util.TreeMap;
 
 /**
  * Route contains information about the HTTP method, path pattern, which content types consumes and
@@ -666,7 +666,7 @@ public class Route {
    */
   public @Nonnull Route attribute(@Nonnull String name, @Nonnull Object value) {
     if (this.attributes == EMPTY_MAP) {
-      this.attributes = new HashMap<>();
+      this.attributes = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     }
 
     this.attributes.put(name, value);
