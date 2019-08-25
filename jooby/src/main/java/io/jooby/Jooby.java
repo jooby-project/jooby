@@ -25,6 +25,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Spliterator;
@@ -96,6 +98,10 @@ public class Jooby implements Router, Registry {
   private EnvironmentOptions environmentOptions;
 
   private boolean lateInit;
+
+  private String name;
+
+  private String version;
 
   /**
    * Creates a new Jooby instance.
@@ -680,8 +686,68 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
+  /**
+   * Get application's name. If none set:
+   *
+   * - Try to get from {@link Package#getImplementationTitle()}.
+   * - Otherwise fallback to class name.
+   *
+   * @return Application's name.
+   */
+  public @Nonnull String getName() {
+    if (name == null) {
+      name = Optional.ofNullable(getClass().getPackage())
+          .map(Package::getImplementationTitle)
+          .filter(Objects::nonNull)
+          .orElse(getClass().getSimpleName());
+    }
+    return name;
+  }
+
+  /**
+   * Set application name (only for description purpose).
+   *
+   * @param name Application's name.
+   * @return This application.
+   */
+  public @Nonnull Jooby setName(@Nonnull String name) {
+    this.name = name;
+    return this;
+  }
+
+  /**
+   * Get application version (description/debugging purpose only). If none set:
+   *
+   * - Try to get it from {@link Package#getImplementationVersion()}. This attribute is present
+   * when application has been packaged (jar file).
+   *
+   * - Otherwise, fallback to <code>0.0.0</code>.
+   *
+   * @return Application version.
+   */
+  public @Nonnull String getVersion() {
+    if (version == null) {
+      version = Optional.ofNullable(getClass().getPackage())
+          .map(Package::getImplementationVersion)
+          .filter(Objects::nonNull)
+          .orElse("0.0.0");
+    }
+    return version;
+  }
+
+  /**
+   * Set application version.
+   *
+   * @param version Application's version.
+   * @return This application.
+   */
+  public @Nonnull Jooby setVersion(@Nonnull String version) {
+    this.version = version;
+    return this;
+  }
+
   @Override public String toString() {
-    return getClass().getSimpleName();
+    return getName() + ":" + getVersion();
   }
 
   /**

@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 public class HelloApp extends Jooby {
 
   {
-    install(new BannerModule("My App"));
+    install(new BannerModule());
 
     decorator(new TraceHandler());
 

@@ -5,7 +5,6 @@
  */
 package io.jooby.banner;
 
-import com.typesafe.config.Config;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import org.slf4j.Logger;
@@ -82,7 +81,7 @@ public class BannerModule implements Extension {
    *
    * @param text Text to display.
    */
-  public BannerModule(final String text) {
+  public BannerModule(@Nonnull String text) {
     this.text = Optional.of(text);
   }
 
@@ -96,10 +95,8 @@ public class BannerModule implements Extension {
   @Override
   public void install(@Nonnull Jooby application) throws Exception {
     Logger log = application.getLog();
-    Config conf = application.getConfig();
-    String name = conf.getString("application.name");
-    String version = conf.getString("application.version");
-    String text = this.text.orElse(name);
+    String text = this.text.orElseGet(application::getName);
+    String version = application.getVersion();
 
     Provider<String> ascii = () -> {
       try {

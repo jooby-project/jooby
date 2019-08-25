@@ -1,7 +1,5 @@
 package io.jooby.banner;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
@@ -12,8 +10,6 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 
 import javax.inject.Provider;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.github.lalyos.jfiglet.FigletFont.convertOneLine;
 import static io.jooby.banner.BannerModule.fontPath;
@@ -102,12 +98,6 @@ public class BannerModuleTest {
   }
 
   private Jooby setup(String appName, String appVersion) {
-    Map<String, String> map = new HashMap<>();
-    map.put("application.name", appName);
-    map.put("application.version", appVersion);
-
-    Config config = ConfigFactory.parseMap(map);
-
     ServiceRegistry registry = mock(ServiceRegistry.class);
     when(registry.put(Mockito.<ServiceKey<String>>any(), Mockito.<Provider<String>>any())).thenReturn(null);
 
@@ -115,7 +105,8 @@ public class BannerModuleTest {
     doNothing().when(logger).info(anyString(), any(), any());
 
     Jooby app = mock(Jooby.class);
-    when(app.getConfig()).thenReturn(config);
+    when(app.getName()).thenReturn(appName);
+    when(app.getVersion()).thenReturn(appVersion);
     when(app.getServices()).thenReturn(registry);
     when(app.getLog()).thenReturn(logger);
     when(app.onStarting(any(SneakyThrows.Runnable.class))).thenReturn(app);
