@@ -71,6 +71,8 @@ public class MockContext implements DefaultContext {
 
   private List<FileUpload> files = new ArrayList<>();
 
+  private boolean responseStarted;
+
   @Nonnull @Override public String getMethod() {
     return method;
   }
@@ -410,6 +412,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public MockContext render(@Nonnull Object result) {
+    responseStarted = true;
     this.response.setResult(result);
     return this;
   }
@@ -420,17 +423,20 @@ public class MockContext implements DefaultContext {
    * @return Mock response.
    */
   @Nonnull public MockResponse getResponse() {
+    responseStarted = true;
     response.setHeaders(responseHeaders);
     return response;
   }
 
   @Nonnull @Override public OutputStream responseStream() {
+    responseStarted = true;
     ByteArrayOutputStream out = new ByteArrayOutputStream(ServerOptions._16KB);
     this.response.setResult(out);
     return out;
   }
 
   @Nonnull @Override public Sender responseSender() {
+    responseStarted = true;
     return new Sender() {
       @Override public Sender write(@Nonnull byte[] data, @Nonnull Callback callback) {
         response.setResult(data);
@@ -456,6 +462,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
+    responseStarted = true;
     PrintWriter writer = new PrintWriter(new StringWriter());
     this.response.setResult(writer)
         .setContentType(type);
@@ -463,49 +470,58 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public MockContext send(@Nonnull String data, @Nonnull Charset charset) {
+    responseStarted = true;
     this.response.setResult(data)
         .setContentLength(data.length());
     return this;
   }
 
   @Nonnull @Override public MockContext send(@Nonnull byte[] data) {
+    responseStarted = true;
     this.response.setResult(data)
         .setContentLength(data.length);
     return this;
   }
 
   @Nonnull @Override public MockContext send(@Nonnull ByteBuffer data) {
+    responseStarted = true;
     this.response.setResult(data)
         .setContentLength(data.remaining());
     return this;
   }
 
   @Nonnull @Override public MockContext send(InputStream input) {
+    responseStarted = true;
     this.response.setResult(input);
     return this;
   }
 
   @Nonnull @Override public Context send(@Nonnull AttachedFile file) {
+    responseStarted = true;
     this.response.setResult(file);
     return this;
   }
 
   @Nonnull @Override public Context send(@Nonnull Path file) {
+    responseStarted = true;
     this.response.setResult(file);
     return this;
   }
 
   @Nonnull @Override public MockContext send(@Nonnull ReadableByteChannel channel) {
+    responseStarted = true;
     this.response.setResult(channel);
     return this;
   }
 
   @Nonnull @Override public MockContext send(@Nonnull FileChannel file) {
+    responseStarted = true;
     this.response.setResult(file);
     return this;
   }
 
   @Nonnull @Override public MockContext send(StatusCode statusCode) {
+    responseStarted = true;
     this.response
         .setContentLength(0)
         .setStatusCode(statusCode);
@@ -518,6 +534,7 @@ public class MockContext implements DefaultContext {
 
   @Nonnull @Override
   public MockContext sendError(@Nonnull Throwable cause, @Nonnull StatusCode statusCode) {
+    responseStarted = true;
     this.response.setResult(cause)
         .setStatusCode(router.errorCode(cause));
     return this;
@@ -549,7 +566,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override public boolean isResponseStarted() {
-    return response.value() != null;
+    return responseStarted;
   }
 
   @Nonnull @Override public Router getRouter() {

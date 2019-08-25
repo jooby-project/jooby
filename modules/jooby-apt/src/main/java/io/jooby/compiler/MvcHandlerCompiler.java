@@ -17,6 +17,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.util.ASMifier;
 import org.objectweb.asm.util.Printer;
@@ -51,6 +52,7 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -188,21 +190,24 @@ public class MvcHandlerCompiler {
     TypeKind kind = executable.getReturnType().getKind();
     if (kind == TypeKind.VOID) {
       visitor.visitVarInsn(ALOAD, 1);
+      Method isResponseStarted = Context.class.getDeclaredMethod("isResponseStarted");
+      visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), isResponseStarted.getName(),
+          getMethodDescriptor(isResponseStarted), true);
+      Label label0 = new Label();
+      visitor.visitJumpInsn(IFEQ, label0);
+      visitor.visitVarInsn(ALOAD, 1);
+      visitor.visitInsn(ARETURN);
+      visitor.visitLabel(label0);
+      visitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 
-      // Make sure controller method doesn't inject Context.
-      boolean sideEffect = executable.getParameters().stream()
-          .map(var -> new TypeDefinition(typeUtils, var.asType()))
-          .anyMatch(type -> type.is(Context.class));
+      visitor.visitVarInsn(ALOAD, 1);
+      visitor
+          .visitFieldInsn(GETSTATIC, STATUS_CODE.getInternalName(), "NO_CONTENT",
+              STATUS_CODE.getDescriptor());
+      Method sendStatusCode = Context.class.getDeclaredMethod("send", StatusCode.class);
+      visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), sendStatusCode.getName(),
+          getMethodDescriptor(sendStatusCode), true);
 
-      // It does inject. Assume response is generated via side effect (don't generate 204)
-      if (!sideEffect) {
-        visitor
-            .visitFieldInsn(GETSTATIC, STATUS_CODE.getInternalName(), "NO_CONTENT",
-                STATUS_CODE.getDescriptor());
-        Method sendStatusCode = Context.class.getDeclaredMethod("send", StatusCode.class);
-        visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), sendStatusCode.getName(),
-            getMethodDescriptor(sendStatusCode), true);
-      }
     } else {
 
       Method wrapper;

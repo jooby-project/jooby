@@ -1,5 +1,6 @@
 package examples;
 
+import io.jooby.Context;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
@@ -23,5 +24,13 @@ public class InstanceRouter {
   @Path("/void")
   public void noContent() {
 
+  }
+
+  @GET
+  @Path("/voidwriter")
+  public void writer(Context ctx) throws Exception {
+    ctx.responseWriter(writer -> {
+      writer.println("writer");
+    });
   }
 }

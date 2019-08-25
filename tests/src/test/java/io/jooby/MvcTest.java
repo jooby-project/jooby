@@ -53,6 +53,11 @@ public class MvcTest {
         assertEquals("", rsp.body().string());
         assertEquals(204, rsp.code());
       });
+
+      client.get("/voidwriter", rsp -> {
+        assertEquals("writer", rsp.body().string().trim());
+        assertEquals(200, rsp.code());
+      });
     });
   }
 

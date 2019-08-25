@@ -45,8 +45,8 @@ class Poc {
 
   @POST
   @Path(("/body/json"))
-  public String getIt(Gen<String, Integer, Void> body) {
-      return body.toString();
+  public void getIt() {
+
   }
 
   @GET
@@ -80,8 +80,12 @@ class MvcHandlerImpl implements MvcHandler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    return provider.get().getIt(ctx.body().to(
-        (Type) Reified.getParameterized(Gen.class, String.class, Integer.class, Void.class)));
+    provider.get().getIt();
+    if (ctx.isResponseStarted()) {
+      return ctx;
+    } else {
+      return ctx.send(StatusCode.NO_CONTENT);
+    }
   }
 }
 
@@ -108,13 +112,13 @@ public class MvcHandlerASM {
     //    ASMifier.main(new String[] {"-debug",MvcHandler.class.getName()});
     //public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
     //      @PathParam long j, @PathParam double f, @PathParam boolean b) {
-    Method handler = Poc.class.getDeclaredMethod("getIt", Gen.class);
+    Method handler = Poc.class.getDeclaredMethod("getIt");
     Class runtime = MvcCompiler.compileClass(mvc(handler));
 
     System.out.println("Loaded: " + runtime);
     //    byte[] asm = writer.toByteCode(classname, handler);
 
-    assertEquals(asmifier(new ClassReader(MvcModule.class.getName())),
+    assertEquals(asmifier(new ClassReader(MvcHandlerImpl.class.getName())),
         asmifier(new ClassReader(MvcCompiler.compile(mvc(handler)))));
 
   }

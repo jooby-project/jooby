@@ -53,6 +53,7 @@ import static org.objectweb.asm.Opcodes.F_SAME1;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -233,7 +234,15 @@ public class MvcCompiler {
     Class<?> returnType = method.getReturnType();
     if (returnType == void.class) {
       apply.visitVarInsn(ALOAD, ALOAD_CTX);
+      apply.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "isResponseStarted", "()Z", true);
+      Label label0 = new Label();
+      apply.visitJumpInsn(IFEQ, label0);
+      apply.visitVarInsn(ALOAD, 1);
+      apply.visitInsn(ARETURN);
+      apply.visitLabel(label0);
+      apply.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 
+      apply.visitVarInsn(ALOAD, ALOAD_CTX);
       apply.visitFieldInsn(GETSTATIC, "io/jooby/StatusCode", "NO_CONTENT",
           "Lio/jooby/StatusCode;");
       apply.visitMethodInsn(INVOKEINTERFACE, CTX_INTERNAL, "send",
