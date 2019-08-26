@@ -17,9 +17,9 @@ After clone/checkout of this repo, you can target **just one module** with comma
 for Maven like so:
 
 ```
-# example module is 'jooby-mongodb' - replace as appropriate
-mvn install -pl jooby-mongodb -am
+# example module is 'jooby-hikari' - replace as appropriate
+mvn install -pl jooby-hikari -am
 ```
 
-Note: Maven builds the smallest amount on dependent modules necessary before it gets to this one.  The resulting 
+Note: Maven builds the smallest amount on dependent modules necessary before it gets to this one. The resulting 
 build time is shorter, and less is downloaded from Maven Central to your local cache of jars.
