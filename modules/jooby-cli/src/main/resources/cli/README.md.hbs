@@ -1,0 +1,18 @@
+# {{artifactId}}
+
+Welcome to {{artifactId}}!!
+
+## running
+
+    {{#if gradle}}./gradlew joobyRun{{else}}mvn clean jooby:run{{/if}}
+
+## building
+
+    {{#if gradle}}./gradlew build{{else}}mvn clean package{{/if}}
+
+{{#if docker}}
+## docker
+
+     docker build . -t {{artifactId}}
+     docker run -p 8080:8080 -it {{artifactId}}
+{{/if}}

@@ -180,6 +180,8 @@ public class CreateCmd extends Cmd {
     ctx.copyResource("/cli/conf/application.conf", confDir.resolve("application.conf"));
     ctx.copyResource("/cli/conf/logback.xml", confDir.resolve("logback.xml"));
 
+    ctx.writeTemplate("README.md", model, projectDir.resolve("README.md"));
+
     if (gradle) {
       gradleWrapper(ctx, projectDir, model);
     }
