@@ -692,5 +692,6 @@ public class RouterImpl implements Router {
     it.setConsumes(src.getConsumes());
     it.setProduces(src.getProduces());
     it.setHandle(src.getHandle());
+    it.setReturnType(src.getReturnType());
   }
 }
