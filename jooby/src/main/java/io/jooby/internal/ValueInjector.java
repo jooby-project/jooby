@@ -250,6 +250,9 @@ public final class ValueInjector {
     if (FileUpload.class == rawType) {
       return true;
     }
+    if (rawType.isEnum()) {
+      return true;
+    }
     /**********************************************************************************************
      * Static method: valueOf
      * ********************************************************************************************
@@ -336,6 +339,9 @@ public final class ValueInjector {
         return value.get(0);
       }
       throw new TypeMismatchException(value.name(), FileUpload.class);
+    }
+    if (rawType.isEnum()) {
+      return Enum.valueOf(rawType, value.get(0).value());
     }
     /**********************************************************************************************
      * Static method: valueOf
