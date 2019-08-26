@@ -3,21 +3,19 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.compiler;
+package io.jooby.apt;
 
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
-import io.jooby.MvcModule;
 import io.jooby.Reified;
 import io.jooby.Route;
-import io.jooby.internal.compiler.ArrayWriter;
-import io.jooby.internal.compiler.ConstructorWriter;
-import io.jooby.internal.compiler.TypeDefinition;
+import io.jooby.internal.apt.ArrayWriter;
+import io.jooby.internal.apt.ConstructorWriter;
+import io.jooby.internal.apt.TypeDefinition;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -32,7 +30,6 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
-import static org.objectweb.asm.Opcodes.IF_ACMPNE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -43,7 +40,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 import static org.objectweb.asm.Type.getType;
 
-public class MvcModuleCompiler {
+public class ModuleCompiler {
   private static final Type OBJ = getType(Object.class);
   private static final Type MVC_EXTENSION = getType(Extension.class);
 
@@ -52,7 +49,7 @@ public class MvcModuleCompiler {
   private final String moduleInternalName;
   private final String moduleJava;
 
-  public MvcModuleCompiler(String controllerClass) {
+  public ModuleCompiler(String controllerClass) {
     this.controllerClass = controllerClass;
     this.moduleClass = this.controllerClass + "$Module";
     this.moduleJava = this.moduleClass + ".java";
@@ -63,7 +60,7 @@ public class MvcModuleCompiler {
     return moduleClass;
   }
 
-  public byte[] compile(List<Map.Entry<String, MvcHandlerCompiler>> handlers) throws Exception {
+  public byte[] compile(List<Map.Entry<String, HandlerCompiler>> handlers) throws Exception {
     ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     // public class Controller$methodName implements Route.Handler {
     writer.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_SYNTHETIC, moduleInternalName, null,
@@ -81,7 +78,7 @@ public class MvcModuleCompiler {
   }
 
   private void install(ClassWriter writer,
-      List<MvcHandlerCompiler> handlers) throws Exception {
+      List<HandlerCompiler> handlers) throws Exception {
     Method install = Extension.class.getDeclaredMethod("install", Jooby.class);
     MethodVisitor visitor = writer
         .visitMethod(ACC_PUBLIC, install.getName(), Type.getMethodDescriptor(install), null, null);
@@ -90,7 +87,7 @@ public class MvcModuleCompiler {
     Label sourceStart = new Label();
     visitor.visitLabel(sourceStart);
 
-    for (MvcHandlerCompiler handler : handlers) {
+    for (HandlerCompiler handler : handlers) {
       visitor.visitVarInsn(ALOAD, 1);
       visitor.visitLdcInsn(handler.getPattern());
       visitor.visitTypeInsn(NEW, handler.getGeneratedInternalClass());

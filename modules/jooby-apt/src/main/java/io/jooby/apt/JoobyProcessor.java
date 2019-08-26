@@ -3,9 +3,9 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.compiler;
+package io.jooby.apt;
 
-import io.jooby.MvcModule;
+import io.jooby.MvcFactory;
 import io.jooby.SneakyThrows;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class MvcProcessor extends AbstractProcessor {
+public class JoobyProcessor extends AbstractProcessor {
 
   private ProcessingEnvironment processingEnvironment;
 
@@ -59,14 +59,14 @@ public class MvcProcessor extends AbstractProcessor {
       /**
        * Do MVC handler: per each mvc method we create a Route.Handler.
        */
-      Map<String, MvcHandlerCompiler> result = new HashMap<>();
+      Map<String, HandlerCompiler> result = new HashMap<>();
       for (TypeElement httpMethod : annotations) {
         Set<? extends Element> methods = roundEnv.getElementsAnnotatedWith(httpMethod);
         for (Element e : methods) {
           ExecutableElement method = (ExecutableElement) e;
           List<String> paths = path(httpMethod, method);
           for (String path : paths) {
-            MvcHandlerCompiler compiler = new MvcHandlerCompiler(processingEnvironment, method,
+            HandlerCompiler compiler = new HandlerCompiler(processingEnvironment, method,
                 httpMethod, path);
             onMvcHandler(compiler.getKey(), compiler);
             result.put(compiler.getKey(), compiler);
@@ -74,21 +74,21 @@ public class MvcProcessor extends AbstractProcessor {
         }
       }
       Filer filer = processingEnvironment.getFiler();
-      Map<String, List<Map.Entry<String, MvcHandlerCompiler>>> classes = result.entrySet()
+      Map<String, List<Map.Entry<String, HandlerCompiler>>> classes = result.entrySet()
           .stream()
           .collect(Collectors.groupingBy(e -> e.getValue().getController().getName()));
 
-      for (Map.Entry<String, List<Map.Entry<String, MvcHandlerCompiler>>> entry : classes
+      for (Map.Entry<String, List<Map.Entry<String, HandlerCompiler>>> entry : classes
           .entrySet()) {
 
-        List<Map.Entry<String, MvcHandlerCompiler>> handlers = entry.getValue();
-        MvcModuleCompiler module = new MvcModuleCompiler(entry.getKey());
+        List<Map.Entry<String, HandlerCompiler>> handlers = entry.getValue();
+        ModuleCompiler module = new ModuleCompiler(entry.getKey());
         String moduleClass = module.getModuleClass();
         byte[] moduleBin = module.compile(handlers);
         onClass(moduleClass, moduleBin);
         writeClass(filer.createClassFile(moduleClass), moduleBin);
 
-        MvcModuleFactoryCompiler moduleFactoryCompiler = new MvcModuleFactoryCompiler(
+        FactoryCompiler moduleFactoryCompiler = new FactoryCompiler(
             entry.getKey(), moduleClass);
         String factoryClass = moduleFactoryCompiler.getModuleFactoryClass();
         byte[] factoryBin = moduleFactoryCompiler.compile();
@@ -96,7 +96,7 @@ public class MvcProcessor extends AbstractProcessor {
         moduleList.add(factoryClass);
 
         onClass(factoryClass, factoryBin);
-        for (Map.Entry<String, MvcHandlerCompiler> handler : handlers) {
+        for (Map.Entry<String, HandlerCompiler> handler : handlers) {
           String handleClass = handler.getValue().getGeneratedClass();
           byte[] handleBin = handler.getValue().compile();
           writeClass(filer.createClassFile(handleClass), handleBin);
@@ -110,7 +110,7 @@ public class MvcProcessor extends AbstractProcessor {
   }
 
   private void doServices(Filer filer) throws IOException {
-    String location = "META-INF/services/" + MvcModule.class.getName();
+    String location = "META-INF/services/" + MvcFactory.class.getName();
     FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location);
     String content = moduleList.stream().collect(Collectors.joining(System.getProperty("line.separator")));
     onResource(location, content);
@@ -119,7 +119,7 @@ public class MvcProcessor extends AbstractProcessor {
     }
   }
 
-  protected void onMvcHandler(String methodDescriptor, MvcHandlerCompiler compiler) {
+  protected void onMvcHandler(String methodDescriptor, HandlerCompiler compiler) {
   }
 
   protected void onClass(String className, byte[] bytecode) {

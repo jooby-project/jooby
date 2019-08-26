@@ -1,16 +1,14 @@
-package io.jooby.compiler;
+package io.jooby.apt;
 
 import com.google.common.truth.Truth;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
 import io.jooby.Route;
 import io.jooby.SneakyThrows;
-import org.objectweb.asm.Type;
 
 import javax.inject.Provider;
 import javax.tools.JavaFileObject;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,7 +51,7 @@ public class MvcHandlerCompilerRunner {
   public MvcHandlerCompilerRunner compile(String method, String path, boolean debug,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
     String key = method.toUpperCase() + path;
-    MvcHandlerCompiler compiler = processor.compilerFor(key);
+    HandlerCompiler compiler = processor.compilerFor(key);
     assertNotNull("Compiler not found for: " + key, compiler);
     if (debug) {
       System.out.println(compiler);

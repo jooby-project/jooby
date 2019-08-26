@@ -3,9 +3,9 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.compiler;
+package io.jooby.apt;
 
-import io.jooby.MvcModule;
+import io.jooby.MvcFactory;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -24,9 +24,9 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.objectweb.asm.Type.getType;
 
-public class MvcModuleFactoryCompiler {
+public class FactoryCompiler {
   private static final Type OBJ = getType(Object.class);
-  private static final Type MVC_EXTENSION = getType(MvcModule.class);
+  private static final Type MVC_EXTENSION = getType(MvcFactory.class);
 
   private final String moduleFactoryClass;
   private final String moduleFactoryInternalName;
@@ -34,7 +34,7 @@ public class MvcModuleFactoryCompiler {
   private final String controllerClass;
   private final String moduleClass;
 
-  public MvcModuleFactoryCompiler(String controllerClass, String moduleClass) {
+  public FactoryCompiler(String controllerClass, String moduleClass) {
     this.controllerClass = controllerClass;
     this.moduleClass = moduleClass;
     this.moduleFactoryClass = controllerClass + "$Factory";

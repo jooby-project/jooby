@@ -7,7 +7,7 @@ package io.jooby;
 
 import javax.inject.Provider;
 
-public interface MvcModule {
+public interface MvcFactory {
   boolean supports(Class type);
 
   Extension create(Provider provider);

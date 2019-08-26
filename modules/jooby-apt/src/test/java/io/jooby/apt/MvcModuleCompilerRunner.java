@@ -1,25 +1,16 @@
-package io.jooby.compiler;
+package io.jooby.apt;
 
 import com.google.common.truth.Truth;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
 import io.jooby.Extension;
 import io.jooby.Jooby;
-import io.jooby.MvcModule;
-import io.jooby.Route;
+import io.jooby.MvcFactory;
 import io.jooby.SneakyThrows;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.util.ASMifier;
-import org.objectweb.asm.util.Printer;
-import org.objectweb.asm.util.TraceClassVisitor;
 
 import javax.inject.Provider;
 import javax.tools.JavaFileObject;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -54,16 +45,16 @@ public class MvcModuleCompilerRunner {
     Class clazz = instance.getClass();
     ClassLoader classLoader = processor.getModuleClassLoader(debug);
     String factoryName = clazz.getName() + "$Factory";
-    Class<? extends MvcModule> factoryClass = (Class<? extends MvcModule>) classLoader.loadClass(factoryName);
-    Constructor<? extends MvcModule> constructor = factoryClass.getDeclaredConstructor();
-    MvcModule factory = constructor.newInstance();
+    Class<? extends MvcFactory> factoryClass = (Class<? extends MvcFactory>) classLoader.loadClass(factoryName);
+    Constructor<? extends MvcFactory> constructor = factoryClass.getDeclaredConstructor();
+    MvcFactory factory = constructor.newInstance();
     Provider provider = () -> instance;
     Extension extension = factory.create(provider);
     Jooby application = new Jooby();
     application.install(extension);
 
     Path services = Paths
-        .get(classLoader.getResource("META-INF/services/" + MvcModule.class.getName()).toURI());
+        .get(classLoader.getResource("META-INF/services/" + MvcFactory.class.getName()).toURI());
     assertTrue(Files.exists(services));
     assertEquals(factoryName, new String(Files.readAllBytes(services), StandardCharsets.UTF_8).trim());
 

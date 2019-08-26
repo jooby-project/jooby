@@ -6,7 +6,7 @@ import io.jooby.MockContext;
 import io.jooby.Multipart;
 import io.jooby.Reified;
 import io.jooby.StatusCode;
-import io.jooby.compiler.MvcHandlerCompilerRunner;
+import io.jooby.apt.MvcHandlerCompilerRunner;
 import org.junit.jupiter.api.Test;
 import source.CustomGenericType;
 import source.JavaBeanParam;

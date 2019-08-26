@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.compiler;
+package io.jooby.internal.apt;
 
 import io.jooby.Context;
 import io.jooby.FileUpload;
@@ -14,7 +14,7 @@ import io.jooby.QueryString;
 import io.jooby.Reified;
 import io.jooby.Session;
 import io.jooby.Value;
-import io.jooby.compiler.Annotations;
+import io.jooby.apt.Annotations;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;

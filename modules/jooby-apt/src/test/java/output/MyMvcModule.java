@@ -1,12 +1,12 @@
 package output;
 
 import io.jooby.Extension;
-import io.jooby.MvcModule;
+import io.jooby.MvcFactory;
 import source.Routes;
 
 import javax.inject.Provider;
 
-public class MyMvcModule implements MvcModule {
+public class MyMvcModule implements MvcFactory {
   @Override public boolean supports(Class type) {
     return type == Routes.class;
   }

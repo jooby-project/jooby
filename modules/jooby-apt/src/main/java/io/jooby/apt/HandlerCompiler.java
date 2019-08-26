@@ -3,17 +3,17 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.compiler;
+package io.jooby.apt;
 
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
-import io.jooby.internal.compiler.ConstructorWriter;
-import io.jooby.internal.compiler.ParamDefinition;
-import io.jooby.internal.compiler.ParamWriter;
-import io.jooby.internal.compiler.TypeDefinition;
+import io.jooby.internal.apt.ConstructorWriter;
+import io.jooby.internal.apt.ParamDefinition;
+import io.jooby.internal.apt.ParamWriter;
+import io.jooby.internal.apt.TypeDefinition;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -62,7 +62,7 @@ import static org.objectweb.asm.Type.getInternalName;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 import static org.objectweb.asm.Type.getType;
 
-public class MvcHandlerCompiler {
+public class HandlerCompiler {
 
   private static final Type OBJ = getType(Object.class);
   private static final Type HANDLER = getType(Route.Handler.class);
@@ -85,7 +85,7 @@ public class MvcHandlerCompiler {
   private final Types typeUtils;
   private final TypeMirror annotation;
 
-  public MvcHandlerCompiler(ProcessingEnvironment environment, ExecutableElement executable,
+  public HandlerCompiler(ProcessingEnvironment environment, ExecutableElement executable,
       TypeElement httpMethod, String pattern) {
     this.httpMethod = httpMethod.getSimpleName().toString().toLowerCase();
     this.annotation = httpMethod.asType();

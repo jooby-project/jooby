@@ -3,16 +3,14 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.compiler;
+package io.jooby.internal.apt;
 
 import io.jooby.Reified;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.List;
 import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.CHECKCAST;

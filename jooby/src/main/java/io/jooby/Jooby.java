@@ -279,8 +279,8 @@ public class Jooby implements Router, Registry {
   @Nonnull @Override
   public <T> Jooby mvc(@Nonnull Class<T> router, @Nonnull Provider<T> provider) {
     try {
-      ServiceLoader<MvcModule> modules = ServiceLoader.load(MvcModule.class);
-      MvcModule module = stream(modules.spliterator(), false)
+      ServiceLoader<MvcFactory> modules = ServiceLoader.load(MvcFactory.class);
+      MvcFactory module = stream(modules.spliterator(), false)
           .filter(it -> it.supports(router))
           .findFirst()
           // TODO: Usage exception

@@ -2,7 +2,7 @@ package tests;
 
 import io.jooby.Context;
 import io.jooby.MockRouter;
-import io.jooby.compiler.MvcModuleCompilerRunner;
+import io.jooby.apt.MvcModuleCompilerRunner;
 import org.junit.jupiter.api.Test;
 import source.JavaBeanParam;
 import source.RouteWithMimeTypes;

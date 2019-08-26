@@ -3,12 +3,12 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.compiler;
+package io.jooby.internal.apt;
 
 import io.jooby.Context;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
-import io.jooby.compiler.Annotations;
+import io.jooby.apt.Annotations;
 
 import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.Method;

@@ -3,9 +3,8 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.compiler;
+package io.jooby.apt;
 
-import io.jooby.Router;
 import io.jooby.annotations.CONNECT;
 import io.jooby.annotations.Consumes;
 import io.jooby.annotations.CookieParam;

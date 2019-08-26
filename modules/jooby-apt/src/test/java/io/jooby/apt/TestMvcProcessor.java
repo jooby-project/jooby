@@ -1,4 +1,4 @@
-package io.jooby.compiler;
+package io.jooby.apt;
 
 import io.jooby.SneakyThrows;
 import org.objectweb.asm.ClassReader;
@@ -17,13 +17,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class TestMvcProcessor extends MvcProcessor {
-  private Map<String, MvcHandlerCompiler> result = new HashMap<>();
+public class TestMvcProcessor extends JoobyProcessor {
+  private Map<String, HandlerCompiler> result = new HashMap<>();
 
   private Map<String, Object> classes = new HashMap<>();
   private Map<String, Object> resources = new HashMap<>();
 
-  @Override protected void onMvcHandler(String methodDescriptor, MvcHandlerCompiler compiler) {
+  @Override protected void onMvcHandler(String methodDescriptor, HandlerCompiler compiler) {
     result.put(methodDescriptor, compiler);
   }
 
@@ -31,7 +31,7 @@ public class TestMvcProcessor extends MvcProcessor {
     classes.put(className, bytecode);
   }
 
-  public MvcHandlerCompiler compilerFor(String methodDescriptor) {
+  public HandlerCompiler compilerFor(String methodDescriptor) {
     return result.get(methodDescriptor);
   }
 
