@@ -25,7 +25,7 @@ public class RouteImplTest {
           expect(rsp.status()).andReturn(Optional.empty());
 
           Request req = unit.get(Request.class);
-          expect(req.path(true)).andReturn("/x");
+          expect(req.path()).andReturn("/x");
         })
         .run(unit -> {
           RouteImpl.notFound("GET", "/x")

@@ -39,7 +39,7 @@ public class JettyHandlerTest {
 
               expect(request.getContentType()).andReturn("Multipart/Form-Data");
 
-              request.setAttribute(eq(Request.__MULTIPART_CONFIG_ELEMENT),
+              request.setAttribute(eq(Request.MULTIPART_CONFIG_ELEMENT),
                   isA(MultipartConfigElement.class));
             })
             .expect(unit -> {

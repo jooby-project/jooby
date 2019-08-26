@@ -258,7 +258,7 @@ public class JettyHandler extends AbstractHandler {
       String type = baseRequest.getContentType();
       boolean multipart = false;
       if (type != null && type.toLowerCase().startsWith(MediaType.multipart.name())) {
-        baseRequest.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, multiPartConfig);
+        baseRequest.setAttribute(Request.MULTIPART_CONFIG_ELEMENT, multiPartConfig);
         multipart = true;
       }
 
