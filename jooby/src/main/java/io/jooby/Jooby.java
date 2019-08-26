@@ -268,19 +268,30 @@ public class Jooby implements Router, Registry {
   }
 
   @Nonnull @Override public Jooby mvc(@Nonnull Object router) {
-    this.router.mvc(router);
-    return this;
+    Provider provider = () -> router;
+    return mvc(router.getClass(), provider);
   }
 
   @Nonnull @Override public Jooby mvc(@Nonnull Class router) {
-    this.router.mvc(router, () -> require(router));
-    return this;
+    return mvc(router, () -> require(router));
   }
 
   @Nonnull @Override
   public <T> Jooby mvc(@Nonnull Class<T> router, @Nonnull Provider<T> provider) {
-    this.router.mvc(router, provider);
-    return this;
+    try {
+      ServiceLoader<MvcModule> modules = ServiceLoader.load(MvcModule.class);
+      MvcModule module = stream(modules.spliterator(), false)
+          .filter(it -> it.supports(router))
+          .findFirst()
+          // TODO: Usage exception
+          .orElseThrow(() -> new IllegalStateException("Mvc module not found: " + router.getName()
+              + ". Make sure annotation processor is configured properly."));
+      Extension extension = module.create(provider);
+      extension.install(this);
+      return this;
+    } catch (Exception x) {
+      throw SneakyThrows.propagate(x);
+    }
   }
 
   @Nonnull @Override public List<Route> getRoutes() {

@@ -22,12 +22,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class MvcHandlerCompilerRunner {
-  private final MvcProcessor processor;
+  private final TestMvcProcessor processor;
   private final Object instance;
 
   public MvcHandlerCompilerRunner(Object instance) throws Exception {
     this.instance = instance;
-    this.processor = new MvcProcessor();
+    this.processor = new TestMvcProcessor();
     Truth.assert_()
         .about(JavaSourcesSubjectFactory.javaSources())
         .that(sources(instance.getClass().getSimpleName() + ".java"))

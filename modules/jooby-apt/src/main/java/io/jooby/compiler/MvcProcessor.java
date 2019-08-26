@@ -5,31 +5,25 @@
  */
 package io.jooby.compiler;
 
-import com.google.auto.service.AutoService;
+import io.jooby.MvcModule;
 import io.jooby.SneakyThrows;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.util.ASMifier;
-import org.objectweb.asm.util.Printer;
-import org.objectweb.asm.util.TraceClassVisitor;
 
-import javax.annotation.processing.Completion;
+import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
+import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
-import java.io.ByteArrayOutputStream;
+import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,25 +31,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@AutoService(Processor.class)
-public class MvcProcessor implements Processor {
-
-  Map<String, MvcHandlerCompiler> result = new HashMap<>();
-
-  private Map<String, Object> modules = new HashMap<>();
+public class MvcProcessor extends AbstractProcessor {
 
   private ProcessingEnvironment processingEnvironment;
 
-  @Override public Set<String> getSupportedOptions() {
-    return Collections.emptySet();
-  }
+  private List<String> moduleList = new ArrayList<>();
 
   @Override public Set<String> getSupportedAnnotationTypes() {
     return Annotations.HTTP_METHODS;
   }
 
   @Override public SourceVersion getSupportedSourceVersion() {
-    return SourceVersion.RELEASE_8;
+    return SourceVersion.latestSupported();
   }
 
   @Override public void init(ProcessingEnvironment processingEnvironment) {
@@ -63,87 +50,87 @@ public class MvcProcessor implements Processor {
   }
 
   @Override
-  public boolean process(Set<? extends TypeElement> annotations,
-      RoundEnvironment roundEnvironment) {
-    if (annotations == null || annotations.size() == 0) {
-      return false;
-    }
-    for (TypeElement httpMethod : annotations) {
-      Set<? extends Element> methods = roundEnvironment.getElementsAnnotatedWith(httpMethod);
-      for (Element e : methods) {
-        ExecutableElement method = (ExecutableElement) e;
-        List<String> paths = path(httpMethod, method);
-        for (String path : paths) {
-          MvcHandlerCompiler compiler = new MvcHandlerCompiler(processingEnvironment, method,
-              httpMethod, path);
-          result.put(compiler.getKey(), compiler);
+  public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+    try {
+      if (roundEnv.processingOver()) {
+        doServices(processingEnvironment.getFiler());
+        return false;
+      }
+      /**
+       * Do MVC handler: per each mvc method we create a Route.Handler.
+       */
+      Map<String, MvcHandlerCompiler> result = new HashMap<>();
+      for (TypeElement httpMethod : annotations) {
+        Set<? extends Element> methods = roundEnv.getElementsAnnotatedWith(httpMethod);
+        for (Element e : methods) {
+          ExecutableElement method = (ExecutableElement) e;
+          List<String> paths = path(httpMethod, method);
+          for (String path : paths) {
+            MvcHandlerCompiler compiler = new MvcHandlerCompiler(processingEnvironment, method,
+                httpMethod, path);
+            onMvcHandler(compiler.getKey(), compiler);
+            result.put(compiler.getKey(), compiler);
+          }
         }
       }
-    }
-    Filer filer = processingEnvironment.getFiler();
-    Map<String, List<Map.Entry<String, MvcHandlerCompiler>>> classes = result.entrySet().stream()
-        .collect(Collectors.groupingBy(e -> e.getValue().getController().getName()));
-    for (Map.Entry<String, List<Map.Entry<String, MvcHandlerCompiler>>> entry : classes
-        .entrySet()) {
-      try {
+      Filer filer = processingEnvironment.getFiler();
+      Map<String, List<Map.Entry<String, MvcHandlerCompiler>>> classes = result.entrySet()
+          .stream()
+          .collect(Collectors.groupingBy(e -> e.getValue().getController().getName()));
+
+      for (Map.Entry<String, List<Map.Entry<String, MvcHandlerCompiler>>> entry : classes
+          .entrySet()) {
+
         List<Map.Entry<String, MvcHandlerCompiler>> handlers = entry.getValue();
         MvcModuleCompiler module = new MvcModuleCompiler(entry.getKey());
-        String moduleClass = entry.getKey() + "$Module";
+        String moduleClass = module.getModuleClass();
         byte[] moduleBin = module.compile(handlers);
+        onClass(moduleClass, moduleBin);
         writeClass(filer.createClassFile(moduleClass), moduleBin);
-        modules.put(moduleClass, moduleBin);
+
+        MvcModuleFactoryCompiler moduleFactoryCompiler = new MvcModuleFactoryCompiler(
+            entry.getKey(), moduleClass);
+        String factoryClass = moduleFactoryCompiler.getModuleFactoryClass();
+        byte[] factoryBin = moduleFactoryCompiler.compile();
+        writeClass(filer.createClassFile(factoryClass), factoryBin);
+        moduleList.add(factoryClass);
+
+        onClass(factoryClass, factoryBin);
         for (Map.Entry<String, MvcHandlerCompiler> handler : handlers) {
           String handleClass = handler.getValue().getGeneratedClass();
           byte[] handleBin = handler.getValue().compile();
           writeClass(filer.createClassFile(handleClass), handleBin);
-          modules.put(handleClass, handleBin);
+          onClass(handleClass, handleBin);
         }
-      } catch (Exception x) {
-        x.printStackTrace();
       }
+      return true;
+    } catch (Exception x) {
+      throw SneakyThrows.propagate(x);
     }
+  }
 
-    return true;
+  private void doServices(Filer filer) throws IOException {
+    String location = "META-INF/services/" + MvcModule.class.getName();
+    FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location);
+    String content = moduleList.stream().collect(Collectors.joining(System.getProperty("line.separator")));
+    onResource(location, content);
+    try (PrintWriter writer = new PrintWriter(resource.openOutputStream())) {
+        writer.println(content);
+    }
+  }
+
+  protected void onMvcHandler(String methodDescriptor, MvcHandlerCompiler compiler) {
+  }
+
+  protected void onClass(String className, byte[] bytecode) {
+  }
+
+  protected void onResource(String location, String content) {
   }
 
   private void writeClass(JavaFileObject javaFileObject, byte[] bytecode) throws IOException {
     try (OutputStream output = javaFileObject.openOutputStream()) {
       output.write(bytecode);
-    }
-  }
-
-  /*package*/ MvcHandlerCompiler compilerFor(String methodDescriptor) {
-    return result.get(methodDescriptor);
-  }
-
-  /*package*/ ClassLoader getModuleClassLoader(boolean debug) {
-    return new ClassLoader(getClass().getClassLoader()) {
-      @Override protected Class<?> findClass(String name) throws ClassNotFoundException {
-        byte[] bytes = (byte[]) modules.get(name);
-        if (bytes != null) {
-          if (debug) {
-            System.out.println(MvcProcessor.this.toString(bytes));
-          }
-          return defineClass(name, bytes, 0, bytes.length);
-        }
-        return super.findClass(name);
-      }
-    };
-  }
-
-  private String toString(byte[] bytes) {
-    try {
-      ClassReader reader = new ClassReader(bytes);
-      ByteArrayOutputStream buff = new ByteArrayOutputStream();
-      Printer printer = new ASMifier();
-      TraceClassVisitor traceClassVisitor =
-          new TraceClassVisitor(null, printer, new PrintWriter(buff));
-
-      reader.accept(traceClassVisitor, ClassReader.SKIP_DEBUG);
-
-      return new String(buff.toByteArray());
-    } catch (Exception x) {
-      throw SneakyThrows.propagate(x);
     }
   }
 
@@ -184,11 +171,5 @@ public class MvcProcessor implements Processor {
         })
         .distinct()
         .collect(Collectors.toList());
-  }
-
-  @Override
-  public Iterable<? extends Completion> getCompletions(Element element, AnnotationMirror annotation,
-      ExecutableElement member, String userText) {
-    return Collections.emptyList();
   }
 }

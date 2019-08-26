@@ -5,6 +5,7 @@ import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
 import io.jooby.Extension;
 import io.jooby.Jooby;
+import io.jooby.MvcModule;
 import io.jooby.Route;
 import io.jooby.SneakyThrows;
 import org.objectweb.asm.ClassReader;
@@ -20,22 +21,24 @@ import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class MvcModuleCompilerRunner {
-  private final MvcProcessor processor;
+  private final TestMvcProcessor processor;
   private final Object instance;
 
   public MvcModuleCompilerRunner(Object instance) throws Exception {
     this.instance = instance;
-    this.processor = new MvcProcessor();
+    this.processor = new TestMvcProcessor();
     Truth.assert_()
         .about(JavaSourcesSubjectFactory.javaSources())
         .that(sources(instance.getClass().getSimpleName() + ".java"))
@@ -50,14 +53,20 @@ public class MvcModuleCompilerRunner {
   public MvcModuleCompilerRunner module(boolean debug, SneakyThrows.Consumer<Jooby> consumer) throws Exception {
     Class clazz = instance.getClass();
     ClassLoader classLoader = processor.getModuleClassLoader(debug);
-    String moduleName = clazz.getName() + "$Module";
-    Class<? extends Extension> handleClass = (Class<? extends Extension>) classLoader.loadClass(moduleName);
-    Constructor<? extends Extension> constructor = handleClass
-        .getDeclaredConstructor(Provider.class);
+    String factoryName = clazz.getName() + "$Factory";
+    Class<? extends MvcModule> factoryClass = (Class<? extends MvcModule>) classLoader.loadClass(factoryName);
+    Constructor<? extends MvcModule> constructor = factoryClass.getDeclaredConstructor();
+    MvcModule factory = constructor.newInstance();
     Provider provider = () -> instance;
-    Extension extension = constructor.newInstance(provider);
+    Extension extension = factory.create(provider);
     Jooby application = new Jooby();
     application.install(extension);
+
+    Path services = Paths
+        .get(classLoader.getResource("META-INF/services/" + MvcModule.class.getName()).toURI());
+    assertTrue(Files.exists(services));
+    assertEquals(factoryName, new String(Files.readAllBytes(services), StandardCharsets.UTF_8).trim());
+
     consumer.accept(application);
     return this;
   }

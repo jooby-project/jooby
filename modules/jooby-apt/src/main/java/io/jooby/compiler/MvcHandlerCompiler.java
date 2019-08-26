@@ -7,6 +7,7 @@ package io.jooby.compiler;
 
 import io.jooby.Context;
 import io.jooby.Route;
+import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.internal.compiler.ConstructorWriter;
@@ -88,7 +89,7 @@ public class MvcHandlerCompiler {
       TypeElement httpMethod, String pattern) {
     this.httpMethod = httpMethod.getSimpleName().toString().toLowerCase();
     this.annotation = httpMethod.asType();
-    this.pattern = pattern;
+    this.pattern = Router.normalizePath(pattern, false, true);
     this.environment = environment;
     this.executable = executable;
     this.typeUtils = environment.getTypeUtils();
@@ -108,12 +109,10 @@ public class MvcHandlerCompiler {
   }
 
   public List<String> getConsumes() {
-    // TODO: consumes for JAXRS
     return mediaType(executable, annotation, "consumes", Annotations.CONSUMES_PARAMS);
   }
 
   public List<String> getProduces() {
-    // TODO: produces for JAXRS
     return mediaType(executable, annotation, "produces", Annotations.PRODUCES_PARAMS);
   }
 
@@ -122,9 +121,7 @@ public class MvcHandlerCompiler {
     // public class Controller$methodName implements Route.Handler {
     writer.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_SYNTHETIC, getGeneratedInternalClass(), null,
         OBJ.getInternalName(),
-        new String[]{
-            HANDLER.getInternalName()
-        });
+        new String[]{HANDLER.getInternalName()});
 
     writer.visitSource(getController().getSimpleName() + ".java", null);
 
@@ -277,8 +274,16 @@ public class MvcHandlerCompiler {
   }
 
   public String getGeneratedClass() {
-    return getController().getName() + "$" + httpMethod.toUpperCase() + pattern
-        .replace('/', '_');
+    StringBuilder name = new StringBuilder(getController().getName());
+    name.append("$");
+    name.append(httpMethod.toUpperCase());
+
+    String pattern = this.pattern.replace("/", "_").replace("[_]+", "_");
+    name.append(pattern);
+    for (VariableElement var : executable.getParameters()) {
+      name.append("$").append(var.getSimpleName());
+    }
+    return name.toString();
   }
 
   public String getGeneratedInternalClass() {

@@ -8,6 +8,7 @@ package io.jooby.compiler;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
+import io.jooby.MvcModule;
 import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.internal.compiler.ArrayWriter;
@@ -31,6 +32,7 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.IF_ACMPNE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -43,7 +45,7 @@ import static org.objectweb.asm.Type.getType;
 
 public class MvcModuleCompiler {
   private static final Type OBJ = getType(Object.class);
-  private static final Type EXTENSION = getType(Extension.class);
+  private static final Type MVC_EXTENSION = getType(Extension.class);
 
   private final String controllerClass;
   private final String moduleClass;
@@ -57,14 +59,16 @@ public class MvcModuleCompiler {
     this.moduleInternalName = moduleClass.replace(".", "/");
   }
 
+  public String getModuleClass() {
+    return moduleClass;
+  }
+
   public byte[] compile(List<Map.Entry<String, MvcHandlerCompiler>> handlers) throws Exception {
     ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     // public class Controller$methodName implements Route.Handler {
     writer.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_SYNTHETIC, moduleInternalName, null,
         OBJ.getInternalName(),
-        new String[]{
-            EXTENSION.getInternalName()
-        });
+        new String[]{MVC_EXTENSION.getInternalName()});
     writer.visitSource(moduleJava, null);
 
     new ConstructorWriter()
@@ -72,6 +76,7 @@ public class MvcModuleCompiler {
 
     install(writer, handlers.stream().map(Map.Entry::getValue).collect(Collectors.toList()));
 
+    writer.visitEnd();
     return writer.toByteArray();
   }
 
