@@ -1,12 +1,21 @@
 package tests;
 
 import io.jooby.Context;
+import io.jooby.MockContext;
 import io.jooby.MockRouter;
+import io.jooby.Route;
+import io.jooby.StatusCode;
+import io.jooby.apt.MvcHandlerCompilerRunner;
 import io.jooby.apt.MvcModuleCompilerRunner;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
+import source.GetPostRoute;
 import source.JavaBeanParam;
+import source.NoPathRoute;
+import source.PrimitiveReturnType;
 import source.RouteWithMimeTypes;
 import source.Routes;
+import source.VoidRoute;
 
 import java.util.Arrays;
 
@@ -24,9 +33,12 @@ public class ModuleCompilerTest {
           assertTrue(router.get("/path/object").value() instanceof Context);
           assertTrue(router.post("/path/post").value() instanceof JavaBeanParam);
 
-          assertEquals("/path/pathAttributeWork", router.get("/path/pathAttributeWork").value());;
-          assertEquals("/path/path", router.get("/path/path").value());;
-          assertEquals("/path/value", router.get("/path/value").value());;
+          assertEquals("/path/pathAttributeWork", router.get("/path/pathAttributeWork").value());
+          ;
+          assertEquals("/path/path", router.get("/path/path").value());
+          ;
+          assertEquals("/path/value", router.get("/path/value").value());
+          ;
 
           assertEquals("/path/path1", router.get("/path/path1").value());
           assertEquals("/path/path2", router.get("/path/path2").value());
@@ -50,5 +62,55 @@ public class ModuleCompilerTest {
           assertEquals("/method/consumes", router.get("/method/consumes").value());
           assertEquals("/class/consumes", router.get("/class/consumes").value());
         });
+  }
+
+  @Test
+  public void voidRoutes() throws Exception {
+    new MvcModuleCompilerRunner(new VoidRoute())
+        .module(app -> {
+          MockRouter router = new MockRouter(app);
+          router.get("/void", rsp -> {
+            assertEquals(StatusCode.NO_CONTENT, rsp.getStatusCode());
+          });
+        });
+  }
+
+  @Test
+  public void getPostRoutes() throws Exception {
+    new MvcModuleCompilerRunner(new GetPostRoute())
+        .module(app -> {
+          MockRouter router = new MockRouter(app);
+          router.get("/", rsp -> {
+            assertEquals("Got it!", rsp.value());
+          });
+          router.post("/", rsp -> {
+            assertEquals("Got it!", rsp.value());
+          });
+        });
+  }
+
+  @Test
+  public void noTopLevel() throws Exception {
+    new MvcModuleCompilerRunner(new NoPathRoute())
+        .module(app -> {
+          MockRouter router = new MockRouter(app);
+          router.get("/", rsp -> {
+            assertEquals("root", rsp.value());
+          });
+          router.get("/subpath", rsp -> {
+            assertEquals("subpath", rsp.value());
+          });
+        })
+    ;
+  }
+
+  @Test
+  public void setPrimitiveReturnType() throws Exception {
+    new MvcModuleCompilerRunner(new PrimitiveReturnType())
+        .module(app -> {
+          Route route = app.getRoutes().get(0);
+          assertEquals(int.class, route.getReturnType());
+        })
+    ;
   }
 }

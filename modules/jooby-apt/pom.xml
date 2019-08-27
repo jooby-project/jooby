@@ -184,7 +184,7 @@
               <relocations>
                 <relocation>
                   <pattern>org.objectweb.asm</pattern>
-                  <shadedPattern>io.jooby.internal.apt.asm</shadedPattern>
+                  <shadedPattern>io.jooby.internal.compiler.asm</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>

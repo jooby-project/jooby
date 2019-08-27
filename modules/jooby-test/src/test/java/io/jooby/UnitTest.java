@@ -125,14 +125,4 @@ public class UnitTest {
 
     assertEquals("rx", router.get("/").value(Single.class).blockingGet());
   }
-
-  @Test
-  public void mvcApp() {
-    MockRouter router = new MockRouter(new MvcApp());
-    assertEquals("/mvc", router.get("/mvc").value());
-
-    PojoBody body = new PojoBody();
-    assertEquals(body, router.post("/mvc", new MockContext().setBody(body)).value());
-  }
-
 }

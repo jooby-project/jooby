@@ -15,5 +15,15 @@ public class ASMPrinter {
   public void mvcModule() throws Exception {
     ASMifier.main(new String[] {MyMvcModule.class.getName() });
   }
+
+  @Test
+  public void mvcExtension() throws Exception {
+    ASMifier.main(new String[] {MvcExtension.class.getName() });
+  }
+
+  @Test
+  public void myController() throws Exception {
+    ASMifier.main(new String[] {MyControllerHandler.class.getName() });
+  }
 }
 

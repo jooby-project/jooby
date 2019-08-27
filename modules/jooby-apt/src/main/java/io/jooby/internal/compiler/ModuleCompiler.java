@@ -3,19 +3,19 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.apt;
+package io.jooby.internal.compiler;
 
+import com.sun.org.apache.xpath.internal.compiler.OpCodes;
+import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.Reified;
 import io.jooby.Route;
-import io.jooby.internal.apt.ArrayWriter;
-import io.jooby.internal.apt.ConstructorWriter;
-import io.jooby.internal.apt.TypeDefinition;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -30,6 +30,7 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -60,7 +61,7 @@ public class ModuleCompiler {
     return moduleClass;
   }
 
-  public byte[] compile(List<Map.Entry<String, HandlerCompiler>> handlers) throws Exception {
+  public byte[] compile(List<HandlerCompiler> handlers) throws Exception {
     ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     // public class Controller$methodName implements Route.Handler {
     writer.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_SYNTHETIC, moduleInternalName, null,
@@ -71,7 +72,7 @@ public class ModuleCompiler {
     new ConstructorWriter()
         .build(moduleClass, writer);
 
-    install(writer, handlers.stream().map(Map.Entry::getValue).collect(Collectors.toList()));
+    install(writer, handlers);
 
     writer.visitEnd();
     return writer.toByteArray();
@@ -107,7 +108,12 @@ public class ModuleCompiler {
        * ******************************************************************************************
        */
       TypeDefinition returnType = handler.getReturnType();
-      if (returnType.isRawType()) {
+      if (returnType.getName().equals("void")) {
+        visitor.visitLdcInsn(Type.getType(Context.class));
+      } else if (returnType.isPrimitive()) {
+        Method wrapper = Primitives.wrapper(returnType);
+        visitor.visitFieldInsn(GETSTATIC, Type.getInternalName(wrapper.getDeclaringClass()), "TYPE", "Ljava/lang/Class;");
+      } else if (returnType.isRawType()) {
         visitor.visitLdcInsn(handler.getReturnType().toJvmType());
       } else {
         visitor.visitLdcInsn(returnType.toJvmType());

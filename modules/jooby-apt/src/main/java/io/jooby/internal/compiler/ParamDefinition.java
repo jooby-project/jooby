@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.apt;
+package io.jooby.internal.compiler;
 
 import io.jooby.Context;
 import io.jooby.FileUpload;
@@ -94,10 +94,6 @@ public class ParamDefinition {
     return getKind().singleValue(this);
   }
 
-  private String typeName(Class type) {
-    return type.isArray() ? type.getComponentType().getName() + "[]" : type.getName();
-  }
-
   private boolean isSimpleType() {
     for (Class builtinType : builtinTypes()) {
       if (is(builtinType) || is(Optional.class, builtinType) || is(List.class, builtinType) || is(
@@ -181,11 +177,16 @@ public class ParamDefinition {
     if (is(Set.class)) {
       return Value.class.getMethod("toSet", Class.class);
     }
+    boolean body = kind == ParamKind.BODY_PARAM;
     boolean useClass = type.isRawType();
     if (useClass) {
-      return Value.class.getMethod("to", Class.class);
+      return body
+          ? Context.class.getMethod("body", Class.class)
+          : Value.class.getMethod("to", Class.class);
     }
-    return Value.class.getMethod("to", Reified.class);
+    return body
+        ? Context.class.getMethod("body", Reified.class)
+        : Value.class.getMethod("to", Reified.class);
   }
 
   public static ParamDefinition create(ProcessingEnvironment environment,

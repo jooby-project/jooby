@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.apt;
+package io.jooby.internal.compiler;
 
 import io.jooby.Reified;
 import org.objectweb.asm.ClassWriter;
@@ -52,7 +52,9 @@ abstract class ValueWriter implements ParamWriter {
           getMethodDescriptor(reified), false);
     }
 
-    visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Value", convertMethod.getName(),
+    visitor.visitMethodInsn(INVOKEINTERFACE,
+        org.objectweb.asm.Type.getInternalName(convertMethod.getDeclaringClass()),
+        convertMethod.getName(),
         getMethodDescriptor(convertMethod), true);
 
     if (toClass || toReified) {

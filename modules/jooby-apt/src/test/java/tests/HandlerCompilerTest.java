@@ -1,6 +1,7 @@
 package tests;
 
 import io.jooby.Body;
+import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.MockContext;
 import io.jooby.Multipart;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import source.CustomGenericType;
 import source.JavaBeanParam;
 import source.JaxrsController;
+import source.NoPathRoute;
 import source.Provisioning;
 
 import java.io.InputStream;
@@ -21,6 +23,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -208,7 +211,8 @@ public class HandlerCompilerTest {
     when(file.name()).thenReturn("file");
     new MvcHandlerCompilerRunner(new Provisioning())
         .compile("/p/fileParam", handler -> {
-          assertEquals(file.toString(), handler.apply(new MockContext().setFiles(Arrays.asList(file))));
+          assertEquals(file.toString(),
+              handler.apply(new MockContext().setFiles(Arrays.asList(file))));
         })
         .compile("/p/fileParams", handler -> {
           assertEquals(Arrays.asList(file).toString(),
@@ -303,13 +307,21 @@ public class HandlerCompilerTest {
   public void body() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
         .compile("POST", "/p/bodyMapParam", handler -> {
-          Map map = mock(Map.class);
-          Body body = mock(Body.class);
-          when(body.to(Reified.map(String.class, Object.class))).thenReturn(map);
-          assertEquals(map, handler.apply(new MockContext().setBody(body)));
+          Map map = Collections.emptyMap();
+
+          Context ctx = mockContext("POST", "/p/bodyMapParam");
+          when(ctx.body(Reified.map(String.class, Object.class))).thenReturn(map);
+
+          assertEquals(map, handler.apply(ctx));
         })
         .compile("POST", "/p/bodyStringParam", handler -> {
-          assertEquals("...", handler.apply(new MockContext().setBody("...")));
+          Body body = mock(Body.class);
+          when(body.value()).thenReturn("...");
+
+          Context ctx = mockContext("POST", "/p/bodyStringParam");
+          when(ctx.body()).thenReturn(body);
+
+          assertEquals("...", handler.apply(ctx));
         })
         .compile("POST", "/p/bodyBytesParam", handler -> {
           assertEquals("...",
@@ -329,27 +341,37 @@ public class HandlerCompilerTest {
         })
         .compile("POST", "/p/bodyBeanParam", handler -> {
           JavaBeanParam bean = mock(JavaBeanParam.class);
-          Body body = mock(Body.class);
-          when(body.to(JavaBeanParam.class)).thenReturn(bean);
-          assertEquals(bean.toString(), handler.apply(new MockContext().setBody(body)));
+
+          Context ctx = mockContext("POST", "/p/bodyIntParam");
+          when(ctx.body(JavaBeanParam.class)).thenReturn(bean);
+
+          assertEquals(bean.toString(), handler.apply(ctx));
         })
         .compile("POST", "/p/bodyIntParam", handler -> {
           Body body = mock(Body.class);
           when(body.intValue()).thenReturn(9);
-          assertEquals(9, handler.apply(new MockContext().setBody(body)));
+
+          Context ctx = mockContext("POST", "/p/bodyIntParam");
+          when(ctx.body()).thenReturn(body);
+
+          assertEquals(9, handler.apply(ctx));
         })
         .compile("POST", "/p/bodyOptionalIntParam", handler -> {
           Body body = mock(Body.class);
           when(body.toOptional(Integer.class)).thenReturn(Optional.of(9));
-          assertEquals(Optional.of(9), handler.apply(new MockContext().setBody(body)));
+
+          Context ctx = mockContext("POST", "/p/bodyOptionalIntParam");
+          when(ctx.body()).thenReturn(body);
+
+          assertEquals(Optional.of(9), handler.apply(ctx));
         })
         .compile("POST", "/p/bodyCustomGenericParam", handler -> {
           CustomGenericType generic = new CustomGenericType<>();
-          Body body = mock(Body.class);
           Reified parameterized = Reified
               .getParameterized(CustomGenericType.class, String.class);
-          when(body.to(parameterized)).thenReturn(generic);
-          assertEquals(generic, handler.apply(new MockContext().setBody(body)));
+          Context ctx = mockContext("POST", "/p/bodyCustomGenericParam");
+          when(ctx.body(parameterized)).thenReturn(generic);
+          assertEquals(generic, handler.apply(ctx));
         })
     ;
   }
@@ -366,6 +388,25 @@ public class HandlerCompilerTest {
         .compile("POST", "/jaxrs/post", handler -> {
           assertEquals("doPost", handler.apply(new MockContext()));
         });
+  }
+
+  @Test
+  public void noTopLevel() throws Exception {
+    new MvcHandlerCompilerRunner(new NoPathRoute())
+        .compile("/", handler -> {
+          assertEquals("root", handler.apply(new MockContext()));
+        })
+        .compile("/subpath", handler -> {
+          assertEquals("subpath", handler.apply(new MockContext()));
+        })
+    ;
+  }
+
+  private Context mockContext(String method, String path) {
+    Context ctx = mock(Context.class);
+    when(ctx.getMethod()).thenReturn(method);
+    when(ctx.pathString()).thenReturn(path);
+    return ctx;
   }
 
   private Map<String, String> mapOf(String... values) {

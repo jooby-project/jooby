@@ -5,6 +5,8 @@
  */
 package io.jooby.json;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,6 +22,7 @@ import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
+import io.jooby.StatusCode;
 
 import javax.annotation.Nonnull;
 import java.io.InputStream;
@@ -109,6 +112,9 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
 
     ServiceRegistry services = application.getServices();
     services.put(ObjectMapper.class, mapper);
+
+    // Parsing exception as 400
+    application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);
 
     application.onStarted(() -> {
       for (Class<? extends Module> type : modules) {

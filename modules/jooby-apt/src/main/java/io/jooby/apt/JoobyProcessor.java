@@ -7,6 +7,9 @@ package io.jooby.apt;
 
 import io.jooby.MvcFactory;
 import io.jooby.SneakyThrows;
+import io.jooby.internal.compiler.FactoryCompiler;
+import io.jooby.internal.compiler.HandlerCompiler;
+import io.jooby.internal.compiler.ModuleCompiler;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -24,7 +27,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,7 +62,7 @@ public class JoobyProcessor extends AbstractProcessor {
       /**
        * Do MVC handler: per each mvc method we create a Route.Handler.
        */
-      Map<String, HandlerCompiler> result = new HashMap<>();
+      List<HandlerCompiler> result = new ArrayList<>();
       for (TypeElement httpMethod : annotations) {
         Set<? extends Element> methods = roundEnv.getElementsAnnotatedWith(httpMethod);
         for (Element e : methods) {
@@ -69,19 +72,17 @@ public class JoobyProcessor extends AbstractProcessor {
             HandlerCompiler compiler = new HandlerCompiler(processingEnvironment, method,
                 httpMethod, path);
             onMvcHandler(compiler.getKey(), compiler);
-            result.put(compiler.getKey(), compiler);
+            result.add(compiler);
           }
         }
       }
       Filer filer = processingEnvironment.getFiler();
-      Map<String, List<Map.Entry<String, HandlerCompiler>>> classes = result.entrySet()
-          .stream()
-          .collect(Collectors.groupingBy(e -> e.getValue().getController().getName()));
+      Map<String, List<HandlerCompiler>> classes = result.stream()
+          .collect(Collectors.groupingBy(e -> e.getController().getName()));
 
-      for (Map.Entry<String, List<Map.Entry<String, HandlerCompiler>>> entry : classes
-          .entrySet()) {
+      for (Map.Entry<String, List<HandlerCompiler>> entry : classes.entrySet()) {
 
-        List<Map.Entry<String, HandlerCompiler>> handlers = entry.getValue();
+        List<HandlerCompiler> handlers = entry.getValue();
         ModuleCompiler module = new ModuleCompiler(entry.getKey());
         String moduleClass = module.getModuleClass();
         byte[] moduleBin = module.compile(handlers);
@@ -96,9 +97,9 @@ public class JoobyProcessor extends AbstractProcessor {
         moduleList.add(factoryClass);
 
         onClass(factoryClass, factoryBin);
-        for (Map.Entry<String, HandlerCompiler> handler : handlers) {
-          String handleClass = handler.getValue().getGeneratedClass();
-          byte[] handleBin = handler.getValue().compile();
+        for (HandlerCompiler handler : handlers) {
+          String handleClass = handler.getGeneratedClass();
+          byte[] handleBin = handler.compile();
           writeClass(filer.createClassFile(handleClass), handleBin);
           onClass(handleClass, handleBin);
         }
@@ -112,10 +113,11 @@ public class JoobyProcessor extends AbstractProcessor {
   private void doServices(Filer filer) throws IOException {
     String location = "META-INF/services/" + MvcFactory.class.getName();
     FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", location);
-    String content = moduleList.stream().collect(Collectors.joining(System.getProperty("line.separator")));
+    String content = moduleList.stream()
+        .collect(Collectors.joining(System.getProperty("line.separator")));
     onResource(location, content);
     try (PrintWriter writer = new PrintWriter(resource.openOutputStream())) {
-        writer.println(content);
+      writer.println(content);
     }
   }
 
@@ -143,10 +145,10 @@ public class JoobyProcessor extends AbstractProcessor {
     }
     List<String> methodPath = path;
     if (prefix.size() == 0) {
-      return path;
+      return path.isEmpty() ? Collections.singletonList("/") : path;
     }
     if (path.size() == 0) {
-      return prefix;
+      return prefix.isEmpty() ? Collections.singletonList("/") : prefix;
     }
     return prefix.stream()
         .flatMap(root -> methodPath.stream().map(p -> root + p))

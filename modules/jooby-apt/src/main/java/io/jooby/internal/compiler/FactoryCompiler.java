@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.apt;
+package io.jooby.internal.compiler;
 
 import io.jooby.MvcFactory;
 import org.objectweb.asm.ClassWriter;

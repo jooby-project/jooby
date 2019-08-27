@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.apt;
+package io.jooby.internal.compiler;
 
 import org.objectweb.asm.Type;
 
@@ -49,6 +49,10 @@ public class TypeDefinition {
 
   public TypeMirror getType() {
     return type;
+  }
+
+  public boolean isPrimitive() {
+    return getType().getKind().isPrimitive();
   }
 
   public TypeMirror getRawType() {

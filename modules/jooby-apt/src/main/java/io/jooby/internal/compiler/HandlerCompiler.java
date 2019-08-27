@@ -3,17 +3,14 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.apt;
+package io.jooby.internal.compiler;
 
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
-import io.jooby.internal.apt.ConstructorWriter;
-import io.jooby.internal.apt.ParamDefinition;
-import io.jooby.internal.apt.ParamWriter;
-import io.jooby.internal.apt.TypeDefinition;
+import io.jooby.apt.Annotations;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -207,35 +204,7 @@ public class HandlerCompiler {
 
     } else {
 
-      Method wrapper;
-      switch (kind) {
-        case BOOLEAN:
-          wrapper = Boolean.class.getDeclaredMethod("valueOf", Boolean.TYPE);
-          break;
-        case CHAR:
-          wrapper = Character.class.getDeclaredMethod("valueOf", Character.TYPE);
-          break;
-        case BYTE:
-          wrapper = Byte.class.getDeclaredMethod("valueOf", Byte.TYPE);
-          break;
-        case SHORT:
-          wrapper = Short.class.getDeclaredMethod("valueOf", Short.TYPE);
-          break;
-        case INT:
-          wrapper = Integer.class.getDeclaredMethod("valueOf", Integer.TYPE);
-          break;
-        case LONG:
-          wrapper = Long.class.getDeclaredMethod("valueOf", Long.TYPE);
-          break;
-        case FLOAT:
-          wrapper = Float.class.getDeclaredMethod("valueOf", Float.TYPE);
-          break;
-        case DOUBLE:
-          wrapper = Double.class.getDeclaredMethod("valueOf", Double.TYPE);
-          break;
-        default:
-          wrapper = null;
-      }
+      Method wrapper = Primitives.wrapper(kind);
       if (wrapper == null) {
         TypeDefinition returnType = getReturnType();
         if (returnType.is(StatusCode.class)) {
@@ -278,8 +247,16 @@ public class HandlerCompiler {
     name.append("$");
     name.append(httpMethod.toUpperCase());
 
-    String pattern = this.pattern.replace("/", "_").replace("[_]+", "_");
-    name.append(pattern);
+    for (int i = 0; i < pattern.length(); i++) {
+      char ch = pattern.charAt(i);
+      if (Character.isJavaIdentifierPart(ch)) {
+        name.append(ch);
+      } else if (ch == '/') {
+        name.append('$');
+      } else {
+        name.append('_');
+      }
+    }
     for (VariableElement var : executable.getParameters()) {
       name.append("$").append(var.getSimpleName());
     }
