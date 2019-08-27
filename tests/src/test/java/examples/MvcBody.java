@@ -5,6 +5,7 @@ import io.jooby.annotations.Path;
 import io.jooby.annotations.QueryParam;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class MvcBody {
   @POST
@@ -21,7 +22,7 @@ public class MvcBody {
 
   @POST
   @Path(("/body/json"))
-  public Object bodyInt(Map<String, Object> body, @QueryParam String type) {
-    return body + type;
+  public Object bodyInt(Map<String, Object> body, @QueryParam Optional<String> type) {
+    return body + type.orElse("null");
   }
 }

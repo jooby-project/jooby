@@ -21,11 +21,6 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-apt</artifactId>
-      <version>${jooby.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jooby</groupId>
       <artifactId>jooby-netty</artifactId>
       <version>${jooby.version}</version>
     </dependency>
@@ -140,25 +135,6 @@
         <groupId>org.jetbrains.kotlin</groupId>
         <executions>
           <execution>
-            <id>kapt</id>
-            <goals>
-              <goal>kapt</goal>
-            </goals>
-            <configuration>
-              <sourceDirs>
-                <sourceDir>src/main/kotlin</sourceDir>
-                <sourceDir>src/main/java</sourceDir>
-              </sourceDirs>
-              <annotationProcessorPaths>
-                <annotationProcessorPath>
-                  <groupId>io.jooby</groupId>
-                  <artifactId>jooby-apt</artifactId>
-                  <version>${jooby.version}</version>
-                </annotationProcessorPath>
-              </annotationProcessorPaths>
-            </configuration>
-          </execution>
-          <execution>
             <id>compile</id>
             <goals>
               <goal>compile</goal>
@@ -168,6 +144,25 @@
                 <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
                 <sourceDir>${project.basedir}/src/main/java</sourceDir>
               </sourceDirs>
+            </configuration>
+          </execution>
+          <execution>
+            <id>test-kapt</id>
+            <goals>
+              <goal>test-kapt</goal>
+            </goals>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>src/test/kotlin</sourceDir>
+                <sourceDir>src/test/java</sourceDir>
+              </sourceDirs>
+              <annotationProcessorPaths>
+                <annotationProcessorPath>
+                  <groupId>io.jooby</groupId>
+                  <artifactId>jooby-apt</artifactId>
+                  <version>${jooby.version}</version>
+                </annotationProcessorPath>
+              </annotationProcessorPaths>
             </configuration>
           </execution>
           <execution>
@@ -188,6 +183,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <proc>none</proc>
+        </configuration>
         <executions>
           <execution>
             <id>default-compile</id>

@@ -7,7 +7,10 @@ package io.jooby.internal.compiler;
 
 import org.objectweb.asm.Type;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
@@ -104,7 +107,7 @@ public class TypeDefinition {
   }
 
   public Type toJvmType() {
-    return asmType(getRawType().toString());
+    return asmType(getName(type));
   }
 
   public boolean isRawType() {
@@ -166,5 +169,18 @@ public class TypeDefinition {
 
   private String typeName(Class type) {
     return type.isArray() ? type.getComponentType().getName() + "[]" : type.getName();
+  }
+
+  private String getName(TypeMirror type) {
+    Element element = typeUtils.asElement(type);
+    return element == null ? type.toString() : getName(element);
+  }
+
+  private String getName(Element type) {
+    Element parent = type.getEnclosingElement();
+    if (parent != null && parent.getKind() == ElementKind.CLASS) {
+      return getName(parent) + "$" + type.getSimpleName();
+    }
+    return type.toString();
   }
 }

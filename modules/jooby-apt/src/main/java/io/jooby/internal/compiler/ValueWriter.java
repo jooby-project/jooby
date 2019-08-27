@@ -21,8 +21,7 @@ import static org.objectweb.asm.Type.getMethodDescriptor;
 abstract class ValueWriter implements ParamWriter {
   @Override
   public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
-      ParamDefinition parameter)
-      throws Exception {
+      ParamDefinition parameter) throws Exception {
     Method convertMethod = parameter.getMethod();
     // to(Class)
     boolean toClass = is(convertMethod, 0, Class.class);

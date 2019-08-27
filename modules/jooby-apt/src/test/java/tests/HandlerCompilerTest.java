@@ -3,8 +3,10 @@ package tests;
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.FileUpload;
+import io.jooby.MissingValueException;
 import io.jooby.MockContext;
 import io.jooby.Multipart;
+import io.jooby.ProvisioningException;
 import io.jooby.Reified;
 import io.jooby.StatusCode;
 import io.jooby.apt.MvcHandlerCompilerRunner;
@@ -13,6 +15,7 @@ import source.CustomGenericType;
 import source.JavaBeanParam;
 import source.JaxrsController;
 import source.NoPathRoute;
+import source.NullRoutes;
 import source.Provisioning;
 
 import java.io.InputStream;
@@ -30,6 +33,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -79,7 +83,7 @@ public class HandlerCompilerTest {
   @Test
   public void cookieParam() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("/p/cookieParam", handler -> {
+        .compile("/p/cookieParam", true, handler -> {
           assertEquals("cookie",
               handler.apply(new MockContext().setCookieMap(mapOf("c", "cookie"))));
         })
@@ -398,6 +402,22 @@ public class HandlerCompilerTest {
         })
         .compile("/subpath", handler -> {
           assertEquals("subpath", handler.apply(new MockContext()));
+        })
+    ;
+  }
+
+  @Test
+  public void nullRoutes() throws Exception {
+    new MvcHandlerCompilerRunner(new NullRoutes())
+        .compile("/nullok", true, handler -> {
+          assertEquals("null", handler.apply(new MockContext()));
+        })
+        .compile("/nonnull", handler -> {
+          assertThrows(MissingValueException.class, () -> handler.apply(new MockContext()));
+        })
+
+        .compile("/nullbean", handler -> {
+          assertThrows(ProvisioningException.class, () -> handler.apply(new MockContext()));
         })
     ;
   }

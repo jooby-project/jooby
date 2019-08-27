@@ -1,8 +1,8 @@
 package output;
 
 import io.jooby.Context;
-import io.jooby.Reified;
 import io.jooby.Route;
+import io.jooby.Value;
 
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
@@ -16,6 +16,10 @@ public class MyControllerHandler implements Route.Handler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    return provider.get().doIt(ctx.body(Reified.map(String.class, Object.class)));
+    return provider.get().doIt(x(ctx.query("x")));
+  }
+
+  private static Integer x(Value x) {
+    return x.to(Integer.class);
   }
 }

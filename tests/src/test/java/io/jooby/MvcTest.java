@@ -291,7 +291,7 @@ public class MvcTest {
     });
   }
 
-//  @Test
+  @Test
   public void nullinjection() {
     new JoobyRunner(app -> {
 
@@ -305,7 +305,7 @@ public class MvcTest {
 
     }).ready(client -> {
       client.get("/nonnull", rsp -> {
-        assertEquals("Unable to provision parameter: 'v: int'", rsp.body().string());
+        assertEquals("Missing value: 'v'", rsp.body().string());
       });
       client.get("/nullok", rsp -> {
         assertEquals("null", rsp.body().string());
@@ -340,7 +340,8 @@ public class MvcTest {
       app.mvc(new MvcBody());
 
       app.error((ctx, cause, statusCode) -> {
-        app.getLog().error("{} {} {}", ctx.getMethod(), ctx.pathString(), statusCode.value(), cause);
+        app.getLog()
+            .error("{} {} {}", ctx.getMethod(), ctx.pathString(), statusCode.value(), cause);
         ctx.setResponseCode(statusCode)
             .send(cause.getMessage());
       });
@@ -377,7 +378,7 @@ public class MvcTest {
     });
   }
 
-//  @Test
+  //  @Test
   public void mvcDispatch() {
     new JoobyRunner(app -> {
       app.executor("single", Executors.newSingleThreadExecutor(r ->

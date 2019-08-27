@@ -86,6 +86,28 @@ public class ParamDefinition {
     return isSimpleType();
   }
 
+  public boolean isNullable() {
+    if (hasAnnotation("org.jetbrains.annotations.Nullable")
+        || hasAnnotation("javax.annotation.Nullable")) {
+      return true;
+    }
+    boolean nonnull = hasAnnotation("org.jetbrains.annotations.NotNull")
+        || hasAnnotation("javax.annotation.Nonnull");
+    if (nonnull) {
+      return false;
+    }
+    return !getType().isPrimitive();
+  }
+
+  private boolean hasAnnotation(String type) {
+    for (AnnotationMirror annotation : parameter.getAnnotationMirrors()) {
+      if (annotation.getAnnotationType().equals(type)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public Method getObjectValue() throws NoSuchMethodException {
     return getKind().valueObject(this);
   }
@@ -94,7 +116,7 @@ public class ParamDefinition {
     return getKind().singleValue(this);
   }
 
-  private boolean isSimpleType() {
+  public boolean isSimpleType() {
     for (Class builtinType : builtinTypes()) {
       if (is(builtinType) || is(Optional.class, builtinType) || is(List.class, builtinType) || is(
           Set.class, builtinType)) {
