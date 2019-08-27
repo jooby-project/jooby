@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-rocker/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-rocker/1.6.3)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-rocker.svg)](https://javadoc.io/doc/org.jooby/jooby-rocker/1.6.3)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-rocker/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-rocker/1.6.4)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-rocker.svg)](https://javadoc.io/doc/org.jooby/jooby-rocker/1.6.4)
 [![jooby-rocker website](https://img.shields.io/badge/jooby-rocker-brightgreen.svg)](http://jooby.org/doc/rocker)
 # rocker
 
@@ -17,7 +17,7 @@ Java 8 optimized, memory efficient, speedy template engine producing statically 
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-rocker</artifactId>
- <version>1.6.3</version>
+ <version>1.6.4</version>
 </dependency>
 ```
 

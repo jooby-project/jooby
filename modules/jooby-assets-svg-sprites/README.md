@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets-svg-sprites/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets-svg-sprites/1.6.3)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-svg-sprites.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-svg-sprites/1.6.3)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets-svg-sprites/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets-svg-sprites/1.6.4)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-svg-sprites.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-svg-sprites/1.6.4)
 [![jooby-assets-svg-sprites website](https://img.shields.io/badge/jooby-assets-svg-sprites-brightgreen.svg)](http://jooby.org/doc/assets-svg-sprites)
 # svg-sprites
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-assets-svg-sprites</artifactId>
- <version>1.6.3</version>
+ <version>1.6.4</version>
  <scope>provided</scope>
 </dependency>
 ```

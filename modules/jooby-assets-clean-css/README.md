@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets-clean-css/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets-clean-css/1.6.3)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-clean-css.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-clean-css/1.6.3)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-assets-clean-css/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-assets-clean-css/1.6.4)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-assets-clean-css.svg)](https://javadoc.io/doc/org.jooby/jooby-assets-clean-css/1.6.4)
 [![jooby-assets-clean-css website](https://img.shields.io/badge/jooby-assets-clean-css-brightgreen.svg)](http://jooby.org/doc/assets-clean-css)
 # clean-css
 
@@ -13,7 +13,7 @@ Make sure you've already set up the [assets module](https://github.com/jooby-pro
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-clean-css</artifactId>
-  <version>1.6.3</version>
+  <version>1.6.4</version>
   <scope>provided</scope>
 </dependency>
 ```

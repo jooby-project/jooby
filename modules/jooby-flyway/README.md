@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-flyway/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-flyway/1.6.3)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-flyway.svg)](https://javadoc.io/doc/org.jooby/jooby-flyway/1.6.3)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-flyway/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-flyway/1.6.4)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-flyway.svg)](https://javadoc.io/doc/org.jooby/jooby-flyway/1.6.4)
 [![jooby-flyway website](https://img.shields.io/badge/jooby-flyway-brightgreen.svg)](http://jooby.org/doc/flyway)
 # flyway
 
@@ -15,7 +15,7 @@ This module run [Flyway](http://flywaydb.org) on startup and apply database migr
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-flyway</artifactId>
-  <version>1.6.3</version>
+  <version>1.6.4</version>
 </dependency>
 ```
 

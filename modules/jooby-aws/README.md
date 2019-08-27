@@ -1,5 +1,5 @@
-[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-aws/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-aws/1.6.3)
-[![javadoc](https://javadoc.io/badge/org.jooby/jooby-aws.svg)](https://javadoc.io/doc/org.jooby/jooby-aws/1.6.3)
+[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby-aws/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby-aws/1.6.4)
+[![javadoc](https://javadoc.io/badge/org.jooby/jooby-aws.svg)](https://javadoc.io/doc/org.jooby/jooby-aws/1.6.4)
 [![jooby-aws website](https://img.shields.io/badge/jooby-aws-brightgreen.svg)](http://jooby.org/doc/aws)
 # aws
 
@@ -15,7 +15,7 @@ Small utility module that exports ```AmazonWebServiceClient``` services.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-aws</artifactId>
-  <version>1.6.3</version>
+  <version>1.6.4</version>
 </dependency>
 ```
 
