@@ -637,8 +637,8 @@ public class Route {
    * @param name of the attribute to retrieve.
    * @return value of the specific attribute.
    */
-  public Object attribute(String name) {
-    return attributes.get(name);
+  public <T> T attribute(String name) {
+    return (T) attributes.get(name);
   }
 
   /**
