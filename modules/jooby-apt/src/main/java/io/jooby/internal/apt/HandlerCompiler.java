@@ -186,6 +186,8 @@ public class HandlerCompiler {
     }
   }
 
+
+
   private void processReturnType(MethodVisitor visitor) throws Exception {
     TypeKind kind = executable.getReturnType().getKind();
     if (kind == TypeKind.VOID) {

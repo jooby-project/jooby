@@ -23,6 +23,11 @@ public class ASMPrinter {
   }
 
   @Test
+  public void mvcDispatch() throws Exception {
+    ASMifier.main(new String[] {MvcDispatch.class.getName() });
+  }
+
+  @Test
   public void myController() throws Exception {
     ASMifier.main(new String[] {MyControllerHandler.class.getName() });
   }

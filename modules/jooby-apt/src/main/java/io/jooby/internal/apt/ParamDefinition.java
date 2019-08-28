@@ -160,35 +160,37 @@ public class ParamDefinition {
   }
 
   public Method getMethod() throws NoSuchMethodException {
-    if (is(String.class)) {
-      return Value.class.getDeclaredMethod("value");
-    }
-    if (is(int.class)) {
-      return Value.class.getDeclaredMethod("intValue");
-    }
-    if (is(byte.class)) {
-      return Value.class.getDeclaredMethod("byteValue");
-    }
-    if (is(long.class)) {
-      return Value.class.getDeclaredMethod("longValue");
-    }
-    if (is(float.class)) {
-      return Value.class.getDeclaredMethod("floatValue");
-    }
-    if (is(double.class)) {
-      return Value.class.getDeclaredMethod("doubleValue");
-    }
-    if (is(boolean.class)) {
-      return Value.class.getDeclaredMethod("booleanValue");
-    }
-    if (is(Optional.class, String.class)) {
-      return Value.class.getDeclaredMethod("toOptional");
-    }
-    if (is(List.class, String.class)) {
-      return Value.class.getDeclaredMethod("toList");
-    }
-    if (is(Set.class, String.class)) {
-      return Value.class.getDeclaredMethod("toSet");
+    if (!isNullable()) {
+      if (is(String.class)) {
+        return Value.class.getDeclaredMethod("value");
+      }
+      if (is(int.class)) {
+        return Value.class.getDeclaredMethod("intValue");
+      }
+      if (is(byte.class)) {
+        return Value.class.getDeclaredMethod("byteValue");
+      }
+      if (is(long.class)) {
+        return Value.class.getDeclaredMethod("longValue");
+      }
+      if (is(float.class)) {
+        return Value.class.getDeclaredMethod("floatValue");
+      }
+      if (is(double.class)) {
+        return Value.class.getDeclaredMethod("doubleValue");
+      }
+      if (is(boolean.class)) {
+        return Value.class.getDeclaredMethod("booleanValue");
+      }
+      if (is(Optional.class, String.class)) {
+        return Value.class.getDeclaredMethod("toOptional");
+      }
+      if (is(List.class, String.class)) {
+        return Value.class.getDeclaredMethod("toList");
+      }
+      if (is(Set.class, String.class)) {
+        return Value.class.getDeclaredMethod("toSet");
+      }
     }
     // toOptional(Class)
     if (isOptional()) {

@@ -17,14 +17,6 @@ public class MvcExtension implements Extension {
   }
 
   @Override public void install(@Nonnull Jooby application) throws Exception {
-    Route route = application.get("/", ctx -> "..");
-    route.attribute("str", "string");
-    route.attribute("annotation", newMap());
-  }
-
-  private static Map<String, Object> newMap() {
-    Map<String, Object> map = new HashMap<>();
-    map.put("LinkAnnotation", "v");
-    return map;
+    application.dispatch(new MvcDispatch(application));
   }
 }

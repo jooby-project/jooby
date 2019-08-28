@@ -319,11 +319,8 @@ public class HandlerCompilerTest {
           assertEquals(map, handler.apply(ctx));
         })
         .compile("POST", "/p/bodyStringParam", handler -> {
-          Body body = mock(Body.class);
-          when(body.value()).thenReturn("...");
-
           Context ctx = mockContext("POST", "/p/bodyStringParam");
-          when(ctx.body()).thenReturn(body);
+          when(ctx.body(String.class)).thenReturn("...");
 
           assertEquals("...", handler.apply(ctx));
         })
