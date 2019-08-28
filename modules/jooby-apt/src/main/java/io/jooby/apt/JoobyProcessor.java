@@ -83,7 +83,7 @@ public class JoobyProcessor extends AbstractProcessor {
       for (Map.Entry<String, List<HandlerCompiler>> entry : classes.entrySet()) {
 
         List<HandlerCompiler> handlers = entry.getValue();
-        ModuleCompiler module = new ModuleCompiler(entry.getKey());
+        ModuleCompiler module = new ModuleCompiler(processingEnvironment, entry.getKey());
         String moduleClass = module.getModuleClass();
         byte[] moduleBin = module.compile(handlers);
         onClass(moduleClass, moduleBin);

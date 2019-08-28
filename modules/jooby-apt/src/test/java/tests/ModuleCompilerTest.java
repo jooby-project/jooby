@@ -13,6 +13,7 @@ import source.GetPostRoute;
 import source.JavaBeanParam;
 import source.NoPathRoute;
 import source.PrimitiveReturnType;
+import source.RouteAttributes;
 import source.RouteWithMimeTypes;
 import source.Routes;
 import source.VoidRoute;
@@ -110,6 +111,28 @@ public class ModuleCompilerTest {
         .module(app -> {
           Route route = app.getRoutes().get(0);
           assertEquals(int.class, route.getReturnType());
+        })
+    ;
+  }
+
+  @Test
+  public void routeAttributes() throws Exception {
+    new MvcModuleCompilerRunner(new RouteAttributes())
+        .module(app -> {
+          Route route = app.getRoutes().get(0);
+          assertEquals(12,  route.getAttributes().size(), route.getAttributes().toString());
+          assertEquals("string",  route.attribute("someAnnotation"));
+          assertEquals(Integer.valueOf(5),  route.attribute("someAnnotation.i"));
+          assertEquals(Long.valueOf(200),  route.attribute("someAnnotation.l"));
+          assertEquals(Float.valueOf(8),  route.attribute("someAnnotation.f"));
+          assertEquals(Double.valueOf(99),  route.attribute("someAnnotation.d"));
+          assertEquals(Integer.class,  route.attribute("someAnnotation.type"));
+          assertEquals(true,  route.attribute("someAnnotation.bool"));
+          assertEquals(Character.valueOf('X'),  route.attribute("someAnnotation.c"));
+          assertEquals(Short.MIN_VALUE,  route.attribute("someAnnotation.s"));
+          assertEquals(Arrays.asList("a", "b"),  route.attribute("someAnnotation.values"));
+          assertEquals("User",  route.attribute("roleAnnotation"));
+          assertEquals("one",  route.attribute("roleAnnotation.level"));
         })
     ;
   }

@@ -58,6 +58,10 @@ public class TypeDefinition {
     return getType().getKind().isPrimitive();
   }
 
+  public boolean isVoid() {
+    return type.getKind() == TypeKind.VOID;
+  }
+
   public TypeMirror getRawType() {
     return typeUtils.erasure(type);
   }

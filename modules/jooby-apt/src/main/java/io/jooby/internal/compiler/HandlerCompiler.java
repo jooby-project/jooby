@@ -93,6 +93,10 @@ public class HandlerCompiler {
     this.owner = new TypeDefinition(typeUtils, executable.getEnclosingElement().asType());
   }
 
+  public ExecutableElement getExecutable() {
+    return executable;
+  }
+
   public String getPattern() {
     return pattern;
   }

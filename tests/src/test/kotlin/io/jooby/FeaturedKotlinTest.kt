@@ -91,6 +91,7 @@ class FeaturedKotlinTest {
     }
   }
 
+  @Test
   fun mvc() {
     JoobyRunner { app ->
       app.mvc(KotlinMvc())

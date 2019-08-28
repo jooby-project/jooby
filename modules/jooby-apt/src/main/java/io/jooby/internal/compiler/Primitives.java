@@ -22,17 +22,23 @@ public class Primitives {
     return wrapper(type.name().toLowerCase());
   }
 
+  public static Method wrapper(Class type) throws NoSuchMethodException {
+    return wrapper(type.getSimpleName());
+  }
+
   public static Method wrapper(String name) throws NoSuchMethodException {
-    switch (name) {
+    switch (name.toLowerCase()) {
       case "boolean":
         return Boolean.class.getDeclaredMethod("valueOf", Boolean.TYPE);
       case "char":
+      case "character":
         return Character.class.getDeclaredMethod("valueOf", Character.TYPE);
       case "byte":
         return Byte.class.getDeclaredMethod("valueOf", Byte.TYPE);
       case "short":
         return Short.class.getDeclaredMethod("valueOf", Short.TYPE);
       case "int":
+      case "integer":
         return Integer.class.getDeclaredMethod("valueOf", Integer.TYPE);
       case "long":
         return Long.class.getDeclaredMethod("valueOf", Long.TYPE);
