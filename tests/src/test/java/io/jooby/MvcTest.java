@@ -378,7 +378,7 @@ public class MvcTest {
     });
   }
 
-  //  @Test
+  @Test
   public void mvcDispatch() {
     new JoobyRunner(app -> {
       app.executor("single", Executors.newSingleThreadExecutor(r ->

@@ -11,6 +11,7 @@ import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.Reified;
 import io.jooby.Route;
+import io.jooby.annotations.Dispatch;
 import io.jooby.internal.apt.asm.ArrayWriter;
 import io.jooby.internal.apt.asm.ConstructorWriter;
 import io.jooby.internal.apt.asm.RouteAttributesWriter;
@@ -20,8 +21,13 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.ExecutableElement;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
@@ -122,13 +128,63 @@ public class ModuleCompiler {
       setContentType(visitor, "setProduces", handler.getProduces());
 
       /**
+       * ******************************************************************************************
        * Annotations as route attributes
+       * ******************************************************************************************
        */
       routeAttributes.process(handler.getExecutable());
+
+      /**
+       * ******************************************************************************************
+       * Dispatch
+       * ******************************************************************************************
+       */
+      setDispatch(visitor, handler.getExecutable());
     }
     visitor.visitInsn(RETURN);
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();
+  }
+
+  private void setDispatch(MethodVisitor visitor, ExecutableElement executable)
+      throws NoSuchMethodException {
+    String executorKey = findAnnotation(executable.getAnnotationMirrors(), Dispatch.class.getName())
+        .map(it -> annotationAttribute(it, "value").toString())
+        .orElseGet(() ->
+            findAnnotation(executable.getEnclosingElement().getAnnotationMirrors(),
+                Dispatch.class.getName())
+                .map(it -> annotationAttribute(it, "value").toString())
+                .orElse(null)
+        );
+
+    if (executorKey != null) {
+      Method setExecutor = Route.class.getDeclaredMethod("setExecutorKey", String.class);
+      visitor.visitVarInsn(ALOAD, 2);
+      visitor.visitLdcInsn(executorKey);
+      visitor.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(setExecutor.getDeclaringClass()),
+          setExecutor.getName(),
+          Type.getMethodDescriptor(setExecutor), false);
+      visitor.visitInsn(POP);
+    }
+  }
+
+  private Object annotationAttribute(AnnotationMirror annotationMirror, String method) {
+    Map<? extends ExecutableElement, ? extends AnnotationValue> map = env
+        .getElementUtils().getElementValuesWithDefaults(annotationMirror);
+    for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : map.entrySet()) {
+      if (entry.getKey().getSimpleName().toString().equals(method)) {
+        return entry.getValue().getValue();
+      }
+    }
+    throw new IllegalArgumentException(
+        "Missing: " + annotationMirror.getAnnotationType().toString() + "." + method);
+  }
+
+  private Optional<? extends AnnotationMirror> findAnnotation(
+      List<? extends AnnotationMirror> annotationMirrors, String name) {
+    return annotationMirrors.stream()
+        .filter(it -> it.getAnnotationType().toString().equals(name))
+        .findFirst();
   }
 
   private void setReturnType(MethodVisitor visitor, HandlerCompiler handler)

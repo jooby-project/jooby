@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeMap;
+import java.util.concurrent.Executor;
 
 /**
  * Route contains information about the HTTP method, path pattern, which content types consumes and
@@ -339,6 +340,8 @@ public class Route {
   private Map<String, Object> attributes = EMPTY_MAP;
 
   private Set<String> supportedMethod;
+
+  private String executorKey;
 
   /**
    * Creates a new route.
@@ -761,6 +764,34 @@ public class Route {
    */
   public @Nonnull Route setHttpHead(boolean enabled) {
     addHttpMethod(enabled, Router.HEAD);
+    return this;
+  }
+
+  /**
+   * Specify the name of the executor where the route is going to run.
+   * Default is <code>null</code>.
+   *
+   * @return Executor key.
+   */
+  public @Nullable String getExecutorKey() {
+    return executorKey;
+  }
+
+  /**
+   * Set executor key. The route is going to use the given key to fetch an executor. Possible values
+   * are:
+   *
+   * - <code>null</code>: no specific executor, uses the default Jooby logic to choose one, based
+   *    on the value of {@link ExecutionMode};
+   * - <code>worker</code>: use the executor provided by the server.
+   * - <code>arbitrary name</code>: use an named executor which as registered using
+   *    {@link Router#executor(String, Executor)}.
+   *
+   * @param executorKey Executor key.
+   * @return This route.
+   */
+  public @Nonnull Route setExecutorKey(@Nullable String executorKey) {
+    this.executorKey = executorKey;
     return this;
   }
 

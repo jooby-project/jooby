@@ -3,13 +3,9 @@ package output;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.Route;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MvcExtension implements Extension {
   public MvcExtension(Provider c) {
@@ -17,6 +13,7 @@ public class MvcExtension implements Extension {
   }
 
   @Override public void install(@Nonnull Jooby application) throws Exception {
-    application.dispatch(new MvcDispatch(application));
+    Route route = application.get("/", ctx -> "..");
+    route.setExecutorKey("myexecutor");
   }
 }

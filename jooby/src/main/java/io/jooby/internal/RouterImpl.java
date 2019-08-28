@@ -6,7 +6,6 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.HeadHandler;
 import io.jooby.RegistryException;
 import io.jooby.ServiceKey;
 import io.jooby.StatusCodeException;
@@ -38,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
@@ -373,9 +371,11 @@ public class RouterImpl implements Router {
     handler.setRoute(route);
 
     Stack stack = this.stack.peekLast();
+    String executorKey = route.getExecutorKey();
     if (stack.executor != null) {
       routeExecutor.put(route, stack.executor);
     }
+
     String routePattern = normalizePath(basePath == null
         ? safePattern
         : basePath + safePattern, false, true);
@@ -384,7 +384,9 @@ public class RouterImpl implements Router {
       tree.insert(Router.OPTIONS, routePattern, route);
     } else if (route.isHttpTrace()) {
       tree.insert(Router.TRACE, routePattern, route);
-    } else if (route.isHttpHead() && route.getMethod().equals(GET)) {
+    } else if (route.isHttpHead() && route.getMethod().
+
+        equals(GET)) {
       tree.insert(Router.HEAD, routePattern, route);
     }
     routes.add(route);
@@ -401,9 +403,21 @@ public class RouterImpl implements Router {
     renderer.add(MessageEncoder.TO_STRING);
     ExecutionMode mode = owner.getExecutionMode();
     for (Route route : routes) {
-      Executor executor = routeExecutor.get(route);
-      if (executor instanceof ForwardingExecutor) {
-        executor = ((ForwardingExecutor) executor).executor;
+      String executorKey = route.getExecutorKey();
+      Executor executor;
+      if (executorKey == null) {
+        executor = routeExecutor.get(route);
+        if (executor instanceof ForwardingExecutor) {
+          executor = ((ForwardingExecutor) executor).executor;
+        }
+      } else {
+        if (executorKey.equals("worker")) {
+          executor = (worker instanceof ForwardingExecutor) ?
+              ((ForwardingExecutor) worker).executor :
+              worker;
+        } else {
+          executor = executor(executorKey);
+        }
       }
       /** Return type: */
       if (route.getReturnType() == null) {

@@ -36,5 +36,5 @@ public @interface Dispatch {
    *
    * @return Name of the executor to use or blank to use the server worker executor.
    */
-  String value() default "";
+  String value() default "worker";
 }

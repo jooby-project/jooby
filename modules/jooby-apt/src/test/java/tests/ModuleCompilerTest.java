@@ -1,19 +1,17 @@
 package tests;
 
 import io.jooby.Context;
-import io.jooby.MockContext;
 import io.jooby.MockRouter;
 import io.jooby.Route;
 import io.jooby.StatusCode;
-import io.jooby.apt.MvcHandlerCompilerRunner;
 import io.jooby.apt.MvcModuleCompilerRunner;
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import source.GetPostRoute;
 import source.JavaBeanParam;
 import source.NoPathRoute;
 import source.PrimitiveReturnType;
 import source.RouteAttributes;
+import source.RouteDispatch;
 import source.RouteWithMimeTypes;
 import source.Routes;
 import source.VoidRoute;
@@ -142,6 +140,16 @@ public class ModuleCompilerTest {
           List<Map> array = (List) link.get("LinkAnnotation.array");
           assertEquals("1", array.get(0).get("ArrayAnnotation"));
           assertEquals("2", array.get(1).get("ArrayAnnotation"));
+        })
+    ;
+  }
+
+  @Test
+  public void routeDispatch() throws Exception {
+    new MvcModuleCompilerRunner(new RouteDispatch())
+        .module(true, app -> {
+          assertEquals("worker", app.getRoutes().get(0).getExecutorKey());
+          assertEquals("single", app.getRoutes().get(1).getExecutorKey());
         })
     ;
   }
