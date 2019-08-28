@@ -3,10 +3,11 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.apt;
+package io.jooby.internal.apt.asm;
 
 import io.jooby.Context;
 import io.jooby.FileUpload;
+import io.jooby.internal.apt.ParamDefinition;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -27,7 +28,7 @@ import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
-class FileUploadWriter implements ParamWriter {
+public class FileUploadWriter implements ParamWriter {
   @Override
   public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
       ParamDefinition parameter)

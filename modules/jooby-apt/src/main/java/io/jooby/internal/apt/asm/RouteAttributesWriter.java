@@ -1,7 +1,10 @@
-package io.jooby.internal.apt;
+package io.jooby.internal.apt.asm;
 
 import io.jooby.Route;
 import io.jooby.SneakyThrows;
+import io.jooby.internal.apt.Primitives;
+import io.jooby.internal.apt.TypeDefinition;
+import io.jooby.internal.apt.asm.ArrayWriter;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

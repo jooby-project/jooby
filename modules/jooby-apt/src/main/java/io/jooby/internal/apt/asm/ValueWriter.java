@@ -3,9 +3,12 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.apt;
+package io.jooby.internal.apt.asm;
 
 import io.jooby.Reified;
+import io.jooby.internal.apt.ParamDefinition;
+import io.jooby.internal.apt.asm.ArrayWriter;
+import io.jooby.internal.apt.asm.ParamWriter;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 
@@ -18,7 +21,7 @@ import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
-abstract class ValueWriter implements ParamWriter {
+public abstract class ValueWriter implements ParamWriter {
   @Override
   public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
       ParamDefinition parameter) throws Exception {

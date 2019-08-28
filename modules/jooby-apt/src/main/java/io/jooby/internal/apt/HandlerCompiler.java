@@ -11,6 +11,8 @@ import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.apt.Annotations;
+import io.jooby.internal.apt.asm.ConstructorWriter;
+import io.jooby.internal.apt.asm.ParamWriter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;

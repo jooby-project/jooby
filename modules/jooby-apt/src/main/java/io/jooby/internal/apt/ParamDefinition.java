@@ -15,6 +15,7 @@ import io.jooby.Reified;
 import io.jooby.Session;
 import io.jooby.Value;
 import io.jooby.apt.Annotations;
+import io.jooby.internal.apt.asm.ParamWriter;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;

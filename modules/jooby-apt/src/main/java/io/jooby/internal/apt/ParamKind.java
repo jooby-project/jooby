@@ -9,6 +9,11 @@ import io.jooby.Context;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
 import io.jooby.apt.Annotations;
+import io.jooby.internal.apt.asm.AnnotationParamWriter;
+import io.jooby.internal.apt.asm.BodyWriter;
+import io.jooby.internal.apt.asm.FileUploadWriter;
+import io.jooby.internal.apt.asm.ObjectTypeWriter;
+import io.jooby.internal.apt.asm.ParamWriter;
 
 import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.Method;
