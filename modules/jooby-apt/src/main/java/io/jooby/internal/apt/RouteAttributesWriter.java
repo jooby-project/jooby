@@ -1,4 +1,4 @@
-package io.jooby.internal.compiler;
+package io.jooby.internal.apt;
 
 import io.jooby.Route;
 import io.jooby.SneakyThrows;

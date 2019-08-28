@@ -5,7 +5,7 @@ import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
 import io.jooby.Route;
 import io.jooby.SneakyThrows;
-import io.jooby.internal.compiler.HandlerCompiler;
+import io.jooby.internal.apt.HandlerCompiler;
 
 import javax.inject.Provider;
 import javax.tools.JavaFileObject;

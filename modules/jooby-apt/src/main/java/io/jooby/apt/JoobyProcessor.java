@@ -7,9 +7,9 @@ package io.jooby.apt;
 
 import io.jooby.MvcFactory;
 import io.jooby.SneakyThrows;
-import io.jooby.internal.compiler.FactoryCompiler;
-import io.jooby.internal.compiler.HandlerCompiler;
-import io.jooby.internal.compiler.ModuleCompiler;
+import io.jooby.internal.apt.FactoryCompiler;
+import io.jooby.internal.apt.HandlerCompiler;
+import io.jooby.internal.apt.ModuleCompiler;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
