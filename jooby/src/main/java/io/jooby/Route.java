@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -654,7 +653,7 @@ public class Route {
   public @Nonnull Route setAttributes(@Nonnull Map<String, Object> attributes) {
     if (attributes.size() > 0) {
       if (this.attributes == EMPTY_MAP) {
-        this.attributes = new HashMap<>();
+        this.attributes = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
       }
       this.attributes.putAll(attributes);
     }

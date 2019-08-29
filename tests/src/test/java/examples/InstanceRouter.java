@@ -1,16 +1,21 @@
 package examples;
 
 import io.jooby.Context;
+import io.jooby.Route;
 import io.jooby.annotations.GET;
 import io.jooby.annotations.POST;
 import io.jooby.annotations.Path;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Path("/")
 public class InstanceRouter {
 
   @GET
   @POST
-  public String getIt() {
+  @Role("some")
+  public String getIt(Route route) {
+    assertEquals("some", route.attribute("role"));
     return "Got it!";
   }
 

@@ -8,6 +8,7 @@ import io.jooby.MockContext;
 import io.jooby.Multipart;
 import io.jooby.ProvisioningException;
 import io.jooby.Reified;
+import io.jooby.Route;
 import io.jooby.StatusCode;
 import io.jooby.apt.MvcHandlerCompilerRunner;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import source.JaxrsController;
 import source.NoPathRoute;
 import source.NullRoutes;
 import source.Provisioning;
+import source.RouteInjection;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -415,6 +417,16 @@ public class HandlerCompilerTest {
 
         .compile("/nullbean", handler -> {
           assertThrows(ProvisioningException.class, () -> handler.apply(new MockContext()));
+        })
+    ;
+  }
+
+  @Test
+  public void routeParam() throws Exception {
+    new MvcHandlerCompilerRunner(new RouteInjection())
+        .compile("/route", handler -> {
+          Route route = mock(Route.class);
+          assertEquals(route, handler.apply(new MockContext().setRoute(route)));
         })
     ;
   }

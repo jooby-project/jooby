@@ -12,6 +12,7 @@ import io.jooby.Formdata;
 import io.jooby.Multipart;
 import io.jooby.QueryString;
 import io.jooby.Reified;
+import io.jooby.Route;
 import io.jooby.Session;
 import io.jooby.Value;
 import io.jooby.apt.Annotations;
@@ -258,6 +259,9 @@ public class ParamDefinition {
       return true;
     }
     if (is(Session.class) || is(Optional.class, Session.class)) {
+      return true;
+    }
+    if (is(Route.class)) {
       return true;
     }
     return false;

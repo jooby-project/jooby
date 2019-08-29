@@ -155,6 +155,15 @@ public enum ParamKind {
       return Context.class.getDeclaredMethod("session");
     }
   },
+  ROUTE_PARAM {
+    @Override public Set<String> annotations() {
+      return Collections.emptySet();
+    }
+
+    @Override public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
+      return Context.class.getDeclaredMethod("getRoute");
+    }
+  },
 
   BODY_PARAM {
     @Override public Method valueObject(ParamDefinition param) throws NoSuchMethodException {
