@@ -707,5 +707,8 @@ public class RouterImpl implements Router {
     it.setProduces(src.getProduces());
     it.setHandle(src.getHandle());
     it.setReturnType(src.getReturnType());
+    it.setAttributes(src.getAttributes());
+    it.setExecutorKey(src.getExecutorKey());
+    it.setHandle(src.getHandle());
   }
 }

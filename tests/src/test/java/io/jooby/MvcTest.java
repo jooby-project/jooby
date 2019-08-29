@@ -60,35 +60,35 @@ public class MvcTest {
       });
     });
   }
-  
+
   @Test
   public void routerImporting() {
     new JoobyRunner(app -> {
-    	Jooby sub = new Jooby();
-    	sub.mvc(new InstanceRouter());
-        app.use("/sub", sub);
-      }).ready(client -> {
-        client.get("/sub", rsp -> {
-          assertEquals("Got it!", rsp.body().string());
-        });
-        client.post("/sub", rsp -> {
-          assertEquals("Got it!", rsp.body().string());
-        });
-
-        client.get("/sub/subpath", rsp -> {
-          assertEquals("OK", rsp.body().string());
-        });
-
-        client.get("/sub/void", rsp -> {
-          assertEquals("", rsp.body().string());
-          assertEquals(204, rsp.code());
-        });
-
-        client.get("/sub/voidwriter", rsp -> {
-          assertEquals("writer", rsp.body().string().trim());
-          assertEquals(200, rsp.code());
-        });
+      Jooby sub = new Jooby();
+      sub.mvc(new InstanceRouter());
+      app.use("/sub", sub);
+    }).ready(client -> {
+      client.get("/sub", rsp -> {
+        assertEquals("Got it!", rsp.body().string());
       });
+      client.post("/sub", rsp -> {
+        assertEquals("Got it!", rsp.body().string());
+      });
+
+      client.get("/sub/subpath", rsp -> {
+        assertEquals("OK", rsp.body().string());
+      });
+
+      client.get("/sub/void", rsp -> {
+        assertEquals("", rsp.body().string());
+        assertEquals(204, rsp.code());
+      });
+
+      client.get("/sub/voidwriter", rsp -> {
+        assertEquals("writer", rsp.body().string().trim());
+        assertEquals(200, rsp.code());
+      });
+    });
   }
 
   @Test
