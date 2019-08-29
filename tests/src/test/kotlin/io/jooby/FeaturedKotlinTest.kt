@@ -122,6 +122,7 @@ class FeaturedKotlinTest {
     }
   }
 
+  @Test
   fun suspendMvc() {
     JoobyRunner { ->
       Kooby {
@@ -149,7 +150,7 @@ class FeaturedKotlinTest {
       }
 
       client.get("/456x") { rsp ->
-        assertEquals("Unable to provision parameter: 'id: int'", rsp.body!!.string())
+        assertEquals("Cannot convert value: 'id', to: 'int'", rsp.body!!.string())
       }
     }
   }

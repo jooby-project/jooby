@@ -101,6 +101,10 @@ public class ModuleCompiler {
     for (HandlerCompiler handler : handlers) {
       visitor.visitVarInsn(ALOAD, 1);
       visitor.visitLdcInsn(handler.getPattern());
+      if (handler.isSuspendFunction()) {
+        visitor.visitTypeInsn(NEW, "io/jooby/internal/mvc/CoroutineLauncher");
+        visitor.visitInsn(DUP);
+      }
       visitor.visitTypeInsn(NEW, handler.getGeneratedInternalClass());
       visitor.visitInsn(DUP);
       visitor.visitVarInsn(ALOAD, 0);
@@ -108,6 +112,10 @@ public class ModuleCompiler {
           "Ljavax/inject/Provider;");
       visitor.visitMethodInsn(INVOKESPECIAL, handler.getGeneratedInternalClass(), "<init>",
           "(Ljavax/inject/Provider;)V", false);
+      if (handler.isSuspendFunction()) {
+        visitor.visitMethodInsn(INVOKESPECIAL, "io/jooby/internal/mvc/CoroutineLauncher", "<init>",
+            "(Lio/jooby/Route$Handler;)V", false);
+      }
       visitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Jooby", handler.getHttpMethod(),
           "(Ljava/lang/String;Lio/jooby/Route$Handler;)Lio/jooby/Route;", false);
       visitor.visitVarInsn(ASTORE, 2);
@@ -190,7 +198,9 @@ public class ModuleCompiler {
   private void setReturnType(MethodVisitor visitor, HandlerCompiler handler)
       throws NoSuchMethodException {
     TypeDefinition returnType = handler.getReturnType();
-    if (returnType.isVoid()) {
+    if (handler.isSuspendFunction()) {
+      visitor.visitLdcInsn(Type.getType("Lkotlin/coroutines/Continuation;"));
+    } else if (returnType.isVoid()) {
       visitor.visitLdcInsn(Type.getType(Context.class));
     } else if (returnType.isPrimitive()) {
       Method wrapper = Primitives.wrapper(returnType);

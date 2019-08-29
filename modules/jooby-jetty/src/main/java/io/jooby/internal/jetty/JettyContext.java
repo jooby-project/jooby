@@ -82,6 +82,7 @@ public class JettyContext implements Callback, DefaultContext {
   private MediaType responseType;
   private Map<String, String> cookies;
   private HashMap<String, String> responseCookies;
+  private boolean responseStarted;
 
   public JettyContext(Request request, Router router, int bufferSize, long maxRequestSize) {
     this.request = request;
@@ -316,12 +317,14 @@ public class JettyContext implements Callback, DefaultContext {
   }
 
   @Nonnull @Override public Sender responseSender() {
+    responseStarted = true;
     ifSetChunked();
     ifStartAsync();
     return new JettySender(this, response.getHttpOutput());
   }
 
   @Nonnull @Override public OutputStream responseStream() {
+    responseStarted = true;
     try {
       ifSetChunked();
       // TODO: session should be safe after response, find a better way
@@ -333,6 +336,7 @@ public class JettyContext implements Callback, DefaultContext {
   }
 
   @Nonnull @Override public PrintWriter responseWriter(MediaType type, Charset charset) {
+    responseStarted = true;
     try {
       ifSetChunked();
       // TODO: session should be safe after response, find a better way
@@ -359,12 +363,14 @@ public class JettyContext implements Callback, DefaultContext {
   }
 
   @Nonnull @Override public Context send(@Nonnull ByteBuffer data) {
+    responseStarted = true;
     HttpOutput sender = response.getHttpOutput();
     sender.sendContent(data, this);
     return this;
   }
 
   @Nonnull @Override public Context send(@Nonnull ReadableByteChannel channel) {
+    responseStarted = true;
     ifSetChunked();
     ifStartAsync();
     HttpOutput sender = response.getHttpOutput();
@@ -397,6 +403,7 @@ public class JettyContext implements Callback, DefaultContext {
         response.setHeader(HttpHeader.TRANSFER_ENCODING, HttpHeaderValue.CHUNKED.asString());
         stream = in;
       }
+      responseStarted = true;
       response.getHttpOutput().sendContent(stream, this);
       return this;
     } catch (IOException x) {
@@ -414,7 +421,7 @@ public class JettyContext implements Callback, DefaultContext {
   }
 
   @Override public boolean isResponseStarted() {
-    return response.isCommitted();
+    return responseStarted;
   }
 
   @Override public void succeeded() {

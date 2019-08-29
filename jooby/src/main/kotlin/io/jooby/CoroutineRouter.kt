@@ -68,16 +68,12 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
       val xhandler = CoroutineExceptionHandler { _, x ->
         ctx.sendError(x)
       }
-      coroutineScope.launch(CoroutineRouter.ContextCoroutineName + xhandler, coroutineStart) {
+      coroutineScope.launch(xhandler, coroutineStart) {
         val result = handler(HandlerContext(ctx))
         if (result != ctx) {
           ctx.render(result)
         }
       }
     }.setHandle(handler)
-  }
-
-  companion object {
-    private val ContextCoroutineName = CoroutineName("ctx")
   }
 }

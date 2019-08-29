@@ -21,6 +21,6 @@ class SuspendMvc {
   @GET
   @Path("/{id}")
   suspend fun pathParam(@PathParam id: Int): Any {
-    return id;
+    return id
   }
 }

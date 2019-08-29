@@ -25,6 +25,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.inject.Provider;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -177,16 +178,36 @@ public class HandlerCompiler {
     apply.visitEnd();
   }
 
-  private void processArguments(ClassWriter classWriter, MethodVisitor visitor) throws Exception {
-    for (VariableElement var : executable.getParameters()) {
-      visitor.visitVarInsn(ALOAD, 1);
-      ParamDefinition param = ParamDefinition.create(environment, var);
-      ParamWriter writer = param.newWriter();
-      writer.accept(classWriter, getGeneratedInternalClass(), visitor, param);
+  public boolean isSuspendFunction() {
+    List<? extends VariableElement> parameters = executable.getParameters();
+    if (parameters.isEmpty()) {
+      return false;
     }
+    VariableElement last = parameters.get(parameters.size() - 1);
+    return isSuspendFunction(last);
   }
 
+  private boolean isSuspendFunction(VariableElement parameter) {
+    String type = ParamDefinition.create(environment, parameter).getType().getRawType().toString();
+    return type.equals("kotlin.coroutines.Continuation");
+  }
 
+  private void processArguments(ClassWriter classWriter, MethodVisitor visitor) throws Exception {
+    for (VariableElement var : executable.getParameters()) {
+      if (isSuspendFunction(var)) {
+        visitor.visitVarInsn(ALOAD, 1);
+        visitor.visitMethodInsn(INVOKEINTERFACE, "io/jooby/Context", "getAttributes", "()Ljava/util/Map;", true);
+        visitor.visitLdcInsn("___continuation");
+        visitor.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "remove", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
+        visitor.visitTypeInsn(CHECKCAST, "kotlin/coroutines/Continuation");
+      } else {
+        visitor.visitVarInsn(ALOAD, 1);
+        ParamDefinition param = ParamDefinition.create(environment, var);
+        ParamWriter writer = param.newWriter();
+        writer.accept(classWriter, getGeneratedInternalClass(), visitor, param);
+      }
+    }
+  }
 
   private void processReturnType(MethodVisitor visitor) throws Exception {
     TypeKind kind = executable.getReturnType().getKind();
