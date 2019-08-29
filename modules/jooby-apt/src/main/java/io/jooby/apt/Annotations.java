@@ -24,6 +24,7 @@ import io.jooby.annotations.Produces;
 import io.jooby.annotations.QueryParam;
 import io.jooby.annotations.TRACE;
 
+import javax.annotation.Nonnull;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
@@ -40,7 +41,15 @@ import java.util.stream.Collectors;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
 
+/**
+ * Annotation constants used by the APT.
+ *
+ * @since 2.1.0
+ */
 public interface Annotations {
+  /**
+   * HTTP method supported.
+   */
   Set<String> HTTP_METHODS = unmodifiableSet(new LinkedHashSet<>(Arrays.asList(
       GET.class.getName(),
       javax.ws.rs.GET.class.getName(),
@@ -68,46 +77,80 @@ public interface Annotations {
       TRACE.class.getName()
   )));
 
+  /**
+   * Path parameters.
+   */
   Set<String> PATH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(PathParam.class.getName())));
 
+  /**
+   * Query parameters.
+   */
   Set<String> QUERY_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
       QueryParam.class.getName(),
       javax.ws.rs.QueryParam.class.getName()
   )));
 
+  /**
+   * Cookie parameters.
+   */
   Set<String> COOKIE_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
       CookieParam.class.getName(),
       javax.ws.rs.CookieParam.class.getName()
   )));
 
+  /**
+   * Header parameters.
+   */
   Set<String> HEADER_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
       HeaderParam.class.getName(),
       javax.ws.rs.HeaderParam.class.getName()
   )));
 
+  /**
+   * Flash parameters.
+   */
   Set<String> FLASH_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(FlashParam.class.getName())));
 
+  /**
+   * Form parameters.
+   */
   Set<String> FORM_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
       FormParam.class.getName(),
       javax.ws.rs.FormParam.class.getName()
   )));
 
+  /**
+   * Produces parameters.
+   */
   Set<String> PRODUCES_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
       Produces.class.getName(),
       javax.ws.rs.Produces.class.getName()
   )));
 
+  /**
+   * Consumes parameters.
+   */
   Set<String> CONSUMES_PARAMS = unmodifiableSet(new LinkedHashSet<>(asList(
       Consumes.class.getName(),
       javax.ws.rs.Consumes.class.getName()
   )));
 
+  /**
+   * Path parameters.
+   */
   Set<String> PATH = unmodifiableSet(new LinkedHashSet<>(asList(
       Path.class.getName(),
       javax.ws.rs.Path.class.getName()
   )));
 
-  static List<String> attribute(AnnotationMirror mirror, String name) {
+  /**
+   * Get an annotation value.
+   *
+   * @param mirror Annotation.
+   * @param name Attribute name.
+   * @return List of values.
+   */
+  static @Nonnull List<String> attribute(@Nonnull AnnotationMirror mirror, @Nonnull String name) {
     Function<Object, String> cleanValue = arg -> {
       if (arg instanceof AnnotationValue) {
         return ((AnnotationValue) arg).getValue().toString();

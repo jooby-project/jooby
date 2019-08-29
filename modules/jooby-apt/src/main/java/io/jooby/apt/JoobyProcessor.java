@@ -34,6 +34,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Jooby Annotation Processing Tool. It generates byte code for MVC routes.
+ *
+ * @since 2.1.0
+ */
 public class JoobyProcessor extends AbstractProcessor {
 
   private ProcessingEnvironment processingEnvironment;

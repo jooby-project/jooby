@@ -4,4 +4,4 @@ DIR=$(cd "$(dirname "$0")"; pwd)
 
 echo "$@"
 
-mvn -pl '!docs,!tests,!examples,!modules/jooby-apt' "$@"
+mvn -pl '!docs,!tests,!examples' "$@"

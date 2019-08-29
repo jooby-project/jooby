@@ -41,7 +41,11 @@ public class MvcModuleCompilerRunner {
     return module(false, consumer);
   }
 
-  public MvcModuleCompilerRunner module(boolean debug, SneakyThrows.Consumer<Jooby> consumer) throws Exception {
+  public MvcModuleCompilerRunner debugModule(SneakyThrows.Consumer<Jooby> consumer) throws Exception {
+    return module(true, consumer);
+  }
+
+  private MvcModuleCompilerRunner module(boolean debug, SneakyThrows.Consumer<Jooby> consumer) throws Exception {
     Class clazz = instance.getClass();
     ClassLoader classLoader = processor.getModuleClassLoader(debug);
     String factoryName = clazz.getName() + "$Factory";

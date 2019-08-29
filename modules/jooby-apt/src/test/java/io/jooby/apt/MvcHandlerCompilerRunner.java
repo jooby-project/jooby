@@ -36,12 +36,12 @@ public class MvcHandlerCompilerRunner {
 
   public MvcHandlerCompilerRunner compile(String path,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
-    return compile(path, false, consumer);
+    return compile("GET", path, consumer);
   }
 
-  public MvcHandlerCompilerRunner compile(String path, boolean debug,
+  public MvcHandlerCompilerRunner debug(String path,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
-    return compile("GET", path, debug, consumer);
+    return compile("GET", path, true, consumer);
   }
 
   public MvcHandlerCompilerRunner compile(String method, String path,
@@ -49,7 +49,12 @@ public class MvcHandlerCompilerRunner {
     return compile(method, path, false, consumer);
   }
 
-  public MvcHandlerCompilerRunner compile(String method, String path, boolean debug,
+  public MvcHandlerCompilerRunner debug(String method, String path,
+      SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
+    return compile(method, path, true, consumer);
+  }
+
+  private MvcHandlerCompilerRunner compile(String method, String path, boolean debug,
       SneakyThrows.Consumer<Route.Handler> consumer) throws Exception {
     String key = method.toUpperCase() + path;
     HandlerCompiler compiler = processor.compilerFor(key);

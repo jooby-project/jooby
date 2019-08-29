@@ -638,9 +638,10 @@ public class Route {
    * Retrieve value of this specific Attribute set to this route.
    *
    * @param name of the attribute to retrieve.
+   * @param <T> Generic type.
    * @return value of the specific attribute.
    */
-  public <T> T attribute(String name) {
+  public @Nullable <T> T attribute(@Nonnull String name) {
     return (T) attributes.get(name);
   }
 
