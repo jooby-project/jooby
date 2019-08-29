@@ -283,9 +283,7 @@ public class Jooby implements Router, Registry {
       MvcFactory module = stream(modules.spliterator(), false)
           .filter(it -> it.supports(router))
           .findFirst()
-          // TODO: Usage exception
-          .orElseThrow(() -> new IllegalStateException("Mvc module not found: " + router.getName()
-              + ". Make sure annotation processor is configured properly."));
+          .orElseThrow(() -> Usage.mvcRouteMissing(router));
       Extension extension = module.create(provider);
       extension.install(this);
       return this;
