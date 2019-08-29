@@ -38,7 +38,7 @@ public class FactoryCompiler {
     this.controllerClass = controllerClass;
     this.moduleClass = moduleClass;
     this.moduleFactoryClass = controllerClass + "$Factory";
-    this.moduleFactoryJava = this.moduleFactoryClass + ".java";
+    this.moduleFactoryJava = controllerClass + ".java";
     this.moduleFactoryInternalName = this.moduleFactoryClass.replace(".", "/");
   }
 

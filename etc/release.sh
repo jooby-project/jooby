@@ -2,6 +2,6 @@
 
 DIR=$(cd "$(dirname "$0")"; pwd)
 
-sh $DIR/javadoc.sh
-
-sh $DIR/maven.sh clean deploy -P bom,central
+if sh $DIR/javadoc.sh; then
+  sh $DIR/maven.sh -pl '!docs,!tests,!examples' clean deploy -P bom,central
+fi

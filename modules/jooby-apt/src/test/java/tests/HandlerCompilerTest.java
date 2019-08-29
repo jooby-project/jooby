@@ -83,7 +83,7 @@ public class HandlerCompilerTest {
   @Test
   public void cookieParam() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
-        .debug("/p/cookieParam", handler -> {
+        .compile("/p/cookieParam", handler -> {
           assertEquals("cookie",
               handler.apply(new MockContext().setCookieMap(mapOf("c", "cookie"))));
         })

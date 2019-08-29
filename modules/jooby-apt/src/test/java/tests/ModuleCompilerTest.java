@@ -42,11 +42,8 @@ public class ModuleCompilerTest {
           assertTrue(router.post("/path/post").value() instanceof JavaBeanParam);
 
           assertEquals("/path/pathAttributeWork", router.get("/path/pathAttributeWork").value());
-          ;
           assertEquals("/path/path", router.get("/path/path").value());
-          ;
           assertEquals("/path/value", router.get("/path/value").value());
-          ;
 
           assertEquals("/path/path1", router.get("/path/path1").value());
           assertEquals("/path/path2", router.get("/path/path2").value());
