@@ -22,28 +22,17 @@ import io.jooby.RouterOptions;
 import io.jooby.ServiceRegistry;
 import io.jooby.SessionOptions;
 import io.jooby.StatusCode;
-import io.jooby.SneakyThrows;
 import io.jooby.TemplateEngine;
-import io.jooby.annotations.Dispatch;
 import io.jooby.internal.asm.ClassSource;
-import io.jooby.internal.mvc.MvcAnnotationParser;
-import io.jooby.internal.mvc.MvcCompiler;
-import io.jooby.internal.mvc.MvcMetadata;
-import io.jooby.internal.mvc.MvcMethod;
-import io.jooby.internal.mvc.MvcAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -141,8 +130,6 @@ public class RouterImpl implements Router {
 
   private ServiceRegistry services = new ServiceRegistryImpl();
 
-  private MvcAnnotationParser annotationParser;
-
   private ClassSource source;
 
   private SessionOptions sessionOptions = new SessionOptions();
@@ -227,9 +214,7 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router mvc(@Nonnull Object router) {
-    checkMvcAnnotations();
-    mvc(null, router.getClass(), () -> router);
-    return this;
+    throw new UnsupportedOperationException();
   }
 
   @Nonnull @Override public Router mvc(@Nonnull Class router) {
@@ -238,9 +223,7 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override
   public <T> Router mvc(@Nonnull Class<T> router, @Nonnull Provider<T> provider) {
-    checkMvcAnnotations();
-    mvc(null, router, provider);
-    return this;
+    throw new UnsupportedOperationException();
   }
 
   @Nonnull @Override public Router encoder(@Nonnull MessageEncoder encoder) {
@@ -586,104 +569,6 @@ public class RouterImpl implements Router {
     }
     this.stack.removeLast().clear();
     return this;
-  }
-
-  private void mvc(String prefix, Class type, Provider provider) {
-    find(prefix, type, method -> {
-
-      Route.Handler instance = MvcCompiler
-          .newHandler(source.getLoader(), method, provider);
-
-      Route route = route(method.getHttpMethod(), method.getPattern(), instance)
-          .setReturnType(method.getReturnType(source.getLoader()));
-
-      MvcAnnotation model = method.getModel();
-      List<MediaType> produces = model.getProduces();
-      if (produces.size() > 0) {
-        route.setProduces(produces);
-      }
-
-      List<MediaType> consumes = model.getConsumes();
-      if (consumes.size() > 0) {
-        route.setConsumes(consumes);
-      }
-
-      Map<String, Object> attributes = model.getAttributes();
-      if (attributes.size() > 0) {
-        route.setAttributes(attributes);
-      }
-    });
-  }
-
-  private void find(String prefix, Class type, SneakyThrows.Consumer<MvcMethod> consumer) {
-    MvcMetadata mvcMetadata = new MvcMetadata(source);
-    mvcMetadata.parse(type);
-    List<MvcMethod> routes = new ArrayList<>();
-    Stream.of(type.getDeclaredMethods()).forEach(method -> {
-      if (Modifier.isPublic(method.getModifiers())) {
-        annotationParser.parse(method).forEach(model -> {
-          String[] paths = pathPrefix(prefix, model.getPath());
-          for (String path : paths) {
-            MvcMethod mvc = mvcMetadata.create(method);
-            mvc.setPattern(path);
-            mvc.setModel(model);
-            mvc.setMethod(method);
-            routes.add(mvc);
-          }
-        });
-      }
-    });
-    Collections.sort(routes, Comparator.comparingInt(MvcMethod::getLine));
-    routes.forEach(mvc -> {
-      String executorKey = dispatchTo(mvc.getMethod());
-      if (executorKey != null) {
-        if (executorKey.length() == 0) {
-          dispatch(() -> consumer.accept(mvc));
-        } else {
-          Executor executor = services.getOrNull(ServiceKey.key(Executor.class, executorKey));
-          if (executor == null) {
-            // TODO: replace with usage exception
-            throw new IllegalArgumentException(
-                "Missing executor: " + executorKey + ", required by: " + mvc.getMethod()
-                    .getDeclaringClass().getName() + "." + mvc.getMethod()
-                    .getName() + ", at line: " + mvc.getLine());
-          }
-          dispatch(executor, () -> consumer.accept(mvc));
-        }
-      } else {
-        consumer.accept(mvc);
-      }
-    });
-    mvcMetadata.destroy();
-  }
-
-  private String dispatchTo(Method method) {
-    Dispatch dispatch = method.getAnnotation(Dispatch.class);
-    if (dispatch != null) {
-      return dispatch.value();
-    }
-    Dispatch parent = method.getDeclaringClass().getAnnotation(Dispatch.class);
-    if (parent != null) {
-      return parent.value();
-    }
-    return null;
-  }
-
-  private String[] pathPrefix(String prefix, String[] path) {
-    if (prefix == null) {
-      return path;
-    }
-    String[] result = new String[path.length];
-    for (int i = 0; i < path.length; i++) {
-      result[i] = prefix + "/" + path[i];
-    }
-    return result;
-  }
-
-  private void checkMvcAnnotations() {
-    if (annotationParser == null) {
-      annotationParser = MvcAnnotationParser.create(source.getLoader());
-    }
   }
 
   private void copy(Route src, Route it) {
