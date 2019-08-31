@@ -44,7 +44,7 @@ import java.util.function.Consumer;
 
 import static io.jooby.SneakyThrows.propagate;
 
-public class ValueInjector {
+public final class ValueInjector {
 
   private static final String AMBIGUOUS_CONSTRUCTOR =
       "Ambiguous constructor found. Expecting a single constructor or only one annotated with "
@@ -52,11 +52,11 @@ public class ValueInjector {
 
   private static final Object[] NO_ARGS = new Object[0];
 
-  public <T> T inject(Value scope, Class type) {
+  public static <T> T inject(Value scope, Class type) {
     return inject(scope, type, type);
   }
 
-  public <T> T inject(Value scope, Type type, Class rawType) {
+  public static <T> T inject(Value scope, Type type, Class rawType) {
     try {
       Object result = value(scope, rawType, type);
       return (T) result;
@@ -67,7 +67,7 @@ public class ValueInjector {
     }
   }
 
-  private <T> T newInstance(Class<T> type, Value scope)
+  private static <T> T newInstance(Class<T> type, Value scope)
       throws IllegalAccessException, InstantiationException, InvocationTargetException,
       NoSuchMethodException {
     Constructor[] constructors = type.getConstructors();
@@ -83,7 +83,7 @@ public class ValueInjector {
     return (T) setters(constructor.newInstance(args), scope, state);
   }
 
-  private Constructor selectConstructor(Constructor[] constructors) {
+  private static Constructor selectConstructor(Constructor[] constructors) {
     Constructor result = null;
     if (constructors.length == 1) {
       result = constructors[0];
@@ -107,7 +107,7 @@ public class ValueInjector {
     return result;
   }
 
-  private <T> T setters(T newInstance, Value object, Set<Value> skip) {
+  private static <T> T setters(T newInstance, Value object, Set<Value> skip) {
     Method[] methods = newInstance.getClass().getMethods();
     for (Value value : object) {
       if (!skip.contains(value)) {
@@ -134,7 +134,7 @@ public class ValueInjector {
     return newInstance;
   }
 
-  private Method findMethod(Method[] methods, String name) {
+  private static Method findMethod(Method[] methods, String name) {
     for (Method method : methods) {
       if (method.getName().equals(name) && method.getParameterCount() == 1) {
         return method;
@@ -143,7 +143,7 @@ public class ValueInjector {
     return null;
   }
 
-  private Object resolve(Value scope, Class type)
+  private static Object resolve(Value scope, Class type)
       throws IllegalAccessException, InvocationTargetException, InstantiationException,
       NoSuchMethodException {
     if (scope.isObject() || scope.isSingle()) {
@@ -159,7 +159,7 @@ public class ValueInjector {
     }
   }
 
-  public Object[] inject(Value scope, Executable method, Consumer<Value> state)
+  public static Object[] inject(Value scope, Executable method, Consumer<Value> state)
       throws IllegalAccessException, InstantiationException, InvocationTargetException,
       NoSuchMethodException {
     Parameter[] parameters = method.getParameters();
@@ -183,7 +183,7 @@ public class ValueInjector {
     return args;
   }
 
-  private String paramName(Parameter parameter) {
+  private static String paramName(Parameter parameter) {
     String name = parameter.getName();
     Named named = parameter.getAnnotation(Named.class);
     if (named != null && named.value().length() > 0) {
@@ -265,7 +265,7 @@ public class ValueInjector {
     return false;
   }
 
-  private Object value(Value value, Class rawType, Type type)
+  private static Object value(Value value, Class rawType, Type type)
       throws InvocationTargetException, IllegalAccessException, InstantiationException,
       NoSuchMethodException {
     if (value.isMissing() && rawType != Optional.class) {
@@ -363,7 +363,7 @@ public class ValueInjector {
     return resolve(value, rawType);
   }
 
-  private Collection collection(Value scope, ParameterizedType type, Collection result)
+  private static Collection collection(Value scope, ParameterizedType type, Collection result)
       throws InvocationTargetException, IllegalAccessException, InstantiationException,
       NoSuchMethodException {
     Class itemType = $Types.parameterizedType0(type);

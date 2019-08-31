@@ -431,7 +431,7 @@ public interface Value extends Iterable<Value> {
    * @return Instance of the type.
    */
   @Nonnull default <T> T to(@Nonnull Class<T> type) {
-    return new ValueInjector().inject(this, type, type);
+    return ValueInjector.inject(this, type, type);
   }
 
   /**
@@ -443,7 +443,7 @@ public interface Value extends Iterable<Value> {
    * @return Instance of the type.
    */
   @Nonnull default <T> T to(@Nonnull Type type) {
-    return new ValueInjector().inject(this, type, Reified.rawType(type));
+    return ValueInjector.inject(this, type, Reified.rawType(type));
   }
 
   /**
@@ -455,7 +455,7 @@ public interface Value extends Iterable<Value> {
    * @return Instance of the type.
    */
   @Nonnull default <T> T to(@Nonnull Reified<T> type) {
-    return new ValueInjector().inject(this, type.getType(), type.getRawType());
+    return ValueInjector.inject(this, type.getType(), type.getRawType());
   }
 
   /**
