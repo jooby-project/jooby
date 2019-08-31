@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DocGenerator {
   public static void main(String[] args) throws Exception {
@@ -69,11 +70,13 @@ public class DocGenerator {
 
     asciidoctor.convertFile(asciidoc.resolve("index.adoc").toFile(),
         createOptions(asciidoc, outdir, version, null));
-    Path modules = outdir.resolve("modules");
-    Files.createDirectories(modules);
-    Files.walk(asciidoc.resolve("modules")).filter(Files::isRegularFile).forEach(module -> {
-      processModule(asciidoctor, asciidoc, module, outdir, version);
-    });
+    Stream.of("usage", "modules").forEach(SneakyThrows.throwingConsumer(name -> {
+      Path modules = outdir.resolve(name);
+      Files.createDirectories(modules);
+      Files.walk(asciidoc.resolve(name)).filter(Files::isRegularFile).forEach(module -> {
+        processModule(asciidoctor, asciidoc, module, outdir, name, version);
+      });
+    }));
 
     // post process
     Files.walk(outdir).filter(it -> it.getFileName().toString().endsWith("index.html"))
@@ -142,18 +145,24 @@ public class DocGenerator {
   }
 
   private static void processModule(Asciidoctor asciidoctor, Path basedir, Path module, Path outdir,
-      String version) {
+      String name, String version) {
     try {
       String moduleName = module.getFileName().toString().replace(".adoc", "");
 
-      Options options = createOptions(basedir, outdir, version,
-          moduleName.replace("-", " ") + " module");
+      String title = moduleName.replace("-", " ");
+      if (name.equals("modules")) {
+        title += " module";
+      }
+      Options options = createOptions(basedir, outdir, version, title);
 
       asciidoctor.convertFile(module.toFile(), options);
 
       Path output = outdir.resolve(moduleName + ".html").toAbsolutePath();
-      Path indexlike = output.getParent().resolve("modules").resolve(moduleName)
-          .resolve("index.html");
+      Path indexlike = output.getParent().resolve(name);
+      if (name.equals("modules")) {
+        indexlike = indexlike.resolve(moduleName);
+      }
+      indexlike = indexlike.resolve("index.html");
       Files.createDirectories(indexlike.getParent());
       Files.move(output, indexlike);
       String content = new String(Files.readAllBytes(indexlike), StandardCharsets.UTF_8)

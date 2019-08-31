@@ -31,6 +31,11 @@
     </dependency>
 
     <dependency>
+      <groupId>org.unbescape</groupId>
+      <artifactId>unbescape</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.asciidoctor</groupId>
       <artifactId>asciidoctorj</artifactId>
       <version>1.6.1</version>

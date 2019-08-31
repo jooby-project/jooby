@@ -171,6 +171,8 @@ public class CreateCmd extends Cmd {
     model.put("maven", !gradle);
     model.put("docker", docker);
     model.put("mvc", mvc);
+    model.put("kapt", mvc && kotlin);
+    model.put("apt", mvc && !kotlin);
     model.put("finalArtifactId", finalArtifactId);
 
     ctx.writeTemplate(templateName, model, projectDir.resolve(buildFileName));

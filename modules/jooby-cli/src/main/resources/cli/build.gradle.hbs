@@ -11,6 +11,9 @@ buildscript {
   }
 
   dependencies {
+  {{#kapt}}
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+  {{/kapt}}
     classpath "com.google.gradle:osdetector-gradle-plugin:1.4.0"
     classpath "io.spring.gradle:dependency-management-plugin:1.0.8.RELEASE"
     {{#if kotlin}}classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"{{/if}}
@@ -18,11 +21,13 @@ buildscript {
     classpath "com.github.jengelman.gradle.plugins:shadow:5.1.0"
   }
 }
-
 apply plugin: "io.spring.dependency-management"
 apply plugin: "com.google.osdetector"
 apply plugin: "com.github.johnrengelman.shadow"
 apply plugin: "application"
+{{#kapt}}
+  apply plugin: "org.jetbrains.kotlin.kapt"
+{{/kapt}}
 {{#if kotlin}}apply plugin: "kotlin"{{/if}}
 apply plugin: "jooby"
 
@@ -44,6 +49,11 @@ dependencyManagement {
 }
 
 dependencies {
+{{#if kapt}}
+  kapt "io.jooby:jooby-apt"
+{{else if apt}}
+  annotationProcessor "io.jooby:jooby-apt"
+{{/if}}
 {{#each dependencies}}
   compile "{{this}}"
 {{/each}}

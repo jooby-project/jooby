@@ -1,0 +1,18 @@
+= Help/Usage section
+
+This section describes usage error and how to fix them.
+
+== Annotation Processing Tool
+
+=== MVC route missing
+
+----
+Mvc route not found: `examples.PlainText`. Make sure Jooby annotation processor is configured properly.
+----
+
+The cause of this error is generated when you try to use a MVC route and (usually) the annotation
+processing tool is not configured properly.
+
+*Solution*
+
+Configure the `jooby-apt` as part of your build. 

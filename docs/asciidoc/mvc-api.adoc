@@ -3,7 +3,11 @@
 MVC API is an alternative way to define routes in Jooby. It uses annotations and byte code generation
 to define and execute routes.
 
-The package `io.jooby.annotations` contains the annotations available for MVC routes.
+The package `io.jooby.annotations` contains all the annotations available for MVC routes.
+
+Since 2.1.0, Jooby uses an annotation processing tool to convert MVC routes to script/lambda routes
+at compilation time. The tool reduces application startup time and eliminates the use of dynamic
+class loading.
 
 .MVC API:
 [source,java,role="primary"]
@@ -22,7 +26,7 @@ public class MyController {
 public class App extends Jooby {
 
   {
-    use(new MyController());   // <3>
+    mvc(new MyController());   // <3>
   }
 
   public static void main(String[] args) {
@@ -49,7 +53,7 @@ class MyController {
 
 fun main(args: Array<String>) {
   runApp(args) {
-    use(MyController())        // <3>
+    mvc(MyController())        // <3>
   }
 }
 
@@ -58,6 +62,13 @@ fun main(args: Array<String>) {
 <1> Set a path pattern. The `@Path` annotation is enable at class or method level
 <2> Add a HTTP method
 <3> Register/install the controller in the main application
+
+The next section describes how to configure the annotation processing tool, but keep in mind all these
+can be done using the <<getting-started-cli, jooby console>>.
+
+=== APT
+
+==== Maven
 
 === Parameters
 

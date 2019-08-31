@@ -312,6 +312,24 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
+        <artifactId>jooby-cli</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-apt</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-maven-plugin</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
         <artifactId>jooby-gradle-plugin</artifactId>
         <version>${jooby.version}</version>
       </dependency>

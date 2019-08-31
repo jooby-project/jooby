@@ -64,6 +64,26 @@
           <jvmTarget>${maven.compiler.target}</jvmTarget>
         </configuration>
         <executions>
+        {{#if kapt}}
+          <execution>
+            <id>kapt</id>
+            <goals>
+              <goal>kapt</goal>
+            </goals>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>src/main/kotlin</sourceDir>
+              </sourceDirs>
+              <annotationProcessorPaths>
+                <annotationProcessorPath>
+                  <groupId>io.jooby</groupId>
+                  <artifactId>jooby-apt</artifactId>
+                  <version>${jooby.version}</version>
+                </annotationProcessorPath>
+              </annotationProcessorPaths>
+            </configuration>
+          </execution>
+        {{/if}}
           <execution>
             <id>compile</id>
             <goals>
@@ -82,6 +102,17 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.6.2</version>
+      {{#if apt}}
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>io.jooby</groupId>
+              <artifactId>jooby-apt</artifactId>
+              <version>${jooby.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      {{/if}}
       </plugin>
     {{/if}}
       <plugin>
