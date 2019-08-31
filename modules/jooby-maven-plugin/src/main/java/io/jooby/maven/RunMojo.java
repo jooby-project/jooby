@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * @author edgar
  * @since 2.0.0
  */
-@Mojo(name = "run", threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
+@Mojo(name = "run", threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST, aggregator = true)
 @Execute(phase = LifecyclePhase.TEST_COMPILE)
 public class RunMojo extends AbstractMojo {
 
