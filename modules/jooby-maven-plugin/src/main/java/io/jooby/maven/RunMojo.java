@@ -19,10 +19,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Execute;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.DefaultDependencyResolutionRequest;
 import org.apache.maven.project.DependencyResolutionException;
 import org.apache.maven.project.DependencyResolutionRequest;
@@ -42,14 +40,17 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
+import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+
 /**
  * Maven plugin for jooby run.
  *
  * @author edgar
  * @since 2.0.0
  */
-@Mojo(name = "run", threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST, aggregator = true)
-@Execute(phase = LifecyclePhase.TEST_COMPILE)
+@Mojo(name = "run", threadSafe = true, requiresDependencyResolution = COMPILE_PLUS_RUNTIME, aggregator = true)
+@Execute(phase = PROCESS_CLASSES)
 public class RunMojo extends AbstractMojo {
 
   static {
