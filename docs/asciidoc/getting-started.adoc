@@ -1,125 +1,32 @@
 == Getting Started
 
-Jooby comes with couple of options for getting started: manual, maven archetype and command line tool.
-
-=== Java
-
-1) Add the dependency:
-
-[dependency, artifactId="jooby-netty"]
-.
-
-[TIP]
-====
-Jooby is a multi-server web framework. You are free to choose between: Jetty, Netty and Undertow. 
-====
-
-2) Write code:
-
-.App.java:
-[source, java]
-----
-import io.jooby.Jooby;
-
-public class App extends Jooby {
-
-  {
-    get("/", ctx -> "Hello World!");
-  }
-
-  public static void main(String[] args) {
-    runApp(args, App::new);
-  }
-}
-----
-
-=== Kotlin
-
-1) Add Kotlin dependencies:
-
-[dependency, artifactId="kotlin-stdlib-jdk8, kotlin-reflect:Optional. Only for MVC routes, kotlinx-coroutines-core:Optional. Only for suspend handlers"]
-.
-
-2) Write code:
-
-.App.kt
-[source, kotlin]
-----
-import io.jooby.runApp
-
-fun main(args: Array<String>) {
-  runApp(args) {
-
-    get("/") { ctx -> "Hello World!" }
-
-  }
-}
-----
-
-Run `App`:
-
-----
-INFO App started with:
-INFO     PID: 21661
-INFO     port: 8080
-INFO     server: netty
-INFO routes: 
-
-  GET /
-
-listening on:
-  http://localhost:8080/
-
-----
-
-Ready {love}!
-
-=== Maven Archetype
-
-The Maven archetype creates a minimal Jooby application.
-
-.Interactive type
-[source, bash, subs="verbatim,attributes"]
-----
-mvn archetype:generate -B -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=io.jooby -DarchetypeVersion={joobyVersion}
-----
-
-You'll be ask for:
-
-- `groupId`: used for application package name
-- `artifactId`: used for application name
-- `version`: application version
-
-Alternative you can specify all these parameters inline:
-
-.Inline
-[source, bash, subs="verbatim,attributes"]
-----
-mvn archetype:generate -B -DgroupId=mypackage -DartifactId=my-app -Dversion=1.0.0 -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=io.jooby -DarchetypeVersion={joobyVersion}
-----
-
-=== CLI
-
-The command line tool provides a dynamic way of generating Jooby applications.
+The best way of getting started is using the `jooby console`. It is a small application that generates
+Jooby projects very quickly.
 
 **Features**
 
 - Maven or Gradle build
-- Java or Kotlin language
+- Java or Kotlin application
 - Script or MVC routes
-- Choose server: Jetty, Netty or Undertow
+- Jetty, Netty or Undertow application
 - Uber/Fat jar or https://github.com/fizzed/stork[Stork native launcher]
 - Dockerfile
 
-**Install**
+To install the console:
 
 - Download https://repo1.maven.org/maven2/io/jooby/jooby-cli/{joobyVersion}/jooby-cli-{joobyVersion}.zip[jooby-cli.zip]
 - Unzip `jooby-cli.zip` in your user home directory (or any other directory you prefer to)
 - Find the native launchers in the `bin` directory
 
+[TIP]
+====
+You might want to add the native launcher `bin/jooby` or `bin/jooby.bat` to system path variable.
+So its globally accessible from any location.
+====
+
 [NOTE]
 ====
-To simplify documentation we use `jooby` as command. Windows users must use `jooby.bat`  
+To simplify documentation we use `jooby` as command. Windows users must use `jooby.bat`
 ====
 
 .Setting workspace:
@@ -128,25 +35,15 @@ To simplify documentation we use `jooby` as command. Windows users must use `joo
 jooby set -w ~/Source
 ----
 
-All code will be placed inside the `~/Source` directory.
+All code will be saved inside the `~/Source` directory.
 
-[TIP]
-====
-You might want to add the native launcher `bin/jooby` or `bin/jooby.bat` to system path variable.
-So its globally accessible from any location.
-====
+Workspace directory is ready!
 
-Workspace directory is ready! Let's generate some code!! This time just run the `jooby` command.
+Now type `jooby` hit ENTER.
+
 After prompt type `help create`:
 
 .jooby
-[source, bash]
-----
-jooby> help create
-----
-
-Output:
-
 [source, bash]
 ----
 jooby> help create
@@ -168,28 +65,28 @@ jooby>
 
 The `create` command generates a Jooby application. Some examples:
 
-.Creates `myapp` as Java Maven project:
+.Creates a Maven Java project:
 [source, bash]
 ----
 jooby> create myapp
 ----
 
-.Creates `myapp` as Kotlin Maven project:
+.Creates a Maven Kotlin project:
 [source, bash]
 ----
-jooby> create myapp -k
+jooby> create myapp --kotlin
 ----
 
-.Creates `myapp` as Java Gradle project:
+.Creates a Gradle Java project:
 [source, bash]
 ----
-jooby> create myapp -g
+jooby> create myapp --gradle
 ----
 
-.Creates `myapp` as Kotlin Gradle project:
+.Creates a Gradle Kotlin project:
 [source, bash]
 ----
-jooby> create myapp -gk
+jooby> create myapp --gradle --kotlin
 ----
 
 Maven and Java are the default options but you can easily override those with `-g -k` or `-gk` (order doesn't matter).
@@ -197,24 +94,24 @@ Along with the build and language the `create` command adds two test classes: `U
 
 Passing the `-m` or `--mvc` generates a MVC application:
 
-.Creates `myapp` as MVC application:
+.Creates a Maven Java Mvc project:
 [source, bash]
 ----
-jooby> create myapp -m
+jooby> create myapp --mvc
 ----
 
 The `--server` option, allow you to choose between: (J)etty, (N)etty or (U)ndertow:
 
-.Creates `myapp` as MVC application:
+.Creates a Maven Java Project using Undertow:
 [source, bash]
 ----
 jooby> create myapp --server undertow
 ----
 
-Maven/Gradle configuration generates an `uber/fat` jar at package time. Maven builds supports 
+Maven/Gradle configuration generates an `uber/fat` jar at package time. Maven builds supports
 generation of https://github.com/fizzed/stork[Stork launchers].
 
-.Creates `myapp` and generates stork launchers:
+.Creates a Maven Java Project with stork launchers:
 [source, bash]
 ----
 jooby> create myapp --stork
@@ -222,7 +119,7 @@ jooby> create myapp --stork
 
 There is a `-d` or `--docker` option which generates a `Dockerfile`
 
-.Creates `myapp` with docker:
+.Creates a docker file:
 [source, bash]
 ----
 jooby> create myapp --docker
@@ -230,11 +127,8 @@ jooby> create myapp --docker
 
 The default package in all these examples is set to `app`, to get fully control of groupId, package, version, etc... Use the interactive mode:
 
-.Fully customize `myapp`:
+.Interactive mode:
 [source, bash]
 ----
 jooby> create myapp -i
 ----
-
-The jooby cli application is a small program that simplifies creation of project and provides options
-to fully customize your application.

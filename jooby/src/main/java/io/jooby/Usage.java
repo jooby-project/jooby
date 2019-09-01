@@ -29,9 +29,9 @@ public class Usage extends RuntimeException {
    * @param mvcRoute Mvc route.
    * @return Usage exception.
    */
-  public static @Nonnull Usage mvcRouteMissing(@Nonnull Class mvcRoute) {
-    return apt("Mvc route not found: `" + mvcRoute.getName()
-        + "`. Make sure Jooby annotation processor is configured properly.", "mvc-route-missing");
+  public static @Nonnull Usage mvcRouterNotFound(@Nonnull Class mvcRoute) {
+    return apt("Router not found: `" + mvcRoute.getName()
+        + "`. Make sure Jooby annotation processor is configured properly.", "router-not-found");
   }
 
   private static Usage apt(String message, String id) {

@@ -275,14 +275,16 @@ public class HandlerCompiler {
     name.append("$");
     name.append(httpMethod.toUpperCase());
 
-    for (int i = 0; i < pattern.length(); i++) {
-      char ch = pattern.charAt(i);
-      if (Character.isJavaIdentifierPart(ch)) {
-        name.append(ch);
-      } else if (ch == '/') {
-        name.append('$');
-      } else {
-        name.append('_');
+    if (!pattern.equals("/")) {
+      for (int i = 0; i < pattern.length(); i++) {
+        char ch = pattern.charAt(i);
+        if (Character.isJavaIdentifierPart(ch)) {
+          name.append(ch);
+        } else if (ch == '/') {
+          name.append('$');
+        } else {
+          name.append('_');
+        }
       }
     }
     for (VariableElement var : executable.getParameters()) {

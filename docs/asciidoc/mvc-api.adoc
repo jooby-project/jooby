@@ -5,17 +5,13 @@ to define and execute routes.
 
 The package `io.jooby.annotations` contains all the annotations available for MVC routes.
 
-Since 2.1.0, Jooby uses an annotation processing tool to convert MVC routes to script/lambda routes
-at compilation time. The tool reduces application startup time and eliminates the use of dynamic
-class loading.
-
 .MVC API:
 [source,java,role="primary"]
 ----
 import io.jooby.annotations.*;
 
 @Path("/mvc")                  // <1>
-public class MyController {
+public class Controller {
 
   @GET                         // <2>
   public String sayHi() {
@@ -26,7 +22,7 @@ public class MyController {
 public class App extends Jooby {
 
   {
-    mvc(new MyController());   // <3>
+    mvc(new Controller());   // <3>
   }
 
   public static void main(String[] args) {
@@ -42,7 +38,7 @@ public class App extends Jooby {
 import io.jooby.annotations.*;
 
 @Path("/mvc")                  // <1>
-class MyController {
+class Controller {
 
   @GET                         // <2>
   fun sayHi() : String {
@@ -50,25 +46,25 @@ class MyController {
   }
 }
 
-
 fun main(args: Array<String>) {
   runApp(args) {
     mvc(MyController())        // <3>
   }
 }
-
 ----
 
 <1> Set a path pattern. The `@Path` annotation is enable at class or method level
 <2> Add a HTTP method
 <3> Register/install the controller in the main application
 
-The next section describes how to configure the annotation processing tool, but keep in mind all these
-can be done using the <<getting-started-cli, jooby console>>.
+=== Getting Started
 
-=== APT
+To create a new MVC project open the `jooby` console and type:
 
-==== Maven
+    jooby create myapp --mvc
+
+The <<getting-started, jooby console>> takes care of all configuration steps required by the
+annotation processing tool.
 
 === Parameters
 

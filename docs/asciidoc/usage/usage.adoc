@@ -4,15 +4,183 @@ This section describes usage error and how to fix them.
 
 == Annotation Processing Tool
 
-=== MVC route missing
+=== Router Not Found
+
+*Exception*:
 
 ----
-Mvc route not found: `examples.PlainText`. Make sure Jooby annotation processor is configured properly.
+Route not found: `...`. Make sure Jooby annotation processor is configured properly.
 ----
 
-The cause of this error is generated when you try to use a MVC route and (usually) the annotation
-processing tool is not configured properly.
+The cause of this error is generated when you try to use a MVC route and the annotation processing 
+tool is not configured properly.
 
-*Solution*
+*Maven Solution*:
 
-Configure the `jooby-apt` as part of your build. 
+Java build needs the `jooby-apt` dependency as https://maven.apache.org/plugins/maven-compiler-plugin/compile-mojo.html#annotationProcessorPaths[annotationProcessorPaths].
+
+Kotlin build also requires it via https://kotlinlang.org/docs/reference/kapt.html#using-in-maven[kapt].
+
+.Java
+[source, xml, role = "primary", subs="verbatim,attributes"]
+----
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>io.jooby</groupId>
+              <artifactId>jooby-apt</artifactId>
+              <version>{joobyVersion}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+----
+
+.Kotlin
+[source, xml, role = "secondary", subs="verbatim,attributes"]
+----
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>kotlin-maven-plugin</artifactId>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <version>${kotlin.version}</version>
+        <configuration>
+          <args>
+            <arg>-java-parameters</arg>
+          </args>
+          <jvmTarget>${maven.compiler.target}</jvmTarget>
+        </configuration>
+        <executions>
+          <execution>
+            <id>kapt</id>
+            <goals>
+              <goal>kapt</goal>
+            </goals>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>src/main/kotlin</sourceDir>
+              </sourceDirs>
+              <annotationProcessorPaths>
+                <annotationProcessorPath>
+                  <groupId>io.jooby</groupId>
+                  <artifactId>jooby-apt</artifactId>
+                  <version>{joobyVersion}</version>
+                </annotationProcessorPath>
+              </annotationProcessorPaths>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compile</id>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>src/main/kotlin</sourceDir>
+              </sourceDirs>
+            </configuration>
+          </execution>
+          <execution>
+            <id>test-kapt</id>
+            <goals>
+              <goal>test-kapt</goal>
+            </goals>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>src/test/kotlin</sourceDir>
+              </sourceDirs>
+              <annotationProcessorPaths>
+                <annotationProcessorPath>
+                  <groupId>io.jooby</groupId>
+                  <artifactId>jooby-apt</artifactId>
+                  <version>${jooby.version}</version>
+                </annotationProcessorPath>
+              </annotationProcessorPaths>
+            </configuration>
+          </execution>
+          <execution>
+            <id>test-compile</id>
+            <goals>
+              <goal>test-compile</goal>
+            </goals>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>src/test/kotlin</sourceDir>
+              </sourceDirs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+----
+
+*Gradle Solution*:
+
+Java build needs an annotationProcessor statement using `jooby-apt`.
+
+Kotlin builds needs a https://kotlinlang.org/docs/reference/kapt.html#using-in-gradle[kapt] dependency and statement using `jooby-apt`.
+
+.Java
+[source, groovy, role="primary"]
+----
+dependencies {
+  annotationProcessor "io.jooby:jooby-apt:{joobyVersion}"
+}
+----
+
+.Kotlin
+[source, groovy, role="secondary"]
+----
+buildscript {
+  ...
+  dependencies {
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+  }
+}
+
+...
+
+apply plugin: "org.jetbrains.kotlin.kapt"
+
+...
+
+dependencies {
+  kapt "io.jooby:jooby-apt:{joobyVersion}"
+}
+...
+----
+
+*IntelliJ Solution*
+
+You need to enable IntelliJ annotation processing tool. Please checkout the https://www.jetbrains.com/help/idea/annotation-processors-support.html[IntelliJ documentation] to learn how to do it.
+
+Please note that Kapt is still not supported for IntelliJ IDEA’s own build system. A simply workaround
+is to configure Intellij to run Maven/Gradle compilation as a build step before running your tests 
+or application class:
+
+- Go to *Run > Edit Configurations ...*
+- Select the application/test class run configuration
+- Find the *Before build / Build* section
+  - Select Add (plus button)
+  - Select *Run Maven Goal* or *Run Gradle task*
+    - For Maven type `compile` or `testCompile`
+    - For Gradle type `classes` or `testClasses`
+
+Now whenever you run tests or the application Mvc classes will be generated at compilation time.
+
+Alternatively, you can delegate IntelliJ build/run actions to Maven or Gradle completely:
+
+- https://www.jetbrains.com/help/idea/delegate-build-and-run-actions-to-maven.html
+
+*Eclipse 4.9+*
+
+You need https://www.eclipse.org/m2e/[M2Eclipse] for Maven or https://projects.eclipse.org/projects/tools.buildship[Gradle Buildship]
