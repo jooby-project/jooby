@@ -4,10 +4,7 @@ import io.jooby.JoobyTest
 import io.jooby.StatusCode
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
 import org.junit.jupiter.api.Test
-
-import java.io.IOException
 
 import org.junit.jupiter.api.Assertions.assertEquals
 
@@ -19,7 +16,7 @@ class IntegrationTest {
   }
 
   @Test
-  fun welcome(serverPort: Int) {
+  fun shouldSayHi(serverPort: Int) {
     val req = Request.Builder()
         .url("http://localhost:$serverPort")
         .build()
