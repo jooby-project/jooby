@@ -70,6 +70,7 @@ public class CorsHandler implements Route.Decorator {
             return ctx.send(StatusCode.FORBIDDEN);
           }
         } else if (isSimple(ctx)) {
+          ctx.setResetHeadersOnError(false);
           simple(ctx, options, origin);
         } else {
           return ctx.send(StatusCode.FORBIDDEN);

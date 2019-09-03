@@ -37,10 +37,7 @@ public class FlashMapImpl extends HashMap<String, String> implements FlashMap {
     this.template = template;
     this.initialScope = seed;
     if (seed.size() > 0) {
-      Cookie sync = toCookie();
-      if (sync != null) {
-        ctx.setResponseCookie(sync);
-      }
+      syncCookie();
     }
   }
 

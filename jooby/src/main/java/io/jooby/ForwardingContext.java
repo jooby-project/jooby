@@ -330,6 +330,11 @@ public class ForwardingContext implements Context {
     return this;
   }
 
+  @Nonnull @Override public Context removeResponseHeaders() {
+    ctx.removeResponseHeaders();
+    return this;
+  }
+
   @Override public long getResponseLength() {
     return ctx.getResponseLength();
   }
@@ -515,6 +520,15 @@ public class ForwardingContext implements Context {
 
   @Override public boolean isResponseStarted() {
     return ctx.isResponseStarted();
+  }
+
+  @Override public boolean getResetHeadersOnError() {
+    return ctx.getResetHeadersOnError();
+  }
+
+  @Override public Context setResetHeadersOnError(boolean value) {
+    ctx.setResetHeadersOnError(value);
+    return this;
   }
 
   @Nonnull @Override public <T> T require(@Nonnull Class<T> type) throws RegistryException {

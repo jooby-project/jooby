@@ -339,11 +339,13 @@ public interface DefaultContext extends Context {
     return setResponseHeader(name, RFC1123.format(Instant.ofEpochMilli(value.getTime())));
   }
 
-  @Override @Nonnull default Context setResponseHeader(@Nonnull String name, @Nonnull Instant value) {
+  @Override @Nonnull
+  default Context setResponseHeader(@Nonnull String name, @Nonnull Instant value) {
     return setResponseHeader(name, RFC1123.format(value));
   }
 
-  @Override @Nonnull default Context setResponseHeader(@Nonnull String name, @Nonnull Object value) {
+  @Override @Nonnull
+  default Context setResponseHeader(@Nonnull String name, @Nonnull Object value) {
     if (value instanceof Date) {
       return setResponseHeader(name, (Date) value);
     }
@@ -390,7 +392,8 @@ public interface DefaultContext extends Context {
     return responseStream(consumer);
   }
 
-  @Override default @Nonnull Context responseStream(@Nonnull SneakyThrows.Consumer<OutputStream> consumer)
+  @Override default @Nonnull Context responseStream(
+      @Nonnull SneakyThrows.Consumer<OutputStream> consumer)
       throws Exception {
     try (OutputStream out = responseStream()) {
       consumer.accept(out);
@@ -406,7 +409,8 @@ public interface DefaultContext extends Context {
     return responseWriter(contentType, contentType.getCharset());
   }
 
-  @Override default @Nonnull Context responseWriter(@Nonnull SneakyThrows.Consumer<PrintWriter> consumer)
+  @Override default @Nonnull Context responseWriter(
+      @Nonnull SneakyThrows.Consumer<PrintWriter> consumer)
       throws Exception {
     return responseWriter(MediaType.text, consumer);
   }
@@ -416,7 +420,8 @@ public interface DefaultContext extends Context {
     return responseWriter(contentType, contentType.getCharset(), consumer);
   }
 
-  @Override default @Nonnull Context responseWriter(@Nonnull MediaType contentType, @Nullable Charset charset,
+  @Override default @Nonnull Context responseWriter(@Nonnull MediaType contentType,
+      @Nullable Charset charset,
       @Nonnull SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
     try (PrintWriter writer = responseWriter(contentType, charset)) {
       consumer.accept(writer);
@@ -428,7 +433,8 @@ public interface DefaultContext extends Context {
     return sendRedirect(StatusCode.FOUND, location);
   }
 
-  @Override default @Nonnull Context sendRedirect(@Nonnull StatusCode redirect, @Nonnull String location) {
+  @Override default @Nonnull Context sendRedirect(@Nonnull StatusCode redirect,
+      @Nonnull String location) {
     setResponseHeader("location", location);
     return send(redirect);
   }
@@ -474,21 +480,25 @@ public interface DefaultContext extends Context {
    * @param statusCode Status code.
    * @return This context.
    */
-  @Override @Nonnull default Context sendError(@Nonnull Throwable cause, @Nonnull StatusCode statusCode) {
+  @Override @Nonnull default Context sendError(@Nonnull Throwable cause,
+      @Nonnull StatusCode statusCode) {
     Router router = getRouter();
     if (isResponseStarted()) {
       router.getLog().error(ErrorHandler.errorMessage(this, statusCode), cause);
     } else {
       try {
+        if (getResetHeadersOnError()) {
+          removeResponseHeaders();
+        }
         router.getErrorHandler().apply(this, cause, statusCode);
       } catch (Exception x) {
         router.getLog()
             .error("error handler resulted in exception {} {}", getMethod(), pathString(), x);
       }
-      /** rethrow fatal exceptions: */
-      if (SneakyThrows.isFatal(cause)) {
-        throw SneakyThrows.propagate(cause);
-      }
+    }
+    /** rethrow fatal exceptions: */
+    if (SneakyThrows.isFatal(cause)) {
+      throw SneakyThrows.propagate(cause);
     }
     return this;
   }

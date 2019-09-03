@@ -111,6 +111,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private boolean needsFlush;
   private Map<String, String> cookies;
   private Map<String, String> responseCookies;
+  private Boolean resetHeadersOnError;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
       int bufferSize) {
@@ -281,6 +282,11 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Nonnull @Override public Context removeResponseHeader(@Nonnull String name) {
     setHeaders.remove(name);
+    return this;
+  }
+
+  @Nonnull @Override public Context removeResponseHeaders() {
+    setHeaders.clear();
     return this;
   }
 
@@ -455,6 +461,17 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Override public boolean isResponseStarted() {
     return responseStarted;
+  }
+
+  @Override public boolean getResetHeadersOnError() {
+    return resetHeadersOnError == null
+        ? getRouter().getRouterOptions().getResetHeadersOnError()
+        : resetHeadersOnError.booleanValue();
+  }
+
+  @Override public Context setResetHeadersOnError(boolean value) {
+    this.resetHeadersOnError = value;
+    return this;
   }
 
   @Nonnull @Override public Context send(StatusCode statusCode) {

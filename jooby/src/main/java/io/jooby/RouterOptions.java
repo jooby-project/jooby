@@ -5,6 +5,8 @@
  */
 package io.jooby;
 
+import javax.annotation.Nonnull;
+
 /**
  * Router matching options. Specify whenever ignore case and trailing slash. Options:
  *
@@ -29,6 +31,8 @@ public class RouterOptions {
   private boolean ignoreCase;
 
   private boolean ignoreTrailingSlash;
+
+  private boolean resetHeadersOnError = true;
 
   /**
    * Indicates whenever routing algorithm does case-sensitive matching or not on incoming request
@@ -70,6 +74,26 @@ public class RouterOptions {
    */
   public RouterOptions setIgnoreTrailingSlash(boolean ignoreTrailingSlash) {
     this.ignoreTrailingSlash = ignoreTrailingSlash;
+    return this;
+  }
+
+  /**
+   * True if response headers are cleared on application error. Reset is enabled by default.
+   *
+   * @return True if response headers are cleared on application error. Reset is enabled by default.
+   */
+  public boolean getResetHeadersOnError() {
+    return resetHeadersOnError;
+  }
+
+  /**
+   * Set whenever reset/clear headers on application error.
+   *
+   * @param resetHeadersOnError True for reset/clear headers.
+   * @return This context.
+   */
+  public @Nonnull RouterOptions setResetHeadersOnError(boolean resetHeadersOnError) {
+    this.resetHeadersOnError = resetHeadersOnError;
     return this;
   }
 }

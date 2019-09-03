@@ -77,6 +77,7 @@ public class UtowContext implements DefaultContext, IoCallback {
   private Map<String, String> cookies;
   private HashMap<String, String> responseCookies;
   private long responseLength = -1;
+  private Boolean resetHeadersOnError;
 
   public UtowContext(HttpServerExchange exchange, Router router) {
     this.exchange = exchange;
@@ -239,6 +240,11 @@ public class UtowContext implements DefaultContext, IoCallback {
     return this;
   }
 
+  @Nonnull @Override public Context removeResponseHeaders() {
+    exchange.getResponseHeaders().clear();
+    return this;
+  }
+
   @Nonnull @Override public MediaType getResponseType() {
     return responseType == null ? MediaType.text : responseType;
   }
@@ -369,6 +375,17 @@ public class UtowContext implements DefaultContext, IoCallback {
 
   @Override public boolean isResponseStarted() {
     return exchange.isResponseStarted();
+  }
+
+  @Override public boolean getResetHeadersOnError() {
+    return resetHeadersOnError == null
+        ? getRouter().getRouterOptions().getResetHeadersOnError()
+        : resetHeadersOnError.booleanValue();
+  }
+
+  @Override public Context setResetHeadersOnError(boolean value) {
+    this.resetHeadersOnError = value;
+    return this;
   }
 
   @Override public void onComplete(HttpServerExchange exchange, Sender sender) {

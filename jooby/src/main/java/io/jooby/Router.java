@@ -509,7 +509,7 @@ public interface Router extends Registry {
    * Find a matching route using the given context.
    *
    * If no match exists this method returns a route with a <code>404</code> handler.
-   * See {@link Route.Handler#NOT_FOUND}.
+   * See {@link Route#NOT_FOUND}.
    *
    * @param ctx Web Context.
    * @return A route match result.
