@@ -280,6 +280,8 @@ public class ResponseImpl implements Response {
 
   private Optional<String> byteRange;
 
+  private boolean resetHeadersOnError = true;
+
   public ResponseImpl(final RequestImpl req, final ParserExecutor parserExecutor,
       final NativeResponse rsp, final Route route, final List<Renderer> renderers,
       final Map<String, Renderer> rendererMap, final Map<String, Object> locals,
@@ -294,6 +296,14 @@ public class ResponseImpl implements Response {
     this.charset = charset;
     this.referer = referer;
     this.byteRange = byteRange;
+  }
+
+  @Override public boolean isResetHeadersOnError() {
+    return resetHeadersOnError;
+  }
+
+  @Override public void setResetHeadersOnError(boolean resetHeadersOnError) {
+    this.resetHeadersOnError = resetHeadersOnError;
   }
 
   @Override
@@ -585,9 +595,11 @@ public class ResponseImpl implements Response {
   }
 
   public void reset() {
-    status = null;
-    this.cookies.clear();
-    rsp.reset();
+    if (resetHeadersOnError) {
+      status = null;
+      this.cookies.clear();
+      rsp.reset();
+    }
   }
 
   void route(final Route route) {

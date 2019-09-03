@@ -416,6 +416,14 @@ public interface Response {
       return rsp.toString();
     }
 
+    @Override public boolean isResetHeadersOnError() {
+      return rsp.isResetHeadersOnError();
+    }
+
+    @Override public void setResetHeadersOnError(boolean value) {
+      this.setResetHeadersOnError(value);
+    }
+
     /**
      * Unwrap a response in order to find out the target instance.
      *
@@ -848,4 +856,18 @@ public interface Response {
    * @see Route.After
    */
   void complete(Route.Complete handler);
+
+  /**
+   * Indicates if headers are cleared/reset on error.
+   *
+   * @return Indicates if headers are cleared/reset on error. Default is true.
+   */
+  boolean isResetHeadersOnError();
+
+  /**
+   * Indicates if headers are cleared/reset on error.
+   *
+   * @param value True to reset.
+   */
+  void setResetHeadersOnError(boolean value);
 }

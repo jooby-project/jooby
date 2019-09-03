@@ -17,6 +17,14 @@ import org.junit.Test;
 public class ResponseTest {
   public static class ResponseMock implements Response {
 
+    @Override public boolean isResetHeadersOnError() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override public void setResetHeadersOnError(boolean value) {
+      throw new UnsupportedOperationException();
+    }
+
     @Override
     public void download(final String filename, final InputStream stream) throws Exception {
       throw new UnsupportedOperationException();
