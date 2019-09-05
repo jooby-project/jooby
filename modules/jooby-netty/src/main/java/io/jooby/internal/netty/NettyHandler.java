@@ -23,6 +23,8 @@ import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.AsciiString;
 import io.netty.util.concurrent.FastThreadLocal;
 import org.slf4j.Logger;
@@ -118,6 +120,10 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         context.decoder = decoder;
         resetDecoderState(false);
         result.execute(context);
+      }
+    } else if (msg instanceof WebSocketFrame) {
+      if (context.webSocket != null) {
+        context.webSocket.handleFrame((WebSocketFrame) msg);
       }
     }
   }

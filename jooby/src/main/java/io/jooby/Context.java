@@ -663,6 +663,10 @@ public interface Context extends Registry {
    */
   @Nonnull Context detach(@Nonnull Route.Handler next) throws Exception;
 
+  default @Nonnull Context upgrade(@Nonnull WebSocket.Handler handler) {
+    return null;
+  }
+
   /*
    * **********************************************************************************************
    * **** Response methods *************************************************************************

@@ -7,13 +7,13 @@ package io.jooby.internal;
 
 import io.jooby.BeanConverter;
 import io.jooby.Context;
+import io.jooby.Jooby;
 import io.jooby.RegistryException;
 import io.jooby.ServiceKey;
 import io.jooby.SessionStore;
 import io.jooby.StatusCodeException;
 import io.jooby.ErrorHandler;
 import io.jooby.ExecutionMode;
-import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
@@ -24,8 +24,10 @@ import io.jooby.RouterOptions;
 import io.jooby.ServiceRegistry;
 import io.jooby.StatusCode;
 import io.jooby.TemplateEngine;
+import io.jooby.WebSocket;
 import io.jooby.internal.asm.ClassSource;
 import io.jooby.ValueConverter;
+import io.jooby.internal.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -329,6 +331,10 @@ public class RouterImpl implements Router {
 
   @Nonnull @Override public List<BeanConverter> getBeanConverters() {
     return beanConverters;
+  }
+
+  @Nonnull @Override public Route ws(@Nonnull String pattern, @Nonnull WebSocket.Handler handler) {
+    return route(GET, pattern, new WebSocketHandler(handler));
   }
 
   @Override

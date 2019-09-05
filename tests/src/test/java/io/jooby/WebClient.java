@@ -4,14 +4,87 @@ import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class WebClient {
+
+  private class SyncWebSocketListener extends WebSocketListener {
+
+    private CountDownLatch opened = new CountDownLatch(1);
+
+    private CountDownLatch closed = new CountDownLatch(1);
+
+    private List<Throwable> errors = new ArrayList<>();
+
+    private BlockingQueue messages = new LinkedBlockingQueue();
+
+    @Override public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
+      opened.countDown();
+    }
+
+    @Override public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
+      closed.countDown();
+    }
+
+    @Override public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable e,
+        @Nullable Response response) {
+      errors.add(e);
+    }
+
+    @Override public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
+      messages.offer(text);
+    }
+
+    public String lastMessage() {
+      try {
+        return (String) messages.take();
+      } catch (Exception x) {
+        throw SneakyThrows.propagate(x);
+      }
+    }
+
+    @Override
+    public void onClosing(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
+      super.onClosing(webSocket, code, reason);
+    }
+  }
+
+  public class BlockingWebSocket {
+    private WebSocket ws;
+
+    private SyncWebSocketListener listener;
+
+    public BlockingWebSocket(WebSocket ws, SyncWebSocketListener listener) {
+      this.ws = ws;
+      this.listener = listener;
+      try {
+        this.listener.opened.await(5, TimeUnit.SECONDS);
+      } catch (Exception x) {
+        throw SneakyThrows.propagate(x);
+      }
+    }
+
+    public String send(String message) {
+      ws.send(message);
+      return listener.lastMessage();
+    }
+  }
 
   public class Request {
     private final okhttp3.Request.Builder req;
@@ -52,7 +125,8 @@ public class WebClient {
         .readTimeout(5, TimeUnit.MINUTES)
         .followRedirects(followRedirects)
         .build();
-    header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+    header("Accept",
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
   }
 
   public WebClient header(String name, String value) {
@@ -73,7 +147,8 @@ public class WebClient {
     if (headers != null) {
       req.headers(Headers.of(headers));
       headers = null;
-      header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+      header("Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
     }
     req.url("http://localhost:" + port + path);
     return new Request(req);
@@ -85,6 +160,22 @@ public class WebClient {
 
   public void get(String path, SneakyThrows.Consumer<Response> callback) {
     get(path).execute(callback);
+  }
+
+  public WebSocket webSocket(String path, WebSocketListener listener) {
+    okhttp3.Request.Builder req = new okhttp3.Request.Builder();
+    req.url("ws://localhost:" + port + path);
+    okhttp3.Request r = req.build();
+    return client.newWebSocket(r, listener);
+  }
+
+  public void syncWebSocket(String path, SneakyThrows.Consumer<BlockingWebSocket> consumer) {
+    okhttp3.Request.Builder req = new okhttp3.Request.Builder();
+    req.url("ws://localhost:" + port + path);
+    okhttp3.Request r = req.build();
+    SyncWebSocketListener listener = new SyncWebSocketListener();
+    WebSocket webSocket = client.newWebSocket(r, listener);
+    consumer.accept(new BlockingWebSocket(webSocket, listener));
   }
 
   public Request options(String path) {

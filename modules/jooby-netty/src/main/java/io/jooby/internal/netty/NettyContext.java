@@ -25,6 +25,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
 import io.jooby.ValueNode;
+import io.jooby.WebSocket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -32,6 +33,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -47,10 +49,16 @@ import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
+import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
+import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.stream.ChunkedNioStream;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.ReferenceCounted;
+import io.netty.util.concurrent.EventExecutorGroup;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
 import javax.annotation.Nonnull;
 import java.io.FileInputStream;
@@ -94,7 +102,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   InterfaceHttpPostRequestDecoder decoder;
   private Router router;
   private Route route;
-  private ChannelHandlerContext ctx;
+  ChannelHandlerContext ctx;
   private HttpRequest req;
   private String path;
   private HttpResponseStatus status = HttpResponseStatus.OK;
@@ -112,6 +120,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private Map<String, String> cookies;
   private Map<String, String> responseCookies;
   private Boolean resetHeadersOnError;
+  NettyWebSocket webSocket;
 
   public NettyContext(ChannelHandlerContext ctx, HttpRequest req, Router router, String path,
       int bufferSize) {
@@ -259,6 +268,35 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       }
     }
     return this.cookies;
+  }
+
+  @Nonnull @Override public Context upgrade(WebSocket.Handler handler) {
+    try {
+      String webSocketURL = getProtocol() + "://" + req.headers().get(HttpHeaderNames.HOST) + path;
+      WebSocketDecoderConfig config = WebSocketDecoderConfig.newBuilder()
+          .allowExtensions(true)
+          .allowMaskMismatch(false)
+          .withUTF8Validator(false)
+          .maxFramePayloadLength(131072)
+          .build();
+      responseStarted = true;
+      webSocket = new NettyWebSocket(this);
+      handler.apply(this);
+      DefaultFullHttpRequest fullHttpRequest = new DefaultFullHttpRequest(req.protocolVersion(),
+          req.method(), req.uri(), Unpooled.EMPTY_BUFFER, req.headers(), EmptyHttpHeaders.INSTANCE);
+      WebSocketServerHandshakerFactory factory = new WebSocketServerHandshakerFactory(webSocketURL,
+          null, config);
+      WebSocketServerHandshaker handshaker = factory.newHandshaker(fullHttpRequest);
+      handshaker.handshake(ctx.channel(), fullHttpRequest, setHeaders, ctx.newPromise())
+          .addListener(future -> {
+            if (future.isSuccess()) {
+              webSocket.fireConnect(this);
+            }
+          });
+    } catch (Throwable x) {
+      sendError(x);
+    }
+    return this;
   }
 
   /* **********************************************************************************************

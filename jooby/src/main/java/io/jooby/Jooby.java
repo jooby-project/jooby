@@ -292,6 +292,10 @@ public class Jooby implements Router, Registry {
     }
   }
 
+  public Route ws(String pattern, WebSocket.Handler handler) {
+    return router.ws(pattern, handler);
+  }
+
   @Nonnull @Override public List<Route> getRoutes() {
     return router.getRoutes();
   }
