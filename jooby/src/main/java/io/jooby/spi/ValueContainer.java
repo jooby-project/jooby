@@ -3,8 +3,15 @@ package io.jooby.spi;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.jooby.Value;
+
+/**
+ *  A restricted base type of {@link Value} for the {@link ValueConverter} SPI.
+ * @author agentgt
+ *
+ */
 public interface ValueContainer {
-  
+
   /**
    * Get a value at the given position.
    *
@@ -20,11 +27,21 @@ public interface ValueContainer {
    * @return Field value.
    */
   @Nonnull ValueContainer get(@Nonnull String name);
-  
+
+  /**
+   * Get string value.
+   *
+   * @return String value.
+   */
   @Nonnull String value();
-  
+
+  /**
+   * Convert this value to String (if possible) or <code>null</code> when missing.
+   *
+   * @return Convert this value to String (if possible) or <code>null</code> when missing.
+   */
   @Nullable String valueOrNull();
-  
+
   /**
    * True for missing values.
    *
@@ -38,7 +55,7 @@ public interface ValueContainer {
    * @return Number of values. Mainly for array and hash values.
    */
   int size();
-  
+
   /**
    * True if this value is an array/sequence (not single or hash).
    *
