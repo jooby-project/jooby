@@ -345,9 +345,6 @@ public final class ValueInjector {
       }
       throw new TypeMismatchException(value.name(), FileUpload.class);
     }
-    if (rawType.isEnum()) {
-      return Enum.valueOf(rawType, value.get(0).value());
-    }
     /**********************************************************************************************
      * Static method: valueOf
      * ********************************************************************************************
