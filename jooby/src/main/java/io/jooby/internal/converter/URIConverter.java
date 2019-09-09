@@ -1,4 +1,6 @@
-package io.jooby.converter;
+package io.jooby.internal.converter;
+
+import io.jooby.spi.ValueConverter;
 
 import io.jooby.SneakyThrows;
 

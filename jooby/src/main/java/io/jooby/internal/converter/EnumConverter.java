@@ -1,4 +1,6 @@
-package io.jooby.converter;
+package io.jooby.internal.converter;
+
+import io.jooby.spi.ValueConverter;
 
 public class EnumConverter implements ValueConverter {
   @Override public boolean supports(Class type) {

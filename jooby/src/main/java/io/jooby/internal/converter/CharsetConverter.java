@@ -1,4 +1,6 @@
-package io.jooby.converter;
+package io.jooby.internal.converter;
+
+import io.jooby.spi.ValueConverter;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;

@@ -11,8 +11,8 @@ import io.jooby.MissingValueException;
 import io.jooby.ProvisioningException;
 import io.jooby.TypeMismatchException;
 import io.jooby.Value;
-import io.jooby.converter.ValueConverter;
-import io.jooby.converter.ValueOfConverter;
+import io.jooby.spi.ValueConverter;
+import io.jooby.internal.converter.ValueOfConverter;
 import io.jooby.internal.reflect.$Types;
 import io.jooby.spi.BeanValueConverters;
 

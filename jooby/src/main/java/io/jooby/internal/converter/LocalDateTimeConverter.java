@@ -1,4 +1,6 @@
-package io.jooby.converter;
+package io.jooby.internal.converter;
+
+import io.jooby.spi.ValueConverter;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
