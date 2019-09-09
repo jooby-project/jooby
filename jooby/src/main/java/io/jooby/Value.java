@@ -10,7 +10,6 @@ import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
 import io.jooby.internal.ValueInjector;
-import io.jooby.spi.ValueContainer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,7 +52,7 @@ import java.util.function.Function;
  * @since 2.0.0
  * @author edgar
  */
-public interface Value extends Iterable<Value>, ValueContainer {
+public interface Value extends Iterable<Value> {
 
   /**
    * Convert this value to long (if possible).

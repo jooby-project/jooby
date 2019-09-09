@@ -14,7 +14,7 @@ import io.jooby.StatusCode;
 import io.jooby.TypeMismatchException;
 import io.jooby.Value;
 import io.jooby.internal.reflect.$Types;
-import io.jooby.spi.ValueConverters;
+import io.jooby.spi.BeanValueConverters;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -148,7 +148,7 @@ public final class ValueInjector {
       throws IllegalAccessException, InvocationTargetException, InstantiationException,
       NoSuchMethodException {
     if (scope.isObject() || scope.isSingle()) {
-      Object o = ValueConverters.getInstance().convert(scope, type);
+      Object o = BeanValueConverters.getInstance().convert(scope, type);
       if (o != null) {
         return o;
       }

@@ -7,9 +7,10 @@ import java.util.ServiceLoader;
 import javax.annotation.Nullable;
 
 import io.jooby.TypeMismatchException;
+import io.jooby.Value;
 
 /**
- * Contains the {@link ValueConverter}s loaded via the ServiceLoader. It is is a
+ * Contains the {@link BeanValueConverter}s loaded via the ServiceLoader. It is is a
  * singleton and an instance can be retrieved with {@link #getInstance()}. The
  * ValueConverters are stored in an ordered collection and thus resolution of
  * type to be converted is based on the order of the converters.
@@ -17,18 +18,18 @@ import io.jooby.TypeMismatchException;
  * @author agentgt
  *
  */
-public final class ValueConverters {
+public final class BeanValueConverters {
 
   // Allow thread safe adding of ValueConverters.
-  private final Iterable<ValueConverter> valueConverters;
+  private final Iterable<BeanValueConverter> valueConverters;
 
   // Initialization on demand
   private static final class Hidden {
 
-    private static volatile ValueConverters instance = ValueConverters.builder().fromServiceLoader().build();
+    private static volatile BeanValueConverters instance = BeanValueConverters.builder().fromServiceLoader().build();
   }
 
-  private ValueConverters(Iterable<ValueConverter> valueConverters) {
+  private BeanValueConverters(Iterable<BeanValueConverter> valueConverters) {
     super();
     this.valueConverters = valueConverters;
   }
@@ -39,10 +40,10 @@ public final class ValueConverters {
 
   static final class Builder {
 
-    private final List<ValueConverter> valueConverters = new ArrayList<>();
+    private final List<BeanValueConverter> valueConverters = new ArrayList<>();
 
     Builder fromServiceLoader() {
-      ServiceLoader<ValueConverter> sl = ServiceLoader.load(ValueConverter.class);
+      ServiceLoader<BeanValueConverter> sl = ServiceLoader.load(BeanValueConverter.class);
       // If any failes to load we will fail entirely.
       // The value converters found earlier in the classpath take precedence.
       sl.forEach(this::add);
@@ -57,7 +58,7 @@ public final class ValueConverters {
      * @param vc
      * @return
      */
-    Builder add(ValueConverter vc) {
+    Builder add(BeanValueConverter vc) {
       valueConverters.add(vc);
       return this;
     }
@@ -67,12 +68,12 @@ public final class ValueConverters {
       return this;
     }
 
-    ValueConverters build() {
-      return new ValueConverters(valueConverters);
+    BeanValueConverters build() {
+      return new BeanValueConverters(valueConverters);
     }
 
-    ValueConverters set() {
-      ValueConverters vc = build();
+    BeanValueConverters set() {
+      BeanValueConverters vc = build();
       Hidden.instance = vc;
       return vc;
     }
@@ -89,9 +90,9 @@ public final class ValueConverters {
    * @throws TypeMismatchException
    *           failure in a converter
    */
-  public @Nullable Object convert(ValueContainer v, Class<?> c) throws TypeMismatchException {
+  public @Nullable Object convert(Value v, Class<?> c) throws TypeMismatchException {
     Object result = null;
-    for (ValueConverter vc : valueConverters) {
+    for (BeanValueConverter vc : valueConverters) {
       if (vc.supportsType(c)) {
         result = vc.convert(v, c);
         if (result != null) {
@@ -107,8 +108,8 @@ public final class ValueConverters {
    *
    * @return the shared singleton used by Jooby
    */
-  public static ValueConverters getInstance() {
-    return ValueConverters.Hidden.instance;
+  public static BeanValueConverters getInstance() {
+    return BeanValueConverters.Hidden.instance;
   }
 
 }

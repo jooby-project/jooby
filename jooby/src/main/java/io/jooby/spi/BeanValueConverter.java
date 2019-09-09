@@ -10,7 +10,7 @@ import io.jooby.Value;
  * An SPI for value conversion.
  * @author agentgt
  */
-public interface ValueConverter {
+public interface BeanValueConverter {
   /**
    * A short circuit to see if the converter supports the given type.
    *
@@ -20,9 +20,7 @@ public interface ValueConverter {
    * @param type class or interface
    * @return true if the converter can convert for the type
    */
-  default boolean supportsType(@Nonnull Class<?> type) {
-    return true;
-  }
+  boolean supportsType(@Nonnull Class<?> type);
   /**
    * Converts values for {@link Value#to} and friends. Returning null indicates the type is not supported
    * or the converter chose not to do the conversion.
@@ -31,5 +29,5 @@ public interface ValueConverter {
    * @return <code>null</code> indicates that the converter chose to delegate to other converters down the chain.
    * @throws TypeMismatchException if the converter cannot convert the type and does not want to delegate.
    */
-  @Nullable Object convert(@Nonnull ValueContainer value, @Nonnull Class<?> type) throws TypeMismatchException;
+  @Nullable Object convert(@Nonnull Value value, @Nonnull Class<?> type) throws TypeMismatchException;
 }
