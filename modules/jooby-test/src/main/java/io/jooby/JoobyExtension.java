@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -109,23 +110,19 @@ public class JoobyExtension implements BeforeAllCallback, BeforeEachCallback, Af
   private Supplier<Object> joobyParameter(ExtensionContext context,
       ParameterContext parameterContext) {
     Parameter parameter = parameterContext.getParameter();
-    return injectionPoint(context, parameter.getType(), parameter.getName());
+    return injectionPoint(context, parameter.getType(), () -> parameterName(parameter));
+  }
+
+  private String parameterName(Parameter parameter) {
+    if (!parameter.isNamePresent()) {
+      throw new IllegalStateException("Parameter injection requires parameter names to be present "
+          + "at runtime. Make sure compiler has the -parameters option");
+    }
+    return parameter.getName();
   }
 
   private Supplier<Object> injectionPoint(ExtensionContext context,
-      Class type, String name) {
-    if (name.equals("serverPath") && type == String.class) {
-      return () -> {
-        Jooby app = application(context);
-        return "http://localhost:" + app.getServerOptions().getPort() + app.getContextPath();
-      };
-    }
-    if (name.equals("serverPort") && type == int.class) {
-      return () -> {
-        Jooby app = application(context);
-        return app.getServerOptions().getPort();
-      };
-    }
+      Class type, Supplier<String> name) {
     if (Jooby.class.isAssignableFrom(type)) {
       return () -> application(context);
     }
@@ -134,6 +131,18 @@ public class JoobyExtension implements BeforeAllCallback, BeforeEachCallback, Af
     }
     if (Config.class.isAssignableFrom(type)) {
       return () -> application(context).getEnvironment().getConfig();
+    }
+    if (type == String.class && name.get().equals("serverPath")) {
+      return () -> {
+        Jooby app = application(context);
+        return "http://localhost:" + app.getServerOptions().getPort() + app.getContextPath();
+      };
+    }
+    if (type == int.class && name.get().equals("serverPort")) {
+      return () -> {
+        Jooby app = application(context);
+        return app.getServerOptions().getPort();
+      };
     }
     return null;
   }
@@ -157,10 +166,14 @@ public class JoobyExtension implements BeforeAllCallback, BeforeEachCallback, Af
 
   @Override public void postProcessTestInstance(Object instance, ExtensionContext context)
       throws Exception {
-    for (Field field : instance.getClass().getFields()) {
-      Supplier<Object> injectionPoint = injectionPoint(context, field.getType(), field.getName());
-      if (injectionPoint != null) {
-        field.set(instance, injectionPoint.get());
+    for (Field field : instance.getClass().getDeclaredFields()) {
+      if (!Modifier.isStatic(field.getModifiers())) {
+        Supplier<Object> injectionPoint = injectionPoint(context, field.getType(),
+            () -> field.getName());
+        if (injectionPoint != null) {
+          field.setAccessible(true);
+          field.set(instance, injectionPoint.get());
+        }
       }
     }
   }

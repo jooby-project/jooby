@@ -83,6 +83,7 @@ public class JettyContext implements Callback, DefaultContext {
   private Map<String, String> cookies;
   private HashMap<String, String> responseCookies;
   private boolean responseStarted;
+  private Boolean resetHeadersOnError;
 
   public JettyContext(Request request, Router router, int bufferSize, long maxRequestSize) {
     this.request = request;
@@ -294,6 +295,11 @@ public class JettyContext implements Callback, DefaultContext {
     return this;
   }
 
+  @Nonnull @Override public Context removeResponseHeaders() {
+    response.reset();
+    return this;
+  }
+
   @Nonnull @Override public Context setResponseLength(long length) {
     response.setContentLengthLong(length);
     return this;
@@ -422,6 +428,17 @@ public class JettyContext implements Callback, DefaultContext {
 
   @Override public boolean isResponseStarted() {
     return responseStarted;
+  }
+
+  @Override public boolean getResetHeadersOnError() {
+    return resetHeadersOnError == null
+        ? getRouter().getRouterOptions().getResetHeadersOnError()
+        : resetHeadersOnError.booleanValue();
+  }
+
+  @Override public Context setResetHeadersOnError(boolean resetHeadersOnError) {
+    this.resetHeadersOnError = resetHeadersOnError;
+    return this;
   }
 
   @Override public void succeeded() {

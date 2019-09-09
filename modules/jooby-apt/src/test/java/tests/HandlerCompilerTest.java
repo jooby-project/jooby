@@ -414,7 +414,6 @@ public class HandlerCompilerTest {
         .compile("/nonnull", handler -> {
           assertThrows(MissingValueException.class, () -> handler.apply(new MockContext()));
         })
-
         .compile("/nullbean", handler -> {
           assertThrows(ProvisioningException.class, () -> handler.apply(new MockContext()));
         })

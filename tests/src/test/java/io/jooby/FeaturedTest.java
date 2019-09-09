@@ -2361,6 +2361,15 @@ public class FeaturedTest {
 
       app.post("/untouch", Context::pathString);
 
+      app.get("/error", ctx -> {
+        boolean noreset = !ctx.query("noreset").isMissing();
+        if (noreset) {
+          ctx.setResetHeadersOnError(false);
+        }
+        ctx.flash().put("error", "error");
+        return ctx.query("error").value();
+      });
+
       app.error((ctx, cause, statusCode) -> {
         ctx.setResponseCode(statusCode).send(cause.getMessage());
       });
@@ -2387,6 +2396,14 @@ public class FeaturedTest {
 
       client.get("/untouch", rsp ->
           assertNull(rsp.header("Set-Cookie"))
+      );
+
+      client.get("/error", rsp ->
+          assertNull(rsp.header("Set-Cookie"))
+      );
+
+      client.get("/error?noreset=true", rsp ->
+          assertNotNull(rsp.header("Set-Cookie"))
       );
     });
   }
@@ -2766,7 +2783,8 @@ public class FeaturedTest {
 
       client.head("/foo.js", rsp -> {
         assertEquals("41", rsp.header("Content-Length"));
-        assertEquals("application/javascript;charset=utf-8", rsp.header("Content-Type").toLowerCase());
+        assertEquals("application/javascript;charset=utf-8",
+            rsp.header("Content-Type").toLowerCase());
         assertNotNull(rsp.header("ETag"));
         assertNotNull(rsp.header("Last-Modified"));
         assertEquals("", rsp.body().string());

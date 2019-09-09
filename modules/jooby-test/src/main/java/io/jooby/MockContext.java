@@ -73,6 +73,8 @@ public class MockContext implements DefaultContext {
 
   private boolean responseStarted;
 
+  private boolean resetHeadersOnError = true;
+
   @Nonnull @Override public String getMethod() {
     return method;
   }
@@ -567,6 +569,20 @@ public class MockContext implements DefaultContext {
 
   @Override public boolean isResponseStarted() {
     return responseStarted;
+  }
+
+  @Override public boolean getResetHeadersOnError() {
+    return resetHeadersOnError;
+  }
+
+  @Override public MockContext setResetHeadersOnError(boolean resetHeadersOnError) {
+    this.resetHeadersOnError = resetHeadersOnError;
+    return this;
+  }
+
+  @Nonnull @Override public Context removeResponseHeaders() {
+    responseHeaders.clear();
+    return this;
   }
 
   @Nonnull @Override public Router getRouter() {

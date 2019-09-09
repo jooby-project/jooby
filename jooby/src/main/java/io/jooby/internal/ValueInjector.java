@@ -9,10 +9,10 @@ import io.jooby.BadRequestException;
 import io.jooby.FileUpload;
 import io.jooby.MissingValueException;
 import io.jooby.ProvisioningException;
-import io.jooby.SneakyThrows;
-import io.jooby.StatusCode;
 import io.jooby.TypeMismatchException;
 import io.jooby.Value;
+import io.jooby.converter.ValueConverter;
+import io.jooby.converter.ValueOfConverter;
 import io.jooby.internal.reflect.$Types;
 import io.jooby.spi.BeanValueConverters;
 
@@ -27,20 +27,17 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import static io.jooby.SneakyThrows.propagate;
@@ -52,6 +49,7 @@ public final class ValueInjector {
           + Inject.class.getName();
 
   private static final Object[] NO_ARGS = new Object[0];
+  private static List<ValueConverter> CONVERTERS;
 
   public static <T> T inject(Value scope, Class type) {
     return inject(scope, type, type);
@@ -59,7 +57,7 @@ public final class ValueInjector {
 
   public static <T> T inject(Value scope, Type type, Class rawType) {
     try {
-      Object result = value(scope, rawType, type);
+      Object result = value(scope, rawType, type, converters());
       return (T) result;
     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException x) {
       throw propagate(x);
@@ -68,20 +66,20 @@ public final class ValueInjector {
     }
   }
 
-  private static <T> T newInstance(Class<T> type, Value scope)
+  private static <T> T newInstance(Class<T> type, Value scope, List<ValueConverter> converters)
       throws IllegalAccessException, InstantiationException, InvocationTargetException,
       NoSuchMethodException {
     Constructor[] constructors = type.getConstructors();
     if (constructors.length == 0) {
       return setters(type.getDeclaredConstructor().newInstance(), scope,
-          Collections.emptySet());
+          Collections.emptySet(), converters);
     }
     Constructor constructor = selectConstructor(constructors);
     Set<Value> state = new HashSet<>();
     Object[] args = constructor.getParameterCount() == 0
         ? new Object[0]
-        : inject(scope, constructor, state::add);
-    return (T) setters(constructor.newInstance(args), scope, state);
+        : inject(scope, constructor, state::add, converters);
+    return (T) setters(constructor.newInstance(args), scope, state, converters);
   }
 
   private static Constructor selectConstructor(Constructor[] constructors) {
@@ -108,7 +106,8 @@ public final class ValueInjector {
     return result;
   }
 
-  private static <T> T setters(T newInstance, Value object, Set<Value> skip) {
+  private static <T> T setters(T newInstance, Value object, Set<Value> skip,
+      List<ValueConverter> converters) {
     Method[] methods = newInstance.getClass().getMethods();
     for (Value value : object) {
       if (!skip.contains(value)) {
@@ -122,7 +121,7 @@ public final class ValueInjector {
           Parameter parameter = method.getParameters()[0];
           try {
             Object arg = value(value, parameter.getType(),
-                parameter.getParameterizedType());
+                parameter.getParameterizedType(), converters);
             method.invoke(newInstance, arg);
           } catch (InvocationTargetException x) {
             throw new ProvisioningException(parameter, x.getCause());
@@ -144,7 +143,7 @@ public final class ValueInjector {
     return null;
   }
 
-  private static Object resolve(Value scope, Class type)
+  private static Object resolve(Value scope, Class type, List<ValueConverter> converters)
       throws IllegalAccessException, InvocationTargetException, InstantiationException,
       NoSuchMethodException {
     if (scope.isObject() || scope.isSingle()) {
@@ -152,7 +151,7 @@ public final class ValueInjector {
       if (o != null) {
         return o;
       }
-      return newInstance(type, scope);
+      return newInstance(type, scope, converters);
     } else if (scope.isMissing()) {
       if (type.isPrimitive()) {
         // throws Err.Missing
@@ -164,7 +163,8 @@ public final class ValueInjector {
     }
   }
 
-  public static Object[] inject(Value scope, Executable method, Consumer<Value> state)
+  public static Object[] inject(Value scope, Executable method, Consumer<Value> state,
+      List<ValueConverter> converters)
       throws IllegalAccessException, InstantiationException, InvocationTargetException,
       NoSuchMethodException {
     Parameter[] parameters = method.getParameters();
@@ -178,7 +178,7 @@ public final class ValueInjector {
       Value value = scope.get(name);
       state.accept(value);
       try {
-        args[i] = value(value, parameter.getType(), parameter.getParameterizedType());
+        args[i] = value(value, parameter.getType(), parameter.getParameterizedType(), converters);
       } catch (MissingValueException x) {
         throw new ProvisioningException(parameter, x);
       } catch (BadRequestException x) {
@@ -197,87 +197,12 @@ public final class ValueInjector {
     return name;
   }
 
-  public static boolean isSimple(Class rawType, Type type) {
-    if (rawType == String.class) {
-      return true;
-    }
-    if (rawType == int.class || rawType == Integer.class) {
-      return true;
-    }
-    if (rawType == long.class || rawType == Long.class) {
-      return true;
-    }
-    if (rawType == float.class || rawType == Float.class) {
-      return true;
-    }
-    if (rawType == double.class || rawType == Double.class) {
-      return true;
-    }
-    if (rawType == boolean.class || rawType == Boolean.class) {
-      return true;
-    }
-    if (rawType == byte.class || rawType == Byte.class) {
-      return true;
-    }
-    if (List.class.isAssignableFrom(rawType)) {
-      Class type0 = $Types.parameterizedType0(type);
-      return isSimple(type0, type0);
-    }
-    if (Set.class.isAssignableFrom(rawType)) {
-      Class type0 = $Types.parameterizedType0(type);
-      return isSimple(type0, type0);
-    }
-    if (Optional.class.isAssignableFrom(rawType)) {
-      Class type0 = $Types.parameterizedType0(type);
-      return isSimple(type0, type0);
-    }
-    if (StatusCode.class == rawType) {
-      return true;
-    }
-    if (UUID.class == rawType) {
-      return true;
-    }
-    if (Instant.class == rawType) {
-      return true;
-    }
-    if (BigDecimal.class == rawType) {
-      return true;
-    }
-    if (BigInteger.class == rawType) {
-      return true;
-    }
-    if (Charset.class == rawType) {
-      return true;
-    }
-    if (Path.class == rawType) {
-      return true;
-    }
-    if (FileUpload.class == rawType) {
-      return true;
-    }
-    if (rawType.isEnum()) {
-      return true;
-    }
-    /**********************************************************************************************
-     * Static method: valueOf
-     * ********************************************************************************************
-     */
-    try {
-      Method valueOf = rawType.getMethod("valueOf", String.class);
-      if (Modifier.isStatic(valueOf.getModifiers())) {
-        return true;
-      }
-    } catch (NoSuchMethodException x) {
-      // Ignored
-    }
-    return false;
-  }
-
-  private static Object value(Value value, Class rawType, Type type)
+  private static Object value(Value value, Class rawType, Type type,
+      List<ValueConverter> converters)
       throws InvocationTargetException, IllegalAccessException, InstantiationException,
       NoSuchMethodException {
     if (value.isMissing() && rawType != Optional.class) {
-      return resolve(value, rawType);
+      return resolve(value, rawType, converters);
     }
     if (rawType == String.class) {
       return value.get(0).value();
@@ -301,36 +226,21 @@ public final class ValueInjector {
       return value.get(0).byteValue();
     }
     if (List.class.isAssignableFrom(rawType)) {
-      return collection(value, (ParameterizedType) type, new ArrayList(value.size()));
+      return collection(value, (ParameterizedType) type, new ArrayList(value.size()), converters);
     }
     if (Set.class.isAssignableFrom(rawType)) {
-      return collection(value, (ParameterizedType) type, new LinkedHashSet(value.size()));
+      return collection(value, (ParameterizedType) type, new LinkedHashSet(value.size()),
+          converters);
     }
-    if (Optional.class.isAssignableFrom(rawType)) {
+    if (Optional.class == rawType) {
       try {
         Class itemType = $Types.parameterizedType0(type);
-        return Optional.ofNullable(value(value.isObject() && value.size() > 0 ? value : value.get(0), itemType, itemType));
+        return Optional.ofNullable(
+            value(value.isObject() && value.size() > 0 ? value : value.get(0), itemType, itemType,
+                converters));
       } catch (MissingValueException x) {
         return Optional.empty();
       }
-    }
-    if (StatusCode.class == rawType) {
-      return StatusCode.valueOf(value.get(0).intValue());
-    }
-    if (UUID.class == rawType) {
-      return UUID.fromString(value.get(0).value());
-    }
-    if (Instant.class == rawType) {
-      return Instant.ofEpochMilli(value.get(0).longValue());
-    }
-    if (BigDecimal.class == rawType) {
-      return new BigDecimal(value.get(0).value());
-    }
-    if (BigInteger.class == rawType) {
-      return new BigInteger(value.get(0).value());
-    }
-    if (Charset.class == rawType) {
-      return Charset.forName(value.get(0).value());
     }
     if (Path.class == rawType) {
       if (value.get(0).isUpload()) {
@@ -345,39 +255,23 @@ public final class ValueInjector {
       }
       throw new TypeMismatchException(value.name(), FileUpload.class);
     }
-    /**********************************************************************************************
-     * Static method: valueOf
-     * ********************************************************************************************
-     */
-    try {
-      Method valueOf = rawType.getMethod("valueOf", String.class);
-      if (Modifier.isStatic(valueOf.getModifiers())) {
-        String enumKey = value.iterator().next().value();
-        try {
-          return valueOf.invoke(null, enumKey);
-        } catch (InvocationTargetException x) {
-          Throwable cause = x.getCause();
-          if (cause instanceof IllegalArgumentException) {
-            // fallback to upper case
-            return valueOf.invoke(null, enumKey.toUpperCase());
-          } else {
-            throw SneakyThrows.propagate(cause);
-          }
-        }
+    Value first = value.isObject() && value.size() > 0 ? value.iterator().next() : value.get(0);
+    for (ValueConverter converter : converters) {
+      if (converter.supports(rawType)) {
+        return converter.convert(rawType, first.value());
       }
-    } catch (NoSuchMethodException x) {
-      // Ignored
     }
-    return resolve(value, rawType);
+    return resolve(value, rawType, converters);
   }
 
-  private static Collection collection(Value scope, ParameterizedType type, Collection result)
+  private static Collection collection(Value scope, ParameterizedType type, Collection result,
+      List<ValueConverter> converters)
       throws InvocationTargetException, IllegalAccessException, InstantiationException,
       NoSuchMethodException {
     Class itemType = $Types.parameterizedType0(type);
     if (scope.isArray()) {
       for (Value value : scope) {
-        result.add(value(value, itemType, itemType));
+        result.add(value(value, itemType, itemType, converters));
       }
     } else if (scope.isObject()) {
       Iterable<Value> values = scope;
@@ -389,11 +283,23 @@ public final class ValueInjector {
         }
       }
       for (Value value : values) {
-        result.add(value(value, itemType, itemType));
+        result.add(value(value, itemType, itemType, converters));
       }
     } else if (!scope.isMissing()) {
-      result.add(value(scope, itemType, itemType));
+      result.add(value(scope, itemType, itemType, converters));
     }
     return result;
+  }
+
+  private static synchronized List<ValueConverter> converters() {
+    if (CONVERTERS == null) {
+      CONVERTERS = new ArrayList<>();
+      Iterator<ValueConverter> iterator = ServiceLoader.load(ValueConverter.class).iterator();
+      while (iterator.hasNext()) {
+        CONVERTERS.add(iterator.next());
+      }
+      CONVERTERS.add(new ValueOfConverter());
+    }
+    return CONVERTERS;
   }
 }

@@ -752,6 +752,13 @@ public interface Context extends Registry {
   @Nonnull Context removeResponseHeader(@Nonnull String name);
 
   /**
+   * Clear/reset all the headers, including cookies.
+   *
+   * @return This context.
+   */
+  @Nonnull Context removeResponseHeaders();
+
+  /**
    * Set response content length header.
    *
    * @param length Response length.
@@ -1068,4 +1075,20 @@ public interface Context extends Registry {
    */
   boolean isResponseStarted();
 
+  /**
+   * True if response headers are cleared on application error. If none set it uses the
+   * default/global value specified by {@link RouterOptions#getResetHeadersOnError()}.
+   *
+   * @return True if response headers are cleared on application error. If none set it uses the
+   *     default/global value specified by {@link RouterOptions#getResetHeadersOnError()}.
+   */
+  boolean getResetHeadersOnError();
+
+  /**
+   * Set whenever reset/clear headers on application error.
+   *
+   * @param value True for reset/clear headers.
+   * @return This context.
+   */
+  @Nonnull Context setResetHeadersOnError(boolean value);
 }
