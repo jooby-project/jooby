@@ -13,7 +13,6 @@ public class QueryStringValue extends HashValue implements QueryString {
   private String queryString;
 
   public QueryStringValue(String queryString) {
-    setObjectType("queryString");
     this.queryString = queryString;
   }
 

@@ -25,6 +25,6 @@ public interface Multipart extends Formdata {
    * @return Multipart instance.
    */
   static @Nonnull Multipart create() {
-    return new HashValue(null).setObjectType("multipart");
+    return new HashValue(null);
   }
 }

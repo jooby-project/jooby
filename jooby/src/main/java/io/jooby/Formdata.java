@@ -53,6 +53,6 @@ public interface Formdata extends Value {
    * @return Formdata.
    */
   static @Nonnull Formdata create() {
-    return new HashValue(null).setObjectType("formdata");
+    return new HashValue(null);
   }
 }

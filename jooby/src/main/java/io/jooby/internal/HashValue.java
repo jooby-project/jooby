@@ -29,8 +29,6 @@ public class HashValue implements Value, Multipart {
 
   private final String name;
 
-  private String objectType;
-
   public HashValue(String name) {
     this.name = name;
   }
@@ -187,11 +185,6 @@ public class HashValue implements Value, Multipart {
       buf.setLength(buf.length() - sep.length());
     }
     return buf.toString();
-  }
-
-  public HashValue setObjectType(String type) {
-    this.objectType = type;
-    return this;
   }
 
   @Override public Iterator<Value> iterator() {
