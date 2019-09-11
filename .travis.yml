@@ -9,7 +9,7 @@ before_install:
   - export MAVEN_OPTS=-Xmx1024m
 
 jdk:
-  - oraclejdk8
+  - openjdk8
 
 branches:
   only:
