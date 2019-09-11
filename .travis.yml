@@ -13,7 +13,7 @@ jdk:
 
 branches:
   only:
-    - master
+    - 1.x
 
 script:
   - ./build/travis.sh
