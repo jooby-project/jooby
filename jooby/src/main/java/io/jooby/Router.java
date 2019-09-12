@@ -5,6 +5,7 @@
  */
 package io.jooby;
 
+import io.jooby.spi.ValueConverter;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
@@ -675,6 +676,10 @@ public interface Router extends Registry {
    * @return This router.
    */
   @Nonnull Router setFlashCookie(@Nonnull String name);
+
+  @Nonnull Router converter(ValueConverter converter);
+
+  @Nonnull List<ValueConverter> getConverters();
 
   /**
    * Normalize a path by removing consecutives <code>/</code>(slashes), make it lower case and

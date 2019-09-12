@@ -1,8 +1,8 @@
 package io.jooby;
 
 import io.jooby.internal.UrlParser;
+import io.jooby.internal.ValueConverterHelper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ValueToBeanTest {
 
@@ -136,6 +135,18 @@ public class ValueToBeanTest {
     private final Letter letter;
 
     public Abc(Letter letter) {
+      this.letter = letter;
+    }
+
+    @Override public String toString() {
+      return letter.toString();
+    }
+  }
+
+  public static class AbcList {
+    private final List<Letter> letter;
+
+    public AbcList(List<Letter> letter) {
       this.letter = letter;
     }
 
@@ -408,12 +419,8 @@ public class ValueToBeanTest {
   @Test
   public void valueOf() {
     queryString("letter=A&letter=B", queryString -> {
-      assertEquals("[A]", queryString.toList(Abc.class).toString());
-    });
-
-    queryString("letter=A", queryString -> {
       assertEquals("A", queryString.to(Abc.class).toString());
-      assertEquals("[A]", queryString.toList(Abc.class).toString());
+      assertEquals("[A, B]", queryString.to(AbcList.class).toString());
     });
 
     queryString("[0]letter=A&[1]letter=B", queryString -> {
@@ -473,12 +480,7 @@ public class ValueToBeanTest {
   }
 
   private void queryString(String queryString, Consumer<QueryString> consumer) {
-    consumer.accept(UrlParser.queryString(queryString));
+    consumer.accept(UrlParser.queryString(ValueConverterHelper.testContext(), queryString));
   }
 
-  public static <T extends Throwable> void assertMessage(Class<T> expectedType,
-      Executable executable, String message) {
-    T x = assertThrows(expectedType, executable);
-    assertEquals(message, x.getMessage());
-  }
 }

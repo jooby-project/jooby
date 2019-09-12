@@ -5,6 +5,7 @@
  */
 package io.jooby.internal;
 
+import io.jooby.Context;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
@@ -12,6 +13,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Collections.singleton;
@@ -20,11 +22,14 @@ import static java.util.Collections.singletonMap;
 
 public class SingleValue implements Value {
 
+  private final Context ctx;
+
   private final String name;
 
   private final String value;
 
-  public SingleValue(String name, String value) {
+  public SingleValue(Context ctx, String name, String value) {
+    this.ctx = ctx;
     this.name = name;
     this.value = value;
   }
@@ -55,6 +60,22 @@ public class SingleValue implements Value {
 
   @Override public Iterator<Value> iterator() {
     return Collections.<Value>singletonList(this).iterator();
+  }
+
+  @Nonnull @Override public <T> List<T> toList(@Nonnull Class<T> type) {
+    return Collections.singletonList(to(type));
+  }
+
+  @Nonnull @Override public <T> Set<T> toSet(@Nonnull Class<T> type) {
+    return Collections.singleton(to(type));
+  }
+
+  @Nonnull @Override public <T> Optional<T> toOptional(@Nonnull Class<T> type) {
+    return Optional.of(to(type));
+  }
+
+  @Nonnull @Override public <T> T to(@Nonnull Class<T> type) {
+    return ctx.convert(this, type);
   }
 
   @Override public Map<String, List<String>> toMultimap() {

@@ -11,7 +11,7 @@ public class ValueResolveTest {
 
   @Test
   public void resolveOne() {
-    Value value = Value.value("foo", "bar");
+    Value value = Value.value(null, "foo", "bar");
     assertEquals("bar", value.resolve("${foo}"));
     assertEquals("- bar", value.resolve("- ${foo}"));
     assertEquals("bar-", value.resolve("${foo}-"));
@@ -21,7 +21,7 @@ public class ValueResolveTest {
 
   @Test
   public void resolveComplexWithoutRoot() {
-    Value value = new HashValue(null)
+    Value value = new HashValue(null, null)
         .put("foo.bar", "baz");
     assertEquals("baz", value.resolve("${foo.bar}"));
     assertEquals("-baz-", value.resolve("-${foo.bar}-"));
@@ -29,7 +29,7 @@ public class ValueResolveTest {
 
   @Test
   public void resolveComplex() {
-    Value value = new HashValue(null)
+    Value value = new HashValue(null, null)
         .put("firstname", "Pedro")
         .put("lastname", "Picapiedra");
     assertEquals("Hi Pedro Picapiedra!", value.resolve("Hi ${firstname} ${lastname}!"));
@@ -37,7 +37,7 @@ public class ValueResolveTest {
 
   @Test
   public void resolveComplexWithRoot() {
-    Value value = new HashValue("foo")
+    Value value = new HashValue(null, "foo")
         .put("bar", "baz");
     assertEquals("baz", value.resolve("${foo.bar}"));
     assertEquals("-baz-", value.resolve("-${foo.bar}-"));
@@ -46,13 +46,13 @@ public class ValueResolveTest {
   @Test
   public void resolveMissing() {
     try {
-      Value value = Value.value("x", "y");
+      Value value = Value.value(null, "x", "y");
       assertEquals("bar", value.resolve("${foo}"));
     } catch (NoSuchElementException x) {
       assertEquals("Missing ${foo} at 1:1", x.getMessage());
     }
 
-    Value value = Value.value("x", "y");
+    Value value = Value.value(null, "x", "y");
     assertEquals("${foo}", value.resolve("${foo}", true));
   }
 }

@@ -2,6 +2,7 @@ package io.jooby;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Spliterator;
@@ -77,7 +78,8 @@ public class JoobyRunner {
     ready((client, server) -> onReady.accept(client), servers);
   }
 
-  public void ready(SneakyThrows.Consumer2<WebClient, Server> onReady, Supplier<Server>... servers) {
+  public void ready(SneakyThrows.Consumer2<WebClient, Server> onReady,
+      Supplier<Server>... servers) {
     if (modes.size() == 0) {
       modes.add(ExecutionMode.DEFAULT);
     }
@@ -89,6 +91,7 @@ public class JoobyRunner {
               Spliterator.ORDERED),
           false)
           .map(Server::getClass)
+          .sorted(Comparator.comparing(Class::getSimpleName))
           .forEach(server -> serverList.add(SneakyThrows.throwingSupplier(server::newInstance)));
     } else {
       serverList.addAll(Arrays.asList(servers));

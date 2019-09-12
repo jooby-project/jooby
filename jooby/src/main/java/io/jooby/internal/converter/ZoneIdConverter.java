@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.converter;
 
+import io.jooby.Value;
 import io.jooby.spi.ValueConverter;
 
 import java.time.ZoneId;
@@ -14,7 +15,7 @@ public class ZoneIdConverter implements ValueConverter {
     return type == ZoneId.class;
   }
 
-  @Override public Object convert(Class type, String value) {
-    return ZoneId.of(value);
+  @Override public Object convert(Value value, Class type) {
+    return ZoneId.of(value.value());
   }
 }

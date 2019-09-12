@@ -5,6 +5,7 @@
  */
 package io.jooby.internal;
 
+import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
@@ -12,28 +13,36 @@ import io.jooby.TypeMismatchException;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
 public class HashValue implements Value, Multipart {
   private static final Map<String, Value> EMPTY = Collections.emptyMap();
 
+  private Context ctx;
+
   private Map<String, Value> hash = EMPTY;
 
   private final String name;
 
-  public HashValue(String name) {
+  public HashValue(Context ctx, String name) {
+    this.ctx = ctx;
     this.name = name;
   }
 
-  protected HashValue() {
+  protected HashValue(Context ctx) {
+    this.ctx = ctx;
     this.name = null;
   }
 
@@ -55,7 +64,7 @@ public class HashValue implements Value, Multipart {
         if (existing instanceof ArrayValue) {
           list = (ArrayValue) existing;
         } else {
-          list = new ArrayValue(name).add(existing);
+          list = new ArrayValue(ctx, name).add(existing);
           scope.put(name, list);
         }
         list.add(upload);
@@ -69,13 +78,13 @@ public class HashValue implements Value, Multipart {
       for (String value : values) {
         Value existing = scope.get(name);
         if (existing == null) {
-          scope.put(name, new SingleValue(name, value));
+          scope.put(name, new SingleValue(ctx, name, value));
         } else {
           ArrayValue list;
           if (existing instanceof ArrayValue) {
             list = (ArrayValue) existing;
           } else {
-            list = new ArrayValue(name).add(existing);
+            list = new ArrayValue(ctx, name).add(existing);
             scope.put(name, list);
           }
           list.add(value);
@@ -147,7 +156,7 @@ public class HashValue implements Value, Multipart {
   }
 
   /*package*/ HashValue getOrCreateScope(String name) {
-    return (HashValue) hash().computeIfAbsent(name, HashValue::new);
+    return (HashValue) hash().computeIfAbsent(name, k -> new HashValue(ctx, k));
   }
 
   public Value get(@Nonnull String name) {
@@ -171,24 +180,51 @@ public class HashValue implements Value, Multipart {
   }
 
   @Override public String value() {
-    StringBuilder buf = new StringBuilder();
-    String sep = "&";
+    StringJoiner joiner = new StringJoiner("&");
     hash.forEach((k, v) -> {
       Iterator<Value> it = v.iterator();
       while (it.hasNext()) {
         Value value = it.next();
-        String str = value instanceof FileUpload ? ((FileUpload) value).getFileName() : value.toString();
-        buf.append(k).append("=").append(str).append(sep);
+        String str = value instanceof FileUpload
+            ? ((FileUpload) value).getFileName()
+            : value.toString();
+        joiner.add(k + "=" + str);
       }
     });
-    if (buf.length() > 0) {
-      buf.setLength(buf.length() - sep.length());
-    }
-    return buf.toString();
+    return joiner.toString();
   }
 
   @Override public Iterator<Value> iterator() {
     return hash.values().iterator();
+  }
+
+  @Nonnull @Override public <T> List<T> toList(@Nonnull Class<T> type) {
+    Collection<Value> values = hash.values();
+    List<T> result = new ArrayList<>(values.size());
+    for (Value value : values) {
+      result.add(value.to(type));
+    }
+    return result;
+  }
+
+  @Nonnull @Override public <T> Set<T> toSet(@Nonnull Class<T> type) {
+    Collection<Value> values = hash.values();
+    Set<T> result = new LinkedHashSet<>(values.size());
+    for (Value value : values) {
+      result.add(value.to(type));
+    }
+    return result;
+  }
+
+  @Nonnull @Override public <T> Optional<T> toOptional(@Nonnull Class<T> type) {
+    if (hash.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(to(type));
+  }
+
+  @Nonnull @Override public <T> T to(@Nonnull Class<T> type) {
+    return ctx.convert(this, type);
   }
 
   @Override public Map<String, List<String>> toMultimap() {

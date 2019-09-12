@@ -10,7 +10,7 @@ import java.util.Map;
 public class MyController {
 
   @GET
-  public Integer doIt(@QueryParam Integer x) {
-    return x;
+  public Integer doIt(Map<String, Object> map) {
+    return map.size();
   }
 }

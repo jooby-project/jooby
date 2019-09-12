@@ -9,6 +9,8 @@ import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
 import io.jooby.internal.UrlParser;
+import io.jooby.internal.ValueConverters;
+import io.jooby.internal.reflect.$Types;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -83,7 +86,7 @@ public interface DefaultContext extends Context {
    * @return Flash attribute.
    */
   @Override default @Nonnull Value flash(@Nonnull String name) {
-    return Value.create(name, flash().get(name));
+    return Value.create(this, name, flash().get(name));
   }
 
   @Override default @Nonnull Session session() {
@@ -121,18 +124,14 @@ public interface DefaultContext extends Context {
 
   @Override default @Nonnull Value cookie(@Nonnull String name) {
     String value = cookieMap().get(name);
-    return value == null ? Value.missing(name) : Value.value(name, value);
+    return value == null ? Value.missing(name) : Value.value(this, name, value);
   }
 
   @Override @Nonnull default Value path(@Nonnull String name) {
     String value = pathMap().get(name);
     return value == null
         ? new MissingValue(name)
-        : new SingleValue(name, UrlParser.decodePathSegment(value));
-  }
-
-  @Override @Nonnull default <T> T path(@Nonnull Reified<T> type) {
-    return path().to(type);
+        : new SingleValue(this, name, UrlParser.decodePathSegment(value));
   }
 
   @Override @Nonnull default <T> T path(@Nonnull Class<T> type) {
@@ -140,7 +139,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override @Nonnull default Value path() {
-    HashValue path = new HashValue(null);
+    HashValue path = new HashValue(this, null);
     for (Map.Entry<String, String> entry : pathMap().entrySet()) {
       path.put(entry.getKey(), entry.getValue());
     }
@@ -153,10 +152,6 @@ public interface DefaultContext extends Context {
 
   @Override @Nonnull default String queryString() {
     return query().queryString();
-  }
-
-  @Override @Nonnull default <T> T query(@Nonnull Reified<T> type) {
-    return query().to(type);
   }
 
   @Override @Nonnull default <T> T query(@Nonnull Class<T> type) {
@@ -244,20 +239,12 @@ public interface DefaultContext extends Context {
     return form().get(name);
   }
 
-  @Override @Nonnull default <T> T form(@Nonnull Reified<T> type) {
-    return form().to(type);
-  }
-
   @Override @Nonnull default <T> T form(@Nonnull Class<T> type) {
     return form().to(type);
   }
 
   @Override @Nonnull default Value multipart(@Nonnull String name) {
     return multipart().get(name);
-  }
-
-  @Override @Nonnull default <T> T multipart(@Nonnull Reified<T> type) {
-    return multipart().to(type);
   }
 
   @Override @Nonnull default <T> T multipart(@Nonnull Class<T> type) {
@@ -307,24 +294,30 @@ public interface DefaultContext extends Context {
     throw new TypeMismatchException(name, FileUpload.class);
   }
 
-  @Override default @Nonnull <T> T body(@Nonnull Reified<T> type) {
-    return body(type, getRequestType(MediaType.text));
-  }
-
-  @Override default @Nonnull <T> T body(@Nonnull Reified<T> type, @Nonnull MediaType contentType) {
-    try {
-      return decoder(contentType).decode(this, type.getType());
-    } catch (Exception x) {
-      throw SneakyThrows.propagate(x);
-    }
-  }
-
   @Override default @Nonnull <T> T body(@Nonnull Class<T> type) {
-    return body(type, getRequestType(MediaType.text));
+    return body().to(type);
   }
 
-  @Override default @Nonnull <T> T body(@Nonnull Class<T> type, @Nonnull MediaType contentType) {
+  @Override default @Nonnull <T> T body(@Nonnull Type type) {
+    return body().to(type);
+  }
+
+  @Override default @Nullable <T> T convert(Value value, Class<T> type) {
+    T result = ValueConverters.convert(value, type, getRouter().getConverters());
+    if (result == null) {
+      throw new TypeMismatchException(value.name(), type);
+    }
+    return result;
+  }
+
+  @Override default @Nonnull <T> T decode(@Nonnull Type type, @Nonnull MediaType contentType) {
     try {
+      if (MediaType.text.equals(contentType)) {
+        T result = ValueConverters.convert(body(), type, getRouter().getConverters());
+        if (result != null) {
+          return result;
+        }
+      }
       return decoder(contentType).decode(this, type);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);

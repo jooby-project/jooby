@@ -47,7 +47,7 @@ public class UtowBodyHandler
   }
 
   @Override public void handle(HttpServerExchange exchange, byte[] bytes) {
-    context.body = Body.of(bytes);
+    context.body = Body.of(context, bytes);
     route.execute(context);
   }
 
@@ -104,9 +104,9 @@ public class UtowBodyHandler
           exchange.addExchangeCompleteListener(this);
           forceAndClose();
           channel = null;
-          context.body = Body.of(file);
+          context.body = Body.of(context, file);
         } else {
-          context.body = Body.of(bytes((int) chunkSize));
+          context.body = Body.of(context, bytes((int) chunkSize));
         }
         route.execute(context);
       }

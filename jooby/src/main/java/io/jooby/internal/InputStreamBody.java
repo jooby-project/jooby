@@ -6,6 +6,8 @@
 package io.jooby.internal;
 
 import io.jooby.Body;
+import io.jooby.Context;
+import io.jooby.MediaType;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
 import io.jooby.Value;
@@ -14,6 +16,7 @@ import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
@@ -22,10 +25,12 @@ import java.util.List;
 import java.util.Map;
 
 public class InputStreamBody implements Body {
+  private Context ctx;
   private long length;
   private InputStream in;
 
-  public InputStreamBody(InputStream stream, long contentLength) {
+  public InputStreamBody(Context ctx, InputStream stream, long contentLength) {
+    this.ctx = ctx;
     this.in = stream;
     this.length = contentLength;
   }
@@ -75,6 +80,10 @@ public class InputStreamBody implements Body {
 
   @Override public String name() {
     return "body";
+  }
+
+  @Nonnull @Override public <T> T to(@Nonnull Type type) {
+    return ctx.decode(type, ctx.getRequestType(MediaType.text));
   }
 
   @Override public Map<String, List<String>> toMultimap() {

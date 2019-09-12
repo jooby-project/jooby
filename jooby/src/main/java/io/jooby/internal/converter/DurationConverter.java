@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.converter;
 
+import io.jooby.Value;
 import io.jooby.spi.ValueConverter;
 
 import com.typesafe.config.ConfigException;
@@ -20,12 +21,12 @@ public class DurationConverter implements ValueConverter {
     return type == Duration.class;
   }
 
-  @Override public Object convert(Class type, String value) {
+  @Override public Object convert(Value value, Class type) {
     try {
-      return Duration.parse(value);
+      return Duration.parse(value.value());
     } catch (DateTimeParseException x) {
       try {
-        long duration = ConfigFactory.empty().withValue("d", ConfigValueFactory.fromAnyRef(value))
+        long duration = ConfigFactory.empty().withValue("d", ConfigValueFactory.fromAnyRef(value.value()))
             .getDuration("d", TimeUnit.MILLISECONDS);
         return Duration.ofMillis(duration);
       } catch (ConfigException ignored) {

@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.converter;
 
+import io.jooby.Value;
 import io.jooby.spi.ValueConverter;
 
 import java.nio.charset.Charset;
@@ -15,8 +16,9 @@ public class CharsetConverter implements ValueConverter {
     return type == Charset.class;
   }
 
-  @Override public Charset convert(Class type, String value) {
-    switch (value.toLowerCase()) {
+  @Override public Charset convert(Value value, Class type) {
+    String charset = value.value();
+    switch (charset.toLowerCase()) {
       case "utf-8":
         return StandardCharsets.UTF_8;
       case "us-ascii":
@@ -30,7 +32,7 @@ public class CharsetConverter implements ValueConverter {
       case "utf-16le":
         return StandardCharsets.UTF_16LE;
       default:
-        return Charset.forName(value);
+        return Charset.forName(charset);
     }
   }
 }

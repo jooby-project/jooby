@@ -5,16 +5,22 @@
  */
 package io.jooby.internal.converter;
 
+import io.jooby.Value;
 import io.jooby.spi.ValueConverter;
 
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 
 public class InstantConverter implements ValueConverter {
   @Override public boolean supports(Class type) {
     return type == Instant.class;
   }
 
-  @Override public Instant convert(Class type, String value) {
-    return Instant.ofEpochMilli(Long.parseLong(value));
+  @Override public Instant convert(Value value, Class type) {
+    try {
+      return Instant.ofEpochMilli(Long.parseLong(value.value()));
+    } catch (NumberFormatException x) {
+      return DateTimeFormatter.ISO_INSTANT.parse(value.value(), Instant::from);
+    }
   }
 }

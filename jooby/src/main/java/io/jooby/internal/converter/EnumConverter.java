@@ -5,22 +5,30 @@
  */
 package io.jooby.internal.converter;
 
+import io.jooby.Value;
 import io.jooby.spi.ValueConverter;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 public class EnumConverter implements ValueConverter {
   @Override public boolean supports(Class type) {
     return type.isEnum();
   }
 
-  @Override public Enum convert(Class type, String value) {
+  @Override public Enum convert(Value value, Class type) {
     try {
-      return Enum.valueOf(type, value);
+      return Enum.valueOf(type, value.value().toUpperCase());
     } catch (IllegalArgumentException x) {
-      try {
-        return Enum.valueOf(type, value.toUpperCase());
-      } catch (IllegalArgumentException x1) {
-        throw x;
+      String name = value.value();
+      // Fallback to ignore case version:
+      Set<Enum> enums = EnumSet.allOf(type);
+      for (Enum e : enums) {
+        if (e.name().equalsIgnoreCase(name)) {
+          return e;
+        }
       }
+      throw x;
     }
   }
 }

@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.converter;
 
+import io.jooby.Value;
 import io.jooby.spi.ValueConverter;
 
 import java.time.LocalDate;
@@ -17,13 +18,13 @@ public class DateConverter implements ValueConverter {
     return type == Date.class;
   }
 
-  @Override public Object convert(Class type, String value) {
+  @Override public Object convert(Value value, Class type) {
     try {
       // must be millis
-      return new Date(Long.parseLong(value));
+      return new Date(Long.parseLong(value.value()));
     } catch (NumberFormatException x) {
       // must be YYYY-MM-dd
-      LocalDate date = LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE);
+      LocalDate date = LocalDate.parse(value.value(), DateTimeFormatter.ISO_LOCAL_DATE);
       return Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
   }

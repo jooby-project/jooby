@@ -7,6 +7,7 @@ package io.jooby;
 
 import com.typesafe.config.Config;
 import io.jooby.internal.RouterImpl;
+import io.jooby.spi.ValueConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -541,6 +542,15 @@ public class Jooby implements Router, Registry {
   @Nonnull @Override public Jooby setFlashCookie(@Nonnull String name) {
     router.setFlashCookie(name);
     return this;
+  }
+
+  @Nonnull @Override public Jooby converter(ValueConverter converter) {
+    router.converter(converter);
+    return this;
+  }
+
+  @Nonnull @Override public List<ValueConverter> getConverters() {
+    return router.getConverters();
   }
 
   /**

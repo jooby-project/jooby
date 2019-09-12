@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -45,9 +46,9 @@ public class MockContext implements DefaultContext {
 
   private Map<String, Collection<String>> headers = new HashMap<>();
 
-  private Formdata formdata = Formdata.create();
+  private Formdata formdata = Formdata.create(this);
 
-  private Multipart multipart = Multipart.create();
+  private Multipart multipart = Multipart.create(this);
 
   private Body body;
 
@@ -178,7 +179,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public QueryString query() {
-    return QueryString.create(queryString);
+    return QueryString.create(this, queryString);
   }
 
   @Nonnull @Override public String queryString() {
@@ -186,7 +187,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public Value header() {
-    return Value.hash(headers);
+    return Value.hash(this, headers);
   }
 
   /**
@@ -274,38 +275,23 @@ public class MockContext implements DefaultContext {
     return body;
   }
 
-  @Nonnull @Override public <T> T body(@Nonnull Reified<T> type) {
-    if (bodyObject == null) {
-      throw new IllegalStateException("No body was set, use setBody() to set one.");
-    }
-    if (!type.getRawType().isInstance(bodyObject)) {
-      throw new TypeMismatchException("body", FileUpload.class);
-    }
-    return body(type, MediaType.text);
-  }
-
-  @Nonnull @Override public <T> T body(@Nonnull Reified<T> type, @Nonnull MediaType contentType) {
-    if (bodyObject == null) {
-      throw new IllegalStateException("No body was set, use setBody() to set one.");
-    }
-    if (!type.getRawType().isInstance(bodyObject)) {
-      throw new TypeMismatchException("body", type.getType());
-    }
-    return (T) type.getRawType().cast(bodyObject);
-  }
-
   @Nonnull @Override public <T> T body(@Nonnull Class<T> type) {
-    return body(type, MediaType.text);
+    return decode(type, MediaType.text);
   }
 
-  @Nonnull @Override public <T> T body(@Nonnull Class<T> type, @Nonnull MediaType contentType) {
+  @Nonnull @Override public <T> T body(@Nonnull Type type) {
+    return decode(type, MediaType.text);
+  }
+
+  @Nonnull @Override public <T> T decode(@Nonnull Type type, @Nonnull MediaType contentType) {
     if (bodyObject == null) {
       throw new IllegalStateException("No body was set, use setBody() to set one.");
     }
-    if (!type.isInstance(bodyObject)) {
+    Reified<?> reified = Reified.get(type);
+    if (!reified.getRawType().isInstance(bodyObject)) {
       throw new TypeMismatchException("body", type);
     }
-    return type.cast(bodyObject);
+    return (T) bodyObject;
   }
 
   /**
@@ -341,7 +327,7 @@ public class MockContext implements DefaultContext {
    * @return This context.
    */
   @Nonnull public MockContext setBody(@Nonnull byte[] body) {
-    this.body = Body.of(new ByteArrayInputStream(body), body.length);
+    this.body = Body.of(this, new ByteArrayInputStream(body), body.length);
     return this;
   }
 
@@ -589,9 +575,13 @@ public class MockContext implements DefaultContext {
     return router;
   }
 
-  @Nonnull MockContext setRouter(@Nonnull Router router) {
+  @Nonnull public MockContext setRouter(@Nonnull Router router) {
     this.router = router;
     return this;
+  }
+
+  @Nullable @Override public <T> T convert(Value value, Class<T> type) {
+    return DefaultContext.super.convert(value, type);
   }
 
   @Override public String toString() {

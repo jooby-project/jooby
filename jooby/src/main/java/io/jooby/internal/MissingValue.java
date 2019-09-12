@@ -32,6 +32,10 @@ public class MissingValue implements Value {
     return new MissingValue(this.name + "[" + index + "]");
   }
 
+  @Nonnull @Override public <T> T to(@Nonnull Class<T> type) {
+    return null;
+  }
+
   @Override public String value() {
     throw new MissingValueException(name);
   }

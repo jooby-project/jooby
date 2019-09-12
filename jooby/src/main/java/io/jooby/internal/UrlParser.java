@@ -5,6 +5,7 @@
  */
 package io.jooby.internal;
 
+import io.jooby.Context;
 import io.jooby.QueryString;
 import io.jooby.SneakyThrows;
 
@@ -18,14 +19,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public final class UrlParser {
-  private static final QueryStringValue NO_QUERY_STRING = new QueryStringValue("");
   private static final char SPACE = 0x20;
 
-  public static QueryString queryString(String queryString) {
+  public static QueryString queryString(Context ctx, String queryString) {
     if (queryString == null || queryString.length() == 0) {
-      return NO_QUERY_STRING;
+      return new QueryStringValue(ctx,"");
     }
-    QueryStringValue result = new QueryStringValue("?" + queryString);
+    QueryStringValue result = new QueryStringValue(ctx, "?" + queryString);
     decodeParams(result, queryString, 0, StandardCharsets.UTF_8, 1024);
     return result;
   }

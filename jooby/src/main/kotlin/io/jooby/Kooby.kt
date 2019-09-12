@@ -53,7 +53,7 @@ fun <T : Any> ServiceRegistry.putIfAbsent(klass: KClass<T>, service: T): T? {
 /** Value: */
 
 inline operator fun <reified T> Value.getValue(thisRef: Any?, property: KProperty<*>): T {
-  return this.get(property.name).to(object : Reified<T>() {})
+  return this.get(property.name).to(T::class.java)
 }
 
 operator fun Value.get(name: String): Value {
@@ -65,7 +65,7 @@ operator fun Value.get(index: Int): Value {
 }
 
 inline fun <reified T> Value.to(): T? {
-  return this.to(object : Reified<T>() {})
+  return this.to(T::class.java)
 }
 
 infix fun <T : Any> Value.to(type: KClass<T>): T? {
@@ -77,28 +77,28 @@ val Context.query: QueryString
   get() = this.query()
 
 inline fun <reified T> Context.query(): T {
-  return this.query(object : Reified<T>() {})
+  return this.query(T::class.java)
 }
 
 val Context.form: Formdata
   get() = this.form()
 
 inline fun <reified T> Context.form(): T {
-  return this.form(object : Reified<T>() {})
+  return this.form(T::class.java)
 }
 
 val Context.multipart: Multipart
   get() = this.multipart()
 
 inline fun <reified T> Context.multipart(): T {
-  return this.multipart(object : Reified<T>() {})
+  return this.multipart(T::class.java)
 }
 
 val Context.body: Body
   get() = this.body()
 
 inline fun <reified T> Context.body(): T {
-  return this.body(object : Reified<T>() {})
+  return this.body(T::class.java)
 }
 
 /** Kooby: */

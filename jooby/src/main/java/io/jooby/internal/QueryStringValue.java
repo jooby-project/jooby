@@ -5,6 +5,7 @@
  */
 package io.jooby.internal;
 
+import io.jooby.Context;
 import io.jooby.QueryString;
 
 import javax.annotation.Nonnull;
@@ -12,7 +13,8 @@ import javax.annotation.Nonnull;
 public class QueryStringValue extends HashValue implements QueryString {
   private String queryString;
 
-  public QueryStringValue(String queryString) {
+  public QueryStringValue(Context ctx, String queryString) {
+    super(ctx);
     this.queryString = queryString;
   }
 

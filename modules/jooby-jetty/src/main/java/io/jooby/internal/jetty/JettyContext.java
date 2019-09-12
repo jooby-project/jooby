@@ -118,7 +118,7 @@ public class JettyContext implements Callback, DefaultContext {
       if (maxRequestSize > 0) {
         in = new LimitedInputStream(in, maxRequestSize);
       }
-      return Body.of(in, len);
+      return Body.of(this, in, len);
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }
@@ -156,14 +156,14 @@ public class JettyContext implements Callback, DefaultContext {
 
   @Nonnull @Override public QueryString query() {
     if (query == null) {
-      query = QueryString.create(request.getQueryString());
+      query = QueryString.create(this, request.getQueryString());
     }
     return query;
   }
 
   @Nonnull @Override public Formdata form() {
     if (form == null) {
-      form = Formdata.create();
+      form = Formdata.create(this);
       formParam(request, form);
     }
     return form;
@@ -171,7 +171,7 @@ public class JettyContext implements Callback, DefaultContext {
 
   @Nonnull @Override public Multipart multipart() {
     if (multipart == null) {
-      multipart = Multipart.create();
+      multipart = Multipart.create(this);
       form = multipart;
 
       request.setAttribute(MULTIPART_CONFIG_ELEMENT,
@@ -210,7 +210,7 @@ public class JettyContext implements Callback, DefaultContext {
         String name = names.nextElement();
         headerMap.put(name, Collections.list(request.getHeaders(name)));
       }
-      headers = Value.hash(headerMap);
+      headers = Value.hash(this, headerMap);
     }
     return headers;
   }

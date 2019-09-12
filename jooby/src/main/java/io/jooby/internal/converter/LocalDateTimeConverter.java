@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.converter;
 
+import io.jooby.Value;
 import io.jooby.spi.ValueConverter;
 
 import java.time.Instant;
@@ -17,13 +18,13 @@ public class LocalDateTimeConverter implements ValueConverter {
     return type == LocalDateTime.class;
   }
 
-  @Override public Object convert(Class type, String value) {
+  @Override public Object convert(Value value, Class type) {
     try {
       // must be millis
-      Instant instant = Instant.ofEpochMilli(Long.parseLong(value));
+      Instant instant = Instant.ofEpochMilli(Long.parseLong(value.value()));
       return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
     } catch (NumberFormatException x) {
-      return LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+      return LocalDateTime.parse(value.value(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
   }
 }

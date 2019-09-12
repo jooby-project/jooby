@@ -5,6 +5,8 @@
  */
 package io.jooby.internal;
 
+import io.jooby.Context;
+import io.jooby.MissingValueException;
 import io.jooby.TypeMismatchException;
 import io.jooby.Value;
 
@@ -16,14 +18,18 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class ArrayValue implements Value {
+  private final Context ctx;
+
   private final String name;
 
   private final List<Value> value = new ArrayList<>(5);
 
-  public ArrayValue(String name) {
+  public ArrayValue(Context ctx, String name) {
+    this.ctx = ctx;
     this.name = name;
   }
 
@@ -44,7 +50,7 @@ public class ArrayValue implements Value {
   }
 
   public ArrayValue add(String value) {
-    return this.add(new SingleValue(name, value));
+    return this.add(new SingleValue(ctx, name, value));
   }
 
   @Override public Value get(@Nonnull int index) {
@@ -65,6 +71,7 @@ public class ArrayValue implements Value {
 
   @Override public String value() {
     String name = name();
+
     throw new TypeMismatchException(name == null ? getClass().getSimpleName() : name, String.class);
   }
 
@@ -74,6 +81,34 @@ public class ArrayValue implements Value {
 
   @Override public Iterator<Value> iterator() {
     return value.iterator();
+  }
+
+  @Nonnull @Override public <T> T to(@Nonnull Class<T> type) {
+    return ctx.convert(value.get(0), type);
+  }
+
+  @Nonnull @Override public <T> List<T> toList(@Nonnull Class<T> type) {
+    List<T> list = new ArrayList<>(value.size());
+    for (Value it : value) {
+      list.add(it.to(type));
+    }
+    return list;
+  }
+
+  @Nonnull @Override public <T> Optional<T> toOptional(@Nonnull Class<T> type) {
+    try {
+      return Optional.ofNullable(to(type));
+    } catch (MissingValueException x) {
+      return Optional.empty();
+    }
+  }
+
+  @Nonnull @Override public <T> Set<T> toSet(@Nonnull Class<T> type) {
+    Set<T> list = new LinkedHashSet<>(value.size());
+    for (Value it : value) {
+      list.add(it.to(type));
+    }
+    return list;
   }
 
   @Override public Map<String, List<String>> toMultimap() {

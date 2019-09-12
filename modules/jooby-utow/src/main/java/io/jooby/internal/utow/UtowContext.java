@@ -89,7 +89,7 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Nonnull @Override public Body body() {
-    return body == null ? Body.empty() : body;
+    return body == null ? Body.empty(this) : body;
   }
 
   @Override public @Nonnull Map<String, String> cookieMap() {
@@ -159,7 +159,7 @@ public class UtowContext implements DefaultContext, IoCallback {
   }
 
   @Nonnull @Override public Value header(@Nonnull String name) {
-    return Value.create(name, exchange.getRequestHeaders().get(name));
+    return Value.create(this, name, exchange.getRequestHeaders().get(name));
   }
 
   @Nonnull @Override public Value header() {
@@ -171,21 +171,21 @@ public class UtowContext implements DefaultContext, IoCallback {
         HeaderValues values = map.get(name);
         headerMap.put(name.toString(), values);
       }
-      headers = Value.hash(headerMap);
+      headers = Value.hash(this, headerMap);
     }
     return headers;
   }
 
   @Nonnull @Override public QueryString query() {
     if (query == null) {
-      query = QueryString.create(exchange.getQueryString());
+      query = QueryString.create(this, exchange.getQueryString());
     }
     return query;
   }
 
   @Nonnull @Override public Formdata form() {
     if (form == null) {
-      form = Formdata.create();
+      form = Formdata.create(this);
       formData(form, exchange.getAttachment(FORM_DATA));
     }
     return form;
@@ -193,7 +193,7 @@ public class UtowContext implements DefaultContext, IoCallback {
 
   @Nonnull @Override public Multipart multipart() {
     if (multipart == null) {
-      multipart = Multipart.create();
+      multipart = Multipart.create(this);
       form = multipart;
       formData(multipart, exchange.getAttachment(FORM_DATA));
     }

@@ -24,6 +24,24 @@ import io.jooby.SessionOptions;
 import io.jooby.StatusCode;
 import io.jooby.TemplateEngine;
 import io.jooby.internal.asm.ClassSource;
+import io.jooby.internal.converter.BigDecimalConverter;
+import io.jooby.internal.converter.BigIntegerConverter;
+import io.jooby.internal.converter.CharsetConverter;
+import io.jooby.internal.converter.DateConverter;
+import io.jooby.internal.converter.DurationConverter;
+import io.jooby.internal.converter.EnumConverter;
+import io.jooby.internal.converter.InstantConverter;
+import io.jooby.internal.converter.LocalDateConverter;
+import io.jooby.internal.converter.LocalDateTimeConverter;
+import io.jooby.internal.converter.PeriodConverter;
+import io.jooby.internal.converter.ReflectiveBeanConverter;
+import io.jooby.internal.converter.StatusCodeConverter;
+import io.jooby.internal.converter.TimeZoneConverter;
+import io.jooby.internal.converter.URIConverter;
+import io.jooby.internal.converter.UUIDConverter;
+import io.jooby.internal.converter.ValueOfConverter;
+import io.jooby.internal.converter.ZoneIdConverter;
+import io.jooby.spi.ValueConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,12 +154,15 @@ public class RouterImpl implements Router {
 
   private String flashName = "jooby.flash";
 
+  private List<ValueConverter> converters;
+
   public RouterImpl(ClassLoader loader) {
     this.source = new ClassSource(loader);
     this.analyzer = new RouteAnalyzer(source, false);
     stack.addLast(new Stack(""));
 
     defaultParser();
+    converters = ValueConverters.defaultConverters();
   }
 
   private void defaultParser() {
@@ -310,6 +331,15 @@ public class RouterImpl implements Router {
     return this;
   }
 
+  @Nonnull @Override public Router converter(ValueConverter converter) {
+    converters.add(converter);
+    return this;
+  }
+
+  @Nonnull @Override public List<ValueConverter> getConverters() {
+    return converters;
+  }
+
   @Override
   public Route route(@Nonnull String method, @Nonnull String pattern,
       @Nonnull Route.Handler handler) {
@@ -354,7 +384,6 @@ public class RouterImpl implements Router {
     handler.setRoute(route);
 
     Stack stack = this.stack.peekLast();
-    String executorKey = route.getExecutorKey();
     if (stack.executor != null) {
       routeExecutor.put(route, stack.executor);
     }
@@ -384,6 +413,10 @@ public class RouterImpl implements Router {
       err = err.then(ErrorHandler.DEFAULT);
     }
     renderer.add(MessageEncoder.TO_STRING);
+
+    // Must be last, as fallback
+    ValueConverters.addFallbackConverters(converters);
+
     ExecutionMode mode = owner.getExecutionMode();
     for (Route route : routes) {
       String executorKey = route.getExecutorKey();

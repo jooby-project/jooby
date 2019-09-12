@@ -258,7 +258,7 @@ public final class ValueInjector {
     Value first = value.isObject() && value.size() > 0 ? value.iterator().next() : value.get(0);
     for (ValueConverter converter : converters) {
       if (converter.supports(rawType)) {
-        return converter.convert(rawType, first.value());
+        return converter.convert(first, rawType);
       }
     }
     return resolve(value, rawType, converters);

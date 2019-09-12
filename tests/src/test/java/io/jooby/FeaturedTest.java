@@ -697,15 +697,19 @@ public class FeaturedTest {
   }
 
   @Test
-  public void parser() {
+  public void decoder() {
     new JoobyRunner(app -> {
       app.install(new JacksonModule());
 
       app.post("/map", ctx -> ctx.body(Map.class));
 
-      app.post("/ints", ctx -> {
-        List<Integer> ints = ctx.body(Reified.list(Integer.class));
+      app.post("/toListInt", ctx -> {
+        List<Integer> ints = ctx.body().toList(Integer.class);
         return ints;
+      });
+
+      app.post("/intBody", ctx -> {
+        return ctx.body().to(Integer.class);
       });
 
       app.post("/str", ctx -> ctx.body().value());
@@ -716,8 +720,12 @@ public class FeaturedTest {
       });
 
       client.header("Content-Type", "application/json");
-      client.post("/ints", create("[3, 4, 1]", json), rsp -> {
+      client.post("/toListInt", create("[3, 4, 1]", json), rsp -> {
         assertEquals("[3,4,1]", rsp.body().string());
+      });
+
+      client.post("/intBody", create("678", textplain), rsp -> {
+        assertEquals("678", rsp.body().string());
       });
 
       client.post("/str", create(_19kb, textplain), rsp -> {
@@ -1382,7 +1390,7 @@ public class FeaturedTest {
 
   @Test
   public void defaultHeaders() {
-    LinkedList<String> servers = new LinkedList<>(Arrays.asList("N", "U", "J"));
+    LinkedList<String> servers = new LinkedList<>(Arrays.asList("J", "N", "U"));
     new JoobyRunner(app -> {
       app.get("/", Context::pathString);
     }).ready(client -> {

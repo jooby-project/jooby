@@ -92,8 +92,8 @@ public class UnitTest {
     app.post("/", ctx -> ctx.form("name").value());
 
     MockRouter router = new MockRouter(app);
-    MockContext context = new MockContext()
-        .setForm(Formdata.create().put("name", "Easy Unit"));
+    MockContext context = new MockContext();
+    context.setForm(Formdata.create(context).put("name", "Easy Unit"));
 
     assertEquals("Easy Unit", router.post("/", context).value());
   }

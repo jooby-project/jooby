@@ -11,9 +11,11 @@ import io.jooby.internal.InputStreamBody;
 
 import javax.annotation.Nonnull;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * HTTP body value. Allows to access HTTP body as string, byte[], stream, etc..
@@ -72,6 +74,16 @@ public interface Body extends Value {
    */
   @Nonnull InputStream stream();
 
+  @Nonnull @Override default <T> List<T> toList(@Nonnull Class<T> type) {
+    return to(Reified.list(type).getType());
+  }
+
+  @Override default @Nonnull <T> T to(@Nonnull Class<T> type) {
+    return to((Type) type);
+  }
+
+  @Nonnull <T> T to(@Nonnull Type type);
+
   /* **********************************************************************************************
    * Factory methods:
    * **********************************************************************************************
@@ -82,8 +94,8 @@ public interface Body extends Value {
    *
    * @return Empty body.
    */
-  static Body empty() {
-    return ByteArrayBody.EMPTY;
+  static Body empty(Context ctx) {
+    return ByteArrayBody.empty(ctx);
   }
 
   /**
@@ -93,8 +105,8 @@ public interface Body extends Value {
    * @param size Size in bytes or <code>-1</code>.
    * @return A new body.
    */
-  static @Nonnull Body of(@Nonnull InputStream stream, long size) {
-    return new InputStreamBody(stream, size);
+  static @Nonnull Body of(Context ctx, @Nonnull InputStream stream, long size) {
+    return new InputStreamBody(ctx, stream, size);
   }
 
   /**
@@ -103,8 +115,8 @@ public interface Body extends Value {
    * @param bytes byte array.
    * @return A new body.
    */
-  static @Nonnull Body of(@Nonnull byte[] bytes) {
-    return new ByteArrayBody(bytes);
+  static @Nonnull Body of(Context ctx, @Nonnull byte[] bytes) {
+    return new ByteArrayBody(ctx, bytes);
   }
 
   /**
@@ -113,7 +125,7 @@ public interface Body extends Value {
    * @param file File.
    * @return A new body.
    */
-  static @Nonnull Body of(@Nonnull Path file) {
-    return new FileBody(file);
+  static @Nonnull Body of(Context ctx, @Nonnull Path file) {
+    return new FileBody(ctx, file);
   }
 }

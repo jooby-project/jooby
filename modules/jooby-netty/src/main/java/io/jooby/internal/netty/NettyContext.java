@@ -183,14 +183,14 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     if (query == null) {
       String uri = req.uri();
       int q = uri.indexOf('?');
-      query = QueryString.create(q >= 0 ? uri.substring(q + 1) : null);
+      query = QueryString.create(this, q >= 0 ? uri.substring(q + 1) : null);
     }
     return query;
   }
 
   @Nonnull @Override public Formdata form() {
     if (form == null) {
-      form = Formdata.create();
+      form = Formdata.create(this);
       decodeForm(req, form);
     }
     return form;
@@ -198,7 +198,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
 
   @Nonnull @Override public Multipart multipart() {
     if (multipart == null) {
-      multipart = Multipart.create();
+      multipart = Multipart.create(this);
       form = multipart;
       decodeForm(req, multipart);
     }
@@ -206,7 +206,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   }
 
   @Nonnull @Override public Value header(@Nonnull String name) {
-    return Value.create(name, req.headers().getAll(name));
+    return Value.create(this, name, req.headers().getAll(name));
   }
 
   @Nonnull @Override public String getRemoteAddress() {
@@ -231,16 +231,16 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       for (String name : names) {
         headerMap.put(name, headers.getAll(name));
       }
-      this.headers = Value.hash(headerMap);
+      this.headers = Value.hash(this, headerMap);
     }
     return headers;
   }
 
   @Nonnull @Override public Body body() {
     if (decoder != null && decoder.hasNext()) {
-      return new NettyBody((HttpData) decoder.next(), HttpUtil.getContentLength(req, -1L));
+      return new NettyBody(this, (HttpData) decoder.next(), HttpUtil.getContentLength(req, -1L));
     }
-    return Body.empty();
+    return Body.empty(this);
   }
 
   @Override public @Nonnull Map<String, String> cookieMap() {

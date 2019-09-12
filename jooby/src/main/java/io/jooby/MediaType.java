@@ -121,6 +121,9 @@ public final class MediaType implements Comparable<MediaType> {
   }
 
   @Override public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
     if (obj instanceof MediaType) {
       MediaType that = (MediaType) obj;
       return getType().equals(that.getType()) && getSubtype().equals(that.getSubtype());

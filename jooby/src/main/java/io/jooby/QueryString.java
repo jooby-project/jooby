@@ -37,7 +37,7 @@ public interface QueryString extends Value {
    * @param queryString Query string.
    * @return A query string.
    */
-  static @Nonnull QueryString create(@Nullable String queryString) {
-    return UrlParser.queryString(queryString);
+  static @Nonnull QueryString create(@Nonnull Context ctx, @Nullable String queryString) {
+    return UrlParser.queryString(ctx, queryString);
   }
 }

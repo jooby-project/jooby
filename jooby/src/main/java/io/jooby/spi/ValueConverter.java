@@ -5,6 +5,8 @@
  */
 package io.jooby.spi;
 
+import io.jooby.Value;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -23,9 +25,9 @@ public interface ValueConverter {
   /**
    * Convert string to specific type.
    *
+   * @param value Value value.
    * @param type Requested type.
-   * @param value String value.
    * @return Converted value.
    */
-  Object convert(@Nonnull Class type, @Nonnull String value);
+  Object convert(@Nonnull Value value, @Nonnull Class type);
 }

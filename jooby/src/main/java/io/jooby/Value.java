@@ -9,11 +9,9 @@ import io.jooby.internal.ArrayValue;
 import io.jooby.internal.HashValue;
 import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
-import io.jooby.internal.ValueInjector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -330,7 +328,7 @@ public interface Value extends Iterable<Value> {
    * @return List of items.
    */
   @Nonnull default <T> List<T> toList(@Nonnull Class<T> type) {
-    return to(Reified.list(type));
+    return Collections.singletonList(to(type));
   }
 
   /**
@@ -341,7 +339,7 @@ public interface Value extends Iterable<Value> {
    * @return Set of items.
    */
   @Nonnull default <T> Set<T> toSet(@Nonnull Class<T> type) {
-    return to(Reified.set(type));
+    return Collections.singleton(to(type));
   }
 
   /**
@@ -389,7 +387,11 @@ public interface Value extends Iterable<Value> {
    * @return Value or empty optional.
    */
   @Nonnull default <T> Optional<T> toOptional(@Nonnull Class<T> type) {
-    return to(Reified.optional(type));
+    try {
+      return Optional.ofNullable(to(type));
+    } catch (MissingValueException x) {
+      return Optional.empty();
+    }
   }
 
   /* ***********************************************************************************************
@@ -430,33 +432,7 @@ public interface Value extends Iterable<Value> {
    * @param <T> Element type.
    * @return Instance of the type.
    */
-  @Nonnull default <T> T to(@Nonnull Class<T> type) {
-    return ValueInjector.inject(this, type, type);
-  }
-
-  /**
-   * Convert this value to the given type. Support values are single-value, array-value and
-   * object-value. Object-value can be converted to a JavaBean type.
-   *
-   * @param type Type to convert.
-   * @param <T> Element type.
-   * @return Instance of the type.
-   */
-  @Nonnull default <T> T to(@Nonnull Type type) {
-    return ValueInjector.inject(this, type, Reified.rawType(type));
-  }
-
-  /**
-   * Convert this value to the given type. Support values are single-value, array-value and
-   * object-value. Object-value can be converted to a JavaBean type.
-   *
-   * @param type Type to convert.
-   * @param <T> Element type.
-   * @return Instance of the type.
-   */
-  @Nonnull default <T> T to(@Nonnull Reified<T> type) {
-    return ValueInjector.inject(this, type.getType(), type.getRawType());
-  }
+  @Nonnull <T> T to(@Nonnull Class<T> type);
 
   /**
    * Value iterator.
@@ -641,8 +617,8 @@ public interface Value extends Iterable<Value> {
    * @param value Value.
    * @return Single value.
    */
-  static @Nonnull Value value(@Nonnull String name, @Nonnull String value) {
-    return new SingleValue(name, value);
+  static @Nonnull Value value(@Nonnull Context ctx, @Nonnull String name, @Nonnull String value) {
+    return new SingleValue(ctx, name, value);
   }
 
   /**
@@ -652,8 +628,9 @@ public interface Value extends Iterable<Value> {
    * @param values Field values.
    * @return Array value.
    */
-  static @Nonnull Value array(@Nonnull String name, @Nonnull List<String> values) {
-    return new ArrayValue(name)
+  static @Nonnull Value array(@Nonnull Context ctx, @Nonnull String name,
+      @Nonnull List<String> values) {
+    return new ArrayValue(ctx, name)
         .add(values);
   }
 
@@ -668,14 +645,14 @@ public interface Value extends Iterable<Value> {
    * @param values Field values.
    * @return A value.
    */
-  static @Nonnull Value create(@Nonnull String name, @Nullable List<String> values) {
+  static @Nonnull Value create(Context ctx, @Nonnull String name, @Nullable List<String> values) {
     if (values == null || values.size() == 0) {
       return missing(name);
     }
     if (values.size() == 1) {
-      return value(name, values.get(0));
+      return value(ctx, name, values.get(0));
     }
-    return new ArrayValue(name)
+    return new ArrayValue(ctx, name)
         .add(values);
   }
 
@@ -689,11 +666,11 @@ public interface Value extends Iterable<Value> {
    * @param value Field values.
    * @return A value.
    */
-  static @Nonnull Value create(@Nonnull String name, @Nullable String value) {
+  static @Nonnull Value create(Context ctx, @Nonnull String name, @Nullable String value) {
     if (value == null) {
       return missing(name);
     }
-    return value(name, value);
+    return value(ctx, name, value);
   }
 
   /**
@@ -702,7 +679,7 @@ public interface Value extends Iterable<Value> {
    * @param values Map values.
    * @return A hash/object value.
    */
-  static @Nonnull Value hash(@Nonnull Map<String, Collection<String>> values) {
-    return new HashValue(null).put(values);
+  static @Nonnull Value hash(Context ctx, @Nonnull Map<String, Collection<String>> values) {
+    return new HashValue(ctx, null).put(values);
   }
 }

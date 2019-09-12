@@ -399,7 +399,7 @@ public class MvcTest {
     });
 
     LinkedList<String> names = new LinkedList<>(
-        Arrays.asList("eventloop", "worker I/O", "worker-"));
+        Arrays.asList("worker-", "eventloop", "worker I/O"));
     new JoobyRunner(app -> {
       app.executor("single", Executors.newSingleThreadExecutor(r ->
           new Thread(r, "single")

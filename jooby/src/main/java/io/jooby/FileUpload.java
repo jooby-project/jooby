@@ -83,6 +83,16 @@ public interface FileUpload extends Value {
     return new String(bytes(), charset);
   }
 
+  default @Nonnull @Override <T> T to(@Nonnull Class<T> type) {
+    if (Path.class == type) {
+      return (T) this.path();
+    }
+    if (FileUpload.class == type) {
+      return (T) this;
+    }
+    throw new TypeMismatchException(name(), type);
+  }
+
   /**
    * Multi-value map with field name as key and file name as values.
    *

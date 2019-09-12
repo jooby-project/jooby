@@ -6,11 +6,14 @@
 package io.jooby.internal;
 
 import io.jooby.Body;
+import io.jooby.Context;
+import io.jooby.MediaType;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
@@ -19,11 +22,14 @@ import java.util.List;
 import java.util.Map;
 
 public class ByteArrayBody implements Body {
-  public static final Body EMPTY = new ByteArrayBody(new byte[0]);
+  private static final byte[] EMPTY = new byte[0];
+
+  private final Context ctx;
 
   private byte[] bytes;
 
-  public ByteArrayBody(byte[] bytes) {
+  public ByteArrayBody(Context ctx, byte[] bytes) {
+    this.ctx = ctx;
     this.bytes = bytes;
   }
 
@@ -63,7 +69,15 @@ public class ByteArrayBody implements Body {
     return "body";
   }
 
+  @Nonnull @Override public <T> T to(@Nonnull Type type) {
+    return ctx.decode(type, ctx.getRequestType(MediaType.text));
+  }
+
   @Override public Map<String, List<String>> toMultimap() {
     return Collections.emptyMap();
+  }
+
+  public static final Body empty(Context ctx) {
+    return new ByteArrayBody(ctx, EMPTY);
   }
 }

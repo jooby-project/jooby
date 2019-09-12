@@ -55,7 +55,7 @@ public class SessionImpl implements Session {
   }
 
   @Override public @Nonnull Value get(@Nonnull String name) {
-    return Value.create(name, attributes.get(name));
+    return Value.create(null, name, attributes.get(name));
   }
 
   @Override public @Nonnull Session put(@Nonnull String name, String value) {
@@ -67,7 +67,7 @@ public class SessionImpl implements Session {
   @Override public @Nonnull Value remove(@Nonnull String name) {
     String value = attributes.remove(name);
     updateFlags();
-    return value == null ? Value.missing(name) : Value.value(name, value);
+    return value == null ? Value.missing(name) : Value.value(null, name, value);
   }
 
   @Override public @Nonnull Map<String, String> toMap() {

@@ -6,12 +6,15 @@
 package io.jooby.internal;
 
 import io.jooby.Body;
+import io.jooby.Context;
+import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,9 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 public class FileBody implements Body {
+  private Context ctx;
   private Path file;
 
-  public FileBody(Path file) {
+  public FileBody(Context ctx, Path file) {
+    this.ctx = ctx;
     this.file = file;
   }
 
@@ -77,6 +82,10 @@ public class FileBody implements Body {
 
   @Override public String name() {
     return "body";
+  }
+
+  @Nonnull @Override public <T> T to(@Nonnull Type type) {
+    return ctx.decode(type, ctx.getRequestType(MediaType.text));
   }
 
   @Override public Map<String, List<String>> toMultimap() {

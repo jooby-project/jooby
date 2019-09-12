@@ -1,6 +1,7 @@
 package io.jooby;
 
 import io.jooby.internal.UrlParser;
+import io.jooby.internal.ValueConverterHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -182,9 +183,9 @@ public class ValueTest {
 
   @Test
   public void arrayArity() {
-    assertEquals("1", Value.value("a", "1").value());
-    assertEquals("1", Value.value("a", "1").get(0).value());
-    assertEquals(1, Value.value("a", "1").size());
+    assertEquals("1", Value.value(null, "a", "1").value());
+    assertEquals("1", Value.value(null, "a", "1").get(0).value());
+    assertEquals(1, Value.value(null, "a", "1").size());
     queryString("a=1&a=2", queryString -> {
       assertEquals("1", queryString.get("a").get(0).value());
       assertEquals("2", queryString.get("a").get(1).value());
@@ -290,10 +291,10 @@ public class ValueTest {
 
   @Test
   public void customMapper() {
-    assertEquals(new BigDecimal("3.14"), Value.value("n", "3.14").value(BigDecimal::new));
+    assertEquals(new BigDecimal("3.14"), Value.value(null, "n", "3.14").value(BigDecimal::new));
     SneakyThrows.Function<String, BigDecimal> toBigDecimal = BigDecimal::new;
     assertMessage(NumberFormatException.class,
-        () -> Value.value("n", "x").value(toBigDecimal), null);
+        () -> Value.value(null, "n", "x").value(toBigDecimal), null);
   }
 
   @Test
@@ -312,7 +313,7 @@ public class ValueTest {
       assertEquals(Arrays.asList("1", "2"), queryString.get("a").get("b").toList());
     });
     /** Single: */
-    assertEquals(Arrays.asList("1"), Value.value("a", "1").toList());
+    assertEquals(Arrays.asList("1"), Value.value(null, "a", "1").toList());
     /** Missing: */
     assertEquals(Collections.emptyList(), Value.missing("a").toList());
   }
@@ -377,13 +378,13 @@ public class ValueTest {
     });
 
     /** Single: */
-    assertMessage(BadRequestException.class, () -> Value.value("foo", "bar").intValue(),
+    assertMessage(BadRequestException.class, () -> Value.value(null, "foo", "bar").intValue(),
         "Cannot convert value: 'foo', to: 'int'");
 
-    assertMessage(MissingValueException.class, () -> Value.value("foo", "bar").get("foo").value(),
+    assertMessage(MissingValueException.class, () -> Value.value(null, "foo", "bar").get("foo").value(),
         "Missing value: 'foo.foo'");
 
-    assertMessage(MissingValueException.class, () -> Value.value("foo", "bar").get(1).value(),
+    assertMessage(MissingValueException.class, () -> Value.value(null, "foo", "bar").get(1).value(),
         "Missing value: 'foo.1'");
   }
 
@@ -396,6 +397,6 @@ public class ValueTest {
   }
 
   private void queryString(String queryString, Consumer<QueryString> consumer) {
-    consumer.accept(UrlParser.queryString(queryString));
+    consumer.accept(UrlParser.queryString(ValueConverterHelper.testContext(), queryString));
   }
 }

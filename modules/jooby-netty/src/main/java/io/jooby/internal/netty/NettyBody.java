@@ -6,6 +6,8 @@
 package io.jooby.internal.netty;
 
 import io.jooby.Body;
+import io.jooby.Context;
+import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
 import io.jooby.Value;
 import io.jooby.internal.MissingValue;
@@ -16,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
@@ -25,10 +28,12 @@ import java.util.List;
 import java.util.Map;
 
 public class NettyBody implements Body {
+  private final Context ctx;
   private final HttpData data;
   private long length;
 
-  public NettyBody(HttpData data, long contentLength) {
+  public NettyBody(Context ctx, HttpData data, long contentLength) {
+    this.ctx = ctx;
     this.data = data;
     this.length = contentLength;
   }
@@ -81,6 +86,10 @@ public class NettyBody implements Body {
 
   @Override public String name() {
     return "body";
+  }
+
+  @Nonnull @Override public <T> T to(@Nonnull Type type) {
+    return ctx.decode(type, ctx.getRequestType(MediaType.text));
   }
 
   @Override public Map<String, List<String>> toMultimap() {

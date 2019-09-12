@@ -52,7 +52,7 @@ public interface Formdata extends Value {
    *
    * @return Formdata.
    */
-  static @Nonnull Formdata create() {
-    return new HashValue(null);
+  static @Nonnull Formdata create(@Nonnull Context ctx) {
+    return new HashValue(ctx, null);
   }
 }

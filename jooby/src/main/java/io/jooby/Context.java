@@ -5,17 +5,22 @@
  */
 package io.jooby;
 
+import io.jooby.internal.ValueConverters;
+import io.jooby.spi.ValueConverter;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -84,6 +89,8 @@ public interface Context extends Registry {
    * @return HTTP router (usually this represent an instance of {@link Jooby}.
    */
   @Nonnull Router getRouter();
+
+  @Nullable <T> T convert(Value value, Class<T> type);
 
   /*
    * **********************************************************************************************
@@ -184,15 +191,6 @@ public interface Context extends Registry {
   /**
    * Convert the {@link #pathMap()} to the given type.
    *
-   * @param type Reified type.
-   * @param <T> Target type.
-   * @return Instance of target type.
-   */
-  @Nonnull <T> T path(@Nonnull Reified<T> type);
-
-  /**
-   * Convert the {@link #pathMap()} to the given type.
-   *
    * @param type Target type.
    * @param <T> Target type.
    * @return Instance of target type.
@@ -268,15 +266,6 @@ public interface Context extends Registry {
    *    string, without decoding it.
    */
   @Nonnull String queryString();
-
-  /**
-   * Convert the queryString to the given type.
-   *
-   * @param type Reified type.
-   * @param <T> Target type.
-   * @return Query string converted to target type.
-   */
-  @Nonnull <T> T query(@Nonnull Reified<T> type);
 
   /**
    * Convert the queryString to the given type.
@@ -459,16 +448,6 @@ public interface Context extends Registry {
    * Convert formdata to the given type. Only for <code>application/form-url-encoded</code>
    * request.
    *
-   * @param type Reified type.
-   * @param <T> Target type.
-   * @return Formdata as requested type.
-   */
-  @Nonnull <T> T form(@Nonnull Reified<T> type);
-
-  /**
-   * Convert formdata to the given type. Only for <code>application/form-url-encoded</code>
-   * request.
-   *
    * @param type Target type.
    * @param <T> Target type.
    * @return Formdata as requested type.
@@ -498,17 +477,6 @@ public interface Context extends Registry {
    * @return Multipart value.
    */
   @Nonnull Value multipart(@Nonnull String name);
-
-  /**
-   * Convert multipart data to the given type.
-   *
-   * Only for <code>multipart/form-data</code> request.
-   *
-   * @param type Reified type.
-   * @param <T> Target type.
-   * @return Target value.
-   */
-  @Nonnull <T> T multipart(@Nonnull Reified<T> type);
 
   /**
    * Convert multipart data to the given type.
@@ -585,36 +553,25 @@ public interface Context extends Registry {
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
-  @Nonnull <T> T body(@Nonnull Reified<T> type);
-
-  /**
-   * Convert the HTTP body to the given type.
-   *
-   * @param type Reified type.
-   * @param contentType Body content type.
-   * @param <T> Conversion type.
-   * @return Instance of conversion type.
-   */
-  @Nonnull <T> T body(@Nonnull Reified<T> type, @Nonnull MediaType contentType);
-
-  /**
-   * Convert the HTTP body to the given type.
-   *
-   * @param type Reified type.
-   * @param <T> Conversion type.
-   * @return Instance of conversion type.
-   */
   @Nonnull <T> T body(@Nonnull Class<T> type);
 
   /**
    * Convert the HTTP body to the given type.
    *
    * @param type Reified type.
-   * @param contentType Body content type.
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
-  @Nonnull <T> T body(@Nonnull Class<T> type, @Nonnull MediaType contentType);
+  @Nonnull <T> T body(@Nonnull Type type);
+
+  /**
+   * Convert the HTTP body to the given type.
+   *
+   * @param type Reified type.
+   * @param <T> Conversion type.
+   * @return Instance of conversion type.
+   */
+  @Nonnull <T> T decode(@Nonnull Type type, @Nonnull MediaType contentType);
 
   /* **********************************************************************************************
    * Body MessageDecoder

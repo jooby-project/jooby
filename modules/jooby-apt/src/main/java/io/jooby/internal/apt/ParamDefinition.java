@@ -23,6 +23,7 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Types;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -211,8 +212,8 @@ public class ParamDefinition {
           : Value.class.getMethod("to", Class.class);
     }
     return body
-        ? Context.class.getMethod("body", Reified.class)
-        : Value.class.getMethod("to", Reified.class);
+        ? Context.class.getMethod("body", Type.class)
+        : Value.class.getMethod("to", Class.class);
   }
 
   public static ParamDefinition create(ProcessingEnvironment environment,

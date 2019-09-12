@@ -11,6 +11,7 @@ import io.jooby.internal.apt.asm.ArrayWriter;
 import io.jooby.internal.apt.asm.ParamWriter;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -19,6 +20,7 @@ import java.util.Map;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
 public abstract class ValueWriter implements ParamWriter {
@@ -28,7 +30,7 @@ public abstract class ValueWriter implements ParamWriter {
     Method convertMethod = parameter.getMethod();
     // to(Class)
     boolean toClass = is(convertMethod, 0, Class.class);
-    boolean toReified = is(convertMethod, 0, Reified.class);
+    boolean toReified = is(convertMethod, 0, Type.class);
     // toOptional(Class) or toList(Class) or toSet(Class)
     if (toClass) {
       visitor.visitLdcInsn(parameter.getType().isParameterizedType()
@@ -49,9 +51,11 @@ public abstract class ValueWriter implements ParamWriter {
         );
         reified = Reified.class.getMethod("getParameterized", Type.class, Type[].class);
       }
-
+      Method getType = Reified.class.getDeclaredMethod("getType");
       visitor.visitMethodInsn(INVOKESTATIC, "io/jooby/Reified", reified.getName(),
           getMethodDescriptor(reified), false);
+      visitor.visitMethodInsn(INVOKEVIRTUAL, "io/jooby/Reified", getType.getName(),
+          getMethodDescriptor(getType), false);
     }
 
     visitor.visitMethodInsn(INVOKEINTERFACE,

@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -100,10 +101,6 @@ public class ForwardingContext implements Context {
     return ctx.path(name);
   }
 
-  @Nonnull @Override public <T> T path(@Nonnull Reified<T> type) {
-    return ctx.path(type);
-  }
-
   @Nonnull @Override public <T> T path(@Nonnull Class<T> type) {
     return ctx.path(type);
   }
@@ -131,10 +128,6 @@ public class ForwardingContext implements Context {
 
   @Nonnull @Override public String queryString() {
     return ctx.queryString();
-  }
-
-  @Nonnull @Override public <T> T query(@Nonnull Reified<T> type) {
-    return ctx.query(type);
   }
 
   @Nonnull @Override public <T> T query(@Nonnull Class<T> type) {
@@ -217,10 +210,6 @@ public class ForwardingContext implements Context {
     return ctx.form(name);
   }
 
-  @Nonnull @Override public <T> T form(@Nonnull Reified<T> type) {
-    return ctx.form(type);
-  }
-
   @Nonnull @Override public <T> T form(@Nonnull Class<T> type) {
     return ctx.form(type);
   }
@@ -231,10 +220,6 @@ public class ForwardingContext implements Context {
 
   @Nonnull @Override public Value multipart(@Nonnull String name) {
     return ctx.multipart(name);
-  }
-
-  @Nonnull @Override public <T> T multipart(@Nonnull Reified<T> type) {
-    return ctx.multipart(type);
   }
 
   @Nonnull @Override public <T> T multipart(@Nonnull Class<T> type) {
@@ -265,20 +250,20 @@ public class ForwardingContext implements Context {
     return ctx.body();
   }
 
-  @Nonnull @Override public <T> T body(@Nonnull Reified<T> type) {
-    return ctx.body(type);
-  }
-
-  @Nonnull @Override public <T> T body(@Nonnull Reified<T> type, @Nonnull MediaType contentType) {
-    return ctx.body(type, contentType);
-  }
-
   @Nonnull @Override public <T> T body(@Nonnull Class<T> type) {
     return ctx.body(type);
   }
 
-  @Nonnull @Override public <T> T body(@Nonnull Class<T> type, @Nonnull MediaType contentType) {
-    return ctx.body(type, contentType);
+  @Nonnull @Override public <T> T body(@Nonnull Type type) {
+    return ctx.body(type);
+  }
+
+  @Nullable @Override public <T> T convert(Value value, Class<T> type) {
+    return ctx.convert(value, type);
+  }
+
+  @Nonnull @Override public <T> T decode(@Nonnull Type type, @Nonnull MediaType contentType) {
+    return ctx.decode(type, contentType);
   }
 
   @Nonnull @Override public MessageDecoder decoder(@Nonnull MediaType contentType) {
