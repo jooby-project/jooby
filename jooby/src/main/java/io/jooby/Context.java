@@ -5,9 +5,6 @@
  */
 package io.jooby;
 
-import io.jooby.internal.ValueConverters;
-import io.jooby.spi.ValueConverter;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -20,7 +17,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;

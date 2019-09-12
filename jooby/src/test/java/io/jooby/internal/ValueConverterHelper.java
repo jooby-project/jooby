@@ -1,15 +1,10 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.DefaultContext;
-import io.jooby.ForwardingContext;
-import io.jooby.Jooby;
-import io.jooby.Router;
 import io.jooby.Value;
-import io.jooby.spi.ValueConverter;
+import io.jooby.ValueConverter;
 import org.mockito.stubbing.Answer;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.Stream;
 

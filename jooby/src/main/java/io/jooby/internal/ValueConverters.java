@@ -1,6 +1,5 @@
 package io.jooby.internal;
 
-import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.TypeMismatchException;
 import io.jooby.Value;
@@ -9,7 +8,6 @@ import io.jooby.internal.converter.BigIntegerConverter;
 import io.jooby.internal.converter.CharsetConverter;
 import io.jooby.internal.converter.DateConverter;
 import io.jooby.internal.converter.DurationConverter;
-import io.jooby.internal.converter.EnumConverter;
 import io.jooby.internal.converter.InstantConverter;
 import io.jooby.internal.converter.LocalDateConverter;
 import io.jooby.internal.converter.LocalDateTimeConverter;
@@ -22,7 +20,7 @@ import io.jooby.internal.converter.UUIDConverter;
 import io.jooby.internal.converter.ValueOfConverter;
 import io.jooby.internal.converter.ZoneIdConverter;
 import io.jooby.internal.reflect.$Types;
-import io.jooby.spi.ValueConverter;
+import io.jooby.ValueConverter;
 
 import java.lang.reflect.Type;
 import java.nio.file.Path;

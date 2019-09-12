@@ -5,7 +5,6 @@
  */
 package io.jooby;
 
-import io.jooby.spi.ValueConverter;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;

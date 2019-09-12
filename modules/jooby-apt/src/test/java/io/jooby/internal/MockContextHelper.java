@@ -2,7 +2,7 @@ package io.jooby.internal;
 
 import io.jooby.MockContext;
 import io.jooby.Router;
-import io.jooby.spi.ValueConverter;
+import io.jooby.ValueConverter;
 
 import java.util.List;
 import java.util.stream.Stream;

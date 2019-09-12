@@ -6,7 +6,7 @@
 package io.jooby.internal.converter;
 
 import io.jooby.Value;
-import io.jooby.spi.ValueConverter;
+import io.jooby.ValueConverter;
 
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
