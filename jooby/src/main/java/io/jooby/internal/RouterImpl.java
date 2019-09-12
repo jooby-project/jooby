@@ -144,12 +144,7 @@ public class RouterImpl implements Router {
     this.analyzer = new RouteAnalyzer(source, false);
     stack.addLast(new Stack(""));
 
-    defaultParser();
     converters = ValueConverters.defaultConverters();
-  }
-
-  private void defaultParser() {
-    parsers.put(MediaType.text.getValue(), MessageDecoder.RAW);
   }
 
   @Nonnull @Override public Map<String, Object> getAttributes() {

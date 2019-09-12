@@ -24,14 +24,6 @@ public interface MessageDecoder {
       throw new StatusCodeException(StatusCode.UNSUPPORTED_MEDIA_TYPE);
     }
   };
-  /**
-   * Parse body to one of the <code>raw</code> types: String, byte[], etc.
-   */
-  MessageDecoder RAW = new MessageDecoder() {
-    @Override public <T> T decode(Context ctx, Type type) {
-      return ctx.body().to(type);
-    }
-  };
 
   /**
    * Parse HTTP body into the given type.
