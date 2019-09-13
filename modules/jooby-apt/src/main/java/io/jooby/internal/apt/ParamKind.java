@@ -9,7 +9,7 @@ import io.jooby.Context;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
 import io.jooby.apt.Annotations;
-import io.jooby.internal.apt.asm.AnnotationParamWriter;
+import io.jooby.internal.apt.asm.NamedParamWriter;
 import io.jooby.internal.apt.asm.BodyWriter;
 import io.jooby.internal.apt.asm.FileUploadWriter;
 import io.jooby.internal.apt.asm.ObjectTypeWriter;
@@ -55,7 +55,7 @@ public enum ParamKind {
     }
 
     @Override public ParamWriter newWriter() {
-      return new AnnotationParamWriter();
+      return new NamedParamWriter(true);
     }
   },
   QUERY_PARAM {
@@ -72,7 +72,7 @@ public enum ParamKind {
     }
 
     @Override public ParamWriter newWriter() {
-      return new AnnotationParamWriter();
+      return new NamedParamWriter(true);
     }
   },
   COOKIE_PARAM {
@@ -89,7 +89,7 @@ public enum ParamKind {
     }
 
     @Override public ParamWriter newWriter() {
-      return new AnnotationParamWriter();
+      return new NamedParamWriter(false);
     }
   },
   HEADER_PARAM {
@@ -106,7 +106,7 @@ public enum ParamKind {
     }
 
     @Override public ParamWriter newWriter() {
-      return new AnnotationParamWriter();
+      return new NamedParamWriter(false);
     }
   },
   FLASH_PARAM {
@@ -123,7 +123,7 @@ public enum ParamKind {
     }
 
     @Override public ParamWriter newWriter() {
-      return new AnnotationParamWriter();
+      return new NamedParamWriter(false);
     }
   },
   FORM_PARAM {
@@ -140,7 +140,7 @@ public enum ParamKind {
     }
 
     @Override public ParamWriter newWriter() {
-      return new AnnotationParamWriter();
+      return new NamedParamWriter(true);
     }
   },
   SESSION_PARAM {
@@ -190,7 +190,9 @@ public enum ParamKind {
   }
 
   public static ParamKind forTypeInjection(ParamDefinition param) {
-    TypeMirror type = param.isOptional() ? param.getType().getArguments().get(0).getRawType() : param.getType().getRawType();
+    TypeMirror type = param.isOptional() ?
+        param.getType().getArguments().get(0).getRawType() :
+        param.getType().getRawType();
     String rawType = type.toString().replace(Formdata.class.getName(), Multipart.class.getName());
     for (ParamKind value : values()) {
       try {

@@ -2,6 +2,7 @@ package output;
 
 import io.jooby.annotations.GET;
 import io.jooby.annotations.Path;
+import io.jooby.annotations.PathParam;
 import io.jooby.annotations.QueryParam;
 
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.Map;
 public class MyController {
 
   @GET
-  public Integer doIt(Map<String, Object> map) {
-    return map.size();
+  public String doIt(@PathParam("p1") String p1) {
+    return p1;
   }
 }

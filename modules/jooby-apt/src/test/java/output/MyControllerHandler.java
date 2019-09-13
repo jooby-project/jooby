@@ -19,10 +19,11 @@ public class MyControllerHandler implements Route.Handler {
   }
 
   @Nonnull @Override public Object apply(@Nonnull Context ctx) throws Exception {
-    return provider.get().doIt(ctx.body(Reified.map(String.class, Object.class).getType()));
+    return provider.get().doIt(param(ctx.path(), "p1").to(String.class));
   }
 
-  private static Integer x(Value x) {
-    return x.to(Integer.class);
+  private static Value param(Value scope, String name) {
+    Value value = scope.get(name);
+    return value.isMissing() && scope.size() > 0 ? scope : value;
   }
 }

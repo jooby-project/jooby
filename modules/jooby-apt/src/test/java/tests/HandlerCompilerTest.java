@@ -110,7 +110,7 @@ public class HandlerCompilerTest {
   @Test
   public void flashParam() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
-        .compile("/p/flashParam", handler -> {
+        .debug("/p/flashParam", handler -> {
           assertEquals("hey",
               handler.apply(MockContextHelper.mockContext().setFlashAttribute("message", "hey")));
         })
@@ -435,6 +435,10 @@ public class HandlerCompilerTest {
   @Test
   public void nullRoutes() throws Exception {
     new MvcHandlerCompilerRunner(new NullRoutes())
+        .debug("/nullbean", handler -> {
+          assertThrows(ProvisioningException.class,
+              () -> handler.apply(MockContextHelper.mockContext()));
+        })
         .compile("/nullok", handler -> {
           assertEquals("null", handler.apply(MockContextHelper.mockContext()));
         })
@@ -442,10 +446,7 @@ public class HandlerCompilerTest {
           assertThrows(MissingValueException.class,
               () -> handler.apply(MockContextHelper.mockContext()));
         })
-        .compile("/nullbean", handler -> {
-          assertThrows(ProvisioningException.class,
-              () -> handler.apply(MockContextHelper.mockContext()));
-        })
+
     ;
   }
 
