@@ -2801,6 +2801,35 @@ public class FeaturedTest {
     });
   }
 
+  @Test
+  public void beanConverter() {
+    new JoobyRunner(app -> {
+      app.converter(new MyValueBeanConverter());
+
+      app.get("/", ctx -> ctx.query(MyValue.class));
+
+      app.get("/error", ctx -> ctx.query("string").to(MyValue.class));
+
+      app.post("/", ctx -> ctx.form(MyValue.class));
+    }).ready(client -> {
+      client.header("Accept", "text/plain");
+      client.get("/error?string=value", rsp -> {
+        assertEquals("GET /error 400 Bad Request\n"
+            + "Cannot convert value: 'string', to: 'io.jooby.MyValue'", rsp.body().string());
+      });
+
+      client.get("/?string=value", rsp -> {
+        assertEquals("value", rsp.body().string());
+      });
+
+      client.post("/", new FormBody.Builder()
+          .add("string", "form")
+          .build(), rsp -> {
+        assertEquals("form", rsp.body().string());
+      });
+    });
+  }
+
   private static String readText(Path file) {
     try {
       return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);

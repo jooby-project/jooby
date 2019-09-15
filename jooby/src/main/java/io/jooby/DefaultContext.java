@@ -10,7 +10,6 @@ import io.jooby.internal.MissingValue;
 import io.jooby.internal.SingleValue;
 import io.jooby.internal.UrlParser;
 import io.jooby.internal.ValueConverters;
-import io.jooby.internal.reflect.$Types;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

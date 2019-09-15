@@ -10,6 +10,8 @@ import javax.annotation.Nonnull;
 /**
  * Value converter for string values that come from query, path, form parameters into more specific
  * type.
+ *
+ * It is an extension point for {@link Value#to(Class)} calls.
  */
 public interface ValueConverter {
   /**

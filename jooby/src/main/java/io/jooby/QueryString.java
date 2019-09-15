@@ -34,6 +34,7 @@ public interface QueryString extends Value {
    *
    * <pre>{@code {q: foo, sort: name}}</pre>
    *
+   * @param ctx Current context.
    * @param queryString Query string.
    * @return A query string.
    */

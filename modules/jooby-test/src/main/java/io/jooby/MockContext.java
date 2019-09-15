@@ -575,6 +575,12 @@ public class MockContext implements DefaultContext {
     return router;
   }
 
+  /**
+   * Set a mock router.
+   *
+   * @param router Mock router.
+   * @return This context.
+   */
   @Nonnull public MockContext setRouter(@Nonnull Router router) {
     this.router = router;
     return this;

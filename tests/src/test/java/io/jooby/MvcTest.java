@@ -5,6 +5,7 @@ import examples.JAXRS;
 import examples.LoopDispatch;
 import examples.Message;
 import examples.MvcBody;
+import examples.MyValueRouter;
 import examples.NoTopLevelPath;
 import examples.NullInjection;
 import examples.ProducesConsumes;
@@ -375,6 +376,18 @@ public class MvcTest {
           create("{\"foo\": \"bar\"}", MediaType.get("application/json")), rsp -> {
             assertEquals("{foo=bar}x", rsp.body().string());
           });
+    });
+  }
+
+  @Test
+  public void beanConverter() {
+    new JoobyRunner(app -> {
+      app.converter(new MyValueBeanConverter());
+      app.mvc(new MyValueRouter());
+    }).ready(client -> {
+      client.get("/myvalue?string=query", rsp -> {
+        assertEquals("query", rsp.body().string());
+      });
     });
   }
 

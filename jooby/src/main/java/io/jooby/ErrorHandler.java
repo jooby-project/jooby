@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import static io.jooby.MediaType.html;
 import static io.jooby.MediaType.json;
+import static io.jooby.MediaType.text;
 
 /**
  * Catch and encode application errors.
@@ -27,8 +28,24 @@ public interface ErrorHandler {
   ErrorHandler DEFAULT = (ctx, cause, statusCode) -> {
     ctx.getRouter().getLog().error(errorMessage(ctx, statusCode), cause);
 
-    MediaType type = ctx.accept(Arrays.asList(json, html));
-    if (type == null || type.equals(html)) {
+    MediaType type = ctx.accept(Arrays.asList(html, json, text));
+    if (json.equals(type)) {
+      String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
+      ctx.setResponseType(json)
+          .setResponseCode(statusCode)
+          .send("{\"message\":\"" + XSS.json(message) + "\",\"statusCode\":" + statusCode.value()
+              + ",\"reason\":\"" + statusCode.reason() + "\"}");
+    } else if (text.equals(type)) {
+      StringBuilder message = new StringBuilder();
+      message.append(ctx.getMethod()).append(" ").append(ctx.pathString()).append(" ");
+      message.append(statusCode.value()).append(" ").append(statusCode.reason());
+      if (cause.getMessage() != null) {
+        message.append("\n").append(XSS.json(cause.getMessage()));
+      }
+      ctx.setResponseType(text)
+          .setResponseCode(statusCode)
+          .send(message.toString());
+    } else {
       String message = cause.getMessage();
       StringBuilder html = new StringBuilder("<!doctype html>\n")
           .append("<html>\n")
@@ -63,12 +80,6 @@ public interface ErrorHandler {
           .setResponseType(MediaType.html)
           .setResponseCode(statusCode)
           .send(html.toString());
-    } else {
-      String message = Optional.ofNullable(cause.getMessage()).orElse(statusCode.reason());
-      ctx.setResponseType(json)
-          .setResponseCode(statusCode)
-          .send("{\"message\":\"" + XSS.json(message) + "\",\"statusCode\":" + statusCode.value()
-              + ",\"reason\":\"" + statusCode.reason() + "\"}");
     }
   };
 

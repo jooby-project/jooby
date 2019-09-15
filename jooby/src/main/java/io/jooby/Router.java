@@ -676,14 +676,30 @@ public interface Router extends Registry {
    */
   @Nonnull Router setFlashCookie(@Nonnull String name);
 
-  @Nonnull Router converter(ValueConverter converter);
+  /**
+   * Add a custom string value converter.
+   *
+   * @param converter Custom value converter.
+   * @return This router.
+   */
+  @Nonnull Router converter(@Nonnull ValueConverter converter);
 
+  /**
+   * Get all simple/string value converters.
+   *
+   * @return All simple/string value converters.
+   */
   @Nonnull List<ValueConverter> getConverters();
 
+  /**
+   * Get all complex/bean value converters.
+   *
+   * @return All complex/bean value converters.
+   */
   @Nonnull List<BeanConverter> getBeanConverters();
 
   /**
-   * Normalize a path by removing consecutives <code>/</code>(slashes), make it lower case and
+   * Normalize a path by removing consecutive <code>/</code>(slashes), make it lower case and
    * removing trailing slash.
    *
    * @param path Path to process.

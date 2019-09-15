@@ -82,6 +82,13 @@ public interface Body extends Value {
     return to((Type) type);
   }
 
+  /**
+   * Convert this body into the given type.
+   *
+   * @param type Type to use.
+   * @param <T> Generic type.
+   * @return Converted value.
+   */
   @Nonnull <T> T to(@Nonnull Type type);
 
   /* **********************************************************************************************
@@ -92,40 +99,44 @@ public interface Body extends Value {
   /**
    * Empty body.
    *
+   * @param ctx Current context.
    * @return Empty body.
    */
-  static Body empty(Context ctx) {
+  static @Nonnull Body empty(@Nonnull Context ctx) {
     return ByteArrayBody.empty(ctx);
   }
 
   /**
    * Creates a HTTP body from input stream.
    *
+   * @param ctx Current context.
    * @param stream Input stream.
    * @param size Size in bytes or <code>-1</code>.
    * @return A new body.
    */
-  static @Nonnull Body of(Context ctx, @Nonnull InputStream stream, long size) {
+  static @Nonnull Body of(@Nonnull Context ctx, @Nonnull InputStream stream, long size) {
     return new InputStreamBody(ctx, stream, size);
   }
 
   /**
    * Creates a HTTP body from byte array.
    *
+   * @param ctx Current context.
    * @param bytes byte array.
    * @return A new body.
    */
-  static @Nonnull Body of(Context ctx, @Nonnull byte[] bytes) {
+  static @Nonnull Body of(@Nonnull Context ctx, @Nonnull byte[] bytes) {
     return new ByteArrayBody(ctx, bytes);
   }
 
   /**
    * Creates a HTTP body from file.
    *
+   * @param ctx Current context.
    * @param file File.
    * @return A new body.
    */
-  static @Nonnull Body of(Context ctx, @Nonnull Path file) {
+  static @Nonnull Body of(@Nonnull Context ctx, @Nonnull Path file) {
     return new FileBody(ctx, file);
   }
 }

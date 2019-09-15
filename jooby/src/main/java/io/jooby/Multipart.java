@@ -22,9 +22,10 @@ public interface Multipart extends Formdata {
   /**
    * Creates a new multipart object.
    *
+   * @param ctx Current context.
    * @return Multipart instance.
    */
   static @Nonnull Multipart create(@Nonnull Context ctx) {
-    return new HashValue(ctx,null);
+    return new HashValue(ctx, null);
   }
 }

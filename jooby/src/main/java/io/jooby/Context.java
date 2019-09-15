@@ -86,7 +86,15 @@ public interface Context extends Registry {
    */
   @Nonnull Router getRouter();
 
-  @Nullable <T> T convert(Value value, Class<T> type);
+  /**
+   * Converts a value (single or hash) into the given type.
+   *
+   * @param value Value to convert.
+   * @param type Expected type.
+   * @param <T> Generic type.
+   * @return Converted value.
+   */
+  @Nullable <T> T convert(@Nonnull Value value, @Nonnull Class<T> type);
 
   /*
    * **********************************************************************************************
@@ -563,7 +571,8 @@ public interface Context extends Registry {
   /**
    * Convert the HTTP body to the given type.
    *
-   * @param type Reified type.
+   * @param type Generic type.
+   * @param contentType Content type to use.
    * @param <T> Conversion type.
    * @return Instance of conversion type.
    */
