@@ -215,7 +215,7 @@ public class MvcTest {
       });
 
       client.get("/args/foo/678/9/3.14/6.66/true", rsp -> {
-        assertEquals("/args/foo/678/9/3.14/6.66/true", rsp.body().string());
+        assertEquals("GET/foo/678/9/3.14/6.66/true", rsp.body().string());
       });
 
       client.get("/args/long/678", rsp -> {

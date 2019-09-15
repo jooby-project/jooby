@@ -428,7 +428,7 @@ public class ValueToBeanTest {
     });
 
     queryString("id=userId", queryString -> {
-      assertEquals("valueOf:userId", queryString.to(UserId.class).toString());
+      assertEquals("userId", queryString.to(UserId.class).toString());
     });
     queryString("id=userId", queryString -> {
       assertEquals("valueOf:userId", queryString.get("id").to(UserId.class).toString());

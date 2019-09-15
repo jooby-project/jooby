@@ -552,6 +552,10 @@ public class Jooby implements Router, Registry {
     return router.getConverters();
   }
 
+  @Nonnull @Override public List<BeanConverter> getBeanConverters() {
+    return router.getBeanConverters();
+  }
+
   /**
    * Start application, find a web server, deploy application, start router, extension modules,
    * etc..

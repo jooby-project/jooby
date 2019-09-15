@@ -18,7 +18,10 @@ import io.jooby.annotations.QueryParam;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/args")
 public class Provisioning {
@@ -99,7 +102,9 @@ public class Provisioning {
   @Path("/{s}/{i}/{j}/{f}/{d}/{b}")
   public String mix(@PathParam String s, @PathParam Integer i, @PathParam double d, Context ctx,
       @PathParam long j, @PathParam Float f, @PathParam boolean b) {
-    return ctx.pathString();
+    return Stream.of(ctx.getMethod(), s, i, j, f, d, b)
+        .map(Objects::toString)
+        .collect(Collectors.joining("/"));
   }
 
   @GET

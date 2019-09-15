@@ -71,8 +71,7 @@ public class TypeDefinition {
   }
 
   private boolean is(String type, String... arguments) {
-    boolean same = getRawType().toString().equals(type);
-    if (!same) {
+    if (!equalType(getType(), type)) {
       return false;
     }
     if (arguments.length > 0 && this.type instanceof DeclaredType) {
@@ -82,9 +81,21 @@ public class TypeDefinition {
         return false;
       }
       for (int i = 0; i < arguments.length; i++) {
-        if (!arguments[i].equals(typeUtils.erasure(args.get(i)).toString())) {
+        if (!equalType(args.get(i), arguments[i])) {
           return false;
         }
+      }
+    }
+    return true;
+  }
+
+  private boolean equalType(TypeMirror type, String typeName) {
+    if (!typeUtils.erasure(type).toString().equals(typeName)) {
+      // check for enum subclasses:
+      if (Enum.class.getName().equals(typeName)) {
+        return typeUtils.asElement(type).getKind() == ElementKind.ENUM;
+      } else {
+        return false;
       }
     }
     return true;

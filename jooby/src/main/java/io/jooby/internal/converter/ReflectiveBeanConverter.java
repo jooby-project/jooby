@@ -1,10 +1,10 @@
 package io.jooby.internal.converter;
 
 import io.jooby.BadRequestException;
+import io.jooby.BeanConverter;
 import io.jooby.MissingValueException;
 import io.jooby.ProvisioningException;
 import io.jooby.Value;
-import io.jooby.ValueConverter;
 import io.jooby.internal.reflect.$Types;
 
 import javax.annotation.Nonnull;
@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 
 import static io.jooby.SneakyThrows.propagate;
 
-public class ReflectiveBeanConverter implements ValueConverter {
+public class ReflectiveBeanConverter implements BeanConverter {
   private static final String AMBIGUOUS_CONSTRUCTOR =
       "Ambiguous constructor found. Expecting a single constructor or only one annotated with "
           + Inject.class.getName();

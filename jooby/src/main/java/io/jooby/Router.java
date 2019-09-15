@@ -680,6 +680,8 @@ public interface Router extends Registry {
 
   @Nonnull List<ValueConverter> getConverters();
 
+  @Nonnull List<BeanConverter> getBeanConverters();
+
   /**
    * Normalize a path by removing consecutives <code>/</code>(slashes), make it lower case and
    * removing trailing slash.

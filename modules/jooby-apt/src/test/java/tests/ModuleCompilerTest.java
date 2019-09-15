@@ -1,14 +1,10 @@
 package tests;
 
 import io.jooby.Context;
-import io.jooby.CoroutineRouter;
-import io.jooby.MockContext;
 import io.jooby.MockRouter;
 import io.jooby.Route;
 import io.jooby.StatusCode;
 import io.jooby.apt.MvcModuleCompilerRunner;
-import kotlin.coroutines.Continuation;
-import kotlinx.coroutines.GlobalScope;
 import org.junit.jupiter.api.Test;
 import source.GetPostRoute;
 import source.JavaBeanParam;
@@ -18,7 +14,6 @@ import source.RouteAttributes;
 import source.RouteDispatch;
 import source.RouteWithMimeTypes;
 import source.Routes;
-import source.SuspendRoute;
 import source.VoidRoute;
 
 import java.util.Arrays;
@@ -28,7 +23,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 public class ModuleCompilerTest {
   @Test

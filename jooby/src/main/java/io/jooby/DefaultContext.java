@@ -303,7 +303,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override default @Nullable <T> T convert(Value value, Class<T> type) {
-    T result = ValueConverters.convert(value, type, getRouter().getConverters());
+    T result = ValueConverters.convert(value, type, getRouter());
     if (result == null) {
       throw new TypeMismatchException(value.name(), type);
     }
@@ -313,7 +313,7 @@ public interface DefaultContext extends Context {
   @Override default @Nonnull <T> T decode(@Nonnull Type type, @Nonnull MediaType contentType) {
     try {
       if (MediaType.text.equals(contentType)) {
-        T result = ValueConverters.convert(body(), type, getRouter().getConverters());
+        T result = ValueConverters.convert(body(), type, getRouter());
         if (result != null) {
           return result;
         }

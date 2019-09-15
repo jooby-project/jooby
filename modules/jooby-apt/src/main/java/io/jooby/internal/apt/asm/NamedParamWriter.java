@@ -9,7 +9,6 @@ import io.jooby.internal.apt.ParamDefinition;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 import java.lang.reflect.Method;
 
@@ -28,17 +27,16 @@ public class NamedParamWriter extends ValueWriter {
   @Override
   public void accept(ClassWriter writer, String handlerInternalName, MethodVisitor visitor,
       ParamDefinition parameter) throws Exception {
-    if (tryName) {
-      param(writer, parameter);
-      Method paramMethod = parameter.getObjectValue();
+    String parameterName = parameter.getHttpName();
+
+    Method paramMethod;
+    if (parameter.isNamed()) {
+      paramMethod = parameter.getSingleValue();
+      visitor.visitLdcInsn(parameterName);
       visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
           getMethodDescriptor(paramMethod), true);
-      visitor.visitLdcInsn(parameter.getHttpName());
-      visitor.visitMethodInsn(INVOKESTATIC, handlerInternalName, parameter.getName(),
-          "(Lio/jooby/Value;Ljava/lang/String;)Lio/jooby/Value;", false);
     } else {
-      Method paramMethod = parameter.getSingleValue();
-      visitor.visitLdcInsn(parameter.getHttpName());
+      paramMethod = parameter.getObjectValue();
       visitor.visitMethodInsn(INVOKEINTERFACE, CTX.getInternalName(), paramMethod.getName(),
           getMethodDescriptor(paramMethod), true);
     }

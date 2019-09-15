@@ -16,10 +16,12 @@ import io.jooby.Route;
 import io.jooby.Session;
 import io.jooby.Value;
 import io.jooby.apt.Annotations;
+import io.jooby.internal.ValueConverters;
 import io.jooby.internal.apt.asm.ParamWriter;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Types;
 import java.lang.reflect.Method;
@@ -119,12 +121,17 @@ public class ParamDefinition {
     return getKind().singleValue(this);
   }
 
-  public boolean isSimpleType() {
+  private boolean isSimpleType() {
     for (Class builtinType : builtinTypes()) {
       if (is(builtinType) || is(Optional.class, builtinType) || is(List.class, builtinType) || is(
           Set.class, builtinType)) {
         return true;
       }
+    }
+    ElementKind kind = typeUtils.asElement(type.getType()).getKind();
+    if (kind == ElementKind.ENUM
+        || ((is(Optional.class) || is(List.class) || is(Set.class))) && kind == ElementKind.ENUM) {
+      return true;
     }
     return false;
   }
@@ -148,6 +155,7 @@ public class ParamDefinition {
         Double.class,
         Double.TYPE,
         String.class,
+        Enum.class,
         java.time.Instant.class,
         java.util.UUID.class,
         java.math.BigDecimal.class,

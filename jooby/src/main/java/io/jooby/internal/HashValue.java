@@ -133,6 +133,9 @@ public class HashValue implements Value, Multipart {
   }
 
   private void useIndexes() {
+    if (hash instanceof TreeMap) {
+      return;
+    }
     TreeMap<String, Value> ordered = new TreeMap<>();
     ordered.putAll(hash);
     hash.clear();
@@ -199,21 +202,31 @@ public class HashValue implements Value, Multipart {
   }
 
   @Nonnull @Override public <T> List<T> toList(@Nonnull Class<T> type) {
-    Collection<Value> values = hash.values();
-    List<T> result = new ArrayList<>(values.size());
-    for (Value value : values) {
-      result.add(value.to(type));
+    if (hash instanceof TreeMap) {
+      // indexes access, treat like a list
+      Collection<Value> values = hash.values();
+      List<T> result = new ArrayList<>(values.size());
+      for (Value value : values) {
+        result.add(value.to(type));
+      }
+      return result;
+    } else {
+      return Collections.singletonList(to(type));
     }
-    return result;
   }
 
   @Nonnull @Override public <T> Set<T> toSet(@Nonnull Class<T> type) {
-    Collection<Value> values = hash.values();
-    Set<T> result = new LinkedHashSet<>(values.size());
-    for (Value value : values) {
-      result.add(value.to(type));
+    if (hash instanceof TreeMap) {
+      // indexes access, treat like a list
+      Collection<Value> values = hash.values();
+      Set<T> result = new LinkedHashSet<>(values.size());
+      for (Value value : values) {
+        result.add(value.to(type));
+      }
+      return result;
+    } else {
+      return Collections.singleton(to(type));
     }
-    return result;
   }
 
   @Nonnull @Override public <T> Optional<T> toOptional(@Nonnull Class<T> type) {

@@ -5,6 +5,7 @@
  */
 package io.jooby.internal;
 
+import io.jooby.BeanConverter;
 import io.jooby.Context;
 import io.jooby.RegistryException;
 import io.jooby.ServiceKey;
@@ -139,12 +140,15 @@ public class RouterImpl implements Router {
 
   private List<ValueConverter> converters;
 
+  private List<BeanConverter> beanConverters;
+
   public RouterImpl(ClassLoader loader) {
     this.source = new ClassSource(loader);
     this.analyzer = new RouteAnalyzer(source, false);
     stack.addLast(new Stack(""));
 
     converters = ValueConverters.defaultConverters();
+    beanConverters = new ArrayList<>(3);
   }
 
   @Nonnull @Override public Map<String, Object> getAttributes() {
@@ -310,12 +314,20 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router converter(ValueConverter converter) {
-    converters.add(converter);
+    if (converter instanceof BeanConverter) {
+      beanConverters.add((BeanConverter) converter);
+    } else {
+      converters.add(converter);
+    }
     return this;
   }
 
   @Nonnull @Override public List<ValueConverter> getConverters() {
     return converters;
+  }
+
+  @Nonnull @Override public List<BeanConverter> getBeanConverters() {
+    return beanConverters;
   }
 
   @Override
@@ -394,6 +406,7 @@ public class RouterImpl implements Router {
 
     // Must be last, as fallback
     ValueConverters.addFallbackConverters(converters);
+    ValueConverters.addFallbackBeanConverters(beanConverters);
 
     ExecutionMode mode = owner.getExecutionMode();
     for (Route route : routes) {

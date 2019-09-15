@@ -110,7 +110,7 @@ public class HandlerCompilerTest {
   @Test
   public void flashParam() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
-        .debug("/p/flashParam", handler -> {
+        .compile("/p/flashParam", handler -> {
           assertEquals("hey",
               handler.apply(MockContextHelper.mockContext().setFlashAttribute("message", "hey")));
         })
@@ -132,6 +132,10 @@ public class HandlerCompilerTest {
   @Test
   public void pathParam() throws Exception {
     new MvcHandlerCompilerRunner(new Provisioning())
+        .compile("/p/listBeanPathParam", handler -> {
+          assertEquals("[bar]",
+              handler.apply(MockContextHelper.mockContext().setPathMap(mapOf("foo", "bar"))));
+        })
         .compile("/p/pathParam", handler -> {
           assertEquals("v1",
               handler.apply(MockContextHelper.mockContext().setPathMap(mapOf("p1", "v1"))));
@@ -179,10 +183,6 @@ public class HandlerCompilerTest {
         .compile("/p/listDoublePathParam", handler -> {
           assertEquals("[6.7]",
               handler.apply(MockContextHelper.mockContext().setPathMap(mapOf("values", "6.7"))));
-        })
-        .compile("/p/listBeanPathParam", handler -> {
-          assertEquals("[bar]",
-              handler.apply(MockContextHelper.mockContext().setPathMap(mapOf("foo", "bar"))));
         })
         .compile("/p/setStringPathParam", handler -> {
           assertEquals("[bar]",
@@ -435,7 +435,7 @@ public class HandlerCompilerTest {
   @Test
   public void nullRoutes() throws Exception {
     new MvcHandlerCompilerRunner(new NullRoutes())
-        .debug("/nullbean", handler -> {
+        .compile("/nullbean", handler -> {
           assertThrows(ProvisioningException.class,
               () -> handler.apply(MockContextHelper.mockContext()));
         })

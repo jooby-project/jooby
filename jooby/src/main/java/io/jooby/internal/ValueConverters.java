@@ -1,6 +1,8 @@
 package io.jooby.internal;
 
+import io.jooby.BeanConverter;
 import io.jooby.FileUpload;
+import io.jooby.Router;
 import io.jooby.TypeMismatchException;
 import io.jooby.Value;
 import io.jooby.internal.converter.BigDecimalConverter;
@@ -35,7 +37,6 @@ public class ValueConverters {
 
   static List<ValueConverter> defaultConverters() {
     List<ValueConverter> result = new ArrayList<>();
-//    result.add(new EnumConverter());
     result.add(new UUIDConverter());
 
     result.add(new InstantConverter());
@@ -63,25 +64,28 @@ public class ValueConverters {
 
   static void addFallbackConverters(List<ValueConverter> converters) {
     converters.add(new ValueOfConverter());
+  }
+
+  static void addFallbackBeanConverters(List<BeanConverter> converters) {
     converters.add(new ReflectiveBeanConverter());
   }
 
-  public static <T> T convert(Value value, Type type, List<ValueConverter> converters) {
+  public static <T> T convert(Value value, Type type, Router router) {
     Class rawType = $Types.getRawType(type);
     if (List.class.isAssignableFrom(rawType)) {
       return (T) Collections
-          .singletonList(convert(value, $Types.parameterizedType0(type), converters));
+          .singletonList(convert(value, $Types.parameterizedType0(type), router));
     }
     if (Set.class.isAssignableFrom(rawType)) {
-      return (T) Collections.singleton(convert(value, $Types.parameterizedType0(type), converters));
+      return (T) Collections.singleton(convert(value, $Types.parameterizedType0(type), router));
     }
     if (Optional.class.isAssignableFrom(rawType)) {
-      return (T) Optional.ofNullable(convert(value, $Types.parameterizedType0(type), converters));
+      return (T) Optional.ofNullable(convert(value, $Types.parameterizedType0(type), router));
     }
-    return convert(value, rawType, converters);
+    return convert(value, rawType, router);
   }
 
-  public static <T> T convert(Value value, Class type, List<ValueConverter> converters) {
+  public static <T> T convert(Value value, Class type, Router router) {
     if (type == String.class) {
       return (T) first(value).valueOrNull();
     }
@@ -123,23 +127,28 @@ public class ValueConverters {
       return (T) (value.isMissing() ? null : Byte.valueOf(first(value).byteValue()));
     }
     /** File Upload: */
-    if (Path.class == type) {
-      if (value.isUpload()) {
+    if (value.isUpload()) {
+      if (Path.class == type) {
+
         FileUpload upload = (FileUpload) value;
         return (T) upload.path();
-      }
-      throw new TypeMismatchException(value.name(), Path.class);
-    }
-    if (FileUpload.class == type) {
-      if (value.isUpload()) {
+      } else if (FileUpload.class == type) {
         return (T) value;
       }
       throw new TypeMismatchException(value.name(), FileUpload.class);
     }
 
-    for (ValueConverter converter : converters) {
-      if (converter.supports(type)) {
-        return (T) converter.convert(value, type);
+    if (value.isSingle()) {
+      for (ValueConverter converter : router.getConverters()) {
+        if (converter.supports(type)) {
+          return (T) converter.convert(value, type);
+        }
+      }
+    } else if (value.isObject()) {
+      for (BeanConverter converter : router.getBeanConverters()) {
+        if (converter.supports(type)) {
+          return (T) converter.convert(value, type);
+        }
       }
     }
     return null;
@@ -162,15 +171,15 @@ public class ValueConverters {
   }
 
   private static Value first(Value source) {
-    if (source.isSingle()) {
-      return source;
-    }
-    if (source.isArray()) {
-      return source.get(0);
-    }
-    if (source.isObject() && source.size() > 0) {
-      return source.iterator().next();
-    }
+    //    if (source.isSingle()) {
+    //      return source;
+    //    }
+    //    if (source.isArray()) {
+    //      return source.get(0);
+    //    }
+    //    if (source.isObject() && source.size() > 0) {
+    //      return source.iterator().next();
+    //    }
     return source;
   }
 }
