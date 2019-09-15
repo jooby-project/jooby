@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.jooby.ValueConverter;
 
 import java.util.UUID;
@@ -15,7 +15,7 @@ public class UUIDConverter implements ValueConverter {
     return type == UUID.class;
   }
 
-  @Override public UUID convert(Value value, Class type) {
+  @Override public UUID convert(ValueNode value, Class type) {
     return UUID.fromString(value.value());
   }
 }

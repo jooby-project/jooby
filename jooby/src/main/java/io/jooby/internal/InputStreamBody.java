@@ -10,7 +10,7 @@ import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
-import io.jooby.Value;
+import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
@@ -70,11 +70,11 @@ public class InputStreamBody implements Body {
     return value(StandardCharsets.UTF_8);
   }
 
-  @Nonnull @Override public Value get(@Nonnull int index) {
+  @Nonnull @Override public ValueNode get(@Nonnull int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
-  @Nonnull @Override public Value get(@Nonnull String name) {
+  @Nonnull @Override public ValueNode get(@Nonnull String name) {
     return new MissingValue(name);
   }
 

@@ -84,7 +84,7 @@ public interface DefaultContext extends Context {
    * @param name Attribute's name.
    * @return Flash attribute.
    */
-  @Override default @Nonnull Value flash(@Nonnull String name) {
+  @Override default @Nonnull ValueNode flash(@Nonnull String name) {
     return Value.create(this, name, flash().get(name));
   }
 
@@ -121,12 +121,12 @@ public interface DefaultContext extends Context {
     return session;
   }
 
-  @Override default @Nonnull Value cookie(@Nonnull String name) {
+  @Override default @Nonnull ValueNode cookie(@Nonnull String name) {
     String value = cookieMap().get(name);
     return value == null ? Value.missing(name) : Value.value(this, name, value);
   }
 
-  @Override @Nonnull default Value path(@Nonnull String name) {
+  @Override @Nonnull default ValueNode path(@Nonnull String name) {
     String value = pathMap().get(name);
     return value == null
         ? new MissingValue(name)
@@ -137,7 +137,7 @@ public interface DefaultContext extends Context {
     return path().to(type);
   }
 
-  @Override @Nonnull default Value path() {
+  @Override @Nonnull default ValueNode path() {
     HashValue path = new HashValue(this, null);
     for (Map.Entry<String, String> entry : pathMap().entrySet()) {
       path.put(entry.getKey(), entry.getValue());
@@ -145,7 +145,7 @@ public interface DefaultContext extends Context {
     return path;
   }
 
-  @Override @Nonnull default Value query(@Nonnull String name) {
+  @Override @Nonnull default ValueNode query(@Nonnull String name) {
     return query().get(name);
   }
 
@@ -165,7 +165,7 @@ public interface DefaultContext extends Context {
     return query().toMultimap();
   }
 
-  @Override @Nonnull default Value header(@Nonnull String name) {
+  @Override @Nonnull default ValueNode header(@Nonnull String name) {
     return header().get(name);
   }
 
@@ -178,7 +178,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override default boolean accept(@Nonnull MediaType contentType) {
-    Value accept = header(ACCEPT);
+    ValueNode accept = header(ACCEPT);
     return accept.isMissing() ? true : contentType.matches(accept.value());
   }
 
@@ -203,17 +203,17 @@ public interface DefaultContext extends Context {
   }
 
   @Override @Nullable default MediaType getRequestType() {
-    Value contentType = header("Content-Type");
+    ValueNode contentType = header("Content-Type");
     return contentType.isMissing() ? null : MediaType.valueOf(contentType.value());
   }
 
   @Override @Nonnull default MediaType getRequestType(MediaType defaults) {
-    Value contentType = header("Content-Type");
+    ValueNode contentType = header("Content-Type");
     return contentType.isMissing() ? defaults : MediaType.valueOf(contentType.value());
   }
 
   @Override default long getRequestLength() {
-    Value contentLength = header("Content-Length");
+    ValueNode contentLength = header("Content-Length");
     return contentLength.isMissing() ? -1 : contentLength.longValue();
   }
 
@@ -234,7 +234,7 @@ public interface DefaultContext extends Context {
     return form().toMap();
   }
 
-  @Override @Nonnull default Value form(@Nonnull String name) {
+  @Override @Nonnull default ValueNode form(@Nonnull String name) {
     return form().get(name);
   }
 
@@ -242,7 +242,7 @@ public interface DefaultContext extends Context {
     return form().to(type);
   }
 
-  @Override @Nonnull default Value multipart(@Nonnull String name) {
+  @Override @Nonnull default ValueNode multipart(@Nonnull String name) {
     return multipart().get(name);
   }
 
@@ -259,9 +259,9 @@ public interface DefaultContext extends Context {
   }
 
   @Override @Nonnull default List<FileUpload> files() {
-    Value multipart = multipart();
+    ValueNode multipart = multipart();
     List<FileUpload> result = new ArrayList<>();
-    for (Value value : multipart) {
+    for (ValueNode value : multipart) {
       if (value.isUpload()) {
         result.add((FileUpload) value);
       }
@@ -270,12 +270,12 @@ public interface DefaultContext extends Context {
   }
 
   @Override @Nonnull default List<FileUpload> files(@Nonnull String name) {
-    Value multipart = multipart(name);
+    ValueNode multipart = multipart(name);
     if (multipart instanceof FileUpload) {
       return Collections.singletonList((FileUpload) multipart);
     }
     List<FileUpload> result = new ArrayList<>();
-    for (Value value : multipart) {
+    for (ValueNode value : multipart) {
       if (value instanceof FileUpload) {
         result.add((FileUpload) value);
       } else {
@@ -286,7 +286,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override @Nonnull default FileUpload file(@Nonnull String name) {
-    Value value = multipart(name);
+    ValueNode value = multipart(name);
     if (value instanceof FileUpload) {
       return (FileUpload) value;
     }
@@ -301,7 +301,7 @@ public interface DefaultContext extends Context {
     return body().to(type);
   }
 
-  @Override default @Nullable <T> T convert(Value value, Class<T> type) {
+  @Override default @Nullable <T> T convert(ValueNode value, Class<T> type) {
     T result = ValueConverters.convert(value, type, getRouter());
     if (result == null) {
       throw new TypeMismatchException(value.name(), type);

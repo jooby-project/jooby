@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.jooby.ValueConverter;
 
 import java.time.Instant;
@@ -18,7 +18,7 @@ public class LocalDateConverter implements ValueConverter {
     return type == LocalDate.class;
   }
 
-  @Override public Object convert(Value value, Class type) {
+  @Override public Object convert(ValueNode value, Class type) {
     try {
       // must be millis
       Instant instant = Instant.ofEpochMilli(Long.parseLong(value.value()));

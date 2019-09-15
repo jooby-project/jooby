@@ -7,7 +7,7 @@ public class MyValueBeanConverter implements BeanConverter {
     return MyValue.class == type;
   }
 
-  @Override public Object convert(@Nonnull Value value, @Nonnull Class type) {
+  @Override public Object convert(@Nonnull ValueNode value, @Nonnull Class type) {
     MyValue result = new MyValue();
     result.setString(value.get("string").value());
     return result;

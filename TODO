@@ -1,4 +1,4 @@
-* multiple path params on MVC routes (fix link sync)
+* Session set null context to Value API
 * review toString on Value API
 * Value vs ValueNode API
 * tests and coverage

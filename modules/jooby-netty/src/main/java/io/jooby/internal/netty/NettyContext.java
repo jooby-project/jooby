@@ -24,6 +24,7 @@ import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -41,7 +42,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -103,7 +103,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   private Formdata form;
   private Multipart multipart;
   private List<FileUpload> files;
-  private Value headers;
+  private ValueNode headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private MediaType responseType;
   private Map<String, Object> attributes = new HashMap<>();
@@ -205,7 +205,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return multipart;
   }
 
-  @Nonnull @Override public Value header(@Nonnull String name) {
+  @Nonnull @Override public ValueNode header(@Nonnull String name) {
     return Value.create(this, name, req.headers().getAll(name));
   }
 
@@ -223,7 +223,7 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
     return "http";
   }
 
-  @Nonnull @Override public Value header() {
+  @Nonnull @Override public ValueNode header() {
     if (headers == null) {
       Map<String, Collection<String>> headerMap = new LinkedHashMap<>();
       HttpHeaders headers = req.headers();

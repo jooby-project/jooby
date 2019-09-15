@@ -22,6 +22,7 @@ import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
@@ -69,7 +70,7 @@ public class UtowContext implements DefaultContext, IoCallback {
   private QueryString query;
   private Formdata form;
   private Multipart multipart;
-  private Value headers;
+  private ValueNode headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private Map<String, Object> attributes;
   Body body;
@@ -158,11 +159,11 @@ public class UtowContext implements DefaultContext, IoCallback {
     return scheme == null ? "http" : scheme.toLowerCase();
   }
 
-  @Nonnull @Override public Value header(@Nonnull String name) {
+  @Nonnull @Override public ValueNode header(@Nonnull String name) {
     return Value.create(this, name, exchange.getRequestHeaders().get(name));
   }
 
-  @Nonnull @Override public Value header() {
+  @Nonnull @Override public ValueNode header() {
     HeaderMap map = exchange.getRequestHeaders();
     if (headers == null) {
       Map<String, Collection<String>> headerMap = new LinkedHashMap<>();

@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
  * Value converter for string values that come from query, path, form parameters into more specific
  * type.
  *
- * It is an extension point for {@link Value#to(Class)} calls.
+ * It is an extension point for {@link ValueNode#to(Class)} calls.
  */
 public interface ValueConverter {
   /**
@@ -29,5 +29,5 @@ public interface ValueConverter {
    * @param type Requested type.
    * @return Converted value.
    */
-  Object convert(@Nonnull Value value, @Nonnull Class type);
+  Object convert(@Nonnull ValueNode value, @Nonnull Class type);
 }

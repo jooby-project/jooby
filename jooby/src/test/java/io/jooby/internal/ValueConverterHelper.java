@@ -3,7 +3,7 @@ package io.jooby.internal;
 import io.jooby.BeanConverter;
 import io.jooby.Context;
 import io.jooby.Router;
-import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.jooby.ValueConverter;
 import org.mockito.stubbing.Answer;
 
@@ -33,7 +33,7 @@ public class ValueConverterHelper {
     when(router.getConverters()).thenReturn(simple);
     when(router.getBeanConverters()).thenReturn(beans);
     when(ctx.convert(any(), any())).then((Answer) invocation -> {
-      Value value = invocation.getArgument(0);
+      ValueNode value = invocation.getArgument(0);
       Class type = invocation.getArgument(1);
       return ValueConverters.convert(value, type, router);
     });

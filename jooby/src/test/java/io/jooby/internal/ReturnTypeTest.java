@@ -3,7 +3,7 @@ package io.jooby.internal;
 import io.jooby.Context;
 import io.jooby.Reified;
 import io.jooby.Route;
-import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.jooby.internal.asm.ClassSource;
 import org.junit.jupiter.api.Test;
 
@@ -140,7 +140,7 @@ public class ReturnTypeTest {
     });
 
     assertType(Double.class, ctx -> {
-      Value value = ctx.path("f");
+      ValueNode value = ctx.path("f");
 
       Double to = value.to(Double.class);
 

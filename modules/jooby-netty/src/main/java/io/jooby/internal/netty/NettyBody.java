@@ -9,7 +9,7 @@ import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
-import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.jooby.internal.MissingValue;
 import io.netty.handler.codec.http.multipart.HttpData;
 
@@ -76,11 +76,11 @@ public class NettyBody implements Body {
     return value(StandardCharsets.UTF_8);
   }
 
-  @Nonnull @Override public Value get(@Nonnull int index) {
+  @Nonnull @Override public ValueNode get(@Nonnull int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
-  @Nonnull @Override public Value get(@Nonnull String name) {
+  @Nonnull @Override public ValueNode get(@Nonnull String name) {
     return new MissingValue(name);
   }
 

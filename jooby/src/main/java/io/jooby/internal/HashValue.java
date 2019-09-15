@@ -9,7 +9,7 @@ import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
-import io.jooby.Value;
+import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -26,12 +26,12 @@ import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
-public class HashValue implements Value, Multipart {
-  private static final Map<String, Value> EMPTY = Collections.emptyMap();
+public class HashValue implements ValueNode, Multipart {
+  private static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
 
   private Context ctx;
 
-  private Map<String, Value> hash = EMPTY;
+  private Map<String, ValueNode> hash = EMPTY;
 
   private final String name;
 
@@ -53,9 +53,9 @@ public class HashValue implements Value, Multipart {
     return put(path, Collections.singletonList(value));
   }
 
-  public HashValue put(String path, Value upload) {
+  public HashValue put(String path, ValueNode upload) {
     put(path, (name, scope) -> {
-      Value existing = scope.get(name);
+      ValueNode existing = scope.get(name);
       if (existing == null) {
         scope.put(name, upload);
       } else {
@@ -75,7 +75,7 @@ public class HashValue implements Value, Multipart {
   public HashValue put(String path, Collection<String> values) {
     put(path, (name, scope) -> {
       for (String value : values) {
-        Value existing = scope.get(name);
+        ValueNode existing = scope.get(name);
         if (existing == null) {
           scope.put(name, new SingleValue(ctx, name, value));
         } else {
@@ -93,7 +93,7 @@ public class HashValue implements Value, Multipart {
     return this;
   }
 
-  private void put(String path, BiConsumer<String, Map<String, Value>> consumer) {
+  private void put(String path, BiConsumer<String, Map<String, ValueNode>> consumer) {
     // Locate node:
     int nameStart = 0;
     int nameEnd = path.length();
@@ -135,7 +135,7 @@ public class HashValue implements Value, Multipart {
     if (hash instanceof TreeMap) {
       return;
     }
-    TreeMap<String, Value> ordered = new TreeMap<>();
+    TreeMap<String, ValueNode> ordered = new TreeMap<>();
     ordered.putAll(hash);
     hash.clear();
     this.hash = ordered;
@@ -150,7 +150,7 @@ public class HashValue implements Value, Multipart {
     return true;
   }
 
-  private Map<String, Value> hash() {
+  private Map<String, ValueNode> hash() {
     if (hash == EMPTY) {
       hash = new LinkedHashMap<>();
     }
@@ -161,8 +161,8 @@ public class HashValue implements Value, Multipart {
     return (HashValue) hash().computeIfAbsent(name, k -> new HashValue(ctx, k));
   }
 
-  public Value get(@Nonnull String name) {
-    Value value = hash.get(name);
+  public ValueNode get(@Nonnull String name) {
+    ValueNode value = hash.get(name);
     if (value == null) {
       return new MissingValue(scope(name));
     }
@@ -173,7 +173,7 @@ public class HashValue implements Value, Multipart {
     return this.name == null ? name : this.name + "." + name;
   }
 
-  @Override public Value get(@Nonnull int index) {
+  @Override public ValueNode get(@Nonnull int index) {
     return get(Integer.toString(index));
   }
 
@@ -184,9 +184,9 @@ public class HashValue implements Value, Multipart {
   @Override public String value() {
     StringJoiner joiner = new StringJoiner("&");
     hash.forEach((k, v) -> {
-      Iterator<Value> it = v.iterator();
+      Iterator<ValueNode> it = v.iterator();
       while (it.hasNext()) {
-        Value value = it.next();
+        ValueNode value = it.next();
         String str = value instanceof FileUpload
             ? ((FileUpload) value).getFileName()
             : value.toString();
@@ -196,7 +196,7 @@ public class HashValue implements Value, Multipart {
     return joiner.toString();
   }
 
-  @Override public Iterator<Value> iterator() {
+  @Override public Iterator<ValueNode> iterator() {
     return hash.values().iterator();
   }
 
@@ -221,10 +221,10 @@ public class HashValue implements Value, Multipart {
 
   @Override public Map<String, List<String>> toMultimap() {
     Map<String, List<String>> result = new LinkedHashMap<>(hash.size());
-    Set<Map.Entry<String, Value>> entries = hash.entrySet();
+    Set<Map.Entry<String, ValueNode>> entries = hash.entrySet();
     String scope = name == null ? "" : name + ".";
-    for (Map.Entry<String, Value> entry : entries) {
-      Value value = entry.getValue();
+    for (Map.Entry<String, ValueNode> entry : entries) {
+      ValueNode value = entry.getValue();
       if (!value.isUpload()) {
         value.toMultimap().forEach((k, v) -> {
           result.put(scope + k, v);
@@ -248,8 +248,8 @@ public class HashValue implements Value, Multipart {
   private <T, C extends Collection<T>> C toCollection(@Nonnull Class<T> type, C collection) {
     if (hash instanceof TreeMap) {
       // indexes access, treat like a list
-      Collection<Value> values = hash.values();
-      for (Value value : values) {
+      Collection<ValueNode> values = hash.values();
+      for (ValueNode value : values) {
         collection.add(value.to(type));
       }
     } else {

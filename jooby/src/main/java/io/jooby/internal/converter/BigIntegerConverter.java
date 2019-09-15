@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.jooby.ValueConverter;
 
 import java.math.BigInteger;
@@ -15,7 +15,7 @@ public class BigIntegerConverter implements ValueConverter {
     return type == BigInteger.class;
   }
 
-  @Override public BigInteger convert(Value value, Class type) {
+  @Override public BigInteger convert(ValueNode value, Class type) {
     return new BigInteger(value.value());
   }
 }

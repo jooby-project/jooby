@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.jooby.ValueConverter;
 
 import java.util.TimeZone;
@@ -15,7 +15,7 @@ public class TimeZoneConverter implements ValueConverter {
     return type == TimeZone.class;
   }
 
-  @Override public Object convert(Value value, Class type) {
+  @Override public Object convert(ValueNode value, Class type) {
     return TimeZone.getTimeZone(value.value());
   }
 }

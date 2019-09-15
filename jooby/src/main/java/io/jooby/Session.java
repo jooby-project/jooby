@@ -35,7 +35,7 @@ public interface Session {
    * @param name Attribute's name.
    * @return An attribute value or missing value.
    */
-  @Nonnull Value get(@Nonnull String name);
+  @Nonnull ValueNode get(@Nonnull String name);
 
   /**
    * Put a session attribute.
@@ -129,7 +129,7 @@ public interface Session {
    * @param name Attribute's name.
    * @return Session attribute or missing value.
    */
-  @Nonnull Value remove(@Nonnull String name);
+  @Nonnull ValueNode remove(@Nonnull String name);
 
   /**
    * Read-only attributes.

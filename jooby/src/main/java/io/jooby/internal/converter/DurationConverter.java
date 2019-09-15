@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.jooby.ValueConverter;
 
 import com.typesafe.config.ConfigException;
@@ -21,7 +21,7 @@ public class DurationConverter implements ValueConverter {
     return type == Duration.class;
   }
 
-  @Override public Object convert(Value value, Class type) {
+  @Override public Object convert(ValueNode value, Class type) {
     try {
       return Duration.parse(value.value());
     } catch (DateTimeParseException x) {

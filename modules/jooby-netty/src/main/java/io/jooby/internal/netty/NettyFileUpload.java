@@ -7,11 +7,9 @@ package io.jooby.internal.netty;
 
 import io.jooby.FileUpload;
 import io.jooby.SneakyThrows;
-import io.jooby.Value;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;

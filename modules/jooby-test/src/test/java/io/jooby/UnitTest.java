@@ -104,7 +104,7 @@ public class UnitTest {
 
     app.post("/", ctx -> ctx.form("name").value());
 
-    Value name = mock(Value.class);
+    ValueNode name = mock(ValueNode.class);
     when(name.value()).thenReturn("Easy Unit");
 
     Context context = mock(Context.class);

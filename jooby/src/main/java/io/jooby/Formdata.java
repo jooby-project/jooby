@@ -18,7 +18,7 @@ import java.util.Collection;
  * @author edgar
  * @since 2.0.0
  */
-public interface Formdata extends Value {
+public interface Formdata extends ValueNode {
 
   /**
    * Add a form field.
@@ -27,7 +27,7 @@ public interface Formdata extends Value {
    * @param value Form value.
    * @return This formdata.
    */
-  @Nonnull Formdata put(@Nonnull String path, @Nonnull Value value);
+  @Nonnull Formdata put(@Nonnull String path, @Nonnull ValueNode value);
 
   /**
    * Add a form field.

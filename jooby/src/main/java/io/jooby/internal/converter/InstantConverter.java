@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.jooby.ValueConverter;
 
 import java.time.Instant;
@@ -16,7 +16,7 @@ public class InstantConverter implements ValueConverter {
     return type == Instant.class;
   }
 
-  @Override public Instant convert(Value value, Class type) {
+  @Override public Instant convert(ValueNode value, Class type) {
     try {
       return Instant.ofEpochMilli(Long.parseLong(value.value()));
     } catch (NumberFormatException x) {

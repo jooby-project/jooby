@@ -94,7 +94,7 @@ public interface Context extends Registry {
    * @param <T> Generic type.
    * @return Converted value.
    */
-  @Nullable <T> T convert(@Nonnull Value value, @Nonnull Class<T> type);
+  @Nullable <T> T convert(@Nonnull ValueNode value, @Nonnull Class<T> type);
 
   /*
    * **********************************************************************************************
@@ -115,7 +115,7 @@ public interface Context extends Registry {
    * @param name Attribute's name.
    * @return Flash attribute.
    */
-  @Nonnull Value flash(@Nonnull String name);
+  @Nonnull ValueNode flash(@Nonnull String name);
 
   /**
    * Find a session or creates a new session.
@@ -137,7 +137,7 @@ public interface Context extends Registry {
    * @param name Cookie's name.
    * @return Cookie value.
    */
-  @Nonnull Value cookie(@Nonnull String name);
+  @Nonnull ValueNode cookie(@Nonnull String name);
 
   /**
    * Request cookies.
@@ -190,7 +190,7 @@ public interface Context extends Registry {
    * @param name Path key.
    * @return Associated value or a missing value, but never a <code>null</code> reference.
    */
-  @Nonnull Value path(@Nonnull String name);
+  @Nonnull ValueNode path(@Nonnull String name);
 
   /**
    * Convert the {@link #pathMap()} to the given type.
@@ -202,10 +202,10 @@ public interface Context extends Registry {
   @Nonnull <T> T path(@Nonnull Class<T> type);
 
   /**
-   * Convert {@link #pathMap()} to a {@link Value} object.
+   * Convert {@link #pathMap()} to a {@link ValueNode} object.
    * @return A value object.
    */
-  @Nonnull Value path();
+  @Nonnull ValueNode path();
 
   /**
    * Path map represent all the path keys with their values.
@@ -238,9 +238,9 @@ public interface Context extends Registry {
    */
 
   /**
-   * Query string as {@link Value} object.
+   * Query string as {@link ValueNode} object.
    *
-   * @return Query string as {@link Value} object.
+   * @return Query string as {@link ValueNode} object.
    */
   @Nonnull QueryString query();
 
@@ -260,7 +260,7 @@ public interface Context extends Registry {
    * @param name Parameter name.
    * @return A query value.
    */
-  @Nonnull Value query(@Nonnull String name);
+  @Nonnull ValueNode query(@Nonnull String name);
 
   /**
    * Query string with the leading <code>?</code> or empty string. This is the raw query string,
@@ -312,11 +312,11 @@ public interface Context extends Registry {
    */
 
   /**
-   * Request headers as {@link Value}.
+   * Request headers as {@link ValueNode}.
    *
-   * @return Request headers as {@link Value}.
+   * @return Request headers as {@link ValueNode}.
    */
-  @Nonnull Value header();
+  @Nonnull ValueNode header();
 
   /**
    * Get a header that matches the given name.
@@ -324,7 +324,7 @@ public interface Context extends Registry {
    * @param name Header name. Case insensitive.
    * @return A header value or missing value, never a <code>null</code> reference.
    */
-  @Nonnull Value header(@Nonnull String name);
+  @Nonnull ValueNode header(@Nonnull String name);
 
   /**
    * Header as single-value map.
@@ -415,10 +415,10 @@ public interface Context extends Registry {
    */
 
   /**
-   * Formdata as {@link Value}. This method is for <code>application/form-url-encoded</code>
+   * Formdata as {@link ValueNode}. This method is for <code>application/form-url-encoded</code>
    * request.
    *
-   * @return Formdata as {@link Value}. This method is for <code>application/form-url-encoded</code>
+   * @return Formdata as {@link ValueNode}. This method is for <code>application/form-url-encoded</code>
    *    request.
    */
   @Nonnull Formdata form();
@@ -446,7 +446,7 @@ public interface Context extends Registry {
    * @param name Field name.
    * @return Form value.
    */
-  @Nonnull Value form(@Nonnull String name);
+  @Nonnull ValueNode form(@Nonnull String name);
 
   /**
    * Convert formdata to the given type. Only for <code>application/form-url-encoded</code>
@@ -480,7 +480,7 @@ public interface Context extends Registry {
    * @param name Field name.
    * @return Multipart value.
    */
-  @Nonnull Value multipart(@Nonnull String name);
+  @Nonnull ValueNode multipart(@Nonnull String name);
 
   /**
    * Convert multipart data to the given type.

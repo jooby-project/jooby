@@ -61,7 +61,7 @@ public class ForwardingContext implements Context {
     return ctx.flash();
   }
 
-  @Nonnull @Override public Value flash(@Nonnull String name) {
+  @Nonnull @Override public ValueNode flash(@Nonnull String name) {
     return ctx.flash(name);
   }
 
@@ -73,7 +73,7 @@ public class ForwardingContext implements Context {
     return ctx.sessionOrNull();
   }
 
-  @Nonnull @Override public Value cookie(@Nonnull String name) {
+  @Nonnull @Override public ValueNode cookie(@Nonnull String name) {
     return ctx.cookie(name);
   }
 
@@ -97,7 +97,7 @@ public class ForwardingContext implements Context {
     return ctx.pathString();
   }
 
-  @Nonnull @Override public Value path(@Nonnull String name) {
+  @Nonnull @Override public ValueNode path(@Nonnull String name) {
     return ctx.path(name);
   }
 
@@ -105,7 +105,7 @@ public class ForwardingContext implements Context {
     return ctx.path(type);
   }
 
-  @Nonnull @Override public Value path() {
+  @Nonnull @Override public ValueNode path() {
     return ctx.path();
   }
 
@@ -122,7 +122,7 @@ public class ForwardingContext implements Context {
     return ctx.query();
   }
 
-  @Nonnull @Override public Value query(@Nonnull String name) {
+  @Nonnull @Override public ValueNode query(@Nonnull String name) {
     return ctx.query(name);
   }
 
@@ -142,11 +142,11 @@ public class ForwardingContext implements Context {
     return ctx.queryMultimap();
   }
 
-  @Override @Nonnull public Value header() {
+  @Override @Nonnull public ValueNode header() {
     return ctx.header();
   }
 
-  @Nonnull @Override public Value header(@Nonnull String name) {
+  @Nonnull @Override public ValueNode header(@Nonnull String name) {
     return ctx.header(name);
   }
 
@@ -206,7 +206,7 @@ public class ForwardingContext implements Context {
     return ctx.formMap();
   }
 
-  @Nonnull @Override public Value form(@Nonnull String name) {
+  @Nonnull @Override public ValueNode form(@Nonnull String name) {
     return ctx.form(name);
   }
 
@@ -218,7 +218,7 @@ public class ForwardingContext implements Context {
     return ctx.multipart();
   }
 
-  @Nonnull @Override public Value multipart(@Nonnull String name) {
+  @Nonnull @Override public ValueNode multipart(@Nonnull String name) {
     return ctx.multipart(name);
   }
 
@@ -258,7 +258,7 @@ public class ForwardingContext implements Context {
     return ctx.body(type);
   }
 
-  @Nullable @Override public <T> T convert(Value value, Class<T> type) {
+  @Nullable @Override public <T> T convert(ValueNode value, Class<T> type) {
     return ctx.convert(value, type);
   }
 

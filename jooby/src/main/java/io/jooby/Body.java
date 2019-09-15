@@ -26,7 +26,7 @@ import java.util.List;
  * @author edgar
  * @since 2.0.0
  */
-public interface Body extends Value {
+public interface Body extends ValueNode {
 
   /**
    * HTTP body as string.

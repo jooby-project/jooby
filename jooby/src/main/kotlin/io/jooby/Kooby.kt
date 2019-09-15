@@ -52,23 +52,23 @@ fun <T : Any> ServiceRegistry.putIfAbsent(klass: KClass<T>, service: T): T? {
 
 /** Value: */
 
-inline operator fun <reified T> Value.getValue(thisRef: Any?, property: KProperty<*>): T {
+inline operator fun <reified T> ValueNode.getValue(thisRef: Any?, property: KProperty<*>): T {
   return this.get(property.name).to(T::class.java)
 }
 
-operator fun Value.get(name: String): Value {
+operator fun ValueNode.get(name: String): ValueNode {
   return this.get(name)
 }
 
-operator fun Value.get(index: Int): Value {
+operator fun ValueNode.get(index: Int): ValueNode {
   return this.get(index)
 }
 
-inline fun <reified T> Value.to(): T? {
+inline fun <reified T> ValueNode.to(): T? {
   return this.to(T::class.java)
 }
 
-infix fun <T : Any> Value.to(type: KClass<T>): T? {
+infix fun <T : Any> ValueNode.to(type: KClass<T>): T? {
   return this.to(type.java)
 }
 

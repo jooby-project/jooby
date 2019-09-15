@@ -186,7 +186,7 @@ public class MockContext implements DefaultContext {
     return queryString;
   }
 
-  @Nonnull @Override public Value header() {
+  @Nonnull @Override public ValueNode header() {
     return Value.hash(this, headers);
   }
 
@@ -586,7 +586,7 @@ public class MockContext implements DefaultContext {
     return this;
   }
 
-  @Nullable @Override public <T> T convert(Value value, Class<T> type) {
+  @Nullable @Override public <T> T convert(ValueNode value, Class<T> type) {
     return DefaultContext.super.convert(value, type);
   }
 

@@ -9,7 +9,7 @@ import io.jooby.BadRequestException;
 import io.jooby.BeanConverter;
 import io.jooby.MissingValueException;
 import io.jooby.ProvisioningException;
-import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.jooby.internal.reflect.$Types;
 
 import javax.annotation.Nonnull;
@@ -42,7 +42,7 @@ public class ReflectiveBeanConverter implements BeanConverter {
     return true;
   }
 
-  @Override public Object convert(@Nonnull Value value, @Nonnull Class type) {
+  @Override public Object convert(@Nonnull ValueNode value, @Nonnull Class type) {
     try {
       return newInstance(type, value);
     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException x) {
@@ -52,7 +52,7 @@ public class ReflectiveBeanConverter implements BeanConverter {
     }
   }
 
-  private static <T> T newInstance(Class<T> type, Value scope)
+  private static <T> T newInstance(Class<T> type, ValueNode scope)
       throws IllegalAccessException, InstantiationException, InvocationTargetException,
       NoSuchMethodException {
     Constructor[] constructors = type.getConstructors();
@@ -61,7 +61,7 @@ public class ReflectiveBeanConverter implements BeanConverter {
           Collections.emptySet());
     }
     Constructor constructor = selectConstructor(constructors);
-    Set<Value> state = new HashSet<>();
+    Set<ValueNode> state = new HashSet<>();
     Object[] args = constructor.getParameterCount() == 0
         ? NO_ARGS
         : inject(scope, constructor, state::add);
@@ -92,7 +92,7 @@ public class ReflectiveBeanConverter implements BeanConverter {
     return result;
   }
 
-  public static Object[] inject(Value scope, Executable method, Consumer<Value> state) {
+  public static Object[] inject(ValueNode scope, Executable method, Consumer<ValueNode> state) {
     Parameter[] parameters = method.getParameters();
     if (parameters.length == 0) {
       return NO_ARGS;
@@ -101,7 +101,7 @@ public class ReflectiveBeanConverter implements BeanConverter {
     for (int i = 0; i < parameters.length; i++) {
       Parameter parameter = parameters[i];
       String name = paramName(parameter);
-      Value param = scope.get(name);
+      ValueNode param = scope.get(name);
       state.accept(param);
       args[i] = value(parameter, param);
     }
@@ -117,9 +117,9 @@ public class ReflectiveBeanConverter implements BeanConverter {
     return name;
   }
 
-  private static <T> T setters(T newInstance, Value object, Set<Value> skip) {
+  private static <T> T setters(T newInstance, ValueNode object, Set<ValueNode> skip) {
     Method[] methods = newInstance.getClass().getMethods();
-    for (Value value : object) {
+    for (ValueNode value : object) {
       if (!skip.contains(value)) {
         String name = value.name();
         String setter1 = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
@@ -145,7 +145,7 @@ public class ReflectiveBeanConverter implements BeanConverter {
     return newInstance;
   }
 
-  private static Object value(Parameter parameter, Value param) {
+  private static Object value(Parameter parameter, ValueNode param) {
     try {
       if (List.class.isAssignableFrom(parameter.getType())) {
         return param.toList($Types.parameterizedType0(parameter.getParameterizedType()));

@@ -6,7 +6,7 @@
 package io.jooby.internal;
 
 import io.jooby.Context;
-import io.jooby.Value;
+import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -20,7 +20,7 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 
-public class SingleValue implements Value {
+public class SingleValue implements ValueNode {
 
   private final Context ctx;
 
@@ -38,11 +38,11 @@ public class SingleValue implements Value {
     return name;
   }
 
-  @Override public Value get(@Nonnull int index) {
+  @Override public ValueNode get(@Nonnull int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
-  @Override public Value get(@Nonnull String name) {
+  @Override public ValueNode get(@Nonnull String name) {
     return new MissingValue(this.name + "." + name);
   }
 
@@ -58,8 +58,8 @@ public class SingleValue implements Value {
     return value;
   }
 
-  @Override public Iterator<Value> iterator() {
-    return Collections.<Value>singletonList(this).iterator();
+  @Override public Iterator<ValueNode> iterator() {
+    return Collections.<ValueNode>singletonList(this).iterator();
   }
 
   @Nonnull @Override public <T> List<T> toList(@Nonnull Class<T> type) {

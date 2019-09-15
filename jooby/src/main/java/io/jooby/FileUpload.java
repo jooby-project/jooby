@@ -38,7 +38,7 @@ import java.util.Map;
  * @since 2.0.0
  * @author edgar
  */
-public interface FileUpload extends Value {
+public interface FileUpload extends ValueNode {
   /**
    * Name of file upload.
    * @return Name of file upload.
@@ -52,11 +52,11 @@ public interface FileUpload extends Value {
    */
   @Nullable String getContentType();
 
-  @Override default Value get(@Nonnull int index) {
+  @Override default ValueNode get(@Nonnull int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }
 
-  @Override default Value get(@Nonnull String name) {
+  @Override default ValueNode get(@Nonnull String name) {
     return new MissingValue(name);
   }
 
@@ -64,7 +64,7 @@ public interface FileUpload extends Value {
     return 1;
   }
 
-  @Nonnull @Override default Iterator<Value> iterator() {
+  @Nonnull @Override default Iterator<ValueNode> iterator() {
     Iterator iterator = Collections.singletonList(this).iterator();
     return iterator;
   }

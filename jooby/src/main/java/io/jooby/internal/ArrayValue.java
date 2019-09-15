@@ -8,7 +8,7 @@ package io.jooby.internal;
 import io.jooby.Context;
 import io.jooby.MissingValueException;
 import io.jooby.TypeMismatchException;
-import io.jooby.Value;
+import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -21,12 +21,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class ArrayValue implements Value {
+public class ArrayValue implements ValueNode {
   private final Context ctx;
 
   private final String name;
 
-  private final List<Value> value = new ArrayList<>(5);
+  private final List<ValueNode> value = new ArrayList<>(5);
 
   public ArrayValue(Context ctx, String name) {
     this.ctx = ctx;
@@ -37,7 +37,7 @@ public class ArrayValue implements Value {
     return name;
   }
 
-  public ArrayValue add(Value value) {
+  public ArrayValue add(ValueNode value) {
     this.value.add(value);
     return this;
   }
@@ -53,7 +53,7 @@ public class ArrayValue implements Value {
     return this.add(new SingleValue(ctx, name, value));
   }
 
-  @Override public Value get(@Nonnull int index) {
+  @Override public ValueNode get(@Nonnull int index) {
     try {
       return value.get(index);
     } catch (IndexOutOfBoundsException x) {
@@ -61,7 +61,7 @@ public class ArrayValue implements Value {
     }
   }
 
-  @Override public Value get(@Nonnull String name) {
+  @Override public ValueNode get(@Nonnull String name) {
     return new MissingValue(this.name + "." + name);
   }
 
@@ -79,7 +79,7 @@ public class ArrayValue implements Value {
     return value.toString();
   }
 
-  @Override public Iterator<Value> iterator() {
+  @Override public Iterator<ValueNode> iterator() {
     return value.iterator();
   }
 
@@ -89,7 +89,7 @@ public class ArrayValue implements Value {
 
   @Nonnull @Override public <T> List<T> toList(@Nonnull Class<T> type) {
     List<T> list = new ArrayList<>(value.size());
-    for (Value it : value) {
+    for (ValueNode it : value) {
       list.add(it.to(type));
     }
     return list;
@@ -105,7 +105,7 @@ public class ArrayValue implements Value {
 
   @Nonnull @Override public <T> Set<T> toSet(@Nonnull Class<T> type) {
     Set<T> list = new LinkedHashSet<>(value.size());
-    for (Value it : value) {
+    for (ValueNode it : value) {
       list.add(it.to(type));
     }
     return list;

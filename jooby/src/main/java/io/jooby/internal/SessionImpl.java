@@ -7,6 +7,7 @@ package io.jooby.internal;
 
 import io.jooby.Session;
 import io.jooby.Value;
+import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;
 import java.time.Instant;
@@ -54,7 +55,7 @@ public class SessionImpl implements Session {
     return id;
   }
 
-  @Override public @Nonnull Value get(@Nonnull String name) {
+  @Override public @Nonnull ValueNode get(@Nonnull String name) {
     return Value.create(null, name, attributes.get(name));
   }
 
@@ -64,7 +65,7 @@ public class SessionImpl implements Session {
     return this;
   }
 
-  @Override public @Nonnull Value remove(@Nonnull String name) {
+  @Override public @Nonnull ValueNode remove(@Nonnull String name) {
     String value = attributes.remove(name);
     updateFlags();
     return value == null ? Value.missing(name) : Value.value(null, name, value);

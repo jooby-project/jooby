@@ -11,17 +11,15 @@ import io.jooby.FlashMap;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
 import io.jooby.QueryString;
-import io.jooby.Reified;
 import io.jooby.Route;
 import io.jooby.Session;
 import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.jooby.apt.Annotations;
-import io.jooby.internal.ValueConverters;
 import io.jooby.internal.apt.asm.ParamWriter;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Types;
 import java.lang.reflect.Method;
@@ -224,24 +222,18 @@ public class ParamDefinition {
     }
     // toOptional(Class)
     if (isOptional()) {
-      return Value.class.getMethod("toOptional", Class.class);
+      return ValueNode.class.getMethod("toOptional", Class.class);
     }
     if (isList()) {
-      return Value.class.getMethod("toList", Class.class);
+      return ValueNode.class.getMethod("toList", Class.class);
     }
     if (is(Set.class)) {
-      return Value.class.getMethod("toSet", Class.class);
+      return ValueNode.class.getMethod("toSet", Class.class);
     }
-    boolean body = kind == ParamKind.BODY_PARAM;
-    boolean useClass = type.isRawType();
-    if (useClass) {
-      return body
-          ? Context.class.getMethod("body", Class.class)
-          : Value.class.getMethod("to", Class.class);
+    if (kind == ParamKind.BODY_PARAM) {
+      return Context.class.getMethod("body", type.isRawType() ? Class.class : Type.class);
     }
-    return body
-        ? Context.class.getMethod("body", Type.class)
-        : Value.class.getMethod("to", Class.class);
+    return ValueNode.class.getMethod("to", Class.class);
   }
 
   public static ParamDefinition create(ProcessingEnvironment environment,

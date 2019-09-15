@@ -9,7 +9,7 @@ import io.jooby.BeanConverter;
 import io.jooby.FileUpload;
 import io.jooby.Router;
 import io.jooby.TypeMismatchException;
-import io.jooby.Value;
+import io.jooby.ValueNode;
 import io.jooby.internal.converter.BigDecimalConverter;
 import io.jooby.internal.converter.BigIntegerConverter;
 import io.jooby.internal.converter.CharsetConverter;
@@ -75,7 +75,7 @@ public class ValueConverters {
     converters.add(new ReflectiveBeanConverter());
   }
 
-  public static <T> T convert(Value value, Type type, Router router) {
+  public static <T> T convert(ValueNode value, Type type, Router router) {
     Class rawType = $Types.getRawType(type);
     if (List.class.isAssignableFrom(rawType)) {
       return (T) Collections
@@ -90,7 +90,7 @@ public class ValueConverters {
     return convert(value, rawType, router);
   }
 
-  public static <T> T convert(Value value, Class type, Router router) {
+  public static <T> T convert(ValueNode value, Class type, Router router) {
     if (type == String.class) {
       return (T) value.valueOrNull();
     }
@@ -159,7 +159,7 @@ public class ValueConverters {
     return null;
   }
 
-  private static Object enumValue(Value value, Class type) {
+  private static Object enumValue(ValueNode value, Class type) {
     try {
       return Enum.valueOf(type, value.value().toUpperCase());
     } catch (IllegalArgumentException x) {

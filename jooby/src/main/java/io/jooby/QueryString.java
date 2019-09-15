@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
  * @author edgar
  * @since 2.0.0
  */
-public interface QueryString extends Value {
+public interface QueryString extends ValueNode {
 
   /**
    * Query string with the leading <code>?</code> or empty string.

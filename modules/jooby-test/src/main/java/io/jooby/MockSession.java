@@ -46,7 +46,7 @@ public class MockSession implements Session {
     return sessionId;
   }
 
-  @Nonnull @Override public Value get(@Nonnull String name) {
+  @Nonnull @Override public ValueNode get(@Nonnull String name) {
     return Optional.ofNullable(data.get(name))
         .map(value -> Value.create(null, name, value))
         .orElse(Value.missing(name));
@@ -57,8 +57,8 @@ public class MockSession implements Session {
     return this;
   }
 
-  @Nonnull @Override public Value remove(@Nonnull String name) {
-    Value value = get(name);
+  @Nonnull @Override public ValueNode remove(@Nonnull String name) {
+    ValueNode value = get(name);
     data.remove(name);
     return value;
   }

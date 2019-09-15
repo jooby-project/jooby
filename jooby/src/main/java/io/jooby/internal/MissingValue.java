@@ -6,14 +6,14 @@
 package io.jooby.internal;
 
 import io.jooby.MissingValueException;
-import io.jooby.Value;
+import io.jooby.ValueNode;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class MissingValue implements Value {
+public class MissingValue implements ValueNode {
   private String name;
 
   public MissingValue(String name) {
@@ -24,11 +24,11 @@ public class MissingValue implements Value {
     return name;
   }
 
-  @Override public Value get(@Nonnull String name) {
+  @Override public ValueNode get(@Nonnull String name) {
     return this.name.equals(name) ? this : new MissingValue(this.name + "." + name);
   }
 
-  @Override public Value get(@Nonnull int index) {
+  @Override public ValueNode get(@Nonnull int index) {
     return new MissingValue(this.name + "[" + index + "]");
   }
 

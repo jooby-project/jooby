@@ -24,6 +24,7 @@ import io.jooby.SessionStore;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.Value;
+import io.jooby.ValueNode;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
@@ -74,7 +75,7 @@ public class JettyContext implements Callback, DefaultContext {
   private Formdata form;
   private Multipart multipart;
   private List<FileUpload> files;
-  private Value headers;
+  private ValueNode headers;
   private Map<String, String> pathMap = Collections.EMPTY_MAP;
   private Map<String, Object> attributes = new HashMap<>();
   private Router router;
@@ -202,7 +203,7 @@ public class JettyContext implements Callback, DefaultContext {
     return multipart;
   }
 
-  @Nonnull @Override public Value header() {
+  @Nonnull @Override public ValueNode header() {
     if (headers == null) {
       Enumeration<String> names = request.getHeaderNames();
       Map<String, Collection<String>> headerMap = new LinkedHashMap<>();
