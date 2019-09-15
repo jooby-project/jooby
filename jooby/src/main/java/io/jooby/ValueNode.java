@@ -5,28 +5,11 @@
  */
 package io.jooby;
 
-import io.jooby.internal.ArrayValue;
-import io.jooby.internal.HashValue;
-import io.jooby.internal.MissingValue;
-import io.jooby.internal.SingleValue;
-
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeParseException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * Unified API for HTTP value. This API plays two role:
@@ -51,38 +34,6 @@ import java.util.function.Function;
  * @author edgar
  */
 public interface ValueNode extends Iterable<ValueNode>, Value {
-
-  /**
-   * True if this value is an array/sequence (not single or hash).
-   *
-   * @return True if this value is an array/sequence.
-   */
-  default boolean isArray() {
-    return this instanceof ArrayValue;
-  }
-
-  /**
-   * True if this is a hash/object value (not single or array).
-   *
-   * @return True if this is a hash/object value (not single or array).
-   */
-  default boolean isObject() {
-    return this instanceof HashValue;
-  }
-
-  /**
-   * True if this is a file upload (not single, not array, not hash).
-   *
-   * @return True for file upload.
-   */
-  default boolean isUpload() {
-    return this instanceof FileUpload;
-  }
-
-  /* ***********************************************************************************************
-   * Node methods
-   * ***********************************************************************************************
-   */
 
   /**
    * Get a value at the given position.
@@ -110,84 +61,12 @@ public interface ValueNode extends Iterable<ValueNode>, Value {
   }
 
   /**
-   * Get a value or empty optional.
-   *
-   * @param type Item type.
-   * @param <T> Item type.
-   * @return Value or empty optional.
-   */
-  @Nonnull default <T> Optional<T> toOptional(@Nonnull Class<T> type) {
-    try {
-      return Optional.ofNullable(to(type));
-    } catch (MissingValueException x) {
-      return Optional.empty();
-    }
-  }
-
-  /**
-   * Get list of the given type.
-   *
-   * @param type Type to convert.
-   * @param <T> Item type.
-   * @return List of items.
-   */
-  @Nonnull default <T> List<T> toList(@Nonnull Class<T> type) {
-    return Collections.singletonList(to(type));
-  }
-
-  /**
-   * Get set of the given type.
-   *
-   * @param type Type to convert.
-   * @param <T> Item type.
-   * @return Set of items.
-   */
-  @Nonnull default <T> Set<T> toSet(@Nonnull Class<T> type) {
-    return Collections.singleton(to(type));
-  }
-
-  /**
-   * Convert this value to the given type. Support values are single-value, array-value and
-   * object-value. Object-value can be converted to a JavaBean type.
-   *
-   * @param type Type to convert.
-   * @param <T> Element type.
-   * @return Instance of the type.
-   */
-  @Nonnull <T> T to(@Nonnull Class<T> type);
-
-  /**
    * Value iterator.
    *
    * @return Value iterator.
    */
   @Nonnull default @Override Iterator<ValueNode> iterator() {
     return Collections.emptyIterator();
-  }
-
-  /**
-   * Name of this value or <code>null</code>.
-   *
-   * @return Name of this value or <code>null</code>.
-   */
-  @Nullable String name();
-
-  /**
-   * Value as multi-value map.
-   *
-   * @return Value as multi-value map.
-   */
-  @Nullable Map<String, List<String>> toMultimap();
-
-  /**
-   * Value as single-value map.
-   *
-   * @return Value as single-value map.
-   */
-  default @Nonnull Map<String, String> toMap() {
-    Map<String, String> map = new LinkedHashMap<>();
-    toMultimap().forEach((k, v) -> map.put(k, v.get(0)));
-    return map;
   }
 
   /**
