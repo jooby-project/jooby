@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.ValueNode;
+import io.jooby.Value;
 import io.jooby.ValueConverter;
 
 import java.nio.charset.Charset;
@@ -16,7 +16,7 @@ public class CharsetConverter implements ValueConverter {
     return type == Charset.class;
   }
 
-  @Override public Charset convert(ValueNode value, Class type) {
+  @Override public Object convert(Value value, Class type) {
     String charset = value.value();
     switch (charset.toLowerCase()) {
       case "utf-8":

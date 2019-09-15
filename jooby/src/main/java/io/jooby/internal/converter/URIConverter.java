@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.ValueNode;
+import io.jooby.Value;
 import io.jooby.ValueConverter;
 
 import io.jooby.SneakyThrows;
@@ -19,7 +19,7 @@ public class URIConverter implements ValueConverter {
     return type == URI.class || type == URL.class;
   }
 
-  @Override public Object convert(ValueNode value, Class type) {
+  @Override public Object convert(Value value, Class type) {
     try {
       URI uri = URI.create(value.value());
       if (type == URL.class) {

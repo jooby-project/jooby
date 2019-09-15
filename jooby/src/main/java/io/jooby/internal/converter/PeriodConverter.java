@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.ValueNode;
+import io.jooby.Value;
 import io.jooby.ValueConverter;
 
 import java.time.Duration;
@@ -18,7 +18,7 @@ public class PeriodConverter implements ValueConverter {
     return type == Period.class;
   }
 
-  @Override public Object convert(ValueNode value, Class type) {
+  @Override public Object convert(Value value, Class type) {
     return Period.from((Duration) converter.convert(value, type));
   }
 }

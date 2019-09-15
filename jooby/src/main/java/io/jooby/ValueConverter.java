@@ -8,8 +8,8 @@ package io.jooby;
 import javax.annotation.Nonnull;
 
 /**
- * Value converter for string values that come from query, path, form parameters into more specific
- * type.
+ * Value converter for simple values that come from query, path, form, etc... parameters into more
+ * specific type.
  *
  * It is an extension point for {@link ValueNode#to(Class)} calls.
  */
@@ -29,5 +29,5 @@ public interface ValueConverter {
    * @param type Requested type.
    * @return Converted value.
    */
-  Object convert(@Nonnull ValueNode value, @Nonnull Class type);
+  Object convert(@Nonnull Value value, @Nonnull Class type);
 }

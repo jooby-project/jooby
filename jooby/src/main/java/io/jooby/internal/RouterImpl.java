@@ -314,11 +314,12 @@ public class RouterImpl implements Router {
   }
 
   @Nonnull @Override public Router converter(ValueConverter converter) {
-    if (converter instanceof BeanConverter) {
-      beanConverters.add((BeanConverter) converter);
-    } else {
-      converters.add(converter);
-    }
+    converters.add(converter);
+    return this;
+  }
+
+  @Nonnull @Override public Router converter(@Nonnull BeanConverter converter) {
+    beanConverters.add(converter);
     return this;
   }
 

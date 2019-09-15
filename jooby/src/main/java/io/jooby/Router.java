@@ -682,7 +682,15 @@ public interface Router extends Registry {
    * @param converter Custom value converter.
    * @return This router.
    */
-  @Nonnull Router converter(@Nonnull ValueConverter converter);
+  @Nonnull Router converter(@Nonnull ValueConverter converter);/**
+
+   /**
+   * Add a custom bean value converter.
+   *
+   * @param converter Custom value converter.
+   * @return This router.
+   */
+  @Nonnull Router converter(@Nonnull BeanConverter converter);
 
   /**
    * Get all simple/string value converters.

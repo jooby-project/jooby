@@ -543,7 +543,12 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
-  @Nonnull @Override public Jooby converter(ValueConverter converter) {
+  @Nonnull @Override public Jooby converter(@Nonnull ValueConverter converter) {
+    router.converter(converter);
+    return this;
+  }
+
+  @Nonnull @Override public Router converter(@Nonnull BeanConverter converter) {
     router.converter(converter);
     return this;
   }

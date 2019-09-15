@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.ValueNode;
+import io.jooby.Value;
 import io.jooby.ValueConverter;
 
 import java.math.BigDecimal;
@@ -15,7 +15,7 @@ public class BigDecimalConverter implements ValueConverter {
     return type == BigDecimal.class;
   }
 
-  @Override public BigDecimal convert(ValueNode value, Class type) {
+  @Override public Object convert(Value value, Class type) {
     return new BigDecimal(value.value());
   }
 }

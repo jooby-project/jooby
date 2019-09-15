@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.ValueNode;
+import io.jooby.Value;
 import io.jooby.ValueConverter;
 
 import io.jooby.StatusCode;
@@ -15,7 +15,7 @@ public class StatusCodeConverter implements ValueConverter {
     return type == StatusCode.class;
   }
 
-  @Override public StatusCode convert(ValueNode value, Class type) {
+  @Override public Object convert(Value value, Class type) {
     return StatusCode.valueOf(value.intValue());
   }
 }

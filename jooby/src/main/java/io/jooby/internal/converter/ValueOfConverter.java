@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.converter;
 
-import io.jooby.ValueNode;
+import io.jooby.Value;
 import io.jooby.ValueConverter;
 import io.jooby.SneakyThrows;
 
@@ -24,9 +24,9 @@ public class ValueOfConverter implements ValueConverter, BiFunction<Class, Metho
     return cache.compute(type, this) != null;
   }
 
-  @Override public Object convert(ValueNode value, Class type) {
+  @Override public Object convert(Value value, Class type) {
     try {
-      return cache.compute(type, this).invoke(null, value.to(String.class));
+      return cache.compute(type, this).invoke(null, value.value());
     } catch (InvocationTargetException x) {
       throw SneakyThrows.propagate(x.getTargetException());
     } catch (IllegalAccessException x) {
