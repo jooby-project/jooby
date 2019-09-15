@@ -87,44 +87,44 @@ public class ValueConverters {
 
   public static <T> T convert(Value value, Class type, Router router) {
     if (type == String.class) {
-      return (T) first(value).valueOrNull();
+      return (T) value.valueOrNull();
     }
     if (type == int.class) {
-      return (T) Integer.valueOf(first(value).intValue());
+      return (T) Integer.valueOf(value.intValue());
     }
     if (type == long.class) {
-      return (T) Long.valueOf(first(value).longValue());
+      return (T) Long.valueOf(value.longValue());
     }
     if (type == float.class) {
-      return (T) Float.valueOf(first(value).intValue());
+      return (T) Float.valueOf(value.floatValue());
     }
     if (type == double.class) {
-      return (T) Double.valueOf(first(value).intValue());
+      return (T) Double.valueOf(value.doubleValue());
     }
     if (type == boolean.class) {
-      return (T) Boolean.valueOf(first(value).booleanValue());
+      return (T) Boolean.valueOf(value.booleanValue());
     }
     if (type == byte.class) {
-      return (T) Byte.valueOf(first(value).byteValue());
+      return (T) Byte.valueOf(value.byteValue());
     }
     if (type.isEnum()) {
-      return (T) enumValue(first(value), type);
+      return (T) enumValue(value, type);
     }
     // Wrapper
     if (type == Integer.class) {
-      return (T) (value.isMissing() ? null : Integer.valueOf(first(value).intValue()));
+      return (T) (value.isMissing() ? null : Integer.valueOf(value.intValue()));
     }
     if (type == Long.class) {
-      return (T) (value.isMissing() ? null : Long.valueOf(first(value).longValue()));
+      return (T) (value.isMissing() ? null : Long.valueOf(value.longValue()));
     }
     if (type == Float.class) {
-      return (T) (value.isMissing() ? null : Float.valueOf(first(value).floatValue()));
+      return (T) (value.isMissing() ? null : Float.valueOf(value.floatValue()));
     }
     if (type == Double.class) {
-      return (T) (value.isMissing() ? null : Double.valueOf(first(value).doubleValue()));
+      return (T) (value.isMissing() ? null : Double.valueOf(value.doubleValue()));
     }
     if (type == Byte.class) {
-      return (T) (value.isMissing() ? null : Byte.valueOf(first(value).byteValue()));
+      return (T) (value.isMissing() ? null : Byte.valueOf(value.byteValue()));
     }
     /** File Upload: */
     if (value.isUpload()) {
@@ -159,7 +159,7 @@ public class ValueConverters {
       return Enum.valueOf(type, value.value().toUpperCase());
     } catch (IllegalArgumentException x) {
       String name = value.value();
-      // Fallback to ignore case version:
+      // Fallback: Ignore case:
       Set<Enum> enums = EnumSet.allOf(type);
       for (Enum e : enums) {
         if (e.name().equalsIgnoreCase(name)) {
@@ -168,18 +168,5 @@ public class ValueConverters {
       }
       throw x;
     }
-  }
-
-  private static Value first(Value source) {
-    //    if (source.isSingle()) {
-    //      return source;
-    //    }
-    //    if (source.isArray()) {
-    //      return source.get(0);
-    //    }
-    //    if (source.isObject() && source.size() > 0) {
-    //      return source.iterator().next();
-    //    }
-    return source;
   }
 }

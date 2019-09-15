@@ -9,7 +9,6 @@ import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.Multipart;
-import io.jooby.TypeMismatchException;
 import io.jooby.Value;
 
 import javax.annotation.Nonnull;
@@ -202,31 +201,11 @@ public class HashValue implements Value, Multipart {
   }
 
   @Nonnull @Override public <T> List<T> toList(@Nonnull Class<T> type) {
-    if (hash instanceof TreeMap) {
-      // indexes access, treat like a list
-      Collection<Value> values = hash.values();
-      List<T> result = new ArrayList<>(values.size());
-      for (Value value : values) {
-        result.add(value.to(type));
-      }
-      return result;
-    } else {
-      return Collections.singletonList(to(type));
-    }
+    return toCollection(type, new ArrayList<>());
   }
 
   @Nonnull @Override public <T> Set<T> toSet(@Nonnull Class<T> type) {
-    if (hash instanceof TreeMap) {
-      // indexes access, treat like a list
-      Collection<Value> values = hash.values();
-      Set<T> result = new LinkedHashSet<>(values.size());
-      for (Value value : values) {
-        result.add(value.to(type));
-      }
-      return result;
-    } else {
-      return Collections.singleton(to(type));
-    }
+    return toCollection(type, new LinkedHashSet<>());
   }
 
   @Nonnull @Override public <T> Optional<T> toOptional(@Nonnull Class<T> type) {
@@ -264,5 +243,18 @@ public class HashValue implements Value, Multipart {
       put(entry.getKey(), entry.getValue());
     }
     return this;
+  }
+
+  private <T, C extends Collection<T>> C toCollection(@Nonnull Class<T> type, C collection) {
+    if (hash instanceof TreeMap) {
+      // indexes access, treat like a list
+      Collection<Value> values = hash.values();
+      for (Value value : values) {
+        collection.add(value.to(type));
+      }
+    } else {
+      collection.add(to(type));
+    }
+    return collection;
   }
 }

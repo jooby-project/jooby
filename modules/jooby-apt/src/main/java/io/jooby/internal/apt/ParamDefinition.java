@@ -26,10 +26,16 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Types;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 public class ParamDefinition {
@@ -128,16 +134,13 @@ public class ParamDefinition {
         return true;
       }
     }
-    ElementKind kind = typeUtils.asElement(type.getType()).getKind();
-    if (kind == ElementKind.ENUM
-        || ((is(Optional.class) || is(List.class) || is(Set.class))) && kind == ElementKind.ENUM) {
-      return true;
-    }
     return false;
   }
 
   private Class[] builtinTypes() {
     return new Class[]{
+        String.class,
+
         Boolean.class,
         Boolean.TYPE,
         Byte.class,
@@ -154,14 +157,31 @@ public class ParamDefinition {
         Float.TYPE,
         Double.class,
         Double.TYPE,
-        String.class,
+
         Enum.class,
-        java.time.Instant.class,
+
         java.util.UUID.class,
+
+        java.time.Instant.class,
+        java.util.Date.class,
+        java.time.LocalDate.class,
+        java.time.LocalDateTime.class,
+
         java.math.BigDecimal.class,
         java.math.BigInteger.class,
+
+        Duration.class,
+        Period.class,
+
         java.nio.charset.Charset.class,
-        io.jooby.StatusCode.class
+
+        io.jooby.StatusCode.class,
+
+        TimeZone.class,
+        ZoneId.class,
+
+        URI.class,
+        URL.class
     };
   }
 
