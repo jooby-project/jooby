@@ -1,5 +1,6 @@
 package org.jooby.jackson;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 import java.net.URISyntaxException;
@@ -31,12 +32,12 @@ public class JsonCustomMapperFeature extends ServerFeature {
 
   @Test
   public void get() throws URISyntaxException, Exception {
-    request()
-        .get("/members")
-        .expect("[ {\n" +
-            "  \"id\" : 1,\n" +
-            "  \"name\" : \"pablo\"\n" +
-            "} ]");
+      request().get("/members").expect(value ->
+              assertEquals("[ {\n" +
+                      "  \"id\" : 1,\n" +
+                      "  \"name\" : \"pablo\"\n" +
+                      "} ]", value.replaceAll("\r\n", "\n"))
+      );
   }
 
 }

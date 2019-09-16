@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import static org.junit.Assert.assertEquals;
+
 @SuppressWarnings("unchecked")
 public class JsonDoWithFeature extends ServerFeature {
 
@@ -26,12 +28,12 @@ public class JsonDoWithFeature extends ServerFeature {
 
   @Test
   public void get() throws URISyntaxException, Exception {
-    request()
-        .get("/members")
-        .expect("[ {\n" +
-            "  \"id\" : 1,\n" +
-            "  \"name\" : \"pablo\"\n" +
-            "} ]");
+    request().get("/members").expect(value ->
+            assertEquals("[ {\n" +
+                    "  \"id\" : 1,\n" +
+                    "  \"name\" : \"pablo\"\n" +
+                    "} ]", value.replaceAll("\r\n", "\n"))
+    );
   }
 
 }

@@ -105,6 +105,7 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
       }
 
       app = (Jooby) appClass.newInstance();
+      app.throwBootstrapException();
       if (app instanceof ServerFeature) {
         int appport = ((ServerFeature) app).port;
         if (appport > 0) {

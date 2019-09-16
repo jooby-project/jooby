@@ -81,7 +81,7 @@ public class AssetCompilerTest {
 
     File dir = Paths.get("target", "summary").toFile();
     Map<String, List<File>> files = compiler.build("dev", dir);
-
+    String summary = compiler.summary(files, dir.toPath(), "dev", 1000, "Foo: bar").replaceAll("\\\\","/");
     assertEquals("Summary:\n"
             + "Pipeline: []\n"
             + "Time: 1s\n"
@@ -92,7 +92,7 @@ public class AssetCompilerTest {
             + "          assets/home.css         8b\n"
             + "           assets/base.js        19b\n"
             + "           assets/home.js        19b\n",
-        compiler.summary(files, dir.toPath(), "dev", 1000, "Foo: bar"));
+        summary);
   }
 
   @Test
