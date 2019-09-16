@@ -200,6 +200,14 @@ public class HashValue implements ValueNode, Multipart {
     return hash.values().iterator();
   }
 
+  @Nonnull @Override public List<String> toList() {
+    return toList(String.class);
+  }
+
+  @Nonnull @Override public Set<String> toSet() {
+    return toSet(String.class);
+  }
+
   @Nonnull @Override public <T> List<T> toList(@Nonnull Class<T> type) {
     return toCollection(type, new ArrayList<>());
   }

@@ -72,6 +72,10 @@ public class FileBody implements Body {
     return value(StandardCharsets.UTF_8);
   }
 
+  @Nonnull @Override public List<String> toList() {
+    return Collections.singletonList(value());
+  }
+
   @Nonnull @Override public ValueNode get(@Nonnull int index) {
     return index == 0 ? this : get(Integer.toString(index));
   }

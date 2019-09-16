@@ -253,18 +253,14 @@ public interface Value {
    *
    * @return List of values.
    */
-  @Nonnull default List<String> toList() {
-    return Collections.emptyList();
-  }
+  @Nonnull List<String> toList();
 
   /**
    * Get set of values.
    *
    * @return set of values.
    */
-  @Nonnull default Set<String> toSet() {
-    return Collections.emptySet();
-  }
+  @Nonnull Set<String> toSet();
 
   /**
    * Convert this value to an Enum.

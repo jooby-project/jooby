@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * File upload class, file upload are available when request body is encoded as
@@ -91,6 +92,14 @@ public interface FileUpload extends ValueNode {
       return (T) this;
     }
     throw new TypeMismatchException(name(), type);
+  }
+
+  default @Nonnull @Override List<String> toList() {
+    return Collections.singletonList(value());
+  }
+
+  default @Nonnull @Override Set<String> toSet() {
+    return Collections.singleton(value());
   }
 
   /**

@@ -15,7 +15,9 @@ import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * HTTP body value. Allows to access HTTP body as string, byte[], stream, etc..
@@ -76,6 +78,14 @@ public interface Body extends ValueNode {
 
   @Nonnull @Override default <T> List<T> toList(@Nonnull Class<T> type) {
     return to(Reified.list(type).getType());
+  }
+
+  default @Nonnull @Override List<String> toList() {
+    return Collections.singletonList(value());
+  }
+
+  default @Nonnull @Override Set<String> toSet() {
+    return Collections.singleton(value());
   }
 
   @Override default @Nonnull <T> T to(@Nonnull Class<T> type) {

@@ -26,7 +26,7 @@ public class ArrayValue implements ValueNode {
 
   private final String name;
 
-  private final List<ValueNode> value = new ArrayList<>(5);
+  private final List<ValueNode> list = new ArrayList<>(5);
 
   public ArrayValue(Context ctx, String name) {
     this.ctx = ctx;
@@ -38,7 +38,7 @@ public class ArrayValue implements ValueNode {
   }
 
   public ArrayValue add(ValueNode value) {
-    this.value.add(value);
+    this.list.add(value);
     return this;
   }
 
@@ -55,7 +55,7 @@ public class ArrayValue implements ValueNode {
 
   @Override public ValueNode get(@Nonnull int index) {
     try {
-      return value.get(index);
+      return list.get(index);
     } catch (IndexOutOfBoundsException x) {
       return new MissingValue(name + "[" + index + "]");
     }
@@ -66,33 +66,28 @@ public class ArrayValue implements ValueNode {
   }
 
   @Override public int size() {
-    return value.size();
+    return list.size();
   }
 
   @Override public String value() {
     String name = name();
-
     throw new TypeMismatchException(name == null ? getClass().getSimpleName() : name, String.class);
   }
 
   @Override public String toString() {
-    return value.toString();
+    return list.toString();
   }
 
   @Override public Iterator<ValueNode> iterator() {
-    return value.iterator();
+    return list.iterator();
   }
 
   @Nonnull @Override public <T> T to(@Nonnull Class<T> type) {
-    return ctx.convert(value.get(0), type);
+    return ctx.convert(list.get(0), type);
   }
 
   @Nonnull @Override public <T> List<T> toList(@Nonnull Class<T> type) {
-    List<T> list = new ArrayList<>(value.size());
-    for (ValueNode it : value) {
-      list.add(it.to(type));
-    }
-    return list;
+    return collect(new ArrayList<>(this.list.size()), type);
   }
 
   @Nonnull @Override public <T> Optional<T> toOptional(@Nonnull Class<T> type) {
@@ -104,29 +99,27 @@ public class ArrayValue implements ValueNode {
   }
 
   @Nonnull @Override public <T> Set<T> toSet(@Nonnull Class<T> type) {
-    Set<T> list = new LinkedHashSet<>(value.size());
-    for (ValueNode it : value) {
-      list.add(it.to(type));
-    }
-    return list;
+    return collect(new LinkedHashSet<>(this.list.size()), type);
   }
 
   @Override public Map<String, List<String>> toMultimap() {
     List<String> values = new ArrayList<>();
-    value.stream().forEach(it -> it.toMultimap().values().forEach(values::addAll));
+    list.stream().forEach(it -> it.toMultimap().values().forEach(values::addAll));
     return Collections.singletonMap(name, values);
   }
 
   @Override public List<String> toList() {
-    return fill(new ArrayList<>());
+    return collect(new ArrayList<>(), String.class);
   }
 
   @Override public Set<String> toSet() {
-    return fill(new LinkedHashSet<>());
+    return collect(new LinkedHashSet<>(), String.class);
   }
 
-  private <C extends Collection<String>> C fill(C values) {
-    value.forEach(v -> values.addAll(v.toList()));
-    return values;
+  private <T, C extends Collection<T>> C collect(C collection, Class<T> type) {
+    for (ValueNode node : list) {
+      collection.add(node.to(type));
+    }
+    return collection;
   }
 }

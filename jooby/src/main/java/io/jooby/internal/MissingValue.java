@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class MissingValue implements ValueNode {
   private String name;
@@ -42,6 +43,14 @@ public class MissingValue implements ValueNode {
 
   @Override public Map<String, List<String>> toMultimap() {
     return Collections.emptyMap();
+  }
+
+  @Nonnull @Override public List<String> toList() {
+    return Collections.emptyList();
+  }
+
+  @Nonnull @Override public Set<String> toSet() {
+    return Collections.emptySet();
   }
 
   @Override public String toString() {

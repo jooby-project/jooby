@@ -42,9 +42,9 @@ public class ReflectiveBeanConverter implements BeanConverter {
     return true;
   }
 
-  @Override public Object convert(@Nonnull ValueNode value, @Nonnull Class type) {
+  @Override public Object convert(@Nonnull ValueNode node, @Nonnull Class type) {
     try {
-      return newInstance(type, value);
+      return newInstance(type, node);
     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException x) {
       throw propagate(x);
     } catch (InvocationTargetException x) {
@@ -52,20 +52,20 @@ public class ReflectiveBeanConverter implements BeanConverter {
     }
   }
 
-  private static <T> T newInstance(Class<T> type, ValueNode scope)
+  private static <T> T newInstance(Class<T> type, ValueNode node)
       throws IllegalAccessException, InstantiationException, InvocationTargetException,
       NoSuchMethodException {
     Constructor[] constructors = type.getConstructors();
     if (constructors.length == 0) {
-      return setters(type.getDeclaredConstructor().newInstance(), scope,
+      return setters(type.getDeclaredConstructor().newInstance(), node,
           Collections.emptySet());
     }
     Constructor constructor = selectConstructor(constructors);
     Set<ValueNode> state = new HashSet<>();
     Object[] args = constructor.getParameterCount() == 0
         ? NO_ARGS
-        : inject(scope, constructor, state::add);
-    return (T) setters(constructor.newInstance(args), scope, state);
+        : inject(node, constructor, state::add);
+    return (T) setters(constructor.newInstance(args), node, state);
   }
 
   private static Constructor selectConstructor(Constructor[] constructors) {

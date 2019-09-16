@@ -8,10 +8,10 @@ package io.jooby;
 import javax.annotation.Nonnull;
 
 /**
- * Bean value converter, works like {@link ValueConverter} except that the input value is always
- * a hash/object value, not a simple string like it is required by {@link ValueConverter}.
+ * Value converter for complex values that come from query, path, form, etc... parameters into more
+ * specific type.
  *
- * @since 2.1.1
+ * It is an extension point for {@link ValueNode#to(Class)} calls.
  */
 public interface BeanConverter {
   /**
@@ -22,5 +22,12 @@ public interface BeanConverter {
    */
   boolean supports(@Nonnull Class type);
 
+  /**
+   * Convert a node value into more specific type.
+   *
+   * @param node Value value.
+   * @param type Requested type.
+   * @return Converted value.
+   */
   Object convert(@Nonnull ValueNode node, @Nonnull Class type);
 }

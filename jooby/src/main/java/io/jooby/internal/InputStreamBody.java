@@ -86,6 +86,10 @@ public class InputStreamBody implements Body {
     return ctx.decode(type, ctx.getRequestType(MediaType.text));
   }
 
+  @Nonnull @Override public List<String> toList() {
+    return Collections.singletonList(value());
+  }
+
   @Override public Map<String, List<String>> toMultimap() {
     return Collections.emptyMap();
   }
