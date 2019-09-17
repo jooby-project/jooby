@@ -41,6 +41,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -60,10 +61,8 @@ import static io.jooby.ExecutionMode.EVENT_LOOP;
 import static io.jooby.ExecutionMode.WORKER;
 import static io.jooby.MediaType.text;
 import static io.jooby.MediaType.xml;
-import static io.restassured.RestAssured.given;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static okhttp3.RequestBody.create;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -87,9 +86,9 @@ public class FeaturedTest {
 
     public final String name;
 
-    public final Path filename;
+    public final FileUpload filename;
 
-    public Datafile(String name, Path filename) {
+    public Datafile(String name, FileUpload filename) {
       this.name = name;
       this.filename = filename;
     }
@@ -540,7 +539,7 @@ public class FeaturedTest {
     new JoobyRunner(app -> {
       app.post("/large", ctx -> {
         FileUpload f = ctx.file("f");
-        return f.value();
+        return new String(f.bytes(), StandardCharsets.UTF_8);
       });
 
       app.post("/f", ctx -> {
@@ -558,7 +557,7 @@ public class FeaturedTest {
 
       app.post("/datafile", ctx -> {
         Datafile file = ctx.multipart(Datafile.class);
-        String result = file.name + "=" + Files.exists(file.filename);
+        String result = file.name + "=" + Files.exists(file.filename.path());
         return result;
       });
 
@@ -568,8 +567,12 @@ public class FeaturedTest {
       });
 
       app.post("/multipart", ctx -> {
-        Map<String, List<String>> multimap = ctx.multipart().toMultimap();
-        return multimap;
+        Multipart multipart = ctx.multipart();
+        Map<String, List<String>> multimap = multipart.toMultimap();
+        Map<String, Object> rsp = new LinkedHashMap<>();
+        rsp.putAll(multimap);
+        rsp.put("f", multipart.files("f"));
+        return rsp;
       });
     }).ready(client -> {
       client.post("/large", new MultipartBody.Builder()
@@ -2546,7 +2549,7 @@ public class FeaturedTest {
           .addFormDataPart("a", "b")
           .addFormDataPart("f", "19kb.txt", create(_19kb, MediaType.parse("text/plain")))
           .build(), rsp -> {
-        assertEquals("a=b&f=19kb.txt", rsp.body().string());
+        assertEquals("a=b", rsp.body().string());
       });
     });
   }

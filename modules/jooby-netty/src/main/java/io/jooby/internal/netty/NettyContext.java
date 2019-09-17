@@ -514,9 +514,13 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
   void destroy(Throwable cause) {
     if (cause != null) {
       if (Server.connectionLost(cause)) {
-        router.getLog().debug("exception found while sending response {} {}", getMethod(), pathString(), cause);
+        router.getLog()
+            .debug("exception found while sending response {} {}", getMethod(), pathString(),
+                cause);
       } else {
-        router.getLog().error("exception found while sending response {} {}", getMethod(), pathString(), cause);
+        router.getLog()
+            .error("exception found while sending response {} {}", getMethod(), pathString(),
+                cause);
       }
     }
     if (files != null) {
@@ -557,8 +561,8 @@ public class NettyContext implements DefaultContext, ChannelFutureListener {
       while (decoder.hasNext()) {
         HttpData next = (HttpData) decoder.next();
         if (next.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
-          form.put(next.getName(),
-              register(new NettyFileUpload(router.getTmpdir(), next.getName(),
+          ((Multipart) form).put(next.getName(),
+              register(new NettyFileUpload(router.getTmpdir(),
                   (io.netty.handler.codec.http.multipart.FileUpload) next)));
         } else {
           form.put(next.getName(), next.getString(UTF_8));

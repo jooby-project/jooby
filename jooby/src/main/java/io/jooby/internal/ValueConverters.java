@@ -131,17 +131,6 @@ public class ValueConverters {
     if (type == Byte.class) {
       return (T) (value.isMissing() ? null : Byte.valueOf(value.byteValue()));
     }
-    /** File Upload: */
-    if (value.isUpload()) {
-      if (Path.class == type) {
-
-        FileUpload upload = (FileUpload) value;
-        return (T) upload.path();
-      } else if (FileUpload.class == type) {
-        return (T) value;
-      }
-      throw new TypeMismatchException(value.name(), FileUpload.class);
-    }
 
     if (value.isSingle()) {
       for (ValueConverter converter : router.getConverters()) {

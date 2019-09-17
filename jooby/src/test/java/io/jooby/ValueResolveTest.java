@@ -21,24 +21,24 @@ public class ValueResolveTest {
 
   @Test
   public void resolveComplexWithoutRoot() {
-    ValueNode value = new HashValue(null, null)
-        .put("foo.bar", "baz");
+    HashValue value = new HashValue(null, null);
+    value.put("foo.bar", "baz");
     assertEquals("baz", value.resolve("${foo.bar}"));
     assertEquals("-baz-", value.resolve("-${foo.bar}-"));
   }
 
   @Test
   public void resolveComplex() {
-    ValueNode value = new HashValue(null, null)
-        .put("firstname", "Pedro")
-        .put("lastname", "Picapiedra");
+    HashValue value = new HashValue(null, null);
+    value.put("firstname", "Pedro");
+    value.put("lastname", "Picapiedra");
     assertEquals("Hi Pedro Picapiedra!", value.resolve("Hi ${firstname} ${lastname}!"));
   }
 
   @Test
   public void resolveComplexWithRoot() {
-    ValueNode value = new HashValue(null, "foo")
-        .put("bar", "baz");
+    HashValue value = new HashValue(null, "foo");
+    value.put("bar", "baz");
     assertEquals("baz", value.resolve("${foo.bar}"));
     assertEquals("-baz-", value.resolve("-${foo.bar}-"));
   }

@@ -26,7 +26,7 @@ import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
-public class HashValue implements ValueNode, Multipart {
+public class HashValue implements ValueNode, Formdata {
   private static final Map<String, ValueNode> EMPTY = Collections.emptyMap();
 
   private Context ctx;
@@ -49,15 +49,15 @@ public class HashValue implements ValueNode, Multipart {
     return name;
   }
 
-  public Formdata put(String path, String value) {
-    return put(path, Collections.singletonList(value));
+  public void put(String path, String value) {
+    put(path, Collections.singletonList(value));
   }
 
-  public HashValue put(String path, ValueNode upload) {
+  public void put(String path, ValueNode node) {
     put(path, (name, scope) -> {
       ValueNode existing = scope.get(name);
       if (existing == null) {
-        scope.put(name, upload);
+        scope.put(name, node);
       } else {
         ArrayValue list;
         if (existing instanceof ArrayValue) {
@@ -66,13 +66,12 @@ public class HashValue implements ValueNode, Multipart {
           list = new ArrayValue(ctx, name).add(existing);
           scope.put(name, list);
         }
-        list.add(upload);
+        list.add(node);
       }
     });
-    return this;
   }
 
-  public HashValue put(String path, Collection<String> values) {
+  public void put(String path, Collection<String> values) {
     put(path, (name, scope) -> {
       for (String value : values) {
         ValueNode existing = scope.get(name);
@@ -90,7 +89,6 @@ public class HashValue implements ValueNode, Multipart {
         }
       }
     });
-    return this;
   }
 
   private void put(String path, BiConsumer<String, Map<String, ValueNode>> consumer) {
@@ -233,11 +231,9 @@ public class HashValue implements ValueNode, Multipart {
     String scope = name == null ? "" : name + ".";
     for (Map.Entry<String, ValueNode> entry : entries) {
       ValueNode value = entry.getValue();
-      if (!value.isUpload()) {
-        value.toMultimap().forEach((k, v) -> {
-          result.put(scope + k, v);
-        });
-      }
+      value.toMultimap().forEach((k, v) -> {
+        result.put(scope + k, v);
+      });
     }
     return result;
   }
@@ -246,11 +242,10 @@ public class HashValue implements ValueNode, Multipart {
     return hash.toString();
   }
 
-  public HashValue put(Map<String, Collection<String>> headers) {
+  public void put(Map<String, Collection<String>> headers) {
     for (Map.Entry<String, Collection<String>> entry : headers.entrySet()) {
       put(entry.getKey(), entry.getValue());
     }
-    return this;
   }
 
   private <T, C extends Collection<T>> C toCollection(@Nonnull Class<T> type, C collection) {

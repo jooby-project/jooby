@@ -11,22 +11,16 @@ import io.jooby.SneakyThrows;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.Headers;
 
-import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
 
 public class UtowFileUpload implements FileUpload {
 
-  private final String name;
-
   private final FormData.FormValue upload;
 
-  public UtowFileUpload(String name, FormData.FormValue upload) {
-    this.name = name;
+  public UtowFileUpload(FormData.FormValue upload) {
     this.upload = upload;
   }
 
@@ -74,10 +68,6 @@ public class UtowFileUpload implements FileUpload {
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }
-  }
-
-  @Override public String name() {
-    return name;
   }
 
   @Override public String toString() {

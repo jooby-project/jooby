@@ -233,15 +233,14 @@ public class HandlerCompilerTest {
   @Test
   public void fileParam() throws Exception {
     FileUpload file = mock(FileUpload.class);
-    when(file.name()).thenReturn("file");
     new MvcHandlerCompilerRunner(new Provisioning())
         .compile("/p/fileParam", handler -> {
           assertEquals(file.toString(),
-              handler.apply(MockContextHelper.mockContext().setFiles(Arrays.asList(file))));
+              handler.apply(MockContextHelper.mockContext().setFile("file", file)));
         })
         .compile("/p/fileParams", handler -> {
           assertEquals(Arrays.asList(file).toString(),
-              handler.apply(MockContextHelper.mockContext().setFiles(Arrays.asList(file))));
+              handler.apply(MockContextHelper.mockContext().setFile("file", file)));
         })
     ;
   }
@@ -278,9 +277,8 @@ public class HandlerCompilerTest {
           Path path = mock(Path.class);
           FileUpload file = mock(FileUpload.class);
           when(file.path()).thenReturn(path);
-          when(file.name()).thenReturn("file");
           assertEquals(path.toString(),
-              handler.apply(MockContextHelper.mockContext().setFiles(Arrays.asList(file))));
+              handler.apply(MockContextHelper.mockContext().setFile("file", file)));
         })
     ;
   }

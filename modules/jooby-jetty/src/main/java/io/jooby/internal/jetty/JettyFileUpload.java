@@ -16,15 +16,9 @@ import java.nio.file.Path;
 
 public class JettyFileUpload implements FileUpload {
   private final MultiPartFormInputStream.MultiPart upload;
-  private final String name;
 
-  public JettyFileUpload(String name, MultiPartFormInputStream.MultiPart upload) {
-    this.name = name;
+  public JettyFileUpload(MultiPartFormInputStream.MultiPart upload) {
     this.upload = upload;
-  }
-
-  @Override public String name() {
-    return name;
   }
 
   @Override public String getFileName() {

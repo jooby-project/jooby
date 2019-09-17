@@ -25,27 +25,24 @@ public interface Formdata extends ValueNode {
    *
    * @param path Form name/path.
    * @param value Form value.
-   * @return This formdata.
    */
-  @Nonnull Formdata put(@Nonnull String path, @Nonnull ValueNode value);
+  @Nonnull void put(@Nonnull String path, @Nonnull ValueNode value);
 
   /**
    * Add a form field.
    *
    * @param path Form name/path.
    * @param value Form value.
-   * @return This formdata.
    */
-  @Nonnull Formdata put(@Nonnull String path, @Nonnull String value);
+  @Nonnull void put(@Nonnull String path, @Nonnull String value);
 
   /**
    * Add a form field.
    *
    * @param path Form name/path.
    * @param values Form values.
-   * @return This formdata.
    */
-  @Nonnull Formdata put(@Nonnull String path, @Nonnull Collection<String> values);
+  @Nonnull void put(@Nonnull String path, @Nonnull Collection<String> values);
 
   /**
    * Creates a formdata object.

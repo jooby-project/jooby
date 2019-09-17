@@ -5,9 +5,10 @@
  */
 package io.jooby;
 
-import io.jooby.internal.HashValue;
+import io.jooby.internal.MultipartNode;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Multipart class for direct MVC parameter provisioning.
@@ -19,6 +20,35 @@ import javax.annotation.Nonnull;
  */
 public interface Multipart extends Formdata {
 
+  void put(String name, FileUpload file);
+
+  /**
+   * All file uploads. Only for <code>multipart/form-data</code> request.
+   *
+   * @return All file uploads.
+   */
+  @Nonnull List<FileUpload> files();
+
+  /**
+   * All file uploads that matches the given field name.
+   *
+   * Only for <code>multipart/form-data</code> request.
+   *
+   * @param name Field name. Please note this is the form field name, not the actual file name.
+   * @return All file uploads.
+   */
+  @Nonnull List<FileUpload> files(@Nonnull String name);
+
+  /**
+   * A file upload that matches the given field name.
+   *
+   * Only for <code>multipart/form-data</code> request.
+   *
+   * @param name Field name. Please note this is the form field name, not the actual file name.
+   * @return A file upload.
+   */
+  @Nonnull FileUpload file(@Nonnull String name);
+
   /**
    * Creates a new multipart object.
    *
@@ -26,6 +56,6 @@ public interface Multipart extends Formdata {
    * @return Multipart instance.
    */
   static @Nonnull Multipart create(@Nonnull Context ctx) {
-    return new HashValue(ctx, null);
+    return new MultipartNode(ctx, null);
   }
 }

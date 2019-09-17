@@ -70,7 +70,7 @@ public class MockContext implements DefaultContext {
 
   private Router router;
 
-  private List<FileUpload> files = new ArrayList<>();
+  private Map<String, List<FileUpload>> files = new LinkedHashMap<>();
 
   private boolean responseStarted;
 
@@ -234,7 +234,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Nonnull @Override public List<FileUpload> files() {
-    return files;
+    return files.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
   }
 
   /**
@@ -243,17 +243,23 @@ public class MockContext implements DefaultContext {
    * @param files Mock files.
    * @return This context.
    */
-  public MockContext setFiles(@Nonnull List<FileUpload> files) {
-    this.files = files;
+  public MockContext setFile(@Nonnull String name, @Nonnull FileUpload file) {
+    this.files.computeIfAbsent(name, k -> new ArrayList<>()).add(file);
     return this;
   }
 
   @Nonnull @Override public List<FileUpload> files(@Nonnull String name) {
-    return files.stream().filter(it -> it.name().equals(name)).collect(Collectors.toList());
+    return files.entrySet().stream()
+        .filter(it -> it.getKey().equals(name))
+        .flatMap(it -> it.getValue().stream())
+        .collect(Collectors.toList());
   }
 
   @Nonnull @Override public FileUpload file(@Nonnull String name) {
-    return files.stream().filter(it -> it.name().equals(name)).findFirst()
+    return files.entrySet().stream()
+        .filter(it -> it.getKey().equals(name))
+        .findFirst()
+        .map(it -> it.getValue().get(0))
         .orElseThrow(() -> new TypeMismatchException(name, FileUpload.class));
   }
 

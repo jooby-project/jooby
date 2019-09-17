@@ -18,18 +18,12 @@ import java.nio.file.Path;
 public class NettyFileUpload implements FileUpload {
   private final io.netty.handler.codec.http.multipart.FileUpload upload;
   private final Path basedir;
-  private final String name;
   private Path path;
 
-  public NettyFileUpload(Path basedir, String name,
+  public NettyFileUpload(Path basedir,
       io.netty.handler.codec.http.multipart.FileUpload upload) {
-    this.name = name;
     this.basedir = basedir;
     this.upload = upload;
-  }
-
-  @Override public String name() {
-    return name;
   }
 
   @Override public byte[] bytes() {

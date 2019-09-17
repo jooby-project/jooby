@@ -336,15 +336,6 @@ public interface Value {
   }
 
   /**
-   * True if this is a file upload (not single, not array, not hash).
-   *
-   * @return True for file upload.
-   */
-  default boolean isUpload() {
-    return this instanceof FileUpload;
-  }
-
-  /**
    * Name of this value or <code>null</code>.
    *
    * @return Name of this value or <code>null</code>.
@@ -439,7 +430,8 @@ public interface Value {
    * @param value Value.
    * @return Single value.
    */
-  static @Nonnull ValueNode value(@Nonnull Context ctx, @Nonnull String name, @Nonnull String value) {
+  static @Nonnull ValueNode value(@Nonnull Context ctx, @Nonnull String name,
+      @Nonnull String value) {
     return new SingleValue(ctx, name, value);
   }
 
@@ -469,7 +461,8 @@ public interface Value {
    * @param values Field values.
    * @return A value.
    */
-  static @Nonnull ValueNode create(Context ctx, @Nonnull String name, @Nullable List<String> values) {
+  static @Nonnull ValueNode create(Context ctx, @Nonnull String name,
+      @Nullable List<String> values) {
     if (values == null || values.size() == 0) {
       return missing(name);
     }
@@ -506,6 +499,8 @@ public interface Value {
    * @return A hash/object value.
    */
   static @Nonnull ValueNode hash(Context ctx, @Nonnull Map<String, Collection<String>> values) {
-    return new HashValue(ctx, null).put(values);
+    HashValue node = new HashValue(ctx, null);
+    node.put(values);
+    return node;
   }
 }

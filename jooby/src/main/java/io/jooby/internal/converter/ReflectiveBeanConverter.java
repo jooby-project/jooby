@@ -7,7 +7,9 @@ package io.jooby.internal.converter;
 
 import io.jooby.BadRequestException;
 import io.jooby.BeanConverter;
+import io.jooby.FileUpload;
 import io.jooby.MissingValueException;
+import io.jooby.Multipart;
 import io.jooby.ProvisioningException;
 import io.jooby.ValueNode;
 import io.jooby.internal.reflect.$Types;
@@ -15,6 +17,7 @@ import io.jooby.internal.reflect.$Types;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -22,6 +25,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -103,7 +108,7 @@ public class ReflectiveBeanConverter implements BeanConverter {
       String name = paramName(parameter);
       ValueNode param = scope.get(name);
       state.accept(param);
-      args[i] = value(parameter, param);
+      args[i] = value(parameter, scope, param);
     }
     return args;
   }
@@ -117,9 +122,9 @@ public class ReflectiveBeanConverter implements BeanConverter {
     return name;
   }
 
-  private static <T> T setters(T newInstance, ValueNode object, Set<ValueNode> skip) {
+  private static <T> T setters(T newInstance, ValueNode node, Set<ValueNode> skip) {
     Method[] methods = newInstance.getClass().getMethods();
-    for (ValueNode value : object) {
+    for (ValueNode value : node) {
       if (!skip.contains(value)) {
         String name = value.name();
         String setter1 = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
@@ -130,7 +135,7 @@ public class ReflectiveBeanConverter implements BeanConverter {
         if (method != null) {
           Parameter parameter = method.getParameters()[0];
           try {
-            Object arg = value(parameter, value);
+            Object arg = value(parameter, node, value);
             method.invoke(newInstance, arg);
           } catch (ProvisioningException x) {
             throw x;
@@ -145,26 +150,49 @@ public class ReflectiveBeanConverter implements BeanConverter {
     return newInstance;
   }
 
-  private static Object value(Parameter parameter, ValueNode param) {
+  private static Object value(Parameter parameter, ValueNode node, ValueNode value) {
     try {
-      if (List.class.isAssignableFrom(parameter.getType())) {
-        return param.toList($Types.parameterizedType0(parameter.getParameterizedType()));
-      } else if (Set.class.isAssignableFrom(parameter.getType())) {
-        return param.toSet($Types.parameterizedType0(parameter.getParameterizedType()));
-      } else if (Optional.class.isAssignableFrom(parameter.getType())) {
-        return param.toOptional($Types.parameterizedType0(parameter.getParameterizedType()));
-      } else {
-        if (param.isMissing() && parameter.getType().isPrimitive()) {
-          // fail
-          param.value();
+      if (isFileUpload(node, parameter)) {
+        Multipart multipart = (Multipart) node;
+        if (List.class.isAssignableFrom(parameter.getType())) {
+          return multipart.files(value.name());
+        } else if (Set.class.isAssignableFrom(parameter.getType())) {
+          return new HashSet<>(multipart.files(value.name()));
+        } else if (Optional.class.isAssignableFrom(parameter.getType())) {
+          List<FileUpload> files = multipart.files(value.name());
+          return files.isEmpty() ? Optional.empty() : Optional.of(files.get(0));
+        } else {
+          return multipart.file(value.name());
         }
-        return param.to(parameter.getType());
+      } else {
+        if (List.class.isAssignableFrom(parameter.getType())) {
+          return value.toList($Types.parameterizedType0(parameter.getParameterizedType()));
+        } else if (Set.class.isAssignableFrom(parameter.getType())) {
+          return value.toSet($Types.parameterizedType0(parameter.getParameterizedType()));
+        } else if (Optional.class.isAssignableFrom(parameter.getType())) {
+          return value.toOptional($Types.parameterizedType0(parameter.getParameterizedType()));
+        } else {
+          if (value.isMissing() && parameter.getType().isPrimitive()) {
+            // fail
+            value.value();
+          }
+          return value.to(parameter.getType());
+        }
       }
     } catch (MissingValueException x) {
       throw new ProvisioningException(parameter, x);
     } catch (BadRequestException x) {
       throw new ProvisioningException(parameter, x);
     }
+  }
+
+  private static boolean isFileUpload(ValueNode node, Parameter parameter) {
+    return (node instanceof Multipart) && isFileUpload(parameter.getType()) || isFileUpload(
+        $Types.parameterizedType0(parameter.getParameterizedType()));
+  }
+
+  private static boolean isFileUpload(Class type) {
+    return FileUpload.class == type;
   }
 
   private static Method findMethod(Method[] methods, String name) {

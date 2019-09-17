@@ -192,7 +192,7 @@ public class JettyContext implements Callback, DefaultContext {
             if (part.getSubmittedFileName() != null) {
               String name = part.getName();
               multipart.put(name,
-                  register(new JettyFileUpload(name, (MultiPartFormInputStream.MultiPart) part)));
+                  register(new JettyFileUpload((MultiPartFormInputStream.MultiPart) part)));
             }
           }
         } catch (IOException | ServletException x) {

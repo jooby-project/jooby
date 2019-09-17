@@ -438,7 +438,7 @@ public class UtowContext implements DefaultContext, IoCallback {
         Deque<FormData.FormValue> values = data.get(path);
         for (FormData.FormValue value : values) {
           if (value.isFileItem()) {
-            form.put(path, new UtowFileUpload(path, value));
+            ((Multipart) form).put(path, new UtowFileUpload(value));
           } else {
             form.put(path, value.getValue());
           }
